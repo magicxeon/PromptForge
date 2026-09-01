@@ -228,6 +228,10 @@ export const cinematicShotSchema = z.object({
   orderKey: z.number(),
   title: z.string(),
   purpose: z.string(),
+  visibleMoment: z.string().optional(),
+  subjectAction: z.string().optional(),
+  emotionalTarget: z.string().optional(),
+  performanceCue: z.string().optional(),
   durationMs: z.number().int().positive(),
   framing: z.string(),
   cameraAngle: z.string(),
@@ -240,6 +244,26 @@ export const cinematicShotSchema = z.object({
   environment: z.string(),
   audioIntent: z.string(),
   prompt: z.string(),
+  continuityEntry: z.string().optional(),
+  continuityExit: z.string().optional(),
+  transitionToNext: z.string().optional(),
+  estimatedActionDurationMs: z.number().int().nonnegative().optional(),
+  dialogueCues: z.array(z.object({
+    speakerCastAssignmentId: z.string(),
+    offscreenVoiceRole: z.string(),
+    text: z.string(),
+    delivery: z.string(),
+    startOffsetMs: z.number().int().nonnegative(),
+    estimatedDurationMs: z.number().int().nonnegative(),
+    speakerVisible: z.boolean()
+  })).optional(),
+  audioCues: z.array(z.object({
+    kind: z.string(),
+    source: z.string(),
+    description: z.string(),
+    startOffsetMs: z.number().int().nonnegative(),
+    durationMs: z.number().int().nonnegative()
+  })).optional(),
   castAssignmentIds: z.array(z.string()),
   wardrobeLookIds: z.array(z.string()),
   continuityNotes: z.array(z.string()),
@@ -257,8 +281,12 @@ export const cinematicStoryBeatSchema = z.object({
   title: z.string(),
   purpose: z.string().optional().default(''),
   storyChange: z.string().optional().default(''),
+  cause: z.string().optional(),
+  consequence: z.string().optional(),
   emotionalStart: z.string().optional().default(''),
+  emotionalTurn: z.string().optional(),
   emotionalEnd: z.string().optional().default(''),
+  requiredElements: z.array(z.string()).optional(),
   targetDurationMs: z.number().int().nonnegative().optional().default(0),
   sceneIds: z.array(z.string()).optional().default([])
 });
@@ -271,6 +299,10 @@ export const cinematicSceneSchema = z.object({
   title: z.string(),
   purpose: z.string(),
   storyChange: z.string().optional().default(''),
+  entryState: z.string().optional(),
+  exitState: z.string().optional(),
+  objective: z.string().optional(),
+  pressure: z.string().optional(),
   location: z.string(),
   time: z.string(),
   emotionalStart: z.string(),
@@ -282,6 +314,8 @@ export const cinematicSceneSchema = z.object({
   lighting: z.string().optional().default(''),
   performance: z.string().optional().default(''),
   audioIntent: z.string().optional().default(''),
+  propContinuity: z.string().optional(),
+  screenDirection: z.string().optional(),
   continuityNotes: z.array(z.string()).optional().default([]),
   shots: z.array(cinematicShotSchema),
   shotOrder: z.array(z.string()),
@@ -297,13 +331,27 @@ export const cinematicStoryPlanVersionSchema = z.object({
   logline: z.string(),
   beats: z.array(cinematicStoryBeatSchema),
   emotionalArc: z.string(),
+  centralDramaticQuestion: z.string().optional(),
+  storyPromise: z.string().optional(),
+  finalPayoff: z.string().optional(),
+  spokenLanguage: z.string().optional(),
+  onScreenTextPolicy: z.string().optional(),
+  dialoguePolicy: z.enum(['none', 'sparse', 'normal', 'dialogue-led']).optional(),
+  characterAliases: z.array(z.object({ castAssignmentId: z.string(), storyCharacterName: z.string() })).optional(),
+  directorOperation: z.enum(['generate', 'review_current', 'manual']).optional(),
+  directorSummary: z.string().optional(),
+  directorFindings: z.array(z.lazy(() => cinematicFilmReadinessFindingSchema)).optional(),
+  sourceResolution: z.enum(['story_brief', 'creative_direction']).nullable().optional(),
+  warningsAcknowledged: z.boolean().optional(),
+  filmReadiness: z.lazy(() => cinematicFilmReadinessSchema).optional(),
+  scriptPreview: z.array(z.lazy(() => cinematicFilmScriptEntrySchema)).optional(),
   sceneIds: z.array(z.string()),
   estimatedDurationMs: z.number().int().nonnegative(),
   estimatedShotCount: z.number().int().nonnegative(),
   warnings: z.array(z.string()),
   source: z.enum(['manual', 'generated']),
   status: z.enum(['draft', 'approved', 'superseded', 'source_changed']),
-  contractVersion: z.enum(['story-plan-v2', 'legacy']).optional(),
+  contractVersion: z.enum(['story-plan-v3', 'story-plan-v2', 'legacy']).optional(),
   createdAt: z.string().datetime()
 });
 
@@ -311,6 +359,20 @@ export const cinematicStoryPlanDraftSchema = z.object({
   objective: z.string(),
   logline: z.string(),
   emotionalArc: z.string(),
+  centralDramaticQuestion: z.string().optional(),
+  storyPromise: z.string().optional(),
+  finalPayoff: z.string().optional(),
+  spokenLanguage: z.string().optional(),
+  onScreenTextPolicy: z.string().optional(),
+  dialoguePolicy: z.enum(['none', 'sparse', 'normal', 'dialogue-led']).optional(),
+  characterAliases: z.array(z.object({ castAssignmentId: z.string(), storyCharacterName: z.string() })).optional(),
+  directorOperation: z.enum(['generate', 'review_current', 'manual']).optional(),
+  directorSummary: z.string().optional(),
+  directorFindings: z.array(z.lazy(() => cinematicFilmReadinessFindingSchema)).optional(),
+  sourceResolution: z.enum(['story_brief', 'creative_direction']).nullable().optional(),
+  warningsAcknowledged: z.boolean().optional(),
+  filmReadiness: z.lazy(() => cinematicFilmReadinessSchema).optional(),
+  scriptPreview: z.array(z.lazy(() => cinematicFilmScriptEntrySchema)).optional(),
   beats: z.array(cinematicStoryBeatSchema).min(1).max(24),
   scenes: z.array(cinematicSceneSchema).min(1).max(24),
   warnings: z.array(z.string()),
@@ -323,13 +385,78 @@ const cinematicAiProvenanceSchema = z.object({
   recipeId: z.string(), recipeVersion: z.number().int(), recipeFingerprint: z.string()
 });
 
+export const cinematicSourceDiagnosticSchema = z.object({
+  code: z.string(),
+  severity: z.enum(['blocking', 'warning', 'info']),
+  fieldPath: z.string(),
+  comparedPath: z.string().optional(),
+  summary: z.string(),
+  recoveryAction: z.string(),
+  autoFixAvailable: z.boolean(),
+  requiresConfirmation: z.boolean(),
+  resolved: z.boolean(),
+  entityId: z.string().optional()
+});
+
+export const cinematicStoryPlanPreflightSchema = z.object({
+  status: z.enum(['ready', 'blocked']),
+  diagnostics: z.array(cinematicSourceDiagnosticSchema),
+  sourceResolution: z.enum(['story_brief', 'creative_direction']).nullable(),
+  resolvedStoryBrief: z.string(),
+  resolvedCreativeDirection: z.string(),
+  storyLocations: z.array(z.string()),
+  directionLocations: z.array(z.string())
+});
+
+export const cinematicFilmReadinessFindingSchema: z.ZodType<{
+  code: string;
+  dimension: 'story' | 'script' | 'performance' | 'visual' | 'editorial' | 'audio' | 'continuity' | 'production';
+  severity: 'blocking' | 'warning' | 'info';
+  summary: string;
+  recommendation: string;
+  beatId?: string | null;
+  sceneId?: string | null;
+  shotId?: string | null;
+}> = z.object({
+  code: z.string(),
+  dimension: z.enum(['story', 'script', 'performance', 'visual', 'editorial', 'audio', 'continuity', 'production']),
+  severity: z.enum(['blocking', 'warning', 'info']),
+  summary: z.string(),
+  recommendation: z.string(),
+  beatId: z.string().nullable().optional(),
+  sceneId: z.string().nullable().optional(),
+  shotId: z.string().nullable().optional()
+});
+
+const cinematicReadinessStateSchema = z.enum(['ready', 'ready_with_warnings', 'not_ready', 'not_evaluated']);
+export const cinematicFilmReadinessSchema = z.object({
+  status: cinematicReadinessStateSchema,
+  dimensions: z.record(z.string(), cinematicReadinessStateSchema),
+  findings: z.array(cinematicFilmReadinessFindingSchema)
+});
+
+export const cinematicFilmScriptEntrySchema = z.object({
+  sceneId: z.string(), sceneTitle: z.string(), shotId: z.string(), shotTitle: z.string(),
+  startMs: z.number().int().nonnegative(), endMs: z.number().int().nonnegative(),
+  visual: z.string(), action: z.string(), performance: z.string(),
+  dialogue: z.array(cinematicShotSchema.shape.dialogueCues.unwrap().element),
+  audio: z.array(cinematicShotSchema.shape.audioCues.unwrap().element),
+  cut: z.string()
+});
+
 export const cinematicStoryPlanProposalSchema = z.object({
   proposalId: z.string().min(1),
-  operation: z.literal('cinematic_story_plan_generate'),
+  operation: z.enum(['cinematic_story_plan_generate', 'cinematic_story_plan_review']),
+  mode: z.enum(['generate', 'review_current']).optional(),
+  status: z.enum(['blocked', 'proposal']).optional(),
   expectedProjectVersion: z.number().int().positive(),
   storySourceVersionId: z.string().min(1),
-  plan: cinematicStoryPlanDraftSchema,
-  provenance: cinematicAiProvenanceSchema,
+  sourceResolution: z.enum(['story_brief', 'creative_direction']).nullable().optional(),
+  preflight: cinematicStoryPlanPreflightSchema.optional(),
+  plan: cinematicStoryPlanDraftSchema.nullable(),
+  filmReadiness: cinematicFilmReadinessSchema.nullable().optional(),
+  scriptPreview: z.array(cinematicFilmScriptEntrySchema).optional(),
+  provenance: cinematicAiProvenanceSchema.nullable(),
   billingStatus: z.literal('qualification_no_charge')
 });
 
@@ -403,6 +530,18 @@ export const cinematicProduceShotContextSchema = z.object({
   approvedStoryboardSource: cinematicApprovedStoryboardSourceSchema.nullable(),
   generationEligible: z.boolean(),
   blockingReason: z.string().nullable(),
+  directingContract: z.object({
+    visibleMoment: z.string(),
+    subjectAction: z.string(),
+    emotionalTarget: z.string(),
+    performanceCue: z.string(),
+    continuityEntry: z.string(),
+    continuityExit: z.string(),
+    transitionToNext: z.string(),
+    dialogueCues: cinematicShotSchema.shape.dialogueCues.unwrap(),
+    audioCues: cinematicShotSchema.shape.audioCues.unwrap(),
+    characterAliases: z.array(z.object({ castAssignmentId: z.string(), storyCharacterName: z.string() }))
+  }),
   videoAttempts: z.array(z.object({
     id: z.string(), operation: z.string(), status: z.string(),
     generationJobId: z.string().nullable().optional(),

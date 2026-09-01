@@ -21,7 +21,7 @@ export class CharacterLookRepository {
     return (await this.readAll())
       .filter(item => item.characterProfileId === characterProfileId
         && item.ownerUserId === actor.userId
-        && item.lifecycleStatus !== 'deleted')
+        && !['deleted', 'retired'].includes(item.lifecycleStatus))
       .sort((left, right) => String(right.updatedAt).localeCompare(String(left.updatedAt)));
   }
 
@@ -75,6 +75,9 @@ export class CharacterLookRepository {
       version.approvedSheetAsset = structuredClone(review.approvedSheetAsset || null);
       version.cropManifest = structuredClone(review.cropManifest || null);
       version.generationLineage = structuredClone(review.generationLineage || null);
+      version.provenance = structuredClone(review.provenance || null);
+      version.identityAssurance = structuredClone(review.identityAssurance || null);
+      version.rightsDeclaration = structuredClone(review.rightsDeclaration || null);
       version.updatedAt = new Date().toISOString();
       record.lifecycleStatus = 'review';
       return record;
@@ -94,6 +97,17 @@ export class CharacterLookRepository {
       version.status = 'approved';
       version.approvedAt = now;
       version.updatedAt = now;
+      if (version.provenance?.kind === 'system_generated'
+        && version.identityAssurance?.status === 'unverified') {
+        version.identityAssurance.status = 'lineage_bound';
+        version.identityAssurance.updatedAt = now;
+      }
+      if (version.provenance?.kind === 'user_uploaded'
+        && version.rightsDeclaration?.accepted === true
+        && version.identityAssurance?.status === 'unverified') {
+        version.identityAssurance.status = 'user_confirmed';
+        version.identityAssurance.updatedAt = now;
+      }
       record.approvedVersionId = version.id;
       record.activeVersionId = version.id;
       record.lifecycleStatus = 'approved';
@@ -103,8 +117,15 @@ export class CharacterLookRepository {
 
   async retire(lookId, actorContext) {
     return this.#mutateOwned(lookId, actorContext, record => {
+      const now = new Date().toISOString();
       record.lifecycleStatus = 'retired';
-      record.retiredAt = new Date().toISOString();
+      record.retiredAt = now;
+      for (const version of record.versions) {
+        if (version.status !== 'approved' && version.status !== 'superseded') {
+          version.status = 'retired';
+          version.updatedAt = now;
+        }
+      }
       return record;
     });
   }
@@ -138,6 +159,9 @@ function createVersion(input, actor, now) {
     approvedSheetAsset: null,
     cropManifest: null,
     generationLineage: null,
+    provenance: null,
+    identityAssurance: null,
+    rightsDeclaration: null,
     ownerUserId: actor.userId,
     createdAt: now,
     updatedAt: now,

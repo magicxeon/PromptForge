@@ -13,6 +13,12 @@ import { videoGenerationApplicationService } from '../generation/VideoGeneration
 import { cinematicStoryEnhancementService } from '../generation/CinematicStoryEnhancementService.js';
 import { cinematicWardrobeSuggestionService } from '../generation/CinematicWardrobeSuggestionService.js';
 import { cinematicStoryPlanService } from '../generation/CinematicStoryPlanService.js';
+import {
+  analyzeStoryPlanSource,
+  buildFilmScriptPreview,
+  evaluateStoryPlanFilmReadiness,
+  filmReadinessNotEvaluated
+} from './StoryPlanFilmReadiness.js';
 
 const STAGES = ['setup', 'cast', 'story-plan', 'storyboard', 'produce', 'finish'];
 const DURATIONS = new Set([20, 30, 45, 60]);
@@ -91,12 +97,15 @@ export class CinematicApplicationService {
     });
   }
 
-  async generateStoryPlan(projectId, actorContext) {
+  async generateStoryPlan(projectId, input, actorContext) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
     assertStoryPlanInputReady(project);
-    return this.storyPlanService.generatePlan(project);
+    return this.storyPlanService.generatePlan(project, {
+      mode: input?.mode,
+      sourceResolution: input?.sourceResolution
+    });
   }
 
   async generateSceneDirection(projectId, sceneId, input, actorContext) {
@@ -152,6 +161,13 @@ export class CinematicApplicationService {
     return this.repository.mutateForActor(projectId, actorContext, project => {
       assertExpectedVersion(project, expectedVersion);
       assertEditable(project);
+      if (STAGES.indexOf(stage) >= STAGES.indexOf('storyboard') && !hasCurrentApprovedStoryPlan(project)) {
+        throw new CinematicError(
+          'cinematic_story_plan_approval_required',
+          'Approve the current Story Plan before continuing to Storyboard.',
+          409
+        );
+      }
       project.activeStage = stage;
       project.version += 1;
       return project;
@@ -174,7 +190,15 @@ export class CinematicApplicationService {
       const index = project.castAssignments.findIndex(item => item.id === normalized.id);
       if (index >= 0) {
         const existing = project.castAssignments[index];
+        const identityChanged = existing.characterProfileId !== normalized.characterProfileId
+          || existing.characterProfileVersionId !== normalized.characterProfileVersionId;
+        const authorizedPortraitUrl = normalized.portraitUrl;
         preserveOmittedCastFields(normalized, existing, input);
+        if (identityChanged) {
+          normalized.portraitUrl = authorizedPortraitUrl;
+          normalized.looks = [];
+          invalidateReplacedCastSources(project, existing);
+        }
         project.castAssignments[index] = { ...existing, ...normalized };
       }
       else project.castAssignments.push(normalized);
@@ -269,6 +293,10 @@ export class CinematicApplicationService {
         mode: authority.mode,
         characterLookId: resolvedCharacterLook?.look.id || null,
         characterLookVersionId: resolvedCharacterLook?.version.id || null,
+        characterLookProvenance: structuredClone(resolvedCharacterLook?.version.provenance || null),
+        characterLookIdentityAssurance: structuredClone(
+          resolvedCharacterLook?.version.identityAssurance || null
+        ),
         assetIds: authority.assets.map(asset => asset.id),
         authoritySnapshot: authority.assets,
         garmentSummary: bounded(input.garmentSummary, 500, ''),
@@ -301,25 +329,44 @@ export class CinematicApplicationService {
     return this.repository.mutateForActor(projectId, actorContext, project => {
       assertExpectedVersion(project, input.expectedVersion);
       assertEditable(project);
-      const plan = normalizeStoryPlan(input, project);
-      if (input.approved === true && input.contractVersion === 'story-plan-v2') {
-        assertStoryPlanApprovalReady(plan, project);
+      const contractVersion = normalizeStoryPlanContractVersion(input.contractVersion);
+      const plan = normalizeStoryPlan(input, project, contractVersion);
+      if (input.approved === true && ['story-plan-v2', 'story-plan-v3'].includes(contractVersion)) {
+        assertStoryPlanApprovalReady(plan, project, contractVersion);
       }
       const now = new Date().toISOString();
+      const requestedParentId = String(input.parentVersionId || '').trim();
+      const parentVersion = project.storyPlanVersions.find(version => version.id === requestedParentId)
+        || project.storyPlanVersions.at(-1)
+        || null;
       const planVersion = {
         id: createPrefixedId('cineplan'),
         version: project.storyPlanVersions.length + 1,
-        parentVersionId: project.activeStoryPlanVersionId || null,
+        parentVersionId: parentVersion?.id || project.activeStoryPlanVersionId || null,
         storySourceVersionId: project.activeStorySourceVersionId,
         objective: plan.objective,
         logline: plan.logline,
         beats: plan.beats,
         emotionalArc: plan.emotionalArc,
+        centralDramaticQuestion: plan.centralDramaticQuestion,
+        storyPromise: plan.storyPromise,
+        finalPayoff: plan.finalPayoff,
+        spokenLanguage: plan.spokenLanguage,
+        onScreenTextPolicy: plan.onScreenTextPolicy,
+        dialoguePolicy: plan.dialoguePolicy,
+        characterAliases: plan.characterAliases,
+        directorOperation: plan.directorOperation,
+        directorSummary: plan.directorSummary,
+        directorFindings: plan.directorFindings,
+        sourceResolution: plan.sourceResolution,
+        warningsAcknowledged: plan.warningsAcknowledged,
+        filmReadiness: plan.filmReadiness,
+        scriptPreview: plan.scriptPreview,
         sceneIds: plan.scenes.map(scene => scene.id),
         estimatedDurationMs: plan.scenes.reduce((sum, scene) => sum + scene.durationMs, 0),
         estimatedShotCount: plan.scenes.reduce((sum, scene) => sum + scene.shots.length, 0),
         warnings: plan.warnings,
-        contractVersion: input.contractVersion === 'story-plan-v2' ? 'story-plan-v2' : 'legacy',
+        contractVersion,
         source: input.source === 'generated' ? 'generated' : 'manual',
         status: input.approved === false ? 'draft' : 'approved',
         createdAt: now
@@ -330,6 +377,8 @@ export class CinematicApplicationService {
         });
         project.activeStoryPlanVersionId = planVersion.id;
         project.status = 'planned';
+      } else if (!project.activeStoryPlanVersionId) {
+        project.status = 'planning';
       }
       project.storyPlanVersions.push(planVersion);
       project.scenes = plan.scenes;
@@ -872,6 +921,11 @@ export class CinematicApplicationService {
   }
 }
 
+function hasCurrentApprovedStoryPlan(project) {
+  const active = (project.storyPlanVersions || []).find(version => version.id === project.activeStoryPlanVersionId);
+  return Boolean(active && active.status === 'approved' && active.storySourceVersionId === project.activeStorySourceVersionId);
+}
+
 export class CinematicError extends Error {
   constructor(code, message, statusCode = 400, details = null) {
     super(message);
@@ -1004,7 +1058,7 @@ function reconcileCastIdentityReadiness(project) {
   return normalized;
 }
 
-function normalizeStoryPlan(input = {}, project) {
+function normalizeStoryPlan(input = {}, project, contractVersion = normalizeStoryPlanContractVersion(input.contractVersion)) {
   const scenesInput = Array.isArray(input.scenes) ? input.scenes : [];
   if (!scenesInput.length || scenesInput.length > 24) {
     throw new CinematicError('cinematic_story_plan_invalid', 'A Story Plan requires between 1 and 24 Scenes.');
@@ -1047,6 +1101,10 @@ function normalizeStoryPlan(input = {}, project) {
         title: bounded(shotInput.title, 100, `Shot ${shotIndex + 1}`),
         purpose: bounded(shotInput.purpose, 500, ''),
         durationMs,
+        visibleMoment: bounded(shotInput.visibleMoment, 800, ''),
+        subjectAction: bounded(shotInput.subjectAction, 500, ''),
+        emotionalTarget: bounded(shotInput.emotionalTarget, 240, ''),
+        performanceCue: bounded(shotInput.performanceCue, 500, ''),
         framing: bounded(shotInput.framing, 120, 'medium shot'),
         cameraAngle: bounded(shotInput.cameraAngle, 120, 'eye level'),
         cameraMovement: bounded(shotInput.cameraMovement, 160, 'locked camera'),
@@ -1058,6 +1116,12 @@ function normalizeStoryPlan(input = {}, project) {
         environment: bounded(shotInput.environment, 500, ''),
         audioIntent: bounded(shotInput.audioIntent, 500, ''),
         prompt: bounded(shotInput.prompt, 4000, ''),
+        continuityEntry: bounded(shotInput.continuityEntry, 500, ''),
+        continuityExit: bounded(shotInput.continuityExit, 500, ''),
+        transitionToNext: bounded(shotInput.transitionToNext, 240, ''),
+        estimatedActionDurationMs: Math.max(0, Math.round(Number(shotInput.estimatedActionDurationMs) || 0)),
+        dialogueCues: normalizeDialogueCues(shotInput.dialogueCues),
+        audioCues: normalizeAudioCues(shotInput.audioCues),
         castAssignmentIds: normalizeStringList(shotInput.castAssignmentIds, 6),
         wardrobeLookIds: normalizeStringList(shotInput.wardrobeLookIds, 12),
         continuityNotes: normalizeStringList(shotInput.continuityNotes, 20),
@@ -1072,6 +1136,10 @@ function normalizeStoryPlan(input = {}, project) {
       title: bounded(sceneInput.title, 120, `Scene ${sceneIndex + 1}`),
       purpose: bounded(sceneInput.purpose, 800, ''),
       storyChange: bounded(sceneInput.storyChange, 800, ''),
+      entryState: bounded(sceneInput.entryState, 800, ''),
+      exitState: bounded(sceneInput.exitState, 800, ''),
+      objective: bounded(sceneInput.objective, 500, ''),
+      pressure: bounded(sceneInput.pressure, 500, ''),
       location: bounded(sceneInput.location, 300, ''),
       time: bounded(sceneInput.time, 120, ''),
       emotionalStart: bounded(sceneInput.emotionalStart, 240, ''),
@@ -1083,6 +1151,8 @@ function normalizeStoryPlan(input = {}, project) {
       lighting: bounded(sceneInput.lighting, 500, ''),
       performance: bounded(sceneInput.performance, 500, ''),
       audioIntent: bounded(sceneInput.audioIntent, 500, ''),
+      propContinuity: bounded(sceneInput.propContinuity, 500, ''),
+      screenDirection: bounded(sceneInput.screenDirection, 500, ''),
       continuityNotes: normalizeStringList(sceneInput.continuityNotes, 20),
       shots,
       shotOrder: shots.map(shot => shot.id),
@@ -1098,14 +1168,38 @@ function normalizeStoryPlan(input = {}, project) {
   if (beats.length && scenes.some(scene => !beatIds.has(scene.beatId))) {
     throw new CinematicError('cinematic_story_plan_invalid', 'Every Scene must reference a valid Beat.');
   }
-  return {
+  const plan = {
     objective: bounded(input.objective, 1000, ''),
     logline: bounded(input.logline, 500, ''),
     beats,
     emotionalArc: bounded(input.emotionalArc, 1000, ''),
+    centralDramaticQuestion: bounded(input.centralDramaticQuestion, 500, ''),
+    storyPromise: bounded(input.storyPromise, 500, ''),
+    finalPayoff: bounded(input.finalPayoff, 500, ''),
+    spokenLanguage: bounded(input.spokenLanguage, 80, ''),
+    onScreenTextPolicy: bounded(input.onScreenTextPolicy, 240, ''),
+    dialoguePolicy: pick(input.dialoguePolicy, ['none', 'sparse', 'normal', 'dialogue-led'], 'sparse'),
+    characterAliases: normalizeCharacterAliases(input.characterAliases, project),
+    directorOperation: pick(input.directorOperation, ['generate', 'review_current', 'manual'], input.source === 'generated' ? 'generate' : 'manual'),
+    directorSummary: bounded(input.directorSummary, 1000, ''),
+    directorFindings: normalizeDirectorFindings(input.directorFindings),
+    sourceResolution: pick(input.sourceResolution, ['story_brief', 'creative_direction'], null),
+    warningsAcknowledged: input.warningsAcknowledged === true,
     warnings: normalizeStringList(input.warnings, 20),
     scenes
   };
+  if (contractVersion === 'story-plan-v3') {
+    const preflight = analyzeStoryPlanSource(project, { sourceResolution: plan.sourceResolution });
+    plan.filmReadiness = evaluateStoryPlanFilmReadiness(project, plan, {
+      preflight,
+      aiFindings: plan.directorFindings
+    });
+    plan.scriptPreview = buildFilmScriptPreview(plan);
+  } else {
+    plan.filmReadiness = structuredClone(input.filmReadiness || filmReadinessNotEvaluated());
+    plan.scriptPreview = Array.isArray(input.scriptPreview) ? structuredClone(input.scriptPreview) : [];
+  }
+  return plan;
 }
 
 function normalizeStoryBeats(value) {
@@ -1121,12 +1215,69 @@ function normalizeStoryBeats(value) {
       title: bounded(beat?.title, 120, `Beat ${index + 1}`),
       purpose: bounded(beat?.purpose ?? beat?.description, 500, ''),
       storyChange: bounded(beat?.storyChange, 500, ''),
+      cause: bounded(beat?.cause, 500, ''),
+      consequence: bounded(beat?.consequence, 500, ''),
       emotionalStart: bounded(beat?.emotionalStart, 240, ''),
+      emotionalTurn: bounded(beat?.emotionalTurn, 240, ''),
       emotionalEnd: bounded(beat?.emotionalEnd, 240, ''),
+      requiredElements: normalizeStringList(beat?.requiredElements, 8),
       targetDurationMs: Math.max(0, Math.round(Number(beat?.targetDurationMs) || 0)),
       sceneIds: normalizeStringList(beat?.sceneIds, 24)
     };
   });
+}
+
+function normalizeStoryPlanContractVersion(value) {
+  return ['story-plan-v2', 'story-plan-v3'].includes(value) ? value : 'legacy';
+}
+
+function normalizeCharacterAliases(value, project) {
+  const activeCastIds = new Set((project.castAssignments || [])
+    .filter(item => item.active !== false)
+    .map(item => item.id));
+  const used = new Set();
+  return (Array.isArray(value) ? value : []).slice(0, 6).flatMap(item => {
+    const castAssignmentId = bounded(item?.castAssignmentId, 100, '');
+    const storyCharacterName = bounded(item?.storyCharacterName, 100, '');
+    if (!activeCastIds.has(castAssignmentId) || !storyCharacterName || used.has(castAssignmentId)) return [];
+    used.add(castAssignmentId);
+    return [{ castAssignmentId, storyCharacterName }];
+  });
+}
+
+function normalizeDialogueCues(value) {
+  return (Array.isArray(value) ? value : []).slice(0, 12).map(cue => ({
+    speakerCastAssignmentId: bounded(cue?.speakerCastAssignmentId, 100, ''),
+    offscreenVoiceRole: bounded(cue?.offscreenVoiceRole, 100, ''),
+    text: bounded(cue?.text, 600, ''),
+    delivery: bounded(cue?.delivery, 240, ''),
+    startOffsetMs: Math.max(0, Math.round(Number(cue?.startOffsetMs) || 0)),
+    estimatedDurationMs: Math.max(0, Math.round(Number(cue?.estimatedDurationMs) || 0)),
+    speakerVisible: cue?.speakerVisible === true
+  })).filter(cue => cue.text);
+}
+
+function normalizeAudioCues(value) {
+  return (Array.isArray(value) ? value : []).slice(0, 12).map(cue => ({
+    kind: bounded(cue?.kind, 60, ''),
+    source: bounded(cue?.source, 160, ''),
+    description: bounded(cue?.description, 500, ''),
+    startOffsetMs: Math.max(0, Math.round(Number(cue?.startOffsetMs) || 0)),
+    durationMs: Math.max(0, Math.round(Number(cue?.durationMs) || 0))
+  })).filter(cue => cue.description || cue.source);
+}
+
+function normalizeDirectorFindings(value) {
+  return (Array.isArray(value) ? value : []).slice(0, 24).map(item => ({
+    code: bounded(item?.code, 100, 'ai_director_note'),
+    dimension: pick(item?.dimension, ['story', 'script', 'performance', 'visual', 'editorial', 'audio', 'continuity', 'production'], 'story'),
+    severity: pick(item?.severity, ['warning', 'info'], 'warning'),
+    summary: bounded(item?.summary, 500, ''),
+    recommendation: bounded(item?.recommendation, 500, ''),
+    beatId: bounded(item?.beatId, 100, '') || null,
+    sceneId: bounded(item?.sceneId, 100, '') || null,
+    shotId: bounded(item?.shotId, 100, '') || null
+  })).filter(item => item.summary);
 }
 
 function assertStoryPlanInputReady(project) {
@@ -1146,9 +1297,34 @@ function assertStoryPlanInputReady(project) {
       { missingRoleIds }
     );
   }
+  const assignmentsByRole = new Map((project.castAssignments || [])
+    .filter(item => item.active !== false && item.storyRoleSlotId)
+    .map(item => [item.storyRoleSlotId, item]));
+  const unreadyRoleIds = required.filter(role => {
+    const assignment = assignmentsByRole.get(role.id);
+    return assignment?.identityReady !== true || !(assignment.looks || []).some(isProductionReadyLook);
+  }).map(role => role.id);
+  if (unreadyRoleIds.length) {
+    throw new CinematicError(
+      'cinematic_required_cast_look_incomplete',
+      'Prepare and bind an approved multi-view Character Look for every required story role.',
+      409,
+      { unreadyRoleIds }
+    );
+  }
 }
 
-function assertStoryPlanApprovalReady(plan, project) {
+function isProductionReadyLook(look) {
+  return look?.mode === 'character_look'
+    && Boolean(look.characterLookId)
+    && Boolean(look.characterLookVersionId)
+    && look.coverage === 'multi_view'
+    && look.locked === true
+    && Array.isArray(look.assetIds)
+    && look.assetIds.length > 0;
+}
+
+function assertStoryPlanApprovalReady(plan, project, contractVersion = 'story-plan-v2') {
   assertStoryPlanInputReady(project);
   if (!plan.beats.length) {
     throw new CinematicError('cinematic_story_plan_beats_required', 'At least one Story Beat is required before approval.', 409);
@@ -1190,6 +1366,24 @@ function assertStoryPlanApprovalReady(plan, project) {
       409,
       { plannedDurationMs, targetDurationMs: project.durationTargetMs }
     );
+  }
+  if (contractVersion === 'story-plan-v3') {
+    if (plan.filmReadiness?.status === 'not_ready') {
+      throw new CinematicError(
+        'cinematic_story_plan_film_not_ready',
+        'Resolve Film Readiness blockers before Story Plan approval.',
+        409,
+        { findings: plan.filmReadiness.findings.filter(item => item.severity === 'blocking') }
+      );
+    }
+    if (plan.filmReadiness?.status === 'ready_with_warnings' && plan.warningsAcknowledged !== true) {
+      throw new CinematicError(
+        'cinematic_story_plan_warnings_acknowledgement_required',
+        'Review and acknowledge Film Readiness warnings before approval.',
+        409,
+        { findings: plan.filmReadiness.findings.filter(item => item.severity === 'warning') }
+      );
+    }
   }
 }
 
@@ -1300,7 +1494,8 @@ function buildCinematicWorkflow(project, scene, shot, generationAttemptId) {
 }
 
 function buildCinematicVideoRequest(input, project, shot, source) {
-  const durationSeconds = Math.max(1, Math.round(Number(input.durationSeconds || shot.durationMs / 1000)));
+  const plannedDurationSeconds = Math.max(0.001, Number(shot.durationMs) / 1000);
+  const durationSeconds = Math.max(1, Number(input.durationSeconds || plannedDurationSeconds));
   return {
     providerId: String(input.providerId || ''),
     modelId: String(input.modelId || ''),
@@ -1309,6 +1504,7 @@ function buildCinematicVideoRequest(input, project, shot, source) {
     aspectRatio: String(input.aspectRatio || project.aspectRatio || '9:16'),
     resolution: String(input.resolution || '720p'),
     durationSeconds,
+    plannedDurationSeconds,
     audioMode: String(input.audioMode || 'none'),
     referenceImageUrl: source.imageUrl
   };
@@ -1346,12 +1542,49 @@ function markSourceChanged(project, shot, previousFingerprint) {
   }
 }
 
+function invalidateReplacedCastSources(project, assignment) {
+  const lookIds = new Set((assignment.looks || []).map(look => look.id));
+  for (const scene of project.scenes || []) {
+    const sceneUsesAssignment = scene.castAssignmentIds?.includes(assignment.id);
+    const previousSceneLookCount = scene.wardrobeLookIds?.length || 0;
+    scene.wardrobeLookIds = (scene.wardrobeLookIds || []).filter(lookId => !lookIds.has(lookId));
+    let sceneChanged = sceneUsesAssignment || scene.wardrobeLookIds.length !== previousSceneLookCount;
+
+    for (const shot of scene.shots || []) {
+      const shotUsesAssignment = shot.castAssignmentIds?.includes(assignment.id);
+      const previousShotLookCount = shot.wardrobeLookIds?.length || 0;
+      shot.wardrobeLookIds = (shot.wardrobeLookIds || []).filter(lookId => !lookIds.has(lookId));
+      const shotChanged = shotUsesAssignment || shot.wardrobeLookIds.length !== previousShotLookCount;
+      if (!shotChanged) continue;
+
+      const previousSource = shot.approvedStoryboardSource || null;
+      if (previousSource?.sourceFingerprint) {
+        markSourceChanged(project, shot, previousSource.sourceFingerprint);
+      }
+      for (const attempt of project.generationAttempts || []) {
+        if (attempt.shotId === shot.id && attempt.operation === 'cinematic_storyboard_still') {
+          attempt.downstreamSourceStatus = 'source_changed';
+        }
+      }
+      shot.approvedStoryboardSource = undefined;
+      shot.approvedStoryboardAttemptId = undefined;
+      shot.storyboardStatus = 'draft';
+      shot.version = Number(shot.version || 0) + 1;
+      sceneChanged = true;
+    }
+
+    if (sceneChanged) scene.version = Number(scene.version || 0) + 1;
+  }
+  project.status = project.scenes?.length ? 'planned' : 'planning';
+}
+
 function buildProduceContext(project, scene, shot) {
   const attempts = (project.generationAttempts || []).filter(attempt => (
     attempt.shotId === shot.id
     && ['cinematic_motion_preview', 'cinematic_draft_clip', 'cinematic_final_clip'].includes(attempt.operation)
   ));
   const source = shot.approvedStoryboardSource || null;
+  const activePlan = (project.storyPlanVersions || []).find(version => version.id === project.activeStoryPlanVersionId) || null;
   return {
     projectId: project.id,
     projectVersion: project.version,
@@ -1361,6 +1594,18 @@ function buildProduceContext(project, scene, shot) {
     approvedStoryboardSource: source,
     generationEligible: Boolean(source),
     blockingReason: source ? null : 'cinematic_storyboard_source_required',
+    directingContract: {
+      visibleMoment: shot.visibleMoment || '',
+      subjectAction: shot.subjectAction || shot.blocking || '',
+      emotionalTarget: shot.emotionalTarget || '',
+      performanceCue: shot.performanceCue || shot.performance || '',
+      continuityEntry: shot.continuityEntry || '',
+      continuityExit: shot.continuityExit || '',
+      transitionToNext: shot.transitionToNext || scene.transitionIntent || '',
+      dialogueCues: structuredClone(shot.dialogueCues || []),
+      audioCues: structuredClone(shot.audioCues || []),
+      characterAliases: structuredClone(activePlan?.characterAliases || [])
+    },
     videoAttempts: attempts.map(attempt => ({
       id: attempt.id,
       operation: attempt.operation,

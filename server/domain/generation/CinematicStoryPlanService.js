@@ -3,12 +3,17 @@ import { getCinematicStoryPlanPolicy } from '../../config/cinematic-story-plan-p
 import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
+import {
+  analyzeStoryPlanSource,
+  buildFilmScriptPreview,
+  evaluateStoryPlanFilmReadiness
+} from '../cinematic/StoryPlanFilmReadiness.js';
 
 export class CinematicStoryPlanService {
   constructor({
     policyLoader = getCinematicStoryPlanPolicy,
-    storyRecipeLoader = () => loadPromptRecipe('cinematic/story-plan.v1.json'),
-    sceneRecipeLoader = () => loadPromptRecipe('cinematic/scene-direction.v1.json'),
+    storyRecipeLoader = () => loadPromptRecipe('cinematic/story-plan.v3.json'),
+    sceneRecipeLoader = () => loadPromptRecipe('cinematic/scene-direction.v2.json'),
     providerFactory = policy => new OpenAITextProvider(policy.apiKey)
   } = {}) {
     this.policyLoader = policyLoader;
@@ -17,10 +22,34 @@ export class CinematicStoryPlanService {
     this.providerFactory = providerFactory;
   }
 
-  async generatePlan(project) {
+  async generatePlan(project, { mode = 'generate', sourceResolution = null } = {}) {
+    const normalizedMode = mode === 'review_current' ? 'review_current' : 'generate';
+    const normalizedResolution = ['story_brief', 'creative_direction'].includes(sourceResolution)
+      ? sourceResolution
+      : null;
+    const preflight = analyzeStoryPlanSource(project, { sourceResolution: normalizedResolution });
+    if (preflight.status === 'blocked') {
+      return {
+        proposalId: createProposalId(),
+        operation: normalizedMode === 'review_current'
+          ? 'cinematic_story_plan_review'
+          : 'cinematic_story_plan_generate',
+        mode: normalizedMode,
+        status: 'blocked',
+        expectedProjectVersion: project.version,
+        storySourceVersionId: project.activeStorySourceVersionId,
+        sourceResolution: normalizedResolution,
+        preflight,
+        plan: null,
+        filmReadiness: null,
+        scriptPreview: [],
+        provenance: null,
+        billingStatus: 'qualification_no_charge'
+      };
+    }
     const policy = assertEnabled(this.policyLoader());
     const recipe = assertRecipe(this.storyRecipeLoader());
-    const context = buildProjectContext(project);
+    const context = buildProjectContext(project, { preflight, mode: normalizedMode });
     const result = await this.providerFactory(policy).generateCinematicStoryPlan({
       context,
       recipe,
@@ -29,12 +58,31 @@ export class CinematicStoryPlanService {
       maxOutputTokens: policy.maxOutputTokens,
       timeoutMs: policy.timeoutMs
     });
+    const plan = normalizePlan(result, project, {
+      sourceResolution: normalizedResolution,
+      directorOperation: normalizedMode
+    });
+    const filmReadiness = evaluateStoryPlanFilmReadiness(project, plan, {
+      preflight,
+      aiFindings: plan.directorFindings
+    });
+    const scriptPreview = buildFilmScriptPreview(plan);
+    plan.filmReadiness = filmReadiness;
+    plan.scriptPreview = scriptPreview;
     return {
       proposalId: createProposalId(),
-      operation: 'cinematic_story_plan_generate',
+      operation: normalizedMode === 'review_current'
+        ? 'cinematic_story_plan_review'
+        : 'cinematic_story_plan_generate',
+      mode: normalizedMode,
+      status: 'proposal',
       expectedProjectVersion: project.version,
       storySourceVersionId: project.activeStorySourceVersionId,
-      plan: normalizePlan(result, project),
+      sourceResolution: normalizedResolution,
+      preflight,
+      plan,
+      filmReadiness,
+      scriptPreview,
       provenance: provenance(result, policy, recipe),
       billingStatus: 'qualification_no_charge'
     };
@@ -46,8 +94,14 @@ export class CinematicStoryPlanService {
     const sceneIndex = project.scenes.findIndex(item => item.id === sceneId);
     if (sceneIndex < 0) throw createError('cinematic_scene_not_found', 'Scene not found.', 404);
     const current = project.scenes[sceneIndex];
+    const activePlan = project.storyPlanVersions?.find(version => version.id === project.activeStoryPlanVersionId)
+      || project.storyPlanVersions?.at(-1);
+    const preflight = analyzeStoryPlanSource(project, { sourceResolution: activePlan?.sourceResolution || null });
+    if (preflight.status === 'blocked') {
+      throw createError('cinematic_story_plan_source_conflict', 'Resolve Story Source conflicts before generating Scene Direction.', 409);
+    }
     const context = {
-      ...buildProjectContext(project),
+      ...buildProjectContext(project, { preflight, mode: 'review_current' }),
       selectedScene: current,
       previousScene: project.scenes[sceneIndex - 1] || null,
       nextScene: project.scenes[sceneIndex + 1] || null,
@@ -81,7 +135,12 @@ export class CinematicStoryPlanService {
   }
 }
 
-function buildProjectContext(project) {
+function buildProjectContext(project, { preflight, mode }) {
+  const storyText = preflight?.resolvedStoryBrief || project.setup?.storyBrief;
+  const creativeDirection = preflight?.resolvedCreativeDirection ?? project.setup?.creativeDirection;
+  const staleRoleIds = new Set((preflight?.diagnostics || [])
+    .filter(item => item.code === 'story_role_direction_may_be_stale')
+    .map(item => item.entityId));
   return {
     project: {
       id: project.id,
@@ -93,14 +152,36 @@ function buildProjectContext(project) {
       audienceFeeling: project.setup?.audienceFeeling,
       pacing: project.setup?.pacing,
       endingIntent: project.setup?.endingIntent,
-      storyBrief: project.setup?.storyBrief,
-      creativeDirection: project.setup?.creativeDirection,
+      storyBrief: storyText,
+      creativeDirection,
       storySourceVersionId: project.activeStorySourceVersionId
     },
+    videoTimingGuidance: {
+      ownership: 'editorial_planning_only',
+      preferredShotDurationsSeconds: [4, 6, 8],
+      portableShotMaximumSeconds: 8,
+      rules: [
+        'Preserve the exact Project total duration.',
+        'Prefer a supported duration only when it preserves performance, dialogue and continuity.',
+        'Do not select a provider, model or price in Story Plan.',
+        'A later Generation quote reconciles editorial duration with the selected provider.'
+      ]
+    },
+    directorOperation: mode,
+    sourceResolution: preflight ? {
+      mode: preflight.sourceResolution,
+      ignoredCreativeDirection: Boolean(project.setup?.creativeDirection && !creativeDirection),
+      diagnostics: preflight.diagnostics.map(item => ({
+        code: item.code, severity: item.severity, summary: item.summary, resolved: item.resolved
+      }))
+    } : null,
     roles: (project.setup?.storyRoleSlots || []).map(role => ({
       id: role.id, label: role.label, importance: role.importance,
-      storyFunction: role.storyFunction, objective: role.objective,
-      emotionalArc: role.emotionalArc, performanceDirection: role.performanceDirection
+      storyFunction: staleRoleIds.has(role.id) ? '' : role.storyFunction,
+      objective: staleRoleIds.has(role.id) ? '' : role.objective,
+      emotionalArc: staleRoleIds.has(role.id) ? '' : role.emotionalArc,
+      performanceDirection: role.performanceDirection,
+      directionStatus: staleRoleIds.has(role.id) ? 'excluded_stale' : 'current'
     })),
     cast: (project.castAssignments || []).filter(item => item.active !== false).map(item => ({
       id: item.id, storyRoleSlotId: item.storyRoleSlotId || null,
@@ -111,14 +192,14 @@ function buildProjectContext(project) {
       identityReady: item.identityReady,
       looks: (item.looks || []).map(look => ({ id: look.id, name: look.name, locked: look.locked }))
     })),
-    currentPlan: project.scenes?.length ? {
+    currentPlan: mode === 'review_current' && project.scenes?.length ? {
       storyPlanVersionId: project.activeStoryPlanVersionId,
       scenes: project.scenes
     } : null
   };
 }
 
-function normalizePlan(result, project) {
+function normalizePlan(result, project, { sourceResolution = null, directorOperation = 'generate' } = {}) {
   const beatsInput = Array.isArray(result.beats) && result.beats.length ? result.beats.slice(0, 12) : [{ key: 'story', title: 'Story', type: 'development' }];
   const beatKeyMap = new Map();
   const beats = beatsInput.map((beat, index) => {
@@ -132,8 +213,12 @@ function normalizePlan(result, project) {
       title: bounded(beat.title, 120) || `Beat ${index + 1}`,
       purpose: bounded(beat.purpose, 500),
       storyChange: bounded(beat.storyChange, 500),
+      cause: bounded(beat.cause, 500) || bounded(beat.purpose, 500),
+      consequence: bounded(beat.consequence, 500) || bounded(beat.storyChange, 500),
       emotionalStart: bounded(beat.emotionalStart, 240),
+      emotionalTurn: bounded(beat.emotionalTurn, 240),
       emotionalEnd: bounded(beat.emotionalEnd, 240),
+      requiredElements: stringList(beat.requiredElements, 8, 160),
       targetDurationMs: Math.max(250, Math.round(Number(beat.targetDurationSeconds || 0) * 1000)),
       sceneIds: []
     };
@@ -142,24 +227,53 @@ function normalizePlan(result, project) {
   if (!scenesInput.length) throw createError('cinematic_story_plan_invalid_response', 'Story Plan response contains no Scenes.');
   const sceneWeights = scenesInput.map(scene => sumShotWeights(scene.shots));
   const sceneDurations = allocateDurations(project.durationTargetMs, sceneWeights, 250);
+  const sceneKeyMap = new Map();
   const scenes = scenesInput.map((scene, index) => {
     const beatId = beatKeyMap.get(String(scene.beatKey || '').trim()) || beats[0].id;
     const normalized = normalizeScene(scene, project, {
       id: createPrefixedId('cinescene'), beatId,
       targetDurationMs: sceneDurations[index], existingShots: [], orderKey: index + 1
     });
+    sceneKeyMap.set(String(scene.key || `scene-${index + 1}`).trim(), normalized.id);
     beats.find(beat => beat.id === beatId)?.sceneIds.push(normalized.id);
     return normalized;
   });
   for (const beat of beats) {
     beat.targetDurationMs = beat.sceneIds.reduce((total, id) => total + (scenes.find(scene => scene.id === id)?.durationMs || 0), 0);
   }
+  const directorFindings = normalizeDirectorFindings(
+    result.directorReview?.findings,
+    beatKeyMap,
+    sceneKeyMap,
+    scenes
+  );
+  const allowedCast = new Set((project.castAssignments || []).filter(item => item.active !== false).map(item => item.id));
   return {
     objective: bounded(result.objective, 1000),
     logline: bounded(result.logline, 500),
     emotionalArc: bounded(result.emotionalArc, 1000),
+    centralDramaticQuestion: bounded(result.centralDramaticQuestion, 500),
+    storyPromise: bounded(result.storyPromise, 500),
+    finalPayoff: bounded(result.finalPayoff, 500),
+    spokenLanguage: bounded(result.spokenLanguage, 80),
+    onScreenTextPolicy: bounded(result.onScreenTextPolicy, 240),
+    dialoguePolicy: ['none', 'sparse', 'normal', 'dialogue-led'].includes(result.dialoguePolicy)
+      ? result.dialoguePolicy
+      : 'sparse',
+    characterAliases: (Array.isArray(result.characterAliases) ? result.characterAliases : [])
+      .slice(0, 6)
+      .filter(item => allowedCast.has(String(item.castAssignmentId || '').trim()))
+      .map(item => ({
+        castAssignmentId: String(item.castAssignmentId).trim(),
+        storyCharacterName: bounded(item.storyCharacterName, 100)
+      }))
+      .filter(item => item.storyCharacterName),
     beats,
     scenes,
+    directorOperation,
+    directorSummary: bounded(result.directorReview?.summary, 1000),
+    directorFindings,
+    sourceResolution,
     warnings: stringList(result.warnings, 20, 240),
     source: 'generated',
     approved: false
@@ -187,6 +301,10 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
       title: bounded(shot.title, 100) || `Shot ${index + 1}`,
       purpose: bounded(shot.purpose, 500),
       durationMs: durations[index],
+      visibleMoment: bounded(shot.visibleMoment, 800) || bounded(shot.prompt, 800) || bounded(shot.purpose, 500),
+      subjectAction: bounded(shot.subjectAction, 500) || bounded(shot.blocking, 500) || bounded(shot.purpose, 500),
+      emotionalTarget: bounded(shot.emotionalTarget, 240) || bounded(input.emotionalStart, 240),
+      performanceCue: bounded(shot.performanceCue, 500) || bounded(shot.performance, 500),
       framing: bounded(shot.framing, 120) || 'medium shot',
       cameraAngle: bounded(shot.cameraAngle, 120) || 'eye level',
       cameraMovement: bounded(shot.cameraMovement, 160) || 'locked camera',
@@ -198,6 +316,12 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
       environment: bounded(shot.environment, 500),
       audioIntent: bounded(shot.audioIntent, 500),
       prompt: bounded(shot.prompt, 4000),
+      continuityEntry: bounded(shot.continuityEntry, 500) || stringList(shot.continuityNotes, 20, 240)[0] || 'Continue established Scene state.',
+      continuityExit: bounded(shot.continuityExit, 500) || stringList(shot.continuityNotes, 20, 240).at(-1) || 'Hold established Scene state.',
+      transitionToNext: bounded(shot.transitionToNext, 240) || bounded(input.transitionIntent, 160) || 'cut',
+      estimatedActionDurationMs: Math.max(0, Math.round(Number(shot.estimatedActionDurationSeconds || 0) * 1000)),
+      dialogueCues: normalizeDialogueCues(shot.dialogueCues, durations[index]),
+      audioCues: normalizeAudioCues(shot.audioCues, durations[index]),
       castAssignmentIds: shotCast,
       wardrobeLookIds: shotLooks,
       continuityNotes: stringList(shot.continuityNotes, 20, 240),
@@ -212,6 +336,10 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
     title: bounded(input.title, 120) || 'Untitled Scene',
     purpose: bounded(input.purpose, 800),
     storyChange: bounded(input.storyChange, 800),
+    entryState: bounded(input.entryState, 800) || bounded(input.emotionalStart, 240) || bounded(input.blocking, 500),
+    exitState: bounded(input.exitState, 800) || bounded(input.emotionalEnd, 240) || bounded(input.storyChange, 800),
+    objective: bounded(input.objective, 500) || bounded(input.purpose, 500),
+    pressure: bounded(input.pressure, 500),
     location: bounded(input.location, 300),
     time: bounded(input.time, 120),
     emotionalStart: bounded(input.emotionalStart, 240),
@@ -223,11 +351,59 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
     lighting: bounded(input.lighting, 500),
     performance: bounded(input.performance, 500),
     audioIntent: bounded(input.audioIntent, 500),
+    propContinuity: bounded(input.propContinuity, 500),
+    screenDirection: bounded(input.screenDirection, 500),
     continuityNotes: stringList(input.continuityNotes, 20, 240),
     shots,
     shotOrder: shots.map(shot => shot.id),
     durationMs: shots.reduce((sum, shot) => sum + shot.durationMs, 0)
   };
+}
+
+function normalizeDialogueCues(value, shotDurationMs) {
+  return (Array.isArray(value) ? value : []).slice(0, 12).map(cue => ({
+    speakerCastAssignmentId: bounded(cue.speakerCastAssignmentId, 100),
+    offscreenVoiceRole: bounded(cue.offscreenVoiceRole, 100),
+    text: bounded(cue.text, 600),
+    delivery: bounded(cue.delivery, 240),
+    startOffsetMs: clampMs(Number(cue.startOffsetSeconds || 0) * 1000, shotDurationMs),
+    estimatedDurationMs: Math.max(0, Math.round(Number(cue.estimatedDurationSeconds || 0) * 1000)),
+    speakerVisible: cue.speakerVisible === true
+  })).filter(cue => cue.text);
+}
+
+function normalizeAudioCues(value, shotDurationMs) {
+  return (Array.isArray(value) ? value : []).slice(0, 12).map(cue => ({
+    kind: bounded(cue.kind, 60),
+    source: bounded(cue.source, 160),
+    description: bounded(cue.description, 500),
+    startOffsetMs: clampMs(Number(cue.startOffsetSeconds || 0) * 1000, shotDurationMs),
+    durationMs: Math.max(0, Math.round(Number(cue.durationSeconds || 0) * 1000))
+  })).filter(cue => cue.description || cue.source);
+}
+
+function normalizeDirectorFindings(value, beatKeyMap, sceneKeyMap, scenes) {
+  return (Array.isArray(value) ? value : []).slice(0, 24).map(item => {
+    const sceneId = sceneKeyMap.get(String(item.sceneKey || '').trim()) || null;
+    const scene = scenes.find(candidate => candidate.id === sceneId);
+    const shotIndex = Number.isInteger(item.shotIndex) ? item.shotIndex : -1;
+    const shotId = shotIndex >= 0 ? scene?.shots?.[shotIndex]?.id || null : null;
+    return {
+      code: bounded(item.code, 100) || 'ai_director_note',
+      dimension: bounded(item.dimension, 40) || 'story',
+      severity: item.severity === 'info' ? 'info' : 'warning',
+      summary: bounded(item.summary, 500),
+      recommendation: bounded(item.recommendation, 500),
+      beatId: beatKeyMap.get(String(item.beatKey || '').trim()) || null,
+      sceneId,
+      shotId
+    };
+  }).filter(item => item.summary);
+}
+
+function clampMs(value, maximum) {
+  const normalized = Math.max(0, Math.round(Number(value) || 0));
+  return Math.min(normalized, Math.max(0, Number(maximum) || 0));
 }
 
 function allocateDurations(totalMs, rawWeights, minimumMs) {

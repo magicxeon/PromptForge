@@ -5,25 +5,25 @@
       "id": "cineproj_1787841798259_d5rmu2tx",
       "projectId": "cineproj_1787841798259_d5rmu2tx",
       "schemaVersion": 1,
-      "version": 133,
+      "version": 176,
       "ownerUserId": "usr_alice",
       "ownerUsername": "user_alice",
-      "title": "Cinematic E2E - Before the Last Train",
+      "title": "Momelo Demo - The Last Light",
       "format": "short-film",
       "platformTargets": [
         "youtube-shorts"
       ],
       "aspectRatio": "9:16",
-      "durationTargetMs": 20000,
-      "activeStage": "cast",
-      "status": "storyboard_ready",
+      "durationTargetMs": 30000,
+      "activeStage": "story-plan",
+      "status": "planning",
       "setup": {
-        "title": "Cinematic E2E - Before the Last Train",
+        "title": "Momelo Demo - The Last Light",
         "format": "short-film",
         "platform": "youtube-shorts",
-        "durationSeconds": 20,
-        "storyBrief": "In 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope.",
-        "creativeDirection": "Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter.",
+        "durationSeconds": 30,
+        "storyBrief": "หลังปิดร้านกาแฟของครอบครัวเป็นครั้งสุดท้าย นารายืนเดียวยามเย็นท่ามกลางโต๊ะคลุมผ้าและฝนด้านนอก เธอกำป้าย CLOSED แล้วเปิดฟังข้อความเสียงเก่าจากพ่อ: “ถ้ายังรักมันอยู่ เปิดไฟอีกครั้งนะ” ความคิดถึงไม่กลายเป็นน้ำตา แต่เป็นการตัดสินใจ เธอคว่ำป้าย เปิดไฟเหนือเคาน์เตอร์ และพูดว่า “พรุ่งนี้...เราเปิดร้าน” ก่อนเดินเข้าสู่แสงอุ่น",
+        "creativeDirection": "วิดีโอแนวตั้งสมจริงสำหรับ YouTube Short ความยาว 30 วินาที ใช้ดราม่าเงียบและจังหวะสมดุล เปิดด้วยโทนฟ้าเย็นยามพลบค่ำ กล้องเคลื่อนอย่างสม่ำเสมอด้านซ้าย และให้ทางออกอยู่ด้านขวา เน้นรายละเอียดมือ ดวงตา ลมหายใจ นาฬิกา โทรศัพท์ และพื้นเปียก ห้ามเห็นบุคคลอื่นหรืออ่านข้อความบนหน้าจอ เสียงข้อความเป็นเพียงเสียงจากโทรศัพท์ จบด้วยนาราเดินเข้าสู่แสงอุ่นโดยไม่แต่งภาพหวานเกินจริง",
         "genre": "drama",
         "audienceFeeling": "moved",
         "pacing": "balanced",
@@ -32,21 +32,21 @@
         "castPlanningMode": "ai-recommended",
         "storyRoleSlots": [
           {
-            "id": "role_young-woman_2af2",
-            "label": "Young Woman",
+            "id": "role_1_d457",
+            "label": "นารา",
             "importance": "required",
-            "storyFunction": "Carries the entire visible emotional decision and provides continuity from uncertainty to hope.",
-            "relationshipHint": "Alone; the phone and train function as unseen emotional pressures, not characters.",
-            "objective": "Decide whether to remain tied to the past or leave the platform and move forward.",
-            "emotionalArc": "Tense and watchful; briefly destabilized; quietly resolute and lighter.",
+            "storyFunction": "ตัวละครหลักที่พาผู้ชมผ่านการปิดร้าน การรำลึกถึงพ่อ และการตัดสินใจเปิดร้านอีกครั้ง",
+            "relationshipHint": "ลูกสาวของเจ้าของร้านกาแฟผู้ล่วงลับหรือไม่อยู่ในปัจจุบัน",
+            "objective": "ตัดสินใจว่าจะจากร้านไป หรือยอมรับความรักและความรับผิดชอบที่ร้านมีต่อเธอ",
+            "emotionalArc": "จากโดดเดี่ยวและลังเล สู่สงบ มั่นคง และมีความหวังอย่างพอดี",
             "personalityTraits": [
-              "observant",
-              "private",
-              "resilient",
-              "introspective",
-              "self-controlled"
+              "เก็บอารมณ์",
+              "รับผิดชอบ",
+              "อ่อนไหว",
+              "อดทน",
+              "กล้าตัดสินใจ"
             ],
-            "performanceDirection": "Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile."
+            "performanceDirection": "เล่นแบบยับยั้ง ไม่ร้องไห้ เน้นสายตา มือ ลมหายใจ และการเปลี่ยนท่าทางเล็ก ๆ ให้การเปิดไฟเป็นจุดเปลี่ยนที่ชัดเจน"
           }
         ]
       },
@@ -66,19 +66,39 @@
           "parentVersionId": "cinesrc_1787841798259_qelmuxv1",
           "storyBrief": "In 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope.",
           "creativeDirection": "Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter.",
-          "status": "applied",
+          "status": "superseded",
           "source": "manual",
           "createdAt": "2026-08-29T04:06:32.361Z"
+        },
+        {
+          "id": "cinesrc_1788147288610_l5xd7gjw",
+          "version": 3,
+          "parentVersionId": "cinesrc_1787976392361_sctwhhld",
+          "storyBrief": "หลังปิดร้านกาแฟเล็กของครอบครัวเป็นครั้งสุดท้าย นารายืนอยู่คนเดียวท่ามกลางโต๊ะที่คลุมผ้าและแสงเย็นจากถนน เธอกำป้าย CLOSED ไว้แน่นก่อนเปิดฟังข้อความเสียงเก่าจากพ่อว่า “ถ้ายังรักมันอยู่ เปิดไฟอีกครั้งนะ” นารานิ่งรับความคิดถึงโดยไม่ร้องไห้ จากนั้นเธอคว่ำป้าย CLOSED เปิดสวิตช์ไฟเหนือเคาน์เตอร์ และพูดเบาๆ ว่า “พรุ่งนี้...เราเปิดร้าน” แสงสีอุ่นค่อยๆ เติมร้าน ขณะที่ฝนด้านนอกยังตกอยู่ ความลังเลเปลี่ยนเป็นความหวังที่ตัดสินใจแล้วหลังปิดร้านกาแฟเล็กของครอบครัวเป็นครั้งสุดท้าย นารายืนอยู่คนเดียวท่ามกลางโต๊ะที่คลุมผ้าและแสงเย็นจากถนน เธอกำป้าย CLOSED ไว้แน่นก่อนเปิดฟังข้อความเสียงเก่าจากพ่อว่า “ถ้ายังรักมัน",
+          "creativeDirection": "Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter.",
+          "status": "superseded",
+          "source": "manual",
+          "createdAt": "2026-08-31T03:34:48.609Z"
+        },
+        {
+          "id": "cinesrc_1788247007757_8sisqdgl",
+          "version": 4,
+          "parentVersionId": "cinesrc_1788147288610_l5xd7gjw",
+          "storyBrief": "หลังปิดร้านกาแฟของครอบครัวเป็นครั้งสุดท้าย นารายืนเดียวยามเย็นท่ามกลางโต๊ะคลุมผ้าและฝนด้านนอก เธอกำป้าย CLOSED แล้วเปิดฟังข้อความเสียงเก่าจากพ่อ: “ถ้ายังรักมันอยู่ เปิดไฟอีกครั้งนะ” ความคิดถึงไม่กลายเป็นน้ำตา แต่เป็นการตัดสินใจ เธอคว่ำป้าย เปิดไฟเหนือเคาน์เตอร์ และพูดว่า “พรุ่งนี้...เราเปิดร้าน” ก่อนเดินเข้าสู่แสงอุ่น",
+          "creativeDirection": "วิดีโอแนวตั้งสมจริงสำหรับ YouTube Short ความยาว 30 วินาที ใช้ดราม่าเงียบและจังหวะสมดุล เปิดด้วยโทนฟ้าเย็นยามพลบค่ำ กล้องเคลื่อนอย่างสม่ำเสมอด้านซ้าย และให้ทางออกอยู่ด้านขวา เน้นรายละเอียดมือ ดวงตา ลมหายใจ นาฬิกา โทรศัพท์ และพื้นเปียก ห้ามเห็นบุคคลอื่นหรืออ่านข้อความบนหน้าจอ เสียงข้อความเป็นเพียงเสียงจากโทรศัพท์ จบด้วยนาราเดินเข้าสู่แสงอุ่นโดยไม่แต่งภาพหวานเกินจริง",
+          "status": "applied",
+          "source": "manual",
+          "createdAt": "2026-09-01T07:16:47.756Z"
         }
       ],
-      "activeStorySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+      "activeStorySourceVersionId": "cinesrc_1788247007757_8sisqdgl",
       "castAssignments": [
         {
           "id": "cinecast_charprof_1786762030645_bi3091e5",
-          "characterProfileId": "charprof_1786762030645_bi3091e5",
-          "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
-          "portraitUrl": "/outputs/character-profiles/charprof_1786762030645_bi3091e5/charver_1786762030649_qd0i06j2/face.webp",
-          "displayName": "เหมยลี่",
+          "characterProfileId": "charprof_1788141570490_qr4e3sif",
+          "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+          "portraitUrl": "/outputs/character-profiles/charprof_1788141570490_qr4e3sif/charver_1788141570511_ehf0ebce/face.webp",
+          "displayName": "อิงอิง",
           "storyRole": "Young Woman",
           "storyRoleSlotId": "role_young-woman_2af2",
           "storyImportance": "protagonist",
@@ -92,7 +112,7 @@
             "introspective",
             "self-controlled"
           ],
-          "emotionalBaseline": "Tense and watchful; briefly destabilized; quietly resolute and lighter.",
+          "emotionalBaseline": "guarded",
           "dialogueStyle": "",
           "performanceDirection": "Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile.",
           "identityReady": true,
@@ -115,28 +135,151 @@
           "reuseAuthorization": {
             "ownerUserId": "usr_alice",
             "ownerUsername": "user_alice",
-            "validatedAt": "2026-08-30T06:28:06.375Z"
+            "validatedAt": "2026-09-01T07:18:59.677Z"
           },
           "looks": [
             {
-              "id": "cinelook_default_cinecast_charprof_1786762030645_bi3091e5",
+              "id": "cinelook_charlook_1788229536432_0abdnk1t",
               "version": 2,
-              "name": "Character wardrobe",
-              "mode": "character_default",
-              "characterLookId": null,
-              "characterLookVersionId": null,
-              "assetIds": [],
-              "authoritySnapshot": [],
+              "name": "Quiet Resolve — Café Close",
+              "mode": "character_look",
+              "characterLookId": "charlook_1788229536432_0abdnk1t",
+              "characterLookVersionId": "charlookver_1788229536432_3kflzanw",
+              "characterLookProvenance": {
+                "kind": "system_generated",
+                "characterProfileId": "charprof_1788141570490_qr4e3sif",
+                "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+                "sourceAssetIds": [
+                  "ast_1788231421726_46lql8fh"
+                ],
+                "generationResultId": "job_1788231304557_qn6mtllq3",
+                "generationJobId": "job_1788231304557_qn6mtllq3",
+                "recipeId": "character-look-sheet",
+                "recipeVersion": 2,
+                "recipeFingerprint": "9c5a238c5654f585",
+                "provider": "modelark",
+                "model": "seedream-4-5-251128",
+                "recordedAt": "2026-09-01T02:57:01.751Z"
+              },
+              "characterLookIdentityAssurance": {
+                "status": "lineage_bound",
+                "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+                "validationEvidenceId": null,
+                "updatedAt": "2026-09-01T02:57:09.680Z"
+              },
+              "assetIds": [
+                "ast_1788231421726_46lql8fh"
+              ],
+              "authoritySnapshot": [
+                {
+                  "id": "ast_1788231421726_46lql8fh",
+                  "contentHash": null
+                }
+              ],
               "garmentSummary": "",
               "accessorySummary": "",
-              "coverage": "front",
+              "coverage": "multi_view",
               "sceneIds": [],
               "locked": true,
-              "updatedAt": "2026-08-30T16:00:00.503Z"
+              "updatedAt": "2026-09-01T02:57:22.123Z"
             }
           ],
           "active": true,
-          "updatedAt": "2026-08-30T16:00:00.503Z"
+          "updatedAt": "2026-09-01T07:18:59.677Z"
+        },
+        {
+          "id": "cinecast_charprof_1788141570490_qr4e3sif",
+          "characterProfileId": "charprof_1788141570490_qr4e3sif",
+          "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+          "portraitUrl": "/outputs/character-profiles/charprof_1788141570490_qr4e3sif/charver_1788141570511_ehf0ebce/face.webp",
+          "displayName": "อิงอิง",
+          "storyRole": "นารา",
+          "storyRoleSlotId": "role_1_d457",
+          "storyImportance": "supporting",
+          "objective": "ตัดสินใจว่าจะจากร้านไป หรือยอมรับความรักและความรับผิดชอบที่ร้านมีต่อเธอ",
+          "motivation": "",
+          "pressure": "",
+          "personalityTraits": [
+            "เก็บอารมณ์",
+            "รับผิดชอบ",
+            "อ่อนไหว",
+            "อดทน",
+            "กล้าตัดสินใจ"
+          ],
+          "emotionalBaseline": "จากโดดเดี่ยวและลังเล สู่สงบ มั่นคง และมีความหวังอย่างพอดี",
+          "dialogueStyle": "",
+          "performanceDirection": "เล่นแบบยับยั้ง ไม่ร้องไห้ เน้นสายตา มือ ลมหายใจ และการเปลี่ยนท่าทางเล็ก ๆ ให้การเปิดไฟเป็นจุดเปลี่ยนที่ชัดเจน",
+          "identityReady": true,
+          "apparentAgeRange": null,
+          "identityReadinessSnapshot": {
+            "status": "identity_pack_ready",
+            "ageRange": {
+              "attributeId": "character.004_e20",
+              "minimum": 20,
+              "maximum": 23
+            },
+            "presentationGender": {
+              "attributeId": "character.001",
+              "value": "female"
+            },
+            "characterType": "reusable_model",
+            "outfitBehavior": "replaceable",
+            "identityPolicyVersion": "character-identity-pack-v2"
+          },
+          "reuseAuthorization": {
+            "ownerUserId": "usr_alice",
+            "ownerUsername": "user_alice",
+            "validatedAt": "2026-09-01T07:28:35.341Z"
+          },
+          "looks": [
+            {
+              "id": "cinelook_charlook_1788229536432_0abdnk1t",
+              "version": 1,
+              "name": "Quiet Resolve — Café Close",
+              "mode": "character_look",
+              "characterLookId": "charlook_1788229536432_0abdnk1t",
+              "characterLookVersionId": "charlookver_1788229536432_3kflzanw",
+              "characterLookProvenance": {
+                "kind": "system_generated",
+                "characterProfileId": "charprof_1788141570490_qr4e3sif",
+                "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+                "sourceAssetIds": [
+                  "ast_1788231421726_46lql8fh"
+                ],
+                "generationResultId": "job_1788231304557_qn6mtllq3",
+                "generationJobId": "job_1788231304557_qn6mtllq3",
+                "recipeId": "character-look-sheet",
+                "recipeVersion": 2,
+                "recipeFingerprint": "9c5a238c5654f585",
+                "provider": "modelark",
+                "model": "seedream-4-5-251128",
+                "recordedAt": "2026-09-01T02:57:01.751Z"
+              },
+              "characterLookIdentityAssurance": {
+                "status": "lineage_bound",
+                "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+                "validationEvidenceId": null,
+                "updatedAt": "2026-09-01T02:57:09.680Z"
+              },
+              "assetIds": [
+                "ast_1788231421726_46lql8fh"
+              ],
+              "authoritySnapshot": [
+                {
+                  "id": "ast_1788231421726_46lql8fh",
+                  "contentHash": null
+                }
+              ],
+              "garmentSummary": "",
+              "accessorySummary": "",
+              "coverage": "multi_view",
+              "sceneIds": [],
+              "locked": true,
+              "updatedAt": "2026-09-01T07:30:09.062Z"
+            }
+          ],
+          "active": true,
+          "updatedAt": "2026-09-01T07:30:09.062Z"
         }
       ],
       "storyPlanVersions": [
@@ -743,345 +886,1700 @@
           ],
           "contractVersion": "story-plan-v2",
           "source": "generated",
-          "status": "approved",
+          "status": "source_changed",
           "createdAt": "2026-08-30T15:02:32.109Z"
+        },
+        {
+          "id": "cineplan_1788234211803_jw3d64s7",
+          "version": 11,
+          "parentVersionId": null,
+          "storySourceVersionId": "cinesrc_1788147288610_l5xd7gjw",
+          "objective": "Show Nara closing her family café for the last time, hearing her father’s old message, and choosing to reopen it.",
+          "logline": "บนคืนฝนตก นาราฟังเสียงของพ่อท่ามกลางร้านที่ปิดแล้ว ก่อนตัดสินใจเปิดไฟและเริ่มต้นใหม่",
+          "beats": [
+            {
+              "id": "cinebeat_1788233507893_gz1n1nuk",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "ร้านที่ปิดลง",
+              "purpose": "Establish the final closing and Nara’s isolation.",
+              "storyChange": "The café’s ending becomes emotionally personal.",
+              "emotionalStart": "Tense and watchful",
+              "emotionalEnd": "Lonely and apprehensive",
+              "targetDurationMs": 8000,
+              "sceneIds": [
+                "cinescene_1788233507893_7idqzba5"
+              ]
+            },
+            {
+              "id": "cinebeat_1788233507893_takycz1p",
+              "orderKey": 2,
+              "type": "turn",
+              "title": "เสียงจากอดีต",
+              "purpose": "Let her father’s message interrupt the silence.",
+              "storyChange": "Memory reframes closing as a choice rather than an ending.",
+              "emotionalStart": "Apprehensive",
+              "emotionalEnd": "Quietly destabilized",
+              "targetDurationMs": 10000,
+              "sceneIds": [
+                "cinescene_1788233507894_xnt2a2gh"
+              ]
+            },
+            {
+              "id": "cinebeat_1788233507893_4uzda9dm",
+              "orderKey": 3,
+              "type": "resolution",
+              "title": "แสงสุดท้าย",
+              "purpose": "Resolve her decision through action and dialogue.",
+              "storyChange": "She turns the CLOSED sign over and commits to reopening.",
+              "emotionalStart": "Uncertain",
+              "emotionalEnd": "Quietly hopeful",
+              "targetDurationMs": 12000,
+              "sceneIds": [
+                "cinescene_1788233507894_lykd6t4n"
+              ]
+            }
+          ],
+          "emotionalArc": "โดดเดี่ยวและลังเล → คิดถึงและสั่นคลอน → สงบนิ่งและมีความหวัง",
+          "sceneIds": [
+            "cinescene_1788233507893_7idqzba5",
+            "cinescene_1788233507894_xnt2a2gh",
+            "cinescene_1788233507894_lykd6t4n"
+          ],
+          "estimatedDurationMs": 30000,
+          "estimatedShotCount": 7,
+          "warnings": [
+            "The supplied creative direction and existing plan describe a station-platform story, while the story brief describes a family café; this plan follows the café story brief.",
+            "The supplied story brief is duplicated and ends mid-sentence, but the complete quoted father message and final dialogue are preserved."
+          ],
+          "contractVersion": "story-plan-v2",
+          "source": "generated",
+          "status": "draft",
+          "createdAt": "2026-09-01T03:43:31.803Z"
+        },
+        {
+          "id": "cineplan_1788234240711_e71lgbiv",
+          "version": 12,
+          "parentVersionId": null,
+          "storySourceVersionId": "cinesrc_1788147288610_l5xd7gjw",
+          "objective": "Show Nara closing her family café for the last time, hearing her father’s old message, and choosing to reopen it.",
+          "logline": "บนคืนฝนตก นาราฟังเสียงของพ่อท่ามกลางร้านที่ปิดแล้ว ก่อนตัดสินใจเปิดไฟและเริ่มต้นใหม่",
+          "beats": [
+            {
+              "id": "cinebeat_1788233507893_gz1n1nuk",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "ร้านที่ปิดลง",
+              "purpose": "Establish the final closing and Nara’s isolation.",
+              "storyChange": "The café’s ending becomes emotionally personal.",
+              "emotionalStart": "Tense and watchful",
+              "emotionalEnd": "Lonely and apprehensive",
+              "targetDurationMs": 8000,
+              "sceneIds": [
+                "cinescene_1788233507893_7idqzba5"
+              ]
+            },
+            {
+              "id": "cinebeat_1788233507893_takycz1p",
+              "orderKey": 2,
+              "type": "turn",
+              "title": "เสียงจากอดีต",
+              "purpose": "Let her father’s message interrupt the silence.",
+              "storyChange": "Memory reframes closing as a choice rather than an ending.",
+              "emotionalStart": "Apprehensive",
+              "emotionalEnd": "Quietly destabilized",
+              "targetDurationMs": 10000,
+              "sceneIds": [
+                "cinescene_1788233507894_xnt2a2gh"
+              ]
+            },
+            {
+              "id": "cinebeat_1788233507893_4uzda9dm",
+              "orderKey": 3,
+              "type": "resolution",
+              "title": "แสงสุดท้าย",
+              "purpose": "Resolve her decision through action and dialogue.",
+              "storyChange": "She turns the CLOSED sign over and commits to reopening.",
+              "emotionalStart": "Uncertain",
+              "emotionalEnd": "Quietly hopeful",
+              "targetDurationMs": 12000,
+              "sceneIds": [
+                "cinescene_1788233507894_lykd6t4n"
+              ]
+            }
+          ],
+          "emotionalArc": "โดดเดี่ยวและลังเล → คิดถึงและสั่นคลอน → สงบนิ่งและมีความหวัง",
+          "sceneIds": [
+            "cinescene_1788233507893_7idqzba5",
+            "cinescene_1788233507894_xnt2a2gh",
+            "cinescene_1788233507894_lykd6t4n"
+          ],
+          "estimatedDurationMs": 30000,
+          "estimatedShotCount": 7,
+          "warnings": [
+            "The supplied creative direction and existing plan describe a station-platform story, while the story brief describes a family café; this plan follows the café story brief.",
+            "The supplied story brief is duplicated and ends mid-sentence, but the complete quoted father message and final dialogue are preserved."
+          ],
+          "contractVersion": "story-plan-v2",
+          "source": "generated",
+          "status": "draft",
+          "createdAt": "2026-09-01T03:44:00.711Z"
+        },
+        {
+          "id": "cineplan_1788240385132_hmlryw7e",
+          "version": 13,
+          "parentVersionId": "cineplan_1788234240711_e71lgbiv",
+          "storySourceVersionId": "cinesrc_1788147288610_l5xd7gjw",
+          "objective": "สร้างหนังสั้นดราม่า 30 วินาทีที่ถ่ายทอดการตัดสินใจเปิดร้านกาแฟอีกครั้งอย่างเงียบงันและมีความหวัง",
+          "logline": "หลังปิดร้านเป็นครั้งสุดท้าย นาราได้ยินเสียงพ่อและเลือกเปลี่ยนความคิดถึงให้กลายเป็นการเริ่มต้นใหม่",
+          "beats": [
+            {
+              "id": "cinebeat_1788240340902_l4a8r87f",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "หลังปิดร้าน",
+              "purpose": "วางความสูญเสียและความโดดเดี่ยว",
+              "storyChange": "ร้านถูกปิดและนาราอยู่ลำพังท่ามกลางโต๊ะคลุมผ้า",
+              "cause": "ถึงเวลาปิดร้านของครอบครัวเป็นครั้งสุดท้าย",
+              "consequence": "เธอยังไม่สามารถก้าวออกจากความผูกพันได้",
+              "emotionalStart": "เหนื่อยและตึงเครียด",
+              "emotionalTurn": "รับรู้ความว่างเปล่า",
+              "emotionalEnd": "ลังเล",
+              "requiredElements": [
+                "ร้านกาแฟเล็ก",
+                "โต๊ะคลุมผ้า",
+                "ฝนด้านนอก",
+                "แสงเย็นจากถนน"
+              ],
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788240340903_250oip00"
+              ]
+            },
+            {
+              "id": "cinebeat_1788240340902_vbgq4a67",
+              "orderKey": 2,
+              "type": "inciting",
+              "title": "เสียงจากอดีต",
+              "purpose": "กระตุ้นการตัดสินใจ",
+              "storyChange": "นาราเปิดฟังข้อความเสียงเก่าจากพ่อ",
+              "cause": "เธอกำป้าย CLOSED และต้องการยึดสิ่งสุดท้ายไว้",
+              "consequence": "คำพูดของพ่อทำให้ความลังเลเปลี่ยนเป็นความเป็นไปได้",
+              "emotionalStart": "ปิดกั้น",
+              "emotionalTurn": "สะเทือนใจ",
+              "emotionalEnd": "นิ่งรับฟัง",
+              "requiredElements": [
+                "ป้าย CLOSED",
+                "โทรศัพท์",
+                "เสียงพ่อ"
+              ],
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788240340903_65fg25pd"
+              ]
+            },
+            {
+              "id": "cinebeat_1788240340902_vz2qp0lc",
+              "orderKey": 3,
+              "type": "choice",
+              "title": "พลิกป้าย",
+              "purpose": "แสดงการเลือกอย่างเป็นรูปธรรม",
+              "storyChange": "นาราคว่ำป้าย CLOSED และเอื้อมเปิดสวิตช์ไฟ",
+              "cause": "เธอได้ยินคำชวนให้เปิดไฟอีกครั้ง",
+              "consequence": "ร้านเริ่มกลับมามีชีวิต",
+              "emotionalStart": "เปราะบาง",
+              "emotionalTurn": "ตัดสินใจ",
+              "emotionalEnd": "สงบนิ่ง",
+              "requiredElements": [
+                "ป้ายถูกคว่ำ",
+                "สวิตช์ไฟเหนือเคาน์เตอร์"
+              ],
+              "targetDurationMs": 8000,
+              "sceneIds": [
+                "cinescene_1788240340903_7tvxkb6b"
+              ]
+            },
+            {
+              "id": "cinebeat_1788240340902_d41yhoa3",
+              "orderKey": 4,
+              "type": "payoff",
+              "title": "พรุ่งนี้",
+              "purpose": "ปิดเรื่องด้วยความหวังที่จับต้องได้",
+              "storyChange": "แสงอุ่นเติมร้านและนาราประกาศการเริ่มต้นใหม่",
+              "cause": "ไฟถูกเปิดขึ้น",
+              "consequence": "ความสิ้นสุดกลายเป็นความหวัง แม้ฝนยังตก",
+              "emotionalStart": "เงียบและหนักอึ้ง",
+              "emotionalTurn": "ปล่อยลมหายใจ",
+              "emotionalEnd": "มุ่งมั่นอย่างอ่อนโยน",
+              "requiredElements": [
+                "แสงอุ่น",
+                "ฝนด้านนอก",
+                "ประโยคสุดท้ายของนารา"
+              ],
+              "targetDurationMs": 8000,
+              "sceneIds": [
+                "cinescene_1788240340903_iw4abv93"
+              ]
+            }
+          ],
+          "emotionalArc": "ลังเลและโดดเดี่ยว → สะเทือนใจ → ยอมรับความคิดถึง → มุ่งมั่นอย่างสงบ",
+          "centralDramaticQuestion": "นาราจะปล่อยให้ร้านและความทรงจำจบลง หรือจะเลือกเปิดไฟอีกครั้ง?",
+          "storyPromise": "ความเงียบ แสงเย็น ฝน และเสียงพ่อจะพาผู้ชมไปสู่การตัดสินใจเล็กๆ ที่เปลี่ยนความสิ้นสุดให้เป็นความหวัง",
+          "finalPayoff": "นาราคว่ำป้าย CLOSED เปิดไฟเหนือเคาน์เตอร์ และพูดว่า “พรุ่งนี้...เราเปิดร้าน” ขณะที่แสงอุ่นเติมร้าน",
+          "spokenLanguage": "Thai",
+          "onScreenTextPolicy": "ไม่มีข้อความบนจอที่เพิ่มจากโลกเรื่อง ป้าย CLOSED ปรากฏเป็นพร็อพจริงเท่านั้น",
+          "dialoguePolicy": "sparse",
+          "characterAliases": [
+            {
+              "castAssignmentId": "cinecast_charprof_1786762030645_bi3091e5",
+              "storyCharacterName": "นารา"
+            }
+          ],
+          "directorOperation": "generate",
+          "directorSummary": "แผนใช้ 4 ฉากและ 7 ช็อต รวมระยะเวลา 30 วินาทีพอดี โดยรักษาความต่อเนื่องของร้าน ป้าย โทรศัพท์ แสง ฝน และอารมณ์ภายใน",
+          "directorFindings": [
+            {
+              "code": "RV-01",
+              "dimension": "performance",
+              "severity": "info",
+              "summary": "บทพูดสุดท้ายต้องการจังหวะเว้นและลมหายใจเพื่อคงความละเอียดอ่อน",
+              "recommendation": "หลีกเลี่ยงการยิ้มกว้างหรือการร้องไห้",
+              "beatId": "cinebeat_1788240340902_d41yhoa3",
+              "sceneId": "cinescene_1788240340903_iw4abv93",
+              "shotId": "cineshot_1788240340903_p28oy5ss"
+            },
+            {
+              "code": "RV-02",
+              "dimension": "audio",
+              "severity": "info",
+              "summary": "ข้อความเสียงของพ่อควรชัดกว่าเสียงฝนโดยไม่ทำลายบรรยากาศ",
+              "recommendation": "ลดระดับฝนเล็กน้อยเฉพาะช่วงข้อความเสียง",
+              "beatId": "cinebeat_1788240340902_vbgq4a67",
+              "sceneId": "cinescene_1788240340903_65fg25pd",
+              "shotId": "cineshot_1788240340903_i01ego4y"
+            },
+            {
+              "code": "RV-03",
+              "dimension": "visual",
+              "severity": "info",
+              "summary": "การเปลี่ยนแสงเป็นจุดเปลี่ยนหลักของเรื่อง",
+              "recommendation": "อย่าให้ไฟอุ่นปรากฏก่อนเสียงคลิกสวิตช์",
+              "beatId": "cinebeat_1788240340902_vz2qp0lc",
+              "sceneId": "cinescene_1788240340903_7tvxkb6b",
+              "shotId": "cineshot_1788240340903_mr5jncwz"
+            }
+          ],
+          "sourceResolution": "story_brief",
+          "warningsAcknowledged": false,
+          "filmReadiness": {
+            "status": "ready_with_warnings",
+            "dimensions": {
+              "story": "ready_with_warnings",
+              "script": "ready",
+              "performance": "ready",
+              "visual": "ready",
+              "editorial": "ready",
+              "audio": "ready",
+              "continuity": "ready",
+              "production": "ready"
+            },
+            "findings": [
+              {
+                "code": "story_role_direction_may_be_stale",
+                "dimension": "story",
+                "severity": "warning",
+                "summary": "Role direction refers to a location absent from the Story Brief (station).",
+                "recommendation": "Review this Role in Setup. The AI Director will not treat the stale location as current authority."
+              },
+              {
+                "code": "RV-01",
+                "dimension": "performance",
+                "severity": "info",
+                "summary": "บทพูดสุดท้ายต้องการจังหวะเว้นและลมหายใจเพื่อคงความละเอียดอ่อน",
+                "recommendation": "หลีกเลี่ยงการยิ้มกว้างหรือการร้องไห้",
+                "beatId": "cinebeat_1788240340902_d41yhoa3",
+                "sceneId": "cinescene_1788240340903_iw4abv93",
+                "shotId": "cineshot_1788240340903_p28oy5ss"
+              },
+              {
+                "code": "RV-02",
+                "dimension": "audio",
+                "severity": "info",
+                "summary": "ข้อความเสียงของพ่อควรชัดกว่าเสียงฝนโดยไม่ทำลายบรรยากาศ",
+                "recommendation": "ลดระดับฝนเล็กน้อยเฉพาะช่วงข้อความเสียง",
+                "beatId": "cinebeat_1788240340902_vbgq4a67",
+                "sceneId": "cinescene_1788240340903_65fg25pd",
+                "shotId": "cineshot_1788240340903_i01ego4y"
+              },
+              {
+                "code": "RV-03",
+                "dimension": "visual",
+                "severity": "info",
+                "summary": "การเปลี่ยนแสงเป็นจุดเปลี่ยนหลักของเรื่อง",
+                "recommendation": "อย่าให้ไฟอุ่นปรากฏก่อนเสียงคลิกสวิตช์",
+                "beatId": "cinebeat_1788240340902_vz2qp0lc",
+                "sceneId": "cinescene_1788240340903_7tvxkb6b",
+                "shotId": "cineshot_1788240340903_mr5jncwz"
+              }
+            ]
+          },
+          "scriptPreview": [
+            {
+              "sceneId": "cinescene_1788240340903_250oip00",
+              "sceneTitle": "ร้านหลังปิด",
+              "shotId": "cineshot_1788240340903_gam4apfo",
+              "shotTitle": "ร้านที่ปิดแล้ว",
+              "startMs": 0,
+              "endMs": 4000,
+              "visual": "นารายืนคนเดียวท่ามกลางโต๊ะที่คลุมผ้า",
+              "action": "เธอหยุดนิ่งและมองไปรอบร้าน",
+              "performance": "กะพริบตาช้า ไหล่หนัก ไม่ร้องไห้",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกเบาต่อเนื่อง",
+                  "startOffsetMs": 0,
+                  "durationMs": 4000
+                }
+              ],
+              "cut": "ตัดเข้าระยะใกล้ที่มือ"
+            },
+            {
+              "sceneId": "cinescene_1788240340903_250oip00",
+              "sceneTitle": "ร้านหลังปิด",
+              "shotId": "cineshot_1788240340903_o8l2n91v",
+              "shotTitle": "ป้ายในมือ",
+              "startMs": 4000,
+              "endMs": 7000,
+              "visual": "มือของนารากำป้าย CLOSED ขณะอีกมือเปิดโทรศัพท์",
+              "action": "เธอกดเปิดข้อความเสียง",
+              "performance": "นิ้วเกร็งแล้วชะงัก",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "foley",
+                  "source": "โทรศัพท์",
+                  "description": "เสียงกดเล่นข้อความเสียง",
+                  "startOffsetMs": 1800,
+                  "durationMs": 300
+                }
+              ],
+              "cut": "เสียงพ่อพาเข้าช็อตฟัง"
+            },
+            {
+              "sceneId": "cinescene_1788240340903_65fg25pd",
+              "sceneTitle": "ข้อความเสียงของพ่อ",
+              "shotId": "cineshot_1788240340903_i01ego4y",
+              "shotTitle": "คำชวนของพ่อ",
+              "startMs": 7000,
+              "endMs": 14000,
+              "visual": "ใบหน้านารานิ่งขณะฟังข้อความเสียง",
+              "action": "เธอฟังจนจบและค่อยๆ ผ่อนกราม",
+              "performance": "ดวงตาสั่นเล็กน้อย จากนั้นปล่อยลมหายใจหนึ่งครั้ง",
+              "dialogue": [
+                {
+                  "speakerCastAssignmentId": "",
+                  "offscreenVoiceRole": "พ่อของนารา",
+                  "text": "ถ้ายังรักมันอยู่ เปิดไฟอีกครั้งนะ",
+                  "delivery": "เสียงเก่า อบอุ่น แผ่ว และจริงใจ",
+                  "startOffsetMs": 1200,
+                  "estimatedDurationMs": 3500,
+                  "speakerVisible": false
+                }
+              ],
+              "audio": [
+                {
+                  "kind": "ambience",
+                  "source": "ร้านและฝน",
+                  "description": "ฝนเบาต่อเนื่องใต้เสียงข้อความ",
+                  "startOffsetMs": 0,
+                  "durationMs": 7000
+                }
+              ],
+              "cut": "ตัดตามสายตาไปยังมือที่สวิตช์"
+            },
+            {
+              "sceneId": "cinescene_1788240340903_7tvxkb6b",
+              "sceneTitle": "เปิดไฟ",
+              "shotId": "cineshot_1788240340903_r6o4n5eg",
+              "shotTitle": "คว่ำป้าย",
+              "startMs": 14000,
+              "endMs": 18000,
+              "visual": "นาราวางป้าย CLOSED คว่ำหน้าลงบนเคาน์เตอร์",
+              "action": "เธอปล่อยป้ายแล้วเอื้อมมือไปทางสวิตช์",
+              "performance": "มือคลายจากการกำแน่น",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "foley",
+                  "source": "ป้ายไม้",
+                  "description": "เสียงป้ายวางบนเคาน์เตอร์",
+                  "startOffsetMs": 1500,
+                  "durationMs": 400
+                }
+              ],
+              "cut": "ตัดทันทีเมื่อปลายนิ้วกดสวิตช์"
+            },
+            {
+              "sceneId": "cinescene_1788240340903_7tvxkb6b",
+              "sceneTitle": "เปิดไฟ",
+              "shotId": "cineshot_1788240340903_mr5jncwz",
+              "shotTitle": "แสงกลับมา",
+              "startMs": 18000,
+              "endMs": 22000,
+              "visual": "ไฟเหนือเคาน์เตอร์ติดขึ้นและแสงอุ่นเติมร้าน",
+              "action": "นารากดสวิตช์แล้วเงยหน้ารับแสง",
+              "performance": "ไหล่คลาย ลมหายใจยาวหนึ่งครั้ง",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "foley",
+                  "source": "สวิตช์ไฟ",
+                  "description": "เสียงคลิกและฮัมของไฟ",
+                  "startOffsetMs": 0,
+                  "durationMs": 1000
+                },
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนยังตกต่อเนื่อง",
+                  "startOffsetMs": 0,
+                  "durationMs": 4000
+                }
+              ],
+              "cut": "คัตหรือ dissolve สั้นๆ ไปยังภาพปิด"
+            },
+            {
+              "sceneId": "cinescene_1788240340903_iw4abv93",
+              "sceneTitle": "พรุ่งนี้เราเปิดร้าน",
+              "shotId": "cineshot_1788240340903_p28oy5ss",
+              "shotTitle": "คำสัญญาของวันพรุ่งนี้",
+              "startMs": 22000,
+              "endMs": 30000,
+              "visual": "นารามองร้านที่สว่างแล้วพูดเบาๆ",
+              "action": "เธอพูดประโยคสุดท้ายและคงสายตาไว้",
+              "performance": "เสียงเบาแต่ชัด เว้นจังหวะหลังคำว่า พรุ่งนี้ แล้วหายใจออก",
+              "dialogue": [
+                {
+                  "speakerCastAssignmentId": "cinecast_charprof_1786762030645_bi3091e5",
+                  "offscreenVoiceRole": "",
+                  "text": "พรุ่งนี้...เราเปิดร้าน",
+                  "delivery": "พูดเบาๆ จริงใจ มีจังหวะหยุดหลังคำว่า พรุ่งนี้",
+                  "startOffsetMs": 2000,
+                  "estimatedDurationMs": 2400,
+                  "speakerVisible": true
+                }
+              ],
+              "audio": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกต่อเนื่องและค่อยๆ เด่นขึ้นหลังบทพูด",
+                  "startOffsetMs": 0,
+                  "durationMs": 8000
+                }
+              ],
+              "cut": "ค่อยๆ จบภาพด้วย hold สั้นๆ"
+            }
+          ],
+          "sceneIds": [
+            "cinescene_1788240340903_250oip00",
+            "cinescene_1788240340903_65fg25pd",
+            "cinescene_1788240340903_7tvxkb6b",
+            "cinescene_1788240340903_iw4abv93"
+          ],
+          "estimatedDurationMs": 30000,
+          "estimatedShotCount": 6,
+          "warnings": [],
+          "contractVersion": "story-plan-v3",
+          "source": "generated",
+          "status": "draft",
+          "createdAt": "2026-09-01T05:26:25.132Z"
+        },
+        {
+          "id": "cineplan_1788240599706_sya8hxv0",
+          "version": 14,
+          "parentVersionId": "cineplan_1788240385132_hmlryw7e",
+          "storySourceVersionId": "cinesrc_1788147288610_l5xd7gjw",
+          "objective": "เล่าเสี้ยววินาทีที่นาราเปลี่ยนความคิดถึงให้เป็นการตัดสินใจเปิดร้านอีกครั้ง",
+          "logline": "หลังปิดร้านกาแฟของครอบครัวเป็นครั้งสุดท้าย นาราฟังเสียงพ่อและเลือกเปิดไฟให้ความหวังกลับมา",
+          "beats": [
+            {
+              "id": "cinebeat_1788240427300_eka8ljsa",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "ร้านหลังปิด",
+              "purpose": "สร้างความโดดเดี่ยวและแรงกดดันจากการปิดร้านครั้งสุดท้าย",
+              "storyChange": "นาราอยู่ลำพังในร้านที่มืดและว่างเปล่า ก่อนยึดป้าย CLOSED ไว้แน่น",
+              "cause": "ร้านถูกปิดเป็นครั้งสุดท้าย",
+              "consequence": "ความลังเลทำให้เธอยังไม่เดินจากไป",
+              "emotionalStart": "โดดเดี่ยว",
+              "emotionalTurn": "ลังเล",
+              "emotionalEnd": "หวั่นไหว",
+              "requiredElements": [
+                "ร้านกาแฟเล็กของครอบครัว",
+                "โต๊ะคลุมผ้า",
+                "ฝนยามเย็น",
+                "ป้าย CLOSED"
+              ],
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788240427301_f1igi2r7"
+              ]
+            },
+            {
+              "id": "cinebeat_1788240427301_dkukg4dt",
+              "orderKey": 2,
+              "type": "inciting",
+              "title": "เสียงจากอดีต",
+              "purpose": "ให้ข้อความเสียงของพ่อกระตุ้นการตัดสินใจ",
+              "storyChange": "นาราเปิดฟังข้อความเสียงเก่าและรับฟังโดยไม่ร้องไห้",
+              "cause": "เธอยังถือโทรศัพท์และต้องเผชิญความทรงจำ",
+              "consequence": "คำพูดของพ่อทำให้เธอหันไปหาสวิตช์ไฟ",
+              "emotionalStart": "หวั่นไหว",
+              "emotionalTurn": "เจ็บปวดอย่างสงบ",
+              "emotionalEnd": "นิ่งขึ้น",
+              "requiredElements": [
+                "เสียงพ่อแบบนอกจอ",
+                "ข้อความ “ถ้ายังรักมันอยู่ เปิดไฟอีกครั้งนะ”",
+                "การคลายกรามและหายใจออก"
+              ],
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788240427301_nus5bexb"
+              ]
+            },
+            {
+              "id": "cinebeat_1788240427301_f8qkl8p7",
+              "orderKey": 3,
+              "type": "decision",
+              "title": "คว่ำป้าย เปิดไฟ",
+              "purpose": "ทำให้การเลือกปรากฏผ่านการกระทำ",
+              "storyChange": "นาราคว่ำป้าย CLOSED แล้วเปิดสวิตช์ไฟเหนือเคาน์เตอร์",
+              "cause": "เสียงพ่อเปลี่ยนความคิดถึงเป็นแรงผลัก",
+              "consequence": "แสงอุ่นเติมร้านและเปลี่ยนบรรยากาศทันที",
+              "emotionalStart": "ลังเล",
+              "emotionalTurn": "ตัดสินใจ",
+              "emotionalEnd": "โล่งขึ้น",
+              "requiredElements": [
+                "ป้ายถูกคว่ำ",
+                "คลิกสวิตช์",
+                "ไฟ practical สีอุ่น",
+                "ฝนยังตก"
+              ],
+              "targetDurationMs": 8000,
+              "sceneIds": [
+                "cinescene_1788240427301_gkiuyabe"
+              ]
+            },
+            {
+              "id": "cinebeat_1788240427301_t4oj8npz",
+              "orderKey": 4,
+              "type": "payoff",
+              "title": "พรุ่งนี้เราเปิดร้าน",
+              "purpose": "ส่งมอบคำประกาศแห่งความหวัง",
+              "storyChange": "นาราพูดคำตัดสินใจออกมาและยืนนิ่งในร้านที่สว่าง",
+              "cause": "การกระทำของเธอทำให้การเริ่มต้นใหม่เป็นไปได้",
+              "consequence": "เรื่องจบด้วยความหวังที่สงบและตั้งใจแล้ว",
+              "emotionalStart": "โล่งขึ้น",
+              "emotionalTurn": "กล้าพูด",
+              "emotionalEnd": "มีความหวัง",
+              "requiredElements": [
+                "นาราพูด “พรุ่งนี้...เราเปิดร้าน”",
+                "ป้ายคว่ำบนเคาน์เตอร์",
+                "แสงอุ่นคงอยู่",
+                "ฝนด้านนอก"
+              ],
+              "targetDurationMs": 8000,
+              "sceneIds": [
+                "cinescene_1788240427301_72p1osw3"
+              ]
+            }
+          ],
+          "emotionalArc": "โดดเดี่ยวและลังเล → หวั่นไหวจากความทรงจำ → ยอมรับความสูญเสีย → มุ่งมั่นอย่างมีความหวัง",
+          "centralDramaticQuestion": "นาราจะยอมปล่อยร้านไป หรือกล้าเปิดมันอีกครั้ง?",
+          "storyPromise": "ความเงียบ ความทรงจำ และการกระทำเล็กๆ จะเปลี่ยนร้านที่มืดให้กลับมามีชีวิต",
+          "finalPayoff": "นาราคว่ำป้าย CLOSED เปิดไฟ และพูดว่า “พรุ่งนี้...เราเปิดร้าน”",
+          "spokenLanguage": "ไทย",
+          "onScreenTextPolicy": "ไม่มีข้อความบนจอเพิ่มเติม ป้าย CLOSED ปรากฏเป็นพร็อพในฉากเท่านั้น",
+          "dialoguePolicy": "sparse",
+          "characterAliases": [
+            {
+              "castAssignmentId": "cinecast_charprof_1786762030645_bi3091e5",
+              "storyCharacterName": "นารา"
+            }
+          ],
+          "directorOperation": "review_current",
+          "directorSummary": "แผนกระชับครบ 30 วินาที รักษาความต่อเนื่องของตัวละคร พร็อพ แสง ฝน และแกนภาพ",
+          "directorFindings": [
+            {
+              "code": "REVIEW_DIALOGUE_BREATH",
+              "dimension": "script",
+              "severity": "info",
+              "summary": "บทพูดและข้อความเสียงมีเวลาสำหรับจังหวะหายใจและปฏิกิริยา",
+              "recommendation": "คงช่วงเงียบหลังข้อความเสียงและหลังคำว่า “พรุ่งนี้”",
+              "beatId": "cinebeat_1788240427301_t4oj8npz",
+              "sceneId": "cinescene_1788240427301_72p1osw3",
+              "shotId": "cineshot_1788240427301_spkcqxnp"
+            },
+            {
+              "code": "REVIEW_OFFSCREEN_VOICE",
+              "dimension": "audio",
+              "severity": "info",
+              "summary": "เสียงพ่อเป็นเสียงนอกจอตามเรื่องย่อ โดยไม่มี Cast Assignment เพิ่ม",
+              "recommendation": "บันทึกเป็นเสียงนอกจอเท่านั้น",
+              "beatId": "cinebeat_1788240427301_dkukg4dt",
+              "sceneId": "cinescene_1788240427301_nus5bexb",
+              "shotId": "cineshot_1788240427301_5m7fxym8"
+            }
+          ],
+          "sourceResolution": "story_brief",
+          "warningsAcknowledged": false,
+          "filmReadiness": {
+            "status": "ready_with_warnings",
+            "dimensions": {
+              "story": "ready_with_warnings",
+              "script": "ready",
+              "performance": "ready",
+              "visual": "ready",
+              "editorial": "ready",
+              "audio": "ready",
+              "continuity": "ready",
+              "production": "ready"
+            },
+            "findings": [
+              {
+                "code": "story_role_direction_may_be_stale",
+                "dimension": "story",
+                "severity": "warning",
+                "summary": "Role direction refers to a location absent from the Story Brief (station).",
+                "recommendation": "Review this Role in Setup. The AI Director will not treat the stale location as current authority."
+              },
+              {
+                "code": "REVIEW_DIALOGUE_BREATH",
+                "dimension": "script",
+                "severity": "info",
+                "summary": "บทพูดและข้อความเสียงมีเวลาสำหรับจังหวะหายใจและปฏิกิริยา",
+                "recommendation": "คงช่วงเงียบหลังข้อความเสียงและหลังคำว่า “พรุ่งนี้”",
+                "beatId": "cinebeat_1788240427301_t4oj8npz",
+                "sceneId": "cinescene_1788240427301_72p1osw3",
+                "shotId": "cineshot_1788240427301_spkcqxnp"
+              },
+              {
+                "code": "REVIEW_OFFSCREEN_VOICE",
+                "dimension": "audio",
+                "severity": "info",
+                "summary": "เสียงพ่อเป็นเสียงนอกจอตามเรื่องย่อ โดยไม่มี Cast Assignment เพิ่ม",
+                "recommendation": "บันทึกเป็นเสียงนอกจอเท่านั้น",
+                "beatId": "cinebeat_1788240427301_dkukg4dt",
+                "sceneId": "cinescene_1788240427301_nus5bexb",
+                "shotId": "cineshot_1788240427301_5m7fxym8"
+              }
+            ]
+          },
+          "scriptPreview": [
+            {
+              "sceneId": "cinescene_1788240427301_f1igi2r7",
+              "sceneTitle": "ร้านหลังปิด",
+              "shotId": "cineshot_1788240427301_yjgogv11",
+              "shotTitle": "ร้านที่ปิดแล้ว",
+              "startMs": 0,
+              "endMs": 4000,
+              "visual": "นารายืนคนเดียวท่ามกลางโต๊ะที่คลุมผ้า",
+              "action": "เธอหยุดนิ่งและกวาดสายตามองร้าน",
+              "performance": "กะพริบตาช้า ไหล่หนัก ไม่ร้องไห้",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกเบาต่อเนื่อง",
+                  "startOffsetMs": 0,
+                  "durationMs": 4000
+                }
+              ],
+              "cut": "ตัดเข้ามือ"
+            },
+            {
+              "sceneId": "cinescene_1788240427301_f1igi2r7",
+              "sceneTitle": "ร้านหลังปิด",
+              "shotId": "cineshot_1788240427301_bl6h5wg4",
+              "shotTitle": "ป้ายในมือ",
+              "startMs": 4000,
+              "endMs": 7000,
+              "visual": "นารากำป้าย CLOSED ขณะกดเปิดโทรศัพท์",
+              "action": "เธอกดเล่นข้อความเสียง",
+              "performance": "นิ้วเกร็งแล้วชะงัก",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "foley",
+                  "source": "โทรศัพท์",
+                  "description": "เสียงกดเล่นข้อความเสียง",
+                  "startOffsetMs": 1800,
+                  "durationMs": 300
+                }
+              ],
+              "cut": "เสียงพ่อพาเข้าภาพใบหน้า"
+            },
+            {
+              "sceneId": "cinescene_1788240427301_nus5bexb",
+              "sceneTitle": "ข้อความเสียงของพ่อ",
+              "shotId": "cineshot_1788240427301_5m7fxym8",
+              "shotTitle": "คำชวนของพ่อ",
+              "startMs": 7000,
+              "endMs": 14000,
+              "visual": "ใบหน้านารานิ่งขณะฟังข้อความเสียง",
+              "action": "เธอฟังจนจบและค่อยๆ ผ่อนกราม",
+              "performance": "ดวงตาสั่นเล็กน้อย แล้วปล่อยลมหายใจ",
+              "dialogue": [
+                {
+                  "speakerCastAssignmentId": "",
+                  "offscreenVoiceRole": "พ่อของนารา",
+                  "text": "ถ้ายังรักมันอยู่ เปิดไฟอีกครั้งนะ",
+                  "delivery": "อบอุ่น แผ่ว และจริงใจ",
+                  "startOffsetMs": 1200,
+                  "estimatedDurationMs": 3500,
+                  "speakerVisible": false
+                }
+              ],
+              "audio": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนและร้าน",
+                  "description": "ฝนเบาต่อเนื่องใต้ข้อความเสียง",
+                  "startOffsetMs": 0,
+                  "durationMs": 7000
+                }
+              ],
+              "cut": "ตัดตามสายตาไปมือที่สวิตช์"
+            },
+            {
+              "sceneId": "cinescene_1788240427301_gkiuyabe",
+              "sceneTitle": "เปิดไฟ",
+              "shotId": "cineshot_1788240427301_y52m3gfs",
+              "shotTitle": "คว่ำป้าย",
+              "startMs": 14000,
+              "endMs": 18000,
+              "visual": "นาราวางป้าย CLOSED คว่ำหน้าลงบนเคาน์เตอร์",
+              "action": "เธอปล่อยป้ายแล้วเอื้อมมือไปสวิตช์",
+              "performance": "มือคลายจากการกำแน่น",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "foley",
+                  "source": "ป้ายไม้",
+                  "description": "เสียงป้ายแตะเคาน์เตอร์",
+                  "startOffsetMs": 1500,
+                  "durationMs": 400
+                }
+              ],
+              "cut": "ตัดทันทีเมื่อกดสวิตช์"
+            },
+            {
+              "sceneId": "cinescene_1788240427301_gkiuyabe",
+              "sceneTitle": "เปิดไฟ",
+              "shotId": "cineshot_1788240427301_7nmy1n1u",
+              "shotTitle": "แสงกลับมา",
+              "startMs": 18000,
+              "endMs": 22000,
+              "visual": "ไฟเหนือเคาน์เตอร์ติดและแสงอุ่นเติมร้าน",
+              "action": "นารากดสวิตช์แล้วเงยหน้ารับแสง",
+              "performance": "ไหล่คลายและหายใจยาว",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "foley",
+                  "source": "สวิตช์ไฟ",
+                  "description": "คลิกและฮัมของไฟ",
+                  "startOffsetMs": 0,
+                  "durationMs": 1000
+                },
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกต่อเนื่อง",
+                  "startOffsetMs": 0,
+                  "durationMs": 4000
+                }
+              ],
+              "cut": "ตัดสั้นไปภาพปิด"
+            },
+            {
+              "sceneId": "cinescene_1788240427301_72p1osw3",
+              "sceneTitle": "พรุ่งนี้เราเปิดร้าน",
+              "shotId": "cineshot_1788240427301_spkcqxnp",
+              "shotTitle": "คำสัญญาของวันพรุ่งนี้",
+              "startMs": 22000,
+              "endMs": 30000,
+              "visual": "นารามองร้านที่สว่างแล้วพูดประโยคสุดท้าย",
+              "action": "เธอพูดและคงสายตาไว้",
+              "performance": "หยุดหลังคำว่า พรุ่งนี้ แล้วหายใจออก",
+              "dialogue": [
+                {
+                  "speakerCastAssignmentId": "cinecast_charprof_1786762030645_bi3091e5",
+                  "offscreenVoiceRole": "",
+                  "text": "พรุ่งนี้...เราเปิดร้าน",
+                  "delivery": "เบาๆ จริงใจ เว้นจังหวะหลังคำว่า พรุ่งนี้",
+                  "startOffsetMs": 2000,
+                  "estimatedDurationMs": 2400,
+                  "speakerVisible": true
+                }
+              ],
+              "audio": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกต่อเนื่อง เด่นขึ้นหลังบทพูด",
+                  "startOffsetMs": 0,
+                  "durationMs": 8000
+                }
+              ],
+              "cut": "hold จบภาพ"
+            }
+          ],
+          "sceneIds": [
+            "cinescene_1788240427301_f1igi2r7",
+            "cinescene_1788240427301_nus5bexb",
+            "cinescene_1788240427301_gkiuyabe",
+            "cinescene_1788240427301_72p1osw3"
+          ],
+          "estimatedDurationMs": 30000,
+          "estimatedShotCount": 6,
+          "warnings": [],
+          "contractVersion": "story-plan-v3",
+          "source": "generated",
+          "status": "draft",
+          "createdAt": "2026-09-01T05:29:59.706Z"
+        },
+        {
+          "id": "cineplan_1788240613488_uis9unx0",
+          "version": 15,
+          "parentVersionId": "cineplan_1788240599706_sya8hxv0",
+          "storySourceVersionId": "cinesrc_1788147288610_l5xd7gjw",
+          "objective": "เล่าเสี้ยววินาทีที่นาราเปลี่ยนความคิดถึงให้เป็นการตัดสินใจเปิดร้านอีกครั้ง",
+          "logline": "หลังปิดร้านกาแฟของครอบครัวเป็นครั้งสุดท้าย นาราฟังเสียงพ่อและเลือกเปิดไฟให้ความหวังกลับมา",
+          "beats": [
+            {
+              "id": "cinebeat_1788240427300_eka8ljsa",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "ร้านหลังปิด",
+              "purpose": "สร้างความโดดเดี่ยวและแรงกดดันจากการปิดร้านครั้งสุดท้าย",
+              "storyChange": "นาราอยู่ลำพังในร้านที่มืดและว่างเปล่า ก่อนยึดป้าย CLOSED ไว้แน่น",
+              "cause": "ร้านถูกปิดเป็นครั้งสุดท้าย",
+              "consequence": "ความลังเลทำให้เธอยังไม่เดินจากไป",
+              "emotionalStart": "โดดเดี่ยว",
+              "emotionalTurn": "ลังเล",
+              "emotionalEnd": "หวั่นไหว",
+              "requiredElements": [
+                "ร้านกาแฟเล็กของครอบครัว",
+                "โต๊ะคลุมผ้า",
+                "ฝนยามเย็น",
+                "ป้าย CLOSED"
+              ],
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788240427301_f1igi2r7"
+              ]
+            },
+            {
+              "id": "cinebeat_1788240427301_dkukg4dt",
+              "orderKey": 2,
+              "type": "inciting",
+              "title": "เสียงจากอดีต",
+              "purpose": "ให้ข้อความเสียงของพ่อกระตุ้นการตัดสินใจ",
+              "storyChange": "นาราเปิดฟังข้อความเสียงเก่าและรับฟังโดยไม่ร้องไห้",
+              "cause": "เธอยังถือโทรศัพท์และต้องเผชิญความทรงจำ",
+              "consequence": "คำพูดของพ่อทำให้เธอหันไปหาสวิตช์ไฟ",
+              "emotionalStart": "หวั่นไหว",
+              "emotionalTurn": "เจ็บปวดอย่างสงบ",
+              "emotionalEnd": "นิ่งขึ้น",
+              "requiredElements": [
+                "เสียงพ่อแบบนอกจอ",
+                "ข้อความ “ถ้ายังรักมันอยู่ เปิดไฟอีกครั้งนะ”",
+                "การคลายกรามและหายใจออก"
+              ],
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788240427301_nus5bexb"
+              ]
+            },
+            {
+              "id": "cinebeat_1788240427301_f8qkl8p7",
+              "orderKey": 3,
+              "type": "decision",
+              "title": "คว่ำป้าย เปิดไฟ",
+              "purpose": "ทำให้การเลือกปรากฏผ่านการกระทำ",
+              "storyChange": "นาราคว่ำป้าย CLOSED แล้วเปิดสวิตช์ไฟเหนือเคาน์เตอร์",
+              "cause": "เสียงพ่อเปลี่ยนความคิดถึงเป็นแรงผลัก",
+              "consequence": "แสงอุ่นเติมร้านและเปลี่ยนบรรยากาศทันที",
+              "emotionalStart": "ลังเล",
+              "emotionalTurn": "ตัดสินใจ",
+              "emotionalEnd": "โล่งขึ้น",
+              "requiredElements": [
+                "ป้ายถูกคว่ำ",
+                "คลิกสวิตช์",
+                "ไฟ practical สีอุ่น",
+                "ฝนยังตก"
+              ],
+              "targetDurationMs": 8000,
+              "sceneIds": [
+                "cinescene_1788240427301_gkiuyabe"
+              ]
+            },
+            {
+              "id": "cinebeat_1788240427301_t4oj8npz",
+              "orderKey": 4,
+              "type": "payoff",
+              "title": "พรุ่งนี้เราเปิดร้าน",
+              "purpose": "ส่งมอบคำประกาศแห่งความหวัง",
+              "storyChange": "นาราพูดคำตัดสินใจออกมาและยืนนิ่งในร้านที่สว่าง",
+              "cause": "การกระทำของเธอทำให้การเริ่มต้นใหม่เป็นไปได้",
+              "consequence": "เรื่องจบด้วยความหวังที่สงบและตั้งใจแล้ว",
+              "emotionalStart": "โล่งขึ้น",
+              "emotionalTurn": "กล้าพูด",
+              "emotionalEnd": "มีความหวัง",
+              "requiredElements": [
+                "นาราพูด “พรุ่งนี้...เราเปิดร้าน”",
+                "ป้ายคว่ำบนเคาน์เตอร์",
+                "แสงอุ่นคงอยู่",
+                "ฝนด้านนอก"
+              ],
+              "targetDurationMs": 8000,
+              "sceneIds": [
+                "cinescene_1788240427301_72p1osw3"
+              ]
+            }
+          ],
+          "emotionalArc": "โดดเดี่ยวและลังเล → หวั่นไหวจากความทรงจำ → ยอมรับความสูญเสีย → มุ่งมั่นอย่างมีความหวัง",
+          "centralDramaticQuestion": "นาราจะยอมปล่อยร้านไป หรือกล้าเปิดมันอีกครั้ง?",
+          "storyPromise": "ความเงียบ ความทรงจำ และการกระทำเล็กๆ จะเปลี่ยนร้านที่มืดให้กลับมามีชีวิต",
+          "finalPayoff": "นาราคว่ำป้าย CLOSED เปิดไฟ และพูดว่า “พรุ่งนี้...เราเปิดร้าน”",
+          "spokenLanguage": "ไทย",
+          "onScreenTextPolicy": "ไม่มีข้อความบนจอเพิ่มเติม ป้าย CLOSED ปรากฏเป็นพร็อพในฉากเท่านั้น",
+          "dialoguePolicy": "sparse",
+          "characterAliases": [
+            {
+              "castAssignmentId": "cinecast_charprof_1786762030645_bi3091e5",
+              "storyCharacterName": "นารา"
+            }
+          ],
+          "directorOperation": "review_current",
+          "directorSummary": "แผนกระชับครบ 30 วินาที รักษาความต่อเนื่องของตัวละคร พร็อพ แสง ฝน และแกนภาพ",
+          "directorFindings": [
+            {
+              "code": "REVIEW_DIALOGUE_BREATH",
+              "dimension": "script",
+              "severity": "info",
+              "summary": "บทพูดและข้อความเสียงมีเวลาสำหรับจังหวะหายใจและปฏิกิริยา",
+              "recommendation": "คงช่วงเงียบหลังข้อความเสียงและหลังคำว่า “พรุ่งนี้”",
+              "beatId": "cinebeat_1788240427301_t4oj8npz",
+              "sceneId": "cinescene_1788240427301_72p1osw3",
+              "shotId": "cineshot_1788240427301_spkcqxnp"
+            },
+            {
+              "code": "REVIEW_OFFSCREEN_VOICE",
+              "dimension": "audio",
+              "severity": "info",
+              "summary": "เสียงพ่อเป็นเสียงนอกจอตามเรื่องย่อ โดยไม่มี Cast Assignment เพิ่ม",
+              "recommendation": "บันทึกเป็นเสียงนอกจอเท่านั้น",
+              "beatId": "cinebeat_1788240427301_dkukg4dt",
+              "sceneId": "cinescene_1788240427301_nus5bexb",
+              "shotId": "cineshot_1788240427301_5m7fxym8"
+            }
+          ],
+          "sourceResolution": "story_brief",
+          "warningsAcknowledged": true,
+          "filmReadiness": {
+            "status": "ready_with_warnings",
+            "dimensions": {
+              "story": "ready_with_warnings",
+              "script": "ready",
+              "performance": "ready",
+              "visual": "ready",
+              "editorial": "ready",
+              "audio": "ready",
+              "continuity": "ready",
+              "production": "ready"
+            },
+            "findings": [
+              {
+                "code": "story_role_direction_may_be_stale",
+                "dimension": "story",
+                "severity": "warning",
+                "summary": "Role direction refers to a location absent from the Story Brief (station).",
+                "recommendation": "Review this Role in Setup. The AI Director will not treat the stale location as current authority."
+              },
+              {
+                "code": "REVIEW_DIALOGUE_BREATH",
+                "dimension": "script",
+                "severity": "info",
+                "summary": "บทพูดและข้อความเสียงมีเวลาสำหรับจังหวะหายใจและปฏิกิริยา",
+                "recommendation": "คงช่วงเงียบหลังข้อความเสียงและหลังคำว่า “พรุ่งนี้”",
+                "beatId": "cinebeat_1788240427301_t4oj8npz",
+                "sceneId": "cinescene_1788240427301_72p1osw3",
+                "shotId": "cineshot_1788240427301_spkcqxnp"
+              },
+              {
+                "code": "REVIEW_OFFSCREEN_VOICE",
+                "dimension": "audio",
+                "severity": "info",
+                "summary": "เสียงพ่อเป็นเสียงนอกจอตามเรื่องย่อ โดยไม่มี Cast Assignment เพิ่ม",
+                "recommendation": "บันทึกเป็นเสียงนอกจอเท่านั้น",
+                "beatId": "cinebeat_1788240427301_dkukg4dt",
+                "sceneId": "cinescene_1788240427301_nus5bexb",
+                "shotId": "cineshot_1788240427301_5m7fxym8"
+              }
+            ]
+          },
+          "scriptPreview": [
+            {
+              "sceneId": "cinescene_1788240427301_f1igi2r7",
+              "sceneTitle": "ร้านหลังปิด",
+              "shotId": "cineshot_1788240427301_yjgogv11",
+              "shotTitle": "ร้านที่ปิดแล้ว",
+              "startMs": 0,
+              "endMs": 4000,
+              "visual": "นารายืนคนเดียวท่ามกลางโต๊ะที่คลุมผ้า",
+              "action": "เธอหยุดนิ่งและกวาดสายตามองร้าน",
+              "performance": "กะพริบตาช้า ไหล่หนัก ไม่ร้องไห้",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกเบาต่อเนื่อง",
+                  "startOffsetMs": 0,
+                  "durationMs": 4000
+                }
+              ],
+              "cut": "ตัดเข้ามือ"
+            },
+            {
+              "sceneId": "cinescene_1788240427301_f1igi2r7",
+              "sceneTitle": "ร้านหลังปิด",
+              "shotId": "cineshot_1788240427301_bl6h5wg4",
+              "shotTitle": "ป้ายในมือ",
+              "startMs": 4000,
+              "endMs": 7000,
+              "visual": "นารากำป้าย CLOSED ขณะกดเปิดโทรศัพท์",
+              "action": "เธอกดเล่นข้อความเสียง",
+              "performance": "นิ้วเกร็งแล้วชะงัก",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "foley",
+                  "source": "โทรศัพท์",
+                  "description": "เสียงกดเล่นข้อความเสียง",
+                  "startOffsetMs": 1800,
+                  "durationMs": 300
+                }
+              ],
+              "cut": "เสียงพ่อพาเข้าภาพใบหน้า"
+            },
+            {
+              "sceneId": "cinescene_1788240427301_nus5bexb",
+              "sceneTitle": "ข้อความเสียงของพ่อ",
+              "shotId": "cineshot_1788240427301_5m7fxym8",
+              "shotTitle": "คำชวนของพ่อ",
+              "startMs": 7000,
+              "endMs": 14000,
+              "visual": "ใบหน้านารานิ่งขณะฟังข้อความเสียง",
+              "action": "เธอฟังจนจบและค่อยๆ ผ่อนกราม",
+              "performance": "ดวงตาสั่นเล็กน้อย แล้วปล่อยลมหายใจ",
+              "dialogue": [
+                {
+                  "speakerCastAssignmentId": "",
+                  "offscreenVoiceRole": "พ่อของนารา",
+                  "text": "ถ้ายังรักมันอยู่ เปิดไฟอีกครั้งนะ",
+                  "delivery": "อบอุ่น แผ่ว และจริงใจ",
+                  "startOffsetMs": 1200,
+                  "estimatedDurationMs": 3500,
+                  "speakerVisible": false
+                }
+              ],
+              "audio": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนและร้าน",
+                  "description": "ฝนเบาต่อเนื่องใต้ข้อความเสียง",
+                  "startOffsetMs": 0,
+                  "durationMs": 7000
+                }
+              ],
+              "cut": "ตัดตามสายตาไปมือที่สวิตช์"
+            },
+            {
+              "sceneId": "cinescene_1788240427301_gkiuyabe",
+              "sceneTitle": "เปิดไฟ",
+              "shotId": "cineshot_1788240427301_y52m3gfs",
+              "shotTitle": "คว่ำป้าย",
+              "startMs": 14000,
+              "endMs": 18000,
+              "visual": "นาราวางป้าย CLOSED คว่ำหน้าลงบนเคาน์เตอร์",
+              "action": "เธอปล่อยป้ายแล้วเอื้อมมือไปสวิตช์",
+              "performance": "มือคลายจากการกำแน่น",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "foley",
+                  "source": "ป้ายไม้",
+                  "description": "เสียงป้ายแตะเคาน์เตอร์",
+                  "startOffsetMs": 1500,
+                  "durationMs": 400
+                }
+              ],
+              "cut": "ตัดทันทีเมื่อกดสวิตช์"
+            },
+            {
+              "sceneId": "cinescene_1788240427301_gkiuyabe",
+              "sceneTitle": "เปิดไฟ",
+              "shotId": "cineshot_1788240427301_7nmy1n1u",
+              "shotTitle": "แสงกลับมา",
+              "startMs": 18000,
+              "endMs": 22000,
+              "visual": "ไฟเหนือเคาน์เตอร์ติดและแสงอุ่นเติมร้าน",
+              "action": "นารากดสวิตช์แล้วเงยหน้ารับแสง",
+              "performance": "ไหล่คลายและหายใจยาว",
+              "dialogue": [],
+              "audio": [
+                {
+                  "kind": "foley",
+                  "source": "สวิตช์ไฟ",
+                  "description": "คลิกและฮัมของไฟ",
+                  "startOffsetMs": 0,
+                  "durationMs": 1000
+                },
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกต่อเนื่อง",
+                  "startOffsetMs": 0,
+                  "durationMs": 4000
+                }
+              ],
+              "cut": "ตัดสั้นไปภาพปิด"
+            },
+            {
+              "sceneId": "cinescene_1788240427301_72p1osw3",
+              "sceneTitle": "พรุ่งนี้เราเปิดร้าน",
+              "shotId": "cineshot_1788240427301_spkcqxnp",
+              "shotTitle": "คำสัญญาของวันพรุ่งนี้",
+              "startMs": 22000,
+              "endMs": 30000,
+              "visual": "นารามองร้านที่สว่างแล้วพูดประโยคสุดท้าย",
+              "action": "เธอพูดและคงสายตาไว้",
+              "performance": "หยุดหลังคำว่า พรุ่งนี้ แล้วหายใจออก",
+              "dialogue": [
+                {
+                  "speakerCastAssignmentId": "cinecast_charprof_1786762030645_bi3091e5",
+                  "offscreenVoiceRole": "",
+                  "text": "พรุ่งนี้...เราเปิดร้าน",
+                  "delivery": "เบาๆ จริงใจ เว้นจังหวะหลังคำว่า พรุ่งนี้",
+                  "startOffsetMs": 2000,
+                  "estimatedDurationMs": 2400,
+                  "speakerVisible": true
+                }
+              ],
+              "audio": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกต่อเนื่อง เด่นขึ้นหลังบทพูด",
+                  "startOffsetMs": 0,
+                  "durationMs": 8000
+                }
+              ],
+              "cut": "hold จบภาพ"
+            }
+          ],
+          "sceneIds": [
+            "cinescene_1788240427301_f1igi2r7",
+            "cinescene_1788240427301_nus5bexb",
+            "cinescene_1788240427301_gkiuyabe",
+            "cinescene_1788240427301_72p1osw3"
+          ],
+          "estimatedDurationMs": 30000,
+          "estimatedShotCount": 6,
+          "warnings": [],
+          "contractVersion": "story-plan-v3",
+          "source": "generated",
+          "status": "source_changed",
+          "createdAt": "2026-09-01T05:30:13.488Z"
         }
       ],
       "scenes": [
         {
-          "id": "cinescene_1788097357902_crh21ki1",
+          "id": "cinescene_1788240427301_f1igi2r7",
           "version": 1,
           "orderKey": 1,
-          "beatId": "cinebeat_1788097357901_7csx6009",
-          "title": "Blue-hour platform",
-          "purpose": "Establish her solitary wait and the approaching last train.",
-          "storyChange": "Platform pressure becomes personal and immediate.",
-          "location": "Nearly empty urban station platform; tracks camera-left, warm exit camera-right",
-          "time": "Blue hour, nearing the last train",
-          "emotionalStart": "Tense and watchful",
-          "emotionalEnd": "Apprehensive",
-          "transitionIntent": "Cut from waiting stillness into phone detail.",
+          "beatId": "cinebeat_1788240427300_eka8ljsa",
+          "title": "ร้านหลังปิด",
+          "purpose": "แนะนำพื้นที่และความลังเล",
+          "storyChange": "นาราจากยืนโดดเดี่ยวกลายเป็นกำป้าย CLOSED และหยิบโทรศัพท์",
+          "entryState": "ร้านมืด โต๊ะคลุมผ้า ฝนตกนอกหน้าต่าง",
+          "exitState": "ป้ายอยู่ในมือขวา โทรศัพท์อยู่มือซ้ายพร้อมเปิดข้อความเสียง",
+          "objective": "ตัดสินใจว่าจะจากร้านไปหรือไม่",
+          "pressure": "ความเงียบและการปิดร้านครั้งสุดท้าย",
+          "location": "ร้านกาแฟเล็กของครอบครัว",
+          "time": "ยามเย็น",
+          "emotionalStart": "โดดเดี่ยว",
+          "emotionalEnd": "หวั่นไหว",
+          "transitionIntent": "ตัดจากภาพกว้างสู่มือที่ถือป้ายและโทรศัพท์",
           "castAssignmentIds": [
             "cinecast_charprof_1786762030645_bi3091e5"
           ],
-          "wardrobeLookIds": [],
-          "blocking": "She stands alone beneath the station clock, gripping a black phone at chest level.",
-          "lighting": "Cool blue-hour station light, damp-concrete reflections, warm exit camera-right.",
-          "performance": "Internal restraint, shallow breathing, brief eye shift toward the clock.",
-          "audioIntent": "Low station hum and distant rail ambience; no dialogue.",
+          "wardrobeLookIds": [
+            "cinelook_charlook_1788229536432_0abdnk1t"
+          ],
+          "blocking": "นาราอยู่ด้านขวาของเฟรมใกล้เคาน์เตอร์ ไม่เปลี่ยนแกน",
+          "lighting": "แสงเย็นสีฟ้าจากถนนและหน้าต่าง ร้านด้านในมืด",
+          "performance": "นิ่ง หายใจตื้น สายตาต่ำลงอย่างลังเล",
+          "audioIntent": "ฝนเบา ฮัมไฟฟ้า และเสียงผ้าขยับ",
+          "propContinuity": "ป้ายเริ่มอยู่ใกล้เคาน์เตอร์ จากนั้นถูกกำในมือขวา โทรศัพท์อยู่มือซ้าย",
+          "screenDirection": "มองและเคลื่อนไปทางขวาอย่างต่อเนื่อง",
           "continuityNotes": [
-            "Tracks remain camera-left and exit camera-right.",
-            "Maintain exact identity, proportions, hairstyle, and wardrobe.",
-            "Never show another person."
+            "ชุดและทรงผมคงเดิม",
+            "ฝนตกต่อเนื่อง"
           ],
           "shots": [
             {
-              "id": "cineshot_1788097357902_vqssy46q",
+              "id": "cineshot_1788240427301_yjgogv11",
               "version": 2,
               "orderKey": 1,
-              "title": "Clock and waiting face",
-              "purpose": "Establish time pressure and isolation.",
-              "durationMs": 3000,
-              "framing": "Vertical medium close-up",
-              "cameraAngle": "Eye level",
-              "cameraMovement": "Very subtle push-in",
+              "title": "ร้านที่ปิดแล้ว",
+              "purpose": "สร้างความว่างเปล่า",
+              "durationMs": 4000,
+              "visibleMoment": "นารายืนคนเดียวท่ามกลางโต๊ะที่คลุมผ้า",
+              "subjectAction": "เธอหยุดนิ่งและกวาดสายตามองร้าน",
+              "emotionalTarget": "ความโดดเดี่ยวและลังเล",
+              "performanceCue": "กะพริบตาช้า ไหล่หนัก ไม่ร้องไห้",
+              "framing": "vertical medium wide",
+              "cameraAngle": "ระดับสายตา",
+              "cameraMovement": "นิ่ง",
               "lensIntent": "",
-              "blocking": "She remains beneath the clock, phone held tightly at chest level.",
-              "performance": "Still posture, shallow breath, eyes flick briefly toward the clock.",
+              "blocking": "นาราอยู่ขวา เคาน์เตอร์อยู่ซ้าย",
+              "performance": "เก็บอารมณ์ไว้ภายใน",
               "gaze": "",
-              "lighting": "Cool blue-hour light with restrained practical warmth in the background.",
-              "environment": "Damp concrete platform, subtle reflections, empty track area camera-left.",
-              "audioIntent": "Station hum and faint distant train vibration.",
-              "prompt": "Photorealistic vertical medium close-up of the exact same young woman beneath a station clock, gripping a black phone on a damp blue-hour platform; tracks camera-left, warm exit camera-right, restrained push-in, no other people.",
+              "lighting": "แสงเย็นจากหน้าต่างตัดกับร้านมืด",
+              "environment": "โต๊ะคลุมผ้า หน้าต่างมีหยดฝน",
+              "audioIntent": "ฝนและฮัมไฟฟ้าเบามาก",
+              "prompt": "Vertical cinematic medium-wide shot of a small family cafe after closing, covered tables, a young Thai woman standing alone near the counter, cool rainy dusk light, restrained introspective drama, no added text",
+              "continuityEntry": "ร้านมืด โต๊ะคลุมผ้า ฝนตก",
+              "continuityExit": "สายตานาราลดลงหาป้าย",
+              "transitionToNext": "ตัดเข้ามือ",
+              "estimatedActionDurationMs": 4000,
+              "dialogueCues": [],
+              "audioCues": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกเบาต่อเนื่อง",
+                  "startOffsetMs": 0,
+                  "durationMs": 4000
+                }
+              ],
               "castAssignmentIds": [
                 "cinecast_charprof_1786762030645_bi3091e5"
               ],
-              "wardrobeLookIds": [],
-              "continuityNotes": [
-                "Exact identity, hairstyle, proportions, and wardrobe throughout."
+              "wardrobeLookIds": [
+                "cinelook_charlook_1788229536432_0abdnk1t"
               ],
-              "storyboardStatus": "approved",
-              "approvedStoryboardSource": {
-                "assetId": "ast_1788103438901_ql05g0m6",
-                "assetVersionId": "ast_1788103438901_ql05g0m6",
-                "sourceJobId": "job_1788103364363_mmo0j8dhs",
-                "imageUrl": "/outputs/job_1788103364363_mmo0j8dhs.png",
-                "thumbnailUrl": "/outputs/thumbnails/job_1788103364363_mmo0j8dhs.webp",
-                "contentHash": "e0f993557cb7208c51c13fe50b43af886360963430d1dac001238fce464e7309",
-                "sourceFingerprint": "a6c6faa59c2b5528b58a75076f733fbbb1c1c3cfaa0ff00487fa4dad6f763c57",
-                "approvedAt": "2026-08-30T15:23:58.901Z"
-              },
-              "approvedStoryboardAttemptId": "cineattempt_1788103438913_6sqg0rha"
+              "continuityNotes": [
+                "นาราอยู่ขวาของเฟรม"
+              ],
+              "storyboardStatus": "draft"
             },
             {
-              "id": "cineshot_1788097357902_365kf1l8",
+              "id": "cineshot_1788240427301_bl6h5wg4",
               "version": 2,
               "orderKey": 2,
-              "title": "Phone in her hand",
-              "purpose": "Focus attention on the object tying her to the past.",
+              "title": "ป้ายในมือ",
+              "purpose": "นำเข้าสู่ความทรงจำ",
               "durationMs": 3000,
-              "framing": "Tight insert close-up",
-              "cameraAngle": "Slightly above hand level",
-              "cameraMovement": "Locked",
+              "visibleMoment": "นารากำป้าย CLOSED ขณะกดเปิดโทรศัพท์",
+              "subjectAction": "เธอกดเล่นข้อความเสียง",
+              "emotionalTarget": "การยึดเหนี่ยวสิ่งสุดท้าย",
+              "performanceCue": "นิ้วเกร็งแล้วชะงัก",
+              "framing": "close-up มือและวัตถุ",
+              "cameraAngle": "เฉียงต่ำเล็กน้อย",
+              "cameraMovement": "นิ่ง",
               "lensIntent": "",
-              "blocking": "Her fingers tighten around the black phone.",
-              "performance": "Small involuntary grip, otherwise controlled.",
+              "blocking": "ป้ายอยู่ด้านหน้า โทรศัพท์อยู่มือซ้ายด้านหลัง",
+              "performance": "ช้าและระวัง",
               "gaze": "",
-              "lighting": "Cool reflected station light across the phone and damp skin.",
-              "environment": "Platform texture and soft reflections remain visible.",
-              "audioIntent": "Muted rail ambience; no notification yet.",
-              "prompt": "Tight photorealistic insert of the same woman’s hand gripping a black phone on a damp station platform, cool blue-hour reflections, screen unreadable, no logos or legible text.",
+              "lighting": "แสงเย็นสะท้อนบนป้าย",
+              "environment": "ขอบเคาน์เตอร์และผ้าคลุมโต๊ะ",
+              "audioIntent": "เสียงกดโทรศัพท์ชัดเจน",
+              "prompt": "Vertical close-up of a woman's right hand gripping a CLOSED cafe sign while her left hand presses play on an old phone, cool rainy dusk light, intimate realistic drama, no added text",
+              "continuityEntry": "สายตานารามองลง ป้ายยังไม่ถูกปล่อย",
+              "continuityExit": "โทรศัพท์เริ่มเล่นเสียง",
+              "transitionToNext": "เสียงพ่อพาเข้าภาพใบหน้า",
+              "estimatedActionDurationMs": 3000,
+              "dialogueCues": [],
+              "audioCues": [
+                {
+                  "kind": "foley",
+                  "source": "โทรศัพท์",
+                  "description": "เสียงกดเล่นข้อความเสียง",
+                  "startOffsetMs": 1800,
+                  "durationMs": 300
+                }
+              ],
               "castAssignmentIds": [
                 "cinecast_charprof_1786762030645_bi3091e5"
               ],
-              "wardrobeLookIds": [],
-              "continuityNotes": [
-                "Phone remains black and screen content unreadable."
+              "wardrobeLookIds": [
+                "cinelook_charlook_1788229536432_0abdnk1t"
               ],
-              "storyboardStatus": "approved",
-              "approvedStoryboardSource": {
-                "assetId": "ast_1788103658655_jp4tsn6j",
-                "assetVersionId": "ast_1788103658655_jp4tsn6j",
-                "sourceJobId": "job_1788103538319_lyz940imd",
-                "imageUrl": "/outputs/job_1788103538319_lyz940imd.png",
-                "thumbnailUrl": "/outputs/thumbnails/job_1788103538319_lyz940imd.webp",
-                "contentHash": "b31ac50aded1a00a27e18a8106fc9430805704d5d8ca2b546408ec71e4c9e816",
-                "sourceFingerprint": "ec67e87a9f4e7a33a98f5a4749413fd643f74179bafdb237caeb88de48583958",
-                "approvedAt": "2026-08-30T15:27:38.655Z"
-              },
-              "approvedStoryboardAttemptId": "cineattempt_1788103658671_bhnlx8s4"
+              "continuityNotes": [
+                "ป้ายยังอยู่มือขวา"
+              ],
+              "storyboardStatus": "draft"
             }
           ],
           "shotOrder": [
-            "cineshot_1788097357902_vqssy46q",
-            "cineshot_1788097357902_365kf1l8"
+            "cineshot_1788240427301_yjgogv11",
+            "cineshot_1788240427301_bl6h5wg4"
           ],
-          "durationMs": 6000
+          "durationMs": 7000
         },
         {
-          "id": "cinescene_1788097357902_c6zh5xzy",
+          "id": "cinescene_1788240427301_nus5bexb",
           "version": 1,
           "orderKey": 2,
-          "beatId": "cinebeat_1788097357901_m2qsi98s",
-          "title": "Silent notification",
-          "purpose": "Let the past intrude through a silent phone alert, destabilizing her without revealing its meaning.",
-          "storyChange": "The unreadable notification turns waiting into an immediate personal decision, setting up her choice to leave.",
-          "location": "The same nearly empty urban platform beneath the station clock; tracks remain camera-left and warm exit camera-right.",
-          "time": "Continuous blue hour, moments before the last train.",
-          "emotionalStart": "Apprehensive and tightly controlled.",
-          "emotionalEnd": "Briefly destabilized, with the first hint of resolve.",
-          "transitionIntent": "Hard cut from the preceding phone insert to the screen lighting, then drift to her eyes as the arriving train draws her attention toward the tracks.",
+          "beatId": "cinebeat_1788240427301_dkukg4dt",
+          "title": "ข้อความเสียงของพ่อ",
+          "purpose": "ให้คำพูดเป็นแรงผลัก",
+          "storyChange": "นาราฟังเสียงพ่อจนความคิดถึงกลายเป็นความตั้งใจ",
+          "entryState": "โทรศัพท์เริ่มเล่นข้อความเสียง",
+          "exitState": "นาราลดโทรศัพท์และมองไปยังสวิตช์",
+          "objective": "ฟังข้อความให้จบโดยไม่หนีจากความทรงจำ",
+          "pressure": "ความกลัวว่าจะเริ่มใหม่ไม่ได้",
+          "location": "หลังเคาน์เตอร์ร้านกาแฟ",
+          "time": "ยามเย็นต่อเนื่อง",
+          "emotionalStart": "หวั่นไหว",
+          "emotionalEnd": "นิ่งขึ้น",
+          "transitionIntent": "ดันกล้องเข้าหาใบหน้า แล้วตัดตามสายตาไปสวิตช์",
           "castAssignmentIds": [
             "cinecast_charprof_1786762030645_bi3091e5"
           ],
-          "wardrobeLookIds": [],
-          "blocking": "She holds the black phone at chest level. It vibrates once and lights. Her thumb freezes; she looks down, then slowly toward the tracks camera-left without stepping forward.",
-          "lighting": "Cool blue station light shapes her face and damp surroundings; a faint, natural phone glow touches her fingers. Keep the warm exit subtly present camera-right.",
-          "performance": "Play the impact internally: one restrained flinch in the thumb, shallow breath, a small tightening of the jaw, then a controlled eye shift toward the train. No tears, dialogue, or melodrama.",
-          "audioIntent": "A single muted vibration interrupts the low station hum. Distant train movement grows slightly, then holds beneath her silence.",
+          "wardrobeLookIds": [
+            "cinelook_charlook_1788229536432_0abdnk1t"
+          ],
+          "blocking": "นารายืนเดิม โทรศัพท์แนบหู ป้ายอยู่มือขวา",
+          "lighting": "แสงเย็นคงเดิมจนกว่าจะเปิดไฟ",
+          "performance": "กรามคลายและมีลมหายใจออกหนึ่งครั้ง",
+          "audioIntent": "เสียงพ่อเด่นเหนือเสียงฝน",
+          "propContinuity": "โทรศัพท์อยู่มือซ้าย ป้ายอยู่มือขวา",
+          "screenDirection": "รักษาทิศทางมองไปทางขวา",
           "continuityNotes": [
-            "Notification text, sender, and any identifying content remain completely unreadable.",
-            "Preserve the exact identity, proportions, hairstyle, and wardrobe from adjacent scenes.",
-            "Tracks stay camera-left and exit camera-right.",
-            "Never show another person, silhouette, or reflection of another person.",
-            "The phone remains black and in her hand through the end of this scene."
+            "ไม่มีตัวละครอื่นปรากฏ"
           ],
           "shots": [
             {
-              "id": "cineshot_1788097357902_a2e1bkto",
+              "id": "cineshot_1788240427301_5m7fxym8",
               "version": 2,
               "orderKey": 1,
-              "title": "Unreadable interruption",
-              "purpose": "Deliver the silent notification as the personal intrusion.",
-              "durationMs": 3000,
-              "framing": "Extreme close-up vertical insert of the phone and her fingers.",
-              "cameraAngle": "Slightly downward hand-level angle.",
-              "cameraMovement": "Locked.",
+              "title": "คำชวนของพ่อ",
+              "purpose": "เผยแรงกระตุ้น",
+              "durationMs": 7000,
+              "visibleMoment": "ใบหน้านารานิ่งขณะฟังข้อความเสียง",
+              "subjectAction": "เธอฟังจนจบและค่อยๆ ผ่อนกราม",
+              "emotionalTarget": "คิดถึงโดยไม่แตกสลาย",
+              "performanceCue": "ดวงตาสั่นเล็กน้อย แล้วปล่อยลมหายใจ",
+              "framing": "close-up ใบหน้าและโทรศัพท์",
+              "cameraAngle": "ระดับสายตา",
+              "cameraMovement": "ดันเข้าอย่างช้าๆ",
               "lensIntent": "",
-              "blocking": "The black phone lights in her grip; her thumb stops mid-motion as the vibration passes.",
-              "performance": "Only the frozen thumb and a slight finger tension reveal the impact.",
+              "blocking": "นาราอยู่กึ่งกลางค่อนไปทางขวา",
+              "performance": "ละเอียดอ่อนและควบคุมอารมณ์",
               "gaze": "",
-              "lighting": "Cool reflected platform light with a faint, non-dominant screen glow.",
-              "environment": "Damp concrete and soft blue reflections; no legible signage or background figures.",
-              "audioIntent": "One muted vibration, with the station hum continuing underneath.",
-              "prompt": "Photorealistic vertical extreme close-up of the same young woman’s hand holding a black phone as it lights with a completely unreadable notification on a damp blue-hour urban platform; no logos, no legible text, no sender identity, no other people, cool realistic reflections.",
+              "lighting": "แสงเย็นด้านข้าง",
+              "environment": "ร้านมืดและฝนพร่าด้านหลัง",
+              "audioIntent": "เสียงพ่อชัด ฝนลดลงเล็กน้อย",
+              "prompt": "Vertical close-up of a restrained young Thai woman listening to an old voice message in a dim family cafe, subtle eye shift, jaw release, cool rainy dusk light, emotional realism, no subtitles",
+              "continuityEntry": "โทรศัพท์เพิ่งเปิด ป้ายอยู่มือขวา",
+              "continuityExit": "เธอลดโทรศัพท์และมองสวิตช์",
+              "transitionToNext": "ตัดตามสายตาไปมือที่สวิตช์",
+              "estimatedActionDurationMs": 7000,
+              "dialogueCues": [
+                {
+                  "speakerCastAssignmentId": "",
+                  "offscreenVoiceRole": "พ่อของนารา",
+                  "text": "ถ้ายังรักมันอยู่ เปิดไฟอีกครั้งนะ",
+                  "delivery": "อบอุ่น แผ่ว และจริงใจ",
+                  "startOffsetMs": 1200,
+                  "estimatedDurationMs": 3500,
+                  "speakerVisible": false
+                }
+              ],
+              "audioCues": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนและร้าน",
+                  "description": "ฝนเบาต่อเนื่องใต้ข้อความเสียง",
+                  "startOffsetMs": 0,
+                  "durationMs": 7000
+                }
+              ],
               "castAssignmentIds": [
                 "cinecast_charprof_1786762030645_bi3091e5"
               ],
-              "wardrobeLookIds": [],
+              "wardrobeLookIds": [
+                "cinelook_charlook_1788229536432_0abdnk1t"
+              ],
               "continuityNotes": [
-                "Keep every screen character and sender detail unreadable.",
-                "Phone remains black and physically consistent with the preceding insert."
+                "ไม่มีน้ำตา"
               ],
-              "storyboardStatus": "approved",
-              "approvedStoryboardSource": {
-                "assetId": "ast_1788105044356_7a6wnwwp",
-                "assetVersionId": "ast_1788105044356_7a6wnwwp",
-                "sourceJobId": "job_1788103676797_1vqpupji1",
-                "imageUrl": "/outputs/job_1788103676797_1vqpupji1.png",
-                "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_1vqpupji1.webp",
-                "contentHash": "f5cfc5e729f5b989ed616c7947cbf8044f402a654e03cebc8b8b16eaf766c386",
-                "sourceFingerprint": "d9c398b1afdd99d5ab7378bfe407838ff885a82ed4b3aa87b9ef4872b1ae6c17",
-                "approvedAt": "2026-08-30T15:50:44.356Z"
-              },
-              "approvedStoryboardAttemptId": "cineattempt_1788103676803_p4kjl8yv"
-            },
-            {
-              "id": "cineshot_1788097357902_m3vn9nxs",
-              "version": 2,
-              "orderKey": 2,
-              "title": "Choice in her eyes",
-              "purpose": "Show destabilization and the pressure of the approaching train without dialogue.",
-              "durationMs": 4000,
-              "framing": "Tight vertical profile close-up.",
-              "cameraAngle": "Eye level.",
-              "cameraMovement": "Very slow lateral drift from the phone toward her eyes.",
-              "lensIntent": "",
-              "blocking": "She lowers the phone slightly, raises her gaze toward tracks camera-left, and remains planted beneath the clock.",
-              "performance": "A restrained eye shift, shallow breath, slight jaw tension followed by minimal release; her expression stays unreadable rather than tearful.",
-              "gaze": "",
-              "lighting": "Cool blue light across her face; restrained warm exit bokeh remains camera-right, with no beauty filter.",
-              "environment": "Empty damp platform, subtle reflections, no footsteps, silhouettes, or additional movement.",
-              "audioIntent": "Distant train rumble and low station hum; no dialogue and no notification sound beyond the earlier vibration.",
-              "prompt": "Photorealistic vertical tight profile close-up of the exact same young woman on a nearly empty damp urban platform, shifting her eyes from a black phone with an unreadable screen toward tracks camera-left; cool blue-hour light, subtle warm exit bokeh camera-right, restrained internal drama, no tears, no smile, no other people.",
-              "castAssignmentIds": [
-                "cinecast_charprof_1786762030645_bi3091e5"
-              ],
-              "wardrobeLookIds": [],
-              "continuityNotes": [
-                "Maintain exact face, hairstyle, proportions, and wardrobe.",
-                "End with her still facing the tracks, ready for the following scene’s pocketing action.",
-                "Do not reveal any readable phone content."
-              ],
-              "storyboardStatus": "approved",
-              "approvedStoryboardSource": {
-                "assetId": "ast_1788105053938_ozx95yow",
-                "assetVersionId": "ast_1788105053938_ozx95yow",
-                "sourceJobId": "job_1788103676797_7998zx4md",
-                "imageUrl": "/outputs/job_1788103676797_7998zx4md.png",
-                "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_7998zx4md.webp",
-                "contentHash": "56212154be811d46aec0392c6f024ca9ffd5938bc9d53ceb92ae32f50a558656",
-                "sourceFingerprint": "045b2e2b5ed35188e2ed851c7c1aa403dcd327afc0745c8e56c06bbf28a76b4c",
-                "approvedAt": "2026-08-30T15:50:53.938Z"
-              },
-              "approvedStoryboardAttemptId": "cineattempt_1788103676803_aaajgeeb"
+              "storyboardStatus": "draft"
             }
           ],
           "shotOrder": [
-            "cineshot_1788097357902_a2e1bkto",
-            "cineshot_1788097357902_m3vn9nxs"
+            "cineshot_1788240427301_5m7fxym8"
           ],
           "durationMs": 7000
         },
         {
-          "id": "cinescene_1788097357902_4a78ycqk",
+          "id": "cinescene_1788240427301_gkiuyabe",
           "version": 1,
           "orderKey": 3,
-          "beatId": "cinebeat_1788097357902_tc0ziosg",
-          "title": "The warm exit",
-          "purpose": "Resolve the decision through a simple physical action and hopeful movement.",
-          "storyChange": "She pockets the phone, exhales, and leaves the platform toward warmth.",
-          "location": "Same platform leading to warm station exit camera-right",
-          "time": "Continuous blue hour into warm station light",
-          "emotionalStart": "Briefly destabilized",
-          "emotionalEnd": "Quietly hopeful",
-          "transitionIntent": "Match cut from phone to pocket, then follow her exit.",
+          "beatId": "cinebeat_1788240427301_f8qkl8p7",
+          "title": "เปิดไฟ",
+          "purpose": "ทำให้การเลือกปรากฏเป็นการกระทำ",
+          "storyChange": "นาราคว่ำป้ายและเปิดไฟเหนือเคาน์เตอร์",
+          "entryState": "ร้านยังมืด นารามองสวิตช์",
+          "exitState": "ไฟอุ่นติดและนาราหันกลับเข้าร้าน",
+          "objective": "เลือกให้ร้านมีชีวิตอีกครั้ง",
+          "pressure": "ความกลัวว่าการเริ่มใหม่คือการยึดติดกับอดีต",
+          "location": "เคาน์เตอร์ร้านกาแฟ",
+          "time": "ยามเย็นต่อเนื่อง",
+          "emotionalStart": "ลังเล",
+          "emotionalEnd": "ตั้งใจ",
+          "transitionIntent": "ติดตามมือจากป้ายไปสวิตช์ แล้วเปิดสู่ภาพร้านที่เปลี่ยนสี",
           "castAssignmentIds": [
             "cinecast_charprof_1786762030645_bi3091e5"
           ],
-          "wardrobeLookIds": [],
-          "blocking": "She pockets the phone, exhales once, turns away from the tracks, and walks camera-right.",
-          "lighting": "Cool platform light transitions naturally into warm practical station light.",
-          "performance": "One clear exhale, shoulders release subtly, no triumphant smile.",
-          "audioIntent": "Exhale foregrounded; train recedes; soft footsteps toward exit.",
+          "wardrobeLookIds": [
+            "cinelook_charlook_1788229536432_0abdnk1t"
+          ],
+          "blocking": "มือขวาคว่ำป้าย มือซ้ายเอื้อมสวิตช์",
+          "lighting": "แสงเย็นจนคลิกสวิตช์ จากนั้นไฟอุ่นทำงาน",
+          "performance": "ช้า หนักแน่น",
+          "audioIntent": "เสียงป้ายแตะไม้ คลิกสวิตช์ และฮัมไฟ",
+          "propContinuity": "ป้ายคว่ำหน้าลงบนเคาน์เตอร์",
+          "screenDirection": "มือเคลื่อนไปทางขวาต่อเนื่อง",
           "continuityNotes": [
-            "She chooses neither the train nor the past.",
-            "Tracks remain camera-left; exit remains camera-right.",
-            "End before she disappears completely."
+            "แสงเปลี่ยนหลังคลิกเท่านั้น"
           ],
           "shots": [
             {
-              "id": "cineshot_1788097357902_o78pk0o8",
+              "id": "cineshot_1788240427301_y52m3gfs",
               "version": 2,
               "orderKey": 1,
-              "title": "Pocket and exhale",
-              "purpose": "Make the decision physically clear.",
-              "durationMs": 3000,
-              "framing": "Medium close-up",
-              "cameraAngle": "Eye level",
-              "cameraMovement": "Gentle follow",
+              "title": "คว่ำป้าย",
+              "purpose": "ยุติสถานะปิดร้าน",
+              "durationMs": 4000,
+              "visibleMoment": "นาราวางป้าย CLOSED คว่ำหน้าลงบนเคาน์เตอร์",
+              "subjectAction": "เธอปล่อยป้ายแล้วเอื้อมมือไปสวิตช์",
+              "emotionalTarget": "การยอมรับและเริ่มเลือก",
+              "performanceCue": "มือคลายจากการกำแน่น",
+              "framing": "medium close-up มือ เคาน์เตอร์ และสวิตช์",
+              "cameraAngle": "เฉียงระดับเคาน์เตอร์",
+              "cameraMovement": "แพนสั้นตามมือ",
               "lensIntent": "",
-              "blocking": "She pockets the black phone, exhales, and turns camera-right.",
-              "performance": "Jaw releases; one clear exhale; understated expression.",
+              "blocking": "ป้ายซ้าย สวิตช์ขวา",
+              "performance": "ช้าและมั่นคง",
               "gaze": "",
-              "lighting": "Cool light on her back, warm exit beginning to shape the frame.",
-              "environment": "Damp concrete and subtle reflections.",
-              "audioIntent": "Clear exhale over receding train ambience.",
-              "prompt": "Photorealistic vertical medium close-up of the same young woman pocketing a black phone and exhaling on a damp urban platform, turning toward the warm exit camera-right; cool blue-hour light, restrained hope, no smile, no other people.",
+              "lighting": "แสงเย็น",
+              "environment": "เคาน์เตอร์และโต๊ะคลุมผ้า",
+              "audioIntent": "เสียงป้ายวางบนไม้",
+              "prompt": "Vertical cinematic medium close-up of a woman's hand turning a CLOSED cafe sign face down on a wooden counter, then reaching toward a nearby light switch, cool rainy dusk, restrained realism, no added text",
+              "continuityEntry": "ป้ายถูกกำแน่น",
+              "continuityExit": "ป้ายคว่ำ ปลายนิ้วแตะสวิตช์",
+              "transitionToNext": "ตัดทันทีเมื่อกดสวิตช์",
+              "estimatedActionDurationMs": 4000,
+              "dialogueCues": [],
+              "audioCues": [
+                {
+                  "kind": "foley",
+                  "source": "ป้ายไม้",
+                  "description": "เสียงป้ายแตะเคาน์เตอร์",
+                  "startOffsetMs": 1500,
+                  "durationMs": 400
+                }
+              ],
               "castAssignmentIds": [
                 "cinecast_charprof_1786762030645_bi3091e5"
               ],
-              "wardrobeLookIds": [],
-              "continuityNotes": [
-                "Phone is no longer visible after being pocketed."
+              "wardrobeLookIds": [
+                "cinelook_charlook_1788229536432_0abdnk1t"
               ],
-              "storyboardStatus": "approved",
-              "approvedStoryboardSource": {
-                "assetId": "ast_1788105061159_57vi2zmx",
-                "assetVersionId": "ast_1788105061159_57vi2zmx",
-                "sourceJobId": "job_1788103676797_j95e504fk",
-                "imageUrl": "/outputs/job_1788103676797_j95e504fk.png",
-                "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_j95e504fk.webp",
-                "contentHash": "d81b9481a6f23474e81ac7dd4c9ca970c7ac75de00bbfe37619906079e686501",
-                "sourceFingerprint": "966280a020b87013e767bea3028c83628dac9eee12ce8da5a5d9a452147cd6b5",
-                "approvedAt": "2026-08-30T15:51:01.159Z"
-              },
-              "approvedStoryboardAttemptId": "cineattempt_1788103676803_uqazjkfw"
+              "continuityNotes": [
+                "ป้ายคว่ำชัดเจน"
+              ],
+              "storyboardStatus": "draft"
             },
             {
-              "id": "cineshot_1788097357902_r2456ibg",
+              "id": "cineshot_1788240427301_7nmy1n1u",
               "version": 2,
               "orderKey": 2,
-              "title": "Walk into warmth",
-              "purpose": "End on quiet hope and forward motion.",
+              "title": "แสงกลับมา",
+              "purpose": "เผยผลของการเลือก",
               "durationMs": 4000,
-              "framing": "Vertical wide rear three-quarter shot",
-              "cameraAngle": "Eye level",
-              "cameraMovement": "Slow tracking follow",
+              "visibleMoment": "ไฟเหนือเคาน์เตอร์ติดและแสงอุ่นเติมร้าน",
+              "subjectAction": "นารากดสวิตช์แล้วเงยหน้ารับแสง",
+              "emotionalTarget": "โล่งใจและมีความหวังอย่างสงบ",
+              "performanceCue": "ไหล่คลายและหายใจยาว",
+              "framing": "vertical medium shot",
+              "cameraAngle": "ระดับสายตา",
+              "cameraMovement": "นิ่งหลังเปิดไฟ",
               "lensIntent": "",
-              "blocking": "She walks alone from the cool platform toward the warm exit camera-right.",
-              "performance": "Steady, lighter pace; relaxed but not triumphant posture.",
+              "blocking": "นาราอยู่ขวา เคาน์เตอร์ซ้าย",
+              "performance": "อบอุ่นขึ้นเล็กน้อย ไม่ยิ้มกว้าง",
               "gaze": "",
-              "lighting": "Natural transition from cool blue platform light into warm station practicals.",
-              "environment": "Damp reflective concrete, nearly empty station, no visible people.",
-              "audioIntent": "Soft footsteps, station hum, train fading behind her.",
-              "prompt": "Photorealistic vertical wide rear three-quarter shot of the same young woman walking alone from a cool blue-hour platform into a warm station exit camera-right; tracks camera-left, damp reflections, restrained hopeful ending, no sentimentality, no beauty filter, no other people.",
+              "lighting": "ไฟอุ่นตัดกับฝนสีฟ้าด้านนอก",
+              "environment": "ร้านเริ่มมีมิติจากแสงใหม่",
+              "audioIntent": "คลิกสวิตช์ ฮัมไฟ และฝน",
+              "prompt": "Vertical medium shot of a small family cafe lighting up with warm practical light as a young Thai woman lifts her face and exhales, rain visible outside, restrained hopeful drama, no text overlay",
+              "continuityEntry": "ปลายนิ้วแตะสวิตช์ ร้านมืด",
+              "continuityExit": "ไฟอุ่นติด นาราหันเข้าร้าน",
+              "transitionToNext": "ตัดสั้นไปภาพปิด",
+              "estimatedActionDurationMs": 4000,
+              "dialogueCues": [],
+              "audioCues": [
+                {
+                  "kind": "foley",
+                  "source": "สวิตช์ไฟ",
+                  "description": "คลิกและฮัมของไฟ",
+                  "startOffsetMs": 0,
+                  "durationMs": 1000
+                },
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกต่อเนื่อง",
+                  "startOffsetMs": 0,
+                  "durationMs": 4000
+                }
+              ],
               "castAssignmentIds": [
                 "cinecast_charprof_1786762030645_bi3091e5"
               ],
-              "wardrobeLookIds": [],
-              "continuityNotes": [
-                "Final frame preserves warm exit direction and continuous wardrobe identity."
+              "wardrobeLookIds": [
+                "cinelook_charlook_1788229536432_0abdnk1t"
               ],
-              "storyboardStatus": "approved",
-              "approvedStoryboardSource": {
-                "assetId": "ast_1788105067960_xb4cuhd7",
-                "assetVersionId": "ast_1788105067960_xb4cuhd7",
-                "sourceJobId": "job_1788103676797_hm2psu5c8",
-                "imageUrl": "/outputs/job_1788103676797_hm2psu5c8.png",
-                "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_hm2psu5c8.webp",
-                "contentHash": "274348cc4f1bc30540ddd7a32f87ccc9221cabb50e3265b2680d58dddb34db7b",
-                "sourceFingerprint": "74b85387575967df1ec5eea65a7e1f181644ac3141400a479b50404b91b2f23f",
-                "approvedAt": "2026-08-30T15:51:07.959Z"
-              },
-              "approvedStoryboardAttemptId": "cineattempt_1788103676803_zb5d5mr7"
+              "continuityNotes": [
+                "แสงอุ่นคงอยู่"
+              ],
+              "storyboardStatus": "draft"
             }
           ],
           "shotOrder": [
-            "cineshot_1788097357902_o78pk0o8",
-            "cineshot_1788097357902_r2456ibg"
+            "cineshot_1788240427301_y52m3gfs",
+            "cineshot_1788240427301_7nmy1n1u"
           ],
-          "durationMs": 7000
+          "durationMs": 8000
+        },
+        {
+          "id": "cinescene_1788240427301_72p1osw3",
+          "version": 1,
+          "orderKey": 4,
+          "beatId": "cinebeat_1788240427301_t4oj8npz",
+          "title": "พรุ่งนี้เราเปิดร้าน",
+          "purpose": "จบด้วยคำประกาศและภาพแห่งความหวัง",
+          "storyChange": "นาราพูดการตัดสินใจออกมาและยืนนิ่งในร้านที่สว่าง",
+          "entryState": "ร้านสว่าง นารายืนหลังเคาน์เตอร์",
+          "exitState": "นารานิ่งอย่างมุ่งมั่น ป้ายคว่ำ ไฟอุ่นและฝนยังอยู่",
+          "objective": "เปลี่ยนความตั้งใจภายในให้เป็นคำพูด",
+          "pressure": "ต้องกล้าประกาศการเริ่มต้นใหม่",
+          "location": "ภายในร้านกาแฟ มองไปยังหน้าต่างฝนตก",
+          "time": "ยามเย็น",
+          "emotionalStart": "โล่งขึ้น",
+          "emotionalEnd": "มีความหวังและตั้งใจ",
+          "transitionIntent": "ถือภาพนิ่งให้แสงและฝนทำงาน",
+          "castAssignmentIds": [
+            "cinecast_charprof_1786762030645_bi3091e5"
+          ],
+          "wardrobeLookIds": [
+            "cinelook_charlook_1788229536432_0abdnk1t"
+          ],
+          "blocking": "นารายืนกึ่งกลางหลังเคาน์เตอร์ หันสามส่วนเข้ากล้องและหน้าต่าง",
+          "lighting": "ไฟอุ่นบนใบหน้า ขอบหน้าต่างเป็นแสงเย็น",
+          "performance": "พูดเบา ชัด เว้นจังหวะ แล้วหายใจออก",
+          "audioIntent": "เสียงพูดนำหน้าเสียงฝน",
+          "propContinuity": "ป้าย CLOSED คว่ำ โทรศัพท์วางข้างป้าย",
+          "screenDirection": "ไม่กลับแกน",
+          "continuityNotes": [
+            "ไฟอุ่นเปิดค้าง",
+            "ฝนตกต่อเนื่อง"
+          ],
+          "shots": [
+            {
+              "id": "cineshot_1788240427301_spkcqxnp",
+              "version": 2,
+              "orderKey": 1,
+              "title": "คำสัญญาของวันพรุ่งนี้",
+              "purpose": "ปิดเรื่องด้วยการตัดสินใจ",
+              "durationMs": 8000,
+              "visibleMoment": "นารามองร้านที่สว่างแล้วพูดประโยคสุดท้าย",
+              "subjectAction": "เธอพูดและคงสายตาไว้",
+              "emotionalTarget": "ความหวังที่ตัดสินใจแล้ว",
+              "performanceCue": "หยุดหลังคำว่า พรุ่งนี้ แล้วหายใจออก",
+              "framing": "vertical medium close-up",
+              "cameraAngle": "ระดับสายตา",
+              "cameraMovement": "นิ่ง",
+              "lensIntent": "",
+              "blocking": "นารากึ่งกลาง แสงอุ่นเหนือไหล่ ป้ายคว่ำเบื้องหน้า",
+              "performance": "สงบ มั่นคง ไม่ยิ้มกว้าง",
+              "gaze": "",
+              "lighting": "ไฟอุ่นกับขอบฝนสีฟ้า",
+              "environment": "ร้านอบอุ่นขึ้น โต๊ะยังคลุมผ้า",
+              "audioIntent": "บทพูดชัด แล้วปล่อยเสียงฝนค้างท้าย",
+              "prompt": "Vertical medium close-up of a young Thai woman behind the counter of a newly lit family cafe, warm light on her face, rain through the window, quiet hopeful resolve, restrained performance, no subtitles or added text",
+              "continuityEntry": "ไฟอุ่นเปิด นาราหันสามส่วนเข้ากล้อง",
+              "continuityExit": "นารานิ่ง ร้านสว่าง ฝนยังตก",
+              "transitionToNext": "hold จบภาพ",
+              "estimatedActionDurationMs": 8000,
+              "dialogueCues": [
+                {
+                  "speakerCastAssignmentId": "cinecast_charprof_1786762030645_bi3091e5",
+                  "offscreenVoiceRole": "",
+                  "text": "พรุ่งนี้...เราเปิดร้าน",
+                  "delivery": "เบาๆ จริงใจ เว้นจังหวะหลังคำว่า พรุ่งนี้",
+                  "startOffsetMs": 2000,
+                  "estimatedDurationMs": 2400,
+                  "speakerVisible": true
+                }
+              ],
+              "audioCues": [
+                {
+                  "kind": "ambience",
+                  "source": "ฝนด้านนอก",
+                  "description": "ฝนตกต่อเนื่อง เด่นขึ้นหลังบทพูด",
+                  "startOffsetMs": 0,
+                  "durationMs": 8000
+                }
+              ],
+              "castAssignmentIds": [
+                "cinecast_charprof_1786762030645_bi3091e5"
+              ],
+              "wardrobeLookIds": [
+                "cinelook_charlook_1788229536432_0abdnk1t"
+              ],
+              "continuityNotes": [
+                "คงแสงอุ่นและป้ายคว่ำจนจบ"
+              ],
+              "storyboardStatus": "draft"
+            }
+          ],
+          "shotOrder": [
+            "cineshot_1788240427301_spkcqxnp"
+          ],
+          "durationMs": 8000
         }
       ],
       "generationAttempts": [
@@ -1209,7 +2707,8 @@
           "sourceFingerprint": "a6c6faa59c2b5528b58a75076f733fbbb1c1c3cfaa0ff00487fa4dad6f763c57",
           "status": "approved",
           "reviewDecision": "approved",
-          "createdAt": "2026-08-30T15:23:58.913Z"
+          "createdAt": "2026-08-30T15:23:58.913Z",
+          "downstreamSourceStatus": "source_changed"
         },
         {
           "id": "cineattempt_1788103658671_bhnlx8s4",
@@ -1226,7 +2725,8 @@
           "sourceFingerprint": "ec67e87a9f4e7a33a98f5a4749413fd643f74179bafdb237caeb88de48583958",
           "status": "approved",
           "reviewDecision": "approved",
-          "createdAt": "2026-08-30T15:27:38.671Z"
+          "createdAt": "2026-08-30T15:27:38.671Z",
+          "downstreamSourceStatus": "source_changed"
         },
         {
           "id": "cineattempt_1788103676803_p4kjl8yv",
@@ -1246,7 +2746,8 @@
           "createdAt": "2026-08-30T15:27:56.802Z",
           "approvedStoryboardAssetVersionId": "ast_1788105044356_7a6wnwwp",
           "sourceFingerprint": "d9c398b1afdd99d5ab7378bfe407838ff885a82ed4b3aa87b9ef4872b1ae6c17",
-          "reviewedAt": "2026-08-30T15:50:44.365Z"
+          "reviewedAt": "2026-08-30T15:50:44.365Z",
+          "downstreamSourceStatus": "source_changed"
         },
         {
           "id": "cineattempt_1788103676803_aaajgeeb",
@@ -1266,7 +2767,8 @@
           "createdAt": "2026-08-30T15:27:56.802Z",
           "approvedStoryboardAssetVersionId": "ast_1788105053938_ozx95yow",
           "sourceFingerprint": "045b2e2b5ed35188e2ed851c7c1aa403dcd327afc0745c8e56c06bbf28a76b4c",
-          "reviewedAt": "2026-08-30T15:50:53.946Z"
+          "reviewedAt": "2026-08-30T15:50:53.946Z",
+          "downstreamSourceStatus": "source_changed"
         },
         {
           "id": "cineattempt_1788103676803_uqazjkfw",
@@ -1286,7 +2788,8 @@
           "createdAt": "2026-08-30T15:27:56.802Z",
           "approvedStoryboardAssetVersionId": "ast_1788105061159_57vi2zmx",
           "sourceFingerprint": "966280a020b87013e767bea3028c83628dac9eee12ce8da5a5d9a452147cd6b5",
-          "reviewedAt": "2026-08-30T15:51:01.169Z"
+          "reviewedAt": "2026-08-30T15:51:01.169Z",
+          "downstreamSourceStatus": "source_changed"
         },
         {
           "id": "cineattempt_1788103676803_zb5d5mr7",
@@ -1306,7 +2809,8 @@
           "createdAt": "2026-08-30T15:27:56.802Z",
           "approvedStoryboardAssetVersionId": "ast_1788105067960_xb4cuhd7",
           "sourceFingerprint": "74b85387575967df1ec5eea65a7e1f181644ac3141400a479b50404b91b2f23f",
-          "reviewedAt": "2026-08-30T15:51:07.972Z"
+          "reviewedAt": "2026-08-30T15:51:07.972Z",
+          "downstreamSourceStatus": "source_changed"
         }
       ],
       "timelineVersions": [],
@@ -1520,10 +3024,10 @@
           "createdAt": "2026-08-30T15:51:07.972Z"
         }
       ],
-      "activeStoryPlanVersionId": "cineplan_1788102152109_bgtnvz1i",
+      "activeStoryPlanVersionId": null,
       "activeTimelineVersionId": null,
       "createdAt": "2026-08-27T14:43:18.259Z",
-      "updatedAt": "2026-08-30T16:00:00.503Z",
+      "updatedAt": "2026-09-01T07:30:14.101Z",
       "archivedAt": null
     }
   ]

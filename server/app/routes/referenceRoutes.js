@@ -21,6 +21,20 @@ export function registerReferenceRoutes(app, {
     }
   });
 
+  app.post('/api/references/composites', async (req, res) => {
+    try {
+      const reference = await referenceAssetService.composeReference(req.body || {}, req.actorContext);
+      res.status(201).json(reference);
+    } catch (error) {
+      res.status(error.statusCode || 500).json({
+        error: {
+          code: error.code || 'reference_composite_failed',
+          message: error.message
+        }
+      });
+    }
+  });
+
   app.get('/api/references/processing-policy', (req, res) => {
     res.json({
       schemaVersion: 1,

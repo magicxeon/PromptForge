@@ -8,6 +8,7 @@ const model: VideoModelCapability = {
   modelId: 'veo-test',
   displayName: 'Veo Test',
   operations: ['text_to_video'],
+  durationControlMode: 'exact',
   durations: [8],
   resolutions: ['720p'],
   aspectRatios: ['9:16', '16:9'],

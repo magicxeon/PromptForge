@@ -1,5 +1,353 @@
 [
   {
+    "title": "คุณอิงอิง เซ็ท",
+    "description": "",
+    "promptVisibility": "private",
+    "imageUrl": "/outputs/job_1788142750426_628p7w9yc.jpg",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788142750426_628p7w9yc.webp",
+    "sourceGenerationResultId": "job_1788142750426_628p7w9yc",
+    "sourceGenerationId": "job_1788142750426_628p7w9yc",
+    "creatorProfileId": "creator_alice",
+    "postType": "image",
+    "sourceSceneTemplateSnapshotId": null,
+    "templateId": null,
+    "templateVersionId": null,
+    "templatePricing": null,
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sourceGenerationMode": "normal",
+    "faceReusePolicy": "view_only",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "generation_result",
+      "publicPromptText": null,
+      "createdAt": "2026-08-31T02:19:36.120Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "providerDisplayName": null,
+      "modelId": "gemini-3.1-flash-image",
+      "modelDisplayName": null,
+      "resolvedModelId": "gemini-3.1-flash-image",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {},
+    "sceneTemplateSnapshot": null,
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "status": "published",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.magazine",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.portrait",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.product",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.realistic_photography",
+        "dimensionId": "visual_style",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.82,
+        "confidenceLevel": "high",
+        "sources": [
+          "workflow"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "content_type.portrait",
+      "content_type.product",
+      "visual_style.realistic_photography",
+      "content_type.storytelling"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "content_type.portrait",
+      "content_type.product",
+      "visual_style.realistic_photography",
+      "content_type.storytelling"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "content_type.portrait",
+      "content_type.product",
+      "visual_style.realistic_photography",
+      "content_type.storytelling"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.93,
+    "counts": {
+      "views": 1,
+      "likes": 1,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
+    "engagementSummary": {
+      "viewCount": 1,
+      "likeCount": 1,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-08-31T02:28:18.368Z"
+    },
+    "id": "post_1788142822307_c9z14dbf",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "createdAt": "2026-08-31T02:20:22.306Z",
+    "updatedAt": "2026-08-31T02:28:18.368Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "title": "คุณอิงอิง",
+    "description": "ทดสอบ แชร์โพส",
+    "promptVisibility": "private",
+    "imageUrl": "/outputs/job_1788141747082_1kbanphd1.png",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788141747082_1kbanphd1.webp",
+    "sourceGenerationResultId": "job_1788141747082_1kbanphd1",
+    "sourceGenerationId": "job_1788141747082_1kbanphd1",
+    "creatorProfileId": "creator_alice",
+    "postType": "image",
+    "sourceSceneTemplateSnapshotId": null,
+    "templateId": null,
+    "templateVersionId": null,
+    "templatePricing": null,
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sourceGenerationMode": "normal",
+    "faceReusePolicy": "view_only",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "generation_result",
+      "publicPromptText": null,
+      "createdAt": "2026-08-31T02:03:23.829Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "openai",
+      "providerDisplayName": null,
+      "modelId": "gpt-image-1.5",
+      "modelDisplayName": null,
+      "resolvedModelId": "gpt-image-1.5",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {},
+    "sceneTemplateSnapshot": null,
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "status": "published",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.98,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "workflow",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.portrait",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.realistic_photography",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.beauty",
+        "dimensionId": "visual_style",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.magazine",
+        "dimensionId": "visual_style",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "content_type.portrait",
+      "visual_style.realistic_photography",
+      "visual_style.beauty",
+      "visual_style.magazine"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "content_type.portrait",
+      "visual_style.realistic_photography",
+      "visual_style.beauty",
+      "visual_style.magazine"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "content_type.portrait",
+      "visual_style.realistic_photography",
+      "visual_style.beauty",
+      "visual_style.magazine"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.98,
+    "counts": {
+      "views": 1,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
+    "engagementSummary": {
+      "viewCount": 1,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-08-31T02:27:55.666Z"
+    },
+    "id": "post_1788142431214_pb4hy2lz",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "createdAt": "2026-08-31T02:13:51.210Z",
+    "updatedAt": "2026-08-31T02:27:55.666Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "title": "รูปโปรไฟล์น้องเหมย 2",
     "description": "ทดสอบ",
     "promptVisibility": "private",

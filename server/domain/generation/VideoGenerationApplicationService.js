@@ -10,6 +10,7 @@ import { GeminiVeoProvider } from '../../providers/GeminiVeoProvider.js';
 import { GeminiOmniProvider } from '../../providers/GeminiOmniProvider.js';
 import { ModelArkSeedanceProvider } from '../../providers/ModelArkSeedanceProvider.js';
 import { VideoProviderAdapterRegistry } from '../../providers/VideoProviderAdapterRegistry.js';
+import { reconcileVideoDuration } from './VideoDurationReconciliation.js';
 
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 
@@ -31,13 +32,15 @@ export class VideoGenerationApplicationService {
     if (providerTaskService) {
       this.providerTaskService = providerTaskService;
     } else {
+      const omniProvider = new GeminiOmniProvider();
       const adapterRegistry = new VideoProviderAdapterRegistry({
         adapters: {
           gemini: new GeminiVeoProvider(),
           modelark: new ModelArkSeedanceProvider()
         },
         modelAdapters: {
-          'gemini/gemini-omni-flash-preview': new GeminiOmniProvider()
+          'gemini/gemini-omni-1.1-flash': omniProvider,
+          'gemini/gemini-omni-flash-preview': omniProvider
         }
       });
       this.providerTaskService = new VideoProviderTaskService({
@@ -54,9 +57,8 @@ export class VideoGenerationApplicationService {
   }
 
   async quote(input, actorContext, workflowContext = null) {
-    const request = normalizeRequest(input);
     const workflow = normalizeWorkflowContext(workflowContext);
-    const model = this.#validateModel(request);
+    const { request, model, durationReconciliation } = this.#prepareRequest(input, workflow);
     await this.#validateSource(request, actorContext, { resolveMedia: false });
     const estimate = await this.creditService.estimateVideo({
       userId: actorContext.userId,
@@ -70,14 +72,14 @@ export class VideoGenerationApplicationService {
       account: {
         availableCredits: account.availableCredits,
         canAfford: account.availableCredits >= estimate.estimatedCredits
-      }
+      },
+      ...(durationReconciliation ? { durationReconciliation } : {})
     };
   }
 
   async submit(input, actorContext, workflowContext = null) {
-    const request = normalizeRequest(input);
     const workflow = normalizeWorkflowContext(workflowContext);
-    const model = this.#validateModel(request);
+    const { request } = this.#prepareRequest(input, workflow);
     const idempotencyKey = normalizeIdempotencyKey(input.idempotencyKey);
     const replay = await this.taskRepository.findByIdempotencyKey(actorContext.userId, idempotencyKey);
     if (replay) return replay;
@@ -97,6 +99,7 @@ export class VideoGenerationApplicationService {
       generationMode: workflow.generationMode,
       operation: request.operation,
       durationSeconds: request.durationSeconds,
+      plannedDurationSeconds: request.plannedDurationSeconds,
       audioMode: request.audioMode
     };
     const reserved = await this.creditService.validateAndReserveForRequest({
@@ -194,6 +197,27 @@ export class VideoGenerationApplicationService {
     return this.capabilityRegistry.validateRequest(request, { allowTesting: this.testingEnabled });
   }
 
+  #prepareRequest(input, workflow) {
+    const request = normalizeRequest(input);
+    const resolved = this.capabilityRegistry.resolve(request.providerId, request.modelId);
+    if (!resolved) throw videoError('video_model_unknown', 'Video model is unknown.');
+    request.modelId = resolved.modelId;
+    let durationReconciliation = null;
+    if (workflow.capability === 'cinematic' && request.plannedDurationSeconds) {
+      durationReconciliation = reconcileVideoDuration({
+        model: resolved,
+        plannedDurationSeconds: request.plannedDurationSeconds,
+        requestedDurationSeconds: request.durationSeconds,
+        resolution: request.resolution,
+        referenceImageCount: request.referenceImageCount
+      });
+      request.durationSeconds = durationReconciliation.renderDurationSeconds;
+      request.durationReconciliation = durationReconciliation;
+    }
+    const model = this.#validateModel(request);
+    return { request, model, durationReconciliation };
+  }
+
   async #validateSource(request, actorContext, { resolveMedia }) {
     if (request.operation === 'text_to_video') return { referenceImage: null, characterAttributions: [] };
     if (request.operation === 'image_to_video') {
@@ -247,6 +271,7 @@ function normalizeRequest(input = {}) {
     aspectRatio: String(input.aspectRatio || '9:16'),
     resolution: String(input.resolution || '720p'),
     durationSeconds: Number(input.durationSeconds || 8),
+    plannedDurationSeconds: Number(input.plannedDurationSeconds || 0) || null,
     audioMode: String(input.audioMode || 'generated'),
     referenceImageCount,
     referenceImageUrl: input.referenceImageUrl ? String(input.referenceImageUrl) : null,
@@ -275,6 +300,7 @@ function toPublicTask(task) {
     aspectRatio: task.submittedRequest?.aspectRatio || null,
     resolution: task.submittedRequest?.resolution || null,
     durationSeconds: task.submittedRequest?.durationSeconds || null,
+    plannedDurationSeconds: task.submittedRequest?.plannedDurationSeconds || null,
     outputAsset: task.outputAsset || null,
     providerError: task.providerError || null,
     billingStatus: task.billingStatus || null,
@@ -284,6 +310,7 @@ function toPublicTask(task) {
       aspectRatio: submittedRequest.aspectRatio || null,
       resolution: submittedRequest.resolution || null,
       durationSeconds: submittedRequest.durationSeconds || null,
+      plannedDurationSeconds: submittedRequest.plannedDurationSeconds || null,
       audioMode: submittedRequest.audioMode || null,
       referenceImageCount: Number(submittedRequest.referenceImageCount) || 0,
       characterAttributions: Array.isArray(submittedRequest.characterAttributions)

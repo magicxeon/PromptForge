@@ -143,6 +143,18 @@ export class CinematicProjectRepository {
 
 function normalizeLegacyProject(project) {
   if (project?.status === 'storyboarding') project.status = 'planned';
+  if (project?.status === 'planned' && project.storyPlanVersions?.length) {
+    const activePlan = project.storyPlanVersions.find(version => version.id === project.activeStoryPlanVersionId);
+    if (!activePlan || activePlan.status !== 'approved' || activePlan.storySourceVersionId !== project.activeStorySourceVersionId) {
+      project.status = 'planning';
+    }
+  }
+  for (const scene of project?.scenes || []) {
+    for (const shot of scene.shots || []) {
+      if (shot.approvedStoryboardSource === null) delete shot.approvedStoryboardSource;
+      if (shot.approvedStoryboardAttemptId === null) delete shot.approvedStoryboardAttemptId;
+    }
+  }
   return project;
 }
 

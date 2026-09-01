@@ -179,6 +179,75 @@ test('CinematicApplicationService blocks Cast removal when Story Plan work refer
   );
 });
 
+test('CinematicApplicationService safely replaces referenced Cast while preserving role membership', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const cast = await service.upsertCastAssignment(project.id, {
+    expectedVersion: project.version,
+    assignmentId: 'cast_lead',
+    characterProfileId: 'charprof_a',
+    characterProfileVersionId: 'charver_a',
+    displayName: 'Mira',
+    storyRole: 'Young Woman',
+    storyRoleSlotId: 'role_lead',
+    objective: 'Leave the platform',
+    personalityTraits: ['watchful']
+  }, alice);
+  const withLook = await service.upsertWardrobeLook(project.id, 'cast_lead', {
+    expectedVersion: cast.version,
+    lookId: 'look_station',
+    name: 'Station Look',
+    mode: 'uploaded',
+    assetIds: ['asset_station']
+  }, alice);
+  const planned = await service.saveStoryPlan(project.id, {
+    expectedVersion: withLook.version,
+    approved: true,
+    scenes: [{
+      id: 'scene_station', title: 'Station', castAssignmentIds: ['cast_lead'],
+      wardrobeLookIds: ['look_station'],
+      shots: [{
+        id: 'shot_wait', title: 'Wait', durationMs: 2000,
+        castAssignmentIds: ['cast_lead'], wardrobeLookIds: ['look_station']
+      }]
+    }]
+  }, alice);
+  const approval = await service.approveStoryboardSource(project.id, 'shot_wait', {
+    expectedVersion: planned.version,
+    expectedShotVersion: 1,
+    jobId: 'job_old_character',
+    idempotencyKey: 'approve-old-character'
+  }, alice);
+
+  const replaced = await service.upsertCastAssignment(project.id, {
+    expectedVersion: approval.projectVersion,
+    assignmentId: 'cast_lead',
+    characterProfileId: 'charprof_b',
+    characterProfileVersionId: 'charver_b',
+    displayName: 'Nara',
+    storyRole: 'Young Woman',
+    storyRoleSlotId: 'role_lead'
+  }, alice);
+
+  assert.equal(replaced.castAssignments.length, 1);
+  assert.equal(replaced.castAssignments[0].id, 'cast_lead');
+  assert.equal(replaced.castAssignments[0].characterProfileId, 'charprof_b');
+  assert.equal(replaced.castAssignments[0].portraitUrl, '/api/character-profiles/charprof_b/face');
+  assert.equal(replaced.castAssignments[0].objective, 'Leave the platform');
+  assert.deepEqual(replaced.castAssignments[0].personalityTraits, ['watchful']);
+  assert.deepEqual(replaced.castAssignments[0].looks, []);
+  assert.deepEqual(replaced.scenes[0].castAssignmentIds, ['cast_lead']);
+  assert.deepEqual(replaced.scenes[0].wardrobeLookIds, []);
+  assert.deepEqual(replaced.scenes[0].shots[0].castAssignmentIds, ['cast_lead']);
+  assert.deepEqual(replaced.scenes[0].shots[0].wardrobeLookIds, []);
+  assert.equal(replaced.scenes[0].shots[0].approvedStoryboardSource, undefined);
+  assert.equal(replaced.scenes[0].shots[0].approvedStoryboardAttemptId, undefined);
+  assert.equal(replaced.scenes[0].shots[0].storyboardStatus, 'draft');
+  assert.equal(replaced.generationAttempts[0].downstreamSourceStatus, 'source_changed');
+  assert.equal(replaced.status, 'planned');
+});
+
 test('Setup story edits create an immutable applied Story Source version', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
@@ -271,6 +340,11 @@ test('Cinematic Cast binds an immutable approved Character Look version', async 
       look: { id: 'charlook_arrival', name: 'Arrival Look' },
       version: {
         id: 'charlookver_arrival_1',
+        provenance: { kind: 'system_generated', generationResultId: 'job_look' },
+        identityAssurance: {
+          status: 'lineage_bound', characterProfileVersionId: 'charver_a',
+          validationEvidenceId: null
+        },
         approvedViewAssets: {
           front: { assetId: 'ast_front', contentHash: 'hash_front' },
           side: { assetId: 'ast_side', contentHash: 'hash_side' },
@@ -301,6 +375,8 @@ test('Cinematic Cast binds an immutable approved Character Look version', async 
   const look = bound.castAssignments[0].looks[0];
   assert.equal(look.characterLookId, 'charlook_arrival');
   assert.equal(look.characterLookVersionId, 'charlookver_arrival_1');
+  assert.equal(look.characterLookProvenance.kind, 'system_generated');
+  assert.equal(look.characterLookIdentityAssurance.status, 'lineage_bound');
   assert.deepEqual(look.assetIds, ['ast_front', 'ast_side', 'ast_back']);
 });
 
@@ -380,6 +456,52 @@ test('Story Plan v2 keeps draft separate from approval and validates target dura
   }, alice), error => error.code === 'cinematic_story_plan_duration_mismatch');
 });
 
+test('Story Plan v3 keeps corrected drafts inactive and gates approval on Film Readiness', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const beat = {
+    id: 'beat_choice', title: 'Choice', type: 'decision', purpose: 'Force a visible decision',
+    storyChange: 'Waiting becomes movement', cause: 'The last train arrives.',
+    consequence: 'She walks toward the exit.', emotionalStart: 'uncertain', emotionalTurn: 'she exhales',
+    emotionalEnd: 'resolved', requiredElements: ['black phone']
+  };
+  const incompleteScene = {
+    id: 'scene_choice', beatId: beat.id, title: 'Choice', purpose: 'Show the decision',
+    storyChange: 'She leaves the platform.', entryState: 'She faces the tracks.',
+    exitState: 'She moves toward the exit.', objective: 'Choose a direction.', pressure: 'The train is arriving.',
+    transitionIntent: 'end', shots: [{
+      id: 'shot_choice', title: 'Walk away', purpose: 'Reveal the choice', durationMs: 30_000,
+      subjectAction: 'She pockets the phone and walks right.', emotionalTarget: 'quiet resolve',
+      performanceCue: 'One exhale.', continuityEntry: 'Phone in right hand.',
+      continuityExit: 'Phone in right pocket.', transitionToNext: 'end'
+    }]
+  };
+  const draft = await service.saveStoryPlan(project.id, {
+    contractVersion: 'story-plan-v3', expectedVersion: project.version,
+    approved: false, directorOperation: 'manual', beats: [beat], scenes: [incompleteScene]
+  }, alice);
+  assert.equal(draft.activeStoryPlanVersionId, null);
+  assert.equal(draft.status, 'planning');
+  assert.equal(draft.storyPlanVersions.at(-1).filmReadiness.status, 'not_ready');
+
+  await assert.rejects(service.saveStoryPlan(project.id, {
+    contractVersion: 'story-plan-v3', expectedVersion: draft.version,
+    approved: true, directorOperation: 'manual', beats: [beat], scenes: [incompleteScene]
+  }, alice), error => error.code === 'cinematic_story_plan_film_not_ready');
+
+  const readyScene = structuredClone(incompleteScene);
+  readyScene.shots[0].visibleMoment = 'She lowers the phone and turns toward the warm exit.';
+  const approved = await service.saveStoryPlan(project.id, {
+    contractVersion: 'story-plan-v3', expectedVersion: draft.version,
+    approved: true, directorOperation: 'manual', warningsAcknowledged: true,
+    beats: [beat], scenes: [readyScene]
+  }, alice);
+  assert.equal(approved.storyPlanVersions.at(-1).filmReadiness.status, 'ready_with_warnings');
+  assert.equal(approved.storyPlanVersions.at(-1).scriptPreview[0].visual, readyScene.shots[0].visibleMoment);
+  assert.equal(approved.activeStoryPlanVersionId, approved.storyPlanVersions.at(-1).id);
+});
+
 test('Story Plan v2 rejects Cast and Look references outside Scene authority', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
@@ -417,6 +539,57 @@ test('Story Plan v2 rejects Cast and Look references outside Scene authority', a
     contractVersion: 'story-plan-v2', expectedVersion: withLook.version,
     approved: true, beats: [beat], scenes: [scene]
   }, alice), error => error.code === 'cinematic_story_plan_cast_authority_invalid');
+});
+
+test('Story Plan generation and v2 approval require an approved multi-view Look for required Cast', async t => {
+  const storyPlanService = { generatePlan: async () => ({ proposalId: 'proposal_ready' }) };
+  const lookService = {
+    resolveApprovedVersion: async () => ({
+      look: { id: 'charlook_station', name: 'Station Look' },
+      version: {
+        id: 'charlookver_station_1',
+        approvedViewAssets: {
+          front: { assetId: 'ast_front', contentHash: 'hash_front' },
+          side: { assetId: 'ast_side', contentHash: 'hash_side' },
+          back: { assetId: 'ast_back', contentHash: 'hash_back' }
+        }
+      }
+    })
+  };
+  const { directory, service } = await fixture({ storyPlanService, lookService });
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject({
+    ...setup,
+    castPlanningMode: 'solo',
+    storyRoleSlots: [{ id: 'role_lead', label: 'Lead', importance: 'required', storyFunction: 'Makes the choice', relationshipHint: '' }]
+  }, alice);
+  const cast = await service.upsertCastAssignment(project.id, {
+    expectedVersion: project.version, assignmentId: 'cast_mira',
+    characterProfileId: 'charprof_a', characterProfileVersionId: 'charver_a',
+    displayName: 'Mira', storyRole: 'Lead', storyRoleSlotId: 'role_lead'
+  }, alice);
+
+  await assert.rejects(
+    service.generateStoryPlan(project.id, {}, alice),
+    error => error.code === 'cinematic_required_cast_look_incomplete'
+      && error.details.unreadyRoleIds.includes('role_lead')
+  );
+  await assert.rejects(service.saveStoryPlan(project.id, {
+    contractVersion: 'story-plan-v2', expectedVersion: cast.version, approved: true,
+    beats: [{ id: 'beat_choice', title: 'Choice', purpose: 'Force a choice', storyChange: 'Waiting becomes action', sceneIds: ['scene_choice'] }],
+    scenes: [{
+      id: 'scene_choice', beatId: 'beat_choice', title: 'Choice', purpose: 'Show the choice',
+      storyChange: 'Mira leaves', castAssignmentIds: ['cast_mira'], durationMs: 30_000,
+      shots: [{ id: 'shot_choice', title: 'Leave', purpose: 'Reveal the choice', durationMs: 30_000, castAssignmentIds: ['cast_mira'] }]
+    }]
+  }, alice), error => error.code === 'cinematic_required_cast_look_incomplete');
+
+  await service.upsertWardrobeLook(project.id, 'cast_mira', {
+    expectedVersion: cast.version, lookId: 'cinelook_station', name: 'Station Look',
+    mode: 'character_look', characterLookId: 'charlook_station',
+    characterLookVersionId: 'charlookver_station_1', coverage: 'multi_view', locked: true
+  }, alice);
+  assert.deepEqual(await service.generateStoryPlan(project.id, {}, alice), { proposalId: 'proposal_ready' });
 });
 
 test('Storyboard generation context resolves only actor-owned Look and prior approved Shot references', async t => {
@@ -595,11 +768,23 @@ test('Produce context blocks a Shot without an approved immutable Storyboard sou
   const project = await service.createProject(setup, alice);
   const planned = await service.saveStoryPlan(project.id, {
     expectedVersion: 1,
-    scenes: [{ id: 'scene_a', title: 'A', shots: [{ id: 'shot_a', title: 'A', durationMs: 1000 }] }]
+    scenes: [{ id: 'scene_a', title: 'A', transitionIntent: 'cut on movement', shots: [{
+      id: 'shot_a', title: 'A', durationMs: 1000,
+      visibleMoment: 'Nara looks toward the door.', subjectAction: 'She takes one step.',
+      emotionalTarget: 'resolved', performanceCue: 'A quiet exhale.',
+      continuityEntry: 'Feet planted.', continuityExit: 'Right foot forward.',
+      transitionToNext: 'cut on the step', dialogueCues: [{
+        speakerCastAssignmentId: '', offscreenVoiceRole: 'father', text: 'Tomorrow.', delivery: 'memory',
+        startOffsetMs: 0, estimatedDurationMs: 500, speakerVisible: false
+      }], audioCues: [{ kind: 'ambience', source: 'rain', description: 'Soft rain', startOffsetMs: 0, durationMs: 1000 }]
+    }] }]
   }, alice);
   const context = await service.getProduceShotContext(planned.id, 'scene_a', 'shot_a', alice);
   assert.equal(context.generationEligible, false);
   assert.equal(context.blockingReason, 'cinematic_storyboard_source_required');
+  assert.equal(context.directingContract.visibleMoment, 'Nara looks toward the door.');
+  assert.equal(context.directingContract.dialogueCues[0].text, 'Tomorrow.');
+  assert.equal(context.directingContract.audioCues[0].description, 'Soft rain');
 });
 
 test('Cinematic video attempt uses the approved Storyboard source and can be approved only after capture', async t => {
@@ -644,6 +829,7 @@ test('Cinematic video attempt uses the approved Storyboard source and can be app
   const quote = await service.quoteVideoAttempt(created.id, 'scene_a', 'shot_a', input, alice);
   assert.equal(quote.sourceFingerprint, shot.approvedStoryboardSource.sourceFingerprint);
   assert.equal(calls[0][1].operation, 'image_to_video');
+  assert.equal(calls[0][1].plannedDurationSeconds, 4);
   assert.equal(calls[0][1].referenceImageUrl, shot.approvedStoryboardSource.imageUrl);
   const submitted = await service.createVideoAttempt(created.id, 'scene_a', 'shot_a', {
     ...input, estimateId: quote.estimate.estimateId, idempotencyKey: 'cinematic-attempt-one'

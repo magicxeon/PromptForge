@@ -13,18 +13,32 @@ import { characterCandidateMediaUrl, formatFacetLabel, overlapsAgeBucket } from 
 import type {
   CinematicProject, CinematicSceneDirectionProposal, CinematicStoryPlanProposal
 } from '../schemas/cinematicSchemas';
+import { ApiError } from '../../../lib/api/apiError';
 
 const cinematicApiMocks = vi.hoisted(() => ({
   generateCinematicStoryPlan: vi.fn(),
   generateCinematicSceneDirection: vi.fn(),
   saveCinematicStoryPlan: vi.fn(),
   getCinematicStoryboardGenerationContext: vi.fn(),
-  approveCinematicStoryboardSource: vi.fn()
+  approveCinematicStoryboardSource: vi.fn(),
+  upsertCinematicWardrobeLook: vi.fn(),
+  getCinematicProject: vi.fn()
+}));
+const profileApiMocks = vi.hoisted(() => ({
+  listOwnedCharacters: vi.fn(),
+  listCharacters: vi.fn(),
+  listCharacterLooks: vi.fn(),
+  retireCharacterLook: vi.fn()
 }));
 
 vi.mock('../api/cinematicApi', async importOriginal => ({
   ...await importOriginal<typeof import('../api/cinematicApi')>(),
   ...cinematicApiMocks
+}));
+
+vi.mock('../../profiles/api/profileApi', async importOriginal => ({
+  ...await importOriginal<typeof import('../../profiles/api/profileApi')>(),
+  ...profileApiMocks
 }));
 
 vi.mock('../../../components/media/AuthenticatedMediaImage', () => ({
@@ -76,6 +90,15 @@ describe('Cinematic UX prototype', () => {
     cinematicApiMocks.saveCinematicStoryPlan.mockReset();
     cinematicApiMocks.getCinematicStoryboardGenerationContext.mockReset();
     cinematicApiMocks.approveCinematicStoryboardSource.mockReset();
+    cinematicApiMocks.upsertCinematicWardrobeLook.mockReset();
+    cinematicApiMocks.getCinematicProject.mockReset();
+    profileApiMocks.listOwnedCharacters.mockReset();
+    profileApiMocks.listCharacters.mockReset();
+    profileApiMocks.listCharacterLooks.mockReset();
+    profileApiMocks.retireCharacterLook.mockReset();
+    profileApiMocks.listOwnedCharacters.mockResolvedValue({ items: [], nextCursor: null, hasMore: false });
+    profileApiMocks.listCharacters.mockResolvedValue({ items: [], nextCursor: null, hasMore: false });
+    profileApiMocks.listCharacterLooks.mockResolvedValue({ items: [] });
     cinematicApiMocks.getCinematicStoryboardGenerationContext.mockResolvedValue({
       schemaVersion: 1,
       projectId: 'cineproj_legacy_story', projectVersion: 4,
@@ -222,11 +245,15 @@ describe('Cinematic UX prototype', () => {
     expect(within(castSummary).getByText('cinematic.cast.charactersInProject')).toBeVisible();
     expect(within(castSummary).getByText('cinematic.cast.plannedRoles')).toBeVisible();
     expect(screen.getAllByText('Second Character')).toHaveLength(2);
+    const dossierHeader = document.querySelector('.cinematic-dossier-header') as HTMLElement;
+    expect(within(dossierHeader).getByText('cinematic.cast.selectedFromProjectCast')).toBeVisible();
+    expect(dossierHeader.querySelector('.cinematic-cast-card__portrait')).not.toBeInTheDocument();
     expect(screen.getAllByRole('tab')).toHaveLength(3);
     expect(screen.getByRole('tab', { name: 'cinematic.cast.tab.direction' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.queryByText('cinematic.cast.uploadForCharacter')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('tab', { name: 'cinematic.cast.tab.wardrobe' }));
+    expect(screen.queryByRole('button', { name: 'cinematic.cast.addLook' })).not.toBeInTheDocument();
     expect(screen.getByText('cinematic.cast.uploadForCharacter')).toBeVisible();
     expect(screen.queryByTestId('cinematic-operation-dock')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'cinematic.cast.continueToStoryPlan' })).toBeDisabled();
@@ -242,6 +269,124 @@ describe('Cinematic UX prototype', () => {
     expect(screen.getByRole('dialog', { name: 'cinematic.lookDraft.title' })).toBeVisible();
     expect(screen.getByText('cinematic.lookDraft.analysisTitle')).toBeVisible();
     expect(screen.getByRole('button', { name: 'cinematic.lookDraft.generateSuggestion' })).toBeVisible();
+  });
+
+  it('separates existing Looks from the two new-Look source commands without changing their dialog modes', () => {
+    const project = castProjectFixture();
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    fireEvent.click(screen.getByRole('tab', { name: 'cinematic.cast.tab.wardrobe' }));
+    expect(screen.getByLabelText('cinematic.cast.currentLooks')).toBeVisible();
+    const sourceGroup = screen.getByRole('group', { name: /cinematic\.cast\.startNewLook/ });
+    const lookPreparation = screen.getByLabelText('cinematic.cast.currentLooks');
+    const boundLook = screen.getByLabelText('cinematic.cast.lookUsedInFilm');
+    expect(sourceGroup.compareDocumentPosition(lookPreparation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(lookPreparation.compareDocumentPosition(boundLook) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const upload = within(sourceGroup).getByRole('button', { name: /cinematic\.cast\.uploadWardrobe/ });
+    const ai = within(sourceGroup).getByRole('button', { name: /cinematic\.cast\.aiWardrobe/ });
+    expect(upload.closest('.cinematic-look-card')).toBeNull();
+    expect(ai.closest('.cinematic-look-card')).toBeNull();
+
+    fireEvent.click(upload);
+    expect(screen.getByRole('radio', { name: 'cinematic.lookDraft.uploadWardrobe' })).toHaveAttribute('aria-checked', 'true');
+    const lookDialog = screen.getByRole('dialog', { name: 'cinematic.lookDraft.title' });
+    const cancelAction = within(lookDialog)
+      .getAllByRole('button', { name: 'cinematic.actions.cancel' })
+      .find((button) => button.textContent === 'cinematic.actions.cancel');
+    expect(cancelAction).toBeDefined();
+    fireEvent.click(cancelAction!);
+    fireEvent.click(ai);
+    expect(screen.getByRole('radio', { name: 'cinematic.lookDraft.aiSuggestion' })).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('removes only a confirmed unapproved Look preparation and keeps approved Looks protected', async () => {
+    const project = castProjectFixture();
+    const draftLook = {
+      id: 'charlook_wrong', characterProfileId: project.castAssignments[0]!.characterProfileId,
+      sourceCharacterProfileVersionId: project.castAssignments[0]!.characterProfileVersionId,
+      name: 'Incorrect Look', description: '', tags: [], official: true, visibility: 'private',
+      lifecycleStatus: 'draft', activeVersionId: 'charlookver_wrong', approvedVersionId: null,
+      versions: [], createdAt: '2026-08-31T00:00:00.000Z', updatedAt: '2026-08-31T00:00:00.000Z',
+      retiredAt: null
+    };
+    const approvedLook = {
+      ...draftLook, id: 'charlook_approved', name: 'Approved Look', lifecycleStatus: 'approved',
+      activeVersionId: 'charlookver_approved', approvedVersionId: 'charlookver_approved'
+    };
+    profileApiMocks.listCharacterLooks.mockResolvedValue({ items: [draftLook, approvedLook] });
+    profileApiMocks.retireCharacterLook.mockResolvedValue({
+      ...draftLook, lifecycleStatus: 'retired', retiredAt: '2026-08-31T01:00:00.000Z'
+    });
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    fireEvent.click(screen.getByRole('tab', { name: 'cinematic.cast.tab.wardrobe' }));
+    expect(await screen.findByText('Incorrect Look')).toBeVisible();
+    expect(screen.getByText('Approved Look')).toBeVisible();
+    expect(screen.getAllByRole('button', { name: 'cinematic.cast.removeLookPreparation' })).toHaveLength(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.cast.removeLookPreparation' }));
+    expect(screen.getByRole('alertdialog', { name: 'cinematic.cast.removeLookTitle' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'ui.action.cancel' }));
+    expect(screen.getByText('Incorrect Look')).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.cast.removeLookPreparation' }));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.cast.removeLookConfirm' }));
+    await waitFor(() => expect(screen.queryByText('Incorrect Look')).not.toBeInTheDocument());
+    expect(screen.getByText('Approved Look')).toBeVisible();
+    expect(profileApiMocks.retireCharacterLook).toHaveBeenCalledWith(
+      project.castAssignments[0]!.characterProfileId,
+      'charlook_wrong'
+    );
+  });
+
+  it('refreshes a stale Cinematic Project and retries only the approved Look binding', async () => {
+    const project = castProjectFixture();
+    const approvedLook = approvedCharacterLookFixture(project);
+    const latest = structuredClone(project);
+    latest.version += 1;
+    const saved = structuredClone(latest);
+    saved.version += 1;
+    saved.castAssignments[0]!.looks.push({
+      id: `cinelook_${approvedLook.id}`, name: approvedLook.name, mode: 'character_look',
+      characterLookId: approvedLook.id, characterLookVersionId: approvedLook.approvedVersionId,
+      coverage: 'multi_view', locked: true, assetIds: ['ast_sheet']
+    });
+    profileApiMocks.listCharacterLooks.mockResolvedValue({ items: [approvedLook] });
+    cinematicApiMocks.upsertCinematicWardrobeLook
+      .mockRejectedValueOnce(new ApiError({
+        status: 409, code: 'cinematic_version_conflict',
+        message: 'The Project changed in another session.'
+      }))
+      .mockResolvedValueOnce(saved);
+    cinematicApiMocks.getCinematicProject.mockResolvedValue(latest);
+    const onProjectChanged = vi.fn();
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onProjectChanged={onProjectChanged} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    fireEvent.click(screen.getByRole('tab', { name: 'cinematic.cast.tab.wardrobe' }));
+    expect(await screen.findByText(approvedLook.name)).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.cast.useLook' }));
+
+    await waitFor(() => expect(cinematicApiMocks.upsertCinematicWardrobeLook).toHaveBeenCalledTimes(2));
+    expect(cinematicApiMocks.getCinematicProject).toHaveBeenCalledWith(project.id);
+    expect(cinematicApiMocks.upsertCinematicWardrobeLook.mock.calls[0]?.[3]).toEqual(expect.objectContaining({ expectedVersion: project.version }));
+    expect(cinematicApiMocks.upsertCinematicWardrobeLook.mock.calls[1]?.[3]).toEqual(expect.objectContaining({ expectedVersion: latest.version }));
+    expect(onProjectChanged).toHaveBeenLastCalledWith(saved);
+  });
+
+  it('keeps an approved Look reusable and exposes bind-only retry after a film bind failure', async () => {
+    const project = castProjectFixture();
+    const approvedLook = approvedCharacterLookFixture(project);
+    profileApiMocks.listCharacterLooks.mockResolvedValue({ items: [approvedLook] });
+    cinematicApiMocks.upsertCinematicWardrobeLook.mockRejectedValue(new Error('Storage is temporarily busy.'));
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    fireEvent.click(screen.getByRole('tab', { name: 'cinematic.cast.tab.wardrobe' }));
+    expect(await screen.findByText(approvedLook.name)).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.cast.useLook' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('cinematic.cast.lookApprovedBindFailed');
+    expect(screen.getByRole('button', { name: 'cinematic.cast.retryUseLook' })).toBeEnabled();
+    expect(profileApiMocks.retireCharacterLook).not.toHaveBeenCalled();
   });
 
   it('does not describe an assigned Character as ready while identity preparation is incomplete', () => {
@@ -264,6 +409,29 @@ describe('Cinematic UX prototype', () => {
     expect(progress?.querySelector('strong')).toHaveTextContent('1 cinematic.cast.of 1 cinematic.cast.requiredAssigned');
     expect(within(progress as HTMLElement).getByText('cinematic.cast.rolesNeedPreparation')).toBeVisible();
     expect(screen.getByRole('button', { name: 'cinematic.cast.continueToStoryPlan' })).toBeDisabled();
+  });
+
+  it('requires an approved multi-view Look before a required role can continue', () => {
+    const project = castProjectFixture();
+    project.setup.storyRoleSlots = [project.setup.storyRoleSlots[0]!];
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    expect(screen.getAllByText('cinematic.cast.lookPreparationRequired').length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: 'cinematic.cast.continueToStoryPlan' })).toBeDisabled();
+  });
+
+  it('enables Story Plan only after the required Character has a locked approved Look binding', () => {
+    const project = castProjectFixture();
+    project.setup.storyRoleSlots = [project.setup.storyRoleSlots[0]!];
+    project.castAssignments[0]!.looks = [{
+      id: 'cinelook_station', name: 'Station Look', mode: 'character_look',
+      characterLookId: 'charlook_station', characterLookVersionId: 'charlookver_station_1',
+      coverage: 'multi_view', locked: true, assetIds: ['ast_front', 'ast_side', 'ast_back']
+    }];
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    expect(screen.getAllByText('cinematic.cast.requiredCastReady').length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: 'cinematic.cast.continueToStoryPlan' })).toBeEnabled();
   });
 
   it('removes only the selected Project Cast Assignment after confirmation', async () => {
@@ -290,6 +458,58 @@ describe('Cinematic UX prototype', () => {
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.cast.removeConfirm' }));
 
     await waitFor(() => expect(onRemoveCastCharacter).toHaveBeenCalledWith('cast_alice'));
+  });
+
+  it('keeps referenced Cast removal unavailable and exposes Character replacement', () => {
+    const project = castProjectFixture();
+    project.setup.storyRoleSlots = [project.setup.storyRoleSlots[0]!];
+    project.scenes = [{
+      id: 'scene_cast_usage', version: 1, orderKey: 1, beatId: '', title: 'Platform', purpose: '', storyChange: '',
+      location: '', time: '', emotionalStart: '', emotionalEnd: '', transitionIntent: 'cut',
+      castAssignmentIds: ['cast_alice'], wardrobeLookIds: [], blocking: '', lighting: '', performance: '',
+      audioIntent: '', continuityNotes: [], durationMs: 2_000, shotOrder: ['shot_cast_usage'],
+      shots: [{
+        id: 'shot_cast_usage', version: 1, orderKey: 1, title: 'Wait', purpose: '', durationMs: 2_000,
+        framing: '', cameraAngle: '', cameraMovement: '', lensIntent: '', blocking: '', performance: '', gaze: '',
+        lighting: '', environment: '', audioIntent: '', prompt: '', castAssignmentIds: ['cast_alice'],
+        wardrobeLookIds: [], continuityNotes: [], storyboardStatus: 'approved'
+      }]
+    }];
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    expect(screen.getByRole('button', { name: 'cinematic.cast.removeAssignment' })).toBeDisabled();
+    expect(screen.getByText('cinematic.cast.assignmentInUse')).toBeVisible();
+    expect(screen.getAllByRole('button', { name: 'cinematic.cast.changeCharacter' }).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('reuses the existing Assignment ID when replacing a Character', async () => {
+    const project = castProjectFixture();
+    project.setup.storyRoleSlots = [project.setup.storyRoleSlots[0]!];
+    profileApiMocks.listOwnedCharacters.mockResolvedValue({
+      items: [{
+        id: 'char_nara', displayName: 'Nara', personalitySummary: 'Observant',
+        characterProfileVersionId: 'charver_nara', handoffAvailable: true
+      }],
+      nextCursor: null,
+      hasMore: false
+    });
+    const onAddCastCharacter = vi.fn().mockResolvedValue(project);
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent
+      activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()}
+      onAddCastCharacter={onAddCastCharacter}
+    /></I18nextProvider>);
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'cinematic.cast.changeCharacter' })[0]!);
+    fireEvent.click(await screen.findByRole('option', { name: /Nara/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.picker.use' }));
+
+    await waitFor(() => expect(onAddCastCharacter).toHaveBeenCalledWith(expect.objectContaining({
+      assignmentId: 'cast_alice',
+      characterProfileId: 'char_nara',
+      characterProfileVersionId: 'charver_nara',
+      storyRole: 'Lead',
+      storyRoleSlotId: 'role_lead'
+    })));
   });
 
   it('opens Scene Director from a story beat', () => {
@@ -389,7 +609,7 @@ describe('Cinematic UX prototype', () => {
     await waitFor(() => expect(cinematicApiMocks.saveCinematicStoryPlan).toHaveBeenCalledWith(
       project.id,
       expect.objectContaining({
-        contractVersion: 'story-plan-v2', expectedVersion: project.version,
+        contractVersion: 'story-plan-v3', expectedVersion: project.version,
         approved: false, source: 'generated',
         scenes: expect.arrayContaining([expect.objectContaining({ id: 'scene_generated' })])
       })
@@ -419,6 +639,58 @@ describe('Cinematic UX prototype', () => {
 
     await waitFor(() => expect(dialog).toHaveAttribute('aria-busy', 'false'));
     expect(within(dialog).getByRole('button', { name: 'cinematic.story.applyProposal' })).toBeEnabled();
+  });
+
+  it('resolves a blocked Story source before dispatching a corrected Story Plan request', async () => {
+    const project = completeStoryPlanFixture();
+    const proposal = storyPlanProposalFixture(project);
+    const blocked: CinematicStoryPlanProposal = {
+      ...proposal,
+      status: 'blocked',
+      plan: null,
+      filmReadiness: null,
+      scriptPreview: [],
+      provenance: null,
+      preflight: {
+        status: 'blocked', sourceResolution: null,
+        resolvedStoryBrief: project.setup.storyBrief, resolvedCreativeDirection: project.setup.creativeDirection,
+        storyLocations: ['station'], directionLocations: ['cafe'],
+        diagnostics: [{
+          code: 'story_source_location_conflict', severity: 'blocking', fieldPath: 'setup.storyBrief',
+          comparedPath: 'setup.creativeDirection', summary: 'Station and cafe conflict.',
+          recoveryAction: 'Choose the authoritative source.', autoFixAvailable: true,
+          requiresConfirmation: true, resolved: false
+        }]
+      }
+    };
+    cinematicApiMocks.generateCinematicStoryPlan
+      .mockResolvedValueOnce(blocked)
+      .mockResolvedValueOnce(proposal);
+
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={vi.fn()} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
+    const dialog = await screen.findByRole('dialog', { name: 'cinematic.story.proposalTitle' });
+    expect(within(dialog).getByText('Station and cafe conflict.')).toBeVisible();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'cinematic.story.useStoryBrief' }));
+
+    await waitFor(() => expect(cinematicApiMocks.generateCinematicStoryPlan).toHaveBeenLastCalledWith(
+      project.id,
+      { mode: 'generate', sourceResolution: 'story_brief' }
+    ));
+    expect(await within(dialog).findByRole('button', { name: 'cinematic.story.applyProposal' })).toBeEnabled();
+  });
+
+  it('sends the current Plan through the separate AI Director review operation', async () => {
+    const project = completeStoryPlanFixture();
+    cinematicApiMocks.generateCinematicStoryPlan.mockResolvedValue(storyPlanProposalFixture(project));
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={vi.fn()} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.reviewWithDirector' }));
+
+    await waitFor(() => expect(cinematicApiMocks.generateCinematicStoryPlan).toHaveBeenCalledWith(
+      project.id,
+      { mode: 'review_current', sourceResolution: null }
+    ));
   });
 
   it('keeps the Story Plan proposal dialog open when AI generation fails', async () => {
@@ -599,6 +871,28 @@ function castProjectFixture() {
   } as unknown as CinematicProject;
 }
 
+function approvedCharacterLookFixture(project: CinematicProject) {
+  const assignment = project.castAssignments[0]!;
+  return {
+    id: 'charlook_approved', characterProfileId: assignment.characterProfileId,
+    sourceCharacterProfileVersionId: assignment.characterProfileVersionId,
+    name: 'Approved presentation Look', description: '', tags: [], official: true,
+    visibility: 'private', lifecycleStatus: 'approved',
+    activeVersionId: 'charlookver_approved', approvedVersionId: 'charlookver_approved',
+    versions: [{
+      id: 'charlookver_approved', versionNumber: 1, sourceMode: 'ai_suggestion',
+      garmentAuthorities: {}, canonicalFaceAssetId: 'ast_face', status: 'approved',
+      approvedViewAssets: { front: {}, side: {}, back: {} },
+      approvedSheetAsset: { assetId: 'ast_sheet', contentHash: null },
+      reviewMediaUrl: '/api/character-profiles/char_alice/looks/charlook_approved/versions/charlookver_approved/media/sheet',
+      createdAt: '2026-08-31T00:00:00.000Z', updatedAt: '2026-08-31T00:00:00.000Z',
+      approvedAt: '2026-08-31T00:00:00.000Z'
+    }],
+    createdAt: '2026-08-31T00:00:00.000Z', updatedAt: '2026-08-31T00:00:00.000Z',
+    retiredAt: null
+  };
+}
+
 function legacyStoryPlanFixture() {
   const project = {
     ...castProjectFixture(),
@@ -641,15 +935,23 @@ function completeStoryPlanFixture() {
   const beat = {
     ...project.storyPlanVersions[0]!.beats[0]!,
     purpose: 'Force the final choice', storyChange: 'Waiting becomes forward motion',
+    cause: 'The final train approaches', consequence: 'She walks toward the exit',
     targetDurationMs: 20_000, sceneIds: ['scene_legacy']
   };
   project.storyPlanVersions[0] = {
-    ...project.storyPlanVersions[0]!, contractVersion: 'story-plan-v2', beats: [beat]
+    ...project.storyPlanVersions[0]!, contractVersion: 'story-plan-v3', directorOperation: 'generate',
+    filmReadiness: { status: 'ready', dimensions: {}, findings: [] }, beats: [beat]
   };
   project.scenes[0] = {
     ...project.scenes[0]!, beatId: beat.id, purpose: 'Show the decision',
-    storyChange: 'She walks toward the exit',
-    shots: [{ ...project.scenes[0]!.shots[0]!, purpose: 'Reveal the choice through movement' }]
+    storyChange: 'She walks toward the exit', entryState: 'She faces the tracks',
+    exitState: 'She moves toward the exit', objective: 'Choose a direction', pressure: 'The train is arriving',
+    shots: [{
+      ...project.scenes[0]!.shots[0]!, purpose: 'Reveal the choice through movement',
+      visibleMoment: 'She lowers the phone and turns right', subjectAction: 'She pockets the phone',
+      emotionalTarget: 'quiet resolve', performanceCue: 'One exhale',
+      continuityEntry: 'Phone in right hand', continuityExit: 'Phone in right pocket', transitionToNext: 'end'
+    }]
   };
   return project;
 }
@@ -672,6 +974,7 @@ function storyPlanProposalFixture(project: CinematicProject): CinematicStoryPlan
   };
   return {
     proposalId: 'proposal_generated', operation: 'cinematic_story_plan_generate',
+    mode: 'generate', status: 'proposal',
     expectedProjectVersion: project.version,
     storySourceVersionId: project.activeStorySourceVersionId!,
     plan: {
@@ -679,7 +982,7 @@ function storyPlanProposalFixture(project: CinematicProject): CinematicStoryPlan
       emotionalArc: 'Uncertain to hopeful', beats: [beat], scenes: [scene],
       warnings: [], source: 'generated', approved: false
     },
-    provenance: {
+    filmReadiness: { status: 'ready', dimensions: {}, findings: [] }, scriptPreview: [], provenance: {
       provider: 'openai', model: 'test-model', responseId: 'response_plan',
       recipeId: 'cinematic-story-plan-generate', recipeVersion: 1, recipeFingerprint: 'recipe-plan'
     },
@@ -691,6 +994,7 @@ function projectWithSavedProposal(
   project: CinematicProject,
   proposal: CinematicStoryPlanProposal
 ): CinematicProject {
+  if (!proposal.plan) throw new Error('Expected a Story Plan proposal with a plan.');
   const saved = structuredClone(project);
   saved.version += 1;
   saved.scenes = structuredClone(proposal.plan.scenes);
@@ -698,7 +1002,7 @@ function projectWithSavedProposal(
     ...saved.storyPlanVersions[0]!,
     id: 'cineplan_generated_draft', version: saved.storyPlanVersions.length + 1,
     beats: structuredClone(proposal.plan.beats), sceneIds: proposal.plan.scenes.map(scene => scene.id),
-    source: 'generated', status: 'draft', contractVersion: 'story-plan-v2'
+    source: 'generated', status: 'draft', contractVersion: 'story-plan-v3'
   });
   return saved;
 }

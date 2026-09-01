@@ -231,6 +231,62 @@ test('Template snapshot Additional Direction cannot be overridden by the caller'
   assert.doesNotMatch(compiledPrompt, /consumer override/i);
 });
 
+test('Cinematic Character Look generation compiles the authorized wardrobe prompt once', () => {
+  const wardrobePrompt = 'Create one wardrobe-locked Look Sheet. Required target outfit: navy coat; cream knit top; charcoal trousers; black ankle boots.';
+  const { context, compiledPrompt } = compileGenerationContext({
+    mode: 'character-sheet',
+    generationMode: 'character-sheet',
+    generationSurface: 'cinematic',
+    characterType: 'styled_character',
+    outputCount: 4,
+    promptRefinement: { enabled: true },
+    sceneBuilder: { authoringMode: 'manual', manualPromptText: wardrobePrompt },
+    sceneTemplateSnapshot: {
+      id: 'character-look:look_1:lookver_1',
+      promptRecipeSnapshot: { id: 'character-look-sheet', version: 2, fingerprint: 'recipe123' },
+      characterLookSource: {
+        characterProfileId: 'char_1', characterProfileVersionId: 'charver_1',
+        lookId: 'look_1', lookVersionId: 'lookver_1'
+      }
+    },
+    characterProfileContext: {
+      purpose: 'character_usage', characterProfileId: 'char_1',
+      characterProfileVersionId: 'charver_1', useCase: 'scene_story',
+      sourceType: 'scene_builder', sourceId: 'look_1', outfitBehavior: 'replaceable'
+    }
+  }, actor);
+
+  assert.equal(context.outputCount, 1);
+  assert.equal(context.promptRefinement.enabled, false);
+  assert.equal(compiledPrompt.match(/Required target outfit:/g)?.length, 1);
+  assert.match(compiledPrompt, /navy coat; cream knit top/i);
+  assert.match(compiledPrompt, /casting uniform visible.*must not be copied/i);
+});
+
+test('Character Look prompt falls back to the generic compiler when Look context IDs disagree', () => {
+  const { compiledPrompt } = compileGenerationContext({
+    mode: 'character-sheet',
+    generationMode: 'character-sheet',
+    generationSurface: 'cinematic',
+    characterType: 'styled_character',
+    sceneBuilder: { authoringMode: 'manual', manualPromptText: 'UNTRUSTED WARDROBE PROMPT' },
+    sceneTemplateSnapshot: {
+      promptRecipeSnapshot: { id: 'character-look-sheet', version: 2, fingerprint: 'recipe123' },
+      characterLookSource: {
+        characterProfileId: 'char_1', characterProfileVersionId: 'charver_1',
+        lookId: 'different_look', lookVersionId: 'lookver_1'
+      }
+    },
+    characterProfileContext: {
+      purpose: 'character_usage', characterProfileId: 'char_1',
+      characterProfileVersionId: 'charver_1', useCase: 'scene_story',
+      sourceType: 'scene_builder', sourceId: 'look_1', outfitBehavior: 'replaceable'
+    }
+  }, actor);
+
+  assert.doesNotMatch(compiledPrompt, /UNTRUSTED WARDROBE PROMPT/);
+});
+
 function selection(value, group, category) {
   return {
     id: `${category}.fixture`,

@@ -80,3 +80,80 @@ test('Scene Direction AI stays scoped to the selected persisted Scene', async ()
   assert.equal(result.scene.durationMs, 20_000);
   assert.equal(result.billingStatus, 'qualification_no_charge');
 });
+
+test('Story Plan preflight blocks a conflicting source without dispatching the provider', async () => {
+  let calls = 0;
+  const conflicted = structuredClone(project);
+  conflicted.setup.storyBrief = 'Mira waits alone on the last train station platform.';
+  conflicted.setup.creativeDirection = 'Keep the entire story inside a small cafe kitchen.';
+  const planner = service({
+    async generateCinematicStoryPlan() { calls += 1; throw new Error('provider must not be called'); }
+  });
+  const result = await planner.generatePlan(conflicted);
+  assert.equal(result.status, 'blocked');
+  assert.equal(result.plan, null);
+  assert.equal(calls, 0);
+  assert.ok(result.preflight.diagnostics.some(item => item.code === 'story_source_location_conflict'));
+});
+
+test('Story Brief source resolution dispatches one film-directed request and returns readiness plus script', async () => {
+  let capturedContext = null;
+  const conflicted = structuredClone(project);
+  conflicted.setup.storyBrief = 'Mira waits alone on the last train station platform.';
+  conflicted.setup.creativeDirection = 'Keep the entire story inside a small cafe kitchen.';
+  const planner = service({
+    async generateCinematicStoryPlan({ context }) {
+      capturedContext = context;
+      return {
+        objective: 'Mira chooses to leave the past behind.',
+        logline: 'At the last train, Mira chooses a warmer way forward.',
+        emotionalArc: 'Watchful uncertainty to quiet resolve.',
+        centralDramaticQuestion: 'Will Mira remain trapped by the message?',
+        storyPromise: 'A private decision becomes visible through one physical choice.',
+        finalPayoff: 'Mira pockets the phone and walks toward the exit.',
+        spokenLanguage: 'none', onScreenTextPolicy: 'none', dialoguePolicy: 'none',
+        characterAliases: [{ castAssignmentId: 'cast_lead', storyCharacterName: 'Mira' }],
+        beats: [{
+          key: 'choice', type: 'decision', title: 'Choice', purpose: 'Force the decision',
+          storyChange: 'Mira stops waiting.', cause: 'The unreadable message arrives.',
+          consequence: 'She walks away from the train.', emotionalStart: 'watchful',
+          emotionalTurn: 'a held breath releases', emotionalEnd: 'resolved',
+          requiredElements: ['black phone'], targetDurationSeconds: 20
+        }],
+        scenes: [{
+          key: 'platform', beatKey: 'choice', title: 'Last platform', purpose: 'Make the choice visible',
+          storyChange: 'Waiting becomes departure.', entryState: 'Mira watches the tracks.',
+          exitState: 'Mira walks toward the warm station exit.', objective: 'Choose a direction.',
+          pressure: 'The last train is arriving.', location: 'Station platform', time: 'Blue hour',
+          emotionalStart: 'watchful', emotionalEnd: 'resolved', transitionIntent: 'end on warm light',
+          castAssignmentIds: ['cast_lead'], wardrobeLookIds: ['look_arrival'], blocking: 'Mira turns from the tracks.',
+          lighting: 'Cool platform and warm exit.', performance: 'One controlled exhale.', audioIntent: 'Distant train.',
+          propContinuity: 'Black phone moves from both hands to right pocket.', screenDirection: 'Tracks left, exit right.',
+          continuityNotes: ['Phone remains black'], shots: [{
+            title: 'The choice', purpose: 'Show the decision', durationSeconds: 20,
+            visibleMoment: 'Mira lowers the black phone and turns toward the warm exit.',
+            subjectAction: 'She pockets the phone and begins walking right.', emotionalTarget: 'Quiet resolve',
+            performanceCue: 'Exhale; shoulders release; no smile.', framing: 'medium wide', cameraAngle: 'eye level',
+            cameraMovement: 'restrained follow', blocking: 'Turn then walk right', performance: 'Small release',
+            lighting: 'Cool to warm', environment: 'Damp station platform', audioIntent: 'Train and footsteps',
+            prompt: 'Mira turns toward the warm exit.', continuityEntry: 'Phone held at chest; tracks left.',
+            continuityExit: 'Phone in right pocket; body moving right.', transitionToNext: 'end',
+            estimatedActionDurationSeconds: 8, dialogueCues: [], audioCues: [{
+              kind: 'ambience', source: 'station', description: 'Distant train and footsteps',
+              startOffsetSeconds: 0, durationSeconds: 20
+            }], castAssignmentIds: ['cast_lead'], wardrobeLookIds: ['look_arrival'], continuityNotes: []
+          }]
+        }],
+        directorReview: { summary: 'The action and payoff now align.', findings: [] }, warnings: [], responseId: 'resp_directed'
+      };
+    }
+  });
+  const result = await planner.generatePlan(conflicted, { sourceResolution: 'story_brief' });
+  assert.equal(result.status, 'proposal');
+  assert.equal(result.filmReadiness.status, 'ready_with_warnings');
+  assert.ok(result.filmReadiness.findings.some(item => item.code === 'film_shot_portable_duration_review'));
+  assert.equal(result.scriptPreview.length, 1);
+  assert.equal(result.plan.characterAliases[0].storyCharacterName, 'Mira');
+  assert.equal(capturedContext.project.creativeDirection, '');
+  assert.equal(capturedContext.project.storyBrief, conflicted.setup.storyBrief);
+});

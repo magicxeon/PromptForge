@@ -406,3 +406,17 @@ Deferred intentionally:
   structure is approved; an older approved Plan cannot authorize newer Scene
   IDs.
 - Approved current Plans retain the existing enabled Next-stage behavior.
+
+## 17. AI Director and Film Readiness extension (CINE-FIX-008)
+
+Story Plan generation and review are extended by
+`../fix-tickets/CINE-FIX-008-story-plan-ai-director-and-film-readiness-flow.md`.
+That ticket owns deterministic Story Source preflight, source-conflict
+resolution, generated/manual Plan reconciliation, structured dialogue/audio
+cues, Shot visible-moment and continuity anchors, Film Readiness findings and
+the current-approved-Plan gate.
+
+This extension does not replace the Story Plan workspace or create a parallel
+provider path. It extends the existing proposal, Apply and approval contracts.
+Storyboard still prompts continue to exclude audio-only instructions, while
+the approved Story Plan preserves those cues for Produce.

@@ -1,5 +1,835 @@
 [
   {
+    "characterProfileId": "charprof_1788141570490_qr4e3sif",
+    "sourceCharacterProfileVersionId": "charver_1788141570511_ehf0ebce",
+    "sourceCharacterOwnerUserId": "usr_alice",
+    "official": true,
+    "name": "Quiet Resolve — Rainlight Café",
+    "description": "Low-profile, timeless café-worker look that reads as lived-in and practical. Maintain the character's existing silhouette and hairstyle; garments should be matte, non-reflective and texture-rich so they photograph consistently in cool blue-hour and warm tungsten splits. Avoid large logos, busy patterns or high-gloss materials that catch raindrop highlights or hot lights.",
+    "tags": [],
+    "suggestionSnapshot": {
+      "lookName": "Quiet Resolve — Rainlight Café",
+      "wardrobeDirection": "Low-profile, timeless café-worker look that reads as lived-in and practical. Maintain the character's existing silhouette and hairstyle; garments should be matte, non-reflective and texture-rich so they photograph consistently in cool blue-hour and warm tungsten splits. Avoid large logos, busy patterns or high-gloss materials that catch raindrop highlights or hot lights.",
+      "garments": {
+        "upper": "Slim-fit, long-sleeve knit sweater (fine rib knit) in charcoal gray. Neckline crew or shallow boat to keep neckline simple.",
+        "lower": "Mid-calf A-line skirt in washed black cotton-twill (soft structure) or dark charcoal; allows modest movement and keeps silhouette familiar.",
+        "outerwear": "Lightweight cropped-mac (matte rubberized cotton) in deep navy or black — optional and carried on a hook during interior shots; worn only in exterior briefings if needed so interior actions remain unobscured.",
+        "footwear": "Simple low-heeled leather ankle boots in dark brown or black, matte finish; scuff marks allowed.",
+        "accessories": [
+          "Thin leather apron (worn loosely or draped over shoulder for story continuity) — neutral brown",
+          "Small, unbranded pendant necklace (kept tucked) or none to keep close-to-face clean",
+          "Plain cloth face towel/handkerchief folded in back pocket or apron pocket"
+        ]
+      },
+      "palette": [
+        "charcoal gray",
+        "washed black",
+        "deep navy/black",
+        "muted brown"
+      ],
+      "materials": [
+        "fine rib knit",
+        "cotton-twill",
+        "matte rubberized cotton",
+        "matte leather"
+      ],
+      "sceneScope": "scene_specific",
+      "recommendedSceneIds": [
+        "cinescene_1788097357902_crh21ki1",
+        "cinescene_1788097357902_c6zh5xzy",
+        "cinescene_1788097357902_4a78ycqk"
+      ],
+      "rationale": "A restrained, neutral palette reads well in blue-hour cools and shifts naturally to warm tungsten when the exit lights come up. The slim knit and A-line skirt preserve the character's original proportions and allow subtle torso and jaw movement without wardrobe noise. The cropped mac is optional so exterior rain continuity is believable but interior shots remain visually consistent. Minimal accessories keep focus on facial micro-expressions and the phone/hand props.",
+      "movementConstraints": [
+        "Avoid heavy coats or long flowing skirts that billow and obscure the CLOSED sign or hand movements when she flips it and presses the switch.",
+        "Boots must allow stable shallow steps for the final walk into warm light; avoid slippery soles for rain on damp concrete.",
+        "Apron or towel must be secured (or deliberately draped) so it does not shift between takes and break continuity of hand-to-pocket actions."
+      ],
+      "continuityNotes": [
+        "Keep sweater and skirt identical across all shots; if laundry/wardrobe changes are needed for multiple takes, prepare two matched sets with same wear patterns (small scuff on boots",
+        "If the cropped-mac is used for any exterior insert, note exact placement (over shoulder vs hung) and photograph for continuity reference.",
+        "Phone-holding hand must be free of rings or change accessories between takes; document which pocket the towel/apron is stored in for each take."
+      ],
+      "warnings": [
+        "Shiny or wet-looking fabrics will reflect street and tungsten lights and can create hot spots against the intended restrained palette.",
+        "Bulky layers can obscure subtle jaw/torso movement required by the performance direction; prioritize thin, form-fitting layers.",
+        "Dark matte fabrics can read flat on camera—ensure set lighting provides texture separation (backlight on hair/shoulder) to avoid losing silhouette."
+      ],
+      "provenance": {
+        "provider": "openai",
+        "model": "gpt-5-mini",
+        "responseId": "resp_0430255d94e2ca58016a963f2b863c87d09c742424d0a51e94",
+        "recipeId": "cinematic-wardrobe-suggestion",
+        "recipeVersion": 1,
+        "recipeFingerprint": "ae6857ea2cdaef9f"
+      },
+      "billingStatus": "qualification_no_charge"
+    },
+    "idempotencyKey": "character-look:charprof_1788141570490_qr4e3sif:6b5e9b09-07ef-42d7-88f8-3902344f2682",
+    "lifecycleStatus": "retired",
+    "activeVersionId": "charlookver_1788231482723_6pz96osk",
+    "approvedVersionId": null,
+    "versions": [
+      {
+        "id": "charlookver_1788231482723_6pz96osk",
+        "versionNumber": 1,
+        "sourceMode": "ai_suggestion",
+        "garmentAuthorities": {},
+        "sourceSheetAssetId": null,
+        "authoritySnapshot": [],
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "status": "retired",
+        "approvedViewAssets": null,
+        "approvedSheetAsset": null,
+        "cropManifest": null,
+        "generationLineage": null,
+        "provenance": null,
+        "identityAssurance": null,
+        "rightsDeclaration": null,
+        "ownerUserId": "usr_alice",
+        "createdAt": "2026-09-01T02:58:02.720Z",
+        "updatedAt": "2026-09-01T03:31:11.617Z",
+        "approvedAt": null
+      }
+    ],
+    "id": "charlook_1788231482724_h4tiodwy",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-09-01T02:58:02.720Z",
+    "updatedAt": "2026-09-01T03:31:11.617Z",
+    "deletedAt": null,
+    "metadata": {},
+    "retiredAt": "2026-09-01T03:31:11.617Z"
+  },
+  {
+    "characterProfileId": "charprof_1788141570490_qr4e3sif",
+    "sourceCharacterProfileVersionId": "charver_1788141570511_ehf0ebce",
+    "sourceCharacterOwnerUserId": "usr_alice",
+    "official": true,
+    "name": "Quiet Resolve — Café Close",
+    "description": "Minimal, lived-in café worker look that reads practical and intimate on close-ups: keeps silhouette uncluttered for shoulder/head shots, allows a single prop-action (holding/placing CLOSED sign, opening switch) and a final forward walk. All pieces must be filmable in both cool blue-hour and warm tungsten without changing fit or layering (only apron may be untied/removed during action).",
+    "tags": [],
+    "suggestionSnapshot": {
+      "lookName": "Quiet Resolve — Café Close",
+      "wardrobeDirection": "Minimal, lived-in café worker look that reads practical and intimate on close-ups: keeps silhouette uncluttered for shoulder/head shots, allows a single prop-action (holding/placing CLOSED sign, opening switch) and a final forward walk. All pieces must be filmable in both cool blue-hour and warm tungsten without changing fit or layering (only apron may be untied/removed during action).",
+      "garments": {
+        "upper": "Charcoal fitted ribbed long-sleeve cotton top (close to body but not compressing; no logos, no visible branding)",
+        "lower": "Dark indigo high-waist straight-leg denim trousers (clean hem for stable profile in 9:16 frame)",
+        "outerwear": "Beige heavyweight cotton canvas café apron (waist + neck ties; faint, uniform wear marks allowed) — worn through most of scene and optionally untied/loosely removed when she commits to turning on lights",
+        "footwear": "Matte black low-heel leather ankle boots, 2–3 cm heel, non-slip soles",
+        "accessories": [
+          "Slim, matte-finish wristwatch (left wrist) — unobtrusive",
+          "Small plain stud earrings",
+          "Black elastic hair tie (keeps supplied hairstyle identical)",
+          "Prop: small rectangular CLOSED sign (handheld), smartphone with blank/unreadable notification visible on lock screen"
+        ]
+      },
+      "palette": [
+        "charcoal",
+        "deep indigo",
+        "muted beige (apron)",
+        "cool slate blue (ambient)",
+        "warm amber (exit light)"
+      ],
+      "materials": [
+        "ribbed cotton",
+        "heavyweight cotton canvas",
+        "denim",
+        "matte leather",
+        "brushed metal (watch)"
+      ],
+      "sceneScope": "film_wide",
+      "recommendedSceneIds": [
+        "cinescene_1788097357902_crh21ki1",
+        "cinescene_1788097357902_c6zh5xzy",
+        "cinescene_1788097357902_4a78ycqk"
+      ],
+      "rationale": "A restrained worker outfit reads authentic in close-ups and wide shots, keeps motion simple for the actor (vesting the emotional turn in hands/face not costume), and transitions naturally from cool exterior light to warm interior without needing swaps. The apron signals family ownership and gives a single physical beat (untie/flip) to mark decision; the dark base layers keep focus on face and the warm exit light.",
+      "movementConstraints": [
+        "Apron neck/waist ties can snag on chair/table edges when she moves — keep ties tucked or untied deliberately in blocking.",
+        "Low heel boots can be slippery on wet concrete; non-slip soles required for exterior wet shots.",
+        "Fitted long-sleeve top limits large arm sweeps; block motion as small gestures (hand to sign, phone, switch, single step)."
+      ],
+      "continuityNotes": [
+        "Apron wear state must be consistent: initially tied; if untied when she commits, record exact tie position and whether removed or draped over arm.",
+        "Phone placement: same pocket/hand between takes; notification screen must remain unreadable and consistent framing in close-ups.",
+        "CLOSED sign orientation and scuffs must match between takes; keep same prop.",
+        "Watch and earrings remain on throughout; hair secured identically for every take."
+      ],
+      "warnings": [
+        "Canvas apron may change perceived color under warm tungsten — test under set lighting to ensure beige reads correctly against warm exit.",
+        "Matte leather and metal watch can still produce unwanted specular highlights on close-ups; matte finishes recommended.",
+        "Avoid any visible branding or patterned trims on apron/boots; remove manufacturer tags before shooting."
+      ],
+      "provenance": {
+        "provider": "openai",
+        "model": "gpt-5-mini",
+        "responseId": "resp_06d3f47c684be76b016a963785bf3087d098c60d57acf0e9cd",
+        "recipeId": "cinematic-wardrobe-suggestion",
+        "recipeVersion": 1,
+        "recipeFingerprint": "ae6857ea2cdaef9f"
+      },
+      "billingStatus": "qualification_no_charge"
+    },
+    "idempotencyKey": "character-look:charprof_1788141570490_qr4e3sif:33d2a036-da9b-4cb0-81e2-6f075caa4232",
+    "lifecycleStatus": "approved",
+    "activeVersionId": "charlookver_1788229536432_3kflzanw",
+    "approvedVersionId": "charlookver_1788229536432_3kflzanw",
+    "versions": [
+      {
+        "id": "charlookver_1788229536432_3kflzanw",
+        "versionNumber": 1,
+        "sourceMode": "ai_suggestion",
+        "garmentAuthorities": {},
+        "sourceSheetAssetId": null,
+        "authoritySnapshot": [],
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "status": "approved",
+        "approvedViewAssets": {
+          "front": {
+            "assetId": "ast_1788231421726_46lql8fh",
+            "contentHash": null,
+            "cropRegion": {
+              "x": 0.02,
+              "y": 0.02,
+              "width": 0.3,
+              "height": 0.62
+            }
+          },
+          "side": {
+            "assetId": "ast_1788231421726_46lql8fh",
+            "contentHash": null,
+            "cropRegion": {
+              "x": 0.35,
+              "y": 0.02,
+              "width": 0.3,
+              "height": 0.62
+            }
+          },
+          "back": {
+            "assetId": "ast_1788231421726_46lql8fh",
+            "contentHash": null,
+            "cropRegion": {
+              "x": 0.68,
+              "y": 0.02,
+              "width": 0.3,
+              "height": 0.62
+            }
+          }
+        },
+        "approvedSheetAsset": {
+          "assetId": "ast_1788231421726_46lql8fh",
+          "contentHash": null
+        },
+        "cropManifest": {
+          "layoutVersion": "character-look-sheet-v1",
+          "regions": {
+            "front": {
+              "x": 0.02,
+              "y": 0.02,
+              "width": 0.3,
+              "height": 0.62
+            },
+            "side": {
+              "x": 0.35,
+              "y": 0.02,
+              "width": 0.3,
+              "height": 0.62
+            },
+            "back": {
+              "x": 0.68,
+              "y": 0.02,
+              "width": 0.3,
+              "height": 0.62
+            },
+            "face": {
+              "x": 0.35,
+              "y": 0.67,
+              "width": 0.3,
+              "height": 0.3
+            }
+          }
+        },
+        "generationLineage": {
+          "source": "generation_result",
+          "generationResultId": "job_1788231304557_qn6mtllq3",
+          "provider": "modelark",
+          "model": "seedream-4-5-251128",
+          "recipeId": "character-look-sheet",
+          "recipeVersion": 2,
+          "recipeFingerprint": "9c5a238c5654f585"
+        },
+        "provenance": {
+          "kind": "system_generated",
+          "characterProfileId": "charprof_1788141570490_qr4e3sif",
+          "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+          "sourceAssetIds": [
+            "ast_1788231421726_46lql8fh"
+          ],
+          "generationResultId": "job_1788231304557_qn6mtllq3",
+          "generationJobId": "job_1788231304557_qn6mtllq3",
+          "recipeId": "character-look-sheet",
+          "recipeVersion": 2,
+          "recipeFingerprint": "9c5a238c5654f585",
+          "provider": "modelark",
+          "model": "seedream-4-5-251128",
+          "recordedAt": "2026-09-01T02:57:01.751Z"
+        },
+        "identityAssurance": {
+          "status": "lineage_bound",
+          "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+          "validationEvidenceId": null,
+          "updatedAt": "2026-09-01T02:57:09.680Z"
+        },
+        "rightsDeclaration": null,
+        "ownerUserId": "usr_alice",
+        "createdAt": "2026-09-01T02:25:36.428Z",
+        "updatedAt": "2026-09-01T02:57:09.680Z",
+        "approvedAt": "2026-09-01T02:57:09.680Z"
+      }
+    ],
+    "id": "charlook_1788229536432_0abdnk1t",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-09-01T02:25:36.428Z",
+    "updatedAt": "2026-09-01T02:57:09.680Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "characterProfileId": "charprof_1788141570490_qr4e3sif",
+    "sourceCharacterProfileVersionId": "charver_1788141570511_ehf0ebce",
+    "sourceCharacterOwnerUserId": "usr_alice",
+    "official": true,
+    "name": "Quiet Resolve — Charcoal Mid-tone Everyday",
+    "description": "Neutral, low-contrast wardrobe that reads clearly in cool blue-hour and warm amber light: unobtrusive, practical pieces that keep silhouette and facial plane visible for close ups; minimal layering to preserve continuity and allow small, deliberate movements (reach, flip sign, switch).",
+    "tags": [],
+    "suggestionSnapshot": {
+      "lookName": "Quiet Resolve — Charcoal Mid-tone Everyday",
+      "wardrobeDirection": "Neutral, low-contrast wardrobe that reads clearly in cool blue-hour and warm amber light: unobtrusive, practical pieces that keep silhouette and facial plane visible for close ups; minimal layering to preserve continuity and allow small, deliberate movements (reach, flip sign, switch).",
+      "garments": {
+        "upper": "Slim charcoal knit crew sweater (light-medium weight; close fit to show breathing and jaw movement)",
+        "lower": "Mid-dark indigo high-rise straight jeans (clean hem, no distressing; matte finish)",
+        "outerwear": "Charcoal cropped wool-blend coat (single-breasted, minimal lapel, just below hip) — worn in exterior/entry framings; can remain on for whole scene if director wants uniform silhouette",
+        "footwear": "Matte chestnut-brown leather ankle boots with low block heel (non-reflective sole)",
+        "accessories": [
+          "Simple thin silver band ring (right hand)",
+          "Matte 32–34 mm wristwatch with dark leather strap (left wrist)",
+          "Small cloth hair tie kept on wrist (if needed)"
+        ]
+      },
+      "palette": [
+        "charcoal gray",
+        "mid indigo",
+        "muted chestnut brown",
+        "soft shadow black",
+        "warm amber (lighting only)"
+      ],
+      "materials": [
+        "fine-knit cotton-wool blend (sweater)",
+        "denim (jeans)",
+        "wool-blend (coat)",
+        "matte leather (boots, watch strap)",
+        "metal (ring, watch case)"
+      ],
+      "sceneScope": "scene_specific",
+      "recommendedSceneIds": [
+        "cinescene_1788097357902_crh21ki1",
+        "cinescene_1788097357902_c6zh5xzy",
+        "cinescene_1788097357902_4a78ycqk"
+      ],
+      "rationale": "Mid-tone neutral garments avoid color casts that conflict with the blue-to-amber lighting shift, keep attention on facial micro-expressions, and read clearly in vertical close-ups and full-body exit. Minimal detailing prevents distracting reflections in rain or set lights and supports quick repeatable continuity across takes.",
+      "movementConstraints": [
+        "Avoid long flowing coats or scarves that flap in camera-left tracking — the cropped coat minimizes unwanted motion.",
+        "Boot soles must be non-slip; wet concrete requires low-heel stability for the final walk into light.",
+        "Tight-fitting sweater shows subtle breathing and jaw release; do not layer bulky garments that hide those cues."
+      ],
+      "continuityNotes": [
+        "Use the exact same coat, sweater and jeans for all shots and mark inner seams with tape for fast matching between takes.",
+        "Keep ring and watch on the same hands across frames; photograph detail shots of accessories for continuity reference.",
+        "If coat removed for any frame, record exact sleeve roll, collar lay and button state; prefer keeping coat on to reduce continuity checks.",
+        "Dry garment set reserved as ‘dry’ and separate ‘rain’ pair if close-ups require visible raindrops — ensure identical items."
+      ],
+      "warnings": [
+        "Avoid glossy or metallic accessories (including phone cases) that create hot reflections in the warm-key exit light.",
+        "Do not use patterned or bright-colored clothing; these will conflict with the intended restrained mood and may read as a costume.",
+        "Wetting garments for rain effects can change color/tone on camera—test under scene lighting and have duplicates ready."
+      ],
+      "provenance": {
+        "provider": "openai",
+        "model": "gpt-5-mini",
+        "responseId": "resp_0682680d1b5b0afe016a9636813e7487d0a26828e01aecc2f0",
+        "recipeId": "cinematic-wardrobe-suggestion",
+        "recipeVersion": 1,
+        "recipeFingerprint": "ae6857ea2cdaef9f"
+      },
+      "billingStatus": "qualification_no_charge"
+    },
+    "idempotencyKey": "character-look:charprof_1788141570490_qr4e3sif:e69f799b-12af-4bd8-9070-1026ef849b61",
+    "lifecycleStatus": "retired",
+    "activeVersionId": "charlookver_1788229260951_kc839xuw",
+    "approvedVersionId": null,
+    "versions": [
+      {
+        "id": "charlookver_1788229260951_kc839xuw",
+        "versionNumber": 1,
+        "sourceMode": "ai_suggestion",
+        "garmentAuthorities": {},
+        "sourceSheetAssetId": null,
+        "authoritySnapshot": [],
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "status": "retired",
+        "approvedViewAssets": null,
+        "approvedSheetAsset": null,
+        "cropManifest": null,
+        "generationLineage": null,
+        "provenance": null,
+        "identityAssurance": null,
+        "rightsDeclaration": null,
+        "ownerUserId": "usr_alice",
+        "createdAt": "2026-09-01T02:21:00.948Z",
+        "updatedAt": "2026-09-01T02:25:05.498Z",
+        "approvedAt": null
+      }
+    ],
+    "id": "charlook_1788229260952_ym16yn3v",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-09-01T02:21:00.948Z",
+    "updatedAt": "2026-09-01T02:25:05.498Z",
+    "deletedAt": null,
+    "metadata": {},
+    "retiredAt": "2026-09-01T02:25:05.498Z"
+  },
+  {
+    "characterProfileId": "charprof_1788141570490_qr4e3sif",
+    "sourceCharacterProfileVersionId": "charver_1788141570511_ehf0ebce",
+    "sourceCharacterOwnerUserId": "usr_alice",
+    "official": true,
+    "name": "Blue‑to‑Warm Transition — Intimate Everyday",
+    "description": "A single, unchanged everyday outfit that reads as lived‑in and private on camera: compact silhouettes that hold shape under light, layer visibly for temperature shift, and age subtly in close ups. Keep hair, proportions and personal items exactly as on the actor; do not add distinctive logos or new jewelry.",
+    "tags": [],
+    "suggestionSnapshot": {
+      "lookName": "Blue‑to‑Warm Transition — Intimate Everyday",
+      "wardrobeDirection": "A single, unchanged everyday outfit that reads as lived‑in and private on camera: compact silhouettes that hold shape under light, layer visibly for temperature shift, and age subtly in close ups. Keep hair, proportions and personal items exactly as on the actor; do not add distinctive logos or new jewelry.",
+      "garments": {
+        "upper": "Fitted charcoal knit crewneck sweater (lightly worn texture), thin oatmeal cotton long‑sleeve tee layered beneath (visible at cuff/hem).",
+        "lower": "High‑waist straight dark indigo denim (clean, no heavy distressing), cropped to show ankle.",
+        "outerwear": "Short, matte deep‑olive utility jacket with simple matte snaps (unlined or lightweight lining) — worn open when inside; kept nearby on a hook for continuity but not necessary in every shot.",
+        "footwear": "Matte black leather ankle boots, low stacked heel (quiet soles for floor noise).",
+        "accessories": [
+          "Small plain silver hoop earring (single pair she already wears) — keep on both ears consistently.",
+          "Thin matte band ring on right index (if already present) — maintain placement.",
+          "Simple cloth face mask (off) folded in pocket — visible only as a prop if needed."
+        ]
+      },
+      "palette": [
+        "charcoal",
+        "deep olive",
+        "oatmeal",
+        "indigo",
+        "matte black"
+      ],
+      "materials": [
+        "knit cotton",
+        "lightweight cotton jersey",
+        "denim",
+        "matte leather",
+        "matte metal"
+      ],
+      "sceneScope": "scene_specific",
+      "recommendedSceneIds": [
+        "cinescene_1788097357902_crh21ki1",
+        "cinescene_1788097357902_c6zh5xzy",
+        "cinescene_1788097357902_4a78ycqk"
+      ],
+      "rationale": "Neutral, layered pieces keep focus on expression and breathing while reading temperature changes (cool blue hour → warm interior). Textures are simple for reliable lighting and close‑up continuity; dark indigo and charcoal ground the frame against wet concrete reflections while the oatmeal tee catches the warm light as she switches the lamp, subtly signaling emotional warmth without changing costume.",
+      "movementConstraints": [
+        "Fitted sweater and straight denim allow full arm reach for handling the CLOSED sign and phone; avoid heavy outerwear during close emotive moments to keep shoulder line consistent.",
+        "Boots have low heels and quiet soles to prevent additional noise in single‑take walking toward light."
+      ],
+      "continuityNotes": [
+        "Maintain placement of hoop earrings and ring throughout all close ups; photograph from multiple angles at wardrobe call for reference.",
+        "If the utility jacket is present on hook/chair between shots, always drape it the same way (left sleeve visible) to avoid mismatched props in wide shots.",
+        "Keep sweater cuffs and visible hem length consistent; if rolling sleeves for practical action, do so the same amount in each take."
+      ],
+      "warnings": [
+        "Light colored underlayer (oatmeal tee) will show through under strong backlight—confirm it stays visible by design and not as accidental overexposure.",
+        "Matte leather can appear shiny under hot lights if polished; scuff lightly before shooting for consistent matte look.",
+        "Wet surfaces may darken denim tones — shoot test to ensure indigo reads as intended between blue‑hour exteriors and warm interior."
+      ],
+      "provenance": {
+        "provider": "openai",
+        "model": "gpt-5-mini",
+        "responseId": "resp_0a1abd5198f26c4f016a95a1d4c9ec87d0b53d5627c8199ec8",
+        "recipeId": "cinematic-wardrobe-suggestion",
+        "recipeVersion": 1,
+        "recipeFingerprint": "ae6857ea2cdaef9f"
+      },
+      "billingStatus": "qualification_no_charge"
+    },
+    "idempotencyKey": "character-look:charprof_1788141570490_qr4e3sif:ad0fecc5-20d4-4734-8a31-5d43f1583411",
+    "lifecycleStatus": "retired",
+    "activeVersionId": "charlookver_1788191207966_zr4bdxjp",
+    "approvedVersionId": null,
+    "versions": [
+      {
+        "id": "charlookver_1788191207966_zr4bdxjp",
+        "versionNumber": 1,
+        "sourceMode": "ai_suggestion",
+        "garmentAuthorities": {},
+        "sourceSheetAssetId": null,
+        "authoritySnapshot": [],
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "status": "retired",
+        "approvedViewAssets": null,
+        "approvedSheetAsset": null,
+        "cropManifest": null,
+        "generationLineage": null,
+        "ownerUserId": "usr_alice",
+        "createdAt": "2026-08-31T15:46:47.962Z",
+        "updatedAt": "2026-09-01T02:25:01.252Z",
+        "approvedAt": null
+      }
+    ],
+    "id": "charlook_1788191207967_dwxf1ow8",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-31T15:46:47.962Z",
+    "updatedAt": "2026-09-01T02:25:01.252Z",
+    "deletedAt": null,
+    "metadata": {},
+    "retiredAt": "2026-09-01T02:25:01.252Z"
+  },
+  {
+    "characterProfileId": "charprof_1788141570490_qr4e3sif",
+    "sourceCharacterProfileVersionId": "charver_1788141570511_ehf0ebce",
+    "sourceCharacterOwnerUserId": "usr_alice",
+    "official": true,
+    "name": "Blue-hour Resolve",
+    "description": "Keep clothing minimal, practical and lived-in; read cool and slightly damp in blue-hour exteriors, then take on warm highlights as interior lights switch on. Silhouette stays streamlined to reflect restraint and control; textures (wool, cotton knit, matte leather) read well in close-ups without distracting from face and micro-expressions.",
+    "tags": [],
+    "suggestionSnapshot": {
+      "lookName": "Blue-hour Resolve",
+      "wardrobeDirection": "Keep clothing minimal, practical and lived-in; read cool and slightly damp in blue-hour exteriors, then take on warm highlights as interior lights switch on. Silhouette stays streamlined to reflect restraint and control; textures (wool, cotton knit, matte leather) read well in close-ups without distracting from face and micro-expressions.",
+      "garments": {
+        "upper": "Light charcoal ribbed crew-neck knit sweater (fitted, thin merino or cotton blend)",
+        "lower": "Dark indigo slim-straight jeans (mid-rise, clean, no distressing)",
+        "outerwear": "Mid-thigh navy single-breasted wool-blend coat with simple notch collar (matte finish, minimal hardware)",
+        "footwear": "Matte black leather ankle boots with 2–3 cm heel (comfortable for walking, low silhouette)",
+        "accessories": [
+          "Plain slim leather crossbody strap (empty bag kept off-camera if needed)",
+          "Small silver or stainless-steel wristwatch (minimal face)",
+          "Thin understated pendant (small, close to collarbone)",
+          "Folded cloth CLOSED sign (prop) — neutral beige with subtle wear",
+          "Smartphone (screen used for voice message; keep notification unreadable)"
+        ]
+      },
+      "palette": [
+        "navy",
+        "charcoal",
+        "dark indigo",
+        "matte black",
+        "warm amber (lighting accent only)"
+      ],
+      "materials": [
+        "wool-blend (coat)",
+        "merino/cotton knit (sweater)",
+        "denim (jeans)",
+        "matte leather (boots, strap)",
+        "brushed metal (watch, pendant)"
+      ],
+      "sceneScope": "scene_specific",
+      "recommendedSceneIds": [
+        "cinescene_1788097357902_crh21ki1",
+        "cinescene_1788097357902_c6zh5xzy",
+        "cinescene_1788097357902_4a78ycqk"
+      ],
+      "rationale": "A restrained, neutral ensemble that reads as everyday and practical, allowing facial micro-expressions and the warm interior light to carry emotion. Dark, matte surfaces avoid glare in wet conditions and keep continuity across close-ups and medium shots. Minimal accessories give character detail without distraction.",
+      "movementConstraints": [
+        "Coat should be sized to allow a single-handed reach across counter to flip switch and to hold sign without gaping; avoid bulky layers under coat.",
+        "Ankle boots with low heels chosen for steady walking into warm exit; test for slip on damp concrete.",
+        "Crossbody strap must be positioned so it does not obscure the chest/neck in close-ups when she looks down at phone."
+      ],
+      "continuityNotes": [
+        "Keep the sweater, coat and jeans identical across takes; photograph garment tags/labels and inside seams for matching.",
+        "Ensure CLOSED sign wear marks and folded creases are replicated between takes and scenes.",
+        "Place watch and pendant on same wrist/side each take; document exact position with continuity photos.",
+        "Phone case and screen smudges must remain consistent so notification appears authentic but unreadable."
+      ],
+      "warnings": [
+        "Dark fabrics absorb light—monitor underexposure in blue-hour close-ups; add subtle fill if needed.",
+        "Wool coat can show rainwater streaks differently between takes; pre-treat or spray consistently for continuity.",
+        "Shiny jewelry or watch face can catch hot highlights—use matte finish or orient away from key light to avoid flash reflections."
+      ],
+      "provenance": {
+        "provider": "openai",
+        "model": "gpt-5-mini",
+        "responseId": "resp_0a61841a49cea020016a958a5052b487d09ce835c81669cf0f",
+        "recipeId": "cinematic-wardrobe-suggestion",
+        "recipeVersion": 1,
+        "recipeFingerprint": "ae6857ea2cdaef9f"
+      },
+      "billingStatus": "qualification_no_charge"
+    },
+    "idempotencyKey": "character-look:charprof_1788141570490_qr4e3sif:df39051f-2f8f-4fe8-b597-3e079e681723",
+    "lifecycleStatus": "retired",
+    "activeVersionId": "charlookver_1788185186776_izvtygzb",
+    "approvedVersionId": null,
+    "versions": [
+      {
+        "id": "charlookver_1788185186776_izvtygzb",
+        "versionNumber": 1,
+        "sourceMode": "ai_suggestion",
+        "garmentAuthorities": {},
+        "sourceSheetAssetId": null,
+        "authoritySnapshot": [],
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "status": "retired",
+        "approvedViewAssets": null,
+        "approvedSheetAsset": null,
+        "cropManifest": null,
+        "generationLineage": null,
+        "ownerUserId": "usr_alice",
+        "createdAt": "2026-08-31T14:06:26.775Z",
+        "updatedAt": "2026-08-31T15:46:19.356Z",
+        "approvedAt": null
+      }
+    ],
+    "id": "charlook_1788185186777_cu7gbus7",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-31T14:06:26.775Z",
+    "updatedAt": "2026-08-31T15:46:19.356Z",
+    "deletedAt": null,
+    "metadata": {},
+    "retiredAt": "2026-08-31T15:46:19.356Z"
+  },
+  {
+    "characterProfileId": "charprof_1788141570490_qr4e3sif",
+    "sourceCharacterProfileVersionId": "charver_1788141570511_ehf0ebce",
+    "sourceCharacterOwnerUserId": "usr_alice",
+    "official": true,
+    "name": "Blue-hour to Warm Light — Intimate Layered Practical",
+    "description": "A minimal, familiar everyday outfit that reads resilient and private on camera: close-fitting neutral layers that move little, show subtle texture in close-ups, and warm softly when lit. Keep hairstyle and body proportions exactly as in reference; garments must be the same pieces across all shots for continuity.",
+    "tags": [],
+    "suggestionSnapshot": {
+      "lookName": "Blue-hour to Warm Light — Intimate Layered Practical",
+      "wardrobeDirection": "A minimal, familiar everyday outfit that reads resilient and private on camera: close-fitting neutral layers that move little, show subtle texture in close-ups, and warm softly when lit. Keep hairstyle and body proportions exactly as in reference; garments must be the same pieces across all shots for continuity.",
+      "garments": {
+        "upper": "Light heather-grey fine-knit crewneck sweater (slim fit) worn under a thin, matte charcoal cardigan or wool-blend vest (unbuttoned)",
+        "lower": "High-rise, straight-cut dark indigo jeans (no heavy distressing), hemmed to just above ankle",
+        "outerwear": "Calf-length, single-breasted muted olive/charcoal wool-cotton blend coat with minimal lapel (worn open for interior shots; buttoned or draped for exterior/wet shots)",
+        "footwear": "Matte black low-heeled leather ankle boots (clean lines, non-reflective sole)",
+        "accessories": [
+          "Plain slim leather wristwatch (inside wrist), no visible logo",
+          "Small matte leather crossbody bag (strap tucked off-camera for stationary shots)",
+          "Simple thin silver ring on right index finger"
+        ]
+      },
+      "palette": [
+        "cool slate grey",
+        "charcoal",
+        "muted olive",
+        "deep indigo",
+        "warm amber accents (from lighting)"
+      ],
+      "materials": [
+        "fine knit cotton-wool blend",
+        "wool-cotton coat fabric",
+        "denim (rigid wash)",
+        "matte leather",
+        "simple metal for watch/ring"
+      ],
+      "sceneScope": "scene_specific",
+      "recommendedSceneIds": [
+        "cinescene_1788097357902_crh21ki1",
+        "cinescene_1788097357902_c6zh5xzy",
+        "cinescene_1788097357902_4a78ycqk"
+      ],
+      "rationale": "Slim, tonal layers read as practical and unadorned in close-ups while allowing warm light to alter tones without changing garments. The sweater and cardigan provide subtle texture for breathing/shoulder close-ups; coat supplies silhouette and wet-weather practicality for rain and street reflections. Minimal accessories keep attention on face and phone; dark jeans and boots ground her movement into the warm exit without noisy fabric rustle.",
+      "movementConstraints": [
+        "Avoid long flowing skirts or oversized sleeves that obscure hands/phone or create wind-rush sound.",
+        "Coat should be fitted enough to allow a clear hand-to-counter action when placing the CLOSED sign and to reveal sweater layers in close-ups.",
+        "Crossbody strap must be removed or securely tucked for shots where she reaches across counter to avoid visual inconsistency."
+      ],
+      "continuityNotes": [
+        "Use the same exact sweater, cardigan/vest and coat for all three scenes to maintain tone shift purely via lighting.",
+        "Buttoning state of coat should be logged per shot: open for interior counter/phone close-ups; closed or draped during exterior wet shots to show weather protection.",
+        "Ring and watch stay on consistently; photograph these for continuity reference.",
+        "If coat gets wet during exterior/walking shots, replicate dampness level for any pickups."
+      ],
+      "warnings": [
+        "Light-colored or shiny trims reflect on close-up shots; choose matte buttons and hardware.",
+        "Denim with visible new creases will shift between takes—pre-wear and document crease positions for consistency.",
+        "Bulky wet coats can change silhouette; plan for controlled rain levels or rain-proof duplicates to match absorbency."
+      ],
+      "provenance": {
+        "provider": "openai",
+        "model": "gpt-5-mini",
+        "responseId": "resp_0acf3db6facdfdb1016a958a0b965087d08ab39f6a9b692bb4",
+        "recipeId": "cinematic-wardrobe-suggestion",
+        "recipeVersion": 1,
+        "recipeFingerprint": "ae6857ea2cdaef9f"
+      },
+      "billingStatus": "qualification_no_charge"
+    },
+    "idempotencyKey": "character-look:charprof_1788141570490_qr4e3sif:7f7a17fc-c5a4-467c-affa-8009f96f71a9",
+    "lifecycleStatus": "retired",
+    "activeVersionId": "charlookver_1788185110237_lg3usvzv",
+    "approvedVersionId": null,
+    "versions": [
+      {
+        "id": "charlookver_1788185110237_lg3usvzv",
+        "versionNumber": 1,
+        "sourceMode": "ai_suggestion",
+        "garmentAuthorities": {},
+        "sourceSheetAssetId": null,
+        "authoritySnapshot": [],
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "status": "retired",
+        "approvedViewAssets": null,
+        "approvedSheetAsset": null,
+        "cropManifest": null,
+        "generationLineage": null,
+        "ownerUserId": "usr_alice",
+        "createdAt": "2026-08-31T14:05:10.236Z",
+        "updatedAt": "2026-08-31T15:46:20.714Z",
+        "approvedAt": null
+      }
+    ],
+    "id": "charlook_1788185110238_7r6gi25f",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-31T14:05:10.236Z",
+    "updatedAt": "2026-08-31T15:46:20.714Z",
+    "deletedAt": null,
+    "metadata": {},
+    "retiredAt": "2026-08-31T15:46:20.714Z"
+  },
+  {
+    "characterProfileId": "charprof_1788141570490_qr4e3sif",
+    "sourceCharacterProfileVersionId": "charver_1788141570511_ehf0ebce",
+    "sourceCharacterOwnerUserId": "usr_alice",
+    "official": true,
+    "name": "Small-Cafe Evening — Quiet Resolve",
+    "description": "Understated, practical urban-casual that reads intimate on close-ups and layers warm when backlit. Pieces must be easy to reproduce across storyboard frames and keep hair/shape silhouette identical. Avoid glossy or reflective fabrics that catch stray lights in blue-hour close-ups.",
+    "tags": [],
+    "suggestionSnapshot": {
+      "lookName": "Small-Cafe Evening — Quiet Resolve",
+      "wardrobeDirection": "Understated, practical urban-casual that reads intimate on close-ups and layers warm when backlit. Pieces must be easy to reproduce across storyboard frames and keep hair/shape silhouette identical. Avoid glossy or reflective fabrics that catch stray lights in blue-hour close-ups.",
+      "garments": {
+        "upper": "Matte charcoal-gray lightweight knit crewneck sweater (fitted through shoulders, slightly relaxed torso), thin off-white cotton long-sleeve tee layered under with collar and cuff visible.",
+        "lower": "High-rise, dark indigo straight-leg jeans with minimal texture and no visible branding; hem cropped just above ankle.",
+        "outerwear": "Cropped, unstructured camel-brown wool-blend jacket (single-breasted, no lapel shine) — removable between scenes to show small arc from guarded to warmer.",
+        "footwear": "Matte dark-brown leather ankle boots, low stacked heel (comfortable for short walk into doorway), non-reflective soles.",
+        "accessories": [
+          "Simple narrow leather wristwatch (dark strap) worn on left — visible in close wrist/phone shots",
+          "Plain thin silver hoop stud earrings (small, non-dangling)",
+          "Cloth 'CLOSED' sign prop (off-white with hand-painted black letters) — held and then placed face-down"
+        ]
+      },
+      "palette": [
+        "cool charcoal gray",
+        "off-white",
+        "camel brown",
+        "dark indigo",
+        "warm amber (from practical lighting, not garments)"
+      ],
+      "materials": [
+        "matte cotton/knit",
+        "wool-blend (outer)",
+        "denim (dark rinse)",
+        "matte leather"
+      ],
+      "sceneScope": "scene_specific",
+      "recommendedSceneIds": [
+        "cinescene_1788097357902_crh21ki1",
+        "cinescene_1788097357902_c6zh5xzy",
+        "cinescene_1788097357902_4a78ycqk"
+      ],
+      "rationale": "Neutral, low-gloss fabrics photograph predictably in blue-hour and amber light; layered neutrals allow a subtle visual warmth shift when the jacket is removed or when backlit by the warm exit. Small, practical pieces keep motion believable for close breathing/hand shots and the final short walk. No loud patterns or logos to distract from face and prop interaction (phone, sign, switch).",
+      "movementConstraints": [
+        "Jacket should be cropped and unstructured to avoid billow during the final walk; long coats would catch wind and break continuity.",
+        "Jeans must allow a modest gait — choose denim with slight give to avoid audible fabric rustle in close sound takes.",
+        "Boot heel limited to 2–3 cm for steady, natural step and safe wet-surface blocking."
+      ],
+      "continuityNotes": [
+        "Keep underlayer tee collar and cuff exposure consistent across scenes — mark position with discreet chalk/clip.",
+        "Watchwatch orientation and strap tightness must match between close-ups (phone handling) and wider frames.",
+        "CLOSED sign face and edge wear must be consistent; ensure prop placement (held, then face-down) is rehearsed for exact camera framing.",
+        "Outer jacket present in blue-hour and notification scenes; remove or open slightly for the warm-exit scene to read increasing warmth/softening."
+      ],
+      "warnings": [
+        "Avoid shiny fabrics or metallic jewelry that create specular highlights in blue-hour close-ups.",
+        "Dark indigo denim can read as black under low light — ensure lighting reference photos to keep color consistent.",
+        "Wet concrete may reflect boot soles; test for unintended reflections that could reveal camera or crew."
+      ],
+      "provenance": {
+        "provider": "openai",
+        "model": "gpt-5-mini",
+        "responseId": "resp_0631cf5b55f0e8a9016a9501da368487d08c8372a51b058884",
+        "recipeId": "cinematic-wardrobe-suggestion",
+        "recipeVersion": 1,
+        "recipeFingerprint": "ae6857ea2cdaef9f"
+      },
+      "billingStatus": "qualification_no_charge"
+    },
+    "idempotencyKey": "character-look:charprof_1788141570490_qr4e3sif:d7bed4b4-18eb-4ca0-ad05-3eded698a788",
+    "lifecycleStatus": "retired",
+    "activeVersionId": "charlookver_1788150248825_wlz3ci6o",
+    "approvedVersionId": null,
+    "versions": [
+      {
+        "id": "charlookver_1788150248825_wlz3ci6o",
+        "versionNumber": 1,
+        "sourceMode": "ai_suggestion",
+        "garmentAuthorities": {},
+        "sourceSheetAssetId": null,
+        "authoritySnapshot": [],
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "status": "retired",
+        "approvedViewAssets": null,
+        "approvedSheetAsset": null,
+        "cropManifest": null,
+        "generationLineage": null,
+        "ownerUserId": "usr_alice",
+        "createdAt": "2026-08-31T04:24:08.822Z",
+        "updatedAt": "2026-08-31T15:46:21.898Z",
+        "approvedAt": null
+      }
+    ],
+    "id": "charlook_1788150248825_jpdk8666",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-31T04:24:08.822Z",
+    "updatedAt": "2026-08-31T15:46:21.898Z",
+    "deletedAt": null,
+    "metadata": {},
+    "retiredAt": "2026-08-31T15:46:21.898Z"
+  },
+  {
     "characterProfileId": "charprof_1786762030645_bi3091e5",
     "sourceCharacterProfileVersionId": "charver_1786762030649_qd0i06j2",
     "sourceCharacterOwnerUserId": "usr_alice",

@@ -41,12 +41,18 @@ export function buildStoryboardPrompt(project: CinematicProject, scene: Cinemati
       beat?.title,
       beat?.purpose ? `Dramatic purpose: ${beat.purpose}.` : '',
       beat?.storyChange ? `Visible story change: ${beat.storyChange}.` : '',
+      beat?.cause ? `Cause entering the Beat: ${beat.cause}.` : '',
+      beat?.consequence ? `Consequence leaving the Beat: ${beat.consequence}.` : '',
       emotionalArcContext('Beat emotional arc', beat?.emotionalStart, beat?.emotionalEnd)
     ])),
     promptSection('Scene direction', joinSentences([
       scene.title,
       scene.purpose ? `Dramatic purpose: ${scene.purpose}.` : '',
       scene.storyChange ? `Visible story change: ${scene.storyChange}.` : '',
+      scene.entryState ? `Scene entry state: ${scene.entryState}.` : '',
+      scene.exitState ? `Scene exit state: ${scene.exitState}.` : '',
+      scene.objective ? `Scene objective: ${scene.objective}.` : '',
+      scene.pressure ? `Visible pressure: ${scene.pressure}.` : '',
       emotionalArcContext('Scene emotional arc', scene.emotionalStart, scene.emotionalEnd),
       scene.location || scene.time ? `Setting: ${[scene.location, scene.time].filter(Boolean).join(', ')}.` : '',
       scene.blocking ? `Character blocking: ${scene.blocking}.` : '',
@@ -57,11 +63,14 @@ export function buildStoryboardPrompt(project: CinematicProject, scene: Cinemati
     promptSection('Selected shot', joinSentences([
       shot.title,
       shot.purpose ? `Visual purpose: ${shot.purpose}.` : '',
+      shot.visibleMoment ? `Exact visible moment: ${shot.visibleMoment}.` : '',
+      shot.subjectAction ? `One primary physical action: ${shot.subjectAction}.` : '',
       [shot.framing, shot.cameraAngle, shot.cameraMovement, shot.lensIntent].filter(Boolean).length
         ? `Camera: ${[shot.framing, shot.cameraAngle, shot.cameraMovement, shot.lensIntent].filter(Boolean).join(', ')}.`
         : '',
       shot.blocking ? `Blocking: ${shot.blocking}.` : '',
       shot.performance ? `Performance: ${shot.performance}.` : '',
+      shot.performanceCue ? `Observable performance cue: ${shot.performanceCue}.` : '',
       shot.gaze ? `Gaze: ${shot.gaze}.` : '',
       emotionalTarget ? `Selected Shot emotional target: ${emotionalTarget}. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it.` : '',
       shot.lighting || scene.lighting ? `Shot lighting: ${shot.lighting || scene.lighting}.` : '',
@@ -74,7 +83,12 @@ export function buildStoryboardPrompt(project: CinematicProject, scene: Cinemati
       item.performanceDirection ? `Performance authority: ${item.performanceDirection}.` : ''
     ])).join(' ')),
     promptSection('Wardrobe', looks.map(look => [look.name, look.garmentSummary, look.accessorySummary].filter(Boolean).join(', ')).join('; ')),
-    promptSection('Continuity', continuity.join('; '))
+    promptSection('Continuity', joinSentences([
+      shot.continuityEntry ? `Entry anchor: ${shot.continuityEntry}.` : '',
+      shot.continuityExit ? `Exit anchor: ${shot.continuityExit}.` : '',
+      shot.transitionToNext ? `Outgoing visual transition: ${shot.transitionToNext}.` : '',
+      continuity.join('; ')
+    ]))
   ].filter(Boolean).join('\n\n');
 }
 

@@ -114,6 +114,7 @@ type GenerationExperienceProps = {
   blockedNotice?: ReactNode;
   showEngine?: boolean;
   layoutVariant?: 'stacked' | 'studio' | 'playground';
+  showRecentGenerations?: boolean;
   recentExpanded?: boolean;
   onRecentExpandedChange?: (expanded: boolean) => void;
   referenceRoles?: GenerationReferenceRole[];
@@ -123,6 +124,8 @@ type GenerationExperienceProps = {
   studioQueueExtra?: ReactNode;
   studioConfigActions?: ReactNode;
   fixedAspectRatio?: string | null;
+  fixedOutputCount?: number | null;
+  allowPromptRefinement?: boolean;
   persistenceScope?: string;
   referencesReadOnly?: boolean;
   resumeJobId?: string | null;
@@ -156,6 +159,7 @@ export function GenerationExperience({
   blockedNotice,
   showEngine = true,
   layoutVariant = 'stacked',
+  showRecentGenerations = true,
   recentExpanded = true,
   onRecentExpandedChange = () => {},
   referenceRoles,
@@ -165,6 +169,8 @@ export function GenerationExperience({
   studioQueueExtra,
   studioConfigActions,
   fixedAspectRatio: requestedFixedAspectRatio = null,
+  fixedOutputCount: requestedFixedOutputCount = null,
+  allowPromptRefinement = true,
   persistenceScope = '',
   referencesReadOnly = false,
   resumeJobId = null
@@ -216,6 +222,9 @@ export function GenerationExperience({
   const [outputCountPreferenceActorId, setOutputCountPreferenceActorId] = useState<string | null>(null);
   const actorId = actor?.userId || 'loading';
   const routePointerFeature = generationRoutePointerFeature(surface, generationMode, persistenceScope);
+  const fixedOutputCount = requestedFixedOutputCount === null
+    ? null
+    : Math.max(1, Math.min(4, Math.trunc(requestedFixedOutputCount)));
   const fixedAspectRatio = requestedFixedAspectRatio || (generationMode === 'character-sheet'
     && characterType === 'reusable_model'
     ? '1:1'
@@ -243,14 +252,14 @@ export function GenerationExperience({
     setPromptRefinementEnabled(false);
     setPromptRefinementActorId(null);
     setOutputCountPreferenceActorId(null);
-    setEngine(current => ({ ...current, outputCount: 1 }));
+    setEngine(current => ({ ...current, outputCount: fixedOutputCount || 1 }));
     setLocalPrompt(initialPromptRef.current);
     setNegativePrompt('');
     setLocalReferences(initialReferencesRef.current);
     setReferenceScopes({});
     completedJobRef.current = null;
     completedGroupJobsRef.current.clear();
-  }, [actor?.userId, resumeJobId, routePointerFeature]);
+  }, [actor?.userId, fixedOutputCount, resumeJobId, routePointerFeature]);
 
   useEffect(() => {
     if (!actor?.userId || routePointerActorId !== actor.userId) return;
@@ -270,15 +279,20 @@ export function GenerationExperience({
 
   useEffect(() => {
     if (!actor || outputCountPreferenceActorId === actor.userId) return;
+    if (fixedOutputCount !== null) {
+      setEngine(current => ({ ...current, outputCount: fixedOutputCount }));
+      setOutputCountPreferenceActorId(actor.userId);
+      return;
+    }
     const outputCount = readOutputCountPreference(actor.userId);
     setEngine(current => ({ ...current, outputCount }));
     setOutputCountPreferenceActorId(actor.userId);
-  }, [actor, outputCountPreferenceActorId]);
+  }, [actor, fixedOutputCount, outputCountPreferenceActorId]);
 
   useEffect(() => {
-    if (!actor || outputCountPreferenceActorId !== actor.userId) return;
+    if (!actor || fixedOutputCount !== null || outputCountPreferenceActorId !== actor.userId) return;
     writeOutputCountPreference(actor.userId, engine.outputCount);
-  }, [actor, engine.outputCount, outputCountPreferenceActorId]);
+  }, [actor, engine.outputCount, fixedOutputCount, outputCountPreferenceActorId]);
 
   useEffect(() => {
     if (!actor || promptRefinementActorId === actor.userId) return;
@@ -301,9 +315,9 @@ export function GenerationExperience({
       resolution: model?.capabilities.resolutions?.[0] || model?.defaults?.resolution || null,
       aspectRatio: fixedAspectRatio
         || (model?.capabilities.aspectRatios.includes('6:8') ? '6:8' : model?.capabilities.aspectRatios[0] || '1:1'),
-      outputCount: engine.outputCount
+      outputCount: fixedOutputCount || engine.outputCount
     });
-  }, [catalog.data, engine.outputCount, engine.provider, fixedAspectRatio]);
+  }, [catalog.data, engine.outputCount, engine.provider, fixedAspectRatio, fixedOutputCount]);
 
   useEffect(() => {
     if (!fixedAspectRatio || engine.aspectRatio === fixedAspectRatio) return;
@@ -364,7 +378,8 @@ export function GenerationExperience({
     }
     : null, [engine, sceneTemplateSnapshot]);
 
-  const promptRefinementAvailable = isEnabled('generation.promptRefinementEnabled');
+  const promptRefinementAvailable = allowPromptRefinement
+    && isEnabled('generation.promptRefinementEnabled');
   const draft = useMemo<GenerationRequestDraft>(() => ({
     provider: engine.provider,
     submodel: engine.model,
@@ -806,11 +821,14 @@ export function GenerationExperience({
       comparisonEstimateError={comparisonEstimate.error?.message || null}
       studioLayout={layoutVariant === 'studio' || layoutVariant === 'playground'}
       allowComparison={allowComparison}
+      allowMultiOutput={fixedOutputCount === null}
       promptRefinementAvailable={promptRefinementAvailable}
       promptRefinementEnabled={promptRefinementEnabled}
       fixedAspectRatio={fixedAspectRatio}
       requiredReferenceCount={requiredReferenceCount}
-      onChange={setEngine}
+      onChange={next => setEngine(fixedOutputCount === null
+        ? next
+        : { ...next, outputCount: fixedOutputCount })}
       onComparisonChange={setComparison}
       onSlotsChange={setComparisonSlots}
       onPromptRefinementChange={setPromptRefinementEnabled}
@@ -980,7 +998,7 @@ export function GenerationExperience({
         prompt={promptRegion}
         result={resultRegion}
         queue={queueStatusRegion}
-        recent={<PlaygroundRecentGenerations />}
+        recent={showRecentGenerations ? <PlaygroundRecentGenerations /> : null}
         engine={engineRegion}
         references={referencesRegion}
         actions={actionRegion}

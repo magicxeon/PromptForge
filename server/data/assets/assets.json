@@ -1,5 +1,35 @@
 [
   {
+    "assetType": "character_look_sheet",
+    "storageProvider": "local",
+    "storageKey": "job_1788231304557_qn6mtllq3.jpg",
+    "publicUrl": "/outputs/job_1788231304557_qn6mtllq3.jpg",
+    "thumbnailUrl": null,
+    "mimeType": "image/jpeg",
+    "sizeBytes": null,
+    "width": null,
+    "height": null,
+    "sourceJobId": "job_1788231304557_qn6mtllq3",
+    "metadata": {
+      "characterProfileId": "charprof_1788141570490_qr4e3sif",
+      "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+      "characterLookId": "charlook_1788229536432_0abdnk1t",
+      "characterLookVersionId": "charlookver_1788229536432_3kflzanw",
+      "recipeId": "character-look-sheet",
+      "recipeVersion": 2,
+      "recipeFingerprint": "9c5a238c5654f585"
+    },
+    "id": "ast_1788231421726_46lql8fh",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-09-01T02:57:01.726Z",
+    "updatedAt": "2026-09-01T02:57:01.726Z",
+    "deletedAt": null
+  },
+  {
     "assetType": "generation_reference_derivative",
     "storageProvider": "local",
     "storageKey": "reference-processed/usr_alice/d81b9481a6f23474e81ac7dd.png",

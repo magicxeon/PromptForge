@@ -53,3 +53,27 @@ test('CinematicProjectRepository serializes mutations and hides cross-actor reco
     error => error.code === 'cinematic_project_not_found' && error.statusCode === 404
   );
 });
+
+test('CinematicProjectRepository normalizes null Storyboard source pointers from legacy writes', async t => {
+  const { directory, repository } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  await fs.writeFile(repository.projectsFile, JSON.stringify({
+    schemaVersion: 1,
+    projects: [{
+      id: 'cineproj_legacy_null', ownerUserId: alice.userId, status: 'planned',
+      scenes: [{
+        id: 'scene_a',
+        shots: [{ id: 'shot_a', approvedStoryboardSource: null, approvedStoryboardAttemptId: null }]
+      }]
+    }]
+  }), 'utf8');
+
+  const loaded = await repository.findForActor('cineproj_legacy_null', alice);
+  assert.equal(Object.hasOwn(loaded.scenes[0].shots[0], 'approvedStoryboardSource'), false);
+  assert.equal(Object.hasOwn(loaded.scenes[0].shots[0], 'approvedStoryboardAttemptId'), false);
+
+  await repository.mutateForActor('cineproj_legacy_null', alice, project => project);
+  const persisted = JSON.parse(await fs.readFile(repository.projectsFile, 'utf8'));
+  assert.equal(Object.hasOwn(persisted.projects[0].scenes[0].shots[0], 'approvedStoryboardSource'), false);
+  assert.equal(Object.hasOwn(persisted.projects[0].scenes[0].shots[0], 'approvedStoryboardAttemptId'), false);
+});

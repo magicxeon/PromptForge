@@ -99,6 +99,38 @@ export const characterFeaturedImageUpdateSchema = z.object({
   featuredWorkPostId: z.string().nullable()
 });
 
+const characterLookProvenanceSchema = z.object({
+  kind: z.enum(['system_generated', 'user_uploaded', 'legacy_unknown']),
+  characterProfileId: z.string(),
+  characterProfileVersionId: z.string(),
+  sourceAssetIds: z.array(z.string()).default([]),
+  generationResultId: z.string().nullable(),
+  generationJobId: z.string().nullable(),
+  recipeId: z.string().nullable(),
+  recipeVersion: z.number().int().positive().nullable(),
+  recipeFingerprint: z.string().nullable(),
+  provider: z.string().nullable(),
+  model: z.string().nullable(),
+  recordedAt: z.string()
+});
+
+const characterLookIdentityAssuranceSchema = z.object({
+  status: z.enum([
+    'unverified', 'user_confirmed', 'lineage_bound', 'validated',
+    'validation_failed', 'legacy_unknown'
+  ]),
+  characterProfileVersionId: z.string(),
+  validationEvidenceId: z.string().nullable(),
+  updatedAt: z.string()
+});
+
+const characterLookRightsDeclarationSchema = z.object({
+  accepted: z.literal(true),
+  acceptedByUserId: z.string(),
+  acceptedAt: z.string(),
+  policyVersion: z.string()
+});
+
 export const characterLookVersionSchema = z.object({
   id: z.string(),
   versionNumber: z.number(),
@@ -115,6 +147,10 @@ export const characterLookVersionSchema = z.object({
       x: z.number(), y: z.number(), width: z.number(), height: z.number()
     }))
   }).nullable().optional(),
+  provenance: characterLookProvenanceSchema.nullable().optional(),
+  identityAssurance: characterLookIdentityAssuranceSchema.nullable().optional(),
+  rightsDeclaration: characterLookRightsDeclarationSchema.nullable().optional(),
+  reviewMediaUrl: z.string().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
   approvedAt: z.string().nullable()
@@ -136,11 +172,48 @@ export const characterLookSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   retiredAt: z.string().nullable(),
-  suggestionSnapshot: z.record(z.string(), z.unknown()).nullable().optional()
+  suggestionSnapshot: z.record(z.string(), z.unknown()).nullable().optional(),
+  workflowState: z.enum([
+    'source_ready', 'generation_ready', 'generation_active', 'generation_completed',
+    'review_ready', 'approved_unbound', 'approved_bound', 'failed_recoverable', 'retired'
+  ]).optional(),
+  capabilities: z.object({
+    characterMatchCheck: z.object({
+      available: z.boolean(),
+      qualified: z.boolean(),
+      reason: z.string()
+    })
+  }).optional()
 }).passthrough();
 
 export const characterLooksResponseSchema = z.object({ items: z.array(characterLookSchema) });
 export type CharacterLook = z.infer<typeof characterLookSchema>;
+
+export const characterLookGenerationPlanSchema = z.object({
+  operation: z.literal('character_look_sheet'),
+  recipe: z.object({
+    id: z.string(),
+    version: z.number().int().positive(),
+    fingerprint: z.string()
+  }),
+  prompt: z.string(),
+  references: z.object({
+    outfit_front: z.string().optional(),
+    outfit_back: z.string().optional()
+  }),
+  characterProfileContext: z.record(z.string(), z.unknown()),
+  output: z.object({
+    aspectRatio: z.string(),
+    outputCount: z.literal(1)
+  }),
+  source: z.object({
+    characterProfileId: z.string(),
+    characterProfileVersionId: z.string(),
+    lookId: z.string(),
+    lookVersionId: z.string()
+  })
+});
+export type CharacterLookGenerationPlan = z.infer<typeof characterLookGenerationPlanSchema>;
 
 const profileSchema = z.object({
   id: z.string(),

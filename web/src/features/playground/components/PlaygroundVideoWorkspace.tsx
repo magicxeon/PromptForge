@@ -30,7 +30,7 @@ import {
 } from '../../generation/api/videoGenerationApi';
 import type { VideoTask } from '../../generation/schemas/videoGenerationSchemas';
 import { focusResultRegionAfterLayout } from './resultRegionFocus';
-import { canQuoteVideoModel, filterVideoModelsForOperation } from './videoModelSelection';
+import { canQuoteVideoModel, filterVideoModelsForOperation, migrateVideoProviderModelKey } from './videoModelSelection';
 
 const VIDEO_DRAFT_FEATURE = 'playground-video';
 const VIDEO_DRAFT_VERSION = 2;
@@ -524,7 +524,11 @@ function readVideoDraft(actorId?: string): VideoDraft {
     schemaVersion: VIDEO_DRAFT_VERSION,
     fallback: EMPTY_DRAFT
   });
-  return { ...EMPTY_DRAFT, ...value };
+  const restored = { ...EMPTY_DRAFT, ...value };
+  return {
+    ...restored,
+    providerModelKey: migrateVideoProviderModelKey(restored.providerModelKey)
+  };
 }
 
 function toVideoViewerItem(task: VideoTask): GenerationVideoViewerItem {

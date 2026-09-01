@@ -289,6 +289,7 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
                   onOpenChange={setLookDialogOpen}
                   characterProfileId={characterId}
                   characterProfileVersionId={character.characterProfileVersionId}
+                  characterDisplayName={character.displayName}
                   onSaved={() => {
                     void queryClient.invalidateQueries({
                       queryKey: ['character-looks', actorId, characterId]

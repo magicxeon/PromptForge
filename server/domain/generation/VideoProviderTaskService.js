@@ -151,6 +151,7 @@ function fingerprintRequest(request) {
     shotId: request.shotId, generationAttemptId: request.generationAttemptId,
     providerId: request.providerId, modelId: request.modelId, aspectRatio: request.aspectRatio,
     resolution: request.resolution, durationSeconds: request.durationSeconds,
+    plannedDurationSeconds: request.plannedDurationSeconds || null,
     audioMode: request.audioMode, referenceImageCount: request.referenceImageCount || 0,
     pricingFingerprint: request.pricingFingerprint
   });
@@ -163,11 +164,25 @@ function sanitizeRequest(request) {
     aspectRatio: request.aspectRatio,
     resolution: request.resolution,
     durationSeconds: Number(request.durationSeconds),
+    plannedDurationSeconds: Number(request.plannedDurationSeconds || 0) || null,
+    durationReconciliation: sanitizeDurationReconciliation(request.durationReconciliation),
     audioMode: request.audioMode,
     referenceImageCount: Number(request.referenceImageCount || 0),
     pricingFingerprint: request.pricingFingerprint,
     correlationId: request.correlationId,
     characterAttributions: sanitizeCharacterAttributions(request.characterAttributions)
+  };
+}
+
+function sanitizeDurationReconciliation(value) {
+  if (!value) return null;
+  return {
+    plannedDurationSeconds: Number(value.plannedDurationSeconds),
+    renderDurationSeconds: Number(value.renderDurationSeconds),
+    trimDurationSeconds: Number(value.trimDurationSeconds || 0),
+    durationControlMode: value.durationControlMode === 'prompted' ? 'prompted' : 'exact',
+    strategy: String(value.strategy || ''),
+    reasonCode: String(value.reasonCode || '')
   };
 }
 

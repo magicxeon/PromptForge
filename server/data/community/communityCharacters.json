@@ -1,5 +1,47 @@
 [
   {
+    "displayName": "อิงอิง",
+    "description": "อิงอิง บ้านเกิดอยู่บ้านโป่ง ไปศัยกรรมกับหมอผีที่อุบันตู กลับมาทำมาหากินที่ไทย",
+    "characterType": "reusable_model",
+    "creatorProfileId": "creator_alice",
+    "sourceCommunityPostId": null,
+    "sourceGenerationResultId": "job_1788141385681_w10ssbudi",
+    "previewImageAssetId": "job_1788141385681_w10ssbudi",
+    "faceReferencePolicy": "replace_required",
+    "outfitReferencePolicy": "none",
+    "sceneBuilderHandoffSnapshot": null,
+    "characterProfileId": "charprof_1788141570490_qr4e3sif",
+    "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+    "personalitySummary": "สดใส น่ารัก เฟรนลี่",
+    "intendedUses": [
+      "fashion",
+      "scene_story",
+      "general"
+    ],
+    "canonicalCastingExportAssetId": "job_1788141385681_w10ssbudi",
+    "canonicalCharacterSheetAssetId": "job_1788141385681_w10ssbudi",
+    "destinationCapabilities": [
+      "fashion_blueprint",
+      "scene_builder"
+    ],
+    "outfitBehavior": "replaceable",
+    "sourceGenerationResultIds": [
+      "job_1788141385681_w10ssbudi"
+    ],
+    "officialTags": [],
+    "reusePolicy": "use_as_character",
+    "id": "char_1788141573500_7ir782py",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "active",
+    "createdAt": "2026-08-31T01:59:33.500Z",
+    "updatedAt": "2026-08-31T02:21:33.573Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "displayName": "เหมยลี่",
     "description": "น้องเหมยลี่",
     "characterType": "reusable_model",

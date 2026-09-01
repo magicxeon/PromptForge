@@ -1,5 +1,85 @@
 [
   {
+    "schemaVersion": 1,
+    "id": "ggrp_1788141157424_3a2dj47e",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "gen_1788141149053_qma1grsk",
+    "estimateId": "est_1788141148843_n7liu5l",
+    "requestedOutputCount": 2,
+    "generationSurface": "studio",
+    "generationMode": "headshot",
+    "status": "completed",
+    "childJobIds": [
+      "job_1788141157424_5yt7lq4t9",
+      "job_1788141157424_rmj24k5ov"
+    ],
+    "children": [
+      {
+        "jobId": "job_1788141157424_5yt7lq4t9",
+        "outputIndex": 0,
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788141157424_5yt7lq4t9.png",
+          "usage": {
+            "generated_images": 1,
+            "output_tokens": 15552,
+            "total_tokens": 15552
+          },
+          "mimeType": "image/png",
+          "generationDuration": "33.0",
+          "width": 1728,
+          "height": 2304
+        },
+        "error": null,
+        "creditCost": 50,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 3,
+          "referenceProcessingMs": 1,
+          "providerMs": 32963,
+          "outputPersistenceMs": 5288,
+          "totalMs": 38469
+        }
+      },
+      {
+        "jobId": "job_1788141157424_rmj24k5ov",
+        "outputIndex": 1,
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788141157424_rmj24k5ov.png",
+          "usage": {
+            "generated_images": 1,
+            "output_tokens": 15552,
+            "total_tokens": 15552
+          },
+          "mimeType": "image/png",
+          "generationDuration": "46.4",
+          "width": 1728,
+          "height": 2304
+        },
+        "error": null,
+        "creditCost": 50,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 1,
+          "providerMs": 46376,
+          "outputPersistenceMs": 437,
+          "totalMs": 47015
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 2,
+    "failedCount": 0,
+    "createdAt": "2026-08-31T01:52:37.550Z",
+    "updatedAt": "2026-08-31T01:53:24.604Z",
+    "completedAt": "2026-08-31T01:53:24.587Z"
+  },
+  {
     "schemaVersion": 2,
     "id": "ggrp_1788103676797_ouyhsm2b",
     "groupType": "heterogeneous_batch",

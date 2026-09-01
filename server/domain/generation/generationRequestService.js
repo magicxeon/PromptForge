@@ -53,8 +53,8 @@ function normalizeOutfitReferenceOverrides(value) {
   };
 }
 
-function normalizeSceneBuilderState(value, mode) {
-  if (mode !== 'normal') return null;
+function normalizeSceneBuilderState(value, mode, allowCharacterLookPrompt = false) {
+  if (mode !== 'normal' && !allowCharacterLookPrompt) return null;
   const raw = value && typeof value === 'object' ? value : {};
   return {
     authoringMode: raw.authoringMode === 'manual' ? 'manual' : 'guided',
@@ -146,12 +146,18 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     : null;
   const reusableCharacterSheet = mode === 'character-sheet'
     && characterType === CHARACTER_TYPE.REUSABLE_MODEL;
+  const characterLookSheetRequest = mode === 'character-sheet'
+    && payload.generationMode === 'character-sheet'
+    && payload.generationSurface === 'cinematic'
+    && Boolean(payload.sceneTemplateSnapshot?.characterLookSource);
   const castingPolicy = getCharacterCastingPolicy();
   const normalizedAspectRatio = (isCharacterCastingExport || reusableCharacterSheet)
     ? castingPolicy.aspectRatio
     : (payload.aspectRatio || '1:1');
   const normalizedOutputCount = isCharacterCastingExport
     ? castingPolicy.outputCount
+    : characterLookSheetRequest
+      ? 1
     : Math.max(1, Number.isFinite(requestedOutputCount) ? requestedOutputCount : 1);
   const hasTemplateOutfit = payload.sceneTemplateSnapshot
     && payload.sceneTemplateSnapshot.referenceSlotMapping
@@ -203,7 +209,12 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     imageReferences.outfitReference ? payload.outfitReferenceImageBack : null
   ].filter(value => typeof value === 'string' && value.trim());
 
-  const sceneBuilder = normalizeSceneBuilderState(payload.sceneBuilder, mode);
+  const allowCharacterLookPrompt = characterLookSheetRequest;
+  const sceneBuilder = normalizeSceneBuilderState(
+    payload.sceneBuilder,
+    mode,
+    allowCharacterLookPrompt
+  );
   const characterReferenceOutfitBehavior = normalizeCharacterReferenceOutfitBehavior(
     payload.characterReferenceOutfitBehavior
       || payload.characterProfileContext?.outfitBehavior
@@ -240,7 +251,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   const normalizedContext = {
     ...payload,
     promptRefinement: {
-      enabled: payload.promptRefinement?.enabled === true
+      enabled: !characterLookSheetRequest && payload.promptRefinement?.enabled === true
     },
     mode,
     characterType,
@@ -299,6 +310,8 @@ export function compilePromptFromGenerationContext(context) {
     && typeof context.sceneBuilder.manualPromptText === 'string'
     ? context.sceneBuilder.manualPromptText.trim()
     : '';
+  const characterLookPrompt = resolveCharacterLookPrompt(context);
+  const explicitManualPrompt = characterLookPrompt || manualScenePrompt;
   const manualReferenceDirective = manualScenePrompt && !context.templateBaselineReference
     ? compileReferenceRoleDirective(context)
     : '';
@@ -310,8 +323,8 @@ export function compilePromptFromGenerationContext(context) {
   const castingDirective = compileCharacterCastingDirective(context.selections);
   const basePrompt = context.userRole === 'admin' && adminPromptOverride
     ? adminPromptOverride
-    : (manualScenePrompt
-      ? [manualReferenceDirective, manualScenePrompt].filter(Boolean).join(' ')
+    : (explicitManualPrompt
+      ? [manualReferenceDirective, explicitManualPrompt].filter(Boolean).join(' ')
     : compilePromptOnServer(
       context.selections,
       context.aspectRatio,
@@ -384,6 +397,31 @@ export function compilePromptFromGenerationContext(context) {
       : reusableCharacterSheet && context.userRole === 'admin' && adminPromptOverride
         ? `${castingDirective}, ${directedPrompt}`
         : [directedPrompt, compileCinematicStillDirective(context)].filter(Boolean).join(' ');
+}
+
+function resolveCharacterLookPrompt(context) {
+  if (context.mode !== 'character-sheet'
+    || context.generationMode !== 'character-sheet'
+    || context.generationSurface !== 'cinematic'
+    || context.sceneBuilder?.authoringMode !== 'manual') {
+    return '';
+  }
+  const source = context.sceneTemplateSnapshot?.characterLookSource;
+  const recipe = context.sceneTemplateSnapshot?.promptRecipeSnapshot;
+  const character = context.characterProfileContext;
+  const sourceMatches = source
+    && character?.purpose === 'character_usage'
+    && String(source.characterProfileId || '') === String(character.characterProfileId || '')
+    && String(source.characterProfileVersionId || '') === String(character.characterProfileVersionId || '')
+    && String(source.lookId || '') === String(character.sourceId || '')
+    && String(source.lookVersionId || '').trim();
+  const recipeMatches = recipe?.id === 'character-look-sheet'
+    && Number.isInteger(Number(recipe.version))
+    && String(recipe.fingerprint || '').trim();
+  if (!sourceMatches || !recipeMatches) return '';
+  return typeof context.sceneBuilder.manualPromptText === 'string'
+    ? context.sceneBuilder.manualPromptText.trim()
+    : '';
 }
 
 export function createQueueOptions(context, {

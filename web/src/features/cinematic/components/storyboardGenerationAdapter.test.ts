@@ -27,9 +27,13 @@ describe('storyboard generation adapter', () => {
       },
       {
         id: 'shot_2', title: 'Leave', purpose: 'Reveal the decision', prompt: '',
+        visibleMoment: 'Mira lowers the phone before turning right', subjectAction: 'She pockets the phone',
+        emotionalTarget: 'quiet resolve', performanceCue: 'One exhale and a small shoulder release',
+        continuityEntry: 'Phone in right hand', continuityExit: 'Phone in right pocket', transitionToNext: 'cut on first step',
         framing: 'wide', cameraAngle: 'eye level', cameraMovement: 'slow follow', lensIntent: '35mm',
         blocking: 'Mira walks toward the exit', performance: 'quiet release', gaze: 'toward the warm exit', lighting: '', environment: '',
-        audioIntent: 'Footsteps become louder',
+        audioIntent: 'Footsteps become louder', dialogueCues: [{ text: 'I am ready now.' }],
+        audioCues: [{ description: 'A distant train horn' }],
         castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_arrival'], continuityNotes: []
       }
     ]
@@ -67,6 +71,11 @@ describe('storyboard generation adapter', () => {
     expect(prompt).toContain('Waiting becomes forward motion');
     expect(prompt).toContain('guarded uncertainty toward quiet hope');
     expect(prompt).toContain('Selected Shot emotional target: quiet hope');
+    expect(prompt).toContain('Exact visible moment: Mira lowers the phone before turning right');
+    expect(prompt).toContain('One primary physical action: She pockets the phone');
+    expect(prompt).toContain('Observable performance cue: One exhale and a small shoulder release');
+    expect(prompt).toContain('Entry anchor: Phone in right hand');
+    expect(prompt).toContain('Exit anchor: Phone in right pocket');
     expect(prompt).toContain('Do not smile unless this Shot explicitly requests it');
     expect(prompt).toContain('Mira remains camera-right of the tracks');
     expect(prompt).toContain('Keep the release restrained and visible in her shoulders');
@@ -76,6 +85,7 @@ describe('storyboard generation adapter', () => {
     expect(prompt).toContain('Phone stays in right hand');
     expect(prompt).not.toContain('A distant train horn');
     expect(prompt).not.toContain('Footsteps become louder');
+    expect(prompt).not.toContain('I am ready now.');
   });
 
   it('targets the Scene opening and ending emotion by Shot position', () => {

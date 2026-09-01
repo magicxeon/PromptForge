@@ -5,6 +5,7 @@ export const videoModelCapabilitySchema = z.object({
   modelId: z.string(),
   displayName: z.string(),
   operations: z.array(z.string()).default([]),
+  durationControlMode: z.enum(['exact', 'prompted']).default('exact'),
   durations: z.array(z.number().positive()).default([]),
   resolutions: z.array(z.string()).default([]),
   aspectRatios: z.array(z.string()).default([]),
@@ -33,6 +34,17 @@ export const videoCapabilityCatalogSchema = z.object({
 export type VideoModelCapability = z.infer<typeof videoModelCapabilitySchema>;
 export type VideoCapabilityCatalog = z.infer<typeof videoCapabilityCatalogSchema>;
 
+export const videoDurationReconciliationSchema = z.object({
+  plannedDurationSeconds: z.number().positive(),
+  renderDurationSeconds: z.number().positive(),
+  trimDurationSeconds: z.number().nonnegative(),
+  durationControlMode: z.enum(['exact', 'prompted']),
+  strategy: z.enum(['exact', 'pad_and_trim', 'prompt_target', 'split_required']),
+  supportedDurations: z.array(z.number().positive()),
+  requiresSplit: z.boolean(),
+  reasonCode: z.string()
+});
+
 export const videoQuoteSchema = z.object({
   estimate: z.object({
     estimateId: z.string(),
@@ -43,7 +55,8 @@ export const videoQuoteSchema = z.object({
   account: z.object({
     availableCredits: z.number().nonnegative(),
     canAfford: z.boolean()
-  })
+  }),
+  durationReconciliation: videoDurationReconciliationSchema.optional()
 });
 
 export const videoTaskSchema = z.object({
@@ -58,6 +71,7 @@ export const videoTaskSchema = z.object({
   aspectRatio: z.string().nullable().optional(),
   resolution: z.string().nullable().optional(),
   durationSeconds: z.number().nullable().optional(),
+  plannedDurationSeconds: z.number().nullable().optional(),
   billingStatus: z.string().nullable().optional(),
   estimatedCredits: z.number().nullable().optional(),
   submittedRequest: z.object({
@@ -65,6 +79,8 @@ export const videoTaskSchema = z.object({
     aspectRatio: z.string().nullable().optional(),
     resolution: z.string().nullable().optional(),
     durationSeconds: z.number().nullable().optional(),
+    plannedDurationSeconds: z.number().nullable().optional(),
+    durationReconciliation: videoDurationReconciliationSchema.nullable().optional(),
     audioMode: z.string().nullable().optional(),
     referenceImageCount: z.number().int().nonnegative().optional(),
     characterAttributions: z.array(z.object({

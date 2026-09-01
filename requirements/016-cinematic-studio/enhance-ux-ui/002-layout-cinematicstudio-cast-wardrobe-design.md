@@ -570,8 +570,10 @@ Use status rows with text labels:
 — Scene continuity available after Story Plan
 ```
 
-This is informative. Only required role assignment and eligible identity block
-Continue at this stage unless the product contract explicitly changes.
+For a new Story Plan this is actionable and blocking. Every required on-screen
+role needs both eligible identity and one approved, multi-view, film-wide Look
+binding. Existing approved Plans remain readable for recovery, but a new Plan
+cannot be generated or approved from an identity-only Cast Assignment.
 
 ---
 
@@ -788,6 +790,7 @@ const requiredAssigned = requiredSlots.filter((slot) =>
 const canContinue =
   requiredAssigned === requiredSlots.length
   && requiredSlots.every((slot) => eligibleAssignmentByRole.has(slot.id))
+  && requiredSlots.every((slot) => hasApprovedBoundLook(slot.id))
   && !hasPendingMutation;
 ```
 
@@ -825,6 +828,13 @@ identity_ready
 
 Show stale or superseded dependencies before Story Plan. Never silently replace
 a pinned approved version with a newer draft.
+
+`Prepare Look Sheet` is an active recovery action for `source_ready` and
+`review` Looks. It opens the shared Character Profile-owned dialog with the
+existing Look/version, accepts one owned complete Sheet, reviews and approves
+that same version, then returns it for Cinematic binding. Paid AI generation is
+shown only as qualification-gated until its exact quote and provider workflow
+is released.
 
 ---
 

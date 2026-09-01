@@ -198,11 +198,12 @@ export function buildGeminiOmniRequest(request = {}) {
     ? [toImageInput(request.referenceImage), { type: 'text', text: prompt }]
     : prompt;
   return {
-    model: request.modelId || 'gemini-omni-flash-preview',
+    model: request.modelId || 'gemini-omni-1.1-flash',
     input,
     response_format: {
       type: 'video',
       aspect_ratio: request.aspectRatio,
+      resolution: request.resolution,
       delivery: 'uri'
     },
     generation_config: {
@@ -217,7 +218,7 @@ export function buildGeminiOmniRequest(request = {}) {
 function compileTimedPrompt(prompt, durationSeconds) {
   const duration = Number(durationSeconds);
   if (!Number.isFinite(duration) || duration <= 0) return prompt;
-  return `[Total output duration: exactly ${duration} seconds.]\n${prompt}`;
+  return `[Target output duration: ${duration} seconds. Follow the timing plan closely.]\n${prompt}`;
 }
 
 function resolveOmniTask(request) {

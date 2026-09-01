@@ -144,8 +144,9 @@ export function archiveCinematicProject(projectId: string, expectedVersion: numb
 }
 
 export type StoryPlanInput = {
-  contractVersion?: 'story-plan-v2';
+  contractVersion?: 'story-plan-v2' | 'story-plan-v3';
   expectedVersion: number;
+  parentVersionId?: string | null;
   objective?: string;
   logline?: string;
   emotionalArc?: string;
@@ -153,6 +154,7 @@ export type StoryPlanInput = {
   warnings?: string[];
   approved?: boolean;
   source?: 'manual' | 'generated';
+  warningsAcknowledged?: boolean;
   scenes: Array<Record<string, unknown>>;
 };
 
@@ -162,9 +164,12 @@ export function saveCinematicStoryPlan(projectId: string, input: StoryPlanInput)
   });
 }
 
-export function generateCinematicStoryPlan(projectId: string) {
+export function generateCinematicStoryPlan(projectId: string, input: {
+  mode?: 'generate' | 'review_current';
+  sourceResolution?: 'story_brief' | 'creative_direction' | null;
+} = {}) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/story-plan/proposals`, {
-    method: 'POST', schema: cinematicStoryPlanProposalSchema, cache: 'no-store'
+    method: 'POST', body: input, schema: cinematicStoryPlanProposalSchema, cache: 'no-store'
   });
 }
 

@@ -3,12 +3,12 @@
 **Status:** Playground internal testing and Interactions adapter implemented;
 customer-paid publication remains gated
 **Provider:** Google Gemini API
-**Model candidate:** `gemini-omni-flash-preview`
+**Canonical model:** `gemini-omni-1.1-flash`
 **API family:** Interactions API (`v1beta/interactions`)
 **Primary role:** Product And Requirement Architect
 **Reviewers:** Backend Platform Architect, Generative Media Pipeline reviewer
 **Skill:** `review-generative-media-pipeline`
-**Source review date:** 2026-08-30
+**Source review date:** 2026-09-01
 
 ## 1. Outcome
 
@@ -17,11 +17,16 @@ video-editing candidate in Playground and Cinematic Studio without treating it
 as a Veo model, bypassing the canonical Generation lifecycle, or changing any
 existing Image, Veo, Seedance, Credit, Queue, Asset, or UI contract.
 
-Omni Flash is a Preview model and uses the Gemini Interactions API. API-key
-presence alone does not qualify it for customer-paid publication; internal
-testing additionally requires the server testing gate and catalog exposure.
+Omni 1.1 Flash is generally available and uses the Gemini Interactions API.
+General availability does not by itself qualify it for Momelo customer-paid
+publication; internal testing still requires the server testing gate and
+catalog exposure.
 
-### 1.1 Implementation checkpoint - 2026-08-30
+The former `gemini-omni-flash-preview` ID is a server-only compatibility alias
+for historical tasks and actor-scoped drafts. New catalog output, quotes and
+submissions use `gemini-omni-1.1-flash`.
+
+### 1.1 Implementation checkpoint - 2026-09-01
 
 - A separate `GeminiOmniProvider` uses `v1beta/interactions`; Veo remains on its
   existing `generateVideos` adapter.
@@ -32,12 +37,14 @@ testing additionally requires the server testing gate and catalog exposure.
 - The testing catalog publishes the three Playground source operations so Omni
   appears in the existing model selector. The official Standard effective rate
   of USD 0.10 per second for 720p video is routed through the existing
-  output-second Credit calculator. Momelo exposes 4, 6, 8 and 10 seconds as
+  output-second Credit calculator. Momelo exposes 3 through 10 seconds as
   timing targets and compiles the selected duration into the prompt because the
   Interactions request has no dedicated duration field.
 - Internal testing can quote, reserve, submit and settle Credits through the
   canonical lifecycle. General paid routing remains disabled.
-- Cinematic executable exposure remains blocked.
+- Cinematic internal-testing exposure uses the same qualified 720p
+  image-to-video subset, approved Storyboard source and canonical Credit
+  lifecycle. Customer-paid publication remains blocked.
 - Existing Veo, Seedance, durable Video task and Credit lifecycle tests remain
   unchanged in behavior.
 
@@ -53,12 +60,12 @@ Canonical source:
 
 The reviewed API contract establishes:
 
-- model ID `gemini-omni-flash-preview`;
+- model ID `gemini-omni-1.1-flash`;
 - request endpoint `POST /v1beta/interactions`;
 - text, image, audio, and video input modalities, subject to task and regional
   restrictions;
 - explicit video tasks `text_to_video`, `image_to_video`,
-  `reference_to_video`, and `edit`;
+  `reference_to_video`, `edit`, and `extend`;
 - output aspect ratios `16:9` and `9:16` through a video response format;
 - inline Base64 video output or URI delivery, with URI delivery recommended for
   output larger than 4 MB;
@@ -67,10 +74,16 @@ The reviewed API contract establishes:
 - Files API upload and processing for owned source-video editing;
 - generated video provenance through SynthID;
 - full English support while other languages are not yet evaluated;
+- GA-documented first/last-frame interpolation, 360p/720p/1080p/4K response
+  formats and end-of-clip extension;
 - no system instruction, temperature, `top_p`, stop sequence, native negative
-  prompt field, uploaded audio reference, audio editing, video extension,
-  first/last-frame interpolation, or multi-video reasoning support in the
-  reviewed Preview contract.
+  prompt field, uploaded audio reference, voice editing, or multi-video
+  reasoning support in the reviewed GA contract.
+
+The additive GA capabilities above are evidence only. Momelo keeps them hidden
+until each exact operation has provider, reference, Asset, Credit, policy and
+visual qualification. The GA model-ID migration exposes only the previously
+implemented 720p operation subset.
 
 The official Gemini pricing page publishes Standard input at USD 1.50 per one
 million tokens and video output at USD 17.50 per one million tokens. At 5,792
@@ -135,7 +148,7 @@ Persist safe provider metadata needed for recovery and audit:
 ```text
 providerId = gemini
 providerApi = interactions
-modelId = gemini-omni-flash-preview
+modelId = gemini-omni-1.1-flash
 interactionId
 previousInteractionId?
 task
@@ -177,8 +190,9 @@ createdAt / lastPolledAt / completedAt
 ## 5. Provider Constraints And Prompt Policy
 
 1. Publish only verified `9:16` and `16:9` aspect options.
-2. Do not expose duration, resolution, FPS, audio toggles, reference counts, or
-   edit controls until each value is supported by verified capability evidence.
+2. Expose only the verified 3-10 second prompt targets and qualified 720p
+   operation subset. Do not describe target duration as an exact API control.
+   Keep additional resolution, FPS, audio, reference and edit controls gated.
 3. Omni may generate audio by default; audio intent belongs in the structured
    prompt until the API exposes and Momelo qualifies a deterministic control.
 4. Negative constraints are compiled into ordinary prompt text because no
@@ -242,7 +256,7 @@ and `cinematic_final_clip` only after operation-specific qualification.
 
 ## 8. Pricing And Promotion Gates
 
-`gemini-omni-flash-preview` internal testing starts with:
+`gemini-omni-1.1-flash` internal testing starts with:
 
 ```text
 qualificationStatus = internal_testing
@@ -251,6 +265,7 @@ paidRoutingEnabled = false
 pricingStatus = research_only
 billingMetric = output_second
 ratesByResolutionUsd.720p = 0.10
+durationControlMode = prompted
 ```
 
 Promotion requires all of the following:

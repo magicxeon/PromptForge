@@ -67,6 +67,14 @@ export function uploadGenerationReference(dataUrl: string, role: GenerationRefer
   });
 }
 
+export function composeGenerationReferences(sourceAssetIds: string[], role: GenerationReferenceRole, sourceMode: string) {
+  return apiRequest('/api/references/composites', {
+    method: 'POST',
+    body: { sourceAssetIds, role, sourceMode },
+    schema: referenceUploadSchema
+  });
+}
+
 export function estimateGeneration(draft: GenerationRequestDraft) {
   return apiRequest('/api/credits/estimate', {
     method: 'POST',

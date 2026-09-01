@@ -8,6 +8,7 @@ import {
   characterWorksSchema,
   characterFeaturedImageCandidatesSchema,
   characterFeaturedImageUpdateSchema,
+  characterLookGenerationPlanSchema,
   characterLookSchema,
   characterLooksResponseSchema,
   creatorPageSchema,
@@ -66,6 +67,33 @@ export function listCharacterLooks(characterProfileId: string, characterProfileV
   });
 }
 
+export function getCharacterLookGenerationPlan(
+  characterProfileId: string,
+  lookId: string,
+  versionId: string
+) {
+  return apiRequest(
+    `/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks/${encodeURIComponent(lookId)}/versions/${encodeURIComponent(versionId)}/generation-plan`,
+    { schema: characterLookGenerationPlanSchema }
+  );
+}
+
+export function reviewGeneratedCharacterLookVersion(
+  characterProfileId: string,
+  lookId: string,
+  versionId: string,
+  generationResultId: string
+) {
+  return apiRequest(
+    `/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks/${encodeURIComponent(lookId)}/versions/${encodeURIComponent(versionId)}/generated-review`,
+    {
+      method: 'POST',
+      body: { generationResultId },
+      schema: characterLookSchema
+    }
+  );
+}
+
 export function createCharacterLookDraft(characterProfileId: string, input: {
   characterProfileVersionId: string;
   name: string;
@@ -108,6 +136,13 @@ export function approveCharacterLookVersion(
 ) {
   return apiRequest(
     `/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks/${encodeURIComponent(lookId)}/versions/${encodeURIComponent(versionId)}/approve`,
+    { method: 'POST', schema: characterLookSchema }
+  );
+}
+
+export function retireCharacterLook(characterProfileId: string, lookId: string) {
+  return apiRequest(
+    `/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks/${encodeURIComponent(lookId)}/retire`,
     { method: 'POST', schema: characterLookSchema }
   );
 }

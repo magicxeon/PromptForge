@@ -8,6 +8,11 @@ generation remains qualification-gated and is not exposed.
 The explicit story-aware wardrobe analysis action, progress, retry and
 editable-result states were implemented on 2026-08-30 through the shared
 Character Look dialog and server text-provider boundary.
+`CINE-FIX-006` closes the Cast dead end for source-ready drafts: an owned
+complete Sheet can be attached, reviewed, approved and bound from Cast. New
+Story Plan generation/approval requires one approved multi-view Look for every
+required on-screen Character. Customer-paid Look Sheet generation remains
+qualification-gated.
 **Owner:** Character Profiles for reusable Character identity and Look versions;
 Cinematic Studio for Project Cast assignment and Scene continuity
 **Primary role:** Product And Requirement Architect
@@ -618,6 +623,20 @@ Version and per-Shot Storyboard remain the minimum continuity authorities.
 - full responsive/theme/provider visual qualification in Section 14 remains a
   manual release gate.
 
+### 16.6 Cast preparation and Story Plan readiness correction
+
+- Required Cast identity without an approved bound Look is incomplete for a
+  new Story Plan.
+- The shared Look dialog accepts an existing source-ready draft and one owned
+  complete Character Look Sheet, then performs the canonical review and
+  approval operations without Credits.
+- Cast binds the returned approved version through Cinematic rather than
+  copying Character Look state.
+- Paid AI Look Sheet generation stays unavailable until exact pricing,
+  reference-plan parity and repeated identity/wardrobe qualification exist.
+- Detailed implementation and regression scope is owned by
+  `fix-tickets/CINE-FIX-006-cast-character-look-preparation-and-story-plan-gate.md`.
+
 ### 16.3 Automated evidence
 
 - `node --test test/characterLookService.test.js test/cinematicApplicationService.test.js`
@@ -629,6 +648,14 @@ The checkpoint is a **conditional pass**, not Requirement closure. `CLP-07`,
 `CLP-01`, `CLP-02`, `CLP-03`, `CLP-06`, `CLP-13`, and `CLP-14` have automated
 evidence. Paid generation, full reuse, Scene-level stale propagation and manual
 media qualification remain open.
+
+### 16.7 Paid Look Sheet execution package
+
+The remaining Wardrobe action hierarchy and qualified AI Look Sheet workflow
+are decomposed into implementation-sized requirements under
+`character-look-sheet-generation/000-master.md`. That package extends this
+Requirement and does not create a second Character Look, Generation, Reference
+Processing or Credit owner.
 
 ### 16.4 Cast selection persistence regression - 2026-08-29
 

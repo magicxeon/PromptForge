@@ -17,16 +17,16 @@ function jsonResponse(payload, status = 200) {
 
 test('Omni request uses the Interactions text-to-video contract', () => {
   const payload = buildGeminiOmniRequest({
-    modelId: 'gemini-omni-flash-preview',
+    modelId: 'gemini-omni-1.1-flash',
     operation: 'text_to_video',
     prompt: 'One continuous shot.',
     aspectRatio: '9:16',
     durationSeconds: 8
   });
 
-  assert.equal(payload.model, 'gemini-omni-flash-preview');
-  assert.equal(payload.input, '[Total output duration: exactly 8 seconds.]\nOne continuous shot.');
-  assert.deepEqual(payload.response_format, { type: 'video', aspect_ratio: '9:16', delivery: 'uri' });
+  assert.equal(payload.model, 'gemini-omni-1.1-flash');
+  assert.equal(payload.input, '[Target output duration: 8 seconds. Follow the timing plan closely.]\nOne continuous shot.');
+  assert.deepEqual(payload.response_format, { type: 'video', aspect_ratio: '9:16', resolution: undefined, delivery: 'uri' });
   assert.equal(payload.generation_config.video_config.task, 'text_to_video');
   assert.equal(payload.background, true);
   assert.equal(payload.store, true);
@@ -34,7 +34,7 @@ test('Omni request uses the Interactions text-to-video contract', () => {
 
 test('Omni image-to-video request preserves the authorized image and task', () => {
   const payload = buildGeminiOmniRequest({
-    modelId: 'gemini-omni-flash-preview',
+    modelId: 'gemini-omni-1.1-flash',
     operation: 'image_to_video',
     prompt: 'Animate the approved frame.',
     aspectRatio: '16:9',
@@ -43,7 +43,7 @@ test('Omni image-to-video request preserves the authorized image and task', () =
   });
 
   assert.deepEqual(payload.input[0], { type: 'image', mime_type: 'image/jpeg', data: 'YWJj' });
-  assert.equal(payload.input[1].text, '[Total output duration: exactly 6 seconds.]\nAnimate the approved frame.');
+  assert.equal(payload.input[1].text, '[Target output duration: 6 seconds. Follow the timing plan closely.]\nAnimate the approved frame.');
   assert.equal(payload.generation_config.video_config.task, 'image_to_video');
 });
 
@@ -66,7 +66,7 @@ test('Omni submits an Interaction and materializes completed inline video on pol
   });
 
   const submitted = await provider.submit({
-    id: 'task_omni', modelId: 'gemini-omni-flash-preview', operation: 'text_to_video',
+    id: 'task_omni', modelId: 'gemini-omni-1.1-flash', operation: 'text_to_video',
     prompt: 'PRIVATE VIDEO PROMPT', aspectRatio: '9:16'
   });
   const polled = await provider.poll(submitted.providerTaskId, {
@@ -91,7 +91,7 @@ test('Omni diagnostics do not reveal prompt, API key or inline media', async () 
     fetchImpl: async () => jsonResponse({ id: 'v1_safe', status: 'queued' })
   });
   await provider.submit({
-    modelId: 'gemini-omni-flash-preview', operation: 'text_to_video',
+    modelId: 'gemini-omni-1.1-flash', operation: 'text_to_video',
     prompt: 'PRIVATE VIDEO PROMPT', aspectRatio: '9:16'
   });
   const log = entries.join('\n');
@@ -104,9 +104,13 @@ test('video adapter registry selects a model adapter before the provider fallbac
   const omni = { submit() {}, poll() {} };
   const registry = new VideoProviderAdapterRegistry({
     adapters: { gemini: fallback },
-    modelAdapters: { 'gemini/gemini-omni-flash-preview': omni }
+    modelAdapters: {
+      'gemini/gemini-omni-1.1-flash': omni,
+      'gemini/gemini-omni-flash-preview': omni
+    }
   });
 
+  assert.equal(registry.resolve('gemini', 'gemini-omni-1.1-flash'), omni);
   assert.equal(registry.resolve('gemini', 'gemini-omni-flash-preview'), omni);
   assert.equal(registry.resolve('gemini', 'veo-3.1-lite-generate-preview'), fallback);
 });

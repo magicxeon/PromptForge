@@ -30,5 +30,13 @@
     "active": true,
     "createdAt": "2026-08-09T13:10:51.492Z",
     "updatedAt": "2026-08-09T13:10:51.492Z"
+  },
+  {
+    "postId": "post_1788142822307_c9z14dbf",
+    "actorUserId": "usr_alice",
+    "reactionType": "like",
+    "active": true,
+    "createdAt": "2026-08-31T02:24:06.851Z",
+    "updatedAt": "2026-08-31T02:24:06.851Z"
   }
 ]

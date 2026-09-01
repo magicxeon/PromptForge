@@ -110,13 +110,45 @@ test('cinematic workflow context preserves quote-submit parity and durable linea
     capability: 'cinematic', generationMode: 'cinematic_video', projectId: 'cineproj_1',
     sceneId: 'scene_1', shotId: 'shot_1', generationAttemptId: 'cineattempt_1'
   };
-  await service.quote(input, actor, workflow);
-  await service.submit({ ...input, estimateId: 'vest_cine', idempotencyKey: 'cinematic-video-key' }, actor, workflow);
+  const cinematicInput = { ...input, durationSeconds: 4, plannedDurationSeconds: 7 };
+  await service.quote(cinematicInput, actor, workflow);
+  await service.submit({ ...cinematicInput, estimateId: 'vest_cine', idempotencyKey: 'cinematic-video-key' }, actor, workflow);
   assert.equal(calls[0][1].generationMode, 'cinematic_video');
+  assert.equal(calls[0][1].request.durationSeconds, 8);
   assert.equal(calls[1][1].generationRequest.generationMode, 'cinematic_video');
+  assert.equal(calls[1][1].generationRequest.durationSeconds, 8);
+  assert.equal(calls[1][1].generationRequest.plannedDurationSeconds, 7);
   assert.equal(calls[1][1].metadata.capability, 'cinematic');
   assert.equal(calls[2][1].projectId, 'cineproj_1');
   assert.equal(calls[2][1].generationAttemptId, 'cineattempt_1');
+  assert.equal(calls[2][1].durationSeconds, 8);
+  assert.equal(calls[2][1].plannedDurationSeconds, 7);
+  assert.equal(calls[2][1].durationReconciliation.strategy, 'pad_and_trim');
+});
+
+test('cinematic quote reconciles a seven-second Shot to an eight-second exact request', async () => {
+  let quoted = null;
+  const model = {
+    providerId: input.providerId, modelId: input.modelId, testingRoutingEnabled: true,
+    durationControlMode: 'exact', durations: [4, 6, 8]
+  };
+  const service = createService({
+    model,
+    creditService: {
+      async estimateVideo(value) { quoted = value; return { estimateId: 'vest_duration', estimatedCredits: 80 }; },
+      async getAccount() { return { availableCredits: 100 }; }
+    }
+  });
+  const result = await service.quote({
+    ...input,
+    durationSeconds: 4,
+    plannedDurationSeconds: 7
+  }, actor, {
+    capability: 'cinematic', generationMode: 'cinematic_video', projectId: 'cineproj_1',
+    sceneId: 'scene_1', shotId: 'shot_1'
+  });
+  assert.equal(quoted.request.durationSeconds, 8);
+  assert.equal(result.durationReconciliation.trimDurationSeconds, 1);
 });
 
 test('completed durable video captures its reservation once', async () => {
@@ -235,10 +267,14 @@ test('durable Video reservation ownership requires matching task, actor, and res
 });
 
 function createService(overrides = {}) {
-  const model = { providerId: input.providerId, modelId: input.modelId, testingRoutingEnabled: true };
+  const model = overrides.model || {
+    providerId: input.providerId, modelId: input.modelId, testingRoutingEnabled: true,
+    durationControlMode: 'exact', durations: [4, 6, 8]
+  };
   return new VideoGenerationApplicationService({
     capabilityRegistry: {
       getPublicCatalog: () => ({ schemaVersion: 1, catalogVersion: 'test', models: [model] }),
+      resolve: (providerId, modelId) => providerId === model.providerId && modelId === model.modelId ? model : null,
       validateRequest: () => model
     },
     creditService: overrides.creditService || {},

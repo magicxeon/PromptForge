@@ -194,6 +194,9 @@ one summary card.
 - Beat cards: setup, development, turning point, climax, ending.
 - Scene cards nested under beats with location, time, cast and purpose.
 - Estimated duration and shot count update deterministically.
+- Shot duration is editorial intent, not a provider promise. Story Plan keeps
+  millisecond precision and does not round its contract to the currently
+  selected video engine.
 - User can reorder scenes, edit intent, split, merge or regenerate one scene.
 - Expanded Scene direction includes narrative purpose, cast and wardrobe,
   location/time, blocking, camera/framing/movement, lighting, performance,
@@ -309,6 +312,14 @@ fix storyboard` recovery action.
   attempt and a prominent `Edit storyboard source` action.
 - The selected Shot workspace shows video preview, provider/model, duration,
   resolution, audio capability, exact quote and each prior attempt.
+- Produce reconciles the approved planned Shot duration with the selected
+  model's server-published duration contract. It selects the smallest eligible
+  render duration that covers the action, displays planned/render/trim values,
+  and never silently rounds down. Shots above the provider maximum return to
+  Story Plan for an action-aware split before quote or dispatch.
+- Exact-duration adapters send the reconciled render duration to the provider.
+  Prompt-target adapters compile it into temporal direction and label it as a
+  target. Credits always use the reconciled render duration.
 - Opening a result uses the shared media viewer with play, pause, seek, mute,
   download, compare, approve, reject and regenerate.
 - `Regenerate` offers a concise reason: identity, wardrobe, motion, framing,

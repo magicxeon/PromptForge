@@ -31,7 +31,7 @@ test('Gemini Omni uses the official effective 720p output-second rate', () => {
   }, policy);
   assert.equal(quote.providerCostUsd, 0.8);
   assert.equal(quote.estimatedCredits, 1075);
-  assert.equal(quote.providerRateVersion, 'google-omni-standard-2026-08-30');
+  assert.equal(quote.providerRateVersion, 'google-omni-1.1-standard-2026-09-01');
 });
 
 test('Seedance token pricing includes target pixels, fps and input video duration', () => {

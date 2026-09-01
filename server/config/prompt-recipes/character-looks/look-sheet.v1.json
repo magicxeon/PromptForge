@@ -1,0 +1,13 @@
+{
+  "id": "character-look-sheet",
+  "version": 1,
+  "enabled": true,
+  "instructions": [
+    "Create one compact photorealistic Character Look Sheet containing exactly one character and one unchanged outfit.",
+    "Show three clearly separated full-body views in one row: neutral front view, exact side view facing viewer-right, and complete back view, all at the same scale.",
+    "Include one neutral canonical face crop below the three views while preserving the same identity, apparent age, proportions, hairstyle, skin tone and garment construction in every view.",
+    "Use a neutral relaxed A-pose, even studio illumination, a plain light background and generous margins around every complete figure.",
+    "Preserve garment silhouette, colors, materials, closures, layers, footwear and accessories from the authorized wardrobe source.",
+    "Do not add text, labels, measurements, logos, watermark, props, scenery, expression grids, duplicate people, beauty retouching or a T-pose."
+  ]
+}

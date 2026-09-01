@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_PATH = path.resolve(__dirname, '../../config/cinematic-video-models.json');
+const MODEL_ALIASES = new Map([
+  ['gemini/gemini-omni-flash-preview', 'gemini-omni-1.1-flash']
+]);
 
 export class VideoCapabilityError extends Error {
   constructor(code, message, statusCode = 400, details = null) {
@@ -44,7 +47,8 @@ export class VideoCapabilityRegistry {
   }
 
   resolve(providerId, modelId) {
-    return this.load().models.find(model => model.providerId === providerId && model.modelId === modelId) || null;
+    const canonicalModelId = MODEL_ALIASES.get(`${providerId}/${modelId}`) || modelId;
+    return this.load().models.find(model => model.providerId === providerId && model.modelId === canonicalModelId) || null;
   }
 
   validateRequest(input, { allowResearch = false, allowTesting = false } = {}) {
@@ -77,6 +81,10 @@ function unsupported(field, value) {
 function toPublicModel(model) {
   const { ratesByResolutionUsd, ratesByResolutionUsdPerMillionTokens, ratesByAudioUsdPerMillionTokens, ratesByInputModeUsdPerMillionTokens, ...safe } = model;
   return safe;
+}
+
+export function resolveCanonicalVideoModelId(providerId, modelId) {
+  return MODEL_ALIASES.get(`${providerId}/${modelId}`) || modelId;
 }
 
 export const videoCapabilityRegistry = new VideoCapabilityRegistry();

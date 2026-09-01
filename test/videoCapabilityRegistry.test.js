@@ -6,11 +6,12 @@ test('paid video catalog exposes no unqualified research models', () => {
   assert.deepEqual(videoCapabilityRegistry.getPublicCatalog().models, []);
   const researchModels = videoCapabilityRegistry.getPublicCatalog({ includeResearch: true }).models;
   assert.equal(researchModels.length, 11);
-  const omni = researchModels.find(model => model.modelId === 'gemini-omni-flash-preview');
+  const omni = researchModels.find(model => model.modelId === 'gemini-omni-1.1-flash');
   assert.equal(omni.providerApi, 'interactions');
   assert.equal(omni.pricingStatus, 'research_only');
   assert.deepEqual(omni.operations, ['text_to_video', 'image_to_video', 'character_to_video']);
-  assert.deepEqual(omni.durations, [4, 6, 8, 10]);
+  assert.equal(omni.durationControlMode, 'prompted');
+  assert.deepEqual(omni.durations, [3, 4, 5, 6, 7, 8, 9, 10]);
   assert.deepEqual(omni.resolutions, ['720p']);
   assert.ok(researchModels.some(model => model.modelId === 'seedance-1-0-pro-250528'));
   const testingModels = videoCapabilityRegistry.getPublicCatalog({ includeTesting: true }).models;
@@ -18,13 +19,18 @@ test('paid video catalog exposes no unqualified research models', () => {
   assert.equal(testingModels.filter(model => model.providerId === 'modelark').length, 7);
   assert.deepEqual(
     testingModels.filter(model => model.providerId === 'gemini').map(model => model.modelId),
-    ['veo-3.1-lite-generate-preview', 'gemini-omni-flash-preview']
+    ['veo-3.1-lite-generate-preview', 'gemini-omni-1.1-flash']
   );
-  const testingOmni = testingModels.find(model => model.modelId === 'gemini-omni-flash-preview');
+  const testingOmni = testingModels.find(model => model.modelId === 'gemini-omni-1.1-flash');
   assert.equal(testingOmni.testingRoutingEnabled, true);
   assert.equal(testingOmni.pricingStatus, 'research_only');
   assert.ok(testingModels.filter(model => model.providerId === 'modelark')
     .every(model => model.operations.includes('text_to_video') && model.paidRoutingEnabled === false));
+});
+
+test('Preview Omni model ID resolves to the GA catalog model for historical compatibility', () => {
+  const model = videoCapabilityRegistry.resolve('gemini', 'gemini-omni-flash-preview');
+  assert.equal(model.modelId, 'gemini-omni-1.1-flash');
 });
 
 test('Seedance internal routing accepts Prompt only and blocks unqualified private-reference operations', () => {

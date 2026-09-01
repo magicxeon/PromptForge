@@ -16,6 +16,11 @@ specific defect back into those requirements instead of replacing them.
 | `CINE-FIX-002` | Compile Scene Director and Story Plan visual authority into Storyboard image prompts | P0 | Implemented; live output pending |
 | `CINE-FIX-003` | Constrain the Storyboard Shot inline result while preserving the full viewer | P1 | Implemented; populated visual pending |
 | `CINE-FIX-004` | Enforce per-Shot emotion and configurable cinematic photographic realism | P0 | Implemented; live output pending |
+| `CINE-FIX-005` | Preserve canonical Project status after Generate All and restore actor-scoped engine preference | P0 | Implemented; owner revalidation pending |
+| `CINE-FIX-006` | Complete Character Look preparation in Cast and block new Story Plans without wardrobe authority | P0 | Implementation in progress |
+| `CINE-FIX-007` | Replace referenced Cast safely and explain why direct removal is unavailable | P0 | Implemented, pending manual verification |
+| `CINE-FIX-008` | Reconcile Story sources with an AI Director and gate Storyboard on film-ready story, script and continuity | P0 | Implemented; live provider film qualification pending |
+| `CINE-FIX-009` | Reconcile Story Plan Shot timing with provider-supported video duration and migrate Omni to GA | P0 | Implemented; provider evidence gated |
 
 ## Closure gate
 

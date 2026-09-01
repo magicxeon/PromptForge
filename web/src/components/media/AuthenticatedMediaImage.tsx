@@ -5,11 +5,13 @@ import { useActor } from '../../lib/auth/ActorProvider';
 type AuthenticatedMediaImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> & {
   src: string | null | undefined;
   fallback?: ReactNode;
+  renderResolved?: (objectUrl: string) => ReactNode;
 };
 
 export function AuthenticatedMediaImage({
   src,
   fallback = null,
+  renderResolved,
   ...imageProps
 }: AuthenticatedMediaImageProps) {
   const { actor } = useActor();
@@ -44,5 +46,6 @@ export function AuthenticatedMediaImage({
   if (!objectUrl) {
     return <span className="authenticated-media-image__loading" aria-hidden="true" />;
   }
+  if (renderResolved) return <>{renderResolved(objectUrl)}</>;
   return <img {...imageProps} src={objectUrl} />;
 }

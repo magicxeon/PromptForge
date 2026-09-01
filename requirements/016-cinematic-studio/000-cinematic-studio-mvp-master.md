@@ -215,8 +215,9 @@ Requirement 013 makes reusable Character Look Versions part of the Character
 Profile lifecycle while Cinematic owns only Project/Scene bindings and
 continuity. It also closes the Project-card and Character-picker readiness gaps
 found during the first full Cinematic test pass.
-The Gemini Omni Flash requirement adds a disabled, unpriced Interactions API
-candidate for Playground and Cinematic Shot evaluation. It does not change the
+The Gemini Omni Flash requirement adds an internal-testing Interactions API
+candidate with a Credits-owned research quote for Playground and Cinematic Shot
+evaluation. Customer-paid publication remains gated. It does not change the
 existing Veo/Seedance routes, UI defaults or paid-launch gates.
 Neither extension duplicates the six-stage Cinematic production workflow.
 Playground Video Comparison is constrained to exactly two slots while existing
@@ -233,6 +234,7 @@ C0 contract and protected-behavior freeze
 -> C1.5 six-stage UX/UI prototype and usability approval
 -> C2 private Project Setup and Cast vertical slice
 -> C2.1 Character Look Pack, Cast picker and reusable wardrobe readiness
+-> C2.2 Wardrobe action hierarchy and qualified Character Look Sheet generation
 -> C3 Story Plan, continuity and Storyboard vertical slice
 -> C4 qualified draft-video production and financial lifecycle
 -> C5 Finish, export and recovery
@@ -278,3 +280,7 @@ and shared Generation shell before C2 vertical slices.
 
 These decisions affect adapter promotion, billing and release approval, not the
 implemented six-stage product model or authoring contracts.
+The pending Wardrobe action hierarchy and paid Character Look Sheet generation
+release are sequenced under
+`character-look-sheet-generation/000-master.md`. Customer-paid exposure remains
+closed until its provider, Credit and QA gates pass.

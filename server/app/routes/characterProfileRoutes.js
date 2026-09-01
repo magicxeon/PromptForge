@@ -107,6 +107,26 @@ export function registerCharacterProfileRoutes(app, {
     }
   });
 
+  app.get('/api/character-profiles/:id/looks/:lookId/versions/:versionId/generation-plan', async (req, res) => {
+    try {
+      return res.json(await lookService.getGenerationPlan(
+        req.params.id, req.params.lookId, req.params.versionId, req.actorContext
+      ));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
+  app.post('/api/character-profiles/:id/looks/:lookId/versions/:versionId/generated-review', async (req, res) => {
+    try {
+      return res.json(await lookService.attachGeneratedReview(
+        req.params.id, req.params.lookId, req.params.versionId, req.body, req.actorContext
+      ));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
   app.post('/api/character-profiles/:id/looks/:lookId/versions/:versionId/review', async (req, res) => {
     try {
       return res.json(await lookService.attachReview(
@@ -122,6 +142,18 @@ export function registerCharacterProfileRoutes(app, {
       return res.json(await lookService.approve(
         req.params.id, req.params.lookId, req.params.versionId, req.actorContext
       ));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
+  app.get('/api/character-profiles/:id/looks/:lookId/versions/:versionId/media/sheet', async (req, res) => {
+    try {
+      const filePath = await lookService.getReviewMediaFile(
+        req.params.id, req.params.lookId, req.params.versionId, req.actorContext
+      );
+      res.set('Cache-Control', 'private, no-store');
+      return res.sendFile(filePath);
     } catch (error) {
       return sendError(res, error);
     }

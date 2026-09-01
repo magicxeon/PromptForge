@@ -116,7 +116,7 @@ export function PlaygroundGenerationWorkspace({
           onScroll={updateScrollFade}
         >
           {queue}
-          {recentPlacement === 'before-engine' ? renderRecentPanel() : null}
+          {recent && recentPlacement === 'before-engine' ? renderRecentPanel() : null}
           <section className="playground-engine-surface">
             {engine}
             {references}
@@ -126,7 +126,7 @@ export function PlaygroundGenerationWorkspace({
               messages={messages}
             />
           </section>
-          {recentPlacement === 'after-engine' ? renderRecentPanel() : null}
+          {recent && recentPlacement === 'after-engine' ? renderRecentPanel() : null}
         </section>
       </div>
     </div>

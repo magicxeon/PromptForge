@@ -163,4 +163,31 @@ describe('PlaygroundGenerationWorkspace', () => {
       screen.getByText('Video engine')
     ) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
+
+  it('keeps the workflow intact when an embedded surface hides Recent outputs', () => {
+    render(
+      <I18nextProvider i18n={testI18n}>
+        <PlaygroundGenerationWorkspace
+          prompt={null}
+          result={<div>Embedded result</div>}
+          queue={<div>Embedded queue</div>}
+          recent={null}
+          engine={<div>Embedded engine</div>}
+          references={<div>Embedded references</div>}
+          actions={<button type="button">Generate embedded image</button>}
+          showRenderPromptHeading={false}
+          recentExpanded={false}
+          onRecentExpandedChange={() => {}}
+          comparisonActive={false}
+        />
+      </I18nextProvider>
+    );
+
+    expect(screen.queryByRole('heading', { name: 'Recent Playground renders' })).not.toBeInTheDocument();
+    expect(screen.getByText('Embedded result')).toBeVisible();
+    expect(screen.getByText('Embedded queue')).toBeVisible();
+    expect(screen.getByText('Embedded engine')).toBeVisible();
+    expect(screen.getByText('Embedded references')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Generate embedded image' })).toBeEnabled();
+  });
 });

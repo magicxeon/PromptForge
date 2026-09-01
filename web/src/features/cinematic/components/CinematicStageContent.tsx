@@ -1,6 +1,6 @@
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, Clock3, Film, Image as ImageIcon,
-  Images, Play, Plus, RotateCcw, Shirt, Sparkles, Trash2, Upload, UserRound, WandSparkles
+  Images, Link2, Play, Plus, RotateCcw, Shirt, Sparkles, Trash2, Upload, UserRound, WandSparkles
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -28,14 +28,15 @@ import {
   saveCinematicTimeline, upsertCinematicCast, removeCinematicCast,
   upsertCinematicWardrobeLook, approveCinematicVideoAttempt, createCinematicVideoAttempt,
   quoteCinematicVideoAttempt, getCinematicVideoCapabilityCatalog, suggestCinematicWardrobe,
-  generateCinematicStoryPlan, generateCinematicSceneDirection
+  generateCinematicStoryPlan, generateCinematicSceneDirection, getCinematicProject
 } from '../api/cinematicApi';
+import { ApiError } from '../../../lib/api/apiError';
 import { getVideoTask } from '../../generation/api/videoGenerationApi';
 import type {
   CinematicProject, CinematicScene, CinematicSceneDirectionProposal, CinematicShot,
   CinematicStoryBeat, CinematicStoryPlanDraft, CinematicStoryPlanProposal
 } from '../schemas/cinematicSchemas';
-import { listCharacterLooks } from '../../profiles/api/profileApi';
+import { listCharacterLooks, retireCharacterLook } from '../../profiles/api/profileApi';
 import type { CharacterLook } from '../../profiles/schemas/profileSchemas';
 
 type Props = {
@@ -73,7 +74,7 @@ const storyboardShotFixtures = [
 ] as const;
 
 export function CinematicStageContent({ activeStage, mode = 'simple', onModeChange, onPrevious, onNext, project, onProjectChanged, onAddCastCharacter, onRemoveCastCharacter, onProjectRefresh, onOpenStage }: Props) {
-  const castBlocked = activeStage === 'cast' && hasUnassignedRequiredRoles(project);
+  const castBlocked = activeStage === 'cast' && hasIncompleteRequiredCast(project);
   const storyPlanBlockReason = activeStage === 'story-plan' ? storyPlanStageBlockReason(project) : null;
   return <div className="cinematic-stage-content" data-testid={`cinematic-stage-${activeStage}`}>
     {activeStage === 'cast' && <CastStage mode={mode} onModeChange={onModeChange} project={project} onProjectChanged={onProjectChanged} onAddCastCharacter={onAddCastCharacter} onRemoveCastCharacter={onRemoveCastCharacter} />}
@@ -94,15 +95,32 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
   const { t } = useTranslation('cinematic');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pendingRoleId, setPendingRoleId] = useState<string | null>(null);
+  const [replacementAssignmentId, setReplacementAssignmentId] = useState<string | null>(null);
   const [lookDialogOpen, setLookDialogOpen] = useState(false);
   const [lookDialogMode, setLookDialogMode] = useState<CharacterLookDialogMode>('upload');
+  const [lookToPrepare, setLookToPrepare] = useState<CharacterLook | null>(null);
   const [characterLooks, setCharacterLooks] = useState<CharacterLook[]>([]);
   const [activeDetailTab, setActiveDetailTab] = useState<'direction' | 'wardrobe' | 'continuity'>('direction');
   const [dossierSaveState, setDossierSaveState] = useState<'idle' | 'dirty' | 'saving' | 'saved' | 'failed'>('idle');
   const [removingCharacter, setRemovingCharacter] = useState(false);
+  const [retiringLookId, setRetiringLookId] = useState<string | null>(null);
+  const [bindingLookId, setBindingLookId] = useState<string | null>(null);
+  const [pendingBindLookId, setPendingBindLookId] = useState<string | null>(null);
   const dossierSaveTimer = useRef<number | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState(project?.castAssignments[0]?.id || 'mira');
   const selectedAssignment = project?.castAssignments.find(item => item.id === selectedCharacter);
+  const selectedAssignmentUsage = selectedAssignment && project ? project.scenes.reduce((usage, scene) => {
+    if (scene.castAssignmentIds.includes(selectedAssignment.id)) usage.sceneCount += 1;
+    const lookIds = new Set(selectedAssignment.looks
+      .map(look => stringField(look && typeof look === 'object' ? look as Record<string, unknown> : null, 'id'))
+      .filter(Boolean));
+    for (const shot of scene.shots) {
+      if (shot.castAssignmentIds.includes(selectedAssignment.id)
+        || shot.wardrobeLookIds.some(lookId => lookIds.has(lookId))) usage.shotCount += 1;
+    }
+    return usage;
+  }, { sceneCount: 0, shotCount: 0 }) : { sceneCount: 0, shotCount: 0 };
+  const selectedAssignmentInUse = selectedAssignmentUsage.sceneCount > 0 || selectedAssignmentUsage.shotCount > 0;
   const selectedCharacterProfileId = selectedAssignment?.characterProfileId;
   const selectedCharacterProfileVersionId = selectedAssignment?.characterProfileVersionId;
   const selectedRole = selectedAssignment?.storyImportance === 'protagonist' ? 'lead' : 'supporting';
@@ -112,12 +130,12 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
     || (selectedCharacter === 'mira' ? t('cinematic.cast.miraTraits') : t('cinematic.cast.noahTraits'));
   const selectedPerformance = selectedAssignment?.performanceDirection
     || (selectedCharacter === 'mira' ? t('cinematic.cast.miraPerformance') : t('cinematic.cast.noahPerformance'));
-  const selectedLookName = selectedAssignment?.looks[0] && typeof selectedAssignment.looks[0] === 'object'
-    && 'name' in selectedAssignment.looks[0]
-    ? String(selectedAssignment.looks[0].name)
+  const selectedBoundLook = selectedAssignment?.looks.find(isProductionReadyBoundLook);
+  const selectedLookName = selectedBoundLook && 'name' in selectedBoundLook
+    ? String(selectedBoundLook.name)
     : selectedAssignment ? t('cinematic.cast.characterWardrobe')
       : selectedCharacter === 'mira' ? t('cinematic.cast.lookArrival') : t('cinematic.cast.lookPlatform');
-  const hasBoundLook = !project || Boolean(selectedAssignment?.looks.length);
+  const hasBoundLook = !project || Boolean(selectedBoundLook);
   const [castError, setCastError] = useState<string | null>(null);
   const roleSlots = project?.setup?.storyRoleSlots || [];
   const assignmentForRole = (role: (typeof roleSlots)[number]) => project?.castAssignments.find(assignment => (
@@ -125,7 +143,10 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
     || (!assignment.storyRoleSlotId && assignment.storyRole.trim().toLowerCase() === role.label.trim().toLowerCase())
   ));
   const isRoleAssigned = (role: (typeof roleSlots)[number]) => Boolean(assignmentForRole(role));
-  const isRoleReady = (role: (typeof roleSlots)[number]) => Boolean(assignmentForRole(role)?.identityReady);
+  const isRoleReady = (role: (typeof roleSlots)[number]) => {
+    const assignment = assignmentForRole(role);
+    return Boolean(assignment?.identityReady && assignment.looks.some(isProductionReadyBoundLook));
+  };
   const nextUnfilledRole = roleSlots.find(role => !isRoleAssigned(role));
   const requiredRoleCount = roleSlots.filter(role => role.importance === 'required').length;
   const assignedRequiredRoleCount = roleSlots.filter(role => (
@@ -173,18 +194,29 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
       throw new Error(t('cinematic.status.saveFailed'));
     }
     setCastError(null);
-    const assignmentId = `cinecast_${character.id}`;
-    const plannedRole = roleSlots.find(role => role.id === pendingRoleId) || nextUnfilledRole;
-    const storyImportance = project.castAssignments.length ? 'supporting' : 'protagonist';
-    const roleDirection = castDirectionFromRole(plannedRole);
+    const replacementAssignment = replacementAssignmentId
+      ? project.castAssignments.find(assignment => assignment.id === replacementAssignmentId)
+      : undefined;
+    const assignmentId = replacementAssignment?.id || `cinecast_${character.id}`;
+    const plannedRole = roleSlots.find(role => role.id === pendingRoleId)
+      || roleSlots.find(role => role.id === replacementAssignment?.storyRoleSlotId)
+      || nextUnfilledRole;
+    const storyImportance = replacementAssignment?.storyImportance
+      || (project.castAssignments.length ? 'supporting' : 'protagonist');
+    const roleDirection = replacementAssignment ? {
+      objective: replacementAssignment.objective,
+      personalityTraits: replacementAssignment.personalityTraits,
+      emotionalBaseline: replacementAssignment.emotionalBaseline,
+      performanceDirection: replacementAssignment.performanceDirection
+    } : castDirectionFromRole(plannedRole);
     const input = {
       assignmentId,
       characterProfileId: character.id,
       characterProfileVersionId: character.characterProfileVersionId,
       displayName: character.displayName,
       storyImportance,
-      storyRole: plannedRole?.label || (storyImportance === 'protagonist' ? 'Lead' : 'Supporting'),
-      storyRoleSlotId: plannedRole?.id || null,
+      storyRole: replacementAssignment?.storyRole || plannedRole?.label || (storyImportance === 'protagonist' ? 'Lead' : 'Supporting'),
+      storyRoleSlotId: replacementAssignment?.storyRoleSlotId || plannedRole?.id || null,
       ...roleDirection
     } as const;
     try {
@@ -193,6 +225,7 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
         : await upsertCinematicCast(project.id, assignmentId, { expectedVersion: project.version, ...input });
       setSelectedCharacter(assignmentId);
       setPendingRoleId(null);
+      setReplacementAssignmentId(null);
       if (!onAddCastCharacter) onProjectChanged?.(saved);
     } catch (error) {
       setCastError(error instanceof Error ? error.message : t('cinematic.status.saveFailed'));
@@ -260,47 +293,70 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
       void persistDossier(form);
     }, 800);
   }
-  async function addCharacterWardrobeLook() {
-    if (!project || !selectedAssignment) return;
-    setCastError(null);
-    try {
-      const saved = await upsertCinematicWardrobeLook(
-        project.id,
-        selectedAssignment.id,
-        `cinelook_default_${selectedAssignment.id}`,
-        {
-          expectedVersion: project.version,
-          name: t('cinematic.cast.characterWardrobe'),
-          mode: 'character_default',
-          locked: true
-        }
-      );
-      onProjectChanged?.(saved);
-    } catch (error) {
-      setCastError(error instanceof Error ? error.message : t('cinematic.status.saveFailed'));
-    }
-  }
   async function bindCharacterLook(look: CharacterLook) {
     if (!project || !selectedAssignment || !look.approvedVersionId) return;
+    const projectId = project.id;
+    const assignmentId = selectedAssignment.id;
     setCastError(null);
+    setBindingLookId(look.id);
+    const bindToProject = (targetProject: CinematicProject) => upsertCinematicWardrobeLook(
+      targetProject.id,
+      assignmentId,
+      `cinelook_${look.id}`,
+      {
+        expectedVersion: targetProject.version,
+        name: look.name,
+        mode: 'character_look',
+        characterLookId: look.id,
+        characterLookVersionId: look.approvedVersionId as string,
+        coverage: 'multi_view',
+        locked: true
+      }
+    );
     try {
-      const saved = await upsertCinematicWardrobeLook(
-        project.id,
-        selectedAssignment.id,
-        `cinelook_${look.id}`,
-        {
-          expectedVersion: project.version,
-          name: look.name,
-          mode: 'character_look',
-          characterLookId: look.id,
-          characterLookVersionId: look.approvedVersionId,
-          coverage: 'multi_view',
-          locked: true
+      let saved;
+      try {
+        saved = await bindToProject(project);
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.code !== 'cinematic_version_conflict') throw error;
+        const latest = await getCinematicProject(projectId);
+        const latestAssignment = latest.castAssignments.find(item => item.id === assignmentId);
+        if (!latestAssignment
+          || latestAssignment.characterProfileId !== look.characterProfileId
+          || latestAssignment.characterProfileVersionId !== look.sourceCharacterProfileVersionId) {
+          throw new Error(t('cinematic.cast.lookBindContextChanged'));
         }
-      );
+        onProjectChanged?.(latest);
+        saved = await bindToProject(latest);
+      }
       onProjectChanged?.(saved);
+      setPendingBindLookId(null);
     } catch (error) {
-      setCastError(error instanceof Error ? error.message : t('cinematic.status.saveFailed'));
+      setPendingBindLookId(look.id);
+      setCastError(t('cinematic.cast.lookApprovedBindFailed', {
+        message: error instanceof Error ? error.message : t('cinematic.status.saveFailed')
+      }));
+    } finally {
+      setBindingLookId(null);
+    }
+  }
+  async function handleLookSaved(look: CharacterLook) {
+    setCharacterLooks(current => [look, ...current.filter(item => item.id !== look.id)]);
+    if (look.approvedVersionId) await bindCharacterLook(look);
+    setLookToPrepare(null);
+  }
+  async function removeLookPreparation(look: CharacterLook) {
+    if (!selectedAssignment || !canDiscardLookPreparation(look)) return;
+    setCastError(null);
+    setRetiringLookId(look.id);
+    try {
+      await retireCharacterLook(selectedAssignment.characterProfileId, look.id);
+      setCharacterLooks(current => current.filter(item => item.id !== look.id));
+      if (lookToPrepare?.id === look.id) setLookToPrepare(null);
+    } catch (error) {
+      setCastError(error instanceof Error ? error.message : t('cinematic.cast.removeLookFailed'));
+    } finally {
+      setRetiringLookId(null);
     }
   }
   return <>
@@ -320,18 +376,20 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
       <div className="cinematic-role-readiness__list">
         {orderedRoleSlots.map(role => {
           const assignment = assignmentForRole(role);
-          const assignmentReady = Boolean(assignment?.identityReady);
+          const identityReady = Boolean(assignment?.identityReady);
+          const lookReady = Boolean(assignment?.looks.some(isProductionReadyBoundLook));
+          const assignmentReady = identityReady && lookReady;
           return <article key={role.id} className={assignment ? (assignmentReady ? 'is-assigned' : 'is-needs-preparation') : 'is-unassigned'}>
             <CharacterPortrait portraitUrl={cinematicCastPortraitUrl(assignment)} tone="cyan" />
-            <div><span>{role.label} <small>{t(`cinematic.roleImportance.${role.importance}`)}</small></span><strong>{assignment?.displayName || t('cinematic.cast.needsCharacter')}</strong><p>{assignment && !assignmentReady ? t('cinematic.cast.needsPreparation') : (role.storyFunction || t('cinematic.cast.roleFunctionMissing'))}</p></div>
-            <Button size="sm" variant={assignment ? 'ghost' : 'primary'} onClick={() => { setPendingRoleId(role.id); setPickerOpen(true); }}>{assignment ? t('cinematic.cast.changeCharacter') : t('cinematic.cast.chooseForRole')}</Button>
+            <div><span>{role.label} <small>{t(`cinematic.roleImportance.${role.importance}`)}</small></span><strong>{assignment?.displayName || t('cinematic.cast.needsCharacter')}</strong><p>{assignment && !identityReady ? t('cinematic.cast.needsPreparation') : assignment && !lookReady ? t('cinematic.cast.lookPreparationRequired') : (role.storyFunction || t('cinematic.cast.roleFunctionMissing'))}</p></div>
+            <Button size="sm" variant={assignment ? 'ghost' : 'primary'} onClick={() => { setPendingRoleId(role.id); setReplacementAssignmentId(assignment?.id || null); setPickerOpen(true); }}>{assignment ? t('cinematic.cast.changeCharacter') : t('cinematic.cast.chooseForRole')}</Button>
           </article>;
         })}
       </div>
     </section> : <p className="cinematic-cast-plan-notice">{t('cinematic.cast.noRolePlan')}</p>}
     <div className="cinematic-character-workspace">
       <section className="cinematic-work-panel cinematic-project-cast-panel">
-        <SectionHeading title={t('cinematic.cast.projectCast')} hint={t('cinematic.cast.castSummaryHint')} action={<Button size="sm" icon={<Plus aria-hidden="true" />} disabled={Boolean(roleSlots.length) && !nextUnfilledRole} title={Boolean(roleSlots.length) && !nextUnfilledRole ? t('cinematic.cast.allRolesAssigned') : undefined} onClick={() => { setPendingRoleId(nextUnfilledRole?.id || null); setPickerOpen(true); }}>{t('cinematic.cast.addCharacter')}</Button>} />
+        <SectionHeading title={t('cinematic.cast.projectCast')} hint={t('cinematic.cast.castSummaryHint')} action={<Button size="sm" icon={<Plus aria-hidden="true" />} disabled={Boolean(roleSlots.length) && !nextUnfilledRole} title={Boolean(roleSlots.length) && !nextUnfilledRole ? t('cinematic.cast.allRolesAssigned') : undefined} onClick={() => { setPendingRoleId(nextUnfilledRole?.id || null); setReplacementAssignmentId(null); setPickerOpen(true); }}>{t('cinematic.cast.addCharacter')}</Button>} />
         <div className="cinematic-project-cast-summary" aria-label={t('cinematic.cast.castSummary')}>
           <span><strong>{project?.castAssignments.length || 0}</strong><small>{t('cinematic.cast.charactersInProject')}</small></span>
           <span><strong>{roleSlots.length}</strong><small>{t('cinematic.cast.plannedRoles')}</small></span>
@@ -340,15 +398,15 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
           {orderedRoleSlots.map(role => {
             const assignment = assignmentForRole(role);
             return assignment
-              ? <CastCard key={role.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={role.label} required={role.importance === 'required'} name={assignment.displayName} portraitUrl={cinematicCastPortraitUrl(assignment)} identityReady={assignment.identityReady} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? String((assignment.looks[0] as { name?: string })?.name || t('cinematic.cast.characterWardrobe')) : t('cinematic.cast.characterWardrobe')} scenes={project?.scenes.length ? String(project.scenes.length) : null} tone="cyan" />
-              : <button key={role.id} type="button" className="cinematic-unassigned-cast-card" onClick={() => { setPendingRoleId(role.id); setPickerOpen(true); }}><CharacterPortrait tone="cyan" /><span><strong>{role.label}</strong><small>{t(`cinematic.roleImportance.${role.importance}`)}</small><b>{t('cinematic.cast.noCharacterAssigned')}</b><em>{role.storyFunction}</em></span></button>;
+              ? <CastCard key={role.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={role.label} required={role.importance === 'required'} name={assignment.displayName} portraitUrl={cinematicCastPortraitUrl(assignment)} identityReady={assignment.identityReady} lookReady={assignment.looks.some(isProductionReadyBoundLook)} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? String((assignment.looks[0] as { name?: string })?.name || t('cinematic.cast.characterWardrobe')) : t('cinematic.cast.characterWardrobe')} scenes={project?.scenes.length ? String(project.scenes.length) : null} tone="cyan" />
+              : <button key={role.id} type="button" className="cinematic-unassigned-cast-card" onClick={() => { setPendingRoleId(role.id); setReplacementAssignmentId(null); setPickerOpen(true); }}><CharacterPortrait tone="cyan" /><span><strong>{role.label}</strong><small>{t(`cinematic.roleImportance.${role.importance}`)}</small><b>{t('cinematic.cast.noCharacterAssigned')}</b><em>{role.storyFunction}</em></span></button>;
           })}
-          {!roleSlots.length && project?.castAssignments.map(assignment => <CastCard key={assignment.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={assignment.storyRole} required={assignment.storyImportance === 'protagonist'} name={assignment.displayName} portraitUrl={cinematicCastPortraitUrl(assignment)} identityReady={assignment.identityReady} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? t('cinematic.cast.lookArrival') : t('cinematic.cast.characterWardrobe')} scenes={project?.scenes.length ? String(project.scenes.length) : null} tone="cyan" />)}
+          {!roleSlots.length && project?.castAssignments.map(assignment => <CastCard key={assignment.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={assignment.storyRole} required={assignment.storyImportance === 'protagonist'} name={assignment.displayName} portraitUrl={cinematicCastPortraitUrl(assignment)} identityReady={assignment.identityReady} lookReady={assignment.looks.some(isProductionReadyBoundLook)} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? t('cinematic.cast.lookArrival') : t('cinematic.cast.characterWardrobe')} scenes={project?.scenes.length ? String(project.scenes.length) : null} tone="cyan" />)}
           {!project ? <><CastCard active={selectedCharacter === 'mira'} onSelect={() => setSelectedCharacter('mira')} role={t('cinematic.cast.lead')} name="Mira Chen" personality={t('cinematic.cast.miraTraits')} look={t('cinematic.cast.lookArrival')} scenes="3" tone="cyan" /><CastCard active={selectedCharacter === 'noah'} onSelect={() => setSelectedCharacter('noah')} role={t('cinematic.cast.supporting')} name="Noah Lin" personality={t('cinematic.cast.noahTraits')} look={t('cinematic.cast.lookPlatform')} scenes="2" tone="amber" /></> : null}
         </div>
       </section>
       {(!project || selectedAssignment) ? <aside key={selectedCharacter} className="cinematic-character-dossier">
-        <header className="cinematic-dossier-header"><CharacterPortrait portraitUrl={cinematicCastPortraitUrl(selectedAssignment)} tone={selectedCharacter === 'noah' ? 'amber' : 'cyan'} /><div><span>{selectedAssignment?.storyRole || t('cinematic.cast.selectedCharacter')}</span><h3>{selectedAssignment?.displayName || (selectedCharacter === 'mira' ? 'Mira Chen' : 'Noah Lin')}</h3><p className={selectedAssignment && !selectedAssignment.identityReady ? 'is-needs-preparation' : ''}>{selectedAssignment && !selectedAssignment.identityReady ? <Clock3 aria-hidden="true" /> : <Check aria-hidden="true" />}{t(selectedAssignment && !selectedAssignment.identityReady ? 'cinematic.cast.needsPreparation' : 'cinematic.cast.identityReady')}</p><small>{selectedAssignment?.characterProfileVersionId ? t('cinematic.cast.profileVersionPinned') : t('cinematic.cast.projectOnlyChanges')}</small></div><div className="cinematic-dossier-header__status"><strong className={`is-${dossierSaveState}`}>{t(`cinematic.save.${dossierSaveState}`)}</strong><small>{t('cinematic.cast.projectOnlyChanges')}</small>{selectedAssignment ? <ConfirmDialog trigger={<Button size="sm" variant="ghost" icon={<Trash2 aria-hidden="true" />} disabled={removingCharacter}>{t('cinematic.cast.removeAssignment')}</Button>} title={t('cinematic.cast.removeTitle')} description={t('cinematic.cast.removeDescription', { name: selectedAssignment.displayName })} confirmLabel={t('cinematic.cast.removeConfirm')} destructive pending={removingCharacter} onConfirm={() => void removeSelectedCharacter()} /> : null}</div></header>
+        <header className="cinematic-dossier-header"><div className="cinematic-dossier-header__selection"><Link2 aria-hidden="true" /><span>{t('cinematic.cast.selectedFromProjectCast')}</span></div><div><span>{selectedAssignment?.storyRole || t('cinematic.cast.selectedCharacter')}</span><h3>{selectedAssignment?.displayName || (selectedCharacter === 'mira' ? 'Mira Chen' : 'Noah Lin')}</h3><p className={selectedAssignment && !selectedAssignment.identityReady ? 'is-needs-preparation' : ''}>{selectedAssignment && !selectedAssignment.identityReady ? <Clock3 aria-hidden="true" /> : <Check aria-hidden="true" />}{t(selectedAssignment && !selectedAssignment.identityReady ? 'cinematic.cast.needsPreparation' : 'cinematic.cast.identityReady')}</p><small>{selectedAssignment?.characterProfileVersionId ? t('cinematic.cast.profileVersionPinned') : t('cinematic.cast.projectOnlyChanges')}</small></div><div className="cinematic-dossier-header__status"><strong className={`is-${dossierSaveState}`}>{t(`cinematic.save.${dossierSaveState}`)}</strong><small>{t('cinematic.cast.projectOnlyChanges')}</small>{selectedAssignment ? <><Button size="sm" variant="secondary" onClick={() => { setPendingRoleId(selectedAssignment.storyRoleSlotId || null); setReplacementAssignmentId(selectedAssignment.id); setPickerOpen(true); }}>{t('cinematic.cast.changeCharacter')}</Button>{selectedAssignmentInUse ? <><Button size="sm" variant="ghost" icon={<Trash2 aria-hidden="true" />} disabled title={t('cinematic.cast.assignmentInUse', selectedAssignmentUsage)}>{t('cinematic.cast.removeAssignment')}</Button><small className="is-warning">{t('cinematic.cast.assignmentInUse', selectedAssignmentUsage)}</small></> : <ConfirmDialog trigger={<Button size="sm" variant="ghost" icon={<Trash2 aria-hidden="true" />} disabled={removingCharacter}>{t('cinematic.cast.removeAssignment')}</Button>} title={t('cinematic.cast.removeTitle')} description={t('cinematic.cast.removeDescription', { name: selectedAssignment.displayName })} confirmLabel={t('cinematic.cast.removeConfirm')} destructive pending={removingCharacter} onConfirm={() => void removeSelectedCharacter()} />}</> : null}</div></header>
         <div className="cinematic-character-tabs" role="tablist" aria-label={t('cinematic.cast.characterDetails')}>
           {(['direction', 'wardrobe', 'continuity'] as const).map(tab => <button key={tab} type="button" role="tab" aria-selected={activeDetailTab === tab} className={activeDetailTab === tab ? 'is-active' : ''} onClick={() => setActiveDetailTab(tab)}>{t(`cinematic.cast.tab.${tab}`)}</button>)}
         </div>
@@ -357,22 +415,51 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
         <section className="cinematic-dossier-section"><SectionHeading title={t('cinematic.cast.performanceDirection')} hint={t('cinematic.cast.performanceDirectionHint')} /><textarea name="performanceDirection" rows={3} defaultValue={selectedPerformance} />{dossierSaveState === 'failed' ? <Button type="submit" size="sm" disabled={!selectedAssignment}>{t('cinematic.cast.saveDossier')}</Button> : null}</section>
         </form> : null}
         {activeDetailTab === 'wardrobe' ? <section className="cinematic-dossier-section">
-          <SectionHeading title={t('cinematic.cast.wardrobeLooks')} hint={t('cinematic.cast.wardrobeOwnedHint')} action={<Button size="sm" icon={<Plus aria-hidden="true" />} disabled={!selectedAssignment} onClick={() => { setLookDialogMode('upload'); setLookDialogOpen(true); }}>{t('cinematic.cast.addLook')}</Button>} />
-          <article className="cinematic-look-card"><div className="cinematic-look-card__preview"><Shirt aria-hidden="true" /></div><div><span>{t('cinematic.cast.primaryLook')}</span><h4>{hasBoundLook ? selectedLookName : t('cinematic.cast.noPrimaryLook')}</h4><p>{hasBoundLook ? t('cinematic.cast.sceneScope') : t('cinematic.cast.chooseLookHint')}</p></div><span className={`cinematic-status-pill${hasBoundLook ? ' is-ready' : ''}`}>{hasBoundLook ? t('cinematic.cast.locked') : t('cinematic.cast.lookNotReady')}</span></article>
-          {characterLooks.map(look => <article className="cinematic-look-card" key={look.id}><div className="cinematic-look-card__preview"><Shirt aria-hidden="true" /></div><div><span>{t('cinematic.cast.characterLook')}</span><h4>{look.name}</h4><p>{t(`cinematic.lookStatus.${look.lifecycleStatus}`)}</p></div><Button size="sm" disabled={!look.approvedVersionId} onClick={() => void bindCharacterLook(look)}>{look.approvedVersionId ? t('cinematic.cast.useLook') : t('cinematic.cast.prepareLook')}</Button></article>)}
-          <div className="cinematic-wardrobe-options">
-            <button type="button" className="is-active" onClick={() => void addCharacterWardrobeLook()}><Shirt aria-hidden="true" /><strong>{t('cinematic.cast.characterWardrobe')}</strong><small>{t('cinematic.cast.characterWardrobeHint')}</small></button>
-            <button type="button" disabled={!selectedAssignment} onClick={() => { setLookDialogMode('upload'); setLookDialogOpen(true); }}><Upload aria-hidden="true" /><strong>{t('cinematic.cast.uploadWardrobe')}</strong><small>{t('cinematic.cast.uploadForCharacter')}</small></button>
-            <button type="button" disabled={!selectedAssignment} onClick={() => { setLookDialogMode('ai'); setLookDialogOpen(true); }}><Sparkles aria-hidden="true" /><strong>{t('cinematic.cast.aiWardrobe')}</strong><small>{t('cinematic.cast.aiWardrobeHint')}</small></button>
+          <SectionHeading title={t('cinematic.cast.wardrobeLooks')} hint={t('cinematic.cast.wardrobeOwnedHint')} />
+          <ol className="cinematic-look-readiness" aria-label={t('cinematic.cast.lookReadiness')}>
+            <li className={characterLooks.length || hasBoundLook ? 'is-complete' : 'is-current'}><span>1</span><div><strong>{t('cinematic.cast.lookStepSource')}</strong><small>{t('cinematic.cast.lookStepSourceHint')}</small></div></li>
+            <li className={hasBoundLook ? 'is-complete' : characterLooks.length ? 'is-current' : ''}><span>2</span><div><strong>{t('cinematic.cast.lookStepPrepare')}</strong><small>{t('cinematic.cast.lookStepPrepareHint')}</small></div></li>
+            <li className={hasBoundLook ? 'is-complete' : ''}><span>3</span><div><strong>{t('cinematic.cast.lookStepReview')}</strong><small>{t('cinematic.cast.lookStepReviewHint')}</small></div></li>
+            <li className={hasBoundLook ? 'is-complete' : ''}><span>4</span><div><strong>{t('cinematic.cast.lookStepBind')}</strong><small>{t('cinematic.cast.lookStepBindHint')}</small></div></li>
+          </ol>
+          <fieldset className="cinematic-look-source-actions">
+            <legend><span>{t('cinematic.cast.startNewLook')}</span><strong>{t('cinematic.cast.chooseLookSource')}</strong><small>{t('cinematic.cast.chooseLookSourceHint')}</small></legend>
+            <div>
+              <button type="button" disabled={!selectedAssignment} onClick={() => { setLookToPrepare(null); setLookDialogMode('upload'); setLookDialogOpen(true); }}><span><Upload aria-hidden="true" /></span><span><strong>{t('cinematic.cast.uploadWardrobe')}</strong><small>{t('cinematic.cast.uploadForCharacter')}</small></span><ArrowRight aria-hidden="true" /></button>
+              <button type="button" disabled={!selectedAssignment} onClick={() => { setLookToPrepare(null); setLookDialogMode('ai'); setLookDialogOpen(true); }}><span><Sparkles aria-hidden="true" /></span><span><strong>{t('cinematic.cast.aiWardrobe')}</strong><small>{t('cinematic.cast.aiWardrobeHint')}</small></span><ArrowRight aria-hidden="true" /></button>
+            </div>
+          </fieldset>
+          <div className="cinematic-look-library" aria-label={t('cinematic.cast.currentLooks')}>
+            <header><div><span>{t('cinematic.cast.currentLooks')}</span><strong>{t('cinematic.cast.currentLooksHint')}</strong></div></header>
+            {characterLooks.length ? characterLooks.map(look => {
+              const version = activeCharacterLookVersion(look);
+              const bound = selectedAssignment?.looks.some(item => isBoundCharacterLook(item, look)) || false;
+              const approvedUnbound = Boolean(look.approvedVersionId && !bound);
+              const bindFailed = pendingBindLookId === look.id;
+              return <article className={`cinematic-look-card${bindFailed ? ' is-bind-pending' : ''}`} key={look.id}>
+                <div className="cinematic-look-card__preview"><AuthenticatedMediaImage src={version?.reviewMediaUrl} alt={t('cinematic.lookDraft.reviewPreviewAlt', { name: look.name })} fallback={<Shirt aria-hidden="true" />} /></div>
+                <div><span>{t('cinematic.cast.characterLook')}</span><h4>{look.name}</h4><p>{approvedUnbound ? t('cinematic.cast.approvedNotBound') : t(`cinematic.lookStatus.${look.lifecycleStatus}`)}</p></div>
+                <div className="cinematic-look-card__actions"><Button size="sm" variant={look.approvedVersionId ? (approvedUnbound ? 'primary' : 'secondary') : 'primary'} disabled={bindingLookId === look.id} onClick={() => look.approvedVersionId ? void bindCharacterLook(look) : (setLookToPrepare(look), setLookDialogOpen(true))}>{bindingLookId === look.id ? t('cinematic.cast.bindingLook') : look.approvedVersionId ? t(bindFailed ? 'cinematic.cast.retryUseLook' : 'cinematic.cast.useLook') : t('cinematic.cast.prepareLook')}</Button>{canDiscardLookPreparation(look) ? <ConfirmDialog trigger={<Button size="sm" variant="ghost" icon={<Trash2 aria-hidden="true" />} disabled={retiringLookId === look.id}>{t('cinematic.cast.removeLookPreparation')}</Button>} title={t('cinematic.cast.removeLookTitle')} description={t('cinematic.cast.removeLookDescription', { name: look.name })} confirmLabel={t('cinematic.cast.removeLookConfirm')} destructive pending={retiringLookId === look.id} onConfirm={() => void removeLookPreparation(look)} /> : null}</div>
+              </article>;
+            }) : <p className="cinematic-look-library__empty">{t('cinematic.cast.noLookCandidates')}</p>}
+          </div>
+          <div className="cinematic-look-bound" aria-label={t('cinematic.cast.lookUsedInFilm')}>
+            <header><span>{t('cinematic.cast.lookUsedInFilm')}</span><strong>{t('cinematic.cast.lookUsedInFilmHint')}</strong></header>
+            <article className="cinematic-look-card"><div className="cinematic-look-card__preview"><Shirt aria-hidden="true" /></div><div><span>{t('cinematic.cast.boundLook')}</span><h4>{hasBoundLook ? selectedLookName : t('cinematic.cast.noPrimaryLook')}</h4><p>{hasBoundLook ? t('cinematic.cast.sceneScope') : t('cinematic.cast.chooseLookHint')}</p></div><span className={`cinematic-status-pill${hasBoundLook ? ' is-ready' : ''}`}>{hasBoundLook ? t('cinematic.cast.locked') : t('cinematic.cast.lookNotReady')}</span></article>
           </div>
         </section> : null}
-        {activeDetailTab === 'continuity' ? <section className="cinematic-dossier-section cinematic-continuity-panel"><SectionHeading title={t('cinematic.cast.continuity')} hint={t('cinematic.cast.continuityHint')} /><ul><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.identityVersionReady')}</li><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.faceAuthorityReady')}</li><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.reuseRightsReady')}</li><li><Clock3 aria-hidden="true" />{selectedAssignment?.looks.length ? t('cinematic.cast.lookBound') : t('cinematic.cast.lookPreparationOptional')}</li><li><Clock3 aria-hidden="true" />{project?.scenes.length ? t('cinematic.cast.sceneContinuityReady') : t('cinematic.cast.scenesNotPlanned')}</li></ul><label className="cinematic-check-row"><input type="checkbox" defaultChecked />{t('cinematic.cast.lockWardrobe')}</label>{mode === 'advanced' && <label className="cinematic-check-row"><input type="checkbox" disabled={!project?.scenes.length} />{t('cinematic.cast.allowSceneChanges')}</label>}</section> : null}
+        {activeDetailTab === 'continuity' ? <section className="cinematic-dossier-section cinematic-continuity-panel"><SectionHeading title={t('cinematic.cast.continuity')} hint={t('cinematic.cast.continuityHint')} /><ul><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.identityVersionReady')}</li><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.faceAuthorityReady')}</li><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.reuseRightsReady')}</li><li className={hasBoundLook ? 'is-ready' : ''}>{hasBoundLook ? <Check aria-hidden="true" /> : <Clock3 aria-hidden="true" />}{t(hasBoundLook ? 'cinematic.cast.lookBound' : 'cinematic.cast.lookPreparationRequired')}</li><li><Clock3 aria-hidden="true" />{project?.scenes.length ? t('cinematic.cast.sceneContinuityReady') : t('cinematic.cast.scenesNotPlanned')}</li></ul><label className="cinematic-check-row"><input type="checkbox" defaultChecked />{t('cinematic.cast.lockWardrobe')}</label>{mode === 'advanced' && <label className="cinematic-check-row"><input type="checkbox" disabled={!project?.scenes.length} />{t('cinematic.cast.allowSceneChanges')}</label>}</section> : null}
       </aside> : <aside className="cinematic-character-dossier cinematic-character-dossier--empty"><UserRound aria-hidden="true" /><h3>{t('cinematic.cast.addCharacter')}</h3><p>{t('cinematic.cast.charactersHint')}</p></aside>}
     </div>
     {castError ? <p role="alert" className="text-sm text-red-400">{castError}</p> : null}
-    <CharacterPickerDialog open={pickerOpen} onOpenChange={setPickerOpen} onSelect={addCharacter} />
-    {selectedAssignment ? <CharacterLookDialog open={lookDialogOpen} onOpenChange={setLookDialogOpen} initialMode={lookDialogMode} characterProfileId={selectedAssignment.characterProfileId} characterProfileVersionId={selectedAssignment.characterProfileVersionId} requestAiSuggestion={project ? () => suggestCinematicWardrobe(project.id, selectedAssignment.id) : undefined} onSaved={look => setCharacterLooks(current => [look, ...current.filter(item => item.id !== look.id)])} /> : null}
+    <CharacterPickerDialog open={pickerOpen} onOpenChange={open => { setPickerOpen(open); if (!open) { setPendingRoleId(null); setReplacementAssignmentId(null); } }} onSelect={addCharacter} />
+    {selectedAssignment ? <CharacterLookDialog open={lookDialogOpen} onOpenChange={open => { setLookDialogOpen(open); if (!open) setLookToPrepare(null); }} initialMode={lookDialogMode} lookToPrepare={lookToPrepare} characterProfileId={selectedAssignment.characterProfileId} characterProfileVersionId={selectedAssignment.characterProfileVersionId} characterDisplayName={selectedAssignment.displayName} requestAiSuggestion={project ? () => suggestCinematicWardrobe(project.id, selectedAssignment.id) : undefined} onSaved={look => void handleLookSaved(look)} /> : null}
   </>;
+}
+
+function canDiscardLookPreparation(look: CharacterLook) {
+  return !look.approvedVersionId
+    && !look.versions.some(version => ['approved', 'superseded'].includes(version.status));
 }
 
 export function castDirectionFromRole(role?: CinematicProject['setup']['storyRoleSlots'][number]) {
@@ -384,9 +471,11 @@ export function castDirectionFromRole(role?: CinematicProject['setup']['storyRol
   };
 }
 
-function CastCard({ role, required = false, name, portraitUrl, identityReady = true, personality, look, scenes, tone, active, onSelect }: { role: string; required?: boolean; name: string; portraitUrl?: string | null; identityReady?: boolean; personality: string; look: string; scenes: string | null; tone: 'cyan' | 'amber'; active: boolean; onSelect: () => void }) {
+function CastCard({ role, required = false, name, portraitUrl, identityReady = true, lookReady = true, personality, look, scenes, tone, active, onSelect }: { role: string; required?: boolean; name: string; portraitUrl?: string | null; identityReady?: boolean; lookReady?: boolean; personality: string; look: string; scenes: string | null; tone: 'cyan' | 'amber'; active: boolean; onSelect: () => void }) {
   const { t } = useTranslation('cinematic');
-  return <button type="button" className={`cinematic-cast-card${active ? ' is-active' : ''}${identityReady ? '' : ' is-needs-preparation'}`} onClick={onSelect}><CharacterPortrait portraitUrl={portraitUrl} tone={tone} /><div className="cinematic-cast-card__body"><span>{role}{required ? <b>{t('cinematic.roleImportance.required')}</b> : null}</span><h4>{name}</h4><small>{personality}</small><p>{identityReady ? <Check aria-hidden="true" /> : <Clock3 aria-hidden="true" />} {t(identityReady ? 'cinematic.cast.identityReady' : 'cinematic.cast.needsPreparation')}</p><div className="cinematic-card-facts"><span>{look}</span><span>{scenes ? `${scenes} ${t('cinematic.cast.scenes')}` : t('cinematic.cast.scenesNotPlanned')}</span></div></div></button>;
+  const ready = identityReady && lookReady;
+  const statusKey = !identityReady ? 'cinematic.cast.needsPreparation' : !lookReady ? 'cinematic.cast.lookPreparationRequired' : 'cinematic.cast.identityReady';
+  return <button type="button" className={`cinematic-cast-card${active ? ' is-active' : ''}${ready ? '' : ' is-needs-preparation'}`} onClick={onSelect}><CharacterPortrait portraitUrl={portraitUrl} tone={tone} /><div className="cinematic-cast-card__body"><span>{role}{required ? <b>{t('cinematic.roleImportance.required')}</b> : null}</span><h4>{name}</h4><small>{personality}</small><p>{ready ? <Check aria-hidden="true" /> : <Clock3 aria-hidden="true" />} {t(statusKey)}</p><div className="cinematic-card-facts"><span>{look}</span><span>{scenes ? `${scenes} ${t('cinematic.cast.scenes')}` : t('cinematic.cast.scenesNotPlanned')}</span></div></div></button>;
 }
 
 function CharacterPortrait({ portraitUrl, tone }: { portraitUrl?: string | null; tone: 'cyan' | 'amber' }) {
@@ -437,6 +526,7 @@ function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProj
   const sceneCount = draft.scenes.length;
   const shotCount = draft.scenes.reduce((total, scene) => total + scene.shots.length, 0);
   const runtimeSeconds = draft.scenes.reduce((total, scene) => total + scene.durationMs, 0) / 1000;
+  const scriptPreview = useMemo(() => buildDraftFilmScriptPreview(draft), [draft]);
   const requiredRoles = project?.setup.storyRoleSlots.filter(role => role.importance === 'required') || [];
   const assignedRoleIds = new Set(project?.castAssignments.filter(item => item.active !== false).map(item => item.storyRoleSlotId).filter(Boolean));
   const missingRequiredRoles = requiredRoles.filter(role => !assignedRoleIds.has(role.id));
@@ -449,6 +539,19 @@ function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProj
   const incompleteBeats = draft.beats.filter(beat => !beat.title.trim() || !beat.purpose.trim() || !beat.storyChange.trim());
   const incompleteScenes = draft.scenes.filter(scene => !scene.title.trim() || !scene.purpose.trim() || !scene.storyChange.trim());
   const incompleteShots = draft.scenes.flatMap(scene => scene.shots.filter(shot => !shot.title.trim() || !shot.purpose.trim()));
+  const filmContractRequired = Boolean(activeVersion && activeVersion.contractVersion !== 'story-plan-v3' && draft.directorOperation !== 'manual');
+  const missingFilmBeats = draft.directorOperation === 'manual' || activeVersion?.contractVersion === 'story-plan-v3'
+    ? draft.beats.filter(beat => !beat.cause?.trim() || !beat.consequence?.trim())
+    : [];
+  const missingFilmScenes = draft.directorOperation === 'manual' || activeVersion?.contractVersion === 'story-plan-v3'
+    ? draft.scenes.filter(scene => !scene.entryState?.trim() || !scene.exitState?.trim())
+    : [];
+  const missingFilmShots = draft.directorOperation === 'manual' || activeVersion?.contractVersion === 'story-plan-v3'
+    ? draft.scenes.flatMap(scene => scene.shots.filter(shot => (
+      !shot.visibleMoment?.trim() || !shot.subjectAction?.trim() || !shot.emotionalTarget?.trim()
+      || !shot.continuityEntry?.trim() || !shot.continuityExit?.trim()
+    )))
+    : [];
   const openScene = (sceneId: string) => {
     setSelectedSceneId(sceneId);
     setDirectorOpen(true);
@@ -457,6 +560,7 @@ function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProj
     ...(legacyRecoveryRequired ? [{ id: 'legacy-recovery', label: t('cinematic.story.legacyRecoveryRequired'), onAction: () => openBeat(emptyBeats[0]?.id || draft.beats[0]?.id || '') }] : []),
     ...(sourceStale ? [{ id: 'source-stale', label: t('cinematic.story.sourceStale') }] : []),
     ...(missingRequiredRoles.length ? [{ id: 'cast-incomplete', label: t('cinematic.story.castIncomplete', { count: missingRequiredRoles.length }) }] : []),
+    ...(filmContractRequired ? [{ id: 'film-contract', label: t('cinematic.story.filmReviewRequired'), onAction: () => void generatePlan('review_current') }] : []),
     ...(!draft.beats.length ? [{ id: 'beats-required', label: t('cinematic.story.beatsRequired'), onAction: startManualPlan }] : []),
     ...(!draft.scenes.length ? [{ id: 'scenes-required', label: t('cinematic.story.scenesRequired'), onAction: () => openBeat(draft.beats[0]?.id || '') }] : []),
     ...emptyBeats.map(beat => ({ id: `beat-scene-${beat.id}`, label: t('cinematic.story.beatSceneRequired', { name: beat.title }), onAction: () => openBeat(beat.id) })),
@@ -467,6 +571,12 @@ function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProj
       const scene = draft.scenes.find(item => item.shots.some(candidate => candidate.id === shot.id));
       return { id: `shot-details-${shot.id}`, label: t('cinematic.story.shotDetailsIncomplete', { name: shot.title }), onAction: scene ? () => openScene(scene.id) : undefined };
     }),
+    ...missingFilmBeats.map(beat => ({ id: `film-beat-${beat.id}`, label: t('cinematic.story.filmBeatIncomplete', { name: beat.title }), onAction: () => openBeat(beat.id) })),
+    ...missingFilmScenes.map(scene => ({ id: `film-scene-${scene.id}`, label: t('cinematic.story.filmSceneIncomplete', { name: scene.title }), onAction: () => openScene(scene.id) })),
+    ...missingFilmShots.map(shot => {
+      const scene = draft.scenes.find(item => item.shots.some(candidate => candidate.id === shot.id));
+      return { id: `film-shot-${shot.id}`, label: t('cinematic.story.filmShotIncomplete', { name: shot.title }), onAction: scene ? () => openScene(scene.id) : undefined };
+    }),
     ...(Math.abs(runtimeSeconds - (project?.durationTargetMs || runtimeSeconds * 1000) / 1000) > 1 ? [{ id: 'duration-mismatch', label: t('cinematic.story.durationMismatch'), onAction: selectedScene ? () => openScene(selectedScene.id) : undefined }] : [])
   ];
   async function persistPlan(nextDraft: CinematicStoryPlanDraft, approved: boolean) {
@@ -475,8 +585,9 @@ function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProj
     setSaveError(null);
     try {
       const saved = await saveCinematicStoryPlan(project.id, {
-        contractVersion: 'story-plan-v2', expectedVersion: project.version,
-        ...nextDraft, approved, source: nextDraft.source
+        contractVersion: 'story-plan-v3', expectedVersion: project.version,
+        parentVersionId: latestVersion?.id || project.activeStoryPlanVersionId,
+        ...nextDraft, approved, warningsAcknowledged: approved, source: nextDraft.source
       });
       onProjectChanged?.(saved);
       setSaveState('saved');
@@ -490,14 +601,14 @@ function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProj
   async function savePlan(approved: boolean) {
     await persistPlan(draft, approved);
   }
-  async function generatePlan() {
+  async function generatePlan(mode: 'generate' | 'review_current' = 'generate', sourceResolution: 'story_brief' | 'creative_direction' | null = null) {
     if (!project) return;
     setProposal(null);
     setProposalOpen(true);
     setGenerating(true);
     setSaveError(null);
     try {
-      const next = await generateCinematicStoryPlan(project.id);
+      const next = await generateCinematicStoryPlan(project.id, { mode, sourceResolution });
       setProposal(next);
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : t('cinematic.story.generateFailed'));
@@ -520,6 +631,7 @@ function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProj
     }
   }
   async function applyPlanProposal(next: CinematicStoryPlanProposal) {
+    if (!next.plan) return;
     setApplyingProposal(true);
     const saved = await persistPlan(next.plan, false);
     if (saved) {
@@ -572,7 +684,8 @@ function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProj
     const nextBeat: CinematicStoryBeat = {
       id, orderKey: draft.beats.length + 1, type: 'development',
       title: t('cinematic.story.newBeatTitle', { count: draft.beats.length + 1 }),
-      purpose: '', storyChange: '', emotionalStart: '', emotionalEnd: '', targetDurationMs: 0, sceneIds: []
+      purpose: '', storyChange: '', cause: '', consequence: '', emotionalStart: '', emotionalTurn: '',
+      emotionalEnd: '', requiredElements: [], targetDurationMs: 0, sceneIds: []
     };
     setDraft(current => ({ ...current, beats: [...current.beats, nextBeat] }));
     setSelectedBeatId(id);
@@ -673,7 +786,8 @@ function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProj
       </section>
       <aside className="cinematic-inspector cinematic-story-inspector"><h3>{t('cinematic.story.arc')}</h3>{draft.emotionalArc ? <p>{draft.emotionalArc}</p> : <p>{t('cinematic.story.arcPending')}</p>}<LabeledValue icon={<Film />} label={t('cinematic.story.scenes')} value={String(sceneCount)} /><LabeledValue icon={<ImageIcon />} label={t('cinematic.story.estimatedShots')} value={String(shotCount)} /><LabeledValue icon={<Clock3 />} label={t('cinematic.story.runtime')} value={`${runtimeSeconds.toFixed(1)}s`} />
         {validationIssues.length ? <div className="cinematic-plan-validation" role="status"><strong>{t('cinematic.story.reviewIssues')}</strong>{validationIssues.map(issue => issue.onAction ? <button type="button" key={issue.id} onClick={issue.onAction}>{issue.label}<ArrowRight aria-hidden="true" /></button> : <span key={issue.id}>{issue.label}</span>)}</div> : <div className="cinematic-plan-validation is-ready"><Check aria-hidden="true" /><span>{t('cinematic.story.readyForApproval')}</span></div>}
-        <div className="cinematic-story-ai-action"><span>{t('cinematic.story.operation')}</span><h3>{t('cinematic.story.operationTitle')}</h3><p>{t('cinematic.story.operationDescription')}</p><small className="cinematic-operation-status">{t('cinematic.story.qualificationNotice')}</small><Button className="w-full" variant="primary" icon={<WandSparkles aria-hidden="true" />} disabled={!project || generating || missingRequiredRoles.length > 0} onClick={() => void generatePlan()}>{generating ? t('cinematic.story.generating') : t('cinematic.story.generate')}</Button></div>
+        {scriptPreview.length ? <details className="cinematic-film-script cinematic-film-script--compact"><summary>{t('cinematic.story.filmScriptPreview')}</summary><ol>{scriptPreview.map(entry => <li key={entry.shotId}><header><time>{formatDraftTime(entry.startMs)}-{formatDraftTime(entry.endMs)}</time><strong>{entry.sceneTitle} / {entry.shotTitle}</strong></header>{entry.visual ? <p><b>{t('cinematic.story.scriptVisual')}</b>{entry.visual}</p> : null}{entry.action ? <p><b>{t('cinematic.story.scriptAction')}</b>{entry.action}</p> : null}{entry.performance ? <p><b>{t('cinematic.story.scriptPerformance')}</b>{entry.performance}</p> : null}{entry.dialogue.map((cue, index) => <p key={`dialogue-${index}`}><b>{t('cinematic.story.scriptDialogue')}</b>{cue.text}</p>)}{entry.audio.map((cue, index) => <p key={`audio-${index}`}><b>{t('cinematic.story.scriptAudio')}</b>{cue.description || cue.source}</p>)}{entry.cut ? <p><b>{t('cinematic.story.scriptCut')}</b>{entry.cut}</p> : null}</li>)}</ol></details> : null}
+        <div className="cinematic-story-ai-action"><span>{t('cinematic.story.operation')}</span><h3>{t('cinematic.story.operationTitle')}</h3><p>{t('cinematic.story.operationDescription')}</p><small className="cinematic-operation-status">{t('cinematic.story.qualificationNotice')}</small><div className="cinematic-story-ai-action__buttons"><Button className="w-full" variant="primary" icon={<WandSparkles aria-hidden="true" />} disabled={!project || generating || missingRequiredRoles.length > 0} onClick={() => void generatePlan('generate')}>{generating ? t('cinematic.story.generating') : t('cinematic.story.generate')}</Button>{draft.scenes.length ? <Button className="w-full" icon={<Film aria-hidden="true" />} disabled={!project || generating || missingRequiredRoles.length > 0} onClick={() => void generatePlan('review_current')}>{t('cinematic.story.reviewWithDirector')}</Button> : null}</div></div>
         <div className="cinematic-story-save-actions"><Button disabled={!project || saveState === 'saving' || !draft.scenes.length} onClick={() => void savePlan(false)}>{saveState === 'saving' ? t('cinematic.save.saving') : t('cinematic.story.saveDraft')}</Button><ConfirmDialog trigger={<Button variant="primary" disabled={!project || validationIssues.length > 0 || saveState === 'saving'}>{t('cinematic.story.approvePlan')}</Button>} title={t('cinematic.story.approveTitle')} description={t('cinematic.story.approveDescription', { beats: draft.beats.length, scenes: sceneCount, shots: shotCount, seconds: runtimeSeconds.toFixed(1) })} confirmLabel={t('cinematic.story.approveConfirm')} pending={saveState === 'saving'} onConfirm={() => void savePlan(true)} /></div>
         <small className="cinematic-story-save-state">{saveState === 'dirty' ? t('cinematic.story.unsavedChanges') : saveState === 'saved' ? t('cinematic.save.saved') : ''}</small>
       </aside>
@@ -681,7 +795,7 @@ function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProj
     {saveError ? <p role="alert" className="text-sm text-red-400">{saveError}</p> : null}
     <BeatDetailsDialog open={beatOpen} onOpenChange={setBeatOpen} beat={selectedBeat} scenes={selectedBeat ? draft.scenes.filter(scene => scene.beatId === selectedBeat.id) : []} onSave={updateBeat} onAddScene={addScene} onEditScene={editSceneFromBeat} onMoveScene={moveScene} onRemoveScene={removeScene} canRemoveScene={draft.scenes.length > 1} />
     <SceneDirectorDialog open={directorOpen} onOpenChange={setDirectorOpen} scene={selectedScene} castAssignments={project?.castAssignments} onSave={updateScene} onGenerate={(sceneId, direction) => void generateScene(sceneId, direction)} generating={generating} />
-    <StoryPlanProposalDialog open={proposalOpen} onOpenChange={setProposalOpen} proposal={proposal} onApply={applyPlanProposal} generating={generating && proposalOpen && !sceneProposalOpen} applying={applyingProposal} error={proposalOpen ? saveError : null} />
+    <StoryPlanProposalDialog open={proposalOpen} onOpenChange={setProposalOpen} proposal={proposal} onApply={applyPlanProposal} onResolveSource={resolution => generatePlan(proposal?.mode || 'generate', resolution)} generating={generating && proposalOpen && !sceneProposalOpen} applying={applyingProposal} error={proposalOpen ? saveError : null} />
     <SceneDirectionProposalDialog open={sceneProposalOpen} onOpenChange={setSceneProposalOpen} proposal={sceneProposal} onApply={applySceneProposal} applying={applyingProposal} error={sceneProposalOpen ? saveError : null} />
   </>;
 }
@@ -788,7 +902,9 @@ function latestStoryboardAttempt(project: CinematicProject | undefined, shotId: 
     .find(value => {
       if (!value || typeof value !== 'object') return false;
       const attempt = value as Record<string, unknown>;
-      return attempt.operation === 'cinematic_storyboard_still' && attempt.shotId === shotId;
+      return attempt.operation === 'cinematic_storyboard_still'
+        && attempt.shotId === shotId
+        && attempt.downstreamSourceStatus !== 'source_changed';
     }) as Record<string, unknown> | null || null;
 }
 
@@ -851,9 +967,17 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }
   useEffect(() => {
     if (!selectedModel) return;
     if (!selectedModel.resolutions.includes(resolution)) setResolution(selectedModel.resolutions[0] || '720p');
-    if (!selectedModel.durations.includes(durationSeconds)) setDurationSeconds(selectedModel.durations[0] || 4);
+    const plannedDurationSeconds = Math.max(0.001, Number(selectedShotRecord?.durationMs || 0) / 1000);
+    const selectedDurationCoversShot = selectedModel.durations.includes(durationSeconds)
+      && durationSeconds >= plannedDurationSeconds;
+    if (!selectedDurationCoversShot) {
+      const coveringDuration = selectedModel.durations.find(value => value >= plannedDurationSeconds)
+        || selectedModel.durations.at(-1)
+        || 4;
+      setDurationSeconds(coveringDuration);
+    }
     if (!selectedModel.audioModes.includes(audioMode)) setAudioMode((selectedModel.audioModes[0] || 'none') as 'none' | 'generated');
-  }, [audioMode, durationSeconds, resolution, selectedModel]);
+  }, [audioMode, durationSeconds, resolution, selectedModel, selectedShotRecord?.durationMs]);
   useEffect(() => {
     setPrompt(selectedShotRecord?.prompt || t('cinematic.produce.promptFixture'));
     setDurationSeconds(Math.max(1, Math.round((selectedShotRecord?.durationMs || 4000) / 1000)));
@@ -922,9 +1046,30 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }
           <AttemptHistory type="video" attempts={attemptHistory} />
         </section>
       </section>
-      <aside className="cinematic-sticky-generation-panel"><ContextualOperationDock media title={t('cinematic.produce.operationTitle')} description={t('cinematic.produce.operationDescription')} operation={`${t('cinematic.storyboard.shot')} ${selectedShot}`} credits={quote.data?.estimate.estimatedCredits} actionLabel={t('cinematic.produce.generate')} disabled={!quote.data?.account.canAfford || !source || submit.isPending || isRunning} loading={quote.isFetching || submit.isPending} notice={!source ? t('cinematic.produce.sourceRequired') : quote.error?.message || t('cinematic.produce.lockedEstimate')} onAction={() => submit.mutate()}><div className="cinematic-sticky-engine-fields"><label><span>{t('cinematic.engine.provider')}</span><select value={selectedModel?.providerId || ''} onChange={event => { const model = models.find(item => item.providerId === event.target.value); if (model) setModelKey(`${model.providerId}:${model.modelId}`); }}>{[...new Set(models.map(model => model.providerId))].map(provider => <option key={provider} value={provider}>{provider}</option>)}</select></label><label><span>{t('cinematic.engine.model')}</span><select value={modelKey} onChange={event => setModelKey(event.target.value)}>{models.filter(model => model.providerId === selectedModel?.providerId).map(model => <option key={`${model.providerId}:${model.modelId}`} value={`${model.providerId}:${model.modelId}`}>{model.displayName}</option>)}</select></label><label><span>{t('cinematic.engine.duration')}</span><select value={durationSeconds} onChange={event => setDurationSeconds(Number(event.target.value))}>{selectedModel?.durations.map(value => <option key={value} value={value}>{value}s</option>)}</select></label><label><span>{t('cinematic.engine.resolution')}</span><select value={resolution} onChange={event => setResolution(event.target.value)}>{selectedModel?.resolutions.map(value => <option key={value} value={value}>{value}</option>)}</select></label></div></ContextualOperationDock></aside>
+      <aside className="cinematic-sticky-generation-panel"><ContextualOperationDock media title={t('cinematic.produce.operationTitle')} description={t('cinematic.produce.operationDescription')} operation={`${t('cinematic.storyboard.shot')} ${selectedShot}`} credits={quote.data?.estimate.estimatedCredits} actionLabel={t('cinematic.produce.generate')} disabled={!quote.data?.account.canAfford || !source || submit.isPending || isRunning} loading={quote.isFetching || submit.isPending} notice={!source ? t('cinematic.produce.sourceRequired') : quote.error?.message || t('cinematic.produce.lockedEstimate')} onAction={() => submit.mutate()}><DurationReconciliationSummary value={quote.data?.durationReconciliation} /><div className="cinematic-sticky-engine-fields"><label><span>{t('cinematic.engine.provider')}</span><select value={selectedModel?.providerId || ''} onChange={event => { const model = models.find(item => item.providerId === event.target.value); if (model) setModelKey(`${model.providerId}:${model.modelId}`); }}>{[...new Set(models.map(model => model.providerId))].map(provider => <option key={provider} value={provider}>{provider}</option>)}</select></label><label><span>{t('cinematic.engine.model')}</span><select value={modelKey} onChange={event => setModelKey(event.target.value)}>{models.filter(model => model.providerId === selectedModel?.providerId).map(model => <option key={`${model.providerId}:${model.modelId}`} value={`${model.providerId}:${model.modelId}`}>{model.displayName}</option>)}</select></label><label><span>{t('cinematic.engine.duration')}</span><select value={durationSeconds} onChange={event => setDurationSeconds(Number(event.target.value))}>{selectedModel?.durations.map(value => <option key={value} value={value}>{value}s</option>)}</select></label><label><span>{t('cinematic.engine.resolution')}</span><select value={resolution} onChange={event => setResolution(event.target.value)}>{selectedModel?.resolutions.map(value => <option key={value} value={value}>{value}</option>)}</select></label></div></ContextualOperationDock></aside>
     </div>
   </>;
+}
+
+function DurationReconciliationSummary({ value }: {
+  value?: {
+    plannedDurationSeconds: number;
+    renderDurationSeconds: number;
+    trimDurationSeconds: number;
+    durationControlMode: 'exact' | 'prompted';
+  };
+}) {
+  const { t } = useTranslation('cinematic');
+  if (!value) return null;
+  const renderLabel = value.durationControlMode === 'prompted'
+    ? t('cinematic.produce.generateTarget')
+    : t('cinematic.produce.renderDuration');
+  return <dl className="cinematic-duration-reconciliation">
+    <div><dt>{t('cinematic.produce.plannedDuration')}</dt><dd>{value.plannedDurationSeconds}s</dd></div>
+    <div><dt>{renderLabel}</dt><dd>{value.renderDurationSeconds}s</dd></div>
+    {value.trimDurationSeconds > 0 ? <div><dt>{t('cinematic.produce.trimAfterGeneration')}</dt><dd>{value.trimDurationSeconds}s</dd></div> : null}
+    {value.durationControlMode === 'prompted' ? <div className="cinematic-duration-reconciliation__hint"><p>{t('cinematic.produce.promptedDurationHint')}</p></div> : null}
+  </dl>;
 }
 
 function SceneNavigator({ scenes: projectScenes, activeSceneId, onSelectScene }: { scenes?: CinematicScene[]; activeSceneId?: string; onSelectScene: (sceneId: string) => void }) {
@@ -949,6 +1094,20 @@ function createStoryPlanDraft(
       objective: version?.objective || project.setup.storyBrief,
       logline: version?.logline || project.setup.storyBrief,
       emotionalArc: version?.emotionalArc || '',
+      centralDramaticQuestion: version?.centralDramaticQuestion || '',
+      storyPromise: version?.storyPromise || '',
+      finalPayoff: version?.finalPayoff || '',
+      spokenLanguage: version?.spokenLanguage || '',
+      onScreenTextPolicy: version?.onScreenTextPolicy || '',
+      dialoguePolicy: version?.dialoguePolicy || 'sparse',
+      characterAliases: structuredClone(version?.characterAliases || []),
+      directorOperation: version?.directorOperation || 'manual',
+      directorSummary: version?.directorSummary || '',
+      directorFindings: structuredClone(version?.directorFindings || []),
+      sourceResolution: version?.sourceResolution || null,
+      warningsAcknowledged: version?.warningsAcknowledged || false,
+      filmReadiness: version?.filmReadiness,
+      scriptPreview: structuredClone(version?.scriptPreview || []),
       beats: structuredClone(version?.beats || []),
       scenes: structuredClone(project.scenes),
       warnings: version?.warnings || [],
@@ -959,6 +1118,7 @@ function createStoryPlanDraft(
       draft.beats = [{
         id: createDraftId('recovered-beat'), orderKey: 1, type: 'development',
         title: t('cinematic.story.recoveredBeatTitle'), purpose: '', storyChange: '',
+        cause: '', consequence: '', emotionalTurn: '', requiredElements: [],
         emotionalStart: '', emotionalEnd: '', targetDurationMs: 0, sceneIds: []
       }];
     }
@@ -973,30 +1133,69 @@ function createStoryPlanDraft(
   const previewBeats: CinematicStoryBeat[] = beats.map((beat, index) => ({
     id: `preview-beat-${index + 1}`, orderKey: index + 1, type: beat,
     title: t(`cinematic.story.${beat}`), purpose: t(`cinematic.story.${beat}Description`),
-    storyChange: t(`cinematic.story.${beat}Description`), emotionalStart: '', emotionalEnd: '',
+    storyChange: t(`cinematic.story.${beat}Description`), cause: '', consequence: '',
+    emotionalStart: '', emotionalTurn: '', emotionalEnd: '', requiredElements: [],
     targetDurationMs: durationPerBeat, sceneIds: [`preview-scene-${index + 1}`]
   }));
   return {
     objective: t('cinematic.story.beatsHint'), logline: '', emotionalArc: '',
+    centralDramaticQuestion: '', storyPromise: '', finalPayoff: '', spokenLanguage: '',
+    onScreenTextPolicy: '', dialoguePolicy: 'sparse', characterAliases: [], directorOperation: 'manual',
+    directorSummary: '', directorFindings: [], sourceResolution: null, warningsAcknowledged: false,
     beats: previewBeats,
     scenes: previewBeats.map((beat, index) => ({
       id: beat.sceneIds[0]!, version: 1, orderKey: index + 1, beatId: beat.id,
       title: beat.title, purpose: beat.purpose, storyChange: beat.storyChange,
+      entryState: '', exitState: '', objective: beat.purpose, pressure: '',
       location: '', time: '', emotionalStart: '', emotionalEnd: '', transitionIntent: 'cut',
       castAssignmentIds: [], wardrobeLookIds: [], blocking: beat.purpose,
-      lighting: '', performance: '', audioIntent: '', continuityNotes: [],
+      lighting: '', performance: '', audioIntent: '', propContinuity: '', screenDirection: '', continuityNotes: [],
       shots: [{
         id: `preview-shot-${index + 1}`, version: 1, orderKey: 1, title: beat.title,
-        purpose: beat.purpose, durationMs: durationPerBeat, framing: 'medium shot',
+        purpose: beat.purpose, visibleMoment: '', subjectAction: '', emotionalTarget: '', performanceCue: '',
+        durationMs: durationPerBeat, framing: 'medium shot',
         cameraAngle: 'eye level', cameraMovement: 'locked camera', lensIntent: '',
         blocking: beat.purpose, performance: '', gaze: '', lighting: '', environment: '',
         audioIntent: '', prompt: '', castAssignmentIds: [], wardrobeLookIds: [],
+        continuityEntry: '', continuityExit: '', transitionToNext: '',
+        estimatedActionDurationMs: durationPerBeat, dialogueCues: [], audioCues: [],
         continuityNotes: [], storyboardStatus: 'draft'
       }],
       shotOrder: [`preview-shot-${index + 1}`], durationMs: durationPerBeat
     })),
     warnings: [], source: 'manual', approved: false
   };
+}
+
+function buildDraftFilmScriptPreview(draft: CinematicStoryPlanDraft): NonNullable<CinematicStoryPlanDraft['scriptPreview']> {
+  let cursorMs = 0;
+  return [...draft.scenes]
+    .sort((left, right) => left.orderKey - right.orderKey)
+    .flatMap(scene => [...scene.shots]
+      .sort((left, right) => left.orderKey - right.orderKey)
+      .map(shot => {
+        const startMs = cursorMs;
+        cursorMs += shot.durationMs;
+        return {
+          sceneId: scene.id,
+          sceneTitle: scene.title,
+          shotId: shot.id,
+          shotTitle: shot.title,
+          startMs,
+          endMs: cursorMs,
+          visual: [shot.visibleMoment, shot.framing, shot.environment].filter(Boolean).join(' / '),
+          action: [shot.subjectAction, shot.blocking].filter(Boolean).join(' / '),
+          performance: [shot.emotionalTarget, shot.performanceCue || shot.performance].filter(Boolean).join(' / '),
+          dialogue: shot.dialogueCues || [],
+          audio: shot.audioCues || [],
+          cut: [shot.continuityExit, shot.transitionToNext || scene.transitionIntent].filter(Boolean).join(' / ')
+        };
+      }));
+}
+
+function formatDraftTime(milliseconds: number) {
+  const seconds = Math.max(0, milliseconds) / 1000;
+  return `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toFixed(1).padStart(4, '0')}`;
 }
 
 export function needsStoryPlanRecovery(
@@ -1087,13 +1286,17 @@ function createManualScene({
 }): CinematicScene {
   return {
     id, version: 1, orderKey: 1, beatId, title, purpose: '', storyChange: '', location: '', time: '',
+    entryState: '', exitState: '', objective: '', pressure: '',
     emotionalStart: '', emotionalEnd: '', transitionIntent: 'cut', castAssignmentIds,
-    wardrobeLookIds: [], blocking: '', lighting: '', performance: '', audioIntent: '', continuityNotes: [],
+    wardrobeLookIds: [], blocking: '', lighting: '', performance: '', audioIntent: '',
+    propContinuity: '', screenDirection: '', continuityNotes: [],
     shots: [{
       id: shotId, version: 1, orderKey: 1, title: shotTitle, purpose: '', durationMs,
+      visibleMoment: '', subjectAction: '', emotionalTarget: '', performanceCue: '',
       framing: 'medium shot', cameraAngle: 'eye level', cameraMovement: 'locked camera', lensIntent: '',
       blocking: '', performance: '', gaze: '', lighting: '', environment: '', audioIntent: '', prompt: '',
-      castAssignmentIds, wardrobeLookIds: [], continuityNotes: [], storyboardStatus: 'draft'
+      continuityEntry: '', continuityExit: '', transitionToNext: '', estimatedActionDurationMs: durationMs,
+      dialogueCues: [], audioCues: [], castAssignmentIds, wardrobeLookIds: [], continuityNotes: [], storyboardStatus: 'draft'
     }],
     shotOrder: [shotId], durationMs
   };
@@ -1123,23 +1326,31 @@ function createManualStoryPlan(project: CinematicProject, t: (key: string) => st
     objective: purpose,
     logline: purpose,
     emotionalArc: '',
+    centralDramaticQuestion: '', storyPromise: '', finalPayoff: '', spokenLanguage: '',
+    onScreenTextPolicy: '', dialoguePolicy: 'sparse', characterAliases: [], directorOperation: 'manual',
+    directorSummary: '', directorFindings: [], sourceResolution: null, warningsAcknowledged: false,
     beats: [{
       id: beatId, orderKey: 1, type: 'setup', title: t('cinematic.story.manualBeatTitle'),
-      purpose, storyChange: '', emotionalStart: '', emotionalEnd: '', targetDurationMs: durationMs,
+      purpose, storyChange: '', cause: purpose, consequence: '', emotionalStart: '', emotionalTurn: '',
+      emotionalEnd: '', requiredElements: [], targetDurationMs: durationMs,
       sceneIds: [sceneId]
     }],
     scenes: [{
       id: sceneId, version: 1, orderKey: 1, beatId,
       title: t('cinematic.story.manualSceneTitle'), purpose, storyChange: '', location: '', time: '',
+      entryState: '', exitState: '', objective: purpose, pressure: '',
       emotionalStart: '', emotionalEnd: '', transitionIntent: 'cut',
       castAssignmentIds: project.castAssignments.filter(item => item.active !== false).map(item => item.id),
-      wardrobeLookIds: [], blocking: '', lighting: '', performance: '', audioIntent: '', continuityNotes: [],
+      wardrobeLookIds: [], blocking: '', lighting: '', performance: '', audioIntent: '',
+      propContinuity: '', screenDirection: '', continuityNotes: [],
       shots: [{
         id: shotId, version: 1, orderKey: 1, title: t('cinematic.story.manualShotTitle'), purpose,
+        visibleMoment: '', subjectAction: '', emotionalTarget: '', performanceCue: '',
         durationMs, framing: 'medium shot', cameraAngle: 'eye level', cameraMovement: 'locked camera',
         lensIntent: '', blocking: '', performance: '', gaze: '', lighting: '', environment: '', audioIntent: '',
         prompt: '', castAssignmentIds: project.castAssignments.filter(item => item.active !== false).map(item => item.id),
-        wardrobeLookIds: [], continuityNotes: [], storyboardStatus: 'draft'
+        wardrobeLookIds: [], continuityEntry: '', continuityExit: '', transitionToNext: '',
+        estimatedActionDurationMs: durationMs, dialogueCues: [], audioCues: [], continuityNotes: [], storyboardStatus: 'draft'
       }],
       shotOrder: [shotId], durationMs
     }],
@@ -1242,13 +1453,36 @@ function StageFooter({ activeStage, onPrevious, onNext, nextDisabled = false, st
   return <Surface className="cinematic-stage-footer"><div><strong>{t(titleKey)}</strong><p>{t(descriptionKey)}</p></div><div><Button icon={<ArrowLeft />} onClick={onPrevious}>{castStage ? t('cinematic.cast.backToSetup') : t('cinematic.actions.back')}</Button><Button variant="primary" icon={<ArrowRight />} onClick={onNext} disabled={activeStage === 'finish' || nextDisabled}>{castStage ? t('cinematic.cast.continueToStoryPlan') : t('cinematic.actions.next')}</Button></div></Surface>;
 }
 
-function hasUnassignedRequiredRoles(project?: CinematicProject) {
+function hasIncompleteRequiredCast(project?: CinematicProject) {
   if (!project?.setup?.storyRoleSlots?.length) return false;
   return project.setup.storyRoleSlots.some(role => (
     role.importance === 'required'
-    && !project.castAssignments.some(assignment => assignment.identityReady && (
+    && !project.castAssignments.some(assignment => assignment.identityReady
+      && assignment.looks.some(isProductionReadyBoundLook) && (
       assignment.storyRoleSlotId === role.id
       || (!assignment.storyRoleSlotId && assignment.storyRole.trim().toLowerCase() === role.label.trim().toLowerCase())
     ))
   ));
+}
+
+function activeCharacterLookVersion(look: CharacterLook) {
+  return look.versions.find(version => version.id === look.activeVersionId) || null;
+}
+
+function isBoundCharacterLook(value: unknown, look: CharacterLook) {
+  if (!isProductionReadyBoundLook(value)) return false;
+  return value.characterLookId === look.id
+    && value.characterLookVersionId === look.approvedVersionId;
+}
+
+function isProductionReadyBoundLook(value: unknown): value is Record<string, unknown> {
+  if (!value || typeof value !== 'object') return false;
+  const look = value as Record<string, unknown>;
+  return look.mode === 'character_look'
+    && typeof look.characterLookId === 'string'
+    && typeof look.characterLookVersionId === 'string'
+    && look.coverage === 'multi_view'
+    && look.locked === true
+    && Array.isArray(look.assetIds)
+    && look.assetIds.length > 0;
 }

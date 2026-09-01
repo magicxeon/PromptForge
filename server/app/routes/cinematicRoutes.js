@@ -135,7 +135,11 @@ export function registerCinematicRoutes(app, {
   app.post('/api/cinematic/projects/:projectId/story-plan/proposals', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
-      res.json(await cinematicService.generateStoryPlan(req.params.projectId, req.actorContext));
+      res.json(await cinematicService.generateStoryPlan(
+        req.params.projectId,
+        req.body || {},
+        req.actorContext
+      ));
     } catch (error) {
       sendCinematicError(res, error);
     }
