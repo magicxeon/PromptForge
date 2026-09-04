@@ -10,14 +10,15 @@ import {
   cinematicStoryEnhancementSchema,
   cinematicWardrobeSuggestionSchema,
   cinematicStoryPlanProposalSchema,
+  cinematicStoryPlanLiveProgressSchema,
   cinematicSceneDirectionProposalSchema,
   cinematicStoryboardGenerationContextSchema,
   cinematicStoryboardBatchResponseSchema,
   cinematicAuthoringManifestSchema,
   cinematicDataLineageSchema
 } from '../schemas/cinematicSchemas';
-import { apiRequest } from '../../../lib/api/apiClient';
-import type { CinematicSetupDraft } from '../schemas/cinematicSchemas';
+import { apiRequest, apiRequestWithProgress } from '../../../lib/api/apiClient';
+import type { CinematicSetupDraft, CinematicStoryPlanLiveProgress } from '../schemas/cinematicSchemas';
 import type { CinematicStage } from '../cinematicStages';
 import { videoCapabilityCatalogSchema } from '../../generation/schemas/videoGenerationSchemas';
 import {
@@ -189,7 +190,16 @@ export function saveCinematicStoryPlan(projectId: string, input: StoryPlanInput)
 export function generateCinematicStoryPlan(projectId: string, input: {
   mode?: 'generate' | 'review_current';
   sourceResolution?: 'story_brief' | 'creative_direction' | null;
-} = {}) {
+} = {}, onProgress?: (progress: CinematicStoryPlanLiveProgress) => void) {
+  if (onProgress) {
+    return apiRequestWithProgress(`${cinematicApiPaths.project(projectId)}/story-plan/proposals`, {
+      method: 'POST', body: input,
+      schema: cinematicStoryPlanProposalSchema,
+      progressSchema: cinematicStoryPlanLiveProgressSchema,
+      onProgress,
+      cache: 'no-store'
+    });
+  }
   return apiRequest(`${cinematicApiPaths.project(projectId)}/story-plan/proposals`, {
     method: 'POST', body: input, schema: cinematicStoryPlanProposalSchema, cache: 'no-store'
   });
@@ -278,6 +288,7 @@ export type CinematicVideoAttemptInput = {
   resolution: string;
   durationSeconds: number;
   audioMode: 'none' | 'generated';
+  requestFingerprint?: string;
 };
 
 function cinematicShotVideoPath(projectId: string, sceneId: string, shotId: string) {
@@ -312,6 +323,16 @@ export function updateCinematicShotDirection(projectId: string, sceneId: string,
   durationMs?: number;
 }) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}`, {
+    method: 'PATCH', body: input, schema: cinematicProjectSchema
+  });
+}
+
+export function updateCinematicShotMotionDirection(projectId: string, sceneId: string, shotId: string, input: {
+  expectedVersion: number;
+  expectedShotVersion: number;
+  additionalMotionDirection: string;
+}) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/motion-direction`, {
     method: 'PATCH', body: input, schema: cinematicProjectSchema
   });
 }

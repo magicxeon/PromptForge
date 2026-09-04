@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import {
-  ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, Clock3, Plus, Search,
+  ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, Clock3, LoaderCircle, Plus, Search,
   Trash2, UserRound, WandSparkles
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -23,7 +23,7 @@ import { characterSummarySchema } from '../../profiles/schemas/profileSchemas';
 import { enhanceCinematicStory } from '../api/cinematicApi';
 import type {
   CinematicAuthoringManifest, CinematicCastAssignment, CinematicScene, CinematicSceneDirectionProposal, CinematicSetupDraft, CinematicStoryBeat,
-  CinematicStoryEnhancement, CinematicStoryPlanProposal
+  CinematicStoryEnhancement, CinematicStoryPlanLiveProgress, CinematicStoryPlanProposal
 } from '../schemas/cinematicSchemas';
 
 type OpenDialogProps = {
@@ -582,8 +582,30 @@ function groupStoryPlanRepairs(repairs: StoryPlanRepair[]) {
   return [...groups.values()];
 }
 
-export function StoryPlanProposalDialog({ open, onOpenChange, proposal, onApply, onResolveSource, generating = false, applying = false, error = null }: OpenDialogProps & {
+function useElapsedSeconds(active: boolean) {
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  useEffect(() => {
+    if (!active) return undefined;
+    const startedAt = Date.now();
+    setElapsedSeconds(0);
+    const timer = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [active]);
+  return elapsedSeconds;
+}
+
+function formatElapsedTime(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = Math.max(0, totalSeconds % 60);
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+export function StoryPlanProposalDialog({ open, onOpenChange, proposal, liveProgress = null, draftSaved = false, onApply, onResolveSource, generating = false, applying = false, error = null }: OpenDialogProps & {
   proposal: CinematicStoryPlanProposal | null;
+  liveProgress?: CinematicStoryPlanLiveProgress | null;
+  draftSaved?: boolean;
   onApply: (proposal: CinematicStoryPlanProposal) => void | Promise<void>;
   onResolveSource?: (resolution: 'story_brief' | 'creative_direction') => void | Promise<void>;
   generating?: boolean;
@@ -591,6 +613,7 @@ export function StoryPlanProposalDialog({ open, onOpenChange, proposal, onApply,
   error?: string | null;
 }) {
   const { t } = useTranslation('cinematic');
+  const elapsedSeconds = useElapsedSeconds(generating);
   if (!proposal && !generating && !error) return null;
   const plan = proposal?.plan || null;
   const shots = plan?.scenes.reduce((total, scene) => total + scene.shots.length, 0) || 0;
@@ -599,7 +622,7 @@ export function StoryPlanProposalDialog({ open, onOpenChange, proposal, onApply,
   const blocked = proposal?.status === 'blocked' || workflow?.status === 'blocked' || Boolean(proposal && !plan);
   const readiness = proposal?.filmReadiness || plan?.filmReadiness || null;
   const scriptPreview = proposal?.scriptPreview || plan?.scriptPreview || [];
-  const progressStages = workflow?.stages || STORY_PLAN_WORKFLOW_STAGE_IDS.map((id, index) => ({
+  const progressStages = workflow?.stages || liveProgress?.stages || STORY_PLAN_WORKFLOW_STAGE_IDS.map((id, index) => ({
     id, status: index === 0 ? 'processing' : 'queued', issueCount: 0, repairCount: 0
   }));
   const repairGroups = groupStoryPlanRepairs(workflow?.repairs || []);
@@ -608,12 +631,17 @@ export function StoryPlanProposalDialog({ open, onOpenChange, proposal, onApply,
     <Dialog.Overlay className="cinematic-dialog__overlay" />
     <Dialog.Content className="cinematic-dialog__content cinematic-dialog__content--wide" aria-busy={generating}>
       <DialogHeader title={t('cinematic.story.proposalTitle')} description={generating ? t('cinematic.story.generatingDescription') : t('cinematic.story.proposalDescription')} />
-      {generating ? <GenerationStageState loading title={t('cinematic.story.generating')} description={t('cinematic.story.generatingDescription')} /> : null}
+      {generating ? <><GenerationStageState loading title={t('cinematic.story.generating')} description={t('cinematic.story.generatingDescription')} />
+        <p className="cinematic-story-plan-workflow__elapsed" aria-live="polite">{t('cinematic.story.generatingElapsed', { time: formatElapsedTime(elapsedSeconds) })}</p></> : null}
       {(generating || workflow) ? <section className="cinematic-story-plan-workflow" aria-labelledby="cinematic-story-plan-workflow-title">
         <header><div><small>{t('cinematic.story.workflowEyebrow')}</small><h3 id="cinematic-story-plan-workflow-title">{t('cinematic.story.workflowTitle')}</h3><p>{t('cinematic.story.workflowDescription')}</p></div>{workflow ? <strong className={`is-${workflow.status}`}>{t(`cinematic.story.workflowStatus.${workflow.status}`)}</strong> : null}</header>
         <ol className="cinematic-story-plan-workflow__stages" aria-label={t('cinematic.story.directorProgress')}>
           {progressStages.map(stage => <li key={stage.id} className={`is-${stage.status}`}>
-            <span aria-hidden="true">{stage.status === 'completed' || stage.status === 'skipped' ? <Check /> : <Clock3 />}</span>
+            <span aria-hidden="true">{stage.status === 'completed' || stage.status === 'skipped'
+              ? <Check />
+              : stage.status === 'processing'
+                ? <LoaderCircle className="animate-spin" />
+                : <Clock3 />}</span>
             <div><strong>{t(`cinematic.story.workflowStage.${stage.id}`)}</strong><small>{t(`cinematic.story.workflowStageStatus.${stage.status}`)}</small></div>
             {stage.issueCount || stage.repairCount ? <em>{t('cinematic.story.workflowStageEvidence', { issues: stage.issueCount, repairs: stage.repairCount })}</em> : null}
           </li>)}
@@ -663,9 +691,13 @@ export function StoryPlanProposalDialog({ open, onOpenChange, proposal, onApply,
       {readiness ? <section className={`cinematic-film-readiness is-${readiness.status}`}><header><div><small>{t('cinematic.story.filmReadiness')}</small><h3>{t(`cinematic.story.readinessStatus.${readiness.status}`)}</h3></div><strong>{readiness.findings.length}</strong></header>{readiness.findings.length ? <ul>{readiness.findings.map((finding, index) => <li key={`${finding.code}-${index}`} className={`is-${finding.severity}`}><strong>{finding.summary}</strong>{finding.recommendation ? <span>{finding.recommendation}</span> : null}</li>)}</ul> : <p>{t('cinematic.story.noReadinessIssues')}</p>}</section> : null}
       {scriptPreview.length ? <details className="cinematic-film-script"><summary>{t('cinematic.story.filmScriptPreview')}</summary><ol>{scriptPreview.map(entry => <li key={entry.shotId}><header><time>{formatScriptTime(entry.startMs)}-{formatScriptTime(entry.endMs)}</time><strong>{entry.sceneTitle} / {entry.shotTitle}</strong></header>{entry.visual ? <p><b>{t('cinematic.story.scriptVisual')}</b>{entry.visual}</p> : null}{entry.action ? <p><b>{t('cinematic.story.scriptAction')}</b>{entry.action}</p> : null}{entry.performance ? <p><b>{t('cinematic.story.scriptPerformance')}</b>{entry.performance}</p> : null}{entry.dialogue.map((cue, index) => <p key={`dialogue-${index}`}><b>{t('cinematic.story.scriptDialogue')}</b>{cue.text}</p>)}{entry.audio.map((cue, index) => <p key={`audio-${index}`}><b>{t('cinematic.story.scriptAudio')}</b>{cue.description || cue.source}</p>)}{entry.cut ? <p><b>{t('cinematic.story.scriptCut')}</b>{entry.cut}</p> : null}</li>)}</ol></details> : null}
       {plan.warnings.length ? <div className="cinematic-plan-warning" role="status">{plan.warnings.join(' ')}</div> : null}
+      {draftSaved ? <p className="cinematic-story-plan-workflow__clear" role="status"><Check aria-hidden="true" />{t('cinematic.story.generatedDraftSaved')}</p> : null}
       <p className="cinematic-qualification-notice">{t('cinematic.story.qualificationNotice')}</p></> : null}
       {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
-      <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button disabled={busy}>{plan ? t('cinematic.story.discardProposal') : t('cinematic.actions.close')}</Button></Dialog.Close>{plan ? <Button variant="primary" disabled={busy || blocked || readiness?.status === 'not_ready'} onClick={() => void onApply(proposal!)}>{applying ? t('cinematic.save.saving') : t('cinematic.story.applyProposal')}</Button> : null}</div>
+      <div className="cinematic-dialog__footer">{draftSaved
+        ? <Dialog.Close asChild><Button variant="primary" disabled={busy}>{t('cinematic.story.continueEditing')}</Button></Dialog.Close>
+        : <><Dialog.Close asChild><Button disabled={busy}>{plan ? t('cinematic.story.discardProposal') : t('cinematic.actions.close')}</Button></Dialog.Close>{plan ? <Button variant="primary" disabled={busy || blocked || readiness?.status === 'not_ready'} onClick={() => void onApply(proposal!)}>{applying ? t('cinematic.save.saving') : t('cinematic.story.saveGeneratedDraft')}</Button> : null}</>}
+      </div>
     </Dialog.Content>
   </Dialog.Portal></Dialog.Root>;
 }

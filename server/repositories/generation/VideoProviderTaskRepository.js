@@ -61,7 +61,10 @@ export class VideoProviderTaskRepository {
   }
 
   listRecoverable({ limit = 100 } = {}) {
-    return this.#read().then(data => data.tasks.filter(task => !TERMINAL.has(task.status)).slice(0, limit).map(task => structuredClone(task)));
+    return this.#read().then(data => data.tasks
+      .filter(task => shouldRecover(task))
+      .slice(0, limit)
+      .map(task => structuredClone(task)));
   }
 
   listForActor(actorContext, { limit = 6 } = {}) {
@@ -120,6 +123,12 @@ export class VideoProviderTaskRepository {
     assertStore(data);
     return data;
   }
+}
+
+function shouldRecover(task) {
+  if (!TERMINAL.has(task.status)) return true;
+  return task.billingStatus === 'reserved'
+    && ['completed', 'failed', 'cancelled', 'expired'].includes(task.status);
 }
 
 function assertStore(data) {

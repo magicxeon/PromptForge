@@ -6,6 +6,10 @@ import type { ReactNode } from 'react';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GenerationRequestDraft } from '../../generation/api/generationApi';
 import type { CinematicProject } from '../schemas/cinematicSchemas';
+import {
+  readStoryboardEnginePreference,
+  writeStoryboardEnginePreference
+} from '../state/storyboardEnginePreference';
 import { StoryboardShotDialog } from './StoryboardShotDialog';
 
 const mocks = vi.hoisted(() => ({
@@ -23,6 +27,7 @@ vi.mock('../../../components/generation/GenerationExperience', () => ({
     readOnlyPrompt,
     readOnlyPromptSupplement,
     cinematicCaptureProfileId,
+    initialEnginePreference,
     engineOptions,
     showEmptyResult,
     submitSingleDraft
@@ -32,10 +37,16 @@ vi.mock('../../../components/generation/GenerationExperience', () => ({
     readOnlyPrompt?: { label: string; description?: string } | null;
     readOnlyPromptSupplement?: ReactNode;
     cinematicCaptureProfileId?: 'photorealistic-cinematic' | null;
+    initialEnginePreference?: { provider: string; model: string } | null;
     engineOptions?: ReactNode;
     showEmptyResult?: boolean;
     submitSingleDraft?: (draft: GenerationRequestDraft) => Promise<unknown>;
-  }) => <section data-testid="generation-experience" data-show-empty-result={String(Boolean(showEmptyResult))}>
+  }) => <section
+    data-testid="generation-experience"
+    data-show-empty-result={String(Boolean(showEmptyResult))}
+    data-provider={initialEnginePreference?.provider || ''}
+    data-model={initialEnginePreference?.model || ''}
+  >
     <div data-testid="generation-preview">Preview</div>
     {readOnlyPrompt ? <section data-testid="storyboard-prompt-group">
       <label>
@@ -52,6 +63,10 @@ vi.mock('../../../components/generation/GenerationExperience', () => ({
       onClick={() => void submitSingleDraft?.(generationDraft({ cinematicCaptureProfileId }))}
     >Generate test image</button>
   </section>
+}));
+
+vi.mock('../../../lib/auth/ActorProvider', () => ({
+  useActor: () => ({ actor: { userId: 'usr_alice', username: 'alice', role: 'user' } })
 }));
 
 vi.mock('../../generation/api/generationApi', async importOriginal => ({
@@ -81,6 +96,7 @@ describe('StoryboardShotDialog', () => {
   });
 
   beforeEach(() => {
+    localStorage.clear();
     mocks.approveSource.mockReset();
     mocks.estimateGeneration.mockReset();
     mocks.getContext.mockReset();
@@ -177,6 +193,46 @@ describe('StoryboardShotDialog', () => {
     expect(secondKey).not.toBe(firstKey);
   });
 
+  it('restores the actor engine and remembers the submitted engine after acceptance', async () => {
+    writeStoryboardEnginePreference('usr_alice', {
+      provider: 'meta-muse',
+      model: 'muse-image-1.0'
+    });
+    renderDialog();
+
+    expect(await screen.findByTestId('generation-experience')).toHaveAttribute(
+      'data-provider',
+      'meta-muse'
+    );
+    expect(screen.getByTestId('generation-experience')).toHaveAttribute(
+      'data-model',
+      'muse-image-1.0'
+    );
+
+    await waitFor(() => expect(screen.getByRole('button', {
+      name: 'Generate test image'
+    })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Generate test image' }));
+    await waitFor(() => expect(readStoryboardEnginePreference('usr_alice')).toEqual({
+      provider: 'gemini',
+      model: 'image-model'
+    }));
+  });
+
+  it('allows a new review candidate when the Shot already has an approved source', async () => {
+    const project = projectFixture();
+    project.scenes[0]!.shots[0]!.approvedStoryboardSource = {
+      assetId: 'asset_old', assetVersionId: 'asset_old', sourceJobId: 'job_old',
+      imageUrl: '/old.jpg', thumbnailUrl: '/old.jpg', contentHash: 'hash_old',
+      sourceFingerprint: 'fingerprint_old', approvedAt: '2026-09-04T00:00:00.000Z'
+    };
+    renderDialog(project);
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Generate test image' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Generate test image' }));
+    await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
+  });
+
   it('defaults natural realism on, keeps it outside the prompt and submits the selected profile', async () => {
     renderDialog();
 
@@ -200,9 +256,8 @@ describe('StoryboardShotDialog', () => {
   });
 });
 
-function renderDialog() {
+function renderDialog(project = projectFixture()) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  const project = projectFixture();
   const scene = project.scenes[0]!;
   const shot = scene.shots[0]!;
   render(<QueryClientProvider client={queryClient}>

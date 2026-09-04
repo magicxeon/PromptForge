@@ -181,7 +181,15 @@
             "supportsOutputFormatParameter": true,
             "outputFormats": ["png", "jpeg"],
             "resolutions": ["2K", "3K", "4K"],
-            "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5", "auto"]
+            "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5", "auto"],
+            "downstreamVideoCompatibility": {
+              "modelark-seedance-2": {
+                "status": "internal_testing",
+                "maximumAgeDays": 30,
+                "requiresSameCredentialScope": true,
+                "requiresOriginalBytes": true
+              }
+            }
           },
           "defaults": { "resolution": "2K", "responseFormat": "b64_json", "outputFormat": "png", "watermark": false },
           "creditCost": 1,
@@ -225,7 +233,15 @@
             "supportsOutputFormatParameter": true,
             "outputFormats": ["png", "jpeg"],
             "resolutions": ["1K", "2K"],
-            "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5", "auto"]
+            "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5", "auto"],
+            "downstreamVideoCompatibility": {
+              "modelark-seedance-2": {
+                "status": "internal_testing",
+                "maximumAgeDays": 30,
+                "requiresSameCredentialScope": true,
+                "requiresOriginalBytes": true
+              }
+            }
           },
           "defaults": { "resolution": "2K", "responseFormat": "b64_json", "outputFormat": "png", "watermark": false },
           "creditCost": 1,

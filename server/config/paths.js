@@ -63,6 +63,7 @@ export const DATA_FILES = {
   communityEngagementDailyAggregates: path.resolve(COMMUNITY_DATA_DIR, 'engagementDailyAggregates.json'),
   comparisons: path.resolve(COMPARISONS_DATA_DIR, 'comparisons.json'),
   assets: path.resolve(ASSETS_DATA_DIR, 'assets.json'),
+  providerAssetRegistrations: path.resolve(ASSETS_DATA_DIR, 'providerAssetRegistrations.json'),
   auditLogs: path.resolve(AUDIT_DATA_DIR, 'auditLogs.json'),
   sceneTemplateSnapshots: path.resolve(SCENE_TEMPLATES_DATA_DIR, 'sceneTemplateSnapshots.json'),
   characterProfiles: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'profiles.json'),

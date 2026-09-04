@@ -199,6 +199,7 @@ foreign repository or provider directly.
 - `011-video-library-profile-and-character-discovery.md`
 - `012-durable-video-poster-and-media-reconciliation.md`
 - `013-cinematic-character-look-pack-and-cast-readiness.md`
+- `produce-video-pipeline/000-master.md`
 
 The source concept remains product research. These numbered files are the
 implementable MVP contract when the documents disagree. Requirement 004 owns
@@ -215,6 +216,11 @@ Requirement 013 makes reusable Character Look Versions part of the Character
 Profile lifecycle while Cinematic owns only Project/Scene bindings and
 continuity. It also closes the Project-card and Character-picker readiness gaps
 found during the first full Cinematic test pass.
+The Produce Video Pipeline requirement closes the remaining approved-Storyboard
+to durable Shot clips and final master gap through canonical Generation,
+Credits, Assets and Timeline ownership. It supersedes no implemented provider or
+export behavior until its dependency-ordered packages pass their qualification
+and release gates.
 The Gemini Omni Flash requirement adds an internal-testing Interactions API
 candidate with a Credits-owned research quote for Playground and Cinematic Shot
 evaluation. Customer-paid publication remains gated. It does not change the

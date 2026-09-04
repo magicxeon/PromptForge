@@ -4,7 +4,10 @@ import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CinematicProject } from '../schemas/cinematicSchemas';
-import { writeStoryboardBatchEnginePreference } from '../state/storyboardBatchPreferences';
+import {
+  readStoryboardEnginePreference,
+  writeStoryboardEnginePreference
+} from '../state/storyboardEnginePreference';
 import { StoryboardGenerateAllDialog } from './StoryboardGenerateAllDialog';
 
 const mocks = vi.hoisted(() => ({
@@ -176,7 +179,7 @@ describe('StoryboardGenerateAllDialog', () => {
   });
 
   it('restores the actor-scoped provider and model before quoting', async () => {
-    writeStoryboardBatchEnginePreference('usr_alice', {
+    writeStoryboardEnginePreference('usr_alice', {
       provider: 'meta-muse',
       model: 'muse-image-1.0'
     });
@@ -193,7 +196,7 @@ describe('StoryboardGenerateAllDialog', () => {
   });
 
   it('falls back to the saved provider default when its saved model was removed', async () => {
-    writeStoryboardBatchEnginePreference('usr_alice', {
+    writeStoryboardEnginePreference('usr_alice', {
       provider: 'meta-muse',
       model: 'removed-model'
     });
@@ -210,7 +213,7 @@ describe('StoryboardGenerateAllDialog', () => {
   });
 
   it('falls back to the catalog default when the saved provider was removed', async () => {
-    writeStoryboardBatchEnginePreference('usr_alice', {
+    writeStoryboardEnginePreference('usr_alice', {
       provider: 'removed-provider',
       model: 'removed-model'
     });
@@ -246,7 +249,69 @@ describe('StoryboardGenerateAllDialog', () => {
       expect.objectContaining({ cinematicCaptureProfileId: null })
     ));
   });
+
+  it('persists the engine only after the batch submission accepts work', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={testI18n}>
+        <StoryboardGenerateAllDialog open onOpenChange={vi.fn()} project={projectFixture()} />
+      </I18nextProvider>
+    </QueryClientProvider>);
+
+    expect(await screen.findByText('12 cinematic.cost.credits')).toBeVisible();
+    expect(readStoryboardEnginePreference('usr_alice')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', {
+      name: 'cinematic.storyboard.batch.generate'
+    }));
+    await waitFor(() => expect(readStoryboardEnginePreference('usr_alice')).toEqual({
+      provider: 'gemini',
+      model: 'image-model'
+    }));
+  });
+
+  it('falls back when the saved model cannot carry the required references', async () => {
+    writeStoryboardEnginePreference('usr_alice', {
+      provider: 'meta-muse',
+      model: 'muse-image-1.0'
+    });
+    mocks.getContext.mockImplementation(async (_projectId: string, sceneId: string, shotId: string) => ({
+      ...await generationContextWithReference(sceneId, shotId)
+    }));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={testI18n}>
+        <StoryboardGenerateAllDialog open onOpenChange={vi.fn()} project={projectFixture()} />
+      </I18nextProvider>
+    </QueryClientProvider>);
+
+    await waitFor(() => expect(mocks.estimateGeneration).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: 'gemini', submodel: 'image-model' })
+    ));
+  });
 });
+
+async function generationContextWithReference(sceneId: string, shotId: string) {
+  return {
+    schemaVersion: 1,
+    projectId: 'cineproj_batch',
+    projectVersion: 3,
+    sceneId,
+    shotId,
+    shotVersion: 1,
+    characterProfileContext: null,
+    references: { outfit_front: '/reference.webp', outfit_back: null, style_reference: null },
+    cast: [],
+    looks: [],
+    continuitySource: null,
+    keyframeContract: {
+      sourceFingerprint: `keyframe_${shotId}`,
+      providerIndependentPrompt: `STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v1\n\nKEYFRAME MOMENT:\n${shotId}`
+    },
+    generationEligible: true,
+    blockingReason: null
+  };
+}
 
 function projectFixture() {
   const shot = (id: string, approved = false) => ({

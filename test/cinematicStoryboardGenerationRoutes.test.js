@@ -30,6 +30,18 @@ test('Cinematic Storyboard batch accepts the server keyframe fingerprint and pre
   assert.deepEqual(submission.metadata.keyframeContractFingerprints, ['keyframe_route_1']);
 });
 
+test('Cinematic Storyboard accepts a new candidate while an approved source remains authoritative', async () => {
+  const approvedProject = structuredClone(project);
+  approvedProject.scenes[0].shots[0].approvedStoryboardSource = {
+    sourceFingerprint: 'approved_source_1'
+  };
+  const allowedFixture = routeFixture({ projectValue: approvedProject });
+  const allowedResponse = responseFixture();
+  await allowedFixture.handler(requestFixture(), allowedResponse);
+  assert.equal(allowedResponse.statusCode, 202);
+  assert.equal(allowedFixture.generationApplicationService.calls.length, 1);
+});
+
 test('Cinematic Storyboard batch rejects a stale keyframe fingerprint before Generation submission', async () => {
   const { handler, generationApplicationService } = routeFixture();
   const response = responseFixture();
@@ -77,7 +89,26 @@ test('Cinematic Story Plan proposal route preserves unified workflow evidence', 
   assert.deepEqual(cinematicService.storyPlanCalls[0].input, request.body);
 });
 
-function routeFixture() {
+test('Cinematic Story Plan proposal route streams real progress and the same final proposal', async () => {
+  const { storyPlanHandler, cinematicService } = routeFixture();
+  const response = streamResponseFixture();
+  const request = requestFixture();
+  request.body = { mode: 'generate', sourceResolution: null };
+  request.headers = { accept: 'text/event-stream' };
+  request.get = name => request.headers[String(name).toLowerCase()] || '';
+
+  await storyPlanHandler(request, response);
+
+  const stream = response.chunks.join('');
+  assert.match(stream, /event: progress/);
+  assert.match(stream, /"activeStageId":"plan_generation"/);
+  assert.match(stream, /event: result/);
+  assert.match(stream, /"proposalId":"proposal_route"/);
+  assert.equal(response.ended, true);
+  assert.equal(cinematicService.storyPlanCalls.length, 1);
+});
+
+function routeFixture({ projectValue = project } = {}) {
   const handlers = new Map();
   const app = {};
   for (const method of ['get', 'post', 'put', 'patch', 'delete']) {
@@ -85,11 +116,24 @@ function routeFixture() {
   }
   const cinematicService = {
     storyPlanCalls: [],
-    getProject: async () => structuredClone(project),
+    getProject: async () => structuredClone(projectValue),
     getStoryboardGenerationContext: async () => structuredClone(context),
     registerStoryboardBatchAttempts: async () => structuredClone(project),
-    async generateStoryPlan(projectId, input, actorContext) {
+    async generateStoryPlan(projectId, input, actorContext, operation = {}) {
       this.storyPlanCalls.push({ projectId, input, actorContext });
+      operation.onProgress?.({
+        contractVersion: 'cinematic-story-plan-live-progress-v1',
+        activeStageId: 'plan_generation',
+        stages: [
+          { id: 'source_preflight', status: 'completed', issueCount: 0, repairCount: 0 },
+          { id: 'plan_generation', status: 'processing', issueCount: 0, repairCount: 0 },
+          { id: 'director_review', status: 'queued', issueCount: 0, repairCount: 0 },
+          { id: 'visual_validation', status: 'queued', issueCount: 0, repairCount: 0 },
+          { id: 'visual_repair', status: 'queued', issueCount: 0, repairCount: 0 },
+          { id: 'storyboard_readiness', status: 'queued', issueCount: 0, repairCount: 0 }
+        ],
+        updatedAt: '2026-09-04T00:00:00.000Z'
+      });
       return {
         proposalId: 'proposal_route', operation: 'cinematic_story_plan_generate', mode: 'generate',
         status: 'proposal', expectedProjectVersion: project.version,
@@ -166,5 +210,21 @@ function responseFixture() {
     set() { return this; },
     status(value) { this.statusCode = value; return this; },
     json(value) { this.body = value; return this; }
+  };
+}
+
+function streamResponseFixture() {
+  return {
+    statusCode: 200,
+    chunks: [],
+    ended: false,
+    writableEnded: false,
+    set() { return this; },
+    status(value) { this.statusCode = value; return this; },
+    flushHeaders() {},
+    flush() {},
+    on() { return this; },
+    write(value) { this.chunks.push(String(value)); return true; },
+    end() { this.ended = true; this.writableEnded = true; }
   };
 }

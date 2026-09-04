@@ -4,6 +4,7 @@ import {
   ModelArkSeedreamProvider,
   resolveModelArkOutputSize
 } from '../server/providers/ModelArkSeedreamProvider.js';
+import { resolveModelArkCredentialScope } from '../server/providers/modelArkCredentialScope.js';
 
 const modelConfig = {
   id: 'seedream-5-0-lite-260128',
@@ -19,6 +20,22 @@ const modelConfig = {
     watermark: false
   }
 };
+
+test('ModelArk credential scope matches aliases without exposing the credential', () => {
+  const direct = resolveModelArkCredentialScope({
+    environment: {}, baseUrl: 'https://ark.example.test/api/v3', apiKey: 'private-key-a'
+  });
+  const fromAlias = resolveModelArkCredentialScope({
+    environment: { ARK_API_KEY: 'private-key-a' }, baseUrl: 'https://ark.example.test/api/v3'
+  });
+  const different = resolveModelArkCredentialScope({
+    environment: {}, baseUrl: 'https://ark.example.test/api/v3', apiKey: 'private-key-b'
+  });
+
+  assert.equal(fromAlias, direct);
+  assert.notEqual(different, direct);
+  assert.doesNotMatch(direct, /private-key-a/);
+});
 
 const seedreamFourConfig = {
   id: 'seedream-4-0-250828',
@@ -73,6 +90,9 @@ test('ModelArk sends b64_json image generation request and normalizes output', a
     assert.equal(result.base64, 'OUTPUT');
     assert.equal(result.mimeType, 'image/png');
     assert.equal(result.providerMetadata.requestId, 'req_modelark_test');
+    assert.match(result.providerMetadata.credentialScope, /^modelark:/);
+    assert.doesNotMatch(result.providerMetadata.credentialScope, /ark-test-key/i);
+    assert.match(result.providerMetadata.generatedAt, /^\d{4}-\d{2}-\d{2}T/);
   } finally {
     globalThis.fetch = originalFetch;
   }

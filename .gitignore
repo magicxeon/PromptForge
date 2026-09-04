@@ -53,6 +53,7 @@ Thumbs.db
 _concept-idea.txt
 z_continue_here.txt
 _temp/
+credentials/
 
 # Local Prompt Research Lab datasets and generated output
 /lab/**/datasets/source-images/

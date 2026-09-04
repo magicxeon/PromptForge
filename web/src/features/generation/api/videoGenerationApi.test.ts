@@ -30,6 +30,33 @@ describe('videoGenerationApi', () => {
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/api/generation/video/tasks/videotask_1');
   });
 
+  it('parses a legacy failed task whose persisted duration reconciliation omits catalog-only fields', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({
+      id: 'videotask_portrait',
+      status: 'failed',
+      billingStatus: 'refunded',
+      providerId: 'modelark',
+      modelId: 'dreamina-seedance-2-0-mini-260615',
+      providerError: { code: 'InputImageSensitiveContentDetected.PrivacyInformation' },
+      submittedRequest: {
+        durationReconciliation: {
+          plannedDurationSeconds: 6,
+          renderDurationSeconds: 6,
+          trimDurationSeconds: 0,
+          durationControlMode: 'exact',
+          strategy: 'exact',
+          reasonCode: 'video_duration_exact'
+        }
+      }
+    }), { status: 200, headers: { 'content-type': 'application/json' } })));
+
+    const task = await getVideoTask('videotask_portrait');
+
+    expect(task.status).toBe('failed');
+    expect(task.submittedRequest?.durationReconciliation?.supportedDurations).toEqual([]);
+    expect(task.submittedRequest?.durationReconciliation?.requiresSplit).toBe(false);
+  });
+
   it('loads recent actor-scoped Video tasks without using Image history', async () => {
     const fetchMock = vi.fn(async (_input: RequestInfo | URL) => new Response(JSON.stringify({
       items: [{ id: 'videotask_recent', status: 'completed', outputAsset: { publicUrl: '/outputs/video.mp4' } }],

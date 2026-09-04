@@ -155,6 +155,9 @@ export function registerCinematicRoutes(app, {
   });
 
   app.post('/api/cinematic/projects/:projectId/story-plan/proposals', async (req, res) => {
+    if (acceptsEventStream(req) && typeof res.write === 'function') {
+      return streamStoryPlanProposal({ req, res, cinematicService });
+    }
     try {
       res.set('Cache-Control', 'private, no-store');
       res.json(await cinematicService.generateStoryPlan(
@@ -326,6 +329,20 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.patch('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/motion-direction', async (req, res) => {
+    try {
+      res.json(await cinematicService.updateShotMotionDirection(
+        req.params.projectId,
+        req.params.sceneId,
+        req.params.shotId,
+        req.body || {},
+        req.actorContext
+      ));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
   app.put('/api/cinematic/projects/:projectId/scenes/:sceneId/shot-order', async (req, res) => {
     try {
       res.json(await cinematicService.reorderSceneShots(
@@ -401,19 +418,76 @@ export function registerCinematicRoutes(app, {
 }
 
 function sendCinematicError(res, error) {
+  const response = serializeCinematicError(error);
+  return res.status(response.statusCode).json(response.body);
+}
+
+async function streamStoryPlanProposal({ req, res, cinematicService }) {
+  let streamOpen = true;
+  res.status(200);
+  res.set('Content-Type', 'text/event-stream; charset=utf-8');
+  res.set('Cache-Control', 'private, no-store, no-transform');
+  res.set('Connection', 'keep-alive');
+  res.set('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+  res.on?.('close', () => { streamOpen = false; });
+  const writeEvent = (event, data) => {
+    if (!streamOpen || res.writableEnded) return;
+    try {
+      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+      res.flush?.();
+    } catch {
+      streamOpen = false;
+    }
+  };
+  const heartbeat = setInterval(() => {
+    if (!streamOpen || res.writableEnded) return;
+    try {
+      res.write(': keep-alive\n\n');
+      res.flush?.();
+    } catch {
+      streamOpen = false;
+    }
+  }, 15_000);
+  heartbeat.unref?.();
+  try {
+    const proposal = await cinematicService.generateStoryPlan(
+      req.params.projectId,
+      req.body || {},
+      req.actorContext,
+      { onProgress: progress => writeEvent('progress', progress) }
+    );
+    writeEvent('result', proposal);
+  } catch (error) {
+    const response = serializeCinematicError(error);
+    writeEvent('error', { status: response.statusCode, ...response.body });
+  } finally {
+    clearInterval(heartbeat);
+    if (streamOpen && !res.writableEnded) res.end();
+  }
+}
+
+function acceptsEventStream(req) {
+  const accept = req.get?.('accept') || req.headers?.accept || '';
+  return String(accept).toLowerCase().includes('text/event-stream');
+}
+
+function serializeCinematicError(error) {
   if (error instanceof CinematicError || error instanceof RepositoryContractError || error?.code) {
-    return res.status(error.statusCode || 400).json({
-      error: {
+    return {
+      statusCode: error.statusCode || error.status || 400,
+      body: { error: {
         code: error.code,
         message: error.message,
         ...(error.details ? { details: error.details } : {})
-      }
-    });
+      } }
+    };
   }
   console.error('[Cinematic] Unexpected error:', error);
-  return res.status(500).json({
-    error: { code: 'cinematic_internal_error', message: 'Cinematic operation failed.' }
-  });
+  return {
+    statusCode: 500,
+    body: { error: { code: 'cinematic_internal_error', message: 'Cinematic operation failed.' } }
+  };
 }
 
 function assertStoryboardBatchInput(project, input) {
@@ -475,14 +549,6 @@ function assertStoryboardBatchOperation(project, operation, context) {
       'A Storyboard Shot changed before this batch was submitted.',
       409,
       { shotId: shot.id, currentVersion: shot.version }
-    );
-  }
-  if (shot.approvedStoryboardSource) {
-    throw new CinematicError(
-      'cinematic_storyboard_source_already_approved',
-      'An approved Storyboard source already exists for this Shot.',
-      409,
-      { shotId: shot.id }
     );
   }
   if (!context.generationEligible) {

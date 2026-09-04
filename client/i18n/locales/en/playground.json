@@ -193,6 +193,8 @@
   "playground.video.characterSource": "Selected Character",
   "playground.video.chooseCharacter": "Choose Character",
   "playground.video.internalTestingNotice": "Internal qualification candidate. Credits are locked before submission; this model is not published for general paid routing yet.",
+  "playground.video.unverifiedPocBadge": "Unverified POC",
+  "playground.video.unverifiedPocNotice": "Development POC only. First-frame payload, output quality and provider pricing are not verified. This attempt charges {credits} test Credit through the normal Credit lifecycle.",
   "playground.video.catalogOnlyNotice": "Available for internal catalog review. Generation remains disabled until pricing and output settings are qualified.",
   "playground.video.promptOnlyProvider": "Prompt only",
   "playground.video.creditEstimate": "Locked generation estimate",

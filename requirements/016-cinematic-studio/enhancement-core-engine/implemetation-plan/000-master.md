@@ -1,6 +1,6 @@
 # Cinematic Core Engine Implementation Work Packages
 
-**Status:** Packages 001-010 complete; Package 007 and Package 009 paid-provider visual qualification pending  
+**Status:** Packages 001-014 complete; Packages 007, 009, 011 and 012 paid-provider visual qualification pending
 **Owning requirement:** `../000-master.md`  
 **Execution rule:** Implement, test and record one package before entering the next
 
@@ -16,6 +16,10 @@
 8. `008-storyboard-shot-modal-media-first-layout.md`
 9. `009-unified-story-plan-direct-review-and-visual-repair.md`
 10. `010-story-plan-multi-pass-timeout-recovery.md`
+11. `011-provider-ready-storyboard-prompt-composition.md`
+12. `012-terra-story-direction-and-gemini-fallback.md`
+13. `013-live-story-plan-progress-and-draft-materialization.md`
+14. `014-storyboard-render-engine-memory.md`
 
 ## Global Invariants
 

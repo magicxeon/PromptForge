@@ -5,6 +5,8 @@ export type VideoGenerationInput = {
   providerId: string;
   modelId: string;
   operation: 'text_to_video' | 'image_to_video' | 'character_to_video';
+  commercialOperation?: 'playground_video' | 'cinematic_motion_preview' | 'cinematic_draft_clip' | 'cinematic_final_clip';
+  inputMode?: 'text_to_video' | 'image_to_video' | 'first_last_frame' | 'multimodal_reference';
   prompt: string;
   aspectRatio: string;
   resolution: string;
@@ -13,6 +15,7 @@ export type VideoGenerationInput = {
   referenceImageUrl?: string | null;
   characterProfileId?: string | null;
   characterProfileVersionId?: string | null;
+  requestFingerprint?: string;
 };
 
 export function getVideoCapabilityCatalog() {

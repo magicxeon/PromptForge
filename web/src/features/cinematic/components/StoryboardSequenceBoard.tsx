@@ -9,7 +9,7 @@ export type StoryboardShotSummary = {
   title: string;
   framing: string;
   action: string;
-  status: 'ready' | 'draft' | 'warning' | 'queued' | 'review' | 'failed';
+  status: 'ready' | 'draft' | 'warning' | 'quoted' | 'queued' | 'generating' | 'review' | 'approved' | 'failed' | 'storyboard_required' | 'source_changed' | 'audio_incomplete';
   imageUrl?: string | null;
   generationJobId?: string | null;
   castNames?: string[];
@@ -24,6 +24,8 @@ type StoryboardSequenceBoardProps = {
   selectedShotId: string;
   onSelectShot: (shotId: string) => void;
   onMoveShot: (shotId: string, direction: 'earlier' | 'later') => void;
+  readOnly?: boolean;
+  variant?: 'board' | 'queue';
 };
 
 export function StoryboardSequenceBoard({
@@ -33,12 +35,19 @@ export function StoryboardSequenceBoard({
   shots,
   selectedShotId,
   onSelectShot,
-  onMoveShot
+  onMoveShot,
+  readOnly = false,
+  variant = 'board'
 }: StoryboardSequenceBoardProps) {
   const { t } = useTranslation('cinematic');
 
   return (
-    <section id={`storyboard-sequence-${sceneId || 'preview'}`} className="cinematic-storyboard-board" aria-label={t('cinematic.storyboard.boardLabel')} tabIndex={-1}>
+    <section
+      id={`storyboard-sequence-${sceneId || 'preview'}`}
+      className={`cinematic-storyboard-board${readOnly ? ' is-read-only' : ''}${variant === 'queue' ? ' is-queue' : ''}`}
+      aria-label={t('cinematic.storyboard.boardLabel')}
+      tabIndex={-1}
+    >
       <header className="cinematic-storyboard-board__header">
         <div>
           <span>{t('cinematic.storyboard.sequence')}</span>
@@ -58,26 +67,28 @@ export function StoryboardSequenceBoard({
           last={index === shots.length - 1}
           onSelectShot={onSelectShot}
           onMoveShot={onMoveShot}
+          readOnly={readOnly}
         />)}
       </div>
     </section>
   );
 }
 
-function StoryboardShotCard({ shot, index, selected, last, onSelectShot, onMoveShot }: {
+function StoryboardShotCard({ shot, index, selected, last, onSelectShot, onMoveShot, readOnly }: {
   shot: StoryboardShotSummary;
   index: number;
   selected: boolean;
   last: boolean;
   onSelectShot: (shotId: string) => void;
   onMoveShot: (shotId: string, direction: 'earlier' | 'later') => void;
+  readOnly: boolean;
 }) {
-  if (shot.generationJobId) {
+  if (shot.generationJobId && !readOnly) {
     return <TrackedStoryboardShotCard shot={shot} index={index} selected={selected} last={last}
-      onSelectShot={onSelectShot} onMoveShot={onMoveShot} />;
+      onSelectShot={onSelectShot} onMoveShot={onMoveShot} readOnly={readOnly} />;
   }
   return <StoryboardShotCardContent shot={shot} index={index} selected={selected} last={last}
-    onSelectShot={onSelectShot} onMoveShot={onMoveShot} />;
+    onSelectShot={onSelectShot} onMoveShot={onMoveShot} readOnly={readOnly} />;
 }
 
 function TrackedStoryboardShotCard(props: Parameters<typeof StoryboardShotCardContent>[0]) {
@@ -87,13 +98,14 @@ function TrackedStoryboardShotCard(props: Parameters<typeof StoryboardShotCardCo
 }
 
 function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, onMoveShot,
-  generatedImageUrl = null, generationStatus = null }: {
+  readOnly, generatedImageUrl = null, generationStatus = null }: {
   shot: StoryboardShotSummary;
   index: number;
   selected: boolean;
   last: boolean;
   onSelectShot: (shotId: string) => void;
   onMoveShot: (shotId: string, direction: 'earlier' | 'later') => void;
+  readOnly: boolean;
   generatedImageUrl?: string | null;
   generationStatus?: string | null;
 }) {
@@ -112,13 +124,13 @@ function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, 
           <article
             id={`storyboard-shot-${shot.id}`}
             className={`cinematic-storyboard-card${selected ? ' is-selected' : ''}`}
-            draggable
+            draggable={!readOnly}
             data-shot-id={shot.id}
           >
             <button
               type="button"
               className="cinematic-storyboard-card__media"
-              aria-label={`${t('cinematic.storyboard.editShot')} ${shot.id}`}
+              aria-label={`${t(readOnly ? 'cinematic.storyboard.selectShot' : 'cinematic.storyboard.editShot')} ${shot.id}`}
               onClick={() => onSelectShot(shot.id)}
             >
               {imageUrl
@@ -129,7 +141,7 @@ function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, 
             </button>
             <div className="cinematic-storyboard-card__body">
               <header>
-                <span className="cinematic-storyboard-card__handle" title={t('cinematic.storyboard.dragToReorder')}><GripVertical aria-hidden="true" /></span>
+                {!readOnly ? <span className="cinematic-storyboard-card__handle" title={t('cinematic.storyboard.dragToReorder')}><GripVertical aria-hidden="true" /></span> : null}
                 <div><strong>{shot.sequenceLabel || `${t('cinematic.storyboard.shot')} ${shot.id}`}</strong><small>{shot.title}</small></div>
                 <span className="cinematic-storyboard-card__duration"><Clock3 aria-hidden="true" />{formatSeconds(shot.durationSeconds)}</span>
               </header>
@@ -140,10 +152,10 @@ function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, 
               </div> : null}
               <footer>
                 <span className={`cinematic-status-pill is-${status}`}>{t(`cinematic.storyboard.status.${status}`)}</span>
-                <div>
+                {!readOnly ? <div>
                   <button type="button" disabled={index === 0} aria-label={`${t('cinematic.storyboard.moveEarlier')} ${shot.id}`} onClick={() => onMoveShot(shot.id, 'earlier')}><ArrowLeft aria-hidden="true" /></button>
                   <button type="button" disabled={last} aria-label={`${t('cinematic.storyboard.moveLater')} ${shot.id}`} onClick={() => onMoveShot(shot.id, 'later')}><ArrowRight aria-hidden="true" /></button>
-                </div>
+                </div> : null}
               </footer>
             </div>
           </article>

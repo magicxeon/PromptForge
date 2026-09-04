@@ -19,6 +19,14 @@ export function VideoEngineTargetPanel({
   estimatedCredits,
   canAfford,
   quoteError,
+  compact = false,
+  title,
+  description,
+  badge,
+  showComparisonAction = true,
+  summary,
+  footer,
+  aspectRatioLocked = false,
   onModelChange,
   onAspectRatioChange,
   onResolutionChange,
@@ -39,6 +47,14 @@ export function VideoEngineTargetPanel({
   estimatedCredits?: number;
   canAfford?: boolean;
   quoteError?: string | null;
+  compact?: boolean;
+  title?: ReactNode;
+  description?: ReactNode;
+  badge?: ReactNode;
+  showComparisonAction?: boolean;
+  summary?: ReactNode;
+  footer?: ReactNode;
+  aspectRatioLocked?: boolean;
   onModelChange: (providerModelKey: string) => void;
   onAspectRatioChange: (aspectRatio: string) => void;
   onResolutionChange: (resolution: string) => void;
@@ -58,10 +74,11 @@ export function VideoEngineTargetPanel({
   return (
     <EngineTargetPanelFrame
       studioLayout
-      title={t('playground.section.engine')}
-      description={t('playground.video.engineDescription')}
-      badge={<span className="studio-step-badge">{tUi('ui.studio.stepLabel')} 2</span>}
-      action={(
+      className={compact ? 'engine-target-panel--compact' : undefined}
+      title={title ?? t('playground.section.engine')}
+      description={description ?? t('playground.video.engineDescription')}
+      badge={badge ?? <span className="studio-step-badge">{tUi('ui.studio.stepLabel')} 2</span>}
+      action={showComparisonAction ? (
         <Button
           className={`engine-comparison-toggle btn-compare-models${comparisonActive ? ' active is-active' : ''}`}
           variant="secondary"
@@ -73,7 +90,7 @@ export function VideoEngineTargetPanel({
         >
           {t('playground.action.compare')}
         </Button>
-      )}
+      ) : undefined}
     >
       <div className="engine-target-panel__controls">
         <div className="engine-target-panel__model-grid">
@@ -103,7 +120,9 @@ export function VideoEngineTargetPanel({
             >
               {providerModels.map(model => (
                 <option key={`${model.providerId}:${model.modelId}`} value={`${model.providerId}:${model.modelId}`}>
-                  {model.displayName}
+                  {model.displayName}{model.developmentPocUnverified
+                    ? ` - ${t('playground.video.unverifiedPocBadge')}`
+                    : ''}
                 </option>
               ))}
             </select>
@@ -134,6 +153,7 @@ export function VideoEngineTargetPanel({
                   className={aspectRatio === value ? 'is-selected' : ''}
                   size="sm"
                   variant={aspectRatio === value ? 'primary' : 'secondary'}
+                  disabled={aspectRatioLocked && aspectRatio !== value}
                   onClick={() => onAspectRatioChange(value)}
                 >
                   {value}
@@ -146,9 +166,14 @@ export function VideoEngineTargetPanel({
             {t('playground.video.catalogOnlyNotice')}
           </p>
         )}
-        {selectedModel.testingRoutingEnabled && !selectedModel.paidRoutingEnabled ? (
+        {selectedModel.developmentPocUnverified ? (
+          <p className="engine-target-panel__video-notice engine-target-panel__video-notice--poc" role="alert">
+            {t('playground.video.unverifiedPocNotice', { credits: selectedModel.developmentPocCredits || 1 })}
+          </p>
+        ) : selectedModel.testingRoutingEnabled && !selectedModel.paidRoutingEnabled ? (
           <p className="engine-target-panel__video-notice">{t('playground.video.internalTestingNotice')}</p>
         ) : null}
+        {summary}
         {outputContractAvailable ? <div className="engine-target-panel__video-quote">
           <span>{t('playground.video.creditEstimate')}</span>
           <strong>{quoteLoading
@@ -159,6 +184,7 @@ export function VideoEngineTargetPanel({
           {canAfford === false ? <small>{t('playground.estimate.insufficient')}</small> : null}
           {quoteError ? <small>{quoteError}</small> : null}
         </div> : null}
+        {footer}
       </div>
     </EngineTargetPanelFrame>
   );

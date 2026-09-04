@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { creditPricingPolicyService } from './CreditPricingPolicyService.js';
 import { creditAccountRepo } from '../../repositories/credits/CreditAccountRepository.js';
 import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
@@ -25,6 +26,10 @@ export class CreditReservationService {
     }
     const policy = await this.pricingPolicyService.loadPolicy();
     const preview = calculateVideoPricingPreview(model, request, policy);
+    const developmentPocCredits = getDevelopmentPocCredits({ model, generationMode });
+    const qualificationNoCharge = developmentPocCredits === null
+      && isNoChargeVideoQualification({ model, generationMode });
+    const customerCredits = developmentPocCredits ?? (qualificationNoCharge ? 0 : preview.estimatedCredits);
     const now = new Date();
     const estimate = {
       estimateId: `vest_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
@@ -41,11 +46,16 @@ export class CreditReservationService {
       pricingInputs: {
         mediaType: 'video',
         operation: request.operation,
+        commercialOperation: request.commercialOperation,
+        inputMode: request.inputMode,
         resolution: request.resolution,
         aspectRatio: request.aspectRatio,
         durationSeconds: Number(request.durationSeconds),
         audioMode: request.audioMode,
         referenceCount: Number(request.referenceImageCount || 0),
+        referencePlanFingerprint: request.referencePlanFingerprint || null,
+        developmentPocUnverified: model.developmentPocUnverified === true,
+        developmentPocCredits,
         outputCount: 1,
         generationMode: String(generationMode || 'playground_video')
       },
@@ -53,10 +63,16 @@ export class CreditReservationService {
         providerCostUsd: preview.providerCostUsd,
         billingMetric: preview.billingMetric,
         providerRateVersion: preview.providerRateVersion,
-        generationCredits: preview.estimatedCredits,
-        totalCredits: preview.estimatedCredits
+        providerEstimatedCredits: preview.estimatedCredits,
+        generationCredits: customerCredits,
+        totalCredits: customerCredits,
+        ...(developmentPocCredits === null ? {} : { developmentPocCredits })
       },
-      estimatedCredits: preview.estimatedCredits,
+      estimatedCredits: customerCredits,
+      billingStatus: qualificationNoCharge ? 'qualification_no_charge' : 'estimated',
+      chargeMode: developmentPocCredits !== null
+        ? 'development_poc_credit'
+        : qualificationNoCharge ? 'qualification_no_charge' : 'user_credits',
       estimateConfidence: 'locked',
       createdAt: now.toISOString(),
       expiresAt: new Date(now.getTime() + Number(policy.estimateTtlSeconds) * 1000).toISOString()
@@ -108,8 +124,23 @@ export class CreditReservationService {
       ['generationMode', normalized(inputs.generationMode), normalized(generationRequest.generationMode)],
       ...(inputs.mediaType === 'video' ? [
         ['operation', normalized(inputs.operation), normalized(generationRequest.operation)],
+        ...(normalized(inputs.commercialOperation)
+          ? [['commercialOperation', normalized(inputs.commercialOperation), normalized(generationRequest.commercialOperation)]]
+          : []),
+        ...(normalized(inputs.inputMode)
+          ? [['inputMode', normalized(inputs.inputMode), normalized(generationRequest.inputMode)]]
+          : []),
         ['durationSeconds', integer(inputs.durationSeconds, 0), integer(generationRequest.durationSeconds, 0)],
-        ['audioMode', normalized(inputs.audioMode), normalized(generationRequest.audioMode)]
+        ['audioMode', normalized(inputs.audioMode), normalized(generationRequest.audioMode)],
+        ...(normalized(inputs.referencePlanFingerprint)
+          ? [['referencePlanFingerprint', normalized(inputs.referencePlanFingerprint), normalized(generationRequest.referencePlanFingerprint)]]
+          : []),
+        ...(inputs.developmentPocUnverified === true
+          ? [
+            ['developmentPocUnverified', true, generationRequest.developmentPocUnverified === true],
+            ['developmentPocCredits', integer(inputs.developmentPocCredits, 0), integer(generationRequest.developmentPocCredits, 0)]
+          ]
+          : [])
       ] : []),
       ['templateUseSessionId', normalized(inputs.templateUseSessionId), normalized(generationRequest.templateUseSessionId)],
       ...(normalized(inputs.referenceProcessingPlanFingerprint)
@@ -131,6 +162,31 @@ export class CreditReservationService {
         400,
         { mismatches }
       );
+    }
+
+    if (estimate.billingStatus === 'qualification_no_charge') {
+      const authorizationId = qualificationAuthorizationId({
+        userId,
+        estimateId: estimate.estimateId,
+        requestId: generationRequest.requestId,
+        jobId: metadata.jobId
+      });
+      const account = typeof this.accountRepo.getAccountByUserId === 'function'
+        ? await this.accountRepo.getAccountByUserId(userId)
+        : null;
+      return {
+        estimate,
+        authorization: {
+          authorizationId,
+          status: 'authorized',
+          billingStatus: 'qualification_no_charge',
+          estimateId: estimate.estimateId,
+          requestId: generationRequest.requestId,
+          jobId: metadata.jobId
+        },
+        billingStatus: 'qualification_no_charge',
+        account
+      };
     }
 
     const reservationResult = await this.accountRepo.reserveCredits({
@@ -367,6 +423,27 @@ export class CreditReservationService {
 }
 
 export const creditReservationService = new CreditReservationService();
+
+function isNoChargeVideoQualification({ model, generationMode }) {
+  return String(generationMode || '') === 'cinematic_video'
+    && model?.pricingStatus === 'research_only'
+    && model?.testingRoutingEnabled === true
+    && model?.paidRoutingEnabled !== true;
+}
+
+function getDevelopmentPocCredits({ model, generationMode }) {
+  if (String(generationMode || '') !== 'cinematic_video' || model?.developmentPocUnverified !== true) return null;
+  const value = Number(model.developmentPocCredits);
+  return Number.isInteger(value) ? Math.min(10, Math.max(1, value)) : 1;
+}
+
+function qualificationAuthorizationId({ userId, estimateId, requestId, jobId }) {
+  const fingerprint = crypto.createHash('sha256')
+    .update(`${userId}:${estimateId}:${requestId}:${jobId}`)
+    .digest('hex')
+    .slice(0, 24);
+  return `vqual_${fingerprint}`;
+}
 
 function splitCredits(total, count) {
   const normalizedTotal = Math.max(0, Math.floor(Number(total) || 0));

@@ -37,6 +37,47 @@ export function imageModelUnavailableReason(
   return null;
 }
 
+export function resolveAvailableImageEngine(
+  catalog: ProviderCatalog,
+  preference: { provider: string; model: string } | null = null,
+  requiredReferenceCount = 0,
+  aspectRatio: string | null = null
+) {
+  type Provider = ProviderCatalog['providers'][number];
+  type Model = Provider['models'][number];
+  const candidates: Array<{ provider: Provider; model: Model }> = [];
+  const seen = new Set<string>();
+  const addModel = (provider: Provider | undefined, model: Model | undefined) => {
+    if (!provider || !model) return;
+    const key = `${provider.id}:${model.id}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    candidates.push({ provider, model });
+  };
+  const addProvider = (provider: Provider | undefined, preferredModelId?: string) => {
+    if (!provider) return;
+    addModel(provider, provider.models.find(model => model.id === preferredModelId));
+    addModel(provider, provider.models.find(model => model.id === provider.defaultModel));
+    provider.models.forEach(model => addModel(provider, model));
+  };
+
+  const preferredProvider = preference
+    ? catalog.providers.find(provider => provider.id === preference.provider)
+    : undefined;
+  addProvider(preferredProvider, preference?.model);
+
+  const defaultProvider = catalog.providers.find(provider => provider.id === catalog.defaultProvider)
+    || catalog.providers[0];
+  addProvider(defaultProvider);
+  catalog.providers.forEach(provider => addProvider(provider));
+
+  return candidates.find(({ model }) => !imageModelUnavailableReason(
+    model,
+    requiredReferenceCount,
+    aspectRatio
+  )) || candidates[0] || null;
+}
+
 function createSlotId() {
   return `slot_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }

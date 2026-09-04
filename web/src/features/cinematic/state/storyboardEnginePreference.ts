@@ -4,33 +4,34 @@ import {
   writeActorScopedDraft
 } from '../../../lib/persistence/actorScopedStorage';
 
+// Retain the original storage key so existing batch preferences survive this shared rollout.
 const FEATURE = 'cinematic-storyboard-batch-engine';
 const SCHEMA_VERSION = 1;
-const storyboardBatchEnginePreferenceSchema = z.object({
+const storyboardEnginePreferenceSchema = z.object({
   provider: z.string().min(1),
   model: z.string().min(1)
 });
 
-export type StoryboardBatchEnginePreference = z.infer<typeof storyboardBatchEnginePreferenceSchema>;
+export type StoryboardEnginePreference = z.infer<typeof storyboardEnginePreferenceSchema>;
 
-export function readStoryboardBatchEnginePreference(actorId: string) {
+export function readStoryboardEnginePreference(actorId: string) {
   const value = readActorScopedDraft<unknown>({
     actorId,
     feature: FEATURE,
     schemaVersion: SCHEMA_VERSION,
     fallback: null
   });
-  return storyboardBatchEnginePreferenceSchema.safeParse(value).data ?? null;
+  return storyboardEnginePreferenceSchema.safeParse(value).data ?? null;
 }
 
-export function writeStoryboardBatchEnginePreference(
+export function writeStoryboardEnginePreference(
   actorId: string,
-  preference: StoryboardBatchEnginePreference
+  preference: StoryboardEnginePreference
 ) {
   writeActorScopedDraft({
     actorId,
     feature: FEATURE,
     schemaVersion: SCHEMA_VERSION,
-    payload: storyboardBatchEnginePreferenceSchema.parse(preference)
+    payload: storyboardEnginePreferenceSchema.parse(preference)
   });
 }

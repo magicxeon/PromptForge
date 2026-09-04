@@ -31,11 +31,15 @@ function context(overrides = {}) {
 
 test('Cinematic Storyboard final prompt gives Shot emotion authority over personality', () => {
   const prompt = compilePromptFromGenerationContext(context());
-  assert.match(prompt, /Character personality baseline: cute, beautiful smile, sparkling eyes/i);
-  assert.match(prompt, /selected Shot emotional target, performance and gaze have higher authority/i);
-  assert.match(prompt, /Cinematic still policy \(cinematic-storyboard-still v1\)/i);
-  assert.match(prompt, /physically plausible cinematic photograph/i);
-  assert.match(prompt, /Do not add .*direct-to-camera smiling unless the selected Shot explicitly requires it/i);
+  assert.ok(prompt.startsWith('STORYBOARD STILL CONTRACT'));
+  assert.doesNotMatch(prompt, /cute, beautiful smile|Character personality baseline/i);
+  assert.match(prompt, /observed narrative moment, not a posed portrait, fashion image or sales presentation/i);
+  assert.match(prompt, /source-consistent unretouched skin/i);
+  assert.match(prompt, /subtle sensor noise/i);
+  assert.match(prompt, /plastic skin, illustration, anime or CGI/i);
+  assert.match(prompt, /do not add a friendly micro-smile or direct camera gaze/i);
+  assert.match(prompt, /do not raise, center or turn it toward camera/i);
+  assert.match(prompt, /do not add beauty fill, lift the face or activate an unrequested fixture/i);
 });
 
 test('Cinematic Storyboard realism policy does not affect non-Cinematic Scene generation', () => {
@@ -47,13 +51,16 @@ test('Cinematic Storyboard realism policy does not affect non-Cinematic Scene ge
 
 test('Cinematic Storyboard can disable only the optional natural camera profile', () => {
   const prompt = compilePromptFromGenerationContext(context({ cinematicCaptureProfileId: null }));
-  assert.doesNotMatch(prompt, /cinematic-storyboard-still|physically plausible cinematic photograph/i);
+  assert.match(prompt, /physically plausible live-action frame/i);
+  assert.match(prompt, /motivated available or practical light/i);
+  assert.doesNotMatch(prompt, /source-consistent unretouched skin|subtle sensor noise/i);
   assert.match(prompt, /Selected Shot emotional target: Tense and watchful/i);
 });
 
 test('Cinematic Storyboard defaults and validates the capture profile before estimate or submit', () => {
-  const normalized = normalizeGenerationContext(context());
+  const normalized = normalizeGenerationContext(context({ promptRefinement: { enabled: true } }));
   assert.equal(normalized.cinematicCaptureProfileId, 'photorealistic-cinematic');
+  assert.equal(normalized.promptRefinement.enabled, false);
   assert.throws(
     () => normalizeGenerationContext(context({ cinematicCaptureProfileId: 'unknown-profile' })),
     error => error.code === 'cinematic_capture_profile_invalid' && error.statusCode === 400

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "id": "cinematic-storyboard-provider-prompt-policy",
+  "version": 1,
+  "defaultMaximumPromptCharacters": 4700,
+  "providerMaximumPromptCharacters": {
+    "modelark": 4700
+  },
+  "reservedFormattingCharacters": 180,
+  "blockOrder": [
+    "visualAuthority",
+    "referenceAuthority",
+    "subjectBehavior",
+    "photographicBehavior",
+    "constraints"
+  ],
+  "blockCharacterLimits": {
+    "visualAuthority": 1900,
+    "referenceAuthority": 1300,
+    "subjectBehavior": 450,
+    "photographicBehavior": 600,
+    "constraints": 250
+  },
+  "blockLabels": {
+    "referenceAuthority": "REFERENCE AUTHORITY",
+    "subjectBehavior": "SUBJECT BEHAVIOR",
+    "photographicBehavior": "PHOTOGRAPHIC BEHAVIOR",
+    "constraints": "EXECUTION CONSTRAINTS"
+  },
+  "referenceRoleInstructions": {
+    "template_baseline_reference": "Use only as the destination composition, environment, lighting and treatment baseline; replace identity or Look when the current Shot supplies them.",
+    "template_baseline": "Use only as the destination composition, environment, lighting and treatment baseline; replace identity or Look when the current Shot supplies them.",
+    "character_reference_a": "Preserve the authorized Character identity, face, hair, skin and body proportions only; follow the current Shot for pose, expression, Look and setting.",
+    "character_reference_b": "Use only as another view of the same authorized Character identity and proportions.",
+    "character_reference": "Preserve the authorized Character identity, face, hair, skin and body proportions only; follow the current Shot for pose, expression, Look and setting.",
+    "outfit_front_reference": "Preserve only the approved front garment silhouette, color, material, construction and visible details.",
+    "outfit_back_reference": "Preserve only the matching back garment construction and visible details.",
+    "outfit_front": "Preserve only the approved front garment silhouette, color, material, construction and visible details.",
+    "outfit_back": "Preserve only the matching back garment construction and visible details.",
+    "face_reference_a": "Preserve only the authorized facial identity and facial proportions; do not copy pose, clothing, setting or style.",
+    "face_reference_b": "Use only as another view of the same authorized facial identity.",
+    "face_reference": "Preserve only the authorized facial identity and facial proportions; do not copy pose, clothing, setting or style.",
+    "style_reference": "Use only its lighting, palette, contrast, texture and photographic mood; do not copy identity, pose, clothing or scene content.",
+    "pose_reference": "Use only its body arrangement, gesture and framing intent; do not copy identity, clothing, setting or visual style.",
+    "product_reference": "Use only the authorized product identity, shape, material and visible details; do not copy its source layout, setting or style.",
+    "environment_reference": "Use only the authorized location, spatial layout and environmental materials; do not copy people, clothing or unrelated objects."
+  },
+  "referenceBoundaryInstruction": "Reference roles are exclusive. Ignore incidental pose, expression, background, layout and styling outside each assigned role.",
+  "multiViewInstruction": "Use sheets and catalog images only as source evidence; output one continuous Scene frame, never a sheet, collage, split screen, inset or repeated person.",
+  "preserveOutfitInstruction": "Preserve the approved Look and garment details while the current Shot controls pose, expression and action.",
+  "replaceOutfitInstruction": "Replace source clothing only with the explicitly approved outfit reference while preserving Character identity and proportions.",
+  "narrativeBehaviorInstructions": [
+    "Render an observed narrative moment, not a posed portrait or fashion presentation.",
+    "Keep natural asymmetry in shoulders, hands and weight; props belong to the action, with no direct camera gaze unless authored."
+  ],
+  "baselinePhotographicInstructions": [
+    "Create one physically plausible live-action frame with readable Scene context, moderate depth separation and motivated available or practical light.",
+    "Keep believable falloff, contact shadows, reflections, scale and material response."
+  ],
+  "captureProfileInstructions": {
+    "photorealistic-cinematic": [
+      "Keep source-consistent unretouched skin, slight tonal variation, natural hair strands, garment weight, fabric weave and contact compression.",
+      "Allow subtle sensor noise, fine grain, slight optical softness, natural focus falloff, restrained highlight halation and minute lens imperfection."
+    ]
+  },
+  "constraintInstructions": [
+    "No fashion or beauty posing or prop display; no glossy retouch, plastic skin, illustration or CGI, excessive HDR, artificial sharpness or exaggerated bokeh.",
+    "No duplicate people, copied sheet layout, impossible reflections or unauthorized objects."
+  ]
+}

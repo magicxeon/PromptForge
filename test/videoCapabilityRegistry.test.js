@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { videoCapabilityRegistry } from '../server/domain/generation/VideoCapabilityRegistry.js';
+import {
+  normalizeVideoExecutionSelection,
+  VideoCapabilityRegistry,
+  videoCapabilityRegistry
+} from '../server/domain/generation/VideoCapabilityRegistry.js';
 
 test('paid video catalog exposes no unqualified research models', () => {
   assert.deepEqual(videoCapabilityRegistry.getPublicCatalog().models, []);
@@ -44,6 +48,136 @@ test('Seedance internal routing accepts Prompt only and blocks unqualified priva
     () => videoCapabilityRegistry.validateRequest({ ...request, operation: 'character_to_video', referenceImageCount: 1 }, { allowTesting: true }),
     error => error.code === 'video_parameter_unsupported'
   );
+});
+
+test('development POC exposes unverified Seedance first-frame modes without changing production', () => {
+  const development = new VideoCapabilityRegistry({
+    runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
+  });
+  const production = new VideoCapabilityRegistry({
+    runtimeEnvironment: 'production', developmentPocEnabled: true, developmentPocCredits: 1
+  });
+  const request = {
+    providerId: 'modelark', modelId: 'dreamina-seedance-2-5-260628',
+    commercialOperation: 'cinematic_draft_clip', inputMode: 'image_to_video',
+    operation: 'image_to_video', aspectRatio: '9:16', resolution: '720p',
+    durationSeconds: 5, audioMode: 'generated', referenceImageCount: 1
+  };
+  const developmentModel = development.validateRequest(request, { allowTesting: true });
+  assert.equal(developmentModel.developmentPocUnverified, true);
+  assert.equal(developmentModel.developmentPocCredits, 1);
+  assert.ok(developmentModel.inputModes.includes('image_to_video'));
+  assert.ok(developmentModel.referenceConstraints.maximumBytes > 0);
+  assert.equal(developmentModel.portraitReferencePolicy, 'provider_generated_asset_required');
+  assert.equal(development.getPublicCatalog({ includeTesting: true }).models
+    .filter(model => model.providerId === 'modelark' && model.modelId.includes('seedance-2'))
+    .every(model => model.portraitReferencePolicy === 'provider_generated_asset_required'), true);
+  assert.equal(development.getPublicCatalog({ includeTesting: true }).models
+    .filter(model => model.providerId === 'modelark' && model.modelId.includes('seedance-2'))
+    .every(model => model.trustedGeneratedImageSource.modelIds.includes('dola-seedream-5-0-pro-260628')), true);
+  assert.throws(
+    () => development.validateRequest({ ...request, referenceContainsPerson: true }, { allowTesting: true }),
+    error => error.code === 'video_provider_synthetic_character_source_required'
+      && error.details.recovery === 'regenerate_storyboard_with_compatible_seedream'
+  );
+  assert.equal(development.validateRequest({
+    ...request,
+    referenceContainsPerson: true,
+    providerCredentialScope: 'modelark:test:shared',
+    referenceAuthority: {
+      kind: 'cinematic_storyboard_source',
+      immutable: true,
+      contentHash: 'content_hash',
+      sourceFingerprint: 'source_fingerprint',
+      providerOutputProvenance: {
+        kind: 'provider_generated_image',
+        providerId: 'modelark',
+        requestedModelId: 'seedream-5-0-lite-260128',
+        resolvedModelId: 'seedream-5-0-lite-260128',
+        credentialScope: 'modelark:test:shared',
+        generatedAt: new Date().toISOString(),
+        originalBytesPreserved: true
+      }
+    }
+  }, { allowTesting: true }).modelId, request.modelId);
+  assert.equal(development.validateRequest({
+    ...request,
+    referenceContainsPerson: true,
+    providerCredentialScope: 'modelark:test:shared',
+    referenceAuthority: {
+      kind: 'cinematic_storyboard_source', immutable: true,
+      contentHash: 'content_hash_pro', sourceFingerprint: 'source_fingerprint_pro',
+      providerOutputProvenance: {
+        kind: 'provider_generated_image', providerId: 'modelark',
+        requestedModelId: 'dola-seedream-5-0-pro-260628',
+        resolvedModelId: 'dola-seedream-5-0-pro-260628',
+        credentialScope: 'modelark:test:shared', generatedAt: new Date().toISOString(),
+        originalBytesPreserved: true
+      }
+    }
+  }, { allowTesting: true }).modelId, request.modelId);
+  assert.throws(
+    () => development.validateRequest({
+      ...request,
+      referenceContainsPerson: true,
+      providerCredentialScope: 'modelark:test:shared',
+      referenceAuthority: {
+        kind: 'cinematic_storyboard_source', immutable: true,
+        contentHash: 'content_hash_unlisted', sourceFingerprint: 'source_fingerprint_unlisted',
+        providerOutputProvenance: {
+          kind: 'provider_generated_image', providerId: 'modelark',
+          requestedModelId: 'seedream-4-5-251128', resolvedModelId: 'seedream-4-5-251128',
+          credentialScope: 'modelark:test:shared', generatedAt: new Date().toISOString(),
+          originalBytesPreserved: true
+        }
+      }
+    }, { allowTesting: true }),
+    error => error.code === 'video_provider_synthetic_character_source_required'
+      && error.details.reason === 'source_model_not_qualified'
+  );
+  assert.match(development.getPublicCatalog({ includeTesting: true }).catalogVersion, /development-poc$/);
+  assert.throws(
+    () => production.validateRequest(request, { allowTesting: true }),
+    error => error.code === 'video_parameter_unsupported' && error.details.field === 'inputMode'
+  );
+});
+
+test('commercial operation and provider input mode are validated independently', () => {
+  const request = {
+    providerId: 'modelark', modelId: 'seedance-1-0-pro-fast-251015',
+    commercialOperation: 'cinematic_draft_clip', inputMode: 'image_to_video',
+    operation: 'image_to_video', aspectRatio: '9:16', resolution: '720p',
+    durationSeconds: 6, audioMode: 'none', referenceImageCount: 1
+  };
+  const model = videoCapabilityRegistry.validateRequest(request, { allowTesting: true });
+  assert.equal(model.providerId, 'modelark');
+  assert.ok(model.commercialOperations.includes('cinematic_draft_clip'));
+  assert.ok(model.inputModes.includes('image_to_video'));
+  assert.throws(
+    () => videoCapabilityRegistry.validateRequest({
+      ...request,
+      commercialOperation: 'cinematic_final_clip'
+    }, { allowTesting: true }),
+    error => error.code === 'video_parameter_unsupported'
+      && error.details.field === 'commercialOperation'
+  );
+});
+
+test('legacy operation requests receive a bounded normalized selection', () => {
+  assert.deepEqual(normalizeVideoExecutionSelection({ operation: 'image_to_video' }), {
+    commercialOperation: 'playground_video',
+    inputMode: 'image_to_video',
+    operation: 'image_to_video',
+    legacyInferred: true
+  });
+  assert.deepEqual(normalizeVideoExecutionSelection({
+    operation: 'cinematic_draft_clip', referenceImageCount: 1
+  }), {
+    commercialOperation: 'cinematic_draft_clip',
+    inputMode: 'image_to_video',
+    operation: 'image_to_video',
+    legacyInferred: true
+  });
 });
 
 test('video capability validation blocks paid routing and rejects unsupported Veo combinations', () => {

@@ -167,6 +167,29 @@ export const cinematicCastAssignmentSchema = z.object({
   updatedAt: z.string().datetime()
 });
 
+const cinematicProviderOutputProvenanceSchema = z.object({
+  kind: z.literal('provider_generated_image'),
+  providerId: z.string().min(1),
+  requestedModelId: z.string().min(1),
+  resolvedModelId: z.string().min(1),
+  providerRequestId: z.string().nullable(),
+  credentialScope: z.string().nullable(),
+  generatedAt: z.string().datetime(),
+  responseFormat: z.string().nullable(),
+  originalBytesPreserved: z.boolean()
+});
+
+const cinematicStoryboardVideoCompatibilitySchema = z.object({
+  targetId: z.literal('modelark-seedance-2'),
+  status: z.enum(['eligible_internal_testing', 'not_qualified']),
+  reasonCode: z.string().nullable(),
+  sourceProviderId: z.string().nullable(),
+  sourceModelId: z.string().nullable(),
+  generatedAt: z.string().datetime().nullable(),
+  validUntil: z.string().datetime().nullable(),
+  originalBytesPreserved: z.boolean()
+});
+
 export const cinematicApprovedStoryboardSourceSchema = z.object({
   assetId: z.string().min(1),
   assetVersionId: z.string().min(1),
@@ -175,6 +198,8 @@ export const cinematicApprovedStoryboardSourceSchema = z.object({
   thumbnailUrl: z.string().min(1),
   contentHash: z.string(),
   sourceFingerprint: z.string().min(1),
+  providerOutputProvenance: cinematicProviderOutputProvenanceSchema.nullable().optional(),
+  videoCompatibility: cinematicStoryboardVideoCompatibilitySchema.nullable().optional(),
   approvedAt: z.string().datetime()
 });
 
@@ -337,6 +362,7 @@ export const cinematicShotSchema = z.object({
   environment: z.string(),
   audioIntent: z.string(),
   prompt: z.string(),
+  additionalMotionDirection: z.string().max(300).optional(),
   continuityEntry: z.string().optional(),
   continuityExit: z.string().optional(),
   transitionToNext: z.string().optional(),
@@ -475,7 +501,8 @@ export const cinematicStoryPlanDraftSchema = z.object({
 
 const cinematicAiProvenanceSchema = z.object({
   provider: z.string(), model: z.string(), responseId: z.string().nullable(),
-  recipeId: z.string(), recipeVersion: z.number().int(), recipeFingerprint: z.string()
+  recipeId: z.string(), recipeVersion: z.number().int(), recipeFingerprint: z.string(),
+  fallbackUsed: z.boolean().optional(), fallbackReason: z.string().nullable().optional()
 });
 
 const cinematicVisualPlanFindingSchema = z.object({
@@ -521,18 +548,27 @@ const cinematicStoryPlanRepairRoundSchema = z.object({
   }).optional()
 });
 
+export const cinematicStoryPlanWorkflowStageSchema = z.object({
+  id: z.enum([
+    'source_preflight', 'plan_generation', 'director_review',
+    'visual_validation', 'visual_repair', 'storyboard_readiness'
+  ]),
+  status: z.enum(['queued', 'processing', 'completed', 'skipped', 'stopped', 'blocked']),
+  issueCount: z.number().int().nonnegative(),
+  repairCount: z.number().int().nonnegative()
+});
+
+export const cinematicStoryPlanLiveProgressSchema = z.object({
+  contractVersion: z.literal('cinematic-story-plan-live-progress-v1'),
+  activeStageId: cinematicStoryPlanWorkflowStageSchema.shape.id.nullable(),
+  stages: z.array(cinematicStoryPlanWorkflowStageSchema).length(6),
+  updatedAt: z.string()
+});
+
 const cinematicStoryPlanWorkflowSchema = z.object({
   contractVersion: z.literal('cinematic-story-plan-workflow-v1'),
   status: z.enum(['ready', 'ready_with_warnings', 'blocked']),
-  stages: z.array(z.object({
-    id: z.enum([
-      'source_preflight', 'plan_generation', 'director_review',
-      'visual_validation', 'visual_repair', 'storyboard_readiness'
-    ]),
-    status: z.enum(['queued', 'processing', 'completed', 'skipped', 'stopped', 'blocked']),
-    issueCount: z.number().int().nonnegative(),
-    repairCount: z.number().int().nonnegative()
-  })),
+  stages: z.array(cinematicStoryPlanWorkflowStageSchema),
   repairRoundCount: z.number().int().nonnegative(),
   initialFindings: z.array(cinematicVisualPlanFindingSchema),
   repairs: z.array(cinematicStoryPlanRepairSchema),
@@ -815,6 +851,7 @@ export const cinematicVideoPacketSchema = z.object({
   }),
   motion: z.object({
     visibleStart: z.string(), primaryAction: z.string(), visibleEnd: z.string(),
+    additionalDirection: z.string().optional(),
     cameraMovement: z.string(), blocking: z.string(), screenDirection: z.string()
   }),
   performance: z.object({
@@ -839,9 +876,15 @@ export const cinematicVideoPacketSchema = z.object({
   }),
   authorDirection: z.string(),
   prohibitions: z.array(z.string()),
-  provenance: z.object({ policyId: z.string(), policyVersion: z.number().int().positive() }),
+  provenance: z.object({
+    policyId: z.string(),
+    policyVersion: z.number().int().positive(),
+    promptStrategyId: z.string().optional(),
+    promptStrategyVersion: z.number().int().positive().optional()
+  }),
   findings: z.array(z.object({ severity: z.enum(['blocking', 'warning']), code: z.string(), fieldPath: z.string() })),
   packetFingerprint: z.string().min(1),
+  renderedPromptFingerprint: z.string().min(1).optional(),
   providerIndependentPrompt: z.string().min(1)
 });
 
@@ -875,18 +918,23 @@ export const cinematicProduceShotContextSchema = z.object({
     modelId: z.string().nullable().optional(),
     quoteId: z.string().nullable().optional(),
     reservationId: z.string().nullable().optional(),
+    qualificationAuthorizationId: z.string().nullable().optional(),
+    developmentPocUnverified: z.boolean().optional(),
+    developmentPocCredits: z.number().int().positive().nullable().optional(),
+    developmentPocWarningCode: z.string().nullable().optional(),
     keyframeContractFingerprint: z.string().nullable().optional(),
     videoPacketFingerprint: z.string().nullable().optional(),
     videoSourceFingerprint: z.string().nullable().optional(),
     renderDurationMs: z.number().nullable().optional(),
+    settlementStatus: z.string().nullable().optional(),
     outputAsset: z.object({
       publicUrl: z.string(),
       posterUrl: z.string().nullable().optional()
     }).passthrough().nullable().optional(),
     reviewDecision: z.string().optional(),
-    downstreamSourceStatus: z.enum(['current', 'source_changed', 'source_unavailable'])
+    downstreamSourceStatus: z.enum(['current', 'source_changed', 'source_unavailable', 'packet_changed'])
   })),
-  timelineDependencyStatus: z.enum(['current', 'source_changed', 'source_unavailable'])
+  timelineDependencyStatus: z.enum(['current', 'source_changed', 'source_unavailable', 'packet_changed'])
 });
 
 export const cinematicVideoQuoteSchema = videoQuoteSchema.extend({
@@ -896,6 +944,11 @@ export const cinematicVideoQuoteSchema = videoQuoteSchema.extend({
   shotVersion: z.number().int().positive(),
   sourceFingerprint: z.string(),
   videoPacketFingerprint: z.string(),
+  promptStrategy: z.object({
+    id: z.string(), version: z.number().int().positive(),
+    policyId: z.string(), policyVersion: z.number().int().positive()
+  }).nullable().optional(),
+  renderedPromptFingerprint: z.string().nullable().optional(),
   approvedStoryboardAssetVersionId: z.string()
 });
 
@@ -917,5 +970,6 @@ export type CinematicVideoPacket = z.infer<typeof cinematicVideoPacketSchema>;
 export type CinematicStoryBeat = z.infer<typeof cinematicStoryBeatSchema>;
 export type CinematicStoryPlanDraft = z.infer<typeof cinematicStoryPlanDraftSchema>;
 export type CinematicStoryPlanProposal = z.infer<typeof cinematicStoryPlanProposalSchema>;
+export type CinematicStoryPlanLiveProgress = z.infer<typeof cinematicStoryPlanLiveProgressSchema>;
 export type CinematicSceneDirectionProposal = z.infer<typeof cinematicSceneDirectionProposalSchema>;
 export type CinematicProduceShotContext = z.infer<typeof cinematicProduceShotContextSchema>;

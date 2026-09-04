@@ -4,16 +4,22 @@ import path from 'node:path';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { historyRepository } from '../../repositories/generation/HistoryRepository.js';
+import { normalizeProviderOutputProvenance } from '../generation/ProviderOutputProvenance.js';
+import { deriveStoryboardVideoCompatibility } from '../cinematic/CinematicStoryboardSourceCompatibility.js';
 
 export class CinematicStoryboardAssetService {
   constructor({
     assetRepository = assetRepo,
     generationHistory = historyRepository,
-    outputsDirectory = OUTPUTS_DIR
+    outputsDirectory = OUTPUTS_DIR,
+    providerRegistry,
+    clock = () => new Date()
   } = {}) {
     this.assetRepository = assetRepository;
     this.generationHistory = generationHistory;
     this.outputsDirectory = outputsDirectory;
+    this.providerRegistry = providerRegistry;
+    this.clock = clock;
   }
 
   async approveGenerationResult({ jobId }, actorContext) {
@@ -46,6 +52,12 @@ export class CinematicStoryboardAssetService {
       throw sourceError('cinematic_storyboard_source_unavailable', 'Storyboard source file is unavailable.', 404);
     }
     const contentHash = crypto.createHash('sha256').update(buffer).digest('hex');
+    const providerOutputProvenance = normalizeProviderOutputProvenance(history.providerOutputProvenance);
+    const videoCompatibility = deriveStoryboardVideoCompatibility({
+      providerOutputProvenance,
+      ...(this.providerRegistry ? { providerRegistry: this.providerRegistry } : {}),
+      now: this.clock()
+    });
     const asset = await this.assetRepository.create({
       assetType: 'cinematic_storyboard_source',
       storageKey: relativeStorageKey,
@@ -60,7 +72,9 @@ export class CinematicStoryboardAssetService {
         immutable: true,
         contentHash,
         generationMode: history.generationMode || null,
-        operationPurpose: 'cinematic_storyboard_still'
+        operationPurpose: 'cinematic_storyboard_still',
+        providerOutputProvenance,
+        videoCompatibility
       }
     }, actorContext);
     return toApprovedSource(asset);
@@ -76,10 +90,79 @@ function toApprovedSource(asset) {
     imageUrl: asset.publicUrl,
     thumbnailUrl: asset.thumbnailUrl || asset.publicUrl,
     contentHash,
-    sourceFingerprint: crypto.createHash('sha256')
-      .update(`${asset.id}:${asset.sourceJobId}:${contentHash}`)
-      .digest('hex'),
+    sourceFingerprint: createStoryboardSourceFingerprint(asset),
+    providerOutputProvenance: normalizeProviderOutputProvenance(asset.metadata?.providerOutputProvenance),
+    videoCompatibility: normalizeVideoCompatibility(asset.metadata?.videoCompatibility),
     approvedAt: asset.createdAt
+  };
+}
+
+export function createStoryboardSourceFingerprint(asset) {
+  const contentHash = String(asset?.metadata?.contentHash || '');
+  return crypto.createHash('sha256')
+    .update(`${asset?.id || ''}:${asset?.sourceJobId || ''}:${contentHash}`)
+    .digest('hex');
+}
+
+export async function verifyStoryboardAssetContent(asset, {
+  outputsDirectory = OUTPUTS_DIR
+} = {}) {
+  const verified = await loadVerifiedStoryboardAssetContent(asset, { outputsDirectory });
+  return { contentHash: verified.contentHash, sizeBytes: verified.sizeBytes };
+}
+
+export async function loadVerifiedStoryboardAssetContent(asset, {
+  outputsDirectory = OUTPUTS_DIR
+} = {}) {
+  const storageKey = String(asset?.storageKey || '').replace(/\\/g, '/');
+  const expectedHash = String(asset?.metadata?.contentHash || '').trim();
+  if (!storageKey || storageKey.split('/').includes('..') || !expectedHash) {
+    throw sourceError(
+      'cinematic_storyboard_source_content_unverifiable',
+      'Storyboard source content authority is incomplete.',
+      409
+    );
+  }
+  const absolutePath = path.resolve(outputsDirectory, storageKey);
+  if (!isWithin(absolutePath, outputsDirectory)) {
+    throw sourceError(
+      'cinematic_storyboard_source_content_unverifiable',
+      'Storyboard source content path is invalid.',
+      409
+    );
+  }
+  let buffer;
+  try {
+    buffer = await fs.readFile(absolutePath);
+  } catch {
+    throw sourceError(
+      'cinematic_storyboard_source_content_unavailable',
+      'Storyboard source content is unavailable.',
+      409
+    );
+  }
+  const contentHash = crypto.createHash('sha256').update(buffer).digest('hex');
+  if (contentHash !== expectedHash || (Number(asset?.sizeBytes) > 0 && buffer.length !== Number(asset.sizeBytes))) {
+    throw sourceError(
+      'cinematic_storyboard_source_content_changed',
+      'Storyboard source content no longer matches the approved Asset.',
+      409
+    );
+  }
+  return { bytes: buffer, contentHash, sizeBytes: buffer.length };
+}
+
+function normalizeVideoCompatibility(value) {
+  if (!value || value.targetId !== 'modelark-seedance-2') return null;
+  return {
+    targetId: 'modelark-seedance-2',
+    status: value.status === 'eligible_internal_testing' ? value.status : 'not_qualified',
+    reasonCode: value.reasonCode ? String(value.reasonCode).slice(0, 120) : null,
+    sourceProviderId: value.sourceProviderId ? String(value.sourceProviderId).slice(0, 120) : null,
+    sourceModelId: value.sourceModelId ? String(value.sourceModelId).slice(0, 200) : null,
+    generatedAt: value.generatedAt || null,
+    validUntil: value.validUntil || null,
+    originalBytesPreserved: value.originalBytesPreserved === true
   };
 }
 

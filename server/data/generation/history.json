@@ -1,5 +1,1570 @@
 [
   {
+    "id": "job_1788533985708_hxvipujw2",
+    "username": "user_alice",
+    "prompt": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nPayoff keyframe. Exact moment: นาราก้าวอยู่กึ่งกลางระหว่างเงาฟ้าด้านซ้ายกับวงแสงอุ่นใต้โคมเหนือเคาน์เตอร์ด้านขวา. One visible action: เท้าขวาวางลงบนพื้นแห้งในวงแสง ขณะที่มือขวาปล่อยจากข้างลำตัวตามจังหวะเดิน.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: มีหวัง. Show only this state. Expression and posture: ริมฝีปากขยับพูดอย่างเบาแล้วปิดนุ่ม สายตาไปยังพื้นที่ทำงานด้านขวา ศีรษะตั้ง ไหล่เสมอ เท้าขวารับน้ำหนักในวงแสง. Observable cue: ริมฝีปากแยกเล็กน้อยระหว่างคำพูด ดวงตามองพื้นที่ทำงานด้านขวา ศีรษะตั้งตรง และไหล่เสมอกันเหนือเท้าขวาที่รับน้ำหนัก. Gaze: มองพื้นที่ทำงานหลังเคาน์เตอร์ด้านขวา.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: มิดไวด์แนวตั้ง เห็นนาราเต็มช่วงขา วงแสง เคาน์เตอร์ และประตูกระจกฝนด้านหลัง, ระดับเอว, ระยะปานกลางกว้างให้การก้าวเข้าสู่แสงอ่านได้พร้อมพื้นที่ร้าน. Placement: นาราเดินเฉียงขวาเข้าสู่หลังเคาน์เตอร์ ไม่หันตรงกล้อง; ป้ายคว่ำอยู่ด้านซ้ายบนเคาน์เตอร์. Screen direction: นาราหันเฉียงไปทางขวา; เคาน์เตอร์และวงแสงอยู่ขวา ขณะที่ประตูกระจกฝนอยู่ซ้ายด้านหลัง.\n\nLIGHTING AND ENVIRONMENT:\nSetting: เคาน์เตอร์และทางเดินภายในคาเฟ่, พลบค่ำต่อเนื่อง. Motivated light: ไฟแขวนเหนือเคาน์เตอร์เปิด เป็นแสงอุ่นจากด้านบนเผยหน้า ไหล่ และพื้นใต้เท้าขวา; แสงฝนฟ้ายังอยู่ที่กระจกและฉากหลังซ้ายซึ่งมืดกว่าชัดเจน ไม่มีฟิลสวยงามเพิ่ม. Required environment: คาเฟ่ยังเงียบ โต๊ะคลุมผ้าอยู่ในเงา ฝนอยู่นอกกระจก พื้นในร้านแห้งมีเงารองเท้าจริง. Visible prop state: ป้าย CLOSED อยู่ใต้ฝ่ามือขวาบนเคาน์เตอร์; โทรศัพท์ไม่ปรากฏในเฟรมและไม่มีข้อความบนหน้าจอให้เห็น.\n\nCONTINUITY\n\nREFERENCE AUTHORITY:\nReference image 1 (character_reference): Preserve authorized identity, face, hair, skin and body proportions only; never copy its smile, gaze, pose, Look or setting. Reference image 2 (face_reference): Preserve only authorized facial identity and proportions; never copy smile, gaze, head pose, clothing, setting or style. Reference image 3 (outfit_front): Preserve only the approved front garment silhouette, color, material, construction and details; never copy the model pose or presentation. Reference image 4 (style_reference): Use only its lighting, palette, contrast, texture and photographic mood; do not copy identity, pose, clothing or scene content. Reference roles are exclusive. Current Shot action, expression, gaze, posture, prop staging and light outrank incidental reference content. Use sheets and catalog images only as evidence; output one continuous Scene frame, never a sheet, collage, split screen, inset or repeated person.\n\nSUBJECT BEHAVIOR:\nReplace source clothing only with the explicitly approved outfit reference while preserving Character identity and proportions. Keep the authorized apparent age 20-23, matching the Character references without aging up or down. Render an observed narrative moment, not a posed portrait, fashion image or sales presentation. Reference expressions are not performance authority: do not add a friendly micro-smile or direct camera gaze unless the current Shot explicitly requires it. Keep natural asymmetry in head, shoulders, hands and weight; do not square the body into a welcoming camera-facing stance unless authored. Keep every prop at the authored hand, body height and angle; do not raise, center or turn it toward camera for readability unless that display is the authored action.\n\nPHOTOGRAPHIC BEHAVIOR:\nCreate one physically plausible live-action frame with readable Scene context, moderate depth separation and motivated available or practical light. The authored light controls exposure: preserve subject-to-background contrast and falloff; do not add beauty fill, lift the face or activate an unrequested fixture. Use source-consistent unretouched skin and restrained digital-camera response with natural highlight roll-off, subtle sensor noise in darker tones and slight optical softness; keep imperfections unobtrusive.\n\nEXECUTION CONSTRAINTS:\nNo glossy retouch, plastic skin, illustration, anime or CGI; no exaggerated grain, aberration, halation, HDR, sharpness or bokeh. No duplicate people, copied sheet layout, impossible reflections or unauthorized objects.",
+    "imageUrl": "/outputs/job_1788533985708_hxvipujw2.png",
+    "timestamp": 1788534119944,
+    "provider": "modelark",
+    "submodel": "dola-seedream-5-0-pro-260628",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nPayoff keyframe. Exact moment: นาราก้าวอยู่กึ่งกลางระหว่างเงาฟ้าด้านซ้ายกับวงแสงอุ่นใต้โคมเหนือเคาน์เตอร์ด้านขวา. One visible action: เท้าขวาวางลงบนพื้นแห้งในวงแสง ขณะที่มือขวาปล่อยจากข้างลำตัวตามจังหวะเดิน.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: มีหวัง. Show only this state. Expression and posture: ริมฝีปากขยับพูดอย่างเบาแล้วปิดนุ่ม สายตาไปยังพื้นที่ทำงานด้านขวา ศีรษะตั้ง ไหล่เสมอ เท้าขวารับน้ำหนักในวงแสง. Observable cue: ริมฝีปากแยกเล็กน้อยระหว่างคำพูด ดวงตามองพื้นที่ทำงานด้านขวา ศีรษะตั้งตรง และไหล่เสมอกันเหนือเท้าขวาที่รับน้ำหนัก. Gaze: มองพื้นที่ทำงานหลังเคาน์เตอร์ด้านขวา.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: มิดไวด์แนวตั้ง เห็นนาราเต็มช่วงขา วงแสง เคาน์เตอร์ และประตูกระจกฝนด้านหลัง, ระดับเอว, ระยะปานกลางกว้างให้การก้าวเข้าสู่แสงอ่านได้พร้อมพื้นที่ร้าน. Placement: นาราเดินเฉียงขวาเข้าสู่หลังเคาน์เตอร์ ไม่หันตรงกล้อง; ป้ายคว่ำอยู่ด้านซ้ายบนเคาน์เตอร์. Screen direction: นาราหันเฉียงไปทางขวา; เคาน์เตอร์และวงแสงอยู่ขวา ขณะที่ประตูกระจกฝนอยู่ซ้ายด้านหลัง.\n\nLIGHTING AND ENVIRONMENT:\nSetting: เคาน์เตอร์และทางเดินภายในคาเฟ่, พลบค่ำต่อเนื่อง. Motivated light: ไฟแขวนเหนือเคาน์เตอร์เปิด เป็นแสงอุ่นจากด้านบนเผยหน้า ไหล่ และพื้นใต้เท้าขวา; แสงฝนฟ้ายังอยู่ที่กระจกและฉากหลังซ้ายซึ่งมืดกว่าชัดเจน ไม่มีฟิลสวยงามเพิ่ม. Required environment: คาเฟ่ยังเงียบ โต๊ะคลุมผ้าอยู่ในเงา ฝนอยู่นอกกระจก พื้นในร้านแห้งมีเงารองเท้าจริง. Visible prop state: ป้าย CLOSED อยู่ใต้ฝ่ามือขวาบนเคาน์เตอร์; โทรศัพท์ไม่ปรากฏในเฟรมและไม่มีข้อความบนหน้าจอให้เห็น.\n\nCONTINUITY:\nKeep visible continuity: ป้ายต้องถูกคว่ำ ไม่จัดวางโชว์กล้อง; ไฟเหนือเคาน์เตอร์เป็นแหล่งแสงจริงที่เพิ่งเปิด; ป้ายคว่ำอยู่บนเคาน์เตอร์ตลอดช็อต; ห้ามให้แสงอุ่นกลบฉากฝนหรือทำให้ร้านสว่างทั้งห้อง. Match the authorized previous keyframe for identity, wardrobe and environment continuity.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text. Do not introduce a person, prop, costume or location that is not authorized by this Shot. Do not combine two emotional states or depict a future action in this still.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1788141570490_qr4e3sif",
+      "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+        "canonicalThreeViewAssetId": "job_1788141385681_w10ssbudi",
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "อิงอิง",
+      "personalitySummarySnapshot": "สดใส น่ารัก เฟรนลี่",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story",
+        "general"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "อิงอิง"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "outfit_front"
+        ]
+      },
+      {
+        "index": 4,
+        "roles": [
+          "style_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "5e08a86dfe950206a29d1a5d17c97ba7f1ffde7eec3810f2398481fc64b35540",
+      "executionMode": "single_stage",
+      "referenceCount": 4,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "outfit_front",
+          "sourceAssetId": "ast_1788231421726_46lql8fh",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": "full_look",
+          "warningCodes": []
+        },
+        {
+          "role": "style_reference",
+          "sourceAssetId": "ast_1788533975869_plitm8cq",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "dola-seedream-5-0-pro-260628",
+    "providerOutputProvenance": {
+      "kind": "provider_generated_image",
+      "providerId": "modelark",
+      "requestedModelId": "dola-seedream-5-0-pro-260628",
+      "resolvedModelId": "dola-seedream-5-0-pro-260628",
+      "providerRequestId": "02178853399131089d42e27515f10b9851ac8a38a24d9cdcfee53",
+      "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
+      "generatedAt": "2026-09-04T15:01:59.868Z",
+      "responseFormat": "b64_json",
+      "originalBytesPreserved": true
+    },
+    "providerConfigVersion": 1,
+    "creditCost": 75,
+    "mimeType": "image/png",
+    "width": 736,
+    "height": 1312,
+    "usage": {
+      "input_images": 4,
+      "generated_images": 1,
+      "output_tokens": 3772,
+      "total_tokens": 3772
+    },
+    "referencedFaceJobIds": [
+      "job_1788141157424_rmj24k5ov"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1788141385681_w10ssbudi"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "134.0",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788533985707_02ou4251",
+    "outputIndex": 0,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "4f5197d6b7911750",
+    "referenceProcessingPlanFingerprint": "5e08a86dfe950206a29d1a5d17c97ba7f1ffde7eec3810f2398481fc64b35540",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "4f5197d6b7911750",
+      "afterFingerprint": "4f5197d6b7911750",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788533985708_hxvipujw2.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 718,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 93114,
+    "originalBytes": 1668536,
+    "performanceTimings": {
+      "queueWaitMs": 0,
+      "referenceProcessingMs": 5023,
+      "providerMs": 128982,
+      "outputPersistenceMs": 242,
+      "totalMs": 134250
+    }
+  },
+  {
+    "id": "job_1788533300290_qflp49mgx",
+    "username": "user_alice",
+    "prompt": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nEstablishing keyframe. Exact moment: มือขวาของนารากดขอบบนของป้ายบนเคาน์เตอร์ ขณะที่มือซ้ายค้างที่สวิตช์ผนัง. One visible action: นิ้วชี้ซ้ายกดสวิตช์ไฟขึ้น.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: แน่วแน่. Show only this state. Expression and posture: มือเท่านั้น: มือขวากดป้ายราบ นิ้วซ้ายกดสวิตช์อย่างตรงและมั่นคง. Observable cue: มือเท่านั้น: นิ้วชี้ซ้ายเหยียดกดสวิตช์เต็มข้อ ฝ่ามือขวากดป้ายให้คว่ำราบ นิ้วขวาแผ่ออกจากการกำ. Gaze: ไม่เห็นใบหน้า.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: โคลสอัปแนวตั้งที่เห็นป้ายและสวิตช์ในระยะเดียวกัน, เฉียงระดับเคาน์เตอร์, เก็บความสัมพันธ์ระหว่างป้ายคว่ำกับสวิตช์โดยไม่ทำให้ป้ายเป็นวัตถุจัดแสดง. Placement: ป้ายอยู่ราบบนเคาน์เตอร์ใต้มือขวา; มือซ้ายยื่นไปสวิตช์ด้านขวา. Screen direction: นาราหันเฉียงไปทางขวา; เคาน์เตอร์และวงแสงอยู่ขวา ขณะที่ประตูกระจกฝนอยู่ซ้ายด้านหลัง.\n\nLIGHTING AND ENVIRONMENT:\nSetting: เคาน์เตอร์และทางเดินภายในคาเฟ่, พลบค่ำต่อเนื่อง. Motivated light: ก่อนสวิตช์ทำงาน แสงฟ้าจากซ้ายส่องมือและไม้ในระดับต่ำ; ไฟแขวนเหนือเคาน์เตอร์เปลี่ยนเป็นเปิด ปล่อยแสงอุ่นลงบนมือและพื้นเคาน์เตอร์ ขณะที่ฉากไกลยังมืดเย็น. Required environment: เคาน์เตอร์ไม้แห้ง ผนังสวิตช์ใช้งานจริง ไม่มีความเปียกภายใน. Visible prop state: ป้าย CLOSED อยู่ใต้ฝ่ามือขวาบนเคาน์เตอร์; โทรศัพท์ไม่ปรากฏในเฟรมและไม่มีข้อความบนหน้าจอให้เห็น.\n\nCONTINUITY:\nKeep visible continuity: ป้ายต้องถูกคว่ำ ไม่จัดวางโชว์กล้อง; ไฟเหนือเคาน์เตอร์เป็นแหล่งแสงจริงที่เพิ่งเปิด; ไม่เห็นข้อความด้านที่คว่ำของป้าย; โทรศัพท์ไม่ปรากฏหน้าจอ.\n\nPROHIBITIONS\n\nREFERENCE AUTHORITY:\nReference image 1 (character_reference): Preserve authorized identity, face, hair, skin and body proportions only; never copy its smile, gaze, pose, Look or setting. Reference image 2 (face_reference): Preserve only authorized facial identity and proportions; never copy smile, gaze, head pose, clothing, setting or style. Reference image 3 (outfit_front): Preserve only the approved front garment silhouette, color, material, construction and details; never copy the model pose or presentation. Reference roles are exclusive. Current Shot action, expression, gaze, posture, prop staging and light outrank incidental reference content. Use sheets and catalog images only as evidence; output one continuous Scene frame, never a sheet, collage, split screen, inset or repeated person.\n\nSUBJECT BEHAVIOR:\nReplace source clothing only with the explicitly approved outfit reference while preserving Character identity and proportions. Keep the authorized apparent age 20-23, matching the Character references without aging up or down. Render an observed narrative moment, not a posed portrait, fashion image or sales presentation. Reference expressions are not performance authority: do not add a friendly micro-smile or direct camera gaze unless the current Shot explicitly requires it. Keep natural asymmetry in head, shoulders, hands and weight; do not square the body into a welcoming camera-facing stance unless authored. Keep every prop at the authored hand, body height and angle; do not raise, center or turn it toward camera for readability unless that display is the authored action.\n\nPHOTOGRAPHIC BEHAVIOR:\nCreate one physically plausible live-action frame with readable Scene context, moderate depth separation and motivated available or practical light. The authored light controls exposure: preserve subject-to-background contrast and falloff; do not add beauty fill, lift the face or activate an unrequested fixture. Use source-consistent unretouched skin and restrained digital-camera response with natural highlight roll-off, subtle sensor noise in darker tones and slight optical softness; keep imperfections unobtrusive.\n\nEXECUTION CONSTRAINTS:\nNo glossy retouch, plastic skin, illustration, anime or CGI; no exaggerated grain, aberration, halation, HDR, sharpness or bokeh. No duplicate people, copied sheet layout, impossible reflections or unauthorized objects.",
+    "imageUrl": "/outputs/job_1788533300290_qflp49mgx.png",
+    "timestamp": 1788533439795,
+    "provider": "modelark",
+    "submodel": "dola-seedream-5-0-pro-260628",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nEstablishing keyframe. Exact moment: มือขวาของนารากดขอบบนของป้ายบนเคาน์เตอร์ ขณะที่มือซ้ายค้างที่สวิตช์ผนัง. One visible action: นิ้วชี้ซ้ายกดสวิตช์ไฟขึ้น.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: แน่วแน่. Show only this state. Expression and posture: มือเท่านั้น: มือขวากดป้ายราบ นิ้วซ้ายกดสวิตช์อย่างตรงและมั่นคง. Observable cue: มือเท่านั้น: นิ้วชี้ซ้ายเหยียดกดสวิตช์เต็มข้อ ฝ่ามือขวากดป้ายให้คว่ำราบ นิ้วขวาแผ่ออกจากการกำ. Gaze: ไม่เห็นใบหน้า.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: โคลสอัปแนวตั้งที่เห็นป้ายและสวิตช์ในระยะเดียวกัน, เฉียงระดับเคาน์เตอร์, เก็บความสัมพันธ์ระหว่างป้ายคว่ำกับสวิตช์โดยไม่ทำให้ป้ายเป็นวัตถุจัดแสดง. Placement: ป้ายอยู่ราบบนเคาน์เตอร์ใต้มือขวา; มือซ้ายยื่นไปสวิตช์ด้านขวา. Screen direction: นาราหันเฉียงไปทางขวา; เคาน์เตอร์และวงแสงอยู่ขวา ขณะที่ประตูกระจกฝนอยู่ซ้ายด้านหลัง.\n\nLIGHTING AND ENVIRONMENT:\nSetting: เคาน์เตอร์และทางเดินภายในคาเฟ่, พลบค่ำต่อเนื่อง. Motivated light: ก่อนสวิตช์ทำงาน แสงฟ้าจากซ้ายส่องมือและไม้ในระดับต่ำ; ไฟแขวนเหนือเคาน์เตอร์เปลี่ยนเป็นเปิด ปล่อยแสงอุ่นลงบนมือและพื้นเคาน์เตอร์ ขณะที่ฉากไกลยังมืดเย็น. Required environment: เคาน์เตอร์ไม้แห้ง ผนังสวิตช์ใช้งานจริง ไม่มีความเปียกภายใน. Visible prop state: ป้าย CLOSED อยู่ใต้ฝ่ามือขวาบนเคาน์เตอร์; โทรศัพท์ไม่ปรากฏในเฟรมและไม่มีข้อความบนหน้าจอให้เห็น.\n\nCONTINUITY:\nKeep visible continuity: ป้ายต้องถูกคว่ำ ไม่จัดวางโชว์กล้อง; ไฟเหนือเคาน์เตอร์เป็นแหล่งแสงจริงที่เพิ่งเปิด; ไม่เห็นข้อความด้านที่คว่ำของป้าย; โทรศัพท์ไม่ปรากฏหน้าจอ.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text. Do not introduce a person, prop, costume or location that is not authorized by this Shot. Do not combine two emotional states or depict a future action in this still.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1788141570490_qr4e3sif",
+      "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+        "canonicalThreeViewAssetId": "job_1788141385681_w10ssbudi",
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "อิงอิง",
+      "personalitySummarySnapshot": "สดใส น่ารัก เฟรนลี่",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story",
+        "general"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "อิงอิง"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "outfit_front"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "fe770805ecef5223a53705a12b598c207bbecb231a2b3367738b2b4aa019e6d4",
+      "executionMode": "single_stage",
+      "referenceCount": 3,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "outfit_front",
+          "sourceAssetId": "ast_1788231421726_46lql8fh",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": "full_look",
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "dola-seedream-5-0-pro-260628",
+    "providerOutputProvenance": {
+      "kind": "provider_generated_image",
+      "providerId": "modelark",
+      "requestedModelId": "dola-seedream-5-0-pro-260628",
+      "resolvedModelId": "dola-seedream-5-0-pro-260628",
+      "providerRequestId": "0217885333096484b2f64bfb09d213dd2215030b1eaaf1f166a4a",
+      "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
+      "generatedAt": "2026-09-04T14:50:39.633Z",
+      "responseFormat": "b64_json",
+      "originalBytesPreserved": true
+    },
+    "providerConfigVersion": 1,
+    "creditCost": 70,
+    "mimeType": "image/png",
+    "width": 736,
+    "height": 1312,
+    "usage": {
+      "input_images": 3,
+      "generated_images": 1,
+      "output_tokens": 3772,
+      "total_tokens": 3772
+    },
+    "referencedFaceJobIds": [
+      "job_1788141157424_rmj24k5ov"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1788141385681_w10ssbudi"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "139.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788533300290_x8dtmaa2",
+    "outputIndex": 0,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "84921e4cea295a01",
+    "referenceProcessingPlanFingerprint": "fe770805ecef5223a53705a12b598c207bbecb231a2b3367738b2b4aa019e6d4",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "84921e4cea295a01",
+      "afterFingerprint": "84921e4cea295a01",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788533300290_qflp49mgx.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 718,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 90216,
+    "originalBytes": 1658675,
+    "performanceTimings": {
+      "queueWaitMs": 4,
+      "referenceProcessingMs": 5877,
+      "providerMs": 133264,
+      "outputPersistenceMs": 516,
+      "totalMs": 139663
+    }
+  },
+  {
+    "id": "job_1788532766567_3173lml3d",
+    "username": "user_alice",
+    "prompt": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nReaction keyframe. Exact moment: นาราอยู่ครึ่งตัวด้านซ้ายของเฟรม โทรศัพท์แนบใกล้อกซ้าย ขณะสวิตช์ไฟเบลออยู่ด้านขวาหลังเธอ. One visible action: มือขวาเลื่อนป้าย CLOSED จากระดับต้นขาขึ้นมาแตะขอบเคาน์เตอร์โดยไม่วางลง.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: ค้างคา. Show only this state. Expression and posture: ริมฝีปากปิดนุ่ม สายตาค้างที่สวิตช์ ศีรษะเงยเล็กน้อย ไหล่ตั้งขึ้น มือขวาคุมป้ายอยู่กับขอบเคาน์เตอร์. Observable cue: ริมฝีปากคลายจากเส้นตรงและปิดนุ่ม; ดวงตามองเฉียงขวาไปยังสวิตช์ ศีรษะเงยเพียงเล็กน้อย; ไหล่ยกกลับสมดุลและนิ้วมือขวาหยุดกำป้ายแน่น. Gaze: มองผ่านเคาน์เตอร์ไปยังสวิตช์ไฟด้านขวา.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: มิดช็อตแนวตั้ง เห็นใบหน้า โทรศัพท์ และแนวเคาน์เตอร์ไปยังสวิตช์, ระดับสายตา, ระยะปานกลางคงใบหน้าและจุดหมายในระนาบเดียวกัน. Placement: นาราไม่หันเข้ากล้อง ลำตัวเฉียงขวา โทรศัพท์ชิดอกซ้าย ป้ายแตะขอบเคาน์เตอร์ด้วยมือขวา. Screen direction: สายตาและเส้นทางถัดไปมุ่งจากซ้ายไปขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: หน้าเคาน์เตอร์คาเฟ่, พลบค่ำต่อเนื่อง. Motivated light: แสงฝนจากซ้ายเผยตาซ้ายและสันจมูก ขณะที่แก้มขวาตกในเงา; ไฟเหนือเคาน์เตอร์ปิด ฉากหลังมืดกว่านาราชัดเจนโดยไม่มีฟิลเพิ่ม. Required environment: เคาน์เตอร์ไม้แห้ง เครื่องชงกาแฟเงียบในเงา ฝนพร่าอยู่นอกกระจก. Visible prop state: โทรศัพท์อยู่มือซ้าย หน้าจอหันเข้าหานารา; ป้าย CLOSED ยังอยู่มือขวา.\n\nCONTINUITY:\nKeep visible continuity: ไม่มีบุคคลอื่นในภาพ; ไม่มีข้อความบนโทรศัพท์; ไม่มีน้ำตา ไม่มีรอยยิ้มฉลอง; รักษาป้ายในมือขวาและโทรศัพท์ในมือซ้าย.\n\nPROHIBITIONS\n\nREFERENCE AUTHORITY:\nReference image 1 (character_reference): Preserve authorized identity, face, hair, skin and body proportions only; never copy its smile, gaze, pose, Look or setting. Reference image 2 (face_reference): Preserve only authorized facial identity and proportions; never copy smile, gaze, head pose, clothing, setting or style. Reference image 3 (outfit_front): Preserve only the approved front garment silhouette, color, material, construction and details; never copy the model pose or presentation. Reference roles are exclusive. Current Shot action, expression, gaze, posture, prop staging and light outrank incidental reference content. Use sheets and catalog images only as evidence; output one continuous Scene frame, never a sheet, collage, split screen, inset or repeated person.\n\nSUBJECT BEHAVIOR:\nReplace source clothing only with the explicitly approved outfit reference while preserving Character identity and proportions. Keep the authorized apparent age 20-23, matching the Character references without aging up or down. Render an observed narrative moment, not a posed portrait, fashion image or sales presentation. Reference expressions are not performance authority: do not add a friendly micro-smile or direct camera gaze unless the current Shot explicitly requires it. Keep natural asymmetry in head, shoulders, hands and weight; do not square the body into a welcoming camera-facing stance unless authored. Keep every prop at the authored hand, body height and angle; do not raise, center or turn it toward camera for readability unless that display is the authored action.\n\nPHOTOGRAPHIC BEHAVIOR:\nCreate one physically plausible live-action frame with readable Scene context, moderate depth separation and motivated available or practical light. The authored light controls exposure: preserve subject-to-background contrast and falloff; do not add beauty fill, lift the face or activate an unrequested fixture. Use source-consistent unretouched skin and restrained digital-camera response with natural highlight roll-off, subtle sensor noise in darker tones and slight optical softness; keep imperfections unobtrusive.\n\nEXECUTION CONSTRAINTS:\nNo glossy retouch, plastic skin, illustration, anime or CGI; no exaggerated grain, aberration, halation, HDR, sharpness or bokeh. No duplicate people, copied sheet layout, impossible reflections or unauthorized objects.",
+    "imageUrl": "/outputs/job_1788532766567_3173lml3d.png",
+    "timestamp": 1788532889429,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nReaction keyframe. Exact moment: นาราอยู่ครึ่งตัวด้านซ้ายของเฟรม โทรศัพท์แนบใกล้อกซ้าย ขณะสวิตช์ไฟเบลออยู่ด้านขวาหลังเธอ. One visible action: มือขวาเลื่อนป้าย CLOSED จากระดับต้นขาขึ้นมาแตะขอบเคาน์เตอร์โดยไม่วางลง.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: ค้างคา. Show only this state. Expression and posture: ริมฝีปากปิดนุ่ม สายตาค้างที่สวิตช์ ศีรษะเงยเล็กน้อย ไหล่ตั้งขึ้น มือขวาคุมป้ายอยู่กับขอบเคาน์เตอร์. Observable cue: ริมฝีปากคลายจากเส้นตรงและปิดนุ่ม; ดวงตามองเฉียงขวาไปยังสวิตช์ ศีรษะเงยเพียงเล็กน้อย; ไหล่ยกกลับสมดุลและนิ้วมือขวาหยุดกำป้ายแน่น. Gaze: มองผ่านเคาน์เตอร์ไปยังสวิตช์ไฟด้านขวา.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: มิดช็อตแนวตั้ง เห็นใบหน้า โทรศัพท์ และแนวเคาน์เตอร์ไปยังสวิตช์, ระดับสายตา, ระยะปานกลางคงใบหน้าและจุดหมายในระนาบเดียวกัน. Placement: นาราไม่หันเข้ากล้อง ลำตัวเฉียงขวา โทรศัพท์ชิดอกซ้าย ป้ายแตะขอบเคาน์เตอร์ด้วยมือขวา. Screen direction: สายตาและเส้นทางถัดไปมุ่งจากซ้ายไปขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: หน้าเคาน์เตอร์คาเฟ่, พลบค่ำต่อเนื่อง. Motivated light: แสงฝนจากซ้ายเผยตาซ้ายและสันจมูก ขณะที่แก้มขวาตกในเงา; ไฟเหนือเคาน์เตอร์ปิด ฉากหลังมืดกว่านาราชัดเจนโดยไม่มีฟิลเพิ่ม. Required environment: เคาน์เตอร์ไม้แห้ง เครื่องชงกาแฟเงียบในเงา ฝนพร่าอยู่นอกกระจก. Visible prop state: โทรศัพท์อยู่มือซ้าย หน้าจอหันเข้าหานารา; ป้าย CLOSED ยังอยู่มือขวา.\n\nCONTINUITY:\nKeep visible continuity: ไม่มีบุคคลอื่นในภาพ; ไม่มีข้อความบนโทรศัพท์; ไม่มีน้ำตา ไม่มีรอยยิ้มฉลอง; รักษาป้ายในมือขวาและโทรศัพท์ในมือซ้าย.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text. Do not introduce a person, prop, costume or location that is not authorized by this Shot. Do not combine two emotional states or depict a future action in this still.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1788141570490_qr4e3sif",
+      "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+        "canonicalThreeViewAssetId": "job_1788141385681_w10ssbudi",
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "อิงอิง",
+      "personalitySummarySnapshot": "สดใส น่ารัก เฟรนลี่",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story",
+        "general"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "อิงอิง"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "outfit_front"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "610a4b7183258ea5a03f82e00a0eb805dfd4f94c52afaf6456d8677f477abb5a",
+      "executionMode": "single_stage",
+      "referenceCount": 3,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "outfit_front",
+          "sourceAssetId": "ast_1788231421726_46lql8fh",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": "full_look",
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerOutputProvenance": {
+      "kind": "provider_generated_image",
+      "providerId": "modelark",
+      "requestedModelId": "seedream-5-0-lite-260128",
+      "resolvedModelId": "seedream-5-0-260128",
+      "providerRequestId": "021788532774534a491eea4a025beb52fc51c9506f8c2b2c61c64",
+      "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
+      "generatedAt": "2026-09-04T14:41:29.336Z",
+      "responseFormat": "b64_json",
+      "originalBytesPreserved": true
+    },
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1788141157424_rmj24k5ov"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1788141385681_w10ssbudi"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "122.6",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788532766567_qrs5i1i7",
+    "outputIndex": 0,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "b2041129d7a24086",
+    "referenceProcessingPlanFingerprint": "610a4b7183258ea5a03f82e00a0eb805dfd4f94c52afaf6456d8677f477abb5a",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "b2041129d7a24086",
+      "afterFingerprint": "b2041129d7a24086",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788532766567_3173lml3d.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 61510,
+    "originalBytes": 4324351,
+    "performanceTimings": {
+      "queueWaitMs": 2,
+      "referenceProcessingMs": 5011,
+      "providerMs": 117566,
+      "outputPersistenceMs": 347,
+      "totalMs": 122929
+    }
+  },
+  {
+    "id": "job_1788532576587_7v5yn0t85",
+    "username": "user_alice",
+    "prompt": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nInsert keyframe. Exact moment: โทรศัพท์วางเอียงบนขอบเคาน์เตอร์ โดยนิ้วโป้งซ้ายของนาราค้างเหนือจุดควบคุมที่ไม่มีข้อความอ่านได้. One visible action: นิ้วโป้งซ้ายกดลงบนกระจกโทรศัพท์หนึ่งครั้ง.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: ลังเล. Show only this state. Expression and posture: มือเท่านั้น: นิ้วโป้งแตะกระจก นิ้วอื่นกำขอบเครื่องอย่างพอดี. Observable cue: มือเท่านั้น: นิ้วโป้งซ้ายงอเหนือกระจก ข้อนิ้วชี้ตึงเล็กน้อย และนิ้วอื่นกดขอบเครื่องไว้กับเคาน์เตอร์. Gaze: ไม่มีใบหน้าในเฟรม.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: โคลสอัปเฉพาะมือซ้ายและโทรศัพท์, สูงกว่าระดับมือเล็กน้อย, ระยะใกล้แยกแรงกดนิ้วจากพื้นผิวไม้. Placement: มือซ้ายพยุงโทรศัพท์ที่มุมล่างซ้าย; มือขวาและป้ายอยู่นอกเฟรม. Screen direction: นาราอยู่ฝั่งซ้ายของเฟรม ลำตัวและใบหน้าหันเฉียงสู่เคาน์เตอร์และประตูกระจกทางขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: ภายในคาเฟ่ครอบครัว มองผ่านกระจกหน้าร้านไปยังฝนด้านนอก, พลบค่ำฝนตก. Motivated light: แสงฟ้าจากซ้ายสะท้อนหม่นบนขอบโทรศัพท์; ไฟเหนือเคาน์เตอร์ปิด พื้นไม้รับแสงต่ำและมีเงานิ้วชัด. Required environment: ขอบเคาน์เตอร์ไม้แห้ง มีพื้นร้านมืดละลายอยู่ด้านหลัง. Visible prop state: ป้าย CLOSED เริ่มในมือขวา โทรศัพท์อยู่มือซ้าย หน้าจอหันเข้าหานาราเสมอ.\n\nCONTINUITY:\nKeep visible continuity: ร้านยังมืด ไฟเหนือเคาน์เตอร์ปิด; ภายในแห้ง; ความเปียกอยู่เฉพาะนอกกระจก; หน้าจอไม่มีข้อความที่อ่านได้. Match the authorized previous keyframe for identity, wardrobe and environment continuity.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text.\n\nREFERENCE AUTHORITY:\nReference image 1 (character_reference): Preserve authorized identity, face, hair, skin and body proportions only; never copy its smile, gaze, pose, Look or setting. Reference image 2 (face_reference): Preserve only authorized facial identity and proportions; never copy smile, gaze, head pose, clothing, setting or style. Reference image 3 (outfit_front): Preserve only the approved front garment silhouette, color, material, construction and details; never copy the model pose or presentation. Reference image 4 (style_reference): Use only its lighting, palette, contrast, texture and photographic mood; do not copy identity, pose, clothing or scene content. Reference roles are exclusive. Current Shot action, expression, gaze, posture, prop staging and light outrank incidental reference content. Use sheets and catalog images only as evidence; output one continuous Scene frame, never a sheet, collage, split screen, inset or repeated person.\n\nSUBJECT BEHAVIOR:\nReplace source clothing only with the explicitly approved outfit reference while preserving Character identity and proportions. Keep the authorized apparent age 20-23, matching the Character references without aging up or down. Render an observed narrative moment, not a posed portrait, fashion image or sales presentation. Reference expressions are not performance authority: do not add a friendly micro-smile or direct camera gaze unless the current Shot explicitly requires it. Keep natural asymmetry in head, shoulders, hands and weight; do not square the body into a welcoming camera-facing stance unless authored. Keep every prop at the authored hand, body height and angle; do not raise, center or turn it toward camera for readability unless that display is the authored action.\n\nPHOTOGRAPHIC BEHAVIOR:\nCreate one physically plausible live-action frame with readable Scene context, moderate depth separation and motivated available or practical light. The authored light controls exposure: preserve subject-to-background contrast and falloff; do not add beauty fill, lift the face or activate an unrequested fixture. Use source-consistent unretouched skin and restrained digital-camera response with natural highlight roll-off, subtle sensor noise in darker tones and slight optical softness; keep imperfections unobtrusive.\n\nEXECUTION CONSTRAINTS:\nNo glossy retouch, plastic skin, illustration, anime or CGI; no exaggerated grain, aberration, halation, HDR, sharpness or bokeh. No duplicate people, copied sheet layout, impossible reflections or unauthorized objects.",
+    "imageUrl": "/outputs/job_1788532576587_7v5yn0t85.png",
+    "timestamp": 1788532740114,
+    "provider": "modelark",
+    "submodel": "dola-seedream-5-0-pro-260628",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nInsert keyframe. Exact moment: โทรศัพท์วางเอียงบนขอบเคาน์เตอร์ โดยนิ้วโป้งซ้ายของนาราค้างเหนือจุดควบคุมที่ไม่มีข้อความอ่านได้. One visible action: นิ้วโป้งซ้ายกดลงบนกระจกโทรศัพท์หนึ่งครั้ง.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: ลังเล. Show only this state. Expression and posture: มือเท่านั้น: นิ้วโป้งแตะกระจก นิ้วอื่นกำขอบเครื่องอย่างพอดี. Observable cue: มือเท่านั้น: นิ้วโป้งซ้ายงอเหนือกระจก ข้อนิ้วชี้ตึงเล็กน้อย และนิ้วอื่นกดขอบเครื่องไว้กับเคาน์เตอร์. Gaze: ไม่มีใบหน้าในเฟรม.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: โคลสอัปเฉพาะมือซ้ายและโทรศัพท์, สูงกว่าระดับมือเล็กน้อย, ระยะใกล้แยกแรงกดนิ้วจากพื้นผิวไม้. Placement: มือซ้ายพยุงโทรศัพท์ที่มุมล่างซ้าย; มือขวาและป้ายอยู่นอกเฟรม. Screen direction: นาราอยู่ฝั่งซ้ายของเฟรม ลำตัวและใบหน้าหันเฉียงสู่เคาน์เตอร์และประตูกระจกทางขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: ภายในคาเฟ่ครอบครัว มองผ่านกระจกหน้าร้านไปยังฝนด้านนอก, พลบค่ำฝนตก. Motivated light: แสงฟ้าจากซ้ายสะท้อนหม่นบนขอบโทรศัพท์; ไฟเหนือเคาน์เตอร์ปิด พื้นไม้รับแสงต่ำและมีเงานิ้วชัด. Required environment: ขอบเคาน์เตอร์ไม้แห้ง มีพื้นร้านมืดละลายอยู่ด้านหลัง. Visible prop state: ป้าย CLOSED เริ่มในมือขวา โทรศัพท์อยู่มือซ้าย หน้าจอหันเข้าหานาราเสมอ.\n\nCONTINUITY:\nKeep visible continuity: ร้านยังมืด ไฟเหนือเคาน์เตอร์ปิด; ภายในแห้ง; ความเปียกอยู่เฉพาะนอกกระจก; หน้าจอไม่มีข้อความที่อ่านได้. Match the authorized previous keyframe for identity, wardrobe and environment continuity.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text. Do not introduce a person, prop, costume or location that is not authorized by this Shot. Do not combine two emotional states or depict a future action in this still.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1788141570490_qr4e3sif",
+      "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+        "canonicalThreeViewAssetId": "job_1788141385681_w10ssbudi",
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "อิงอิง",
+      "personalitySummarySnapshot": "สดใส น่ารัก เฟรนลี่",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story",
+        "general"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "อิงอิง"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "outfit_front"
+        ]
+      },
+      {
+        "index": 4,
+        "roles": [
+          "style_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "664c5f31ef092ef4e70400fdd221392b7240fb720ee4b4b6a1de55c49519cb8b",
+      "executionMode": "single_stage",
+      "referenceCount": 4,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "outfit_front",
+          "sourceAssetId": "ast_1788231421726_46lql8fh",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": "full_look",
+          "warningCodes": []
+        },
+        {
+          "role": "style_reference",
+          "sourceAssetId": "ast_1788532559508_3qq8ylp5",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "dola-seedream-5-0-pro-260628",
+    "providerOutputProvenance": {
+      "kind": "provider_generated_image",
+      "providerId": "modelark",
+      "requestedModelId": "dola-seedream-5-0-pro-260628",
+      "resolvedModelId": "dola-seedream-5-0-pro-260628",
+      "providerRequestId": "0217885325858608547934892c4038781a87d514f9a9196990376",
+      "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
+      "generatedAt": "2026-09-04T14:39:00.005Z",
+      "responseFormat": "b64_json",
+      "originalBytesPreserved": true
+    },
+    "providerConfigVersion": 1,
+    "creditCost": 75,
+    "mimeType": "image/png",
+    "width": 736,
+    "height": 1312,
+    "usage": {
+      "input_images": 4,
+      "generated_images": 1,
+      "output_tokens": 3772,
+      "total_tokens": 3772
+    },
+    "referencedFaceJobIds": [
+      "job_1788141157424_rmj24k5ov"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1788141385681_w10ssbudi"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "163.2",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788532576587_xsuddt09",
+    "outputIndex": 0,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "cfacabb0b8aad069",
+    "referenceProcessingPlanFingerprint": "664c5f31ef092ef4e70400fdd221392b7240fb720ee4b4b6a1de55c49519cb8b",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "cfacabb0b8aad069",
+      "afterFingerprint": "cfacabb0b8aad069",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788532576587_7v5yn0t85.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 718,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 74138,
+    "originalBytes": 1589648,
+    "performanceTimings": {
+      "queueWaitMs": 2,
+      "referenceProcessingMs": 7435,
+      "providerMs": 155794,
+      "outputPersistenceMs": 373,
+      "totalMs": 163605
+    }
+  },
+  {
+    "id": "job_1788532284719_k3nln2lws",
+    "username": "user_alice",
+    "prompt": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nEstablishing keyframe. Exact moment: นารายืนเต็มตัวด้านซ้ายหลังโต๊ะคลุมผ้า โดยป้าย CLOSED ห้อยเอียงจากมือขวาที่ระดับต้นขา. One visible action: นิ้วโป้งซ้ายเลื่อนโทรศัพท์จากฝ่ามือขึ้นมาหยุดเหนือขอบเคาน์เตอร์.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: โดดเดี่ยว. Show only this state. Expression and posture: ใบหน้าเห็นชัด ริมฝีปากนิ่ง สายตาลงโทรศัพท์ ศีรษะก้ม ไหล่ตก มือขวาปล่อยป้ายให้เอียงตามแรงโน้มถ่วง. Observable cue: ริมฝีปากปิดเป็นเส้นตรงไม่เม้ม ฟันไม่ขบ; ดวงตามองต่ำที่โทรศัพท์ ศีรษะก้มเล็กน้อย; ไหล่ขวาตกกว่าไหล่ซ้ายและน้ำหนักลงเท้าซ้าย. Gaze: มองโทรศัพท์ในมือซ้าย ไม่มองกล้อง.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: ภาพเต็มตัวแนวตั้ง เห็นนารา โต๊ะคลุมผ้า เคาน์เตอร์ และประตูกระจกด้านขวา, ระดับอก, มุมกว้างพอเห็นระยะจากนาราถึงประตูและเคาน์เตอร์. Placement: นาราหันเฉียงขวา ไม่หันตรงเข้ากล้อง; โทรศัพท์อยู่มือซ้ายใกล้สะโพก. Screen direction: นาราอยู่ฝั่งซ้ายของเฟรม ลำตัวและใบหน้าหันเฉียงสู่เคาน์เตอร์และประตูกระจกทางขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: ภายในคาเฟ่ครอบครัว มองผ่านกระจกหน้าร้านไปยังฝนด้านนอก, พลบค่ำฝนตก. Motivated light: แสงฟ้าจากกระจกซ้ายตกบนแก้มและแขนซ้ายราวหนึ่งสต็อปเหนือฉากหลัง; ไฟเหนือเคาน์เตอร์ปิด กระจกสะท้อนฝนหม่น และเงาสัมผัสใต้รองเท้าชัดบนพื้นแห้ง. Required environment: คาเฟ่เล็ก โต๊ะและเก้าอี้คลุมผ้าสีหม่น ฝนอยู่นอกกระจก พื้นภายในแห้ง. Visible prop state: ป้าย CLOSED เริ่มในมือขวา โทรศัพท์อยู่มือซ้าย หน้าจอหันเข้าหานาราเสมอ.\n\nCONTINUITY:\nKeep visible continuity: ร้านยังมืด ไฟเหนือเคาน์เตอร์ปิด; ภายในแห้ง; ความเปียกอยู่เฉพาะนอกกระจก\n\nREFERENCE AUTHORITY:\nReference image 1 (character_reference): Preserve authorized identity, face, hair, skin and body proportions only; never copy its smile, gaze, pose, Look or setting. Reference image 2 (face_reference): Preserve only authorized facial identity and proportions; never copy smile, gaze, head pose, clothing, setting or style. Reference image 3 (outfit_front): Preserve only the approved front garment silhouette, color, material, construction and details; never copy the model pose or presentation. Reference roles are exclusive. Current Shot action, expression, gaze, posture, prop staging and light outrank incidental reference content. Use sheets and catalog images only as evidence; output one continuous Scene frame, never a sheet, collage, split screen, inset or repeated person.\n\nSUBJECT BEHAVIOR:\nReplace source clothing only with the explicitly approved outfit reference while preserving Character identity and proportions. Keep the authorized apparent age 20-23, matching the Character references without aging up or down. Render an observed narrative moment, not a posed portrait, fashion image or sales presentation. Reference expressions are not performance authority: do not add a friendly micro-smile or direct camera gaze unless the current Shot explicitly requires it. Keep natural asymmetry in head, shoulders, hands and weight; do not square the body into a welcoming camera-facing stance unless authored. Keep every prop at the authored hand, body height and angle; do not raise, center or turn it toward camera for readability unless that display is the authored action.\n\nPHOTOGRAPHIC BEHAVIOR:\nCreate one physically plausible live-action frame with readable Scene context, moderate depth separation and motivated available or practical light. The authored light controls exposure: preserve subject-to-background contrast and falloff; do not add beauty fill, lift the face or activate an unrequested fixture. Use source-consistent unretouched skin and restrained digital-camera response with natural highlight roll-off, subtle sensor noise in darker tones and slight optical softness; keep imperfections unobtrusive.\n\nEXECUTION CONSTRAINTS:\nNo glossy retouch, plastic skin, illustration, anime or CGI; no exaggerated grain, aberration, halation, HDR, sharpness or bokeh. No duplicate people, copied sheet layout, impossible reflections or unauthorized objects.",
+    "imageUrl": "/outputs/job_1788532284719_k3nln2lws.png",
+    "timestamp": 1788532420840,
+    "provider": "modelark",
+    "submodel": "dola-seedream-5-0-pro-260628",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nEstablishing keyframe. Exact moment: นารายืนเต็มตัวด้านซ้ายหลังโต๊ะคลุมผ้า โดยป้าย CLOSED ห้อยเอียงจากมือขวาที่ระดับต้นขา. One visible action: นิ้วโป้งซ้ายเลื่อนโทรศัพท์จากฝ่ามือขึ้นมาหยุดเหนือขอบเคาน์เตอร์.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: โดดเดี่ยว. Show only this state. Expression and posture: ใบหน้าเห็นชัด ริมฝีปากนิ่ง สายตาลงโทรศัพท์ ศีรษะก้ม ไหล่ตก มือขวาปล่อยป้ายให้เอียงตามแรงโน้มถ่วง. Observable cue: ริมฝีปากปิดเป็นเส้นตรงไม่เม้ม ฟันไม่ขบ; ดวงตามองต่ำที่โทรศัพท์ ศีรษะก้มเล็กน้อย; ไหล่ขวาตกกว่าไหล่ซ้ายและน้ำหนักลงเท้าซ้าย. Gaze: มองโทรศัพท์ในมือซ้าย ไม่มองกล้อง.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: ภาพเต็มตัวแนวตั้ง เห็นนารา โต๊ะคลุมผ้า เคาน์เตอร์ และประตูกระจกด้านขวา, ระดับอก, มุมกว้างพอเห็นระยะจากนาราถึงประตูและเคาน์เตอร์. Placement: นาราหันเฉียงขวา ไม่หันตรงเข้ากล้อง; โทรศัพท์อยู่มือซ้ายใกล้สะโพก. Screen direction: นาราอยู่ฝั่งซ้ายของเฟรม ลำตัวและใบหน้าหันเฉียงสู่เคาน์เตอร์และประตูกระจกทางขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: ภายในคาเฟ่ครอบครัว มองผ่านกระจกหน้าร้านไปยังฝนด้านนอก, พลบค่ำฝนตก. Motivated light: แสงฟ้าจากกระจกซ้ายตกบนแก้มและแขนซ้ายราวหนึ่งสต็อปเหนือฉากหลัง; ไฟเหนือเคาน์เตอร์ปิด กระจกสะท้อนฝนหม่น และเงาสัมผัสใต้รองเท้าชัดบนพื้นแห้ง. Required environment: คาเฟ่เล็ก โต๊ะและเก้าอี้คลุมผ้าสีหม่น ฝนอยู่นอกกระจก พื้นภายในแห้ง. Visible prop state: ป้าย CLOSED เริ่มในมือขวา โทรศัพท์อยู่มือซ้าย หน้าจอหันเข้าหานาราเสมอ.\n\nCONTINUITY:\nKeep visible continuity: ร้านยังมืด ไฟเหนือเคาน์เตอร์ปิด; ภายในแห้ง; ความเปียกอยู่เฉพาะนอกกระจก; ไม่อ่านข้อความหรือส่วนติดต่อบนหน้าจอโทรศัพท์.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text. Do not introduce a person, prop, costume or location that is not authorized by this Shot. Do not combine two emotional states or depict a future action in this still.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1788141570490_qr4e3sif",
+      "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+        "canonicalThreeViewAssetId": "job_1788141385681_w10ssbudi",
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "อิงอิง",
+      "personalitySummarySnapshot": "สดใส น่ารัก เฟรนลี่",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story",
+        "general"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "อิงอิง"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "outfit_front"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "fe770805ecef5223a53705a12b598c207bbecb231a2b3367738b2b4aa019e6d4",
+      "executionMode": "single_stage",
+      "referenceCount": 3,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "outfit_front",
+          "sourceAssetId": "ast_1788231421726_46lql8fh",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": "full_look",
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "dola-seedream-5-0-pro-260628",
+    "providerOutputProvenance": {
+      "kind": "provider_generated_image",
+      "providerId": "modelark",
+      "requestedModelId": "dola-seedream-5-0-pro-260628",
+      "resolvedModelId": "dola-seedream-5-0-pro-260628",
+      "providerRequestId": "021788532290545b70b2a74477c2b606f823ac231da83298c2bfb",
+      "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
+      "generatedAt": "2026-09-04T14:33:40.723Z",
+      "responseFormat": "b64_json",
+      "originalBytesPreserved": true
+    },
+    "providerConfigVersion": 1,
+    "creditCost": 70,
+    "mimeType": "image/png",
+    "width": 736,
+    "height": 1312,
+    "usage": {
+      "input_images": 3,
+      "generated_images": 1,
+      "output_tokens": 3772,
+      "total_tokens": 3772
+    },
+    "referencedFaceJobIds": [
+      "job_1788141157424_rmj24k5ov"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1788141385681_w10ssbudi"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "135.9",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788532284718_nzpc7qde",
+    "outputIndex": 0,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "89c3149ba224302b",
+    "referenceProcessingPlanFingerprint": "fe770805ecef5223a53705a12b598c207bbecb231a2b3367738b2b4aa019e6d4",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "89c3149ba224302b",
+      "afterFingerprint": "89c3149ba224302b",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788532284719_k3nln2lws.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 718,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 87596,
+    "originalBytes": 1627735,
+    "performanceTimings": {
+      "queueWaitMs": 3,
+      "referenceProcessingMs": 5045,
+      "providerMs": 130843,
+      "outputPersistenceMs": 434,
+      "totalMs": 136326
+    }
+  },
+  {
+    "id": "job_1788522382229_s7kppkrfy",
+    "username": "user_alice",
+    "prompt": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nEstablishing keyframe. Exact moment: นารายืนในคาเฟ่ที่โต๊ะคลุมผ้า ขณะฝนตกนอกกระจก. One visible action: มือข้างหนึ่งถือป้าย CLOSED ไว้แนบลำตัว อีกข้างห้อยนิ่งข้างตัว.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: โดดเดี่ยวและลังเล. Show only this state. Expression and posture: นิ่ง ยับยั้ง ไม่ร้องไห้. Observable cue: คางต่ำ สายตาเหลือบไปทางประตูด้านขวา.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: แนวตั้ง medium-wide, ระดับสายตา. Placement: นาราอยู่ด้านขวาของเฟรม ทางออกด้านขวา โต๊ะคลุมผ้าอยู่ด้านซ้าย. Screen direction: นาราหันไปทางขวา ทางออกอยู่ด้านขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: ภายในคาเฟ่ครอบครัว, ยามเย็น. Motivated light: โทนฟ้าเย็นจากภายนอก มีเงาสะท้อนฝนบนกระจก. Required environment: คาเฟ่ปิดร้าน โต๊ะคลุมผ้า เคาน์เตอร์มืด พื้นภายในแห้ง. Visible prop state: ป้ายแสดงคำว่า CLOSED และยังอยู่ในมือนารา โทรศัพท์วางบนเคาน์เตอร์.\n\nCONTINUITY:\nKeep visible continuity: ไม่มีบุคคลอื่น; ภายในร้านแห้งสนิท; ป้ายต้องอ่านได้เฉพาะ CLOSED.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text. Do not introduce a person, prop, costume or location that is not authorized by this Shot. Do not combine two emotional states or depict a future action in this still.\n\nAUTHOR DIRECTION:\nrealistic vertical cinematic frame, a restrained young woman alone inside a closed family café at blue dusk, covered tables, she holds a CLOSED sign, rain visible only beyond the window, dry interior, exit on frame right, cool natural light, no other people, no subtitles or overlays\n\nREFERENCE AUTHORITY:\nReference image 1 (character_reference): Preserve the authorized Character identity, face, hair, skin and body proportions only; follow the current Shot for pose, expression, Look and setting. Reference image 2 (face_reference): Preserve only the authorized facial identity and facial proportions; do not copy pose, clothing, setting or style. Reference image 3 (outfit_front): Preserve only the approved front garment silhouette, color, material, construction and visible details. Reference roles are exclusive. Ignore incidental pose, expression, background, layout and styling outside each assigned role. Use sheets and catalog images only as source evidence; output one continuous Scene frame, never a sheet, collage, split screen, inset or repeated person.\n\nSUBJECT BEHAVIOR:\nReplace source clothing only with the explicitly approved outfit reference while preserving Character identity and proportions. Render an observed narrative moment, not a posed portrait or fashion presentation. Keep natural asymmetry in shoulders, hands and weight; props belong to the action, with no direct camera gaze unless authored. Keep the authorized apparent age 20-23, matching the Character references without aging up or down.\n\nPHOTOGRAPHIC BEHAVIOR:\nCreate one physically plausible live-action frame with readable Scene context, moderate depth separation and motivated available or practical light. Keep believable falloff, contact shadows, reflections, scale and material response. Keep source-consistent unretouched skin, slight tonal variation, natural hair strands, garment weight, fabric weave and contact compression. Allow subtle sensor noise, fine grain, slight optical softness, natural focus falloff, restrained highlight halation and minute lens imperfection.\n\nEXECUTION CONSTRAINTS:\nNo fashion or beauty posing or prop display; no glossy retouch, plastic skin, illustration or CGI, excessive HDR, artificial sharpness or exaggerated bokeh. No duplicate people, copied sheet layout, impossible reflections or unauthorized objects.",
+    "imageUrl": "/outputs/job_1788522382229_s7kppkrfy.jpg",
+    "timestamp": 1788522424051,
+    "provider": "modelark",
+    "submodel": "seedream-4-5-251128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nEstablishing keyframe. Exact moment: นารายืนในคาเฟ่ที่โต๊ะคลุมผ้า ขณะฝนตกนอกกระจก. One visible action: มือข้างหนึ่งถือป้าย CLOSED ไว้แนบลำตัว อีกข้างห้อยนิ่งข้างตัว.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: โดดเดี่ยวและลังเล. Show only this state. Expression and posture: นิ่ง ยับยั้ง ไม่ร้องไห้. Observable cue: คางต่ำ สายตาเหลือบไปทางประตูด้านขวา.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: แนวตั้ง medium-wide, ระดับสายตา. Placement: นาราอยู่ด้านขวาของเฟรม ทางออกด้านขวา โต๊ะคลุมผ้าอยู่ด้านซ้าย. Screen direction: นาราหันไปทางขวา ทางออกอยู่ด้านขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: ภายในคาเฟ่ครอบครัว, ยามเย็น. Motivated light: โทนฟ้าเย็นจากภายนอก มีเงาสะท้อนฝนบนกระจก. Required environment: คาเฟ่ปิดร้าน โต๊ะคลุมผ้า เคาน์เตอร์มืด พื้นภายในแห้ง. Visible prop state: ป้ายแสดงคำว่า CLOSED และยังอยู่ในมือนารา โทรศัพท์วางบนเคาน์เตอร์.\n\nCONTINUITY:\nKeep visible continuity: ไม่มีบุคคลอื่น; ภายในร้านแห้งสนิท; ป้ายต้องอ่านได้เฉพาะ CLOSED.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text. Do not introduce a person, prop, costume or location that is not authorized by this Shot. Do not combine two emotional states or depict a future action in this still.\n\nAUTHOR DIRECTION:\nrealistic vertical cinematic frame, a restrained young woman alone inside a closed family café at blue dusk, covered tables, she holds a CLOSED sign, rain visible only beyond the window, dry interior, exit on frame right, cool natural light, no other people, no subtitles or overlays",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1788141570490_qr4e3sif",
+      "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+        "canonicalThreeViewAssetId": "job_1788141385681_w10ssbudi",
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "อิงอิง",
+      "personalitySummarySnapshot": "สดใส น่ารัก เฟรนลี่",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story",
+        "general"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "อิงอิง"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "outfit_front"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "35b07f4a2d49031e7a6a8e9e23265ff134c8effd64a934521560861520198216",
+      "executionMode": "single_stage",
+      "referenceCount": 3,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "outfit_front",
+          "sourceAssetId": "ast_1788231421726_46lql8fh",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": "full_look",
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-4-5-251128",
+    "providerOutputProvenance": {
+      "kind": "provider_generated_image",
+      "providerId": "modelark",
+      "requestedModelId": "seedream-4-5-251128",
+      "resolvedModelId": "seedream-4-5-251128",
+      "providerRequestId": "02178852239131032716c93dca5f9defc0d360fd0d690bd43b5f5",
+      "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
+      "generatedAt": "2026-09-04T11:47:03.926Z",
+      "responseFormat": "b64_json",
+      "originalBytesPreserved": true
+    },
+    "providerConfigVersion": 1,
+    "creditCost": 60,
+    "mimeType": "image/jpeg",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1788141157424_rmj24k5ov"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1788141385681_w10ssbudi"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "41.5",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788522382229_o8ufvydn",
+    "outputIndex": 0,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "23019dfffa986e61",
+    "referenceProcessingPlanFingerprint": "35b07f4a2d49031e7a6a8e9e23265ff134c8effd64a934521560861520198216",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "23019dfffa986e61",
+      "afterFingerprint": "23019dfffa986e61",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788522382229_s7kppkrfy.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 67906,
+    "originalBytes": 839135,
+    "performanceTimings": {
+      "queueWaitMs": 2,
+      "referenceProcessingMs": 8305,
+      "providerMs": 33217,
+      "outputPersistenceMs": 456,
+      "totalMs": 41981
+    }
+  },
+  {
+    "id": "job_1788515484887_wsl3byoai",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Replace the source outfit with the explicitly supplied outfit reference while preserving the character identity and body proportions. Follow the destination expression, pose, clothing, styling, and environment directions. Character personality baseline: สดใส น่ารัก เฟรนลี่. Treat these traits as background characterization, not as an instruction for the current facial expression, gaze or pose. The selected Shot emotional target, performance and gaze have higher authority; do not infer a smile or direct eye contact unless that Shot explicitly requests it. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. Reference image 3: outfit_front: Transfer only the declared front garment scope, including silhouette, construction, color, pattern, material, and visible clothing details. Suppress the source wearer identity, hair, body identity, pose, room, and lighting style. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nEstablishing keyframe. Exact moment: นารายืนในคาเฟ่ที่โต๊ะคลุมผ้า ขณะฝนตกนอกกระจก. One visible action: มือข้างหนึ่งถือป้าย CLOSED ไว้แนบลำตัว อีกข้างห้อยนิ่งข้างตัว.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: โดดเดี่ยวและลังเล. Show only this state. Expression and posture: นิ่ง ยับยั้ง ไม่ร้องไห้. Observable cue: คางต่ำ สายตาเหลือบไปทางประตูด้านขวา.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: แนวตั้ง medium-wide, ระดับสายตา. Placement: นาราอยู่ด้านขวาของเฟรม ทางออกด้านขวา โต๊ะคลุมผ้าอยู่ด้านซ้าย. Screen direction: นาราหันไปทางขวา ทางออกอยู่ด้านขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: ภายในคาเฟ่ครอบครัว, ยามเย็น. Motivated light: โทนฟ้าเย็นจากภายนอก มีเงาสะท้อนฝนบนกระจก. Required environment: คาเฟ่ปิดร้าน โต๊ะคลุมผ้า เคาน์เตอร์มืด พื้นภายในแห้ง. Visible prop state: ป้ายแสดงคำว่า CLOSED และยังอยู่ในมือนารา โทรศัพท์วางบนเคาน์เตอร์.\n\nCONTINUITY:\nKeep visible continuity: ไม่มีบุคคลอื่น; ภายในร้านแห้งสนิท; ป้ายต้องอ่านได้เฉพาะ CLOSED.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text. Do not introduce a person, prop, costume or location that is not authorized by this Shot. Do not combine two emotional states or depict a future action in this still.\n\nAUTHOR DIRECTION:\nrealistic vertical cinematic frame, a restrained young woman alone inside a closed family café at blue dusk, covered tables, she holds a CLOSED sign, rain visible only beyond the window, dry interior, exit on frame right, cool natural light, no other people, no subtitles or overlays Cinematic still policy (cinematic-storyboard-still v2): Render one physically plausible live-action frame rather than a portrait, illustration or synthetic glamour image. Treat the Shot moment, one action, emotional target, posture and gaze as visible authority; personality is background only. Integrate the Character into the location through coherent perspective, scale, occlusion, contact shadows, reflections and environmental color. Keep production lighting motivated and cinematic without making it studio-perfect or changing the authored light source. Do not add direct-to-camera smiling, fashion posing, future action or a second emotional state unless the Shot explicitly requires it. Hidden capture profile (photorealistic-cinematic v2): Render a live-action cinematic photograph with natural human proportions, grounded posture and physically plausible environment scale. Keep skin unretouched with subtle pores, slight tonal variation, natural translucency, restrained specular highlights and ordinary under-eye texture. Render individual hair strands, a few subtle flyaway hairs, believable fabric weave, garment weight and material response. Use motivated available and practical light with slightly uneven illumination, natural shadow falloff, realistic highlight roll-off and restrained dynamic range. Allow fine luminance noise, very subtle high-ISO grain, slight optical softness, natural focus falloff, mild highlight halation and minute lens imperfection. Keep framing and body language candid and slightly imperfect while preserving the authored Shot composition, Character identity, wardrobe and emotional target. No illustration, anime, CGI, 3D-rendered, doll-like, waxy or plastic-skin appearance. No beauty filter, airbrushing, perfect facial symmetry, glossy advertising retouching, excessive HDR, artificial hyper-sharpness or synthetic skin glow. No exaggerated grain, chromatic aberration, bokeh or lens effects that draw attention away from the Storyboard moment. No impossible reflections, duplicated objects, malformed hands or physically unexplained interior weather effects. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788515484887_wsl3byoai.png",
+    "timestamp": 1788515561237,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nEstablishing keyframe. Exact moment: นารายืนในคาเฟ่ที่โต๊ะคลุมผ้า ขณะฝนตกนอกกระจก. One visible action: มือข้างหนึ่งถือป้าย CLOSED ไว้แนบลำตัว อีกข้างห้อยนิ่งข้างตัว.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: โดดเดี่ยวและลังเล. Show only this state. Expression and posture: นิ่ง ยับยั้ง ไม่ร้องไห้. Observable cue: คางต่ำ สายตาเหลือบไปทางประตูด้านขวา.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: แนวตั้ง medium-wide, ระดับสายตา. Placement: นาราอยู่ด้านขวาของเฟรม ทางออกด้านขวา โต๊ะคลุมผ้าอยู่ด้านซ้าย. Screen direction: นาราหันไปทางขวา ทางออกอยู่ด้านขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: ภายในคาเฟ่ครอบครัว, ยามเย็น. Motivated light: โทนฟ้าเย็นจากภายนอก มีเงาสะท้อนฝนบนกระจก. Required environment: คาเฟ่ปิดร้าน โต๊ะคลุมผ้า เคาน์เตอร์มืด พื้นภายในแห้ง. Visible prop state: ป้ายแสดงคำว่า CLOSED และยังอยู่ในมือนารา โทรศัพท์วางบนเคาน์เตอร์.\n\nCONTINUITY:\nKeep visible continuity: ไม่มีบุคคลอื่น; ภายในร้านแห้งสนิท; ป้ายต้องอ่านได้เฉพาะ CLOSED.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text. Do not introduce a person, prop, costume or location that is not authorized by this Shot. Do not combine two emotional states or depict a future action in this still.\n\nAUTHOR DIRECTION:\nrealistic vertical cinematic frame, a restrained young woman alone inside a closed family café at blue dusk, covered tables, she holds a CLOSED sign, rain visible only beyond the window, dry interior, exit on frame right, cool natural light, no other people, no subtitles or overlays",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1788141570490_qr4e3sif",
+      "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "characterProfileVersionId": "charver_1788141570511_ehf0ebce",
+        "canonicalThreeViewAssetId": "job_1788141385681_w10ssbudi",
+        "canonicalFaceAssetId": "job_1788141157424_rmj24k5ov",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "อิงอิง",
+      "personalitySummarySnapshot": "สดใส น่ารัก เฟรนลี่",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story",
+        "general"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1788141570490_qr4e3sif",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "อิงอิง"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "outfit_front"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "610a4b7183258ea5a03f82e00a0eb805dfd4f94c52afaf6456d8677f477abb5a",
+      "executionMode": "single_stage",
+      "referenceCount": 3,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "outfit_front",
+          "sourceAssetId": "ast_1788231421726_46lql8fh",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": "full_look",
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerOutputProvenance": {
+      "kind": "provider_generated_image",
+      "providerId": "modelark",
+      "requestedModelId": "seedream-5-0-lite-260128",
+      "resolvedModelId": "seedream-5-0-260128",
+      "providerRequestId": "021788515491562085ce2a5b85bafc715e5d42a46d04551c6fb01",
+      "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
+      "generatedAt": "2026-09-04T09:52:41.131Z",
+      "responseFormat": "b64_json",
+      "originalBytesPreserved": true
+    },
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1788141157424_rmj24k5ov"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1788141385681_w10ssbudi"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "76.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788515484887_bkw31gl8",
+    "outputIndex": 0,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "742514eb5628e0a2",
+    "referenceProcessingPlanFingerprint": "610a4b7183258ea5a03f82e00a0eb805dfd4f94c52afaf6456d8677f477abb5a",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "742514eb5628e0a2",
+      "afterFingerprint": "742514eb5628e0a2",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788515484887_wsl3byoai.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 67408,
+    "originalBytes": 4135804,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 4055,
+      "providerMs": 72043,
+      "outputPersistenceMs": 381,
+      "totalMs": 76481
+    }
+  },
+  {
     "id": "job_1788456336164_wdkcsq4g5",
     "username": "user_alice",
     "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Replace the source outfit with the explicitly supplied outfit reference while preserving the character identity and body proportions. Follow the destination expression, pose, clothing, styling, and environment directions. Character personality baseline: สดใส น่ารัก เฟรนลี่. Treat these traits as background characterization, not as an instruction for the current facial expression, gaze or pose. The selected Shot emotional target, performance and gaze have higher authority; do not infer a smile or direct eye contact unless that Shot explicitly requests it. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. Reference image 3: outfit_front: Transfer only the declared front garment scope, including silhouette, construction, color, pattern, material, and visible clothing details. Suppress the source wearer identity, hair, body identity, pose, room, and lighting style. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nTransition keyframe. Exact moment: นาราก้าวออกจากเฟรมทางขวา ขณะที่แสงอุ่นยังส่องเคาน์เตอร์และป้ายคว่ำ. One visible action: นาราเดินสามก้าวไปทางขวา มือปล่อยข้างลำตัวอย่างผ่อนคลาย.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: ก้าวต่อไปอย่างมีความหวัง. Show only this state. Expression and posture: เดินมั่นคงและเป็นธรรมชาติ. Observable cue: จังหวะเดินธรรมดา ไม่เร่ง ไม่หันกลับ.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: wide vertical shot, ระดับสายตา. Placement: นาราเริ่มกลางเฟรมและออกด้านขวา ทางออกชัดเจน. Screen direction: นาราหันและเดินไปทางขวา ทางออกอยู่ด้านขวา.\n\nLIGHTING AND ENVIRONMENT:\nSetting: ภายในคาเฟ่ ทางออกด้านขวา, หัวค่ำต่อเนื่อง. Motivated light: แสงอุ่นปฏิบัติจริงคงที่ ตัดกับสีน้ำเงินนอกหน้าต่าง. Required environment: ร้านว่าง โต๊ะคลุมผ้า เคาน์เตอร์มีป้ายคว่ำและโทรศัพท์. Visible prop state: ป้ายคว่ำอยู่บนเคาน์เตอร์ โทรศัพท์วางข้างป้าย.\n\nCONTINUITY:\nKeep visible continuity: ไม่มีบุคคลอื่น; คงแสงอุ่นจริงไม่ใส่เอฟเฟกต์ฟุ้ง; จบโดยไม่มีการตัดกลับมาที่ใบหน้า.\n\nPROHIBITIONS:\nDo not add subtitles, captions, watermarks or interface text. Do not introduce a person, prop, costume or location that is not authorized by this Shot. Do not combine two emotional states or depict a future action in this still.\n\nAUTHOR DIRECTION:\nrealistic vertical wide shot of a quiet family café glowing under practical warm light, a young woman walking out through the exit on frame right, covered tables, face-down CLOSED sign and phone on the counter, blue rainy dusk outside, dry interior, grounded hopeful ending, no other people, no subtitles or overlays Cinematic still policy (cinematic-storyboard-still v1): Render one physically plausible cinematic photograph, not an illustration, beauty portrait, advertising headshot, character sheet or synthetic glamour image. Treat the selected Shot emotional target, performance and gaze as the authority for the visible expression and posture. Character personality is background characterization only and must never force a smile, eye contact or cheerful energy that the Shot does not request. Use natural source-consistent skin texture, pores, fine hair, fabric behavior, material response and subtle facial and body asymmetry without plastic smoothing or beauty-filter retouching. Use motivated practical lighting, plausible exposure, grounded contact shadows, coherent reflections and depth consistent with the stated camera and environment. Integrate the subject into the location through perspective, scale, occlusion, atmospheric depth and reflected environmental color instead of a pasted portrait look. Keep cinematic color grading restrained. Do not add excessive sharpness, HDR halos, artificial skin glow, fashion posing or direct-to-camera smiling unless the selected Shot explicitly requires it. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",

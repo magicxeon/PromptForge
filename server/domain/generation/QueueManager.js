@@ -12,6 +12,7 @@ import { characterCastingExportService } from '../character-profiles/CharacterCa
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
 import { logGenerationDiagnostic } from './generationDiagnostics.js';
 import { templateCoreService } from '../templates/TemplateCoreService.js';
+import { createProviderOutputProvenance } from './ProviderOutputProvenance.js';
 
 import { OUTPUTS_DIR } from '../../config/paths.js';
 
@@ -453,6 +454,13 @@ export class QueueManager {
           ? { ...job.options.storyReferenceHandoff, sourceJobId: jobId }
           : null,
         resolvedSubmodel: result.providerMetadata?.resolvedModel || job.submodel,
+        providerOutputProvenance: createProviderOutputProvenance({
+          providerId: job.provider,
+          requestedModelId: job.submodel,
+          providerMetadata: result.providerMetadata,
+          generatedAt: new Date().toISOString(),
+          originalBytesPreserved: true
+        }),
         providerConfigVersion: job.options.providerConfigVersion || null,
         creditCost: Number(job.options.pricingSnapshot?.estimatedCredits || 0),
         mimeType,

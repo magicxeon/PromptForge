@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "defaultStrategyId": "cinematic-video-neutral-v1",
+  "strategies": [
+    {
+      "id": "cinematic-video-neutral-v1",
+      "version": 1,
+      "providerIds": ["*"],
+      "promptPrefix": ""
+    },
+    {
+      "id": "cinematic-video-modelark-v2",
+      "version": 2,
+      "providerIds": ["modelark"],
+      "promptPrefix": "Animate the supplied first frame as one continuous photorealistic live-action shot. Preserve its exact Character identity, wardrobe, framing and motivated light.",
+      "omitSections": ["authorDirection"],
+      "promptSuffix": "Keep motion restrained and physically plausible: natural breathing and blinking, believable body weight, and coherent hair and fabric inertia. Retain subtle optical softness, natural focus behavior and fine sensor noise from the source without reshaping the face, smoothing skin or adding mechanically perfect motion."
+    },
+    {
+      "id": "cinematic-video-gemini-v1",
+      "version": 1,
+      "providerIds": ["gemini"],
+      "promptPrefix": "Animate the supplied first frame as one continuous cinematic shot."
+    }
+  ]
+}

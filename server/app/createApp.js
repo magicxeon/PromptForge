@@ -131,11 +131,9 @@ export function createApp() {
   });
   const adminInvestigationService = new AdminInvestigationService({ providerRegistry });
 
-  creditApplicationService.reconcileStartupOrphanReservations({
+  const startupCreditReconciliation = creditApplicationService.reconcileStartupOrphanReservations({
     shouldPreserveReservation: reservation =>
       videoGenerationApplicationService.hasDurableTaskForReservation(reservation)
-  }).catch(err => {
-    console.warn('[Startup] Credit reservation reconciliation failed:', err.message);
   });
 
   app.use(cors());
@@ -284,7 +282,9 @@ export function createApp() {
   app.locals.modelPromptForge = {
     collectionManager,
     comparisonOrchestrator,
-    getAttributesBundle
+    getAttributesBundle,
+    startupCreditReconciliation,
+    videoGenerationApplicationService
   };
 
   return app;

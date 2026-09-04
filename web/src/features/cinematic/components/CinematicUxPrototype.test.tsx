@@ -51,6 +51,10 @@ vi.mock('../../../components/media/AuthenticatedMediaImage', () => ({
   AuthenticatedMediaImage: ({ src, alt = '' }: { src: string; alt?: string }) => <img src={src} alt={alt} />
 }));
 
+vi.mock('../../../lib/auth/ActorProvider', () => ({
+  useActor: () => ({ actor: { userId: 'usr_alice', username: 'alice', role: 'user' } })
+}));
+
 vi.mock('../../generation/hooks/useGenerationJob', () => ({
   useGenerationJob: (jobId: string | null) => ({
     data: jobId ? { status: 'completed', result: { imageUrl: `/outputs/${jobId}.jpg` } } : undefined
@@ -94,6 +98,7 @@ describe('Cinematic UX prototype', () => {
   });
 
   beforeEach(() => {
+    localStorage.clear();
     cinematicApiMocks.generateCinematicStoryPlan.mockReset();
     cinematicApiMocks.generateCinematicSceneDirection.mockReset();
     cinematicApiMocks.saveCinematicStoryPlan.mockReset();
@@ -664,7 +669,7 @@ describe('Cinematic UX prototype', () => {
     expect(screen.getByRole('button', { name: 'cinematic.actions.next' })).toBeDisabled();
   });
 
-  it('persists an applied Story Plan proposal before exposing its generated Scene IDs', async () => {
+  it('automatically persists generated Beats, Scenes and Shots as an editable Draft', async () => {
     const project = completeStoryPlanFixture();
     const proposal = storyPlanProposalFixture(project);
     const savedProject = projectWithSavedProposal(project, proposal);
@@ -674,8 +679,8 @@ describe('Cinematic UX prototype', () => {
 
     render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={onProjectChanged} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
-    expect(await screen.findByRole('dialog', { name: 'cinematic.story.proposalTitle' })).toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.applyProposal' }));
+    const dialog = await screen.findByRole('dialog', { name: 'cinematic.story.proposalTitle' });
+    expect(dialog).toBeVisible();
 
     await waitFor(() => expect(cinematicApiMocks.saveCinematicStoryPlan).toHaveBeenCalledWith(
       project.id,
@@ -686,6 +691,8 @@ describe('Cinematic UX prototype', () => {
       })
     ));
     expect(onProjectChanged).toHaveBeenCalledWith(savedProject);
+    expect(within(dialog).getByText('cinematic.story.generatedDraftSaved')).toBeVisible();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'cinematic.story.continueEditing' }));
     expect(screen.queryByRole('dialog', { name: 'cinematic.story.proposalTitle' })).not.toBeInTheDocument();
   });
 
@@ -693,9 +700,13 @@ describe('Cinematic UX prototype', () => {
     const project = completeStoryPlanFixture();
     const proposal = storyPlanProposalFixture(project);
     let resolveProposal: (value: CinematicStoryPlanProposal) => void = () => undefined;
-    cinematicApiMocks.generateCinematicStoryPlan.mockReturnValue(new Promise<CinematicStoryPlanProposal>(resolve => {
-      resolveProposal = resolve;
-    }));
+    cinematicApiMocks.saveCinematicStoryPlan.mockResolvedValue(projectWithSavedProposal(project, proposal));
+    cinematicApiMocks.generateCinematicStoryPlan.mockImplementation((_projectId, _input, onProgress) => {
+      onProgress?.(storyPlanLiveProgressFixture('plan_generation'));
+      return new Promise<CinematicStoryPlanProposal>(resolve => {
+        resolveProposal = resolve;
+      });
+    });
 
     render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={vi.fn()} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
@@ -711,11 +722,15 @@ describe('Cinematic UX prototype', () => {
     expect(within(dialog).getByText('cinematic.story.workflowStage.visual_repair')).toBeVisible();
     expect(within(dialog).getByText('cinematic.story.workflowStage.storyboard_readiness')).toBeVisible();
     expect(screen.queryByRole('button', { name: 'cinematic.story.applyProposal' })).not.toBeInTheDocument();
+    const activeStage = within(dialog).getByText('cinematic.story.workflowStage.plan_generation').closest('li');
+    expect(activeStage).toHaveClass('is-processing');
+    expect(activeStage?.querySelector('.animate-spin')).not.toBeNull();
+    expect(dialog.querySelectorAll('.cinematic-story-plan-workflow__stages .animate-spin')).toHaveLength(1);
 
     resolveProposal(proposal);
 
     await waitFor(() => expect(dialog).toHaveAttribute('aria-busy', 'false'));
-    expect(within(dialog).getByRole('button', { name: 'cinematic.story.applyProposal' })).toBeEnabled();
+    expect(within(dialog).getByRole('button', { name: 'cinematic.story.continueEditing' })).toBeEnabled();
   });
 
   it('resolves a blocked Story source before dispatching a corrected Story Plan request', async () => {
@@ -755,6 +770,7 @@ describe('Cinematic UX prototype', () => {
     cinematicApiMocks.generateCinematicStoryPlan
       .mockResolvedValueOnce(blocked)
       .mockResolvedValueOnce(proposal);
+    cinematicApiMocks.saveCinematicStoryPlan.mockResolvedValue(projectWithSavedProposal(project, proposal));
 
     render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={vi.fn()} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
@@ -764,9 +780,10 @@ describe('Cinematic UX prototype', () => {
 
     await waitFor(() => expect(cinematicApiMocks.generateCinematicStoryPlan).toHaveBeenLastCalledWith(
       project.id,
-      { mode: 'generate', sourceResolution: 'story_brief' }
+      { mode: 'generate', sourceResolution: 'story_brief' },
+      expect.any(Function)
     ));
-    expect(await within(dialog).findByRole('button', { name: 'cinematic.story.applyProposal' })).toBeEnabled();
+    expect(await within(dialog).findByRole('button', { name: 'cinematic.story.continueEditing' })).toBeEnabled();
   });
 
   it('exposes one unified Story Plan AI operation and always dispatches the complete generate workflow', async () => {
@@ -779,7 +796,8 @@ describe('Cinematic UX prototype', () => {
 
     await waitFor(() => expect(cinematicApiMocks.generateCinematicStoryPlan).toHaveBeenCalledWith(
       project.id,
-      { mode: 'generate', sourceResolution: null }
+      { mode: 'generate', sourceResolution: null },
+      expect.any(Function)
     ));
   });
 
@@ -817,13 +835,14 @@ describe('Cinematic UX prototype', () => {
       }
     }];
     cinematicApiMocks.generateCinematicStoryPlan.mockResolvedValue(proposal);
+    cinematicApiMocks.saveCinematicStoryPlan.mockResolvedValue(projectWithSavedProposal(project, proposal));
     render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={vi.fn()} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
 
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
 
     const dialog = await screen.findByRole('dialog', { name: 'cinematic.story.proposalTitle' });
     expect(within(dialog).getByText('cinematic.story.repairTimedOut')).toBeVisible();
-    expect(within(dialog).getByRole('button', { name: 'cinematic.story.applyProposal' })).toBeEnabled();
+    expect(within(dialog).getByRole('button', { name: 'cinematic.story.continueEditing' })).toBeEnabled();
     expect(within(dialog).getByText('cinematic.story.remainingVisualIssues')).toBeVisible();
   });
 
@@ -847,7 +866,7 @@ describe('Cinematic UX prototype', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
 
-    expect(await screen.findByRole('button', { name: 'cinematic.story.applyProposal' })).toBeDisabled();
+    expect(await screen.findByRole('button', { name: 'cinematic.story.saveGeneratedDraft' })).toBeDisabled();
     expect(screen.getAllByText('Character identity is not ready.').length).toBeGreaterThan(0);
   });
 
@@ -866,7 +885,7 @@ describe('Cinematic UX prototype', () => {
     expect(within(footer as HTMLElement).getByRole('button', { name: 'cinematic.actions.close' })).toBeEnabled();
   });
 
-  it('keeps the Story Plan proposal open when persistence fails', async () => {
+  it('keeps the generated proposal open for a save-only retry when automatic Draft persistence fails', async () => {
     const project = completeStoryPlanFixture();
     const proposal = storyPlanProposalFixture(project);
     cinematicApiMocks.generateCinematicStoryPlan.mockResolvedValue(proposal);
@@ -875,11 +894,12 @@ describe('Cinematic UX prototype', () => {
     render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={vi.fn()} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
     await screen.findByRole('dialog', { name: 'cinematic.story.proposalTitle' });
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.applyProposal' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('version conflict');
     expect(screen.getByRole('dialog', { name: 'cinematic.story.proposalTitle' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'cinematic.story.applyProposal' })).toBeEnabled();
+    expect(cinematicApiMocks.generateCinematicStoryPlan).toHaveBeenCalledTimes(1);
+    expect(cinematicApiMocks.saveCinematicStoryPlan).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'cinematic.story.saveGeneratedDraft' })).toBeEnabled();
   });
 
   it('persists an applied Scene Direction proposal through the Story Plan save contract', async () => {
@@ -1213,6 +1233,25 @@ function completeStoryPlanFixture() {
     }]
   };
   return project;
+}
+
+function storyPlanLiveProgressFixture(activeStageId: 'source_preflight' | 'plan_generation' | 'director_review' | 'visual_validation' | 'visual_repair' | 'storyboard_readiness') {
+  const order = [
+    'source_preflight', 'plan_generation', 'director_review',
+    'visual_validation', 'visual_repair', 'storyboard_readiness'
+  ] as const;
+  const activeIndex = order.indexOf(activeStageId);
+  return {
+    contractVersion: 'cinematic-story-plan-live-progress-v1' as const,
+    activeStageId,
+    stages: order.map((id, index) => ({
+      id,
+      status: index < activeIndex ? 'completed' as const : index === activeIndex ? 'processing' as const : 'queued' as const,
+      issueCount: 0,
+      repairCount: 0
+    })),
+    updatedAt: '2026-09-04T00:00:00.000Z'
+  };
 }
 
 function storyPlanProposalFixture(project: CinematicProject): CinematicStoryPlanProposal {

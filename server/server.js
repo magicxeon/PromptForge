@@ -13,7 +13,9 @@ app.listen(PORT, () => {
   const {
     collectionManager,
     comparisonOrchestrator,
-    getAttributesBundle
+    getAttributesBundle,
+    startupCreditReconciliation,
+    videoGenerationApplicationService
   } = app.locals.modelPromptForge || {};
 
   const enabledCache = process.env.ENABLED_CACHE_ATTRIBUTE_BUNDLE === 'true';
@@ -36,4 +38,20 @@ app.listen(PORT, () => {
   comparisonOrchestrator?.init?.().catch(err => {
     console.error('[Comparison] Failed to initialize storage:', err);
   });
+
+  Promise.resolve(startupCreditReconciliation)
+    .then(() => videoGenerationApplicationService?.resumeRecoverable?.())
+    .then(results => {
+      if (Array.isArray(results) && results.length) {
+        const counts = results.reduce((summary, task) => {
+          const status = String(task?.status || 'unknown');
+          summary[status] = (summary[status] || 0) + 1;
+          return summary;
+        }, {});
+        console.log('[VideoRecovery] Recovered persisted tasks:', counts);
+      }
+    })
+    .catch(err => {
+      console.warn('[VideoRecovery] Startup recovery failed:', err.message);
+    });
 });

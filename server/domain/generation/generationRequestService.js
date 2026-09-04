@@ -24,7 +24,7 @@ import {
 } from './referenceRolePolicy.js';
 import { faceReferenceHandoffService } from './FaceReferenceHandoffService.js';
 import { normalizeCustomAttributeSelections } from './customAttributeInputPolicy.js';
-import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
+import { cinematicStoryboardPromptComposer } from '../cinematic/CinematicStoryboardPromptComposer.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 export const CINEMATIC_NATURAL_CAMERA_PROFILE_ID = 'photorealistic-cinematic';
@@ -108,14 +108,6 @@ function compileCharacterPersonalityDirective(context) {
     'The image provider may art-direct these portrait nuances naturally instead of copying one fixed pose, but the result must remain a close identity-first professional photograph with a clearly recognizable face.',
     'Do not literalize personality traits as text, symbols, costumes, props, fantasy effects, exaggerated acting, caricature, or a change of identity, age, ethnicity, skin tone, body proportions, hair identity, or wardrobe authority.'
   ].join(' ');
-}
-
-function compileCinematicStillDirective(context) {
-  if (context.generationSurface !== 'cinematic' || context.generationMode !== 'scene') return '';
-  if (context.cinematicCaptureProfileId === null) return '';
-  const recipe = loadPromptRecipe('cinematic/storyboard-still.v1.json');
-  if (recipe.enabled === false) return '';
-  return `Cinematic still policy (${recipe.id} v${recipe.version}): ${recipe.instruction}`;
 }
 
 function normalizeCinematicCaptureProfileId(payload) {
@@ -269,7 +261,9 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     ...payload,
     cinematicCaptureProfileId: normalizeCinematicCaptureProfileId(payload),
     promptRefinement: {
-      enabled: !characterLookSheetRequest && payload.promptRefinement?.enabled === true
+      enabled: !characterLookSheetRequest
+        && !(payload.generationSurface === 'cinematic' && payload.generationMode === 'scene')
+        && payload.promptRefinement?.enabled === true
     },
     mode,
     characterType,
@@ -320,6 +314,8 @@ export function compileGenerationContext(payload = {}, actorContext = null) {
 }
 
 export function compilePromptFromGenerationContext(context) {
+  const isCinematicStoryboardScene = context.generationSurface === 'cinematic'
+    && context.generationMode === 'scene';
   const adminPromptOverride = typeof context.adminPromptOverride === 'string'
     ? context.adminPromptOverride.trim()
     : '';
@@ -330,7 +326,9 @@ export function compilePromptFromGenerationContext(context) {
     : '';
   const characterLookPrompt = resolveCharacterLookPrompt(context);
   const explicitManualPrompt = characterLookPrompt || manualScenePrompt;
-  const manualReferenceDirective = manualScenePrompt && !context.templateBaselineReference
+  const manualReferenceDirective = manualScenePrompt
+    && !context.templateBaselineReference
+    && !isCinematicStoryboardScene
     ? compileReferenceRoleDirective(context)
     : '';
   const reusableCharacterSheet = context.mode === 'character-sheet'
@@ -365,6 +363,12 @@ export function compilePromptFromGenerationContext(context) {
           : {})
       }
     ));
+  if (isCinematicStoryboardScene) {
+    return cinematicStoryboardPromptComposer.compose({
+      context,
+      visualPrompt: basePrompt
+    });
+  }
   const templateDirectedPrompt = context.templateBaselineReference
     ? [compileReferenceRoleDirective(context), basePrompt].filter(Boolean).join(' ')
     : basePrompt;
@@ -407,14 +411,13 @@ export function compilePromptFromGenerationContext(context) {
         ...characterReferenceDirective,
         compileCharacterPersonalityDirective(context),
         directedPrompt,
-        compileCinematicStillDirective(context),
         compileCharacterAgeRangeDirective(context.characterProfileContext)
       ].filter(Boolean).join(' ')
       : characterReferenceDirective.length
-        ? [...characterReferenceDirective, directedPrompt, compileCinematicStillDirective(context)].filter(Boolean).join(' ')
+        ? [...characterReferenceDirective, directedPrompt].filter(Boolean).join(' ')
       : reusableCharacterSheet && context.userRole === 'admin' && adminPromptOverride
         ? `${castingDirective}, ${directedPrompt}`
-        : [directedPrompt, compileCinematicStillDirective(context)].filter(Boolean).join(' ');
+        : directedPrompt;
 }
 
 function resolveCharacterLookPrompt(context) {

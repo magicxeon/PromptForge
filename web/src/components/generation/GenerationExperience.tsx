@@ -15,7 +15,8 @@ import {
 } from './EngineTargetPanel';
 import {
   createDefaultComparisonSlots,
-  imageModelUnavailableReason
+  imageModelUnavailableReason,
+  resolveAvailableImageEngine
 } from './engineTargetPanelHelpers';
 import { GenerationResultSurface } from './GenerationResultSurface';
 import {
@@ -43,7 +44,7 @@ import {
 } from '../../features/comparisons/comparisonRunState';
 import { useActor } from '../../lib/auth/ActorProvider';
 import { emitTelemetry } from '../../lib/telemetry/telemetry';
-import type { JobStatus } from '../../features/generation/schemas/generationSchemas';
+import type { JobStatus, ProviderModel } from '../../features/generation/schemas/generationSchemas';
 import type { ReferenceAuthorityProjection } from '../../features/generation/schemas/generationSchemas';
 import { StudioRecentGenerations } from '../../features/studio/components/StudioRecentGenerations';
 import { StudioGenerationWorkspace } from './StudioGenerationWorkspace';
@@ -113,6 +114,11 @@ type GenerationExperienceProps = {
   readOnlyPromptSupplement?: ReactNode;
   cinematicCaptureProfileId?: 'photorealistic-cinematic' | null;
   engineOptions?: ReactNode;
+  renderEngineSelectionNotice?: (selection: {
+    providerId: string;
+    modelId: string;
+    model: ProviderModel | null;
+  }) => ReactNode;
   onCompleted?: (jobId: string) => void;
   blockedReason?: string | null;
   blockedNotice?: ReactNode;
@@ -130,6 +136,7 @@ type GenerationExperienceProps = {
   studioConfigActions?: ReactNode;
   fixedAspectRatio?: string | null;
   fixedOutputCount?: number | null;
+  initialEnginePreference?: { provider: string; model: string } | null;
   allowPromptRefinement?: boolean;
   persistenceScope?: string;
   referencesReadOnly?: boolean;
@@ -169,6 +176,7 @@ export function GenerationExperience({
   readOnlyPromptSupplement,
   cinematicCaptureProfileId,
   engineOptions,
+  renderEngineSelectionNotice,
   onCompleted,
   blockedReason = null,
   blockedNotice,
@@ -186,6 +194,7 @@ export function GenerationExperience({
   studioConfigActions,
   fixedAspectRatio: requestedFixedAspectRatio = null,
   fixedOutputCount: requestedFixedOutputCount = null,
+  initialEnginePreference = null,
   allowPromptRefinement = true,
   persistenceScope = '',
   referencesReadOnly = false,
@@ -247,6 +256,8 @@ export function GenerationExperience({
     && characterType === 'reusable_model'
     ? '1:1'
     : null);
+  const requiredReferenceCount = Object.values(references).filter(Boolean).length
+    + (characterProfileContext?.purpose === 'character_usage' ? 1 : 0);
 
   const catalog = useQuery({ queryKey: ['provider-catalog'], queryFn: getProviderCatalog, staleTime: 5 * 60_000 });
   const creditAccount = useQuery({
@@ -270,7 +281,13 @@ export function GenerationExperience({
     setPromptRefinementEnabled(false);
     setPromptRefinementActorId(null);
     setOutputCountPreferenceActorId(null);
-    setEngine(current => ({ ...current, outputCount: fixedOutputCount || 1 }));
+    setEngine(current => ({
+      ...current,
+      provider: '',
+      model: '',
+      resolution: null,
+      outputCount: fixedOutputCount || 1
+    }));
     setLocalPrompt(initialPromptRef.current);
     setNegativePrompt('');
     setLocalReferences(initialReferencesRef.current);
@@ -325,8 +342,14 @@ export function GenerationExperience({
 
   useEffect(() => {
     if (!catalog.data || engine.provider) return;
-    const provider = catalog.data.providers.find(item => item.id === catalog.data.defaultProvider) || catalog.data.providers[0];
-    const model = provider?.models.find(item => item.id === provider.defaultModel) || provider?.models[0];
+    const resolved = resolveAvailableImageEngine(
+      catalog.data,
+      initialEnginePreference,
+      requiredReferenceCount,
+      fixedAspectRatio
+    );
+    const provider = resolved?.provider;
+    const model = resolved?.model;
     setEngine({
       provider: provider?.id || '',
       model: model?.id || '',
@@ -335,7 +358,15 @@ export function GenerationExperience({
         || (model?.capabilities.aspectRatios.includes('6:8') ? '6:8' : model?.capabilities.aspectRatios[0] || '1:1'),
       outputCount: fixedOutputCount || engine.outputCount
     });
-  }, [catalog.data, engine.outputCount, engine.provider, fixedAspectRatio, fixedOutputCount]);
+  }, [
+    catalog.data,
+    engine.outputCount,
+    engine.provider,
+    fixedAspectRatio,
+    fixedOutputCount,
+    initialEnginePreference,
+    requiredReferenceCount
+  ]);
 
   useEffect(() => {
     if (!fixedAspectRatio || engine.aspectRatio === fixedAspectRatio) return;
@@ -430,8 +461,6 @@ export function GenerationExperience({
     return () => window.clearTimeout(timer);
   }, [draft]);
 
-  const requiredReferenceCount = Object.values(references).filter(Boolean).length
-    + (characterProfileContext?.purpose === 'character_usage' ? 1 : 0);
   const selectedCatalogModel = catalog.data?.providers
     .find(item => item.id === engine.provider)?.models
     .find(item => item.id === engine.model);
@@ -863,7 +892,7 @@ export function GenerationExperience({
       readOnly={referencesReadOnly}
     />
   );
-  const engineRegion = showEngine ? (
+  const engineRegion = showEngine ? (<>
     <EngineTargetPanel
       catalog={catalog.data}
       value={engine}
@@ -888,7 +917,12 @@ export function GenerationExperience({
       onSlotsChange={setComparisonSlots}
       onPromptRefinementChange={setPromptRefinementEnabled}
     />
-  ) : null;
+    {renderEngineSelectionNotice?.({
+      providerId: engine.provider,
+      modelId: engine.model,
+      model: selectedCatalogModel || null
+    })}
+  </>) : null;
   const submitGenerationRequest = () => {
     if (estimate !== undefined && !canAfford) {
       setCreditDialogOpen(true);

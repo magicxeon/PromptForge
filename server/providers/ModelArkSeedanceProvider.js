@@ -33,7 +33,7 @@ export class ModelArkSeedanceProvider {
   }
 
   async submit(request) {
-    this.#assertReady();
+    this.preflight(request);
     const response = await this.#request('/contents/generations/tasks', {
       method: 'POST',
       body: JSON.stringify(buildModelArkSeedancePayload(request))
@@ -50,7 +50,7 @@ export class ModelArkSeedanceProvider {
   }
 
   async poll(providerTaskId, { task } = {}) {
-    this.#assertReady();
+    this.preflight({ modelId: task?.modelId || 'persisted-model' });
     const safeTaskId = encodeURIComponent(String(providerTaskId || '').trim());
     if (!safeTaskId) throw providerError('video_provider_task_id_missing', 'ModelArk video task ID is missing.', false, 'not_billable');
     const response = await this.#request(`/contents/generations/tasks/${safeTaskId}`, { method: 'GET' }, {
@@ -59,6 +59,29 @@ export class ModelArkSeedanceProvider {
       correlationId: task?.submittedRequest?.correlationId
     });
     return normalizeModelArkSeedanceTask(response, { task });
+  }
+
+  preflight(request = {}) {
+    this.#assertReady();
+    const modelId = String(request.modelId || '').trim();
+    if (!modelId || !/^[a-z0-9][a-z0-9-]+$/i.test(modelId)) {
+      throw providerError('video_model_id_invalid', 'ModelArk video model ID is invalid.', false, 'not_billable');
+    }
+    let endpoint;
+    try {
+      endpoint = new URL(this.baseUrl);
+    } catch {
+      throw providerError('video_provider_endpoint_invalid', 'ModelArk video endpoint is invalid.', false, 'not_billable');
+    }
+    if (endpoint.protocol !== 'https:') {
+      throw providerError('video_provider_endpoint_invalid', 'ModelArk video endpoint must use HTTPS.', false, 'not_billable');
+    }
+    return {
+      providerId: 'modelark',
+      modelId,
+      endpointOrigin: endpoint.origin,
+      status: 'ready'
+    };
   }
 
   #assertReady() {
@@ -102,11 +125,15 @@ export class ModelArkSeedanceProvider {
         durationMs: Date.now() - startedAt,
         ...summarizeVideoProviderError(error)
       });
+      const timedOut = error?.name === 'TimeoutError'
+        || error?.name === 'AbortError'
+        || error?.code === 'ETIMEDOUT'
+        || error?.cause?.code === 'ETIMEDOUT';
       throw providerError(
-        'video_provider_unreachable',
+        timedOut ? 'video_provider_timeout' : 'video_provider_unreachable',
         `ModelArk video ${operation} request could not be completed.`,
         true,
-        operation === 'submit' ? 'not_billable' : 'unknown',
+        'unknown',
         error
       );
     }
@@ -153,11 +180,12 @@ export function buildModelArkSeedancePayload(request = {}) {
     image_url: { url: reference.url },
     role: reference.role
   }));
+  const followsFirstFrameRatio = references.some(reference => reference.role === 'first_frame');
 
   return compactObject({
     model: String(request.modelId || '').trim(),
     content,
-    ratio: String(request.aspectRatio || '9:16'),
+    ratio: followsFirstFrameRatio ? undefined : String(request.aspectRatio || '9:16'),
     resolution: String(request.resolution || '720p'),
     duration: Number(request.durationSeconds),
     generate_audio: request.audioMode === 'generated',
@@ -251,6 +279,7 @@ function normalizeImageReference(value) {
   const reference = String(value || '').trim();
   if (/^data:image\/[a-zA-Z0-9.+-]+;base64,[a-zA-Z0-9+/=\s]+$/.test(reference)) return reference.replace(/\s/g, '');
   if (/^https:\/\//i.test(reference)) return reference;
+  if (/^asset:\/\/[a-zA-Z][a-zA-Z0-9_-]{5,199}$/.test(reference)) return reference;
   throw providerError('video_reference_invalid', 'ModelArk video reference image is invalid.', false, 'not_billable');
 }
 
@@ -316,8 +345,26 @@ function normalizeTerminalProviderError(response, providerStatus) {
 
 function normalizeModelArkHttpError(status, payload, operation) {
   const message = firstString(payload?.error?.message, payload?.message) || `ModelArk video ${operation} request failed.`;
-  const code = firstString(payload?.error?.code, payload?.code) || 'video_provider_request_failed';
-  return providerError(code, message, status === 408 || status === 429 || status >= 500, operation === 'submit' ? 'not_billable' : 'unknown');
+  const providerCode = firstString(payload?.error?.code, payload?.code) || '';
+  const code = /InputImageSensitiveContentDetected\.PrivacyInformation|may contain real person/i.test(`${providerCode} ${message}`)
+    ? 'video_provider_portrait_authorization_required'
+    : /modelnotopen|permission|entitlement|forbidden/i.test(`${providerCode} ${message}`)
+    ? 'video_provider_not_qualified'
+    : status === 408
+      ? 'video_provider_timeout'
+      : status === 429
+        ? 'video_provider_rate_limited'
+        : providerCode || 'video_provider_request_failed';
+  const knownSubmitRejection = operation === 'submit'
+    && status >= 400
+    && status < 500
+    && ![408, 409, 429].includes(status);
+  return providerError(
+    code,
+    message,
+    status === 408 || status === 429 || status >= 500,
+    knownSubmitRejection ? 'not_billable' : 'unknown'
+  );
 }
 
 async function parseJsonResponse(response) {

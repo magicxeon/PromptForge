@@ -12,7 +12,9 @@
 A creator presses one `Generate Plan` button and receives one reviewable,
 Storyboard-ready proposal. The system generates the narrative plan, performs
 professional AI direction, validates every proposed Shot as a still keyframe,
-repairs eligible visual issues and reports what changed before one final Apply.
+repairs eligible visual issues and reports what changed. Requirement 014 later
+replaces the final Apply confirmation with automatic editable-Draft persistence;
+approval remains explicit.
 
 The creator must not understand or manually invoke separate AI Director and
 visual-repair operations to obtain a usable first proposal.
@@ -48,7 +50,7 @@ Generate Plan
   -> bounded AI repair of eligible fields
   -> deterministic revalidation
   -> film and Storyboard readiness summary
-  -> one final Apply generated plan confirmation
+  -> save all generated Beats, Scenes and Shots as an editable Draft
 ```
 
 `Review with AI Director` and a separate `AI Repair` primary action are removed
@@ -84,7 +86,8 @@ The final modal includes:
 - expandable repair detail grouped by Scene and Shot;
 - field path, concise original value, repaired value and reason;
 - an expandable film-script preview;
-- `Discard proposal` and one `Apply generated plan` action.
+- workflow evidence plus a `Continue editing` action after automatic Draft save;
+- one save-only retry action when Draft persistence fails.
 
 The UI must never render raw objects, internal localization keys or unbounded
 prompt payloads in repair detail.
@@ -150,16 +153,18 @@ Protected throughout repair:
 The repair merge records every accepted field change. Provider changes outside
 the allowlist are discarded.
 
-## 7. Apply And Recovery
+## 7. Draft Save And Recovery
 
-- AI never applies or approves a Plan automatically.
-- Apply continues through the existing atomic `PUT /story-plan` use case.
+- AI never approves a Plan automatically.
+- A non-blocked generated Plan is saved automatically as `approved:false`
+  through the existing atomic `PUT /story-plan` use case, as specified by
+  requirement 014.
 - The proposal carries the expected Project and Story Source versions.
 - A version conflict retains the proposal and reports a recoverable error.
 - A blocked source preflight remains resolvable in the same modal.
 - A provider or repair failure retains the current persisted Plan unchanged.
-- A proposal with deterministic blocking findings cannot be applied.
-- Warnings remain visible and may be applied as the existing readiness policy
+- A proposal with deterministic blocking findings is not persisted.
+- Warnings remain visible and may be saved as the existing readiness policy
   permits.
 
 ### 7.1 Multi-Pass Timeout Recovery
@@ -179,8 +184,8 @@ assumption for every stage without recovery behavior.
 - a repair timeout after a valid Plan exists stops further repair, retains the
   valid generated Plan and exposes the timeout as workflow evidence;
 - deterministic validation and readiness still run against the retained Plan;
-- Apply remains blocked only by blocking findings, not merely because an
-  optional warning-level repair timed out;
+- automatic Draft persistence remains blocked only by blocking findings, not
+  merely because an optional warning-level repair timed out;
 - no automatic retry may silently add provider calls or extend the bounded
   operation.
 
@@ -191,7 +196,7 @@ Advanced mode may expose complete repair findings and field changes, but it uses
 the same proposal and save contract. No second Plan format or AI pipeline is
 introduced.
 
-The Scene Director's per-Scene AI action remains available after Apply for
+The Scene Director's per-Scene AI action remains available after Draft save for
 intentional user refinement. It is not presented as a required next step when
 the unified proposal is ready.
 
@@ -219,7 +224,8 @@ the unified proposal is ready.
 5. Repair changes only allowlisted fields and preserves Cast, Looks, timing,
    dialogue, audio and structure.
 6. Repair stops after at most two rounds and never loops indefinitely.
-7. Apply remains one explicit atomic confirmation and is disabled for blockers.
+7. Successful output is persisted once as an editable Draft; blockers prevent
+   persistence and approval remains explicit.
 8. Repair details are expandable, readable and responsive in every theme.
 9. Existing manual Story Plan, Scene Director and Storyboard workflows pass
    regression tests.
@@ -240,7 +246,7 @@ the unified proposal is ready.
   proposals;
 - route and Zod contract tests for additive workflow evidence;
 - React tests for immediate modal, one button, completed stages, expandable
-  before/after detail, blocker state and atomic Apply;
+  before/after detail, blocker state and atomic Draft save;
 - focused Cinematic server and Web tests after each checkpoint;
 - TypeScript, i18n parity, targeted lint, production build and `git diff --check`;
 - browser inspection at approximately 390px, 820px and 1440px in default,
@@ -264,7 +270,8 @@ workflow:
 - Cast, Look, duration, dialogue, audio, aliases, structure and persisted media
   remain protected from repair;
 - the proposal modal opens before dispatch, renders six truthful stages and
-  keeps Apply explicit and disabled while blockers remain.
+  persists a successful result as an editable Draft while blockers prevent
+  persistence.
 
 Verification evidence:
 

@@ -3,6 +3,8 @@ import type { VideoModelCapability } from '../../generation/schemas/videoGenerat
 import { canQuoteVideoModel, filterVideoModelsForOperation, migrateVideoProviderModelKey } from './videoModelSelection';
 
 const base = {
+  commercialOperations: ['playground_video'],
+  inputModes: ['text_to_video'],
   durationControlMode: 'exact' as const,
   durations: [4], resolutions: ['720p'], aspectRatios: ['9:16'], audioModes: ['none'] as ('none' | 'generated')[],
   referenceImageLimit: 0, supportsFirstFrame: false, supportsLastFrame: false,

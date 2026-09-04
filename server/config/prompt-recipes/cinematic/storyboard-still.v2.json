@@ -1,0 +1,12 @@
+{
+  "id": "cinematic-storyboard-still",
+  "version": 2,
+  "enabled": true,
+  "instructions": [
+    "Render one physically plausible live-action frame rather than a portrait, illustration or synthetic glamour image.",
+    "Treat the Shot moment, one action, emotional target, posture and gaze as visible authority; personality is background only.",
+    "Integrate the Character into the location through coherent perspective, scale, occlusion, contact shadows, reflections and environmental color.",
+    "Keep production lighting motivated and cinematic without making it studio-perfect or changing the authored light source.",
+    "Do not add direct-to-camera smiling, fashion posing, future action or a second emotional state unless the Shot explicitly requires it."
+  ]
+}

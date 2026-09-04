@@ -1,6 +1,486 @@
 [
   {
     "schemaVersion": 2,
+    "id": "ggrp_1788533985707_02ou4251",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788530947193_66cbgz53:1788533976990:98jpjyog",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 250,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "a64c0bf390bad9a830afbbdd6c98e63ca69d073b3b93cb3828c58e4196bb9d6b"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788533985708_hxvipujw2"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788530947193_66cbgz53",
+        "sceneId": "cinescene_1788530947193_kxae8k24",
+        "shotId": "cineshot_1788530947193_66cbgz53",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788533985468_r8p2g2j",
+        "metadata": {
+          "keyframeContractFingerprint": "a64c0bf390bad9a830afbbdd6c98e63ca69d073b3b93cb3828c58e4196bb9d6b"
+        },
+        "jobId": "job_1788533985708_hxvipujw2",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788533985708_hxvipujw2.png",
+          "usage": {
+            "input_images": 4,
+            "generated_images": 1,
+            "output_tokens": 3772,
+            "total_tokens": 3772
+          },
+          "mimeType": "image/png",
+          "generationDuration": "134.0",
+          "width": 736,
+          "height": 1312
+        },
+        "error": null,
+        "creditCost": 75,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 5023,
+          "providerMs": 128982,
+          "outputPersistenceMs": 242,
+          "totalMs": 134402
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-04T14:59:45.708Z",
+    "updatedAt": "2026-09-04T15:02:00.263Z",
+    "completedAt": "2026-09-04T15:02:00.263Z"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ggrp_1788533300290_x8dtmaa2",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788530947193_wv7sqw1m:1788533291042:n6ayavde",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 248,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "d13a17fffb494080d0c4301d49c45f4dfa9c58116b3b7b026ae9e0d460ba6873"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788533300290_qflp49mgx"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788530947193_wv7sqw1m",
+        "sceneId": "cinescene_1788530947193_kxae8k24",
+        "shotId": "cineshot_1788530947193_wv7sqw1m",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788533299989_uqg8uqy",
+        "metadata": {
+          "keyframeContractFingerprint": "d13a17fffb494080d0c4301d49c45f4dfa9c58116b3b7b026ae9e0d460ba6873"
+        },
+        "jobId": "job_1788533300290_qflp49mgx",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788533300290_qflp49mgx.png",
+          "usage": {
+            "input_images": 3,
+            "generated_images": 1,
+            "output_tokens": 3772,
+            "total_tokens": 3772
+          },
+          "mimeType": "image/png",
+          "generationDuration": "139.1",
+          "width": 736,
+          "height": 1312
+        },
+        "error": null,
+        "creditCost": 70,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 4,
+          "referenceProcessingMs": 5877,
+          "providerMs": 133264,
+          "outputPersistenceMs": 516,
+          "totalMs": 140034
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-04T14:48:20.290Z",
+    "updatedAt": "2026-09-04T14:50:40.526Z",
+    "completedAt": "2026-09-04T14:50:40.526Z"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ggrp_1788532766567_qrs5i1i7",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788530947193_h7e4v3ft:1788532750089:imvghydj",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 247,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "646e3e190b1194355324bd7f9df1654b593d764fdf626efd29040d17c91cc081"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788532766567_3173lml3d"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788530947193_h7e4v3ft",
+        "sceneId": "cinescene_1788530947193_9qfkj88z",
+        "shotId": "cineshot_1788530947193_h7e4v3ft",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788532766261_d7x8phe",
+        "metadata": {
+          "keyframeContractFingerprint": "646e3e190b1194355324bd7f9df1654b593d764fdf626efd29040d17c91cc081"
+        },
+        "jobId": "job_1788532766567_3173lml3d",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788532766567_3173lml3d.png",
+          "usage": {
+            "generated_images": 1,
+            "output_tokens": 17800,
+            "total_tokens": 17800
+          },
+          "mimeType": "image/png",
+          "generationDuration": "122.6",
+          "width": 1600,
+          "height": 2848
+        },
+        "error": null,
+        "creditCost": 50,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 2,
+          "referenceProcessingMs": 5011,
+          "providerMs": 117566,
+          "outputPersistenceMs": 347,
+          "totalMs": 123133
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-04T14:39:26.567Z",
+    "updatedAt": "2026-09-04T14:41:29.888Z",
+    "completedAt": "2026-09-04T14:41:29.888Z"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ggrp_1788532576587_xsuddt09",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788530947193_cjnk1dds:1788532562157:ght67wl5",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 245,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "67396848a72dab701b8182e64822b02b452db24afd8a48936c7887e07efc9561"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788532576587_7v5yn0t85"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788530947193_cjnk1dds",
+        "sceneId": "cinescene_1788530947193_1tmoglpf",
+        "shotId": "cineshot_1788530947193_cjnk1dds",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788532576293_sgwqbdr",
+        "metadata": {
+          "keyframeContractFingerprint": "67396848a72dab701b8182e64822b02b452db24afd8a48936c7887e07efc9561"
+        },
+        "jobId": "job_1788532576587_7v5yn0t85",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788532576587_7v5yn0t85.png",
+          "usage": {
+            "input_images": 4,
+            "generated_images": 1,
+            "output_tokens": 3772,
+            "total_tokens": 3772
+          },
+          "mimeType": "image/png",
+          "generationDuration": "163.2",
+          "width": 736,
+          "height": 1312
+        },
+        "error": null,
+        "creditCost": 75,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 2,
+          "referenceProcessingMs": 7435,
+          "providerMs": 155794,
+          "outputPersistenceMs": 373,
+          "totalMs": 163895
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-04T14:36:16.587Z",
+    "updatedAt": "2026-09-04T14:39:00.674Z",
+    "completedAt": "2026-09-04T14:39:00.674Z"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ggrp_1788532284718_nzpc7qde",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788530947193_ditmnb03:1788531524020:sz4xjfis",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 243,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "86688f4987ede7984fdcda6022804589bd4e79b9e7292b970c5eac494f45d9c7"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788532284719_k3nln2lws"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788530947193_ditmnb03",
+        "sceneId": "cinescene_1788530947193_1tmoglpf",
+        "shotId": "cineshot_1788530947193_ditmnb03",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788532284523_0cbkjiu",
+        "metadata": {
+          "keyframeContractFingerprint": "86688f4987ede7984fdcda6022804589bd4e79b9e7292b970c5eac494f45d9c7"
+        },
+        "jobId": "job_1788532284719_k3nln2lws",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788532284719_k3nln2lws.png",
+          "usage": {
+            "input_images": 3,
+            "generated_images": 1,
+            "output_tokens": 3772,
+            "total_tokens": 3772
+          },
+          "mimeType": "image/png",
+          "generationDuration": "135.9",
+          "width": 736,
+          "height": 1312
+        },
+        "error": null,
+        "creditCost": 70,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 3,
+          "referenceProcessingMs": 5045,
+          "providerMs": 130843,
+          "outputPersistenceMs": 434,
+          "totalMs": 136657
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-04T14:31:24.719Z",
+    "updatedAt": "2026-09-04T14:33:41.493Z",
+    "completedAt": "2026-09-04T14:33:41.493Z"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ggrp_1788522382229_o8ufvydn",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788454401629_06kcwv7h:1788522364205:8edlu3s0",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 236,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "0dc99e0e2ba4b47e9079c992bd97c8d0499b62be5b17c60f7f744969ace1a29b"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788522382229_s7kppkrfy"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788454401629_06kcwv7h",
+        "sceneId": "cinescene_1788454401629_zgdebry2",
+        "shotId": "cineshot_1788454401629_06kcwv7h",
+        "expectedShotVersion": 2,
+        "estimateId": "est_1788522381944_slm30u7",
+        "metadata": {
+          "keyframeContractFingerprint": "0dc99e0e2ba4b47e9079c992bd97c8d0499b62be5b17c60f7f744969ace1a29b"
+        },
+        "jobId": "job_1788522382229_s7kppkrfy",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788522382229_s7kppkrfy.jpg",
+          "usage": {
+            "generated_images": 1,
+            "output_tokens": 17800,
+            "total_tokens": 17800
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "41.5",
+          "width": 1600,
+          "height": 2848
+        },
+        "error": null,
+        "creditCost": 60,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 2,
+          "referenceProcessingMs": 8305,
+          "providerMs": 33217,
+          "outputPersistenceMs": 456,
+          "totalMs": 42250
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-04T11:46:22.229Z",
+    "updatedAt": "2026-09-04T11:47:04.656Z",
+    "completedAt": "2026-09-04T11:47:04.656Z"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ggrp_1788515484887_bkw31gl8",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788454401629_06kcwv7h:1788515448826:0p1k8ies",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 235,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "0dc99e0e2ba4b47e9079c992bd97c8d0499b62be5b17c60f7f744969ace1a29b"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788515484887_wsl3byoai"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788454401629_06kcwv7h",
+        "sceneId": "cinescene_1788454401629_zgdebry2",
+        "shotId": "cineshot_1788454401629_06kcwv7h",
+        "expectedShotVersion": 2,
+        "estimateId": "est_1788515484656_gz1emiv",
+        "metadata": {
+          "keyframeContractFingerprint": "0dc99e0e2ba4b47e9079c992bd97c8d0499b62be5b17c60f7f744969ace1a29b"
+        },
+        "jobId": "job_1788515484887_wsl3byoai",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788515484887_wsl3byoai.png",
+          "usage": {
+            "generated_images": 1,
+            "output_tokens": 17800,
+            "total_tokens": 17800
+          },
+          "mimeType": "image/png",
+          "generationDuration": "76.1",
+          "width": 1600,
+          "height": 2848
+        },
+        "error": null,
+        "creditCost": 50,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 1,
+          "referenceProcessingMs": 4055,
+          "providerMs": 72043,
+          "outputPersistenceMs": 381,
+          "totalMs": 76703
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-04T09:51:24.887Z",
+    "updatedAt": "2026-09-04T09:52:41.737Z",
+    "completedAt": "2026-09-04T09:52:41.737Z"
+  },
+  {
+    "schemaVersion": 2,
     "id": "ggrp_1788456336164_b37hcrad",
     "groupType": "heterogeneous_batch",
     "actorUserId": "usr_alice",

@@ -8,7 +8,8 @@ const CONFIG_ROOT = path.resolve(__dirname, '../../config/cinematic');
 const DEFAULT_PATHS = Object.freeze({
   policy: path.resolve(CONFIG_ROOT, 'keyframe-policy.v2.json'),
   budget: path.resolve(CONFIG_ROOT, 'prompt-budget.v2.json'),
-  captureProfile: path.resolve(CONFIG_ROOT, 'capture-profiles/photorealistic-cinematic.v1.json')
+  captureProfile: path.resolve(CONFIG_ROOT, 'capture-profiles/photorealistic-cinematic.v2.json'),
+  providerPromptPolicy: path.resolve(CONFIG_ROOT, 'storyboard-provider-prompt-policy.v2.json')
 });
 
 const SECTION_KEYS = new Set([
@@ -22,11 +23,45 @@ const SECTION_KEYS = new Set([
   'authorDirection'
 ]);
 
+const PROVIDER_PROMPT_BLOCK_KEYS = new Set([
+  'visualAuthority',
+  'referenceAuthority',
+  'subjectBehavior',
+  'photographicBehavior',
+  'constraints'
+]);
+
+const REFERENCE_ROLE_KEYS = Object.freeze([
+  'template_baseline_reference',
+  'template_baseline',
+  'character_reference_a',
+  'character_reference_b',
+  'character_reference',
+  'outfit_front_reference',
+  'outfit_back_reference',
+  'outfit_front',
+  'outfit_back',
+  'face_reference_a',
+  'face_reference_b',
+  'face_reference',
+  'style_reference',
+  'pose_reference',
+  'product_reference',
+  'environment_reference'
+]);
+
 export class CinematicKeyframeConfigurationService {
-  constructor({ paths = DEFAULT_PATHS, policy, budget, captureProfile } = {}) {
-    this.policy = validatePolicy(policy || loadJson(paths.policy));
-    this.budget = validateBudget(budget || loadJson(paths.budget), this.policy);
-    this.captureProfile = validateCaptureProfile(captureProfile || loadJson(paths.captureProfile));
+  constructor({ paths = DEFAULT_PATHS, policy, budget, captureProfile, providerPromptPolicy } = {}) {
+    const resolvedPaths = { ...DEFAULT_PATHS, ...paths };
+    this.policy = validatePolicy(policy || loadJson(resolvedPaths.policy));
+    this.budget = validateBudget(budget || loadJson(resolvedPaths.budget), this.policy);
+    this.captureProfile = validateCaptureProfile(
+      captureProfile || loadJson(resolvedPaths.captureProfile)
+    );
+    this.providerPromptPolicy = validateProviderPromptPolicy(
+      providerPromptPolicy || loadJson(resolvedPaths.providerPromptPolicy),
+      this.policy
+    );
     if (this.policy.defaultCaptureProfileId !== this.captureProfile.id) {
       invalid('The keyframe policy default capture profile is unavailable.');
     }
@@ -35,6 +70,9 @@ export class CinematicKeyframeConfigurationService {
       budget: this.budget,
       captureProfile: this.captureProfile
     });
+    this.providerPromptFingerprint = createFingerprint({
+      providerPromptPolicy: this.providerPromptPolicy
+    });
   }
 
   getCompilerConfiguration() {
@@ -42,7 +80,9 @@ export class CinematicKeyframeConfigurationService {
       policy: this.policy,
       budget: this.budget,
       captureProfile: this.captureProfile,
-      fingerprint: this.fingerprint
+      providerPromptPolicy: this.providerPromptPolicy,
+      fingerprint: this.fingerprint,
+      providerPromptFingerprint: this.providerPromptFingerprint
     });
   }
 }
@@ -105,6 +145,81 @@ function validateCaptureProfile(value) {
   if (!text(value.label) || !Array.isArray(value.instructions) || !value.instructions.length
     || !Array.isArray(value.prohibitions) || !value.prohibitions.length) {
     invalid('The capture profile is incomplete.');
+  }
+  return freezeClone(value);
+}
+
+function validateProviderPromptPolicy(value, keyframePolicy) {
+  assertHeader(value, 'provider prompt policy');
+  if (!Number.isInteger(value.defaultMaximumPromptCharacters)
+    || value.defaultMaximumPromptCharacters < 1000) {
+    invalid('The provider prompt policy default maximum is invalid.');
+  }
+  if (!value.providerMaximumPromptCharacters
+    || typeof value.providerMaximumPromptCharacters !== 'object'
+    || Object.values(value.providerMaximumPromptCharacters).some(maximum => (
+      !Number.isInteger(maximum) || maximum < 1000
+    ))) {
+    invalid('The provider prompt policy provider maximums are invalid.');
+  }
+  if (!Array.isArray(value.blockOrder)
+    || value.blockOrder.length !== PROVIDER_PROMPT_BLOCK_KEYS.size
+    || new Set(value.blockOrder).size !== PROVIDER_PROMPT_BLOCK_KEYS.size
+    || value.blockOrder.some(block => !PROVIDER_PROMPT_BLOCK_KEYS.has(block))) {
+    invalid('The provider prompt policy block order is invalid.');
+  }
+  if (!value.blockCharacterLimits || typeof value.blockCharacterLimits !== 'object') {
+    invalid('The provider prompt policy requires block limits.');
+  }
+  for (const block of value.blockOrder) {
+    if (!Number.isInteger(value.blockCharacterLimits[block])
+      || value.blockCharacterLimits[block] < 100) {
+      invalid(`The provider prompt policy limit for ${block} is invalid.`);
+    }
+    if (block !== 'visualAuthority' && !text(value.blockLabels?.[block])) {
+      invalid(`The provider prompt policy label for ${block} is invalid.`);
+    }
+  }
+  if (!Number.isInteger(value.reservedFormattingCharacters)
+    || value.reservedFormattingCharacters < 0) {
+    invalid('The provider prompt policy formatting reserve is invalid.');
+  }
+  const smallestMaximum = Math.min(
+    value.defaultMaximumPromptCharacters,
+    ...Object.values(value.providerMaximumPromptCharacters)
+  );
+  const blockMaximum = value.blockOrder.reduce(
+    (total, block) => total + value.blockCharacterLimits[block],
+    value.reservedFormattingCharacters
+  );
+  if (blockMaximum > smallestMaximum) {
+    invalid('The provider prompt policy block limits exceed a provider maximum.');
+  }
+  if (!value.referenceRoleInstructions || REFERENCE_ROLE_KEYS.some(role => (
+    !text(value.referenceRoleInstructions[role])
+  ))) {
+    invalid('The provider prompt policy reference role coverage is incomplete.');
+  }
+  if (!text(value.referenceBoundaryInstruction)
+    || !text(value.multiViewInstruction)
+    || !text(value.preserveOutfitInstruction)
+    || !text(value.replaceOutfitInstruction)) {
+    invalid('The provider prompt policy authority instructions are incomplete.');
+  }
+  for (const field of [
+    'narrativeBehaviorInstructions',
+    'baselinePhotographicInstructions',
+    'constraintInstructions'
+  ]) {
+    if (!Array.isArray(value[field]) || !value[field].length || value[field].some(item => !text(item))) {
+      invalid(`The provider prompt policy ${field} are incomplete.`);
+    }
+  }
+  if (!Array.isArray(value.captureProfileInstructions?.[keyframePolicy.defaultCaptureProfileId])
+    || !value.captureProfileInstructions[keyframePolicy.defaultCaptureProfileId].length
+    || value.captureProfileInstructions[keyframePolicy.defaultCaptureProfileId]
+      .some(item => !text(item))) {
+    invalid('The provider prompt policy capture profile instructions are incomplete.');
   }
   return freezeClone(value);
 }

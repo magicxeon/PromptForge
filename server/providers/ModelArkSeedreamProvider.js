@@ -1,5 +1,6 @@
 import { BaseProvider } from './BaseProvider.js';
 import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
+import { resolveModelArkCredentialScope } from './modelArkCredentialScope.js';
 
 const DEFAULT_BASE_URL = 'https://ark.ap-southeast.bytepluses.com/api/v3';
 const DEFAULT_TIMEOUT_MS = 180000;
@@ -327,7 +328,9 @@ export class ModelArkSeedreamProvider extends BaseProvider {
         requestedResolution: resolution,
         resolvedSize,
         responseFormat,
-        sourceUrlReturned: Boolean(image.url)
+        sourceUrlReturned: Boolean(image.url),
+        credentialScope: resolveModelArkCredentialScope({ baseUrl: this.baseUrl, apiKey: this.apiKey }),
+        generatedAt: new Date().toISOString()
       }
     };
   }

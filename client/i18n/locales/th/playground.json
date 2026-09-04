@@ -193,6 +193,8 @@
   "playground.video.characterSource": "Selected Character",
   "playground.video.chooseCharacter": "Choose Character",
   "playground.video.internalTestingNotice": "Internal qualification candidate. Credits are locked before submission; this model is not published for general paid routing yet.",
+  "playground.video.unverifiedPocBadge": "POC ยังไม่ผ่านการตรวจสอบ",
+  "playground.video.unverifiedPocNotice": "สำหรับทดสอบ POC ใน Development เท่านั้น รูปแบบ first frame คุณภาพผลลัพธ์ และราคาจาก Provider ยังไม่ผ่านการตรวจสอบ การทดสอบครั้งนี้หัก {credits} Credit ผ่านระบบ Credit ตามปกติ",
   "playground.video.catalogOnlyNotice": "Available for internal catalog review. Generation remains disabled until pricing and output settings are qualified.",
   "playground.video.promptOnlyProvider": "ใช้ได้กับ Prompt only",
   "playground.video.creditEstimate": "Locked generation estimate",

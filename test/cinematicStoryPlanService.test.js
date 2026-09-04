@@ -41,6 +41,7 @@ function service(provider, options = {}) {
 }
 
 test('Story Plan AI returns a bounded review proposal with exact Project duration and authorized references', async () => {
+  const progressEvents = [];
   const planner = service({
     generateCinematicStoryPlan: async () => ({
       objective: 'Choose hope', logline: 'A final train forces a choice.', emotionalArc: 'Uncertainty to hope',
@@ -51,10 +52,14 @@ test('Story Plan AI returns a bounded review proposal with exact Project duratio
       scenes: [
         { beatKey: 'wait', title: 'Platform', purpose: 'Wait', storyChange: 'Message', location: 'Station', time: 'Night', emotionalStart: 'guarded', emotionalEnd: 'shaken', transitionIntent: 'cut', castAssignmentIds: ['cast_lead', 'unknown'], wardrobeLookIds: ['look_arrival', 'unknown-look'], blocking: 'Still', lighting: 'Cool', performance: 'Restrained', audioIntent: 'Station', continuityNotes: [], shots: [{ title: 'Phone', purpose: 'Message', durationSeconds: 8, framing: 'close', cameraAngle: 'eye', cameraMovement: 'locked', blocking: 'Hold phone', performance: 'Breath', lighting: 'Cool', environment: 'Platform', audioIntent: 'Tone', prompt: 'Phone insert', castAssignmentIds: ['cast_lead'], wardrobeLookIds: ['look_arrival'], continuityNotes: [] }] },
         { beatKey: 'leave', title: 'Exit', purpose: 'Choose', storyChange: 'Leaves', location: 'Exit', time: 'Night', emotionalStart: 'shaken', emotionalEnd: 'hopeful', transitionIntent: 'end', castAssignmentIds: ['cast_lead'], wardrobeLookIds: ['look_arrival'], blocking: 'Walk', lighting: 'Warm', performance: 'Exhale', audioIntent: 'Footsteps', continuityNotes: [], shots: [{ title: 'Walk', purpose: 'Resolve', durationSeconds: 12, framing: 'wide', cameraAngle: 'eye', cameraMovement: 'follow', blocking: 'Walk right', performance: 'Exhale', lighting: 'Warm', environment: 'Exit', audioIntent: 'Footsteps', prompt: 'Walk to warm exit', castAssignmentIds: ['cast_lead'], wardrobeLookIds: ['look_arrival'], continuityNotes: [] }] }
-      ], warnings: [], responseId: 'resp_plan'
+      ], warnings: [], responseId: 'resp_plan',
+      executionProvider: 'gemini', executionModel: 'gemini-3.8-flash',
+      fallbackUsed: true, fallbackReason: 'primary_rate_or_quota_exhausted'
     })
   });
-  const result = await planner.generatePlan(project);
+  const result = await planner.generatePlan(project, {
+    onProgress: progress => progressEvents.push(progress)
+  });
   assert.equal(result.billingStatus, 'qualification_no_charge');
   assert.equal(result.plan.approved, false);
   assert.equal(result.plan.scenes.reduce((sum, scene) => sum + scene.durationMs, 0), 20_000);
@@ -65,6 +70,28 @@ test('Story Plan AI returns a bounded review proposal with exact Project duratio
   assert.equal(result.plan.scenes[0].shots[0].coverageRole, 'establishing');
   assert.equal(result.plan.scenes[1].shots[0].coverageRole, 'establishing');
   assert.equal(Object.hasOwn(result, 'credits'), false);
+  assert.equal(result.provenance.provider, 'gemini');
+  assert.equal(result.provenance.model, 'gemini-3.8-flash');
+  assert.equal(result.provenance.fallbackUsed, true);
+  assert.equal(result.provenance.fallbackReason, 'primary_rate_or_quota_exhausted');
+  assert.deepEqual(
+    progressEvents
+      .map(progress => progress.activeStageId)
+      .filter(Boolean),
+    [
+      'source_preflight', 'plan_generation', 'director_review',
+      'visual_validation', 'storyboard_readiness'
+    ]
+  );
+  assert.equal(progressEvents.at(-1).activeStageId, null);
+  assert.equal(
+    progressEvents.at(-1).stages.find(stage => stage.id === 'visual_repair')?.status,
+    'skipped'
+  );
+  assert.equal(progressEvents.at(-1).stages.at(-1).status, 'completed');
+  assert.ok(progressEvents.every(progress => (
+    progress.stages.filter(stage => stage.status === 'processing').length <= 1
+  )));
 });
 
 test('Scene Direction AI stays scoped to the selected persisted Scene', async () => {
@@ -168,7 +195,8 @@ test('Story Brief source resolution dispatches one film-directed request and ret
             visibleMoment: 'Mira lowers the black phone and turns toward the warm exit.',
             subjectAction: 'She pockets the phone and begins walking right.', emotionalTarget: 'Quiet resolve',
             performanceCue: 'Exhale; shoulders release; no smile.', framing: 'medium wide', cameraAngle: 'eye level',
-            cameraMovement: 'restrained follow', blocking: 'Turn then walk right', performance: 'Small release',
+            cameraMovement: 'restrained follow', lensIntent: 'normal perspective',
+            blocking: 'Turn then walk right', performance: 'Small release', gaze: 'Toward the warm exit, never camera.',
             lighting: 'Cool to warm', environment: 'Damp station platform', audioIntent: 'Train and footsteps',
             prompt: 'Mira turns toward the warm exit.', continuityEntry: 'Phone held at chest; tracks left.',
             continuityExit: 'Phone in right pocket; body moving right.', transitionToNext: 'end',
@@ -184,6 +212,8 @@ test('Story Brief source resolution dispatches one film-directed request and ret
   });
   const result = await planner.generatePlan(conflicted, { sourceResolution: 'story_brief' });
   assert.equal(result.status, 'proposal');
+  assert.equal(result.plan.scenes[0].shots[0].lensIntent, 'normal perspective');
+  assert.equal(result.plan.scenes[0].shots[0].gaze, 'Toward the warm exit, never camera.');
   assert.equal(result.filmReadiness.status, 'ready_with_warnings');
   assert.ok(result.filmReadiness.findings.some(item => item.code === 'film_shot_portable_duration_review'));
   assert.equal(result.scriptPreview.length, 1);
@@ -256,6 +286,7 @@ test('Story Plan workflow repairs allowlisted visual fields and rejects protecte
 
 test('Story Plan visual repair performs at most two improving rounds', async () => {
   const providerCalls = [];
+  const progressEvents = [];
   const responses = [
     repairPlanResponse({ subjectAction: 'Initial invisible action.' }),
     repairPlanResponse({ subjectAction: 'First visible repair.' }),
@@ -293,13 +324,20 @@ test('Story Plan visual repair performs at most two improving rounds', async () 
     }
   };
 
-  const result = await service(provider, { visualQualityService }).generatePlan(project);
+  const result = await service(provider, { visualQualityService }).generatePlan(project, {
+    onProgress: progress => progressEvents.push(progress)
+  });
 
   assert.equal(providerCalls.length, 3);
   assert.equal(result.plan.scenes[0].shots[0].subjectAction, 'Second visible repair.');
   assert.equal(result.workflow.repairRoundCount, 2);
   assert.equal(result.workflow.repairRounds.every(item => item.status === 'accepted'), true);
   assert.equal(result.workflow.remainingFindings.length, 1);
+  assert.ok(progressEvents.some(progress => progress.activeStageId === 'visual_repair'));
+  assert.equal(
+    progressEvents.at(-1).stages.find(stage => stage.id === 'visual_repair')?.status,
+    'completed'
+  );
 });
 
 test('Story Plan repairs unexplained interior wetness while preserving exterior rain', async () => {

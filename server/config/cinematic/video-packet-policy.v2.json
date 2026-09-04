@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "cinematic-video-packet-policy",
+  "version": 2,
+  "contractVersion": "cinematic-video-packet-v2",
+  "maximumPromptCharacters": 3200,
+  "promptSectionOrder": [
+    "startAuthority",
+    "temporalAction",
+    "camera",
+    "performance",
+    "environment",
+    "continuity",
+    "audio",
+    "prohibitions",
+    "authorDirection"
+  ],
+  "sectionLabels": {
+    "startAuthority": "APPROVED START FRAME",
+    "temporalAction": "TEMPORAL ACTION",
+    "camera": "CAMERA MOTION",
+    "performance": "PERFORMANCE",
+    "environment": "LIGHT AND ENVIRONMENT",
+    "continuity": "END STATE AND CONTINUITY",
+    "audio": "AUDIO INTENT",
+    "prohibitions": "PROHIBITIONS",
+    "authorDirection": "AUTHOR DIRECTION"
+  },
+  "phrasing": {
+    "startFrame": "Begin from the approved Storyboard image as the immutable first frame.",
+    "preserveStartFrame": "Preserve every visible identity, garment, prop, spatial relation and motivated light source from that frame.",
+    "primaryAction": "One primary action: {value}.",
+    "additionalMotionDirection": "Creator motion correction: {value}.",
+    "duration": "Complete the action within {seconds} seconds.",
+    "blocking": "Blocking: {value}.",
+    "screenDirection": "Maintain screen direction: {value}.",
+    "stableCamera": "Keep the camera restrained and stable.",
+    "cameraImperfection": "Keep optical and handheld imperfections subtle and compatible with the authored camera direction.",
+    "emotionalTarget": "Visible emotional target: {value}.",
+    "observableCue": "Observable cue: {value}.",
+    "gaze": "Gaze: {value}.",
+    "lighting": "Lighting: {value}.",
+    "propContinuity": "Prop continuity: {value}.",
+    "endState": "End state: {value}.",
+    "exitAnchor": "Exit anchor: {value}.",
+    "prepareFor": "Prepare for: {value}.",
+    "keep": "Keep {value}.",
+    "dialogueCue": "{speaker}: {text} at {startOffsetMs}ms.",
+    "audioCue": "{kind}: {description} at {startOffsetMs}ms."
+  },
+  "globalProhibitions": [
+    "Do not change character identity, apparent age, body proportions, hairstyle or approved wardrobe.",
+    "Do not invent a second action, a new scene, a new Character, dialogue, prop or camera move.",
+    "Avoid synthetic CGI surfaces, plastic skin, beauty filtering and mechanically perfect motion."
+  ]
+}

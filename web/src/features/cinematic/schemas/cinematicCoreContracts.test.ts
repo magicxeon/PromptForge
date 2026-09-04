@@ -33,13 +33,15 @@ describe('Cinematic core engine response contracts', () => {
           repairableCountBefore: 1, repairableCountAfter: 0, acceptedChangeCount: 1,
           provenance: {
             provider: 'openai', model: 'test-model', responseId: null,
-            recipeId: 'story-plan', recipeVersion: 5, recipeFingerprint: '1234567890abcdef'
+            recipeId: 'story-plan', recipeVersion: 5, recipeFingerprint: '1234567890abcdef',
+            fallbackUsed: true, fallbackReason: 'primary_rate_or_quota_exhausted'
           }
         }],
         remainingFindings: []
       }
     });
     expect(result.workflow?.repairs[0]?.after).toBe('Her hand tightens.');
+    expect(result.workflow?.repairRounds[0]?.provenance?.fallbackUsed).toBe(true);
   });
 
   it('parses sanitized visual repair timeout evidence without provider provenance', () => {

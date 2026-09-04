@@ -6,13 +6,22 @@ import { pipeline } from 'node:stream/promises';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { videoPosterService } from './VideoPosterService.js';
+import { videoMediaProbeService } from './VideoMediaProbeService.js';
 
 const DEFAULT_MAX_BYTES = 500 * 1024 * 1024;
 
 export class CinematicVideoAssetService {
-  constructor({ assetRepository = assetRepo, posterService = videoPosterService, outputsDirectory = OUTPUTS_DIR, fetchImpl = globalThis.fetch, maxBytes = DEFAULT_MAX_BYTES } = {}) {
+  constructor({
+    assetRepository = assetRepo,
+    posterService = videoPosterService,
+    probeService = videoMediaProbeService,
+    outputsDirectory = OUTPUTS_DIR,
+    fetchImpl = globalThis.fetch,
+    maxBytes = DEFAULT_MAX_BYTES
+  } = {}) {
     this.assetRepository = assetRepository;
     this.posterService = posterService;
+    this.probeService = probeService;
     this.outputsDirectory = outputsDirectory;
     this.fetchImpl = fetchImpl;
     this.maxBytes = maxBytes;
@@ -20,7 +29,7 @@ export class CinematicVideoAssetService {
 
   async persistVideoOutput({ task, output }) {
     const existing = await this.assetRepository.findBySourceJobIdForOwner(task.id, task.ownerUserId, 'cinematic_video_output');
-    if (existing) return toOutputAsset(await this.#ensurePoster(existing, task, output));
+    if (existing) return toOutputAsset(await this.#ensureMediaEvidence(existing, task, output));
     const extension = extensionForMime(output?.mimeType);
     const relativeKey = path.posix.join('cinematic-video', safeSegment(task.ownerUserId), `${safeSegment(task.id)}${extension}`);
     const destination = path.resolve(this.outputsDirectory, ...relativeKey.split('/'));
@@ -57,17 +66,67 @@ export class CinematicVideoAssetService {
           attemptId: task.attemptId,
           characterAttributions: Array.isArray(task.submittedRequest?.characterAttributions)
             ? task.submittedRequest.characterAttributions
-            : []
+            : [],
+          technicalProbe: {
+            schemaVersion: 1,
+            probeVersion: 'ffprobe-video-v1',
+            status: 'pending'
+          }
         }
       }, { userId: task.ownerUserId, username: task.ownerUsername, role: 'user' });
       try {
-        return toOutputAsset(await this.#ensurePoster(asset, task, output));
+        return toOutputAsset(await this.#ensureMediaEvidence(asset, task, output));
       } catch (error) {
-        error.outputAsset = toOutputAsset(asset);
+        error.outputAsset ||= toOutputAsset(await this.assetRepository.findByIdForOwner(asset.id, task.ownerUserId) || asset);
         throw error;
       }
     } catch (error) {
       await fs.rm(temporary, { force: true }).catch(() => undefined);
+      throw error;
+    }
+  }
+
+  async #ensureMediaEvidence(asset, task, output) {
+    const probed = await this.#ensureTechnicalProbe(asset, task);
+    return this.#ensurePoster(probed, task, {
+      ...output,
+      durationSeconds: probed.metadata?.technicalProbe?.durationSeconds
+        || output?.durationSeconds
+        || probed.metadata?.durationSeconds
+    });
+  }
+
+  async #ensureTechnicalProbe(asset, task) {
+    if (asset.metadata?.technicalProbe?.status === 'passed') return asset;
+    const videoPath = resolveStoragePath(this.outputsDirectory, asset.storageKey);
+    try {
+      const technicalProbe = await this.probeService.probe({ videoPath });
+      return this.assetRepository.update(asset.id, draft => {
+        draft.width = technicalProbe.width;
+        draft.height = technicalProbe.height;
+        draft.sizeBytes = technicalProbe.sizeBytes || draft.sizeBytes;
+        draft.metadata = {
+          ...(draft.metadata || {}),
+          durationSeconds: technicalProbe.durationSeconds,
+          fps: technicalProbe.fps,
+          hasAudio: technicalProbe.hasAudio,
+          technicalProbe
+        };
+      });
+    } catch (error) {
+      const failedAsset = await this.assetRepository.update(asset.id, draft => {
+        draft.metadata = {
+          ...(draft.metadata || {}),
+          technicalProbe: {
+            schemaVersion: 1,
+            probeVersion: 'ffprobe-video-v1',
+            status: 'failed',
+            errorCode: error?.code || 'video_probe_failed',
+            probedAt: new Date().toISOString()
+          }
+        };
+      });
+      error.outputAsset = toOutputAsset(failedAsset);
       throw error;
     }
   }
@@ -115,17 +174,31 @@ export class CinematicVideoAssetService {
 
 async function copyBoundedFile(sourcePath, destination, maxBytes) {
   const source = path.resolve(String(sourcePath || ''));
-  const stat = await fs.stat(source);
+  let stat;
+  try {
+    stat = await fs.stat(source);
+  } catch {
+    throw mediaError('video_media_copy_failed', 'Provider video could not be copied.', true);
+  }
   if (!stat.isFile() || stat.size <= 0 || stat.size > maxBytes) throw mediaError('video_media_size_invalid', 'Video file size is invalid.');
-  await pipeline(createReadStream(source), createWriteStream(destination, { flags: 'wx' }));
+  try {
+    await pipeline(createReadStream(source), createWriteStream(destination, { flags: 'wx' }));
+  } catch {
+    throw mediaError('video_media_copy_failed', 'Provider video could not be copied.', true);
+  }
 }
 
 async function downloadBounded(rawUrl, destination, fetchImpl, maxBytes) {
   let url;
   try { url = new URL(String(rawUrl || '')); } catch { throw mediaError('video_provider_url_invalid', 'Provider video URL is invalid.'); }
   if (url.protocol !== 'https:') throw mediaError('video_provider_url_invalid', 'Provider video URL must use HTTPS.');
-  const response = await fetchImpl(url, { signal: AbortSignal.timeout(120000), redirect: 'error' });
-  if (!response.ok || !response.body) throw mediaError('video_provider_download_failed', 'Provider video could not be downloaded.');
+  let response;
+  try {
+    response = await fetchImpl(url, { signal: AbortSignal.timeout(120000), redirect: 'error' });
+  } catch {
+    throw mediaError('video_provider_download_failed', 'Provider video could not be downloaded.', true);
+  }
+  if (!response.ok || !response.body) throw mediaError('video_provider_download_failed', 'Provider video could not be downloaded.', true);
   const contentLength = Number(response.headers.get('content-length') || 0);
   if (contentLength > maxBytes) throw mediaError('video_media_size_invalid', 'Provider video exceeds the storage limit.');
   let bytes = 0;
@@ -133,8 +206,13 @@ async function downloadBounded(rawUrl, destination, fetchImpl, maxBytes) {
     bytes += chunk.length;
     callback(bytes > maxBytes ? mediaError('video_media_size_invalid', 'Provider video exceeds the storage limit.') : null, chunk);
   } });
-  await pipeline(Readable.fromWeb(response.body), limiter, createWriteStream(destination, { flags: 'wx' }));
-  if (bytes <= 0) throw mediaError('video_provider_download_empty', 'Provider video is empty.');
+  try {
+    await pipeline(Readable.fromWeb(response.body), limiter, createWriteStream(destination, { flags: 'wx' }));
+  } catch (error) {
+    if (error?.code === 'video_media_size_invalid') throw error;
+    throw mediaError('video_provider_download_failed', 'Provider video could not be downloaded.', true);
+  }
+  if (bytes <= 0) throw mediaError('video_provider_download_empty', 'Provider video is empty.', true);
 }
 
 async function hashFile(filePath) {
@@ -145,6 +223,7 @@ async function hashFile(filePath) {
 
 function toOutputAsset(asset) {
   return {
+    id: asset.id,
     assetId: asset.id,
     assetVersionId: asset.id,
     publicUrl: asset.publicUrl,
@@ -152,7 +231,11 @@ function toOutputAsset(asset) {
     sizeBytes: asset.sizeBytes,
     contentHash: asset.metadata?.contentHash || null,
     posterUrl: asset.metadata?.posterUrl || asset.thumbnailUrl || null,
-    thumbnailUrl: asset.metadata?.posterUrl || asset.thumbnailUrl || null
+    thumbnailUrl: asset.metadata?.posterUrl || asset.thumbnailUrl || null,
+    width: asset.width || null,
+    height: asset.height || null,
+    durationSeconds: asset.metadata?.technicalProbe?.durationSeconds || asset.metadata?.durationSeconds || null,
+    technicalProbe: asset.metadata?.technicalProbe || null
   };
 }
 
@@ -183,8 +266,8 @@ function assertWithin(target, root) {
   if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) throw mediaError('video_storage_path_invalid', 'Video storage path is invalid.');
 }
 
-function mediaError(code, message) {
-  return Object.assign(new Error(message), { code });
+function mediaError(code, message, retryable = false) {
+  return Object.assign(new Error(message), { code, category: 'media', retryable });
 }
 
 export const cinematicVideoAssetService = new CinematicVideoAssetService();

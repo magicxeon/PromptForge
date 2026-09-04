@@ -68,8 +68,11 @@ export function createSingleCharacterCinematicProject() {
       id: 'attempt_video_single', operation: 'cinematic_draft_clip',
       sceneId: scene.id, shotId: shot.id, generationJobId: 'job_video_single',
       providerTaskId: 'task_video_single', status: 'approved', reviewDecision: 'approved',
+      quoteId: 'vest_video_single', qualificationAuthorizationId: 'vqual_video_single',
+      settlementStatus: 'qualification_no_charge',
       sourceFingerprint: 'fingerprint_storyboard_single', downstreamSourceStatus: 'current',
-      outputAssetIds: ['asset_video_single'], createdAt: FIXED_TIME
+      outputAssetIds: ['asset_video_single'],
+      outputAsset: { technicalProbe: { status: 'passed' } }, createdAt: FIXED_TIME
     }
   ];
   value.timelineVersions = [{

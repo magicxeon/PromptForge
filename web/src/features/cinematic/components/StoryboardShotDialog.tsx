@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { GenerationExperience } from '../../../components/generation/GenerationExperience';
 import { Button } from '../../../components/ui/Button';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
+import { useActor } from '../../../lib/auth/ActorProvider';
 import type { JobStatus } from '../../generation/schemas/generationSchemas';
 import {
   approveCinematicStoryboardSource,
@@ -34,6 +35,11 @@ import {
   resolveStoryboardShotCast,
   resolveStoryboardShotLooks
 } from './storyboardGenerationAdapter';
+import { StoryboardVideoCompatibilityNotice } from './StoryboardVideoCompatibilityNotice';
+import {
+  readStoryboardEnginePreference,
+  writeStoryboardEnginePreference
+} from '../state/storyboardEnginePreference';
 
 type Props = {
   open: boolean;
@@ -55,7 +61,11 @@ export function StoryboardShotDialog({
   onProjectRefresh
 }: Props) {
   const { t } = useTranslation('cinematic');
+  const { actor } = useActor();
   const initialDirection = useMemo(() => readStoryboardAuthorDirection(shot.prompt), [shot.prompt]);
+  const initialEnginePreference = actor?.userId
+    ? readStoryboardEnginePreference(actor.userId)
+    : null;
   const [direction, setDirection] = useState(initialDirection);
   const [savedDirection, setSavedDirection] = useState(initialDirection);
   const [generationRequestId, setGenerationRequestId] = useState(() => createShotGenerationKey(project.id, shot.id));
@@ -150,6 +160,12 @@ export function StoryboardShotDialog({
     if (!child || child.status === 'failed') {
       throw new Error(child?.error?.message || t('cinematic.storyboard.generationBlocked'));
     }
+    if (actor?.userId) {
+      writeStoryboardEnginePreference(actor.userId, {
+        provider: draft.provider,
+        model: draft.submodel
+      });
+    }
     setGenerationRequestId(createShotGenerationKey(project.id, shot.id));
     onProjectRefresh?.();
     await generationContext.refetch();
@@ -231,6 +247,10 @@ export function StoryboardShotDialog({
             enabled={naturalRealismEnabled}
             onChange={setNaturalRealismEnabled}
           />}
+          renderEngineSelectionNotice={({ model }) => <StoryboardVideoCompatibilityNotice
+            model={model}
+            containsCharacter={castAssignments.length > 0}
+          />}
           references={references}
           characterProfileContext={characterProfileContext}
           characterReferenceOutfitBehavior={references.outfit_front ? 'replaceable' : 'preserve'}
@@ -238,6 +258,7 @@ export function StoryboardShotDialog({
           enginePresentation="compact"
           layoutVariant="stacked"
           fixedAspectRatio={project.aspectRatio}
+          initialEnginePreference={initialEnginePreference}
           persistenceScope={`${project.id}:${shot.id}`}
           resumeJobId={resumeJobId}
           referenceRoles={referenceRoles}

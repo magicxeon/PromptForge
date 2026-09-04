@@ -10,9 +10,38 @@ const enabled = {
 test('Cinematic Story Plan policy provides separate bounded stage timeout defaults', () => {
   const policy = getCinematicStoryPlanPolicy(enabled);
 
+  assert.equal(policy.model, 'gpt-5.6-terra');
+  assert.equal(policy.reasoningEffort, 'medium');
+  assert.equal(policy.fallback.model, 'gemini-3.8-flash');
+  assert.equal(policy.fallback.enabled, false);
   assert.equal(policy.generationTimeoutMs, 120_000);
   assert.equal(policy.repairTimeoutMs, 90_000);
   assert.equal(policy.timeoutMs, policy.generationTimeoutMs);
+});
+
+test('Cinematic Story Plan policy enables Gemini fallback with a configured key', () => {
+  const policy = getCinematicStoryPlanPolicy({
+    ENABLE_CINEMATIC_STORY_PLAN: 'true',
+    OPENAI_API_KEY: 'openai-key',
+    GEMINI_API_KEY: 'gemini-key'
+  });
+
+  assert.equal(policy.enabled, true);
+  assert.equal(policy.fallback.enabled, true);
+  assert.equal(policy.fallback.provider, 'gemini');
+  assert.equal(policy.fallback.reasoningEffort, 'medium');
+});
+
+test('Cinematic Story Plan policy can opt out of Gemini fallback', () => {
+  const policy = getCinematicStoryPlanPolicy({
+    ENABLE_CINEMATIC_STORY_PLAN: 'true',
+    OPENAI_API_KEY: 'openai-key',
+    GEMINI_API_KEY: 'gemini-key',
+    ENABLE_CINEMATIC_STORY_PLAN_GEMINI_FALLBACK: 'false'
+  });
+
+  assert.equal(policy.enabled, true);
+  assert.equal(policy.fallback.enabled, false);
 });
 
 test('Cinematic Story Plan policy supports independent timeout overrides and bounds them', () => {

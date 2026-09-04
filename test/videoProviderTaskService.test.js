@@ -9,10 +9,23 @@ import { VideoProviderAdapterRegistry } from '../server/providers/VideoProviderA
 
 const actor = { userId: 'usr_alice', username: 'user_alice', role: 'user' };
 const request = {
-  operation: 'cinematic_motion_preview', projectId: 'cineproj_1', sceneId: 'scene_1', shotId: 'shot_1',
+  operation: 'image_to_video', commercialOperation: 'cinematic_motion_preview', inputMode: 'image_to_video',
+  projectId: 'cineproj_1', sceneId: 'scene_1', shotId: 'shot_1',
   generationAttemptId: 'attempt_1', providerId: 'gemini', modelId: 'veo-3.1-lite-generate-preview',
-  aspectRatio: '9:16', resolution: '720p', durationSeconds: 4, audioMode: 'generated',
-  referenceImageCount: 0, pricingFingerprint: 'pricing_fixture_v1', correlationId: 'corr_1',
+  aspectRatio: '9:16', resolution: '720p', durationSeconds: 8, audioMode: 'generated',
+  referenceImageCount: 1, referencePlanFingerprint: 'reference_plan_fixture_v1',
+  references: [{
+    role: 'first_frame', assetId: 'asset_storyboard_1', assetVersionId: 'assetver_storyboard_1',
+    sourceFingerprint: 'source_storyboard_1', referenceImageUrl: 'https://private.example/reference.png'
+  }],
+  pricingFingerprint: 'pricing_fixture_v1', correlationId: 'corr_1',
+  providerReferenceRegistrations: [{
+    id: 'pareg_storyboard_1', providerId: 'modelark',
+    providerAssetId: 'Asset-20260905-approved01', providerAssetGroupId: 'group-20260905-aigc01',
+    sourceAssetId: 'asset_storyboard_1', sourceContentHash: 'a'.repeat(64),
+    status: 'active', activatedAt: '2026-09-05T00:00:00.000Z',
+    signedUrl: 'https://must-not-persist.example/private'
+  }],
   characterAttributions: [{
     characterProfileId: 'charprof_1',
     characterProfileVersionId: 'charver_1',
@@ -52,6 +65,22 @@ test('research video task is idempotent, survives repository restart and complet
     characterProfileVersionId: 'charver_1',
     role: 'Lead'
   }]);
+  assert.equal(submitted.commercialOperation, 'cinematic_motion_preview');
+  assert.equal(submitted.inputMode, 'image_to_video');
+  assert.equal(submitted.submittedRequest.referencePlanFingerprint, 'reference_plan_fixture_v1');
+  assert.deepEqual(submitted.submittedRequest.references, [{
+    role: 'first_frame',
+    assetId: 'asset_storyboard_1',
+    assetVersionId: 'assetver_storyboard_1',
+    sourceFingerprint: 'source_storyboard_1'
+  }]);
+  assert.deepEqual(submitted.submittedRequest.providerReferenceRegistrations, [{
+    id: 'pareg_storyboard_1', providerId: 'modelark',
+    providerAssetId: 'Asset-20260905-approved01', providerAssetGroupId: 'group-20260905-aigc01',
+    sourceAssetId: 'asset_storyboard_1', sourceContentHash: 'a'.repeat(64),
+    status: 'active', activatedAt: '2026-09-05T00:00:00.000Z'
+  }]);
+  assert.equal(JSON.stringify(submitted.submittedRequest).includes('private.example'), false);
   assert.equal((await service.pollTask(submitted.id)).status, 'provider_processing');
   const restartedRepository = new VideoProviderTaskRepository({ tasksFile: repository.tasksFile });
   const restarted = new VideoProviderTaskService({
@@ -77,7 +106,7 @@ test('successful provider response without usage stops in reconciliation', async
   assert.equal(cleanedOutputs.length, 1);
 });
 
-test('poster persistence failure retains partial Video lineage for maintenance repair', async t => {
+test('retryable poster failure retains partial Video lineage and repairs the same provider task', async t => {
   const { directory, service } = await fixture([{
     providerStatus: 'provider_succeeded',
     output: { temporaryProviderUrl: 'fixture://video.mp4', mimeType: 'video/mp4' },
@@ -87,15 +116,30 @@ test('poster persistence failure retains partial Video lineage for maintenance r
   service.mediaPersister.persistVideoOutput = async () => {
     throw Object.assign(new Error('poster failed'), {
       code: 'video_poster_extraction_failed',
+      category: 'media',
+      retryable: true,
       outputAsset: { assetId: 'asset_partial', publicUrl: '/outputs/partial.mp4', posterUrl: null }
     });
   };
   const submitted = await service.submitResearchTask({ ...request, idempotencyKey: 'video:test:partial-poster' }, actor);
-  const terminal = await service.pollTask(submitted.id);
-  assert.equal(terminal.status, 'reconciliation_required');
-  assert.equal(terminal.providerError.code, 'video_poster_extraction_failed');
-  assert.equal(terminal.outputAsset.assetId, 'asset_partial');
-  assert.equal(terminal.providerUsage.outputSeconds, 4);
+  const pendingRepair = await service.pollTask(submitted.id);
+  assert.equal(pendingRepair.status, 'media_retry_pending');
+  assert.equal(pendingRepair.providerError.code, 'video_poster_extraction_failed');
+  assert.equal(pendingRepair.outputAsset.assetId, 'asset_partial');
+  assert.equal(pendingRepair.providerUsage.outputSeconds, 4);
+  let repairedTasks = 0;
+  service.mediaPersister.persistVideoOutput = async ({ task: recoveredTask }) => {
+    repairedTasks += 1;
+    return {
+      assetId: 'asset_partial', publicUrl: '/outputs/partial.mp4', posterUrl: '/outputs/partial.poster.webp',
+      technicalProbe: { status: 'passed', durationSeconds: 4, width: 720, height: 1280, fps: 24 },
+      sourceJobId: recoveredTask.id
+    };
+  };
+  const [repaired] = await service.resumeRecoverable();
+  assert.equal(repaired.status, 'completed');
+  assert.equal(repaired.outputAsset.assetId, 'asset_partial');
+  assert.equal(repairedTasks, 1);
 });
 
 test('operational Video task listing supports search and cursor pagination without requiring Cinematic IDs', async t => {
@@ -133,6 +177,60 @@ test('unknown provider status stops polling in reconciliation', async t => {
   assert.equal(terminal.status, 'reconciliation_required');
   assert.equal(terminal.providerError.code, 'video_provider_status_unknown');
   assert.equal(terminal.providerError.providerBillableState, 'unknown');
+});
+
+test('startup recovery never resubmits an ambiguous task without a provider task ID', async t => {
+  const { directory, repository, service } = await fixture([]);
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  await repository.createAccepted({
+    ...request,
+    id: 'videotask_ambiguous',
+    ownerUserId: actor.userId,
+    ownerUsername: actor.username,
+    providerTaskId: null,
+    status: 'provider_submitting',
+    idempotencyKey: 'video:test:ambiguous'
+  });
+  let submissions = 0;
+  service.adapter.submit = async () => { submissions += 1; return { providerTaskId: 'must_not_exist' }; };
+  const [recovered] = await service.resumeRecoverable();
+  assert.equal(recovered.status, 'reconciliation_required');
+  assert.equal(recovered.providerError.code, 'video_provider_submission_state_unknown');
+  assert.equal(submissions, 0);
+});
+
+test('retryable provider poll failure remains recoverable', async t => {
+  const { directory, service } = await fixture([]);
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const submitted = await service.submitResearchTask({ ...request, idempotencyKey: 'video:test:retryable-poll' }, actor);
+  service.adapter.poll = async () => {
+    throw Object.assign(new Error('provider timeout'), {
+      code: 'video_provider_timeout', category: 'provider', retryable: true,
+      providerBillableState: 'unknown'
+    });
+  };
+  const recovered = await service.pollTask(submitted.id);
+  assert.equal(recovered.status, 'provider_queued');
+  assert.equal(recovered.providerError.code, 'video_provider_timeout');
+  assert.equal(recovered.pollCount, 1);
+});
+
+test('ambiguous provider submit failure enters reconciliation instead of a retryable resubmit state', async t => {
+  const { directory, service } = await fixture([]);
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  service.adapter.submit = async () => {
+    throw Object.assign(new Error('upstream unavailable'), {
+      code: 'video_provider_unreachable', category: 'provider', retryable: true,
+      providerBillableState: 'unknown'
+    });
+  };
+  const submitted = await service.submitResearchTask({
+    ...request, idempotencyKey: 'video:test:ambiguous-submit'
+  }, actor);
+  assert.equal(submitted.status, 'reconciliation_required');
+  assert.equal(submitted.providerTaskId, null);
+  assert.equal(submitted.providerError.providerBillableState, 'unknown');
+  assert.equal((await service.resumeRecoverable()).length, 0);
 });
 
 test('paid routing remains unavailable through the research task service contract', async t => {

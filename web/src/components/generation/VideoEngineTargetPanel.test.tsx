@@ -8,6 +8,8 @@ const model: VideoModelCapability = {
   modelId: 'veo-test',
   displayName: 'Veo Test',
   operations: ['text_to_video'],
+  commercialOperations: ['playground_video'],
+  inputModes: ['text_to_video'],
   durationControlMode: 'exact',
   durations: [8],
   resolutions: ['720p'],
@@ -113,5 +115,79 @@ describe('VideoEngineTargetPanel', () => {
     const modelSelect = selects[1];
     expect(modelSelect).toHaveTextContent('Seedance Test');
     expect(modelSelect).not.toHaveTextContent('Veo Test');
+  });
+
+  it('marks an unverified development POC model and states its test Credit charge', () => {
+    const pocModel: VideoModelCapability = {
+      ...seedance,
+      developmentPocUnverified: true,
+      developmentPocCredits: 1,
+      developmentPocWarningCode: 'video_model_unverified_development_poc'
+    };
+    render(
+      <VideoEngineTargetPanel
+        models={[pocModel]}
+        selectedModel={pocModel}
+        aspectRatio="9:16"
+        resolution="720p"
+        durationSeconds={8}
+        audioMode="generated"
+        comparisonEnabled={false}
+        comparisonActive={false}
+        quoteLoading={false}
+        estimatedCredits={1}
+        canAfford
+        onModelChange={vi.fn()}
+        onAspectRatioChange={vi.fn()}
+        onResolutionChange={vi.fn()}
+        onDurationChange={vi.fn()}
+        onAudioModeChange={vi.fn()}
+        onComparisonChange={vi.fn()}
+      />
+    );
+
+    const modelSelect = screen.getAllByRole('combobox')[1];
+    expect(modelSelect).toHaveTextContent('playground.video.unverifiedPocBadge');
+    expect(screen.getByRole('alert')).toHaveTextContent('playground.video.unverifiedPocNotice');
+    expect(screen.getByText('1 playground.comparison.credits')).toBeInTheDocument();
+  });
+
+  it('supports a compact consumer-owned header and footer without changing selection ownership', () => {
+    const onAspectRatioChange = vi.fn();
+    const { container } = render(
+      <VideoEngineTargetPanel
+        models={[model]}
+        selectedModel={model}
+        aspectRatio="9:16"
+        resolution="720p"
+        durationSeconds={8}
+        audioMode="generated"
+        comparisonEnabled={false}
+        comparisonActive={false}
+        quoteLoading={false}
+        compact
+        aspectRatioLocked
+        title="Render motion"
+        description="Selected Shot"
+        badge={<span>Render</span>}
+        showComparisonAction={false}
+        summary={<p>First frame ready</p>}
+        footer={<button type="button">Generate clip</button>}
+        onModelChange={vi.fn()}
+        onAspectRatioChange={onAspectRatioChange}
+        onResolutionChange={vi.fn()}
+        onDurationChange={vi.fn()}
+        onAudioModeChange={vi.fn()}
+        onComparisonChange={vi.fn()}
+      />
+    );
+
+    expect(container.querySelector('.engine-target-panel--compact')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Render motion' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: /compare/i })).not.toBeInTheDocument();
+    expect(screen.getByText('First frame ready')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Generate clip' })).toBeVisible();
+    expect(screen.getByRole('button', { name: '16:9' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '9:16' })).toBeEnabled();
   });
 });

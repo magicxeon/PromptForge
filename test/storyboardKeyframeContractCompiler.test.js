@@ -56,8 +56,20 @@ test('Storyboard keyframe compiler is deterministic and keeps the current Shot a
     ...input,
     project: { ...project, version: project.version + 1 }
   });
+  const revisionOnlyMutation = compiler.compile({
+    ...input,
+    project: { ...project, version: project.version + 1 },
+    scene: { ...scene, version: scene.version + 1 },
+    shot: { ...shot, version: shot.version + 1 }
+  });
+  const visibleActionMutation = compiler.compile({
+    ...input,
+    shot: { ...shot, subjectAction: 'She places the CLOSED sign on the counter.' }
+  });
   assert.equal(first.sourceFingerprint, second.sourceFingerprint);
   assert.equal(first.sourceFingerprint, unrelatedProjectMutation.sourceFingerprint);
+  assert.equal(first.sourceFingerprint, revisionOnlyMutation.sourceFingerprint);
+  assert.notEqual(first.sourceFingerprint, visibleActionMutation.sourceFingerprint);
   assert.equal(first.performance.emotionalTarget, 'isolated restraint');
   assert.equal(first.currentState.coverageRole, 'establishing');
   assert.equal(first.visualSpec.moment.coverageRole, 'establishing');

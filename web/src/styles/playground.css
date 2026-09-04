@@ -262,6 +262,12 @@
   line-height: 1.5;
 }
 
+.engine-target-panel__video-notice--poc {
+  border-color: color-mix(in srgb, var(--theme-warning) 64%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-warning) 12%, var(--theme-bg-raised));
+  color: var(--theme-text);
+}
+
 .engine-target-panel__video-quote {
   display: grid;
   gap: 3px;

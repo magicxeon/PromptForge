@@ -7,7 +7,10 @@ import {
   EngineTargetPanel,
   type EngineValue
 } from '../../../components/generation/EngineTargetPanel';
-import { imageModelUnavailableReason } from '../../../components/generation/engineTargetPanelHelpers';
+import {
+  imageModelUnavailableReason,
+  resolveAvailableImageEngine
+} from '../../../components/generation/engineTargetPanelHelpers';
 import { Button } from '../../../components/ui/Button';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { useActor } from '../../../lib/auth/ActorProvider';
@@ -29,14 +32,15 @@ import type {
   CinematicStoryboardGenerationContext
 } from '../schemas/cinematicSchemas';
 import {
-  readStoryboardBatchEnginePreference,
-  writeStoryboardBatchEnginePreference
-} from '../state/storyboardBatchPreferences';
+  readStoryboardEnginePreference,
+  writeStoryboardEnginePreference
+} from '../state/storyboardEnginePreference';
 import { DialogHeader } from './ProjectCostSummary';
 import {
   CINEMATIC_NATURAL_CAMERA_PROFILE_ID,
   NaturalCameraRealismControl
 } from './NaturalCameraRealismControl';
+import { StoryboardVideoCompatibilityNotice } from './StoryboardVideoCompatibilityNotice';
 
 type Props = {
   open: boolean;
@@ -92,30 +96,41 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
     staleTime: 0,
     retry: false
   });
+  const maximumReferenceCount = useMemo(() => (contexts.data || []).reduce(
+    (maximum, item) => Math.max(
+      maximum,
+      Object.values(item.context.references || {}).filter(Boolean).length
+        + (item.context.characterProfileContext ? 1 : 0)
+    ),
+    0
+  ), [contexts.data]);
 
   useEffect(() => {
     if (!open) return;
     setIdempotencyKey(createBatchKey(project.id));
     setNaturalRealismEnabled(true);
-  }, [open, project.id]);
+    setEngine({
+      provider: '',
+      model: '',
+      resolution: null,
+      aspectRatio: project.aspectRatio,
+      outputCount: 1
+    });
+  }, [actor?.userId, open, project.aspectRatio, project.id]);
 
   useEffect(() => {
-    if (!open || !catalog.data) return;
+    if (!open || !catalog.data || engine.provider || (unapproved.length > 0 && !contexts.data)) return;
     const preference = actor?.userId
-      ? readStoryboardBatchEnginePreference(actor.userId)
+      ? readStoryboardEnginePreference(actor.userId)
       : null;
-    const preferredProvider = preference
-      ? catalog.data.providers.find(item => item.id === preference.provider)
-      : null;
-    const provider = preferredProvider
-      || catalog.data.providers.find(item => item.id === catalog.data.defaultProvider)
-      || catalog.data.providers[0];
-    const preferredModel = preferredProvider && preference
-      ? preferredProvider.models.find(item => item.id === preference.model)
-      : null;
-    const model = preferredModel
-      || provider?.models.find(item => item.id === provider.defaultModel)
-      || provider?.models[0];
+    const resolved = resolveAvailableImageEngine(
+      catalog.data,
+      preference,
+      maximumReferenceCount,
+      project.aspectRatio
+    );
+    const provider = resolved?.provider;
+    const model = resolved?.model;
     setEngine(current => ({
       ...current,
       provider: provider?.id || '',
@@ -124,15 +139,16 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
       aspectRatio: project.aspectRatio,
       outputCount: 1
     }));
-  }, [actor?.userId, catalog.data, open, project.aspectRatio]);
-
-  useEffect(() => {
-    if (!open || !actor?.userId || !engine.provider || !engine.model) return;
-    writeStoryboardBatchEnginePreference(actor.userId, {
-      provider: engine.provider,
-      model: engine.model
-    });
-  }, [actor?.userId, engine.model, engine.provider, open]);
+  }, [
+    actor?.userId,
+    catalog.data,
+    contexts.data,
+    engine.provider,
+    maximumReferenceCount,
+    open,
+    project.aspectRatio,
+    unapproved.length
+  ]);
 
   const selectedModel = catalog.data?.providers.find(item => item.id === engine.provider)
     ?.models.find(item => item.id === engine.model);
@@ -173,12 +189,6 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
   }), [contexts.data, engine.model, engine.provider, engine.resolution, naturalRealismEnabled, project, selectedModel]);
   const eligible = candidates.filter(candidate => !candidate.blockedReason);
   const blocked = candidates.filter(candidate => candidate.blockedReason);
-  const maximumReferenceCount = candidates.reduce((maximum, candidate) => Math.max(
-    maximum,
-    Object.values(candidate.draft.references).filter(Boolean).length
-      + (candidate.draft.characterProfileContext ? 1 : 0)
-  ), 0);
-
   const quotes = useQuery({
     queryKey: [
       'cinematic-storyboard-batch-quotes',
@@ -222,7 +232,13 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
         draft: candidate.draft
       }))
     }),
-    onSuccess: () => {
+    onSuccess: result => {
+      if (actor?.userId && result.acceptedCount > 0) {
+        writeStoryboardEnginePreference(actor.userId, {
+          provider: engine.provider,
+          model: engine.model
+        });
+      }
       onProjectRefresh?.();
       if (actor?.userId) {
         void queryClient.invalidateQueries({
@@ -263,6 +279,10 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
           onComparisonChange={() => undefined}
           onSlotsChange={() => undefined}
         /> : null}
+        <StoryboardVideoCompatibilityNotice
+          model={selectedModel || null}
+          containsCharacter={(contexts.data || []).some(item => item.context.cast.length > 0)}
+        />
 
         {contexts.isFetching || quotes.isFetching ? <div className="cinematic-storyboard-batch-dialog__loading" role="status">
           <LoaderCircle className="animate-spin" aria-hidden="true" />

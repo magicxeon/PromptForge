@@ -102,6 +102,10 @@ screen direction.
 | `009-storyboard-keyframe-visual-intent-and-natural-realism.md` | One-frame visual semantics, concise keyframe prompt, hidden realism profile and theme-safe preview |
 | `010-storyboard-shot-modal-media-first-layout.md` | Preview-first Shot modal hierarchy with the canonical prompt and optional additional direction grouped together |
 | `011-unified-story-plan-direct-review-and-visual-repair.md` | One-button Story Plan generation, AI direction, bounded visual repair and final readiness evidence |
+| `012-provider-ready-storyboard-prompt-composition.md` | Complete Shot-first provider prompt composition, reference-role compression, final budgets and natural Scene direction |
+| `013-terra-story-direction-and-gemini-fallback.md` | Terra-first structured Story direction, Gemini fallback and stronger reference-bias safeguards |
+| `014-live-story-plan-progress-and-draft-materialization.md` | Real server stage progress and automatic generated Draft materialization |
+| `015-storyboard-render-engine-memory-and-deferred-prop-continuity.md` | Actor-scoped last accepted Storyboard engine restoration and the deferred prop visual-authority gap |
 
 ## 6. Capability Ownership
 
@@ -190,3 +194,26 @@ presentation. Deterministic server, full Web and local browser gates passed.
 Paid-provider visual scoring remains a release qualification rather than an
 automated implementation step; see
 `implemetation-plan/007-storyboard-keyframe-visual-intent-and-natural-realism.md`.
+
+Package 012 moved Story Plan and Scene Direction to Terra-first structured
+generation with operation-scoped Gemini fallback, restored `gaze` and
+`lensIntent` to the canonical Shot handoff and strengthened final provider
+prompt precedence against smiling portrait, catalog-pose, prop-display and
+beauty-light bias from references. Automated provider, Cinematic, Generation
+and Web contract gates passed. One paid first-Shot render remains the final
+visual qualification; see
+`implemetation-plan/012-terra-story-direction-and-gemini-fallback.md`.
+
+Package 013 added truthful live Story Plan progress over the existing proposal
+endpoint and automatic editable-Draft persistence after a successful operation.
+The active server stage alone carries a process icon; completed, skipped and
+queued stages remain distinct. Generated Beats, Scenes and Shots now appear in
+the editor without a second Apply action, while approval remains explicit. See
+`implemetation-plan/013-live-story-plan-progress-and-draft-materialization.md`.
+
+Package 014 unified the actor-scoped provider/model preference used by
+single-Shot and Generate All Storyboard rendering. The preference is restored
+only when the current catalog accepts its aspect and reference requirements and
+is written only after accepted work. Prop material/color continuity is recorded
+as a deferred visual-authority gap without changing prompt or approval behavior.
+See `implemetation-plan/014-storyboard-render-engine-memory.md`.

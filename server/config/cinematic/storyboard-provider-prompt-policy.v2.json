@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "id": "cinematic-storyboard-provider-prompt-policy",
+  "version": 2,
+  "defaultMaximumPromptCharacters": 4700,
+  "providerMaximumPromptCharacters": {
+    "modelark": 4700
+  },
+  "reservedFormattingCharacters": 180,
+  "blockOrder": [
+    "visualAuthority",
+    "referenceAuthority",
+    "subjectBehavior",
+    "photographicBehavior",
+    "constraints"
+  ],
+  "blockCharacterLimits": {
+    "visualAuthority": 1700,
+    "referenceAuthority": 1100,
+    "subjectBehavior": 850,
+    "photographicBehavior": 600,
+    "constraints": 250
+  },
+  "blockLabels": {
+    "referenceAuthority": "REFERENCE AUTHORITY",
+    "subjectBehavior": "SUBJECT BEHAVIOR",
+    "photographicBehavior": "PHOTOGRAPHIC BEHAVIOR",
+    "constraints": "EXECUTION CONSTRAINTS"
+  },
+  "referenceRoleInstructions": {
+    "template_baseline_reference": "Use only as the destination composition, environment, lighting and treatment baseline; replace identity or Look when the current Shot supplies them.",
+    "template_baseline": "Use only as the destination composition, environment, lighting and treatment baseline; replace identity or Look when the current Shot supplies them.",
+    "character_reference_a": "Preserve authorized identity, face, hair, skin and body proportions only; never copy its smile, gaze, pose, Look or setting.",
+    "character_reference_b": "Use only as another view of the same authorized identity and proportions; never copy expression or pose.",
+    "character_reference": "Preserve authorized identity, face, hair, skin and body proportions only; never copy its smile, gaze, pose, Look or setting.",
+    "outfit_front_reference": "Preserve only the approved front garment silhouette, color, material, construction and details; never copy the model pose or presentation.",
+    "outfit_back_reference": "Preserve only matching back garment construction and details; never copy the model pose or presentation.",
+    "outfit_front": "Preserve only the approved front garment silhouette, color, material, construction and details; never copy the model pose or presentation.",
+    "outfit_back": "Preserve only matching back garment construction and details; never copy the model pose or presentation.",
+    "face_reference_a": "Preserve only authorized facial identity and proportions; never copy smile, gaze, head pose, clothing, setting or style.",
+    "face_reference_b": "Use only as another view of the same authorized facial identity; never copy expression, gaze or head pose.",
+    "face_reference": "Preserve only authorized facial identity and proportions; never copy smile, gaze, head pose, clothing, setting or style.",
+    "style_reference": "Use only its lighting, palette, contrast, texture and photographic mood; do not copy identity, pose, clothing or scene content.",
+    "pose_reference": "Use only its body arrangement, gesture and framing intent; do not copy identity, clothing, setting or visual style.",
+    "product_reference": "Use only the authorized product identity, shape, material and visible details; do not copy its source layout, setting or style.",
+    "environment_reference": "Use only the authorized location, spatial layout and environmental materials; do not copy people, clothing or unrelated objects."
+  },
+  "referenceBoundaryInstruction": "Reference roles are exclusive. Current Shot action, expression, gaze, posture, prop staging and light outrank incidental reference content.",
+  "multiViewInstruction": "Use sheets and catalog images only as evidence; output one continuous Scene frame, never a sheet, collage, split screen, inset or repeated person.",
+  "preserveOutfitInstruction": "Preserve the approved Look and garment details while the current Shot controls pose, expression and action.",
+  "replaceOutfitInstruction": "Replace source clothing only with the explicitly approved outfit reference while preserving Character identity and proportions.",
+  "narrativeBehaviorInstructions": [
+    "Render an observed narrative moment, not a posed portrait, fashion image or sales presentation.",
+    "Reference expressions are not performance authority: do not add a friendly micro-smile or direct camera gaze unless the current Shot explicitly requires it.",
+    "Keep natural asymmetry in head, shoulders, hands and weight; do not square the body into a welcoming camera-facing stance unless authored.",
+    "Keep every prop at the authored hand, body height and angle; do not raise, center or turn it toward camera for readability unless that display is the authored action."
+  ],
+  "baselinePhotographicInstructions": [
+    "Create one physically plausible live-action frame with readable Scene context, moderate depth separation and motivated available or practical light.",
+    "The authored light controls exposure: preserve subject-to-background contrast and falloff; do not add beauty fill, lift the face or activate an unrequested fixture."
+  ],
+  "captureProfileInstructions": {
+    "photorealistic-cinematic": [
+      "Use source-consistent unretouched skin and restrained digital-camera response with natural highlight roll-off, subtle sensor noise in darker tones and slight optical softness; keep imperfections unobtrusive."
+    ]
+  },
+  "constraintInstructions": [
+    "No glossy retouch, plastic skin, illustration, anime or CGI; no exaggerated grain, aberration, halation, HDR, sharpness or bokeh.",
+    "No duplicate people, copied sheet layout, impossible reflections or unauthorized objects."
+  ]
+}

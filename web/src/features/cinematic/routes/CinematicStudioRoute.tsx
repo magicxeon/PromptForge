@@ -361,7 +361,7 @@ function CinematicWorkspace({
         projectTitle={draft.projectName || t('cinematic.setup.untitled')}
         saveState={saveState}
       />
-      <Surface className="cinematic-workspace-surface p-4">
+      <Surface className={`cinematic-workspace-surface p-4${activeStage === 'produce' ? ' cinematic-workspace-surface--produce' : ''}`}>
         <CinematicStageRail activeStage={activeStage} onStageChange={setActiveStage} />
         <div className="cinematic-workspace-layout">
           <div className="min-w-0">

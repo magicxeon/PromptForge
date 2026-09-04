@@ -12,7 +12,13 @@ export const providerModelSchema = z.object({
     maxReferenceImages: z.number().default(0),
     streaming: z.boolean().default(false),
     aspectRatios: z.array(z.string()).default([]),
-    resolutions: z.array(z.string()).optional()
+    resolutions: z.array(z.string()).optional(),
+    downstreamVideoCompatibility: z.record(z.string(), z.object({
+      status: z.string(),
+      maximumAgeDays: z.number().int().positive().optional(),
+      requiresSameCredentialScope: z.boolean().optional(),
+      requiresOriginalBytes: z.boolean().optional()
+    }).passthrough()).optional()
   }).passthrough(),
   defaults: z.object({
     resolution: z.string().optional(),

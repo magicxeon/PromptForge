@@ -121,15 +121,32 @@ export class StoryboardKeyframeContractCompiler {
     contract.visualSpec = buildVisualSpec(contract);
     const sections = buildPromptSections(contract);
     const providerIndependentPrompt = renderPrompt(sections, configuration);
-    const fingerprintContract = { ...contract };
-    delete fingerprintContract.projectVersion;
-    const sourceFingerprint = fingerprint({ ...fingerprintContract, providerIndependentPrompt });
+    const sourceFingerprint = fingerprint(buildSemanticFingerprintPayload(contract, providerIndependentPrompt));
     return {
       ...contract,
       sourceFingerprint,
       providerIndependentPrompt
     };
   }
+}
+
+export function matchesStoryboardKeyframeFingerprint(contract, candidateFingerprint) {
+  const candidate = compactText(candidateFingerprint);
+  if (!candidate || !contract) return false;
+  if (candidate === contract.sourceFingerprint) return true;
+
+  const currentShotVersion = Math.max(1, Number(contract.shotVersion || 1));
+  const firstCandidate = Math.max(1, currentShotVersion - 255);
+  const historicalVersions = new Set([1]);
+  for (let shotVersion = firstCandidate; shotVersion <= currentShotVersion; shotVersion += 1) {
+    historicalVersions.add(shotVersion);
+  }
+  for (const shotVersion of historicalVersions) {
+    if (candidate === fingerprint(buildLegacyVersionedFingerprintPayload(contract, shotVersion))) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function buildVisualSpec(contract) {
@@ -451,6 +468,28 @@ function truncatePrompt(value, maximum) {
 
 function fingerprint(value) {
   return crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+function buildSemanticFingerprintPayload(contract, providerIndependentPrompt) {
+  const {
+    projectVersion: _projectVersion,
+    sceneVersion: _sceneVersion,
+    shotVersion: _shotVersion,
+    sourceFingerprint: _sourceFingerprint,
+    providerIndependentPrompt: _storedPrompt,
+    ...semanticContract
+  } = contract;
+  return { ...semanticContract, providerIndependentPrompt };
+}
+
+function buildLegacyVersionedFingerprintPayload(contract, shotVersion) {
+  const {
+    projectVersion: _projectVersion,
+    sourceFingerprint: _sourceFingerprint,
+    providerIndependentPrompt,
+    ...legacyContract
+  } = contract;
+  return { ...legacyContract, shotVersion, providerIndependentPrompt };
 }
 
 export const storyboardKeyframeContractCompiler = new StoryboardKeyframeContractCompiler();

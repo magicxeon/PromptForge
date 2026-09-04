@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { getCinematicStoryPlanPolicy } from '../../config/cinematic-story-plan-policy.js';
 import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
-import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
+import { CinematicTextProviderRouter } from './CinematicTextProviderRouter.js';
 import {
   analyzeStoryPlanSource,
   buildFilmScriptPreview,
@@ -18,17 +18,21 @@ const VISUAL_REPAIR_SCENE_FIELDS = Object.freeze([
 ]);
 const VISUAL_REPAIR_SHOT_FIELDS = Object.freeze([
   'coverageRole', 'visibleMoment', 'subjectAction', 'emotionalTarget', 'performanceCue',
-  'framing', 'cameraAngle', 'cameraMovement', 'blocking', 'performance', 'gaze', 'lighting',
+  'framing', 'cameraAngle', 'cameraMovement', 'lensIntent', 'blocking', 'performance', 'gaze', 'lighting',
   'environment', 'prompt', 'continuityEntry', 'continuityExit', 'transitionToNext',
   'continuityNotes'
+]);
+const STORY_PLAN_PROGRESS_STAGE_IDS = Object.freeze([
+  'source_preflight', 'plan_generation', 'director_review',
+  'visual_validation', 'visual_repair', 'storyboard_readiness'
 ]);
 
 export class CinematicStoryPlanService {
   constructor({
     policyLoader = getCinematicStoryPlanPolicy,
-    storyRecipeLoader = () => loadPromptRecipe('cinematic/story-plan.v5.json'),
-    sceneRecipeLoader = () => loadPromptRecipe('cinematic/scene-direction.v4.json'),
-    providerFactory = policy => new OpenAITextProvider(policy.apiKey),
+    storyRecipeLoader = () => loadPromptRecipe('cinematic/story-plan.v7.json'),
+    sceneRecipeLoader = () => loadPromptRecipe('cinematic/scene-direction.v6.json'),
+    providerFactory = policy => new CinematicTextProviderRouter(policy),
     fieldManifestService = cinematicFieldManifestService,
     visualQualityService = cinematicVisualPlanQualityService
   } = {}) {
@@ -40,13 +44,16 @@ export class CinematicStoryPlanService {
     this.visualQualityService = visualQualityService;
   }
 
-  async generatePlan(project, { mode = 'generate', sourceResolution = null } = {}) {
+  async generatePlan(project, { mode = 'generate', sourceResolution = null, onProgress = null } = {}) {
+    const progress = createStoryPlanProgressReporter(onProgress);
+    progress.processing('source_preflight');
     const normalizedMode = mode === 'review_current' ? 'review_current' : 'generate';
     const normalizedResolution = ['story_brief', 'creative_direction'].includes(sourceResolution)
       ? sourceResolution
       : null;
     const preflight = analyzeStoryPlanSource(project, { sourceResolution: normalizedResolution });
     if (preflight.status === 'blocked') {
+      progress.blocked('source_preflight');
       return {
         proposalId: createProposalId(),
         operation: normalizedMode === 'review_current'
@@ -73,6 +80,7 @@ export class CinematicStoryPlanService {
     const generationTimeoutMs = resolveGenerationTimeout(policy);
     const repairTimeoutMs = resolveRepairTimeout(policy);
     let initialResult;
+    progress.processing('plan_generation');
     try {
       initialResult = await provider.generateCinematicStoryPlan({
         context,
@@ -91,16 +99,23 @@ export class CinematicStoryPlanService {
         timeoutMs: generationTimeoutMs
       });
     }
+    progress.processing('director_review');
     let currentResult = initialResult;
     let plan = normalizePlan(currentResult, project, {
       sourceResolution: normalizedResolution,
       directorOperation: normalizedMode
     });
+    progress.processing('visual_validation');
     const initialVisualQuality = this.visualQualityService.evaluate(project, plan);
     let visualQuality = initialVisualQuality;
     const repairRounds = [];
     const acceptedChanges = [];
     const maximumRepairRounds = Math.min(2, Math.max(0, Number(recipe.limits?.maximumVisualRepairRounds ?? 2)));
+    if (visualQuality.repairableCount > 0 && maximumRepairRounds > 0) {
+      progress.processing('visual_repair');
+    } else {
+      progress.skipped('visual_repair');
+    }
     for (let round = 1; round <= maximumRepairRounds && visualQuality.repairableCount > 0; round += 1) {
       let repairResult;
       try {
@@ -155,6 +170,7 @@ export class CinematicStoryPlanService {
         provenance(repairResult, policy, recipe)));
       visualQuality = candidateQuality;
     }
+    progress.processing('storyboard_readiness');
     const filmReadiness = evaluateStoryPlanFilmReadiness(project, plan, {
       preflight,
       aiFindings: plan.directorFindings,
@@ -163,6 +179,7 @@ export class CinematicStoryPlanService {
     const scriptPreview = buildFilmScriptPreview(plan);
     plan.filmReadiness = filmReadiness;
     plan.scriptPreview = scriptPreview;
+    progress.completed('storyboard_readiness');
     return {
       proposalId: createProposalId(),
       operation: normalizedMode === 'review_current'
@@ -576,10 +593,10 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
       framing: bounded(shot.framing, 120) || 'medium shot',
       cameraAngle: bounded(shot.cameraAngle, 120) || 'eye level',
       cameraMovement: bounded(shot.cameraMovement, 160) || 'locked camera',
-      lensIntent: '',
+      lensIntent: bounded(shot.lensIntent, 120),
       blocking: bounded(shot.blocking, 500),
       performance: bounded(shot.performance, 500),
-      gaze: '',
+      gaze: bounded(shot.gaze, 240),
       lighting: bounded(shot.lighting, 500),
       environment: bounded(shot.environment, 500),
       audioIntent: bounded(shot.audioIntent, 500),
@@ -936,8 +953,10 @@ function sumShotWeights(shots) {
 
 function provenance(result, policy, recipe) {
   return {
-    provider: policy.provider,
-    model: policy.model,
+    provider: result.executionProvider || policy.provider,
+    model: result.executionModel || policy.model,
+    fallbackUsed: result.fallbackUsed === true,
+    fallbackReason: result.fallbackReason || null,
     responseId: result.responseId || null,
     recipeId: recipe.id,
     recipeVersion: recipe.version,
@@ -962,6 +981,40 @@ function assertRecipe(recipe) {
 
 function createProposalId() {
   return `cineproposal_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+}
+
+function createStoryPlanProgressReporter(callback) {
+  const stages = STORY_PLAN_PROGRESS_STAGE_IDS.map(id => ({
+    id,
+    status: 'queued',
+    issueCount: 0,
+    repairCount: 0
+  }));
+  const emit = (stageId, status) => {
+    const activeIndex = stages.findIndex(stage => stage.id === stageId);
+    if (activeIndex < 0) return;
+    for (let index = 0; index < activeIndex; index += 1) {
+      if (['queued', 'processing'].includes(stages[index].status)) stages[index].status = 'completed';
+    }
+    stages[activeIndex].status = status;
+    if (typeof callback !== 'function') return;
+    try {
+      callback({
+        contractVersion: 'cinematic-story-plan-live-progress-v1',
+        activeStageId: status === 'processing' ? stageId : null,
+        stages: structuredClone(stages),
+        updatedAt: new Date().toISOString()
+      });
+    } catch {
+      // Progress delivery is observational and must never interrupt the AI operation.
+    }
+  };
+  return {
+    processing: stageId => emit(stageId, 'processing'),
+    completed: stageId => emit(stageId, 'completed'),
+    skipped: stageId => emit(stageId, 'skipped'),
+    blocked: stageId => emit(stageId, 'blocked')
+  };
 }
 
 function stringList(value, maximumItems, maximumLength) {

@@ -8,7 +8,7 @@ import {
   resolveModelArkApiKey
 } from '../server/providers/ModelArkSeedanceProvider.js';
 
-test('Seedance payload uses explicit video controls and first-frame content', () => {
+test('Seedance first-frame payload inherits image ratio and keeps other video controls', () => {
   const payload = buildModelArkSeedancePayload({
     modelId: 'dreamina-seedance-2-5-260628',
     prompt: 'A restrained fashion walk with a slow camera push.',
@@ -21,7 +21,7 @@ test('Seedance payload uses explicit video controls and first-frame content', ()
     returnLastFrame: true
   });
   assert.equal(payload.model, 'dreamina-seedance-2-5-260628');
-  assert.equal(payload.ratio, '9:16');
+  assert.equal('ratio' in payload, false);
   assert.equal(payload.resolution, '720p');
   assert.equal(payload.duration, 8);
   assert.equal(payload.generate_audio, true);
@@ -32,6 +32,55 @@ test('Seedance payload uses explicit video controls and first-frame content', ()
     image_url: { url: 'data:image/png;base64,YWJj' },
     role: 'first_frame'
   });
+});
+
+test('Seedance accepts an active private Asset URI as the first frame', () => {
+  const payload = buildModelArkSeedancePayload({
+    modelId: 'dreamina-seedance-2-5-260628',
+    prompt: 'Continue one restrained action from Image 1.',
+    aspectRatio: '9:16', resolution: '480p', durationSeconds: 6, audioMode: 'none',
+    referenceImage: 'asset://Asset-20260905-approved01'
+  });
+
+  assert.equal('ratio' in payload, false);
+  assert.deepEqual(payload.content[1], {
+    type: 'image_url',
+    image_url: { url: 'asset://Asset-20260905-approved01' },
+    role: 'first_frame'
+  });
+});
+
+test('Seedance text-to-video payload keeps the selected ratio', () => {
+  const payload = buildModelArkSeedancePayload({
+    modelId: 'dreamina-seedance-2-5-260628',
+    prompt: 'A restrained establishing shot.',
+    aspectRatio: '9:16',
+    resolution: '480p',
+    durationSeconds: 6,
+    audioMode: 'none'
+  });
+
+  assert.equal(payload.ratio, '9:16');
+  assert.deepEqual(payload.content.map(item => item.type), ['text']);
+});
+
+test('Seedance first-last-frame payload inherits the first image ratio', () => {
+  const payload = buildModelArkSeedancePayload({
+    modelId: 'dreamina-seedance-2-5-260628',
+    prompt: 'A restrained transition between two approved frames.',
+    aspectRatio: '9:16',
+    resolution: '480p',
+    durationSeconds: 6,
+    audioMode: 'none',
+    referenceImage: 'https://example.com/first.png',
+    lastFrameImage: 'https://example.com/last.png'
+  });
+
+  assert.equal('ratio' in payload, false);
+  assert.deepEqual(payload.content.slice(1).map(item => item.role), [
+    'first_frame',
+    'last_frame'
+  ]);
 });
 
 test('Seedance provider submits through the shared ModelArk base URL and credential', async () => {
@@ -104,7 +153,7 @@ test('Seedance debug logging exposes diagnostics without prompts or credentials'
     resolution: '480p',
     durationSeconds: 6,
     audioMode: 'none'
-  }), error => error.code === 'ModelNotOpen');
+  }), error => error.code === 'video_provider_not_qualified');
 
   assert.equal(entries.length, 2);
   assert.match(entries[0], /"event":"request"/);
@@ -112,6 +161,27 @@ test('Seedance debug logging exposes diagnostics without prompts or credentials'
   assert.match(entries[1], /"providerCode":"ModelNotOpen"/);
   assert.match(entries[1], /"providerRequestId":"provider-request-1"/);
   assert.doesNotMatch(entries.join('\n'), /PRIVATE PROMPT CONTENT|private-test-key/);
+});
+
+test('Seedance normalizes a live portrait privacy rejection as authorization required and not billable', async () => {
+  const provider = new ModelArkSeedanceProvider({
+    apiKey: 'private-test-key',
+    fetchImpl: async () => jsonResponse({
+      error: {
+        code: 'InputImageSensitiveContentDetected.PrivacyInformation',
+        message: "The request failed because the input image 'content[1]' may contain real person."
+      }
+    }, 400)
+  });
+
+  await assert.rejects(() => provider.submit({
+    modelId: 'dreamina-seedance-2-0-mini-260615',
+    prompt: 'A restrained camera move.', aspectRatio: '9:16',
+    resolution: '720p', durationSeconds: 6, audioMode: 'none',
+    referenceImage: 'data:image/png;base64,YWJj'
+  }), error => error.code === 'video_provider_portrait_authorization_required'
+    && error.retryable === false
+    && error.providerBillableState === 'not_billable');
 });
 
 test('Seedance transport diagnostics include the nested fetch cause safely', async () => {
@@ -133,7 +203,7 @@ test('Seedance transport diagnostics include the nested fetch cause safely', asy
     modelId: 'seedance-1-0-pro-fast-251015',
     prompt: 'PRIVATE PROMPT CONTENT', aspectRatio: '9:16',
     resolution: '480p', durationSeconds: 6, audioMode: 'none'
-  }), error => error.code === 'video_provider_unreachable');
+  }), error => error.code === 'video_provider_timeout');
 
   const log = entries.join('\n');
   assert.match(log, /"causeCode":"ETIMEDOUT"/);
@@ -143,11 +213,44 @@ test('Seedance transport diagnostics include the nested fetch cause safely', asy
   assert.doesNotMatch(log, /PRIVATE PROMPT CONTENT|private-test-key/);
 });
 
+test('Seedance ambiguous submit response never claims the provider request was not billable', async () => {
+  const provider = new ModelArkSeedanceProvider({
+    apiKey: 'private-test-key',
+    fetchImpl: async () => jsonResponse({ message: 'Upstream unavailable.' }, 503)
+  });
+  await assert.rejects(() => provider.submit({
+    modelId: 'seedance-1-0-pro-fast-251015',
+    prompt: 'A restrained camera move.', aspectRatio: '9:16',
+    resolution: '480p', durationSeconds: 6, audioMode: 'none'
+  }), error => error.retryable === true && error.providerBillableState === 'unknown');
+});
+
 test('Seedance debug toggle only accepts explicit true', () => {
   assert.equal(parseEnvironmentBoolean('true'), true);
   assert.equal(parseEnvironmentBoolean(' TRUE '), true);
   assert.equal(parseEnvironmentBoolean('false'), false);
   assert.equal(parseEnvironmentBoolean('1'), false);
+});
+
+test('Seedance preflight fails locally before transport when configuration is unsafe', async () => {
+  let requests = 0;
+  const missingCredential = new ModelArkSeedanceProvider({
+    apiKey: '',
+    fetchImpl: async () => { requests += 1; return jsonResponse({}); }
+  });
+  assert.throws(
+    () => missingCredential.preflight({ modelId: 'seedance-1-0-pro-fast-251015' }),
+    error => error.code === 'video_provider_credentials_missing' && error.providerBillableState === 'not_billable'
+  );
+  const insecureEndpoint = new ModelArkSeedanceProvider({
+    apiKey: 'test-key', baseUrl: 'http://modelark.example/api/v3',
+    fetchImpl: async () => { requests += 1; return jsonResponse({}); }
+  });
+  assert.throws(
+    () => insecureEndpoint.preflight({ modelId: 'seedance-1-0-pro-fast-251015' }),
+    error => error.code === 'video_provider_endpoint_invalid'
+  );
+  assert.equal(requests, 0);
 });
 
 function jsonResponse(payload, status = 200) {
