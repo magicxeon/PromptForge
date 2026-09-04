@@ -220,6 +220,7 @@ export class GenerationApplicationService {
       shotId: operation.shotId || null,
       expectedShotVersion: operation.expectedShotVersion || null,
       estimateId: operation.estimateId || operation.body?.estimateId || null,
+      metadata: operation.metadata ? structuredClone(operation.metadata) : null,
       jobId: this.queueManager.createJobId(),
       status: 'planned',
       result: null,
@@ -292,7 +293,8 @@ export class GenerationApplicationService {
             batchId: groupId,
             operationId: child.operationId,
             sceneId: child.sceneId,
-            shotId: child.shotId
+            shotId: child.shotId,
+            ...(operation.metadata || {})
           }
         });
       } catch (error) {

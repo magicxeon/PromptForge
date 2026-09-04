@@ -33,7 +33,10 @@ import {
   writeStoryboardBatchEnginePreference
 } from '../state/storyboardBatchPreferences';
 import { DialogHeader } from './ProjectCostSummary';
-import { buildStoryboardPrompt } from './storyboardGenerationAdapter';
+import {
+  CINEMATIC_NATURAL_CAMERA_PROFILE_ID,
+  NaturalCameraRealismControl
+} from './NaturalCameraRealismControl';
 
 type Props = {
   open: boolean;
@@ -62,6 +65,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
     outputCount: 1
   });
   const [idempotencyKey, setIdempotencyKey] = useState(() => createBatchKey(project.id));
+  const [naturalRealismEnabled, setNaturalRealismEnabled] = useState(true);
   const catalog = useQuery({
     queryKey: ['provider-catalog'],
     queryFn: getProviderCatalog,
@@ -92,6 +96,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
   useEffect(() => {
     if (!open) return;
     setIdempotencyKey(createBatchKey(project.id));
+    setNaturalRealismEnabled(true);
   }, [open, project.id]);
 
   useEffect(() => {
@@ -150,19 +155,22 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
       draft: {
         provider: engine.provider,
         submodel: engine.model,
-        prompt: buildStoryboardPrompt(project, item.scene, item.shot),
+        prompt: item.context.keyframeContract.providerIndependentPrompt,
         aspectRatio: project.aspectRatio,
         imageResolution: engine.resolution,
         outputCount: 1,
         generationMode: 'scene',
         generationSurface: 'cinematic',
+        cinematicCaptureProfileId: naturalRealismEnabled
+          ? CINEMATIC_NATURAL_CAMERA_PROFILE_ID
+          : null,
         references,
         characterProfileContext: item.context.characterProfileContext,
         characterReferenceOutfitBehavior: references.outfit_front ? 'replaceable' : 'preserve',
         authoringMode: 'manual'
       }
     };
-  }), [contexts.data, engine.model, engine.provider, engine.resolution, project, selectedModel]);
+  }), [contexts.data, engine.model, engine.provider, engine.resolution, naturalRealismEnabled, project, selectedModel]);
   const eligible = candidates.filter(candidate => !candidate.blockedReason);
   const blocked = candidates.filter(candidate => candidate.blockedReason);
   const maximumReferenceCount = candidates.reduce((maximum, candidate) => Math.max(
@@ -180,6 +188,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
       engine.provider,
       engine.model,
       engine.resolution,
+      naturalRealismEnabled,
       eligible.map(candidate => `${candidate.shot.id}:${candidate.shot.version}`).join('|')
     ],
     queryFn: () => Promise.all(eligible.map(async candidate => ({
@@ -208,6 +217,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
         sceneId: candidate.scene.id,
         shotId: candidate.shot.id,
         expectedShotVersion: candidate.shot.version,
+        keyframeContractFingerprint: candidate.context.keyframeContract.sourceFingerprint,
         estimateId: quote.estimate.estimateId,
         draft: candidate.draft
       }))
@@ -245,6 +255,10 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
           allowMultiOutput={false}
           fixedAspectRatio={project.aspectRatio}
           requiredReferenceCount={maximumReferenceCount}
+          extraControls={<NaturalCameraRealismControl
+            enabled={naturalRealismEnabled}
+            onChange={setNaturalRealismEnabled}
+          />}
           onChange={value => setEngine({ ...value, outputCount: 1 })}
           onComparisonChange={() => undefined}
           onSlotsChange={() => undefined}

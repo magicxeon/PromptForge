@@ -8,18 +8,36 @@ import {
   buildFilmScriptPreview,
   evaluateStoryPlanFilmReadiness
 } from '../cinematic/StoryPlanFilmReadiness.js';
+import { cinematicFieldManifestService } from '../cinematic/CinematicFieldManifestService.js';
+import { cinematicFieldKey, parseFieldKey } from '../cinematic/CinematicAuthoringStateService.js';
+import { cinematicVisualPlanQualityService } from '../cinematic/CinematicVisualPlanQualityService.js';
+
+const VISUAL_REPAIR_SCENE_FIELDS = Object.freeze([
+  'entryState', 'exitState', 'location', 'time', 'blocking', 'lighting', 'performance',
+  'propContinuity', 'screenDirection', 'continuityNotes'
+]);
+const VISUAL_REPAIR_SHOT_FIELDS = Object.freeze([
+  'coverageRole', 'visibleMoment', 'subjectAction', 'emotionalTarget', 'performanceCue',
+  'framing', 'cameraAngle', 'cameraMovement', 'blocking', 'performance', 'gaze', 'lighting',
+  'environment', 'prompt', 'continuityEntry', 'continuityExit', 'transitionToNext',
+  'continuityNotes'
+]);
 
 export class CinematicStoryPlanService {
   constructor({
     policyLoader = getCinematicStoryPlanPolicy,
-    storyRecipeLoader = () => loadPromptRecipe('cinematic/story-plan.v3.json'),
-    sceneRecipeLoader = () => loadPromptRecipe('cinematic/scene-direction.v2.json'),
-    providerFactory = policy => new OpenAITextProvider(policy.apiKey)
+    storyRecipeLoader = () => loadPromptRecipe('cinematic/story-plan.v5.json'),
+    sceneRecipeLoader = () => loadPromptRecipe('cinematic/scene-direction.v4.json'),
+    providerFactory = policy => new OpenAITextProvider(policy.apiKey),
+    fieldManifestService = cinematicFieldManifestService,
+    visualQualityService = cinematicVisualPlanQualityService
   } = {}) {
     this.policyLoader = policyLoader;
     this.storyRecipeLoader = storyRecipeLoader;
     this.sceneRecipeLoader = sceneRecipeLoader;
     this.providerFactory = providerFactory;
+    this.fieldManifestService = fieldManifestService;
+    this.visualQualityService = visualQualityService;
   }
 
   async generatePlan(project, { mode = 'generate', sourceResolution = null } = {}) {
@@ -43,6 +61,7 @@ export class CinematicStoryPlanService {
         plan: null,
         filmReadiness: null,
         scriptPreview: [],
+        workflow: buildBlockedWorkflowEvidence(preflight),
         provenance: null,
         billingStatus: 'qualification_no_charge'
       };
@@ -50,21 +69,96 @@ export class CinematicStoryPlanService {
     const policy = assertEnabled(this.policyLoader());
     const recipe = assertRecipe(this.storyRecipeLoader());
     const context = buildProjectContext(project, { preflight, mode: normalizedMode });
-    const result = await this.providerFactory(policy).generateCinematicStoryPlan({
-      context,
-      recipe,
-      model: policy.model,
-      reasoningEffort: policy.reasoningEffort,
-      maxOutputTokens: policy.maxOutputTokens,
-      timeoutMs: policy.timeoutMs
-    });
-    const plan = normalizePlan(result, project, {
+    const provider = this.providerFactory(policy);
+    const generationTimeoutMs = resolveGenerationTimeout(policy);
+    const repairTimeoutMs = resolveRepairTimeout(policy);
+    let initialResult;
+    try {
+      initialResult = await provider.generateCinematicStoryPlan({
+        context,
+        recipe,
+        model: policy.model,
+        reasoningEffort: policy.reasoningEffort,
+        maxOutputTokens: policy.maxOutputTokens,
+        timeoutMs: generationTimeoutMs
+      });
+    } catch (error) {
+      if (!isStoryPlanTimeout(error)) throw error;
+      throw storyPlanStageTimeout({
+        code: 'cinematic_story_plan_generation_timeout',
+        message: 'Story Plan generation exceeded its time budget. No draft was changed. Please try Generate Plan again.',
+        stage: 'plan_generation',
+        timeoutMs: generationTimeoutMs
+      });
+    }
+    let currentResult = initialResult;
+    let plan = normalizePlan(currentResult, project, {
       sourceResolution: normalizedResolution,
       directorOperation: normalizedMode
     });
+    const initialVisualQuality = this.visualQualityService.evaluate(project, plan);
+    let visualQuality = initialVisualQuality;
+    const repairRounds = [];
+    const acceptedChanges = [];
+    const maximumRepairRounds = Math.min(2, Math.max(0, Number(recipe.limits?.maximumVisualRepairRounds ?? 2)));
+    for (let round = 1; round <= maximumRepairRounds && visualQuality.repairableCount > 0; round += 1) {
+      let repairResult;
+      try {
+        repairResult = await provider.generateCinematicStoryPlan({
+          context: buildVisualRepairContext(context, currentResult, plan, visualQuality, round, maximumRepairRounds),
+          recipe,
+          model: policy.model,
+          reasoningEffort: policy.reasoningEffort,
+          maxOutputTokens: policy.maxOutputTokens,
+          timeoutMs: repairTimeoutMs
+        });
+      } catch (error) {
+        if (!isStoryPlanTimeout(error)) throw error;
+        repairRounds.push(repairRoundEvidence(
+          round,
+          'provider_timeout',
+          visualQuality,
+          visualQuality,
+          0,
+          null,
+          {
+            code: 'cinematic_story_plan_repair_timeout',
+            message: 'Visual repair exceeded its time budget. The generated Plan was retained for review.',
+            retryable: true,
+            stage: 'visual_repair',
+            timeoutMs: repairTimeoutMs
+          }
+        ));
+        break;
+      }
+      const mergedResult = mergeVisualRepairResult(currentResult, repairResult, plan, visualQuality.findings);
+      const candidatePlan = normalizePlan(mergedResult, project, {
+        sourceResolution: normalizedResolution,
+        directorOperation: normalizedMode
+      });
+      const changes = collectVisualRepairChanges(plan, candidatePlan, visualQuality.findings, round);
+      if (!changes.length) {
+        repairRounds.push(repairRoundEvidence(round, 'no_change', visualQuality, visualQuality, 0,
+          provenance(repairResult, policy, recipe)));
+        break;
+      }
+      const candidateQuality = this.visualQualityService.evaluate(project, candidatePlan);
+      if (candidateQuality.repairableCount >= visualQuality.repairableCount) {
+        repairRounds.push(repairRoundEvidence(round, 'no_progress', visualQuality, candidateQuality, 0,
+          provenance(repairResult, policy, recipe)));
+        break;
+      }
+      currentResult = mergedResult;
+      plan = candidatePlan;
+      acceptedChanges.push(...changes);
+      repairRounds.push(repairRoundEvidence(round, 'accepted', visualQuality, candidateQuality, changes.length,
+        provenance(repairResult, policy, recipe)));
+      visualQuality = candidateQuality;
+    }
     const filmReadiness = evaluateStoryPlanFilmReadiness(project, plan, {
       preflight,
-      aiFindings: plan.directorFindings
+      aiFindings: plan.directorFindings,
+      visualFindings: visualQuality.findings
     });
     const scriptPreview = buildFilmScriptPreview(plan);
     plan.filmReadiness = filmReadiness;
@@ -83,17 +177,36 @@ export class CinematicStoryPlanService {
       plan,
       filmReadiness,
       scriptPreview,
-      provenance: provenance(result, policy, recipe),
+      workflow: buildWorkflowEvidence({
+        preflight,
+        plan,
+        initialVisualQuality,
+        visualQuality,
+        repairRounds,
+        acceptedChanges,
+        filmReadiness
+      }),
+      provenance: provenance(initialResult, policy, recipe),
       billingStatus: 'qualification_no_charge'
     };
   }
 
-  async generateScene(project, sceneId, direction = '') {
+  async generateScene(project, sceneId, options = {}) {
+    const request = typeof options === 'string' ? { direction: options } : (options || {});
     const policy = assertEnabled(this.policyLoader());
     const recipe = assertRecipe(this.sceneRecipeLoader());
     const sceneIndex = project.scenes.findIndex(item => item.id === sceneId);
     if (sceneIndex < 0) throw createError('cinematic_scene_not_found', 'Scene not found.', 404);
-    const current = project.scenes[sceneIndex];
+    const persisted = project.scenes[sceneIndex];
+    const current = request.sceneDraft?.id === persisted.id
+      ? normalizeScene(request.sceneDraft, project, {
+        id: persisted.id,
+        beatId: persisted.beatId || null,
+        targetDurationMs: persisted.durationMs,
+        existingShots: persisted.shots,
+        orderKey: persisted.orderKey
+      })
+      : persisted;
     const activePlan = project.storyPlanVersions?.find(version => version.id === project.activeStoryPlanVersionId)
       || project.storyPlanVersions?.at(-1);
     const preflight = analyzeStoryPlanSource(project, { sourceResolution: activePlan?.sourceResolution || null });
@@ -105,7 +218,19 @@ export class CinematicStoryPlanService {
       selectedScene: current,
       previousScene: project.scenes[sceneIndex - 1] || null,
       nextScene: project.scenes[sceneIndex + 1] || null,
-      userDirection: bounded(direction, 1200)
+      userDirection: bounded(request.direction, 1200)
+    };
+    const selection = buildFieldSelection({
+      project,
+      scene: current,
+      requestedFieldPaths: request.requestedFieldPaths,
+      lockedFieldPaths: request.lockedFieldPaths,
+      fieldManifestService: this.fieldManifestService
+    });
+    context.fieldSelection = {
+      requestedFieldKeys: selection.requestedKeys,
+      lockedFieldKeys: selection.lockedKeys,
+      rule: 'Return a complete Scene contract. Requested keys are proposed changes; locked keys must remain unchanged.'
     };
     const result = await this.providerFactory(policy).generateCinematicSceneDirection({
       context,
@@ -115,24 +240,166 @@ export class CinematicStoryPlanService {
       maxOutputTokens: policy.maxOutputTokens,
       timeoutMs: policy.timeoutMs
     });
+    const candidate = alignCandidateShotStructure(current, normalizeScene(result, project, {
+      id: current.id,
+      beatId: current.beatId || null,
+      targetDurationMs: current.durationMs,
+      existingShots: current.shots,
+      orderKey: current.orderKey
+    }));
+    const fieldProposals = buildFieldProposals({
+      project,
+      current,
+      candidate,
+      selection,
+      direction: request.direction,
+      fieldManifestService: this.fieldManifestService
+    });
     return {
       proposalId: createProposalId(),
       operation: 'cinematic_scene_direction_generate',
       expectedProjectVersion: project.version,
       storySourceVersionId: project.activeStorySourceVersionId,
       sceneId,
-      scene: normalizeScene(result, project, {
-        id: current.id,
-        beatId: current.beatId || null,
-        targetDurationMs: current.durationMs,
-        existingShots: current.shots,
-        orderKey: current.orderKey
-      }),
+      scene: preserveLockedFields(current, candidate, selection.lockedKeys),
+      fieldProposals,
+      mergeSummary: summarizeFieldProposals(fieldProposals),
       warnings: stringList(result.warnings, 20, 240),
       provenance: provenance(result, policy, recipe),
       billingStatus: 'qualification_no_charge'
     };
   }
+}
+
+function buildFieldSelection({ project, scene, requestedFieldPaths, lockedFieldPaths, fieldManifestService }) {
+  const definitions = fieldManifestService.getPublicManifest().fields
+    .filter(field => ['scene', 'shot'].includes(field.path.split('.')[0]) && field.authorities.includes('ai'));
+  const definitionByPath = new Map(definitions.map(field => [field.path, field]));
+  const allKeys = definitions.flatMap(field => {
+    const [entity, name] = field.path.split('.');
+    if (entity === 'scene') return [cinematicFieldKey({ entity, id: scene.id, field: name })];
+    return scene.shots.map(shot => cinematicFieldKey({ entity, sceneId: scene.id, id: shot.id, field: name }));
+  });
+  const allowedKeys = new Set(allKeys);
+  const expand = value => {
+    const normalized = String(value || '').trim();
+    if (allowedKeys.has(normalized)) return [normalized];
+    if (!definitionByPath.has(normalized)) return [];
+    const [entity, field] = normalized.split('.');
+    if (entity === 'scene') return [cinematicFieldKey({ entity, id: scene.id, field })];
+    return scene.shots.map(shot => cinematicFieldKey({ entity, sceneId: scene.id, id: shot.id, field }));
+  };
+  const explicitSelection = Array.isArray(requestedFieldPaths) && requestedFieldPaths.length > 0;
+  const requestedKeys = explicitSelection
+    ? [...new Set(requestedFieldPaths.flatMap(expand))]
+    : allKeys;
+  if (explicitSelection && !requestedKeys.length) {
+    throw createError('cinematic_scene_field_selection_invalid', 'No requested Scene fields are valid for this Scene.', 400);
+  }
+  const persistedLocks = allKeys.filter(key => project.authoringState?.fieldStates?.[key]?.locked === true);
+  const lockedKeys = [...new Set([
+    ...persistedLocks,
+    ...(Array.isArray(lockedFieldPaths) ? lockedFieldPaths.flatMap(expand) : [])
+  ])];
+  return { requestedKeys, lockedKeys, explicitSelection, definitionByPath };
+}
+
+function buildFieldProposals({ project, current, candidate, selection, direction, fieldManifestService }) {
+  const locked = new Set(selection.lockedKeys);
+  const hasDirection = Boolean(String(direction || '').trim());
+  return selection.requestedKeys.flatMap(fieldKey => {
+    const parsed = parseFieldKey(fieldKey);
+    const definition = fieldManifestService.getField(parsed.manifestPath);
+    if (!definition) return [];
+    const currentValue = readSceneField(current, parsed);
+    const proposedValue = readSceneField(candidate, parsed);
+    if (proposedValue === undefined) return [];
+    const unchanged = equalValue(currentValue, proposedValue);
+    const isLocked = locked.has(fieldKey);
+    const fieldState = project.authoringState?.fieldStates?.[fieldKey] || null;
+    const recommended = !isLocked && !unchanged && (
+      selection.explicitSelection
+      || hasDirection
+      || !meaningful(currentValue)
+      || ['missing', 'stale', 'conflict'].includes(fieldState?.status)
+    );
+    return [{
+      fieldKey,
+      manifestPath: parsed.manifestPath,
+      group: definition.group,
+      visibility: definition.visibility,
+      localizationKey: definition.localizationKey,
+      currentValue: currentValue ?? null,
+      proposedValue,
+      outcome: isLocked ? 'locked' : unchanged ? 'unchanged' : 'proposed',
+      recommended
+    }];
+  });
+}
+
+function summarizeFieldProposals(proposals) {
+  return {
+    requested: proposals.length,
+    proposed: proposals.filter(item => item.outcome === 'proposed').length,
+    recommended: proposals.filter(item => item.recommended).length,
+    locked: proposals.filter(item => item.outcome === 'locked').length,
+    unchanged: proposals.filter(item => item.outcome === 'unchanged').length
+  };
+}
+
+function alignCandidateShotStructure(current, candidate) {
+  const shots = current.shots.map((currentShot, index) => {
+    const proposed = candidate.shots[index];
+    return proposed ? {
+      ...proposed,
+      id: currentShot.id,
+      version: currentShot.version,
+      orderKey: currentShot.orderKey
+    } : structuredClone(currentShot);
+  });
+  return {
+    ...candidate,
+    id: current.id,
+    version: current.version,
+    shots,
+    shotOrder: current.shotOrder.filter(id => shots.some(shot => shot.id === id)),
+    durationMs: shots.reduce((total, shot) => total + shot.durationMs, 0)
+  };
+}
+
+function preserveLockedFields(current, candidate, lockedKeys) {
+  const result = structuredClone(candidate);
+  for (const fieldKey of lockedKeys) {
+    const parsed = parseFieldKey(fieldKey);
+    writeSceneField(result, parsed, readSceneField(current, parsed));
+  }
+  return result;
+}
+
+function readSceneField(scene, parsed) {
+  if (parsed.entity === 'scene' && parsed.id === scene.id) return scene[parsed.field];
+  if (parsed.entity === 'shot' && parsed.sceneId === scene.id) {
+    return scene.shots.find(shot => shot.id === parsed.id)?.[parsed.field];
+  }
+  return undefined;
+}
+
+function writeSceneField(scene, parsed, value) {
+  if (parsed.entity === 'scene' && parsed.id === scene.id) scene[parsed.field] = structuredClone(value);
+  if (parsed.entity === 'shot' && parsed.sceneId === scene.id) {
+    const shot = scene.shots.find(item => item.id === parsed.id);
+    if (shot) shot[parsed.field] = structuredClone(value);
+  }
+}
+
+function equalValue(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function meaningful(value) {
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === 'string') return value.trim().length > 0;
+  return value !== undefined && value !== null;
 }
 
 function buildProjectContext(project, { preflight, mode }) {
@@ -300,6 +567,7 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
       orderKey: index + 1,
       title: bounded(shot.title, 100) || `Shot ${index + 1}`,
       purpose: bounded(shot.purpose, 500),
+      coverageRole: normalizeCoverageRole(shot.coverageRole, index),
       durationMs: durations[index],
       visibleMoment: bounded(shot.visibleMoment, 800) || bounded(shot.prompt, 800) || bounded(shot.purpose, 500),
       subjectAction: bounded(shot.subjectAction, 500) || bounded(shot.blocking, 500) || bounded(shot.purpose, 500),
@@ -360,6 +628,13 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
   };
 }
 
+function normalizeCoverageRole(value, shotIndex) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return ['establishing', 'action', 'reaction', 'insert', 'transition', 'payoff'].includes(normalized)
+    ? normalized
+    : shotIndex === 0 ? 'establishing' : 'action';
+}
+
 function normalizeDialogueCues(value, shotDurationMs) {
   return (Array.isArray(value) ? value : []).slice(0, 12).map(cue => ({
     speakerCastAssignmentId: bounded(cue.speakerCastAssignmentId, 100),
@@ -399,6 +674,237 @@ function normalizeDirectorFindings(value, beatKeyMap, sceneKeyMap, scenes) {
       shotId
     };
   }).filter(item => item.summary);
+}
+
+function buildVisualRepairContext(baseContext, currentResult, plan, quality, round, maximumRounds) {
+  return {
+    ...baseContext,
+    directorOperation: 'repair_visual',
+    currentPlan: stripProviderMetadata(currentResult),
+    visualRepair: {
+      contractVersion: quality.contractVersion,
+      round,
+      maximumRounds,
+      rule: 'Repair only listed findings. Protected structure and authority will be enforced server-side.',
+      protectedAuthority: [
+        'Beat, Scene and Shot count, order and keys',
+        'all durations',
+        'Cast Assignment IDs and Character Look IDs',
+        'Character aliases',
+        'dialogue and audio cues'
+      ],
+      findings: quality.findings.filter(item => item.repairable).map(item => {
+        const sceneIndex = plan.scenes.findIndex(scene => scene.id === item.sceneId);
+        const shotIndex = sceneIndex >= 0
+          ? plan.scenes[sceneIndex].shots.findIndex(shot => shot.id === item.shotId)
+          : -1;
+        return {
+          code: item.code,
+          severity: item.severity,
+          sceneIndex,
+          shotIndex,
+          sceneTitle: item.sceneTitle,
+          shotTitle: item.shotTitle,
+          fieldPaths: item.fieldPaths,
+          summary: item.summary,
+          recommendation: item.recommendation
+        };
+      })
+    }
+  };
+}
+
+function stripProviderMetadata(result) {
+  const copy = structuredClone(result || {});
+  delete copy.responseId;
+  delete copy.usage;
+  return copy;
+}
+
+function mergeVisualRepairResult(current, candidate, plan, findings) {
+  const merged = stripProviderMetadata(current);
+  const repairableFindings = findings.filter(item => item.repairable);
+  if (repairableFindings.some(item => item.fieldPaths.includes('plan.onScreenTextPolicy'))
+    && typeof candidate?.onScreenTextPolicy === 'string') {
+    merged.onScreenTextPolicy = candidate.onScreenTextPolicy;
+  }
+  for (const [sceneIndex, scene] of (merged.scenes || []).entries()) {
+    const candidateScene = candidate?.scenes?.[sceneIndex];
+    if (!candidateScene) continue;
+    const planScene = plan.scenes[sceneIndex];
+    const sceneFields = repairFieldsFor(repairableFindings, {
+      prefix: 'scene.', sceneId: planScene?.id, shotId: null, allowlist: VISUAL_REPAIR_SCENE_FIELDS
+    });
+    copyAllowlistedFields(scene, candidateScene, sceneFields);
+    for (const [shotIndex, shot] of (scene.shots || []).entries()) {
+      const candidateShot = candidateScene.shots?.[shotIndex];
+      const planShot = planScene?.shots?.[shotIndex];
+      const shotFields = repairFieldsFor(repairableFindings, {
+        prefix: 'shot.', sceneId: planScene?.id, shotId: planShot?.id, allowlist: VISUAL_REPAIR_SHOT_FIELDS
+      });
+      if (candidateShot) copyAllowlistedFields(shot, candidateShot, shotFields);
+    }
+  }
+  return merged;
+}
+
+function repairFieldsFor(findings, { prefix, sceneId, shotId, allowlist }) {
+  const requested = new Set(findings
+    .filter(item => item.sceneId === sceneId && (shotId == null || item.shotId === shotId))
+    .flatMap(item => item.fieldPaths)
+    .filter(path => path.startsWith(prefix))
+    .map(path => path.slice(prefix.length)));
+  return allowlist.filter(field => requested.has(field));
+}
+
+function copyAllowlistedFields(target, source, fields) {
+  for (const field of fields) {
+    if (Object.prototype.hasOwnProperty.call(source, field)) target[field] = structuredClone(source[field]);
+  }
+}
+
+function collectVisualRepairChanges(before, after, findings, round) {
+  const changes = [];
+  if (!equalValue(before.onScreenTextPolicy, after.onScreenTextPolicy)) {
+    changes.push(repairChange({
+      round,
+      fieldPath: 'plan.onScreenTextPolicy',
+      before: before.onScreenTextPolicy,
+      after: after.onScreenTextPolicy,
+      findings
+    }));
+  }
+  for (const [sceneIndex, scene] of before.scenes.entries()) {
+    const nextScene = after.scenes[sceneIndex];
+    if (!nextScene) continue;
+    for (const field of VISUAL_REPAIR_SCENE_FIELDS) {
+      if (!equalValue(scene[field], nextScene[field])) {
+        changes.push(repairChange({
+          round,
+          sceneIndex,
+          scene,
+          fieldPath: `scene.${field}`,
+          before: scene[field],
+          after: nextScene[field],
+          findings
+        }));
+      }
+    }
+    for (const [shotIndex, shot] of scene.shots.entries()) {
+      const nextShot = nextScene.shots[shotIndex];
+      if (!nextShot) continue;
+      for (const field of VISUAL_REPAIR_SHOT_FIELDS) {
+        if (!equalValue(shot[field], nextShot[field])) {
+          changes.push(repairChange({
+            round,
+            sceneIndex,
+            shotIndex,
+            scene,
+            shot,
+            fieldPath: `shot.${field}`,
+            before: shot[field],
+            after: nextShot[field],
+            findings
+          }));
+        }
+      }
+    }
+  }
+  return changes.slice(0, 120);
+}
+
+function repairChange({ round, sceneIndex = null, shotIndex = null, scene = null, shot = null,
+  fieldPath, before, after, findings }) {
+  const related = findings.filter(item => item.repairable
+    && item.fieldPaths.includes(fieldPath)
+    && (!scene || item.sceneId === scene.id)
+    && (!shot || item.shotId === shot.id));
+  return {
+    round,
+    sceneIndex,
+    shotIndex,
+    sceneTitle: scene?.title || '',
+    shotTitle: shot?.title || '',
+    fieldPath,
+    before: previewValue(before),
+    after: previewValue(after),
+    reasonCodes: [...new Set(related.map(item => item.code))]
+  };
+}
+
+function previewValue(value) {
+  const rendered = Array.isArray(value)
+    ? value.map(item => String(item || '').trim()).filter(Boolean).join('; ')
+    : String(value ?? '').trim();
+  return rendered.length <= 600 ? rendered : `${rendered.slice(0, 597).trim()}...`;
+}
+
+function repairRoundEvidence(round, status, before, after, acceptedChangeCount, repairProvenance, failure = null) {
+  return {
+    round,
+    status,
+    findingCountBefore: before.findingCount,
+    findingCountAfter: after.findingCount,
+    repairableCountBefore: before.repairableCount,
+    repairableCountAfter: after.repairableCount,
+    acceptedChangeCount,
+    provenance: repairProvenance,
+    ...(failure ? { failure } : {})
+  };
+}
+
+function buildWorkflowEvidence({ preflight, plan, initialVisualQuality, visualQuality, repairRounds,
+  acceptedChanges, filmReadiness }) {
+  const repaired = repairRounds.some(item => item.status === 'accepted');
+  const blocked = filmReadiness.status === 'not_ready' || visualQuality.status === 'blocked';
+  return {
+    contractVersion: 'cinematic-story-plan-workflow-v1',
+    status: blocked
+      ? 'blocked'
+      : filmReadiness.status === 'ready_with_warnings' || visualQuality.status === 'ready_with_warnings'
+        ? 'ready_with_warnings'
+        : 'ready',
+    stages: [
+      workflowStage('source_preflight', preflight.status === 'blocked' ? 'blocked' : 'completed', preflight.diagnostics.length, 0),
+      workflowStage('plan_generation', 'completed', 0, 0),
+      workflowStage('director_review', 'completed', plan.directorFindings?.length || 0, 0),
+      workflowStage('visual_validation', 'completed', initialVisualQuality.findingCount, 0),
+      workflowStage('visual_repair', initialVisualQuality.repairableCount
+        ? repaired ? 'completed' : 'stopped'
+        : 'skipped', initialVisualQuality.repairableCount, acceptedChanges.length),
+      workflowStage('storyboard_readiness', blocked ? 'blocked' : 'completed', visualQuality.findingCount, 0)
+    ],
+    repairRoundCount: repairRounds.length,
+    initialFindings: initialVisualQuality.findings,
+    repairs: acceptedChanges,
+    repairRounds,
+    remainingFindings: visualQuality.findings
+  };
+}
+
+function buildBlockedWorkflowEvidence(preflight) {
+  const unresolvedCount = preflight.diagnostics.filter(item => !item.resolved).length;
+  return {
+    contractVersion: 'cinematic-story-plan-workflow-v1',
+    status: 'blocked',
+    stages: [
+      workflowStage('source_preflight', 'blocked', unresolvedCount, 0),
+      workflowStage('plan_generation', 'queued', 0, 0),
+      workflowStage('director_review', 'queued', 0, 0),
+      workflowStage('visual_validation', 'queued', 0, 0),
+      workflowStage('visual_repair', 'queued', 0, 0),
+      workflowStage('storyboard_readiness', 'queued', 0, 0)
+    ],
+    repairRoundCount: 0,
+    initialFindings: [],
+    repairs: [],
+    repairRounds: [],
+    remainingFindings: []
+  };
+}
+
+function workflowStage(id, status, issueCount, repairCount) {
+  return { id, status, issueCount, repairCount };
 }
 
 function clampMs(value, maximum) {
@@ -470,6 +976,29 @@ function createError(code, message, statusCode = 400) {
   const error = new Error(message);
   error.code = code;
   error.statusCode = statusCode;
+  return error;
+}
+
+function resolveGenerationTimeout(policy) {
+  return positiveInteger(policy.generationTimeoutMs ?? policy.timeoutMs, 120_000);
+}
+
+function resolveRepairTimeout(policy) {
+  return positiveInteger(policy.repairTimeoutMs ?? policy.timeoutMs, 90_000);
+}
+
+function positiveInteger(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : fallback;
+}
+
+function isStoryPlanTimeout(error) {
+  return error?.name === 'AbortError' || /(?:^|_)timeout$/i.test(String(error?.code || ''));
+}
+
+function storyPlanStageTimeout({ code, message, stage, timeoutMs }) {
+  const error = createError(code, message, 504);
+  error.details = { stage, retryable: true, timeoutMs };
   return error;
 }
 

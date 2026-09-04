@@ -12,7 +12,9 @@ import {
   cinematicStoryPlanProposalSchema,
   cinematicSceneDirectionProposalSchema,
   cinematicStoryboardGenerationContextSchema,
-  cinematicStoryboardBatchResponseSchema
+  cinematicStoryboardBatchResponseSchema,
+  cinematicAuthoringManifestSchema,
+  cinematicDataLineageSchema
 } from '../schemas/cinematicSchemas';
 import { apiRequest } from '../../../lib/api/apiClient';
 import type { CinematicSetupDraft } from '../schemas/cinematicSchemas';
@@ -49,6 +51,24 @@ export function getCinematicVideoCapabilityCatalog() {
 
 export function getCinematicProject(projectId: string) {
   return apiRequest(cinematicApiPaths.project(projectId), { schema: cinematicProjectSchema });
+}
+
+export function getCinematicAuthoringManifest() {
+  return apiRequest('/api/cinematic/authoring-manifest', {
+    schema: cinematicAuthoringManifestSchema,
+    cache: 'no-store'
+  });
+}
+
+export function getCinematicDataLineage(projectId: string, scope: { sceneId?: string; shotId?: string } = {}) {
+  const query = new URLSearchParams();
+  if (scope.sceneId) query.set('sceneId', scope.sceneId);
+  if (scope.shotId) query.set('shotId', scope.shotId);
+  const suffix = query.size ? `?${query.toString()}` : '';
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/data-lineage${suffix}`, {
+    schema: cinematicDataLineageSchema,
+    cache: 'no-store'
+  });
 }
 
 export function createCinematicProject(draft: CinematicSetupDraft) {
@@ -145,6 +165,7 @@ export function archiveCinematicProject(projectId: string, expectedVersion: numb
 
 export type StoryPlanInput = {
   contractVersion?: 'story-plan-v2' | 'story-plan-v3';
+  authoringMode?: 'simple' | 'advanced';
   expectedVersion: number;
   parentVersionId?: string | null;
   objective?: string;
@@ -154,6 +175,7 @@ export type StoryPlanInput = {
   warnings?: string[];
   approved?: boolean;
   source?: 'manual' | 'generated';
+  aiFieldKeys?: string[];
   warningsAcknowledged?: boolean;
   scenes: Array<Record<string, unknown>>;
 };
@@ -176,6 +198,9 @@ export function generateCinematicStoryPlan(projectId: string, input: {
 export function generateCinematicSceneDirection(projectId: string, sceneId: string, input: {
   expectedVersion: number;
   direction?: string;
+  sceneDraft?: unknown;
+  requestedFieldPaths?: string[];
+  lockedFieldPaths?: string[];
 }) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/direction-proposals`, {
     method: 'POST', body: input, schema: cinematicSceneDirectionProposalSchema, cache: 'no-store'
@@ -208,6 +233,7 @@ export function submitCinematicStoryboardBatch(projectId: string, input: {
     sceneId: string;
     shotId: string;
     expectedShotVersion: number;
+    keyframeContractFingerprint: string;
     estimateId: string;
     draft: GenerationRequestDraft;
   }>;
@@ -222,6 +248,7 @@ export function submitCinematicStoryboardBatch(projectId: string, input: {
         sceneId: operation.sceneId,
         shotId: operation.shotId,
         expectedShotVersion: operation.expectedShotVersion,
+        keyframeContractFingerprint: operation.keyframeContractFingerprint,
         estimateId: operation.estimateId,
         generationRequest: generationPayload(operation.draft, {
           estimateId: operation.estimateId,
@@ -243,6 +270,7 @@ export type CinematicVideoAttemptInput = {
   expectedVersion: number;
   expectedShotVersion: number;
   sourceFingerprint: string;
+  videoPacketFingerprint: string;
   providerId: string;
   modelId: string;
   prompt: string;
@@ -304,6 +332,7 @@ export function saveCinematicTimeline(projectId: string, input: {
     trimInMs: number;
     trimOutMs: number;
     transition: 'cut' | 'dissolve' | 'fade';
+    transitionDurationMs?: number;
   }>;
 }) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/timeline`, {

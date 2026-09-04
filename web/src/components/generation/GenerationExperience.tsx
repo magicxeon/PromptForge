@@ -109,10 +109,15 @@ type GenerationExperienceProps = {
   characterType?: 'reusable_model' | 'styled_character' | null;
   allowComparison?: boolean;
   showPromptEditor?: boolean;
+  readOnlyPrompt?: { label: string; description?: string } | null;
+  readOnlyPromptSupplement?: ReactNode;
+  cinematicCaptureProfileId?: 'photorealistic-cinematic' | null;
+  engineOptions?: ReactNode;
   onCompleted?: (jobId: string) => void;
   blockedReason?: string | null;
   blockedNotice?: ReactNode;
   showEngine?: boolean;
+  enginePresentation?: 'default' | 'compact';
   layoutVariant?: 'stacked' | 'studio' | 'playground';
   showRecentGenerations?: boolean;
   recentExpanded?: boolean;
@@ -128,7 +133,13 @@ type GenerationExperienceProps = {
   allowPromptRefinement?: boolean;
   persistenceScope?: string;
   referencesReadOnly?: boolean;
+  showEmptyResult?: boolean;
   resumeJobId?: string | null;
+  submitSingleDraft?: (draft: GenerationRequestDraft) => Promise<{
+    jobId: string;
+    groupId?: string | null;
+    status: string;
+  }>;
 };
 
 export function GenerationExperience({
@@ -154,10 +165,15 @@ export function GenerationExperience({
   characterType = null,
   allowComparison = true,
   showPromptEditor = true,
+  readOnlyPrompt = null,
+  readOnlyPromptSupplement,
+  cinematicCaptureProfileId,
+  engineOptions,
   onCompleted,
   blockedReason = null,
   blockedNotice,
   showEngine = true,
+  enginePresentation = 'default',
   layoutVariant = 'stacked',
   showRecentGenerations = true,
   recentExpanded = true,
@@ -173,7 +189,9 @@ export function GenerationExperience({
   allowPromptRefinement = true,
   persistenceScope = '',
   referencesReadOnly = false,
-  resumeJobId = null
+  showEmptyResult = false,
+  resumeJobId = null,
+  submitSingleDraft
 }: GenerationExperienceProps) {
   const queryClient = useQueryClient();
   const { actor, mockSwitcherEnabled } = useActor();
@@ -391,6 +409,7 @@ export function GenerationExperience({
     outputCount: comparison ? 1 : engine.outputCount,
     generationMode,
     generationSurface: surface,
+    cinematicCaptureProfileId,
     references,
     referenceScopes,
     selections,
@@ -404,7 +423,7 @@ export function GenerationExperience({
     authoringMode,
     characterType,
     promptRefinementEnabled: promptRefinementAvailable && promptRefinementEnabled
-  }), [additionalDirection, authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, comparison, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
+  }), [additionalDirection, authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, cinematicCaptureProfileId, comparison, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedDraft(draft), 320);
@@ -475,7 +494,9 @@ export function GenerationExperience({
   const submitSingle = useMutation({
     // Lock pricing from the exact draft being submitted. The displayed query
     // may still represent the previous debounced selection for a few frames.
-    mutationFn: () => estimateAndSubmitGeneration(draft),
+    mutationFn: () => submitSingleDraft
+      ? submitSingleDraft(draft)
+      : estimateAndSubmitGeneration(draft),
     onMutate: () => {
       setJobId(null);
       setGenerationGroupId(null);
@@ -712,7 +733,7 @@ export function GenerationExperience({
         pending={pending}
         onGoToPrompt={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
         renderActions={effectiveResultActions}
-        showEmpty={layoutVariant === 'studio' || layoutVariant === 'playground'}
+        showEmpty={showEmptyResult || layoutVariant === 'studio' || layoutVariant === 'playground'}
         showGoToPrompt={layoutVariant !== 'studio'}
         comparisonActive={comparison}
         canRevealPrompt={actor?.role === 'admin'
@@ -747,7 +768,10 @@ export function GenerationExperience({
   const canRevealStudioPrompt = layoutVariant === 'studio'
     && (actor?.role === 'admin'
       || isEnabled('development.debugPromptOverrideEnabled'));
-  const hasVisiblePromptRegion = showPromptEditor || canRevealStudioPrompt;
+  const hasVisiblePromptRegion = showPromptEditor
+    || Boolean(readOnlyPrompt)
+    || Boolean(readOnlyPromptSupplement)
+    || canRevealStudioPrompt;
   const debugPromptText = compiledPromptPreview.data?.compiledPrompt || prompt;
   const promptRegion = hasVisiblePromptRegion ? (
     <div ref={node => { promptRef.current = node; }}>
@@ -759,6 +783,29 @@ export function GenerationExperience({
           onNegativeChange={setNegativePrompt}
           variant={layoutVariant === 'playground' ? 'playground' : 'default'}
         />
+      ) : readOnlyPrompt ? (
+        <Surface className="studio-prompt-preview">
+          <div className="studio-prompt-preview__heading">
+            <span>
+              <strong className="block text-[var(--mpf-text)]">{readOnlyPrompt.label}</strong>
+              {readOnlyPrompt.description ? <small>{readOnlyPrompt.description}</small> : null}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              title={t('playground.prompt.copy')}
+              aria-label={t('playground.prompt.copy')}
+              icon={<Copy className="size-4" aria-hidden="true" />}
+              onClick={() => void navigator.clipboard.writeText(prompt)}
+            />
+          </div>
+          <textarea aria-label={readOnlyPrompt.label} readOnly value={prompt} />
+          {readOnlyPromptSupplement ? (
+            <div className="studio-prompt-preview__supplement">
+              {readOnlyPromptSupplement}
+            </div>
+          ) : null}
+        </Surface>
       ) : canRevealStudioPrompt ? (
         <Surface className="studio-prompt-preview">
           <div className="studio-prompt-preview__heading">
@@ -787,6 +834,12 @@ export function GenerationExperience({
               placeholder={t('playground.negative.placeholder')}
             />
           </details>
+        </Surface>
+      ) : readOnlyPromptSupplement ? (
+        <Surface className="studio-prompt-preview studio-prompt-preview--supplement-only">
+          <div className="studio-prompt-preview__supplement">
+            {readOnlyPromptSupplement}
+          </div>
         </Surface>
       ) : null}
     </div>
@@ -824,8 +877,10 @@ export function GenerationExperience({
       allowMultiOutput={fixedOutputCount === null}
       promptRefinementAvailable={promptRefinementAvailable}
       promptRefinementEnabled={promptRefinementEnabled}
+      presentation={enginePresentation}
       fixedAspectRatio={fixedAspectRatio}
       requiredReferenceCount={requiredReferenceCount}
+      extraControls={engineOptions}
       onChange={next => setEngine(fixedOutputCount === null
         ? next
         : { ...next, outputCount: fixedOutputCount })}
@@ -882,7 +937,7 @@ export function GenerationExperience({
       </Button>
     </Surface>
   ) : (
-    <Surface className="sticky bottom-3 z-30 flex flex-wrap items-center justify-between gap-4 border-cyan-400/35 bg-[#0e1320f2] p-4 shadow-[var(--mpf-shadow-raised)] backdrop-blur">
+    <Surface className="generation-command-bar sticky bottom-3 z-30 flex flex-wrap items-center justify-between gap-4 border-cyan-400/35 bg-[#0e1320f2] p-4 shadow-[var(--mpf-shadow-raised)] backdrop-blur">
         <div className="flex items-center gap-3">
           <Coins className="size-6 text-amber-300" />
           <span><strong className="block">{singleEstimate.isFetching || comparisonEstimate.isFetching ? t('playground.estimate.loading') : estimate !== undefined ? `${estimate} ${t('playground.comparison.credits')}` : t('playground.estimate.pending')}</strong><small className="text-[var(--mpf-text-muted)]">{canAfford ? t('playground.estimate.locked') : t('playground.estimate.insufficient')}</small></span>

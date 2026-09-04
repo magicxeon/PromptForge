@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { CinematicProject, CinematicScene } from '../schemas/cinematicSchemas';
 import {
-  buildStoryboardPrompt,
   previousApprovedStoryboardSource,
-  resolveShotEmotionalTarget,
+  readStoryboardAuthorDirection,
   resolveStoryboardShotCast,
   resolveStoryboardShotLooks
 } from './storyboardGenerationAdapter';
@@ -60,44 +59,14 @@ describe('storyboard generation adapter', () => {
     }]
   } as unknown as CinematicProject;
 
-  it('compiles Scene, Shot, Character, Look and continuity without provider wording', () => {
-    const prompt = buildStoryboardPrompt(project, scene, scene.shots[1]!);
-    expect(prompt).toContain('STORYBOARD STILL CONTRACT');
-    expect(prompt).toContain('Project intent:');
-    expect(prompt).toContain('The last train forces a quiet decision.');
-    expect(prompt).toContain('Owning beat:');
-    expect(prompt).toContain('Stillness becomes movement');
-    expect(prompt).toContain('Platform choice');
-    expect(prompt).toContain('Waiting becomes forward motion');
-    expect(prompt).toContain('guarded uncertainty toward quiet hope');
-    expect(prompt).toContain('Selected Shot emotional target: quiet hope');
-    expect(prompt).toContain('Exact visible moment: Mira lowers the phone before turning right');
-    expect(prompt).toContain('One primary physical action: She pockets the phone');
-    expect(prompt).toContain('Observable performance cue: One exhale and a small shoulder release');
-    expect(prompt).toContain('Entry anchor: Phone in right hand');
-    expect(prompt).toContain('Exit anchor: Phone in right pocket');
-    expect(prompt).toContain('Do not smile unless this Shot explicitly requests it');
-    expect(prompt).toContain('Mira remains camera-right of the tracks');
-    expect(prompt).toContain('Keep the release restrained and visible in her shoulders');
-    expect(prompt).toContain('toward the warm exit');
-    expect(prompt).toContain('Mira as Lead');
-    expect(prompt).toContain('Arrival coat, navy coat, black phone');
-    expect(prompt).toContain('Phone stays in right hand');
-    expect(prompt).not.toContain('A distant train horn');
-    expect(prompt).not.toContain('Footsteps become louder');
-    expect(prompt).not.toContain('I am ready now.');
-  });
-
-  it('targets the Scene opening and ending emotion by Shot position', () => {
-    expect(resolveShotEmotionalTarget(scene, scene.shots[0]!)).toBe('guarded uncertainty');
-    expect(resolveShotEmotionalTarget(scene, scene.shots[1]!)).toBe('quiet hope');
-  });
-
-  it('does not nest a previously saved compiled contract', () => {
-    const first = buildStoryboardPrompt(project, scene, { ...scene.shots[0]!, prompt: 'Hold the phone close.' });
-    const second = buildStoryboardPrompt(project, scene, { ...scene.shots[0]!, prompt: first });
-    expect(second.match(/STORYBOARD STILL CONTRACT/g)).toHaveLength(1);
-    expect(second).toContain('Shot prompt:\nHold the phone close.');
+  it('reads only the author direction from persisted legacy and server contracts', () => {
+    expect(readStoryboardAuthorDirection('Hold the phone close.')).toBe('Hold the phone close.');
+    expect(readStoryboardAuthorDirection(
+      'STORYBOARD STILL CONTRACT\n\nShot prompt:\nHold the phone close.\n\nProject intent:\nFuture state.'
+    )).toBe('Hold the phone close.');
+    expect(readStoryboardAuthorDirection(
+      'STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v1\n\nAUTHOR DIRECTION:\nKeep the exit frame-right.'
+    )).toBe('Keep the exit frame-right.');
   });
 
   it('uses only owned Cast and Look IDs selected by the Shot', () => {

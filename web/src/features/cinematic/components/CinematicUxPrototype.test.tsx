@@ -3,13 +3,19 @@ import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   castDirectionFromRole, cinematicCastPortraitUrl, CinematicStageContent,
-  hasUsableApprovedStoryPlan, needsStoryPlanRecovery
+  currentSceneCastAssignments, hasUsableApprovedStoryPlan, needsStoryPlanRecovery
 } from './CinematicStageContent';
 import { CinematicStageRail } from './CinematicStageRail';
-import { characterCandidateMediaUrl, formatFacetLabel, overlapsAgeBucket } from './CinematicDialogs';
+import {
+  characterCandidateMediaUrl,
+  formatFacetLabel,
+  overlapsAgeBucket,
+  SceneDirectionProposalDialog,
+  SceneDirectorDialog
+} from './CinematicDialogs';
 import type {
   CinematicProject, CinematicSceneDirectionProposal, CinematicStoryPlanProposal
 } from '../schemas/cinematicSchemas';
@@ -56,19 +62,22 @@ vi.mock('../../../components/generation/GenerationExperience', () => ({
     surface: string;
     generationMode: string;
     prompt: string;
-    onPromptChange: (value: string) => void;
+    onPromptChange?: (value: string) => void;
     fixedAspectRatio?: string | null;
+    enginePresentation?: string;
     persistenceScope?: string;
     resumeJobId?: string | null;
+    readOnlyPromptSupplement?: ReactNode;
     renderResultActions?: (job: { id: string; status: string }) => ReactNode;
   }) => <section
     data-testid="storyboard-generation-experience"
     data-surface={props.surface}
     data-mode={props.generationMode}
     data-aspect-ratio={props.fixedAspectRatio}
+    data-engine-presentation={props.enginePresentation || 'default'}
     data-persistence-scope={props.persistenceScope}
     data-resume-job-id={props.resumeJobId || ''}
-  ><textarea aria-label="storyboard generation prompt" value={props.prompt} onChange={event => props.onPromptChange(event.target.value)} />{props.renderResultActions?.({ id: 'job_storyboard_test', status: 'completed' })}</section>
+  ><textarea aria-label="storyboard generation prompt" value={props.prompt} readOnly={!props.onPromptChange} onChange={event => props.onPromptChange?.(event.target.value)} />{props.readOnlyPromptSupplement}{props.renderResultActions?.({ id: 'job_storyboard_test', status: 'completed' })}</section>
 }));
 
 const testI18n = i18next.createInstance();
@@ -106,6 +115,10 @@ describe('Cinematic UX prototype', () => {
       characterProfileContext: null,
       references: { outfit_front: null, outfit_back: null, style_reference: null },
       cast: [], looks: [], continuitySource: null,
+      keyframeContract: {
+        sourceFingerprint: 'keyframe_fixture',
+        providerIndependentPrompt: 'STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v1\n\nKEYFRAME MOMENT:\nA restrained opening frame.'
+      },
       generationEligible: true, blockingReason: null
     });
   });
@@ -518,12 +531,57 @@ describe('Cinematic UX prototype', () => {
     const directorDialog = screen.getByRole('dialog', { name: 'cinematic.director.title' });
     expect(directorDialog).toBeVisible();
     expect(directorDialog).toHaveClass('cinematic-authoring-dialog');
+    expect(screen.getByRole('button', { name: 'cinematic.mode.simple' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByText('cinematic.director.continuity')).not.toBeInTheDocument();
+    expect(screen.queryByText('cinematic.director.coverageRole')).not.toBeInTheDocument();
     const duration = screen.getByRole('spinbutton', { name: 'cinematic.director.shotDuration' });
     expect(duration).toHaveValue(6);
     fireEvent.change(duration, { target: { value: '4.5' } });
     expect(duration).toHaveValue(4.5);
-    fireEvent.click(screen.getByText('cinematic.director.advanced'));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.mode.advanced' }));
     expect(screen.getByText('cinematic.director.continuity')).toBeVisible();
+    fireEvent.click(screen.getByText('cinematic.director.shotAdvanced'));
+    expect(screen.getByText('cinematic.director.coverageRole')).toBeVisible();
+  });
+
+  it('preserves Advanced Scene authority while switching through Simple mode', () => {
+    const scene = structuredClone(completeStoryPlanFixture().scenes[0]!);
+    function ControlledDirector() {
+      const [mode, setMode] = useState<'simple' | 'advanced'>('advanced');
+      return <SceneDirectorDialog open onOpenChange={vi.fn()} scene={scene} defaultMode={mode} onModeChange={setMode} onSave={vi.fn()} />;
+    }
+    render(<I18nextProvider i18n={testI18n}><ControlledDirector /></I18nextProvider>);
+    const lighting = screen.getByRole('textbox', { name: 'cinematic.director.lighting' });
+    fireEvent.change(lighting, { target: { value: 'Rainy blue hour with one warm counter practical.' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.mode.simple' }));
+    expect(screen.queryByRole('textbox', { name: 'cinematic.director.lighting' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.mode.advanced' }));
+    expect(screen.getByRole('textbox', { name: 'cinematic.director.lighting' })).toHaveValue('Rainy blue hour with one warm counter practical.');
+  });
+
+  it('submits only visible Simple edits and leaves hidden completion to the server contract', () => {
+    const scene = structuredClone(completeStoryPlanFixture().scenes[0]!);
+    Object.assign(scene, {
+      location: 'Family cafe', time: 'Rainy blue hour', emotionalEnd: 'quiet resolve',
+      purpose: '', entryState: '', emotionalStart: '', blocking: '', transitionIntent: ''
+    });
+    Object.assign(scene.shots[0]!, {
+      purpose: '', performanceCue: '', continuityEntry: '', continuityExit: '', transitionToNext: ''
+    });
+    const onSave = vi.fn();
+
+    render(<I18nextProvider i18n={testI18n}><SceneDirectorDialog open onOpenChange={vi.fn()} scene={scene} defaultMode="simple" onSave={onSave} /></I18nextProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.director.save' }));
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
+      purpose: '', entryState: '', emotionalStart: '', transitionIntent: '',
+      castAssignmentIds: ['cast_alice']
+    }));
+    expect(onSave.mock.calls[0]?.[0].shots[0]).toEqual(expect.objectContaining({
+      purpose: '', performanceCue: '', continuityEntry: '', continuityExit: '',
+      castAssignmentIds: ['cast_alice']
+    }));
   });
 
   it('removes the prototype Credit amount from Story Plan and keeps approval distinct from draft save', () => {
@@ -551,6 +609,19 @@ describe('Cinematic UX prototype', () => {
     expect(beatDialog).toBeVisible();
     expect(beatDialog).toHaveClass('cinematic-authoring-dialog');
     expect(project).toEqual(original);
+  });
+
+  it('projects one current Scene Cast card when a legacy role points to the same Character', () => {
+    const project = completeStoryPlanFixture();
+    const current = project.castAssignments[0]!;
+    project.castAssignments.unshift({
+      ...structuredClone(current),
+      id: 'cast_obsolete_role',
+      storyRole: 'Young Woman',
+      storyRoleSlotId: 'role_obsolete'
+    });
+
+    expect(currentSceneCastAssignments(project).map(assignment => assignment.id)).toEqual([current.id]);
   });
 
   it('adds missing Scene structure from Beat details and extends the existing Scene Director Shot list', () => {
@@ -633,6 +704,12 @@ describe('Cinematic UX prototype', () => {
     expect(dialog).toBeVisible();
     expect(dialog).toHaveAttribute('aria-busy', 'true');
     expect(within(dialog).getByRole('status')).toHaveTextContent('cinematic.story.generating');
+    expect(within(dialog).getByText('cinematic.story.workflowStage.source_preflight')).toBeVisible();
+    expect(within(dialog).getByText('cinematic.story.workflowStage.plan_generation')).toBeVisible();
+    expect(within(dialog).getByText('cinematic.story.workflowStage.director_review')).toBeVisible();
+    expect(within(dialog).getByText('cinematic.story.workflowStage.visual_validation')).toBeVisible();
+    expect(within(dialog).getByText('cinematic.story.workflowStage.visual_repair')).toBeVisible();
+    expect(within(dialog).getByText('cinematic.story.workflowStage.storyboard_readiness')).toBeVisible();
     expect(screen.queryByRole('button', { name: 'cinematic.story.applyProposal' })).not.toBeInTheDocument();
 
     resolveProposal(proposal);
@@ -651,6 +728,18 @@ describe('Cinematic UX prototype', () => {
       filmReadiness: null,
       scriptPreview: [],
       provenance: null,
+      workflow: {
+        contractVersion: 'cinematic-story-plan-workflow-v1', status: 'blocked',
+        stages: [
+          { id: 'source_preflight', status: 'blocked', issueCount: 1, repairCount: 0 },
+          { id: 'plan_generation', status: 'queued', issueCount: 0, repairCount: 0 },
+          { id: 'director_review', status: 'queued', issueCount: 0, repairCount: 0 },
+          { id: 'visual_validation', status: 'queued', issueCount: 0, repairCount: 0 },
+          { id: 'visual_repair', status: 'queued', issueCount: 0, repairCount: 0 },
+          { id: 'storyboard_readiness', status: 'queued', issueCount: 0, repairCount: 0 }
+        ],
+        repairRoundCount: 0, initialFindings: [], repairs: [], repairRounds: [], remainingFindings: []
+      },
       preflight: {
         status: 'blocked', sourceResolution: null,
         resolvedStoryBrief: project.setup.storyBrief, resolvedCreativeDirection: project.setup.creativeDirection,
@@ -680,17 +769,86 @@ describe('Cinematic UX prototype', () => {
     expect(await within(dialog).findByRole('button', { name: 'cinematic.story.applyProposal' })).toBeEnabled();
   });
 
-  it('sends the current Plan through the separate AI Director review operation', async () => {
+  it('exposes one unified Story Plan AI operation and always dispatches the complete generate workflow', async () => {
     const project = completeStoryPlanFixture();
     cinematicApiMocks.generateCinematicStoryPlan.mockResolvedValue(storyPlanProposalFixture(project));
     render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={vi.fn()} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
 
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.reviewWithDirector' }));
+    expect(screen.queryByRole('button', { name: 'cinematic.story.reviewWithDirector' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
 
     await waitFor(() => expect(cinematicApiMocks.generateCinematicStoryPlan).toHaveBeenCalledWith(
       project.id,
-      { mode: 'review_current', sourceResolution: null }
+      { mode: 'generate', sourceResolution: null }
     ));
+  });
+
+  it('shows bounded visual repairs with before and after evidence in the unified proposal', async () => {
+    const project = completeStoryPlanFixture();
+    const proposal = storyPlanProposalFixture(project);
+    cinematicApiMocks.generateCinematicStoryPlan.mockResolvedValue(proposal);
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={vi.fn()} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
+    const dialog = await screen.findByRole('dialog', { name: 'cinematic.story.proposalTitle' });
+    expect(within(dialog).getByText('cinematic.story.workflowRepairs')).toBeVisible();
+    const repair = within(dialog).getByText('shot.subjectAction');
+    fireEvent.click(repair);
+    expect(within(dialog).getByText('She waits and breathes.')).toBeVisible();
+    expect(within(dialog).getByText('Her hand tightens around the sign.')).toBeVisible();
+    expect(within(dialog).getByText('The primary action cannot be read reliably from one still image.')).toBeVisible();
+  });
+
+  it('keeps a generated Story Plan reviewable when the visual repair stage times out', async () => {
+    const project = completeStoryPlanFixture();
+    const proposal = storyPlanProposalFixture(project);
+    proposal.workflow!.status = 'ready_with_warnings';
+    proposal.workflow!.repairs = [];
+    proposal.workflow!.remainingFindings = structuredClone(proposal.workflow!.initialFindings);
+    proposal.workflow!.stages.find(stage => stage.id === 'visual_repair')!.status = 'stopped';
+    proposal.workflow!.repairRounds = [{
+      round: 1, status: 'provider_timeout', findingCountBefore: 1, findingCountAfter: 1,
+      repairableCountBefore: 1, repairableCountAfter: 1, acceptedChangeCount: 0,
+      provenance: null,
+      failure: {
+        code: 'cinematic_story_plan_repair_timeout',
+        message: 'Visual repair exceeded its time budget.',
+        retryable: true, stage: 'visual_repair', timeoutMs: 90_000
+      }
+    }];
+    cinematicApiMocks.generateCinematicStoryPlan.mockResolvedValue(proposal);
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={vi.fn()} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'cinematic.story.proposalTitle' });
+    expect(within(dialog).getByText('cinematic.story.repairTimedOut')).toBeVisible();
+    expect(within(dialog).getByRole('button', { name: 'cinematic.story.applyProposal' })).toBeEnabled();
+    expect(within(dialog).getByText('cinematic.story.remainingVisualIssues')).toBeVisible();
+  });
+
+  it('prevents applying a generated Plan while the unified workflow has a blocking finding', async () => {
+    const project = completeStoryPlanFixture();
+    const proposal = storyPlanProposalFixture(project);
+    proposal.workflow!.status = 'blocked';
+    proposal.workflow!.remainingFindings = [{
+      ...proposal.workflow!.initialFindings[0]!, severity: 'blocking', repairable: false,
+      code: 'character_identity_not_ready', summary: 'Character identity is not ready.'
+    }];
+    proposal.filmReadiness = {
+      status: 'not_ready', dimensions: { production: 'not_ready' }, findings: [{
+        code: 'character_identity_not_ready', dimension: 'production', severity: 'blocking',
+        summary: 'Character identity is not ready.', recommendation: 'Complete Cast preparation.',
+        sceneId: 'scene_generated', shotId: 'shot_generated'
+      }]
+    };
+    cinematicApiMocks.generateCinematicStoryPlan.mockResolvedValue(proposal);
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onProjectChanged={vi.fn()} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.generate' }));
+
+    expect(await screen.findByRole('button', { name: 'cinematic.story.applyProposal' })).toBeDisabled();
+    expect(screen.getAllByText('Character identity is not ready.').length).toBeGreaterThan(0);
   });
 
   it('keeps the Story Plan proposal dialog open when AI generation fails', async () => {
@@ -741,6 +899,7 @@ describe('Cinematic UX prototype', () => {
       project.id,
       expect.objectContaining({
         approved: false,
+        aiFieldKeys: [`scene:${project.scenes[0]!.id}.title`],
         scenes: expect.arrayContaining([expect.objectContaining({
           id: project.scenes[0]!.id,
           title: 'Generated Scene Direction'
@@ -749,16 +908,99 @@ describe('Cinematic UX prototype', () => {
     ));
   });
 
-  it('opens a Shot dialog and keeps Storyboard prompt editing resettable', () => {
+  it('opens Scene proposal loading state before the AI request resolves', async () => {
+    const project = completeStoryPlanFixture();
+    let resolveProposal!: (proposal: CinematicSceneDirectionProposal) => void;
+    cinematicApiMocks.generateCinematicSceneDirection.mockReturnValue(new Promise(resolve => {
+      resolveProposal = resolve;
+    }));
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+    fireEvent.click(screen.getByRole('button', { name: /Scene 1.*cinematic\.storyboard\.shots/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.director.generate' }));
+    const dialog = await screen.findByRole('dialog', { name: 'cinematic.director.proposalTitle' });
+    expect(within(dialog).getByText('cinematic.director.proposalGenerating')).toBeVisible();
+    expect(cinematicApiMocks.generateCinematicSceneDirection).toHaveBeenCalledWith(
+      project.id,
+      project.scenes[0]!.id,
+      expect.objectContaining({ sceneDraft: expect.objectContaining({ id: project.scenes[0]!.id }) })
+    );
+    resolveProposal(sceneDirectionProposalFixture(project));
+    expect(await within(dialog).findByText('cinematic.director.proposalFields')).toBeVisible();
+  });
+
+  it('selects every proposed Scene field by default and renders structured cues as review text', () => {
+    const project = completeStoryPlanFixture();
+    const base = sceneDirectionProposalFixture(project);
+    const proposal: CinematicSceneDirectionProposal = {
+      ...base,
+      fieldProposals: [{
+        fieldKey: 'shot:scene-1:shot-1.estimatedActionDurationMs',
+        manifestPath: 'shot.estimatedActionDurationMs',
+        group: 'timing', visibility: 'advanced',
+        localizationKey: 'cinematic.director.estimatedActionDuration',
+        currentValue: 0, proposedValue: 7000, outcome: 'proposed', recommended: false
+      }, {
+        fieldKey: 'shot:scene-1:shot-1.dialogueCues',
+        manifestPath: 'shot.dialogueCues',
+        group: 'audio', visibility: 'advanced',
+        localizationKey: 'cinematic.director.dialogue',
+        currentValue: [],
+        proposedValue: [{
+          speakerCastAssignmentId: 'cast_nara', offscreenVoiceRole: '',
+          text: 'Tomorrow, we open.', delivery: 'quietly', startOffsetMs: 1000,
+          estimatedDurationMs: 2000, speakerVisible: true
+        }],
+        outcome: 'proposed', recommended: false
+      }, {
+        fieldKey: 'shot:scene-1:shot-1.audioCues',
+        manifestPath: 'shot.audioCues',
+        group: 'audio', visibility: 'advanced',
+        localizationKey: 'cinematic.director.audio',
+        currentValue: [],
+        proposedValue: [{
+          kind: 'ambience', source: 'rain', description: 'Rain against windows',
+          startOffsetMs: 0, durationMs: 7000
+        }],
+        outcome: 'proposed', recommended: false
+      }],
+      mergeSummary: { requested: 3, proposed: 3, recommended: 0, locked: 0, unchanged: 0 }
+    };
+    const onApply = vi.fn();
+
+    render(<I18nextProvider i18n={testI18n}><SceneDirectionProposalDialog
+      open
+      onOpenChange={vi.fn()}
+      proposal={proposal}
+      onApply={onApply}
+    /></I18nextProvider>);
+
+    const dialog = screen.getByRole('dialog', { name: 'cinematic.director.proposalTitle' });
+    const selectAll = within(dialog).getByRole('checkbox', { name: /cinematic\.director\.proposalSelectAll/ });
+    expect(selectAll).toBeChecked();
+    expect(within(dialog).getAllByRole('checkbox')).toHaveLength(4);
+    within(dialog).getAllByRole('checkbox').forEach(checkbox => expect(checkbox).toBeChecked());
+    expect(dialog).toHaveTextContent('7s');
+    expect(dialog).toHaveTextContent('"Tomorrow, we open."');
+    expect(dialog).toHaveTextContent('Rain against windows');
+    expect(dialog).not.toHaveTextContent('[object Object]');
+
+    fireEvent.click(selectAll);
+    expect(within(dialog).getByRole('button', { name: 'cinematic.story.applyProposal' })).toBeDisabled();
+    fireEvent.click(selectAll);
+    fireEvent.click(within(dialog).getByRole('button', { name: 'cinematic.story.applyProposal' }));
+    expect(onApply).toHaveBeenCalledWith(proposal, proposal.fieldProposals!.map(field => field.fieldKey));
+  });
+
+  it('opens a Shot dialog and keeps additional direction editing resettable', () => {
     const project = completeStoryPlanFixture();
     const shot = project.scenes[0]!.shots[0]!;
     renderStoryboardWithQuery(project);
     fireEvent.click(screen.getByRole('button', { name: `cinematic.storyboard.editShot ${shot.id}` }));
-    const prompt = screen.getByRole('textbox', { name: 'storyboard generation prompt' });
-    fireEvent.change(prompt, { target: { value: 'changed prompt' } });
-    expect(prompt).toHaveValue('changed prompt');
+    const direction = screen.getByRole('textbox', { name: /cinematic\.storyboard\.shotDirection/ });
+    fireEvent.change(direction, { target: { value: 'changed direction' } });
+    expect(direction).toHaveValue('changed direction');
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.reset' }));
-    expect(prompt).not.toHaveValue('changed prompt');
+    expect(direction).not.toHaveValue('changed direction');
   });
 
   it('routes Storyboard image work through the shared scoped Generation experience', () => {
@@ -771,25 +1013,42 @@ describe('Cinematic UX prototype', () => {
     expect(generation).toHaveAttribute('data-surface', 'cinematic');
     expect(generation).toHaveAttribute('data-mode', 'scene');
     expect(generation).toHaveAttribute('data-aspect-ratio', project.aspectRatio);
+    expect(generation).toHaveAttribute('data-engine-presentation', 'compact');
     expect(generation).toHaveAttribute('data-persistence-scope', `${project.id}:${shot.id}`);
     const approval = screen.getByRole('button', { name: 'cinematic.storyboard.approveGeneratedSource' });
     expect(approval).toHaveClass('cinematic-storyboard-approval-callout__action');
     expect(screen.getByText('cinematic.storyboard.approvalDescription')).toBeVisible();
   });
 
-  it('compiles a saved Shot prompt with current Scene emotion instead of bypassing Storyboard authority', () => {
+  it('uses the server-compiled keyframe prompt instead of rebuilding Storyboard authority in React', async () => {
     const project = completeStoryPlanFixture();
     const shot = project.scenes[0]!.shots[0]!;
     shot.prompt = 'Keep the phone at chest level.';
     project.scenes[0]!.emotionalStart = 'Tense and watchful';
     project.scenes[0]!.emotionalEnd = 'Apprehensive';
+    cinematicApiMocks.getCinematicStoryboardGenerationContext.mockResolvedValue({
+      schemaVersion: 1,
+      projectId: project.id, projectVersion: project.version,
+      sceneId: project.scenes[0]!.id, shotId: shot.id, shotVersion: shot.version,
+      characterProfileContext: null,
+      references: { outfit_front: null, outfit_back: null, style_reference: null },
+      cast: [], looks: [], continuitySource: null,
+      keyframeContract: {
+        sourceFingerprint: 'keyframe_server_compiled',
+        providerIndependentPrompt: 'STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v1\n\nVISIBLE PERFORMANCE:\nVisible emotional target: Apprehensive.\n\nAUTHOR DIRECTION:\nKeep the phone at chest level.'
+      },
+      generationEligible: true, blockingReason: null
+    });
     renderStoryboardWithQuery(project);
 
     fireEvent.click(screen.getByRole('button', { name: `cinematic.storyboard.editShot ${shot.id}` }));
+    await waitFor(() => expect((screen.getByRole('textbox', {
+      name: 'storyboard generation prompt'
+    }) as HTMLTextAreaElement).value).toContain('STORYBOARD KEYFRAME CONTRACT'));
     const prompt = screen.getByRole('textbox', { name: 'storyboard generation prompt' });
     const value = (prompt as HTMLTextAreaElement).value;
-    expect(value).toContain('STORYBOARD STILL CONTRACT');
-    expect(value).toContain('Selected Shot emotional target: Apprehensive');
+    expect(value).toContain('STORYBOARD KEYFRAME CONTRACT');
+    expect(value).toContain('Visible emotional target: Apprehensive');
     expect(value).toContain('Keep the phone at chest level.');
   });
 
@@ -986,6 +1245,39 @@ function storyPlanProposalFixture(project: CinematicProject): CinematicStoryPlan
       provider: 'openai', model: 'test-model', responseId: 'response_plan',
       recipeId: 'cinematic-story-plan-generate', recipeVersion: 1, recipeFingerprint: 'recipe-plan'
     },
+    workflow: {
+      contractVersion: 'cinematic-story-plan-workflow-v1', status: 'ready',
+      stages: [
+        { id: 'source_preflight', status: 'completed', issueCount: 0, repairCount: 0 },
+        { id: 'plan_generation', status: 'completed', issueCount: 0, repairCount: 0 },
+        { id: 'director_review', status: 'completed', issueCount: 0, repairCount: 0 },
+        { id: 'visual_validation', status: 'completed', issueCount: 1, repairCount: 0 },
+        { id: 'visual_repair', status: 'completed', issueCount: 1, repairCount: 1 },
+        { id: 'storyboard_readiness', status: 'completed', issueCount: 0, repairCount: 0 }
+      ],
+      repairRoundCount: 1,
+      initialFindings: [{
+        code: 'non_visual_action', severity: 'warning', repairable: true,
+        sceneId: scene.id, sceneTitle: scene.title, shotId: shot.id, shotTitle: shot.title,
+        fieldPaths: ['shot.subjectAction'],
+        summary: 'The primary action cannot be read reliably from one still image.',
+        recommendation: 'Use one visible gesture.'
+      }],
+      repairs: [{
+        round: 1, sceneIndex: 0, shotIndex: 0, sceneTitle: scene.title, shotTitle: shot.title,
+        fieldPath: 'shot.subjectAction', before: 'She waits and breathes.',
+        after: 'Her hand tightens around the sign.', reasonCodes: ['non_visual_action']
+      }],
+      repairRounds: [{
+        round: 1, status: 'accepted', findingCountBefore: 1, findingCountAfter: 0,
+        repairableCountBefore: 1, repairableCountAfter: 0, acceptedChangeCount: 1,
+        provenance: {
+          provider: 'openai', model: 'test-model', responseId: 'response_repair',
+          recipeId: 'cinematic-story-plan-generate', recipeVersion: 1, recipeFingerprint: 'recipe-plan'
+        }
+      }],
+      remainingFindings: []
+    },
     billingStatus: 'qualification_no_charge'
   };
 }
@@ -1016,7 +1308,15 @@ function sceneDirectionProposalFixture(project: CinematicProject): CinematicScen
     proposalId: 'proposal_scene', operation: 'cinematic_scene_direction_generate',
     expectedProjectVersion: project.version,
     storySourceVersionId: project.activeStorySourceVersionId!,
-    sceneId: scene.id, scene, warnings: [],
+    sceneId: scene.id, scene,
+    fieldProposals: [{
+      fieldKey: `scene:${scene.id}.title`, manifestPath: 'scene.title', group: 'scene',
+      visibility: 'simple', localizationKey: 'cinematic.director.sceneTitle',
+      currentValue: project.scenes[0]!.title, proposedValue: scene.title,
+      outcome: 'proposed', recommended: true
+    }],
+    mergeSummary: { requested: 1, proposed: 1, recommended: 1, locked: 0, unchanged: 0 },
+    warnings: [],
     provenance: {
       provider: 'openai', model: 'test-model', responseId: 'response_scene',
       recipeId: 'cinematic-scene-direction-generate', recipeVersion: 1, recipeFingerprint: 'recipe-scene'

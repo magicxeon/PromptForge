@@ -1909,6 +1909,83 @@
   box-shadow: 0 0 12px color-mix(in srgb, var(--neon-cyan) 30%, transparent);
 }
 
+.engine-target-panel--compact .engine-target-panel__heading {
+  min-height: 40px;
+  margin-bottom: 8px;
+  padding: 9px 11px;
+}
+
+.engine-target-panel--compact {
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--theme-action) 82%, var(--theme-border));
+  border-radius: var(--mpf-radius-md);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--theme-action) 7%, var(--theme-surface)) 0%,
+      color-mix(in srgb, var(--theme-surface) 94%, transparent) 40%,
+      color-mix(in srgb, var(--theme-bg-raised) 96%, transparent) 100%
+    );
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--theme-action) 14%, transparent),
+    inset 0 0 18px color-mix(in srgb, var(--theme-action) 5%, transparent);
+}
+
+.engine-target-panel--compact .engine-target-panel__title p {
+  display: none;
+}
+
+.engine-target-panel--compact .engine-target-panel__controls {
+  padding: 10px;
+}
+
+.engine-target-panel--compact .engine-target-panel__model-grid {
+  grid-template-columns: minmax(180px, 0.8fr) minmax(260px, 1.2fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.engine-target-panel--compact .engine-target-panel__output-grid {
+  grid-template-columns: minmax(88px, 120px) minmax(88px, 120px) minmax(150px, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+}
+
+.engine-target-panel--compact .engine-target-panel__aspect {
+  grid-column: auto;
+}
+
+.engine-target-panel--compact .engine-target-panel__aspect > span,
+.engine-target-panel--compact .engine-output-count > span {
+  margin-bottom: 2px;
+}
+
+.engine-target-panel--compact .engine-output-count__stepper {
+  grid-template-columns: 34px 40px 34px;
+  gap: 4px;
+}
+
+.engine-target-panel--compact .engine-output-count__stepper button,
+.engine-target-panel--compact .engine-output-count__stepper output {
+  min-height: 34px;
+  height: 34px;
+}
+
+@media (max-width: 760px) {
+  .engine-target-panel--compact .engine-target-panel__model-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .engine-target-panel--compact .engine-target-panel__output-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .engine-target-panel--compact .engine-target-panel__aspect,
+  .engine-target-panel--compact .engine-output-count {
+    grid-column: 1 / -1;
+  }
+}
+
 .engine-prompt-refinement__switch[aria-checked="true"] span {
   transform: translateX(18px);
   background: var(--neon-cyan);
@@ -2021,6 +2098,18 @@
   gap: 10px;
   color: var(--mpf-text-muted);
   font-size: 11px;
+}
+
+.studio-prompt-preview__supplement {
+  margin-top: 14px;
+  border-top: 1px solid var(--theme-border);
+  padding-top: 14px;
+}
+
+.studio-prompt-preview--supplement-only .studio-prompt-preview__supplement {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
 }
 
 .studio-prompt-preview__heading button {

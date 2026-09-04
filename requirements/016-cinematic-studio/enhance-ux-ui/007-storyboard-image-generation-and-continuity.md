@@ -54,6 +54,14 @@ endpoint with Project/Shot versions and Job ID. Approval stores the immutable
 Asset version/fingerprint and refreshes the Project. Re-generation leaves the
 current approved source intact until another result is explicitly approved.
 
+The Shot modal must expose the current server-compiled Storyboard prompt as a
+read-only preview. `Additional Shot direction` remains the only editable prompt
+input and must be saved before the server recompiles the contract. The preview
+must participate in the shared Generation `Go to Prompt` navigation, support
+copying, and must not permit a browser-side final prompt override. Its
+description must identify `Additional Shot direction` and `Save direction` as
+the safe path for changing the next generated image.
+
 The approval command is the primary post-generation action. It must use the
 brand primary treatment, a Check icon, clear helper text explaining that Save
 Direction does not approve media, and a stable action position. Save Direction
@@ -218,6 +226,41 @@ reason and must never remove references to make a provider fit.
   both the Storyboard board and Shot dialog.
 - [x] Reconcile completed legacy batch records from immutable Credit ledger
   metadata without new Generation or Credit operations.
+
+## 12. Storyboard generation presentation refinement
+
+**Scope:** UI presentation only. Provider routing, model capability filtering,
+reference authority, prompt compilation, estimates, Credits, Queue submission,
+polling, result ownership and Storyboard approval remain unchanged.
+
+- Extend the shared `EngineTargetPanel` with an explicit compact presentation;
+  do not create a Cinematic-only provider/model selector.
+- Opt only the Storyboard Shot dialog into the compact presentation. Preserve
+  established Playground, Studio, Fashion and Character Look layouts.
+- Apply the established yellow Render signature to the compact Storyboard
+  Engine panel so its generation responsibility is visually recognizable.
+- Keep Provider and Model as clear labeled controls, with stable dimensions and
+  readable long names at desktop and mobile widths.
+- Compress fixed output information so Provider/Model remain the primary
+  decision. Preserve aspect ratio, dimensions and output-count values used by
+  estimate and submission.
+- Render a completed image as a bounded `contain` preview. Selecting the preview
+  opens the existing shared `GenerationImageViewer`; do not create another
+  lightbox or media state owner.
+- Preserve Download, History detail, Collection, Share and the dominant
+  `Use as Storyboard source` action.
+- Leave an extension point in the shared Provider control for future catalog-
+  owned Provider marks; this checkpoint does not introduce logo metadata.
+
+Acceptance checks:
+
+- Storyboard Provider/Model selection is compact and keyboard operable.
+- The compact Engine panel carries the same theme-aware yellow border and
+  restrained glow used by established Render surfaces.
+- Unsupported models retain the canonical disabled reason.
+- The preview never expands the dialog to the source image dimensions.
+- The complete image is inspectable in the shared viewer by mouse and keyboard.
+- No overlap or horizontal page overflow occurs at 1440px, 820px or 390px.
 
 Validation: 73 focused server tests and 333 full Web tests passed; TypeScript,
 i18n catalog validation and the production Web build passed. The reconciliation

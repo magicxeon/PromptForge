@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { compilePromptFromGenerationContext } from '../server/domain/generation/generationRequestService.js';
+import {
+  compilePromptFromGenerationContext,
+  normalizeGenerationContext
+} from '../server/domain/generation/generationRequestService.js';
 
 function context(overrides = {}) {
   return {
@@ -40,4 +43,19 @@ test('Cinematic Storyboard realism policy does not affect non-Cinematic Scene ge
   assert.doesNotMatch(prompt, /cinematic-storyboard-still/i);
   assert.doesNotMatch(prompt, /Character personality baseline/i);
   assert.match(prompt, /Portray the character personality as/i);
+});
+
+test('Cinematic Storyboard can disable only the optional natural camera profile', () => {
+  const prompt = compilePromptFromGenerationContext(context({ cinematicCaptureProfileId: null }));
+  assert.doesNotMatch(prompt, /cinematic-storyboard-still|physically plausible cinematic photograph/i);
+  assert.match(prompt, /Selected Shot emotional target: Tense and watchful/i);
+});
+
+test('Cinematic Storyboard defaults and validates the capture profile before estimate or submit', () => {
+  const normalized = normalizeGenerationContext(context());
+  assert.equal(normalized.cinematicCaptureProfileId, 'photorealistic-cinematic');
+  assert.throws(
+    () => normalizeGenerationContext(context({ cinematicCaptureProfileId: 'unknown-profile' })),
+    error => error.code === 'cinematic_capture_profile_invalid' && error.statusCode === 400
+  );
 });

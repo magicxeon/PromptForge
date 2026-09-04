@@ -38,6 +38,29 @@ test('CinematicProjectRepository creates actor-owned projects and paginates summ
   assert.equal((await repository.listForActor(bob)).items.length, 1);
 });
 
+test('CinematicProjectRepository adds a non-destructive authoring envelope to new and legacy Projects', async t => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'cinematic-repository-authoring-'));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const projectsFile = path.join(directory, 'projects.json');
+  const repository = new CinematicProjectRepository({ projectsFile });
+  const created = await repository.create({
+    title: 'Authoring envelope', platform: 'tiktok', durationSeconds: 20,
+    storyBrief: 'A visible choice.', creativeDirection: '', genre: 'drama',
+    audienceFeeling: 'moved', pacing: 'balanced', endingIntent: 'resolved',
+    mode: 'simple', castPlanningMode: 'solo', storyRoleSlots: []
+  }, alice);
+  assert.equal(created.authoringContractVersion, 'cinematic-authoring-v1');
+  assert.equal(created.authoringState.inferenceMode, 'explicit');
+  const stored = JSON.parse(await fs.readFile(projectsFile, 'utf8'));
+  delete stored.projects[0].authoringContractVersion;
+  delete stored.projects[0].authoringState;
+  await fs.writeFile(projectsFile, JSON.stringify(stored));
+  const legacy = await repository.findForActor(created.id, alice);
+  assert.equal(legacy.authoringContractVersion, 'cinematic-authoring-v1');
+  assert.equal(legacy.authoringState.inferenceMode, 'legacy');
+  assert.equal(legacy.setup.storyBrief, 'A visible choice.');
+});
+
 test('CinematicProjectRepository serializes mutations and hides cross-actor records', async t => {
   const { directory, repository } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));

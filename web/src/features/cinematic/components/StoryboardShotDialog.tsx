@@ -10,9 +10,14 @@ import type { JobStatus } from '../../generation/schemas/generationSchemas';
 import {
   approveCinematicStoryboardSource,
   getCinematicStoryboardGenerationContext,
+  submitCinematicStoryboardBatch,
   updateCinematicShotDirection
 } from '../api/cinematicApi';
-import type { GenerationReferenceRole } from '../../generation/api/generationApi';
+import {
+  estimateGeneration,
+  type GenerationReferenceRole,
+  type GenerationRequestDraft
+} from '../../generation/api/generationApi';
 import type {
   CinematicProject,
   CinematicScene,
@@ -20,8 +25,12 @@ import type {
 } from '../schemas/cinematicSchemas';
 import { DialogHeader } from './ProjectCostSummary';
 import {
-  buildStoryboardPrompt,
+  CINEMATIC_NATURAL_CAMERA_PROFILE_ID,
+  NaturalCameraRealismControl
+} from './NaturalCameraRealismControl';
+import {
   previousApprovedStoryboardSource,
+  readStoryboardAuthorDirection,
   resolveStoryboardShotCast,
   resolveStoryboardShotLooks
 } from './storyboardGenerationAdapter';
@@ -46,21 +55,24 @@ export function StoryboardShotDialog({
   onProjectRefresh
 }: Props) {
   const { t } = useTranslation('cinematic');
-  const defaultPrompt = useMemo(
-    () => buildStoryboardPrompt(project, scene, shot),
-    [project, scene, shot]
-  );
-  const [prompt, setPrompt] = useState(defaultPrompt);
+  const initialDirection = useMemo(() => readStoryboardAuthorDirection(shot.prompt), [shot.prompt]);
+  const [direction, setDirection] = useState(initialDirection);
+  const [savedDirection, setSavedDirection] = useState(initialDirection);
+  const [generationRequestId, setGenerationRequestId] = useState(() => createShotGenerationKey(project.id, shot.id));
   const [saving, setSaving] = useState(false);
   const [approvingJobId, setApprovingJobId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [naturalRealismEnabled, setNaturalRealismEnabled] = useState(true);
   useEffect(() => {
     if (open) {
-      setPrompt(defaultPrompt);
+      setDirection(initialDirection);
+      setSavedDirection(initialDirection);
+      setGenerationRequestId(createShotGenerationKey(project.id, shot.id));
       setError(null);
       setApprovingJobId(null);
+      setNaturalRealismEnabled(true);
     }
-  }, [defaultPrompt, open, shot.prompt]);
+  }, [initialDirection, open, project.id, shot.id]);
 
   const castAssignments = resolveStoryboardShotCast(project, scene, shot);
   const primaryCharacter = castAssignments[0] || null;
@@ -86,29 +98,62 @@ export function StoryboardShotDialog({
   const references = Object.fromEntries(Object.entries(generationContext.data?.references || {})
     .filter((entry): entry is [GenerationReferenceRole, string] => Boolean(entry[1])));
   const referenceRoles = Object.keys(references) as GenerationReferenceRole[];
+  const keyframePrompt = generationContext.data?.keyframeContract.providerIndependentPrompt || '';
+  const directionDirty = direction.trim() !== savedDirection.trim();
   const blockedReason = generationContext.isPending
     ? t('cinematic.storyboard.loadingAuthority')
     : generationContext.error
       ? generationContext.error.message
       : generationContext.data?.generationEligible === false
         ? t(storyboardBlockingKey(generationContext.data.blockingReason))
-        : null;
+        : directionDirty
+          ? t('cinematic.storyboard.saveDirectionBeforeGeneration')
+          : null;
 
   async function savePrompt() {
     setSaving(true);
     setError(null);
     try {
       await updateCinematicShotDirection(project.id, scene.id, shot.id, {
-        expectedVersion: project.version,
-        expectedShotVersion: shot.version,
-        prompt
+        expectedVersion: generationContext.data?.projectVersion || project.version,
+        expectedShotVersion: generationContext.data?.shotVersion || shot.version,
+        prompt: direction
       });
+      setSavedDirection(direction);
       onProjectRefresh?.();
+      await generationContext.refetch();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t('cinematic.status.saveFailed'));
     } finally {
       setSaving(false);
     }
+  }
+
+  async function submitStoryboardDraft(draft: GenerationRequestDraft) {
+    const context = generationContext.data;
+    if (!context) throw new Error(t('cinematic.storyboard.loadingAuthority'));
+    const quote = await estimateGeneration(draft);
+    const result = await submitCinematicStoryboardBatch(project.id, {
+      expectedVersion: context.projectVersion,
+      idempotencyKey: generationRequestId,
+      operations: [{
+        operationId: shot.id,
+        sceneId: scene.id,
+        shotId: shot.id,
+        expectedShotVersion: context.shotVersion,
+        keyframeContractFingerprint: context.keyframeContract.sourceFingerprint,
+        estimateId: quote.estimate.estimateId,
+        draft
+      }]
+    });
+    const child = result.children[0];
+    if (!child || child.status === 'failed') {
+      throw new Error(child?.error?.message || t('cinematic.storyboard.generationBlocked'));
+    }
+    setGenerationRequestId(createShotGenerationKey(project.id, shot.id));
+    onProjectRefresh?.();
+    await generationContext.refetch();
+    return { jobId: child.jobId, status: child.status };
   }
 
   async function approveJob(job: JobStatus) {
@@ -118,8 +163,8 @@ export function StoryboardShotDialog({
     setError(null);
     try {
       await approveCinematicStoryboardSource(project.id, shot.id, {
-        expectedVersion: project.version,
-        expectedShotVersion: shot.version,
+        expectedVersion: generationContext.data?.projectVersion || project.version,
+        expectedShotVersion: generationContext.data?.shotVersion || shot.version,
         jobId,
         idempotencyKey: `storyboard:${project.id}:${shot.id}:${jobId}`
       });
@@ -151,23 +196,56 @@ export function StoryboardShotDialog({
         {blockedReason ? <StatusNotice tone="warning" title={t('cinematic.storyboard.generationBlocked')}>{blockedReason}</StatusNotice> : null}
         <div className="cinematic-storyboard-shot-dialog__generation">
         <GenerationExperience
-          key={`${shot.id}:${shot.version}`}
+          key={`${shot.id}:${shot.version}:${generationContext.data?.keyframeContract.sourceFingerprint || 'loading'}`}
           surface="cinematic"
           generationMode="scene"
-          initialPrompt={defaultPrompt}
-          prompt={prompt}
-          onPromptChange={setPrompt}
+          initialPrompt={keyframePrompt}
+          prompt={keyframePrompt}
+          showPromptEditor={false}
+          readOnlyPrompt={keyframePrompt ? {
+            label: t('cinematic.storyboard.compiledPrompt'),
+            description: t('cinematic.storyboard.compiledPromptDescription')
+          } : null}
+          readOnlyPromptSupplement={<div className="cinematic-storyboard-shot-dialog__direction">
+            <label htmlFor={`cinematic-shot-direction-${shot.id}`}>
+              {t('cinematic.storyboard.shotDirection')}
+            </label>
+            <textarea
+              id={`cinematic-shot-direction-${shot.id}`}
+              aria-label={t('cinematic.storyboard.shotDirection')}
+              value={direction}
+              onChange={event => setDirection(event.target.value)}
+              placeholder={t('cinematic.storyboard.shotDirectionPlaceholder')}
+              rows={3}
+            />
+            <small>{t('cinematic.storyboard.shotDirectionDescription')}</small>
+            <div className="cinematic-storyboard-shot-dialog__direction-actions">
+              <Button icon={<RotateCcw aria-hidden="true" />} onClick={() => setDirection(savedDirection)}>{t('cinematic.storyboard.reset')}</Button>
+              <Button disabled={saving || !directionDirty} onClick={() => void savePrompt()}>{saving ? t('cinematic.save.saving') : t('cinematic.storyboard.saveDirection')}</Button>
+            </div>
+          </div>}
+          cinematicCaptureProfileId={naturalRealismEnabled
+            ? CINEMATIC_NATURAL_CAMERA_PROFILE_ID
+            : null}
+          engineOptions={<NaturalCameraRealismControl
+            enabled={naturalRealismEnabled}
+            onChange={setNaturalRealismEnabled}
+          />}
           references={references}
           characterProfileContext={characterProfileContext}
           characterReferenceOutfitBehavior={references.outfit_front ? 'replaceable' : 'preserve'}
           allowComparison={false}
+          enginePresentation="compact"
           layoutVariant="stacked"
           fixedAspectRatio={project.aspectRatio}
           persistenceScope={`${project.id}:${shot.id}`}
           resumeJobId={resumeJobId}
           referenceRoles={referenceRoles}
           referencesReadOnly
+          showEmptyResult
           blockedReason={blockedReason}
+          allowPromptRefinement={false}
+          submitSingleDraft={submitStoryboardDraft}
           renderResultActions={(job) => <div className="cinematic-storyboard-approval-callout">
             <div>
               <strong>{t('cinematic.storyboard.approvalTitle')}</strong>
@@ -186,13 +264,15 @@ export function StoryboardShotDialog({
         </div>
         {error ? <p className="cinematic-storyboard-shot-dialog__error" role="alert">{error}</p> : null}
         <div className="cinematic-dialog__footer">
-          <Button icon={<RotateCcw aria-hidden="true" />} onClick={() => setPrompt(defaultPrompt)}>{t('cinematic.storyboard.reset')}</Button>
-          <Button disabled={saving || !prompt.trim()} onClick={() => void savePrompt()}>{saving ? t('cinematic.save.saving') : t('cinematic.storyboard.saveDirection')}</Button>
           <Dialog.Close asChild><Button>{t('cinematic.actions.close')}</Button></Dialog.Close>
         </div>
       </Dialog.Content>
     </Dialog.Portal>
   </Dialog.Root>;
+}
+
+function createShotGenerationKey(projectId: string, shotId: string) {
+  return `cinematic-storyboard:${projectId}:${shotId}:${Date.now()}:${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function formatSeconds(value: number) {
@@ -204,5 +284,6 @@ function storyboardBlockingKey(reason: string | null) {
   if (reason === 'cinematic_storyboard_character_not_ready') return 'cinematic.storyboard.characterNotReady';
   if (reason === 'cinematic_storyboard_look_not_ready') return 'cinematic.storyboard.lookNotReady';
   if (reason === 'cinematic_storyboard_look_asset_unavailable') return 'cinematic.storyboard.lookAssetUnavailable';
+  if (reason === 'cinematic_storyboard_direction_incomplete') return 'cinematic.storyboard.directionIncomplete';
   return 'cinematic.storyboard.generationBlocked';
 }

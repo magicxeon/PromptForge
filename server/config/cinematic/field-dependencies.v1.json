@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "cinematic-authoring-field-dependencies",
+  "version": 1,
+  "dependencies": [
+    { "source": "setup.storyBrief", "targets": ["plan.objective", "plan.logline", "plan.emotionalArc", "beat.storyChange", "scene.storyChange", "shot.visibleMoment"] },
+    { "source": "setup.creativeDirection", "targets": ["scene.lighting", "scene.performance", "shot.framing", "shot.cameraMovement", "shot.lighting"] },
+    { "source": "setup.durationSeconds", "targets": ["beat.targetDurationMs", "shot.durationMs", "shot.estimatedActionDurationMs"] },
+    { "source": "setup.storyRoleSlots", "targets": ["cast.storyRoleSlotId", "cast.storyRole", "scene.castAssignmentIds", "shot.castAssignmentIds"] },
+    { "source": "cast.characterProfileVersionId", "targets": ["scene.castAssignmentIds", "shot.castAssignmentIds"] },
+    { "source": "cast.looks", "targets": ["scene.wardrobeLookIds", "shot.wardrobeLookIds"] },
+    { "source": "cast.performanceDirection", "targets": ["scene.performance", "shot.performance", "shot.performanceCue"] },
+    { "source": "plan.emotionalArc", "targets": ["beat.emotionalStart", "beat.emotionalEnd", "scene.emotionalStart", "scene.emotionalEnd"] },
+    { "source": "beat.storyChange", "targets": ["scene.purpose", "scene.storyChange", "shot.purpose", "shot.visibleMoment"] },
+    { "source": "beat.emotionalEnd", "targets": ["scene.emotionalEnd", "shot.emotionalTarget"] },
+    { "source": "scene.storyChange", "targets": ["scene.purpose", "scene.exitState", "shot.purpose", "shot.visibleMoment", "shot.subjectAction"] },
+    { "source": "scene.exitState", "targets": ["shot.continuityExit", "shot.transitionToNext"] },
+    { "source": "scene.emotionalEnd", "targets": ["shot.emotionalTarget", "shot.performanceCue"] },
+    { "source": "scene.blocking", "targets": ["shot.blocking", "shot.continuityEntry", "shot.continuityExit"] },
+    { "source": "scene.lighting", "targets": ["shot.lighting"] },
+    { "source": "scene.audioIntent", "targets": ["shot.audioIntent", "shot.audioCues"] },
+    { "source": "shot.visibleMoment", "targets": ["shot.purpose", "shot.performanceCue"] },
+    { "source": "shot.subjectAction", "targets": ["shot.estimatedActionDurationMs", "shot.continuityExit"] },
+    { "source": "shot.durationMs", "targets": ["shot.estimatedActionDurationMs", "shot.dialogueCues", "shot.audioCues"] },
+    { "source": "shot.cameraMovement", "targets": ["shot.framing"] }
+  ]
+}

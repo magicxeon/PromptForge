@@ -1,5 +1,40 @@
 {
   "cinematic.story.directorProgress": "ความคืบหน้าของผู้กำกับ AI",
+  "cinematic.story.workflowEyebrow": "การกำกับอัตโนมัติ",
+  "cinematic.story.workflowTitle": "สร้าง กำกับ และซ่อมแผนในครั้งเดียว",
+  "cinematic.story.workflowDescription": "คำสั่งเดียวจะสร้าง Story Plan ให้ผู้กำกับ AI ตรวจ ตรวจทุก keyframe และซ่อมปัญหาภาพที่แก้ได้ก่อนให้คุณอนุมัติ",
+  "cinematic.story.workflowStatus.ready": "พร้อมใช้งาน",
+  "cinematic.story.workflowStatus.ready_with_warnings": "พร้อมโดยมีคำเตือน",
+  "cinematic.story.workflowStatus.blocked": "ต้องตรวจสอบ",
+  "cinematic.story.workflowStage.source_preflight": "ตรวจ Story source และ Cast",
+  "cinematic.story.workflowStage.plan_generation": "สร้าง Story Plan",
+  "cinematic.story.workflowStage.director_review": "ตรวจด้วยผู้กำกับ AI",
+  "cinematic.story.workflowStage.visual_validation": "ตรวจ keyframe",
+  "cinematic.story.workflowStage.visual_repair": "ซ่อมปัญหาด้านภาพ",
+  "cinematic.story.workflowStage.storyboard_readiness": "ตรวจความพร้อมสำหรับ Storyboard",
+  "cinematic.story.workflowStageStatus.queued": "รอดำเนินการ",
+  "cinematic.story.workflowStageStatus.processing": "กำลังดำเนินการ",
+  "cinematic.story.workflowStageStatus.completed": "เสร็จแล้ว",
+  "cinematic.story.workflowStageStatus.skipped": "ไม่ต้องซ่อม",
+  "cinematic.story.workflowStageStatus.stopped": "หยุดเพื่อให้ตรวจสอบ",
+  "cinematic.story.workflowStageStatus.blocked": "ติดเงื่อนไข",
+  "cinematic.story.workflowStageEvidence": "ปัญหา {issues} / แก้แล้ว {repairs}",
+  "cinematic.story.workflowInitialIssues": "ปัญหาก่อนแก้: {count}",
+  "cinematic.story.workflowRepairs": "รายการแก้ที่รับแล้ว: {count}",
+  "cinematic.story.workflowRounds": "รอบการซ่อม: {count}",
+  "cinematic.story.repairTimedOut": "การซ่อมภาพหยุดหลัง {seconds} วินาที ระบบเก็บแผนที่สร้างแล้วไว้ให้ตรวจสอบ และแสดงปัญหาที่ยังเหลือด้านล่าง",
+  "cinematic.story.workflowRemainingIssues": "ปัญหาคงเหลือ: {count}",
+  "cinematic.story.repairDetailsTitle": "รายละเอียดที่ AI ซ่อม",
+  "cinematic.story.repairDetailsDescription": "กดขยายแต่ละรายการเพื่อเทียบค่าก่อนและหลังการซ่อมแบบจำกัดขอบเขต",
+  "cinematic.story.repairBefore": "ก่อนแก้",
+  "cinematic.story.repairAfter": "หลังแก้",
+  "cinematic.story.repairReason": "เหตุผล",
+  "cinematic.story.repairReasonFallback": "ปรับเพื่อให้ผ่านข้อกำหนดของ visual keyframe",
+  "cinematic.story.planScope": "Story Plan",
+  "cinematic.story.sceneScope": "Scene",
+  "cinematic.story.emptyValue": "ไม่มีค่า",
+  "cinematic.story.remainingVisualIssues": "ปัญหาภาพที่ยังเหลือ ({count})",
+  "cinematic.story.noRemainingVisualIssues": "ไม่พบปัญหา visual keyframe ที่คงเหลือ",
   "cinematic.story.progressSource": "ตรวจแหล่งที่มาของเรื่อง",
   "cinematic.story.progressDirecting": "กำกับเรื่องและการแสดง",
   "cinematic.story.progressContinuity": "ตรวจเวลาและความต่อเนื่อง",
@@ -20,7 +55,7 @@
   "cinematic.story.scriptDialogue": "บทพูด: ",
   "cinematic.story.scriptAudio": "เสียง: ",
   "cinematic.story.scriptCut": "การตัดภาพ: ",
-  "cinematic.story.filmReviewRequired": "ตรวจ Plan เดิมด้วยผู้กำกับ AI หรือกรอกสัญญาภาพยนตร์ให้ครบด้วยตนเอง",
+  "cinematic.story.filmReviewRequired": "สร้าง Plan ใหม่ด้วย flow รวม หรือกรอก film contract ให้ครบด้วยตนเอง",
   "cinematic.story.filmBeatIncomplete": "{name} ต้องระบุเหตุและผลที่เกิดขึ้น",
   "cinematic.story.filmSceneIncomplete": "{name} ต้องระบุสถานะเริ่มและจบ Scene ให้ชัดเจน",
   "cinematic.story.filmShotIncomplete": "{name} ต้องระบุภาพที่เห็น การกระทำ อารมณ์ และจุดยึดความต่อเนื่อง",
@@ -388,6 +423,11 @@
   "cinematic.picker.page": "หน้า {page}",
   "cinematic.director.title": "กำกับ Scene",
   "cinematic.director.description": "ตรวจ Scene เป็นสัญญาการกำกับที่ครบถ้วนก่อนแตกเป็น Shot",
+  "cinematic.director.modeLabel": "โหมด Scene Director",
+  "cinematic.director.simpleModeHint": "กำหนดภาพที่ต้องเห็น อารมณ์ตอนจบ และช่วงสำคัญของแต่ละ Shot ระบบจะเติมเฉพาะข้อมูลการผลิตที่ยังขาดโดยไม่เขียนทับข้อมูลจาก AI",
+  "cinematic.director.advancedModeHint": "แก้ไขสัญญาการกำกับ การแสดง ความต่อเนื่อง บทพูด และเสียงได้ครบทุกส่วน",
+  "cinematic.director.simpleRequiredHint": "กรอกข้อมูล Scene และ Shot ที่แสดงให้ครบก่อนบันทึก ระบบจะเตรียมรายละเอียดการผลิตขั้นสูงที่ยังขาดให้อัตโนมัติ",
+  "cinematic.director.simpleReady": "พร้อมบันทึก และข้อมูลการกำกับขั้นสูงเดิมจะยังคงอยู่",
   "cinematic.director.purpose": "เป้าหมายของฉาก",
   "cinematic.director.purposeValue": "Mira เลือกที่จะรอ ทำให้เรื่องเปลี่ยนจากการหลีกหนีเป็นความหวัง",
   "cinematic.director.camera": "กล้องและเลนส์",
@@ -456,7 +496,7 @@
   "cinematic.story.expand": "เปิดหน้ากำกับ",
   "cinematic.story.operation": "โครงสร้างเรื่อง",
   "cinematic.story.operationTitle": "สร้างแผนเรื่อง",
-  "cinematic.story.operationDescription": "เปลี่ยนเรื่องย่อที่อนุมัติแล้วเป็น Beat, Scene และจำนวน Shot โดยประมาณ",
+  "cinematic.story.operationDescription": "สร้าง Plan ให้ผู้กำกับ AI ตรวจ ซ่อมปัญหา keyframe ที่แก้ได้ และตรวจความพร้อมสำหรับ Storyboard ในครั้งเดียว",
   "cinematic.story.readiness": "ความพร้อมของ Story Plan",
   "cinematic.story.approved": "Story Plan ที่อนุมัติแล้ว",
   "cinematic.story.draft": "Story Plan draft",
@@ -503,7 +543,7 @@
   "cinematic.story.currentPlanReadyTitle": "Story Plan อนุมัติแล้ว",
   "cinematic.story.currentPlanReadyDescription": "Plan ที่อนุมัติตรงกับ Scene ปัจจุบันและพร้อมสำหรับ Storyboard",
   "cinematic.story.generating": "กำลังสร้างข้อเสนอ",
-  "cinematic.story.generatingDescription": "กำลังวิเคราะห์เนื้อเรื่อง นักแสดง และข้อจำกัดที่อนุมัติแล้ว เพื่อจัดทำ Story Plan แบบมีโครงสร้าง",
+  "cinematic.story.generatingDescription": "กำลังสร้าง Plan กำกับการแสดง ตรวจ keyframe และซ่อมปัญหาภาพที่แก้ได้",
   "cinematic.story.generateFailed": "ไม่สามารถสร้าง Story Plan ได้",
   "cinematic.story.saveDraft": "บันทึก draft",
   "cinematic.story.approvePlan": "อนุมัติ Story Plan",
@@ -522,7 +562,7 @@
   "cinematic.story.shotCount": "{count} Shot",
   "cinematic.story.proposalTitle": "ตรวจข้อเสนอ Story Plan",
   "cinematic.story.proposalDescription": "ข้อมูลจะยังไม่เปลี่ยนจนกว่าจะนำข้อเสนอไปใช้และบันทึก draft",
-  "cinematic.story.applyProposal": "นำข้อเสนอไปใช้กับ draft",
+  "cinematic.story.applyProposal": "ใช้แผนที่สร้างแล้ว",
   "cinematic.story.discardProposal": "ยกเลิกข้อเสนอ",
   "cinematic.beatDialog.title": "รายละเอียด Beat",
   "cinematic.beatDialog.description": "กำหนดจุดประสงค์หนึ่งอย่างและการเปลี่ยนแปลงที่มองเห็นได้ ก่อนกำกับ Scene ภายใน Beat",
@@ -574,11 +614,13 @@
   "cinematic.finish.trimOut": "จุดจบ",
   "cinematic.finish.straightCut": "ตัดตรง",
   "cinematic.finish.dissolve": "Dissolve",
+  "cinematic.finish.fade": "Fade",
   "cinematic.finish.operationTitle": "ส่งออก Master",
   "cinematic.finish.operationDescription": "ส่งออกเฉพาะ Timeline ที่อนุมัติ การทำเพลงและคำบรรยายอยู่นอก MVP",
   "cinematic.finish.export": "ส่งออกภาพยนตร์",
   "cinematic.finish.complete": "จบโปรเจกต์",
   "cinematic.finish.continueSeries": "ทำต่อเป็น Series",
+  "cinematic.finish.qualificationOnly": "การประกอบไฟล์สุดท้ายยังเป็นขั้นตรวจสอบเท่านั้น ไม่มีการคิด Credits และยังไม่ทำให้โปรเจกต์เสร็จสมบูรณ์",
   "cinematic.attempts.title": "ประวัติ Attempt",
   "cinematic.attempts.first": "Attempt 01",
   "cinematic.attempts.fixture": "หลักฐานตัวอย่าง",
@@ -853,5 +895,33 @@
   "cinematic.storyboard.approvingSource": "กำลังอนุมัติภาพต้นทาง",
   "cinematic.storyboard.loadingAuthority": "กำลังโหลด Character, Look และภาพต่อเนื่องที่ได้รับอนุญาต...",
   "cinematic.storyboard.lookNotReady": "ต้องอนุมัติและล็อก Character Look ก่อนสร้าง Shot นี้",
-  "cinematic.storyboard.lookAssetUnavailable": "ไม่พบ media ของ Look ที่เลือก กรุณากลับไป Cast & Wardrobe และเตรียม Look ใหม่"
+  "cinematic.storyboard.lookAssetUnavailable": "ไม่พบ media ของ Look ที่เลือก กรุณากลับไป Cast & Wardrobe และเตรียม Look ใหม่",
+  "cinematic.storyboard.directionIncomplete": "กรอกช่วงเวลาที่เห็น การกระทำหลักหนึ่งอย่าง และอารมณ์เป้าหมายใน Scene Director ก่อนสร้าง Shot นี้",
+  "cinematic.storyboard.shotDirection": "คำกำกับ Shot เพิ่มเติม",
+  "cinematic.storyboard.shotDirectionPlaceholder": "รายละเอียดเสริมที่ใช้กับ keyframe นี้เท่านั้น",
+  "cinematic.storyboard.shotDirectionDescription": "Server จะรวมข้อความนี้กับ Scene, Character, Look และ continuity ที่อนุมัติแล้ว",
+  "cinematic.storyboard.saveDirectionBeforeGeneration": "บันทึกคำกำกับ Shot ที่แก้ไขก่อนสร้างภาพ เพื่อให้ Server สร้าง keyframe contract ใหม่"
+  ,"cinematic.director.proposalGenerating": "กำลังสร้างทิศทางของ Scene..."
+  ,"cinematic.director.proposalGeneratingDescription": "AI ผู้กำกับกำลังตรวจ draft ล่าสุดและฟิลด์ที่ป้องกันไว้"
+  ,"cinematic.director.proposalFields": "รายการฟิลด์ที่เสนอให้เปลี่ยน"
+  ,"cinematic.director.proposalSummary": "เสนอ {proposed} รายการ ป้องกันไว้ {locked} รายการ"
+  ,"cinematic.director.proposalLocked": "ป้องกันไม่ให้ AI แก้ไข"
+  ,"cinematic.director.proposalCurrent": "ค่าปัจจุบัน"
+  ,"cinematic.director.proposalSuggested": "ค่าที่เสนอ"
+  ,"cinematic.director.proposalNoChanges": "Scene ปัจจุบันตรงกับทิศทางที่ขอแล้ว"
+  ,"cinematic.director.proposalSelectAll": "เลือกค่าที่ AI เสนอทั้งหมด"
+  ,"cinematic.director.proposalSelectedCount": "เลือกแล้ว {selected} จาก {total} รายการ"
+  ,"cinematic.director.estimatedActionDuration": "ระยะเวลาโดยประมาณของการกระทำ"
+  ,"cinematic.director.dialogue": "บทพูดตามลำดับเวลา"
+  ,"cinematic.director.coverageRole": "หน้าที่ของ Shot"
+  ,"cinematic.director.coverageRole.establishing": "เปิดพื้นที่และตำแหน่ง"
+  ,"cinematic.director.coverageRole.action": "การกระทำ"
+  ,"cinematic.director.coverageRole.reaction": "ปฏิกิริยา"
+  ,"cinematic.director.coverageRole.insert": "ภาพรายละเอียด"
+  ,"cinematic.director.coverageRole.transition": "เชื่อมฉาก"
+  ,"cinematic.director.coverageRole.payoff": "จุดคลี่คลาย"
+  ,"cinematic.storyboard.naturalRealism": "ความสมจริงแบบกล้องธรรมชาติ"
+  ,"cinematic.storyboard.naturalRealismDescription": "เพิ่มผิวสัมผัสแบบภาพถ่ายและความไม่สมบูรณ์เล็กน้อยของกล้องในขั้น render โดยไม่พิมพ์ profile นี้ลงใน visual prompt"
+  ,"cinematic.storyboard.compiledPrompt": "Visual prompt ของ Storyboard"
+  ,"cinematic.storyboard.compiledPromptDescription": "คำกำกับภาพแบบอ่านอย่างเดียวสำหรับภาพถัดไป หากต้องการเปลี่ยน ให้แก้คำกำกับ Shot เพิ่มเติมด้านบนแล้วกดบันทึกคำกำกับ ส่วนข้อกำหนด reference และ render profile จะถูกใช้แยกต่างหากและไม่แสดงในช่องนี้"
 }

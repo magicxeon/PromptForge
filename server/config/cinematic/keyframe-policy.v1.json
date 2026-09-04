@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "cinematic-storyboard-keyframe-policy",
+  "version": 1,
+  "contractVersion": "cinematic-storyboard-keyframe-v1",
+  "defaultCaptureProfileId": "photorealistic-cinematic",
+  "promptSectionOrder": [
+    "keyframeMoment",
+    "subjectAuthority",
+    "composition",
+    "performance",
+    "lightingEnvironment",
+    "continuity",
+    "captureProfile",
+    "prohibitions",
+    "authorDirection"
+  ],
+  "requiredShotFields": [
+    "visibleMoment",
+    "subjectAction",
+    "emotionalTarget"
+  ],
+  "globalProhibitions": [
+    "Do not add subtitles, captions, watermarks or interface text.",
+    "Do not introduce a person, prop, costume or location that is not authorized by this Shot.",
+    "Do not combine the opening and ending emotional states in one expression.",
+    "Do not depict future actions that occur after this exact keyframe moment."
+  ],
+  "referencePolicy": {
+    "maximumLookAssets": 2,
+    "usePreviousApprovedShot": true,
+    "firstShotHasPreviousReference": false
+  },
+  "stillFramePositions": {
+    "first": "opening frame before the action develops",
+    "middle": "single decisive midpoint of the action",
+    "last": "settled end frame after the primary action"
+  }
+}

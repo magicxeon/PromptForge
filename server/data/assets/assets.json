@@ -1,5 +1,32 @@
 [
   {
+    "assetType": "cinematic_storyboard_source",
+    "storageProvider": "local",
+    "storageKey": "job_1788456154915_1zvwe8aa7.png",
+    "publicUrl": "/outputs/job_1788456154915_1zvwe8aa7.png",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788456154915_1zvwe8aa7.webp",
+    "mimeType": "image/png",
+    "sizeBytes": 2534127,
+    "width": 1024,
+    "height": 1536,
+    "sourceJobId": "job_1788456154915_1zvwe8aa7",
+    "metadata": {
+      "immutable": true,
+      "contentHash": "7a6b0339fbc6cf02aad621b3e3549fbed22e428047cc5b56da5fe5aee94673e8",
+      "generationMode": null,
+      "operationPurpose": "cinematic_storyboard_still"
+    },
+    "id": "ast_1788456276222_p7qcplwy",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-09-03T17:24:36.222Z",
+    "updatedAt": "2026-09-03T17:24:36.222Z",
+    "deletedAt": null
+  },
+  {
     "assetType": "character_look_sheet",
     "storageProvider": "local",
     "storageKey": "job_1788231304557_qn6mtllq3.jpg",

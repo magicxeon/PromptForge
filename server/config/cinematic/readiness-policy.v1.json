@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "cinematic-authoring-readiness-policy",
+  "version": 1,
+  "stages": {
+    "setup": { "requiredPaths": ["setup.storyBrief", "setup.platform", "setup.durationSeconds", "setup.genre", "setup.audienceFeeling", "setup.pacing", "setup.endingIntent", "setup.storyRoleSlots"] },
+    "cast": { "requiredPaths": ["cast.storyRoleSlotId", "cast.characterProfileVersionId", "cast.looks"] },
+    "story-plan": { "requiredPaths": ["plan.objective", "plan.logline", "plan.emotionalArc", "beat.title", "beat.storyChange", "beat.targetDurationMs"] },
+    "scene": { "requiredPaths": ["scene.title", "scene.location", "scene.time", "scene.storyChange", "scene.exitState", "scene.emotionalEnd", "scene.castAssignmentIds", "scene.wardrobeLookIds"] },
+    "shot": { "requiredPaths": ["shot.title", "shot.visibleMoment", "shot.subjectAction", "shot.emotionalTarget", "shot.durationMs", "shot.castAssignmentIds", "shot.wardrobeLookIds"] },
+    "storyboard": { "requiredPaths": ["shot.visibleMoment", "shot.subjectAction", "shot.emotionalTarget", "shot.framing", "shot.lighting"] },
+    "produce": { "requiredPaths": ["shot.durationMs", "shot.cameraMovement", "shot.performance", "shot.continuityEntry", "shot.continuityExit"] },
+    "finish": { "requiredPaths": ["shot.durationMs", "shot.transitionToNext"] }
+  }
+}

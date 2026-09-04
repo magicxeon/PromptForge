@@ -107,6 +107,10 @@ describe('StoryboardGenerateAllDialog', () => {
       cast: [],
       looks: [],
       continuitySource: null,
+      keyframeContract: {
+        sourceFingerprint: `keyframe_${shotId}`,
+        providerIndependentPrompt: `STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v1\n\nKEYFRAME MOMENT:\n${shotId}`
+      },
       generationEligible: true,
       blockingReason: null
     }));
@@ -161,9 +165,11 @@ describe('StoryboardGenerateAllDialog', () => {
     expect(submitted?.operations[0]).toEqual(expect.objectContaining({
       sceneId: 'scene_1',
       shotId: 'shot_pending',
+      keyframeContractFingerprint: 'keyframe_shot_pending',
       estimateId: 'estimate_storyboard',
       draft: expect.objectContaining({
-        prompt: expect.stringContaining('STORYBOARD STILL CONTRACT')
+        prompt: expect.stringContaining('STORYBOARD KEYFRAME CONTRACT'),
+        cinematicCaptureProfileId: 'photorealistic-cinematic'
       })
     }));
     expect(await screen.findByText('cinematic.storyboard.batch.queued')).toBeVisible();
@@ -217,6 +223,27 @@ describe('StoryboardGenerateAllDialog', () => {
 
     await waitFor(() => expect(mocks.estimateGeneration).toHaveBeenCalledWith(
       expect.objectContaining({ provider: 'gemini', submodel: 'image-model' })
+    ));
+  });
+
+  it('requotes every eligible Shot when natural realism is disabled', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={testI18n}>
+        <StoryboardGenerateAllDialog open onOpenChange={vi.fn()} project={projectFixture()} />
+      </I18nextProvider>
+    </QueryClientProvider>);
+
+    const toggle = await screen.findByRole('switch', {
+      name: 'cinematic.storyboard.naturalRealism'
+    });
+    await waitFor(() => expect(mocks.estimateGeneration).toHaveBeenCalledWith(
+      expect.objectContaining({ cinematicCaptureProfileId: 'photorealistic-cinematic' })
+    ));
+    mocks.estimateGeneration.mockClear();
+    fireEvent.click(toggle);
+    await waitFor(() => expect(mocks.estimateGeneration).toHaveBeenCalledWith(
+      expect.objectContaining({ cinematicCaptureProfileId: null })
     ));
   });
 });

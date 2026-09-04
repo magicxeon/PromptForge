@@ -108,7 +108,11 @@ export function analyzeStoryPlanSource(project, { sourceResolution = null } = {}
   };
 }
 
-export function evaluateStoryPlanFilmReadiness(project, plan, { preflight = null, aiFindings = [] } = {}) {
+export function evaluateStoryPlanFilmReadiness(project, plan, {
+  preflight = null,
+  aiFindings = [],
+  visualFindings = []
+} = {}) {
   const findings = [];
   const activeCastIds = new Set((project?.castAssignments || []).filter(item => item.active !== false).map(item => item.id));
   const scenes = Array.isArray(plan?.scenes) ? plan.scenes : [];
@@ -184,17 +188,40 @@ export function evaluateStoryPlanFilmReadiness(project, plan, { preflight = null
     ));
   }
 
+  for (const item of Array.isArray(visualFindings) ? visualFindings : []) {
+    findings.push(finding(
+      String(item.code || 'visual_contract_issue'),
+      'visual',
+      item.severity === 'blocking' ? 'blocking' : 'warning',
+      String(item.summary || '').trim(),
+      String(item.recommendation || '').trim(),
+      { sceneId: item.sceneId, shotId: item.shotId }
+    ));
+  }
+
+  const uniqueFindings = deduplicateReadinessFindings(findings);
+
   const dimensions = Object.fromEntries(DIMENSIONS.map(dimension => {
-    const relevant = findings.filter(item => item.dimension === dimension);
+    const relevant = uniqueFindings.filter(item => item.dimension === dimension);
     const state = relevant.some(item => item.severity === 'blocking')
       ? 'not_ready'
       : relevant.some(item => item.severity === 'warning') ? 'ready_with_warnings' : 'ready';
     return [dimension, state];
   }));
-  const status = findings.some(item => item.severity === 'blocking')
+  const status = uniqueFindings.some(item => item.severity === 'blocking')
     ? 'not_ready'
-    : findings.some(item => item.severity === 'warning') ? 'ready_with_warnings' : 'ready';
-  return { status, dimensions, findings };
+    : uniqueFindings.some(item => item.severity === 'warning') ? 'ready_with_warnings' : 'ready';
+  return { status, dimensions, findings: uniqueFindings };
+}
+
+function deduplicateReadinessFindings(findings) {
+  const seen = new Set();
+  return findings.filter(item => {
+    const key = `${item.code}:${item.sceneId || ''}:${item.shotId || ''}:${item.dimension}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function buildFilmScriptPreview(plan) {

@@ -21,6 +21,8 @@ specific defect back into those requirements instead of replacing them.
 | `CINE-FIX-007` | Replace referenced Cast safely and explain why direct removal is unavailable | P0 | Implemented, pending manual verification |
 | `CINE-FIX-008` | Reconcile Story sources with an AI Director and gate Storyboard on film-ready story, script and continuity | P0 | Implemented; live provider film qualification pending |
 | `CINE-FIX-009` | Reconcile Story Plan Shot timing with provider-supported video duration and migrate Omni to GA | P0 | Implemented; provider evidence gated |
+| `CINE-FIX-010` | Add Simple/Advanced Scene Director authoring over one Storyboard-complete contract | P0 | Implemented and verified |
+| `CINE-FIX-011` | Reconcile duplicate Cast Assignments for one Character Profile | P0 | Implemented and verified |
 
 ## Closure gate
 

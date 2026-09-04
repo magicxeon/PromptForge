@@ -79,6 +79,23 @@ test('CinematicApplicationService creates, updates and archives a Project with o
   assert.equal((await service.listProjects(alice)).items.length, 0);
 });
 
+test('CinematicApplicationService exposes actor-owned read-only authoring manifest and lineage', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const manifest = service.getAuthoringManifest();
+  const lineage = await service.getDataLineage(project.id, {}, alice);
+  assert.equal(manifest.id, 'cinematic-authoring-field-manifest');
+  assert.equal(lineage.project.id, project.id);
+  assert.match(lineage.fingerprint, /^[a-f0-9]{16}$/);
+  await assert.rejects(
+    service.getDataLineage(project.id, {}, { userId: 'usr_bob', username: 'bob', role: 'user' }),
+    error => error.code === 'cinematic_project_not_found'
+  );
+  const stored = await service.repository.findForActor(project.id, alice);
+  assert.equal(stored.version, project.version);
+});
+
 test('CinematicApplicationService pins Cast versions and keeps one protagonist', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
@@ -105,6 +122,35 @@ test('CinematicApplicationService pins Cast versions and keeps one protagonist',
   assert.equal(first.castAssignments[0].storyRoleSlotId, 'role_lead');
   assert.equal(first.castAssignments[0].portraitUrl, '/api/character-profiles/charprof_a/face');
   assert.equal(first.castAssignments[0].identityReady, true);
+});
+
+test('CinematicApplicationService reuses one Cast Assignment when the same Character receives a renamed role', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const first = await service.upsertCastAssignment(project.id, {
+    expectedVersion: project.version,
+    assignmentId: 'cast_legacy_role',
+    characterProfileId: 'charprof_a',
+    characterProfileVersionId: 'charver_a',
+    displayName: 'Nara',
+    storyRole: 'Young Woman',
+    storyRoleSlotId: 'role_old'
+  }, alice);
+  const reassigned = await service.upsertCastAssignment(project.id, {
+    expectedVersion: first.version,
+    assignmentId: 'cast_new_role',
+    characterProfileId: 'charprof_a',
+    characterProfileVersionId: 'charver_a',
+    displayName: 'Nara',
+    storyRole: 'Nara',
+    storyRoleSlotId: 'role_lead'
+  }, alice);
+
+  assert.equal(reassigned.castAssignments.length, 1);
+  assert.equal(reassigned.castAssignments[0].id, 'cast_legacy_role');
+  assert.equal(reassigned.castAssignments[0].storyRole, 'Nara');
+  assert.equal(reassigned.castAssignments[0].storyRoleSlotId, 'role_lead');
 });
 
 test('CinematicApplicationService reconciles legacy false readiness from its authorized identity snapshot', async t => {
@@ -414,9 +460,50 @@ test('CinematicApplicationService saves stable Scene and Shot structure with rec
   }, alice);
   assert.equal(planned.scenes[0].durationMs, 4000);
   assert.deepEqual(planned.scenes[0].shotOrder, ['shot_clock', 'shot_run']);
+  assert.equal(planned.scenes[0].shots[0].coverageRole, 'establishing');
+  assert.equal(planned.scenes[0].shots[1].coverageRole, 'action');
   assert.equal(planned.storyPlanVersions[0].estimatedShotCount, 2);
   assert.equal(planned.activeStoryPlanVersionId, planned.storyPlanVersions[0].id);
 });
+
+test('Simple Story Plan save completes missing Advanced authority on the server and records its source', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const saved = await service.saveStoryPlan(project.id, {
+    contractVersion: 'story-plan-v3', authoringMode: 'simple', expectedVersion: project.version,
+    approved: false,
+    beats: [{ id: 'beat_choice', title: 'Choice', storyChange: 'Nara chooses to reopen.' }],
+    scenes: [{
+      id: 'scene_cafe', beatId: 'beat_choice', title: 'The light returns',
+      location: 'Family cafe', time: 'Rainy blue hour',
+      storyChange: 'Nara chooses to reopen.', exitState: 'Warm light fills the cafe.',
+      emotionalEnd: 'quiet resolve', purpose: '', lighting: 'Existing AI blue practical',
+      castAssignmentIds: [], wardrobeLookIds: [],
+      shots: [{
+        id: 'shot_sign', title: 'Turn the sign', durationMs: 30_000,
+        visibleMoment: 'Nara holds the CLOSED sign.', subjectAction: 'She turns it toward OPEN.',
+        emotionalTarget: 'quiet resolve', purpose: '', continuityEntry: '', continuityExit: ''
+      }]
+    }]
+  }, alice);
+  const planVersion = saved.storyPlanVersions.at(-1);
+  assert.equal(saved.scenes[0].purpose, 'Nara chooses to reopen.');
+  assert.equal(saved.scenes[0].lighting, 'Existing AI blue practical');
+  assert.equal(saved.scenes[0].shots[0].continuityExit, 'Warm light fills the cafe.');
+  assertAuthoringSource(saved.authoringState.fieldStates[`scene:scene_cafe.purpose`], 'default', planVersion.id);
+  assertAuthoringSource(saved.authoringState.fieldStates[`scene:scene_cafe.lighting`], 'user', planVersion.id);
+});
+
+function assertAuthoringSource(state, source, sourceRevision) {
+  assert.equal(state.source, source);
+  assert.equal(state.locked, false);
+  assert.equal(state.status, 'current');
+  assert.equal(state.sourceRevision, sourceRevision);
+  assert.equal(state.recipe, null);
+  assert.match(state.updatedAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(state.updatedByActorId, alice.userId);
+}
 
 test('Story Plan v2 keeps draft separate from approval and validates target duration', async t => {
   const { directory, service } = await fixture();
@@ -614,8 +701,16 @@ test('Storyboard generation context resolves only actor-owned Look and prior app
     scenes: [{
       id: 'scene_a', title: 'Scene A', castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_arrival'],
       shots: [
-        { id: 'shot_a', title: 'A', durationMs: 2000, castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_arrival'] },
-        { id: 'shot_b', title: 'B', durationMs: 2000, castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_arrival'] }
+        {
+          id: 'shot_a', title: 'A', durationMs: 2000,
+          visibleMoment: 'Mira waits beneath the clock.', subjectAction: 'She checks the platform.',
+          emotionalTarget: 'watchful', castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_arrival']
+        },
+        {
+          id: 'shot_b', title: 'B', durationMs: 2000,
+          visibleMoment: 'Mira turns away from the tracks.', subjectAction: 'She pockets the phone.',
+          emotionalTarget: 'resolved', castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_arrival']
+        }
       ]
     }]
   }, alice);
@@ -630,6 +725,8 @@ test('Storyboard generation context resolves only actor-owned Look and prior app
   assert.equal(context.references.outfit_front, '/outputs/asset_front.webp');
   assert.equal(context.references.style_reference, '/outputs/job_storyboard_a1.jpg');
   assert.equal(context.continuitySource.shotId, 'shot_a');
+  assert.equal(context.keyframeContract.shotId, 'shot_b');
+  assert.match(context.keyframeContract.providerIndependentPrompt, /Mira turns away from the tracks/i);
   assert.equal(context.generationEligible, true);
 });
 
@@ -711,8 +808,16 @@ test('Storyboard source approval is idempotent and replacement stales only depen
     approved: true,
     scenes: [{
       id: 'scene_a', title: 'Scene A', shots: [
-        { id: 'shot_a', title: 'A', durationMs: 2000 },
-        { id: 'shot_b', title: 'B', durationMs: 2000 }
+        {
+          id: 'shot_a', title: 'A', durationMs: 2000,
+          visibleMoment: 'Nara holds at the doorway.', subjectAction: 'Nara takes one restrained step.',
+          emotionalTarget: 'hesitant'
+        },
+        {
+          id: 'shot_b', title: 'B', durationMs: 2000,
+          visibleMoment: 'Nara looks back into the cafe.', subjectAction: 'Nara turns her gaze.',
+          emotionalTarget: 'quietly resolved'
+        }
       ]
     }]
   }, alice);
@@ -812,7 +917,11 @@ test('Cinematic video attempt uses the approved Storyboard source and can be app
   const created = await service.createProject(setup, alice);
   const planned = await service.saveStoryPlan(created.id, {
     expectedVersion: created.version,
-    scenes: [{ id: 'scene_a', title: 'A', shots: [{ id: 'shot_a', title: 'A', durationMs: 4000, prompt: 'Slow push in.' }] }]
+    scenes: [{ id: 'scene_a', title: 'A', shots: [{
+      id: 'shot_a', title: 'A', durationMs: 4000, prompt: 'Slow push in.',
+      visibleMoment: 'Nara holds at the doorway.', subjectAction: 'Nara takes one restrained step.',
+      emotionalTarget: 'quietly resolved', continuityExit: 'Nara settles beyond the threshold.'
+    }] }]
   }, alice);
   await service.approveStoryboardSource(created.id, 'shot_a', {
     expectedVersion: planned.version, expectedShotVersion: 1,
@@ -820,10 +929,12 @@ test('Cinematic video attempt uses the approved Storyboard source and can be app
   }, alice);
   const approved = await service.getProject(created.id, alice);
   const shot = approved.scenes[0].shots[0];
+  const produceContext = await service.getProduceShotContext(created.id, 'scene_a', 'shot_a', alice);
   const input = {
     expectedVersion: approved.version, expectedShotVersion: shot.version,
     sourceFingerprint: shot.approvedStoryboardSource.sourceFingerprint,
-    providerId: 'modelark', modelId: 'seedance-test', prompt: 'Slow push in.',
+    videoPacketFingerprint: produceContext.videoPacket.packetFingerprint,
+    providerId: 'modelark', modelId: 'seedance-test', prompt: produceContext.videoPacket.providerIndependentPrompt,
     aspectRatio: '9:16', resolution: '720p', durationSeconds: 4, audioMode: 'none'
   };
   const quote = await service.quoteVideoAttempt(created.id, 'scene_a', 'shot_a', input, alice);
@@ -848,7 +959,7 @@ test('Cinematic video attempt uses the approved Storyboard source and can be app
   assert.equal(stored.generationAttempts.find(item => item.id === submitted.attemptId).outputAsset.publicUrl, outputAsset.publicUrl);
 });
 
-test('Cinematic video quote rejects stale Storyboard lineage before pricing', async t => {
+test('Cinematic video quote rejects stale Storyboard and video-packet lineage before pricing', async t => {
   let quoteCalls = 0;
   const { directory, service } = await fixture({
     videoGenerationService: {
@@ -860,7 +971,11 @@ test('Cinematic video quote rejects stale Storyboard lineage before pricing', as
   const created = await service.createProject(setup, alice);
   const planned = await service.saveStoryPlan(created.id, {
     expectedVersion: created.version,
-    scenes: [{ id: 'scene_a', title: 'A', shots: [{ id: 'shot_a', title: 'A', durationMs: 4000, prompt: 'Hold.' }] }]
+    scenes: [{ id: 'scene_a', title: 'A', shots: [{
+      id: 'shot_a', title: 'A', durationMs: 4000, prompt: 'Hold.',
+      visibleMoment: 'Nara pauses at the doorway.', subjectAction: 'Nara steadies her hand.',
+      emotionalTarget: 'hesitant'
+    }] }]
   }, alice);
   await service.approveStoryboardSource(created.id, 'shot_a', {
     expectedVersion: planned.version, expectedShotVersion: 1,
@@ -868,11 +983,35 @@ test('Cinematic video quote rejects stale Storyboard lineage before pricing', as
   }, alice);
   const approved = await service.getProject(created.id, alice);
   const shot = approved.scenes[0].shots[0];
+  const context = await service.getProduceShotContext(created.id, 'scene_a', 'shot_a', alice);
+  await assert.rejects(
+    service.quoteVideoAttempt(created.id, 'scene_a', 'shot_a', {
+      expectedVersion: approved.version,
+      expectedShotVersion: shot.version,
+      sourceFingerprint: shot.approvedStoryboardSource.sourceFingerprint,
+      videoPacketFingerprint: 'stale_video_packet',
+      providerId: 'modelark', modelId: 'seedance-test', prompt: context.videoPacket.providerIndependentPrompt,
+      aspectRatio: '9:16', resolution: '720p', durationSeconds: 4, audioMode: 'none'
+    }, alice),
+    error => error.code === 'cinematic_video_packet_changed' && error.statusCode === 409
+  );
+  await assert.rejects(
+    service.quoteVideoAttempt(created.id, 'scene_a', 'shot_a', {
+      expectedVersion: approved.version,
+      expectedShotVersion: shot.version,
+      sourceFingerprint: shot.approvedStoryboardSource.sourceFingerprint,
+      videoPacketFingerprint: context.videoPacket.packetFingerprint,
+      providerId: 'modelark', modelId: 'seedance-test', prompt: 'browser override',
+      aspectRatio: '9:16', resolution: '720p', durationSeconds: 4, audioMode: 'none'
+    }, alice),
+    error => error.code === 'cinematic_video_prompt_authority_mismatch' && error.statusCode === 409
+  );
   await assert.rejects(
     service.quoteVideoAttempt(created.id, 'scene_a', 'shot_a', {
       expectedVersion: approved.version,
       expectedShotVersion: shot.version,
       sourceFingerprint: 'fingerprint_old',
+      videoPacketFingerprint: context.videoPacket.packetFingerprint,
       providerId: 'modelark', modelId: 'seedance-test', prompt: 'Hold.',
       aspectRatio: '9:16', resolution: '720p', durationSeconds: 4, audioMode: 'none'
     }, alice),
@@ -947,6 +1086,16 @@ test('Timeline export requires current approved video attempts and returns a gat
   const manifest = await service.getExportManifest(project.id, alice);
   assert.equal(manifest.assemblyStatus, 'qualification_blocked');
   assert.equal(manifest.entries[0].approvedVideoAttemptId, 'video_a1');
+  assert.equal(typeof manifest.timelineFingerprint, 'string');
+  await service.repository.mutateForActor(project.id, alice, draft => {
+    draft.generationAttempts.find(item => item.id === 'video_a1').downstreamSourceStatus = 'source_changed';
+    return draft;
+  });
+  await assert.rejects(
+    service.getExportManifest(project.id, alice),
+    error => error.code === 'cinematic_export_sources_incomplete'
+      && error.details.blockingEntries[0] === 'shot_a'
+  );
 });
 
 test('Admin and Support can search sanitized Cinematic lineage while a user cannot', async t => {

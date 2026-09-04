@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "cinematic-video-packet-policy",
+  "version": 1,
+  "contractVersion": "cinematic-video-packet-v1",
+  "maximumPromptCharacters": 3800,
+  "promptSectionOrder": [
+    "startAuthority",
+    "temporalAction",
+    "camera",
+    "performance",
+    "environment",
+    "continuity",
+    "audio",
+    "prohibitions",
+    "authorDirection"
+  ],
+  "globalProhibitions": [
+    "Do not change character identity, apparent age, body proportions, hairstyle or approved wardrobe.",
+    "Do not invent a second action, a new scene, a new Character, dialogue, prop or camera move.",
+    "Avoid synthetic CGI surfaces, plastic skin, beauty filtering and mechanically perfect motion."
+  ]
+}

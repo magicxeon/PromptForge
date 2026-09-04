@@ -174,7 +174,10 @@ test('heterogeneous Generation batch records child Jobs before canonical submiss
   };
   const input = {
     operations: [
-      { operationId: 'shot_1', sceneId: 'scene_1', shotId: 'shot_1', expectedShotVersion: 3, estimateId: 'est_1', body: { prompt: 'one' } },
+      {
+        operationId: 'shot_1', sceneId: 'scene_1', shotId: 'shot_1', expectedShotVersion: 3,
+        estimateId: 'est_1', body: { prompt: 'one' }, metadata: { keyframeContractFingerprint: 'keyframe_1' }
+      },
       { operationId: 'shot_2', sceneId: 'scene_1', shotId: 'shot_2', expectedShotVersion: 4, estimateId: 'est_2', body: { prompt: 'two' } }
     ],
     actorContext: { userId: 'usr_1', username: 'owner' },
@@ -194,9 +197,11 @@ test('heterogeneous Generation batch records child Jobs before canonical submiss
   assert.equal(submissions.length, 2);
   assert.equal(registrations.length, 2, 'idempotent replay revalidates the persisted bindings');
   assert.deepEqual(registrations[0].children.map(child => child.expectedShotVersion), [3, 4]);
+  assert.equal(registrations[0].children[0].metadata.keyframeContractFingerprint, 'keyframe_1');
   assert.deepEqual(submissions.map(item => item.internalJobId), ['job_batch_1', 'job_batch_2']);
   assert.deepEqual(submissions.map(item => item.internalGroupContext.outputIndex), [0, 1]);
   assert.deepEqual(submissions.map(item => item.body.estimateId), ['est_1', 'est_2']);
+  assert.equal(submissions[0].internalReservationMetadata.keyframeContractFingerprint, 'keyframe_1');
 });
 
 test('Generation output count accepts only integers from one through four', () => {

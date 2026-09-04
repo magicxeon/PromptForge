@@ -11,12 +11,18 @@ import { AuthenticatedMediaImage } from '../../../components/media/Authenticated
 import { GenerationStageState } from '../../../components/generation/GenerationStageState';
 import { ContextualOperationDock } from './ContextualOperationDock';
 import { DialogHeader } from './ProjectCostSummary';
+import { isSimpleSceneReady } from './sceneDirectorSimpleContract';
+import { CinematicAuthoringModeHeader } from './authoring/CinematicAuthoringModeHeader';
+import { CinematicReadinessSummary } from './authoring/CinematicReadinessSummary';
+import { SceneCastLookSelector, readAssignmentLooks } from './authoring/SceneCastLookSelector';
+import { isCinematicFieldVisible } from './authoring/cinematicFieldProjection';
+import { ShotSequenceEditor } from './authoring/ShotSequenceEditor';
 import { listCharacters, listOwnedCharacters } from '../../profiles/api/profileApi';
 import type { z } from 'zod';
 import { characterSummarySchema } from '../../profiles/schemas/profileSchemas';
 import { enhanceCinematicStory } from '../api/cinematicApi';
 import type {
-  CinematicCastAssignment, CinematicScene, CinematicSceneDirectionProposal, CinematicSetupDraft, CinematicStoryBeat,
+  CinematicAuthoringManifest, CinematicCastAssignment, CinematicScene, CinematicSceneDirectionProposal, CinematicSetupDraft, CinematicStoryBeat,
   CinematicStoryEnhancement, CinematicStoryPlanProposal
 } from '../schemas/cinematicSchemas';
 
@@ -345,23 +351,31 @@ export function formatFacetLabel(value?: string | null) {
 }
 
 export function SceneDirectorDialog({
-  open, onOpenChange, scene, castAssignments = [], onSave, onGenerate, generating = false
+  open, onOpenChange, scene, castAssignments = [], authoringManifest, onSave, onGenerate, generating = false,
+  defaultMode = 'simple', onModeChange
 }: OpenDialogProps & {
   scene?: CinematicScene | null;
   castAssignments?: CinematicCastAssignment[];
+  authoringManifest?: CinematicAuthoringManifest;
   onSave?: (scene: CinematicScene) => void;
-  onGenerate?: (sceneId: string, direction: string) => void;
+  onGenerate?: (sceneId: string, direction: string, sceneDraft: CinematicScene) => void;
   generating?: boolean;
+  defaultMode?: 'simple' | 'advanced';
+  onModeChange?: (mode: 'simple' | 'advanced') => void;
 }) {
   const { t } = useTranslation('cinematic');
   const [draft, setDraft] = useState<CinematicScene | null>(scene || null);
   const [direction, setDirection] = useState('');
+  const [authoringMode, setAuthoringMode] = useState<'simple' | 'advanced'>(defaultMode);
   useEffect(() => {
     if (open) {
-      setDraft(scene || null);
+      setDraft(scene ? structuredClone(scene) : null);
       setDirection('');
     }
   }, [open, scene]);
+  useEffect(() => {
+    if (!open) setAuthoringMode(defaultMode);
+  }, [defaultMode, open]);
   const update = (field: keyof CinematicScene, value: string) => {
     setDraft(current => current ? { ...current, [field]: value } : current);
   };
@@ -405,6 +419,7 @@ export function SceneDirectorDialog({
     setShots(shots => [...shots, {
       id, version: 1, orderKey: shots.length + 1,
       title: t('cinematic.story.newShotTitle', { count: shots.length + 1 }), purpose: '', durationMs: 1000,
+      coverageRole: shots.length ? 'action' : 'establishing',
       visibleMoment: '', subjectAction: '', emotionalTarget: '', performanceCue: '',
       framing: 'medium shot', cameraAngle: 'eye level', cameraMovement: 'locked camera', lensIntent: '',
       blocking: '', performance: '', gaze: '', lighting: '', environment: '', audioIntent: '', prompt: '',
@@ -464,6 +479,7 @@ export function SceneDirectorDialog({
     });
   };
   const displayScene = draft || previewScene(t);
+  const fieldVisible = (path: string) => isCinematicFieldVisible(authoringManifest, path, authoringMode);
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -474,77 +490,50 @@ export function SceneDirectorDialog({
             <span>{t('cinematic.story.sceneDuration', { seconds: (displayScene.durationMs / 1000).toFixed(1) })}</span>
             <span>{t('cinematic.story.shotCount', { count: displayScene.shots.length })}</span>
           </div>
+          <CinematicAuthoringModeHeader
+            mode={authoringMode}
+            label={t('cinematic.director.modeLabel')}
+            helpText={t(authoringMode === 'simple' ? 'cinematic.director.simpleModeHint' : 'cinematic.director.advancedModeHint')}
+            onChange={nextMode => {
+              setAuthoringMode(nextMode);
+              onModeChange?.(nextMode);
+            }}
+          />
           <div className="cinematic-director-grid">
             <label><span>{t('cinematic.director.sceneTitle')}</span><input value={displayScene.title} onChange={event => update('title', event.target.value)} /></label>
             <label><span>{t('cinematic.director.location')}</span><input value={displayScene.location} onChange={event => update('location', event.target.value)} /></label>
             <label><span>{t('cinematic.director.time')}</span><input value={displayScene.time} onChange={event => update('time', event.target.value)} /></label>
-            <label><span>{t('cinematic.director.transition')}</span><input value={displayScene.transitionIntent} onChange={event => update('transitionIntent', event.target.value)} /></label>
-            <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.purpose')}</span><textarea rows={3} value={displayScene.purpose} onChange={event => update('purpose', event.target.value)} /></label>
+            {fieldVisible('scene.transitionIntent') ? <label><span>{t('cinematic.director.transition')}</span><input value={displayScene.transitionIntent} onChange={event => update('transitionIntent', event.target.value)} /></label> : null}
+            {fieldVisible('scene.purpose') ? <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.purpose')}</span><textarea rows={3} value={displayScene.purpose} onChange={event => update('purpose', event.target.value)} /></label> : null}
             <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.storyChange')}</span><textarea rows={3} value={displayScene.storyChange} onChange={event => update('storyChange', event.target.value)} /></label>
-            <label><span>{t('cinematic.director.entryState')}</span><textarea rows={2} value={displayScene.entryState || ''} onChange={event => update('entryState', event.target.value)} /></label>
+            {fieldVisible('scene.entryState') ? <label><span>{t('cinematic.director.entryState')}</span><textarea rows={2} value={displayScene.entryState || ''} onChange={event => update('entryState', event.target.value)} /></label> : null}
             <label><span>{t('cinematic.director.exitState')}</span><textarea rows={2} value={displayScene.exitState || ''} onChange={event => update('exitState', event.target.value)} /></label>
-            <label><span>{t('cinematic.director.objective')}</span><textarea rows={2} value={displayScene.objective || ''} onChange={event => update('objective', event.target.value)} /></label>
-            <label><span>{t('cinematic.director.pressure')}</span><textarea rows={2} value={displayScene.pressure || ''} onChange={event => update('pressure', event.target.value)} /></label>
-            <label><span>{t('cinematic.director.emotionalStart')}</span><textarea rows={2} value={displayScene.emotionalStart} onChange={event => update('emotionalStart', event.target.value)} /></label>
+            {fieldVisible('scene.objective') ? <label><span>{t('cinematic.director.objective')}</span><textarea rows={2} value={displayScene.objective || ''} onChange={event => update('objective', event.target.value)} /></label> : null}
+            {fieldVisible('scene.pressure') ? <label><span>{t('cinematic.director.pressure')}</span><textarea rows={2} value={displayScene.pressure || ''} onChange={event => update('pressure', event.target.value)} /></label> : null}
+            {fieldVisible('scene.emotionalStart') ? <label><span>{t('cinematic.director.emotionalStart')}</span><textarea rows={2} value={displayScene.emotionalStart} onChange={event => update('emotionalStart', event.target.value)} /></label> : null}
             <label><span>{t('cinematic.director.emotionalEnd')}</span><textarea rows={2} value={displayScene.emotionalEnd} onChange={event => update('emotionalEnd', event.target.value)} /></label>
-            <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.blocking')}</span><textarea rows={3} value={displayScene.blocking} onChange={event => update('blocking', event.target.value)} /></label>
+            {fieldVisible('scene.blocking') ? <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.blocking')}</span><textarea rows={3} value={displayScene.blocking} onChange={event => update('blocking', event.target.value)} /></label> : null}
           </div>
-          {castAssignments.length ? <section className="cinematic-director-cast" aria-labelledby="cinematic-director-cast-title">
-            <header><div><h3 id="cinematic-director-cast-title">{t('cinematic.director.sceneCast')}</h3><p>{t('cinematic.director.sceneCastHint')}</p></div></header>
-            <div className="cinematic-director-cast__list">
-              {castAssignments.filter(assignment => assignment.active !== false).map(assignment => {
-                const selected = displayScene.castAssignmentIds.includes(assignment.id);
-                const looks = readAssignmentLooks(assignment);
-                const selectedLookId = displayScene.wardrobeLookIds.find(id => looks.some(look => look.id === id)) || '';
-                return <article key={assignment.id} className={selected ? 'is-selected' : ''}>
-                  <label className="cinematic-director-cast__character">
-                    <input type="checkbox" checked={selected} onChange={event => toggleCastAssignment(assignment.id, event.target.checked)} />
-                    <AuthenticatedMediaImage src={assignment.portraitUrl || undefined} alt="" />
-                    <span><strong>{assignment.displayName}</strong><small>{assignment.storyRole}</small></span>
-                  </label>
-                  <label><span>{t('cinematic.director.sceneLook')}</span><select value={selectedLookId} disabled={!selected} onChange={event => selectWardrobeLook(assignment.id, event.target.value)}>
-                    <option value="">{t('cinematic.director.characterWardrobe')}</option>
-                    {looks.map(look => <option key={look.id} value={look.id}>{look.name}</option>)}
-                  </select></label>
-                </article>;
-              })}
-            </div>
-          </section> : null}
-          <section className="cinematic-director-shots">
-            <header><div><h3>{t('cinematic.director.shotSkeleton')}</h3><span>{t('cinematic.director.shotSkeletonHint')}</span></div><Button size="sm" icon={<Plus aria-hidden="true" />} onClick={addShot}>{t('cinematic.director.addShot')}</Button></header>
-            {displayScene.shots.map((shot, index) => <article key={shot.id} className="cinematic-director-shot-row">
-              <div className="cinematic-director-shot-row__summary">
-                <strong>{String(index + 1).padStart(2, '0')}</strong>
-                <label><span>{t('cinematic.director.shotTitle')}</span><input value={shot.title} onChange={event => updateShot(shot.id, 'title', event.target.value)} /></label>
-                <label><span>{t('cinematic.director.shotPurpose')}</span><input value={shot.purpose} onChange={event => updateShot(shot.id, 'purpose', event.target.value)} /></label>
-                <label><span>{t('cinematic.director.shotDuration')}</span><input type="number" min="0.5" step="0.5" value={shot.durationMs / 1000} onChange={event => updateShot(shot.id, 'durationMs', Math.max(500, Number(event.target.value || 0) * 1000))} /></label>
-                <div className="cinematic-director-shot-row__actions">
-                <Button size="icon" variant="ghost" icon={<ArrowUp aria-hidden="true" />} aria-label={t('cinematic.director.moveShotEarlier', { name: shot.title })} disabled={index === 0} onClick={() => moveShot(shot.id, 'earlier')} />
-                <Button size="icon" variant="ghost" icon={<ArrowDown aria-hidden="true" />} aria-label={t('cinematic.director.moveShotLater', { name: shot.title })} disabled={index === displayScene.shots.length - 1} onClick={() => moveShot(shot.id, 'later')} />
-                <ConfirmDialog trigger={<Button size="icon" variant="ghost" icon={<Trash2 aria-hidden="true" />} aria-label={t('cinematic.director.removeShot', { name: shot.title })} disabled={displayScene.shots.length <= 1} />} title={t('cinematic.director.removeShotTitle')} description={t('cinematic.director.removeShotDescription', { name: shot.title })} confirmLabel={t('cinematic.director.removeShotConfirm')} destructive onConfirm={() => removeShot(shot.id)} />
-                </div>
-              </div>
-              <div className="cinematic-director-shot-contract">
-                <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.visibleMoment')}</span><textarea rows={2} value={shot.visibleMoment || ''} onChange={event => updateShot(shot.id, 'visibleMoment', event.target.value)} /></label>
-                <label><span>{t('cinematic.director.subjectAction')}</span><textarea rows={2} value={shot.subjectAction || ''} onChange={event => updateShot(shot.id, 'subjectAction', event.target.value)} /></label>
-                <label><span>{t('cinematic.director.emotionalTarget')}</span><textarea rows={2} value={shot.emotionalTarget || ''} onChange={event => updateShot(shot.id, 'emotionalTarget', event.target.value)} /></label>
-                <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.performanceCue')}</span><textarea rows={2} value={shot.performanceCue || ''} onChange={event => updateShot(shot.id, 'performanceCue', event.target.value)} /></label>
-                <label><span>{t('cinematic.director.continuityEntry')}</span><textarea rows={2} value={shot.continuityEntry || ''} onChange={event => updateShot(shot.id, 'continuityEntry', event.target.value)} /></label>
-                <label><span>{t('cinematic.director.continuityExit')}</span><textarea rows={2} value={shot.continuityExit || ''} onChange={event => updateShot(shot.id, 'continuityExit', event.target.value)} /></label>
-                <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.transitionToNext')}</span><input value={shot.transitionToNext || ''} onChange={event => updateShot(shot.id, 'transitionToNext', event.target.value)} /></label>
-              </div>
-              <details className="cinematic-director-shot-advanced">
-                <summary>{t('cinematic.director.shotAdvanced')}</summary>
-                <div className="cinematic-director-shot-contract">
-                  <label><span>{t('cinematic.director.dialogueSpeaker')}</span><select value={shot.dialogueCues?.[0]?.speakerCastAssignmentId || ''} onChange={event => updateDialogueCue(shot.id, { speakerCastAssignmentId: event.target.value, offscreenVoiceRole: '' })}><option value="">{t('cinematic.director.noDialogue')}</option>{castAssignments.filter(item => shot.castAssignmentIds.includes(item.id)).map(item => <option key={item.id} value={item.id}>{item.displayName}</option>)}</select></label>
-                  <label><span>{t('cinematic.director.dialogueDelivery')}</span><input value={shot.dialogueCues?.[0]?.delivery || ''} onChange={event => updateDialogueCue(shot.id, { delivery: event.target.value })} /></label>
-                  <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.dialogueText')}</span><textarea rows={2} value={shot.dialogueCues?.[0]?.text || ''} onChange={event => event.target.value ? updateDialogueCue(shot.id, { text: event.target.value }) : updateShot(shot.id, 'dialogueCues', [])} /></label>
-                  <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.audioCue')}</span><textarea rows={2} value={shot.audioCues?.[0]?.description || ''} onChange={event => updateAudioCue(shot.id, event.target.value)} /></label>
-                </div>
-              </details>
-            </article>)}
-          </section>
-          <details className="cinematic-director-advanced">
+          <SceneCastLookSelector
+            assignments={castAssignments}
+            selectedCastAssignmentIds={displayScene.castAssignmentIds}
+            selectedLookIds={displayScene.wardrobeLookIds}
+            onToggleAssignment={toggleCastAssignment}
+            onSelectLook={selectWardrobeLook}
+          />
+          <ShotSequenceEditor
+            scene={displayScene}
+            mode={authoringMode}
+            authoringManifest={authoringManifest}
+            castAssignments={castAssignments}
+            onAddShot={addShot}
+            onMoveShot={moveShot}
+            onRemoveShot={removeShot}
+            onUpdateShot={updateShot}
+            onUpdateDialogueCue={updateDialogueCue}
+            onUpdateAudioCue={updateAudioCue}
+          />
+          {authoringMode === 'advanced' ? <details className="cinematic-director-advanced" open>
             <summary>{t('cinematic.director.advanced')}</summary>
             <div className="cinematic-director-grid">
               <label><span>{t('cinematic.director.lighting')}</span><textarea rows={3} value={displayScene.lighting} onChange={event => update('lighting', event.target.value)} /></label>
@@ -554,32 +543,43 @@ export function SceneDirectorDialog({
               <label><span>{t('cinematic.director.screenDirection')}</span><textarea rows={3} value={displayScene.screenDirection || ''} onChange={event => update('screenDirection', event.target.value)} /></label>
               <label><span>{t('cinematic.director.continuity')}</span><textarea rows={3} value={displayScene.continuityNotes.join('\n')} onChange={event => setDraft(current => current ? { ...current, continuityNotes: event.target.value.split('\n').map(value => value.trim()).filter(Boolean) } : current)} /></label>
             </div>
-          </details>
+          </details> : null}
           {scene && onGenerate ? <section className="cinematic-director-ai">
             <label><span>{t('cinematic.director.aiDirection')}</span><textarea rows={2} value={direction} onChange={event => setDirection(event.target.value)} placeholder={t('cinematic.director.aiDirectionPlaceholder')} /></label>
-            <div><p className="cinematic-operation-status">{t('cinematic.story.qualificationNotice')}</p><Button icon={<WandSparkles aria-hidden="true" />} disabled={generating} onClick={() => onGenerate(scene.id, direction)}>{generating ? t('cinematic.story.generating') : t('cinematic.director.generate')}</Button></div>
+            <div><p className="cinematic-operation-status">{t('cinematic.story.qualificationNotice')}</p><Button icon={<WandSparkles aria-hidden="true" />} disabled={generating || !draft} onClick={() => draft && onGenerate(scene.id, direction, draft)}>{generating ? t('cinematic.story.generating') : t('cinematic.director.generate')}</Button></div>
           </section> : null}
-          <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button>{t('cinematic.actions.close')}</Button></Dialog.Close><Button variant="primary" disabled={!draft || !onSave || !displayScene.title.trim()} icon={<Check aria-hidden="true" />} onClick={() => draft && onSave?.(draft)}>{t('cinematic.director.save')}</Button></div>
+          {authoringMode === 'simple' ? <CinematicReadinessSummary
+            ready={isSimpleSceneReady(draft)}
+            readyMessage={t('cinematic.director.simpleReady')}
+            incompleteMessage={t('cinematic.director.simpleRequiredHint')}
+          /> : null}
+          <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button>{t('cinematic.actions.close')}</Button></Dialog.Close><Button variant="primary" disabled={!draft || !onSave || (authoringMode === 'simple' ? !isSimpleSceneReady(draft) : !displayScene.title.trim())} icon={<Check aria-hidden="true" />} onClick={() => draft && onSave?.(draft)}>{t('cinematic.director.save')}</Button></div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   );
 }
 
-type SceneWardrobeLook = { id: string; name: string };
-
-function readAssignmentLooks(assignment?: CinematicCastAssignment): SceneWardrobeLook[] {
-  return (assignment?.looks || []).flatMap(value => {
-    if (!value || typeof value !== 'object') return [];
-    const record = value as Record<string, unknown>;
-    const id = String(record.id || '').trim();
-    if (!id) return [];
-    return [{ id, name: String(record.name || id) }];
-  });
-}
-
 function uniqueIds(ids: string[]) {
   return [...new Set(ids.filter(Boolean))];
+}
+
+const STORY_PLAN_WORKFLOW_STAGE_IDS = [
+  'source_preflight', 'plan_generation', 'director_review',
+  'visual_validation', 'visual_repair', 'storyboard_readiness'
+] as const;
+
+type StoryPlanRepair = NonNullable<CinematicStoryPlanProposal['workflow']>['repairs'][number];
+
+function groupStoryPlanRepairs(repairs: StoryPlanRepair[]) {
+  const groups = new Map<string, { sceneTitle: string; shotTitle: string; repairs: StoryPlanRepair[] }>();
+  for (const repair of repairs) {
+    const key = `${repair.sceneIndex ?? 'plan'}:${repair.shotIndex ?? 'scene'}`;
+    const group = groups.get(key) || { sceneTitle: repair.sceneTitle, shotTitle: repair.shotTitle, repairs: [] };
+    group.repairs.push(repair);
+    groups.set(key, group);
+  }
+  return [...groups.values()];
 }
 
 export function StoryPlanProposalDialog({ open, onOpenChange, proposal, onApply, onResolveSource, generating = false, applying = false, error = null }: OpenDialogProps & {
@@ -595,14 +595,57 @@ export function StoryPlanProposalDialog({ open, onOpenChange, proposal, onApply,
   const plan = proposal?.plan || null;
   const shots = plan?.scenes.reduce((total, scene) => total + scene.shots.length, 0) || 0;
   const busy = generating || applying;
-  const blocked = proposal?.status === 'blocked' || Boolean(proposal && !plan);
+  const workflow = proposal?.workflow;
+  const blocked = proposal?.status === 'blocked' || workflow?.status === 'blocked' || Boolean(proposal && !plan);
   const readiness = proposal?.filmReadiness || plan?.filmReadiness || null;
   const scriptPreview = proposal?.scriptPreview || plan?.scriptPreview || [];
+  const progressStages = workflow?.stages || STORY_PLAN_WORKFLOW_STAGE_IDS.map((id, index) => ({
+    id, status: index === 0 ? 'processing' : 'queued', issueCount: 0, repairCount: 0
+  }));
+  const repairGroups = groupStoryPlanRepairs(workflow?.repairs || []);
+  const repairTimeout = workflow?.repairRounds.find(round => round.status === 'provider_timeout');
   return <Dialog.Root open={open} onOpenChange={nextOpen => { if (!busy) onOpenChange(nextOpen); }}><Dialog.Portal>
     <Dialog.Overlay className="cinematic-dialog__overlay" />
     <Dialog.Content className="cinematic-dialog__content cinematic-dialog__content--wide" aria-busy={generating}>
       <DialogHeader title={t('cinematic.story.proposalTitle')} description={generating ? t('cinematic.story.generatingDescription') : t('cinematic.story.proposalDescription')} />
-      {generating ? <><GenerationStageState loading title={t('cinematic.story.generating')} description={t('cinematic.story.generatingDescription')} /><ol className="cinematic-director-progress" aria-label={t('cinematic.story.directorProgress')}><li>{t('cinematic.story.progressSource')}</li><li>{t('cinematic.story.progressDirecting')}</li><li>{t('cinematic.story.progressContinuity')}</li><li>{t('cinematic.story.progressReview')}</li></ol></> : null}
+      {generating ? <GenerationStageState loading title={t('cinematic.story.generating')} description={t('cinematic.story.generatingDescription')} /> : null}
+      {(generating || workflow) ? <section className="cinematic-story-plan-workflow" aria-labelledby="cinematic-story-plan-workflow-title">
+        <header><div><small>{t('cinematic.story.workflowEyebrow')}</small><h3 id="cinematic-story-plan-workflow-title">{t('cinematic.story.workflowTitle')}</h3><p>{t('cinematic.story.workflowDescription')}</p></div>{workflow ? <strong className={`is-${workflow.status}`}>{t(`cinematic.story.workflowStatus.${workflow.status}`)}</strong> : null}</header>
+        <ol className="cinematic-story-plan-workflow__stages" aria-label={t('cinematic.story.directorProgress')}>
+          {progressStages.map(stage => <li key={stage.id} className={`is-${stage.status}`}>
+            <span aria-hidden="true">{stage.status === 'completed' || stage.status === 'skipped' ? <Check /> : <Clock3 />}</span>
+            <div><strong>{t(`cinematic.story.workflowStage.${stage.id}`)}</strong><small>{t(`cinematic.story.workflowStageStatus.${stage.status}`)}</small></div>
+            {stage.issueCount || stage.repairCount ? <em>{t('cinematic.story.workflowStageEvidence', { issues: stage.issueCount, repairs: stage.repairCount })}</em> : null}
+          </li>)}
+        </ol>
+        {workflow ? <div className="cinematic-story-plan-workflow__summary">
+          <span>{t('cinematic.story.workflowInitialIssues', { count: workflow.initialFindings.length })}</span>
+          <span>{t('cinematic.story.workflowRepairs', { count: workflow.repairs.length })}</span>
+          <span>{t('cinematic.story.workflowRounds', { count: workflow.repairRoundCount })}</span>
+          <span>{t('cinematic.story.workflowRemainingIssues', { count: workflow.remainingFindings.length })}</span>
+        </div> : null}
+        {repairTimeout ? <p className="cinematic-plan-warning" role="status">
+          {t('cinematic.story.repairTimedOut', { seconds: Math.round((repairTimeout.failure?.timeoutMs || 0) / 1000) })}
+        </p> : null}
+        {workflow?.repairs.length ? <div className="cinematic-story-plan-repairs">
+          <h4>{t('cinematic.story.repairDetailsTitle')}</h4>
+          <p>{t('cinematic.story.repairDetailsDescription')}</p>
+          {repairGroups.map((group, groupIndex) => <section key={`${group.sceneTitle}-${group.shotTitle}-${groupIndex}`}>
+            <h5>{group.sceneTitle || t('cinematic.story.planScope')} / {group.shotTitle || t('cinematic.story.sceneScope')}</h5>
+            {group.repairs.map((repair, index) => {
+              const reasons = repair.reasonCodes.map(code => workflow.initialFindings.find(finding => finding.code === code)?.summary).filter(Boolean);
+              return <details key={`${repair.round}-${repair.fieldPath}-${index}`}>
+                <summary>{repair.fieldPath}</summary>
+                <dl><div><dt>{t('cinematic.story.repairBefore')}</dt><dd>{repair.before || t('cinematic.story.emptyValue')}</dd></div><div><dt>{t('cinematic.story.repairAfter')}</dt><dd>{repair.after || t('cinematic.story.emptyValue')}</dd></div><div><dt>{t('cinematic.story.repairReason')}</dt><dd>{reasons.join(' ') || t('cinematic.story.repairReasonFallback')}</dd></div></dl>
+              </details>;
+            })}
+          </section>)}
+        </div> : null}
+        {workflow && workflow.remainingFindings.length > 0 ? <details className="cinematic-story-plan-findings">
+          <summary>{t('cinematic.story.remainingVisualIssues', { count: workflow.remainingFindings.length })}</summary>
+          <ul>{workflow.remainingFindings.map((finding, index) => <li key={`${finding.code}-${finding.sceneId}-${finding.shotId}-${index}`} className={`is-${finding.severity}`}><strong>{finding.sceneTitle} / {finding.shotTitle}</strong><span>{finding.summary}</span><small>{finding.recommendation}</small></li>)}</ul>
+        </details> : workflow ? <p className="cinematic-story-plan-workflow__clear"><Check aria-hidden="true" />{t('cinematic.story.noRemainingVisualIssues')}</p> : null}
+      </section> : null}
       {blocked && proposal?.preflight ? <section className="cinematic-source-preflight" aria-labelledby="cinematic-source-preflight-title">
         <h3 id="cinematic-source-preflight-title">{t('cinematic.story.sourceIssuesTitle')}</h3>
         <p>{t('cinematic.story.sourceIssuesDescription')}</p>
@@ -622,7 +665,7 @@ export function StoryPlanProposalDialog({ open, onOpenChange, proposal, onApply,
       {plan.warnings.length ? <div className="cinematic-plan-warning" role="status">{plan.warnings.join(' ')}</div> : null}
       <p className="cinematic-qualification-notice">{t('cinematic.story.qualificationNotice')}</p></> : null}
       {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
-      <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button disabled={busy}>{plan ? t('cinematic.story.discardProposal') : t('cinematic.actions.close')}</Button></Dialog.Close>{plan ? <Button variant="primary" disabled={busy || readiness?.status === 'not_ready'} onClick={() => void onApply(proposal!)}>{applying ? t('cinematic.save.saving') : t('cinematic.story.applyProposal')}</Button> : null}</div>
+      <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button disabled={busy}>{plan ? t('cinematic.story.discardProposal') : t('cinematic.actions.close')}</Button></Dialog.Close>{plan ? <Button variant="primary" disabled={busy || blocked || readiness?.status === 'not_ready'} onClick={() => void onApply(proposal!)}>{applying ? t('cinematic.save.saving') : t('cinematic.story.applyProposal')}</Button> : null}</div>
     </Dialog.Content>
   </Dialog.Portal></Dialog.Root>;
 }
@@ -632,24 +675,136 @@ function formatScriptTime(milliseconds: number) {
   return `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toFixed(1).padStart(4, '0')}`;
 }
 
-export function SceneDirectionProposalDialog({ open, onOpenChange, proposal, onApply, applying = false, error = null }: OpenDialogProps & {
+export function SceneDirectionProposalDialog({ open, onOpenChange, proposal, onApply, generating = false, applying = false, error = null }: OpenDialogProps & {
   proposal: CinematicSceneDirectionProposal | null;
-  onApply: (proposal: CinematicSceneDirectionProposal) => void | Promise<void>;
+  onApply: (proposal: CinematicSceneDirectionProposal, selectedFieldKeys: string[]) => void | Promise<void>;
+  generating?: boolean;
   applying?: boolean;
   error?: string | null;
 }) {
   const { t } = useTranslation('cinematic');
-  if (!proposal) return null;
-  return <Dialog.Root open={open} onOpenChange={nextOpen => { if (!applying) onOpenChange(nextOpen); }}><Dialog.Portal>
+  const [fieldSelection, setFieldSelection] = useState<{ proposalId: string; keys: string[] } | null>(null);
+  const reviewFields = (proposal?.fieldProposals || []).filter(field => field.outcome !== 'unchanged');
+  const selectableFieldKeys = reviewFields
+    .filter(field => field.outcome === 'proposed')
+    .map(field => field.fieldKey);
+  const selectedFieldKeys = fieldSelection && fieldSelection.proposalId === proposal?.proposalId
+    ? fieldSelection.keys
+    : selectableFieldKeys;
+  const allProposedSelected = selectableFieldKeys.length > 0
+    && selectableFieldKeys.every(key => selectedFieldKeys.includes(key));
+  const someProposedSelected = selectedFieldKeys.some(key => selectableFieldKeys.includes(key));
+  const hasFieldContract = Boolean(proposal?.fieldProposals);
+  const busy = generating || applying;
+  return <Dialog.Root open={open} onOpenChange={nextOpen => { if (!busy) onOpenChange(nextOpen); }}><Dialog.Portal>
     <Dialog.Overlay className="cinematic-dialog__overlay" />
     <Dialog.Content className="cinematic-dialog__content">
       <DialogHeader title={t('cinematic.director.proposalTitle')} description={t('cinematic.director.proposalDescription')} />
-      <div className="cinematic-scene-proposal"><h3>{proposal.scene.title}</h3><p>{proposal.scene.purpose}</p><dl><div><dt>{t('cinematic.director.storyChange')}</dt><dd>{proposal.scene.storyChange}</dd></div><div><dt>{t('cinematic.director.blocking')}</dt><dd>{proposal.scene.blocking}</dd></div><div><dt>{t('cinematic.director.performance')}</dt><dd>{proposal.scene.performance}</dd></div></dl></div>
-      <p className="cinematic-qualification-notice">{t('cinematic.story.qualificationNotice')}</p>
+      {generating ? <GenerationStageState loading title={t('cinematic.director.proposalGenerating')} description={t('cinematic.director.proposalGeneratingDescription')} /> : null}
+      {!generating && proposal ? <>
+        <div className="cinematic-scene-proposal"><h3>{proposal.scene.title}</h3><p>{proposal.scene.purpose}</p></div>
+        {hasFieldContract ? <section className="cinematic-field-proposals" aria-label={t('cinematic.director.proposalFields')}>
+          <header><div><strong>{t('cinematic.director.proposalFields')}</strong><span>{t('cinematic.director.proposalSummary', {
+            proposed: proposal.mergeSummary?.proposed || 0,
+            locked: proposal.mergeSummary?.locked || 0
+          })}</span></div>{selectableFieldKeys.length ? <label className="cinematic-field-proposals__select-all">
+            <input
+              type="checkbox"
+              checked={allProposedSelected}
+              aria-checked={someProposedSelected && !allProposedSelected ? 'mixed' : allProposedSelected}
+              ref={node => { if (node) node.indeterminate = someProposedSelected && !allProposedSelected; }}
+              onChange={event => setFieldSelection({
+                proposalId: proposal.proposalId,
+                keys: event.target.checked ? selectableFieldKeys : []
+              })}
+            />
+            <span><strong>{t('cinematic.director.proposalSelectAll')}</strong><small>{t('cinematic.director.proposalSelectedCount', {
+              selected: selectedFieldKeys.length,
+              total: selectableFieldKeys.length
+            })}</small></span>
+          </label> : null}</header>
+          {reviewFields.length ? <ul>{reviewFields.map(field => {
+            const selected = selectedFieldKeys.includes(field.fieldKey);
+            return <li key={field.fieldKey} className={`is-${field.outcome}`}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selected}
+                  disabled={field.outcome !== 'proposed'}
+                  onChange={event => setFieldSelection({
+                    proposalId: proposal!.proposalId,
+                    keys: event.target.checked
+                      ? [...new Set([...selectedFieldKeys, field.fieldKey])]
+                      : selectedFieldKeys.filter(key => key !== field.fieldKey)
+                  })}
+                />
+                <span><strong>{t(field.localizationKey)}</strong><small>{field.outcome === 'locked' ? t('cinematic.director.proposalLocked') : field.visibility === 'advanced' ? t('cinematic.mode.advanced') : t('cinematic.mode.simple')}</small></span>
+              </label>
+              <div><small>{t('cinematic.director.proposalCurrent')}</small><p>{formatProposalValue(field.currentValue, field.manifestPath)}</p></div>
+              <div><small>{t('cinematic.director.proposalSuggested')}</small><p>{formatProposalValue(field.proposedValue, field.manifestPath)}</p></div>
+            </li>;
+          })}</ul> : <p>{t('cinematic.director.proposalNoChanges')}</p>}
+        </section> : <div className="cinematic-scene-proposal"><dl><div><dt>{t('cinematic.director.storyChange')}</dt><dd>{proposal.scene.storyChange}</dd></div><div><dt>{t('cinematic.director.blocking')}</dt><dd>{proposal.scene.blocking}</dd></div><div><dt>{t('cinematic.director.performance')}</dt><dd>{proposal.scene.performance}</dd></div></dl></div>}
+        <p className="cinematic-qualification-notice">{t('cinematic.story.qualificationNotice')}</p>
+      </> : null}
       {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
-      <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button disabled={applying}>{t('cinematic.story.discardProposal')}</Button></Dialog.Close><Button variant="primary" disabled={applying} onClick={() => void onApply(proposal)}>{applying ? t('cinematic.save.saving') : t('cinematic.story.applyProposal')}</Button></div>
+      <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button disabled={busy}>{proposal ? t('cinematic.story.discardProposal') : t('cinematic.actions.close')}</Button></Dialog.Close>{proposal ? <Button variant="primary" disabled={busy || (hasFieldContract && selectedFieldKeys.length === 0)} onClick={() => void onApply(proposal, selectedFieldKeys)}>{applying ? t('cinematic.save.saving') : t('cinematic.story.applyProposal')}</Button> : null}</div>
     </Dialog.Content>
   </Dialog.Portal></Dialog.Root>;
+}
+
+function formatProposalValue(value: unknown, manifestPath: string) {
+  if (manifestPath.endsWith('estimatedActionDurationMs') && typeof value === 'number') {
+    return formatProposalDuration(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map((item, index) => formatProposalListItem(item, manifestPath, index)).filter(Boolean).join('\n') || '-';
+  }
+  if (value && typeof value === 'object') return formatProposalObject(value as Record<string, unknown>);
+  return String(value ?? '').trim() || '-';
+}
+
+function formatProposalListItem(value: unknown, manifestPath: string, index: number) {
+  if (!value || typeof value !== 'object') return String(value ?? '').trim();
+  const item = value as Record<string, unknown>;
+  if (manifestPath.endsWith('dialogueCues')) {
+    const timing = formatProposalRange(item.startOffsetMs, item.estimatedDurationMs);
+    const speaker = String(item.offscreenVoiceRole || item.speakerCastAssignmentId || '').trim();
+    return [timing, speaker, quoteProposalText(item.text), item.delivery]
+      .map(part => String(part || '').trim()).filter(Boolean).join(' · ');
+  }
+  if (manifestPath.endsWith('audioCues')) {
+    const timing = formatProposalRange(item.startOffsetMs, item.durationMs);
+    return [timing, item.kind, item.source, item.description]
+      .map(part => String(part || '').trim()).filter(Boolean).join(' · ');
+  }
+  return `${index + 1}. ${formatProposalObject(item)}`;
+}
+
+function formatProposalObject(value: Record<string, unknown>) {
+  const readable = Object.values(value).flatMap(item => {
+    if (Array.isArray(item)) return item.map(entry => String(entry ?? '').trim()).filter(Boolean);
+    if (item == null || typeof item === 'object') return [];
+    return String(item).trim();
+  }).filter(Boolean);
+  return readable.join(' · ') || '-';
+}
+
+function formatProposalRange(startValue: unknown, durationValue: unknown) {
+  const start = Number(startValue);
+  const duration = Number(durationValue);
+  if (!Number.isFinite(start) || !Number.isFinite(duration)) return '';
+  return `${formatProposalDuration(start)}-${formatProposalDuration(start + duration)}`;
+}
+
+function formatProposalDuration(milliseconds: number) {
+  const seconds = Math.max(0, milliseconds) / 1000;
+  return `${Number.isInteger(seconds) ? seconds.toFixed(0) : seconds.toFixed(1)}s`;
+}
+
+function quoteProposalText(value: unknown) {
+  const text = String(value || '').trim();
+  return text ? `"${text}"` : '';
 }
 
 function previewScene(t: (key: string) => string): CinematicScene {

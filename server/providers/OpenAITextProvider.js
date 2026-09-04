@@ -155,7 +155,7 @@ const CINEMATIC_DIRECTOR_FINDING_SCHEMA = Object.freeze({
 const CINEMATIC_STORY_PLAN_SHOT_SCHEMA = Object.freeze({
   type: 'object', additionalProperties: false,
   required: [
-    'title', 'purpose', 'durationSeconds', 'visibleMoment', 'subjectAction',
+    'title', 'purpose', 'coverageRole', 'durationSeconds', 'visibleMoment', 'subjectAction',
     'emotionalTarget', 'performanceCue', 'framing', 'cameraAngle',
     'cameraMovement', 'blocking', 'performance', 'lighting', 'environment',
     'audioIntent', 'prompt', 'continuityEntry', 'continuityExit',
@@ -164,6 +164,7 @@ const CINEMATIC_STORY_PLAN_SHOT_SCHEMA = Object.freeze({
   ],
   properties: {
     title: { type: 'string' }, purpose: { type: 'string' }, durationSeconds: { type: 'number' },
+    coverageRole: { type: 'string', enum: ['establishing', 'action', 'reaction', 'insert', 'transition', 'payoff'] },
     visibleMoment: { type: 'string' }, subjectAction: { type: 'string' }, emotionalTarget: { type: 'string' },
     performanceCue: { type: 'string' }, framing: { type: 'string' }, cameraAngle: { type: 'string' },
     cameraMovement: { type: 'string' }, blocking: { type: 'string' }, performance: { type: 'string' },

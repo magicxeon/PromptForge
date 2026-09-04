@@ -5,13 +5,27 @@ export function getCinematicStoryPlanPolicy(env = process.env) {
   const requestedEnabled = readBoolean(
     env.ENABLE_CINEMATIC_STORY_PLAN ?? env.ENABLE_CINEMATIC_STORY_ENHANCEMENT
   );
+  const generationTimeoutMs = boundedInteger(
+    env.CINEMATIC_STORY_PLAN_GENERATION_TIMEOUT_MS ?? env.CINEMATIC_STORY_PLAN_TIMEOUT_MS,
+    120_000,
+    10_000,
+    240_000
+  );
+  const repairTimeoutMs = boundedInteger(
+    env.CINEMATIC_STORY_PLAN_REPAIR_TIMEOUT_MS,
+    90_000,
+    10_000,
+    180_000
+  );
   return {
     enabled: requestedEnabled && Boolean(apiKey),
     requestedEnabled,
     provider: 'openai',
     model: String(env.CINEMATIC_STORY_PLAN_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL,
     reasoningEffort: normalizeEffort(env.CINEMATIC_STORY_PLAN_REASONING_EFFORT),
-    timeoutMs: boundedInteger(env.CINEMATIC_STORY_PLAN_TIMEOUT_MS, 60_000, 1_000, 120_000),
+    timeoutMs: generationTimeoutMs,
+    generationTimeoutMs,
+    repairTimeoutMs,
     maxOutputTokens: boundedInteger(env.CINEMATIC_STORY_PLAN_MAX_OUTPUT_TOKENS, 8_000, 1_000, 16_000),
     apiKey
   };

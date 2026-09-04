@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "cinematic-storyboard-prompt-budget",
+  "version": 2,
+  "maximumPromptCharacters": 3600,
+  "sectionCharacterLimits": {
+    "keyframeMoment": 520,
+    "subjectAuthority": 700,
+    "performance": 520,
+    "composition": 520,
+    "lightingEnvironment": 620,
+    "continuity": 520,
+    "prohibitions": 620,
+    "authorDirection": 600
+  }
+}

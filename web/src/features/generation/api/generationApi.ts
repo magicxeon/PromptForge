@@ -47,6 +47,7 @@ export type GenerationRequestDraft = {
   characterType?: 'reusable_model' | 'styled_character' | null;
   referenceScopes?: Partial<Record<GenerationReferenceRole, string>>;
   promptRefinementEnabled?: boolean;
+  cinematicCaptureProfileId?: 'photorealistic-cinematic' | null;
 };
 
 export type ComparisonSlotInput = { id: string; provider: string; model: string };
@@ -187,6 +188,7 @@ export function generationPayload(
     characterType: draft.characterType || null,
     generationMode: draft.generationMode,
     generationSurface: draft.generationSurface,
+    cinematicCaptureProfileId: draft.cinematicCaptureProfileId,
     template: 'portrait',
     selections: draft.selections || {},
     customColors: draft.customColors || {},

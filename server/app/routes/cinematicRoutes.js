@@ -20,6 +20,15 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.get('/api/cinematic/authoring-manifest', async (_req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(cinematicService.getAuthoringManifest());
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
   app.get('/api/cinematic/projects', async (req, res) => {
     try {
       res.json(await cinematicService.listProjects(req.actorContext, req.query));
@@ -61,6 +70,19 @@ export function registerCinematicRoutes(app, {
   app.get('/api/cinematic/projects/:projectId', async (req, res) => {
     try {
       res.json(await cinematicService.getProject(req.params.projectId, req.actorContext));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
+  app.get('/api/cinematic/projects/:projectId/data-lineage', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.getDataLineage(
+        req.params.projectId,
+        { sceneId: req.query.sceneId || null, shotId: req.query.shotId || null },
+        req.actorContext
+      ));
     } catch (error) {
       sendCinematicError(res, error);
     }
@@ -207,7 +229,10 @@ export function registerCinematicRoutes(app, {
           shotId: operation.shotId,
           expectedShotVersion: operation.expectedShotVersion,
           estimateId: operation.estimateId,
-          body: operation.generationRequest
+          body: operation.generationRequest,
+          metadata: {
+            keyframeContractFingerprint: context.keyframeContract.sourceFingerprint
+          }
         });
       }
       const result = await generationApplicationService.submitBatch({
@@ -220,7 +245,10 @@ export function registerCinematicRoutes(app, {
         metadata: {
           projectId: project.id,
           projectVersion: project.version,
-          operation: 'cinematic_storyboard_generate_all'
+          operation: 'cinematic_storyboard_generate_all',
+          keyframeContractFingerprints: operations.map(operation => (
+            operation.metadata.keyframeContractFingerprint
+          ))
         },
         beforeEnqueue: ({ groupId, children }) => cinematicService.registerStoryboardBatchAttempts(
           project.id,
@@ -417,13 +445,16 @@ function assertStoryboardBatchInput(project, input) {
       request.provider,
       request.submodel,
       request.imageResolution || '',
-      request.aspectRatio
+      request.aspectRatio,
+      request.cinematicCaptureProfileId === null
+        ? 'none'
+        : request.cinematicCaptureProfileId || 'photorealistic-cinematic'
     ].join(':');
   }));
   if (selectionKeys.size !== 1) {
     throw new CinematicError(
       'cinematic_storyboard_batch_engine_mismatch',
-      'Every Storyboard Shot in this batch must use the same provider, model, resolution and aspect ratio.'
+      'Every Storyboard Shot in this batch must use the same provider, model, resolution, aspect ratio and capture profile.'
     );
   }
 }
@@ -463,6 +494,20 @@ function assertStoryboardBatchOperation(project, operation, context) {
     );
   }
   const request = operation.generationRequest || {};
+  if (![undefined, null, 'photorealistic-cinematic'].includes(request.cinematicCaptureProfileId)) {
+    throw new CinematicError(
+      'cinematic_capture_profile_invalid',
+      'The selected Cinematic capture profile is unsupported.'
+    );
+  }
+  if (String(operation.keyframeContractFingerprint || '') !== context.keyframeContract.sourceFingerprint) {
+    throw new CinematicError(
+      'cinematic_storyboard_contract_changed',
+      'The Storyboard keyframe contract changed before submission.',
+      409,
+      { shotId: shot.id, currentFingerprint: context.keyframeContract.sourceFingerprint }
+    );
+  }
   if (
     request.generationSurface !== 'cinematic'
     || request.generationMode !== 'scene'
@@ -484,6 +529,15 @@ function assertStoryboardBatchOperation(project, operation, context) {
     throw new CinematicError(
       'cinematic_storyboard_reference_authority_mismatch',
       'Storyboard reference authority changed before batch submission.',
+      409,
+      { shotId: shot.id }
+    );
+  }
+  if (String(request.sceneBuilder?.manualPromptText || '')
+    !== context.keyframeContract.providerIndependentPrompt) {
+    throw new CinematicError(
+      'cinematic_storyboard_prompt_authority_mismatch',
+      'The submitted Storyboard prompt does not match the server keyframe contract.',
       409,
       { shotId: shot.id }
     );

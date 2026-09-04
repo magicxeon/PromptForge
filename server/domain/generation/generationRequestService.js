@@ -27,6 +27,7 @@ import { normalizeCustomAttributeSelections } from './customAttributeInputPolicy
 import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
+export const CINEMATIC_NATURAL_CAMERA_PROFILE_ID = 'photorealistic-cinematic';
 export const ADDITIONAL_DIRECTION_MAX_LENGTH = 300;
 
 export function normalizeAdditionalDirection(value) {
@@ -111,9 +112,25 @@ function compileCharacterPersonalityDirective(context) {
 
 function compileCinematicStillDirective(context) {
   if (context.generationSurface !== 'cinematic' || context.generationMode !== 'scene') return '';
+  if (context.cinematicCaptureProfileId === null) return '';
   const recipe = loadPromptRecipe('cinematic/storyboard-still.v1.json');
   if (recipe.enabled === false) return '';
   return `Cinematic still policy (${recipe.id} v${recipe.version}): ${recipe.instruction}`;
+}
+
+function normalizeCinematicCaptureProfileId(payload) {
+  if (payload.generationSurface !== 'cinematic' || payload.generationMode !== 'scene') return null;
+  if (payload.cinematicCaptureProfileId === null) return null;
+  const profileId = String(
+    payload.cinematicCaptureProfileId || CINEMATIC_NATURAL_CAMERA_PROFILE_ID
+  ).trim();
+  if (profileId !== CINEMATIC_NATURAL_CAMERA_PROFILE_ID) {
+    const error = new Error('The selected Cinematic capture profile is unsupported.');
+    error.statusCode = 400;
+    error.code = 'cinematic_capture_profile_invalid';
+    throw error;
+  }
+  return profileId;
 }
 
 export function normalizeGenerationContext(payload = {}, actorContext = null) {
@@ -250,6 +267,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
 
   const normalizedContext = {
     ...payload,
+    cinematicCaptureProfileId: normalizeCinematicCaptureProfileId(payload),
     promptRefinement: {
       enabled: !characterLookSheetRequest && payload.promptRefinement?.enabled === true
     },
@@ -522,6 +540,7 @@ export function createQueueOptions(context, {
     mode: context.mode,
     generationMode: context.generationMode || null,
     generationSurface: context.generationSurface || null,
+    cinematicCaptureProfileId: context.cinematicCaptureProfileId || null,
     template: context.template,
     isGptSafe: context.isGptSafe,
     username,

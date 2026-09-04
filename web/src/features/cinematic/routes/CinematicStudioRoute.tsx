@@ -17,7 +17,7 @@ import { CinematicSetupForm } from '../components/CinematicSetupForm';
 import { ProjectCostSummary } from '../components/ProjectCostSummary';
 import { StoryEnhanceDialog } from '../components/CinematicDialogs';
 import { cinematicStageSchema } from '../schemas/cinematicSchemas';
-import type { CinematicSetupDraft } from '../schemas/cinematicSchemas';
+import type { CinematicAuthoringManifest, CinematicSetupDraft } from '../schemas/cinematicSchemas';
 import {
   createCinematicSetupDraft,
   readCinematicSetupRecoveryDraft,
@@ -29,6 +29,7 @@ import {
 } from '../state/cinematicDraftStorage';
 import {
   createCinematicProject,
+  getCinematicAuthoringManifest,
   getCinematicProject,
   listCinematicProjects,
   updateCinematicSetup,
@@ -114,19 +115,26 @@ function ExistingCinematicWorkspace({ actorId, projectId, requestedStage }: { ac
     queryKey: ['cinematic-project', actorId, projectId],
     queryFn: () => getCinematicProject(projectId)
   });
+  const authoringManifest = useQuery({
+    queryKey: ['cinematic-authoring-manifest'],
+    queryFn: getCinematicAuthoringManifest,
+    staleTime: Infinity
+  });
   if (project.isPending) return <Surface fill centerContent><p>{t('cinematic.status.loading')}</p></Surface>;
   if (project.isError) return <StatusNotice tone="error" title={t('cinematic.status.loadFailed')}>{project.error.message}</StatusNotice>;
-  return <CinematicWorkspace key={`${actorId}:${projectId}`} actorId={actorId} project={project.data} requestedStage={requestedStage} />;
+  return <CinematicWorkspace key={`${actorId}:${projectId}`} actorId={actorId} project={project.data} authoringManifest={authoringManifest.data} requestedStage={requestedStage} />;
 }
 
 function CinematicWorkspace({
   actorId,
   requestedStage,
-  project
+  project,
+  authoringManifest
 }: {
   actorId: string;
   requestedStage?: string;
   project?: CinematicProject;
+  authoringManifest?: CinematicAuthoringManifest;
 }) {
   const { t } = useTranslation('cinematic');
   const navigate = useNavigate();
@@ -379,6 +387,7 @@ function CinematicWorkspace({
               activeStage={activeStage}
               mode={draft.mode}
               project={project}
+              authoringManifest={authoringManifest}
               onModeChange={mode => update('mode', mode)}
               onPrevious={() => moveStage(-1)}
               onNext={() => moveStage(1)}

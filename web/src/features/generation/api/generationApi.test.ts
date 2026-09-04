@@ -30,6 +30,16 @@ function draft(overrides: Partial<GenerationRequestDraft> = {}): GenerationReque
 }
 
 describe('React generation contract', () => {
+  it('carries the Cinematic capture profile without changing pricing parameters', () => {
+    const request = draft({
+      generationMode: 'scene',
+      generationSurface: 'cinematic',
+      cinematicCaptureProfileId: 'photorealistic-cinematic'
+    });
+    expect(generationPayload(request).cinematicCaptureProfileId).toBe('photorealistic-cinematic');
+    expect(pricingPayload(request)).not.toHaveProperty('cinematicCaptureProfileId');
+  });
+
   it('bypasses browser cache while polling mutable job status', async () => {
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       expect(init?.cache).toBe('no-store');

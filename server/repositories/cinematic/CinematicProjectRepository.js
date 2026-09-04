@@ -8,6 +8,7 @@ import {
 } from '../repositoryContracts.js';
 import { paginateRepositoryRecords } from '../RepositoryCursor.js';
 import { createPrefixedId } from '../schemaVersioning.js';
+import { normalizeCinematicAuthoringEnvelope } from './cinematicProjectRecord.js';
 
 const FALLBACK = { schemaVersion: 1, projects: [] };
 
@@ -72,7 +73,7 @@ export class CinematicProjectRepository {
     const now = new Date().toISOString();
     const id = createPrefixedId('cineproj');
     const storySourceId = createPrefixedId('cinesrc');
-    const project = {
+    const project = normalizeCinematicAuthoringEnvelope({
       id,
       projectId: id,
       schemaVersion: 1,
@@ -108,7 +109,7 @@ export class CinematicProjectRepository {
       createdAt: now,
       updatedAt: now,
       archivedAt: null
-    };
+    }, { newRecord: true });
 
     return mutateJsonFile(this.projectsFile, FALLBACK, data => {
       assertStore(data);
@@ -142,6 +143,7 @@ export class CinematicProjectRepository {
 }
 
 function normalizeLegacyProject(project) {
+  normalizeCinematicAuthoringEnvelope(project);
   if (project?.status === 'storyboarding') project.status = 'planned';
   if (project?.status === 'planned' && project.storyPlanVersions?.length) {
     const activePlan = project.storyPlanVersions.find(version => version.id === project.activeStoryPlanVersionId);

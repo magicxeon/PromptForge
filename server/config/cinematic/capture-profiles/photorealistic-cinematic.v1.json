@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "photorealistic-cinematic",
+  "version": 1,
+  "label": "Photorealistic cinematic",
+  "instructions": [
+    "Create a live-action cinematic photograph with natural human proportions and physically plausible materials.",
+    "Preserve realistic skin texture, fabric behavior, practical lighting falloff and environment scale.",
+    "Use restrained color treatment, natural dynamic range and production lighting appropriate to the authored setting.",
+    "Allow subtle lens softness, fine sensor noise and mild highlight halation; keep imperfections photographic and unobtrusive."
+  ],
+  "prohibitions": [
+    "No illustration, anime, CGI, 3D-rendered or plastic-skin appearance.",
+    "No beauty filter, excessive sharpening, artificial bokeh or glossy commercial retouching.",
+    "No impossible reflections, duplicated objects, malformed hands or physically unexplained interior weather effects."
+  ]
+}

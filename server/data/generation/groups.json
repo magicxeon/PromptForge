@@ -1,5 +1,497 @@
 [
   {
+    "schemaVersion": 2,
+    "id": "ggrp_1788456336164_b37hcrad",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:1788456331058:yqo64d6x",
+    "estimateId": null,
+    "requestedOutputCount": 4,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 218,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "29fcf3499501498afea0cfec14a31a4f47deba12043791ee209fba5de4a43c24",
+        "e5c5ac958124106f668fa84a053d93320a2e5fae871aaf4168cc7d035582d457",
+        "e204c91cc625890b2666c41367873ec13a17d35e746f02a7e7175390f3b02859",
+        "ddfbd20778af240897253285073d5ccce0187ff81074719901697e661ea79856"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788456336164_a9ogk33zn",
+      "job_1788456336164_gt4itey33",
+      "job_1788456336164_uw6ca0xyd",
+      "job_1788456336164_wdkcsq4g5"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788454401629_bsnsp3c6",
+        "sceneId": "cinescene_1788454401629_lg7pnakj",
+        "shotId": "cineshot_1788454401629_bsnsp3c6",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788456331422_i8lwn99",
+        "metadata": {
+          "keyframeContractFingerprint": "29fcf3499501498afea0cfec14a31a4f47deba12043791ee209fba5de4a43c24"
+        },
+        "jobId": "job_1788456336164_a9ogk33zn",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788456336164_a9ogk33zn.png",
+          "usage": {
+            "input_tokens": 5762,
+            "input_tokens_details": {
+              "image_tokens": 4494,
+              "text_tokens": 1268
+            },
+            "output_tokens": 1078,
+            "output_tokens_details": {
+              "image_tokens": 1078,
+              "text_tokens": 0
+            },
+            "total_tokens": 6840
+          },
+          "mimeType": "image/png",
+          "generationDuration": "42.7",
+          "width": 864,
+          "height": 1536
+        },
+        "error": null,
+        "creditCost": 100,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 1,
+          "referenceProcessingMs": 491,
+          "providerMs": 42192,
+          "outputPersistenceMs": 261,
+          "totalMs": 43121
+        }
+      },
+      {
+        "outputIndex": 1,
+        "operationId": "cineshot_1788454401629_l2wdcbet",
+        "sceneId": "cinescene_1788454401629_ymh2us2v",
+        "shotId": "cineshot_1788454401629_l2wdcbet",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788456331424_c356k8o",
+        "metadata": {
+          "keyframeContractFingerprint": "e5c5ac958124106f668fa84a053d93320a2e5fae871aaf4168cc7d035582d457"
+        },
+        "jobId": "job_1788456336164_gt4itey33",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788456336164_gt4itey33.png",
+          "usage": {
+            "input_tokens": 5799,
+            "input_tokens_details": {
+              "image_tokens": 4494,
+              "text_tokens": 1305
+            },
+            "output_tokens": 120,
+            "output_tokens_details": {
+              "image_tokens": 120,
+              "text_tokens": 0
+            },
+            "total_tokens": 5919
+          },
+          "mimeType": "image/png",
+          "generationDuration": "34.4",
+          "width": 864,
+          "height": 1536
+        },
+        "error": null,
+        "creditCost": 100,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 649,
+          "providerMs": 33722,
+          "outputPersistenceMs": 338,
+          "totalMs": 34907
+        }
+      },
+      {
+        "outputIndex": 2,
+        "operationId": "cineshot_1788454401629_t7f38xwx",
+        "sceneId": "cinescene_1788454401629_kiyv5rvy",
+        "shotId": "cineshot_1788454401629_t7f38xwx",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788456331426_1qfwubb",
+        "metadata": {
+          "keyframeContractFingerprint": "e204c91cc625890b2666c41367873ec13a17d35e746f02a7e7175390f3b02859"
+        },
+        "jobId": "job_1788456336164_uw6ca0xyd",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788456336164_uw6ca0xyd.png",
+          "usage": {
+            "input_tokens": 5785,
+            "input_tokens_details": {
+              "image_tokens": 4494,
+              "text_tokens": 1291
+            },
+            "output_tokens": 280,
+            "output_tokens_details": {
+              "image_tokens": 280,
+              "text_tokens": 0
+            },
+            "total_tokens": 6065
+          },
+          "mimeType": "image/png",
+          "generationDuration": "31.3",
+          "width": 864,
+          "height": 1536
+        },
+        "error": null,
+        "creditCost": 100,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 34353,
+          "referenceProcessingMs": 239,
+          "providerMs": 31028,
+          "outputPersistenceMs": 278,
+          "totalMs": 66055
+        }
+      },
+      {
+        "outputIndex": 3,
+        "operationId": "cineshot_1788454401629_k8dygvjy",
+        "sceneId": "cinescene_1788454401629_kiyv5rvy",
+        "shotId": "cineshot_1788454401629_k8dygvjy",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788456331428_apgmno2",
+        "metadata": {
+          "keyframeContractFingerprint": "ddfbd20778af240897253285073d5ccce0187ff81074719901697e661ea79856"
+        },
+        "jobId": "job_1788456336164_wdkcsq4g5",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788456336164_wdkcsq4g5.png",
+          "usage": {
+            "input_tokens": 5795,
+            "input_tokens_details": {
+              "image_tokens": 4494,
+              "text_tokens": 1301
+            },
+            "output_tokens": 1078,
+            "output_tokens_details": {
+              "image_tokens": 1078,
+              "text_tokens": 0
+            },
+            "total_tokens": 6873
+          },
+          "mimeType": "image/png",
+          "generationDuration": "50.3",
+          "width": 864,
+          "height": 1536
+        },
+        "error": null,
+        "creditCost": 100,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 42238,
+          "referenceProcessingMs": 218,
+          "providerMs": 50085,
+          "outputPersistenceMs": 414,
+          "totalMs": 93165
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 4,
+    "failedCount": 0,
+    "createdAt": "2026-09-03T17:25:36.164Z",
+    "updatedAt": "2026-09-03T17:27:10.314Z",
+    "completedAt": "2026-09-03T17:27:10.314Z"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ggrp_1788456154915_vw22hkg0",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788454401629_06kcwv7h:1788456097098:qlvhvfgv",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 216,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "003be8f6404134b75b349e05f9c27d5fc143f2b15956ea23810ed07ebe6efb7f"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788456154915_1zvwe8aa7"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788454401629_06kcwv7h",
+        "sceneId": "cinescene_1788454401629_zgdebry2",
+        "shotId": "cineshot_1788454401629_06kcwv7h",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788456154647_ciksikq",
+        "metadata": {
+          "keyframeContractFingerprint": "003be8f6404134b75b349e05f9c27d5fc143f2b15956ea23810ed07ebe6efb7f"
+        },
+        "jobId": "job_1788456154915_1zvwe8aa7",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788456154915_1zvwe8aa7.png",
+          "usage": {
+            "input_tokens": 16626,
+            "input_tokens_details": {
+              "image_tokens": 15271,
+              "text_tokens": 1355
+            },
+            "output_tokens": 6593,
+            "output_tokens_details": {
+              "image_tokens": 6240,
+              "text_tokens": 353
+            },
+            "total_tokens": 23219
+          },
+          "mimeType": "image/png",
+          "generationDuration": "70.6",
+          "width": 1024,
+          "height": 1536
+        },
+        "error": null,
+        "creditCost": 115,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 1,
+          "referenceProcessingMs": 4364,
+          "providerMs": 66281,
+          "outputPersistenceMs": 429,
+          "totalMs": 71318
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-03T17:22:34.915Z",
+    "updatedAt": "2026-09-03T17:23:46.383Z",
+    "completedAt": "2026-09-03T17:23:46.383Z"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ggrp_1788456096921_33uvhhx8",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788454401629_06kcwv7h:1788455967472:sr4dvh7g",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 215,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "003be8f6404134b75b349e05f9c27d5fc143f2b15956ea23810ed07ebe6efb7f"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788456096922_h5kzhiuwl"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788454401629_06kcwv7h",
+        "sceneId": "cinescene_1788454401629_zgdebry2",
+        "shotId": "cineshot_1788454401629_06kcwv7h",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788456096577_kovqsg3",
+        "metadata": {
+          "keyframeContractFingerprint": "003be8f6404134b75b349e05f9c27d5fc143f2b15956ea23810ed07ebe6efb7f"
+        },
+        "jobId": "job_1788456096922_h5kzhiuwl",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788456096922_h5kzhiuwl.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "27.5",
+          "width": 768,
+          "height": 1376
+        },
+        "error": null,
+        "creditCost": 48,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 6081,
+          "providerMs": 21441,
+          "outputPersistenceMs": 360,
+          "totalMs": 28117
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-03T17:21:36.922Z",
+    "updatedAt": "2026-09-03T17:22:05.211Z",
+    "completedAt": "2026-09-03T17:22:05.211Z"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ggrp_1788455967329_ihp74zhp",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788454401629_06kcwv7h:1788455121878:l6leh0z0",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 214,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "003be8f6404134b75b349e05f9c27d5fc143f2b15956ea23810ed07ebe6efb7f"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788455967329_cpg2fx6b7"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788454401629_06kcwv7h",
+        "sceneId": "cinescene_1788454401629_zgdebry2",
+        "shotId": "cineshot_1788454401629_06kcwv7h",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788455967120_1tyed0k",
+        "metadata": {
+          "keyframeContractFingerprint": "003be8f6404134b75b349e05f9c27d5fc143f2b15956ea23810ed07ebe6efb7f"
+        },
+        "jobId": "job_1788455967329_cpg2fx6b7",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788455967329_cpg2fx6b7.png",
+          "usage": {
+            "generated_images": 1,
+            "output_tokens": 17800,
+            "total_tokens": 17800
+          },
+          "mimeType": "image/png",
+          "generationDuration": "67.1",
+          "width": 1600,
+          "height": 2848
+        },
+        "error": null,
+        "creditCost": 50,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 2,
+          "referenceProcessingMs": 6974,
+          "providerMs": 60077,
+          "outputPersistenceMs": 480,
+          "totalMs": 67764
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-03T17:19:27.329Z",
+    "updatedAt": "2026-09-03T17:20:35.234Z",
+    "completedAt": "2026-09-03T17:20:35.234Z"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ggrp_1788364592992_d430mbmf",
+    "groupType": "heterogeneous_batch",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "cinematic-storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788362007809_m7v01hdc:1788364572026:zqarnl1w",
+    "estimateId": null,
+    "requestedOutputCount": 1,
+    "generationSurface": "cinematic",
+    "generationMode": "scene",
+    "metadata": {
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "projectVersion": 204,
+      "operation": "cinematic_storyboard_generate_all",
+      "keyframeContractFingerprints": [
+        "08d27c3e1a7f36a01898e1020c2a331b6499e405f41512e5026361c2b2e37ebb"
+      ]
+    },
+    "status": "completed",
+    "childJobIds": [
+      "job_1788364592992_2mgrgri4v"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "operationId": "cineshot_1788362007809_m7v01hdc",
+        "sceneId": "cinescene_1788362007808_pe8czwes",
+        "shotId": "cineshot_1788362007809_m7v01hdc",
+        "expectedShotVersion": 1,
+        "estimateId": "est_1788364592789_dw8s5f5",
+        "metadata": {
+          "keyframeContractFingerprint": "08d27c3e1a7f36a01898e1020c2a331b6499e405f41512e5026361c2b2e37ebb"
+        },
+        "jobId": "job_1788364592992_2mgrgri4v",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1788364592992_2mgrgri4v.jpg",
+          "usage": {
+            "generated_images": 1,
+            "output_tokens": 17800,
+            "total_tokens": 17800
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "44.8",
+          "width": 1600,
+          "height": 2848
+        },
+        "error": null,
+        "creditCost": 60,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 1,
+          "referenceProcessingMs": 5439,
+          "providerMs": 39314,
+          "outputPersistenceMs": 316,
+          "totalMs": 45273
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 1,
+    "failedCount": 0,
+    "createdAt": "2026-09-02T15:56:32.992Z",
+    "updatedAt": "2026-09-02T15:57:18.409Z",
+    "completedAt": "2026-09-02T15:57:18.409Z"
+  },
+  {
     "schemaVersion": 1,
     "id": "ggrp_1788141157424_3a2dj47e",
     "actorUserId": "usr_alice",

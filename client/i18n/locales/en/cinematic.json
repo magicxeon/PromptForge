@@ -1,5 +1,40 @@
 {
   "cinematic.story.directorProgress": "AI Director progress",
+  "cinematic.story.workflowEyebrow": "AUTOMATED DIRECTION",
+  "cinematic.story.workflowTitle": "Generate, direct and repair",
+  "cinematic.story.workflowDescription": "One request builds the Plan, reviews direction, validates every keyframe and repairs eligible visual issues before your approval.",
+  "cinematic.story.workflowStatus.ready": "Ready",
+  "cinematic.story.workflowStatus.ready_with_warnings": "Ready with warnings",
+  "cinematic.story.workflowStatus.blocked": "Needs attention",
+  "cinematic.story.workflowStage.source_preflight": "Check Story source and Cast",
+  "cinematic.story.workflowStage.plan_generation": "Generate Story Plan",
+  "cinematic.story.workflowStage.director_review": "Run AI Director review",
+  "cinematic.story.workflowStage.visual_validation": "Validate keyframes",
+  "cinematic.story.workflowStage.visual_repair": "Repair visual issues",
+  "cinematic.story.workflowStage.storyboard_readiness": "Verify Storyboard readiness",
+  "cinematic.story.workflowStageStatus.queued": "Queued",
+  "cinematic.story.workflowStageStatus.processing": "Processing",
+  "cinematic.story.workflowStageStatus.completed": "Completed",
+  "cinematic.story.workflowStageStatus.skipped": "No repair needed",
+  "cinematic.story.workflowStageStatus.stopped": "Stopped for review",
+  "cinematic.story.workflowStageStatus.blocked": "Blocked",
+  "cinematic.story.workflowStageEvidence": "{issues} issues / {repairs} repairs",
+  "cinematic.story.workflowInitialIssues": "Initial issues: {count}",
+  "cinematic.story.workflowRepairs": "Accepted repairs: {count}",
+  "cinematic.story.workflowRounds": "Repair rounds: {count}",
+  "cinematic.story.repairTimedOut": "Visual repair stopped after {seconds} seconds. The generated Plan was kept for review; remaining issues are listed below.",
+  "cinematic.story.workflowRemainingIssues": "Remaining issues: {count}",
+  "cinematic.story.repairDetailsTitle": "AI repair details",
+  "cinematic.story.repairDetailsDescription": "Expand a change to compare the bounded value before and after repair.",
+  "cinematic.story.repairBefore": "Before",
+  "cinematic.story.repairAfter": "After",
+  "cinematic.story.repairReason": "Reason",
+  "cinematic.story.repairReasonFallback": "Adjusted to satisfy the visual keyframe contract.",
+  "cinematic.story.planScope": "Story Plan",
+  "cinematic.story.sceneScope": "Scene",
+  "cinematic.story.emptyValue": "Empty",
+  "cinematic.story.remainingVisualIssues": "Remaining visual issues ({count})",
+  "cinematic.story.noRemainingVisualIssues": "No visual keyframe issues remain.",
   "cinematic.story.progressSource": "Check story source",
   "cinematic.story.progressDirecting": "Direct story and performance",
   "cinematic.story.progressContinuity": "Check timing and continuity",
@@ -20,7 +55,7 @@
   "cinematic.story.scriptDialogue": "DIALOGUE: ",
   "cinematic.story.scriptAudio": "AUDIO: ",
   "cinematic.story.scriptCut": "CUT: ",
-  "cinematic.story.filmReviewRequired": "Review this legacy Plan with AI Director or complete the film contract manually.",
+  "cinematic.story.filmReviewRequired": "Generate a new unified Plan or complete the film contract manually.",
   "cinematic.story.filmBeatIncomplete": "{name} needs a cause and consequence.",
   "cinematic.story.filmSceneIncomplete": "{name} needs clear entry and exit states.",
   "cinematic.story.filmShotIncomplete": "{name} needs a visible moment, action, emotion and continuity anchors.",
@@ -402,6 +437,11 @@
   "cinematic.picker.page": "Page {page}",
   "cinematic.director.title": "Scene Director",
   "cinematic.director.description": "Review one scene as a complete directing contract before creating shots.",
+  "cinematic.director.modeLabel": "Scene Director mode",
+  "cinematic.director.simpleModeHint": "Shape the visible story, ending emotion and essential Shot moments. Missing production detail is completed without replacing existing AI direction.",
+  "cinematic.director.advancedModeHint": "Edit the complete directing, performance, continuity, dialogue and audio contract.",
+  "cinematic.director.simpleRequiredHint": "Complete the visible Scene and Shot fields before saving. Advanced production fields will be prepared automatically.",
+  "cinematic.director.simpleReady": "Ready to save. Existing Advanced direction will be preserved.",
   "cinematic.director.purpose": "Dramatic purpose",
   "cinematic.director.purposeValue": "Mira chooses to wait, shifting the story from avoidance to hope.",
   "cinematic.director.camera": "Camera and lens",
@@ -470,7 +510,7 @@
   "cinematic.story.expand": "Open director",
   "cinematic.story.operation": "STORY STRUCTURE",
   "cinematic.story.operationTitle": "Generate story plan",
-  "cinematic.story.operationDescription": "Turns the approved brief into beats, scenes and estimated shots.",
+  "cinematic.story.operationDescription": "Builds the Plan, runs AI Director review, repairs eligible keyframe issues and verifies Storyboard readiness in one pass.",
   "cinematic.story.readiness": "Story Plan readiness",
   "cinematic.story.approved": "Approved Story Plan",
   "cinematic.story.draft": "Story Plan draft",
@@ -517,7 +557,7 @@
   "cinematic.story.currentPlanReadyTitle": "Story Plan approved",
   "cinematic.story.currentPlanReadyDescription": "The approved Plan matches the current Scenes and is ready for Storyboard.",
   "cinematic.story.generating": "Generating proposal",
-  "cinematic.story.generatingDescription": "Analyzing the approved story, Cast, and constraints to prepare a structured Story Plan.",
+  "cinematic.story.generatingDescription": "Generating the Plan, directing performance, validating keyframes and repairing eligible visual issues.",
   "cinematic.story.generateFailed": "The Story Plan could not be generated.",
   "cinematic.story.saveDraft": "Save draft",
   "cinematic.story.approvePlan": "Approve Story Plan",
@@ -536,7 +576,7 @@
   "cinematic.story.shotCount": "{count} Shots",
   "cinematic.story.proposalTitle": "Review Story Plan proposal",
   "cinematic.story.proposalDescription": "Nothing changes until you apply this structured proposal and save the draft.",
-  "cinematic.story.applyProposal": "Apply proposal to draft",
+  "cinematic.story.applyProposal": "Apply generated plan",
   "cinematic.story.discardProposal": "Discard proposal",
   "cinematic.beatDialog.title": "Beat details",
   "cinematic.beatDialog.description": "Define one dramatic purpose and the visible change before directing its Scenes.",
@@ -605,11 +645,13 @@
   "cinematic.finish.trimOut": "Trim out",
   "cinematic.finish.straightCut": "Straight cut",
   "cinematic.finish.dissolve": "Dissolve",
+  "cinematic.finish.fade": "Fade",
   "cinematic.finish.operationTitle": "Export master",
   "cinematic.finish.operationDescription": "Exports the approved timeline only. Music and subtitle authoring are outside MVP.",
   "cinematic.finish.export": "Export film",
   "cinematic.finish.complete": "Complete project",
   "cinematic.finish.continueSeries": "Continue as series",
+  "cinematic.finish.qualificationOnly": "Final assembly is qualification-only. No Credits are charged and the Project cannot be completed yet.",
   "cinematic.attempts.title": "Attempt history",
   "cinematic.attempts.first": "Attempt 01",
   "cinematic.attempts.fixture": "Preview evidence fixture",
@@ -853,5 +895,33 @@
   "cinematic.storyboard.approvingSource": "Approving source",
   "cinematic.storyboard.loadingAuthority": "Loading the authorized Character, Look and continuity references...",
   "cinematic.storyboard.lookNotReady": "Approve and lock the selected Character Look before generating this Shot.",
-  "cinematic.storyboard.lookAssetUnavailable": "The selected Look media is unavailable. Return to Cast & Wardrobe and prepare the Look again."
+  "cinematic.storyboard.lookAssetUnavailable": "The selected Look media is unavailable. Return to Cast & Wardrobe and prepare the Look again.",
+  "cinematic.storyboard.directionIncomplete": "Complete the visible moment, one physical action and emotional target in Scene Director before generating this Shot.",
+  "cinematic.storyboard.shotDirection": "Additional Shot direction",
+  "cinematic.storyboard.shotDirectionPlaceholder": "Optional details that apply only to this keyframe",
+  "cinematic.storyboard.shotDirectionDescription": "The server combines this note with the approved Scene, Character, Look and continuity authority.",
+  "cinematic.storyboard.saveDirectionBeforeGeneration": "Save the changed Shot direction before generating so the server can rebuild the keyframe contract."
+  ,"cinematic.director.proposalGenerating": "Generating Scene direction..."
+  ,"cinematic.director.proposalGeneratingDescription": "The AI director is reviewing the latest Scene draft and protected fields."
+  ,"cinematic.director.proposalFields": "Proposed field changes"
+  ,"cinematic.director.proposalSummary": "{proposed} changes, {locked} protected"
+  ,"cinematic.director.proposalLocked": "Protected from AI"
+  ,"cinematic.director.proposalCurrent": "Current"
+  ,"cinematic.director.proposalSuggested": "Suggested"
+  ,"cinematic.director.proposalNoChanges": "The current Scene already matches the requested direction."
+  ,"cinematic.director.proposalSelectAll": "Select all suggested changes"
+  ,"cinematic.director.proposalSelectedCount": "{selected} of {total} selected"
+  ,"cinematic.director.estimatedActionDuration": "Estimated action duration"
+  ,"cinematic.director.dialogue": "Dialogue cues"
+  ,"cinematic.director.coverageRole": "Shot role"
+  ,"cinematic.director.coverageRole.establishing": "Establishing"
+  ,"cinematic.director.coverageRole.action": "Action"
+  ,"cinematic.director.coverageRole.reaction": "Reaction"
+  ,"cinematic.director.coverageRole.insert": "Insert"
+  ,"cinematic.director.coverageRole.transition": "Transition"
+  ,"cinematic.director.coverageRole.payoff": "Payoff"
+  ,"cinematic.storyboard.naturalRealism": "Natural camera realism"
+  ,"cinematic.storyboard.naturalRealismDescription": "Applies photographic texture and subtle camera imperfections at render time. This profile is not printed in the visual prompt."
+  ,"cinematic.storyboard.compiledPrompt": "Storyboard visual prompt"
+  ,"cinematic.storyboard.compiledPromptDescription": "Read-only visual direction for the next image. To change it, edit Additional Shot direction above and select Save direction. Reference safeguards and the selected render profile are applied separately and are not printed here."
 }

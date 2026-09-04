@@ -37,8 +37,10 @@ export function EngineTargetPanel({
   allowMultiOutput = true,
   promptRefinementAvailable = false,
   promptRefinementEnabled = false,
+  presentation = 'default',
   fixedAspectRatio = null,
   requiredReferenceCount = 0,
+  extraControls = null,
   onChange,
   onComparisonChange,
   onSlotsChange,
@@ -56,8 +58,10 @@ export function EngineTargetPanel({
   allowMultiOutput?: boolean;
   promptRefinementAvailable?: boolean;
   promptRefinementEnabled?: boolean;
+  presentation?: 'default' | 'compact';
   fixedAspectRatio?: string | null;
   requiredReferenceCount?: number;
+  extraControls?: ReactNode;
   onChange: (value: EngineValue) => void;
   onComparisonChange: (active: boolean) => void;
   onSlotsChange: (slots: ComparisonSlotInput[]) => void;
@@ -91,6 +95,7 @@ export function EngineTargetPanel({
   return (
     <EngineTargetPanelFrame
       studioLayout={studioLayout}
+      className={presentation === 'compact' ? 'engine-target-panel--compact' : undefined}
       title={t('playground.section.engine')}
       description={t('playground.engine.help')}
       badge={studioLayout ? (
@@ -197,6 +202,7 @@ export function EngineTargetPanel({
           </button>
         </div>
       ) : null}
+      {extraControls}
     </EngineTargetPanelFrame>
   );
 }
