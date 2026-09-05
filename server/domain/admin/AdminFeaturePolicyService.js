@@ -6,6 +6,12 @@ const DEFINITIONS = Object.freeze({
   contentRead: { env: 'ADMIN_CONTENT_READ_ENABLED', defaultEnabled: true, mode: 'active' },
   traceRead: { env: 'ADMIN_TRACE_READ_ENABLED', defaultEnabled: true, mode: 'active' },
   supportCases: { env: 'SUPPORT_CASES_ENABLED', defaultEnabled: true, mode: 'active' },
+  providerRuntimeControl: {
+    env: 'ADMIN_PROVIDER_RUNTIME_CONTROL_ENABLED',
+    defaultEnabled: environment => (environment.NODE_ENV || 'development') !== 'production',
+    mode: 'production_gated',
+    prerequisites: ['staff_authentication', 'shared_transactional_storage_for_multi_instance_production']
+  },
   runtimeConfigurationDrafts: { env: 'ADMIN_RUNTIME_CONFIGURATION_ENABLED', defaultEnabled: true, mode: 'scaffold' },
   runtimeConfigurationPublish: {
     env: 'ADMIN_RUNTIME_CONFIGURATION_PUBLISH_ENABLED', defaultEnabled: false, mode: 'production_gated',
@@ -49,7 +55,10 @@ export class AdminFeaturePolicyService {
       generatedAt: new Date().toISOString(),
       environment: this.environment.NODE_ENV || 'development',
       capabilities: Object.fromEntries(Object.entries(DEFINITIONS).map(([id, definition]) => {
-        const enabled = readBoolean(this.environment[definition.env], definition.defaultEnabled);
+        const defaultEnabled = typeof definition.defaultEnabled === 'function'
+          ? definition.defaultEnabled(this.environment)
+          : definition.defaultEnabled;
+        const enabled = readBoolean(this.environment[definition.env], defaultEnabled);
         return [id, {
           id,
           enabled,

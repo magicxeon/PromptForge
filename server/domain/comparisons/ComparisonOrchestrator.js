@@ -172,6 +172,7 @@ export class ComparisonOrchestrator {
             templateUseSessionId: payload.templateUseSessionId || null,
             requestId: `${idempotencyKey}:${slot.id}`
           },
+          providerWorkflow: 'comparison.image',
           reservationMetadata: {
             comparisonSetId: setId,
             comparisonRunId: runId,
@@ -472,7 +473,8 @@ export class ComparisonOrchestrator {
         slot.model,
         {
           generationSurface: context.generationSurface || null,
-          generationMode: context.generationMode || null
+          generationMode: context.generationMode || null,
+          workflow: 'comparison.image'
         }
       )
     );

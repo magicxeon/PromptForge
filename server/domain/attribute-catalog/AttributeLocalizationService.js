@@ -3,17 +3,20 @@ import path from 'node:path';
 import { CLIENT_ROOT } from '../../config/paths.js';
 import { getAttributeLocalizationPolicy } from '../../config/attribute-localization-policy.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
+import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 
 export class AttributeLocalizationService {
   constructor({
     policyLoader = getAttributeLocalizationPolicy,
     providerFactory = policy => new OpenAITextProvider(policy.apiKey),
     localeLoader = loadEnabledLocales,
+    availabilityPolicy = providerAvailabilityPolicyService,
     now = () => new Date().toISOString()
   } = {}) {
     this.policyLoader = policyLoader;
     this.providerFactory = providerFactory;
     this.localeLoader = localeLoader;
+    this.availabilityPolicy = availabilityPolicy;
     this.now = now;
   }
 
@@ -46,6 +49,11 @@ export class AttributeLocalizationService {
     }
 
     try {
+      this.availabilityPolicy.assertAvailable({
+        providerId: policy.provider,
+        modelId: policy.model,
+        workflow: 'ai.attribute_localization'
+      });
       const result = await this.providerFactory(policy).localizeAttribute({
         englishLabel: source,
         locales: targetLocales,

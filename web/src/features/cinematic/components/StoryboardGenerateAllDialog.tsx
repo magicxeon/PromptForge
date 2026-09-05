@@ -73,10 +73,12 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
   const [naturalRealismEnabled, setNaturalRealismEnabled] = useState(true);
   const [includeApproved, setIncludeApproved] = useState(false);
   const catalog = useQuery({
-    queryKey: ['provider-catalog'],
-    queryFn: getProviderCatalog,
+    queryKey: ['provider-catalog', 'cinematic', 'scene'],
+    queryFn: () => getProviderCatalog({
+      generationSurface: 'cinematic', generationMode: 'scene'
+    }),
     select: data => filterImageCatalogForSurface(data, 'cinematic', 'scene'),
-    staleTime: 5 * 60_000
+    staleTime: 0
   });
   const scopedShots = useMemo(() => project.scenes.flatMap(scene =>
     scene.shots.filter(shot => includeApproved || !shot.approvedStoryboardSource).map(shot => ({ scene, shot }))

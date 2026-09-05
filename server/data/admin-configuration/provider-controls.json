@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "version": 2,
+  "updatedAt": "2026-09-05T16:31:51.349Z",
+  "providers": {
+    "meta-muse": {
+      "enabled": true,
+      "reason": "ทดสอบ",
+      "updatedAt": "2026-09-05T16:31:51.349Z",
+      "updatedByUserId": "usr_admin",
+      "version": 2
+    }
+  },
+  "models": {},
+  "workflows": {},
+  "history": [
+    {
+      "commandId": "provider_control_1788625911343_6w8p7ikm",
+      "targetType": "provider",
+      "providerId": "meta-muse",
+      "modelId": null,
+      "workflow": null,
+      "enabled": true,
+      "reason": "ทดสอบ",
+      "previous": {
+        "enabled": false,
+        "reason": "ทดสอบ",
+        "updatedAt": "2026-09-05T16:31:34.449Z",
+        "updatedByUserId": "usr_admin",
+        "version": 1
+      },
+      "version": 2,
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-09-05T16:31:51.349Z"
+    },
+    {
+      "commandId": "provider_control_1788625894168_9a09z20y",
+      "targetType": "provider",
+      "providerId": "meta-muse",
+      "modelId": null,
+      "workflow": null,
+      "enabled": false,
+      "reason": "ทดสอบ",
+      "previous": null,
+      "version": 1,
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-09-05T16:31:34.449Z"
+    }
+  ]
+}

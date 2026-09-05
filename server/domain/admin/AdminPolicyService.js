@@ -59,6 +59,18 @@ export class AdminPolicyService {
     return actor;
   }
 
+  assertCanManageProviderControls(actorContext) {
+    const actor = this.assertCanAccessBackoffice(actorContext);
+    if (actor.role !== 'admin') {
+      throw new RepositoryContractError(
+        'provider_control_mutation_forbidden',
+        'Only admin can change Provider runtime controls.',
+        403
+      );
+    }
+    return actor;
+  }
+
   requireReason(reason, action = 'This action') {
     const normalized = String(reason || '').trim();
     if (normalized.length < 3) {

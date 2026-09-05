@@ -84,7 +84,7 @@ export class CinematicApplicationService {
   }
 
   getVideoCapabilities() {
-    return this.videoGenerationService.getCatalog();
+    return this.videoGenerationService.getCatalog({ capability: 'cinematic' });
   }
 
   getAuthoringManifest() {
@@ -1144,7 +1144,10 @@ export class CinematicApplicationService {
 
   getOperationalVideoCapabilities(actorContext) {
     this.backofficePolicy.assertCanAccessBackoffice(actorContext);
-    return this.videoCapabilities.getPublicCatalog({ includeResearch: true });
+    return this.videoCapabilities.getPublicCatalog({
+      includeResearch: true,
+      workflow: 'cinematic.produce_video'
+    });
   }
 
   archiveProject(projectId, expectedVersion, actorContext) {

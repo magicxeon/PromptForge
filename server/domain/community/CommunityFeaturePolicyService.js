@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { RepositoryContractError } from '../../repositories/repositoryContracts.js';
 import { getPublicPromptRefinementPolicy } from '../../config/prompt-refinement-policy.js';
+import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 
 const CONFIG_FILE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -31,8 +32,12 @@ const REQUIRED_BOOLEAN_PATHS = Object.freeze([
 let cachedFlags = null;
 
 export class CommunityFeaturePolicyService {
-  constructor({ configLoader = loadCommunityFeatureFlags } = {}) {
+  constructor({
+    configLoader = loadCommunityFeatureFlags,
+    availabilityPolicy = providerAvailabilityPolicyService
+  } = {}) {
     this.configLoader = configLoader;
+    this.availabilityPolicy = availabilityPolicy;
   }
 
   async getFlags() {
@@ -56,6 +61,7 @@ export class CommunityFeaturePolicyService {
 
   async getPublicFlags() {
     const flags = await this.getEffectiveFlags();
+    const promptRefinement = getPublicPromptRefinementPolicy();
     return {
       schemaVersion: flags.schemaVersion,
       community: structuredClone(flags.community),
@@ -70,7 +76,12 @@ export class CommunityFeaturePolicyService {
         automaticSimpleModeEnabled: flags.routing.automaticSimpleModeEnabled === true
       },
       generation: {
-        promptRefinementEnabled: getPublicPromptRefinementPolicy().enabled
+        promptRefinementEnabled: promptRefinement.enabled
+          && this.availabilityPolicy.evaluate({
+            providerId: promptRefinement.provider,
+            modelId: promptRefinement.model,
+            workflow: 'ai.prompt_refinement'
+          }).enabled
       },
       cinematic: {
         enabled: flags.cinematic.enabled === true,

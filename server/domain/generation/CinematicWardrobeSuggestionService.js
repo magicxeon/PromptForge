@@ -1,16 +1,19 @@
 import { getCinematicWardrobeSuggestionPolicy } from '../../config/cinematic-wardrobe-suggestion-policy.js';
 import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
+import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 
 export class CinematicWardrobeSuggestionService {
   constructor({
     policyLoader = getCinematicWardrobeSuggestionPolicy,
     recipeLoader = () => loadPromptRecipe('cinematic/wardrobe-suggestion.v1.json'),
-    providerFactory = policy => new OpenAITextProvider(policy.apiKey)
+    providerFactory = policy => new OpenAITextProvider(policy.apiKey),
+    availabilityPolicy = providerAvailabilityPolicyService
   } = {}) {
     this.policyLoader = policyLoader;
     this.recipeLoader = recipeLoader;
     this.providerFactory = providerFactory;
+    this.availabilityPolicy = availabilityPolicy;
   }
 
   async suggest(context = {}) {
@@ -24,6 +27,11 @@ export class CinematicWardrobeSuggestionService {
     }
     const recipe = this.recipeLoader();
     if (!recipe.enabled) throw createError('cinematic_wardrobe_recipe_disabled', 'Wardrobe Prompt Recipe is disabled.', 503);
+    this.availabilityPolicy.assertAvailable({
+      providerId: policy.provider,
+      modelId: policy.model,
+      workflow: 'ai.wardrobe_suggestion'
+    });
     const normalized = normalizeContext(context, recipe.limits || {});
     const result = await this.providerFactory(policy).suggestCinematicWardrobe({
       context: normalized,

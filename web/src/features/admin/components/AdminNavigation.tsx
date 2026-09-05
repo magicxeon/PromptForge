@@ -18,6 +18,9 @@ export function AdminNavigation() {
       <NavLink to={routePaths.adminCinematic} className={navigationClassName}>
         {t('admin.navigation.cinematic')}
       </NavLink>
+      <NavLink to={routePaths.adminProviders} className={navigationClassName}>
+        {t('admin.navigation.providers')}
+      </NavLink>
       <NavLink to={routePaths.adminControlPlane} className={navigationClassName}>
         {t('admin.navigation.controlPlane')}
       </NavLink>

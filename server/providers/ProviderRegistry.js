@@ -1,4 +1,8 @@
 import { loadProviderConfig } from './ProviderConfigLoader.js';
+import {
+  providerAvailabilityPolicyService,
+  resolveImageProviderWorkflow
+} from '../domain/admin-configuration/ProviderAvailabilityPolicyService.js';
 
 export class ProviderSelectionError extends Error {
   constructor(message, statusCode = 400) {
@@ -31,9 +35,10 @@ function parseStrictBoolean(value, defaultValue) {
 }
 
 export class ProviderRegistry {
-  constructor(config, environment = process.env) {
+  constructor(config, environment = process.env, availabilityPolicy = providerAvailabilityPolicyService) {
     this.config = config;
     this.environment = environment;
+    this.availabilityPolicy = availabilityPolicy;
     this.providers = new Map(config.providers.map(provider => [provider.id, provider]));
   }
 
@@ -57,11 +62,21 @@ export class ProviderRegistry {
       && ['development', 'test'].includes(this.environment.NODE_ENV || 'development');
   }
 
-  getPublicCatalog() {
+  getPublicCatalog({
+    generationSurface = null,
+    generationMode = null,
+    workflow = null
+  } = {}) {
+    const resolvedWorkflow = resolveImageProviderWorkflow({
+      generationSurface,
+      generationMode,
+      workflow
+    });
     const providers = this.config.providers
       .filter(provider => (
         provider.catalogVisible === true || provider.enabled !== false
-      ) && Boolean(getConfiguredSecret(this.environment, provider)))
+      ) && Boolean(getConfiguredSecret(this.environment, provider))
+        && this.availabilityPolicy.evaluate({ providerId: provider.id }).enabled)
       .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
       .map(provider => ({
         id: provider.id,
@@ -69,7 +84,11 @@ export class ProviderRegistry {
         defaultModel: provider.defaultModel,
         catalogVisible: provider.catalogVisible === true,
         models: provider.models
-          .filter(model => model.enabled !== false)
+          .filter(model => model.enabled !== false && this.availabilityPolicy.evaluate({
+            providerId: provider.id,
+            modelId: model.id,
+            workflow: resolvedWorkflow
+          }).enabled)
           .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
           .map(model => ({
             id: model.id,
@@ -104,23 +123,57 @@ export class ProviderRegistry {
     const configuredDefault = providers.find(provider => provider.id === this.config.defaultProvider);
     return {
       schemaVersion: this.config.schemaVersion,
+      runtimeControlVersion: this.availabilityPolicy.getVersion(),
       defaultProvider: configuredDefault?.id || providers[0]?.id || null,
       providers
     };
   }
 
+  getAdminCatalog() {
+    return {
+      schemaVersion: this.config.schemaVersion,
+      defaultProvider: this.config.defaultProvider,
+      providers: this.config.providers.map(provider => ({
+        id: provider.id,
+        displayName: provider.displayName,
+        configured: Boolean(getConfiguredSecret(this.environment, provider)),
+        staticEnabled: provider.enabled !== false,
+        models: provider.models.map(model => ({
+          id: model.id,
+          displayName: model.displayName,
+          staticEnabled: model.enabled !== false,
+          pricingStatus: model.pricingStatus || 'priced',
+          qualificationStatus: model.qualificationStatus || 'qualified',
+          paidRoutingEnabled: model.paidRoutingEnabled !== false,
+          testingRoutingEnabled: this.isModelTestingAvailable(provider, model),
+          capabilities: model.capabilities || {},
+          allowedGenerationSurfaces: model.allowedGenerationSurfaces || [],
+          allowedGenerationModes: model.allowedGenerationModes || []
+        }))
+      }))
+    };
+  }
+
   resolveSelection(providerId, modelId, {
     generationSurface = null,
-    generationMode = null
+    generationMode = null,
+    workflow = null
   } = {}) {
     const selectedProviderId = providerId || this.config.defaultProvider;
     const provider = this.getProvider(selectedProviderId);
     if (!provider || provider.enabled === false) throw new ProviderSelectionError(`Provider is disabled or unknown: ${selectedProviderId}`);
+    const resolvedWorkflow = resolveImageProviderWorkflow({ generationSurface, generationMode, workflow });
+    this.availabilityPolicy.assertAvailable({ providerId: provider.id, workflow: resolvedWorkflow });
     if (!this.isProviderAvailable(provider)) throw new ProviderSelectionError(`${provider.displayName.en} API key is not configured on the server.`, 503);
 
     const selectedModelId = modelId || provider.defaultModel;
     const model = provider.models.find(entry => entry.id === selectedModelId);
     if (!model || model.enabled === false) throw new ProviderSelectionError(`Model is disabled or unknown for ${provider.id}: ${selectedModelId}`);
+    this.availabilityPolicy.assertAvailable({
+      providerId: provider.id,
+      modelId: model.id,
+      workflow: resolvedWorkflow
+    });
     if (model.allowedGenerationSurfaces && !model.allowedGenerationSurfaces.includes(generationSurface)) {
       const error = new ProviderSelectionError(`${model.displayName.en} is unavailable for this generation surface.`);
       error.code = 'provider_surface_unsupported';
@@ -137,6 +190,11 @@ export class ProviderRegistry {
       throw error;
     }
     return { provider, model };
+  }
+
+  assertRuntimeAvailable(providerId, modelId, options = {}) {
+    const workflow = resolveImageProviderWorkflow(options);
+    return this.availabilityPolicy.assertAvailable({ providerId, modelId, workflow });
   }
 
   shouldStream(provider, model, requested = true) {

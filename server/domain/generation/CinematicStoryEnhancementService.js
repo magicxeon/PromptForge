@@ -1,14 +1,17 @@
 import crypto from 'node:crypto';
 import { getCinematicStoryEnhancementPolicy } from '../../config/cinematic-story-enhancement-policy.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
+import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 
 export class CinematicStoryEnhancementService {
   constructor({
     policyLoader = getCinematicStoryEnhancementPolicy,
-    providerFactory = policy => new OpenAITextProvider(policy.apiKey)
+    providerFactory = policy => new OpenAITextProvider(policy.apiKey),
+    availabilityPolicy = providerAvailabilityPolicyService
   } = {}) {
     this.policyLoader = policyLoader;
     this.providerFactory = providerFactory;
+    this.availabilityPolicy = availabilityPolicy;
   }
 
   async enhance(input = {}) {
@@ -22,6 +25,11 @@ export class CinematicStoryEnhancementService {
       throw error;
     }
     const story = normalizeInput(input);
+    this.availabilityPolicy.assertAvailable({
+      providerId: policy.provider,
+      modelId: policy.model,
+      workflow: 'ai.story_enhancement'
+    });
     const result = await this.providerFactory(policy).enhanceCinematicStory({
       story,
       model: policy.model,

@@ -68,7 +68,11 @@ export function registerCreditRoutes(app, {
       if (err.toJSON) {
         res.status(err.statusCode || 400).json(err.toJSON());
       } else {
-        res.status(err.statusCode || 500).json({ error: { code: err.code || 'estimate_failed', message: err.message } });
+        res.status(err.statusCode || 500).json({ error: {
+          code: err.code || 'estimate_failed',
+          message: err.message,
+          ...(err.details ? { details: err.details } : {})
+        } });
       }
     }
   });

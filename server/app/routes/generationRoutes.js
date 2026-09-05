@@ -18,7 +18,8 @@ export function registerGenerationRoutes(app, {
       return res.status(error.statusCode || 400).json({
         error: {
           code: error.code || 'prompt_preview_failed',
-          message: error.message || 'Prompt preview could not be compiled.'
+          message: error.message || 'Prompt preview could not be compiled.',
+          ...(error.details ? { details: error.details } : {})
         }
       });
     }
@@ -43,10 +44,11 @@ export function registerGenerationRoutes(app, {
       if (error.toJSON) {
         return res.status(error.statusCode || 400).json(error.toJSON());
       }
-      return res.status(error.statusCode || 500).json({
-        error: error.message,
-        ...(error.code ? { code: error.code } : {})
-      });
+      return res.status(error.statusCode || 500).json({ error: {
+        code: error.code || 'generation_enqueue_failed',
+        message: error.message || 'Generation could not be queued.',
+        ...(error.details ? { details: error.details } : {})
+      } });
     }
   });
 

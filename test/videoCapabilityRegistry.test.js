@@ -16,6 +16,32 @@ import {
   VideoCapabilityRegistry,
   videoCapabilityRegistry
 } from '../server/domain/generation/VideoCapabilityRegistry.js';
+import { ProviderAvailabilityPolicyService } from '../server/domain/admin-configuration/ProviderAvailabilityPolicyService.js';
+
+test('video catalog and validation honor a workflow-specific runtime disable', () => {
+  const availabilityPolicy = new ProviderAvailabilityPolicyService({
+    initialState: {
+      schemaVersion: 1, version: 1, updatedAt: null, providers: {}, models: {}, history: [],
+      workflows: {
+        'modelark/dreamina-seedance-2-5-260628/cinematic.produce_video': {
+          enabled: false, reason: 'Cinematic pause'
+        }
+      }
+    }
+  });
+  const registry = new VideoCapabilityRegistry({
+    runtimeEnvironment: 'development', developmentPocEnabled: true, availabilityPolicy
+  });
+  const models = registry.getPublicCatalog({
+    includeResearch: true, workflow: 'cinematic.produce_video'
+  }).models;
+  assert.equal(models.some(model => model.modelId === 'dreamina-seedance-2-5-260628'), false);
+  assert.throws(() => registry.validateRequest({
+    providerId: 'modelark', modelId: 'dreamina-seedance-2-5-260628'
+  }, { allowTesting: true, workflow: 'cinematic.produce_video' }), error => (
+    error.code === 'provider_runtime_disabled' && error.details.scope === 'workflow'
+  ));
+});
 
 test('paid video catalog exposes no unqualified research models', () => {
   assert.deepEqual(videoCapabilityRegistry.getPublicCatalog().models, []);

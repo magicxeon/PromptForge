@@ -18,8 +18,9 @@ export const routePaths = {
   admin: '/admin',
   adminOperations: '/admin/operations',
   adminAttributes: '/admin/attributes',
-  adminCinematic: '/admin/cinematic'
-  , adminControlPlane: '/admin/control-plane'
+  adminCinematic: '/admin/cinematic',
+  adminProviders: '/admin/providers',
+  adminControlPlane: '/admin/control-plane'
 } as const;
 
 export const routeBuilders = {

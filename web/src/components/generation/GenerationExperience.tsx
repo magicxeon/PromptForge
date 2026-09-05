@@ -266,7 +266,13 @@ export function GenerationExperience({
     + (characterProfileContext?.purpose === 'character_usage' ? 1 : 0);
 
   const catalog = useQuery({
-    queryKey: ['provider-catalog'], queryFn: getProviderCatalog, staleTime: 5 * 60_000,
+    queryKey: ['provider-catalog', surface, generationMode, comparison ? 'comparison.image' : null],
+    queryFn: () => getProviderCatalog({
+      generationSurface: surface,
+      generationMode,
+      workflow: comparison ? 'comparison.image' : undefined
+    }),
+    staleTime: 0,
     select: data => filterImageCatalogForSurface(data, surface, generationMode)
   });
   const creditAccount = useQuery({

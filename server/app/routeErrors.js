@@ -24,7 +24,8 @@ export function sendComparisonError(res, error) {
     return res.status(error.statusCode || 400).json({
       error: {
         code: error.code || 'comparison_request_failed',
-        message: error.message
+        message: error.message,
+        ...(error.details ? { details: error.details } : {})
       }
     });
   }

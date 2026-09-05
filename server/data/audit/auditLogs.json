@@ -492,5 +492,67 @@
     "actorRole": "admin",
     "beforeSnapshot": null,
     "ipHash": null
+  },
+  {
+    "action": "provider_runtime_control_changed",
+    "targetType": "provider_control_provider",
+    "targetId": "meta-muse",
+    "reason": "ทดสอบ",
+    "beforeSnapshot": null,
+    "afterSnapshot": {
+      "enabled": false,
+      "providerId": "meta-muse",
+      "modelId": null,
+      "workflow": null,
+      "version": 1
+    },
+    "requestId": "req_1788625894447_firxsv7",
+    "ipHash": "187f5693fbf7003bd3b867fe9b73dadfdc5a6bb0b6df820c1426886e52ce0263",
+    "id": "audit_1788625894471_s3e4hqj2",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_admin",
+    "ownerUsername": "admin_demo",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-09-05T16:31:34.471Z",
+    "updatedAt": "2026-09-05T16:31:34.471Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_admin",
+    "actorRole": "admin"
+  },
+  {
+    "action": "provider_runtime_control_changed",
+    "targetType": "provider_control_provider",
+    "targetId": "meta-muse",
+    "reason": "ทดสอบ",
+    "beforeSnapshot": {
+      "enabled": false,
+      "reason": "ทดสอบ",
+      "updatedAt": "2026-09-05T16:31:34.449Z",
+      "updatedByUserId": "usr_admin",
+      "version": 1
+    },
+    "afterSnapshot": {
+      "enabled": true,
+      "providerId": "meta-muse",
+      "modelId": null,
+      "workflow": null,
+      "version": 2
+    },
+    "requestId": "req_1788625911347_quqvkvt",
+    "ipHash": "187f5693fbf7003bd3b867fe9b73dadfdc5a6bb0b6df820c1426886e52ce0263",
+    "id": "audit_1788625911360_j98loac6",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_admin",
+    "ownerUsername": "admin_demo",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-09-05T16:31:51.359Z",
+    "updatedAt": "2026-09-05T16:31:51.359Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_admin",
+    "actorRole": "admin"
   }
 ]

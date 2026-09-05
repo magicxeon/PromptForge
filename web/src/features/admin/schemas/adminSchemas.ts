@@ -132,3 +132,73 @@ export const adminCreditReconciliationSchema = z.object({
   })),
   mutationAvailable: z.literal(false)
 });
+
+const providerMediaTypeSchema = z.enum(['image', 'video', 'ai_text']);
+const providerWorkflowControlSchema = z.object({
+  id: z.string(),
+  staticEnabled: z.boolean(),
+  override: z.boolean().nullable(),
+  runtimeEnabled: z.boolean(),
+  effectiveEnabled: z.boolean(),
+  disabledScope: z.string().nullable(),
+  reason: z.string().nullable()
+});
+
+const providerModelControlSchema = z.object({
+  modelId: z.string(),
+  displayName: z.string(),
+  configured: z.boolean(),
+  staticEnabled: z.boolean(),
+  routingEnabled: z.boolean(),
+  pricingStatus: z.string(),
+  qualificationStatus: z.string(),
+  mediaTypes: z.array(providerMediaTypeSchema),
+  masterOverride: z.boolean().nullable(),
+  runtimeEnabled: z.boolean(),
+  effectiveEnabled: z.boolean(),
+  disabledScope: z.string().nullable(),
+  reason: z.string().nullable(),
+  workflows: z.array(providerWorkflowControlSchema)
+});
+
+const providerControlSchema = z.object({
+  providerId: z.string(),
+  displayName: z.string(),
+  configured: z.boolean(),
+  staticEnabled: z.boolean(),
+  mediaTypes: z.array(providerMediaTypeSchema),
+  masterOverride: z.boolean().nullable(),
+  runtimeEnabled: z.boolean(),
+  effectiveEnabled: z.boolean(),
+  disabledScope: z.string().nullable(),
+  reason: z.string().nullable(),
+  models: z.array(providerModelControlSchema)
+});
+
+export const adminProviderControlsSchema = z.object({
+  schemaVersion: z.number(),
+  version: z.number(),
+  updatedAt: z.string().nullable(),
+  mutationAvailable: z.boolean(),
+  mutationReason: z.string().nullable(),
+  workflows: z.array(z.object({ id: z.string(), mediaType: providerMediaTypeSchema })),
+  providers: z.array(providerControlSchema),
+  history: z.array(z.object({
+    commandId: z.string(),
+    targetType: z.string(),
+    providerId: z.string(),
+    modelId: z.string().nullable(),
+    workflow: z.string().nullable(),
+    enabled: z.boolean(),
+    reason: z.string(),
+    version: z.number(),
+    actorUserId: z.string(),
+    createdAt: z.string()
+  }).passthrough()),
+  command: z.record(z.string(), z.unknown()).optional()
+});
+
+export type AdminProviderControls = z.infer<typeof adminProviderControlsSchema>;
+export type AdminProviderControl = z.infer<typeof providerControlSchema>;
+export type AdminProviderModelControl = z.infer<typeof providerModelControlSchema>;
+export type AdminProviderWorkflowControl = z.infer<typeof providerWorkflowControlSchema>;

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_PATH = path.resolve(__dirname, '../../config/cinematic-video-models.json');
@@ -45,12 +46,15 @@ export class VideoCapabilityRegistry {
     catalogPath = DEFAULT_PATH,
     runtimeEnvironment = process.env.NODE_ENV || 'development',
     developmentPocEnabled = process.env.CINEMATIC_VIDEO_POC_ENABLE_UNVERIFIED_SEEDANCE === 'true',
-    developmentPocCredits = process.env.CINEMATIC_VIDEO_POC_CREDITS
+    developmentPocCredits = process.env.CINEMATIC_VIDEO_POC_CREDITS,
+    availabilityPolicy = providerAvailabilityPolicyService
   } = {}) {
     this.catalogPath = catalogPath;
     this.catalog = null;
+    this.runtimeEnvironment = runtimeEnvironment;
     this.developmentPocEnabled = runtimeEnvironment !== 'production' && developmentPocEnabled === true;
     this.developmentPocCredits = boundedInteger(developmentPocCredits, 1, 10, 1);
+    this.availabilityPolicy = availabilityPolicy;
   }
 
   load() {
@@ -62,18 +66,44 @@ export class VideoCapabilityRegistry {
     return this.catalog;
   }
 
-  getPublicCatalog({ includeResearch = false, includeTesting = false } = {}) {
+  getPublicCatalog({ includeResearch = false, includeTesting = false, workflow = null } = {}) {
     const catalog = this.load();
     return {
       schemaVersion: catalog.schemaVersion,
       catalogVersion: this.developmentPocEnabled
         ? `${catalog.catalogVersion}-development-poc`
         : catalog.catalogVersion,
+      runtimeControlVersion: this.availabilityPolicy.getVersion(),
       models: catalog.models.filter(model => (
-        includeResearch
-        || model.paidRoutingEnabled === true
-        || (includeTesting && model.testingRoutingEnabled === true)
+        (includeResearch
+          || model.paidRoutingEnabled === true
+          || (includeTesting && model.testingRoutingEnabled === true))
+        && this.availabilityPolicy.evaluate({
+          providerId: model.providerId,
+          modelId: model.modelId,
+          workflow
+        }).enabled
       )).map(model => toPublicModel(this.#effectiveModel(model)))
+    };
+  }
+
+  getAdminCatalog() {
+    return {
+      schemaVersion: this.load().schemaVersion,
+      catalogVersion: this.load().catalogVersion,
+      models: this.load().models.map(model => ({
+        providerId: model.providerId,
+        modelId: model.modelId,
+        displayName: model.displayName,
+        staticEnabled: model.enabled !== false,
+        qualificationStatus: model.qualificationStatus || 'unqualified',
+        pricingStatus: model.pricingStatus || 'unavailable',
+        paidRoutingEnabled: model.paidRoutingEnabled === true,
+        testingRoutingEnabled: this.runtimeEnvironment !== 'production'
+          && model.testingRoutingEnabled === true,
+        commercialOperations: getCommercialOperations(model),
+        inputModes: getInputModes(model)
+      }))
     };
   }
 
@@ -83,9 +113,14 @@ export class VideoCapabilityRegistry {
     return model ? this.#effectiveModel(model) : null;
   }
 
-  validateRequest(input, { allowResearch = false, allowTesting = false } = {}) {
+  validateRequest(input, { allowResearch = false, allowTesting = false, workflow = null } = {}) {
     const model = this.resolve(input.providerId, input.modelId);
     if (!model) throw new VideoCapabilityError('video_model_unknown', 'Video model is unknown.');
+    this.availabilityPolicy.assertAvailable({
+      providerId: model.providerId,
+      modelId: model.modelId,
+      workflow: workflow || input.providerWorkflow || null
+    });
     if (!allowResearch && model.paidRoutingEnabled !== true
       && !(allowTesting && model.testingRoutingEnabled === true)) {
       throw new VideoCapabilityError('video_model_not_qualified', 'Video model is not qualified for paid routing.', 409);

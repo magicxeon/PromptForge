@@ -13,7 +13,8 @@ export async function createFashionExecutionContext({
 }) {
   const { provider, model } = providerRegistry.resolveSelection(
     plan.route.providerId,
-    plan.route.modelId
+    plan.route.modelId,
+    { generationSurface: 'fashion', generationMode: 'fashion' }
   );
   const validatedCharacterContext = await characterUsageService.validateGenerationContext(
     plan.characterProfileContext,

@@ -9,6 +9,7 @@ import {
   , adminCapabilitiesSchema, adminContentSchema, adminTraceSchema,
   adminSupportCaseSchema, adminSupportCasesSchema, adminConfigurationStateSchema, adminProviderHealthSchema,
   adminCreditReconciliationSchema
+  , adminProviderControlsSchema
 } from '../schemas/adminSchemas';
 
 export function getAdminOverview(windowDays = 7) {
@@ -140,4 +141,26 @@ export function getAdminProviderHealth() {
 
 export function getAdminCreditReconciliation() {
   return apiRequest('/api/admin/credit-reconciliation', { schema: adminCreditReconciliationSchema });
+}
+
+export function getAdminProviderControls() {
+  return apiRequest('/api/admin/provider-controls', { schema: adminProviderControlsSchema });
+}
+
+export function applyAdminProviderControl(input: {
+  targetType: 'provider' | 'model' | 'workflow';
+  providerId: string;
+  modelId?: string | null;
+  workflow?: string | null;
+  enabled: boolean;
+  expectedVersion: number;
+  reason: string;
+  commandId: string;
+}) {
+  return apiRequest('/api/admin/provider-controls/commands', {
+    method: 'POST',
+    headers: { 'idempotency-key': input.commandId },
+    body: input,
+    schema: adminProviderControlsSchema
+  });
 }

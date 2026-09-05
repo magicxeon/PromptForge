@@ -51,7 +51,8 @@ export class ComparisonValidator {
         slot.model,
         {
           generationSurface: context.generationSurface || null,
-          generationMode: context.generationMode || null
+          generationMode: context.generationMode || null,
+          workflow: 'comparison.image'
         }
       );
       if (model.capabilities?.imageGeneration !== true) {

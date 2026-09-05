@@ -4,6 +4,7 @@ import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
 import {
   promptRefinementAuditRepository as defaultAuditRepository
 } from '../../repositories/generation/PromptRefinementAuditRepository.js';
+import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 
 const MAX_PROMPT_LENGTH = 24_000;
 
@@ -12,12 +13,14 @@ export class PromptRefinementService {
     policyLoader = getPromptRefinementPolicy,
     providerFactory = policy => new OpenAITextProvider(policy.apiKey),
     auditRepository = defaultAuditRepository,
+    availabilityPolicy = providerAvailabilityPolicyService,
     logger = console,
     now = () => Date.now()
   } = {}) {
     this.policyLoader = policyLoader;
     this.providerFactory = providerFactory;
     this.auditRepository = auditRepository;
+    this.availabilityPolicy = availabilityPolicy;
     this.logger = logger;
     this.now = now;
   }
@@ -60,6 +63,11 @@ export class PromptRefinementService {
 
     const startedAt = this.now();
     try {
+      this.availabilityPolicy.assertAvailable({
+        providerId: policy.provider,
+        modelId: policy.model,
+        workflow: 'ai.prompt_refinement'
+      });
       const result = await this.providerFactory(policy).refinePrompt({
         prompt: canonicalPrompt,
         context: sanitizeContext(context),

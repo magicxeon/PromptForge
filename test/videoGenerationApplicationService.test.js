@@ -365,7 +365,7 @@ test('production catalog does not request internal testing models', () => {
     testingEnabled: false
   });
   service.getCatalog();
-  assert.deepEqual(catalogOptions, { includeTesting: false });
+  assert.deepEqual(catalogOptions, { includeTesting: false, workflow: 'playground.video' });
 });
 
 test('video submit reserves the exact quote before provider dispatch', async () => {

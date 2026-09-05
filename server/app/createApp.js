@@ -71,6 +71,7 @@ import { generationGroupRepository } from '../repositories/generation/Generation
 import { GenerationJobCenterService } from '../domain/generation/GenerationJobCenterService.js';
 import { registerGenerationJobCenterRoutes } from './routes/generationJobCenterRoutes.js';
 import { AdminInvestigationService } from '../domain/admin/AdminInvestigationService.js';
+import { ProviderControlApplicationService } from '../domain/admin-configuration/ProviderControlApplicationService.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -130,6 +131,7 @@ export function createApp() {
     legacyBundleLoader: getAttributesBundle
   });
   const adminInvestigationService = new AdminInvestigationService({ providerRegistry });
+  const providerControlService = new ProviderControlApplicationService({ imageRegistry: providerRegistry });
 
   const startupCreditReconciliation = creditApplicationService.reconcileStartupOrphanReservations({
     shouldPreserveReservation: reservation =>
@@ -197,7 +199,8 @@ export function createApp() {
   registerAdminRoutes(app, {
     communityFeaturePolicyService,
     adjustmentService: creditApplicationService,
-    investigationService: adminInvestigationService
+    investigationService: adminInvestigationService,
+    providerControlService
   });
   registerAdminAttributeCatalogRoutes(app, { catalogService: attributeCatalogApplicationService });
   registerCommunityTaxonomyRoutes(app, {

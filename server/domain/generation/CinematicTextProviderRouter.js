@@ -1,5 +1,6 @@
 import { GeminiCinematicTextProvider } from '../../providers/GeminiCinematicTextProvider.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
+import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 
 const RETRYABLE_HTTP_STATUSES = new Set([408, 425, 429, 500, 502, 503, 504]);
 const RETRYABLE_PROVIDER_CODES = new Set([
@@ -11,13 +12,15 @@ const RETRYABLE_PROVIDER_CODES = new Set([
 export class CinematicTextProviderRouter {
   constructor(policy, {
     primaryProviderFactory = apiKey => new OpenAITextProvider(apiKey),
-    fallbackProviderFactory = apiKey => new GeminiCinematicTextProvider(apiKey)
+    fallbackProviderFactory = apiKey => new GeminiCinematicTextProvider(apiKey),
+    availabilityPolicy = providerAvailabilityPolicyService
   } = {}) {
     this.policy = policy;
     this.primaryProvider = policy?.apiKey ? primaryProviderFactory(policy.apiKey) : null;
     this.fallbackProvider = policy?.fallback?.enabled && policy.fallback.apiKey
       ? fallbackProviderFactory(policy.fallback.apiKey)
       : null;
+    this.availabilityPolicy = availabilityPolicy;
     this.fallbackActive = !this.primaryProvider && Boolean(this.fallbackProvider);
     this.fallbackReason = this.fallbackActive ? 'primary_provider_unconfigured' : null;
   }
@@ -31,7 +34,8 @@ export class CinematicTextProviderRouter {
   }
 
   async execute(method, args) {
-    if (this.fallbackActive) return this.executeFallback(method, args, this.fallbackReason);
+    const workflow = workflowForMethod(method);
+    if (this.fallbackActive) return this.executeFallback(method, args, this.fallbackReason, null, workflow);
     if (!this.primaryProvider) {
       throw createRouterError(
         'cinematic_story_plan_provider_unavailable',
@@ -40,6 +44,11 @@ export class CinematicTextProviderRouter {
     }
 
     try {
+      this.availabilityPolicy.assertAvailable({
+        providerId: this.policy.provider,
+        modelId: args.model,
+        workflow
+      });
       const result = await this.primaryProvider[method](args);
       return withExecutionProvenance(result, {
         provider: this.policy.provider,
@@ -51,13 +60,18 @@ export class CinematicTextProviderRouter {
       if (!this.fallbackProvider || !isEligibleFallbackFailure(error)) throw error;
       this.fallbackActive = true;
       this.fallbackReason = fallbackReason(error);
-      return this.executeFallback(method, args, this.fallbackReason, error);
+      return this.executeFallback(method, args, this.fallbackReason, error, workflow);
     }
   }
 
-  async executeFallback(method, args, reason, primaryError = null) {
+  async executeFallback(method, args, reason, primaryError = null, workflow = workflowForMethod(method)) {
     const fallbackPolicy = this.policy.fallback;
     try {
+      this.availabilityPolicy.assertAvailable({
+        providerId: fallbackPolicy.provider,
+        modelId: fallbackPolicy.model,
+        workflow
+      });
       const result = await this.fallbackProvider[method]({
         ...args,
         model: fallbackPolicy.model,
@@ -78,6 +92,7 @@ export class CinematicTextProviderRouter {
 }
 
 export function isEligibleFallbackFailure(error) {
+  if (safeCode(error?.code) === 'provider_runtime_disabled') return true;
   const status = Number(error?.status ?? error?.statusCode);
   if (RETRYABLE_HTTP_STATUSES.has(status)) return true;
   if (RETRYABLE_PROVIDER_CODES.has(safeCode(error?.providerCode).toLowerCase())) return true;
@@ -96,6 +111,7 @@ function withExecutionProvenance(result, execution) {
 }
 
 function fallbackReason(error) {
+  if (safeCode(error?.code) === 'provider_runtime_disabled') return 'primary_disabled_by_admin';
   const status = Number(error?.status ?? error?.statusCode);
   const providerCode = safeCode(error?.providerCode).toLowerCase();
   if (status === 429 || ['insufficient_quota', 'rate_limit_exceeded'].includes(providerCode)) {
@@ -107,6 +123,12 @@ function fallbackReason(error) {
   if (/transport_error$/i.test(safeCode(error?.code))) return 'primary_transport_failure';
   if (status >= 500) return 'primary_service_unavailable';
   return 'primary_transient_failure';
+}
+
+function workflowForMethod(method) {
+  return method === 'generateCinematicSceneDirection'
+    ? 'ai.scene_direction'
+    : 'ai.story_plan';
 }
 
 function safeCode(value) {

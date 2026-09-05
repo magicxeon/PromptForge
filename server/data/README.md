@@ -65,6 +65,7 @@ first mutation. A missing lazy file is equivalent to an empty store.
 | `comparisons` | `comparisons/comparisons.json` | object with `sets` | `repositories/comparisons/ComparisonRepository.js` and adapter | Present | `comparison_sets`, `comparison_runs`, `comparison_results` |
 | `assets` | `assets/assets.json` | array | `repositories/assets/AssetRepository.js` | Lazy | `assets`, `asset_variants` |
 | `auditLogs` | `audit/auditLogs.json` | array | `repositories/audit/AuditLogRepository.js` | Present | `audit_events` |
+| `providerControlState` | `admin-configuration/provider-controls.json` | versioned override object | `repositories/admin-configuration/ProviderControlRepository.js` | Lazy; created on first Admin command | `provider_runtime_controls`, `provider_runtime_control_events` |
 | `sceneTemplateSnapshots` | `scene-templates/sceneTemplateSnapshots.json` | array | `repositories/scene-templates/SceneTemplateSnapshotRepository.js` | Lazy | `scene_template_snapshots`, `scene_template_versions` |
 | `characterProfiles` | `character-profiles/profiles.json` | array | `repositories/character-profiles/CharacterProfileRepository.js` | Present | `character_profiles` |
 | `characterProfileVersions` | `character-profiles/versions.json` | array | `repositories/character-profiles/CharacterProfileVersionRepository.js` | Present | `character_profile_versions` |

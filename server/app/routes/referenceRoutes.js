@@ -94,7 +94,8 @@ export function registerReferenceRoutes(app, {
         res.status(error.statusCode || 500).json({
           error: {
             code: error.code || 'reference_processing_failed',
-            message: error.message
+            message: error.message,
+            ...(error.details ? { details: error.details } : {})
           }
         });
       }

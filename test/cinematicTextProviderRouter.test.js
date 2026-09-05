@@ -4,6 +4,7 @@ import {
   CinematicTextProviderRouter,
   isEligibleFallbackFailure
 } from '../server/domain/generation/CinematicTextProviderRouter.js';
+import { ProviderAvailabilityPolicyService } from '../server/domain/admin-configuration/ProviderAvailabilityPolicyService.js';
 
 function policy(overrides = {}) {
   return {
@@ -95,4 +96,30 @@ test('Cinematic text router recognizes an explicit exhausted-quota provider code
     code: 'cinematic_story_plan_provider_error',
     providerCode: 'insufficient_quota'
   }), true);
+});
+
+test('Cinematic text router skips a runtime-disabled primary and uses only an enabled fallback', async () => {
+  let primaryCalls = 0;
+  let fallbackCalls = 0;
+  const availabilityPolicy = new ProviderAvailabilityPolicyService({
+    initialState: {
+      schemaVersion: 1, version: 1, updatedAt: null, models: {}, workflows: {}, history: [],
+      providers: { openai: { enabled: false, reason: 'Primary maintenance' } }
+    }
+  });
+  const router = new CinematicTextProviderRouter(policy(), {
+    availabilityPolicy,
+    primaryProviderFactory: () => ({
+      generateCinematicStoryPlan: async () => { primaryCalls += 1; return {}; }
+    }),
+    fallbackProviderFactory: () => ({
+      generateCinematicStoryPlan: async () => { fallbackCalls += 1; return { objective: 'Fallback' }; }
+    })
+  });
+
+  const result = await router.generateCinematicStoryPlan({ model: 'gpt-5.6-terra' });
+  assert.equal(primaryCalls, 0);
+  assert.equal(fallbackCalls, 1);
+  assert.equal(result.executionProvider, 'gemini');
+  assert.equal(result.fallbackReason, 'primary_disabled_by_admin');
 });

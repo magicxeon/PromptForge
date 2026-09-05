@@ -498,6 +498,42 @@
   border: 1px solid var(--theme-border);
   border-radius: 10px;
   background: var(--theme-sidebar);
+  scrollbar-color: transparent transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.app-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.app-sidebar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+}
+
+.app-sidebar:hover,
+.app-sidebar:focus-within {
+  scrollbar-color: color-mix(in srgb, var(--theme-text-muted) 58%, transparent) transparent;
+}
+
+.app-sidebar:hover::-webkit-scrollbar-thumb,
+.app-sidebar:focus-within::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--theme-text-muted) 58%, transparent);
+}
+
+@media (hover: none) {
+  .app-sidebar {
+    scrollbar-color: color-mix(in srgb, var(--theme-text-muted) 42%, transparent) transparent;
+  }
+
+  .app-sidebar::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--theme-text-muted) 42%, transparent);
+  }
 }
 
 .app-sidebar__mobile-heading {

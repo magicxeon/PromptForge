@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { loadProviderConfig, validateProviderConfig, ProviderConfigError } from '../server/providers/ProviderConfigLoader.js';
 import { ProviderRegistry, ProviderSelectionError } from '../server/providers/ProviderRegistry.js';
+import { ProviderAvailabilityPolicyService } from '../server/domain/admin-configuration/ProviderAvailabilityPolicyService.js';
 
 function createConfig() {
   return {
@@ -142,4 +143,29 @@ test('provider registry accepts ModelArk API key aliases', () => {
   const { provider, model } = registry.resolveSelection('modelark');
   assert.equal(provider.id, 'modelark');
   assert.equal(model.id, 'seedream-4-0-250828');
+});
+
+test('provider registry omits and rejects a runtime-disabled image model for the active workflow', () => {
+  const availabilityPolicy = new ProviderAvailabilityPolicyService({
+    initialState: {
+      schemaVersion: 1, version: 1, updatedAt: null, providers: {}, history: [], models: {},
+      workflows: {
+        'alpha/alpha-image/playground.image': { enabled: false, reason: 'Playground pause' }
+      }
+    }
+  });
+  const registry = new ProviderRegistry(
+    validateProviderConfig(createConfig()),
+    { ALPHA_KEY: 'secret' },
+    availabilityPolicy
+  );
+  assert.deepEqual(registry.getPublicCatalog({ generationSurface: 'playground' }).providers, []);
+  assert.throws(
+    () => registry.resolveSelection('alpha', 'alpha-image', { generationSurface: 'playground' }),
+    error => error.code === 'provider_runtime_disabled'
+      && error.details.workflow === 'playground.image'
+  );
+  assert.equal(registry.resolveSelection('alpha', 'alpha-image', {
+    generationSurface: 'studio', generationMode: 'scene'
+  }).model.id, 'alpha-image');
 });

@@ -43,6 +43,7 @@ describe('Momelo sidebar navigation registry', () => {
     expect(routePaths.admin).toBe('/admin');
     expect(routePaths.adminOperations).toBe('/admin/operations');
     expect(routePaths.adminAttributes).toBe('/admin/attributes');
+    expect(routePaths.adminProviders).toBe('/admin/providers');
   });
 
   it('registers Cinematic Studio once under Create and marks nested routes active', () => {

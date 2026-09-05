@@ -39,13 +39,17 @@ export class FashionRoutingPolicyService {
       ? qualityTier
       : policy.defaultTier;
     const tier = policy.tiers[tierId];
-    const catalog = providerRegistry.getPublicCatalog();
+    const catalog = providerRegistry.getPublicCatalog({
+      generationSurface: 'fashion', generationMode: 'fashion'
+    });
     for (const modelId of tier.preferredModels || []) {
       const provider = catalog.providers.find(entry =>
         entry.models.some(model => model.id === modelId)
       );
       if (provider) {
-        const selection = providerRegistry.resolveSelection(provider.id, modelId);
+        const selection = providerRegistry.resolveSelection(provider.id, modelId, {
+          generationSurface: 'fashion', generationMode: 'fashion'
+        });
         const qualification = this.qualificationService.requireSimpleEligible(
           provider.id,
           modelId
@@ -69,7 +73,9 @@ export class FashionRoutingPolicyService {
   }
 
   resolveAdvancedRoute(providerId, modelId, providerRegistry) {
-    const selection = providerRegistry.resolveSelection(providerId, modelId);
+    const selection = providerRegistry.resolveSelection(providerId, modelId, {
+      generationSurface: 'fashion', generationMode: 'fashion'
+    });
     const qualification = this.qualificationService.requireOperationEligible(
       providerId,
       modelId,
@@ -84,7 +90,9 @@ export class FashionRoutingPolicyService {
   }
 
   getAdvancedCatalog(providerRegistry) {
-    const catalog = providerRegistry.getPublicCatalog();
+    const catalog = providerRegistry.getPublicCatalog({
+      generationSurface: 'fashion', generationMode: 'fashion'
+    });
     const eligibleRecords = this.qualificationService.listOperationEligible(
       'fashion_final_composition'
     );

@@ -7,6 +7,7 @@ import { adminFeaturePolicyService } from '../../domain/admin/AdminFeaturePolicy
 import { adminInvestigationService } from '../../domain/admin/AdminInvestigationService.js';
 import { supportCaseService } from '../../domain/support/SupportCaseService.js';
 import { adminConfigurationService } from '../../domain/admin-configuration/AdminConfigurationService.js';
+import { providerControlApplicationService } from '../../domain/admin-configuration/ProviderControlApplicationService.js';
 
 function sendError(res, error) {
   res.status(error.statusCode || 500).json({
@@ -28,7 +29,8 @@ export function registerAdminRoutes(app, {
   featurePolicy = adminFeaturePolicyService,
   investigationService = adminInvestigationService,
   casesService = supportCaseService,
-  configurationService = adminConfigurationService
+  configurationService = adminConfigurationService,
+  providerControlService = providerControlApplicationService
 } = {}) {
   app.get('/api/admin/capabilities', async (req, res) => {
     try { res.json(featurePolicy.getExposure(req.actorContext)); } catch (error) { sendError(res, error); }
@@ -36,6 +38,23 @@ export function registerAdminRoutes(app, {
 
   app.get('/api/admin/provider-health', async (req, res) => {
     try { res.json(investigationService.providerHealth(req.actorContext)); } catch (error) { sendError(res, error); }
+  });
+
+  app.get('/api/admin/provider-controls', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await providerControlService.list(req.actorContext));
+    } catch (error) { sendError(res, error); }
+  });
+
+  app.post('/api/admin/provider-controls/commands', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await providerControlService.applyCommand({
+        ...req.body,
+        commandId: req.headers['idempotency-key'] || req.body?.commandId
+      }, req.actorContext, req));
+    } catch (error) { sendError(res, error); }
   });
 
   app.get('/api/admin/content', async (req, res) => {

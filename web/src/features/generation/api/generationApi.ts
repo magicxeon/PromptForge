@@ -52,8 +52,17 @@ export type GenerationRequestDraft = {
 
 export type ComparisonSlotInput = { id: string; provider: string; model: string };
 
-export function getProviderCatalog() {
-  return apiRequest('/api/providers', { schema: providerCatalogSchema });
+export function getProviderCatalog(context: {
+  generationSurface?: GenerationRequestDraft['generationSurface'];
+  generationMode?: GenerationRequestDraft['generationMode'];
+  workflow?: string;
+} = {}) {
+  const query = new URLSearchParams();
+  if (context.generationSurface) query.set('generationSurface', context.generationSurface);
+  if (context.generationMode) query.set('generationMode', context.generationMode);
+  if (context.workflow) query.set('workflow', context.workflow);
+  const suffix = query.size ? `?${query}` : '';
+  return apiRequest(`/api/providers${suffix}`, { schema: providerCatalogSchema });
 }
 
 export function getAttributesBundle() {

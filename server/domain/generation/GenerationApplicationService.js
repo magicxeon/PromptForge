@@ -359,9 +359,15 @@ export class GenerationApplicationService {
     beforeEnqueue = null,
     queueOptionOverrides = {},
     promptRefinementAudit = null,
-    jobId: preparedJobId = null
+    jobId: preparedJobId = null,
+    providerWorkflow = null
   }) {
     const jobId = preparedJobId || this.queueManager.createJobId();
+    this.providerRegistry.assertRuntimeAvailable(providerId, modelId, {
+      generationSurface: context.generationSurface,
+      generationMode: generationRequest?.generationMode || context.generationMode,
+      workflow: providerWorkflow
+    });
     const reservationResult = await this.creditService.validateAndReserveForRequest({
       userId: payerUserId,
       estimateId,
@@ -437,7 +443,8 @@ export class GenerationApplicationService {
     reservationMetadata = {},
     beforeEnqueue = null,
     queueOptionOverrides = {},
-    promptRefinementAudit = null
+    promptRefinementAudit = null,
+    providerWorkflow = null
   }) {
     const existing = await this.generationGroupRepository.findByRequest(
       payerUserId,
@@ -452,6 +459,11 @@ export class GenerationApplicationService {
         childJobIds: [...existing.childJobIds]
       };
     }
+    this.providerRegistry.assertRuntimeAvailable(providerId, modelId, {
+      generationSurface: context.generationSurface,
+      generationMode: generationRequest?.generationMode || context.generationMode,
+      workflow: providerWorkflow
+    });
     const requestedOutputCount = context.outputCount;
     const groupId = `ggrp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
     const children = Array.from({ length: requestedOutputCount }, (_, outputIndex) => ({
@@ -543,7 +555,8 @@ export class GenerationApplicationService {
             outputIndex: child.outputIndex,
             requestedOutputCount
           },
-          refundReasonCode: 'group_child_enqueue_failed'
+          refundReasonCode: 'group_child_enqueue_failed',
+          providerWorkflow
         });
         if (child.outputIndex === 0) {
           await this.promptRefinementService.persistAudit?.(child.jobId, promptRefinementAudit)
@@ -597,14 +610,20 @@ export class GenerationApplicationService {
     beforeEnqueue = null,
     queueOptionOverrides = {},
     refundReasonCode = 'enqueue_failed',
-    refundOnFailure = true
+    refundOnFailure = true,
+    providerWorkflow = null
   }) {
-    const stream = this.providerRegistry.shouldStream(
-      providerConfig,
-      modelConfig,
-      streamRequested
-    );
     try {
+      this.providerRegistry.assertRuntimeAvailable(providerId, modelId, {
+        generationSurface: context.generationSurface,
+        generationMode: context.generationMode,
+        workflow: providerWorkflow
+      });
+      const stream = this.providerRegistry.shouldStream(
+        providerConfig,
+        modelConfig,
+        streamRequested
+      );
       await beforeEnqueue?.(jobId);
       this.queueManager.enqueue(
         providerId,

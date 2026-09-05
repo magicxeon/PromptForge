@@ -28,6 +28,7 @@ import {
 } from './VideoReferencePlan.js';
 import { resolveModelArkCredentialScope } from '../../providers/modelArkCredentialScope.js';
 import { cinematicFirstFrameTransportService } from '../assets/CinematicFirstFrameTransportService.js';
+import { resolveVideoProviderWorkflow } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 
@@ -81,8 +82,11 @@ export class VideoGenerationApplicationService {
     }
   }
 
-  getCatalog() {
-    return this.capabilityRegistry.getPublicCatalog({ includeTesting: this.testingEnabled });
+  getCatalog(workflowContext = null) {
+    return this.capabilityRegistry.getPublicCatalog({
+      includeTesting: this.testingEnabled,
+      workflow: resolveVideoProviderWorkflow(workflowContext)
+    });
   }
 
   async quote(input, actorContext, workflowContext = null) {
@@ -285,11 +289,15 @@ export class VideoGenerationApplicationService {
   }
 
   #validateModel(request) {
-    return this.capabilityRegistry.validateRequest(request, { allowTesting: this.testingEnabled });
+    return this.capabilityRegistry.validateRequest(request, {
+      allowTesting: this.testingEnabled,
+      workflow: request.providerWorkflow
+    });
   }
 
   #prepareRequest(input, workflow) {
     const request = normalizeRequest(input, workflow);
+    request.providerWorkflow = resolveVideoProviderWorkflow(workflow);
     const resolved = this.capabilityRegistry.resolve(request.providerId, request.modelId);
     if (!resolved) throw videoError('video_model_unknown', 'Video model is unknown.');
     request.modelId = resolved.modelId;

@@ -84,7 +84,8 @@ export const DATA_FILES = {
   videoProviderTasks: path.resolve(GENERATION_DATA_DIR, 'videoProviderTasks.json'),
   adminOperationPresentation: path.resolve(ADMIN_DATA_DIR, 'operationPresentation.json'),
   supportCases: path.resolve(SUPPORT_DATA_DIR, 'cases.json'),
-  adminConfigurationRevisions: path.resolve(ADMIN_CONFIGURATION_DATA_DIR, 'revisions.json')
+  adminConfigurationRevisions: path.resolve(ADMIN_CONFIGURATION_DATA_DIR, 'revisions.json'),
+  providerControlState: path.resolve(ADMIN_CONFIGURATION_DATA_DIR, 'provider-controls.json')
 };
 
 export function resolveDataFile(name) {

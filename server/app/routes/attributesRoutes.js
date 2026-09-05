@@ -151,7 +151,12 @@ export function registerAttributesRoutes(app, {
   getRuntimeAttributesBundle = null
 }) {
   app.get('/api/providers', (req, res) => {
-    res.json(providerRegistry.getPublicCatalog());
+    res.set('Cache-Control', 'private, no-store');
+    res.json(providerRegistry.getPublicCatalog({
+      generationSurface: req.query?.generationSurface || null,
+      generationMode: req.query?.generationMode || null,
+      workflow: req.query?.workflow || null
+    }));
   });
 
   app.get('/api/attributes/bundle', async (req, res) => {

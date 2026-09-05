@@ -62,7 +62,11 @@ export class FashionRunService {
       return this.hydrateRun(duplicate, actorContext);
     }
     const { quote, plan } = await this.quoteService.validateQuote(quoteId, input, actorContext);
-    const { provider, model } = this.providerRegistry.resolveSelection(plan.route.providerId, plan.route.modelId);
+    const { provider, model } = this.providerRegistry.resolveSelection(
+      plan.route.providerId,
+      plan.route.modelId,
+      { generationSurface: 'fashion', generationMode: 'fashion' }
+    );
     const requestFingerprint = createFashionPlanHash({
       actorUserId: actorContext.userId,
       quoteId,
@@ -215,6 +219,7 @@ export class FashionRunService {
           reservation,
           estimateId: operation.estimateId,
           requestId: operation.requestId,
+          providerWorkflow: 'fashion.image',
           beforeEnqueue: () => this.templateCoreService.attachGeneration(
             operation.templateExecution.session.id,
             actorContext,

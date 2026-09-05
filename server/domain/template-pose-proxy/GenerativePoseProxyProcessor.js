@@ -12,7 +12,8 @@ export class GenerativePoseProxyProcessor {
   async enqueue({ record, policy, sourceImageUrl, sourceGenerationId, actorContext, reservation }) {
     const { provider, model } = this.providerRegistry.resolveSelection(
       policy.providerId,
-      policy.modelId
+      policy.modelId,
+      { workflow: 'internal.template_pose_proxy' }
     );
     const payload = {
       provider: provider.id,
@@ -55,6 +56,7 @@ export class GenerativePoseProxyProcessor {
       requestId: record.requestId,
       streamRequested: false,
       refundOnFailure: false,
+      providerWorkflow: 'internal.template_pose_proxy',
       queueOptionOverrides: {
         routingSnapshot: {
           operationPurpose: policy.operationPurpose,
