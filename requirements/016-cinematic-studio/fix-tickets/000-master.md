@@ -23,6 +23,7 @@ specific defect back into those requirements instead of replacing them.
 | `CINE-FIX-009` | Reconcile Story Plan Shot timing with provider-supported video duration and migrate Omni to GA | P0 | Implemented; provider evidence gated |
 | `CINE-FIX-010` | Add Simple/Advanced Scene Director authoring over one Storyboard-complete contract | P0 | Implemented and verified |
 | `CINE-FIX-011` | Reconcile duplicate Cast Assignments for one Character Profile | P0 | Implemented and verified |
+| `CINE-FIX-012` | GCS URL-first Seedance transport with local Base64 fallback, no Asset Library dependency, and honest Generate status | P0 | Implemented; GCS verified; live Seedance acceptance pending |
 
 ## Closure gate
 

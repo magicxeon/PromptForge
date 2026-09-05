@@ -14,6 +14,7 @@ export function normalizeVideoReferences(input = {}) {
       assetId: String(value?.assetId || '').trim() || null,
       assetVersionId: String(value?.assetVersionId || '').trim() || null,
       sourceFingerprint: String(value?.sourceFingerprint || '').trim() || null,
+      ...referenceBindings(value),
       referenceImageUrl
     }];
   });
@@ -28,6 +29,7 @@ export function fingerprintVideoReferencePlan(references, inputMode) {
       assetId: reference.assetId,
       assetVersionId: reference.assetVersionId,
       sourceFingerprint: reference.sourceFingerprint,
+      ...referenceBindings(reference),
       legacyLocatorFingerprint: reference.sourceFingerprint || reference.assetVersionId
         ? null
         : crypto.createHash('sha256').update(reference.referenceImageUrl).digest('hex')
@@ -41,6 +43,13 @@ export function sanitizeVideoReferences(value) {
     role: String(reference?.role || '').trim(),
     assetId: String(reference?.assetId || '').trim() || null,
     assetVersionId: String(reference?.assetVersionId || '').trim() || null,
-    sourceFingerprint: String(reference?.sourceFingerprint || '').trim() || null
+    sourceFingerprint: String(reference?.sourceFingerprint || '').trim() || null,
+    ...referenceBindings(reference)
   }));
+}
+
+function referenceBindings(reference) {
+  return Object.fromEntries(['purpose', 'contentHash', 'castAssignmentId', 'characterProfileId',
+    'characterLookId', 'characterLookVersionId'].flatMap(key => reference?.[key]
+    ? [[key, String(reference[key]).trim()]] : []));
 }

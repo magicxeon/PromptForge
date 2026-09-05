@@ -242,6 +242,31 @@ test('paid routing remains unavailable through the research task service contrac
   );
 });
 
+test('rejected URL submission keeps safe support IDs and never resubmits or stores the signed URL', async t => {
+  const { directory, service } = await fixture([]);
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  let submits = 0;
+  service.adapter.submit = async () => {
+    submits += 1;
+    throw Object.assign(new Error('private URL must not persist'), {
+      code: 'video_provider_input_image_rejected', category: 'provider', retryable: false,
+      providerCode: 'InputImageSensitiveContentDetected.PrivacyInformation',
+      providerRequestId: 'provider-request-123', providerBillableState: 'not_billable'
+    });
+  };
+  const input = { ...request, referenceImage: 'https://storage.example/image?signature=SECRET',
+    referenceTransport: { mode: 'gcs_url', fallbackCode: null, secret: 'SECRET' },
+    idempotencyKey: 'video:test:gcs-rejection' };
+  const result = await service.submitResearchTask(input, actor);
+  await service.submitResearchTask(input, actor);
+  assert.equal(submits, 1);
+  assert.equal(result.status, 'failed');
+  assert.equal(result.providerError.providerRequestId, 'provider-request-123');
+  assert.equal(result.providerError.providerCode, 'InputImageSensitiveContentDetected.PrivacyInformation');
+  assert.deepEqual(result.submittedRequest.referenceTransport, { mode: 'gcs_url', fallbackCode: null });
+  assert.doesNotMatch(JSON.stringify(result), /SECRET|private URL must not persist/);
+});
+
 test('persisted tasks resolve their own provider adapter for submission and polling', async t => {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'video-provider-registry-'));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));

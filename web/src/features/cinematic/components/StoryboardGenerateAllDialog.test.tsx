@@ -158,6 +158,8 @@ describe('StoryboardGenerateAllDialog', () => {
     expect(await screen.findByText('12 cinematic.cost.credits')).toBeVisible();
     expect(mocks.getContext).toHaveBeenCalledTimes(1);
     expect(mocks.estimateGeneration).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('checkbox', { name: 'cinematic.storyboard.batch.includeApproved' })).not.toBeChecked();
+    expect(mocks.getContext).not.toHaveBeenCalledWith('cineproj_batch', 'scene_1', 'shot_approved');
 
     fireEvent.click(screen.getByRole('button', {
       name: 'cinematic.storyboard.batch.generate'
@@ -176,6 +178,82 @@ describe('StoryboardGenerateAllDialog', () => {
       })
     }));
     expect(await screen.findByText('cinematic.storyboard.batch.queued')).toBeVisible();
+  });
+
+  it('requotes approved Shots only after opt-in and retains their source on submission', async () => {
+    const project = projectFixture();
+    const source = structuredClone(project.scenes[0]!.shots[1]!.approvedStoryboardSource);
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={testI18n}>
+        <StoryboardGenerateAllDialog open onOpenChange={vi.fn()} project={project} />
+      </I18nextProvider>
+    </QueryClientProvider>);
+    expect(await screen.findByText('12 cinematic.cost.credits')).toBeVisible();
+
+    const scope = screen.getByRole('checkbox', { name: 'cinematic.storyboard.batch.includeApproved' });
+    fireEvent.click(scope);
+    expect(await screen.findByText('24 cinematic.cost.credits')).toBeVisible();
+    expect(mocks.getContext).toHaveBeenCalledWith('cineproj_batch', 'scene_1', 'shot_approved');
+    expect(screen.getByText('cinematic.storyboard.batch.approvedIncluded')).toBeVisible();
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+
+    fireEvent.click(scope);
+    expect(await screen.findByText('12 cinematic.cost.credits')).toBeVisible();
+    expect(screen.getByText('cinematic.storyboard.batch.approvedSkipped')).toBeVisible();
+    fireEvent.click(scope);
+    const generate = screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' });
+    await waitFor(() => expect(generate).toBeEnabled());
+    fireEvent.click(generate);
+    await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
+    expect(mocks.submitBatch.mock.calls[0]?.[1]?.operations.map((item: { shotId: string }) => item.shotId))
+      .toEqual(['shot_pending', 'shot_approved']);
+    expect(project.scenes[0]!.shots[1]!.approvedStoryboardSource).toEqual(source);
+  });
+
+  it('allows an all-approved board to quote and generate new review candidates', async () => {
+    const project = projectFixture();
+    project.scenes[0]!.shots = [project.scenes[0]!.shots[1]!];
+    project.scenes[0]!.shotOrder = ['shot_approved'];
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={testI18n}>
+        <StoryboardGenerateAllDialog open onOpenChange={vi.fn()} project={project} />
+      </I18nextProvider>
+    </QueryClientProvider>);
+    const generate = screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' });
+    expect(generate).toBeDisabled();
+    expect(mocks.estimateGeneration).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'cinematic.storyboard.batch.includeApproved' }));
+    await waitFor(() => expect(generate).toBeEnabled());
+    expect(await screen.findByText('12 cinematic.cost.credits')).toBeVisible();
+    fireEvent.click(generate);
+    await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
+    expect(mocks.submitBatch.mock.calls[0]?.[1]?.operations).toEqual([
+      expect.objectContaining({ shotId: 'shot_approved', estimateId: 'estimate_storyboard' })
+    ]);
+  });
+
+  it('does not submit an old quote while the expanded scope is being quoted or fails', async () => {
+    const project = projectFixture();
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={testI18n}>
+        <StoryboardGenerateAllDialog open onOpenChange={vi.fn()} project={project} />
+      </I18nextProvider>
+    </QueryClientProvider>);
+    const generate = screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' });
+    await waitFor(() => expect(generate).toBeEnabled());
+    let rejectQuote!: (cause: Error) => void;
+    mocks.estimateGeneration.mockImplementationOnce(() => new Promise((_resolve, reject) => { rejectQuote = reject; }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'cinematic.storyboard.batch.includeApproved' }));
+    await waitFor(() => expect(rejectQuote).toBeTypeOf('function'));
+    expect(generate).toBeDisabled();
+    rejectQuote(new Error('Quote unavailable'));
+    expect(await screen.findByText('Quote unavailable')).toBeVisible();
+    expect(generate).toBeDisabled();
+    fireEvent.click(generate);
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
   });
 
   it('restores the actor-scoped provider and model before quoting', async () => {

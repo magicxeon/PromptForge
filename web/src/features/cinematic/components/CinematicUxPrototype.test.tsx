@@ -1101,6 +1101,29 @@ describe('Cinematic UX prototype', () => {
     expect(screen.getByRole('button', { name: 'cinematic.storyboard.generateSet' })).toBeEnabled();
   });
 
+  it('keeps Generate all available after every Storyboard Shot is approved', () => {
+    const project = completeStoryPlanFixture();
+    for (const scene of project.scenes) {
+      for (const shot of scene.shots) {
+        shot.approvedStoryboardSource = {
+          assetId: `asset_${shot.id}`, assetVersionId: `asset_${shot.id}`,
+          sourceJobId: `job_${shot.id}`, sourceFingerprint: `source_${shot.id}`,
+          imageUrl: `/outputs/${shot.id}.png`, thumbnailUrl: `/outputs/${shot.id}.png`,
+          contentHash: `hash_${shot.id}`, approvedAt: new Date(0).toISOString()
+        };
+      }
+    }
+    renderStoryboardWithQuery(project);
+    expect(screen.getByRole('button', { name: 'cinematic.storyboard.generateSet' })).toBeEnabled();
+  });
+
+  it('keeps Generate all disabled when a persisted Project has no Shots', () => {
+    const project = completeStoryPlanFixture();
+    project.scenes = [];
+    renderStoryboardWithQuery(project);
+    expect(screen.getByRole('button', { name: 'cinematic.storyboard.generateSet' })).toBeDisabled();
+  });
+
   it('restores a completed batch preview and resumes that Job inside the Shot dialog', () => {
     const project = completeStoryPlanFixture();
     const shot = project.scenes[0]!.shots[0]!;

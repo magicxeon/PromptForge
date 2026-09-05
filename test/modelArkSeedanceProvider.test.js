@@ -1,5 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+
+test('Seedance multimodal images keep ordered reference_image roles and cannot mix frame modes', () => {
+  const request = { modelId: 'dreamina-seedance-2-5-260628', prompt: 'One action.', durationSeconds: 6,
+    referenceImages: [{ url: 'https://example.com/board.png', role: 'reference_image' },
+      { url: 'https://example.com/look-a.png', role: 'reference_image' },
+      { url: 'https://example.com/look-b.png', role: 'reference_image' }] };
+  const payload = buildModelArkSeedancePayload(request);
+  assert.deepEqual(payload.content.slice(1).map(item => item.role), Array(3).fill('reference_image'));
+  assert.equal(payload.content[1].image_url.url, request.referenceImages[0].url);
+  assert.equal(payload.ratio, '9:16');
+  assert.throws(() => buildModelArkSeedancePayload({ ...request, referenceImage: 'https://example.com/first.png' }), { code: 'video_reference_roles_invalid' });
+});
 import {
   ModelArkSeedanceProvider,
   buildModelArkSeedancePayload,
@@ -163,13 +175,13 @@ test('Seedance debug logging exposes diagnostics without prompts or credentials'
   assert.doesNotMatch(entries.join('\n'), /PRIVATE PROMPT CONTENT|private-test-key/);
 });
 
-test('Seedance normalizes a live portrait privacy rejection as authorization required and not billable', async () => {
+test('Seedance preserves privacy rejection evidence without inferring an authorization requirement', async () => {
   const provider = new ModelArkSeedanceProvider({
     apiKey: 'private-test-key',
     fetchImpl: async () => jsonResponse({
       error: {
         code: 'InputImageSensitiveContentDetected.PrivacyInformation',
-        message: "The request failed because the input image 'content[1]' may contain real person."
+        message: "The request failed because the input image 'content[1]' may contain real person. Request id: provider-failed-123"
       }
     }, 400)
   });
@@ -179,9 +191,32 @@ test('Seedance normalizes a live portrait privacy rejection as authorization req
     prompt: 'A restrained camera move.', aspectRatio: '9:16',
     resolution: '720p', durationSeconds: 6, audioMode: 'none',
     referenceImage: 'data:image/png;base64,YWJj'
-  }), error => error.code === 'video_provider_portrait_authorization_required'
+  }), error => error.code === 'video_provider_input_image_rejected'
+    && error.providerCode === 'InputImageSensitiveContentDetected.PrivacyInformation'
+    && error.providerRequestId === 'provider-failed-123'
     && error.retryable === false
     && error.providerBillableState === 'not_billable');
+});
+
+test('Seedance 2.5 sends a GCS signed first-frame URL unchanged without logging its signature', async () => {
+  const signedUrl = 'https://storage.googleapis.com/private/frame.png?X-Goog-Signature=SECRET';
+  const entries = [];
+  let body;
+  const provider = new ModelArkSeedanceProvider({
+    apiKey: 'test', debugEnabled: true,
+    logger: { info: (...parts) => entries.push(parts.join(' ')) },
+    fetchImpl: async (_url, init) => {
+      body = JSON.parse(init.body);
+      return jsonResponse({ id: 'task_gcs', message: `Source received: ${signedUrl}` });
+    }
+  });
+  await provider.submit({ modelId: 'dreamina-seedance-2-5-260628', prompt: 'Continue the frame.',
+    resolution: '480p', durationSeconds: 6, audioMode: 'none', referenceImage: signedUrl });
+  assert.equal(body.content[1].image_url.url, signedUrl);
+  assert.equal(body.content[1].role, 'first_frame');
+  assert.equal('ratio' in body, false);
+  assert.match(entries.join('\n'), /"referenceTransports":\["url"\]/);
+  assert.doesNotMatch(entries.join('\n'), /SECRET|storage.googleapis.com/);
 });
 
 test('Seedance transport diagnostics include the nested fetch cause safely', async () => {

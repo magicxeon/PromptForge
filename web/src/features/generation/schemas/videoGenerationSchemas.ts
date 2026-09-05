@@ -14,6 +14,7 @@ export const videoModelCapabilitySchema = z.object({
   audioModes: z.array(z.enum(['none', 'generated'])).default([]),
   referenceImageLimit: z.number().int().nonnegative().default(0),
   supportsFirstFrame: z.boolean().default(false),
+  supportsCinematicLookReferences: z.boolean().optional(),
   supportsLastFrame: z.boolean().default(false),
   portraitReferencePolicy: z.enum([
     'provider_authorized_asset_required',
@@ -140,7 +141,11 @@ export const videoTaskSchema = z.object({
       role: z.string().nullable().optional()
     }).passthrough()).default([])
   }).passthrough().nullable().optional(),
-  providerError: z.object({ code: z.string().optional() }).passthrough().nullable().optional(),
+  providerError: z.object({
+    code: z.string().optional(),
+    providerCode: z.string().max(200).nullable().optional(),
+    providerRequestId: z.string().max(200).nullable().optional()
+  }).passthrough().nullable().optional(),
   outputAsset: z.object({
     id: z.string().optional(),
     assetId: z.string().optional(),

@@ -70,21 +70,22 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
   });
   const [idempotencyKey, setIdempotencyKey] = useState(() => createBatchKey(project.id));
   const [naturalRealismEnabled, setNaturalRealismEnabled] = useState(true);
+  const [includeApproved, setIncludeApproved] = useState(false);
   const catalog = useQuery({
     queryKey: ['provider-catalog'],
     queryFn: getProviderCatalog,
     staleTime: 5 * 60_000
   });
-  const unapproved = useMemo(() => project.scenes.flatMap(scene =>
-    scene.shots.filter(shot => !shot.approvedStoryboardSource).map(shot => ({ scene, shot }))
-  ), [project.scenes]);
+  const scopedShots = useMemo(() => project.scenes.flatMap(scene =>
+    scene.shots.filter(shot => includeApproved || !shot.approvedStoryboardSource).map(shot => ({ scene, shot }))
+  ), [includeApproved, project.scenes]);
   const approvedCount = project.scenes.reduce(
     (count, scene) => count + scene.shots.filter(shot => Boolean(shot.approvedStoryboardSource)).length,
     0
   );
   const contexts = useQuery({
-    queryKey: ['cinematic-storyboard-batch-contexts', project.id, project.version],
-    queryFn: () => Promise.all(unapproved.map(async item => ({
+    queryKey: ['cinematic-storyboard-batch-contexts', actor?.userId || 'loading', project.id, project.version, includeApproved],
+    queryFn: () => Promise.all(scopedShots.map(async item => ({
       ...item,
       context: await getCinematicStoryboardGenerationContext(
         project.id,
@@ -92,7 +93,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
         item.shot.id
       )
     }))),
-    enabled: open && unapproved.length > 0,
+    enabled: open && scopedShots.length > 0,
     staleTime: 0,
     retry: false
   });
@@ -109,6 +110,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
     if (!open) return;
     setIdempotencyKey(createBatchKey(project.id));
     setNaturalRealismEnabled(true);
+    setIncludeApproved(false);
     setEngine({
       provider: '',
       model: '',
@@ -119,7 +121,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
   }, [actor?.userId, open, project.aspectRatio, project.id]);
 
   useEffect(() => {
-    if (!open || !catalog.data || engine.provider || (unapproved.length > 0 && !contexts.data)) return;
+    if (!open || !catalog.data || engine.provider || (scopedShots.length > 0 && !contexts.data)) return;
     const preference = actor?.userId
       ? readStoryboardEnginePreference(actor.userId)
       : null;
@@ -147,7 +149,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
     maximumReferenceCount,
     open,
     project.aspectRatio,
-    unapproved.length
+    scopedShots.length
   ]);
 
   const selectedModel = catalog.data?.providers.find(item => item.id === engine.provider)
@@ -259,8 +261,20 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
         <div className="cinematic-storyboard-batch-dialog__summary">
           <span><Film aria-hidden="true" /><strong>{sceneCount}</strong>{t('cinematic.storyboard.batch.scenes')}</span>
           <span><Images aria-hidden="true" /><strong>{eligible.length}</strong>{t('cinematic.storyboard.batch.shots')}</span>
-          <span><CheckCircle2 aria-hidden="true" /><strong>{approvedCount}</strong>{t('cinematic.storyboard.batch.approvedSkipped')}</span>
+          <span><CheckCircle2 aria-hidden="true" /><strong>{approvedCount}</strong>{t(includeApproved
+            ? 'cinematic.storyboard.batch.approvedIncluded'
+            : 'cinematic.storyboard.batch.approvedSkipped')}</span>
         </div>
+
+        {approvedCount > 0 ? <label className="cinematic-check-row">
+          <input
+            type="checkbox"
+            checked={includeApproved}
+            disabled={submit.isPending || Boolean(submit.data)}
+            onChange={event => setIncludeApproved(event.target.checked)}
+          />
+          <span>{t('cinematic.storyboard.batch.includeApproved')}</span>
+        </label> : null}
 
         {catalog.data ? <EngineTargetPanel
           catalog={catalog.data}
@@ -321,7 +335,8 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
           <Button
             variant="primary"
             icon={<Sparkles aria-hidden="true" />}
-            disabled={!quotes.data?.length || !canAfford || submit.isPending || Boolean(submit.data)}
+            disabled={!quotes.data?.length || !canAfford || contexts.isFetching || quotes.isFetching
+              || Boolean(contexts.error || quotes.error) || submit.isPending || Boolean(submit.data)}
             onClick={() => submit.mutate()}
           >
             {submit.isPending

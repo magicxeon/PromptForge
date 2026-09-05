@@ -28,6 +28,7 @@ import { cinematicVideoPacketCompiler } from './CinematicVideoPacketCompiler.js'
 import { cinematicTimelineCompiler } from './CinematicTimelineCompiler.js';
 import { deriveStoryboardVideoCompatibility } from './CinematicStoryboardSourceCompatibility.js';
 import { fingerprintVideoReferencePlan } from '../generation/VideoReferencePlan.js';
+import { CinematicVideoReferencePlanService } from './CinematicVideoReferencePlanService.js';
 
 const STAGES = ['setup', 'cast', 'story-plan', 'storyboard', 'produce', 'finish'];
 const DURATIONS = new Set([20, 30, 45, 60]);
@@ -60,6 +61,7 @@ export class CinematicApplicationService {
     this.wardrobeAuthorityService = wardrobeAuthorityService;
     this.characterAuthorizationService = characterAuthorizationService;
     this.lookService = lookService;
+    this.videoReferencePlanService = new CinematicVideoReferencePlanService({ lookService });
     this.backofficePolicy = backofficePolicy;
     this.providerTaskRepository = providerTaskRepository;
     this.videoCapabilities = videoCapabilities;
@@ -724,8 +726,10 @@ export class CinematicApplicationService {
       projectId, sceneId, shotId, input, actorContext
     );
     try {
-      const providerPrompt = renderProviderVideoPrompt(this.videoPacketCompiler, videoPacket, input);
-      const preparedRequest = buildCinematicVideoRequest(input, project, shot, source, videoPacket, providerPrompt);
+      const referencePlan = await this.videoReferencePlanService.prepare({ project, scene, shot, source,
+        mode: input.referenceMode, model: this.videoCapabilities.resolve(input.providerId, input.modelId), actorContext });
+      const providerPrompt = renderProviderVideoPrompt(this.videoPacketCompiler, videoPacket, input, referencePlan);
+      const preparedRequest = buildCinematicVideoRequest(input, project, shot, source, videoPacket, providerPrompt, referencePlan);
       const quote = await this.videoGenerationService.quote(
         preparedRequest,
         actorContext,
@@ -733,6 +737,14 @@ export class CinematicApplicationService {
       );
       return {
         ...quote,
+        referenceMode: referencePlan.mode,
+        renderedPrompt: providerPrompt.prompt,
+        referenceSummary: referencePlan.references.map((reference, index) => ({
+          imageNumber: index + 1, assetId: reference.assetId,
+          purpose: reference.purpose || 'storyboard_opening',
+          roleName: reference.roleName || null, lookName: reference.lookName || null,
+          previewUrl: reference.previewUrl || source.imageUrl
+        })),
         projectId: project.id,
         sceneId: scene.id,
         shotId: shot.id,
@@ -762,8 +774,10 @@ export class CinematicApplicationService {
       existingAttempt ? { ...input, expectedVersion: existingProject.version } : input,
       actorContext
     );
-    const providerPrompt = renderProviderVideoPrompt(this.videoPacketCompiler, videoPacket, input);
-    const preparedRequest = buildCinematicVideoRequest(input, project, shot, source, videoPacket, providerPrompt);
+    const referencePlan = await this.videoReferencePlanService.prepare({ project, scene, shot, source,
+      mode: input.referenceMode, model: this.videoCapabilities.resolve(input.providerId, input.modelId), actorContext });
+    const providerPrompt = renderProviderVideoPrompt(this.videoPacketCompiler, videoPacket, input, referencePlan);
+    const preparedRequest = buildCinematicVideoRequest(input, project, shot, source, videoPacket, providerPrompt, referencePlan);
     await this.repository.mutateForActor(project.id, actorContext, draft => {
       const replay = draft.generationAttempts.find(item => item.id === attemptId);
       if (replay) return draft;
@@ -801,6 +815,7 @@ export class CinematicApplicationService {
         promptStrategyVersion: providerPrompt.strategyVersion,
         renderedPromptFingerprint: providerPrompt.promptFingerprint,
         referencePlanFingerprint: preparedRequest.referencePlanFingerprint || null,
+        referenceMode: referencePlan.mode,
         downstreamSourceStatus: 'current',
         status: 'preparing',
         reviewDecision: 'pending',
@@ -1807,10 +1822,10 @@ function buildCinematicWorkflow(project, scene, shot, generationAttemptId) {
   };
 }
 
-function buildCinematicVideoRequest(input, project, shot, source, videoPacket, providerPrompt = null) {
+function buildCinematicVideoRequest(input, project, shot, source, videoPacket, providerPrompt = null, referencePlan = null) {
   const plannedDurationSeconds = Math.max(0.001, Number(shot.durationMs) / 1000);
   const durationSeconds = Math.max(1, Number(input.durationSeconds || plannedDurationSeconds));
-  const references = [{
+  const references = referencePlan?.references || [{
     role: 'first_frame',
     assetId: source.assetId || null,
     assetVersionId: source.assetVersionId,
@@ -1822,7 +1837,7 @@ function buildCinematicVideoRequest(input, project, shot, source, videoPacket, p
     modelId: String(input.modelId || ''),
     operation: 'image_to_video',
     commercialOperation: 'cinematic_draft_clip',
-    inputMode: 'image_to_video',
+    inputMode: referencePlan?.inputMode || 'image_to_video',
     prompt: providerPrompt?.prompt || videoPacket.providerIndependentPrompt,
     promptStrategy: providerPrompt ? {
       id: providerPrompt.strategyId,
@@ -1840,16 +1855,17 @@ function buildCinematicVideoRequest(input, project, shot, source, videoPacket, p
     referenceContainsPerson: Array.isArray(videoPacket.authority?.characters)
       && videoPacket.authority.characters.length > 0,
     references,
-    referencePlanFingerprint: fingerprintVideoReferencePlan(references, 'image_to_video'),
+    referencePlanFingerprint: fingerprintVideoReferencePlan(references, referencePlan?.inputMode || 'image_to_video'),
     requestFingerprint: input.requestFingerprint || null,
     videoPacketFingerprint: videoPacket.packetFingerprint
   };
 }
 
-function renderProviderVideoPrompt(compiler, videoPacket, input) {
+function renderProviderVideoPrompt(compiler, videoPacket, input, referencePlan) {
   if (typeof compiler?.renderForProvider === 'function') {
     return compiler.renderForProvider(videoPacket, {
       providerId: String(input.providerId || ''),
+      referencePlan,
       modelId: String(input.modelId || '')
     });
   }

@@ -87,6 +87,15 @@ function validateStrategies(configuration) {
       throw new TypeError('Cinematic video prompt strategy omitted sections are invalid.');
     }
     ids.add(strategy.id);
+    if (strategy.lookReferenceMode) {
+      const mode = strategy.lookReferenceMode;
+      if (!Number.isInteger(mode.maximumPromptCharacters) || mode.maximumPromptCharacters > 4000
+        || mode.maximumPromptCharacters < 1000
+        || ['promptPrefix', 'startAuthority', 'characterMapping', 'prohibitions', 'sectionLabel']
+          .some(key => !String(mode[key] || '').trim())) {
+        throw new TypeError('Cinematic Look reference prompt configuration is invalid.');
+      }
+    }
   }
   if (!ids.has(configuration.defaultStrategyId)) {
     throw new TypeError('Cinematic video default prompt strategy is invalid.');

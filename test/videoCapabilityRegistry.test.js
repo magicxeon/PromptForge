@@ -1,5 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+
+test('Cinematic Look mode is catalog-driven and development-only for Seedance 2.x', () => {
+  const development = new VideoCapabilityRegistry({ runtimeEnvironment: 'development', developmentPocEnabled: true });
+  const production = new VideoCapabilityRegistry({ runtimeEnvironment: 'production', developmentPocEnabled: true });
+  const model = development.resolve('modelark', 'dreamina-seedance-2-5-260628');
+  assert.equal(model.supportsCinematicLookReferences, true);
+  assert.ok(model.inputModes.includes('multimodal_reference'));
+  assert.equal(model.referenceImageLimit, 9);
+  assert.notEqual(production.resolve('modelark', model.modelId).supportsCinematicLookReferences, true);
+  assert.notEqual(development.resolve('modelark', 'seedance-1-0-pro-250528').supportsCinematicLookReferences, true);
+});
 import {
   normalizeVideoExecutionSelection,
   VideoCapabilityRegistry,

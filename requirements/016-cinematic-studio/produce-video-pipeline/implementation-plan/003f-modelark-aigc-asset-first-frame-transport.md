@@ -1,5 +1,11 @@
 # Package 003F - ModelArk AIGC Asset First-Frame Transport
 
+> Superseded for Cinematic first-frame transport by
+> [CINE-FIX-012](../../fix-tickets/CINE-FIX-012-seedance-direct-first-frame-recovery.md).
+> Asset Library is no longer required; GCS is preferred with Base64 fallback.
+> Retain this plan
+> as implementation history; do not use it to restore mandatory registration.
+
 **Plan ID:** `016-PVP-IP-003F`  
 **Status:** Deterministic implementation complete; deployment setup and creator-confirmed live qualification pending  
 **Owning requirement:** `../011-seedream-seedance-synthetic-character-keyframe-flow.md`  

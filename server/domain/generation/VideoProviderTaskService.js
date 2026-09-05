@@ -246,7 +246,15 @@ function sanitizeRequest(request) {
     renderedPromptFingerprint: request.renderedPromptFingerprint || null,
     promptStrategy: sanitizePromptStrategy(request.promptStrategy),
     references: sanitizeVideoReferences(request.references),
+    referenceTransports: (request.referenceTransports || []).slice(0, 12)
+      .filter(item => ['gcs_url', 'base64'].includes(item.mode))
+      .map(item => ({ assetId: boundedIdentifier(item.assetId), mode: item.mode,
+        fallbackCode: boundedIdentifier(item.fallbackCode) })),
     providerReferenceRegistrations: sanitizeProviderReferenceRegistrations(request.providerReferenceRegistrations),
+    referenceTransport: ['gcs_url', 'base64'].includes(request.referenceTransport?.mode) ? {
+      mode: request.referenceTransport.mode,
+      fallbackCode: boundedIdentifier(request.referenceTransport.fallbackCode)
+    } : null,
     developmentPocUnverified: request.developmentPocUnverified === true,
     developmentPocCredits: request.developmentPocCredits || null,
     developmentPocWarningCode: request.developmentPocWarningCode || null,
@@ -324,7 +332,12 @@ function boundedIdentifier(value) {
 }
 
 function sanitizeError(error, fallbackCode) {
-  return { code: error?.code || fallbackCode, category: error?.category || 'internal', retryable: Boolean(error?.retryable), providerBillableState: error?.providerBillableState || 'unknown' };
+  return {
+    code: error?.code || fallbackCode, category: error?.category || 'internal',
+    retryable: Boolean(error?.retryable), providerBillableState: error?.providerBillableState || 'unknown',
+    ...(boundedIdentifier(error?.providerCode) ? { providerCode: boundedIdentifier(error.providerCode) } : {}),
+    ...(boundedIdentifier(error?.providerRequestId) ? { providerRequestId: boundedIdentifier(error.providerRequestId) } : {})
+  };
 }
 
 function normalizeIdempotencyKey(value) {

@@ -143,6 +143,10 @@ export class VideoCapabilityRegistry {
     }
     copy.operations = [...new Set([...(copy.operations || []), 'image_to_video'])];
     copy.inputModes = [...new Set([...getInputModes(copy), 'image_to_video'])];
+    if (copy.developmentPocLookReferences === true) {
+      copy.inputModes.push('multimodal_reference');
+      copy.supportsCinematicLookReferences = true;
+    }
     copy.referenceConstraints ||= structuredClone(DEVELOPMENT_POC_REFERENCE_CONSTRAINTS);
     copy.developmentPocUnverified = true;
     copy.developmentPocCredits = this.developmentPocCredits;

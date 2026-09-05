@@ -76,6 +76,12 @@ export class ModelArkSeedanceProvider {
     if (endpoint.protocol !== 'https:') {
       throw providerError('video_provider_endpoint_invalid', 'ModelArk video endpoint must use HTTPS.', false, 'not_billable');
     }
+    if (request.referenceImage || request.lastFrameImage || request.referenceImages?.length) {
+      const payload = buildModelArkSeedancePayload(request);
+      if (Buffer.byteLength(JSON.stringify(payload)) > 64 * 1024 * 1024) {
+        throw providerError('video_reference_payload_too_large', 'The reference payload exceeds 64 MiB. Use URL transport.', false, 'not_billable');
+      }
+    }
     return {
       providerId: 'modelark',
       modelId,
@@ -147,15 +153,20 @@ export class ModelArkSeedanceProvider {
       durationMs: Date.now() - startedAt,
       statusCode: response.status,
       ok: response.ok,
-      providerCode: firstString(payload?.error?.code, payload?.code),
+      providerCode: safeDiagnosticIdentifier(firstString(payload?.error?.code, payload?.code)),
       providerMessage: summarizeVideoProviderError({
         message: firstString(payload?.error?.message, payload?.message)
       }).message,
-      providerRequestId: extractProviderRequestId(response, payload),
+      providerRequestId: safeDiagnosticIdentifier(extractProviderRequestId(response, payload)),
       providerTaskId: firstString(payload?.id, payload?.task_id, payload?.data?.id, payload?.data?.task_id),
       providerStatus: firstString(payload?.status, payload?.data?.status)
     });
-    if (!response.ok) throw normalizeModelArkHttpError(response.status, payload, operation);
+    if (!response.ok) {
+      const error = normalizeModelArkHttpError(response.status, payload, operation);
+      error.providerCode = safeDiagnosticIdentifier(firstString(payload?.error?.code, payload?.code));
+      error.providerRequestId = safeDiagnosticIdentifier(extractProviderRequestId(response, payload));
+      throw error;
+    }
     return payload;
   }
 
@@ -175,6 +186,11 @@ export function buildModelArkSeedancePayload(request = {}) {
   if (!prompt) throw providerError('video_prompt_required', 'ModelArk video prompt is required.', false, 'not_billable');
   const content = [{ type: 'text', text: prompt }];
   const references = normalizeReferences(request);
+  const roles = new Set(references.map(reference => reference.role));
+  if ([...roles].some(role => !['first_frame', 'last_frame', 'reference_image'].includes(role))
+    || (roles.has('reference_image') && (roles.has('first_frame') || roles.has('last_frame')))) {
+    throw providerError('video_reference_roles_invalid', 'First-frame and multimodal reference images cannot be combined.', false, 'not_billable');
+  }
   references.forEach(reference => content.push({
     type: 'image_url',
     image_url: { url: reference.url },
@@ -267,9 +283,9 @@ function normalizeReferences(request) {
   if (request.referenceImage) references.push({ url: normalizeImageReference(request.referenceImage), role: 'first_frame' });
   if (request.lastFrameImage) references.push({ url: normalizeImageReference(request.lastFrameImage), role: 'last_frame' });
   if (Array.isArray(request.referenceImages)) {
-    request.referenceImages.forEach((value, index) => references.push({
+    request.referenceImages.forEach(value => references.push({
       url: normalizeImageReference(value?.url || value),
-      role: String(value?.role || `reference_image_${index + 1}`)
+      role: String(value?.role || 'reference_image')
     }));
   }
   return references;
@@ -302,6 +318,10 @@ function summarizeRequestBody(body) {
         .filter(item => item?.type === 'image_url')
         .map(item => firstString(item?.role) || 'first_frame'),
       referenceCount: content.filter(item => item?.type === 'image_url').length,
+      referenceTransports: content.filter(item => item?.type === 'image_url').map(item => (
+        String(item.image_url?.url || '').startsWith('data:') ? 'base64'
+          : String(item.image_url?.url || '').startsWith('asset:') ? 'asset' : 'url'
+      )),
       ...summarizeVideoPrompt(content.find(item => item?.type === 'text')?.text)
     });
   } catch {
@@ -317,7 +337,8 @@ function extractProviderRequestId(response, payload) {
     payload?.request_id,
     payload?.requestId,
     payload?.error?.request_id,
-    payload?.error?.requestId
+    payload?.error?.requestId,
+    String(payload?.error?.message || payload?.message || '').match(/Request id:\s*([a-zA-Z0-9._:-]+)/i)?.[1]
   );
 }
 
@@ -337,6 +358,8 @@ function normalizeTerminalProviderError(response, providerStatus) {
   const message = firstString(response?.error?.message, response?.message, response?.error_message) || `ModelArk video task ${providerStatus}.`;
   return {
     code: firstString(response?.error?.code, response?.code) || `video_provider_${providerStatus}`,
+    providerCode: safeDiagnosticIdentifier(firstString(response?.error?.code, response?.code)),
+    providerRequestId: safeDiagnosticIdentifier(extractProviderRequestId(null, response)),
     category: 'provider',
     retryable: /internal|unavailable|timeout|rate|overload/i.test(message),
     providerBillableState: 'unknown'
@@ -347,7 +370,7 @@ function normalizeModelArkHttpError(status, payload, operation) {
   const message = firstString(payload?.error?.message, payload?.message) || `ModelArk video ${operation} request failed.`;
   const providerCode = firstString(payload?.error?.code, payload?.code) || '';
   const code = /InputImageSensitiveContentDetected\.PrivacyInformation|may contain real person/i.test(`${providerCode} ${message}`)
-    ? 'video_provider_portrait_authorization_required'
+    ? 'video_provider_input_image_rejected'
     : /modelnotopen|permission|entitlement|forbidden/i.test(`${providerCode} ${message}`)
     ? 'video_provider_not_qualified'
     : status === 408
@@ -365,6 +388,10 @@ function normalizeModelArkHttpError(status, payload, operation) {
     status === 408 || status === 429 || status >= 500,
     knownSubmitRejection ? 'not_billable' : 'unknown'
   );
+}
+
+function safeDiagnosticIdentifier(value) {
+  return /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,199}$/.test(String(value || '')) ? String(value) : null;
 }
 
 async function parseJsonResponse(response) {

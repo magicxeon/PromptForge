@@ -1,4 +1,23 @@
 {
   "schemaVersion": 1,
-  "registrations": []
+  "registrations": [
+    {
+      "id": "pareg_1788547691918_5040c838b9",
+      "registrationKey": "c33eb8b394afcb49fc9bf268699204a17a5180de2c8f62f50f5740b69e312f8d",
+      "ownerUserId": "usr_alice",
+      "sourceAssetId": "ast_1788532559508_3qq8ylp5",
+      "sourceContentHash": "2190a40ad2f8f03f79b80e37b44ba77de95125f97b3e521b8dafbb22f9c23304",
+      "providerId": "modelark",
+      "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
+      "providerProject": "default",
+      "status": "failed",
+      "providerAssetId": null,
+      "providerAssetGroupId": null,
+      "handoffObjectKey": null,
+      "providerRequestId": null,
+      "errorCode": "video_provider_asset_library_request_failed",
+      "createdAt": "2026-09-04T18:48:11.917Z",
+      "updatedAt": "2026-09-04T18:49:17.022Z"
+    }
+  ]
 }

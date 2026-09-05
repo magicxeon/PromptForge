@@ -277,6 +277,7 @@ export function getCinematicProduceContext(projectId: string, sceneId: string, s
 }
 
 export type CinematicVideoAttemptInput = {
+  referenceMode?: 'storyboard_only' | 'storyboard_and_looks';
   expectedVersion: number;
   expectedShotVersion: number;
   sourceFingerprint: string;

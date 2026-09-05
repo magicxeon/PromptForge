@@ -8,6 +8,7 @@ import { generationResultRepo } from '../../repositories/generation/GenerationRe
 import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 import { OUTPUTS_DIR } from '../../config/paths.js';
+import { loadVideoReferenceAssetContent, fingerprintLookVideoReference } from '../assets/VideoReferenceAssetContent.js';
 
 const GARMENT_ROLES = new Set(['full_look', 'upper', 'lower', 'outerwear', 'footwear', 'accessory']);
 const SOURCE_MODES = new Set(['character_default', 'uploaded', 'uploaded_character_sheet', 'ai_suggestion']);
@@ -420,6 +421,24 @@ export class CharacterLookService {
       throw new RepositoryContractError('character_look_version_unavailable', 'Approved Character Look version is unavailable.', 409);
     }
     return { look: toProjection(look), version: structuredClone(version) };
+  }
+
+  async resolveApprovedSheetReference(characterProfileId, lookId, versionId, actorContext) {
+    const { version } = await this.resolveApprovedVersion(characterProfileId, lookId, versionId, actorContext);
+    const asset = await this.assetRepository.findByIdForOwner(version.approvedSheetAsset?.assetId, actorContext.userId);
+    if (!asset || asset.status === 'deleted') {
+      throw new RepositoryContractError('character_look_sheet_unavailable', 'The approved Character Look Sheet is unavailable.', 409);
+    }
+    const { bytes: _bytes, ...content } = await loadVideoReferenceAssetContent(asset, { outputsDirectory: this.outputsDirectory });
+    const approvedHash = version.approvedSheetAsset?.contentHash;
+    if (approvedHash && approvedHash !== content.contentHash) {
+      throw new RepositoryContractError('character_look_sheet_changed', 'The approved Character Look Sheet content changed.', 409);
+    }
+    return {
+      asset: { ...asset, ...content },
+      sourceFingerprint: fingerprintLookVideoReference({ assetId: asset.id, characterLookVersionId: versionId, contentHash: content.contentHash }),
+      previewUrl: `/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks/${encodeURIComponent(lookId)}/versions/${encodeURIComponent(versionId)}/media/sheet`
+    };
   }
 
   async #authorizeCharacter(characterProfileId, characterProfileVersionId, actorContext) {

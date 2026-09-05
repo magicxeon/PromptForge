@@ -6,6 +6,76 @@ import { createStoryboardSourceFingerprint } from '../server/domain/assets/Cinem
 
 const actor = { userId: 'usr_video', username: 'video_user', role: 'user' };
 const TEST_MODELARK_SCOPE = 'modelark:ark.test:account:video-test';
+
+
+test('Cinematic multimodal quote binds every Look and dispatches URL references once without a duplicate first frame', async () => {
+  const board = compatibleSeedreamAsset();
+  const look = { id: 'look_sheet', ownerUserId: actor.userId, assetType: 'character_look_sheet',
+    publicUrl: '/outputs/look.png', mimeType: 'image/png', width: 1024, height: 1024, sizeBytes: 1000,
+    contentHash: 'look_hash', metadata: {} };
+  let revoked = false;
+  let dispatched;
+  let estimated;
+  let reserved;
+  const calls = [];
+  const service = new VideoGenerationApplicationService({
+    capabilityRegistry: new VideoCapabilityRegistry({ runtimeEnvironment: 'development', developmentPocEnabled: true }),
+    assetRepository: { async findByIdForOwner(id, owner) { return owner === actor.userId ? [board, look].find(item => item.id === id) : null; } },
+    storyboardAssetContentVerifier: async asset => ({ contentHash: asset.metadata.contentHash }),
+    modelArkCredentialScopeResolver: () => TEST_MODELARK_SCOPE,
+    lookService: { async resolveApprovedSheetReference(profile, id, version, owner) {
+      assert.equal(profile, 'character'); assert.equal(version, 'look_version'); assert.equal(owner.userId, actor.userId);
+      if (revoked) throw Object.assign(new Error('Look revoked'), { code: 'look_revoked' });
+      return { asset: look, sourceFingerprint: 'look_fingerprint' };
+    } },
+    firstFrameTransport: { async resolve({ sourceAsset, expectedContentHash }) {
+      assert.equal(expectedContentHash, sourceAsset.id === look.id ? look.contentHash : board.metadata.contentHash);
+      calls.push(`resolve:${sourceAsset.id}`);
+      return { value: `https://example.com/${sourceAsset.id}.png`, transport: { mode: 'gcs_url' } };
+    } },
+    creditService: {
+      async estimateVideo(value) { estimated = value.request; return { estimateId: 'multi_quote', estimatedCredits: 1 }; },
+      async getAccount() { return { availableCredits: 100 }; },
+      async validateAndReserveForRequest(value) { reserved = value.generationRequest; calls.push('reserve');
+        return { estimate: { estimateId: 'multi_quote', estimatedCredits: 1 }, reservation: { reservationId: 'multi_reservation' }, billingStatus: 'reserved' }; }
+    },
+    taskRepository: repositoryStub(new Map()),
+    providerTaskService: { async preflightTask(value) {
+      if (value.referenceImages?.length) { assert.equal(value.referenceImage, null); assert.equal(value.referenceImages.length, 2); calls.push('preflight-resolved'); }
+    }, async submitTask(value) { dispatched = value; calls.push('dispatch'); return { id: value.id, ownerUserId: actor.userId, status: 'provider_queued' }; } },
+    testingEnabled: true
+  });
+  const request = { providerId: 'modelark', modelId: 'dreamina-seedance-2-5-260628',
+    operation: 'image_to_video', commercialOperation: 'cinematic_draft_clip', inputMode: 'multimodal_reference',
+    prompt: 'Image 1: opening. Image 2: identity and wardrobe.', referenceContainsPerson: true,
+    aspectRatio: '9:16', resolution: '480p', durationSeconds: 6, audioMode: 'none', references: [
+      { role: 'reference_image', purpose: 'storyboard_opening', assetId: board.id, assetVersionId: board.id,
+        sourceFingerprint: createStoryboardSourceFingerprint(board), referenceImageUrl: board.publicUrl },
+      { role: 'reference_image', purpose: 'character_look', assetId: look.id, assetVersionId: look.id,
+        characterProfileId: 'character', characterLookId: 'look', characterLookVersionId: 'look_version',
+        contentHash: look.contentHash, sourceFingerprint: 'look_fingerprint', referenceImageUrl: look.publicUrl }
+    ] };
+  const workflow = { capability: 'cinematic', generationMode: 'cinematic_video', projectId: 'project', sceneId: 'scene', shotId: 'shot' };
+  const quote = await service.quote(request, actor, workflow);
+  const submission = { ...request, estimateId: 'multi_quote', requestFingerprint: quote.requestFingerprint, idempotencyKey: 'multi-look-reference' };
+  revoked = true;
+  await assert.rejects(service.submit(submission, actor, workflow), { code: 'look_revoked' });
+  assert.deepEqual(calls, []);
+  revoked = false;
+  look.contentHash = 'changed_hash';
+  await assert.rejects(service.submit(submission, actor, workflow), { code: 'cinematic_video_reference_content_changed' });
+  assert.deepEqual(calls, []);
+  look.contentHash = 'look_hash';
+  await service.submit(submission, actor, workflow);
+  assert.equal(dispatched.referenceImage, null);
+  assert.deepEqual(dispatched.referenceImages.map(item => item.url), [`https://example.com/${board.id}.png`, 'https://example.com/look_sheet.png']);
+  assert.equal(estimated.referenceImageCount, 2);
+  assert.equal(reserved.referenceCount, 2);
+  assert.equal(reserved.referencePlanFingerprint, estimated.referencePlanFingerprint);
+  assert.equal(dispatched.referenceAuthorityFingerprint, quote.selection.referenceAuthorityFingerprint);
+  assert.equal(dispatched.referenceTransports.length, 2);
+  assert.deepEqual(calls, [`resolve:${board.id}`, 'resolve:look_sheet', 'preflight-resolved', 'reserve', 'dispatch']);
+});
 const input = {
   providerId: 'gemini', modelId: 'veo-3.1-lite-generate-preview', operation: 'text_to_video',
   prompt: 'A clean fashion walk with a slow camera push.', aspectRatio: '9:16',
@@ -56,7 +126,6 @@ test('Seedance generated-source policy blocks an unproven Character frame before
       contentHash: candidate.metadata.contentHash,
       sizeBytes: candidate.sizeBytes
     }),
-    modelArkAssetRegistrationService: { async preflight() {} },
     modelArkCredentialScopeResolver: () => TEST_MODELARK_SCOPE,
     testingEnabled: true
   });
@@ -92,7 +161,6 @@ test('Cinematic Seedance quote accepts an owner-scoped compatible Seedream first
       contentHash: candidate.metadata.contentHash,
       sizeBytes: candidate.sizeBytes
     }),
-    modelArkAssetRegistrationService: { async preflight() {} },
     modelArkCredentialScopeResolver: () => TEST_MODELARK_SCOPE,
     testingEnabled: true
   });
@@ -147,8 +215,12 @@ test('Cinematic Seedance reports missing ModelArk credentials before pricing', a
   assert.equal(estimates, 0);
 });
 
-test('Cinematic Seedance submit revalidates authority and dispatches the registered approved Asset', async () => {
+test('Cinematic Seedance 2.5 dispatches the approved Pro frame URL without Asset Library', async () => {
   const asset = compatibleSeedreamAsset();
+  asset.metadata.providerOutputProvenance.requestedModelId = 'dola-seedream-5-0-pro-260628';
+  asset.metadata.providerOutputProvenance.resolvedModelId = 'dola-seedream-5-0-pro-260628';
+  const originalAsset = structuredClone(asset);
+  const originalUrl = 'https://storage.example/approved-frame?signature=private';
   const tasks = new Map();
   const calls = [];
   let dispatched = null;
@@ -163,23 +235,16 @@ test('Cinematic Seedance submit revalidates authority and dispatches the registe
       contentHash: candidate.metadata.contentHash,
       sizeBytes: candidate.sizeBytes
     }),
-    modelArkAssetRegistrationService: {
-      async preflight() { calls.push('asset-preflight'); },
-      async resolveFirstFrame() {
-        calls.push('asset-register');
-        return {
-          assetUri: 'asset://Asset-20260905-approved01',
-          registration: {
-            id: 'pareg_approved01', providerId: 'modelark',
-            providerAssetId: 'Asset-20260905-approved01', providerAssetGroupId: 'group-20260905-aigc01',
-            sourceAssetId: asset.id, sourceContentHash: asset.metadata.contentHash,
-            status: 'active', activatedAt: '2026-09-05T00:00:00.000Z'
-          }
-        };
+    modelArkCredentialScopeResolver: () => TEST_MODELARK_SCOPE,
+    firstFrameTransport: {
+      async resolve({ sourceAsset, ownerUserId, expectedContentHash }) {
+        assert.equal(sourceAsset.id, asset.id);
+        assert.equal(ownerUserId, actor.userId);
+        assert.equal(expectedContentHash, asset.metadata.contentHash);
+        calls.push('resolve-original');
+        return { value: originalUrl, transport: { mode: 'gcs_url', fallbackCode: null } };
       }
     },
-    modelArkCredentialScopeResolver: () => TEST_MODELARK_SCOPE,
-    referenceResolver: async () => { throw new Error('Seedance Character first frame must not use Base64.'); },
     creditService: {
       async estimateVideo() { return { estimateId: 'vest_seedance_submit', estimatedCredits: 1 }; },
       async getAccount() { return { availableCredits: 100 }; },
@@ -205,10 +270,10 @@ test('Cinematic Seedance submit revalidates authority and dispatches the registe
   });
   const sourceFingerprint = createStoryboardSourceFingerprint(asset);
   const request = {
-    providerId: 'modelark', modelId: 'dreamina-seedance-2-0-mini-260615',
+    providerId: 'modelark', modelId: 'dreamina-seedance-2-5-260628',
     commercialOperation: 'cinematic_draft_clip', inputMode: 'image_to_video',
     operation: 'image_to_video', prompt: 'Animate one restrained action from the approved frame.',
-    aspectRatio: '9:16', resolution: '720p', durationSeconds: 6, audioMode: 'none',
+    aspectRatio: '9:16', resolution: '480p', durationSeconds: 6, audioMode: 'none',
     referenceContainsPerson: true,
     references: [{
       role: 'first_frame', assetId: asset.id, assetVersionId: asset.id,
@@ -227,16 +292,19 @@ test('Cinematic Seedance submit revalidates authority and dispatches the registe
     idempotencyKey: 'seedream-seedance-exact-bytes'
   }, actor, workflow);
 
-  assert.equal(dispatched.referenceImage, 'asset://Asset-20260905-approved01');
-  assert.equal(dispatched.providerReferenceRegistrations[0].sourceAssetId, asset.id);
+  assert.equal(dispatched.referenceImage, originalUrl);
+  assert.equal(dispatched.referenceTransport.mode, 'gcs_url');
+  assert.equal(dispatched.modelId, 'dreamina-seedance-2-5-260628');
+  assert.equal(dispatched.resolution, '480p');
+  assert.deepEqual(dispatched.providerReferenceRegistrations, []);
+  assert.deepEqual(asset, originalAsset);
   assert.equal(dispatched.referenceAuthorityFingerprint, quote.selection.referenceAuthorityFingerprint);
   assert.deepEqual(calls, [
-    'asset-preflight', 'preflight',
-    'asset-preflight', 'asset-register', 'preflight', 'reserve', 'dispatch'
+    'preflight', 'resolve-original', 'preflight', 'reserve', 'dispatch'
   ]);
 });
 
-test('Cinematic Seedance Asset registration failure occurs before Credit reservation', async () => {
+test('Cinematic Seedance unavailable original bytes fail before Credit reservation', async () => {
   const asset = compatibleSeedreamAsset();
   let reservations = 0;
   const service = new VideoGenerationApplicationService({
@@ -248,14 +316,7 @@ test('Cinematic Seedance Asset registration failure occurs before Credit reserva
       contentHash: candidate.metadata.contentHash, sizeBytes: candidate.sizeBytes
     }),
     modelArkCredentialScopeResolver: () => TEST_MODELARK_SCOPE,
-    modelArkAssetRegistrationService: {
-      async preflight() {},
-      async resolveFirstFrame() {
-        throw Object.assign(new Error('Asset ingestion failed.'), {
-          code: 'video_provider_asset_ingest_failed', statusCode: 409
-        });
-      }
-    },
+    firstFrameTransport: { async resolve() { return { value: null }; } },
     creditService: {
       async estimateVideo() { return { estimateId: 'vest_asset_failure', estimatedCredits: 1 }; },
       async getAccount() { return { availableCredits: 100 }; },
@@ -286,8 +347,8 @@ test('Cinematic Seedance Asset registration failure occurs before Credit reserva
   await assert.rejects(service.submit({
     ...request, estimateId: quote.estimate.estimateId,
     requestFingerprint: quote.requestFingerprint,
-    idempotencyKey: 'seedream-seedance-registration-failure'
-  }, actor, workflow), error => error.code === 'video_provider_asset_ingest_failed');
+    idempotencyKey: 'seedream-seedance-source-unavailable'
+  }, actor, workflow), error => error.code === 'video_reference_unavailable');
   assert.equal(reservations, 0);
 });
 
@@ -674,7 +735,7 @@ function createService(overrides = {}) {
     storyboardAssetContentVerifier: overrides.storyboardAssetContentVerifier,
     referenceResolver: overrides.referenceResolver,
     modelArkCredentialScopeResolver: overrides.modelArkCredentialScopeResolver,
-    modelArkAssetRegistrationService: overrides.modelArkAssetRegistrationService,
+    firstFrameTransport: overrides.firstFrameTransport,
     taskRepository: overrides.taskRepository || repositoryStub(new Map()),
     providerTaskService: overrides.providerTaskService || {},
     testingEnabled: true

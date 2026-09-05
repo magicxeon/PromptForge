@@ -7,6 +7,28 @@ import test from 'node:test';
 import { CinematicVideoPacketConfigurationService } from '../server/domain/cinematic/CinematicVideoPacketConfigurationService.js';
 import { CinematicVideoPacketCompiler } from '../server/domain/cinematic/CinematicVideoPacketCompiler.js';
 import { StoryboardKeyframeContractCompiler } from '../server/domain/cinematic/StoryboardKeyframeContractCompiler.js';
+
+test('Look reference strategy maps Image 1 and multiple Characters without changing the first-frame packet', () => {
+  const project = createSingleCharacterCinematicProject();
+  const scene = project.scenes[0];
+  const shot = scene.shots[0];
+  const compiler = new CinematicVideoPacketCompiler();
+  const packet = compiler.compile({ project, scene, shot });
+  const single = compiler.renderForProvider(packet, { providerId: 'modelark' });
+  const referencePlan = { inputMode: 'multimodal_reference', references: [
+    { purpose: 'storyboard_opening' }, { roleName: 'Nara', lookName: 'Cafe' }, { roleName: 'Mai', lookName: 'Visitor' }
+  ] };
+  const result = compiler.renderForProvider(packet, { providerId: 'modelark', referencePlan });
+  assert.match(result.prompt, /Image 1 is the Storyboard reference/);
+  assert.match(result.prompt, /Image 2.*Nara/);
+  assert.match(result.prompt, /Image 3.*Mai/);
+  assert.match(result.prompt, /Do not copy a Look Sheet/);
+  assert.match(result.prompt, /fine sensor noise/);
+  assert.doesNotMatch(result.prompt, /immutable first frame|APPROVED START FRAME/);
+  assert.equal(compiler.renderForProvider(packet, { providerId: 'modelark' }).prompt, single.prompt);
+  referencePlan.references[1].lookName = 'x'.repeat(4000);
+  assert.throws(() => compiler.renderForProvider(packet, { providerId: 'modelark', referencePlan }), { code: 'cinematic_video_reference_prompt_too_long' });
+});
 import {
   createMultiCharacterCinematicProject,
   createSingleCharacterCinematicProject

@@ -48,6 +48,7 @@ export function summarizeVideoProviderError(error) {
 function sanitizeDiagnosticText(value) {
   return String(value || '')
     .replace(/data:[^;,\s]+;base64,[a-zA-Z0-9+/=\s]+/g, '[media omitted]')
+    .replace(/https?:\/\/[^\s"'<>]+/gi, '[URL omitted]')
     .replace(/([?&](?:key|api_key)=)[^&\s]+/gi, '$1[credential omitted]')
     .slice(0, 1000);
 }

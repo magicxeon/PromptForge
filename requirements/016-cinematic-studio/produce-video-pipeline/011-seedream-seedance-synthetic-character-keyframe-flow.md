@@ -1,5 +1,12 @@
 # Seedream To Seedance Synthetic Character Keyframe Flow
 
+> Current correction: [CINE-FIX-012](../fix-tickets/CINE-FIX-012-seedance-direct-first-frame-recovery.md)
+> supersedes mandatory Asset Library transport and setup prerequisites below.
+> Prefer a reusable private GCS signed URL, with verified Base64 fallback before
+> submit. Historical registration work is not
+> required for this flow. Pro + reference provider acceptance is unconfirmed;
+> do not promise success or automatically replace the approved image/provider.
+
 **Requirement ID:** `016-PVP-011`  
 **Status:** Deterministic AIGC Asset transport implemented; deployment setup and live qualification pending  
 **Priority:** P0 internal qualification recovery  

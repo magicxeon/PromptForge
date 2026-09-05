@@ -88,13 +88,29 @@ terminal settlement so partial failure refunds only failed work.
 
 ### 6.1 Scope and selection
 
-- One invocation targets every unapproved eligible Shot in the current Project.
+- By default, one invocation targets every unapproved eligible Shot in the current Project.
 - The dialog reports both Scene count and Shot count; generation is one image
   per eligible Shot, not one image per Scene.
 - One provider/model/resolution/aspect-ratio contract applies to the full batch.
 - Comparison and multiple provider selection are unavailable.
 - Already-approved Shots are skipped by default and listed separately.
+- The toolbar remains available when the Project contains Shots even if every
+  Shot already has an approved image. The dialog offers an unchecked `Include
+  approved Shots` checkbox when approved sources exist. Selecting it includes
+  approved Shots as new review candidates and requotes the complete selection.
+- Opening the dialog or changing this checkbox must never submit generation,
+  change the selected provider, revoke approval or replace a source. Existing
+  approved sources remain authoritative until explicit approval of a new result.
+- The summary distinguishes approved Shots skipped from approved Shots included
+  in scope. Context loading, quote loading/failure, affordability and active
+  submission still gate the final Generate action.
+- Image generation does not require GCS, ModelArk Asset Library or successful
+  downstream video qualification. Image-model reference limits and canonical
+  Character/Look/prompt authority continue to apply.
 - Blocked Shots remain visible with a stable reason and are never submitted.
+
+Implementation and verification for approved-source regeneration:
+`../produce-video-pipeline/implementation-plan/003g-storyboard-image-regeneration.md`.
 
 ### 6.2 Quote and confirmation
 

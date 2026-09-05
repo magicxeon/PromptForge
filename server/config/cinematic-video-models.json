@@ -88,6 +88,7 @@
     },
     {
       "providerId": "modelark", "modelId": "dreamina-seedance-2-0-mini-260615", "displayName": "Seedance 2.0 Mini",
+      "developmentPocLookReferences": true,
       "operations": ["text_to_video", "cinematic_motion_preview", "cinematic_draft_clip"], "durationControlMode": "exact", "durations": [4, 5, 6, 8, 10, 12, 15],
       "commercialOperations": ["playground_video", "cinematic_motion_preview", "cinematic_draft_clip"],
       "inputModes": ["text_to_video"],
@@ -101,6 +102,7 @@
     },
     {
       "providerId": "modelark", "modelId": "dreamina-seedance-2-0-fast-260128", "displayName": "Seedance 2.0 Fast",
+      "developmentPocLookReferences": true,
       "operations": ["text_to_video", "cinematic_draft_clip", "cinematic_final_clip"], "durationControlMode": "exact", "durations": [4, 5, 6, 8, 10, 12, 15],
       "commercialOperations": ["playground_video", "cinematic_draft_clip", "cinematic_final_clip"],
       "inputModes": ["text_to_video"],
@@ -114,6 +116,7 @@
     },
     {
       "providerId": "modelark", "modelId": "dreamina-seedance-2-0-260128", "displayName": "Seedance 2.0",
+      "developmentPocLookReferences": true,
       "operations": ["text_to_video", "cinematic_draft_clip", "cinematic_final_clip"], "durationControlMode": "exact", "durations": [4, 5, 6, 8, 10, 12, 15],
       "commercialOperations": ["playground_video", "cinematic_draft_clip", "cinematic_final_clip"],
       "inputModes": ["text_to_video"],
@@ -127,6 +130,7 @@
     },
     {
       "providerId": "modelark", "modelId": "dreamina-seedance-2-5-260628", "displayName": "Seedance 2.5",
+      "developmentPocLookReferences": true,
       "operations": ["text_to_video", "cinematic_draft_clip", "cinematic_final_clip"], "durationControlMode": "exact", "durations": [4, 5, 6, 8, 10, 12, 15, 20, 30],
       "commercialOperations": ["playground_video", "cinematic_draft_clip", "cinematic_final_clip"],
       "inputModes": ["text_to_video"],

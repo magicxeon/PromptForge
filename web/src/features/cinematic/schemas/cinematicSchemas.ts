@@ -938,6 +938,13 @@ export const cinematicProduceShotContextSchema = z.object({
 });
 
 export const cinematicVideoQuoteSchema = videoQuoteSchema.extend({
+  referenceMode: z.enum(['storyboard_only', 'storyboard_and_looks']).optional(),
+  renderedPrompt: z.string().optional(),
+  referenceSummary: z.array(z.object({
+    imageNumber: z.number().int().positive(), assetId: z.string().nullable(),
+    purpose: z.enum(['storyboard_opening', 'character_look']),
+    roleName: z.string().nullable(), lookName: z.string().nullable(), previewUrl: z.string()
+  })).optional(),
   projectId: z.string(),
   sceneId: z.string(),
   shotId: z.string(),

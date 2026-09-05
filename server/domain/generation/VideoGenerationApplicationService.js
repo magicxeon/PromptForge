@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
+import { characterLookService } from '../character-profiles/CharacterLookService.js';
 import { resolveReferenceForProvider } from './referenceUtils.js';
 import {
   normalizeVideoExecutionSelection,
@@ -26,7 +27,7 @@ import {
   sanitizeVideoReferences
 } from './VideoReferencePlan.js';
 import { resolveModelArkCredentialScope } from '../../providers/modelArkCredentialScope.js';
-import { modelArkAigcAssetRegistrationService } from '../assets/ModelArkAigcAssetRegistrationService.js';
+import { cinematicFirstFrameTransportService } from '../assets/CinematicFirstFrameTransportService.js';
 
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 
@@ -35,12 +36,13 @@ export class VideoGenerationApplicationService {
     capabilityRegistry = videoCapabilityRegistry,
     creditService = creditApplicationService,
     characterService = characterUsageService,
+    lookService = characterLookService,
     taskRepository = videoProviderTaskRepository,
     assetRepository = assetRepo,
     storyboardAssetContentVerifier = verifyStoryboardAssetContent,
     referenceResolver = resolveReferenceForProvider,
     modelArkCredentialScopeResolver = resolveModelArkCredentialScope,
-    modelArkAssetRegistrationService = modelArkAigcAssetRegistrationService,
+    firstFrameTransport = cinematicFirstFrameTransportService,
     providerTaskService = null,
     testingEnabled = process.env.NODE_ENV !== 'production'
       && process.env.VIDEO_PLAYGROUND_TESTING_ENABLED !== 'false'
@@ -48,12 +50,13 @@ export class VideoGenerationApplicationService {
     this.capabilityRegistry = capabilityRegistry;
     this.creditService = creditService;
     this.characterService = characterService;
+    this.lookService = lookService;
     this.taskRepository = taskRepository;
     this.assetRepository = assetRepository;
     this.storyboardAssetContentVerifier = storyboardAssetContentVerifier;
     this.referenceResolver = referenceResolver;
     this.modelArkCredentialScopeResolver = modelArkCredentialScopeResolver;
-    this.modelArkAssetRegistrationService = modelArkAssetRegistrationService;
+    this.firstFrameTransport = firstFrameTransport;
     this.testingEnabled = testingEnabled;
     if (providerTaskService) {
       this.providerTaskService = providerTaskService;
@@ -118,7 +121,8 @@ export class VideoGenerationApplicationService {
     const replay = await this.taskRepository.findByIdempotencyKey(actorContext.userId, idempotencyKey);
     if (replay) return replay;
     const source = await this.#validateSource(request, actorContext, { resolveMedia: true, workflow, model });
-    await this.providerTaskService.preflightTask?.({ ...request, referenceImage: source.referenceImage }, {
+    await this.providerTaskService.preflightTask?.({ ...request, referenceImage: source.referenceImage,
+      lastFrameImage: source.lastFrameImage, referenceImages: source.referenceImages }, {
       allowTesting: this.testingEnabled
     });
     const taskId = deterministicTaskId(actorContext.userId, idempotencyKey);
@@ -159,6 +163,8 @@ export class VideoGenerationApplicationService {
       lastFrameImage: source.lastFrameImage,
       referenceImages: source.referenceImages,
       providerReferenceRegistrations: source.providerReferenceRegistrations,
+      referenceTransport: source.referenceTransport || null,
+      referenceTransports: source.referenceTransports || [],
       characterAttributions: source.characterAttributions,
       requestFingerprint: request.requestFingerprint,
       pricingFingerprint: financialAuthorization.estimate.estimateId,
@@ -323,13 +329,6 @@ export class VideoGenerationApplicationService {
       request.referenceAuthorityFingerprint = fingerprintReferenceAuthority(request.referenceAuthority);
     }
     const model = this.#validateModel(request);
-    if (usesModelArkAigcAssetTransport(request, model)) {
-      await this.modelArkAssetRegistrationService.preflight({
-        sourceAuthority: request.referenceAuthority,
-        actorContext,
-        credentialScope: request.providerCredentialScope
-      });
-    }
     request.developmentPocUnverified = model.developmentPocUnverified === true;
     request.developmentPocCredits = model.developmentPocUnverified === true
       ? Number(model.developmentPocCredits || 1)
@@ -351,27 +350,21 @@ export class VideoGenerationApplicationService {
       }
       if (!resolveMedia) return emptyResolvedSource();
       const resolved = [];
-      const providerReferenceRegistrations = [];
+      let referenceTransport = null;
+      const referenceTransports = [];
       for (const reference of request.references) {
         let value;
-        if (workflow?.capability === 'cinematic'
-          && reference.role === 'first_frame'
-          && usesModelArkAigcAssetTransport(request, model)) {
-          const sourceAsset = await this.assetRepository.findByIdForOwner(
-            request.referenceAuthority.assetId,
-            actorContext.userId
-          );
-          if (!sourceAsset) {
-            throw videoError('cinematic_video_reference_unavailable', 'The approved Storyboard reference is no longer available.', 409);
-          }
-          const providerReference = await this.modelArkAssetRegistrationService.resolveFirstFrame({
-            sourceAsset,
-            sourceAuthority: request.referenceAuthority,
-            actorContext,
-            credentialScope: request.providerCredentialScope
+        if (workflow?.capability === 'cinematic' && request.providerId === 'modelark'
+          && (reference.role === 'first_frame' || request.inputMode === 'multimodal_reference')) {
+          const sourceAsset = await this.assetRepository.findByIdForOwner(reference.assetId, actorContext.userId);
+          const result = await this.firstFrameTransport.resolve({
+            sourceAsset, ownerUserId: actorContext.userId,
+            expectedContentHash: request.referenceAuthority.references?.find(item => item.assetId === reference.assetId)?.contentHash
+              || request.referenceAuthority.contentHash
           });
-          value = providerReference.assetUri;
-          providerReferenceRegistrations.push(providerReference.registration);
+          value = result.value;
+          referenceTransport ||= result.transport;
+          referenceTransports.push({ assetId: reference.assetId, ...result.transport });
         } else {
           value = await this.referenceResolver(reference.referenceImageUrl, actorContext.username, {
             ownerUserId: actorContext.userId
@@ -381,13 +374,16 @@ export class VideoGenerationApplicationService {
         resolved.push({ role: reference.role, value });
       }
       return {
-        referenceImage: resolved.find(item => item.role === 'first_frame')?.value || resolved[0]?.value || null,
+        referenceImage: request.inputMode === 'multimodal_reference' && workflow?.capability === 'cinematic'
+          ? null : resolved.find(item => item.role === 'first_frame')?.value || resolved[0]?.value || null,
         lastFrameImage: resolved.find(item => item.role === 'last_frame')?.value || null,
         referenceImages: resolved
           .filter(item => !['first_frame', 'last_frame'].includes(item.role))
           .map(item => ({ role: item.role, url: item.value })),
         characterAttributions: [],
-        providerReferenceRegistrations
+        providerReferenceRegistrations: [],
+        referenceTransport,
+        referenceTransports
       };
     }
     if (!request.characterProfileId || !request.characterProfileVersionId) {
@@ -430,13 +426,27 @@ export class VideoGenerationApplicationService {
       if (!reference.assetId || !reference.assetVersionId || reference.assetId !== reference.assetVersionId) {
         throw videoError('cinematic_video_reference_authority_invalid', 'The Storyboard reference Asset authority is incomplete.', 409);
       }
-      const asset = await this.assetRepository.findByIdForOwner(reference.assetId, actorContext.userId);
+      let asset = await this.assetRepository.findByIdForOwner(reference.assetId, actorContext.userId);
+      const isLook = reference.purpose === 'character_look';
+      let approvedLook = null;
+      if (isLook) {
+        if (!model?.supportsCinematicLookReferences || reference.role !== 'reference_image'
+          || !reference.characterProfileId || !reference.characterLookId || !reference.characterLookVersionId) {
+          throw videoError('cinematic_video_reference_authority_invalid', 'The Character Look reference authority is incomplete.', 409);
+        }
+        approvedLook = await this.lookService.resolveApprovedSheetReference(reference.characterProfileId,
+          reference.characterLookId, reference.characterLookVersionId, actorContext);
+        if (approvedLook.asset.id !== reference.assetId || approvedLook.asset.contentHash !== reference.contentHash) {
+          throw videoError('cinematic_video_reference_content_changed', 'The approved Character Look changed.', 409);
+        }
+        asset = approvedLook.asset;
+      }
       if (!asset || asset.status === 'deleted' || asset.publicUrl !== reference.referenceImageUrl
-        || asset.assetType !== 'cinematic_storyboard_source'
-        || asset.metadata?.immutable !== true) {
+        || (isLook ? asset.assetType !== 'character_look_sheet'
+          : asset.assetType !== 'cinematic_storyboard_source' || asset.metadata?.immutable !== true)) {
         throw videoError('cinematic_video_reference_unavailable', 'The approved Storyboard reference is no longer available.', 409);
       }
-      const sourceFingerprint = createStoryboardSourceFingerprint(asset);
+      const sourceFingerprint = approvedLook?.sourceFingerprint || createStoryboardSourceFingerprint(asset);
       if (!reference.sourceFingerprint || reference.sourceFingerprint !== sourceFingerprint) {
         throw videoError('cinematic_video_reference_authority_invalid', 'The approved Storyboard reference fingerprint changed.', 409);
       }
@@ -445,7 +455,7 @@ export class VideoGenerationApplicationService {
       }
       let verifiedContent;
       try {
-        verifiedContent = await this.storyboardAssetContentVerifier(asset);
+        verifiedContent = approvedLook ? { contentHash: asset.contentHash } : await this.storyboardAssetContentVerifier(asset);
       } catch {
         throw videoError(
           'cinematic_video_reference_content_changed',
@@ -455,6 +465,8 @@ export class VideoGenerationApplicationService {
       }
       authorities.push({
         role: reference.role,
+        ...(isLook ? { purpose: reference.purpose, characterProfileId: reference.characterProfileId,
+          characterLookId: reference.characterLookId, characterLookVersionId: reference.characterLookVersionId } : {}),
         assetId: asset.id,
         assetVersionId: asset.id,
         sourceFingerprint,
@@ -488,7 +500,8 @@ export class VideoGenerationApplicationService {
     const firstFrame = authorities.find(item => item.role === 'first_frame') || authorities[0];
     return firstFrame ? {
       kind: 'cinematic_storyboard_source',
-      ...firstFrame
+      ...firstFrame,
+      ...(references.some(item => item.purpose === 'character_look') ? { references: authorities } : {})
     } : null;
   }
 }
@@ -640,7 +653,8 @@ function fingerprintReferenceAuthority(authority) {
     assetVersionId: authority.assetVersionId,
     sourceFingerprint: authority.sourceFingerprint,
     contentHash: authority.contentHash,
-    providerOutputProvenance: authority.providerOutputProvenance
+    providerOutputProvenance: authority.providerOutputProvenance,
+    ...(authority.references ? { references: authority.references } : {})
   })).digest('hex');
 }
 
@@ -652,13 +666,6 @@ function emptyResolvedSource() {
     characterAttributions: [],
     providerReferenceRegistrations: []
   };
-}
-
-function usesModelArkAigcAssetTransport(request, model) {
-  return request.providerId === 'modelark'
-    && request.referenceContainsPerson === true
-    && model?.portraitReferencePolicy === 'provider_generated_asset_required'
-    && request.referenceAuthority?.kind === 'cinematic_storyboard_source';
 }
 
 function normalizeIdempotencyKey(value) {

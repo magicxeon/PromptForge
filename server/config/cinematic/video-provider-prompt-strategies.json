@@ -14,6 +14,14 @@
       "providerIds": ["modelark"],
       "promptPrefix": "Animate the supplied first frame as one continuous photorealistic live-action shot. Preserve its exact Character identity, wardrobe, framing and motivated light.",
       "omitSections": ["authorDirection"],
+      "lookReferenceMode": {
+        "maximumPromptCharacters": 4000,
+        "promptPrefix": "Create one continuous photorealistic live-action shot from the ordered reference images.",
+        "startAuthority": "Image 1 is the Storyboard reference: use its opening composition, environment, props, pose, emotion and motivated lighting as the scene authority.",
+        "characterMapping": "Image {imageNumber} is the approved Character Look Sheet for {roleName}, Look {lookName}. Use it only for this Character's identity and wardrobe.",
+        "prohibitions": "Do not copy a Look Sheet's multi-view layout, background, neutral pose or smile into the video. Do not swap identities or outfits between Characters or add people from sheet views. The authored performance controls expression.",
+        "sectionLabel": "ORDERED IMAGE REFERENCES"
+      },
       "promptSuffix": "Keep motion restrained and physically plausible: natural breathing and blinking, believable body weight, and coherent hair and fabric inertia. Retain subtle optical softness, natural focus behavior and fine sensor noise from the source without reshaping the face, smoothing skin or adding mechanically perfect motion."
     },
     {

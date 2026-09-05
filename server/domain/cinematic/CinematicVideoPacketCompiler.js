@@ -139,13 +139,13 @@ export class CinematicVideoPacketCompiler {
     };
   }
 
-  renderForProvider(packet, { providerId = '' } = {}) {
+  renderForProvider(packet, { providerId = '', referencePlan = null } = {}) {
     if (!packet?.contractVersion || !packet?.packetFingerprint) {
       throw new TypeError('A compiled Cinematic video packet is required.');
     }
     const policy = this.configurationService.getPolicy();
     const strategy = this.configurationService.getPromptStrategy(providerId);
-    const prompt = renderPrompt(packet, policy, strategy);
+    const prompt = renderPrompt(packet, policy, strategy, referencePlan);
     return {
       prompt,
       promptFingerprint: fingerprint(prompt),
@@ -180,7 +180,11 @@ function compileKeyframeCandidates(compiler, project, scene, shot) {
     : [continuityContract, noPriorReferenceContract];
 }
 
-function renderPrompt(packet, policy, strategy = null) {
+function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
+  const referenceMode = referencePlan?.inputMode === 'multimodal_reference' ? strategy?.lookReferenceMode : null;
+  if (referencePlan?.inputMode === 'multimodal_reference' && !referenceMode) {
+    throw new TypeError('The provider has no configured Look reference prompt strategy.');
+  }
   const labels = policy.sectionLabels || LEGACY_SECTION_LABELS;
   const phrase = (key, fallback, variables = {}) => template(policy.phrasing?.[key] || fallback, variables);
   const sections = {
@@ -231,16 +235,30 @@ function renderPrompt(packet, policy, strategy = null) {
     authorDirection: packet.authorDirection
   };
   const omittedSections = new Set(strategy?.omitSections || []);
+  if (referenceMode) {
+    sections.startAuthority = sentences([referenceMode.startAuthority, packet.motion.visibleStart,
+      ...referencePlan.references.slice(1).map((reference, index) => template(referenceMode.characterMapping, {
+        imageNumber: index + 2, roleName: reference.roleName, lookName: reference.lookName
+      })), referenceMode.prohibitions]);
+  }
   const prompt = [
-    ...(compact(strategy?.promptPrefix) ? [compact(strategy.promptPrefix)] : []),
+    ...(compact(referenceMode?.promptPrefix || strategy?.promptPrefix) ? [compact(referenceMode?.promptPrefix || strategy.promptPrefix)] : []),
     `CINEMATIC VIDEO EXECUTION PACKET ${packet.contractVersion}`,
     ...policy.promptSectionOrder.flatMap(section => {
       if (omittedSections.has(section)) return [];
       const value = compact(sections[section]);
-      return value ? [`${labels[section]}:\n${value}`] : [];
+      return value ? [`${section === 'startAuthority' && referenceMode ? referenceMode.sectionLabel : labels[section]}:\n${value}`] : [];
     }),
     ...(compact(strategy?.promptSuffix) ? [compact(strategy.promptSuffix)] : [])
   ].join('\n\n');
+  if (referenceMode) {
+    if (prompt.length > referenceMode.maximumPromptCharacters) {
+      throw Object.assign(new Error('The video direction and Character mappings exceed the prompt limit. Shorten this Shot direction before generating.'), {
+        code: 'cinematic_video_reference_prompt_too_long', statusCode: 409
+      });
+    }
+    return prompt;
+  }
   return truncate(prompt, policy.maximumPromptCharacters);
 }
 

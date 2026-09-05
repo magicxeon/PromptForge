@@ -79,6 +79,7 @@ The baseline still does not yet provide:
 | `009-test-rollout-and-release-gates.md` | Automated, manual, live-provider, commercial and release gates |
 | `010-produce-data-lineage-checklist.md` | Data handoff and fingerprint invariants from Storyboard through final export |
 | `011-seedream-seedance-synthetic-character-keyframe-flow.md` | Same-account Seedream provenance, synthetic Character first-frame trust and Seedance 2.x POC recovery |
+| `012-storyboard-and-look-video-references.md` | Dynamic Storyboard + 1..N Look references implemented and locally verified; strict first-frame remains default; live qualification pending |
 | `implementation-plan/` | Dependency-ordered implementation packages; only one package may be active |
 
 ## 5. Capability Ownership

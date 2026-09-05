@@ -33,31 +33,42 @@ export class GoogleCloudProviderAssetStorage {
     }
   }
 
-  async publish({ ownerUserId, sourceAssetId, contentHash, bytes, mimeType }) {
+  async publish({ ownerUserId, sourceAssetId, contentHash, bytes, mimeType, reuseExisting = false, urlTtlSeconds = this.ttlSeconds }) {
     this.assertConfigured();
     if (!Buffer.isBuffer(bytes) || !bytes.length) {
       throw storageError('video_provider_asset_source_unavailable', 'The approved Storyboard source bytes are unavailable.', 409);
     }
-    const objectKey = this.#objectKey({ ownerUserId, sourceAssetId, contentHash, mimeType });
+    const objectKey = this.#objectKey({ ownerUserId, sourceAssetId, contentHash, mimeType, reuseExisting });
     const file = this.storage.bucket(this.bucketName).file(objectKey);
     try {
-      await file.save(bytes, {
+      const options = {
         resumable: false,
         validation: 'crc32c',
+        ...(reuseExisting ? { preconditionOpts: { ifGenerationMatch: 0 } } : {}),
         metadata: {
           contentType: mimeType || 'image/png',
           cacheControl: 'private, max-age=0, no-store',
           metadata: { contentHash: String(contentHash) }
         }
-      });
-      const expiresAt = new Date(this.clock().getTime() + this.ttlSeconds * 1000);
+      };
+      if (!reuseExisting || !await matchesExistingObject(file, { bytes, contentHash, mimeType })) {
+        try {
+          await file.save(bytes, options);
+        } catch (error) {
+          // A concurrent submission may have created the same immutable object.
+          if (!reuseExisting || Number(error?.code) !== 412
+            || !await matchesExistingObject(file, { bytes, contentHash, mimeType })) throw error;
+        }
+      }
+      const ttl = boundedInteger(urlTtlSeconds, 300, 604800, this.ttlSeconds);
+      const expiresAt = new Date(this.clock().getTime() + ttl * 1000);
       const [sourceUrl] = await file.getSignedUrl({ version: 'v4', action: 'read', expires: expiresAt });
       if (!/^https:\/\//i.test(sourceUrl)) throw new Error('Signed URL is not HTTPS.');
       return { objectKey, sourceUrl, expiresAt: expiresAt.toISOString() };
     } catch (cause) {
       throw storageError(
         'video_provider_asset_storage_failed',
-        'The approved Storyboard source could not be prepared for ModelArk Asset registration.',
+        'The approved Storyboard source could not be prepared as a private provider URL.',
         502,
         cause
       );
@@ -74,14 +85,32 @@ export class GoogleCloudProviderAssetStorage {
     }
   }
 
-  #objectKey({ ownerUserId, sourceAssetId, contentHash, mimeType }) {
+  #objectKey({ ownerUserId, sourceAssetId, contentHash, mimeType, reuseExisting }) {
     const ownerScope = crypto.createHash('sha256').update(String(ownerUserId || '')).digest('hex').slice(0, 20);
     const assetId = safeSegment(sourceAssetId, 'asset');
     const hash = /^[a-f0-9]{32,128}$/i.test(String(contentHash || ''))
       ? String(contentHash).toLowerCase()
       : crypto.createHash('sha256').update(String(contentHash || '')).digest('hex');
-    return `${this.prefix}/${ownerScope}/${assetId}/${hash}.${extensionFor(mimeType)}`;
+    return `${this.prefix}/${reuseExisting ? 'video-first-frames/' : ''}${ownerScope}/${assetId}/${hash}.${extensionFor(mimeType)}`;
   }
+}
+
+async function matchesExistingObject(file, { bytes, contentHash, mimeType }) {
+  let metadata;
+  try {
+    [metadata] = await file.getMetadata();
+  } catch (error) {
+    if (Number(error?.code) === 404) return false;
+    throw error;
+  }
+  const md5 = crypto.createHash('md5').update(bytes).digest('base64');
+  if (metadata.metadata?.contentHash !== String(contentHash)
+    || Number(metadata.size) !== bytes.length
+    || metadata.contentType !== mimeType
+    || metadata.md5Hash !== md5) {
+    throw storageError('video_provider_asset_object_mismatch', 'The stored provider image does not match the approved source.', 409);
+  }
+  return true;
 }
 
 function normalizePrefix(value) {
