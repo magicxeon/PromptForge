@@ -16,6 +16,10 @@ development testing is implemented. Creator-run live qualification remains
 pending. Earlier multi-product scope
 below is deferred, not permission to enable Studio/Fashion/Cinematic.
 
+[008 Playground Comparison mode](008-playground-comparison-mode.md) extends
+that development-only exposure to Comparison slots inside Playground. It does
+not promote Muse to production or authorize another generation surface.
+
 Add Meta Muse as an image-generation provider through the existing Generation,
 Provider Registry, Credits, Reference Processing, and Fashion qualification
 contracts. The change must add capability without replacing or weakening any

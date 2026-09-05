@@ -109,6 +109,7 @@
   "playground.comparison.moveLeft": "เลื่อนโมเดลไปทางซ้าย",
   "playground.comparison.moveRight": "เลื่อนโมเดลไปทางขวา",
   "playground.comparison.referencesShort": "รูปอ้างอิง",
+  "playground.comparison.internalTesting": "ทดสอบภายใน",
   "playground.comparison.credits": "เครดิต",
   "playground.comparison.estimatedTotal": "เครดิตโดยประมาณรวม",
   "playground.action.closeComparison": "ปิดการเปรียบเทียบ",

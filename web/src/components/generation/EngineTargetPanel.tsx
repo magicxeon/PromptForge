@@ -80,6 +80,10 @@ export function EngineTargetPanel({
     requiredReferenceCount,
     fixedAspectRatio || value.aspectRatio
   );
+  const comparisonUsesAspectOnlyDimensions = comparison && comparisonSlots.some(slot => (
+    catalog.providers.find(item => item.id === slot.provider)?.models
+      .find(item => item.id === slot.model)?.capabilities.dimensionControl === 'aspect_ratio_only'
+  ));
 
   function setProvider(providerId: string) {
     const next = catalog.providers.find(item => item.id === providerId);
@@ -124,7 +128,8 @@ export function EngineTargetPanel({
           </div>
         ) : null}
         <div className="engine-target-panel__output-grid">
-          {model?.capabilities.dimensionControl !== 'aspect_ratio_only' || comparison ? <>
+          {model?.capabilities.dimensionControl !== 'aspect_ratio_only'
+            && !comparisonUsesAspectOnlyDimensions ? <>
             <Field label={t('playground.engine.width')}><input readOnly value={dimensions.width} /></Field>
             <Field label={t('playground.engine.height')}><input readOnly value={dimensions.height} /></Field>
           </> : null}
@@ -184,6 +189,8 @@ export function EngineTargetPanel({
           estimates={comparisonEstimates}
           estimating={comparisonEstimating}
           estimateError={comparisonEstimateError}
+          requiredReferenceCount={requiredReferenceCount}
+          aspectRatio={fixedAspectRatio || value.aspectRatio}
           onChange={onSlotsChange}
         />
       ) : null}

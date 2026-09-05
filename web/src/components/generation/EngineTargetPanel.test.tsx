@@ -23,11 +23,12 @@ const catalog: ProviderCatalog = {
   }]
 };
 
-function renderPanel(provider = 'meta-muse', comparison = false) {
+function renderPanel(provider = 'meta-muse', comparison = false, requiredReferenceCount = 0) {
   const onChange = vi.fn();
   render(<EngineTargetPanel catalog={catalog}
     value={{ provider, model: provider === 'meta-muse' ? 'muse-image-1.0' : 'existing-image', aspectRatio: '1:1', resolution: null, outputCount: 1 }}
-    comparison={comparison} comparisonSlots={[{ id: 'one', provider: 'existing', model: 'existing-image' }]}
+    comparison={comparison} comparisonSlots={[{ id: 'one', provider: 'meta-muse', model: 'muse-image-1.0' }, { id: 'two', provider: 'existing', model: 'existing-image' }]}
+    requiredReferenceCount={requiredReferenceCount}
     onChange={onChange} onSlotsChange={vi.fn()} onComparisonChange={vi.fn()} />);
   return onChange;
 }
@@ -52,9 +53,22 @@ describe('image engine testing exposure', () => {
     expect(screen.queryByText('playground.engine.internalTesting')).not.toBeInTheDocument();
   });
 
-  it('keeps internal-only Muse disabled in comparison', () => {
+  it('allows internally tested Muse in eligible Playground comparison slots', () => {
     renderPanel('existing', true);
-    expect(screen.getByRole('option', { name: 'Meta Muse' })).toBeDisabled();
+    expect(screen.getAllByRole('option', { name: 'Meta Muse' })).toHaveLength(2);
+    expect(screen.getAllByRole('option', { name: 'Meta Muse' }).every(option => (
+      !(option as HTMLOptionElement).disabled
+    ))).toBe(true);
+    expect(screen.getByRole('option', { name: 'Muse Image 1.0' })).not.toBeDisabled();
+    expect(screen.getByText(/playground\.comparison\.internalTesting/)).toBeVisible();
+  });
+
+  it('keeps Muse unavailable in comparison when the draft has references', () => {
+    renderPanel('existing', true, 1);
+    expect(screen.getAllByRole('option', { name: 'Meta Muse' }).every(option => (
+      (option as HTMLOptionElement).disabled
+    ))).toBe(true);
+    expect(screen.getByRole('option', { name: 'Muse Image 1.0' })).toBeDisabled();
   });
 
   it('does not allow testing flags to bypass reference or environment restrictions', () => {

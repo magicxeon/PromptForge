@@ -8,6 +8,7 @@ import {
   readActorScopedDraft,
   writeActorScopedDraft
 } from '../../lib/persistence/actorScopedStorage';
+import { imageModelUnavailableReason } from '../generation/modelAvailability';
 
 const FEATURE = 'comparison-generation-preferences';
 const SCHEMA_VERSION = 1;
@@ -66,9 +67,11 @@ function normalizeSlots(
     const provider = catalog.providers.find(item => item.id === providerId);
     if (!provider) return [];
     const requestedModel = typeof candidate.model === 'string' ? candidate.model : '';
-    const model = provider.models.find(item => item.id === requestedModel)
-      || provider.models.find(item => item.id === provider.defaultModel)
-      || provider.models[0];
+    const model = [
+      provider.models.find(item => item.id === requestedModel),
+      provider.models.find(item => item.id === provider.defaultModel),
+      ...provider.models
+    ].find(item => item && !imageModelUnavailableReason(item));
     if (!model) return [];
     const requestedId = typeof candidate.id === 'string' && candidate.id.trim()
       ? candidate.id.trim()

@@ -1,5 +1,8 @@
 import type { ComparisonSlotInput } from '../../features/generation/api/generationApi';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
+import { imageModelUnavailableReason } from '../../features/generation/modelAvailability';
+
+export { imageModelUnavailableReason } from '../../features/generation/modelAvailability';
 
 export function filterImageCatalogForSurface(catalog: ProviderCatalog, surface: 'playground' | 'studio' | 'fashion' | 'cinematic'): ProviderCatalog {
   const providers = catalog.providers.map(provider => ({
@@ -24,31 +27,6 @@ export function createDefaultComparisonSlots(catalog: ProviderCatalog): Comparis
     provider: provider.id,
     model: model.id
   }));
-}
-
-export function imageModelUnavailableReason(
-  model: ProviderCatalog['providers'][number]['models'][number] | undefined,
-  requiredReferenceCount = 0,
-  aspectRatio: string | null = null
-) {
-  if (!model) return 'model_unavailable';
-  if (model.paidRoutingEnabled === false && model.testingRoutingEnabled !== true) return model.unavailableReason || 'provider_not_released';
-  if (model.pricingStatus === 'unavailable') return 'pricing_unavailable';
-  if (model.qualificationStatus === 'unqualified') return 'model_unqualified';
-  if (requiredReferenceCount > 0 && model.capabilities.imageReferences !== true) {
-    return 'references_unsupported';
-  }
-  if (requiredReferenceCount > Number(model.capabilities.maxReferenceImages || 0)) {
-    return 'reference_limit';
-  }
-  if (
-    aspectRatio
-    && model.capabilities.aspectRatios.length
-    && !model.capabilities.aspectRatios.includes(aspectRatio)
-  ) {
-    return 'aspect_ratio_unsupported';
-  }
-  return null;
 }
 
 export function resolveAvailableImageEngine(

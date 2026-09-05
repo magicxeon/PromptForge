@@ -109,6 +109,7 @@
   "playground.comparison.moveLeft": "Move model left",
   "playground.comparison.moveRight": "Move model right",
   "playground.comparison.referencesShort": "refs",
+  "playground.comparison.internalTesting": "Internal test",
   "playground.comparison.credits": "credits",
   "playground.comparison.estimatedTotal": "Estimated total",
   "playground.action.closeComparison": "Close Compare",

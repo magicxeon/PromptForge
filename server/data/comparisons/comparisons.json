@@ -2,6 +2,215 @@
   "version": 1,
   "sets": [
     {
+      "id": "cmp_set_1788592880825_r2dq8v",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Comparison 2026-09-05",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1788592880825,
+      "updatedAt": 1788592940875,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1788592872903_j9kj3du0",
+          "status": "completed",
+          "sourcePrompt": "A professional travel-poster photograph in a 6:8 aspect ratio, captured as an eye-level wide shot. One gorgeous East Asian woman with idol-like features walks gracefully along an authentic cobblestone pedestrian street. She wears chic round-rimmed eyeglasses, a stylish leather crossbody bag, and cozy, high-end winter travel attire. She looks subtly toward the camera with a gentle, candid expression.\n\nThe street is lined with contemporary Russian architecture alongside grand monumental historic facades. Its curved cobblestone path winds into the distance, creating an expansive deep-perspective cityscape beneath a crystal-clear, crisp early-morning blue sky. Sharp winter light and subtle atmospheric chill convey the season.\n\nIn the left foreground, a rustic street florist shop displays vibrant buckets of winter-blooming flowers. An elderly shopkeeper joyfully plays with a small dog outside the shop door. On the right, an outdoor corner café contains an affectionate couple seated at a small table and sipping steaming hot coffee. In the mid-ground, a few tourists and local pedestrians stroll naturally, adding rich narrative depth without overcrowding.\n\nUse a 35mm film look with the aesthetic of a Leica M11 and 35mm f/1.4 Summilux lens. Apply rich cinematic color grading, a vibrant yet natural palette, strong dynamic range, realistic depth of field, subtle chromatic aberration at the extreme edges, faint film grain, soft natural lens flare from the low morning sun, and mild barrel distortion. Create award-winning travel editorial photography with striking visual impact, candid lifestyle realism, pristine clarity, and highly detailed rendering. No text, watermark, or typography; maintain a clean visual composition. Generate exactly one image.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "referenceProcessingLineage": {
+              "schemaVersion": 1,
+              "policyVersion": "rpp-2026-08-v6",
+              "planFingerprint": "62c646737c0c4b7a2e8ca26274982bf849e7573ab542ca6c398caedb559fe6ab",
+              "executionMode": "single_stage",
+              "referenceCount": 0,
+              "dispatchRuleIds": [],
+              "suppressedReferenceRoles": [],
+              "references": []
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 210,
+          "actualTotalCredit": 210,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "promptRefinement": {
+            "requested": true,
+            "applied": true,
+            "status": "refined",
+            "provider": "openai",
+            "model": "gpt-5.6-luna",
+            "beforeFingerprint": "b91179dcac8ce955",
+            "afterFingerprint": "820adb3c483f0435",
+            "responseId": "resp_0ab3e0e392650d23016a9bc2eab35887d0802a907322b91ba7",
+            "usage": {
+              "inputTokens": 601,
+              "outputTokens": 594,
+              "totalTokens": 1195
+            },
+            "latencyMs": 7911,
+            "warnings": [
+              "The Leica M11 is a digital camera, so “35mm film look” and “Leica M11” describe a hybrid aesthetic rather than a literal capture format."
+            ],
+            "changeSummary": [
+              "Removed repetition and tightened the composition description.",
+              "Clarified spatial placement and natural visual flow without changing scene content.",
+              "Resolved the camera wording by treating 35mm film as the visual look and Leica M11/Summilux as the lens aesthetic.",
+              "Added the specified 6:8 aspect ratio and single-image output to the prompt."
+            ],
+            "preservedAuthorities": [
+              "No reference roles or character references were provided; none were added."
+            ]
+          },
+          "createdAt": 1788592880821,
+          "completedAt": 1788592940578,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785326865220_ra2hpt",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 (Generalist)",
+                "th": "Nano Banana 2 (ใช้งานทั่วไป)"
+              },
+              "estimatedCredit": 90,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1788592867513_lqsi3yc",
+              "estimateExpiresAt": "2026-09-05T07:36:07.513Z",
+              "submittedPrompt": "A professional travel-poster photograph in a 6:8 aspect ratio, captured as an eye-level wide shot. One gorgeous East Asian woman with idol-like features walks gracefully along an authentic cobblestone pedestrian street. She wears chic round-rimmed eyeglasses, a stylish leather crossbody bag, and cozy, high-end winter travel attire. She looks subtly toward the camera with a gentle, candid expression.\n\nThe street is lined with contemporary Russian architecture alongside grand monumental historic facades. Its curved cobblestone path winds into the distance, creating an expansive deep-perspective cityscape beneath a crystal-clear, crisp early-morning blue sky. Sharp winter light and subtle atmospheric chill convey the season.\n\nIn the left foreground, a rustic street florist shop displays vibrant buckets of winter-blooming flowers. An elderly shopkeeper joyfully plays with a small dog outside the shop door. On the right, an outdoor corner café contains an affectionate couple seated at a small table and sipping steaming hot coffee. In the mid-ground, a few tourists and local pedestrians stroll naturally, adding rich narrative depth without overcrowding.\n\nUse a 35mm film look with the aesthetic of a Leica M11 and 35mm f/1.4 Summilux lens. Apply rich cinematic color grading, a vibrant yet natural palette, strong dynamic range, realistic depth of field, subtle chromatic aberration at the extreme edges, faint film grain, soft natural lens flare from the low morning sun, and mild barrel distortion. Create award-winning travel editorial photography with striking visual impact, candid lifestyle realism, pristine clarity, and highly detailed rendering. No text, watermark, or typography; maintain a clean visual composition. Generate exactly one image.",
+              "jobId": "job_1788592880832_xmcgntlyp",
+              "status": "completed",
+              "actualCredit": 90,
+              "result": {
+                "imageUrl": "/outputs/job_1788592880832_xmcgntlyp.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "18.7",
+                "width": 896,
+                "height": 1200
+              },
+              "error": null,
+              "reservationId": "rsv_1788592880880_4sklifz"
+            },
+            {
+              "id": "slot_1785326865220_19i163",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 (Standard)",
+                "th": "GPT-Image 1 (มาตรฐาน)"
+              },
+              "estimatedCredit": 105,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1788592867513_cfw0gw0",
+              "estimateExpiresAt": "2026-09-05T07:36:07.513Z",
+              "submittedPrompt": "A professional travel-poster photograph in a 6:8 aspect ratio, captured as an eye-level wide shot. One gorgeous East Asian woman with idol-like features walks gracefully along an authentic cobblestone pedestrian street. She wears chic round-rimmed eyeglasses, a stylish leather crossbody bag, and cozy, high-end winter travel attire. She looks subtly toward the camera with a gentle, candid expression.\n\nThe street is lined with contemporary Russian architecture alongside grand monumental historic facades. Its curved cobblestone path winds into the distance, creating an expansive deep-perspective cityscape beneath a crystal-clear, crisp early-morning blue sky. Sharp winter light and subtle atmospheric chill convey the season.\n\nIn the left foreground, a rustic street florist shop displays vibrant buckets of winter-blooming flowers. An elderly shopkeeper joyfully plays with a small dog outside the shop door. On the right, an outdoor corner café contains an affectionate couple seated at a small table and sipping steaming hot coffee. In the mid-ground, a few tourists and local pedestrians stroll naturally, adding rich narrative depth without overcrowding.\n\nUse a 35mm film look with the aesthetic of a Leica M11 and 35mm f/1.4 Summilux lens. Apply rich cinematic color grading, a vibrant yet natural palette, strong dynamic range, realistic depth of field, subtle chromatic aberration at the extreme edges, faint film grain, soft natural lens flare from the low morning sun, and mild barrel distortion. Create award-winning travel editorial photography with striking visual impact, candid lifestyle realism, pristine clarity, and highly detailed rendering. No text, watermark, or typography; maintain a clean visual composition. Generate exactly one image.",
+              "jobId": "job_1788592880963_g9276b04w",
+              "status": "completed",
+              "actualCredit": 105,
+              "result": {
+                "imageUrl": "/outputs/job_1788592880963_g9276b04w.png",
+                "usage": {
+                  "input_tokens": 348,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 348
+                  },
+                  "output_tokens": 6240,
+                  "output_tokens_details": {
+                    "image_tokens": 6240,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 6588
+                },
+                "mimeType": "image/png",
+                "generationDuration": "58.8",
+                "width": 1024,
+                "height": 1536
+              },
+              "error": null,
+              "reservationId": "rsv_1788592881012_9n6qbjp"
+            },
+            {
+              "id": "slot_1785326888716_fqmitl",
+              "position": 3,
+              "provider": "meta-muse",
+              "model": "muse-image-1.0",
+              "providerDisplayName": {
+                "en": "Meta Muse",
+                "th": "Meta Muse"
+              },
+              "modelDisplayName": {
+                "en": "Muse Image 1.0",
+                "th": "Muse Image 1.0"
+              },
+              "estimatedCredit": 15,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1788592867513_81iaz9k",
+              "estimateExpiresAt": "2026-09-05T07:36:07.513Z",
+              "submittedPrompt": "A professional travel-poster photograph in a 6:8 aspect ratio, captured as an eye-level wide shot. One gorgeous East Asian woman with idol-like features walks gracefully along an authentic cobblestone pedestrian street. She wears chic round-rimmed eyeglasses, a stylish leather crossbody bag, and cozy, high-end winter travel attire. She looks subtly toward the camera with a gentle, candid expression.\n\nThe street is lined with contemporary Russian architecture alongside grand monumental historic facades. Its curved cobblestone path winds into the distance, creating an expansive deep-perspective cityscape beneath a crystal-clear, crisp early-morning blue sky. Sharp winter light and subtle atmospheric chill convey the season.\n\nIn the left foreground, a rustic street florist shop displays vibrant buckets of winter-blooming flowers. An elderly shopkeeper joyfully plays with a small dog outside the shop door. On the right, an outdoor corner café contains an affectionate couple seated at a small table and sipping steaming hot coffee. In the mid-ground, a few tourists and local pedestrians stroll naturally, adding rich narrative depth without overcrowding.\n\nUse a 35mm film look with the aesthetic of a Leica M11 and 35mm f/1.4 Summilux lens. Apply rich cinematic color grading, a vibrant yet natural palette, strong dynamic range, realistic depth of field, subtle chromatic aberration at the extreme edges, faint film grain, soft natural lens flare from the low morning sun, and mild barrel distortion. Create award-winning travel editorial photography with striking visual impact, candid lifestyle realism, pristine clarity, and highly detailed rendering. No text, watermark, or typography; maintain a clean visual composition. Generate exactly one image.",
+              "jobId": "job_1788592881084_7v7dbj9tn",
+              "status": "completed",
+              "actualCredit": 15,
+              "result": {
+                "imageUrl": "/outputs/job_1788592881084_7v7dbj9tn.webp",
+                "usage": {
+                  "input_tokens": 11511,
+                  "output_tokens": 1799,
+                  "total_tokens": 13310
+                },
+                "mimeType": "image/webp",
+                "generationDuration": "18.7",
+                "width": 1344,
+                "height": 1792
+              },
+              "error": null,
+              "reservationId": "rsv_1788592881113_n35xn50"
+            }
+          ],
+          "id": "cmp_run_1788592880825_8cr173"
+        }
+      ]
+    },
+    {
       "id": "cmp_set_1786757167604_7fyhdn",
       "ownerUserId": "usr_bob",
       "username": "user_bob",

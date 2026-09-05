@@ -6,6 +6,7 @@ import { loadProviderConfig, validateProviderConfig } from '../server/providers/
 import { ProviderRegistry, getConfiguredSecret } from '../server/providers/ProviderRegistry.js';
 import { GenerationApplicationService } from '../server/domain/generation/GenerationApplicationService.js';
 import { CreditPricingPolicyService } from '../server/domain/credits/CreditPricingPolicyService.js';
+import { ComparisonOrchestrator } from '../server/domain/comparisons/ComparisonOrchestrator.js';
 
 const pngBytes = await sharp({ create: { width: 16, height: 12, channels: 3, background: '#ab3344' } }).png().toBuffer();
 const pngBase64 = pngBytes.toString('base64');
@@ -60,6 +61,49 @@ test('Playground Muse request reaches canonical reservation and queue with match
   const image = await provider.generateImage(queued[2], { ...queued[3], submodel: queued[1] });
   assert.equal(image.mimeType, 'image/png');
   assert.equal(image.base64, pngBase64);
+});
+
+test('Playground Comparison estimate carries Muse through reference preparation and authoritative totals', async () => {
+  const registry = new ProviderRegistry(loadProviderConfig(), {
+    NODE_ENV: 'test', META_MUSE_API_KEY: 'mock-key'
+  });
+  const estimateInputs = [];
+  const orchestrator = new ComparisonOrchestrator({
+    providerRegistry: registry,
+    queueManager: { subscribeLifecycle: () => () => {} },
+    creditManager: {},
+    creditReservation: {
+      estimate: async input => {
+        estimateInputs.push(input);
+        return {
+          estimateId: `estimate_${estimateInputs.length}`,
+          estimatedCredits: 15,
+          expiresAt: new Date(Date.now() + 60_000).toISOString()
+        };
+      }
+    },
+    repository: {},
+    templateCoreService: { resolvePricing: async () => null }
+  });
+  const estimate = await orchestrator.estimate({
+    generationSurface: 'playground',
+    generationMode: 'playground',
+    mode: 'normal',
+    aspectRatio: '9:16',
+    outputCount: 1,
+    sceneBuilder: { authoringMode: 'manual', manualPromptText: 'A red ceramic mug' },
+    slots: [
+      { id: 'one', provider: 'meta-muse', model: 'muse-image-1.0' },
+      { id: 'two', provider: 'meta-muse', model: 'muse-image-1.0' }
+    ]
+  }, { userId: 'usr_test', username: 'test' });
+
+  assert.equal(estimate.estimatedTotalCredit, 30);
+  assert.deepEqual(estimate.slots.map(slot => slot.estimatedCredit), [15, 15]);
+  assert.deepEqual(estimateInputs.map(input => input.requestedModelId), [
+    'muse-image-1.0', 'muse-image-1.0'
+  ]);
+  assert.deepEqual(estimateInputs.map(input => input.aspectRatio), ['9:16', '9:16']);
 });
 
 test('Muse reads top-level output format and preserves original WebP, PNG and JPEG bytes', async () => {

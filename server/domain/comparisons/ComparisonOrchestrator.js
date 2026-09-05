@@ -463,7 +463,11 @@ export class ComparisonOrchestrator {
 
   async processReferencesForSlots(context, slots, actor) {
     const selections = (slots || []).map(slot =>
-      this.providerRegistry.resolveSelection(slot.provider, slot.model)
+      this.providerRegistry.resolveSelection(
+        slot.provider,
+        slot.model,
+        { generationSurface: context.generationSurface || null }
+      )
     );
     const first = selections[0];
     if (!first) return null;

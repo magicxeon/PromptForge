@@ -74,4 +74,42 @@ describe('comparison generation preferences', () => {
     expect(readComparisonGenerationPreferences('usr_alice', catalog, fallback))
       .toEqual({ active: true, slots: fallback });
   });
+
+  it('discards a development-only model after current catalog testing access closes', () => {
+    const catalogWithBlockedMuse: ProviderCatalog = {
+      ...catalog,
+      providers: [...catalog.providers, {
+        id: 'meta-muse',
+        displayName: 'Meta Muse',
+        defaultModel: 'muse-image-1.0',
+        models: [{
+          id: 'muse-image-1.0',
+          displayName: 'Muse Image 1.0',
+          paidRoutingEnabled: false,
+          testingRoutingEnabled: false,
+          qualificationStatus: 'internal_testing',
+          pricingStatus: 'priced',
+          capabilities: {
+            imageGeneration: true,
+            imageEdit: false,
+            imageReferences: false,
+            maxReferenceImages: 0,
+            streaming: false,
+            aspectRatios: ['1:1']
+          }
+        }]
+      }]
+    };
+    writeComparisonGenerationPreferences('usr_alice', {
+      active: true,
+      slots: [
+        { id: 'muse', provider: 'meta-muse', model: 'muse-image-1.0' },
+        fallback[0]!
+      ]
+    });
+
+    expect(readComparisonGenerationPreferences(
+      'usr_alice', catalogWithBlockedMuse, fallback
+    )).toEqual({ active: true, slots: fallback });
+  });
 });

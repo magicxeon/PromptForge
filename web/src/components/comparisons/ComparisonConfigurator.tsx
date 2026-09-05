@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { ComparisonSlotInput } from '../../features/generation/api/generationApi';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
 import { Button } from '../ui/Button';
+import { imageModelUnavailableReason } from '../../features/generation/modelAvailability';
 
 export type ComparisonSlotEstimate = {
   id: string;
@@ -16,6 +17,8 @@ export function ComparisonConfigurator({
   estimates,
   estimating = false,
   estimateError = null,
+  requiredReferenceCount = 0,
+  aspectRatio = null,
   onChange
 }: {
   catalog: ProviderCatalog;
@@ -23,12 +26,21 @@ export function ComparisonConfigurator({
   estimates?: ComparisonSlotEstimate[];
   estimating?: boolean;
   estimateError?: string | null;
+  requiredReferenceCount?: number;
+  aspectRatio?: string | null;
   onChange: (slots: ComparisonSlotInput[]) => void;
 }) {
   const { t } = useTranslation('playground');
   const estimatedTotal = estimates?.length === slots.length
     ? estimates.reduce((total, estimate) => total + estimate.estimatedCredit, 0)
     : undefined;
+  const firstAvailableModel = (provider: ProviderCatalog['providers'][number] | undefined) => (
+    provider?.models.find(model => !imageModelUnavailableReason(
+      model,
+      requiredReferenceCount,
+      aspectRatio
+    ))
+  );
 
   function patch(index: number, next: Partial<ComparisonSlotInput>) {
     onChange(slots.map((slot, slotIndex) => (
@@ -108,14 +120,17 @@ export function ComparisonConfigurator({
                       const nextProvider = catalog.providers.find(
                         item => item.id === event.target.value
                       );
+                      const nextModel = firstAvailableModel(nextProvider);
                       patch(index, {
                         provider: event.target.value,
-                        model: nextProvider?.defaultModel || nextProvider?.models[0]?.id || ''
+                        model: nextModel?.id || ''
                       });
                     }}
                   >
                     {catalog.providers.map(item => (
-                      <option key={item.id} value={item.id} disabled={item.models.every(model => model.paidRoutingEnabled === false)}>
+                      <option key={item.id} value={item.id} disabled={item.models.every(model => (
+                        Boolean(imageModelUnavailableReason(model, requiredReferenceCount, aspectRatio))
+                      ))}>
                         {localized(item.displayName)}
                       </option>
                     ))}
@@ -127,7 +142,9 @@ export function ComparisonConfigurator({
                     onChange={event => patch(index, { model: event.target.value })}
                   >
                     {provider?.models.map(item => (
-                      <option key={item.id} value={item.id} disabled={item.paidRoutingEnabled === false}>
+                      <option key={item.id} value={item.id} disabled={Boolean(
+                        imageModelUnavailableReason(item, requiredReferenceCount, aspectRatio)
+                      )}>
                         {localized(item.displayName)}
                       </option>
                     ))}
@@ -144,6 +161,9 @@ export function ComparisonConfigurator({
                       : t('playground.estimate.pending')}
                 </strong>
                 <span>
+                  {selectedModel?.testingRoutingEnabled && !selectedModel.paidRoutingEnabled
+                    ? `${t('playground.comparison.internalTesting')} · `
+                    : ''}
                   {selectedModel?.capabilities.maxReferenceImages || 0}{' '}
                   {t('playground.comparison.referencesShort')}
                 </span>
@@ -157,11 +177,12 @@ export function ComparisonConfigurator({
             type="button"
             className="comparison-slot-add"
             onClick={() => {
-              const provider = catalog.providers[0];
+              const provider = catalog.providers.find(item => firstAvailableModel(item));
+              const model = firstAvailableModel(provider);
               onChange([...slots, {
                 id: createSlotId(),
                 provider: provider?.id || '',
-                model: provider?.defaultModel || provider?.models[0]?.id || ''
+                model: model?.id || ''
               }]);
             }}
           >

@@ -74,8 +74,8 @@ Implementation substeps, in order:
    even for text-only drafts. No new provider/queue/Credit endpoint.
 5. Hide read-only pixel width/height for aspect-ratio-only models, keep the
    existing ratio buttons, and show a localized internal-test/normal-Credits
-   notice. Other model layouts remain unchanged. Comparison is excluded for
-   this model; do not offer a selectable comparison slot that backend denies.
+   notice. Other model layouts remain unchanged. Comparison was excluded from
+   this activation step and is subsequently governed by Requirement 008.
 6. Run mocked adapter, catalog, price, lifecycle and scoped UI regressions;
    inspect the shared controls at 390/820/1440px without live provider traffic.
    Handoff the existing one-image test prompt. Do not send a live request.
@@ -166,8 +166,9 @@ identity, cinematic continuity or reference qualification.
   remain unchanged. Existing credit reservation/capture/refund owners remain.
 - Provider is available only in development/test with configured credentials,
   `qualificationStatus: internal_testing`, and paid routing false. Production
-  and staging dispatch fail closed. Cinematic/Studio/Fashion/Comparison remain
-  excluded. This is not live quality or account qualification.
+  and staging dispatch fail closed. Cinematic/Studio/Fashion remain excluded;
+  Playground Comparison is subsequently governed by Requirement 008. This is
+  not live quality or account qualification.
 - Adapter explicitly requests Base64 and WebP, maps catalog ratios to size,
   reads top-level output_format, and probes original bytes for PNG/JPEG/WebP
   compatibility without recompression. References and invalid outputs fail

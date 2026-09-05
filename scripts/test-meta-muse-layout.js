@@ -40,23 +40,32 @@ try {
       }]}]};
       function Screen(){
         const [value,onChange]=React.useState({provider:'meta-muse',model:'muse-image-1.0',aspectRatio:'1:1',resolution:null,outputCount:1});
-        return e(EngineTargetPanel,{catalog,value,onChange,comparison:false,comparisonSlots:[],onSlotsChange:()=>{},onComparisonChange:()=>{}});
+        const [comparison,onComparisonChange]=React.useState(false);
+        const [comparisonSlots,onSlotsChange]=React.useState([
+          {id:'one',provider:'meta-muse',model:'muse-image-1.0'},
+          {id:'two',provider:'meta-muse',model:'muse-image-1.0'}
+        ]);
+        return e(EngineTargetPanel,{catalog,value,onChange,comparison,comparisonSlots,onSlotsChange,onComparisonChange});
       }
       ReactDOM.createRoot(document.getElementById('root')).render(e(I18nextProvider,{i18n},e(Screen)));
     </script></body></html>` }));
   await page.goto(`${origin}/__muse-layout`);
   await page.getByRole('button', { name: '9:16 Mobile' }).waitFor();
+  assert.equal(await page.getByText('Internal testing - normal Credits apply; output not yet qualified.').isVisible(), true);
+  await page.getByRole('button', { name: 'Compare models' }).click();
+  await page.getByText('Fair comparison').waitFor();
   for (const width of [390, 820, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     for (const theme of ['default', 'fashion', 'creative']) {
       await page.evaluate(value => { document.documentElement.dataset.theme = value; }, theme);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
       await page.getByRole('button', { name: '9:16 Mobile' }).click();
-      assert.equal(await page.getByText('Internal testing - normal Credits apply; output not yet qualified.').isVisible(), true);
+      assert.equal(await page.getByRole('option', { name: 'Muse Image 1.0' }).count(), 2);
+      assert.equal(await page.getByRole('option', { name: 'Muse Image 1.0' }).evaluateAll(options => options.every(option => !option.disabled)), true);
       assert.equal(await page.getByText('Width (px)', { exact: true }).count(), 0);
       await page.screenshot({ path: path.join(output, `${width}-${theme}.png`), fullPage: true });
     }
   }
   assert.deepEqual(errors, []);
-  console.log(`PASS: Muse ratio selection and no overflow at 390/820/1440px in default/fashion/creative. Screenshots: ${output}`);
+  console.log(`PASS: Muse Comparison selection, ratio-only controls and no overflow at 390/820/1440px in default/fashion/creative. Screenshots: ${output}`);
 } finally { await browser.close(); }

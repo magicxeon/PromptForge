@@ -46,7 +46,11 @@ export class ComparisonValidator {
       const id = typeof slot.id === 'string' && slot.id.trim() ? slot.id.trim() : `slot_${index + 1}`;
       if (slotIds.has(id)) throw new ComparisonError('duplicate_slot_id', `Duplicate slot ID: ${id}`);
       slotIds.add(id);
-      const { provider, model } = this.providerRegistry.resolveSelection(slot.provider, slot.model);
+      const { provider, model } = this.providerRegistry.resolveSelection(
+        slot.provider,
+        slot.model,
+        { generationSurface: context.generationSurface || null }
+      );
       if (model.capabilities?.imageGeneration !== true) {
         throw new ComparisonError('unsupported_model', `${model.displayName.en} does not support image generation.`);
       }
@@ -119,6 +123,7 @@ export class ComparisonValidator {
       referenceProcessingPlanFingerprint:
         context.referenceProcessing?.planFingerprint || null,
       mode: context.mode,
+      generationSurface: context.generationSurface || null,
       selections: context.selections || {},
       customColors: context.customColors || {},
       adminPromptOverride: context.userRole === 'admin' ? context.adminPromptOverride || null : null
