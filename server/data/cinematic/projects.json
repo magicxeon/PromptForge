@@ -5,7 +5,7 @@
       "id": "cineproj_1787841798259_d5rmu2tx",
       "projectId": "cineproj_1787841798259_d5rmu2tx",
       "schemaVersion": 1,
-      "version": 269,
+      "version": 275,
       "ownerUserId": "usr_alice",
       "ownerUsername": "user_alice",
       "title": "Momelo Demo - The Last Light",
@@ -15,7 +15,7 @@
       ],
       "aspectRatio": "9:16",
       "durationTargetMs": 30000,
-      "activeStage": "produce",
+      "activeStage": "cast",
       "status": "failed_recoverable",
       "setup": {
         "title": "Momelo Demo - The Last Light",
@@ -234,7 +234,7 @@
           "looks": [
             {
               "id": "cinelook_charlook_1788229536432_0abdnk1t",
-              "version": 1,
+              "version": 2,
               "name": "Quiet Resolve — Café Close",
               "mode": "character_look",
               "characterLookId": "charlook_1788229536432_0abdnk1t",
@@ -275,11 +275,11 @@
               "coverage": "multi_view",
               "sceneIds": [],
               "locked": true,
-              "updatedAt": "2026-09-01T07:30:09.062Z"
+              "updatedAt": "2026-09-05T16:38:29.997Z"
             }
           ],
           "active": true,
-          "updatedAt": "2026-09-01T07:30:09.062Z"
+          "updatedAt": "2026-09-05T16:38:29.997Z"
         }
       ],
       "storyPlanVersions": [
@@ -8306,7 +8306,7 @@
           "shots": [
             {
               "id": "cineshot_1788530947193_ditmnb03",
-              "version": 2,
+              "version": 3,
               "orderKey": 1,
               "title": "ร้านที่เงียบหลังฝน",
               "purpose": "วางนาราในพื้นที่ปิดร้านและความสัมพันธ์กับทางออก",
@@ -8351,43 +8351,12 @@
               "continuityNotes": [
                 "ไม่อ่านข้อความหรือส่วนติดต่อบนหน้าจอโทรศัพท์"
               ],
-              "storyboardStatus": "approved",
-              "approvedStoryboardSource": {
-                "assetId": "ast_1788532559508_3qq8ylp5",
-                "assetVersionId": "ast_1788532559508_3qq8ylp5",
-                "sourceJobId": "job_1788532284719_k3nln2lws",
-                "imageUrl": "/outputs/job_1788532284719_k3nln2lws.png",
-                "thumbnailUrl": "/outputs/thumbnails/job_1788532284719_k3nln2lws.webp",
-                "contentHash": "2190a40ad2f8f03f79b80e37b44ba77de95125f97b3e521b8dafbb22f9c23304",
-                "sourceFingerprint": "a9b28b27e76a204b81a2144074294035ec0623ead4c6fbe438816797d1f91add",
-                "providerOutputProvenance": {
-                  "kind": "provider_generated_image",
-                  "providerId": "modelark",
-                  "requestedModelId": "dola-seedream-5-0-pro-260628",
-                  "resolvedModelId": "dola-seedream-5-0-pro-260628",
-                  "providerRequestId": "021788532290545b70b2a74477c2b606f823ac231da83298c2bfb",
-                  "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
-                  "generatedAt": "2026-09-04T14:33:40.723Z",
-                  "responseFormat": "b64_json",
-                  "originalBytesPreserved": true
-                },
-                "videoCompatibility": {
-                  "targetId": "modelark-seedance-2",
-                  "status": "not_qualified",
-                  "reasonCode": "source_model_not_qualified",
-                  "sourceProviderId": "modelark",
-                  "sourceModelId": "dola-seedream-5-0-pro-260628",
-                  "generatedAt": "2026-09-04T14:33:40.723Z",
-                  "validUntil": null,
-                  "originalBytesPreserved": true
-                },
-                "approvedAt": "2026-09-04T14:35:59.508Z"
-              },
+              "storyboardStatus": "draft",
               "approvedStoryboardAttemptId": "cineattempt_1788532284738_7hndfzsc"
             },
             {
               "id": "cineshot_1788530947193_cjnk1dds",
-              "version": 2,
+              "version": 3,
               "orderKey": 2,
               "title": "นิ้วเหนือปุ่มเล่น",
               "purpose": "ทำให้การเลือกฟังข้อความเป็นการกระทำที่ชัดเจน",
@@ -8432,38 +8401,7 @@
               "continuityNotes": [
                 "หน้าจอไม่มีข้อความที่อ่านได้"
               ],
-              "storyboardStatus": "approved",
-              "approvedStoryboardSource": {
-                "assetId": "ast_1788532746613_ypdxljsh",
-                "assetVersionId": "ast_1788532746613_ypdxljsh",
-                "sourceJobId": "job_1788532576587_7v5yn0t85",
-                "imageUrl": "/outputs/job_1788532576587_7v5yn0t85.png",
-                "thumbnailUrl": "/outputs/thumbnails/job_1788532576587_7v5yn0t85.webp",
-                "contentHash": "fd29b60e54679586123a300f90f024512f65ad9074f0e9798a281c93e53522f5",
-                "sourceFingerprint": "8f43d0865cde0a3c96d397a90a592693632d06c620c5b3a71ecac4903c46077a",
-                "providerOutputProvenance": {
-                  "kind": "provider_generated_image",
-                  "providerId": "modelark",
-                  "requestedModelId": "dola-seedream-5-0-pro-260628",
-                  "resolvedModelId": "dola-seedream-5-0-pro-260628",
-                  "providerRequestId": "0217885325858608547934892c4038781a87d514f9a9196990376",
-                  "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
-                  "generatedAt": "2026-09-04T14:39:00.005Z",
-                  "responseFormat": "b64_json",
-                  "originalBytesPreserved": true
-                },
-                "videoCompatibility": {
-                  "targetId": "modelark-seedance-2",
-                  "status": "not_qualified",
-                  "reasonCode": "source_model_not_qualified",
-                  "sourceProviderId": "modelark",
-                  "sourceModelId": "dola-seedream-5-0-pro-260628",
-                  "generatedAt": "2026-09-04T14:39:00.005Z",
-                  "validUntil": null,
-                  "originalBytesPreserved": true
-                },
-                "approvedAt": "2026-09-04T14:39:06.612Z"
-              },
+              "storyboardStatus": "draft",
               "approvedStoryboardAttemptId": "cineattempt_1788532576620_u5esysow"
             }
           ],
@@ -8509,7 +8447,7 @@
           "shots": [
             {
               "id": "cineshot_1788530947193_h7e4v3ft",
-              "version": 1,
+              "version": 2,
               "orderKey": 1,
               "title": "คำเชื้อเชิญจากเสียงพ่อ",
               "purpose": "จับปฏิกิริยาที่เป็นจุดเปลี่ยนโดยไม่ใช้ความฟูมฟาย",
@@ -8572,7 +8510,7 @@
                 "ไม่มีน้ำตา ไม่มีรอยยิ้มฉลอง",
                 "รักษาป้ายในมือขวาและโทรศัพท์ในมือซ้าย"
               ],
-              "storyboardStatus": "generating"
+              "storyboardStatus": "draft"
             }
           ],
           "shotOrder": [
@@ -8616,7 +8554,7 @@
           "shots": [
             {
               "id": "cineshot_1788530947193_wv7sqw1m",
-              "version": 2,
+              "version": 3,
               "orderKey": 1,
               "title": "เลือกเปิดไฟ",
               "purpose": "ทำให้การตัดสินใจเกิดเป็นการกระทำเดียวที่จับต้องได้",
@@ -8669,43 +8607,12 @@
                 "ไม่เห็นข้อความด้านที่คว่ำของป้าย",
                 "โทรศัพท์ไม่ปรากฏหน้าจอ"
               ],
-              "storyboardStatus": "approved",
-              "approvedStoryboardSource": {
-                "assetId": "ast_1788533975869_plitm8cq",
-                "assetVersionId": "ast_1788533975869_plitm8cq",
-                "sourceJobId": "job_1788533300290_qflp49mgx",
-                "imageUrl": "/outputs/job_1788533300290_qflp49mgx.png",
-                "thumbnailUrl": "/outputs/thumbnails/job_1788533300290_qflp49mgx.webp",
-                "contentHash": "fb8a2666644214d08121ffa39bc936a3a214f8e1fa6f469f453c7755f8963270",
-                "sourceFingerprint": "94134a009a15393c0c77f3bc4b159d4781b89430755e4fd2e97125fad591a6cd",
-                "providerOutputProvenance": {
-                  "kind": "provider_generated_image",
-                  "providerId": "modelark",
-                  "requestedModelId": "dola-seedream-5-0-pro-260628",
-                  "resolvedModelId": "dola-seedream-5-0-pro-260628",
-                  "providerRequestId": "0217885333096484b2f64bfb09d213dd2215030b1eaaf1f166a4a",
-                  "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
-                  "generatedAt": "2026-09-04T14:50:39.633Z",
-                  "responseFormat": "b64_json",
-                  "originalBytesPreserved": true
-                },
-                "videoCompatibility": {
-                  "targetId": "modelark-seedance-2",
-                  "status": "not_qualified",
-                  "reasonCode": "source_model_not_qualified",
-                  "sourceProviderId": "modelark",
-                  "sourceModelId": "dola-seedream-5-0-pro-260628",
-                  "generatedAt": "2026-09-04T14:50:39.633Z",
-                  "validUntil": null,
-                  "originalBytesPreserved": true
-                },
-                "approvedAt": "2026-09-04T14:59:35.868Z"
-              },
+              "storyboardStatus": "draft",
               "approvedStoryboardAttemptId": "cineattempt_1788533300319_kcr9zjz5"
             },
             {
               "id": "cineshot_1788530947193_66cbgz53",
-              "version": 2,
+              "version": 3,
               "orderKey": 2,
               "title": "พรุ่งนี้เราเปิดร้าน",
               "purpose": "จบด้วยการเลือกเดินเข้าหาอนาคตโดยไม่หวานเกินจริง",
@@ -8768,38 +8675,7 @@
                 "ป้ายคว่ำอยู่บนเคาน์เตอร์ตลอดช็อต",
                 "ห้ามให้แสงอุ่นกลบฉากฝนหรือทำให้ร้านสว่างทั้งห้อง"
               ],
-              "storyboardStatus": "approved",
-              "approvedStoryboardSource": {
-                "assetId": "ast_1788535710309_sw8mnv89",
-                "assetVersionId": "ast_1788535710309_sw8mnv89",
-                "sourceJobId": "job_1788533985708_hxvipujw2",
-                "imageUrl": "/outputs/job_1788533985708_hxvipujw2.png",
-                "thumbnailUrl": "/outputs/thumbnails/job_1788533985708_hxvipujw2.webp",
-                "contentHash": "4a46ff94bf512ddb61210485112f30afe18c864c3f01a2cdf468984c81364a07",
-                "sourceFingerprint": "4385a64b8b684008a1f6ac2b81942b91e3e12096d80e240d94052bea5a7db046",
-                "providerOutputProvenance": {
-                  "kind": "provider_generated_image",
-                  "providerId": "modelark",
-                  "requestedModelId": "dola-seedream-5-0-pro-260628",
-                  "resolvedModelId": "dola-seedream-5-0-pro-260628",
-                  "providerRequestId": "02178853399131089d42e27515f10b9851ac8a38a24d9cdcfee53",
-                  "credentialScope": "modelark:ark.ap-southeast.bytepluses.com:credential:ec56b0de550f268e32111e2d",
-                  "generatedAt": "2026-09-04T15:01:59.868Z",
-                  "responseFormat": "b64_json",
-                  "originalBytesPreserved": true
-                },
-                "videoCompatibility": {
-                  "targetId": "modelark-seedance-2",
-                  "status": "not_qualified",
-                  "reasonCode": "source_model_not_qualified",
-                  "sourceProviderId": "modelark",
-                  "sourceModelId": "dola-seedream-5-0-pro-260628",
-                  "generatedAt": "2026-09-04T15:01:59.868Z",
-                  "validUntil": null,
-                  "originalBytesPreserved": true
-                },
-                "approvedAt": "2026-09-04T15:28:30.309Z"
-              },
+              "storyboardStatus": "draft",
               "approvedStoryboardAttemptId": "cineattempt_1788533985733_i6fgpy94"
             }
           ],
@@ -9394,7 +9270,7 @@
           "promptStrategyVersion": 2,
           "renderedPromptFingerprint": "6f02cc13d032f492dcb0dc089e0c27ae95070bc677ffec2feeeea3e9ce00c213",
           "referencePlanFingerprint": "2845ac350593ac2e95edbaec4eb70e1382f785df6711d71851129223d8046b9c",
-          "downstreamSourceStatus": "current",
+          "downstreamSourceStatus": "source_changed",
           "status": "failed",
           "reviewDecision": "pending",
           "createdAt": "2026-09-04T16:28:52.791Z",
@@ -9429,7 +9305,7 @@
           "promptStrategyVersion": 2,
           "renderedPromptFingerprint": "6f02cc13d032f492dcb0dc089e0c27ae95070bc677ffec2feeeea3e9ce00c213",
           "referencePlanFingerprint": "2845ac350593ac2e95edbaec4eb70e1382f785df6711d71851129223d8046b9c",
-          "downstreamSourceStatus": "current",
+          "downstreamSourceStatus": "source_changed",
           "status": "failed",
           "reviewDecision": "pending",
           "createdAt": "2026-09-04T16:36:50.428Z",
@@ -9464,7 +9340,7 @@
           "promptStrategyVersion": 2,
           "renderedPromptFingerprint": "6f02cc13d032f492dcb0dc089e0c27ae95070bc677ffec2feeeea3e9ce00c213",
           "referencePlanFingerprint": "2845ac350593ac2e95edbaec4eb70e1382f785df6711d71851129223d8046b9c",
-          "downstreamSourceStatus": "current",
+          "downstreamSourceStatus": "source_changed",
           "status": "failed",
           "reviewDecision": "pending",
           "createdAt": "2026-09-05T01:58:15.532Z",
@@ -9499,7 +9375,7 @@
           "promptStrategyVersion": 2,
           "renderedPromptFingerprint": "6f02cc13d032f492dcb0dc089e0c27ae95070bc677ffec2feeeea3e9ce00c213",
           "referencePlanFingerprint": "2845ac350593ac2e95edbaec4eb70e1382f785df6711d71851129223d8046b9c",
-          "downstreamSourceStatus": "current",
+          "downstreamSourceStatus": "source_changed",
           "status": "failed",
           "reviewDecision": "pending",
           "createdAt": "2026-09-05T02:01:11.394Z",
@@ -9535,7 +9411,7 @@
           "renderedPromptFingerprint": "6f02cc13d032f492dcb0dc089e0c27ae95070bc677ffec2feeeea3e9ce00c213",
           "referencePlanFingerprint": "2845ac350593ac2e95edbaec4eb70e1382f785df6711d71851129223d8046b9c",
           "referenceMode": "storyboard_only",
-          "downstreamSourceStatus": "current",
+          "downstreamSourceStatus": "source_changed",
           "status": "failed",
           "reviewDecision": "pending",
           "createdAt": "2026-09-05T04:34:47.969Z",
@@ -9571,7 +9447,7 @@
           "renderedPromptFingerprint": "f75fda34579ccd63354721cd90fbcea21b27b6f76c79599c4fab445c833c2ee4",
           "referencePlanFingerprint": "c078d005cb97d73e0c463f5de79313e6839bbb34aac315fd08089f82c1f25fa8",
           "referenceMode": "storyboard_and_looks",
-          "downstreamSourceStatus": "current",
+          "downstreamSourceStatus": "source_changed",
           "status": "failed",
           "reviewDecision": "pending",
           "createdAt": "2026-09-05T04:51:20.138Z",
@@ -9607,7 +9483,7 @@
           "renderedPromptFingerprint": "f75fda34579ccd63354721cd90fbcea21b27b6f76c79599c4fab445c833c2ee4",
           "referencePlanFingerprint": "c078d005cb97d73e0c463f5de79313e6839bbb34aac315fd08089f82c1f25fa8",
           "referenceMode": "storyboard_and_looks",
-          "downstreamSourceStatus": "current",
+          "downstreamSourceStatus": "source_changed",
           "status": "failed",
           "reviewDecision": "pending",
           "createdAt": "2026-09-05T05:09:50.002Z",
@@ -11489,7 +11365,7 @@
       "activeStoryPlanVersionId": "cineplan_1788531518342_bdag6ybq",
       "activeTimelineVersionId": null,
       "createdAt": "2026-08-27T14:43:18.259Z",
-      "updatedAt": "2026-09-05T05:09:52.587Z",
+      "updatedAt": "2026-09-05T16:38:29.997Z",
       "archivedAt": null,
       "authoringContractVersion": "cinematic-authoring-v1",
       "authoringState": {

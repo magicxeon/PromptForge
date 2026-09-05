@@ -1,6 +1,6 @@
 # 009 - Muse Studio Face Creator Release
 
-Status: Implemented and offline-verified; creator Studio check pending
+Status: Implemented and creator live-verified for reference-free Face Creator
 Date: 2026-09-05
 Primary: Product And Requirement Architect
 Reviewers: Backend Platform Architect, Product UX, Commercial Integrity and QA,
@@ -124,3 +124,23 @@ not overwritten by the shared selection preference.
 - Mocked visual harness passed at 390, 820 and 1440 pixels in default, fashion
   and creative themes. Provider/Model select tops align and no page overflow
   was detected. No paid provider request was sent.
+
+### Live Face Creator verification - 2026-09-05
+
+- Creator-provided evidence Job `job_1788603556676_dywvlsppj` is an owned
+  `headshot` result from `meta-muse / muse-image-1.0` with zero references.
+- The provider returned request ID
+  `92cb1890-46fc-4490-8d3d-4c50ed65ba8c`; History projects the result through
+  the actor-owned API.
+- The original provider output is preserved as WebP at 1344 x 1792
+  (339,616 bytes), with a separate 960 x 1280 thumbnail.
+- The locked estimate reserved 15 Credits and the terminal success captured
+  the same reservation once. No refund or duplicate capture exists for this
+  Job.
+- The creator confirmed that the generated Face Creator image rendered
+  successfully. This closes the requested Studio route check, not Muse
+  reference support, Character Sheet, Scene Builder, Fashion or Cinematic
+  qualification.
+- Focused re-verification passed 31 Muse/Registry/Credit tests and the actual
+  History and provider-catalog read APIs without sending another provider
+  request.

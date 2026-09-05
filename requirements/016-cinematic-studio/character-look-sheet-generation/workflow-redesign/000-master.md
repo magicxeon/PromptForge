@@ -1,7 +1,7 @@
 # Character Look Workflow Redesign Master
 
 **Requirement ID:** `016-CLWR`  
-**Status:** Implemented; automated gates and Thai responsive smoke passed, remaining manual release matrix pending  
+**Status:** Implemented; AI-generated Review/Approve/Cinematic binding live-verified, remaining upload-source release matrix pending
 **Priority:** P0 workflow correction  
 **Owning capability:** Character Profiles / reusable Character Looks  
 **Entry surface:** Cinematic Studio -> Cast & Wardrobe  
@@ -181,3 +181,26 @@ recorded; its scaffold does not count as qualification.
   390/820/1440 with no horizontal overflow. English, all supported themes,
   keyboard/focus and live paid consent remain final release gates, so this
   package is not marked Closed.
+
+## 11. Scoped Runtime Verification (2026-09-05)
+
+- Generation Job `job_1788231304557_qn6mtllq3` completed through
+  `modelark / seedream-4-5-251128` in `character-sheet` mode with Character and
+  Face reference roles, producing one owned 2048 x 2048 JPEG.
+- Character Look `charlook_1788229536432_0abdnk1t` retains the exact Generation
+  lineage, recipe version/fingerprint, approved three-view crop manifest and
+  `lineage_bound` identity assurance.
+- The approved Version `charlookver_1788229536432_3kflzanw` is bound to the
+  requested Cinematic Project as a locked `multi_view` Look and is referenced
+  by its Storyboard Shots.
+- Focused Character Look/Cinematic domain tests passed 59/59. Focused React
+  tests passed 71/71 across Character Look and Cinematic orchestration.
+- The live Cast route and Scene Builder route passed Thai/English browser smoke
+  at 390/820/1440 in default/fashion/creative themes with no page error or
+  horizontal overflow.
+
+This closes the AI-generated Look Sheet -> Review -> Approve -> bind-to-film
+path requested in this verification round. Full Look upload, Separate Pieces,
+completed-Sheet upload, actor switching and restart-resume remain in the wider
+manual matrix; their prior automated coverage is retained, but they were not
+re-executed as live mutations in this no-spend verification.

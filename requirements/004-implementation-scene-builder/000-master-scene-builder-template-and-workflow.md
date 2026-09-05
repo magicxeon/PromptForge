@@ -1,6 +1,6 @@
 # Scene Builder Template Master
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Existing React foundation verified; requirement reconciliation and live Generation remain pending
 **Feature type:** Scene generation, reusable templates and community remix foundation  
 **Depends on:** Visual Character Builder, Character Sheet handoff, generation history, Community-04 in requirements/005-implementation-community-plan, Community-05 in requirements/005-implementation-community-plan  
 **Created:** 2026-07-18
@@ -61,6 +61,7 @@ The long-term commercial path is selling templates or workflow packs. MVP only n
 | Scene-008 | Community Share and Use Template Flow | Connect Scene Template to community sharing/remix |
 | Scene-009 | Client Module Architecture | Keep Scene Builder modular and avoid app.js growth |
 | Scene-010 | QA, Migration and Release Gates | Validate compatibility and MVP launch readiness |
+| Scene-011 | Current React Readiness Audit | Reconcile implemented canonical modules, deterministic evidence and remaining live gates |
 
 ## 5. MVP Scope
 
@@ -111,7 +112,8 @@ Internal compatibility:
 
 ### 8.1 Target Modules
 
-Recommended client modules:
+Historical client modules (superseded by the canonical React implementation;
+do not extend these paths):
 
 ```text
 client/scene-builder/
@@ -124,7 +126,7 @@ client/scene-builder/
   sceneTemplateValidation.js
 ```
 
-Recommended server modules:
+Historical server modules (superseded by the canonical capability folders):
 
 ```text
 server/sceneTemplates/
@@ -230,3 +232,15 @@ test/sceneBuilderMigration.test.js
 ### 10.5 Global Rule For All Scene Builder Work
 
 Any agent implementing this folder must keep pure template logic testable without DOM, must avoid expanding `client/app.js` beyond wiring, and must preserve existing Headshot and Character Sheet flows.
+
+## 11. Current Architecture Reconciliation
+
+The canonical browser owner is now `web/src/features/scene-builder/`, with the
+route registered from `web/src/app/router.tsx`. Pure template policy is under
+`server/domain/scene-templates/`, persistence under
+`server/repositories/scene-templates/`, and reusable Template lifecycle under
+`server/domain/templates/`. The `client/` and root-level server paths in
+sections 8-10 are historical planning evidence only.
+
+See [Scene-011 Current React Readiness Audit](011-current-react-readiness-audit.md)
+before implementing another Scene Builder phase.

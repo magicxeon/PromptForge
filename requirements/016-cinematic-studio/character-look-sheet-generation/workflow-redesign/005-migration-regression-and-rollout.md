@@ -1,7 +1,7 @@
 # Migration, Regression And Rollout
 
 **Requirement ID:** `016-CLWR-005`  
-**Status:** Automated validation passed; manual release matrix pending  
+**Status:** Automated validation and AI-generated live binding passed; upload-source manual matrix pending
 **Priority:** Release gate  
 **Primary owner:** QA Release Engineer at implementation closure
 
@@ -234,3 +234,17 @@ Release state is **conditional pass**: the base workflow may proceed to human
 testing while Character Match Check stays hidden. English, supported themes,
 keyboard/focus and live provider/Credit consent scenarios remain manual gates
 and must be recorded before changing the master to Closed.
+
+### Scoped re-verification - 2026-09-05
+
+- Live Generation, History, approved Look Version and Cinematic binding lineage
+  were reconciled for `job_1788231304557_qn6mtllq3` and
+  `charlook_1788229536432_0abdnk1t` without submitting new paid work.
+- 59 focused Character Look/Cinematic server tests and 71 focused Character
+  Look/Cinematic React tests passed.
+- Thai and English Cast-route browser smoke passed at 390, 820 and 1440 in all
+  three supported themes. The page had no runtime error, horizontal overflow
+  or unreachable initial keyboard focus.
+- The AI-generated path receives a scoped **pass**. The package remains a
+  **conditional pass** only because the broader live matrix in section 5 also
+  covers upload source variants, actor switching and restart-resume.

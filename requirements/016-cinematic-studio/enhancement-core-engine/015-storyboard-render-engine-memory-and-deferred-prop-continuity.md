@@ -94,6 +94,10 @@ general solution requires a future package with:
 This gap is intentionally recorded but not implemented here so provider/model
 memory cannot accidentally change Story, prompt, reference or approval output.
 
+The deterministic audit and implementation boundary are continued in
+`016-story-prop-visual-authority.md`. That requirement remains pending and does
+not change current Storyboard behavior.
+
 ## 7. Acceptance Criteria
 
 1. A successful single-Shot render is the default engine in the next Shot.
