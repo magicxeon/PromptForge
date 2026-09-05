@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Pencil, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   listCollections,
@@ -13,6 +14,7 @@ type WorkingCollectionToolbarProps = {
   selectedCollectionId: string;
   loadedCount: number;
   hasMore?: boolean;
+  layout?: 'compact' | 'library';
   onSelectionChange: (collectionId: string) => void;
 };
 
@@ -20,6 +22,7 @@ export function WorkingCollectionToolbar({
   selectedCollectionId,
   loadedCount,
   hasMore = false,
+  layout = 'compact',
   onSelectionChange
 }: WorkingCollectionToolbarProps) {
   const { t } = useTranslation('react-ui');
@@ -37,7 +40,10 @@ export function WorkingCollectionToolbar({
   const visibleCount = activeCollection?.jobIds.length ?? loadedCount;
 
   return (
-    <section className="studio-working-collection" aria-label={t('ui.collections.working')}>
+    <section
+      className={`studio-working-collection studio-working-collection--${layout}`}
+      aria-label={t('ui.collections.working')}
+    >
       <label className="studio-working-collection__select">
         <span>{t('ui.collections.filterLabel')}</span>
         <select
@@ -63,20 +69,38 @@ export function WorkingCollectionToolbar({
       </strong>
       <div className="studio-working-collection__actions">
         <CollectionEditorDialog onSaved={onSelectionChange} />
-        {activeCollection ? (
-          <CollectionEditorDialog collection={activeCollection} />
-        ) : (
-          <Button size="sm" disabled>{t('ui.collections.edit')}</Button>
-        )}
+        {activeCollection ? layout === 'library' ? (
+          <CollectionEditorDialog
+            collection={activeCollection}
+            trigger={(
+              <Button
+                size="icon"
+                title={t('ui.collections.edit')}
+                aria-label={t('ui.collections.edit')}
+                icon={<Pencil aria-hidden="true" />}
+              />
+            )}
+          />
+        ) : <CollectionEditorDialog collection={activeCollection} /> : null}
         {activeCollection?.jobIds.length ? (
           <PublishCommunityResourceDialog
             title={t('ui.collections.shareTitle')}
             description={t('ui.collections.shareDescription')}
             actionLabel={t('ui.collections.share')}
             triggerClassName="studio-working-collection__share"
+            trigger={layout === 'library' ? (
+              <Button
+                size="icon"
+                variant="primary"
+                className="studio-working-collection__share"
+                title={t('ui.collections.share')}
+                aria-label={t('ui.collections.share')}
+                icon={<Share2 aria-hidden="true" />}
+              />
+            ) : undefined}
             publish={input => publishCollectionToCommunity(activeCollection.id, input)}
           />
-        ) : (
+        ) : layout === 'compact' ? (
           <Button
             size="sm"
             variant="primary"
@@ -85,7 +109,7 @@ export function WorkingCollectionToolbar({
           >
             {t('ui.collections.share')}
           </Button>
-        )}
+        ) : null}
       </div>
       {collections.isError ? (
         <p role="alert" className="studio-working-collection__error">

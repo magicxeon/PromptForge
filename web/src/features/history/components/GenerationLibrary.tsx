@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowRight, Film, Image as ImageIcon, LoaderCircle, Play, Trash2 } from 'lucide-react';
+import { ArrowRight, Columns3, Film, Image as ImageIcon, LoaderCircle, Play, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -26,8 +26,12 @@ import type { HistoryItem } from '../schemas/historySchemas';
 import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
 import { listRecentVideoTasks } from '../../generation/api/videoGenerationApi';
 import type { VideoTask } from '../../generation/schemas/videoGenerationSchemas';
+import { listComparisons } from '../../comparisons/api/comparisonApi';
+import type { ComparisonListItem } from '../../comparisons/schemas/comparisonSchemas';
+import { queryKeys } from '../../../lib/api/queryKeys';
+import { RecentComparisonCard } from './RecentComparisonCard';
 
-type MediaFilter = 'all' | 'image' | 'video';
+type MediaFilter = 'all' | 'image' | 'video' | 'comparison';
 
 type GenerationLibraryProps = {
   variant: 'compact' | 'full';
@@ -57,6 +61,19 @@ export function GenerationLibrary({ variant, limit = 12 }: GenerationLibraryProp
     enabled: Boolean(actor && variant === 'full' && selectedCollectionId === 'all'),
     staleTime: 20_000
   });
+  const comparisons = useInfiniteQuery({
+    queryKey: queryKeys.comparisons(actorId),
+    queryFn: ({ pageParam }) => listComparisons(pageParam),
+    enabled: Boolean(
+      actor
+      && variant === 'full'
+      && selectedCollectionId === 'all'
+      && ['all', 'comparison'].includes(mediaFilter)
+    ),
+    initialPageParam: null as string | null,
+    getNextPageParam: page => page.nextCursor || undefined,
+    staleTime: 20_000
+  });
   const remove = useMutation({
     mutationFn: (jobId: string) => deleteHistoryItem(jobId),
     onSuccess: (_, jobId) => {
@@ -81,9 +98,24 @@ export function GenerationLibrary({ variant, limit = 12 }: GenerationLibraryProp
   const videoViewerItems = videoItems
     .filter(task => Boolean(task.outputAsset?.publicUrl))
     .map(toVideoViewerItem);
-  const visibleMedia = buildVisibleMedia(items, videoItems, variant === 'compact' ? 'image' : mediaFilter);
-  const loading = history.isLoading || (variant === 'full' && mediaFilter !== 'image' && videos.isLoading);
-  const hasError = history.isError || (variant === 'full' && mediaFilter !== 'image' && videos.isError);
+  const comparisonItems = variant === 'full' && selectedCollectionId === 'all'
+    ? comparisons.data?.pages.flatMap(page => page.items) || []
+    : [];
+  const activeFilter = variant === 'compact' ? 'image' : mediaFilter;
+  const visibleMedia = buildVisibleMedia(items, videoItems, comparisonItems, activeFilter);
+  const needsImages = activeFilter === 'all' || activeFilter === 'image';
+  const needsVideos = activeFilter === 'all' || activeFilter === 'video';
+  const needsComparisons = activeFilter === 'all' || activeFilter === 'comparison';
+  const loading = (needsImages && history.isLoading)
+    || (variant === 'full' && needsVideos && videos.isLoading)
+    || (variant === 'full' && needsComparisons && comparisons.isLoading);
+  const hasError = (needsImages && history.isError)
+    || (variant === 'full' && needsVideos && videos.isError)
+    || (variant === 'full' && needsComparisons && comparisons.isError);
+  const canLoadMore = variant === 'full' && (
+    (needsImages && history.hasNextPage)
+    || (needsComparisons && comparisons.hasNextPage)
+  );
 
   return (
     <>
@@ -95,7 +127,7 @@ export function GenerationLibrary({ variant, limit = 12 }: GenerationLibraryProp
               <h1>{t('ui.studio.recent')}</h1>
             </div>
             <div className="generation-library__media-filter" role="group" aria-label={t('ui.history.mediaFilter')}>
-              {(['all', 'image', 'video'] as const).map(value => (
+              {(['all', 'image', 'video', 'comparison'] as const).map(value => (
                 <button
                   key={value}
                   type="button"
@@ -103,25 +135,35 @@ export function GenerationLibrary({ variant, limit = 12 }: GenerationLibraryProp
                   onClick={() => {
                     setActiveImageId(null);
                     setActiveVideoId(null);
+                    if (
+                      value === 'video'
+                      || value === 'comparison'
+                      || (value === 'all' && selectedCollectionId !== 'all')
+                    ) {
+                      setSelectedCollectionId('all');
+                    }
                     setMediaFilter(value);
                   }}
                 >
                   {value === 'image' ? <ImageIcon aria-hidden="true" /> : null}
                   {value === 'video' ? <Film aria-hidden="true" /> : null}
+                  {value === 'comparison' ? <Columns3 aria-hidden="true" /> : null}
                   {t(`ui.history.media.${value}`)}
                 </button>
               ))}
             </div>
           </header>
         ) : null}
-        {variant === 'compact' || mediaFilter !== 'video' ? (
+        {variant === 'compact' || ['all', 'image'].includes(mediaFilter) ? (
           <WorkingCollectionToolbar
             selectedCollectionId={selectedCollectionId}
             loadedCount={loadedItems.length}
             hasMore={history.hasNextPage}
+            layout={variant === 'full' ? 'library' : 'compact'}
             onSelectionChange={collectionId => {
               setActiveImageId(null);
               setActiveVideoId(null);
+              if (collectionId !== 'all') setMediaFilter('image');
               setSelectedCollectionId(collectionId);
             }}
           />
@@ -139,16 +181,17 @@ export function GenerationLibrary({ variant, limit = 12 }: GenerationLibraryProp
           {hasError ? (
             <ErrorState
               title={t('ui.history.unavailable')}
-              description={history.error?.message || videos.error?.message}
+              description={history.error?.message || videos.error?.message || comparisons.error?.message}
               onRetry={() => {
-                void history.refetch();
-                if (variant === 'full') void videos.refetch();
+                if (needsImages) void history.refetch();
+                if (variant === 'full' && needsVideos) void videos.refetch();
+                if (variant === 'full' && needsComparisons) void comparisons.refetch();
               }}
             />
           ) : null}
           {!loading && !visibleMedia.length ? (
             variant === 'full'
-              ? <EmptyState title={t('ui.history.empty')} />
+              ? <EmptyState title={t(activeFilter === 'comparison' ? 'ui.history.emptyComparisons' : 'ui.history.empty')} />
               : <p className="studio-recent__empty">{t('ui.studio.noRecent')}</p>
           ) : null}
           {visibleMedia.length ? (
@@ -166,16 +209,29 @@ export function GenerationLibrary({ variant, limit = 12 }: GenerationLibraryProp
                     alt={t('ui.studio.generatedImage')}
                     loading="lazy"
                   />
-                  <span>{entry.item.submodel || entry.item.provider}</span>
+                  {entry.item.comparisonSetId ? (
+                    <small className="studio-recent__source-badge">
+                      <Columns3 aria-hidden="true" />
+                      {t('ui.history.comparisonBadge')}
+                    </small>
+                  ) : null}
+                  <span className="studio-recent__item-label">{entry.item.submodel || entry.item.provider}</span>
                 </button>
-              ) : <VideoRecentCard key={`video:${entry.item.id}`} task={entry.item} onOpen={setActiveVideoId} />)}
+              ) : entry.mediaType === 'video' ? (
+                <VideoRecentCard key={`video:${entry.item.id}`} task={entry.item} onOpen={setActiveVideoId} />
+              ) : (
+                <RecentComparisonCard key={`comparison:${entry.item.id}`} comparison={entry.item} />
+              ))}
             </div>
           ) : null}
-          {variant === 'full' && mediaFilter !== 'video' && history.hasNextPage ? (
+          {canLoadMore ? (
             <div className="generation-library__load-more">
               <Button
-                disabled={history.isFetchingNextPage}
-                onClick={() => void history.fetchNextPage()}
+                disabled={history.isFetchingNextPage || comparisons.isFetchingNextPage}
+                onClick={() => {
+                  if (needsImages && history.hasNextPage) void history.fetchNextPage();
+                  if (needsComparisons && comparisons.hasNextPage) void comparisons.fetchNextPage();
+                }}
               >
                 {t('ui.action.loadMore')}
               </Button>
@@ -193,8 +249,20 @@ export function GenerationLibrary({ variant, limit = 12 }: GenerationLibraryProp
           if (!open) setActiveImageId(null);
         }}
         onActiveIdChange={setActiveImageId}
-        renderActions={item => (
-          <>
+        renderActions={item => {
+          const sourceItem = items.find(candidate => candidate.id === item.id);
+          return (
+            <>
+            {sourceItem?.comparisonSetId ? (
+              <Link
+                to={routeBuilders.comparison(sourceItem.comparisonSetId)}
+                className="generation-viewer__comparison-link"
+                onClick={() => setActiveImageId(null)}
+              >
+                <Columns3 aria-hidden="true" />
+                {t('ui.history.openComparison')}
+              </Link>
+            ) : null}
             {item.generationMode === 'headshot' ? (
               <FaceReferenceDestinationDialog
                 source={{ sourceType: 'generation', sourceId: item.id }}
@@ -229,8 +297,9 @@ export function GenerationLibrary({ variant, limit = 12 }: GenerationLibraryProp
                 onConfirm={() => remove.mutate(item.id)}
               />
             ) : null}
-          </>
-        )}
+            </>
+          );
+        }}
       />
       <GenerationVideoViewer
         items={videoViewerItems}
@@ -247,24 +316,36 @@ export function GenerationLibrary({ variant, limit = 12 }: GenerationLibraryProp
 
 type VisibleMedia =
   | { mediaType: 'image'; item: HistoryItem; timestamp: number }
-  | { mediaType: 'video'; item: VideoTask; timestamp: number };
+  | { mediaType: 'video'; item: VideoTask; timestamp: number }
+  | { mediaType: 'comparison'; item: ComparisonListItem; timestamp: number };
 
 export function buildVisibleMedia(
   images: HistoryItem[],
   videos: VideoTask[],
+  comparisons: ComparisonListItem[],
   filter: MediaFilter
 ): VisibleMedia[] {
-  const imageEntries: VisibleMedia[] = filter === 'video' ? [] : images.map(item => ({
+  const loadedComparisonIds = new Set(comparisons.map(item => item.id));
+  const visibleImages = filter === 'all'
+    ? images.filter(item => !item.comparisonSetId || !loadedComparisonIds.has(item.comparisonSetId))
+    : images;
+  const imageEntries: VisibleMedia[] = ['video', 'comparison'].includes(filter) ? [] : visibleImages.map(item => ({
     mediaType: 'image',
     item,
     timestamp: Number(item.timestamp) || 0
   }));
-  const videoEntries: VisibleMedia[] = filter === 'image' ? [] : videos.map(item => ({
+  const videoEntries: VisibleMedia[] = ['image', 'comparison'].includes(filter) ? [] : videos.map(item => ({
     mediaType: 'video',
     item,
     timestamp: Date.parse(item.createdAt || item.updatedAt || '') || 0
   }));
-  return [...imageEntries, ...videoEntries].sort((left, right) => right.timestamp - left.timestamp);
+  const comparisonEntries: VisibleMedia[] = ['image', 'video'].includes(filter) ? [] : comparisons.map(item => ({
+    mediaType: 'comparison',
+    item,
+    timestamp: Number(item.updatedAt || item.createdAt) || 0
+  }));
+  return [...imageEntries, ...videoEntries, ...comparisonEntries]
+    .sort((left, right) => right.timestamp - left.timestamp);
 }
 
 function VideoRecentCard({ task, onOpen }: { task: VideoTask; onOpen: (id: string) => void }) {
@@ -287,7 +368,7 @@ function VideoRecentCard({ task, onOpen }: { task: VideoTask; onOpen: (id: strin
         </div>
       )}
       {playable ? <Play className="studio-recent__play" aria-hidden="true" /> : null}
-      <span>{task.modelId || task.providerId || task.status}</span>
+      <span className="studio-recent__item-label">{task.modelId || task.providerId || task.status}</span>
       <small>{formatVideoStatus(task)}</small>
     </button>
   );

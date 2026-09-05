@@ -1,7 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation } from '@tanstack/react-query';
 import { Share2, X } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 
@@ -10,6 +10,7 @@ export function PublishCommunityResourceDialog({
   description,
   actionLabel,
   triggerClassName,
+  trigger,
   allowPromptVisibility = false,
   publish
 }: {
@@ -17,6 +18,7 @@ export function PublishCommunityResourceDialog({
   description: string;
   actionLabel: string;
   triggerClassName?: string;
+  trigger?: ReactNode;
   allowPromptVisibility?: boolean;
   publish: (input: {
     title: string;
@@ -44,7 +46,11 @@ export function PublishCommunityResourceDialog({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button className={triggerClassName} icon={<Share2 className="size-4" />}>{actionLabel}</Button>
+        {trigger || (
+          <Button className={triggerClassName} icon={<Share2 className="size-4" />}>
+            {actionLabel}
+          </Button>
+        )}
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[80] bg-black/75 backdrop-blur-sm" />

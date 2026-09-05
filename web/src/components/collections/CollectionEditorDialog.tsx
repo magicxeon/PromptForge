@@ -1,7 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FolderPlus, Pencil, X } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   createCollection,
@@ -14,11 +14,13 @@ import { Button } from '../ui/Button';
 type CollectionEditorDialogProps = {
   collection?: Collection | null;
   onSaved?: (collectionId: string) => void;
+  trigger?: ReactNode;
 };
 
 export function CollectionEditorDialog({
   collection = null,
-  onSaved
+  onSaved,
+  trigger
 }: CollectionEditorDialogProps) {
   const { t } = useTranslation('react-ui');
   const { actor } = useActor();
@@ -50,15 +52,17 @@ export function CollectionEditorDialog({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button
-          size="sm"
-          disabled={Boolean(!collection && !actor)}
-          icon={collection
-            ? <Pencil aria-hidden="true" />
-            : <FolderPlus aria-hidden="true" />}
-        >
-          {collection ? t('ui.collections.edit') : t('ui.collections.newShort')}
-        </Button>
+        {trigger || (
+          <Button
+            size="sm"
+            disabled={Boolean(!collection && !actor)}
+            icon={collection
+              ? <Pencil aria-hidden="true" />
+              : <FolderPlus aria-hidden="true" />}
+          >
+            {collection ? t('ui.collections.edit') : t('ui.collections.newShort')}
+          </Button>
+        )}
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[120] bg-black/75 backdrop-blur-sm" />

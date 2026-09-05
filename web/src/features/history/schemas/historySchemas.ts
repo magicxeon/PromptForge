@@ -14,6 +14,9 @@ export const historyItemSchema = z.object({
   width: z.number().optional(),
   height: z.number().optional(),
   generationDuration: z.union([z.string(), z.number()]).nullable().optional(),
+  comparisonSetId: z.string().nullable().optional(),
+  comparisonRunId: z.string().nullable().optional(),
+  comparisonSlotId: z.string().nullable().optional(),
   characterSheetConfig: z.object({
     characterType: z.enum(['reusable_model', 'styled_character']).optional()
   }).passthrough().nullable().optional(),

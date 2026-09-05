@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Download, Trash2 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Columns3, Download, Trash2 } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
@@ -14,6 +14,7 @@ import { useActor } from '../../../lib/auth/ActorProvider';
 import { ContextBackLink } from '../../../components/layout/ContextBackLink';
 import { FaceReferenceDestinationDialog } from '../../../components/generation/FaceReferenceDestinationDialog';
 import { TemplateLineageCard } from '../../../components/templates/TemplateLineageCard';
+import { routeBuilders } from '../../../app/routeRegistry/routes';
 
 export function HistoryDetailRoute() {
   const { t } = useTranslation('react-ui');
@@ -47,6 +48,15 @@ export function HistoryDetailRoute() {
           <div className="mt-5 grid grid-cols-1 gap-2 min-[390px]:grid-cols-2 sm:flex sm:flex-wrap [&>button]:w-full min-[390px]:[&>button]:min-w-0 sm:[&>button]:w-auto">
             <a href={apiMediaUrl(item.data.imageUrl) || ''} download className="inline-flex min-h-10 min-w-0 items-center justify-center gap-2 rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border)] px-3 text-center text-[0.75rem] text-white no-underline sm:w-auto"><Download className="size-4 shrink-0" />{t('ui.action.download')}</a>
             <CollectionPickerDialog jobId={item.data.id} />
+            {item.data.comparisonSetId ? (
+              <Link
+                to={routeBuilders.comparison(item.data.comparisonSetId)}
+                className="generation-viewer__comparison-link"
+              >
+                <Columns3 aria-hidden="true" />
+                {t('ui.history.openComparison')}
+              </Link>
+            ) : null}
             <ShareGeneratedDialog jobId={item.data.id} />
             {item.data.mode === 'headshot' ? (
               <FaceReferenceDestinationDialog
