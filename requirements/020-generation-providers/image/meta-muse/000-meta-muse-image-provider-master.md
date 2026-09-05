@@ -1,13 +1,20 @@
 # Meta Muse Image Provider - Master Requirement
 
-Status: Adapter scaffold implemented; catalog visibility requested while live
-qualification, pricing and paid dispatch remain blocked
-Last updated: 2026-08-30  
+Status: Playground-only development testing implemented; production and live qualification pending
+Last updated: 2026-09-05
 Primary role: Backend Platform Architect  
 Reviewers: Product Requirement Architect, QA Release Engineer  
 Triggered skill: `review-generative-media-pipeline`
 
 ## 1. Objective
+
+Current rollout override (2026-09-05):
+[007 Playground-only preparation](007-playground-only-preparation.md) owns the
+requested first release. Other surfaces remain excluded. Pricing and full
+Image generation contents have been supplied by the creator; 15-Credit
+development testing is implemented. Creator-run live qualification remains
+pending. Earlier multi-product scope
+below is deferred, not permission to enable Studio/Fashion/Cinematic.
 
 Add Meta Muse as an image-generation provider through the existing Generation,
 Provider Registry, Credits, Reference Processing, and Fashion qualification

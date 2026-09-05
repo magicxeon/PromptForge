@@ -13,6 +13,7 @@ export const providerModelSchema = z.object({
     streaming: z.boolean().default(false),
     aspectRatios: z.array(z.string()).default([]),
     resolutions: z.array(z.string()).optional(),
+    dimensionControl: z.enum(['exact', 'aspect_ratio_only']).optional(),
     downstreamVideoCompatibility: z.record(z.string(), z.object({
       status: z.string(),
       maximumAgeDays: z.number().int().positive().optional(),
@@ -28,6 +29,8 @@ export const providerModelSchema = z.object({
   pricingStatus: z.string().optional(),
   qualificationStatus: z.string().optional(),
   paidRoutingEnabled: z.boolean().optional(),
+  testingRoutingEnabled: z.boolean().optional(),
+  allowedGenerationSurfaces: z.array(z.enum(['playground', 'studio', 'fashion', 'cinematic'])).optional(),
   unavailableReason: z.string().nullable().optional()
 }).passthrough();
 

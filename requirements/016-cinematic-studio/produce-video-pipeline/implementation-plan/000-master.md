@@ -1,7 +1,7 @@
 # Produce Video Pipeline Implementation Plan
 
 **Plan ID:** `016-PVP-IP-000`  
-**Status:** In progress; Packages 001-002 complete, Package 003F deterministic work complete with live qualification pending  
+**Status:** Packages 001-002 complete; Seedance live qualification paused awaiting BytePlus Support; local implementation retained
 **Execution rule:** Complete, test and record one package before the next starts
 
 ## 1. Purpose
@@ -12,6 +12,34 @@ mock, direct provider call, duplicate batch loop or non-durable export from
 becoming a competing production path.
 
 ## 2. Package Order
+
+### 2026-09-05 - Support Hold And Next Priorities
+
+Planning owner: Product And Requirement Architect. This is a documentation-only
+backlog review, not new implementation approval or release verification.
+Current support evidence and hold boundaries are in
+`../../fix-tickets/CINE-FIX-012-seedance-direct-first-frame-recovery.md`, section 5.
+That dated record overrides historical active/live-test instructions for 003
+and 003H below. The 003F Asset Library path is historical, not a prerequisite
+to restoring this flow; CINE-FIX-012 owns current URL-first transport.
+
+Recommended remaining work, ordered by upstream correctness and dependencies:
+
+| Rank | Work and owning requirement | Actual remaining scope | Work possible during support hold |
+|---|---|---|---|
+| 1 | Prop visual authority: `../../enhancement-core-engine/015-storyboard-render-engine-memory-and-deferred-prop-continuity.md`, section 6 | Stable prop identity and appearance across Shots; separate material/color/shape from per-Shot pose/state; backward-compatible conflict checks | Write the deferred implementation package and deterministic compiler/reference tests. Engine preference memory is already implemented and must not be rebuilt. Do not regenerate existing images. |
+| 2 | Eligible video batch: `004-generate-eligible-video-set.md` | Server-prepared eligible set, aggregate quote, durable Group, bounded child dispatch and failed-child-only retry | Prepare contracts and mocked lifecycle/Credit/UI tests after explicitly splitting the local gate from pending provider qualification. No live batch or paid exposure until the single-Shot gate passes. |
+| 3 | Cross-Shot video continuity: `005-continuity-and-media-validation.md` | Transition strategy, authorized last-frame derivatives, dependency-aware staleness and continuity review | Use local media fixtures for transition/derivative/recovery tests. Existing media probe and technical approval gates from 003A must be reused, not implemented twice. Live continuing-action qualification remains dependent on provider acceptance. |
+| 4 | Final assembly, audio and export: `006-final-assembly-and-export.md` | Immutable approved Timeline manifest, audio readiness, bounded FFmpeg render Job, playable MP4, preview/download and explicit completion | Develop and verify with owned synthetic/local clip fixtures after local dependencies pass. Current application export remains `qualification_blocked`; do not label a manifest as a completed movie. Pricing and live sequence validation remain separate gates. |
+| 5 | Release and regression closure: `007-release-verification-and-rollout.md` | End-to-end lineage, refresh/restart/retry, Credits, private media, responsive themes and final rollout decision | Prepare the evidence matrix and focused scripts incrementally. Run full regression after the relevant packages; production release and real Seedance sequence qualification cannot close while support is pending. |
+
+These are remaining scopes, not claims that each entire package is absent.
+Inspect canonical code/tests before each step to preserve completed substeps.
+The older generic story-improvement document also has a pending heading, but
+core-engine packages implement overlapping behavior; reconcile acceptance
+criteria instead of starting a second prompt compiler or duplicate repair loop.
+No package is started by this backlog note. The original one-package-at-a-time
+rule remains; any local-fixture execution split must be documented before code.
 
 | Package | Scope | Depends on | Exit evidence |
 |---|---|---|---|

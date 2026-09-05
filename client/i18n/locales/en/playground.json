@@ -17,6 +17,7 @@
   "playground.queue.statusCompleted": "Generation completed",
   "playground.queue.statusFailed": "Generation failed",
   "playground.engine.help": "Capabilities and pricing come from the server catalog.",
+  "playground.engine.internalTesting": "Internal testing - normal Credits apply; output not yet qualified.",
   "playground.engine.loading": "Loading generation engines...",
   "playground.engine.unavailable": "Generation engines are unavailable.",
   "playground.engine.unavailable.model_unavailable": "This model is unavailable.",

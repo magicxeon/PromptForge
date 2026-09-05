@@ -49,6 +49,14 @@ export class ProviderRegistry {
     return provider?.enabled !== false && Boolean(getConfiguredSecret(this.environment, provider));
   }
 
+  isModelTestingAvailable(provider, model) {
+    return provider.enabled !== false
+      && model.testingRoutingEnabled === true
+      && model.qualificationStatus === 'internal_testing'
+      && model.pricingStatus === 'priced'
+      && ['development', 'test'].includes(this.environment.NODE_ENV || 'development');
+  }
+
   getPublicCatalog() {
     const providers = this.config.providers
       .filter(provider => (
@@ -68,17 +76,23 @@ export class ProviderRegistry {
             displayName: model.displayName,
             capabilities: model.capabilities,
             defaults: model.defaults || {},
+            ...(model.allowedGenerationSurfaces ? { allowedGenerationSurfaces: [...model.allowedGenerationSurfaces] } : {}),
             estimatedCredits: Number.isFinite(Number(model.creditCost))
               ? Number(model.creditCost)
               : null,
             pricingStatus: model.pricingStatus || 'priced',
             qualificationStatus: model.qualificationStatus || 'qualified',
+            ...(model.testingRoutingEnabled !== undefined ? {
+              testingRoutingEnabled: this.isModelTestingAvailable(provider, model)
+            } : {}),
             paidRoutingEnabled: provider.enabled !== false
               && model.paidRoutingEnabled !== false,
             unavailableReason: provider.enabled === false
               ? 'provider_not_released'
               : model.pricingStatus === 'unavailable'
                 ? 'pricing_unavailable'
+                : model.paidRoutingEnabled === false && !this.isModelTestingAvailable(provider, model)
+                  ? 'provider_not_released'
                 : model.qualificationStatus === 'unqualified'
                   ? 'model_unqualified'
                   : null
@@ -94,7 +108,7 @@ export class ProviderRegistry {
     };
   }
 
-  resolveSelection(providerId, modelId) {
+  resolveSelection(providerId, modelId, { generationSurface = null } = {}) {
     const selectedProviderId = providerId || this.config.defaultProvider;
     const provider = this.getProvider(selectedProviderId);
     if (!provider || provider.enabled === false) throw new ProviderSelectionError(`Provider is disabled or unknown: ${selectedProviderId}`);
@@ -103,6 +117,16 @@ export class ProviderRegistry {
     const selectedModelId = modelId || provider.defaultModel;
     const model = provider.models.find(entry => entry.id === selectedModelId);
     if (!model || model.enabled === false) throw new ProviderSelectionError(`Model is disabled or unknown for ${provider.id}: ${selectedModelId}`);
+    if (model.allowedGenerationSurfaces && !model.allowedGenerationSurfaces.includes(generationSurface)) {
+      const error = new ProviderSelectionError(`${model.displayName.en} is unavailable for this generation surface.`);
+      error.code = 'provider_surface_unsupported';
+      throw error;
+    }
+    if (model.paidRoutingEnabled === false && !this.isModelTestingAvailable(provider, model)) {
+      const error = new ProviderSelectionError(`${model.displayName.en} is not released for this environment.`);
+      error.code = 'provider_not_released';
+      throw error;
+    }
     return { provider, model };
   }
 

@@ -252,7 +252,7 @@
     {
       "id": "meta-muse",
       "adapter": "meta-muse",
-      "enabled": false,
+      "enabled": true,
       "catalogVisible": true,
       "displayName": { "en": "Meta Muse", "th": "Meta Muse" },
       "apiKeyEnv": "META_MUSE_API_KEY",
@@ -264,6 +264,7 @@
         {
           "id": "muse-image-1.0",
           "enabled": true,
+          "allowedGenerationSurfaces": ["playground"],
           "displayName": { "en": "Muse Image 1.0", "th": "Muse Image 1.0" },
           "displayOrder": 10,
           "capabilities": {
@@ -272,11 +273,15 @@
             "imageReferences": false,
             "maxReferenceImages": 0,
             "streaming": false,
-            "batchOutput": false
+            "batchOutput": false,
+            "dimensionControl": "aspect_ratio_only",
+            "aspectRatios": ["6:8", "1:1", "9:16", "16:9", "4:5"]
           },
-          "defaults": { "responseFormat": "b64_json" },
-          "pricingStatus": "unavailable",
-          "qualificationStatus": "unqualified",
+          "aspectRatioSizes": { "6:8": "768x1024", "1:1": "1024x1024", "9:16": "864x1536", "16:9": "1536x864", "4:5": "1024x1280" },
+          "defaults": { "responseFormat": "b64_json", "outputFormat": "webp" },
+          "pricingStatus": "priced",
+          "qualificationStatus": "internal_testing",
+          "testingRoutingEnabled": true,
           "paidRoutingEnabled": false
         }
       ]

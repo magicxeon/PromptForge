@@ -9,6 +9,7 @@ import {
 } from '../../../components/generation/EngineTargetPanel';
 import {
   imageModelUnavailableReason,
+  filterImageCatalogForSurface,
   resolveAvailableImageEngine
 } from '../../../components/generation/engineTargetPanelHelpers';
 import { Button } from '../../../components/ui/Button';
@@ -74,6 +75,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
   const catalog = useQuery({
     queryKey: ['provider-catalog'],
     queryFn: getProviderCatalog,
+    select: data => filterImageCatalogForSurface(data, 'cinematic'),
     staleTime: 5 * 60_000
   });
   const scopedShots = useMemo(() => project.scenes.flatMap(scene =>

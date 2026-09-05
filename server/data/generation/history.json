@@ -1,5 +1,126 @@
 [
   {
+    "id": "job_1788590806378_ij9uc6xlb",
+    "username": "user_alice",
+    "prompt": "Create one cinematic romantic movie poster in a 6:8 aspect ratio. Show a beautiful, cute young woman with wavy hair and a soft smile, wearing an elegant emerald-green trench coat, seated gracefully on a wooden train-station bench at twilight. She holds an open vintage brass pocket watch with both hands; each hand is anatomically flawless, with exactly five fingers clearly visible. To her left, exactly three brown leather suitcases are stacked vertically, with a glowing blue crystal rose resting perfectly on the top suitcase. Exactly four yellow autumn leaves are falling gently through the air around her. In the softly blurred, misty background, a large illuminated station sign clearly spells “SERENDIPITY” in crisp, white glowing letters. Use soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh for realistic cinematic photography.",
+    "imageUrl": "/outputs/job_1788590806378_ij9uc6xlb.webp",
+    "timestamp": 1788590824506,
+    "provider": "meta-muse",
+    "submodel": "muse-image-1.0",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "d8625cc9845eb855e5abea57759d29548b2049fcc35ac36bce6319eb757500e7",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "muse-image-1.0",
+    "providerOutputProvenance": {
+      "kind": "provider_generated_image",
+      "providerId": "meta-muse",
+      "requestedModelId": "muse-image-1.0",
+      "resolvedModelId": "muse-image-1.0",
+      "providerRequestId": "547358cb-a16b-4580-8c2e-0477bf64dc51",
+      "credentialScope": null,
+      "generatedAt": "2026-09-05T06:47:04.506Z",
+      "responseFormat": null,
+      "originalBytesPreserved": true
+    },
+    "providerConfigVersion": 1,
+    "creditCost": 15,
+    "mimeType": "image/webp",
+    "width": 1344,
+    "height": 1792,
+    "usage": {
+      "input_tokens": 10640,
+      "output_tokens": 1271,
+      "total_tokens": 11911
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "14.8",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "70c265144f21c560",
+    "referenceProcessingPlanFingerprint": "d8625cc9845eb855e5abea57759d29548b2049fcc35ac36bce6319eb757500e7",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": true,
+      "status": "refined",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "78890dd63c53070b",
+      "afterFingerprint": "70c265144f21c560",
+      "responseId": "resp_033fe036810703a2016a9bbad1413487d097ef23f9ada16728",
+      "usage": {
+        "inputTokens": 420,
+        "outputTokens": 407,
+        "totalTokens": 827
+      },
+      "latencyMs": 6382,
+      "warnings": [],
+      "changeSummary": [
+        "Removed repetitive phrasing and tightened sentence structure.",
+        "Clarified spatial relationships and maintained all exact object counts.",
+        "Preserved the requested cinematic photography, poster composition, 6:8 aspect ratio, and single-image output."
+      ],
+      "preservedAuthorities": [
+        "No reference roles or character references were specified.",
+        "Character reference outfit behavior remains preserve.",
+        "Generation mode and surface remain playground; authoring mode remains manual."
+      ]
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788590806378_ij9uc6xlb.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 960,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 118544,
+    "originalBytes": 388398,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 1,
+      "providerMs": 14784,
+      "outputPersistenceMs": 3599,
+      "totalMs": 18386
+    }
+  },
+  {
     "id": "job_1788533985708_hxvipujw2",
     "username": "user_alice",
     "prompt": "STORYBOARD KEYFRAME CONTRACT cinematic-storyboard-keyframe-v2\n\nKEYFRAME MOMENT:\nPayoff keyframe. Exact moment: นาราก้าวอยู่กึ่งกลางระหว่างเงาฟ้าด้านซ้ายกับวงแสงอุ่นใต้โคมเหนือเคาน์เตอร์ด้านขวา. One visible action: เท้าขวาวางลงบนพื้นแห้งในวงแสง ขณะที่มือขวาปล่อยจากข้างลำตัวตามจังหวะเดิน.\n\nSUBJECT AUTHORITY:\nCharacters: อิงอิง as นารา preserve authorized identity. Approved wardrobe: Quiet Resolve — Café Close.\n\nVISIBLE PERFORMANCE:\nVisible emotion: มีหวัง. Show only this state. Expression and posture: ริมฝีปากขยับพูดอย่างเบาแล้วปิดนุ่ม สายตาไปยังพื้นที่ทำงานด้านขวา ศีรษะตั้ง ไหล่เสมอ เท้าขวารับน้ำหนักในวงแสง. Observable cue: ริมฝีปากแยกเล็กน้อยระหว่างคำพูด ดวงตามองพื้นที่ทำงานด้านขวา ศีรษะตั้งตรง และไหล่เสมอกันเหนือเท้าขวาที่รับน้ำหนัก. Gaze: มองพื้นที่ทำงานหลังเคาน์เตอร์ด้านขวา.\n\nCAMERA AND COMPOSITION:\nAspect ratio 9:16. Camera: มิดไวด์แนวตั้ง เห็นนาราเต็มช่วงขา วงแสง เคาน์เตอร์ และประตูกระจกฝนด้านหลัง, ระดับเอว, ระยะปานกลางกว้างให้การก้าวเข้าสู่แสงอ่านได้พร้อมพื้นที่ร้าน. Placement: นาราเดินเฉียงขวาเข้าสู่หลังเคาน์เตอร์ ไม่หันตรงกล้อง; ป้ายคว่ำอยู่ด้านซ้ายบนเคาน์เตอร์. Screen direction: นาราหันเฉียงไปทางขวา; เคาน์เตอร์และวงแสงอยู่ขวา ขณะที่ประตูกระจกฝนอยู่ซ้ายด้านหลัง.\n\nLIGHTING AND ENVIRONMENT:\nSetting: เคาน์เตอร์และทางเดินภายในคาเฟ่, พลบค่ำต่อเนื่อง. Motivated light: ไฟแขวนเหนือเคาน์เตอร์เปิด เป็นแสงอุ่นจากด้านบนเผยหน้า ไหล่ และพื้นใต้เท้าขวา; แสงฝนฟ้ายังอยู่ที่กระจกและฉากหลังซ้ายซึ่งมืดกว่าชัดเจน ไม่มีฟิลสวยงามเพิ่ม. Required environment: คาเฟ่ยังเงียบ โต๊ะคลุมผ้าอยู่ในเงา ฝนอยู่นอกกระจก พื้นในร้านแห้งมีเงารองเท้าจริง. Visible prop state: ป้าย CLOSED อยู่ใต้ฝ่ามือขวาบนเคาน์เตอร์; โทรศัพท์ไม่ปรากฏในเฟรมและไม่มีข้อความบนหน้าจอให้เห็น.\n\nCONTINUITY\n\nREFERENCE AUTHORITY:\nReference image 1 (character_reference): Preserve authorized identity, face, hair, skin and body proportions only; never copy its smile, gaze, pose, Look or setting. Reference image 2 (face_reference): Preserve only authorized facial identity and proportions; never copy smile, gaze, head pose, clothing, setting or style. Reference image 3 (outfit_front): Preserve only the approved front garment silhouette, color, material, construction and details; never copy the model pose or presentation. Reference image 4 (style_reference): Use only its lighting, palette, contrast, texture and photographic mood; do not copy identity, pose, clothing or scene content. Reference roles are exclusive. Current Shot action, expression, gaze, posture, prop staging and light outrank incidental reference content. Use sheets and catalog images only as evidence; output one continuous Scene frame, never a sheet, collage, split screen, inset or repeated person.\n\nSUBJECT BEHAVIOR:\nReplace source clothing only with the explicitly approved outfit reference while preserving Character identity and proportions. Keep the authorized apparent age 20-23, matching the Character references without aging up or down. Render an observed narrative moment, not a posed portrait, fashion image or sales presentation. Reference expressions are not performance authority: do not add a friendly micro-smile or direct camera gaze unless the current Shot explicitly requires it. Keep natural asymmetry in head, shoulders, hands and weight; do not square the body into a welcoming camera-facing stance unless authored. Keep every prop at the authored hand, body height and angle; do not raise, center or turn it toward camera for readability unless that display is the authored action.\n\nPHOTOGRAPHIC BEHAVIOR:\nCreate one physically plausible live-action frame with readable Scene context, moderate depth separation and motivated available or practical light. The authored light controls exposure: preserve subject-to-background contrast and falloff; do not add beauty fill, lift the face or activate an unrequested fixture. Use source-consistent unretouched skin and restrained digital-camera response with natural highlight roll-off, subtle sensor noise in darker tones and slight optical softness; keep imperfections unobtrusive.\n\nEXECUTION CONSTRAINTS:\nNo glossy retouch, plastic skin, illustration, anime or CGI; no exaggerated grain, aberration, halation, HDR, sharpness or bokeh. No duplicate people, copied sheet layout, impossible reflections or unauthorized objects.",

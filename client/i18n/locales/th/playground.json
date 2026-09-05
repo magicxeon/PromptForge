@@ -17,6 +17,7 @@
   "playground.queue.statusCompleted": "สร้างภาพเสร็จแล้ว",
   "playground.queue.statusFailed": "สร้างภาพไม่สำเร็จ",
   "playground.engine.help": "ความสามารถและราคามาจากแคตตาล็อกของเซิร์ฟเวอร์",
+  "playground.engine.internalTesting": "ทดสอบภายใน คิด Credits ตามปกติ ผลลัพธ์ยังไม่ผ่านการประเมิน",
   "playground.engine.loading": "กำลังโหลดเอนจินสร้างภาพ...",
   "playground.engine.unavailable": "ไม่สามารถใช้งานเอนจินสร้างภาพได้",
   "playground.engine.unavailable.model_unavailable": "โมเดลนี้ยังไม่พร้อมใช้งาน",

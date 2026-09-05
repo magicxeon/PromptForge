@@ -39,7 +39,8 @@ export class GenerationApplicationService {
       const requestPayload = createGenerationRequestPayload(body, userRole, templateExecution);
       const { provider, model } = this.providerRegistry.resolveSelection(
         body.provider,
-        body.submodel
+        body.submodel,
+        { generationSurface: body.generationSurface }
       );
       const { context } = compileGenerationContext(requestPayload, actorContext);
       assertSupportedOutputCount(context);
@@ -81,7 +82,8 @@ export class GenerationApplicationService {
     try {
       const { provider, model } = this.providerRegistry.resolveSelection(
         body.provider,
-        body.submodel
+        body.submodel,
+        { generationSurface: body.generationSurface }
       );
       const templateExecution = await this.resolveTemplateExecution(body, actorContext);
       const requestPayload = createGenerationRequestPayload(body, userRole, templateExecution);

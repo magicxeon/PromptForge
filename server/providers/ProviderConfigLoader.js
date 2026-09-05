@@ -42,6 +42,12 @@ export function validateProviderConfig(config) {
       if (modelIds.has(model.id)) throw new ProviderConfigError(`Duplicate model id ${model.id} in provider ${provider.id}.`);
       modelIds.add(model.id);
       assertLocalizedName(model.displayName, modelContext);
+      if (model.allowedGenerationSurfaces !== undefined && (
+        !Array.isArray(model.allowedGenerationSurfaces)
+        || !model.allowedGenerationSurfaces.length
+        || model.allowedGenerationSurfaces.some(surface => !['playground', 'studio', 'fashion', 'cinematic'].includes(surface))
+        || new Set(model.allowedGenerationSurfaces).size !== model.allowedGenerationSurfaces.length
+      )) throw new ProviderConfigError(`${modelContext}.allowedGenerationSurfaces must contain unique supported surfaces.`);
       if (!model.capabilities || model.capabilities.imageGeneration !== true) throw new ProviderConfigError(`${modelContext} must support imageGeneration.`);
     });
 

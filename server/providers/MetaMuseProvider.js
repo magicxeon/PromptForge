@@ -1,9 +1,12 @@
 import crypto from 'node:crypto';
+import sharp from 'sharp';
 import { BaseProvider } from './BaseProvider.js';
 import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
 
 const DEFAULT_BASE_URL = 'https://api.meta.ai/v1';
 const DEFAULT_TIMEOUT_MS = 120000;
+const MAX_OUTPUT_BYTES = 32 * 1024 * 1024;
+const OUTPUT_MIME_TYPES = { webp: 'image/webp', png: 'image/png', jpeg: 'image/jpeg' };
 
 export class MetaMuseProvider extends BaseProvider {
   constructor(apiKey, providerConfig = {}, {
@@ -32,7 +35,16 @@ export class MetaMuseProvider extends BaseProvider {
       throw providerError('invalid_request', 'Meta Muse provider requests support one image per Generation Job.', false);
     }
 
-    const payload = { model, prompt: normalizedPrompt, n: 1 };
+    const modelConfig = this.providerConfig.models?.find(item => item.id === model);
+    const outputFormat = modelConfig?.defaults?.outputFormat || 'webp';
+    if (!OUTPUT_MIME_TYPES[outputFormat]) throw providerError('invalid_request', 'Unsupported Muse output format.', false);
+    const size = options.aspectRatio ? modelConfig?.aspectRatioSizes?.[options.aspectRatio] : null;
+    if (options.aspectRatio && !size) throw providerError('invalid_request', 'Unsupported Muse aspect ratio.', false);
+    const payload = {
+      model, prompt: normalizedPrompt, n: 1,
+      response_format: 'b64_json', output_format: outputFormat,
+      ...(size ? { size } : {})
+    };
     const endpoint = `${resolveBaseUrl(this.environment, this.providerConfig)}/images/generations`;
     const startedAt = Date.now();
     this.#debug('request', {
@@ -88,16 +100,27 @@ export class MetaMuseProvider extends BaseProvider {
     }
 
     const image = data?.data?.[0];
-    if (!image?.b64_json || typeof image.b64_json !== 'string') {
+    if (!image?.b64_json || typeof image.b64_json !== 'string' || data.data.length !== 1) {
       throw withRequestId(
         providerError('provider_response_invalid', 'Meta Muse returned an unsupported image response.', false),
         requestId
       );
     }
-    const mimeType = normalizeMimeType(image.mime_type || image.mimeType);
-    const bytes = decodedByteLength(image.b64_json);
-    if (bytes <= 0) {
-      throw withRequestId(providerError('provider_response_invalid', 'Meta Muse returned an empty image.', false), requestId);
+    let mimeType;
+    let bytes;
+    try {
+      const decoded = decodeImage(image.b64_json);
+      const metadata = await sharp(decoded, { limitInputPixels: 40_000_000 }).metadata();
+      mimeType = OUTPUT_MIME_TYPES[metadata.format];
+      const declaredMime = data.output_format !== undefined
+        ? OUTPUT_MIME_TYPES[data.output_format]
+        : image.mime_type || image.mimeType || mimeType;
+      if (!mimeType || !metadata.width || !metadata.height || (metadata.pages || 1) !== 1 || declaredMime !== mimeType) {
+        throw new Error('Image encoding does not match the response metadata.');
+      }
+      bytes = decoded.length;
+    } catch {
+      throw withRequestId(providerError('provider_response_invalid', 'Meta Muse returned invalid or unsupported image bytes.', false), requestId);
     }
 
     this.#debug('response', {
@@ -134,14 +157,6 @@ function resolveTimeout(environment) {
   return Number.isFinite(parsed) ? Math.min(300000, Math.max(1000, Math.round(parsed))) : DEFAULT_TIMEOUT_MS;
 }
 
-function normalizeMimeType(value) {
-  const mimeType = String(value || 'image/png').toLowerCase();
-  if (!['image/png', 'image/jpeg', 'image/webp'].includes(mimeType)) {
-    throw providerError('provider_response_invalid', `Meta Muse returned unsupported media type ${mimeType}.`, false);
-  }
-  return mimeType;
-}
-
 function normalizeApiError(value, status) {
   const message = String(value?.message || value?.detail || value?.error_description || `Meta Muse request failed with HTTP ${status}.`);
   if (/moderation|safety|policy/i.test(message)) return providerError('moderation_blocked', message, false);
@@ -151,12 +166,12 @@ function normalizeApiError(value, status) {
   return providerError('provider_error', message, false);
 }
 
-function decodedByteLength(value) {
-  try {
-    return Buffer.from(value, 'base64').length;
-  } catch {
-    return 0;
-  }
+function decodeImage(value) {
+  if (value.length > Math.ceil(MAX_OUTPUT_BYTES / 3) * 4 || value.length % 4 !== 0
+    || !/^[A-Za-z0-9+/]+={0,2}$/.test(value)) throw new Error('Invalid Base64 image.');
+  const bytes = Buffer.from(value, 'base64');
+  if (!bytes.length || bytes.length > MAX_OUTPUT_BYTES) throw new Error('Invalid image size.');
+  return bytes;
 }
 
 function fingerprint(value) {

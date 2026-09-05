@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "mock-2026-07-24-v2",
-  "effectiveAt": "2026-07-24T00:00:00.000Z",
+  "policyVersion": "mock-2026-09-05-v3",
+  "effectiveAt": "2026-09-05T00:00:00.000Z",
   "providerPriceSourceDate": "2026-07-24",
   "referenceFxThbPerUsd": 33.7594,
   "pricingFxThbPerUsd": 35.0,
@@ -13,6 +13,19 @@
   "creditRoundingIncrement": 5,
   "estimateTtlSeconds": 900,
   "models": [
+    {
+      "providerId": "meta-muse",
+      "modelId": "muse-image-1.0",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 15,
+      "providerCostUsd": 0.01,
+      "billingMetric": "returned_image",
+      "providerPriceSourceDate": "2026-09-05",
+      "providerPriceSource": "https://dev.meta.ai/docs/pricing-rate-limits#image-generation",
+      "referencePricing": { "mode": "free", "unitCredits": 0, "freeCount": 0 },
+      "notes": "Creator-supplied pricing documentation: USD 0.01 per successful returned image, built-in search included, no token fee. 15-Credit floor from existing policy. Playground development testing only; live qualification pending; references not enabled."
+    },
     {
       "providerId": "gemini",
       "modelId": "gemini-3.1-flash-lite-image",

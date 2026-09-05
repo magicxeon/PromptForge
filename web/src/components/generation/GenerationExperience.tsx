@@ -15,6 +15,7 @@ import {
 } from './EngineTargetPanel';
 import {
   createDefaultComparisonSlots,
+  filterImageCatalogForSurface,
   imageModelUnavailableReason,
   resolveAvailableImageEngine
 } from './engineTargetPanelHelpers';
@@ -259,7 +260,10 @@ export function GenerationExperience({
   const requiredReferenceCount = Object.values(references).filter(Boolean).length
     + (characterProfileContext?.purpose === 'character_usage' ? 1 : 0);
 
-  const catalog = useQuery({ queryKey: ['provider-catalog'], queryFn: getProviderCatalog, staleTime: 5 * 60_000 });
+  const catalog = useQuery({
+    queryKey: ['provider-catalog'], queryFn: getProviderCatalog, staleTime: 5 * 60_000,
+    select: data => filterImageCatalogForSurface(data, surface)
+  });
   const creditAccount = useQuery({
     queryKey: queryKeys.credits(actorId),
     queryFn: getCreditAccount,

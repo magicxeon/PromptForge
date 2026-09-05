@@ -48,7 +48,8 @@ export function registerReferenceRoutes(app, {
       const request = req.body?.generationRequest || req.body || {};
       const { provider, model } = providerRegistry.resolveSelection(
         request.provider,
-        request.submodel
+        request.submodel,
+        { generationSurface: request.generationSurface }
       );
       const templateExecution = request.templateUseSessionId
         ? await templateCoreService.resolveSession(

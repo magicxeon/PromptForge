@@ -180,6 +180,22 @@ describe('StoryboardGenerateAllDialog', () => {
     expect(await screen.findByText('cinematic.storyboard.batch.queued')).toBeVisible();
   });
 
+  it('excludes Playground-only models from the Cinematic selector', async () => {
+    const catalog = await mocks.getProviderCatalog();
+    catalog.providers.find((provider: { id: string }) => provider.id === 'meta-muse')
+      .models[0].allowedGenerationSurfaces = ['playground'];
+    mocks.getProviderCatalog.mockResolvedValue(catalog);
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={testI18n}>
+        <StoryboardGenerateAllDialog open onOpenChange={vi.fn()} project={projectFixture()} />
+      </I18nextProvider>
+    </QueryClientProvider>);
+    expect(await screen.findByText('12 cinematic.cost.credits')).toBeVisible();
+    expect(screen.queryByRole('option', { name: 'Meta Muse' })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Gemini' })).toBeInTheDocument();
+  });
+
   it('requotes approved Shots only after opt-in and retains their source on submission', async () => {
     const project = projectFixture();
     const source = structuredClone(project.scenes[0]!.shots[1]!.approvedStoryboardSource);

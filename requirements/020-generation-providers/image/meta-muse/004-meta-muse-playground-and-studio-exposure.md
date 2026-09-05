@@ -1,9 +1,13 @@
 # 004 - Meta Muse Playground And Studio Exposure
 
-Status: Catalog-visible unavailable state implemented; paid exposure blocked
+Status: Playground development testing implemented under 007; production and other surfaces deferred
 Depends on: Requirements 001-003 and general image qualification
 
 ## 1. Purpose
+
+2026-09-05 scope override: implement Playground-only under
+`007-playground-only-preparation.md`. Studio, Fashion, Cinematic and Comparison
+exposure are deferred. The original cross-product goals below are historical.
 
 Expose Meta Muse consistently in Playground, Studio, Fashion Studio and
 Cinematic Storyboard through existing shared provider and Generation

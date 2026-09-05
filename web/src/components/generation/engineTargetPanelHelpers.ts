@@ -1,6 +1,20 @@
 import type { ComparisonSlotInput } from '../../features/generation/api/generationApi';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
 
+export function filterImageCatalogForSurface(catalog: ProviderCatalog, surface: 'playground' | 'studio' | 'fashion' | 'cinematic'): ProviderCatalog {
+  const providers = catalog.providers.map(provider => ({
+    ...provider,
+    models: provider.models.filter(model => !model.allowedGenerationSurfaces || model.allowedGenerationSurfaces.includes(surface))
+  })).filter(provider => provider.models.length > 0);
+  return {
+    ...catalog,
+    providers,
+    defaultProvider: providers.some(provider => provider.id === catalog.defaultProvider)
+      ? catalog.defaultProvider
+      : providers[0]?.id || ''
+  };
+}
+
 export function createDefaultComparisonSlots(catalog: ProviderCatalog): ComparisonSlotInput[] {
   const provider = catalog.providers[0];
   const models = provider?.models.slice(0, 2) || [];
@@ -18,7 +32,7 @@ export function imageModelUnavailableReason(
   aspectRatio: string | null = null
 ) {
   if (!model) return 'model_unavailable';
-  if (model.paidRoutingEnabled === false) return model.unavailableReason || 'provider_not_released';
+  if (model.paidRoutingEnabled === false && model.testingRoutingEnabled !== true) return model.unavailableReason || 'provider_not_released';
   if (model.pricingStatus === 'unavailable') return 'pricing_unavailable';
   if (model.qualificationStatus === 'unqualified') return 'model_unqualified';
   if (requiredReferenceCount > 0 && model.capabilities.imageReferences !== true) {

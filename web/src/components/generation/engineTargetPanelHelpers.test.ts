@@ -2,9 +2,31 @@ import { describe, expect, it } from 'vitest';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
 import {
   createDefaultComparisonSlots,
+  filterImageCatalogForSurface,
   imageModelUnavailableReason,
   resolveAvailableImageEngine
 } from './engineTargetPanelHelpers';
+
+it('filters restricted models by surface without mutating shared catalog or other providers', () => {
+  const model = {
+    id: 'muse', displayName: 'Muse', allowedGenerationSurfaces: ['playground'] as const,
+    capabilities: { imageGeneration: true, imageEdit: false, imageReferences: false, maxReferenceImages: 0, streaming: false, aspectRatios: [] }
+  };
+  const catalog: ProviderCatalog = {
+    defaultProvider: 'existing', providers: [
+      { id: 'existing', displayName: 'Existing', models: [{ ...model, id: 'existing-model', allowedGenerationSurfaces: undefined }] },
+      { id: 'muse', displayName: 'Muse', models: [{ ...model, allowedGenerationSurfaces: ['playground'] }] }
+    ]
+  };
+  expect(filterImageCatalogForSurface(catalog, 'playground').providers.map(provider => provider.id)).toEqual(['existing', 'muse']);
+  for (const surface of ['cinematic', 'studio', 'fashion'] as const) {
+    const filtered = filterImageCatalogForSurface(catalog, surface);
+    expect(filtered.providers.map(provider => provider.id)).toEqual(['existing']);
+    expect(filtered.defaultProvider).toBe('existing');
+    expect(filtered.providers[0]?.models).toEqual(catalog.providers[0]?.models);
+  }
+  expect(catalog.providers).toHaveLength(2);
+});
 
 describe('comparison slot defaults', () => {
   it('starts with two base slots when two models are available', () => {

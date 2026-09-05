@@ -1,6 +1,6 @@
 # CINE-FIX-012 - Seedance Direct First-Frame Recovery
 
-**Status:** Implemented and locally verified; live Seedance acceptance pending
+**Status:** Pending external BytePlus ModelArk Support response; local implementation retained
 **Priority:** P0
 **Owner:** Generation video workflow, consumed by Cinematic Produce
 **Primary:** Product And Requirement Architect
@@ -119,6 +119,39 @@ edits. Reuse existing tests instead of recreating an end-to-end test system.
 | Failure | No provider switch, keyframe replacement or automatic retry |
 
 ## 5. BytePlus Confirmation - External And Pending
+
+### 2026-09-05 - Creator-Requested Support Hold
+
+The creator reports contacting BytePlus ModelArk production support and is
+waiting for its response. No support case number or answer has been supplied.
+This issue is pending external confirmation, not resolved. Earlier execution
+notes below describe historical checkpoints, not the current support state.
+
+Latest two-image evidence:
+- Local task: `videotask_501ff7d1ed615a437dcc`.
+- Provider request: `021788583881077fd3ae808d5ba084b55a7f9e1600032cd2667d3`.
+- Model: `dreamina-seedance-2-5-260628`; 480p, 6 seconds, generated audio.
+- Input: `multimodal_reference`, ordered Storyboard then approved Character
+  Look Sheet, both `reference_image`, both GCS URLs.
+- Result: HTTP 400 `InputImageSensitiveContentDetected.PrivacyInformation`.
+  This is the provider's classification, not proof that the AI-created subject
+  is a real person. Two-image delivery has not established acceptance.
+- Storyboard source request:
+  `021788532290545b70b2a74477c2b606f823ac231da83298c2bfb`.
+  Source model: `dola-seedream-5-0-pro-260628`.
+
+Hold boundaries:
+- Keep current GCS URL-first transport and existing Base64 fallback intact.
+- Do not require Asset Library, switch providers, replace approved images,
+  change reference-mode defaults or disable working Generate controls.
+- Do not submit more paid attempts while waiting without explicit creator
+  authorization. No automatic retry or speculative transport change.
+- Resume by recording the support response and supported account/model/input
+  contract, then agree on a narrowly scoped fix or one quoted test with the
+  creator. Successful submit, task progress and persisted preview remain
+  unverified for this source.
+- Related dynamic-reference scope remains owned by
+  `../produce-video-pipeline/012-storyboard-and-look-video-references.md`.
 
 https://docs.byteplus.com/en/docs/byteplus_las/video_gen_enhanced confirms
 Seedance 2.5 first-frame/reference and Base64 support but documents the LAS

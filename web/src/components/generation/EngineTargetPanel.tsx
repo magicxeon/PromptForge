@@ -114,6 +114,8 @@ export function EngineTargetPanel({
               onChange({ ...value, model: event.target.value, resolution: next?.capabilities.resolutions?.[0] || next?.defaults?.resolution || null });
             }}>{provider?.models.map(item => <option key={item.id} value={item.id} disabled={Boolean(imageModelUnavailableReason(item, requiredReferenceCount, fixedAspectRatio || value.aspectRatio))}>{localized(item.displayName)}</option>)}</select>
               {selectedModelUnavailableReason ? <small className="engine-target-panel__model-meta is-warning">{t(`playground.engine.unavailable.${selectedModelUnavailableReason}`)}</small> : null}
+              {!selectedModelUnavailableReason && model?.testingRoutingEnabled && !model.paidRoutingEnabled
+                ? <small className="engine-target-panel__model-meta is-warning">{t('playground.engine.internalTesting')}</small> : null}
               {/* <small className="engine-target-panel__model-meta">
                 {model?.capabilities.maxReferenceImages || 0} {t('playground.comparison.referencesShort')}
               </small> */}
@@ -122,8 +124,10 @@ export function EngineTargetPanel({
           </div>
         ) : null}
         <div className="engine-target-panel__output-grid">
-          <Field label={t('playground.engine.width')}><input readOnly value={dimensions.width} /></Field>
-          <Field label={t('playground.engine.height')}><input readOnly value={dimensions.height} /></Field>
+          {model?.capabilities.dimensionControl !== 'aspect_ratio_only' || comparison ? <>
+            <Field label={t('playground.engine.width')}><input readOnly value={dimensions.width} /></Field>
+            <Field label={t('playground.engine.height')}><input readOnly value={dimensions.height} /></Field>
+          </> : null}
           <div className="engine-target-panel__aspect">
             <span>{t('playground.engine.aspect')}</span>
             <div>
