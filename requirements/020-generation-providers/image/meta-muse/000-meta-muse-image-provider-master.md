@@ -1,6 +1,6 @@
 # Meta Muse Image Provider - Master Requirement
 
-Status: Playground-only development testing implemented; production and live qualification pending
+Status: Text-to-image qualified for Playground, Comparison and Studio Face Creator
 Last updated: 2026-09-05
 Primary role: Backend Platform Architect  
 Reviewers: Product Requirement Architect, QA Release Engineer  
@@ -8,17 +8,19 @@ Triggered skill: `review-generative-media-pipeline`
 
 ## 1. Objective
 
-Current rollout override (2026-09-05):
-[007 Playground-only preparation](007-playground-only-preparation.md) owns the
-requested first release. Other surfaces remain excluded. Pricing and full
-Image generation contents have been supplied by the creator; 15-Credit
-development testing is implemented. Creator-run live qualification remains
-pending. Earlier multi-product scope
-below is deferred, not permission to enable Studio/Fashion/Cinematic.
+Current rollout decision (2026-09-05): Playground and Comparison live checks
+are complete for the implemented text-to-image operation. Pricing remains 15
+Credits per successful output and is no longer pending. Requirements 007 and
+008 retain the preparation and test evidence; Requirement 009 owns promotion
+from Internal testing and the narrowly scoped Studio Face Creator release.
 
-[008 Playground Comparison mode](008-playground-comparison-mode.md) extends
-that development-only exposure to Comparison slots inside Playground. It does
-not promote Muse to production or authorize another generation surface.
+[009 Studio Face Creator release](009-studio-face-creator-release.md) records
+the creator's completed Playground and Comparison checks, removes Muse from
+Internal testing and permits only the reference-free Studio Face Creator
+operation. [010 Shared image Generation engine preference](010-shared-generation-engine-preference.md)
+adds actor-scoped provider/model recall with capability revalidation. Character
+Sheet, Scene Builder, Fashion and Cinematic remain excluded because the current
+Muse adapter does not support references.
 
 Add Meta Muse as an image-generation provider through the existing Generation,
 Provider Registry, Credits, Reference Processing, and Fashion qualification
@@ -35,7 +37,7 @@ Initial provider identity:
 - confirmed input from supplied cURL: `model`, `prompt`, and `n: 1`
 - requested destinations: Playground, Studio, and Fashion Studio
 
-### 1.1 Implementation checkpoint - 2026-08-30
+### 1.1 Historical implementation checkpoint - 2026-08-30
 
 - `MetaMuseProvider` sends only `model`, `prompt`, and `n: 1`.
 - Provider Registry accepts `META_MUSE_API_KEY` and the supplied
@@ -48,9 +50,9 @@ Initial provider identity:
 - Mocked adapter, secret-alias, hidden-catalog and existing-provider regression
   tests pass without a live Meta request or provider spend.
 
-This checkpoint completes only the hidden scaffold. It does not satisfy the
-authenticated documentation, live response, pricing, qualification, Fashion,
-or customer-release gates below.
+This checkpoint describes the original hidden scaffold. Requirements 007-009
+supersede its Playground, pricing and text-to-image release status. Reference,
+Fashion and broader Studio operations remain unqualified.
 
 ## 2. Source Of Truth And Evidence Status
 
@@ -106,6 +108,10 @@ batch limits from another provider.
 4. [004 Playground And Studio Exposure](004-meta-muse-playground-and-studio-exposure.md)
 5. [005 Fashion Studio Qualification And Routing](005-meta-muse-fashion-studio-qualification-and-routing.md)
 6. [006 Release Validation, Observability And Rollback](006-meta-muse-release-validation-observability-and-rollback.md)
+7. [007 Playground-Only Preparation](007-playground-only-preparation.md)
+8. [008 Playground Comparison Mode](008-playground-comparison-mode.md)
+9. [009 Studio Face Creator Release](009-studio-face-creator-release.md)
+10. [010 Shared Image Generation Engine Preference](010-shared-generation-engine-preference.md)
 
 Requirements are sequential. A later step may be scaffolded behind disabled
 configuration, but it must not be exposed before its preceding gates pass.

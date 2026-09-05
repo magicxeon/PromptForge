@@ -1,5 +1,182 @@
 [
   {
+    "title": "นักท่องเที่ยว สไตร์ยุโรป",
+    "description": "ภาพจาก AI Gemini Pro, ChatGPT และ Muse 1.0",
+    "postType": "comparison",
+    "creatorProfileId": "creator_alice",
+    "sourceComparisonSetId": "cmp_set_1788592880825_r2dq8v",
+    "imageUrl": "/outputs/job_1788592880832_xmcgntlyp.jpg",
+    "thumbnailUrl": "/outputs/job_1788592880832_xmcgntlyp.jpg",
+    "promptVisibility": "full",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "comparison",
+      "publicPromptText": "A professional travel-poster photograph in a 6:8 aspect ratio, captured as an eye-level wide shot. One gorgeous East Asian woman with idol-like features walks gracefully along an authentic cobblestone pedestrian street. She wears chic round-rimmed eyeglasses, a stylish leather crossbody bag, and cozy, high-end winter travel attire. She looks subtly toward the camera with a gentle, candid expression.\n\nThe street is lined with contemporary Russian architecture alongside grand monumental historic facades. Its curved cobblestone path winds into the distance, creating an expansive deep-perspective cityscape beneath a crystal-clear, crisp early-morning blue sky. Sharp winter light and subtle atmospheric chill convey the season.\n\nIn the left foreground, a rustic street florist shop displays vibrant buckets of winter-blooming flowers. An elderly shopkeeper joyfully plays with a small dog outside the shop door. On the right, an outdoor corner café contains an affectionate couple seated at a small table and sipping steaming hot coffee. In the mid-ground, a few tourists and local pedestrians stroll naturally, adding rich narrative depth without overcrowding.\n\nUse a 35mm film look with the aesthetic of a Leica M11 and 35mm f/1.4 Summilux lens. Apply rich cinematic color grading, a vibrant yet natural palette, strong dynamic range, realistic depth of field, subtle chromatic aberration at the extreme edges, faint film grain, soft natural lens flare from the low morning sun, and mild barrel distortion. Create award-winning travel editorial photography with striking visual impact, candid lifestyle realism, pristine clarity, and highly detailed rendering. No text, watermark, or typography; maintain a clean visual composition. Generate exactly one image."
+    },
+    "workflowSnapshot": {
+      "comparison": {
+        "schemaVersion": 1,
+        "criteria": null,
+        "slots": [
+          {
+            "slotId": "slot_1785326865220_ra2hpt",
+            "position": 1,
+            "providerDisplayName": {
+              "en": "Google Gemini AI",
+              "th": "Google Gemini AI"
+            },
+            "modelDisplayName": {
+              "en": "Nano Banana 2 (Generalist)",
+              "th": "Nano Banana 2 (ใช้งานทั่วไป)"
+            },
+            "imageUrl": "/outputs/job_1788592880832_xmcgntlyp.jpg",
+            "generationDuration": "18.7"
+          },
+          {
+            "slotId": "slot_1785326865220_19i163",
+            "position": 2,
+            "providerDisplayName": {
+              "en": "OpenAI",
+              "th": "OpenAI"
+            },
+            "modelDisplayName": {
+              "en": "GPT-Image 1 (Standard)",
+              "th": "GPT-Image 1 (มาตรฐาน)"
+            },
+            "imageUrl": "/outputs/job_1788592880963_g9276b04w.png",
+            "generationDuration": "58.8"
+          },
+          {
+            "slotId": "slot_1785326888716_fqmitl",
+            "position": 3,
+            "providerDisplayName": {
+              "en": "Meta Muse",
+              "th": "Meta Muse"
+            },
+            "modelDisplayName": {
+              "en": "Muse Image 1.0",
+              "th": "Muse Image 1.0"
+            },
+            "imageUrl": "/outputs/job_1788592881084_7v7dbj9tn.webp",
+            "generationDuration": "18.7"
+          }
+        ]
+      }
+    },
+    "comparisonSnapshot": {
+      "schemaVersion": 1,
+      "criteria": null,
+      "slots": [
+        {
+          "slotId": "slot_1785326865220_ra2hpt",
+          "position": 1,
+          "providerDisplayName": {
+            "en": "Google Gemini AI",
+            "th": "Google Gemini AI"
+          },
+          "modelDisplayName": {
+            "en": "Nano Banana 2 (Generalist)",
+            "th": "Nano Banana 2 (ใช้งานทั่วไป)"
+          },
+          "imageUrl": "/outputs/job_1788592880832_xmcgntlyp.jpg",
+          "generationDuration": "18.7"
+        },
+        {
+          "slotId": "slot_1785326865220_19i163",
+          "position": 2,
+          "providerDisplayName": {
+            "en": "OpenAI",
+            "th": "OpenAI"
+          },
+          "modelDisplayName": {
+            "en": "GPT-Image 1 (Standard)",
+            "th": "GPT-Image 1 (มาตรฐาน)"
+          },
+          "imageUrl": "/outputs/job_1788592880963_g9276b04w.png",
+          "generationDuration": "58.8"
+        },
+        {
+          "slotId": "slot_1785326888716_fqmitl",
+          "position": 3,
+          "providerDisplayName": {
+            "en": "Meta Muse",
+            "th": "Meta Muse"
+          },
+          "modelDisplayName": {
+            "en": "Muse Image 1.0",
+            "th": "Muse Image 1.0"
+          },
+          "imageUrl": "/outputs/job_1788592881084_7v7dbj9tn.webp",
+          "generationDuration": "18.7"
+        }
+      ]
+    },
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.92,
+        "confidenceLevel": "high",
+        "sources": [
+          "workflow",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.storytelling"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.storytelling"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.storytelling"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.92,
+    "sourceGenerationResultId": null,
+    "sourceSceneTemplateSnapshotId": null,
+    "templateId": null,
+    "templateVersionId": null,
+    "templatePricing": null,
+    "sceneTemplateSnapshot": null,
+    "providerModelSnapshot": null,
+    "counts": {
+      "views": 1,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
+    "engagementSummary": {
+      "viewCount": 1,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-09-05T10:27:10.442Z"
+    },
+    "id": "post_1788603950473_7nx5a8ot",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "status": "published",
+    "createdAt": "2026-09-05T10:25:50.473Z",
+    "updatedAt": "2026-09-05T10:27:10.442Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "title": "คุณอิงอิง เซ็ท",
     "description": "",
     "promptVisibility": "private",

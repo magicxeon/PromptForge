@@ -1,6 +1,6 @@
 # 008 - Muse Playground Comparison Mode
 
-Status: Implemented and offline-verified; creator live Comparison check pending
+Status: Implemented and creator live-verified; promoted by Requirement 009
 Date: 2026-09-05
 Primary: Product And Requirement Architect
 Reviewers: Commercial Integrity, Product UX and QA, applied sequentially by
@@ -13,9 +13,9 @@ Depends on: 007 Playground-only development testing
 ## Outcome
 
 Allow `muse-image-1.0` to be selected as one of two to four AI Comparison
-slots in Playground after the creator's successful single-image check. Keep
-Muse in `internal_testing`; one visually pleasing result is useful evidence but
-does not qualify production routing or other generation surfaces.
+slots in Playground after the creator's successful single-image check. This
+requirement originally retained `internal_testing`; the later live verification
+and promotion decision in Requirement 009 now owns its qualified status.
 
 Comparison is a mode within the `playground` generation surface. It is not a
 new surface and does not authorize Muse in Studio, Fashion or Cinematic.
@@ -132,8 +132,9 @@ This is a creator-owned paid test; the agent does not submit it.
   for development routing, references and aspect ratios. Provider changes and
   Add model choose a currently valid model rather than a blocked default.
 - EngineTargetPanel forwards the common request constraints and suppresses
-  exact pixel dimensions when any slot is aspect-ratio-only. Muse slots carry
-  a compact localized Internal test disclosure.
+  exact pixel dimensions when any slot is aspect-ratio-only. Muse slots carried
+  a compact localized Internal test disclosure at this checkpoint; Requirement
+  009 removes it after creator live verification.
 - Actor-scoped stored slots discard models that are no longer routable in the
   current environment. No Job, estimate, prompt or reference state was added
   to browser persistence.

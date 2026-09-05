@@ -129,7 +129,10 @@ async function resolveEstimateReferenceProcessing({
   const { provider, model } = providerRegistry.resolveSelection(
     body.requestedProviderId,
     body.requestedModelId,
-    { generationSurface: generationRequest.generationSurface }
+    {
+      generationSurface: generationRequest.generationSurface,
+      generationMode: generationRequest.generationMode
+    }
   );
   const templateExecution = generationRequest.templateUseSessionId
     ? await templateCoreService.resolveSession(

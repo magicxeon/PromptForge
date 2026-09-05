@@ -1,5 +1,376 @@
 [
   {
+    "id": "job_1788603556676_dywvlsppj",
+    "username": "user_alice",
+    "prompt": "headshot portrait, female, 21-year-old young adult, eurasian ethnicity, half european half asian, น่ารักสไตร์ เน็ตไอดอล หรือดาราวัยรุ่น ใส่แว่นต้าทรงกลม ลุ๊คดูใสๆ, unmistakably early-twenties adult facial maturity with a smooth youthful forehead, fresh firm skin, minimal natural under-eye definition, and no age-related lines or hollow cheeks, adult feminine face with softly defined cheekbones, a refined jawline, and a naturally tapered chin, expressive refined almond eyes with clear natural eyelid definition and a camera-readable gaze, refined feminine eyebrows with a soft natural arc and clean definition, refined straight feminine nose with a slender natural bridge and softly defined tip, soft defined feminine lips with a natural cupid's bow and balanced fullness, subtle friendly smile, long dark brown hair, side-parted hair, no bangs, coarse thick texture, aura glowing white skin, healthy complexion, soft peach makeup style, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, minor chromatic aberration, corner softness, realistic lens optical imperfections, photorealistic (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1788603556676_dywvlsppj.webp",
+    "timestamp": 1788603584414,
+    "provider": "meta-muse",
+    "submodel": "muse-image-1.0",
+    "mode": "headshot",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.eth_eurasian",
+        "value": "eurasian ethnicity, half european half asian",
+        "label": "Eurasian (Mixed Asian-European)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "eurasian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "label": "Dark Brown",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_09",
+        "value": "aura glowing white skin",
+        "label": "Aura Glowing White skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "glowing",
+          "asian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Skin Texture": {
+        "id": "skin.text_03",
+        "value": "healthy complexion",
+        "label": "Healthy Complexion",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "texture",
+          "healthy"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Makeup": {
+        "id": "skin.makeup_02",
+        "value": "soft peach makeup style",
+        "label": "Soft K-Beauty Makeup",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "makeup",
+          "k-beauty",
+          "asian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Freckles": {
+        "id": "skin.freckles_01",
+        "value": "even skin with no freckles",
+        "label": "No Freckles",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "freckles",
+          "none"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.022",
+        "value": "adult feminine face with softly defined cheekbones, a refined jawline, and a naturally tapered chin",
+        "label": "Refined Soft Tapered Face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.015",
+        "value": "expressive refined almond eyes with clear natural eyelid definition and a camera-readable gaze",
+        "label": "Expressive Refined Almond Eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.009",
+        "value": "refined feminine eyebrows with a soft natural arc and clean definition",
+        "label": "Refined Soft-arc Brows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.008",
+        "value": "refined straight feminine nose with a slender natural bridge and softly defined tip",
+        "label": "Refined Straight Nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.014",
+        "value": "soft defined feminine lips with a natural cupid's bow and balanced fullness",
+        "label": "Soft Defined Bow Lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_02",
+        "value": "coarse thick hair",
+        "label": "Coarse & Thick",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_038",
+        "value": "side-parted hair, no bangs",
+        "label": "Side Parting",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "custom.beauty",
+        "value": "น่ารักสไตร์ เน็ตไอดอล หรือดาราวัยรุ่น ใส่แว่นต้าทรงกลม ลุ๊คดูใสๆ",
+        "label": "น่ารักสไตร์ เน็ตไอดอล หรือดาราวัยรุ่น ใส่แว่นต้าทรงกลม ลุ๊คดูใสๆ",
+        "isCustom": true,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Photorealism": {
+        "id": "quality.001",
+        "value": "photorealistic",
+        "label": "Photorealistic",
+        "isCustom": false,
+        "group": "Quality",
+        "category": "quality",
+        "tags": [
+          "quality",
+          "realism"
+        ],
+        "gptPositiveWords": []
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
+        "label": "Optical Imperfections",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "e4d4fdaebaccf7c537a489504838d34e6e5ead75c1433f67470dc05018ef7c3f",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "muse-image-1.0",
+    "providerOutputProvenance": {
+      "kind": "provider_generated_image",
+      "providerId": "meta-muse",
+      "requestedModelId": "muse-image-1.0",
+      "resolvedModelId": "muse-image-1.0",
+      "providerRequestId": "92cb1890-46fc-4490-8d3d-4c50ed65ba8c",
+      "credentialScope": null,
+      "generatedAt": "2026-09-05T10:19:44.414Z",
+      "responseFormat": null,
+      "originalBytesPreserved": true
+    },
+    "providerConfigVersion": 1,
+    "creditCost": 15,
+    "mimeType": "image/webp",
+    "width": 1344,
+    "height": 1792,
+    "usage": {
+      "input_tokens": 28247,
+      "output_tokens": 2194,
+      "total_tokens": 30441
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "24.0",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "5b507fd4a6336a62",
+    "referenceProcessingPlanFingerprint": "e4d4fdaebaccf7c537a489504838d34e6e5ead75c1433f67470dc05018ef7c3f",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": false,
+      "status": "fallback",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "5b507fd4a6336a62",
+      "afterFingerprint": "5b507fd4a6336a62",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 8307,
+      "warnings": [],
+      "errorCode": "prompt_refinement_authority_lost"
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788603556676_dywvlsppj.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 960,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 93822,
+    "originalBytes": 339616,
+    "performanceTimings": {
+      "queueWaitMs": 3,
+      "referenceProcessingMs": 1,
+      "providerMs": 24031,
+      "outputPersistenceMs": 3945,
+      "totalMs": 27981
+    }
+  },
+  {
     "id": "job_1788592880963_g9276b04w",
     "username": "user_alice",
     "prompt": "A professional travel-poster photograph in a 6:8 aspect ratio, captured as an eye-level wide shot. One gorgeous East Asian woman with idol-like features walks gracefully along an authentic cobblestone pedestrian street. She wears chic round-rimmed eyeglasses, a stylish leather crossbody bag, and cozy, high-end winter travel attire. She looks subtly toward the camera with a gentle, candid expression.\n\nThe street is lined with contemporary Russian architecture alongside grand monumental historic facades. Its curved cobblestone path winds into the distance, creating an expansive deep-perspective cityscape beneath a crystal-clear, crisp early-morning blue sky. Sharp winter light and subtle atmospheric chill convey the season.\n\nIn the left foreground, a rustic street florist shop displays vibrant buckets of winter-blooming flowers. An elderly shopkeeper joyfully plays with a small dog outside the shop door. On the right, an outdoor corner café contains an affectionate couple seated at a small table and sipping steaming hot coffee. In the mid-ground, a few tourists and local pedestrians stroll naturally, adding rich narrative depth without overcrowding.\n\nUse a 35mm film look with the aesthetic of a Leica M11 and 35mm f/1.4 Summilux lens. Apply rich cinematic color grading, a vibrant yet natural palette, strong dynamic range, realistic depth of field, subtle chromatic aberration at the extreme edges, faint film grain, soft natural lens flare from the low morning sun, and mild barrel distortion. Create award-winning travel editorial photography with striking visual impact, candid lifestyle realism, pristine clarity, and highly detailed rendering. No text, watermark, or typography; maintain a clean visual composition. Generate exactly one image.",

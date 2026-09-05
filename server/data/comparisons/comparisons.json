@@ -10,7 +10,7 @@
       "collectionIds": [],
       "winnerJobId": null,
       "createdAt": 1788592880825,
-      "updatedAt": 1788592940875,
+      "updatedAt": 1788604687696,
       "runs": [
         {
           "idempotencyKey": "cmp_1788592872903_j9kj3du0",

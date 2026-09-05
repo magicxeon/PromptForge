@@ -31,6 +31,7 @@ export const providerModelSchema = z.object({
   paidRoutingEnabled: z.boolean().optional(),
   testingRoutingEnabled: z.boolean().optional(),
   allowedGenerationSurfaces: z.array(z.enum(['playground', 'studio', 'fashion', 'cinematic'])).optional(),
+  allowedGenerationModes: z.array(z.enum(['playground', 'headshot', 'scene', 'character-sheet', 'fashion'])).optional(),
   unavailableReason: z.string().nullable().optional()
 }).passthrough();
 

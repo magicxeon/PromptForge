@@ -80,6 +80,10 @@ import {
   writeOutputCountPreference
 } from '../../features/generation/outputCountPreference';
 import {
+  readImageEnginePreference,
+  writeImageEnginePreference
+} from '../../features/generation/imageEnginePreference';
+import {
   generationRoutePointerFeature,
   readGenerationRoutePointer,
   writeGenerationRoutePointer
@@ -248,6 +252,7 @@ export function GenerationExperience({
   const completedJobRef = useRef<string | null>(null);
   const completedGroupJobsRef = useRef(new Set<string>());
   const [outputCountPreferenceActorId, setOutputCountPreferenceActorId] = useState<string | null>(null);
+  const [enginePreferenceActorId, setEnginePreferenceActorId] = useState<string | null>(null);
   const actorId = actor?.userId || 'loading';
   const routePointerFeature = generationRoutePointerFeature(surface, generationMode, persistenceScope);
   const fixedOutputCount = requestedFixedOutputCount === null
@@ -262,7 +267,7 @@ export function GenerationExperience({
 
   const catalog = useQuery({
     queryKey: ['provider-catalog'], queryFn: getProviderCatalog, staleTime: 5 * 60_000,
-    select: data => filterImageCatalogForSurface(data, surface)
+    select: data => filterImageCatalogForSurface(data, surface, generationMode)
   });
   const creditAccount = useQuery({
     queryKey: queryKeys.credits(actorId),
@@ -285,6 +290,7 @@ export function GenerationExperience({
     setPromptRefinementEnabled(false);
     setPromptRefinementActorId(null);
     setOutputCountPreferenceActorId(null);
+    setEnginePreferenceActorId(null);
     setEngine(current => ({
       ...current,
       provider: '',
@@ -345,10 +351,11 @@ export function GenerationExperience({
   }, [actor, promptRefinementActorId, promptRefinementEnabled]);
 
   useEffect(() => {
-    if (!catalog.data || engine.provider) return;
+    if (!actor || !catalog.data || engine.provider || enginePreferenceActorId === actor.userId) return;
+    const preference = initialEnginePreference || readImageEnginePreference(actor.userId);
     const resolved = resolveAvailableImageEngine(
       catalog.data,
-      initialEnginePreference,
+      preference,
       requiredReferenceCount,
       fixedAspectRatio
     );
@@ -362,13 +369,55 @@ export function GenerationExperience({
         || (model?.capabilities.aspectRatios.includes('6:8') ? '6:8' : model?.capabilities.aspectRatios[0] || '1:1'),
       outputCount: fixedOutputCount || engine.outputCount
     });
+    setEnginePreferenceActorId(actor.userId);
   }, [
+    actor,
     catalog.data,
+    enginePreferenceActorId,
     engine.outputCount,
     engine.provider,
     fixedAspectRatio,
     fixedOutputCount,
     initialEnginePreference,
+    requiredReferenceCount
+  ]);
+
+  useEffect(() => {
+    if (!actor || !catalog.data || enginePreferenceActorId !== actor.userId || !engine.provider) return;
+    const provider = catalog.data.providers.find(item => item.id === engine.provider);
+    const model = provider?.models.find(item => item.id === engine.model);
+    if (model && !imageModelUnavailableReason(
+      model,
+      requiredReferenceCount,
+      fixedAspectRatio || engine.aspectRatio
+    )) return;
+    const resolved = resolveAvailableImageEngine(
+      catalog.data,
+      { provider: engine.provider, model: engine.model },
+      requiredReferenceCount,
+      fixedAspectRatio || engine.aspectRatio
+    );
+    const nextModel = resolved?.model;
+    setEngine(current => ({
+      ...current,
+      provider: resolved?.provider.id || '',
+      model: nextModel?.id || '',
+      resolution: nextModel?.capabilities.resolutions?.[0]
+        || nextModel?.defaults?.resolution
+        || null,
+      aspectRatio: fixedAspectRatio
+        || (nextModel?.capabilities.aspectRatios.includes(current.aspectRatio)
+          ? current.aspectRatio
+          : nextModel?.capabilities.aspectRatios[0] || '1:1')
+    }));
+  }, [
+    actor,
+    catalog.data,
+    engine.aspectRatio,
+    engine.model,
+    engine.provider,
+    enginePreferenceActorId,
+    fixedAspectRatio,
     requiredReferenceCount
   ]);
 
@@ -914,9 +963,22 @@ export function GenerationExperience({
       fixedAspectRatio={fixedAspectRatio}
       requiredReferenceCount={requiredReferenceCount}
       extraControls={engineOptions}
-      onChange={next => setEngine(fixedOutputCount === null
-        ? next
-        : { ...next, outputCount: fixedOutputCount })}
+      onChange={next => {
+        const normalized = fixedOutputCount === null
+          ? next
+          : { ...next, outputCount: fixedOutputCount };
+        const engineChanged = normalized.provider !== engine.provider
+          || normalized.model !== engine.model;
+        setEngine(normalized);
+        if (
+          engineChanged
+          && actor
+          && enginePreferenceActorId === actor.userId
+          && !initialEnginePreference
+        ) {
+          writeImageEnginePreference(actor.userId, normalized);
+        }
+      }}
       onComparisonChange={setComparison}
       onSlotsChange={setComparisonSlots}
       onPromptRefinementChange={setPromptRefinementEnabled}

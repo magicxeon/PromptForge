@@ -40,7 +40,10 @@ export class GenerationApplicationService {
       const { provider, model } = this.providerRegistry.resolveSelection(
         body.provider,
         body.submodel,
-        { generationSurface: body.generationSurface }
+        {
+          generationSurface: body.generationSurface,
+          generationMode: body.generationMode
+        }
       );
       const { context } = compileGenerationContext(requestPayload, actorContext);
       assertSupportedOutputCount(context);
@@ -83,7 +86,10 @@ export class GenerationApplicationService {
       const { provider, model } = this.providerRegistry.resolveSelection(
         body.provider,
         body.submodel,
-        { generationSurface: body.generationSurface }
+        {
+          generationSurface: body.generationSurface,
+          generationMode: body.generationMode
+        }
       );
       const templateExecution = await this.resolveTemplateExecution(body, actorContext);
       const requestPayload = createGenerationRequestPayload(body, userRole, templateExecution);

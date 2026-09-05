@@ -147,15 +147,27 @@ test('Muse rejects an unmapped ratio before provider dispatch', async () => {
   await assert.rejects(provider.generateImage('A mug', { aspectRatio: '100:1' }), error => error.code === 'invalid_request');
 });
 
-test('Muse surface policy rejects other workflows even when provider is enabled', async () => {
+test('Muse surface and mode policy allows Playground and reference-free Studio Face Creator only', async () => {
   const config = loadProviderConfig();
   const muse = config.providers.find(provider => provider.id === 'meta-muse');
   muse.enabled = true;
   const registry = new ProviderRegistry(config, { 'META_MUSE_API-KEY': 'test-secret' });
-  assert.equal(registry.resolveSelection('meta-muse', 'muse-image-1.0', { generationSurface: 'playground' }).model.id, 'muse-image-1.0');
-  for (const generationSurface of [undefined, 'cinematic', 'studio', 'fashion', 'template_pose_proxy']) {
-    assert.throws(() => registry.resolveSelection('meta-muse', 'muse-image-1.0', { generationSurface }),
+  assert.equal(registry.resolveSelection('meta-muse', 'muse-image-1.0', {
+    generationSurface: 'playground', generationMode: 'playground'
+  }).model.id, 'muse-image-1.0');
+  assert.equal(registry.resolveSelection('meta-muse', 'muse-image-1.0', {
+    generationSurface: 'studio', generationMode: 'headshot'
+  }).model.id, 'muse-image-1.0');
+  for (const generationSurface of [undefined, 'cinematic', 'fashion', 'template_pose_proxy']) {
+    assert.throws(() => registry.resolveSelection('meta-muse', 'muse-image-1.0', {
+      generationSurface, generationMode: 'headshot'
+    }),
       error => error.code === 'provider_surface_unsupported');
+  }
+  for (const generationMode of [undefined, 'scene', 'character-sheet', 'fashion']) {
+    assert.throws(() => registry.resolveSelection('meta-muse', 'muse-image-1.0', {
+      generationSurface: 'studio', generationMode
+    }), error => error.code === 'provider_mode_unsupported');
   }
   const service = new GenerationApplicationService({
     providerRegistry: registry,
@@ -165,10 +177,15 @@ test('Muse surface policy rejects other workflows even when provider is enabled'
     telemetry: { start: () => () => {} }
   });
   await assert.rejects(service.submit({
-    body: { provider: 'meta-muse', submodel: 'muse-image-1.0', generationSurface: 'cinematic' },
+    body: {
+      provider: 'meta-muse', submodel: 'muse-image-1.0',
+      generationSurface: 'studio', generationMode: 'character-sheet'
+    },
     actorContext: { userId: 'usr_test', username: 'test' }, requestId: 'test-no-dispatch'
-  }), error => error.code === 'provider_surface_unsupported');
-  assert.deepEqual(registry.getPublicCatalog().providers[0].models[0].allowedGenerationSurfaces, ['playground']);
+  }), error => error.code === 'provider_mode_unsupported');
+  const publicModel = registry.getPublicCatalog().providers[0].models[0];
+  assert.deepEqual(publicModel.allowedGenerationSurfaces, ['playground', 'studio']);
+  assert.deepEqual(publicModel.allowedGenerationModes, ['playground', 'headshot']);
 });
 
 test('Muse surface configuration rejects empty, duplicate and unknown surface lists', () => {
@@ -176,6 +193,14 @@ test('Muse surface configuration rejects empty, duplicate and unknown surface li
     const config = loadProviderConfig();
     config.providers.find(provider => provider.id === 'meta-muse').models[0].allowedGenerationSurfaces = value;
     assert.throws(() => validateProviderConfig(config), /allowedGenerationSurfaces/);
+  }
+});
+
+test('Muse mode configuration rejects empty, duplicate and unknown mode lists', () => {
+  for (const value of [[], ['headshot', 'headshot'], ['unknown'], 'headshot']) {
+    const config = loadProviderConfig();
+    config.providers.find(provider => provider.id === 'meta-muse').models[0].allowedGenerationModes = value;
+    assert.throws(() => validateProviderConfig(config), /allowedGenerationModes/);
   }
 });
 
@@ -277,24 +302,26 @@ test('Meta Muse debug output excludes prompt, secret and image bytes', async () 
   assert.match(log, /promptFingerprint/);
 });
 
-test('Meta Muse permits development testing but rejects production and staging dispatch', () => {
+test('Meta Muse is qualified for paid routing without an internal-testing disclosure', () => {
   const config = validateProviderConfig(loadProviderConfig());
   const meta = config.providers.find(provider => provider.id === 'meta-muse');
   assert.ok(meta);
   assert.equal(meta.enabled, true);
-  assert.equal(meta.models[0].paidRoutingEnabled, false);
+  assert.equal(meta.models[0].paidRoutingEnabled, true);
+  assert.equal(meta.models[0].qualificationStatus, 'qualified');
+  assert.equal(meta.models[0].testingRoutingEnabled, undefined);
   assert.equal(getConfiguredSecret({ 'META_MUSE_API-KEY': 'alias-secret' }, meta), 'alias-secret');
 
   const catalog = new ProviderRegistry(config, { 'META_MUSE_API-KEY': 'alias-secret' }).getPublicCatalog();
   const publicMeta = catalog.providers.find(provider => provider.id === 'meta-muse');
   assert.ok(publicMeta);
-  assert.equal(publicMeta.models[0].paidRoutingEnabled, false);
-  assert.equal(publicMeta.models[0].testingRoutingEnabled, true);
+  assert.equal(publicMeta.models[0].paidRoutingEnabled, true);
+  assert.equal(publicMeta.models[0].testingRoutingEnabled, undefined);
   assert.equal(publicMeta.models[0].unavailableReason, null);
   for (const NODE_ENV of ['production', 'staging']) {
     const registry = new ProviderRegistry(config, { NODE_ENV, 'META_MUSE_API-KEY': 'alias-secret' });
-    assert.equal(registry.getPublicCatalog().providers[0].models[0].testingRoutingEnabled, false);
-    assert.throws(() => registry.resolveSelection('meta-muse', 'muse-image-1.0', { generationSurface: 'playground' }),
-      error => error.code === 'provider_not_released');
+    assert.equal(registry.resolveSelection('meta-muse', 'muse-image-1.0', {
+      generationSurface: 'playground', generationMode: 'playground'
+    }).model.id, 'muse-image-1.0');
   }
 });

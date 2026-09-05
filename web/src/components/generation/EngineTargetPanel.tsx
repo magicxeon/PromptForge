@@ -87,7 +87,14 @@ export function EngineTargetPanel({
 
   function setProvider(providerId: string) {
     const next = catalog.providers.find(item => item.id === providerId);
-    const nextModel = next?.models.find(item => item.id === next.defaultModel) || next?.models[0];
+    const preferred = next?.models.find(item => item.id === next.defaultModel);
+    const nextModel = [preferred, ...(next?.models || [])].find(candidate => (
+      candidate && !imageModelUnavailableReason(
+        candidate,
+        requiredReferenceCount,
+        fixedAspectRatio || value.aspectRatio
+      )
+    )) || preferred || next?.models[0];
     onChange({
       ...value,
       provider: providerId,

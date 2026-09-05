@@ -29,7 +29,7 @@ function createRegistry() {
   }, { ALPHA_KEY: 'secret' });
 }
 
-function createMuseTestingRegistry(nodeEnvironment = 'test') {
+function createMuseRegistry(nodeEnvironment = 'test') {
   return new ProviderRegistry({
     schemaVersion: 8,
     defaultProvider: 'meta-muse',
@@ -40,10 +40,10 @@ function createMuseTestingRegistry(nodeEnvironment = 'test') {
       models: [{
         id: 'muse-image-1.0', enabled: true,
         displayName: { en: 'Muse Image 1.0', th: 'Muse Image 1.0' },
-        allowedGenerationSurfaces: ['playground'],
-        testingRoutingEnabled: true,
-        paidRoutingEnabled: false,
-        qualificationStatus: 'internal_testing',
+        allowedGenerationSurfaces: ['playground', 'studio'],
+        allowedGenerationModes: ['playground', 'headshot'],
+        paidRoutingEnabled: true,
+        qualificationStatus: 'qualified',
         pricingStatus: 'priced',
         capabilities: {
           imageGeneration: true,
@@ -121,17 +121,17 @@ test('video comparison requires exactly two slots and remains qualification gate
   );
 });
 
-test('Playground comparison accepts testing Muse while other surfaces and production remain blocked', () => {
+test('Playground comparison accepts qualified Muse while other modes and surfaces remain blocked', () => {
   const slots = [
     { id: 'one', provider: 'meta-muse', model: 'muse-image-1.0' },
     { id: 'two', provider: 'meta-muse', model: 'muse-image-1.0' }
   ];
   const testValidator = new ComparisonValidator({
-    providerRegistry: createMuseTestingRegistry(), secret: 'test'
+    providerRegistry: createMuseRegistry(), secret: 'test'
   });
   const context = {
     aspectRatio: '9:16', referenceCount: 0, generationSurface: 'playground',
-    mode: 'normal', selections: {}, customColors: {}
+    generationMode: 'playground', mode: 'normal', selections: {}, customColors: {}
   };
   assert.equal(testValidator.validateSlots(slots, context).length, 2);
   assert.throws(
@@ -143,17 +143,20 @@ test('Playground comparison accepts testing Muse while other surfaces and produc
     error => error.code === 'provider_surface_unsupported'
   );
   assert.throws(
+    () => testValidator.validateSlots(slots, {
+      ...context, generationSurface: 'studio', generationMode: 'scene'
+    }),
+    error => error.code === 'provider_mode_unsupported'
+  );
+  assert.throws(
     () => testValidator.validateSlots(slots, { ...context, referenceCount: 1 }),
     /does not support reference images/
   );
 
   const productionValidator = new ComparisonValidator({
-    providerRegistry: createMuseTestingRegistry('production'), secret: 'test'
+    providerRegistry: createMuseRegistry('production'), secret: 'test'
   });
-  assert.throws(
-    () => productionValidator.validateSlots(slots, context),
-    error => error.code === 'provider_not_released'
-  );
+  assert.equal(productionValidator.validateSlots(slots, context).length, 2);
 });
 
 test('comparison estimate token binds the generation surface', () => {
@@ -174,6 +177,30 @@ test('comparison estimate token binds the generation surface', () => {
       estimate.estimateToken,
       estimate,
       { ...context, generationSurface: 'studio' },
+      'usr_demo'
+    ),
+    /changed/
+  );
+});
+
+test('comparison estimate token binds the generation mode', () => {
+  const validator = new ComparisonValidator({ providerRegistry: createRegistry(), secret: 'test' });
+  const context = {
+    aspectRatio: '1:1', referenceCount: 0, mode: 'headshot',
+    generationSurface: 'studio', generationMode: 'headshot', selections: {}, customColors: {}
+  };
+  const slots = validator.validateSlots([
+    { id: 'one', provider: 'alpha', model: 'image-a' },
+    { id: 'two', provider: 'alpha', model: 'image-a' }
+  ], context).map((slot, index) => ({
+    ...slot, estimateId: `estimate_mode_${index + 1}`, estimatedCredit: 3
+  }));
+  const estimate = validator.createEstimate(slots, context, 'usr_demo');
+  assert.throws(
+    () => validator.verifyEstimate(
+      estimate.estimateToken,
+      estimate,
+      { ...context, generationMode: 'scene' },
       'usr_demo'
     ),
     /changed/

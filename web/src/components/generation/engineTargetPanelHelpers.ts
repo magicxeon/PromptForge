@@ -4,10 +4,22 @@ import { imageModelUnavailableReason } from '../../features/generation/modelAvai
 
 export { imageModelUnavailableReason } from '../../features/generation/modelAvailability';
 
-export function filterImageCatalogForSurface(catalog: ProviderCatalog, surface: 'playground' | 'studio' | 'fashion' | 'cinematic'): ProviderCatalog {
+export type ImageGenerationSurface = 'playground' | 'studio' | 'fashion' | 'cinematic';
+export type ImageGenerationMode = 'playground' | 'headshot' | 'scene' | 'character-sheet' | 'fashion';
+
+export function filterImageCatalogForSurface(
+  catalog: ProviderCatalog,
+  surface: ImageGenerationSurface,
+  generationMode: ImageGenerationMode | null = null
+): ProviderCatalog {
   const providers = catalog.providers.map(provider => ({
     ...provider,
-    models: provider.models.filter(model => !model.allowedGenerationSurfaces || model.allowedGenerationSurfaces.includes(surface))
+    models: provider.models.filter(model => (
+      (!model.allowedGenerationSurfaces || model.allowedGenerationSurfaces.includes(surface))
+      && (!model.allowedGenerationModes || (
+        generationMode !== null && model.allowedGenerationModes.includes(generationMode)
+      ))
+    ))
   })).filter(provider => provider.models.length > 0);
   return {
     ...catalog,

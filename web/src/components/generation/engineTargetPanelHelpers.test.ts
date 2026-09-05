@@ -7,25 +7,41 @@ import {
   resolveAvailableImageEngine
 } from './engineTargetPanelHelpers';
 
-it('filters restricted models by surface without mutating shared catalog or other providers', () => {
+it('filters restricted models by surface and mode without mutating the shared catalog', () => {
   const model = {
-    id: 'muse', displayName: 'Muse', allowedGenerationSurfaces: ['playground'] as const,
+    id: 'muse', displayName: 'Muse',
+    allowedGenerationSurfaces: ['playground', 'studio'] as const,
+    allowedGenerationModes: ['playground', 'headshot'] as const,
     capabilities: { imageGeneration: true, imageEdit: false, imageReferences: false, maxReferenceImages: 0, streaming: false, aspectRatios: [] }
   };
   const catalog: ProviderCatalog = {
     defaultProvider: 'existing', providers: [
-      { id: 'existing', displayName: 'Existing', models: [{ ...model, id: 'existing-model', allowedGenerationSurfaces: undefined }] },
-      { id: 'muse', displayName: 'Muse', models: [{ ...model, allowedGenerationSurfaces: ['playground'] }] }
+      { id: 'existing', displayName: 'Existing', models: [{ ...model, id: 'existing-model', allowedGenerationSurfaces: undefined, allowedGenerationModes: undefined }] },
+      { id: 'muse', displayName: 'Muse', models: [{ ...model, allowedGenerationSurfaces: ['playground', 'studio'], allowedGenerationModes: ['playground', 'headshot'] }] }
     ]
   };
-  expect(filterImageCatalogForSurface(catalog, 'playground').providers.map(provider => provider.id)).toEqual(['existing', 'muse']);
-  for (const surface of ['cinematic', 'studio', 'fashion'] as const) {
-    const filtered = filterImageCatalogForSurface(catalog, surface);
+  expect(filterImageCatalogForSurface(catalog, 'playground', 'playground').providers.map(provider => provider.id)).toEqual(['existing', 'muse']);
+  expect(filterImageCatalogForSurface(catalog, 'studio', 'headshot').providers.map(provider => provider.id)).toEqual(['existing', 'muse']);
+  for (const [surface, mode] of [
+    ['studio', 'character-sheet'],
+    ['studio', 'scene'],
+    ['cinematic', 'scene'],
+    ['fashion', 'fashion']
+  ] as const) {
+    const filtered = filterImageCatalogForSurface(catalog, surface, mode);
     expect(filtered.providers.map(provider => provider.id)).toEqual(['existing']);
     expect(filtered.defaultProvider).toBe('existing');
     expect(filtered.providers[0]?.models).toEqual(catalog.providers[0]?.models);
   }
   expect(catalog.providers).toHaveLength(2);
+});
+
+it('fails closed for mode-restricted models when the caller omits the mode', () => {
+  const catalog = engineCatalog();
+  catalog.providers[1]!.models[0]!.allowedGenerationSurfaces = ['studio'];
+  catalog.providers[1]!.models[0]!.allowedGenerationModes = ['headshot'];
+  expect(filterImageCatalogForSurface(catalog, 'studio').providers.map(provider => provider.id))
+    .toEqual(['provider-a']);
 });
 
 describe('comparison slot defaults', () => {

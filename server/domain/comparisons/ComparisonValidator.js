@@ -49,7 +49,10 @@ export class ComparisonValidator {
       const { provider, model } = this.providerRegistry.resolveSelection(
         slot.provider,
         slot.model,
-        { generationSurface: context.generationSurface || null }
+        {
+          generationSurface: context.generationSurface || null,
+          generationMode: context.generationMode || null
+        }
       );
       if (model.capabilities?.imageGeneration !== true) {
         throw new ComparisonError('unsupported_model', `${model.displayName.en} does not support image generation.`);
@@ -124,6 +127,7 @@ export class ComparisonValidator {
         context.referenceProcessing?.planFingerprint || null,
       mode: context.mode,
       generationSurface: context.generationSurface || null,
+      generationMode: context.generationMode || null,
       selections: context.selections || {},
       customColors: context.customColors || {},
       adminPromptOverride: context.userRole === 'admin' ? context.adminPromptOverride || null : null

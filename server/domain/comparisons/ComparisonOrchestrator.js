@@ -466,7 +466,10 @@ export class ComparisonOrchestrator {
       this.providerRegistry.resolveSelection(
         slot.provider,
         slot.model,
-        { generationSurface: context.generationSurface || null }
+        {
+          generationSurface: context.generationSurface || null,
+          generationMode: context.generationMode || null
+        }
       )
     );
     const first = selections[0];

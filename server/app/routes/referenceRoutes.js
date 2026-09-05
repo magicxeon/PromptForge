@@ -49,7 +49,10 @@ export function registerReferenceRoutes(app, {
       const { provider, model } = providerRegistry.resolveSelection(
         request.provider,
         request.submodel,
-        { generationSurface: request.generationSurface }
+        {
+          generationSurface: request.generationSurface,
+          generationMode: request.generationMode
+        }
       );
       const templateExecution = request.templateUseSessionId
         ? await templateCoreService.resolveSession(

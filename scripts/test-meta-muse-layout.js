@@ -34,8 +34,8 @@ try {
       await i18n.use(initReactI18next).init({lng:'en',keySeparator:false,resources:{en:{playground:${JSON.stringify(messages)}}}});
       const e=React.createElement;
       const catalog={defaultProvider:'meta-muse',providers:[{id:'meta-muse',displayName:'Meta Muse',defaultModel:'muse-image-1.0',models:[{
-        id:'muse-image-1.0',displayName:'Muse Image 1.0',paidRoutingEnabled:false,testingRoutingEnabled:true,
-        pricingStatus:'priced',qualificationStatus:'internal_testing',capabilities:{imageGeneration:true,imageReferences:false,
+        id:'muse-image-1.0',displayName:'Muse Image 1.0',paidRoutingEnabled:true,
+        pricingStatus:'priced',qualificationStatus:'qualified',capabilities:{imageGeneration:true,imageReferences:false,
         imageEdit:false,maxReferenceImages:0,streaming:false,dimensionControl:'aspect_ratio_only',aspectRatios:['1:1','9:16','16:9','4:5']}
       }]}]};
       function Screen(){
@@ -51,7 +51,11 @@ try {
     </script></body></html>` }));
   await page.goto(`${origin}/__muse-layout`);
   await page.getByRole('button', { name: '9:16 Mobile' }).waitFor();
-  assert.equal(await page.getByText('Internal testing - normal Credits apply; output not yet qualified.').isVisible(), true);
+  assert.equal(await page.getByText('Internal testing - normal Credits apply; output not yet qualified.').count(), 0);
+  const selectTops = await page.locator('.engine-target-panel__model-grid select').evaluateAll(
+    selects => selects.map(select => Math.round(select.getBoundingClientRect().top))
+  );
+  assert.equal(selectTops[0], selectTops[1]);
   await page.getByRole('button', { name: 'Compare models' }).click();
   await page.getByText('Fair comparison').waitFor();
   for (const width of [390, 820, 1440]) {
@@ -67,5 +71,5 @@ try {
     }
   }
   assert.deepEqual(errors, []);
-  console.log(`PASS: Muse Comparison selection, ratio-only controls and no overflow at 390/820/1440px in default/fashion/creative. Screenshots: ${output}`);
+  console.log(`PASS: qualified Muse controls align, Comparison remains selectable, and no overflow at 390/820/1440px in default/fashion/creative. Screenshots: ${output}`);
 } finally { await browser.close(); }

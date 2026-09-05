@@ -77,6 +77,7 @@ export class ProviderRegistry {
             capabilities: model.capabilities,
             defaults: model.defaults || {},
             ...(model.allowedGenerationSurfaces ? { allowedGenerationSurfaces: [...model.allowedGenerationSurfaces] } : {}),
+            ...(model.allowedGenerationModes ? { allowedGenerationModes: [...model.allowedGenerationModes] } : {}),
             estimatedCredits: Number.isFinite(Number(model.creditCost))
               ? Number(model.creditCost)
               : null,
@@ -108,7 +109,10 @@ export class ProviderRegistry {
     };
   }
 
-  resolveSelection(providerId, modelId, { generationSurface = null } = {}) {
+  resolveSelection(providerId, modelId, {
+    generationSurface = null,
+    generationMode = null
+  } = {}) {
     const selectedProviderId = providerId || this.config.defaultProvider;
     const provider = this.getProvider(selectedProviderId);
     if (!provider || provider.enabled === false) throw new ProviderSelectionError(`Provider is disabled or unknown: ${selectedProviderId}`);
@@ -120,6 +124,11 @@ export class ProviderRegistry {
     if (model.allowedGenerationSurfaces && !model.allowedGenerationSurfaces.includes(generationSurface)) {
       const error = new ProviderSelectionError(`${model.displayName.en} is unavailable for this generation surface.`);
       error.code = 'provider_surface_unsupported';
+      throw error;
+    }
+    if (model.allowedGenerationModes && !model.allowedGenerationModes.includes(generationMode)) {
+      const error = new ProviderSelectionError(`${model.displayName.en} is unavailable for this generation mode.`);
+      error.code = 'provider_mode_unsupported';
       throw error;
     }
     if (model.paidRoutingEnabled === false && !this.isModelTestingAvailable(provider, model)) {

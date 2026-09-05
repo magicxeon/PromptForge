@@ -48,6 +48,12 @@ export function validateProviderConfig(config) {
         || model.allowedGenerationSurfaces.some(surface => !['playground', 'studio', 'fashion', 'cinematic'].includes(surface))
         || new Set(model.allowedGenerationSurfaces).size !== model.allowedGenerationSurfaces.length
       )) throw new ProviderConfigError(`${modelContext}.allowedGenerationSurfaces must contain unique supported surfaces.`);
+      if (model.allowedGenerationModes !== undefined && (
+        !Array.isArray(model.allowedGenerationModes)
+        || !model.allowedGenerationModes.length
+        || model.allowedGenerationModes.some(mode => !['playground', 'headshot', 'scene', 'character-sheet', 'fashion'].includes(mode))
+        || new Set(model.allowedGenerationModes).size !== model.allowedGenerationModes.length
+      )) throw new ProviderConfigError(`${modelContext}.allowedGenerationModes must contain unique supported image generation modes.`);
       if (!model.capabilities || model.capabilities.imageGeneration !== true) throw new ProviderConfigError(`${modelContext} must support imageGeneration.`);
     });
 

@@ -264,7 +264,8 @@
         {
           "id": "muse-image-1.0",
           "enabled": true,
-          "allowedGenerationSurfaces": ["playground"],
+          "allowedGenerationSurfaces": ["playground", "studio"],
+          "allowedGenerationModes": ["playground", "headshot"],
           "displayName": { "en": "Muse Image 1.0", "th": "Muse Image 1.0" },
           "displayOrder": 10,
           "capabilities": {
@@ -280,9 +281,8 @@
           "aspectRatioSizes": { "6:8": "768x1024", "1:1": "1024x1024", "9:16": "864x1536", "16:9": "1536x864", "4:5": "1024x1280" },
           "defaults": { "responseFormat": "b64_json", "outputFormat": "webp" },
           "pricingStatus": "priced",
-          "qualificationStatus": "internal_testing",
-          "testingRoutingEnabled": true,
-          "paidRoutingEnabled": false
+          "qualificationStatus": "qualified",
+          "paidRoutingEnabled": true
         }
       ]
     }

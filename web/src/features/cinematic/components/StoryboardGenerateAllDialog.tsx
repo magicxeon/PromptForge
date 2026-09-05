@@ -75,7 +75,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
   const catalog = useQuery({
     queryKey: ['provider-catalog'],
     queryFn: getProviderCatalog,
-    select: data => filterImageCatalogForSurface(data, 'cinematic'),
+    select: data => filterImageCatalogForSurface(data, 'cinematic', 'scene'),
     staleTime: 5 * 60_000
   });
   const scopedShots = useMemo(() => project.scenes.flatMap(scene =>
