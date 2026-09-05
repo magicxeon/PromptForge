@@ -23,6 +23,7 @@ import type { TFunction } from 'i18next';
 import { Button } from '../ui/Button';
 import { Surface } from '../ui/Surface';
 import { VideoMediaPlayer } from '../media/VideoMediaPlayer';
+import { GenerationResultMetadata } from '../generation/GenerationResultMetadata';
 import { apiMediaUrl } from '../../lib/api/apiClient';
 import type {
   ComparisonRun,
@@ -389,9 +390,16 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
                 </div>
 
                 <footer className="comparison-result-panel__footer">
-                  <span>
-                    {formatDuration(slot.result?.generationDuration)}
-                  </span>
+                  <GenerationResultMetadata
+                    status={slot.status}
+                    generationDuration={slot.result?.generationDuration}
+                    width={slot.result?.width}
+                    height={slot.result?.height}
+                    requestedAspectRatio={props.run.configurationSnapshot?.aspectRatio}
+                    actualCredit={slot.actualCredit}
+                    estimatedCredit={slot.estimatedCredit}
+                    mimeType={slot.result?.mimeType}
+                  />
                   <div className="comparison-result-panel__actions">
                     {comparisonAction(props, slot, t)}
                     {props.renderSlotActions?.(slot)}
@@ -498,10 +506,4 @@ function localized(value: string | Record<string, string> | undefined) {
   if (!value) return '';
   if (typeof value === 'string') return value;
   return value.en || value.th || Object.values(value)[0] || '';
-}
-
-function formatDuration(value: string | number | null | undefined) {
-  if (value === null || value === undefined || value === '') return '';
-  const normalized = String(value);
-  return /(?:ms|s)$/i.test(normalized) ? normalized : `${normalized}s`;
 }

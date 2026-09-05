@@ -19,7 +19,9 @@ export const comparisonSlotSchema = z.object({
     videoUrl: z.string().nullable().optional(),
     posterUrl: z.string().nullable().optional(),
     mimeType: z.string().nullable().optional(),
-    generationDuration: z.union([z.string(), z.number()]).nullable().optional()
+    generationDuration: z.union([z.string(), z.number()]).nullable().optional(),
+    width: z.number().nullable().optional(),
+    height: z.number().nullable().optional()
   }).nullable().optional(),
   error: z.object({
     code: z.string().optional(),
@@ -34,7 +36,9 @@ export const comparisonRunSchema = z.object({
   mediaType: z.enum(['image', 'video']).default('image'),
   configurationSnapshot: z.object({
     mode: z.string().optional(),
-    generationMode: z.string().optional()
+    generationMode: z.string().optional(),
+    aspectRatio: z.string().nullable().optional(),
+    imageResolution: z.string().nullable().optional()
   }).passthrough().optional(),
   estimatedTotalCredit: z.number().default(0),
   actualTotalCredit: z.number().default(0),

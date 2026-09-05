@@ -45,5 +45,13 @@
   "comparisons.viewer.styleRef": "Style Ref",
   "comparisons.viewer.characterRef": "Character Ref",
   "comparisons.viewer.collection": "Collection",
-  "comparisons.viewer.download": "Download"
+  "comparisons.viewer.download": "Download",
+  "comparisons.viewer.generationDetails": "Generation details",
+  "comparisons.viewer.generationDuration": "Generation time: {value}",
+  "comparisons.viewer.dimensions": "Delivered dimensions: {width} by {height} pixels",
+  "comparisons.viewer.aspectRatio": "Delivered aspect ratio: {value}. Requested: {requested}",
+  "comparisons.viewer.aspectRatioMismatch": "Delivered aspect ratio {actual} differs from requested {requested}",
+  "comparisons.viewer.actualCredits": "Actual cost: {value} Credits",
+  "comparisons.viewer.estimatedCredits": "Estimated cost: {value} Credits",
+  "comparisons.viewer.fileFormat": "File format: {value}"
 }

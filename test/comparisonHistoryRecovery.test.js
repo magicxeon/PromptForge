@@ -28,7 +28,9 @@ test('comparison reconciliation restores a missing job binding from history meta
       imageUrl: '/outputs/job_1.png',
       thumbnailUrl: '/outputs/thumbnails/job_1.webp',
       mimeType: 'image/png',
-      generationDuration: '4.2'
+      generationDuration: '4.2',
+      width: 1024,
+      height: 1536
     }],
     updateRun: async (_setId, _runId, updater) => {
       await updater(persistedRun);
@@ -55,6 +57,10 @@ test('comparison reconciliation restores a missing job binding from history meta
   assert.equal(persistedRun.slots[0].jobId, 'job_1');
   assert.equal(persistedRun.slots[0].status, 'completed');
   assert.equal(persistedRun.slots[0].result.imageUrl, '/outputs/job_1.png');
+  assert.equal(persistedRun.slots[0].result.mimeType, 'image/png');
+  assert.equal(persistedRun.slots[0].result.generationDuration, '4.2');
+  assert.equal(persistedRun.slots[0].result.width, 1024);
+  assert.equal(persistedRun.slots[0].result.height, 1536);
   assert.equal(persistedRun.slots[0].thumbnailUrl, '/outputs/thumbnails/job_1.webp');
   assert.equal(persistedRun.status, 'completed');
 });

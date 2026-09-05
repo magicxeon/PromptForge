@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { comparisonPageSchema } from './comparisonSchemas';
+import { comparisonPageSchema, comparisonRunSchema } from './comparisonSchemas';
 
 describe('comparison list summary schema', () => {
   it('preserves preview media and aggregate run fields without synthesizing runs', () => {
@@ -43,5 +43,40 @@ describe('comparison list summary schema', () => {
     });
     expect(page.items[0]?.previewImages[0]?.imageUrl).toBe('/outputs/job_1.png');
     expect('runs' in (page.items[0] || {})).toBe(false);
+  });
+});
+
+describe('comparison result schema', () => {
+  it('preserves delivered dimensions and requested output settings', () => {
+    const run = comparisonRunSchema.parse({
+      id: 'run_dimensions',
+      status: 'completed',
+      createdAt: 100,
+      configurationSnapshot: {
+        aspectRatio: '6:8',
+        imageResolution: '2K'
+      },
+      slots: [{
+        id: 'slot_dimensions',
+        provider: 'meta-muse',
+        model: 'muse-image-1.0',
+        status: 'completed',
+        result: {
+          imageUrl: '/outputs/muse.webp',
+          mimeType: 'image/webp',
+          width: 1344,
+          height: 1792
+        }
+      }]
+    });
+
+    expect(run.configurationSnapshot).toMatchObject({
+      aspectRatio: '6:8',
+      imageResolution: '2K'
+    });
+    expect(run.slots[0]?.result).toMatchObject({
+      width: 1344,
+      height: 1792
+    });
   });
 });

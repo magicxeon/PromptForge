@@ -28,13 +28,21 @@ describe('ComparisonWorkspace', () => {
                 next: 'Next',
                 download: 'Download',
                 promptLabel: 'Comparison prompt',
-                winner: 'Winner'
+                winner: 'Winner',
+                generationDetails: 'Generation details',
+                generationDuration: 'Generation time: {value}',
+                dimensions: 'Delivered dimensions: {width} by {height} pixels',
+                aspectRatio: 'Delivered aspect ratio: {value}. Requested: {requested}',
+                aspectRatioMismatch: 'Delivered aspect ratio {actual} differs from requested {requested}',
+                actualCredits: 'Actual cost: {value} Credits',
+                estimatedCredits: 'Estimated cost: {value} Credits',
+                fileFormat: 'File format: {value}'
               }
             }
           }
         }
       },
-      interpolation: { escapeValue: false }
+      interpolation: { escapeValue: false, prefix: '{', suffix: '}' }
     });
   });
 
@@ -157,5 +165,84 @@ describe('ComparisonWorkspace', () => {
     expect(container.querySelectorAll('video')).toHaveLength(2);
     expect(screen.queryByRole('button', { name: 'Zoom in' })).not.toBeInTheDocument();
     expect(container.querySelector('.comparison-workspace__grid')).toHaveClass('is-video');
+  });
+
+  it('shows comparable result facts and flags a material ratio mismatch', () => {
+    const run = comparisonRunSchema.parse({
+      id: 'run_metadata',
+      status: 'completed',
+      createdAt: Date.now(),
+      configurationSnapshot: { aspectRatio: '6:8' },
+      slots: [
+        {
+          id: 'slot_matching',
+          provider: 'meta-muse',
+          model: 'muse-image-1.0',
+          estimatedCredit: 20,
+          actualCredit: 15,
+          status: 'completed',
+          result: {
+            imageUrl: '/outputs/matching.webp',
+            generationDuration: '18.7',
+            width: 1344,
+            height: 1792,
+            mimeType: 'image/webp'
+          }
+        },
+        {
+          id: 'slot_mismatch',
+          provider: 'openai',
+          model: 'gpt-image-1',
+          actualCredit: 105,
+          status: 'completed',
+          result: {
+            imageUrl: '/outputs/mismatch.png',
+            generationDuration: 58.8,
+            width: 1024,
+            height: 1536,
+            mimeType: 'image/png'
+          }
+        }
+      ]
+    });
+
+    render(
+      <I18nextProvider i18n={testI18n}>
+        <ComparisonWorkspace mode="generation" run={run} />
+      </I18nextProvider>
+    );
+
+    expect(screen.getByLabelText('Generation time: 18.7s')).toBeVisible();
+    expect(screen.getByLabelText('Delivered dimensions: 1344 by 1792 pixels')).toBeVisible();
+    expect(screen.getByLabelText('Delivered aspect ratio: 3:4. Requested: 6:8')).toBeVisible();
+    expect(screen.getByLabelText('Actual cost: 15 Credits')).toBeVisible();
+    expect(screen.getByLabelText('File format: WEBP')).toBeVisible();
+    expect(screen.getByLabelText('Delivered aspect ratio 2:3 differs from requested 6:8'))
+      .toHaveClass('is-warning');
+  });
+
+  it('uses estimated Credits for an active result without a settled cost', () => {
+    const run = comparisonRunSchema.parse({
+      id: 'run_estimate',
+      status: 'processing',
+      createdAt: Date.now(),
+      slots: [{
+        id: 'slot_processing',
+        provider: 'gemini',
+        model: 'gemini-image',
+        estimatedCredit: 90,
+        actualCredit: 0,
+        status: 'processing',
+        result: { imageUrl: '/outputs/partial.png' }
+      }]
+    });
+
+    render(
+      <I18nextProvider i18n={testI18n}>
+        <ComparisonWorkspace mode="generation" run={run} />
+      </I18nextProvider>
+    );
+
+    expect(screen.getByLabelText('Estimated cost: 90 Credits')).toHaveTextContent('~90');
   });
 });

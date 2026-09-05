@@ -45,5 +45,13 @@
   "comparisons.viewer.styleRef": "อ้างอิงสไตล์",
   "comparisons.viewer.characterRef": "อ้างอิงตัวละคร",
   "comparisons.viewer.collection": "คอลเลกชัน",
-  "comparisons.viewer.download": "ดาวน์โหลด"
+  "comparisons.viewer.download": "ดาวน์โหลด",
+  "comparisons.viewer.generationDetails": "รายละเอียดการสร้าง",
+  "comparisons.viewer.generationDuration": "เวลาในการสร้าง: {value}",
+  "comparisons.viewer.dimensions": "ขนาดภาพที่ได้รับ: {width} คูณ {height} พิกเซล",
+  "comparisons.viewer.aspectRatio": "สัดส่วนภาพที่ได้รับ: {value} ค่าที่ขอ: {requested}",
+  "comparisons.viewer.aspectRatioMismatch": "สัดส่วนภาพที่ได้รับ {actual} ต่างจากค่าที่ขอ {requested}",
+  "comparisons.viewer.actualCredits": "ค่าใช้จริง: {value} เครดิต",
+  "comparisons.viewer.estimatedCredits": "ค่าประมาณ: {value} เครดิต",
+  "comparisons.viewer.fileFormat": "รูปแบบไฟล์: {value}"
 }

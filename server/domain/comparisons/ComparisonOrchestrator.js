@@ -285,7 +285,9 @@ export class ComparisonOrchestrator {
           imageUrl: slot.result?.imageUrl || historyItem.imageUrl || null,
           usage: slot.result?.usage || historyItem.usage || null,
           mimeType: slot.result?.mimeType || historyItem.mimeType || null,
-          generationDuration: slot.result?.generationDuration || historyItem.generationDuration || null
+          generationDuration: slot.result?.generationDuration || historyItem.generationDuration || null,
+          width: slot.result?.width || historyItem.width || null,
+          height: slot.result?.height || historyItem.height || null
         };
         slot.thumbnailUrl = slot.thumbnailUrl || historyItem.thumbnailUrl || null;
         if (slot.status !== 'completed' && historyItem.imageUrl) {
@@ -369,7 +371,9 @@ export class ComparisonOrchestrator {
             mimeType: slot.result?.mimeType || historyItem.mimeType || null,
             generationDuration: slot.result?.generationDuration
               || historyItem.generationDuration
-              || null
+              || null,
+            width: slot.result?.width || historyItem.width || null,
+            height: slot.result?.height || historyItem.height || null
           };
           slot.thumbnailUrl ||= historyItem.thumbnailUrl || null;
           slot.error = null;

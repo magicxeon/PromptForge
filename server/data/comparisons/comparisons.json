@@ -8,9 +8,9 @@
       "name": "Comparison 2026-09-05",
       "description": "",
       "collectionIds": [],
-      "winnerJobId": null,
+      "winnerJobId": "job_1788592881084_7v7dbj9tn",
       "createdAt": 1788592880825,
-      "updatedAt": 1788607075968,
+      "updatedAt": 1788613330043,
       "runs": [
         {
           "idempotencyKey": "cmp_1788592872903_j9kj3du0",
@@ -1345,7 +1345,7 @@
       "collectionIds": [],
       "winnerJobId": "job_1784871247629_yq034a9uv",
       "createdAt": 1784871247627,
-      "updatedAt": 1785229060915,
+      "updatedAt": 1788612495438,
       "runs": [
         {
           "idempotencyKey": "cmp_1784871247622_4sllmupg",
@@ -1448,7 +1448,9 @@
                   "latency_ms": null
                 },
                 "mimeType": "image/jpeg",
-                "generationDuration": "7.3"
+                "generationDuration": "7.3",
+                "width": 896,
+                "height": 1200
               },
               "error": null,
               "reservationId": "rsv_1784871247633_d0pecrv"
@@ -1491,7 +1493,9 @@
                   "total_tokens": 6511
                 },
                 "mimeType": "image/png",
-                "generationDuration": "45.2"
+                "generationDuration": "45.2",
+                "width": 1024,
+                "height": 1536
               },
               "error": null,
               "reservationId": "rsv_1784871247652_31luw95"
@@ -1526,7 +1530,9 @@
                   "total_tokens": 15680
                 },
                 "mimeType": "image/jpeg",
-                "generationDuration": "12.8"
+                "generationDuration": "12.8",
+                "width": 1792,
+                "height": 2240
               },
               "error": null,
               "reservationId": "rsv_1784871247671_bzv772x"
