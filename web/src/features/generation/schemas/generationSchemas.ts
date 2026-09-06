@@ -45,7 +45,7 @@ export const providerSchema = z.object({
 export const providerCatalogSchema = z.object({
   schemaVersion: z.number().optional(),
   configVersion: z.number().optional(),
-  defaultProvider: z.string(),
+  defaultProvider: z.string().nullable().transform(value => value || ''),
   providers: z.array(providerSchema).default([])
 }).passthrough();
 

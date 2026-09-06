@@ -130157,6 +130157,88 @@
       "estimateConfidence": "locked",
       "createdAt": "2026-09-05T16:55:40.443Z",
       "expiresAt": "2026-09-05T17:10:40.443Z"
+    },
+    {
+      "estimateId": "est_1788659246212_oktcjcz",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-09-05-v3",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "meta-muse",
+        "requestedModelId": "muse-image-1.0",
+        "resolvedProviderId": "meta-muse",
+        "resolvedModelId": "muse-image-1.0"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "d8625cc9845eb855e5abea57759d29548b2049fcc35ac36bce6319eb757500e7"
+      },
+      "breakdown": {
+        "baseOutputCredits": 15,
+        "referenceCredits": 0,
+        "generationCredits": 15,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 15
+      },
+      "estimatedCredits": 15,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-09-06T01:47:26.212Z",
+      "expiresAt": "2026-09-06T02:02:26.212Z"
+    },
+    {
+      "estimateId": "est_1788666016003_bu0ek6c",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-09-05-v3",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "meta-muse",
+        "requestedModelId": "muse-image-1.0",
+        "resolvedProviderId": "meta-muse",
+        "resolvedModelId": "muse-image-1.0"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "d8625cc9845eb855e5abea57759d29548b2049fcc35ac36bce6319eb757500e7"
+      },
+      "breakdown": {
+        "baseOutputCredits": 15,
+        "referenceCredits": 0,
+        "generationCredits": 15,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 15
+      },
+      "estimatedCredits": 15,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-09-06T03:40:16.003Z",
+      "expiresAt": "2026-09-06T03:55:16.003Z"
     }
   ],
   "reservations": [

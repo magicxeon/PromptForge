@@ -1,5 +1,10 @@
 # Community Page Enhancement Master Requirement
 
+Follow-up delivered and verified in scope: [Landing visual identity master](009-landing-visual-identity-master.md)
+owns the additional Home-only floating hero, section descriptions/color bands
+and read-only provider/model directory. Prior delivery status below does not
+close this follow-up.
+
 Status: Implemented and verified in scope (2026-09-06)
 
 Primary role: Product and Requirement Architect

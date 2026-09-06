@@ -68,13 +68,14 @@ export function CommunityStartPaths({
         <div>
           <span>{t('community.home.paths.eyebrow')}</span>
           <h2 id="community-start-paths-title">{t('community.home.paths.title')}</h2>
+          <p>{t('community.home.paths.description')}</p>
         </div>
       </header>
       <div className="community-start-paths__grid">
         {visiblePaths.map(path => {
           const Icon = path.icon;
           return (
-            <Link key={path.id} to={path.to} className="community-start-path">
+            <Link key={path.id} to={path.to} className={`community-start-path community-start-path--${path.id}`}>
               <span className="community-start-path__icon"><Icon aria-hidden="true" /></span>
               <span>
                 <strong>{t(path.titleKey)}</strong>

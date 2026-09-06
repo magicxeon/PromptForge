@@ -1,12 +1,16 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { communityPostSchema } from '../schemas/communitySchemas';
 import { CommunityHomeRoute } from './CommunityHomeRoute';
+import { getProviderCatalog } from '../../generation/api/generationApi';
 
 const state = vi.hoisted(() => ({ discovery: null as Record<string, unknown> | null }));
+
+vi.mock('../../generation/api/generationApi', () => ({ getProviderCatalog: vi.fn() }));
 
 vi.mock('../hooks/useCommunityDiscoveryPosts', () => ({
   useCommunityDiscoveryPosts: () => state.discovery,
@@ -64,10 +68,12 @@ describe('CommunityHomeRoute', () => {
         'community.home.featuredTitle': 'Featured work',
         'community.home.featuredPrevious': 'Previous',
         'community.home.featuredNext': 'Next',
+        'community.home.featuredSeeAll': 'See all public work',
         'community.home.discoveryEyebrow': 'Discover',
         'community.home.searchResult': 'Results for {{query}}',
         'community.home.clearSearch': 'Clear search',
         'community.home.periodLabel': 'Period',
+        'community.home.feedSeeMore': 'See more Community work',
         'community.home.tutorialEyebrow': 'Guides',
         'community.home.tutorialTitle': 'Learn',
         'community.home.tutorial.start.title': 'Start',
@@ -106,11 +112,13 @@ describe('CommunityHomeRoute', () => {
 
   beforeEach(() => {
     state.discovery = createDiscoveryState({ posts, search: '' });
+    vi.mocked(getProviderCatalog).mockReset();
+    vi.mocked(getProviderCatalog).mockResolvedValue({ defaultProvider: '', providers: [] });
   });
 
   it('deduplicates hero and featured posts from the continuing feed', () => {
     renderPage('/');
-    expect(screen.getByRole('heading', { name: 'Create and discover AI images' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Momelo' })).toBeVisible();
     expect(screen.getByLabelText(posts[0]!.title)).toBeVisible();
     for (const post of posts.slice(1)) {
       expect(screen.getAllByText(post.title)).toHaveLength(1);
@@ -120,10 +128,25 @@ describe('CommunityHomeRoute', () => {
 
   it('suppresses editorial content while search results are active', () => {
     state.discovery = createDiscoveryState({ posts, search: 'portrait' });
+    state.discovery.actor = { userId: 'actor_1' };
+    state.discovery.actorId = 'actor_1';
     renderPage('/?search=portrait');
-    expect(screen.queryByRole('heading', { name: 'Create and discover AI images' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Momelo' })).not.toBeInTheDocument();
+    expect(document.querySelector('.community-providers')).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Start here' })).not.toBeInTheDocument();
     expect(screen.getAllByTestId(/^post-/)).toHaveLength(6);
+    expect(getProviderCatalog).not.toHaveBeenCalled();
+  });
+
+  it('reads the existing image catalog with explicit Playground context', async () => {
+    state.discovery!.actor = { userId: 'actor_1' };
+    state.discovery!.actorId = 'actor_1';
+    renderPage('/');
+    await waitFor(() => expect(getProviderCatalog).toHaveBeenCalledWith({
+      generationSurface: 'playground', generationMode: 'playground'
+    }));
+    await waitFor(() => expect(document.querySelector('.community-providers')).toHaveAttribute('aria-busy', 'false'));
+    expect(screen.getByTestId('post-post_6')).toBeVisible();
   });
 
   it('preserves active query filters when opening the dedicated Template Gallery', () => {
@@ -132,6 +155,26 @@ describe('CommunityHomeRoute', () => {
     expect(screen.getByTestId('location')).toHaveTextContent(
       '/explore/templates?category=portrait&period=month&sort=trending'
     );
+  });
+
+  it('does not remove a video from the feed for decorative hero use', () => {
+    const video = communityPostSchema.parse({
+      ...posts[0], id: 'video_1', postType: 'video', title: 'Shared video', videoUrl: '/video.mp4'
+    });
+    state.discovery = createDiscoveryState({ posts: [video, posts[1]!], search: '' });
+    renderPage('/');
+    expect(screen.getByTestId('post-video_1')).toBeVisible();
+    expect(screen.getByLabelText(posts[1]!.title)).toBeVisible();
+  });
+
+  it('links Featured to the existing feed and reuses canonical pagination for See more', () => {
+    const discoveryState = createDiscoveryState({ posts, search: '' });
+    discoveryState.query.hasNextPage = true;
+    state.discovery = discoveryState;
+    renderPage('/');
+    expect(screen.getByRole('link', { name: 'See all public work' })).toHaveAttribute('href', '#community-feed');
+    fireEvent.click(screen.getByRole('button', { name: 'See more Community work' }));
+    expect(discoveryState.query.fetchNextPage).toHaveBeenCalledOnce();
   });
 });
 
@@ -164,10 +207,12 @@ function createDiscoveryState({ posts: items, search }: { posts: typeof posts; s
 function renderPage(initialEntry: string) {
   return render(
     <I18nextProvider i18n={testI18n}>
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
       <MemoryRouter initialEntries={[initialEntry]}>
         <CommunityHomeRoute />
         <LocationProbe />
       </MemoryRouter>
+      </QueryClientProvider>
     </I18nextProvider>
   );
 }

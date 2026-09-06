@@ -497,10 +497,32 @@
   overflow: hidden auto;
   border: 1px solid var(--theme-border);
   border-radius: 10px;
-  background: var(--theme-sidebar);
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--theme-accent) 28%, transparent) 0%,
+      color-mix(in srgb, var(--theme-accent) 12%, transparent) 32%,
+      color-mix(in srgb, var(--theme-secondary) 3%, transparent) 56%,
+      transparent 78%
+    ) 0 0 / 100% 300px no-repeat,
+    var(--theme-sidebar);
+  background-origin: border-box;
   scrollbar-color: transparent transparent;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
+  isolation: isolate;
+  animation: app-sidebar-color-wash 16s ease-in-out infinite alternate;
+}
+
+.app-sidebar__mobile-heading,
+.sidebar-navigation {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes app-sidebar-color-wash {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 0 -18px, 0 0; }
 }
 
 .app-sidebar::-webkit-scrollbar {
@@ -1160,5 +1182,9 @@
   .sidebar-navigation__chevron,
   .global-header__profile-chevron {
     transition: none;
+  }
+
+  .app-sidebar {
+    animation: none;
   }
 }

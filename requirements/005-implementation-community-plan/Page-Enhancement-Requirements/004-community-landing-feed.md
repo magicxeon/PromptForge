@@ -1,5 +1,10 @@
 # 004 Community Landing And Feed Enhancement
 
+Visual follow-up: [009 master](009-landing-visual-identity-master.md) extends the
+page order with a compact Image Provider directory after start paths, adds
+descriptions/color bands and replaces only Home's hero treatment. Feed contracts
+and all pending backend/public-shell items below remain unchanged.
+
 Status: Implemented and verified in scope (2026-09-06)
 
 Route: `/`

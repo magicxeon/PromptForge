@@ -1,3 +1,9 @@
+export const communityHeroAssets = {
+  backdrop: '/assets/scene-builder/shot-recipes/color-light-editorial.jpg',
+  portrait: '/assets/scene-builder/shot-recipes/soft-character-portrait.jpg',
+  scene: '/assets/scene-builder/shot-recipes/sunlit-storefront.jpg'
+} as const;
+
 export const discoveryTutorialAssets = {
   templates: [
     { id: 'compose', imageUrl: '/assets/scene-builder/shot-recipes/window-shadow-lookbook.jpg', durationLabel: '02:10' },

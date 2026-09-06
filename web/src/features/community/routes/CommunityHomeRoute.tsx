@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ArrowRight } from 'lucide-react';
 import { routePaths } from '../../../app/routeRegistry/routes';
 import { DiscoveryLoadMore } from '../../../components/discovery/DiscoveryLoadMore';
 import {
@@ -16,6 +18,8 @@ import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/Asy
 import { useFeaturePolicy } from '../../../lib/permissions/FeaturePolicyProvider';
 import { CommunityHero } from '../components/CommunityHero';
 import { CommunityStartPaths } from '../components/CommunityStartPaths';
+import { CommunityProviderDirectory } from '../components/CommunityProviderDirectory';
+import { getProviderCatalog } from '../../generation/api/generationApi';
 import { isEligibleCommunityHeroPost } from '../components/communityHeroSelector';
 import { discoveryTutorialAssets } from '../config/discoveryEditorialConfig';
 import {
@@ -33,11 +37,19 @@ export function CommunityHomeRoute() {
   const policy = useFeaturePolicy();
   const discovery = useCommunityDiscoveryPosts();
   const editorialVisible = !discovery.filters.search;
+  const providers = useQuery({
+    queryKey: ['provider-catalog', 'playground', 'playground', null, discovery.actorId],
+    queryFn: () => getProviderCatalog({ generationSurface: 'playground', generationMode: 'playground' }),
+    enabled: Boolean(discovery.actor) && editorialVisible,
+    staleTime: 0
+  });
   const visualPosts = useMemo(
     () => discovery.posts.filter(isEligibleCommunityHeroPost),
     [discovery.posts]
   );
-  const heroPost = editorialVisible && discovery.posts.length > 1 ? visualPosts[0] || null : null;
+  const heroPost = editorialVisible && discovery.posts.length > 1
+    ? visualPosts.find(post => post.postType !== 'video') || null
+    : null;
   const featuredPosts = editorialVisible && discovery.posts.length >= 6
     ? visualPosts.filter(post => post.id !== heroPost?.id).slice(0, 4)
     : [];
@@ -77,15 +89,26 @@ export function CommunityHomeRoute() {
             communityEnabled={policy.isEnabled('community.exploreEnabled')}
             charactersEnabled={policy.isEnabled('community.characterProfilesEnabled')}
           />
+          <CommunityProviderDirectory
+            catalog={providers.data}
+            loading={providers.isPending}
+            error={providers.isError}
+            onRetry={() => void providers.refetch()}
+          />
           {featuredPosts.length ? (
             <section className="community-featured" aria-labelledby="community-featured-title">
               <HorizontalMediaCarousel
                 heading={(
-                  <div className="discovery-section-heading">
+                  <div className="discovery-section-heading community-section-heading">
                     <div>
                       <span>{t('community.home.featuredEyebrow')}</span>
                       <h2 id="community-featured-title">{t('community.home.featuredTitle')}</h2>
+                      <p>{t('community.home.featuredDescription')}</p>
                     </div>
+                    <a className="community-section-action" href="#community-feed">
+                      {t('community.home.featuredSeeAll')}
+                      <ArrowRight aria-hidden="true" />
+                    </a>
                   </div>
                 )}
                 previousLabel={t('community.home.featuredPrevious')}
@@ -107,7 +130,7 @@ export function CommunityHomeRoute() {
             <h2 id="community-feed-title">{t('community.feed.title')}</h2>
             {discovery.filters.search ? (
               <p>{t('community.home.searchResult', { query: discovery.filters.search })}</p>
-            ) : null}
+            ) : <p>{t('community.home.feedDescription')}</p>}
           </div>
         </header>
 
@@ -166,6 +189,7 @@ export function CommunityHomeRoute() {
           <EditorialTutorialRail
             eyebrow={t('community.home.tutorialEyebrow')}
             title={t('community.home.tutorialTitle')}
+            description={t('community.home.tutorialDescription')}
             sampleLabel={t('community.discovery.sample')}
             items={tutorialItems}
           />
@@ -182,7 +206,7 @@ export function CommunityHomeRoute() {
         <DiscoveryLoadMore
           hasMore={Boolean(discovery.query.hasNextPage)}
           loading={discovery.query.isFetchingNextPage}
-          loadLabel={t('community.feed.loadMore')}
+          loadLabel={t('community.home.feedSeeMore')}
           loadingLabel={t('community.feed.loadingMore')}
           onLoadMore={() => void discovery.query.fetchNextPage()}
         />

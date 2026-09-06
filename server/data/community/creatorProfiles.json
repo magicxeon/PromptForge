@@ -66,11 +66,11 @@
     },
     "badgeCodes": [],
     "membershipEnabled": false,
-    "recordVersion": 30,
+    "recordVersion": 34,
     "visibility": "public",
     "status": "active",
     "createdAt": "2026-07-27T05:51:03.242Z",
-    "updatedAt": "2026-09-03T14:49:20.404Z"
+    "updatedAt": "2026-09-06T03:11:46.359Z"
   },
   {
     "userId": "usr_bob",

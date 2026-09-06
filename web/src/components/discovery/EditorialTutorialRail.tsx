@@ -11,11 +11,13 @@ export type EditorialTutorial = {
 export function EditorialTutorialRail({
   eyebrow,
   title,
+  description,
   sampleLabel,
   items
 }: {
   eyebrow: string;
   title: string;
+  description?: string;
   sampleLabel: string;
   items: EditorialTutorial[];
 }) {
@@ -25,6 +27,7 @@ export function EditorialTutorialRail({
       <header>
         <span>{eyebrow}</span>
         <h2 id="editorial-tutorial-title">{title}</h2>
+        {description ? <p>{description}</p> : null}
       </header>
       <div className="editorial-tutorial__rail">
         {items.map(item => (

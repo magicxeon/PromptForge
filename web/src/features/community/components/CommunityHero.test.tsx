@@ -47,7 +47,7 @@ describe('CommunityHero', () => {
       </I18nextProvider>
     );
 
-    expect(screen.getByRole('heading', { name: 'Create and discover AI images' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Momelo' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Open Playground' })).toHaveAttribute('href', '/create/playground');
     expect(screen.queryByText('Works')).not.toBeInTheDocument();
   });
@@ -58,7 +58,9 @@ describe('CommunityHero', () => {
         <MemoryRouter><CommunityHero post={null} /></MemoryRouter>
       </I18nextProvider>
     );
-    expect(container.querySelector('.discovery-page-hero__media-fallback')).toBeInTheDocument();
+    expect(container.querySelectorAll('.community-hero-art__card')).toHaveLength(3);
+    expect(container.querySelector('a[href="#community-feed"]')).toBeInTheDocument();
+    expect(container.querySelector('.community-hero-art__backdrop')).toHaveAttribute('src', expect.stringContaining('/assets/'));
   });
 
   it('rejects private and retired media from hero selection', () => {
