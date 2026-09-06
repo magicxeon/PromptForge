@@ -338,14 +338,14 @@
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-08-31T02:28:18.368Z"
+      "updatedAt": "2026-09-06T11:58:35.164Z"
     },
     "id": "post_1788142822307_c9z14dbf",
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
     "ownerUsername": "user_alice",
     "createdAt": "2026-08-31T02:20:22.306Z",
-    "updatedAt": "2026-08-31T02:28:18.368Z",
+    "updatedAt": "2026-09-06T11:58:35.164Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -513,14 +513,14 @@
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-08-31T02:27:55.666Z"
+      "updatedAt": "2026-09-06T11:58:35.163Z"
     },
     "id": "post_1788142431214_pb4hy2lz",
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
     "ownerUsername": "user_alice",
     "createdAt": "2026-08-31T02:13:51.210Z",
-    "updatedAt": "2026-08-31T02:27:55.666Z",
+    "updatedAt": "2026-09-06T11:58:35.163Z",
     "deletedAt": null,
     "metadata": {}
   },

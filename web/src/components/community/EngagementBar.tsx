@@ -1,60 +1,70 @@
-import { Bookmark, Heart, Share2 } from 'lucide-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Bookmark, Eye, Heart, LoaderCircle, RefreshCw, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { getCommunityEngagement, setCommunityReaction } from '../../features/community/api/communityApi';
+import { useCommunityEngagement } from '../../features/community/hooks/useCommunityEngagement';
 import type { CommunityPost } from '../../features/community/schemas/communitySchemas';
-import { queryKeys } from '../../lib/api/queryKeys';
 import { useActor } from '../../lib/auth/ActorProvider';
 import { Button } from '../ui/Button';
 
-export function EngagementBar({ post }: { post: CommunityPost }) {
-  const { t } = useTranslation('community');
+type Props = { post: CommunityPost; variant?: 'detail' | 'compact' };
+
+export function EngagementBar(props: Props) {
   const { actor } = useActor();
-  const queryClient = useQueryClient();
-  const actorId = actor?.userId || 'loading';
-  const engagement = useQuery({
-    queryKey: queryKeys.engagement(post.id, actorId),
-    queryFn: () => getCommunityEngagement(post.id),
-    enabled: Boolean(actor)
-  });
-  const reaction = useMutation({
-    mutationFn: ({ type, active }: { type: 'like' | 'save'; active: boolean }) =>
-      setCommunityReaction(post.id, type, active),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.engagement(post.id, actorId) });
-      void queryClient.invalidateQueries({ queryKey: ['community-posts'] });
-    }
-  });
-  const state = engagement.data?.viewerState;
-  const summary = engagement.data?.summary || post.engagementSummary;
+  return <PostEngagement key={`${actor?.userId || 'loading'}:${props.post.id}`} {...props} />;
+}
+
+function PostEngagement({ post, variant = 'detail' }: Props) {
+  const { t } = useTranslation('community');
+  const engagement = useCommunityEngagement(post);
+  const state = engagement.viewerState;
+  const summary = engagement.summary;
+  const compact = variant === 'compact';
+  const likeLabel = t(state?.liked ? 'community.engagement.unlike' : 'community.detail.like');
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-y border-[var(--mpf-border)] py-3">
+    <div className={compact ? 'engagement-bar engagement-bar--compact' : 'engagement-bar flex flex-wrap items-center gap-2 border-y border-[var(--mpf-border)] py-3'}>
       <Button
+        type="button"
+        className={compact ? 'engagement-bar__like' : undefined}
         variant={state?.liked ? 'primary' : 'secondary'}
         size="sm"
-        icon={<Heart className="size-4" fill={state?.liked ? 'currentColor' : 'none'} />}
-        disabled={reaction.isPending}
-        onClick={() => reaction.mutate({ type: 'like', active: !state?.liked })}
+        aria-pressed={state?.liked === true}
+        aria-label={compact ? `${likeLabel}: ${summary.likeCount}` : undefined}
+        aria-busy={engagement.isPending || engagement.isLoading}
+        title={engagement.hasActor ? likeLabel : t('community.engagement.signIn')}
+        icon={engagement.isPending || engagement.isLoading ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Heart className="size-4" fill={state?.liked ? 'currentColor' : 'none'} aria-hidden="true" />}
+        disabled={!engagement.canReact}
+        onClick={() => engagement.toggle('like')}
       >
-        {t('community.detail.like')} {summary.likeCount}
+        {compact ? summary.likeCount : `${t('community.detail.like')} ${summary.likeCount}`}
       </Button>
+      {compact ? <span className="engagement-bar__views" title={t('community.engagement.views')}>
+        <Eye aria-hidden="true" /><span className="sr-only">{t('community.engagement.views')} </span>{summary.viewCount}
+      </span> : <>
       <Button
+        type="button"
         variant={state?.saved ? 'primary' : 'secondary'}
         size="sm"
-        icon={<Bookmark className="size-4" fill={state?.saved ? 'currentColor' : 'none'} />}
-        disabled={reaction.isPending}
-        onClick={() => reaction.mutate({ type: 'save', active: !state?.saved })}
+        aria-pressed={state?.saved === true}
+        icon={<Bookmark className="size-4" fill={state?.saved ? 'currentColor' : 'none'} aria-hidden="true" />}
+        disabled={!engagement.canReact}
+        onClick={() => engagement.toggle('save')}
       >
         {t('community.detail.save')} {summary.saveCount}
       </Button>
       <Button
+        type="button"
         size="sm"
         icon={<Share2 className="size-4" />}
         onClick={() => void navigator.clipboard.writeText(window.location.href)}
       >
         {t('community.detail.share')}
       </Button>
+      </>}
+      {engagement.loadFailed ? <div className="engagement-bar__error" role="status">
+        <span>{t('community.engagement.unavailable')}</span>
+        <Button type="button" size="icon" variant="ghost" title={t('community.feed.retry')} aria-label={t('community.feed.retry')}
+          icon={<RefreshCw className="size-4" aria-hidden="true" />} onClick={engagement.retryRead} />
+      </div> : engagement.actionFailed ? <p className="engagement-bar__error" role="alert">{t('community.engagement.actionFailed')}</p> : null}
     </div>
   );
 }

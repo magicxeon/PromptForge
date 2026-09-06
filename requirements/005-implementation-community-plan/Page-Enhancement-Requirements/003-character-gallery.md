@@ -1,5 +1,10 @@
 # 003 Character Gallery Enhancement
 
+Follow-up: `010-character-discovery-identity-master.md` owns the closer-to-concept
+identity layout, real public moments, effective availability and shared Create
+with entry. Historical scope below remains the baseline, not that follow-up's
+completion evidence.
+
 Status: Implemented and verified in scope (2026-09-06)
 
 Route: `/explore/characters`

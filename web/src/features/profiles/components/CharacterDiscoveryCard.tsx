@@ -1,47 +1,39 @@
-import { Clapperboard, Images, Shirt, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { Clapperboard, Image as ImageIcon, Images, Shirt, Sparkles, UserRound, UserRoundPlus, Video } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { routeBuilders } from '../../../app/routeRegistry/routes';
 import { DiscoveryMetricRow } from '../../../components/discovery/DiscoveryMetricRow';
-import { apiMediaUrl } from '../../../lib/api/apiClient';
+import { Button } from '../../../components/ui/Button';
 import { createReturnNavigationState } from '../../../lib/navigation/returnNavigation';
 import type { CharacterSummary } from '../schemas/profileSchemas';
+import { CharacterPortrait } from './CharacterPortrait';
+import { characterDestinations, characterPortraitUrl, characterUseLabel } from './characterDiscoveryModel';
 
-export function CharacterDiscoveryCard({ character }: { character: CharacterSummary }) {
+export function CharacterDiscoveryCard({ character, variant = 'card', createAction, heading }: {
+  character: CharacterSummary;
+  variant?: 'card' | 'spotlight';
+  createAction?: ReactNode;
+  heading?: ReactNode;
+}) {
   const { t } = useTranslation('character-profiles');
   const location = useLocation();
   const detailHref = routeBuilders.character(character.id);
-  const previewUrl = character.displayImageUrl || character.thumbnailUrl || character.imageUrl || null;
-  const [mediaFailed, setMediaFailed] = useState(false);
+  const destinations = characterDestinations(character);
+  const Heading = variant === 'spotlight' ? 'h2' : 'h3';
+  const creator = character.ownerUsername?.trim().replace(/^@/, '');
 
   return (
-    <article className="character-discovery-card">
+    <article className={`character-discovery-card${variant === 'spotlight' ? ' character-discovery-card--spotlight' : ''}`}
+      data-reusable={destinations.length > 0}>
+      {heading}
       <Link
         to={detailHref}
         state={createReturnNavigationState(location)}
         className="character-discovery-card__media"
         aria-label={character.displayName}
       >
-        {previewUrl && !mediaFailed ? (
-          <img
-            src={apiMediaUrl(previewUrl) || ''}
-            alt={character.displayName}
-            loading="lazy"
-            onError={() => setMediaFailed(true)}
-          />
-        ) : (
-          <span className="character-discovery-card__fallback">
-            <Images aria-hidden="true" />
-            {t('character-profiles.states.mediaUnavailable')}
-          </span>
-        )}
-        <span className={`character-discovery-card__availability${character.handoffAvailable ? ' is-available' : ''}`}>
-          <Sparkles aria-hidden="true" />
-          {character.handoffAvailable
-            ? t('character-profiles.status.available')
-            : t('character-profiles.status.viewOnly')}
-        </span>
+        <CharacterPortrait src={characterPortraitUrl(character)} name={character.displayName} eager={variant === 'spotlight'} />
       </Link>
       <div className="character-discovery-card__body">
         <span className="character-discovery-card__type">
@@ -49,25 +41,39 @@ export function CharacterDiscoveryCard({ character }: { character: CharacterSumm
             ? t('character-profiles.type.reusable')
             : t('character-profiles.type.styled')}
         </span>
-        <h3>{character.displayName}</h3>
+        <Heading><Link to={detailHref} state={createReturnNavigationState(location)}>{character.displayName}</Link></Heading>
         <p>{character.personalitySummary || t('character-profiles.page.noPersonality')}</p>
         {character.intendedUses.length ? (
           <div className="character-discovery-card__tags">
-            {character.intendedUses.slice(0, 3).map(use => <span key={use}>{formatValue(use)}</span>)}
+            {character.intendedUses.slice(0, 3).map(use => {
+              const label = characterUseLabel(use);
+              return <span key={use}>{label.key ? t(label.key) : label.fallback}</span>;
+            })}
           </div>
         ) : null}
+        <div className="character-discovery-card__creator">
+          <UserRound aria-hidden="true" />
+          <span>{t('character-profiles.creator.createdBy')}{' '}
+            {creator ? <Link to={routeBuilders.profile(creator.toLowerCase().replaceAll('_', '-'))} state={createReturnNavigationState(location)}>@{creator}</Link>
+              : t('character-profiles.gallery.creatorFallback')}
+          </span>
+        </div>
+        <span className={`character-discovery-card__availability${destinations.length ? ' is-available' : ''}`}>
+          <Sparkles aria-hidden="true" />
+          {t(character.handoffAvailable ? 'character-profiles.status.available' : 'character-profiles.status.viewOnly')}
+        </span>
         <DiscoveryMetricRow metrics={[
           {
             id: 'fashion',
             icon: <Shirt />,
             label: t('character-profiles.uses.fashion'),
-            value: hasDestination(character, 'fashion') ? t('character-profiles.gallery.ready') : null
+            value: destinations.includes('fashion_blueprint') ? t('character-profiles.gallery.ready') : null
           },
           {
             id: 'scene',
             icon: <Clapperboard />,
             label: t('character-profiles.uses.scene'),
-            value: hasDestination(character, 'scene') ? t('character-profiles.gallery.ready') : null
+            value: destinations.includes('scene_builder') ? t('character-profiles.gallery.ready') : null
           },
           {
             id: 'outputs',
@@ -76,21 +82,24 @@ export function CharacterDiscoveryCard({ character }: { character: CharacterSumm
             value: character.stats.totalOutputs > 0 ? character.stats.totalOutputs : null
           }
         ]} />
+        {variant === 'spotlight' && <div className="character-media-status" aria-label={t('character-profiles.gallery.mediaTypes')}>
+          <span><ImageIcon aria-hidden="true" />{t('character-profiles.gallery.imageLabel')}</span>
+          <span className="character-media-status__upcoming" data-preview="video">
+            <Video aria-hidden="true" />{t('character-profiles.gallery.videoLabel')}
+            <small>{t('character-profiles.gallery.comingSoon')}</small>
+          </span>
+        </div>}
       </div>
       <footer className="character-discovery-card__footer">
-        <span>@{character.ownerUsername || t('character-profiles.gallery.creatorFallback')}</span>
         <Link to={detailHref} state={createReturnNavigationState(location)}>
-          {t('character-profiles.gallery.viewCharacter')}
+          <UserRound aria-hidden="true" />{t('character-profiles.gallery.viewCharacter')}
         </Link>
+        {variant === 'spotlight' && <Button className="character-follow-preview" disabled
+          title={t('character-profiles.gallery.followComingSoon')} icon={<UserRoundPlus className="size-4" aria-hidden="true" />}>
+          <span>{t('character-profiles.gallery.follow')}<small>{t('character-profiles.gallery.comingSoon')}</small></span>
+        </Button>}
+        {destinations.length > 0 ? createAction : null}
       </footer>
     </article>
   );
-}
-
-function hasDestination(character: CharacterSummary, keyword: string) {
-  return character.destinationCapabilities.some(value => value.toLowerCase().includes(keyword));
-}
-
-function formatValue(value: string) {
-  return value.replace(/[._/-]+/g, ' ').trim();
 }

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MediaCard } from '../../../components/media/MediaCard';
@@ -10,8 +10,6 @@ import { routePaths } from '../../../app/routeRegistry/routes';
 import { CharacterFeaturedImagePicker } from '../../../components/profiles/CharacterFeaturedImagePicker';
 import { CharacterProfileHero } from '../../../components/profiles/CharacterProfileHero';
 import { CharacterLookDialog } from '../components/CharacterLookDialog';
-import { getActiveActorId } from '../../../lib/auth/actorStore';
-import { writeHandoff } from '../../../lib/persistence/handoffStorage';
 import { showToast } from '../../../components/ui/toastStore';
 import {
   getCharacter,
@@ -20,14 +18,13 @@ import {
   listCharacterLooks,
   getOwnedCharacter,
   approveCharacterProfile,
-  requestCharacterHandoff,
   updateCharacterMetadata,
   updateCharacterSharing,
   updateCharacterFeaturedImage
 } from '../api/profileApi';
 import type { CharacterLook } from '../schemas/profileSchemas';
 import { useActor } from '../../../lib/auth/ActorProvider';
-import { createCharacterHandoffNavigationState } from '../characterHandoffNavigation';
+import { useCharacterHandoff } from '../useCharacterHandoff';
 
 export function CharacterProfileRoute() {
   return <CharacterProfilePage access="public" />;
@@ -41,7 +38,6 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
   const { characterId = '' } = useParams();
   const { actor } = useActor();
   const actorId = actor?.userId || 'loading';
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t } = useTranslation('character-profiles');
   const [activeTab, setActiveTab] = useState<'overview' | 'creations' | 'details'>('overview');
@@ -124,24 +120,7 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
       void queryClient.invalidateQueries({ queryKey: ['character-featured-image-candidates', actorId, characterId] });
     }
   });
-  const handoff = useMutation({
-    mutationFn: (destination: 'fashion_blueprint' | 'scene_builder') =>
-      requestCharacterHandoff(characterId, destination),
-    onSuccess: payload => {
-      writeHandoff({
-        actorId: getActiveActorId(),
-        kind: 'character',
-        payload
-      });
-      if (payload.destination === 'fashion_blueprint') {
-        navigate(routePaths.createFashion);
-        return;
-      }
-      navigate(routePaths.createStudioScene, {
-        state: createCharacterHandoffNavigationState(payload)
-      });
-    }
-  });
+  const handoff = useCharacterHandoff(characterId);
 
   const loading = access === 'owner' ? ownerDetail.isLoading : detail.isLoading;
   if (loading) return <LoadingState label={t('character-profiles.states.loading')} />;

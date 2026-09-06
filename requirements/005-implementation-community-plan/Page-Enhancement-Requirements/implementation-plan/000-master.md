@@ -1,5 +1,9 @@
 # Community Page Enhancement Implementation Plan
 
+Character-only follow-up: `../010-character-discovery-identity-master.md` and
+`../011-character-discovery-data-trace.md` control plans 013-016 below. Their
+live-data visual gate is pending; the original delivery status does not close it.
+
 Status: Executed in sequence; focused verification passed (2026-09-06)
 
 Owning requirement: `../000-master.md`
@@ -43,6 +47,12 @@ Template Gallery is the first consumer because its current public data and exist
 | 5 | `005-comparison-gallery.md` | Requirement 002 |
 | 6 | `006-community-landing-feed.md` | Requirement 004 |
 | 7 | `007-integration-and-release.md` | Requirements 006-008 and cross-page release |
+| CDI-01 | `013-character-identity-cards.md` | Public identity presentation and effective availability |
+| CDI-02 | `014-character-spotlight-and-discovery.md` | Compact header, moments, filters and Studio entry |
+| CDI-03 | `015-character-create-handoff.md` | Shared authorized handoff and destination menu |
+| CDI-04 | `016-character-visual-verification.md` | Focused test evidence, visual review and pending live gate |
+| CHP-01..03 | `017-character-highlight-polish.md` | Requirement 012: Gallery-source circles, complete Featured media and scoped visual polish |
+| CFR-01..03 | `018-character-featured-row-and-engagement.md` | Requirement 013: graduated Header circles, unified cover/fade Featured row and shared post likes/views |
 
 ## 4. Step Execution Contract
 

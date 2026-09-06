@@ -1,5 +1,17 @@
 # Community Page Enhancement Master Requirement
 
+Active Character-only follow-up: [Character discovery identity master](010-character-discovery-identity-master.md),
+with [data trace](011-character-discovery-data-trace.md) and implementation plans
+013-016. [Character highlight polish](012-character-highlight-polish.md) and plan
+017 supersede the Header face-thumbnail policy with public Gallery images and
+own the approved visual refinements. Earlier delivery status does not close
+these follow-ups; Landing is paused.
+
+Active refinement: [Featured row and post engagement](013-character-featured-row-and-engagement.md)
+and plan 018 own graduated Header circles, full-row Featured framing, cover/fade
+previews and real post likes/views. They supersede 012's contain preview policy
+only, not approved media or full-image detail inspection.
+
 Follow-up delivered and verified in scope: [Landing visual identity master](009-landing-visual-identity-master.md)
 owns the additional Home-only floating hero, section descriptions/color bands
 and read-only provider/model directory. Prior delivery status below does not

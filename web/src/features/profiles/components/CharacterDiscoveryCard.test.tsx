@@ -26,7 +26,12 @@ describe('CharacterDiscoveryCard', () => {
             'character-profiles.stats.total': 'Outputs',
             'character-profiles.gallery.ready': 'Ready',
             'character-profiles.gallery.creatorFallback': 'creator',
-            'character-profiles.gallery.viewCharacter': 'View Character'
+            'character-profiles.gallery.viewCharacter': 'View Character',
+            'character-profiles.gallery.follow': 'Follow',
+            'character-profiles.gallery.comingSoon': 'Coming soon',
+            'character-profiles.gallery.mediaTypes': 'Character media',
+            'character-profiles.gallery.imageLabel': 'Image',
+            'character-profiles.gallery.videoLabel': 'Video'
           }
         }
       },
@@ -56,10 +61,24 @@ describe('CharacterDiscoveryCard', () => {
       </I18nextProvider>
     );
 
-    expect(screen.getByRole('link', { name: 'Nara' })).toHaveAttribute('href', '/characters/character_1');
+    expect(screen.getAllByRole('link', { name: 'Nara' })).toHaveLength(2);
     expect(screen.getAllByText('Ready')).toHaveLength(2);
     expect(screen.getByText('12')).toBeVisible();
     expect(screen.queryByText('private-value-must-not-render')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Follow/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('Video')).not.toBeInTheDocument();
+  });
+
+  it('does not mark view-only destinations ready or show a supplied Create action', () => {
+    render(<I18nextProvider i18n={testI18n}><MemoryRouter>
+      <CharacterDiscoveryCard character={characterSummarySchema.parse({
+        id: 'denied', displayName: 'View only identity', handoffAvailable: false,
+        destinationCapabilities: ['fashion_blueprint', 'scene_builder']
+      })} createAction={<button>Create with</button>} />
+    </MemoryRouter></I18nextProvider>);
+    expect(screen.getByText('View only')).toBeVisible();
+    expect(screen.queryByText('Ready')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Create with' })).not.toBeInTheDocument();
   });
 
   it('keeps a no-media Character usable as a detail link', () => {
@@ -80,5 +99,17 @@ describe('CharacterDiscoveryCard', () => {
     expect(screen.getByText('Image unavailable')).toBeVisible();
     expect(screen.getByText('View only')).toBeVisible();
     expect(screen.getByRole('link', { name: 'View Character' })).toHaveAttribute('href', '/characters/character_2');
+  });
+
+  it('labels Follow and Video as upcoming only in the Featured variant', () => {
+    render(<I18nextProvider i18n={testI18n}><MemoryRouter>
+      <CharacterDiscoveryCard variant="spotlight" character={characterSummarySchema.parse({
+        id: 'featured', displayName: 'Mali', displayImageUrl: '/gallery.jpg'
+      })} />
+    </MemoryRouter></I18nextProvider>);
+    expect(screen.getByRole('button', { name: 'Follow Coming soon' })).toBeDisabled();
+    expect(screen.getByText('Video').closest('[data-preview]')).toHaveTextContent('Coming soon');
+    expect(screen.getByText('Image')).toBeVisible();
+    expect(screen.queryByText('Ready')).not.toBeInTheDocument();
   });
 });
