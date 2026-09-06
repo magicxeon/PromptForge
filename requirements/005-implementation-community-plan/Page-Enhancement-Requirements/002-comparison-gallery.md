@@ -1,6 +1,6 @@
 # 002 Public Comparison Gallery Enhancement
 
-Status: Proposed
+Status: Implemented and verified in scope (2026-09-06)
 
 Route: `/explore/comparisons`
 

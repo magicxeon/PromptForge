@@ -1,6 +1,6 @@
 # Community Page Enhancement Master Requirement
 
-Status: Proposed - requirements complete, implementation not started
+Status: Implemented and verified in scope (2026-09-06)
 
 Primary role: Product and Requirement Architect
 
@@ -138,3 +138,13 @@ Review result: Ready for step-by-step implementation planning handoff; no blocki
 - Mockup-only metrics and high-impact platform additions are routed to named Pending items
 - No runtime data migration, provider change or commercial behavior is required
 - Review was performed sequentially by the same agent using the Product, UX and QA charters; it is not an independent second-agent review
+
+## 13. Implementation Record
+
+- Steps 01-07 were delivered in order without changing provider, Generation, Credit, sharing, moderation or persistence contracts.
+- `/`, `/explore/templates`, `/explore/characters` and `/explore/comparisons` now use page-specific discovery compositions over the existing APIs.
+- Shared discovery primitives remain controlled presentation components; Community and Profiles retain route orchestration and data ownership.
+- Focused UI, route, schema, handoff and public-policy regressions passed. Typecheck, catalog validation, scoped lint and production build passed.
+- All four routes passed the local layout gate at 390px, 820px and 1440px in default, fashion and creative themes.
+- Repository-wide lint remains outside this closure because six pre-existing errors are present in unrelated Admin and Generation files; all changed files pass scoped lint.
+- No runtime data path or migration was added. Rollback remains route/component composition reversal.

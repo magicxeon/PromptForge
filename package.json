@@ -16,6 +16,7 @@
     "attributes:audit": "node scripts/audit-attribute-catalog.js",
     "test:web": "npm run test --workspace web",
     "test:web:e2e": "npm run test:e2e --workspace web",
+    "test:community-layout": "node scripts/verify-community-page-layout.mjs",
     "lint:web": "npm run lint --workspace web",
     "typecheck:web": "npm run typecheck --workspace web",
     "test": "node --test",

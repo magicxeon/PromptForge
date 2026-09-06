@@ -1,6 +1,6 @@
 # Step 07 - Integration, Verification And Release
 
-Status: Planned
+Status: Complete in page-enhancement scope; unrelated lint debt remains (2026-09-06)
 
 Depends on: Steps 01-06 complete
 
@@ -68,3 +68,18 @@ Release only when:
 7. Pending features remain explicitly out of scope
 
 If any gate fails, reopen only the owning step. Do not modify unrelated Generation, Credit, Studio or Cinematic code to make this release pass.
+
+## 7. Verification Record
+
+- Shared and page component tests: 25 passed.
+- Navigation, schema and Character handoff tests: 24 passed.
+- Community public snapshot, ownership, moderation and cursor tests: 14 passed.
+- Home-specific composition tests: 8 passed, including stable-ID visual deduplication, search compaction and filter-preserving Template navigation.
+- `node scripts/validate-i18n-catalogs.js`: passed.
+- `npm.cmd run typecheck --workspace web`: passed.
+- Scoped ESLint over every changed React/TypeScript file: passed.
+- Production web build: passed.
+- `scripts/verify-community-page-layout.mjs`: each of four routes passed 390/820/1440 in default/fashion/creative themes with no page overflow, escaped non-scrolling controls or browser page errors.
+- Initial local measurements after the final build: Home 68 requests/26 media; Templates 58/13; Characters 50/12; Comparisons 54/14. Declared response bytes were about 2.9 MB, 1.9 MB, 1.9 MB and 14.9 MB respectively, and remain diagnostic because local media headers and browser caching vary.
+- Comparison media is the remaining capacity risk: the public snapshot prefers thumbnails, but records without a thumbnail fall back to the original image. A separate media-presentation/thumbnail requirement is needed before changing that source contract.
+- Full workspace lint reports six pre-existing errors in unrelated Admin and Generation files. Those files were not changed to satisfy this requirement.

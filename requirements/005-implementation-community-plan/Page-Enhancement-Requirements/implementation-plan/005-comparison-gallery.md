@@ -1,6 +1,6 @@
 # Step 05 - Public Comparison Gallery Delivery
 
-Status: Planned
+Status: Complete (2026-09-06)
 
 Depends on: `004-character-gallery.md`
 

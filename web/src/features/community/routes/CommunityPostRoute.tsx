@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Copy, Download, Expand, FolderPlus, Repeat2 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CommentThread } from '../../../components/community/CommentThread';
 import { CreatorIdentity } from '../../../components/community/CreatorIdentity';
@@ -20,8 +20,6 @@ import { SharedTemplateEditDialog } from '../../../components/templates/SharedTe
 import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { queryKeys } from '../../../lib/api/queryKeys';
 import { useActor } from '../../../lib/auth/ActorProvider';
-import { getActiveActorId } from '../../../lib/auth/actorStore';
-import { writeHandoff } from '../../../lib/persistence/handoffStorage';
 import {
   getCommunityEngagement,
   getCommunityPost,
@@ -29,8 +27,8 @@ import {
   recordCommunityView,
   removeCommunityComparisonVote,
   setCommunityComparisonVote,
-  requestCommunityTemplateHandoff
 } from '../api/communityApi';
+import { useCommunityTemplateHandoff } from '../hooks/useCommunityTemplateHandoff';
 import type { CommunityPost } from '../schemas/communitySchemas';
 import type { ComparisonRun } from '../../comparisons/schemas/comparisonSchemas';
 import { routePaths } from '../../../app/routeRegistry/routes';
@@ -38,7 +36,6 @@ import { routePaths } from '../../../app/routeRegistry/routes';
 export function CommunityPostRoute() {
   const { t } = useTranslation('community');
   const { postId = '' } = useParams();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { actor } = useActor();
   const [expandedPrompt, setExpandedPrompt] = useState(false);
@@ -48,31 +45,7 @@ export function CommunityPostRoute() {
     queryFn: () => getCommunityPost(postId),
     enabled: Boolean(postId && actor)
   });
-  const handoff = useMutation({
-    mutationFn: () => requestCommunityTemplateHandoff(postId),
-    onSuccess: payload => {
-      writeHandoff({
-        actorId: getActiveActorId(),
-        kind: 'scene-template',
-        payload: {
-          postId: payload.postId,
-          sceneTemplateSnapshot: payload.sceneTemplateSnapshot,
-          templateUseContext: payload.id && payload.currentVersionId && payload.useSession
-            ? {
-              templateId: payload.id,
-              templateVersionId: payload.currentVersionId,
-              templateUseSessionId: payload.useSession.id,
-              sourceCommunityPostId: payload.useSession.sourceCommunityPostId || payload.postId,
-              expiresAt: payload.useSession.expiresAt,
-              pricing: payload.pricing || { accessCredits: 0, currency: 'credits' },
-              publicInputSchema: payload.publicInputSchema || { schemaVersion: 1, inputs: [] }
-            }
-            : null
-        }
-      });
-      navigate(routePaths.createStudioScene);
-    }
-  });
+  const handoff = useCommunityTemplateHandoff();
   const engagement = useQuery({
     queryKey: queryKeys.engagement(postId, actor?.userId || 'loading'),
     queryFn: () => getCommunityEngagement(postId),
@@ -257,7 +230,7 @@ export function CommunityPostRoute() {
                 variant="primary"
                 icon={<Repeat2 className="size-4" />}
                 disabled={handoff.isPending}
-                onClick={() => handoff.mutate()}
+                onClick={() => handoff.mutate(postId)}
               >
                 {t('community.template.use')}
               </Button>

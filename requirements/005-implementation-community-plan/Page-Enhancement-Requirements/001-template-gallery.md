@@ -1,6 +1,6 @@
 # 001 Template Gallery Enhancement
 
-Status: Proposed
+Status: Implemented and verified in scope (2026-09-06)
 
 Route: `/explore/templates`
 

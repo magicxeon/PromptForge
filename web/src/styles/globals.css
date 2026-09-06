@@ -3,6 +3,10 @@
 @import "./themes.css";
 @import "./shell.css";
 @import "./community-home.css";
+@import "./community-discovery.css";
+@import "./template-gallery.css";
+@import "./character-gallery.css";
+@import "./comparison-gallery.css";
 @import "./community-detail.css";
 @import "./creator-profile.css";
 @import "./character-profile.css";

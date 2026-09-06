@@ -1,6 +1,6 @@
 # Step 03 - Template Gallery Delivery
 
-Status: Planned
+Status: Complete (2026-09-06)
 
 Depends on: `002-shared-discovery-foundation.md`
 

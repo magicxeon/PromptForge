@@ -1,6 +1,6 @@
 # 006 Content, Data And Mock Configuration
 
-Status: Proposed
+Status: Implemented for first-delivery configuration (2026-09-06)
 
 Owner: Community read presentation; authoritative business data remains with its current domain owner
 

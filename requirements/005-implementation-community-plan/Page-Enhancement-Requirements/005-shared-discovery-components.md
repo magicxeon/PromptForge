@@ -1,6 +1,6 @@
 # 005 Shared Discovery Component Contract
 
-Status: Proposed
+Status: Implemented and verified in scope (2026-09-06)
 
 Owner: React shared presentation under `web/src/components/discovery/`; route orchestration remains with the owning feature
 

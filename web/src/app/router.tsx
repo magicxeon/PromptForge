@@ -17,8 +17,8 @@ export const router = createBrowserRouter([{
   errorElement: <RouteErrorPage />,
   children: [
     { index: true, lazy: lazyRoute(() => import('../features/community/routes/CommunityHomeRoute'), 'CommunityHomeRoute') },
-    { path: 'explore/comparisons', lazy: lazyRoute(() => import('../features/community/routes/CommunityHomeRoute'), 'CommunityHomeRoute') },
-    { path: 'explore/templates', lazy: lazyRoute(() => import('../features/community/routes/CommunityHomeRoute'), 'CommunityHomeRoute') },
+    { path: 'explore/comparisons', lazy: lazyRoute(() => import('../features/community/routes/ComparisonGalleryRoute'), 'ComparisonGalleryRoute') },
+    { path: 'explore/templates', lazy: lazyRoute(() => import('../features/community/routes/TemplateGalleryRoute'), 'TemplateGalleryRoute') },
     { path: 'explore/characters', lazy: lazyRoute(() => import('../features/profiles/routes/CharacterDirectoryRoute'), 'CharacterDirectoryRoute') },
     { path: 'posts/:postId', lazy: lazyRoute(() => import('../features/community/routes/CommunityPostRoute'), 'CommunityPostRoute') },
     { path: 'characters/:characterId', lazy: lazyRoute(() => import('../features/profiles/routes/CharacterProfileRoute'), 'CharacterProfileRoute') },

@@ -1,15 +1,23 @@
-import { useMemo, type ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { BadgeCheck, Clapperboard, Search, Sparkles } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CharacterCard } from '../../../components/profiles/CharacterCard';
-import { Button } from '../../../components/ui/Button';
+import { routePaths } from '../../../app/routeRegistry/routes';
+import { DiscoveryLoadMore } from '../../../components/discovery/DiscoveryLoadMore';
+import { DiscoveryPageHero } from '../../../components/discovery/DiscoveryPageHero';
+import { DiscoverySteps } from '../../../components/discovery/DiscoverySteps';
+import { DiscoverySelect, DiscoveryToolbar } from '../../../components/discovery/DiscoveryToolbar';
+import { EditorialTutorialRail } from '../../../components/discovery/EditorialTutorialRail';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/AsyncState';
-import { listCharacters } from '../api/profileApi';
+import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { useActor } from '../../../lib/auth/ActorProvider';
+import { discoveryTutorialAssets } from '../../community/config/discoveryEditorialConfig';
+import { listCharacters } from '../api/profileApi';
+import { CharacterDiscoveryCard } from '../components/CharacterDiscoveryCard';
 
 export function CharacterDirectoryRoute() {
-  const { t } = useTranslation('character-profiles');
+  const { t } = useTranslation(['character-profiles', 'community']);
   const { actor } = useActor();
   const actorId = actor?.userId || 'loading';
   const [params, setParams] = useSearchParams();
@@ -18,77 +26,152 @@ export function CharacterDirectoryRoute() {
     ...(params.get('intendedUse') ? { intendedUse: params.get('intendedUse') || '' } : {}),
     ...(params.get('reusePolicy') ? { reusePolicy: params.get('reusePolicy') || '' } : {})
   }), [params]);
-  const characters = useQuery({
-    queryKey: ['characters', actorId, filters],
-    queryFn: () => listCharacters(filters),
-    enabled: Boolean(actor)
-  });
+  const [creatorDraft, setCreatorDraft] = useState(params.get('creator') || '');
 
-  function setFilter(name: string, value: string) {
+  useEffect(() => setCreatorDraft(params.get('creator') || ''), [params]);
+
+  const characters = useInfiniteQuery({
+    queryKey: ['characters', actorId, filters],
+    queryFn: ({ pageParam }) => listCharacters(filters, pageParam),
+    enabled: Boolean(actor),
+    initialPageParam: null as string | null,
+    getNextPageParam: page => page.nextCursor || undefined
+  });
+  const items = characters.data?.pages.flatMap(page => page.items) || [];
+  const featured = items.find(character => (
+    character.displayImageUrl || character.thumbnailUrl || character.imageUrl
+  )) || null;
+  const featuredImage = featured
+    ? featured.displayImageUrl || featured.thumbnailUrl || featured.imageUrl || null
+    : null;
+  const tutorials = discoveryTutorialAssets.characters.map(item => ({
+    ...item,
+    title: t(`character-profiles.gallery.tutorial.${item.id}.title`),
+    description: t(`character-profiles.gallery.tutorial.${item.id}.description`)
+  }));
+
+  function setFilter(name: 'intendedUse' | 'reusePolicy' | 'creator', value: string) {
     const next = new URLSearchParams(params);
     if (value) next.set(name, value);
     else next.delete(name);
     setParams(next, { replace: true });
   }
 
-  return (
-    <main>
-      <header className="mb-5 border-b border-[var(--mpf-border)] pb-5">
-        <span className="text-xs font-bold uppercase text-cyan-300">{t('character-profiles.community.kicker')}</span>
-        <h1 className="mb-1 mt-2 text-3xl">{t('character-profiles.community.title')}</h1>
-        <p className="m-0 text-sm text-[var(--mpf-text-muted)]">{t('character-profiles.community.description')}</p>
-      </header>
-      <section className="mb-6 grid gap-3 rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-4 sm:grid-cols-3">
-        <FilterSelect label={t('character-profiles.community.useFilter')} value={params.get('intendedUse') || ''} onChange={value => setFilter('intendedUse', value)}>
-          <option value="">{t('character-profiles.community.allUses')}</option>
-          <option value="fashion">{t('character-profiles.uses.fashion')}</option>
-          <option value="scene_story">{t('character-profiles.uses.scene')}</option>
-          <option value="general">{t('character-profiles.uses.general')}</option>
-        </FilterSelect>
-        <FilterSelect label={t('character-profiles.community.availabilityFilter')} value={params.get('reusePolicy') || ''} onChange={value => setFilter('reusePolicy', value)}>
-          <option value="">{t('character-profiles.community.allAvailability')}</option>
-          <option value="public_reusable">{t('character-profiles.status.available')}</option>
-          <option value="view_only">{t('character-profiles.status.viewOnly')}</option>
-        </FilterSelect>
-        <label className="grid gap-2 text-sm text-[var(--mpf-text-muted)]">
-          {t('character-profiles.community.creatorFilter')}
-          <input
-            type="search"
-            value={params.get('creator') || ''}
-            onChange={event => setFilter('creator', event.target.value)}
-            placeholder={t('character-profiles.community.creatorPlaceholder')}
-            className="h-11 rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border)] bg-[var(--mpf-bg)] px-3 text-white"
-          />
-        </label>
-      </section>
-      {characters.isLoading ? <LoadingState label={t('character-profiles.states.loading')} /> : null}
-      {characters.isError ? <ErrorState title={t('character-profiles.states.unavailable')} description={characters.error.message} onRetry={() => void characters.refetch()} /> : null}
-      {characters.data && !characters.data.items.length ? <EmptyState title={t('character-profiles.community.empty')} /> : null}
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {characters.data?.items.map(character => <CharacterCard key={character.id} character={character} />)}
-      </section>
-      {characters.data?.hasMore ? <div className="mt-6 flex justify-center"><Button>{t('common.action.loadMore', { ns: 'common' })}</Button></div> : null}
-    </main>
-  );
-}
+  function submitCreatorSearch() {
+    setFilter('creator', creatorDraft.trim());
+  }
 
-function FilterSelect({
-  label,
-  value,
-  onChange,
-  children
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  children: ReactNode;
-}) {
+  function clearCreatorSearch() {
+    setCreatorDraft('');
+    setFilter('creator', '');
+  }
+
   return (
-    <label className="grid gap-2 text-sm text-[var(--mpf-text-muted)]">
-      {label}
-      <select value={value} onChange={event => onChange(event.target.value)} className="h-11 rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border)] bg-[var(--mpf-bg)] px-3 text-white">
-        {children}
-      </select>
-    </label>
+    <main className="discovery-page character-gallery-page">
+      <DiscoveryPageHero
+        eyebrow={t('character-profiles.gallery.eyebrow')}
+        title={t('character-profiles.gallery.title')}
+        description={t('character-profiles.gallery.description')}
+        media={featuredImage ? <img src={apiMediaUrl(featuredImage) || ''} alt={featured?.displayName || ''} /> : undefined}
+        mediaLabel={featured?.displayName}
+        actions={[
+          { label: t('character-profiles.gallery.create'), to: routePaths.createStudioCharacter, icon: <Sparkles />, variant: 'primary' },
+          { label: t('character-profiles.gallery.browse'), to: `${routePaths.exploreCharacters}#character-catalog`, icon: <Search /> }
+        ]}
+      />
+
+      {featured && featuredImage ? (
+        <section className="character-feature" aria-labelledby="character-feature-title">
+          <img src={apiMediaUrl(featuredImage) || ''} alt={featured.displayName} />
+          <div>
+            <span>{t('character-profiles.gallery.featuredEyebrow')}</span>
+            <h2 id="character-feature-title">{featured.displayName}</h2>
+            <p>{featured.personalitySummary || t('character-profiles.page.noPersonality')}</p>
+            <Link to={`/characters/${encodeURIComponent(featured.id)}`}>
+              {t('character-profiles.gallery.viewCharacter')}
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      <DiscoverySteps
+        title={t('character-profiles.gallery.stepsLabel')}
+        steps={[
+          { id: 'discover', icon: <Search />, title: t('character-profiles.gallery.steps.discover.title'), description: t('character-profiles.gallery.steps.discover.description') },
+          { id: 'review', icon: <BadgeCheck />, title: t('character-profiles.gallery.steps.review.title'), description: t('character-profiles.gallery.steps.review.description') },
+          { id: 'use', icon: <Clapperboard />, title: t('character-profiles.gallery.steps.use.title'), description: t('character-profiles.gallery.steps.use.description') }
+        ]}
+      />
+
+      <section id="character-catalog" className="discovery-catalog" aria-labelledby="character-catalog-title">
+        <header className="discovery-section-heading">
+          <div>
+            <span>{t('character-profiles.gallery.catalogEyebrow')}</span>
+            <h2 id="character-catalog-title">{t('character-profiles.gallery.catalogTitle')}</h2>
+          </div>
+        </header>
+        <DiscoveryToolbar
+          searchValue={creatorDraft}
+          searchLabel={t('character-profiles.community.creatorFilter')}
+          searchPlaceholder={t('character-profiles.community.creatorPlaceholder')}
+          clearLabel={t('character-profiles.gallery.clearSearch')}
+          onSearchChange={setCreatorDraft}
+          onSearchClear={clearCreatorSearch}
+          onSearchSubmit={submitCreatorSearch}
+        >
+          <DiscoverySelect
+            label={t('character-profiles.community.useFilter')}
+            value={params.get('intendedUse') || ''}
+            options={[
+              { label: t('character-profiles.community.allUses'), value: '' },
+              { label: t('character-profiles.uses.fashion'), value: 'fashion' },
+              { label: t('character-profiles.uses.scene'), value: 'scene_story' },
+              { label: t('character-profiles.uses.general'), value: 'general' }
+            ]}
+            onChange={value => setFilter('intendedUse', value)}
+          />
+          <DiscoverySelect
+            label={t('character-profiles.community.availabilityFilter')}
+            value={params.get('reusePolicy') || ''}
+            options={[
+              { label: t('character-profiles.community.allAvailability'), value: '' },
+              { label: t('character-profiles.status.available'), value: 'public_reusable' },
+              { label: t('character-profiles.status.viewOnly'), value: 'view_only' }
+            ]}
+            onChange={value => setFilter('reusePolicy', value)}
+          />
+        </DiscoveryToolbar>
+
+      {characters.isLoading ? <LoadingState label={t('character-profiles.states.loading')} /> : null}
+        {characters.isError ? (
+          <ErrorState
+            title={t('character-profiles.states.unavailable')}
+            description={characters.error.message}
+            retryLabel={t('community:community.feed.retry')}
+            onRetry={() => void characters.refetch()}
+          />
+        ) : null}
+        {!characters.isLoading && !characters.isError && !items.length ? (
+          <EmptyState title={t('character-profiles.community.empty')} description={t('character-profiles.gallery.emptyDescription')} />
+        ) : null}
+        <div className="character-discovery-grid" aria-live="polite">
+          {items.map(character => <CharacterDiscoveryCard key={character.id} character={character} />)}
+        </div>
+        <DiscoveryLoadMore
+          hasMore={Boolean(characters.hasNextPage)}
+          loading={characters.isFetchingNextPage}
+          loadLabel={t('community:community.feed.loadMore')}
+          loadingLabel={t('community:community.feed.loadingMore')}
+          onLoadMore={() => void characters.fetchNextPage()}
+        />
+      </section>
+
+      <EditorialTutorialRail
+        eyebrow={t('character-profiles.gallery.tutorialEyebrow')}
+        title={t('character-profiles.gallery.tutorialTitle')}
+        sampleLabel={t('community:community.discovery.sample')}
+        items={tutorials}
+      />
+    </main>
   );
 }

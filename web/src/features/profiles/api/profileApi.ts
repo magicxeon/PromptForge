@@ -33,9 +33,10 @@ export function setCreatorFollow(profileId: string, active: boolean) {
   });
 }
 
-export function listCharacters(filters: Record<string, string>) {
+export function listCharacters(filters: Record<string, string>, cursor?: string | null) {
   const query = new URLSearchParams(filters);
   if (!query.has('limit')) query.set('limit', '24');
+  if (cursor) query.set('cursor', cursor);
   return apiRequest(`/api/community/characters?${query}`, { schema: characterDirectorySchema });
 }
 

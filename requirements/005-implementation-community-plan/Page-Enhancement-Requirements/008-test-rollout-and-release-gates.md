@@ -1,6 +1,6 @@
 # 008 Focused Test, Rollout And Release Gates
 
-Status: Proposed
+Status: Focused gates passed; repository-wide lint debt recorded (2026-09-06)
 
 Owner: QA Release review with Community, Profiles and Comparisons implementation owners
 

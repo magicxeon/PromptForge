@@ -1,6 +1,6 @@
 # Step 04 - Character Gallery Delivery
 
-Status: Planned
+Status: Complete (2026-09-06)
 
 Depends on: `003-template-gallery.md`
 

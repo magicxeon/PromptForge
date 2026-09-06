@@ -1,198 +1,192 @@
-import { useMemo, type ReactNode } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { routePaths } from '../../../app/routeRegistry/routes';
+import { DiscoveryLoadMore } from '../../../components/discovery/DiscoveryLoadMore';
+import {
+  DiscoverySegmentedControl,
+  DiscoverySelect,
+  DiscoveryToolbar
+} from '../../../components/discovery/DiscoveryToolbar';
+import { EditorialTutorialRail } from '../../../components/discovery/EditorialTutorialRail';
+import { HorizontalMediaCarousel } from '../../../components/media/HorizontalMediaCarousel';
 import { MediaCard } from '../../../components/media/MediaCard';
 import { Button } from '../../../components/ui/Button';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/AsyncState';
-import { listCommunityPosts, type CommunityFilters } from '../api/communityApi';
-import { useActor } from '../../../lib/auth/ActorProvider';
+import { useFeaturePolicy } from '../../../lib/permissions/FeaturePolicyProvider';
 import { CommunityHero } from '../components/CommunityHero';
-import { routePaths } from '../../../app/routeRegistry/routes';
+import { CommunityStartPaths } from '../components/CommunityStartPaths';
+import { isEligibleCommunityHeroPost } from '../components/communityHeroSelector';
+import { discoveryTutorialAssets } from '../config/discoveryEditorialConfig';
+import {
+  formatDiscoveryCategory,
+  useCommunityDiscoveryPosts
+} from '../hooks/useCommunityDiscoveryPosts';
 
-const postTypes = ['all', 'image', 'video', 'template', 'comparison', 'collection'] as const;
-const periods = ['latest', 'week', 'month', 'year'] as const;
+const postTypeIds = ['all', 'image', 'video', 'template', 'comparison', 'collection'] as const;
+const periodIds = ['latest', 'week', 'month', 'year'] as const;
 
 export function CommunityHomeRoute() {
-  const { t } = useTranslation(['community', 'shell']);
-  const { actor } = useActor();
-  const location = useLocation();
+  const { t } = useTranslation('community');
   const navigate = useNavigate();
-  const actorId = actor?.userId || 'loading';
-  const [params, setParams] = useSearchParams();
-  const filters = useMemo<CommunityFilters>(() => {
-    const periodValue = params.get('period');
-    const sortValue = params.get('sort');
-    const routeType = location.pathname === routePaths.exploreTemplates
-      ? 'template'
-      : location.pathname === routePaths.exploreComparisons
-        ? 'comparison'
-        : null;
-    const typeValue = routeType || params.get('type');
-    return {
-      sort: sortValue === 'trending' || periodValue ? 'trending' : 'latest',
-      period: periodValue === 'month' || periodValue === 'year' ? periodValue : 'week',
-      postType: postTypes.includes(typeValue as typeof postTypes[number])
-        ? typeValue as CommunityFilters['postType']
-        : 'all',
-      officialTag: String(params.get('category') || '').trim(),
-      search: String(params.get('search') || '').trim()
-    };
-  }, [location.pathname, params]);
-  const query = useInfiniteQuery({
-    queryKey: ['community-posts', actorId, filters],
-    queryFn: ({ pageParam }) => listCommunityPosts(filters, pageParam),
-    enabled: Boolean(actor),
-    initialPageParam: null as string | null,
-    getNextPageParam: page => page.nextCursor || undefined
-  });
-  const posts = query.data?.pages.flatMap(page => page.items) || [];
-  const categories = query.data?.pages[0]?.facets?.officialTags || [];
+  const [searchParams] = useSearchParams();
+  const policy = useFeaturePolicy();
+  const discovery = useCommunityDiscoveryPosts();
+  const editorialVisible = !discovery.filters.search;
+  const visualPosts = useMemo(
+    () => discovery.posts.filter(isEligibleCommunityHeroPost),
+    [discovery.posts]
+  );
+  const heroPost = editorialVisible && discovery.posts.length > 1 ? visualPosts[0] || null : null;
+  const featuredPosts = editorialVisible && discovery.posts.length >= 6
+    ? visualPosts.filter(post => post.id !== heroPost?.id).slice(0, 4)
+    : [];
+  const editorialIds = new Set([
+    ...(heroPost ? [heroPost.id] : []),
+    ...featuredPosts.map(post => post.id)
+  ]);
+  const feedPosts = editorialVisible
+    ? discovery.posts.filter(post => !editorialIds.has(post.id))
+    : discovery.posts;
+  const tutorialItems = discoveryTutorialAssets.home.map(item => ({
+    ...item,
+    title: t(`community.home.tutorial.${item.id}.title`),
+    description: t(`community.home.tutorial.${item.id}.description`)
+  }));
 
-  function updateFilter(name: 'type' | 'period' | 'category', value: string) {
-    const next = new URLSearchParams(params);
-    if (name === 'type') {
-      next.delete('type');
-      const target = value === 'template'
-        ? routePaths.exploreTemplates
-        : value === 'comparison'
-          ? routePaths.exploreComparisons
-          : routePaths.explore;
-      if (value !== 'all' && value !== 'template' && value !== 'comparison') next.set('type', value);
-      navigate(`${target}${next.size ? `?${next}` : ''}`, { replace: true });
+  function setPostType(value: string) {
+    const next = new URLSearchParams(searchParams);
+    next.delete('type');
+    if (value === 'template') {
+      navigate(`${routePaths.exploreTemplates}${next.size ? `?${next}` : ''}`);
       return;
-    } else if (name === 'category') {
-      if (!value) next.delete('category');
-      else next.set('category', value);
-    } else if (value === 'latest') {
-      next.delete('period');
-      next.delete('sort');
-    } else {
-      next.set('period', value);
-      next.set('sort', 'trending');
     }
-    setParams(next, { replace: true });
+    if (value === 'comparison') {
+      navigate(`${routePaths.exploreComparisons}${next.size ? `?${next}` : ''}`);
+      return;
+    }
+    discovery.setParam('type', value === 'all' ? '' : value);
   }
 
   return (
-    <main className="community-home">
-      {!filters.search ? <CommunityHero posts={posts} /> : null}
+    <main className="discovery-page community-home">
+      {editorialVisible ? (
+        <>
+          <CommunityHero post={heroPost} />
+          <CommunityStartPaths
+            communityEnabled={policy.isEnabled('community.exploreEnabled')}
+            charactersEnabled={policy.isEnabled('community.characterProfilesEnabled')}
+          />
+          {featuredPosts.length ? (
+            <section className="community-featured" aria-labelledby="community-featured-title">
+              <HorizontalMediaCarousel
+                heading={(
+                  <div className="discovery-section-heading">
+                    <div>
+                      <span>{t('community.home.featuredEyebrow')}</span>
+                      <h2 id="community-featured-title">{t('community.home.featuredTitle')}</h2>
+                    </div>
+                  </div>
+                )}
+                previousLabel={t('community.home.featuredPrevious')}
+                nextLabel={t('community.home.featuredNext')}
+                ariaLabel={t('community.home.featuredTitle')}
+                itemClassName="community-featured__item"
+              >
+                {featuredPosts.map(post => <MediaCard key={post.id} post={post} previewFit="cover" />)}
+              </HorizontalMediaCarousel>
+            </section>
+          ) : null}
+        </>
+      ) : null}
 
-      <section className="community-discovery" aria-labelledby="community-discovery-title">
-        <div className="community-discovery__heading">
+      <section id="community-feed" className="community-feed" aria-labelledby="community-feed-title">
+        <header className="discovery-section-heading">
           <div>
             <span>{t('community.home.discoveryEyebrow')}</span>
-            <h2 id="community-discovery-title">{t('community.feed.title')}</h2>
+            <h2 id="community-feed-title">{t('community.feed.title')}</h2>
+            {discovery.filters.search ? (
+              <p>{t('community.home.searchResult', { query: discovery.filters.search })}</p>
+            ) : null}
           </div>
-          {filters.search ? (
-            <p>
-              {t('community.feed.searchLabel')}: <strong>{filters.search}</strong>
-            </p>
-          ) : null}
+        </header>
+
+        <DiscoveryToolbar
+          searchValue={discovery.searchDraft}
+          searchLabel={t('community.feed.searchLabel')}
+          searchPlaceholder={t('community.feed.searchPlaceholder')}
+          clearLabel={t('community.home.clearSearch')}
+          onSearchChange={discovery.setSearchDraft}
+          onSearchClear={discovery.clearSearch}
+          onSearchSubmit={discovery.submitSearch}
+        >
+          <DiscoverySelect
+            label={t('community.feed.typeLabel')}
+            value={discovery.filters.postType}
+            options={postTypeIds.map(type => ({ label: t(`community.feed.type.${type}`), value: type }))}
+            onChange={setPostType}
+          />
+          <DiscoverySelect
+            label={t('community.feed.categoryLabel')}
+            value={discovery.filters.officialTag}
+            options={[
+              { label: t('community.feed.categoryAll'), value: '' },
+              ...discovery.categories.map(category => ({
+                label: formatDiscoveryCategory(category.id),
+                value: category.id
+              }))
+            ]}
+            onChange={value => discovery.setParam('category', value)}
+          />
+          <DiscoverySegmentedControl
+            label={t('community.home.periodLabel')}
+            value={discovery.periodValue}
+            options={periodIds.map(period => ({ label: t(`community.feed.${period}`), value: period }))}
+            onChange={discovery.setPeriod}
+          />
+        </DiscoveryToolbar>
+
+        {discovery.query.isLoading ? <LoadingState label={t('community.feed.loading')} /> : null}
+        {discovery.query.isError ? (
+          <ErrorState
+            title={t('community.feed.error')}
+            description={discovery.query.error.message}
+            retryLabel={t('community.feed.retry')}
+            onRetry={() => void discovery.query.refetch()}
+          />
+        ) : null}
+        {!discovery.query.isLoading && !discovery.query.isError && !discovery.posts.length ? (
+          <EmptyState title={t('community.feed.empty')} />
+        ) : null}
+        <div className="community-feed-grid" aria-live="polite">
+          {feedPosts.map(post => <MediaCard key={post.id} post={post} />)}
         </div>
-        <div className="community-discovery__filters" aria-label={t('community.feed.typeLabel')}>
-          {postTypes.map(type => (
-            <FilterButton
-              key={type}
-              active={filters.postType === type}
-              onClick={() => updateFilter('type', type)}
-            >
-              {t(`community.feed.type.${type}`)}
-            </FilterButton>
-          ))}
-        </div>
-        <div className="community-discovery__periods">
-          {periods.map(period => (
-            <FilterButton
-              key={period}
-              active={period === 'latest' ? filters.sort === 'latest' : filters.sort === 'trending' && filters.period === period}
-              onClick={() => updateFilter('period', period)}
-            >
-              {t(`community.feed.${period}`)}
-            </FilterButton>
-          ))}
-        </div>
-        {categories.length || filters.officialTag ? (
-          <div
-            className="community-discovery__categories"
-            aria-label={t('community.feed.categoryLabel')}
-          >
-            <FilterButton
-              active={!filters.officialTag}
-              onClick={() => updateFilter('category', '')}
-            >
-              {t('community.feed.categoryAll')}
-            </FilterButton>
-            {categories.map(category => (
-              <FilterButton
-                key={category.id}
-                active={filters.officialTag === category.id}
-                onClick={() => updateFilter('category', category.id)}
-              >
-                {formatCategoryLabel(category.id)}
-              </FilterButton>
-            ))}
+
+        {editorialVisible ? (
+          <EditorialTutorialRail
+            eyebrow={t('community.home.tutorialEyebrow')}
+            title={t('community.home.tutorialTitle')}
+            sampleLabel={t('community.discovery.sample')}
+            items={tutorialItems}
+          />
+        ) : null}
+
+        {discovery.query.isFetchNextPageError ? (
+          <div className="community-feed__pagination-error" role="alert">
+            <p>{t('community.feed.loadMoreError')}</p>
+            <Button type="button" variant="secondary" onClick={() => void discovery.query.fetchNextPage()}>
+              {t('community.feed.retryMore')}
+            </Button>
           </div>
         ) : null}
-      </section>
-
-      {query.isLoading ? <LoadingState label={t('community.feed.loading')} /> : null}
-      {query.isError ? (
-        <ErrorState
-          title={t('community.feed.error')}
-          description={query.error.message}
-          retryLabel={t('community.feed.retry')}
-          onRetry={() => void query.refetch()}
+        <DiscoveryLoadMore
+          hasMore={Boolean(discovery.query.hasNextPage)}
+          loading={discovery.query.isFetchingNextPage}
+          loadLabel={t('community.feed.loadMore')}
+          loadingLabel={t('community.feed.loadingMore')}
+          onLoadMore={() => void discovery.query.fetchNextPage()}
         />
-      ) : null}
-      {!query.isLoading && !query.isError && !posts.length ? (
-        <EmptyState title={t('community.feed.empty')} />
-      ) : null}
-      <section className="community-feed-grid" aria-live="polite">
-        {posts.map(post => <MediaCard key={post.id} post={post} />)}
       </section>
-      {query.hasNextPage ? (
-        <div className="mt-7 flex justify-center">
-          <Button
-            onClick={() => void query.fetchNextPage()}
-            disabled={query.isFetchingNextPage}
-          >
-            {query.isFetchingNextPage
-              ? t('community.feed.loadingMore')
-              : t('community.feed.loadMore')}
-          </Button>
-        </div>
-      ) : null}
     </main>
-  );
-}
-
-function formatCategoryLabel(value: string) {
-  return value
-    .replace(/^[a-z0-9_-]+[.:/]/i, '')
-    .replace(/[._/-]+/g, ' ')
-    .replace(/\b\w/g, character => character.toUpperCase())
-    .trim();
-}
-
-function FilterButton({
-  active,
-  children,
-  onClick
-}: {
-  active: boolean;
-  children: ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <Button
-      size="sm"
-      variant={active ? 'primary' : 'secondary'}
-      className="community-discovery__filter-button shrink-0"
-      aria-pressed={active}
-      onClick={onClick}
-    >
-      {children}
-    </Button>
   );
 }

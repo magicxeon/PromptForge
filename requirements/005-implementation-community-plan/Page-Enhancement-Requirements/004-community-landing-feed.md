@@ -1,6 +1,6 @@
 # 004 Community Landing And Feed Enhancement
 
-Status: Proposed
+Status: Implemented and verified in scope (2026-09-06)
 
 Route: `/`
 
