@@ -29,6 +29,8 @@ import {
   setCommunityComparisonVote,
 } from '../api/communityApi';
 import { useCommunityTemplateHandoff } from '../hooks/useCommunityTemplateHandoff';
+import { useTemplateDetail } from '../hooks/useTemplateDetail';
+import { TemplateCreationsPreview } from '../components/templates/TemplateCreationsPreview';
 import type { CommunityPost } from '../schemas/communitySchemas';
 import type { ComparisonRun } from '../../comparisons/schemas/comparisonSchemas';
 import { routePaths } from '../../../app/routeRegistry/routes';
@@ -46,6 +48,7 @@ export function CommunityPostRoute() {
     enabled: Boolean(postId && actor)
   });
   const handoff = useCommunityTemplateHandoff();
+  const family = useTemplateDetail(post.data && ['image', 'template'].includes(post.data.postType) ? postId : '', 'likes', 4);
   const engagement = useQuery({
     queryKey: queryKeys.engagement(postId, actor?.userId || 'loading'),
     queryFn: () => getCommunityEngagement(postId),
@@ -250,6 +253,7 @@ export function CommunityPostRoute() {
             </Button>
           </div>
           {handoff.isError ? <p className="text-sm text-red-300">{handoff.error.message}</p> : null}
+          {['image', 'template'].includes(item.postType) ? <TemplateCreationsPreview query={family} postId={item.id} isTemplate={item.postType === 'template'} /> : null}
         </aside>
       </div>
 

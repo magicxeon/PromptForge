@@ -2,6 +2,11 @@ import { stripEmbeddedBase64 } from '../../repositories/recordNormalizer.js';
 
 const PARTIAL_PROMPT_LIMIT = 320;
 
+export function isTemplateDerivedGeneration(generation = {}) {
+  const context = generation.templateUseContext;
+  return Boolean(context && typeof context === 'object' && Object.keys(context).length);
+}
+
 export function buildGeneratedShareSnapshots(generation = {}, sceneTemplateSnapshot = null) {
   const safeSceneTemplate = sceneTemplateSnapshot && typeof sceneTemplateSnapshot === 'object'
     ? stripEmbeddedBase64(sceneTemplateSnapshot)

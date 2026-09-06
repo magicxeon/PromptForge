@@ -40,6 +40,7 @@ export function useCommunityEngagement(post: CommunityPost) {
         queryClient.invalidateQueries({ queryKey: key, exact: true }),
         queryClient.invalidateQueries({ queryKey: queryKeys.communityPost(selection.postId, selection.actorId), exact: true }),
         queryClient.invalidateQueries({ queryKey: ['community-posts'] }),
+        queryClient.invalidateQueries({ queryKey: ['community-template-detail', selection.actorId] }),
         queryClient.invalidateQueries({ queryKey: ['character-works', selection.actorId] })
       ]);
     },

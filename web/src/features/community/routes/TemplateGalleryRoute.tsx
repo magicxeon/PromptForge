@@ -1,6 +1,8 @@
 import { Eye, Search, Sparkles, WandSparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { routePaths } from '../../../app/routeRegistry/routes';
+import { Link, useLocation } from 'react-router-dom';
+import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
+import { createReturnNavigationState } from '../../../lib/navigation/returnNavigation';
 import { DiscoveryLoadMore } from '../../../components/discovery/DiscoveryLoadMore';
 import { DiscoveryPageHero } from '../../../components/discovery/DiscoveryPageHero';
 import { DiscoverySteps } from '../../../components/discovery/DiscoverySteps';
@@ -25,6 +27,7 @@ const periodIds = ['latest', 'week', 'month', 'year'] as const;
 
 export function TemplateGalleryRoute() {
   const { t } = useTranslation('community');
+  const location = useLocation();
   const discovery = useCommunityDiscoveryPosts('template');
   const handoff = useCommunityTemplateHandoff();
   const featured = discovery.posts.find(post => post.imageUrl || post.thumbnailUrl) || null;
@@ -59,6 +62,9 @@ export function TemplateGalleryRoute() {
               disabled={!featured.templateAvailability || (handoff.isPending && handoff.variables === featured.id)}
               onUse={() => handoff.mutate(featured.id)}
             />
+            <Link className="template-feature__detail-link" to={routeBuilders.templateDetail(featured.id)} state={createReturnNavigationState(location)}>
+              {t('community.templates.viewDetails')}
+            </Link>
           </div>
         </section>
       ) : null}

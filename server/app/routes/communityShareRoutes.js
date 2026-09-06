@@ -1,3 +1,6 @@
+import { RepositoryContractError } from '../../repositories/repositoryContracts.js';
+import { RepositoryCursorError } from '../../repositories/RepositoryCursor.js';
+
 function sendCommunityShareError(res, error) {
   return res.status(error.statusCode || 400).json({
     error: {
@@ -13,6 +16,28 @@ export function registerCommunityShareRoutes(app, {
   postAccessService,
   videoShareService
 }) {
+  app.get('/api/community/generations/:generationId/share-status', async (req, res) => {
+    try {
+      await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
+      return res.json(await communityShareService.getGenerationShareStatus(req.params.generationId, req.actorContext));
+    } catch (error) {
+      if (error instanceof RepositoryContractError) return sendCommunityShareError(res, error);
+      return res.status(500).json({ error: { code: 'community_share_status_failed', message: 'Share status could not be loaded.' } });
+    }
+  });
+  app.get('/api/community/posts/:postId/template-detail', async (req, res) => {
+    try {
+      await communityFeaturePolicyService.assertEnabled('community.enabled');
+      return res.json(await communityShareService.getTemplateDetail(req.params.postId, req.query, req.actorContext));
+    } catch (error) {
+      const publicError = error instanceof RepositoryContractError || error instanceof RepositoryCursorError;
+      return res.status(publicError ? error.statusCode || 400 : 500).json({ error: {
+        code: publicError ? error.code : 'template_detail_failed',
+        message: publicError ? error.message : 'Template details could not be loaded.'
+      } });
+    }
+  });
+
   app.post('/api/community/share-drafts', async (req, res) => {
     try {
       await communityFeaturePolicyService.assertEnabled('community.shareEnabled');

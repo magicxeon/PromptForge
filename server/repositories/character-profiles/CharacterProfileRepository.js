@@ -49,13 +49,15 @@ export class CharacterProfileRepository {
 
   async findByOwner(ownerUserId, query = {}) {
     const normalizedQuery = normalizeListQuery(query);
+    const search = String(query.q || '').trim().toLocaleLowerCase('en-US').slice(0, 160);
     const items = (await this.readAll()).filter(item =>
       item.ownerUserId === ownerUserId && item.status !== 'deleted'
+      && (!search || String(item.displayName || '').toLocaleLowerCase('en-US').includes(search))
     );
     const page = paginateRepositoryRecords(
       items,
       normalizedQuery,
-      JSON.stringify({ ownerUserId, sort: normalizedQuery.sort }),
+      JSON.stringify({ ownerUserId, sort: normalizedQuery.sort, ...(search ? { search } : {}) }),
       this.cursorSecret
     );
     return createPage(page.items, page);
@@ -63,6 +65,7 @@ export class CharacterProfileRepository {
 
   async listPublic(query = {}) {
     const normalizedQuery = normalizeListQuery(query);
+    const search = String(query.q || '').trim().toLocaleLowerCase('en-US').slice(0, 160);
     const intendedUse = String(query.intendedUse || normalizedQuery.filters.intendedUse || '').trim();
     const reusable = query.reusable === true || query.reusable === 'true';
     const reusePolicy = String(query.reusePolicy || normalizedQuery.filters.reusePolicy || '').trim();
@@ -72,6 +75,7 @@ export class CharacterProfileRepository {
     const items = (await this.readAll()).filter(item =>
       item.visibility === VISIBILITY.PUBLIC
       && item.status === 'approved'
+      && (!search || String(item.displayName || '').toLocaleLowerCase('en-US').includes(search))
       && (!intendedUse || item.intendedUses.includes(intendedUse))
       && (!reusable || item.reusePolicy === 'public_reusable')
       && (!reusePolicy || item.reusePolicy === reusePolicy)
@@ -92,6 +96,7 @@ export class CharacterProfileRepository {
         creator,
         creatorProfileId,
         ownerUserId,
+        ...(search ? { search } : {}),
         sort: normalizedQuery.sort
       }),
       this.cursorSecret

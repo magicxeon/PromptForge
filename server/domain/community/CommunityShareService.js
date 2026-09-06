@@ -5,6 +5,7 @@ import { generationResultRepo } from '../../repositories/generation/GenerationRe
 import { communityPostRepo } from '../../repositories/community/CommunityPostRepository.js';
 import { communityRemixRepo } from '../../repositories/community/RemixEventRepository.js';
 import { CommunityPostAccessService } from './CommunityPostAccessService.js';
+import { CommunityTemplateDetailService } from './CommunityTemplateDetailService.js';
 import { communityClassificationService } from './CommunityClassificationService.js';
 import { creatorProfileService } from './CreatorProfileService.js';
 import { communityModerationService } from './CommunityModerationService.js';
@@ -13,14 +14,17 @@ import {
   applyPromptVisibilityToSnapshots,
   buildGeneratedShareSnapshots,
   canPublishAsRemixOnly,
+  isTemplateDerivedGeneration,
   isReusablePublishedSnapshot
 } from './communityShareSnapshot.js';
 import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
+import { buildTemplateInputPolicy, getTemplateInputPolicy, TEMPLATE_INPUT_POLICY } from '../templates/templateInputPolicy.js';
 
 const DRAFT_TTL_MS = 15 * 60 * 1000;
 const PROMPT_VISIBILITIES = new Set(['full', 'partial', 'remix_only', 'private']);
 const POST_VISIBILITIES = new Set(['public', 'unlisted', 'private']);
 const FACE_REUSE_POLICIES = new Set(['view_only', 'public_reusable']);
+const activeImagePublications = new Set();
 
 export class CommunityShareService {
   constructor({
@@ -36,6 +40,7 @@ export class CommunityShareService {
     now = () => Date.now()
   } = {}) {
     this.generationRepository = generationRepository;
+    this.templateDetailService = new CommunityTemplateDetailService({ postRepository, generationRepository });
     this.postRepository = postRepository;
     this.remixRepository = remixRepository;
     this.classificationService = classificationService;
@@ -49,6 +54,7 @@ export class CommunityShareService {
     });
     this.now = now;
     this.shareDrafts = new Map();
+    this.presentationUpdates = new Map();
   }
 
   async createGeneratedShareDraft(sourceGenerationId, actorContext) {
@@ -58,9 +64,10 @@ export class CommunityShareService {
     }
 
     const generation = await this.generationRepository.findByIdForOwner(sourceGenerationId, actor.userId);
-    if (!generation) {
+    if (!generation || generation.deletedAt) {
       throw new RepositoryContractError('source_generation_not_found', 'The source generation result is not available.', 404);
     }
+    await this.assertGenerationNotShared(generation.id, actor.userId);
     const publicViewer = { userId: 'community_public', username: 'community_public', role: 'user' };
     const creatorProfile = this.profileService
       ? await this.profileService.ensureProfileForActor(actor)
@@ -72,7 +79,10 @@ export class CommunityShareService {
         { userId: generation.ownerUserId, username: generation.ownerUsername }
       ))
       : null;
-    const snapshots = buildGeneratedShareSnapshots(generation, sanitizedSceneTemplate);
+    const sharingPolicy = await this.getGenerationSharingPolicy(generation);
+    const snapshots = applyPromptVisibilityToSnapshots(
+      buildGeneratedShareSnapshots(generation, sanitizedSceneTemplate), sharingPolicy.promptVisibility
+    );
     const timestamp = this.now();
     const classificationSnapshot = sanitizedSceneTemplate || {
       authoringMode: snapshots.workflowSnapshot.authoringMode,
@@ -83,9 +93,9 @@ export class CommunityShareService {
       generation,
       classificationSnapshot
     );
-    const suggestedTemplateInputs = Array.isArray(sanitizedSceneTemplate?.replaceableVariables)
-      ? sanitizedSceneTemplate.replaceableVariables
-      : [];
+    const inputPolicy = getTemplateInputPolicy(sanitizedSceneTemplate);
+    const suggestedTemplateInputs = inputPolicy.supported && !sharingPolicy.derived
+      ? buildTemplateInputPolicy(sanitizedSceneTemplate).inputs : [];
     const mandatoryTemplateInputIds = deriveMandatoryTemplateInputIds(
       suggestedTemplateInputs
     );
@@ -106,9 +116,12 @@ export class CommunityShareService {
       sourceType: sanitizedSceneTemplate ? 'scene_template' : 'generated_image',
       sourceGenerationMode: generation.mode || null,
       faceReuseEligible: generation.mode === 'headshot',
-      templateEligible: suggestedTemplateInputs.length > 0,
+      templateEligible: inputPolicy.supported && !sharingPolicy.derived,
+      templateIneligibleReason: sharingPolicy.derived ? 'template_derived_generation' : null,
+      allowedPromptVisibilities: sharingPolicy.allowedPromptVisibilities,
+      templateInputPolicy: sharingPolicy.derived ? undefined : inputPolicy,
       mandatoryTemplateInputIds,
-      suggestedTemplateInputSchema: sanitizedSceneTemplate
+      suggestedTemplateInputSchema: sanitizedSceneTemplate && !sharingPolicy.derived
         ? {
           schemaVersion: 1,
           inputs: suggestedTemplateInputs
@@ -117,7 +130,7 @@ export class CommunityShareService {
       faceReusePolicy: 'view_only',
       title: '',
       description: '',
-      promptVisibility: 'full',
+      promptVisibility: sharingPolicy.promptVisibility,
       visibility: 'public',
       ...snapshots,
       taxonomySuggestion,
@@ -130,11 +143,44 @@ export class CommunityShareService {
     return structuredClone(draft);
   }
 
+  async getTemplateDetail(postId, query, actorContext) {
+    return this.templateDetailService.getForPost(postId, query, actorContext);
+  }
+
+  async getGenerationSharingPolicy(generation) {
+    const derived = isTemplateDerivedGeneration(generation);
+    return {
+      derived,
+      promptVisibility: derived ? 'private' : 'full',
+      allowedPromptVisibilities: derived ? ['private'] : ['full', 'partial', 'remix_only', 'private']
+    };
+  }
+
+  async getGenerationShareStatus(sourceGenerationId, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const generation = await this.generationRepository.findByIdForOwner(sourceGenerationId, actor.userId);
+    if (!generation || generation.deletedAt) {
+      throw new RepositoryContractError('source_generation_not_found', 'The source generation result is not available.', 404);
+    }
+    return { shared: Boolean(await this.postRepository.findByGenerationForOwner(generation.id, actor.userId)) };
+  }
+
+  async assertGenerationNotShared(generationId, ownerUserId) {
+    if (await this.postRepository.findByGenerationForOwner(generationId, ownerUserId)) {
+      throw new RepositoryContractError('community_generation_already_shared', 'This image has already been shared.', 409);
+    }
+  }
+
   async updateGeneratedShareDraft(draftId, payload = {}, actorContext) {
     const actor = assertActorContext(actorContext);
     const current = this.getDraftForOwner(draftId, actor.userId);
     if (!current) {
       throw new RepositoryContractError('share_draft_not_found', 'Draft not found or expired.', 404);
+    }
+    if (current.templateIneligibleReason === 'template_derived_generation'
+      && payload.promptVisibility !== undefined && payload.promptVisibility !== 'private') {
+      throw new RepositoryContractError('community_source_prompt_visibility_restricted',
+        'Images created with a Template must be shared with a private prompt.', 403);
     }
 
     const next = {
@@ -158,15 +204,47 @@ export class CommunityShareService {
   async publishGeneratedImageShare(draftId, payload = {}, actorContext) {
     const actor = assertActorContext(actorContext);
     const draft = this.getDraftForOwner(draftId, actor.userId);
+    if (!draft) throw new RepositoryContractError('share_draft_not_found', 'Draft not found or expired.', 404);
+    const key = JSON.stringify([actor.userId, draft.sourceGenerationId]);
+    if (activeImagePublications.has(key)) {
+      throw new RepositoryContractError('community_generation_share_in_progress', 'This image is being shared. Please wait.', 409);
+    }
+    if (activeImagePublications.size >= 256) {
+      throw new RepositoryContractError('community_share_busy', 'Sharing is busy. Please retry shortly.', 429);
+    }
+    activeImagePublications.add(key);
+    try { return await this.performGeneratedImageShare(draftId, payload, actor); }
+    finally { activeImagePublications.delete(key); }
+  }
+
+  async performGeneratedImageShare(draftId, payload = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const draft = this.getDraftForOwner(draftId, actor.userId);
     if (!draft) {
       throw new RepositoryContractError('share_draft_not_found', 'Draft not found or expired.', 404);
     }
+
+    const generation = await this.generationRepository.findByIdForOwner(draft.sourceGenerationId, actor.userId);
+    if (!generation || generation.deletedAt) {
+      throw new RepositoryContractError('source_generation_not_found', 'The source generation result is not available.', 404);
+    }
+    await this.assertGenerationNotShared(generation.id, actor.userId);
+    // Recheck persisted provenance, not a cached draft or client eligibility flag.
+    if (payload.publishAsTemplate === true && isTemplateDerivedGeneration(generation)) {
+      throw new RepositoryContractError('community_template_derivative_not_publishable',
+        'Images created with a Template can be shared as images, but not published as reusable Templates.', 403);
+    }
+    const sharingPolicy = await this.getGenerationSharingPolicy(generation);
 
     const title = String(payload.title ?? draft.title ?? '').trim();
     const promptVisibility = validatePromptVisibility(
       payload.promptVisibility ?? draft.promptVisibility ?? 'full'
     );
     const visibility = validatePostVisibility(payload.visibility ?? draft.visibility ?? 'public');
+    if (!sharingPolicy.allowedPromptVisibilities.includes(promptVisibility)) {
+      throw new RepositoryContractError('community_source_prompt_visibility_restricted',
+        'The source Template does not permit this prompt visibility. Share the image with a private prompt.', 403);
+    }
     const faceReusePolicy = validateFaceReusePolicy(
       payload.faceReusePolicy ?? draft.faceReusePolicy ?? 'view_only',
       draft,
@@ -209,7 +287,8 @@ export class CommunityShareService {
         visibility,
         promptVisibility,
         executionSnapshot: draft.sceneTemplateSnapshot,
-        publicInputSchema: createCanonicalPublishedInputSchema(draft, payload),
+        publicInputSchema: buildTemplateInputPolicy(draft.sceneTemplateSnapshot, payload.templateInputOptions),
+        inputPolicyId: TEMPLATE_INPUT_POLICY,
         pricing: {
           accessCredits: payload.templateAccessCredits,
           creatorShareBps: payload.creatorShareBps
@@ -242,6 +321,7 @@ export class CommunityShareService {
       thumbnailUrl: draft.thumbnailUrl,
       sourceGenerationResultId: draft.sourceGenerationId,
       sourceGenerationId: draft.sourceGenerationId,
+      templateDerived: sharingPolicy.derived,
       creatorProfileId: draft.creatorProfileId,
       postType,
       sourceSceneTemplateSnapshotId: canonicalTemplate?.version.id || null,
@@ -377,14 +457,59 @@ export class CommunityShareService {
     const actor = assertActorContext(actorContext);
     const post = await this.postRepository.findById(postId);
     if (!post || post.ownerUserId !== actor.userId) {
+      throw new RepositoryContractError('community_post_forbidden', 'You do not have permission to edit this post.', 403);
+    }
+    const key = post.templateId || post.id;
+    const current = this.presentationUpdates.get(key);
+    if ((!current && this.presentationUpdates.size >= 256) || current?.count >= 16) {
+      throw new RepositoryContractError('template_update_busy', 'Template updates are busy. Retry shortly.', 429);
+    }
+    const entry = current || { tail: Promise.resolve(), count: 0 };
+    entry.count++;
+    this.presentationUpdates.set(key, entry);
+    const operation = entry.tail.catch(() => {}).then(() => this.performSharedPostPresentationUpdate(postId, presentation, actor));
+    entry.tail = operation;
+    try { return await operation; }
+    finally {
+      entry.count--;
+      if (entry.count === 0) this.presentationUpdates.delete(key);
+    }
+  }
+
+  async performSharedPostPresentationUpdate(postId, presentation, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const post = await this.postRepository.findById(postId);
+    if (!post || post.ownerUserId !== actor.userId) {
       throw new RepositoryContractError(
         'community_post_forbidden',
         'You do not have permission to edit this post.',
         403
       );
     }
+    if (post.postType === 'image' && presentation?.promptVisibility !== undefined
+      && presentation.promptVisibility !== 'private') {
+      const generationId = post.sourceGenerationResultId || post.sourceGenerationId;
+      const generation = generationId
+        ? await this.generationRepository.findByIdForOwner(generationId, actor.userId) : null;
+      if (post.templateDerived === true || isTemplateDerivedGeneration(generation || {})) {
+        throw new RepositoryContractError('community_source_prompt_visibility_restricted',
+          'Images created with a Template must be shared with a private prompt.', 403);
+      }
+    }
     let templateSettings = null;
+    let inputVersion = null;
+    if (presentation?.templateInputOptions !== undefined) {
+      if (post.postType !== 'template' || !post.templateId) {
+        throw new RepositoryContractError('template_not_found', 'Template not found.', 404);
+      }
+      inputVersion = await this.templateCoreService.updateInputPolicy(
+        post.templateId, presentation.templateInputOptions, presentation.expectedTemplateVersionId, actor,
+        { postVersionId: post.templateVersionId }
+      );
+    }
     if (post.postType === 'template' && post.templateId && (
+      inputVersion
+      ||
       presentation?.templateAccessCredits !== undefined
       || presentation?.promptVisibility !== undefined
       || presentation?.visibility !== undefined
@@ -409,6 +534,8 @@ export class CommunityShareService {
       ...presentation,
       promptVisibility,
       templatePricing: templateSettings?.template.pricing,
+      templateVersionId: templateSettings?.version.id,
+      expectedPostTemplateVersionId: templateSettings ? post.templateVersionId : undefined,
       sceneTemplateSnapshot,
       sharedPromptSnapshot: templateSettings
         ? {
@@ -455,32 +582,6 @@ function deriveMandatoryTemplateInputIds(inputs) {
     })
     .map(input => String(input.id || input.sourceFieldName || '').trim())
     .filter(Boolean);
-}
-
-function createCanonicalPublishedInputSchema(draft, payload) {
-  if (payload.publishAsTemplate !== true) return null;
-  const suggested = draft.suggestedTemplateInputSchema?.inputs || [];
-  const mandatoryIds = new Set(draft.mandatoryTemplateInputIds || []);
-  const requested = Array.isArray(payload.publicInputSchema?.inputs)
-    ? payload.publicInputSchema.inputs
-    : [];
-  const requestedById = new Map(
-    requested.map(input => [String(input?.id || ''), input])
-  );
-  const mandatory = suggested
-    .filter(input => mandatoryIds.has(String(input?.id || '')))
-    .map(input => ({ ...input, required: true, replacementPolicy: 'replaceable' }));
-  const optional = suggested.flatMap(input => {
-    const id = String(input?.id || '');
-    const selected = requestedById.get(id);
-    return id && selected && !mandatoryIds.has(id)
-      ? [{ ...input, required: selected.required === true }]
-      : [];
-  });
-  return {
-    schemaVersion: 1,
-    inputs: [...mandatory, ...optional]
-  };
 }
 
 export const communityShareService = new CommunityShareService({

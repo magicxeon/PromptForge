@@ -136,6 +136,8 @@ type GenerationExperienceProps = {
   referenceRoles?: GenerationReferenceRole[];
   renderResultActions?: (job: JobStatus, context: { closeViewer: () => void }) => ReactNode;
   studioBuilder?: ReactNode;
+  studioBuilderTitle?: string;
+  studioConfigurationFirst?: boolean;
   studioModeSelector?: ReactNode;
   studioQueueExtra?: ReactNode;
   studioConfigActions?: ReactNode;
@@ -194,6 +196,8 @@ export function GenerationExperience({
   referenceRoles,
   renderResultActions,
   studioBuilder,
+  studioBuilderTitle,
+  studioConfigurationFirst = false,
   studioModeSelector,
   studioQueueExtra,
   studioConfigActions,
@@ -1138,6 +1142,8 @@ export function GenerationExperience({
       <StudioGenerationWorkspace
         modeSelector={studioModeSelector}
         builder={studioBuilder}
+        builderTitle={studioBuilderTitle}
+        configurationFirst={studioConfigurationFirst}
         result={resultRegion}
         queue={queueRegion}
         engine={engineRegion}

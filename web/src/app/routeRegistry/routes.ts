@@ -25,6 +25,7 @@ export const routePaths = {
 
 export const routeBuilders = {
   post: (postId: string) => `/posts/${encodeURIComponent(postId)}`,
+  templateDetail: (postId: string) => `/explore/templates/${encodeURIComponent(postId)}`,
   character: (characterId: string) => `/characters/${encodeURIComponent(characterId)}`,
   ownedCharacter: (characterId: string) => `/me/characters/${encodeURIComponent(characterId)}`,
   profile: (handle: string, tab?: string) =>
@@ -153,7 +154,7 @@ export function isSidebarNavigationTargetActive(id: string, currentLocation: str
   const [pathname = ''] = currentLocation.split('?');
   if (id === 'gallery') return pathname === routePaths.explore;
   if (id === 'public-comparisons') return pathname === routePaths.exploreComparisons;
-  if (id === 'templates') return pathname === routePaths.exploreTemplates;
+  if (id === 'templates') return pathname === routePaths.exploreTemplates || pathname.startsWith(`${routePaths.exploreTemplates}/`);
   if (id === 'characters') return pathname.startsWith(routePaths.exploreCharacters) || pathname.startsWith('/characters/');
   if (id === 'face-creator') return pathname === routePaths.createStudioFace;
   if (id === 'character-sheet') return pathname === routePaths.createStudioCharacter;

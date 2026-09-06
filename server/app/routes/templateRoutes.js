@@ -8,6 +8,13 @@ function sendTemplateError(res, error, fallbackCode = 'template_request_failed')
 }
 
 export function registerTemplateRoutes(app, { templateCoreService, templatePoseProxyService }) {
+  app.get('/api/templates/:templateId/input-policy', async (req, res) => {
+    try {
+      return res.json(await templateCoreService.getOwnerInputPolicy(req.params.templateId, req.actorContext));
+    } catch (error) {
+      return sendTemplateError(res, error, 'template_input_policy_failed');
+    }
+  });
   app.get('/api/templates', async (req, res) => {
     try {
       const items = await templateCoreService.listPublished({

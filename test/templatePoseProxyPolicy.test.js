@@ -65,7 +65,7 @@ test('Fashion rejects an active Pose Proxy from an obsolete safety strategy', as
     queueManager: {},
     repository,
     templateRepository: {},
-    versionRepository: {},
+    versionRepository: { findById: async () => null },
     reservationService: {},
     policyService: { getPolicy: () => policy }
   });

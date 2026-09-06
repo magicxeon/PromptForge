@@ -71,6 +71,9 @@ export class TemplateRepository {
     const actor = assertActorContext(actorContext);
     const updated = await updateTemplateRecord(this.templatesFile, templateId, current => {
       if (current.ownerUserId !== actor.userId) return current;
+      if (patch.expectedVersionId && (current.currentVersionId !== patch.expectedVersionId || current.status !== 'published')) {
+        throw new RepositoryContractError('template_version_conflict', 'Template changed. Reload its settings before saving.', 409);
+      }
       return {
         ...current,
         currentVersionId: versionId,

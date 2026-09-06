@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { apiRequest } from '../../../lib/api/apiClient';
+import { templateInputPolicySchema, type TemplateInputOptions } from '../../templates/templateInputPolicyApi';
 
 const shareDraftSchema = z.object({
   id: z.string(),
@@ -10,6 +11,9 @@ const shareDraftSchema = z.object({
   visibility: z.string().default('public'),
   faceReuseEligible: z.boolean().default(false),
   templateEligible: z.boolean().default(false),
+  templateIneligibleReason: z.string().nullable().optional(),
+  allowedPromptVisibilities: z.array(z.enum(['full', 'partial', 'remix_only', 'private'])).optional(),
+  templateInputPolicy: templateInputPolicySchema.optional(),
   mandatoryTemplateInputIds: z.array(z.string()).default([]),
   suggestedTemplateInputSchema: z.object({
     schemaVersion: z.number().default(1),
@@ -17,6 +21,12 @@ const shareDraftSchema = z.object({
   }).nullable().optional(),
   faceReusePolicy: z.enum(['view_only', 'public_reusable']).default('view_only')
 }).passthrough();
+
+export function getGenerationShareStatus(jobId: string) {
+  return apiRequest(`/api/community/generations/${encodeURIComponent(jobId)}/share-status`, {
+    schema: z.object({ shared: z.boolean() })
+  });
+}
 
 // The publish command returns the repository record. Customer-facing creator
 // projection is loaded separately from the canonical Community post endpoint.
@@ -65,6 +75,7 @@ export function publishGeneratedShare(
     faceReusePolicy: 'view_only' | 'public_reusable';
     publishAsTemplate: boolean;
     templateAccessCredits: number;
+    templateInputOptions?: TemplateInputOptions;
     publicInputSchema?: { schemaVersion: number; inputs: Record<string, unknown>[] } | null;
   }
 ) {

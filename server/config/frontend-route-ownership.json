@@ -9,6 +9,12 @@
       "enabled": true
     },
     {
+      "id": "community-template-detail",
+      "patterns": ["/explore/templates/:postId"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
       "id": "community-characters",
       "patterns": ["/explore/characters", "/characters/:characterId", "/community/characters", "/community/characters/:characterId"],
       "runtime": "react",

@@ -173,6 +173,8 @@ export class CommunityPostAccessService {
       visibility: presentation.visibility,
       promptVisibility: presentation.promptVisibility,
       templatePricing: presentation.templatePricing,
+      templateVersionId: presentation.templateVersionId,
+      expectedPostTemplateVersionId: presentation.expectedPostTemplateVersionId,
       sharedPromptSnapshot: presentation.sharedPromptSnapshot,
       sceneTemplateSnapshot: presentation.sceneTemplateSnapshot
     }, actor);
@@ -180,7 +182,9 @@ export class CommunityPostAccessService {
       action: 'community_post_owner_presentation_updated',
       targetType: 'community_post',
       targetId: postId,
-      reason: 'Owner updated public presentation metadata.',
+      reason: presentation.templateVersionId
+        ? 'Owner updated Template replacement policy and public presentation.'
+        : 'Owner updated public presentation metadata.',
       beforeSnapshot: publicPresentationAuditSnapshot(post),
       afterSnapshot: publicPresentationAuditSnapshot(updated)
     }, actor);

@@ -16,6 +16,23 @@ Before implementation:
 
 Do not infer architecture from old compatibility folders or deleted module paths.
 
+### Requirement-First Delivery Pattern
+
+- Before implementation, create or update the owning requirement and complete
+  the implementation plan, including scope, dependencies and acceptance checks.
+- When work has multiple responsibilities, split it into cohesive numbered
+  requirements and small ordered tasks under a master plan. Reuse existing
+  ownership and contracts rather than duplicating requirements or workflows.
+- Implement and verify one task at a time, updating its evidence/status before
+  advancing. Record gaps or deferred work explicitly; do not silently expand scope.
+- Split automated validation into short focused groups. Extend an existing
+  appropriate runner or add an owning runner under `scripts/` with selectable
+  groups and one aggregate entry point for later UAT or pre-production-build
+  execution. Document commands and prerequisites in the implementation plan.
+- Aggregate runs must be explicit, fail on errors, and must not silently start
+  paid generation, mutate live data or restart workers. Keep live UAT separate
+  from isolated automated checks and report unverified runtime behavior.
+
 ## 1.1 Professional Role Routing
 
 Follow `requirements/015-professional-agent-orchestration/` for substantial

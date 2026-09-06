@@ -6,6 +6,44 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Generated Image Publication Guard
+
+- Page-Enhancement requirements 019-022 own derived-image private sharing and
+  one image/Template post per owner+Generation result. CommunityShareService is
+  the draft/status/publish owner; CommunityPostRepository checks uniqueness in
+  its existing atomic create. No new persistence path.
+- Shared ShareGeneratedDialog consumes owner-only status via the Community API;
+  query identity is actor+Generation ID, with no provider or Credit dependency.
+- New posts retain a server-set templateDerived boolean for private-prompt edit
+  enforcement even if history later becomes unavailable. Existing posts unchanged.
+
+### Template Input Policy
+
+- Page-Enhancement requirements 016-018 own constrained Create/Edit controls.
+- Templates owns `templateInputPolicy.js`, owner settings and immutable schema
+  versions via TemplateCoreService. Community owns publication/post linkage.
+- Template Pose Proxy owns verified source-version preparation reuse.
+- Shared policy fields: `web/src/components/templates/`; typed owner API belongs
+  to `web/src/features/templates/`. No new storage capability or provider path.
+
+### Template Scene Workspace
+
+- Requirement: Page-Enhancement-Requirements/015-template-scene-workspace.md.
+- Scene Builder owns TemplateScenePanel and Scene route composition; Profiles
+  owns CharacterLibraryPicker, authorized handoff and recent-ID selection state.
+- Controlled picker lives in web/src/components/profiles; existing Character
+  repository lists own optional name search. No new Generation/provider path.
+
+### Public Template Detail And Creations
+
+- Requirement: `requirements/005-implementation-community-plan/Page-Enhancement-Requirements/014-template-detail-and-creations.md`
+- Read facade: `CommunityShareService.getTemplateDetail`, internally delegated
+  to `server/domain/community/CommunityTemplateDetailService.js`.
+- HTTP: `communityShareRoutes.js`; frontend route and preview are owned by
+  `web/src/features/community/`. Direct URL: `/explore/templates/:postId`.
+- Uses existing public-post and Generation history reads; no Generation,
+  Template execution, reference, Credit or publication mutation path is added.
+
 ### Unified Generation Job Center
 
 - Requirement: `requirements/017-unified-generation-job-center/000-master.md`

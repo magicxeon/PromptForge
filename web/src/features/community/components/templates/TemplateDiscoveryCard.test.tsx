@@ -55,7 +55,9 @@ describe('TemplateDiscoveryCard', () => {
     );
 
     expect(screen.getByRole('link', { name: 'Window portrait recipe' }))
-      .toHaveAttribute('href', '/posts/template_1');
+      .toHaveAttribute('href', '/explore/templates/template_1');
+    expect(screen.getByRole('link', { name: 'View details' }))
+      .toHaveAttribute('href', '/explore/templates/template_1');
     expect(screen.getByText('Muse Image')).toBeVisible();
     expect(screen.getByText('960 x 1280')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Use template' }));

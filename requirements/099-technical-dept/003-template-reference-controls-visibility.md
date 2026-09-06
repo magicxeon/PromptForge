@@ -1,5 +1,12 @@
 # Template Reference Controls Visibility
 
+React follow-up: requirements/005-implementation-community-plan/
+Page-Enhancement-Requirements/015-template-scene-workspace.md now owns Template
+presentation and public-schema-driven controls in SceneBuilderRoute and
+TemplateScenePanel. The legacy client paths below are historical, not current
+implementation entry points. Reference Processing and Generation retain payload
+authority; the displayed Template preview is never an extra reference input.
+
 **Status:** Implemented - Validation Pending  
 **Owner:** Client Scene Builder and generation payload boundary  
 **Created:** 2026-07-23

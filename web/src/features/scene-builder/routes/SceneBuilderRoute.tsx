@@ -69,7 +69,7 @@ import {
   buildSceneTemplateSnapshot,
   buildTemplateReplacements
 } from '../../templates/templateSerializer';
-import { TemplateUseBanner } from '../../../components/templates/TemplateUseBanner';
+import { TemplateScenePanel } from '../components/TemplateScenePanel';
 import {
   TemplateReadinessPanel
 } from '../../../components/templates/TemplateReadinessPanel';
@@ -111,6 +111,7 @@ export function SceneBuilderRoute() {
   const navigate = useNavigate();
   const location = useLocation();
   const previousActorId = useRef(getActiveActorId());
+  const persistenceActorId = useRef(getActiveActorId());
   const hydratedLocationKey = useRef(location.key);
   const initialHandoff = useMemo(() => loadSceneHandoff(location.state), []);
   const initialDraft = useMemo(() => loadSceneDraft(getActiveActorId()), []);
@@ -149,6 +150,10 @@ export function SceneBuilderRoute() {
   const [templateUseContext, setTemplateUseContext] = useState<TemplateUseContext | null>(
     initialHandoff.templateUseContext
   );
+  const [templatePostId, setTemplatePostId] = useState<string | null>(initialHandoff.templatePostId);
+  const templateActive = Boolean(snapshot);
+  const normalDraft = useRef(initialDraft);
+  const [characterHandoffBlocked, setCharacterHandoffBlocked] = useState(initialHandoff.characterHandoffBlocked);
   const [references, setReferences] = useState<Partial<Record<GenerationReferenceRole, string>>>(initialHandoff.references);
   const [characterOutfitBehavior, setCharacterOutfitBehavior] = useState<CharacterOutfitBehavior>(
     initialHandoff.characterOutfitBehavior
@@ -163,6 +168,7 @@ export function SceneBuilderRoute() {
     { authorizationToken: string; expiresAt?: string } | null
   >(initialHandoff.faceReferenceContext);
   const [historyRole, setHistoryRole] = useState<GenerationReferenceRole>('character_reference');
+  useEffect(() => { if (initialHandoff.hasCharacterHandoff) clearHandoff('character'); }, [initialHandoff.hasCharacterHandoff]);
   const bundle = useQuery({ queryKey: ['attribute-bundle'], queryFn: getAttributesBundle, staleTime: 10 * 60_000 });
   const visualManifests = useQuery({
     queryKey: ['studio-visual-manifests', 'scene'],
@@ -264,7 +270,9 @@ export function SceneBuilderRoute() {
   const effectiveSnapshot = snapshot || authoredSnapshot;
   const useTemplate = useMutation({
     mutationFn: (template: SharedTemplate) => requestSharedSceneTemplate(template.id),
-    onSuccess: next => {
+    onSuccess: (next, template) => {
+      setCharacterHandoffBlocked(false);
+      setTemplatePostId(next.context?.sourceCommunityPostId || template.id);
       setSnapshot(next.snapshot);
       setTemplateUseContext(next.context);
       setReferences({});
@@ -284,6 +292,7 @@ export function SceneBuilderRoute() {
           actorId: getActiveActorId(),
           kind: 'scene-template',
           payload: {
+            postId: next.context.sourceCommunityPostId || template.id,
             sceneTemplateSnapshot: next.snapshot,
             templateUseContext: next.context
           }
@@ -300,13 +309,14 @@ export function SceneBuilderRoute() {
   const requiredRoles = getRequiredReferenceRoles(effectiveSnapshot, templateUseContext);
   const missing = getMissingTemplateReferenceRequirements(requiredRoles, references);
   const availableRoles = getTemplateReferenceRoles(effectiveSnapshot, templateUseContext);
+  const templateInputs = useMemo(() => templateUseContext?.publicInputSchema.inputs || snapshot?.replaceableVariables || [], [templateUseContext, snapshot]);
   const editableTemplateFields = useMemo(
-    () => templateUseContext
-      ? new Set(templateUseContext.publicInputSchema.inputs
+    () => templateActive
+      ? new Set(templateInputs
         .filter(input => input.replacementPolicy !== 'locked' && input.type !== 'reference_image')
         .map(input => input.sourceFieldName))
       : undefined,
-    [templateUseContext]
+    [templateActive, templateInputs]
   );
   const blockedRecipeGroups = useMemo(
     () => references.pose_reference ? new Set(['Pose']) : new Set<string>(),
@@ -352,6 +362,9 @@ export function SceneBuilderRoute() {
     setAppliedScenePoseRecipeVersion(next.scenePoseRecipeVersion);
     setSnapshot(null);
     setTemplateUseContext(null);
+    setTemplatePostId(null);
+    setCharacterHandoffBlocked(false);
+    normalDraft.current = next;
     clearHandoff('scene-template');
     setReferences({});
     setCharacterOutfitBehavior('preserve');
@@ -366,7 +379,14 @@ export function SceneBuilderRoute() {
     const next = loadSceneHandoff(location.state);
     if (!next.hasHandoff) return;
 
-    if (next.hasTemplateHandoff && next.snapshot) {
+    const sameTemplate = next.templateUseContext?.templateUseSessionId
+      ? next.templateUseContext.templateUseSessionId === templateUseContext?.templateUseSessionId
+      : Boolean(snapshot) && next.templatePostId === templatePostId && JSON.stringify(next.snapshot) === JSON.stringify(snapshot);
+    setCharacterHandoffBlocked(next.characterHandoffBlocked);
+    if (next.hasTemplateHandoff && next.snapshot && !sameTemplate) {
+      setReferences({}); setCharacterProfileContext(null); setCharacterPresentationGender(undefined);
+      setFaceReferenceContext(null); setCharacterOutfitBehavior('preserve');
+      setTemplatePostId(next.templatePostId);
       setSnapshot(next.snapshot);
       setTemplateUseContext(next.templateUseContext);
       setMode(next.snapshot.authoringMode);
@@ -386,6 +406,7 @@ export function SceneBuilderRoute() {
       );
     }
     if (next.hasCharacterHandoff) {
+      clearHandoff('character');
       setReferences(current => ({
         ...current,
         face_reference: undefined,
@@ -407,11 +428,11 @@ export function SceneBuilderRoute() {
       setCharacterPresentationGender(undefined);
       setFaceReferenceContext(next.faceReferenceContext);
     }
-  }, [location.key]);
+  }, [location.key, location.state, snapshot, templatePostId, templateUseContext]);
 
   useEffect(() => {
     if (mode !== 'guided' || poseControlMode !== 'simple') return;
-    if (templateUseContext || !scenePoseRecipes.length || !groups.length) return;
+    if (templateActive || !scenePoseRecipes.length || !groups.length) return;
     const recipe = scenePoseRecipes.find(item => item.id === scenePoseRecipeId)
       || scenePoseRecipes.find(item => item.discoverable)
       || scenePoseRecipes[0];
@@ -451,11 +472,15 @@ export function SceneBuilderRoute() {
     scenePoseStyles,
     selectedScenePoseStyleId,
     selections,
+    templateActive,
     templateUseContext
   ]);
 
   useEffect(() => {
     if (!actor?.userId) return;
+    if (persistenceActorId.current !== actor.userId) { persistenceActorId.current = actor.userId; return; }
+    if (templateActive || previousActorId.current !== actor.userId) return;
+    normalDraft.current = { mode, manualPrompt, selections, lockedFields, customColors, additionalDirection, poseControlMode, scenePoseRecipeId, scenePoseRecipeVersion: appliedScenePoseRecipeVersion };
     writeActorScopedDraft({
       actorId: actor.userId,
       feature: FEATURE,
@@ -472,7 +497,17 @@ export function SceneBuilderRoute() {
         scenePoseRecipeVersion: appliedScenePoseRecipeVersion
       }
     });
-  }, [actor?.userId, additionalDirection, appliedScenePoseRecipeVersion, customColors, lockedFields, manualPrompt, mode, poseControlMode, scenePoseRecipeId, selections]);
+  }, [actor?.userId, additionalDirection, appliedScenePoseRecipeVersion, customColors, lockedFields, manualPrompt, mode, poseControlMode, scenePoseRecipeId, selections, templateActive]);
+
+  function exitTemplate() {
+    const draft = normalDraft.current;
+    setSnapshot(null); setTemplateUseContext(null); setTemplatePostId(null); clearHandoff('scene-template');
+    setCharacterHandoffBlocked(false);
+    setMode(draft.mode); setManualPrompt(draft.manualPrompt); setSelections(draft.selections);
+    setLockedFields(draft.lockedFields); setCustomColors(draft.customColors); setAdditionalDirection(draft.additionalDirection);
+    setPoseControlMode(draft.poseControlMode); setScenePoseRecipeId(draft.scenePoseRecipeId); setAppliedScenePoseRecipeVersion(draft.scenePoseRecipeVersion);
+    setReferences({}); setCharacterProfileContext(null); setCharacterPresentationGender(undefined); setFaceReferenceContext(null); setCharacterOutfitBehavior('preserve');
+  }
 
   useEffect(() => {
     if (!bundle.isLoading && location.hash === '#studio-configurator-title') {
@@ -486,7 +521,7 @@ export function SceneBuilderRoute() {
     <main className="studio-screen">
       <header className="studio-screen__header">
         <div className="studio-screen__title">
-          <strong>{t('ui.studio.title')}</strong>
+          <strong>{t(templateActive ? 'ui.templateScene.title' : 'ui.studio.title')}</strong>
           <span>{t('ui.scene.title')}</span>
         </div>
       </header>
@@ -496,7 +531,7 @@ export function SceneBuilderRoute() {
         prompt={activePrompt}
         onPromptChange={mode === 'manual' ? setManualPrompt : () => {}}
         selections={activeSelections}
-        additionalDirection={templateUseContext ? '' : additionalDirection}
+        additionalDirection={templateActive ? '' : additionalDirection}
         customColors={effectiveCustomColors}
         authoringMode={mode}
         references={references}
@@ -524,6 +559,8 @@ export function SceneBuilderRoute() {
         allowComparison
         showPromptEditor={false}
         layoutVariant="studio"
+        studioBuilderTitle={templateActive ? t('ui.templateScene.inputs') : undefined}
+        studioConfigurationFirst={templateActive}
         blockedReason={missing.length ? t('ui.scene.templateRequiredTitle') : null}
         blockedNotice={missing.length ? (
           <TemplateReadinessPanel
@@ -532,7 +569,7 @@ export function SceneBuilderRoute() {
           />
         ) : undefined}
         referenceRoles={availableRoles}
-        studioModeSelector={(
+        studioModeSelector={templateActive ? undefined : (
           <StudioModeSelector
             mode="scene"
             onChange={next => {
@@ -544,7 +581,23 @@ export function SceneBuilderRoute() {
             }}
           />
         )}
-        studioBuilder={(
+        studioBuilder={templateActive ? (
+          <TemplateScenePanel key={`${actor?.userId}:${templateUseContext?.templateUseSessionId || templatePostId}`}
+            postId={templateUseContext?.sourceCommunityPostId || templatePostId} accessCredits={templateUseContext?.pricing.accessCredits}
+            characterAllowed={availableRoles.includes('character_reference')} characterReference={references.character_reference}
+            onCharacter={handoff => {
+              setReferences(current => ({ ...current, face_reference: undefined, character_reference: handoff.characterReferenceUrl }));
+              setCharacterProfileContext(handoff.characterProfileContext); setCharacterOutfitBehavior('replaceable');
+              setCharacterPresentationGender(resolveCharacterPresentationGender(handoff)); setFaceReferenceContext(null);
+            }} onClearCharacter={() => { setReferences(current => ({ ...current, character_reference: undefined })); setCharacterProfileContext(null); setCharacterPresentationGender(undefined); }} onExit={exitTemplate}>
+            {characterHandoffBlocked ? <p role="alert">{t('ui.templateScene.handoffUnsupported')}</p> : null}
+            {editableTemplateFields?.has('manualPromptSnapshot') ? <label className="template-scene-panel__manual">{t('ui.scene.manualLabel')}<textarea value={manualPrompt} onChange={event => setManualPrompt(event.target.value)} /></label> : null}
+            {editableTemplateFields && [...editableTemplateFields].some(field => field !== 'manualPromptSnapshot') ? <GuidedAttributeForm groups={groups} mode="scene" characterType="styled_character"
+              manifests={visualManifests.data} selections={selections} presentationGender={characterPresentationGender} customColors={customColors}
+              references={references} characterOutfitBehavior={characterOutfitBehavior} editableFields={editableTemplateFields}
+              customInputLimits={bundle.data?.inputPolicy?.customAttribute} onCustomColorsChange={setCustomColors} onChange={setSelections} singleOpen /> : <p>{t('ui.templateScene.fixed')}</p>}
+          </TemplateScenePanel>
+        ) : (
           <>
             <div className="studio-builder-panel__heading">
               <h1>{t('ui.scene.title')}</h1>
@@ -573,11 +626,6 @@ export function SceneBuilderRoute() {
                 />
               ) : <Button variant="primary" icon={<FileText className="size-4" />} onClick={() => setMode('manual')}>{t('ui.scene.manual')}</Button>}
             </div>
-            {templateUseContext ? <TemplateUseBanner authoringMode={snapshot?.authoringMode || mode} accessCredits={templateUseContext.pricing.accessCredits} onClear={() => {
-              setSnapshot(null);
-              setTemplateUseContext(null);
-              clearHandoff('scene-template');
-            }} /> : null}
             {mode === 'guided' ? <>
             <ScenePoseControlPanel
               mode={poseControlMode}
@@ -697,7 +745,7 @@ export function SceneBuilderRoute() {
             /> : null}
           </>
         )}
-        studioConfigActions={(
+        studioConfigActions={templateActive ? undefined : (
           <StudioConfiguratorActions
             randomizeDisabled={mode === 'manual'}
             onReset={() => {
@@ -743,7 +791,7 @@ export function SceneBuilderRoute() {
             variant="scene"
           />
         )}
-        studioQueueExtra={(
+        studioQueueExtra={templateActive ? undefined : (
           <>
             <SharedTemplatePanel
               viewAllHref={creatorProfileBase ? `${creatorProfileBase}/templates` : null}
@@ -902,6 +950,8 @@ function loadSceneHandoff(routeState: unknown = null): {
   hasFaceHandoff: boolean;
   snapshot: SceneTemplateSnapshot | null;
   templateUseContext: TemplateUseContext | null;
+  templatePostId: string | null;
+  characterHandoffBlocked: boolean;
   references: Partial<Record<GenerationReferenceRole, string>>;
   characterOutfitBehavior: CharacterOutfitBehavior;
   characterProfileContext: Record<string, unknown> | null;
@@ -915,6 +965,8 @@ function loadSceneHandoff(routeState: unknown = null): {
     hasFaceHandoff: false,
     snapshot: null,
     templateUseContext: null,
+    templatePostId: null,
+    characterHandoffBlocked: false,
     references: {},
     characterOutfitBehavior: 'preserve' as CharacterOutfitBehavior,
     characterProfileContext: null,
@@ -924,6 +976,7 @@ function loadSceneHandoff(routeState: unknown = null): {
   try {
     const activeActorId = getActiveActorId();
     const storedTemplate = readHandoff<{
+      postId?: string;
       sceneTemplateSnapshot?: SceneTemplateSnapshot;
       templateUseContext?: TemplateUseContext;
       payload?: { snapshot?: SceneTemplateSnapshot; sceneTemplateSnapshot?: SceneTemplateSnapshot };
@@ -934,7 +987,7 @@ function loadSceneHandoff(routeState: unknown = null): {
       characterType?: string;
       outfitBehavior?: string;
       characterProfileContext?: Record<string, unknown>;
-    }>({ actorId: activeActorId, kind: 'character', consume: true });
+    }>({ actorId: activeActorId, kind: 'character', consume: false });
     const routeCharacterPayload = readCharacterHandoffNavigationState(
       routeState,
       'scene_builder'
@@ -949,19 +1002,25 @@ function loadSceneHandoff(routeState: unknown = null): {
       || (character?.payload?.destination === 'scene_builder'
         ? character.payload
         : null);
+    const templateSnapshot = template?.payload?.sceneTemplateSnapshot
+      || template?.payload?.payload?.snapshot
+      || template?.payload?.payload?.sceneTemplateSnapshot || null;
+    const applyCharacter = Boolean(characterPayload && (!template || (
+      routeCharacterPayload && routeCharacterPayload.outfitBehavior === 'replaceable'
+      && getTemplateReferenceRoles(templateSnapshot, storedTemplateContext).includes('character_reference')
+    )));
     return {
       hasHandoff: Boolean(template || characterPayload || face),
       hasTemplateHandoff: Boolean(template),
-      hasCharacterHandoff: Boolean(characterPayload),
-      hasFaceHandoff: Boolean(face),
-      snapshot: template?.payload?.sceneTemplateSnapshot
-        || template?.payload?.payload?.snapshot
-        || template?.payload?.payload?.sceneTemplateSnapshot
-        || null,
+      hasCharacterHandoff: applyCharacter,
+      characterHandoffBlocked: Boolean(template && routeCharacterPayload && !applyCharacter),
+      hasFaceHandoff: !template && Boolean(face),
+      snapshot: templateSnapshot,
       templateUseContext: template?.payload?.templateUseContext || null,
-      references: characterPayload?.characterReferenceUrl
+      templatePostId: template?.payload?.templateUseContext?.sourceCommunityPostId || template?.payload?.postId || null,
+      references: applyCharacter && characterPayload?.characterReferenceUrl
         ? { character_reference: characterPayload.characterReferenceUrl }
-        : face?.referenceValue.imageUrl
+        : !template && face?.referenceValue.imageUrl
           ? { face_reference: face.referenceValue.imageUrl }
           : {},
       characterOutfitBehavior:
@@ -969,9 +1028,9 @@ function loadSceneHandoff(routeState: unknown = null): {
         || characterPayload?.characterType === 'reusable_model'
           ? 'replaceable'
           : 'preserve',
-      characterProfileContext: characterPayload?.characterProfileContext || null,
-      characterPresentationGender: resolveCharacterPresentationGender(characterPayload),
-      faceReferenceContext: face
+      characterProfileContext: applyCharacter ? characterPayload?.characterProfileContext || null : null,
+      characterPresentationGender: applyCharacter ? resolveCharacterPresentationGender(characterPayload) : undefined,
+      faceReferenceContext: !template && face
         ? { authorizationToken: face.authorizationToken, expiresAt: face.expiresAt }
         : null
     };

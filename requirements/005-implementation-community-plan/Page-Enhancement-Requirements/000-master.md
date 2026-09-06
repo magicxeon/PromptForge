@@ -1,5 +1,14 @@
 # Community Page Enhancement Master Requirement
 
+Template execution follow-up: [Template Scene workspace](015-template-scene-workspace.md)
+and plan 020 own schema-driven Scene presentation and reusable Character selection.
+
+Active Template follow-up: [Template Detail and public creations](014-template-detail-and-creations.md)
+and plan 019 add a direct detail route and a Job-verified public creations read
+model. This explicitly supersedes 001's Template-Gallery-to-Post-only navigation;
+ordinary Gallery Posts and Template execution remain unchanged. Character and
+Landing presentation are paused for this delivery.
+
 Active Character-only follow-up: [Character discovery identity master](010-character-discovery-identity-master.md),
 with [data trace](011-character-discovery-data-trace.md) and implementation plans
 013-016. [Character highlight polish](012-character-highlight-polish.md) and plan
@@ -165,3 +174,11 @@ Review result: Ready for step-by-step implementation planning handoff; no blocki
 - All four routes passed the local layout gate at 390px, 820px and 1440px in default, fashion and creative themes.
 - Repository-wide lint remains outside this closure because six pre-existing errors are present in unrelated Admin and Generation files; all changed files pass scoped lint.
 - No runtime data path or migration was added. Rollback remains route/component composition reversal.
+# Template Input Policy Follow-up
+
+Derived image sharing: 019 master, 020 domain, 021 shared UI. Execution plan 022.
+Results from Use Template may be shared as images, not republished as Templates.
+Requirement 022 adds single-image duplicate prevention and persistent Share status.
+
+Requirements 016 (master), 017 (domain) and 018 (shared Create/Edit UI) own the
+Character-optional/outfit-required policy. Execution: implementation-plan/021.

@@ -1,6 +1,171 @@
 [
   {
     "templateId": "tmpl_1786716962788_t1fxowtc",
+    "templateVersionId": "tmplv_1788709354752_26fmy85y",
+    "templateUseSessionId": "tmpls_1788712299634_69zvgaed",
+    "sourceCommunityPostId": "post_1786716962811_vz14fvt1",
+    "generatedJobId": "job_1788712877454_4hbwn9d8r",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "pricingPolicyVersion": "mock-2026-09-05-v3",
+      "estimatedCredits": 106,
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 4,
+        "generationCredits": 94,
+        "templateUsageCredits": 12,
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1788709354752_26fmy85y",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 106
+      }
+    },
+    "creatorEarningCredits": 9,
+    "platformRevenueCredits": 3,
+    "id": "tmpluse_1788712902228_kl260poj",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_bob",
+    "ownerUsername": "user_bob",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-09-06T16:41:42.228Z",
+    "updatedAt": "2026-09-06T16:41:42.228Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1786716962788_t1fxowtc",
+    "templateVersionId": "tmplv_1788709354752_26fmy85y",
+    "templateUseSessionId": "tmpls_1788712299634_69zvgaed",
+    "sourceCommunityPostId": "post_1786716962811_vz14fvt1",
+    "generatedJobId": "job_1788712722513_3i4a40q8g",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "pricingPolicyVersion": "mock-2026-09-05-v3",
+      "estimatedCredits": 106,
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 4,
+        "generationCredits": 94,
+        "templateUsageCredits": 12,
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1788709354752_26fmy85y",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 106
+      }
+    },
+    "creatorEarningCredits": 9,
+    "platformRevenueCredits": 3,
+    "id": "tmpluse_1788712744951_vca5vdxe",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_bob",
+    "ownerUsername": "user_bob",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-09-06T16:39:04.950Z",
+    "updatedAt": "2026-09-06T16:39:04.950Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1786716962788_t1fxowtc",
+    "templateVersionId": "tmplv_1788709354752_26fmy85y",
+    "templateUseSessionId": "tmpls_1788709359914_u7eekgcb",
+    "sourceCommunityPostId": "post_1786716962811_vz14fvt1",
+    "generatedJobId": "job_1788709556598_a0oeowmgx",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "pricingPolicyVersion": "mock-2026-09-05-v3",
+      "estimatedCredits": 106,
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 4,
+        "generationCredits": 94,
+        "templateUsageCredits": 12,
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1788709354752_26fmy85y",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 106
+      }
+    },
+    "creatorEarningCredits": 9,
+    "platformRevenueCredits": 3,
+    "id": "tmpluse_1788709599554_ir43m17g",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_bob",
+    "ownerUsername": "user_bob",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-09-06T15:46:39.554Z",
+    "updatedAt": "2026-09-06T15:46:39.554Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1786716962788_t1fxowtc",
     "templateVersionId": "tmplv_1786716962796_3rxqostm",
     "templateUseSessionId": "tmpls_1786761606802_e5vcf8ao",
     "sourceCommunityPostId": "post_1786716962811_vz14fvt1",

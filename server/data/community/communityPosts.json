@@ -1,5 +1,505 @@
 [
   {
+    "title": "ทดสอบชุดดำ เอ๊าจำชื่อสลับกันกันซะงั้น",
+    "description": "ทดสอบชุดดำ เอ๊าจำชื่อสลับกันกันซะงั้น ทดสอบชุดดำ เอ๊าจำชื่อสลับกันกันซะงั้น ทดสอบชุดดำ เอ๊าจำชื่อสลับกันกันซะงั้น ทดสอบชุดดำ เอ๊าจำชื่อสลับกันกันซะงั้น ทดสอบชุดดำ เอ๊าจำชื่อสลับกันกันซะงั้น ทดสอบชุดดำ เอ๊าจำชื่อสลับกันกันซะงั้น ทดสอบชุดดำ เอ๊าจำชื่อสลับกันกันซะงั้น",
+    "promptVisibility": "private",
+    "imageUrl": "/outputs/job_1788712722513_3i4a40q8g.jpg",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788712722513_3i4a40q8g.webp",
+    "sourceGenerationResultId": "job_1788712722513_3i4a40q8g",
+    "sourceGenerationId": "job_1788712722513_3i4a40q8g",
+    "templateDerived": true,
+    "creatorProfileId": "creator_user_bob",
+    "postType": "image",
+    "sourceSceneTemplateSnapshotId": null,
+    "templateId": null,
+    "templateVersionId": null,
+    "templatePricing": null,
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sourceGenerationMode": "normal",
+    "faceReusePolicy": "view_only",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "generation_result",
+      "publicPromptText": null,
+      "createdAt": "2026-09-06T16:39:04.402Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "providerDisplayName": null,
+      "modelId": "gemini-3.1-flash-image",
+      "modelDisplayName": null,
+      "resolvedModelId": "gemini-3.1-flash-image",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {},
+    "sceneTemplateSnapshot": null,
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "status": "published",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.magazine",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.realistic_photography",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.portrait",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.product",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.82,
+        "confidenceLevel": "high",
+        "sources": [
+          "workflow"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "visual_style.realistic_photography",
+      "content_type.portrait",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "visual_style.realistic_photography",
+      "content_type.portrait",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "visual_style.realistic_photography",
+      "content_type.portrait",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.93,
+    "counts": {},
+    "engagementSummary": {
+      "viewCount": 0,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-09-06T16:43:25.740Z"
+    },
+    "id": "post_1788713005740_hn6t7jn1",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_bob",
+    "ownerUsername": "user_bob",
+    "createdAt": "2026-09-06T16:43:25.740Z",
+    "updatedAt": "2026-09-06T16:43:25.740Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "title": "ทดสอบชุดแดง",
+    "description": "ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง ทดสอบชุดแดง",
+    "promptVisibility": "private",
+    "imageUrl": "/outputs/job_1788712877454_4hbwn9d8r.jpg",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788712877454_4hbwn9d8r.webp",
+    "sourceGenerationResultId": "job_1788712877454_4hbwn9d8r",
+    "sourceGenerationId": "job_1788712877454_4hbwn9d8r",
+    "templateDerived": true,
+    "creatorProfileId": "creator_user_bob",
+    "postType": "image",
+    "sourceSceneTemplateSnapshotId": null,
+    "templateId": null,
+    "templateVersionId": null,
+    "templatePricing": null,
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sourceGenerationMode": "normal",
+    "faceReusePolicy": "view_only",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "generation_result",
+      "publicPromptText": null,
+      "createdAt": "2026-09-06T16:41:41.476Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "providerDisplayName": null,
+      "modelId": "gemini-3.1-flash-image",
+      "modelDisplayName": null,
+      "resolvedModelId": "gemini-3.1-flash-image",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {},
+    "sceneTemplateSnapshot": null,
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "status": "published",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.magazine",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.realistic_photography",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.portrait",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.product",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.82,
+        "confidenceLevel": "high",
+        "sources": [
+          "workflow"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "visual_style.realistic_photography",
+      "content_type.portrait",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "visual_style.realistic_photography",
+      "content_type.portrait",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "visual_style.realistic_photography",
+      "content_type.portrait",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.93,
+    "counts": {},
+    "engagementSummary": {
+      "viewCount": 0,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-09-06T16:42:56.134Z"
+    },
+    "id": "post_1788712976134_5mv7wy40",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_bob",
+    "ownerUsername": "user_bob",
+    "createdAt": "2026-09-06T16:42:56.134Z",
+    "updatedAt": "2026-09-06T16:42:56.134Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "title": "น้องอิงขุดฟ้า",
+    "description": "ทดสอบ",
+    "promptVisibility": "private",
+    "imageUrl": "/outputs/job_1788709556598_a0oeowmgx.jpg",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788709556598_a0oeowmgx.webp",
+    "sourceGenerationResultId": "job_1788709556598_a0oeowmgx",
+    "sourceGenerationId": "job_1788709556598_a0oeowmgx",
+    "creatorProfileId": "creator_user_bob",
+    "postType": "image",
+    "sourceSceneTemplateSnapshotId": null,
+    "templateId": null,
+    "templateVersionId": null,
+    "templatePricing": null,
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sourceGenerationMode": "normal",
+    "faceReusePolicy": "view_only",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "generation_result",
+      "publicPromptText": null,
+      "createdAt": "2026-09-06T15:46:39.179Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "providerDisplayName": null,
+      "modelId": "gemini-3.1-flash-image",
+      "modelDisplayName": null,
+      "resolvedModelId": "gemini-3.1-flash-image",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {},
+    "sceneTemplateSnapshot": null,
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "status": "published",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.magazine",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.realistic_photography",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.portrait",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.product",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.82,
+        "confidenceLevel": "high",
+        "sources": [
+          "workflow"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "visual_style.realistic_photography",
+      "content_type.portrait",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "visual_style.realistic_photography",
+      "content_type.portrait",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.fashion",
+      "visual_style.magazine",
+      "visual_style.realistic_photography",
+      "content_type.portrait",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.93,
+    "counts": {},
+    "engagementSummary": {
+      "viewCount": 0,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-09-06T15:57:20.351Z"
+    },
+    "id": "post_1788710240356_am6nxp1d",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_bob",
+    "ownerUsername": "user_bob",
+    "createdAt": "2026-09-06T15:57:20.351Z",
+    "updatedAt": "2026-09-06T15:57:20.351Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "title": "นักท่องเที่ยว สไตร์ยุโรป",
     "description": "ภาพจาก AI Gemini Pro, ChatGPT และ Muse 1.0",
     "postType": "comparison",
@@ -150,7 +650,7 @@
     "sceneTemplateSnapshot": null,
     "providerModelSnapshot": null,
     "counts": {
-      "views": 1,
+      "views": 2,
       "likes": 0,
       "saves": 0,
       "comments": 0,
@@ -158,13 +658,13 @@
       "votes": 0
     },
     "engagementSummary": {
-      "viewCount": 1,
+      "viewCount": 2,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-09-06T01:47:47.371Z"
+      "updatedAt": "2026-09-06T13:16:46.786Z"
     },
     "id": "post_1788603950473_7nx5a8ot",
     "schemaVersion": 1,
@@ -172,7 +672,7 @@
     "ownerUsername": "user_alice",
     "status": "published",
     "createdAt": "2026-09-05T10:25:50.473Z",
-    "updatedAt": "2026-09-06T01:47:47.371Z",
+    "updatedAt": "2026-09-06T13:16:46.786Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -872,7 +1372,7 @@
     "postType": "template",
     "sourceSceneTemplateSnapshotId": "tmplv_1786716962796_3rxqostm",
     "templateId": "tmpl_1786716962788_t1fxowtc",
-    "templateVersionId": "tmplv_1786716962796_3rxqostm",
+    "templateVersionId": "tmplv_1788709354752_26fmy85y",
     "templatePricing": {
       "accessCredits": 12,
       "cadence": "per_output",
@@ -1269,7 +1769,7 @@
       "replaceableVariables": [
         {
           "id": "outfit_front_reference",
-          "label": "Outfit Front Reference",
+          "label": "Outfit front",
           "type": "reference_image",
           "sourceFieldName": "outfit_front_reference",
           "required": true,
@@ -1278,13 +1778,13 @@
           "allowedOptionIds": []
         },
         {
-          "id": "outfit_back_reference",
-          "label": "Outfit Back Reference",
+          "id": "character_reference",
+          "label": "Character",
           "type": "reference_image",
-          "sourceFieldName": "outfit_back_reference",
+          "sourceFieldName": "character_reference",
           "required": false,
           "replacementPolicy": "replaceable",
-          "fashionBindingRole": "fashion.outfit_back",
+          "fashionBindingRole": "fashion.character",
           "allowedOptionIds": []
         }
       ],
@@ -1427,7 +1927,7 @@
     "taxonomyReviewStatus": "auto_confirmed",
     "taxonomyConfidence": 0.93,
     "counts": {
-      "views": 3,
+      "views": 5,
       "likes": 0,
       "saves": 0,
       "comments": 0,
@@ -1435,20 +1935,20 @@
       "votes": 0
     },
     "engagementSummary": {
-      "viewCount": 3,
+      "viewCount": 5,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-08-15T03:01:15.070Z"
+      "updatedAt": "2026-09-06T15:42:38.889Z"
     },
     "id": "post_1786716962811_vz14fvt1",
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
     "ownerUsername": "user_alice",
     "createdAt": "2026-08-14T14:16:02.809Z",
-    "updatedAt": "2026-08-15T03:01:15.070Z",
+    "updatedAt": "2026-09-06T15:42:38.889Z",
     "deletedAt": null,
     "metadata": {},
     "publishedAt": "2026-08-14T15:06:14.968Z"

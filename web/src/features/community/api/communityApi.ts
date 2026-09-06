@@ -7,7 +7,8 @@ import {
   deleteCommentResponseSchema,
   engagementResponseSchema,
   reactionResponseSchema,
-  templateHandoffSchema
+  templateHandoffSchema,
+  templateDetailPageSchema
 } from '../schemas/communitySchemas';
 
 export type CommunityFilters = {
@@ -37,6 +38,12 @@ export function getCommunityPost(postId: string) {
   });
 }
 
+export function getTemplateDetail(postId: string, sort: 'likes' | 'latest' = 'likes', limit = 12, cursor?: string | null) {
+  const query = new URLSearchParams({ sort, limit: String(limit) });
+  if (cursor) query.set('cursor', cursor);
+  return apiRequest(`/api/community/posts/${encodeURIComponent(postId)}/template-detail?${query}`, { schema: templateDetailPageSchema });
+}
+
 export function updateCommunityPostPresentation(
   postId: string,
   input: {
@@ -46,6 +53,8 @@ export function updateCommunityPostPresentation(
     visibility: 'public' | 'unlisted' | 'private';
     promptVisibility?: 'full' | 'remix_only';
     templateAccessCredits?: number;
+    templateInputOptions?: { characterEnabled: boolean; outfitBackEnabled: boolean };
+    expectedTemplateVersionId?: string;
   }
 ) {
   return apiRequest(`/api/scene-templates/shared/${encodeURIComponent(postId)}`, {

@@ -554,5 +554,45 @@
     "metadata": {},
     "actorUserId": "usr_admin",
     "actorRole": "admin"
+  },
+  {
+    "action": "community_post_owner_presentation_updated",
+    "targetType": "community_post",
+    "targetId": "post_1786716962811_vz14fvt1",
+    "reason": "Owner updated Template replacement policy and public presentation.",
+    "beforeSnapshot": {
+      "title": "อาหมวยทดสอบ 001",
+      "description": "อาหมวยทดสอบ คำอธิบาย",
+      "customTags": [],
+      "visibility": "public",
+      "promptVisibility": "remix_only",
+      "templateAccessCredits": 12,
+      "templateId": "tmpl_1786716962788_t1fxowtc",
+      "templateVersionId": "tmplv_1786716962796_3rxqostm"
+    },
+    "afterSnapshot": {
+      "title": "อาหมวยทดสอบ 001",
+      "description": "อาหมวยทดสอบ คำอธิบาย",
+      "customTags": [],
+      "visibility": "public",
+      "promptVisibility": "remix_only",
+      "templateAccessCredits": 12,
+      "templateId": "tmpl_1786716962788_t1fxowtc",
+      "templateVersionId": "tmplv_1788709354752_26fmy85y"
+    },
+    "id": "audit_1788709354810_i46tms2v",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-09-06T15:42:34.809Z",
+    "updatedAt": "2026-09-06T15:42:34.809Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_alice",
+    "actorRole": "creator",
+    "requestId": null,
+    "ipHash": null
   }
 ]

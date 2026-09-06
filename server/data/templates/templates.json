@@ -3,7 +3,7 @@
     "kind": "scene_image",
     "title": "อาหมวยทดสอบ 001",
     "description": "อาหมวยทดสอบ คำอธิบาย",
-    "currentVersionId": "tmplv_1786716962796_3rxqostm",
+    "currentVersionId": "tmplv_1788709354752_26fmy85y",
     "preview": {
       "imageUrl": "/outputs/job_1786698407019_iqccwb0jo.jpg",
       "thumbnailUrl": "/outputs/thumbnails/job_1786698407019_iqccwb0jo.webp",
@@ -28,7 +28,7 @@
     "visibility": "public",
     "status": "published",
     "createdAt": "2026-08-14T14:16:02.788Z",
-    "updatedAt": "2026-08-15T02:52:06.272Z",
+    "updatedAt": "2026-09-06T15:42:34.779Z",
     "deletedAt": null,
     "metadata": {}
   },

@@ -1,4 +1,5 @@
 {
+  "shell.navigation.items.templateDetail": "Template detail",
   "shell.title": "ModelPromptForge - Premium AI Character Generator",
   "shell.subtitle": "Generate high-fidelity, photorealistic prompts from structured attributes safely without policy violations.",
   "shell.badge": "Asian Aesthetic v1.1",

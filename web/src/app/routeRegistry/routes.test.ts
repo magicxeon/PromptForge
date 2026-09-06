@@ -2,10 +2,17 @@ import { describe, expect, it } from 'vitest';
 import {
   isSidebarNavigationTargetActive,
   routePaths,
+  routeBuilders,
   sidebarNavigationGroups
 } from './routes';
 
 describe('Momelo sidebar navigation registry', () => {
+  it('provides direct Template Detail links and keeps the Templates menu active', () => {
+    expect(routeBuilders.templateDetail('post 1')).toBe('/explore/templates/post%201');
+    expect(isSidebarNavigationTargetActive('templates', '/explore/templates/post_1')).toBe(true);
+    expect(isSidebarNavigationTargetActive('templates', '/posts/post_1')).toBe(false);
+    expect(routeBuilders.post('post_1')).toBe('/posts/post_1');
+  });
   it('declares the three canonical Studio workflows once', () => {
     const studio = sidebarNavigationGroups
       .flatMap(group => group.items)

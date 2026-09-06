@@ -25,6 +25,8 @@ type StudioGenerationWorkspaceProps = {
   focusResultSignal?: number;
   showRenderPromptHeading?: boolean;
   comparisonActive?: boolean;
+  configurationFirst?: boolean;
+  builderTitle?: string;
 };
 
 export function StudioGenerationWorkspace({
@@ -40,7 +42,9 @@ export function StudioGenerationWorkspace({
   messages,
   focusResultSignal = 0,
   showRenderPromptHeading = true,
-  comparisonActive = false
+  comparisonActive = false,
+  configurationFirst = false,
+  builderTitle
 }: StudioGenerationWorkspaceProps) {
   const { t } = useTranslation('react-ui');
   const [viewportCollapsed, setViewportCollapsed] = useState(false);
@@ -59,9 +63,9 @@ export function StudioGenerationWorkspace({
     return () => window.cancelAnimationFrame(animationFrame);
   }, [focusResultSignal, viewportCollapsed]);
 
-  return (
-    <div className="studio-workspace">
+  const viewport = (
       <section
+        key="viewport"
         ref={viewportRef}
         className={`studio-viewport-panel${viewportCollapsed ? ' is-collapsed' : ''}`}
         aria-labelledby="studio-viewport-title"
@@ -112,8 +116,10 @@ export function StudioGenerationWorkspace({
           <aside className="studio-queue-column">{queue}</aside>
         </div>
       </section>
-
+  );
+  const configurator = (
       <section
+        key="configurator"
         ref={configuratorRef}
         className="studio-configurator-panel"
         aria-labelledby="studio-configurator-title"
@@ -122,8 +128,8 @@ export function StudioGenerationWorkspace({
           <div className="studio-panel-heading__title">
             <Palette aria-hidden="true" />
             <div>
-              <h2 id="studio-configurator-title">{t('ui.studio.configuratorTitle')}</h2>
-              <p>{t('ui.studio.configuratorDescription')}</p>
+              <h2 id="studio-configurator-title">{builderTitle || t('ui.studio.configuratorTitle')}</h2>
+              {!builderTitle ? <p>{t('ui.studio.configuratorDescription')}</p> : null}
             </div>
           </div>
         </header>
@@ -132,7 +138,7 @@ export function StudioGenerationWorkspace({
           <section className="studio-step-card studio-step-card--attributes">
             <header className="studio-step-heading">
               <span>{t('ui.studio.stepLabel')} 1</span>
-              <h2>{t('ui.studio.aestheticOptions')}</h2>
+              <h2>{builderTitle || t('ui.studio.aestheticOptions')}</h2>
             </header>
             {modeSelector}
             {builder}
@@ -153,6 +159,6 @@ export function StudioGenerationWorkspace({
           </GenerationEngineShell>
         </div>
       </section>
-    </div>
   );
+  return <div className="studio-workspace">{configurationFirst ? [configurator, viewport] : [viewport, configurator]}</div>;
 }

@@ -35,6 +35,7 @@ function resolveCrumbs(pathname: string, t: (key: string) => string): Crumb[] {
 
   if (pathname === routePaths.exploreComparisons) return [explore, { label: t('shell.navigation.items.publicComparisons') }];
   if (pathname === routePaths.exploreTemplates) return [explore, { label: t('shell.navigation.items.templates') }];
+  if (pathname.startsWith(`${routePaths.exploreTemplates}/`)) return [explore, { label: t('shell.navigation.items.templates'), to: routePaths.exploreTemplates }, { label: t('shell.navigation.items.templateDetail') }];
   if (pathname.startsWith(routePaths.exploreCharacters) || pathname.startsWith('/characters/')) return [explore, { label: t('shell.navigation.items.characters') }];
   if (pathname.startsWith('/posts/')) return [explore, { label: t('shell.navigation.items.post') }];
   if (pathname.startsWith(routePaths.ownedCharacters)) return [library, { label: t('shell.navigation.items.myCharacters') }];

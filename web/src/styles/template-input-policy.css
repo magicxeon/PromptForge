@@ -1,0 +1,10 @@
+.template-input-policy { min-width: 0; margin: 12px 0; padding: 0; border: 0; color: var(--theme-text); }
+.template-input-policy legend { margin-bottom: 12px; font-size: 14px; font-weight: 600; }
+.template-input-policy__row { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 0; }
+.template-input-policy__row > strong, .template-input-policy__row > span:first-of-type { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 13px; }
+.template-input-policy__row > small, .template-input-policy__row > strong + span { flex: 0 0 auto; font-size: 12px; color: var(--theme-text-muted); }
+.template-input-policy svg { width: 18px; height: 18px; flex: 0 0 auto; color: var(--theme-primary); }
+.template-input-policy input[type="checkbox"] { width: 18px; height: 18px; flex: 0 0 auto; accent-color: var(--theme-primary); }
+.template-input-policy input:focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; }
+.template-input-policy p { margin: 10px 0 0; font-size: 12px; color: var(--theme-text-muted); overflow-wrap: anywhere; }
+.template-input-policy__locked { display: flex; align-items: flex-start; gap: 8px; }

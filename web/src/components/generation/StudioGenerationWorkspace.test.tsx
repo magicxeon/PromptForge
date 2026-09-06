@@ -84,4 +84,12 @@ describe('StudioGenerationWorkspace', () => {
     expect(screen.getByText('Comparison result')).toBeVisible();
     expect(screen.getByText('Comparison queue')).toBeVisible();
   });
+
+  it('can place Template configuration first without removing result or queue', () => {
+    const { container, rerender } = render(<StudioGenerationWorkspace modeSelector={null} builder={<div>Template builder</div>} result={<div>Result</div>} queue={<div>Queue</div>} engine={null} references={null} prompt={null} actions={<button>Generate</button>} configurationFirst builderTitle="Template inputs" />);
+    expect(container.querySelector('.studio-workspace')?.firstElementChild).toHaveClass('studio-configurator-panel');
+    expect(screen.getByText('Result')).toBeVisible(); expect(screen.getByText('Queue')).toBeVisible();
+    rerender(<StudioGenerationWorkspace modeSelector={null} builder={null} result={<div>Result</div>} queue={null} engine={null} references={null} prompt={null} actions={null} />);
+    expect(container.querySelector('.studio-workspace')?.firstElementChild).toHaveClass('studio-viewport-panel');
+  });
 });

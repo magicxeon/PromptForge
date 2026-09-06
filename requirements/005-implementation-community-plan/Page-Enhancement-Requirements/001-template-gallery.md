@@ -1,5 +1,9 @@
 # 001 Template Gallery Enhancement
 
+Follow-up: 014-template-detail-and-creations.md and plan 019 now own direct
+Template detail navigation and public creations. The original Post route remains
+available; the Gallery-specific direct detail link supersedes Section 2 below.
+
 Status: Implemented and verified in scope (2026-09-06)
 
 Route: `/explore/templates`

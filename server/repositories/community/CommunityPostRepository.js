@@ -52,6 +52,13 @@ export class CommunityPostRepository {
     return post?.ownerUserId === ownerUserId ? post : null;
   }
 
+  async findByGenerationForOwner(generationId, ownerUserId) {
+    const posts = await this.readAll();
+    return posts.find(post => ['image', 'template'].includes(post.postType)
+      && post.ownerUserId === ownerUserId
+      && (post.sourceGenerationResultId || post.sourceGenerationId) === generationId) || null;
+  }
+
   async findByOwner(ownerUserId, query = {}) {
     const normalizedQuery = normalizeListQuery(query);
     const scope = JSON.stringify({ ownerUserId, sort: normalizedQuery.sort });
@@ -197,6 +204,14 @@ export class CommunityPostRepository {
 
     return mutateJsonFile(this.postsFile, POST_FALLBACK, async posts => {
       if (!Array.isArray(posts)) throw new TypeError('Community posts data must be an array.');
+      if (['image', 'template'].includes(postType) && record.sourceGenerationResultId) {
+        const normalized = await Promise.all(posts.map(post => normalizeCommunityPostRecord(post, this.userRepository)));
+        if (normalized.some(post => ['image', 'template'].includes(post.postType)
+          && post.ownerUserId === actor.userId
+          && (post.sourceGenerationResultId || post.sourceGenerationId) === record.sourceGenerationResultId)) {
+          throw new RepositoryContractError('community_generation_already_shared', 'This image has already been shared.', 409);
+        }
+      }
       posts.unshift(record);
       return normalizeCommunityPostRecord(record, this.userRepository);
     });
@@ -214,6 +229,10 @@ export class CommunityPostRepository {
       const current = posts[index];
       if (current.ownerUserId !== actor.userId) {
         throw new RepositoryContractError('community_post_forbidden', 'You do not have permission to edit this post.', 403);
+      }
+      if (presentation.expectedPostTemplateVersionId !== undefined
+        && current.templateVersionId !== presentation.expectedPostTemplateVersionId) {
+        throw new RepositoryContractError('template_version_conflict', 'Template changed. Reload its settings before saving.', 409);
       }
 
       const next = {
@@ -234,6 +253,8 @@ export class CommunityPostRepository {
         templatePricing: presentation.templatePricing === undefined
           ? current.templatePricing
           : structuredClone(presentation.templatePricing),
+        templateVersionId: presentation.templateVersionId === undefined
+          ? current.templateVersionId : presentation.templateVersionId,
         sharedPromptSnapshot: presentation.sharedPromptSnapshot === undefined
           ? current.sharedPromptSnapshot
           : stripEmbeddedBase64(presentation.sharedPromptSnapshot),

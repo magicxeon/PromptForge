@@ -12,7 +12,9 @@
   left: 50%;
   z-index: 111;
   width: min(92vw, 620px);
-  max-height: min(88vh, 760px);
+  max-height: min(88dvh, 760px);
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   transform: translate(-50%, -50%);
   border: 1px solid var(--mpf-border-strong);
@@ -22,6 +24,7 @@
 }
 
 .template-management-dialog__header {
+  flex-shrink: 0;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -42,14 +45,17 @@
 }
 
 .template-management-dialog form {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   min-height: 0;
 }
 
 .template-management-dialog__body {
   display: grid;
   gap: 14px;
-  max-height: calc(min(88vh, 760px) - 142px);
+  min-height: 0;
+  flex: 1;
   overflow-y: auto;
   padding: 18px 20px;
 }
@@ -189,6 +195,7 @@
 }
 
 .template-management-dialog__footer {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   gap: 8px;
@@ -203,6 +210,9 @@
 }
 
 @media (max-width: 560px) {
+  .template-management-dialog__footer { flex-wrap: wrap; }
+  .template-management-dialog__footer-actions { flex-wrap: wrap; margin-left: auto; }
+  .template-management-dialog__footer button { white-space: nowrap; }
   .template-management-dialog__header,
   .template-management-dialog__body,
   .template-management-dialog__footer {

@@ -5,6 +5,8 @@
 @import "./community-home.css";
 @import "./community-discovery.css";
 @import "./template-gallery.css";
+@import "./template-detail.css";
+@import "./template-input-policy.css";
 @import "./character-gallery.css";
 @import "./comparison-gallery.css";
 @import "./community-detail.css";
@@ -12,6 +14,7 @@
 @import "./character-profile.css";
 @import "./generation.css";
 @import "./studio.css";
+@import "./template-scene.css";
 @import "./comparisons.css";
 @import "./media-viewer.css";
 @import "./media-carousel.css";

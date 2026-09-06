@@ -50,6 +50,7 @@ export function registerSceneTemplateRoutes(app, {
         templateAccessCredits,
         creatorShareBps,
         publicInputSchema,
+        templateInputOptions,
         templateKind,
         compatibility
       } = req.body || {};
@@ -66,6 +67,7 @@ export function registerSceneTemplateRoutes(app, {
           templateAccessCredits,
           creatorShareBps,
           publicInputSchema,
+          templateInputOptions,
           templateKind,
           compatibility
         },

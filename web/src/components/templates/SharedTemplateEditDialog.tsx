@@ -36,6 +36,8 @@ import { queryKeys } from '../../lib/api/queryKeys';
 import { pollingPolicy } from '../../lib/api/pollingPolicy';
 import { useActor } from '../../lib/auth/ActorProvider';
 import { routeBuilders } from '../../app/routeRegistry/routes';
+import { getTemplateInputPolicy, type TemplateInputOptions } from '../../features/templates/templateInputPolicyApi';
+import { TemplateInputPolicyFields } from './TemplateInputPolicyFields';
 
 export function SharedTemplateEditDialog({
   post,
@@ -68,6 +70,15 @@ export function SharedTemplateEditDialog({
   const [activatedDuringSession, setActivatedDuringSession] = useState(false);
   const autoEstimateKey = useRef<string | null>(null);
   const templateId = post.templateId || null;
+  const [inputOptions, setInputOptions] = useState<TemplateInputOptions | null>(null);
+  const inputPolicy = useQuery({
+    queryKey: ['template-input-policy', actorId, templateId],
+    queryFn: () => getTemplateInputPolicy(templateId!),
+    enabled: open && Boolean(templateId),
+    refetchOnWindowFocus: false,
+    retry: false
+  });
+  useEffect(() => { setInputOptions(null); }, [open, templateId, actorId, post.templateVersionId]);
   const poseProxy = useQuery({
     queryKey: queryKeys.templatePoseProxy(actorId, templateId),
     queryFn: () => getTemplatePoseProxy(templateId!),
@@ -148,6 +159,8 @@ export function SharedTemplateEditDialog({
       visibility: 'public' | 'unlisted' | 'private';
       promptVisibility: 'full' | 'remix_only';
       templateAccessCredits: number;
+      templateInputOptions?: TemplateInputOptions;
+      expectedTemplateVersionId?: string;
     }) => updateCommunityPostPresentation(post.id, input),
     onSuccess: async () => {
       setOpen(false);
@@ -155,7 +168,11 @@ export function SharedTemplateEditDialog({
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['community-post', post.id] }),
         queryClient.invalidateQueries({ queryKey: ['community-posts'] }),
-        queryClient.invalidateQueries({ queryKey: ['creator-page'] })
+        queryClient.invalidateQueries({ queryKey: ['creator-page'] }),
+        queryClient.invalidateQueries({ queryKey: ['template-input-policy', actorId, templateId] }),
+        queryClient.invalidateQueries({ queryKey: ['community-template-detail'] }),
+        queryClient.invalidateQueries({ queryKey: ['template-pose-proxy'] }),
+        queryClient.invalidateQueries({ queryKey: ['fashion-ready-template-index'] })
       ]);
       navigate(routeBuilders.post(post.id));
     },
@@ -238,6 +255,7 @@ export function SharedTemplateEditDialog({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (templateId && (!inputPolicy.data || inputPolicy.isFetching || inputPolicy.isError)) return;
     const form = new FormData(event.currentTarget);
     update.mutate({
       title: String(form.get('title') || '').trim(),
@@ -248,7 +266,14 @@ export function SharedTemplateEditDialog({
       templateAccessCredits: Math.max(
         0,
         Math.trunc(Number(form.get('templateAccessCredits')) || 0)
-      )
+      ),
+      ...(inputPolicy.data?.supported ? {
+        templateInputOptions: inputOptions || {
+          characterEnabled: inputPolicy.data.characterEnabled,
+          outfitBackEnabled: inputPolicy.data.outfitBackEnabled
+        },
+        expectedTemplateVersionId: inputPolicy.data.templateVersionId
+      } : {})
     });
   }
 
@@ -416,6 +441,17 @@ export function SharedTemplateEditDialog({
                 />
               </label>
 
+              {templateId ? (
+                inputPolicy.isError ? <StatusNotice tone="error" title={t('ui.templateInputs.loadFailed')}>
+                  <Button type="button" variant="secondary" onClick={() => void inputPolicy.refetch()}>
+                    {t('ui.templateInputs.retry')}
+                  </Button>
+                </StatusNotice> : inputPolicy.data ? <TemplateInputPolicyFields
+                  policy={inputPolicy.data} value={inputOptions || inputPolicy.data}
+                  onChange={setInputOptions} disabled={update.isPending || inputPolicy.isFetching} />
+                  : <p role="status">{t('ui.templateInputs.loading')}</p>
+              ) : null}
+
               <label className="template-management-dialog__field">
                 <span>{t('ui.templateManagement.templateDescription')}</span>
                 <textarea
@@ -490,6 +526,10 @@ export function SharedTemplateEditDialog({
                   title={t('ui.templateManagement.saveFailed')}
                 >
                   {update.error.message}
+                  {templateId ? <Button type="button" variant="secondary" onClick={() => {
+                    setInputOptions(null);
+                    void inputPolicy.refetch();
+                  }}>{t('ui.templateInputs.retry')}</Button> : null}
                 </StatusNotice>
               ) : null}
               {retire.isError ? (
@@ -532,7 +572,7 @@ export function SharedTemplateEditDialog({
                 <Button
                   type="submit"
                   variant="primary"
-                  disabled={update.isPending || retire.isPending}
+                  disabled={update.isPending || retire.isPending || Boolean(templateId && (!inputPolicy.data || inputPolicy.isFetching || inputPolicy.isError))}
                 >
                   {update.isPending
                     ? t('ui.templateManagement.saving')

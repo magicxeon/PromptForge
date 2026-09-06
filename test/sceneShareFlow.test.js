@@ -21,6 +21,7 @@ function createService(generations = {}) {
     }
   };
   const postRepository = {
+    async findByGenerationForOwner(id, ownerId) { return posts.find(post => post.sourceGenerationResultId === id && post.ownerUserId === ownerId) || null; },
     async create(input, actor) {
       const post = {
         ...structuredClone(input),
@@ -115,6 +116,7 @@ function generation(id, authoringMode = 'guided') {
       finalPromptSnapshot: 'A private prompt',
       manualPromptSnapshot: authoringMode === 'manual' ? 'A private prompt' : '',
       referenceSlotMapping: {
+        outfit_front_reference: { required: true, policy: 'required_user_replacement' },
         character_reference: {
           required: true,
           policy: 'required_user_replacement',
@@ -251,14 +253,14 @@ test('Template publication restores mandatory Outfit Front from server draft pol
     }
   }, alice);
 
-  const [mandatoryOutfit, optionalExpression] =
+  const [mandatoryOutfit, optionalCharacter] =
     publishedTemplates[0].publicInputSchema.inputs;
   assert.equal(mandatoryOutfit.id, 'outfit_front_reference');
   assert.equal(mandatoryOutfit.sourceFieldName, 'outfit_front_reference');
   assert.equal(mandatoryOutfit.fashionBindingRole, 'fashion.outfit_front');
   assert.equal(mandatoryOutfit.required, true);
   assert.equal(mandatoryOutfit.replacementPolicy, 'replaceable');
-  assert.equal(optionalExpression.id, 'Expression');
-  assert.equal(optionalExpression.sourceFieldName, 'Expression');
-  assert.equal(optionalExpression.required, false);
+  assert.equal(optionalCharacter.id, 'character_reference');
+  assert.equal(optionalCharacter.required, false);
+  assert.ok(!publishedTemplates[0].publicInputSchema.inputs.some(input => input.id === 'Expression'));
 });

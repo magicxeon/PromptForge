@@ -21,6 +21,7 @@ function createService(generation) {
     }
   };
   const postRepository = {
+    async findByGenerationForOwner(id, ownerId) { return posts.find(post => post.sourceGenerationResultId === id && post.ownerUserId === ownerId) || null; },
     async create(input, actor) {
       const post = {
         ...structuredClone(input),

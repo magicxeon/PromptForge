@@ -123,6 +123,13 @@ export const communityPostSchema = z.object({
   }).optional()
 });
 
+export const templateDetailPageSchema = z.object({
+  template: communityPostSchema.nullable(),
+  items: z.array(communityPostSchema),
+  nextCursor: z.string().nullable(),
+  hasMore: z.boolean()
+});
+
 export const communityFeedPageSchema = z.object({
   items: z.array(communityPostSchema),
   ranking: z.object({

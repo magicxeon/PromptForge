@@ -1,18 +1,23 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Share2, X } from 'lucide-react';
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { cloneElement, isValidElement, useEffect, useState, type FormEvent, type ReactNode, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   createGeneratedShareDraft,
+  getGenerationShareStatus,
   publishGeneratedShare
 } from '../../features/community/api/shareApi';
 import { getCommunityPost } from '../../features/community/api/communityApi';
 import { Button } from '../ui/Button';
 import { Surface } from '../ui/Surface';
 import { SharedTemplateEditDialog } from '../templates/SharedTemplateEditDialog';
+import { TemplateInputPolicyFields } from '../templates/TemplateInputPolicyFields';
+import type { TemplateInputOptions } from '../../features/templates/templateInputPolicyApi';
 import type { CommunityPost } from '../../features/community/schemas/communitySchemas';
 import { showToast } from '../ui/toastStore';
+import { useActor } from '../../lib/auth/ActorProvider';
+import { ApiError } from '../../lib/api/apiError';
 
 export function ShareGeneratedDialog({
   jobId,
@@ -21,14 +26,29 @@ export function ShareGeneratedDialog({
   jobId: string;
   trigger?: ReactNode;
 }) {
+  const { actor } = useActor();
+  return <ShareGeneratedDialogSession key={`${actor?.userId}:${jobId}`} actorId={actor?.userId || ''} jobId={jobId} trigger={trigger} />;
+}
+
+function ShareGeneratedDialogSession({ actorId, jobId, trigger }: { actorId: string; jobId: string; trigger?: ReactNode }) {
   const { t } = useTranslation('react-ui');
+  const queryClient = useQueryClient();
+  const statusKey = ['generation-share-status', actorId, jobId];
+  const shareStatus = useQuery({ queryKey: statusKey, queryFn: () => getGenerationShareStatus(jobId),
+    enabled: Boolean(actorId && jobId), staleTime: 30_000, gcTime: 60_000, retry: false });
   const [open, setOpen] = useState(false);
   const [publishedTemplate, setPublishedTemplate] = useState<CommunityPost | null>(null);
   const [templateManagementOpen, setTemplateManagementOpen] = useState(false);
   const [publishAsTemplate, setPublishAsTemplate] = useState(false);
-  const [selectedTemplateInputs, setSelectedTemplateInputs] = useState<Set<string>>(new Set());
-  const [requiredTemplateInputs, setRequiredTemplateInputs] = useState<Set<string>>(new Set());
-  const draft = useMutation({ mutationFn: () => createGeneratedShareDraft(jobId) });
+  const [templateInputOptions, setTemplateInputOptions] = useState<TemplateInputOptions>({ characterEnabled: false, outfitBackEnabled: false });
+  const handleConflict = (error: Error) => {
+    if (error instanceof ApiError && error.code === 'community_generation_already_shared') {
+      queryClient.setQueryData(statusKey, { shared: true }); setOpen(false);
+    } else {
+      void queryClient.invalidateQueries({ queryKey: statusKey });
+    }
+  };
+  const draft = useMutation({ mutationFn: () => createGeneratedShareDraft(jobId), onError: handleConflict });
   const publish = useMutation({
     mutationFn: (input: {
       title: string;
@@ -38,6 +58,7 @@ export function ShareGeneratedDialog({
       faceReusePolicy: 'view_only' | 'public_reusable';
       publishAsTemplate: boolean;
       templateAccessCredits: number;
+      templateInputOptions?: TemplateInputOptions;
       publicInputSchema?: {
         schemaVersion: number;
         inputs: Record<string, unknown>[];
@@ -52,6 +73,7 @@ export function ShareGeneratedDialog({
       }));
     },
     onSuccess: (result) => {
+      queryClient.setQueryData(statusKey, { shared: true });
       setOpen(false);
       if (result.templatePost) {
         setPublishedTemplate(result.templatePost);
@@ -65,59 +87,51 @@ export function ShareGeneratedDialog({
         showToast({ tone: 'success', title: t('ui.toast.postPublished') });
       }
     },
-    onError: error => showToast({
+    onError: error => { handleConflict(error); showToast({
       tone: 'error',
       title: t('ui.toast.publishFailed'),
       description: error.message
-    })
+    }); }
   });
+  const derived = draft.data?.templateIneligibleReason === 'template_derived_generation';
+  const canPublishTemplate = Boolean(draft.data?.templateEligible && !derived);
+  const shareDisabled = !shareStatus.data || shareStatus.isFetching || shareStatus.isError
+    || shareStatus.data.shared || publish.isPending;
+  const shareLabel = shareStatus.data?.shared ? t('ui.share.alreadyShared') : t('ui.action.share');
 
   useEffect(() => {
-    if (!draft.data?.templateEligible) {
-      setPublishAsTemplate(false);
-      setSelectedTemplateInputs(new Set());
-      setRequiredTemplateInputs(new Set());
-      return;
-    }
     setPublishAsTemplate(false);
-    setSelectedTemplateInputs(new Set());
-    setRequiredTemplateInputs(new Set());
+    setTemplateInputOptions({
+      characterEnabled: draft.data?.templateInputPolicy?.characterEnabled ?? false,
+      outfitBackEnabled: draft.data?.templateInputPolicy?.outfitBackEnabled ?? false
+    });
   }, [draft.data]);
 
   function change(next: boolean) {
+    if (next && shareDisabled) return;
     setOpen(next);
     if (next && !draft.data && !draft.isPending) draft.mutate();
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (publish.isPending || shareStatus.data?.shared) return;
     const form = new FormData(event.currentTarget);
-    const publicInputSchema = publishAsTemplate && draft.data?.suggestedTemplateInputSchema
-      ? {
-        schemaVersion: 1,
-        inputs: draft.data.suggestedTemplateInputSchema.inputs
-          .filter(input => selectedTemplateInputs.has(String(input.id || '')))
-          .map(input => ({
-            ...input,
-            required: requiredTemplateInputs.has(String(input.id || ''))
-          }))
-      }
-      : null;
 
     publish.mutate({
       title: String(form.get('title') || '').trim(),
       description: String(form.get('description') || '').trim(),
-      promptVisibility: String(form.get('promptVisibility') || 'full'),
+      promptVisibility: derived ? 'private' : String(form.get('promptVisibility') || 'full'),
       visibility: String(form.get('visibility') || 'public'),
       faceReusePolicy: form.get('faceReusePolicy') === 'public_reusable'
         ? 'public_reusable'
         : 'view_only',
-      publishAsTemplate,
+      publishAsTemplate: canPublishTemplate && publishAsTemplate,
       templateAccessCredits: Math.max(
         0,
         Number(form.get('templateAccessCredits')) || 0
       ),
-      publicInputSchema
+      templateInputOptions: canPublishTemplate && publishAsTemplate ? templateInputOptions : undefined
     });
   }
 
@@ -125,8 +139,8 @@ export function ShareGeneratedDialog({
     <>
     <Dialog.Root open={open} onOpenChange={change}>
       <Dialog.Trigger asChild>
-        {trigger || (
-          <Button icon={<Share2 className="size-4" />}>{t('ui.action.share')}</Button>
+        {isValidElement(trigger) ? cloneElement(trigger as ReactElement<{ disabled?: boolean; title?: string }>, { disabled: shareDisabled, title: shareLabel }) : (
+          <Button disabled={shareDisabled} title={shareLabel} icon={<Share2 className="size-4" />}>{shareLabel}</Button>
         )}
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -135,7 +149,7 @@ export function ShareGeneratedDialog({
           <header className="share-generated-dialog__header">
             <div>
               <Dialog.Title>{t('ui.share.title')}</Dialog.Title>
-              <Dialog.Description>{t('ui.share.description')}</Dialog.Description>
+              <Dialog.Description>{t(derived ? 'ui.share.derivedDescription' : 'ui.share.description')}</Dialog.Description>
             </div>
             <Dialog.Close asChild>
               <Button
@@ -174,9 +188,9 @@ export function ShareGeneratedDialog({
                 />
 
                 <div className="share-generated-dialog__visibility-grid">
-                  <label>
+                  {!derived ? <label>
                     <span>{t('ui.share.promptVisibility')}</span>
-                    <select name="promptVisibility" defaultValue="full">
+                    <select name="promptVisibility" defaultValue={draft.data.promptVisibility || 'full'}>
                       <option value="full">{t('ui.share.full')}</option>
                       <option value="partial">{t('ui.share.partial')}</option>
                       {draft.data.templateEligible ? (
@@ -184,7 +198,7 @@ export function ShareGeneratedDialog({
                       ) : null}
                       <option value="private">{t('ui.character.private')}</option>
                     </select>
-                  </label>
+                  </label> : null}
                   <label>
                     <span>{t('ui.share.postVisibility')}</span>
                     <select name="visibility" defaultValue="public">
@@ -195,29 +209,14 @@ export function ShareGeneratedDialog({
                   </label>
                 </div>
 
-                {draft.data.templateEligible ? (
+                {canPublishTemplate ? (
                   <Surface className="share-generated-dialog__template-panel">
                     <label className="share-generated-dialog__template-toggle">
                       <input
                         type="checkbox"
                         name="publishAsTemplate"
                         checked={publishAsTemplate}
-                        onChange={event => {
-                          const checked = event.target.checked;
-                          setPublishAsTemplate(checked);
-                          if (checked) {
-                            const inputs = optionalTemplateInputs(draft.data);
-                            setSelectedTemplateInputs(new Set(inputs
-                              .filter(isRecommendedTemplateInput)
-                              .map(input => String(input.id || ''))));
-                            setRequiredTemplateInputs(new Set(inputs
-                              .filter(input => isRecommendedTemplateInput(input) && isRecommendedRequiredInput(input))
-                              .map(input => String(input.id || ''))));
-                          } else {
-                            setSelectedTemplateInputs(new Set());
-                            setRequiredTemplateInputs(new Set());
-                          }
-                        }}
+                        onChange={event => setPublishAsTemplate(event.target.checked)}
                       />
                       <span>
                         <strong>{t('ui.share.publishTemplate')}</strong>
@@ -227,59 +226,10 @@ export function ShareGeneratedDialog({
 
                     {publishAsTemplate ? (
                       <>
-                      {draft.data.mandatoryTemplateInputIds.length ? (
-                        <p className="share-generated-dialog__mandatory-summary">
-                          {t('ui.share.includedAutomatically', {
-                            inputs: mandatoryInputLabels(draft.data).join(', ')
-                          })}
-                        </p>
-                      ) : null}
-                      {optionalTemplateInputs(draft.data).length ? (
-                      <fieldset className="share-generated-dialog__template-inputs">
-                      <legend>{t('ui.share.templateInputs')}</legend>
-                      <div className="share-generated-dialog__template-input-list">
-                        {optionalTemplateInputs(draft.data).map(input => {
-                          const inputId = String(input.id || '');
-                          return (
-                            <div
-                              key={inputId}
-                              className="share-generated-dialog__template-input-row"
-                            >
-                              <label>
-                                <input
-                                  type="checkbox"
-                                  name="templateInput"
-                                  value={inputId}
-                                  checked={selectedTemplateInputs.has(inputId)}
-                                  onChange={event => {
-                                    const checked = event.target.checked;
-                                    setSelectedTemplateInputs(current => updateSet(current, inputId, checked));
-                                    if (!checked) {
-                                      setRequiredTemplateInputs(current => updateSet(current, inputId, false));
-                                    }
-                                  }}
-                                />
-                                <span>
-                                  {String(input.label || input.sourceFieldName || input.id)}
-                                </span>
-                              </label>
-                              <label className="share-generated-dialog__required-input">
-                                <input
-                                  type="checkbox"
-                                  name="requiredTemplateInput"
-                                  value={inputId}
-                                  checked={requiredTemplateInputs.has(inputId)}
-                                  disabled={!selectedTemplateInputs.has(inputId)}
-                                  onChange={event => setRequiredTemplateInputs(current =>
-                                    updateSet(current, inputId, event.target.checked))}
-                                />
-                                <span>{t('ui.share.required')}</span>
-                              </label>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      </fieldset>
+                      {draft.data.templateInputPolicy ? (
+                        <TemplateInputPolicyFields policy={draft.data.templateInputPolicy}
+                          value={templateInputOptions} onChange={setTemplateInputOptions}
+                          disabled={publish.isPending} />
                       ) : null}
 
                       <label className="share-generated-dialog__field">
@@ -323,7 +273,7 @@ export function ShareGeneratedDialog({
                     {t('ui.action.cancel')}
                   </Button>
                 </Dialog.Close>
-                <Button type="submit" variant="primary" disabled={publish.isPending}>
+                <Button type="submit" variant="primary" disabled={publish.isPending || (publishAsTemplate && !draft.data.templateInputPolicy?.supported)}>
                   {t('ui.action.publish')}
                 </Button>
               </footer>
@@ -332,6 +282,7 @@ export function ShareGeneratedDialog({
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+    {shareStatus.isError ? <Button size="sm" onClick={() => void shareStatus.refetch()}>{t('ui.share.retryStatus')}</Button> : null}
     {publishedTemplate ? (
       <SharedTemplateEditDialog
         post={publishedTemplate}
@@ -343,41 +294,4 @@ export function ShareGeneratedDialog({
     ) : null}
     </>
   );
-}
-
-function isRecommendedTemplateInput(input: Record<string, unknown>) {
-  const field = String(input.sourceFieldName || input.id || '').toLowerCase();
-  return /(face|character|outfit|clothing|environment|scene|color)/.test(field);
-}
-
-function isRecommendedRequiredInput(input: Record<string, unknown>) {
-  const field = String(input.sourceFieldName || input.id || '').toLowerCase();
-  return /(face|character|outfit|clothing)/.test(field);
-}
-
-function updateSet(current: Set<string>, value: string, enabled: boolean) {
-  const next = new Set(current);
-  if (enabled) next.add(value);
-  else next.delete(value);
-  return next;
-}
-
-type TemplateDraftInputSource = {
-  mandatoryTemplateInputIds: string[];
-  suggestedTemplateInputSchema?: {
-    inputs: Record<string, unknown>[];
-  } | null;
-};
-
-function optionalTemplateInputs(draft: TemplateDraftInputSource) {
-  const mandatory = new Set(draft.mandatoryTemplateInputIds);
-  return (draft.suggestedTemplateInputSchema?.inputs || [])
-    .filter(input => !mandatory.has(String(input.id || '')));
-}
-
-function mandatoryInputLabels(draft: TemplateDraftInputSource) {
-  const mandatory = new Set(draft.mandatoryTemplateInputIds);
-  return (draft.suggestedTemplateInputSchema?.inputs || [])
-    .filter(input => mandatory.has(String(input.id || '')))
-    .map(input => String(input.label || input.sourceFieldName || input.id));
 }

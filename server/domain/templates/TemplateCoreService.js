@@ -1,8 +1,10 @@
+import { isDeepStrictEqual } from 'node:util';
 import { assertActorContext, RepositoryContractError, VISIBILITY } from '../../repositories/repositoryContracts.js';
 import { templateRepo } from '../../repositories/templates/TemplateRepository.js';
 import { templateVersionRepo } from '../../repositories/templates/TemplateVersionRepository.js';
 import { templateUseSessionRepo } from '../../repositories/templates/TemplateUseSessionRepository.js';
 import { templateUsageEventRepo } from '../../repositories/templates/TemplateUsageEventRepository.js';
+import { buildTemplateInputPolicy, getTemplateInputPolicy, TEMPLATE_INPUT_POLICY } from './templateInputPolicy.js';
 import {
   applyTemplateReplacements,
   createPublicTemplateProjection,
@@ -77,6 +79,7 @@ export class TemplateCoreService {
       }, actor);
     const version = await this.versionRepository.create({
       templateId: template.id,
+      inputPolicyId: input.inputPolicyId === TEMPLATE_INPUT_POLICY ? TEMPLATE_INPUT_POLICY : null,
       executionSnapshot,
       publicInputSchema,
       promptVisibility,
@@ -96,6 +99,47 @@ export class TemplateCoreService {
 
   async archiveTemplate(templateId, actorContext) {
     return this.templateRepository.archive(templateId, actorContext);
+  }
+
+  async getOwnerInputPolicy(templateId, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const template = await this.templateRepository.findById(templateId);
+    if (!template || template.ownerUserId !== actor.userId || template.status !== 'published') {
+      throw new RepositoryContractError('template_not_found', 'Template not found.', 404);
+    }
+    const version = await this.versionRepository.findById(template.currentVersionId);
+    if (!version || version.templateId !== template.id) {
+      throw new RepositoryContractError('template_version_not_found', 'Template version not found.', 404);
+    }
+    return { templateId, templateVersionId: version.id,
+      ...getTemplateInputPolicy(version.executionSnapshot, version.publicInputSchema) };
+  }
+
+  async updateInputPolicy(templateId, options, expectedVersionId, actorContext, { postVersionId } = {}) {
+    const actor = assertActorContext(actorContext);
+    const current = await this.getOwnerInputPolicy(templateId, actor);
+    if (expectedVersionId && current.templateVersionId !== expectedVersionId && postVersionId === expectedVersionId) {
+      const advanced = await this.versionRepository.findById(current.templateVersionId);
+      if (advanced.previousVersionId === expectedVersionId
+        && isDeepStrictEqual(buildTemplateInputPolicy(advanced.executionSnapshot, options), advanced.publicInputSchema)) {
+        return advanced;
+      }
+    }
+    if (!expectedVersionId || current.templateVersionId !== expectedVersionId) {
+      throw new RepositoryContractError('template_version_conflict', 'Template changed. Reload its settings before saving.', 409);
+    }
+    const previous = await this.versionRepository.findById(expectedVersionId);
+    const schema = buildTemplateInputPolicy(previous.executionSnapshot, options);
+    if (previous.inputPolicyId === TEMPLATE_INPUT_POLICY && isDeepStrictEqual(schema, previous.publicInputSchema)) return previous;
+    const version = await this.versionRepository.create({
+      ...previous,
+      publicInputSchema: schema,
+      inputPolicyId: TEMPLATE_INPUT_POLICY,
+      previousVersionId: previous.id,
+      preparationSourceVersionId: previous.preparationSourceVersionId || previous.id
+    }, actor);
+    await this.templateRepository.publishVersion(templateId, version.id, actor, { expectedVersionId });
+    return version;
   }
 
   async updatePublishedSettings(templateId, input = {}, actorContext) {
@@ -167,6 +211,9 @@ export class TemplateCoreService {
   }, actorContext) {
     const actor = assertActorContext(actorContext);
     const { template, version: currentVersion } = await this.getPublicTemplate(templateId);
+    if (currentVersion.inputPolicyId === TEMPLATE_INPUT_POLICY && templateVersionId && templateVersionId !== currentVersion.id) {
+      throw new RepositoryContractError('template_version_conflict', 'Template changed. Start again from its latest version.', 409);
+    }
     const version = templateVersionId
       ? await this.versionRepository.findById(templateVersionId)
       : currentVersion;

@@ -35,6 +35,9 @@ export class TemplateVersionRepository {
     const now = new Date().toISOString();
     const record = applyRecordDefaults({
       templateId: input.templateId,
+      preparationSourceVersionId: input.preparationSourceVersionId || null,
+      inputPolicyId: input.inputPolicyId || null,
+      previousVersionId: input.previousVersionId || null,
       versionNumber: existing.length ? existing[0].versionNumber + 1 : 1,
       executionSnapshot: stripEmbeddedBase64(input.executionSnapshot || {}),
       publicInputSchema: normalizePublicInputSchema(input.publicInputSchema),

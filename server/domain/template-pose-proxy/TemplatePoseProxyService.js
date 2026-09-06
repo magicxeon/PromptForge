@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { isDeepStrictEqual } from 'node:util';
 import { templateRepo } from '../../repositories/templates/TemplateRepository.js';
 import { templateVersionRepo } from '../../repositories/templates/TemplateVersionRepository.js';
 import { templatePoseProxyRepository } from '../../repositories/template-pose-proxy/TemplatePoseProxyRepository.js';
@@ -201,14 +202,17 @@ export class TemplatePoseProxyService {
     const template = await this.templateRepository.findById(templateId);
     if (!template) throw proxyError('template_not_found', 'Template not found.', 404);
     const versionId = templateVersionId || template.currentVersionId;
+    await this.assertVersionBelongsToTemplate(versionId, template);
+    const sourceVersionId = await this.preparationSourceVersionId(versionId);
     const policy = this.policyService.getPolicy();
     const records = await this.repository.readAll();
     const record = records
-      .filter(item => item.templateVersionId === versionId)
+      .filter(item => item.templateVersionId === versionId
+        || (item.templateVersionId === sourceVersionId && item.status === 'active'))
       .filter(item => item.status !== 'superseded' && recordMatchesPolicy(item, policy))
       .sort((left, right) => Date.parse(right.updatedAt || 0) - Date.parse(left.updatedAt || 0))[0];
     return record
-      ? this.toPublicReadiness(await this.synchronize(record))
+      ? { ...this.toPublicReadiness(await this.synchronize(record)), templateVersionId: versionId }
       : this.toPublicReadiness(null, versionId);
   }
 
@@ -218,15 +222,19 @@ export class TemplatePoseProxyService {
       throw proxyError('template_not_found', 'Template not found.', 404);
     }
     const versionId = templateVersionId || template.currentVersionId;
+    await this.assertVersionBelongsToTemplate(versionId, template);
+    const sourceVersionId = await this.preparationSourceVersionId(versionId);
     const policy = this.policyService.getPolicy();
     const records = await this.repository.readAll();
     const record = records
-      .filter(item => item.templateVersionId === versionId && item.status !== 'superseded')
+      .filter(item => (item.templateVersionId === versionId && item.status !== 'superseded')
+        || (item.templateVersionId === sourceVersionId && item.status === 'active'))
       .filter(item => recordMatchesPolicy(item, policy))
       .sort((left, right) => Date.parse(right.updatedAt || 0) - Date.parse(left.updatedAt || 0))[0];
     const synchronized = record ? await this.synchronize(record) : null;
     return {
       ...this.toPublicReadiness(synchronized, versionId),
+      templateVersionId: versionId,
       reviewImageUrl: ['review_required', 'active'].includes(synchronized?.status)
         ? synchronized.proxyImageUrl
         : null
@@ -234,9 +242,10 @@ export class TemplatePoseProxyService {
   }
 
   async requireActive(templateVersionId, poseVariantId = 'default') {
+    const sourceVersionId = await this.preparationSourceVersionId(templateVersionId);
     const policy = this.policyService.getPolicy();
     const record = (await this.repository.readAll())
-      .filter(item => item.templateVersionId === templateVersionId)
+      .filter(item => [templateVersionId, sourceVersionId].includes(item.templateVersionId))
       .filter(item => item.poseVariantId === poseVariantId && item.status === 'active')
       .filter(item => recordMatchesPolicy(item, policy))
       .sort((left, right) => Date.parse(right.activatedAt || 0) - Date.parse(left.activatedAt || 0))[0];
@@ -249,6 +258,25 @@ export class TemplatePoseProxyService {
       );
     }
     return record;
+  }
+
+  async preparationSourceVersionId(versionId) {
+    const version = await this.versionRepository.findById(versionId);
+    if (!version?.preparationSourceVersionId) return versionId;
+    const source = await this.versionRepository.findById(version.preparationSourceVersionId);
+    // Only policy-only versions may share an already approved preparation.
+    return source && source.status === 'published' && version.status === 'published'
+      && source.templateId === version.templateId && source.ownerUserId === version.ownerUserId
+      && isDeepStrictEqual(source.executionSnapshot, version.executionSnapshot)
+      && isDeepStrictEqual(source.preview, version.preview)
+      ? source.id : versionId;
+  }
+
+  async assertVersionBelongsToTemplate(versionId, template) {
+    const version = await this.versionRepository.findById(versionId);
+    if (!version || version.templateId !== template.id || version.ownerUserId !== template.ownerUserId) {
+      throw proxyError('template_version_not_found', 'Template version not found.', 404);
+    }
   }
 
   async review({ templateId, proxyId, decision, reasonCodes = [] }, actorContext) {

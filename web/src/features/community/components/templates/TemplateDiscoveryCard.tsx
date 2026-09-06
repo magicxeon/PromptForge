@@ -21,7 +21,7 @@ export function TemplateDiscoveryCard({
 }) {
   const { t } = useTranslation('community');
   const location = useLocation();
-  const detailHref = routeBuilders.post(post.id);
+  const detailHref = routeBuilders.templateDetail(post.id);
   const metadata = post.generationMetadata;
   const imageSize = metadata.width && metadata.height
     ? `${metadata.width} x ${metadata.height}`

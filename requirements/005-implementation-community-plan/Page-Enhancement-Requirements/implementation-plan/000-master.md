@@ -112,3 +112,20 @@ Pending follow-up:
 ## 8. Final Gate
 
 Implementation is complete only after Step 07 passes. Requirement files remain `Proposed` until code, focused tests, responsive checks and final regression evidence are all present.
+
+## Template Detail Follow-up
+
+Plan 020-template-scene-workspace.md owns the subsequent Template-aware Scene
+presentation and reusable Character picker. Default Studio ordering is preserved;
+only Template mode puts configuration before the existing output/Queue section.
+
+Plan 019-template-detail-and-creations.md owns the additive Template Detail,
+Post preview and verified public creations work under requirement 014.
+# Template Input Policy Follow-up
+
+021-template-input-policy.md sequences requirements 016-018. Existing Template
+Detail and Scene presentation plans remain scoped to their prior work.
+# Template-Derived Sharing
+
+Plan 022 owns the ordered implementation and focused gates for requirements
+019-021. Existing Template records and paid generation remain untouched.

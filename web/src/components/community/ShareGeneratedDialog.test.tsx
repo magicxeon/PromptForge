@@ -4,9 +4,11 @@ import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShareGeneratedDialog } from './ShareGeneratedDialog';
+import { ApiError } from '../../lib/api/apiError';
 
 const apiMocks = vi.hoisted(() => ({
   createGeneratedShareDraft: vi.fn(),
+  getGenerationShareStatus: vi.fn(),
   getCommunityPost: vi.fn(),
   publishGeneratedShare: vi.fn(),
   showToast: vi.fn()
@@ -14,6 +16,7 @@ const apiMocks = vi.hoisted(() => ({
 
 vi.mock('../../features/community/api/shareApi', () => ({
   createGeneratedShareDraft: apiMocks.createGeneratedShareDraft,
+  getGenerationShareStatus: apiMocks.getGenerationShareStatus,
   publishGeneratedShare: apiMocks.publishGeneratedShare
 }));
 
@@ -22,6 +25,7 @@ vi.mock('../../features/community/api/communityApi', () => ({
 }));
 
 vi.mock('../ui/toastStore', () => ({ showToast: apiMocks.showToast }));
+vi.mock('../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: { userId: 'alice' } }) }));
 
 vi.mock('../templates/SharedTemplateEditDialog', () => ({
   SharedTemplateEditDialog: ({
@@ -40,6 +44,8 @@ vi.mock('../templates/SharedTemplateEditDialog', () => ({
 }));
 
 const testI18n = i18next.createInstance();
+const inputPolicy = { policyId: 'character-outfit-v1', supported: true, characterAvailable: true,
+  outfitBackAvailable: true, characterEnabled: true, outfitBackEnabled: true, removedFields: [] };
 
 describe('ShareGeneratedDialog', () => {
   beforeAll(async () => {
@@ -68,6 +74,14 @@ describe('ShareGeneratedDialog', () => {
             'ui.share.templateInputs': 'Template inputs',
             'ui.share.includedAutomatically': 'Included automatically: {{inputs}}',
             'ui.share.title': 'Share to Community',
+            'ui.share.alreadyShared': 'Shared',
+            'ui.share.retryStatus': 'Retry share status',
+            'ui.templateInputs.title': 'Template replacements',
+            'ui.templateInputs.outfitFront': 'Outfit front',
+            'ui.templateInputs.outfitBack': 'Outfit back',
+            'ui.templateInputs.character': 'Character',
+            'ui.templateInputs.optional': 'Optional',
+            'ui.templateInputs.required': 'Required',
             'ui.share.unlisted': 'Unlisted',
             'ui.toast.postPublished': 'Post published',
             'ui.toast.templateSetupSaved': 'Template setup saved',
@@ -81,6 +95,7 @@ describe('ShareGeneratedDialog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    apiMocks.getGenerationShareStatus.mockResolvedValue({ shared: false });
   });
 
   it('opens reusable Template setup immediately after publishing the owner draft', async () => {
@@ -88,6 +103,7 @@ describe('ShareGeneratedDialog', () => {
       id: 'draft_1',
       sourceGenerationId: 'job_1',
       templateEligible: true,
+      templateInputPolicy: inputPolicy,
       mandatoryTemplateInputIds: [],
       suggestedTemplateInputSchema: { schemaVersion: 1, inputs: [] }
     });
@@ -105,6 +121,7 @@ describe('ShareGeneratedDialog', () => {
     });
 
     renderDialog();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
     fireEvent.click(screen.getByRole('button', { name: 'Share' }));
     await screen.findByRole('dialog', { name: 'Share to Community' });
     fireEvent.change(await screen.findByPlaceholderText('Post title'), {
@@ -139,6 +156,7 @@ describe('ShareGeneratedDialog', () => {
     });
 
     renderDialog();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
     fireEvent.click(screen.getByRole('button', { name: 'Share' }));
     await screen.findByRole('dialog', { name: 'Share to Community' });
     expect(screen.queryByRole('checkbox', {
@@ -165,6 +183,7 @@ describe('ShareGeneratedDialog', () => {
       id: 'draft_mandatory',
       sourceGenerationId: 'job_1',
       templateEligible: true,
+      templateInputPolicy: inputPolicy,
       mandatoryTemplateInputIds: ['outfit_front_reference'],
       suggestedTemplateInputSchema: {
         schemaVersion: 1,
@@ -196,6 +215,7 @@ describe('ShareGeneratedDialog', () => {
     });
 
     renderDialog();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
     fireEvent.click(screen.getByRole('button', { name: 'Share' }));
     await screen.findByRole('dialog', { name: 'Share to Community' });
     fireEvent.change(screen.getByPlaceholderText('Post title'), {
@@ -205,10 +225,66 @@ describe('ShareGeneratedDialog', () => {
       name: /Publish as reusable template/
     }));
 
-    expect(screen.getByText('Included automatically: Outfit Front')).toBeInTheDocument();
-    expect(screen.queryByRole('checkbox', { name: 'Outfit Front' })).not.toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'Expression' })).toBeInTheDocument();
+    expect(screen.getByText('Outfit front')).toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: /Outfit front/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: 'Expression' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: /Face|Pose|Environment/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Character Optional' })).toBeChecked();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Character Optional' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
+    await waitFor(() => expect(apiMocks.publishGeneratedShare).toHaveBeenCalledWith('draft_mandatory',
+      expect.objectContaining({ templateInputOptions: { characterEnabled: false, outfitBackEnabled: true } })));
   });
+});
+
+it('hides Template and prompt controls for derived images, shares privately then disables sharing', async () => {
+  apiMocks.getGenerationShareStatus.mockResolvedValue({ shared: false });
+  apiMocks.createGeneratedShareDraft.mockResolvedValue({ id: 'derived', templateEligible: false,
+    templateIneligibleReason: 'template_derived_generation', promptVisibility: 'private' });
+  apiMocks.publishGeneratedShare.mockResolvedValue({ id: 'image', postType: 'image' });
+  renderDialog();
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Share' }));
+  fireEvent.change(await screen.findByPlaceholderText('Post title'), { target: { value: 'My creation' } });
+  expect(screen.queryByText('Prompt visibility')).not.toBeInTheDocument();
+  expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Post visibility')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Shared' })).toBeDisabled());
+  expect(apiMocks.publishGeneratedShare).toHaveBeenLastCalledWith('derived', expect.objectContaining({
+    publishAsTemplate: false, promptVisibility: 'private', templateInputOptions: undefined
+  }));
+});
+
+it('disables already-shared results on load without creating a draft', async () => {
+  vi.clearAllMocks();
+  apiMocks.getGenerationShareStatus.mockResolvedValue({ shared: true });
+  renderDialog();
+  expect(await screen.findByRole('button', { name: 'Shared' })).toBeDisabled();
+  expect(apiMocks.createGeneratedShareDraft).not.toHaveBeenCalled();
+});
+
+it('recovers status-read errors with an explicit retry', async () => {
+  vi.clearAllMocks();
+  apiMocks.getGenerationShareStatus.mockResolvedValue({ shared: false }).mockRejectedValueOnce(new Error('offline'));
+  renderDialog();
+  fireEvent.click(await screen.findByRole('button', { name: 'Retry share status' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
+  expect(apiMocks.createGeneratedShareDraft).not.toHaveBeenCalled();
+});
+
+it('disables after a stale draft gets an already-shared conflict', async () => {
+  apiMocks.getGenerationShareStatus.mockResolvedValue({ shared: false });
+  apiMocks.createGeneratedShareDraft.mockResolvedValue({ id: 'stale', templateEligible: false });
+  apiMocks.publishGeneratedShare.mockRejectedValue(new ApiError({ status: 409,
+    code: 'community_generation_already_shared', message: 'Already shared' }));
+  renderDialog();
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Share' }));
+  fireEvent.change(await screen.findByPlaceholderText('Post title'), { target: { value: 'Duplicate' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Shared' })).toBeDisabled());
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 });
 
 function renderDialog() {

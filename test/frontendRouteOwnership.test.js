@@ -5,6 +5,8 @@ import { resolveFrontendRoute } from '../server/app/frontendRouteOwnership.js';
 test('frontend route ownership recognizes canonical and parameterized routes', () => {
   assert.equal(resolveFrontendRoute('/community').matched, true);
   assert.equal(resolveFrontendRoute('/explore/templates').routeId, 'community-home');
+  assert.equal(resolveFrontendRoute('/explore/templates/post_123').routeId, 'community-template-detail');
+  assert.equal(resolveFrontendRoute('/explore/templates/post%201?sort=likes').runtime, 'react');
   assert.equal(resolveFrontendRoute('/explore/comparisons').routeId, 'community-home');
   assert.equal(resolveFrontendRoute('/posts/post_123').routeId, 'community-post');
   assert.equal(resolveFrontendRoute('/explore/characters').routeId, 'community-characters');
