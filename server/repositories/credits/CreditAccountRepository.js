@@ -101,6 +101,17 @@ export class CreditAccountRepository {
     });
   }
 
+  async readFinanceLedger() {
+    const data = await readJsonFile(this.databaseFile, null);
+    if (!data || data.schemaVersion !== 2 || !Array.isArray(data.ledgerEntries)) {
+      return { available: false, entries: [] };
+    }
+    const fields = ['ledgerEntryId', 'operationType', 'amountCredits', 'createdAt',
+      'relatedJobId', 'reservationId', 'estimateId', 'providerId', 'modelId', 'pricingPolicyVersion'];
+    return { available: true, entries: data.ledgerEntries.map(record =>
+      Object.fromEntries(fields.map(key => [key, record?.[key] ?? null]))) };
+  }
+
   async getAccountByUserId(userId) {
     if (!userId) return null;
     const data = await this.readRaw();

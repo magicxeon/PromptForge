@@ -201,7 +201,23 @@ At every step:
 
 ## 9. Current Recommendation
 
-Start with Phase2-01 inventory plus Phase2-03 Wave 0/1 and Phase2-04. Do not
+### Finance-First Requirement Branch (2026-09-07)
+
+The user next prioritizes [Admin Finance](admin-finance/000-master.md): inventory
+provider/model/usage/cost mappings and produce evidence-aware reporting, then
+versioned rates and future activation through existing Admin Configuration
+ownership. FIN-005 splits read-only local delivery from durable production
+publication. This does not authorize a new JSON login, a second scheduler or
+live retail changes before DB/Auth/Audit and quote-parity gates.
+
+Local Finance implementation is now recorded in FIN-008: inventory/read-only
+Credit period reports and typed supplier-cost/account planning drafts, with
+focused UI/permission/parity checks. This is not complete actual-money Finance.
+FIN-009 lists the remaining transactional publication, cost-event, supplier
+funding and payment/report tasks; no production gate was bypassed.
+
+For the durable dependency path, start with Phase2-01 inventory plus Phase2-03
+Wave 0/1 and Phase2-04. Do not
 start by migrating Community/history or by implementing payment screens. The
 first milestone is an authenticated user writing one owner-scoped PostgreSQL
 record with durable Audit. Full Support recovery is not a prerequisite for this

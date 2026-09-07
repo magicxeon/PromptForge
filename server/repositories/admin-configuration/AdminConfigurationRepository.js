@@ -1,6 +1,7 @@
 import { resolveDataFile } from '../../config/paths.js';
 import { mutateJsonFile, readJsonFile } from '../json/jsonFileStore.js';
 import { createPrefixedId } from '../schemaVersioning.js';
+import { RepositoryContractError } from '../repositoryContracts.js';
 
 const FALLBACK = { schemaVersion: 1, activeRevisionIds: {}, revisions: [] };
 
@@ -14,6 +15,16 @@ export class AdminConfigurationRepository {
   createDraft(input) {
     return mutateJsonFile(this.revisionsFile, FALLBACK, data => {
       assertStore(data);
+      if (input.commandId) {
+        const existing = data.revisions.find(item => item.values?.commandId === input.commandId);
+        if (existing) {
+          if (existing.scope !== input.scope || existing.createdByUserId !== input.createdByUserId
+            || JSON.stringify(existing.values) !== JSON.stringify(input.values)) {
+            throw new RepositoryContractError('configuration_command_conflict', 'Command was already used with different values.', 409);
+          }
+          return { ...structuredClone(existing), replayed: true };
+        }
+      }
       const now = new Date().toISOString();
       const record = {
         id: createPrefixedId('cfgrev'), schemaVersion: 1, version: 1, scope: input.scope,

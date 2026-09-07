@@ -65,6 +65,10 @@ export class CreditApplicationService {
     return this.ledgerRepository.findByUserId(userId, query);
   }
 
+  getFinanceLedger() {
+    return this.accountRepository.readFinanceLedger();
+  }
+
   async getOperationalSummary({ search = '', status = '', limit = 50 } = {}) {
     const data = await this.accountRepository.readRaw();
     const needle = String(search).trim().toLowerCase();

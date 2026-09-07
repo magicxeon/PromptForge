@@ -1,9 +1,11 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { routePaths } from '../../../app/routeRegistry/routes';
+import { useActor } from '../../../lib/auth/ActorProvider';
 
 export function AdminNavigation() {
   const { t } = useTranslation('admin');
+  const { actor } = useActor();
   return (
     <nav className="mb-5 flex gap-1 overflow-x-auto border-b border-[var(--mpf-border)]" aria-label={t('admin.navigation.label')}>
       <NavLink end to={routePaths.admin} className={navigationClassName}>
@@ -24,6 +26,9 @@ export function AdminNavigation() {
       <NavLink to={routePaths.adminControlPlane} className={navigationClassName}>
         {t('admin.navigation.controlPlane')}
       </NavLink>
+      {actor?.role === 'admin' ? <NavLink to={routePaths.adminFinance} className={navigationClassName}>
+        {t('finance.title')}
+      </NavLink> : null}
     </nav>
   );
 }

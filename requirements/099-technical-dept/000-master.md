@@ -6,6 +6,41 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Admin Finance (Local Read Workspace And Planning Drafts)
+
+- `requirements/019-implementation-commercial-feature-plan/admin-finance/000-master.md`
+  owns the Finance reporting/expense requirement package and small delivery gates.
+- `server/domain/finance/FinanceApplicationService.js` owns the Admin Finance
+  facade, with focused FinanceInventoryService/FinanceReportService projections.
+  The HTTP adapter is `server/app/routes/adminFinanceRoutes.js`.
+- Credits supplies a read-only sanitized `getFinanceLedger()` contract through
+  CreditApplicationService and CreditAccountRepository. It does not call the
+  existing migration-on-read path. No Quote/settlement contract changed.
+- Typed planning scopes finance_provider_cost and finance_supplier_agreement
+  use the existing AdminConfigurationService/repository and Audit. No Finance
+  repository or new data path exists yet. Drafts remain in the existing
+  `server/data/admin-configuration/revisions.json` path resolved by paths.js.
+- Local Finance is admin-only and hard-denied in production until trusted
+  identity/transactional permissions exist. Publication/schedules remain gated.
+- FIN-006/007 extend that same owner with supplier billing accounts/funding
+  evidence and monthly/yearly reports. Shared Admin Configuration revisions own
+  agreement scheduling; funding records do not execute provider payments or
+  duplicate customer Credit/payment authority.
+- Admin Configuration retains version/draft/publication/schedule ownership under
+  Backend 018-010. Credits remains the quote, conversion and settlement authority;
+  Generation/AI workflow owners supply durable sanitized usage/attempt evidence.
+- Finance UI lives under `web/src/features/admin/` (AdminFinanceRoute,
+  FinanceReports/FinanceRates/FinanceDrafts, financeApi/financeSchemas). Route
+  registry owns `/admin/finance`; styling is scoped in admin-finance.css and
+  translations extend the existing admin namespace. Tests are under test/ and
+  the Admin feature; scripts/test-admin-finance.mjs is the focused runner.
+- Remaining actual cost/funding repositories and durable publication contracts
+  are explicitly planned in Finance FIN-009, not certified by read-view tests.
+- FIN-010 Excel exports live beside the Admin Finance components:
+  FinanceReportExport and financeReportExcel. They consume the existing authorized
+  summary snapshot, lazy-load ExcelJS and download locally; no new API or runtime
+  storage owner. Export tests and export-layout are focused script groups.
+
 ### Deferred Requirement Coordination
 
 - `requirements/098-pending-features/000-master.md` owns categorized deferred

@@ -5,9 +5,11 @@
 **Architecture:** Modular monolith first, replaceable solution modules  
 **Updated:** 2026-09-07
 
-**Immediate priority:** Database and real-account foundation, not another UI
-redesign or payment screen. The Fashion first-paid product direction below is
-retained; it does not require rebuilding the current multi-workflow platform.
+**Immediate requirement priority:** Admin Finance cost/rate visibility and
+versioned pricing, through [its master](admin-finance/000-master.md). A read-only
+inventory/reporting slice can precede DB/Auth; production financial publication
+still requires the database and real-account foundation. The Fashion first-paid
+direction below is retained without rebuilding the multi-workflow platform.
 
 Read [the current-source crosswalk](Phase2-21-current-source-baseline-and-gap-register.md)
 for evidence and known gaps, then follow
@@ -138,6 +140,7 @@ frontend or blocking independent backend migration.
 | Phase2-05 | Projects, Ownership and Collections | Phase2-03, Phase2-04 |
 | Phase2-06 | Assets, Storage and Product Catalog | Phase2-05 |
 | Phase2-07 | Credit Ledger and Transaction Integrity | Phase2-03, Phase2-04 |
+| Admin Finance FIN-001 through 007 | Cost/rate inventory, future price/billing versions, supplier funding and monthly/yearly reports | Existing Credits/catalog; shared publication via Backend 018-010; DB/Auth before production financial writes |
 | Phase2-08 | Packages, Pricing, Checkout and Payments | Phase2-07 |
 | Phase2-10 | Durable Jobs and Batch Orchestration | Phase2-03, Phase2-07 |
 | Phase2-11 | Model Profiles and AI Model Creation | Phase2-06, Phase2-10 |
@@ -271,6 +274,7 @@ registry, route and entitlement contracts.
 | Phase2-05 | Collections exist locally; Project aggregate pending | Domain/UX |
 | Phase2-06 | Local Assets and provider-handoff GCS exist; general storage cutover and Product Catalog pending | Storage/Product |
 | Phase2-07 | Local estimate/reserve/capture/refund validated; transactional production ledger pending | Financial integrity |
+| Admin Finance | Local inventory, Credit reports and typed planning drafts implemented/verified (FIN-008); complete financial flow pending FIN-009 | Actual cost/funding evidence, durable publication, trusted permissions and quote parity |
 | Phase2-08 | Proposed | Payment/Legal |
 | Phase2-09 | Deferred for paid MVP | Subscription |
 | Phase2-10 | Groups, process image queue, JSON Video Tasks and shared Job Center exist; production worker durability pending | Reliability |
@@ -287,6 +291,11 @@ registry, route and entitlement contracts.
 | Phase2-21 | Source evidence recorded; no runtime recertification | Bounded review and gap tracking |
 
 ## 8. Recommended Next Sequence From The Current Codebase
+
+The requested Finance-first branch starts with its read-only inventory and
+schema/price mapping, then the evidence-aware Admin view. Follow FIN-005; do
+not enable scheduled pricing on local JSON or start checkout to populate it.
+The durable platform sequence below remains its production dependency path.
 
 1. Refresh Phase2-01 decisions and inventory the exact production adapter
    boundaries without moving canonical domain services.

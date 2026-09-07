@@ -20,6 +20,16 @@ Template use-session fees and provider-controlled availability remain intact.
 
 Credits must be auditable, resistant to duplicate charging and safe during retries, failures and concurrent jobs. No module may edit a user's balance directly.
 
+### Admin Finance Consumer (2026-09-07)
+
+[Admin Finance](admin-finance/000-master.md) owns provider-expense evidence and
+management reporting linked to this ledger, not a second wallet. It consumes
+Credit quotes/captures/refunds through the canonical facade. Its rate editor
+uses Backend 018-010 publication; Credits remains the calculation authority.
+Cost-only changes do not automatically change retail Credits. Versioned quote
+pinning, proposed execution-cost evidence and future effective dates follow
+FIN-002/003 without rewriting settled history.
+
 ## 2. Accounting Model
 
 Maintain an immutable ledger and transactional reservations:

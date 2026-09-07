@@ -322,6 +322,32 @@ These are inventory/DDL work packages, not already-approved table designs:
 Attach each owner to a reviewed wave before enabling that capability in
 production. Never silently leave a live JSON writer outside the migration map.
 
+### 5.9 Proposed Finance Adopter
+
+[Admin Finance](admin-finance/000-master.md) adds cost observations/components,
+append-only adjustments, reconciliation links and derived reporting. These are
+planned contracts, not existing tables or a DDL-ready financial subsystem.
+FIN-001 maps source policy/usage/quote fields; FIN-003 separates expense evidence
+from Credit/Payment authority and defines missing-data treatment.
+FIN-006 adds supplier accounts, effective service bindings, funding pools/lots,
+cash events and settlement allocations; prepaid funding is not another customer
+wallet or a duplicate usage expense. FIN-007 adds monthly/yearly/as-of reporting
+projections, with cash dates separate from usage periods and boundary balances.
+
+Reuse the Admin Configuration revision/publication/schedule tables from Backend
+018-010, with normalized rate dimensions and fixed-decimal unit rates. Do not
+create a second Finance scheduler or price history. Financial units/FX precision,
+event uniqueness, evidence retention and authorizations must be reviewed before
+DDL. Realized revenue/profit is not inferred from mock Credit data.
+Supplier billing-agreement versions also use the shared configuration revisions;
+switching the local metadata does not perform an external billing-plan change.
+
+Read-only local reporting may precede cutover. Production publication follows
+Identity/Audit and transactional configuration storage; durable cost event
+capture follows the relevant Generation/AI workflow event dependencies in
+Wave 3/4. Payment-derived receipts join only after Wave 5. Track each dependency
+explicitly rather than blocking the read-only Finance view on all migrations.
+
 ## 6. Dependency-Ordered Migration Waves
 
 ### Wave 0 - Inventory and contract freeze

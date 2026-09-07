@@ -51,6 +51,7 @@ export const router = createBrowserRouter([{
     { path: 'admin/attributes', lazy: lazyRoute(() => import('../features/admin/routes/AdminAttributesRoute'), 'AdminAttributesRoute') },
     { path: 'admin/cinematic', lazy: lazyRoute(() => import('../features/admin/routes/AdminCinematicRoute'), 'AdminCinematicRoute') },
     { path: 'admin/providers', lazy: lazyRoute(() => import('../features/admin/routes/AdminProvidersRoute'), 'AdminProvidersRoute') },
+    { path: 'admin/finance', lazy: lazyRoute(() => import('../features/admin/routes/AdminFinanceRoute'), 'AdminFinanceRoute') },
     { path: 'admin/control-plane', lazy: lazyRoute(() => import('../features/admin/routes/AdminControlPlaneRoute'), 'AdminControlPlaneRoute') },
     { path: 'admin/users/:userId', lazy: lazyRoute(() => import('../features/admin/routes/AdminUserDetailRoute'), 'AdminUserDetailRoute') },
 

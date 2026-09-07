@@ -1,12 +1,34 @@
 # Versioned Runtime Configuration And Video Rate Cards
 
-**Status:** Requirement ready; implementation not started  
+**Status:** Shared publication lifecycle planned; existing provider controls are reused
 **Owner:** Admin Configuration capability; Credits owns pricing evaluation  
 **Primary role:** Product And Requirement Architect  
 **Reviewers:** Commercial Financial Integrity, Backend Platform Architect  
 **Skills:** `review-commercial-integrity`, `implement-generation-workflow`,
 `verify-release-regressions` during implementation  
 **Implementation in this change:** Requirement only
+
+## Current Finance Adopter (2026-09-07)
+
+[Admin Finance](../019-implementation-commercial-feature-plan/admin-finance/000-master.md)
+is the next requested adopter across image, video and AI-text cost/retail rates.
+It owns cost reporting, evidence and the Finance workspace; this requirement
+continues to own the single draft/publication/schedule lifecycle. Existing
+ProviderControlApplicationService/ProviderAvailabilityPolicyService already
+own provider/model emergency controls and must not be rebuilt here.
+
+FIN-002 refines announcement, provider-effective, scheduled and actual activation
+dates, cost-only versus retail changes, due-but-delayed activation, and quote
+versus execution-cost pinning. Apply those rules to Finance rate scopes without
+requiring a qualified video operation to deliver image/text Finance. No runtime
+rate or provider availability changes are authorized by this documentation.
+
+FIN-006 additionally adopts this lifecycle for supplier billing-agreement and
+service-binding metadata (prepaid/postpaid/hybrid). These are separate scopes
+from rate revisions and trigger no external payment/account change. Finance
+owns supplier funding events and period reports; this publisher owns only the
+approved metadata revision/activation. Rate-specific quote blocking does not
+apply to advisory funding metadata without an approved consumer dependency.
 
 ## 1. Outcome
 
@@ -16,8 +38,9 @@ the live application at edit time. Every material configuration edit is stored
 as a draft revision. It becomes effective only through an explicit manual
 publish or an approved scheduled activation.
 
-Video provider capabilities and rate cards are the first complete adopter of
-this platform contract. The same lifecycle shall be reusable for future
+Video provider capabilities and rate cards remain a detailed adopter of
+this platform contract. Admin Finance extends it to image and AI-text pricing
+and expense evidence as well. The same lifecycle shall be reusable for future
 frontend-affecting configuration rather than each Admin screen implementing its
 own draft/publish flags and timers.
 
@@ -46,7 +69,9 @@ own draft/publish flags and timers.
 
 - Reusable runtime configuration revision and publication lifecycle.
 - Admin video provider/model capability and exposure configuration.
-- Admin video provider-cost and retail Credit rate-card revisions.
+- Provider-cost and retail Credit rate-card revisions, including image/video/
+  AI-text through the Admin Finance adopter; provider billing dimensions remain
+  owned by their reviewed schemas and calculators.
 - Manual publish, scheduled publish, cancel schedule and rollback.
 - Draft comparison, validation, impact preview and immutable history.
 - Active public snapshot endpoint consumed by provider catalog/Credits.
@@ -82,9 +107,10 @@ stateDiagram-v2
   Superseded --> Ready: Clone for rollback
 ```
 
-`Draft`, `Ready` and `Scheduled` revisions may be edited only by creating or
-updating a working revision under optimistic concurrency. `Active` and
-`Superseded` revisions are immutable.
+`Draft` and working `Ready` revisions use optimistic concurrency; a material
+edit invalidates validation/approval. Editing scheduled content requires
+cancelling its schedule and validating a replacement. `Active` and `Superseded`
+revisions are immutable.
 
 ## 5. Universal Admin Publication Contract
 
@@ -134,6 +160,11 @@ history and Audit. It must not interpret business-specific rates itself.
 - Editing a scheduled payload requires cancelling the schedule and producing a
   new validated revision.
 - The UI shows countdown/effective time, scheduler health and cancellation.
+- Preserve actual activation time separately from the scheduled target. A due
+  rate scope must commit its approved activation or deny new dependent quotes
+  with a scoped pending/error status; it must not silently serve an obsolete
+  rate beyond the approved boundary. Accepted work/read/settlement remains
+  available under pinned policy. FIN-002 owns the detailed conflict cases.
 
 ### 5.3 Rollback
 
@@ -272,9 +303,10 @@ Simple filters, stable columns and clear status badges take priority.
 - `support`: read-only active/history/quote diagnostics.
 - ordinary user: no Admin endpoints.
 
-Production publication should support separation of editor and publisher. If
-MVP uses the same Admin role, the server still records distinct edit and
-publish actions and requires explicit confirmation.
+Production publication supports separation of editor and publisher. If MVP
+permits the same Admin for lower-risk actions, edit/publish remain distinct
+audited commands with explicit confirmation. R4/two-person requirements from
+018-007 cannot be waived by the shared role or this compatibility clause.
 
 ### 9.3 Validation and notifications
 
@@ -429,6 +461,8 @@ Do not start with a visual Admin editor that writes static files directly.
   notes.
 - `CFG-13`: image pricing/provider behavior remains unchanged during video
   adoption.
+  Explicit image Finance adoption has its own parity and approved-publication
+  gate; it must not modify untargeted provider/workflow behavior.
 - `CFG-14`: database backup/restore, scheduler restart and cache invalidation
   evidence pass before production.
 - `CFG-15`: all Admin states pass keyboard, responsive, theme and i18n review.
@@ -438,6 +472,8 @@ Do not start with a visual Admin editor that writes static files directly.
 - authenticated staff roles and Audit are production-ready;
 - active revision/publication storage is transactional and restart-safe;
 - Credits ledger, quote and settlement pin configuration versions;
-- at least one video operation is qualified under Requirement 016-006;
+- each enabled adopter has reviewed pricing/usage coverage; video-specific
+  activation additionally requires qualification under Requirement 016-006,
+  but this is not a blocker for the image/text Finance adopter;
 - Commercial approves retail policy and source evidence;
 - QA passes replay, stale edit, schedule, rollback, expiry and emergency tests.

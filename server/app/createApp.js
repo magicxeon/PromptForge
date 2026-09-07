@@ -22,6 +22,7 @@ import { registerHistoryRoutes } from './routes/historyRoutes.js';
 import { registerComparisonRoutes } from './routes/comparisonRoutes.js';
 import { registerSceneTemplateRoutes } from './routes/sceneTemplateRoutes.js';
 import { registerAdminRoutes } from './routes/adminRoutes.js';
+import { registerAdminFinanceRoutes } from './routes/adminFinanceRoutes.js';
 import { registerAdminAttributeCatalogRoutes } from './routes/adminAttributeCatalogRoutes.js';
 import { registerPromptComposerRoutes } from './routes/promptComposerRoutes.js';
 import { registerCommunityTaxonomyRoutes } from './routes/communityTaxonomyRoutes.js';
@@ -203,6 +204,7 @@ export function createApp() {
     providerControlService
   });
   registerAdminAttributeCatalogRoutes(app, { catalogService: attributeCatalogApplicationService });
+  registerAdminFinanceRoutes(app);
   registerCommunityTaxonomyRoutes(app, {
     communityClassificationService,
     communityFeaturePolicyService

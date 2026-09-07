@@ -257,6 +257,18 @@ result; it never emulates the mutation.
 - bulk destructive action is out of MVP scope;
 - every denial returns a stable code and safe support reference.
 
+### 8.1 Finance Adopter Boundary (2026-09-07)
+
+The Admin Finance workspace and proposed cost-evidence read/reconciliation
+permissions are specified in
+[FIN-004](../019-implementation-commercial-feature-plan/admin-finance/004-admin-finance-workspace-and-permissions.md).
+Rate authorship/publication reuses configuration commands above. Finance must
+not become another Credit adjustment, payment refund or provider-control owner.
+Support's existing Case diagnostics do not automatically grant aggregate costs,
+margins, price publication or evidence-adjustment rights. Permission vocabulary
+must be finalized server-side before implementation; this addendum grants no
+new runtime access or self-approval exception.
+
 ## 9. Acceptance IDs
 
 - `POL-018-01`: every route, reveal and command maps to a server permission.

@@ -20,6 +20,7 @@ export const routePaths = {
   adminAttributes: '/admin/attributes',
   adminCinematic: '/admin/cinematic',
   adminProviders: '/admin/providers',
+  adminFinance: '/admin/finance',
   adminControlPlane: '/admin/control-plane'
 } as const;
 
