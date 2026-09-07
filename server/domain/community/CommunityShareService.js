@@ -147,6 +147,10 @@ export class CommunityShareService {
     return this.templateDetailService.getForPost(postId, query, actorContext);
   }
 
+  async getTemplatePreviews(query, actorContext) {
+    return this.templateDetailService.getPreviews(query, actorContext);
+  }
+
   async getGenerationSharingPolicy(generation) {
     const derived = isTemplateDerivedGeneration(generation);
     return {

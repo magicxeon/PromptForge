@@ -53,6 +53,9 @@ try {
       await page.locator('.template-scene-panel__selected').waitFor();
       await page.waitForTimeout(400);
       assert.equal(await page.locator('.template-scene-panel__selected strong').textContent(), 'Nara 28');
+      await page.locator('.reference-slot__preview img[alt*="Nara 28"]').waitFor();
+      assert.equal(await page.locator('.template-scene-panel__selected img').evaluate(el => getComputedStyle(el).objectPosition), '50% 50%');
+      await page.screenshot({ path: path.join(output, `selected-${width}-${theme}.png`), fullPage: true });
       await page.locator('.template-scene-panel__character > button').click();
       await page.locator('.character-picker').waitFor();
       await page.keyboard.press('Escape');
@@ -64,7 +67,7 @@ try {
   }
   assert.ok(drafts.length, 'Fixture must observe the existing estimate path');
   assert.ok(drafts.some(draft => JSON.stringify(draft).includes('character-27')), 'Authorized Character context must reach the existing estimate path');
-  assert.ok(drafts.every(draft => !JSON.stringify(draft).includes('street-walk-editorial')), 'Template preview must never be submitted as a reference');
+  assert.ok(drafts.every(draft => !JSON.stringify(draft).includes('street-walk-editorial')), 'Template and Character display artwork must never be submitted as references');
   assert.deepEqual(errors, []); assert.deepEqual(blocked, []);
   console.log(JSON.stringify({ status: 'PASS', locale, screenshots: output, cases: 9, liveMutations: false }, null, 2));
 } finally { await browser.close(); }

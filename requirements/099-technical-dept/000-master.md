@@ -247,6 +247,14 @@ For a single small module, place it in the nearest existing capability folder an
 
 ### 4.5 Required Final Check
 
+Presentation ownership addendum (2026-09-07): CommunityTemplateDetailService owns
+both single-family detail and bounded Gallery preview reads through
+CommunityShareService. Profiles owns characterDisplayImage.ts and featured-work
+summary projection; shared DisplayMediaImage is controlled presentation only.
+Provider mark runtime assets belong to client/assets/providers/. No new runtime
+data store, provider entry point or Generation reference authority is introduced.
+See community Page-Enhancement requirement023 and implementation-plan034.
+
 Every implementation handoff must report:
 
 ```text

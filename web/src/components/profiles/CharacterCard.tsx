@@ -5,6 +5,7 @@ import type { CharacterSummary } from '../../features/profiles/schemas/profileSc
 import { apiMediaUrl } from '../../lib/api/apiClient';
 import { createReturnNavigationState } from '../../lib/navigation/returnNavigation';
 import { routeBuilders } from '../../app/routeRegistry/routes';
+import { characterDisplayImages } from '../../features/profiles/characterDisplayImage';
 
 export function CharacterCard({
   character,
@@ -18,10 +19,8 @@ export function CharacterCard({
   const { t } = useTranslation('character-profiles');
   const location = useLocation();
   const available = character.handoffAvailable;
-  const previewUrl = character.displayImageUrl
-    || character.thumbnailUrl
-    || character.imageUrl
-    || null;
+  const preview = characterDisplayImages(character)[0];
+  const previewUrl = preview?.src;
   return (
     <article className="overflow-hidden rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)]">
       <Link
@@ -35,7 +34,8 @@ export function CharacterCard({
               src={apiMediaUrl(previewUrl) || ''}
               alt={character.displayName}
               loading="lazy"
-              className="h-full w-full object-cover object-top"
+              className="h-full w-full"
+              style={{ objectFit: preview?.fit || 'contain', objectPosition: 'center' }}
             />
           ) : null}
         </div>

@@ -125,6 +125,15 @@ Post preview and verified public creations work under requirement 014.
 
 021-template-input-policy.md sequences requirements 016-018. Existing Template
 Detail and Scene presentation plans remain scoped to their prior work.
+# Template / Character Presentation Follow-up
+
+[Plan 023](023-template-character-presentation-master.md) sequences plans 024-033
+against requirements 023-032. It covers Template Gallery, resource 005 Photo
+Template Detail, Character picker/selected display images and Landing provider
+marks. Implementation is delivered with focused fixture gates; see
+[034 evidence](034-presentation-delivery-evidence.md) for tests and live/source
+checks still pending. The short-group runner and optional aggregate now exist.
+
 # Template-Derived Sharing
 
 Plan 022 owns the ordered implementation and focused gates for requirements

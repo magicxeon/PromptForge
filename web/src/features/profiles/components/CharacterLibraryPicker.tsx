@@ -7,6 +7,7 @@ import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { getCharacter, listCharacters, listOwnedCharacters } from '../api/profileApi';
 import type { CharacterSummary } from '../schemas/profileSchemas';
 import { readCharacterPickerRecents, rememberCharacterPick } from '../characterPickerRecents';
+import { characterDisplayImages } from '../characterDisplayImage';
 
 export function CharacterLibraryPicker({ open, onOpenChange, current, onSelect, unavailableReason }: {
   open: boolean; onOpenChange: (value: boolean) => void; current: CharacterSummary | null;
@@ -34,10 +35,10 @@ function CharacterLibraryPickerSession({ actorId, open, onOpenChange, current, o
     enabled: open && Boolean(actorId), staleTime: 30_000 });
   const recentIds = open ? readCharacterPickerRecents(actorId) : [];
   const recentQueries = useQueries({ queries: recentIds.map(id => ({ queryKey: ['character', actorId, id], queryFn: () => getCharacter(id), enabled: open && Boolean(actorId), staleTime: 30_000, retry: false })) });
-  const recent = recentQueries.flatMap(result => result.data && !unavailableReason(result.data) ? [result.data] : []);
+  const recent = recentQueries.flatMap(result => result.data && !result.isError && !unavailableReason(result.data) ? [result.data] : []);
   const items = page.data?.items || [];
   const projection = (item: CharacterSummary): CharacterPickerItem => ({ id: item.id, name: item.displayName,
-    image: item.faceThumbnailUrl || item.thumbnailUrl || item.imageUrl, unavailableReason: unavailableReason(item) });
+    displayImages: characterDisplayImages(item), unavailableReason: unavailableReason(item) });
   async function confirm() {
     if (!selected || pending || unavailableReason(selected)) return;
     setPending(true); setError(null);

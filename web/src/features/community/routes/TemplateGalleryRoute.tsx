@@ -1,10 +1,7 @@
-import { Eye, Search, Sparkles, WandSparkles } from 'lucide-react';
+import { Eye, Search, WandSparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
-import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
-import { createReturnNavigationState } from '../../../lib/navigation/returnNavigation';
+import { Button } from '../../../components/ui/Button';
 import { DiscoveryLoadMore } from '../../../components/discovery/DiscoveryLoadMore';
-import { DiscoveryPageHero } from '../../../components/discovery/DiscoveryPageHero';
 import { DiscoverySteps } from '../../../components/discovery/DiscoverySteps';
 import {
   DiscoverySegmentedControl,
@@ -12,13 +9,13 @@ import {
   DiscoveryToolbar
 } from '../../../components/discovery/DiscoveryToolbar';
 import { EditorialTutorialRail } from '../../../components/discovery/EditorialTutorialRail';
-import { MediaStage } from '../../../components/media/MediaStage';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/AsyncState';
-import { TemplateUseButton } from '../../../components/templates/TemplateUseButton';
+import { TemplateGalleryHero } from '../components/templates/TemplateGalleryHero';
+import { selectTemplateHero } from '../components/templates/templateHeroSelection';
+import { useTemplatePreviews } from '../hooks/useTemplatePreviews';
 import { TemplateDiscoveryCard } from '../components/templates/TemplateDiscoveryCard';
 import { discoveryTutorialAssets } from '../config/discoveryEditorialConfig';
 import {
-  formatDiscoveryCategory,
   useCommunityDiscoveryPosts
 } from '../hooks/useCommunityDiscoveryPosts';
 import { useCommunityTemplateHandoff } from '../hooks/useCommunityTemplateHandoff';
@@ -26,11 +23,10 @@ import { useCommunityTemplateHandoff } from '../hooks/useCommunityTemplateHandof
 const periodIds = ['latest', 'week', 'month', 'year'] as const;
 
 export function TemplateGalleryRoute() {
-  const { t } = useTranslation('community');
-  const location = useLocation();
+  const { t, i18n } = useTranslation('community');
   const discovery = useCommunityDiscoveryPosts('template');
   const handoff = useCommunityTemplateHandoff();
-  const featured = discovery.posts.find(post => post.imageUrl || post.thumbnailUrl) || null;
+  const previews = useTemplatePreviews(discovery.query.data?.pages.map(page => page.items.map(post => post.id)) || []);
   const tutorialItems = discoveryTutorialAssets.templates.map(item => ({
     ...item,
     title: t(`community.templates.tutorial.${item.id}.title`),
@@ -39,35 +35,9 @@ export function TemplateGalleryRoute() {
 
   return (
     <main className="discovery-page template-gallery-page">
-      <DiscoveryPageHero
-        eyebrow={t('community.templates.eyebrow')}
-        title={t('community.templates.title')}
-        description={t('community.templates.description')}
-        media={featured ? <MediaStage post={featured} eager fit="cover" source="original" /> : undefined}
-        mediaLabel={featured?.title}
-        actions={[
-          { label: t('community.templates.create'), to: routePaths.createStudioScene, icon: <Sparkles />, variant: 'primary' },
-          { label: t('community.templates.browse'), to: `${routePaths.exploreTemplates}#template-catalog`, icon: <Search /> }
-        ]}
-      />
+      <TemplateGalleryHero selection={selectTemplateHero(discovery.posts, previews.items)} />
 
-      {featured ? (
-        <section className="template-feature" aria-labelledby="template-feature-title">
-          <div className="template-feature__media"><MediaStage post={featured} eager fit="cover" source="original" /></div>
-          <div className="template-feature__copy">
-            <span>{t('community.templates.featuredEyebrow')}</span>
-            <h2 id="template-feature-title">{featured.title || t('community.creator.untitled')}</h2>
-            {featured.description ? <p>{featured.description}</p> : null}
-            <TemplateUseButton
-              disabled={!featured.templateAvailability || (handoff.isPending && handoff.variables === featured.id)}
-              onUse={() => handoff.mutate(featured.id)}
-            />
-            <Link className="template-feature__detail-link" to={routeBuilders.templateDetail(featured.id)} state={createReturnNavigationState(location)}>
-              {t('community.templates.viewDetails')}
-            </Link>
-          </div>
-        </section>
-      ) : null}
+      {previews.failed ? <p className="discovery-inline-error" role="status">{t('community.templateVisual.previewError')} <button type="button" onClick={previews.retry}>{t('community.feed.retry')}</button></p> : null}
 
       <DiscoverySteps
         title={t('community.templates.stepsLabel')}
@@ -83,6 +53,7 @@ export function TemplateGalleryRoute() {
           <div>
             <span>{t('community.templates.catalogEyebrow')}</span>
             <h2 id="template-catalog-title">{t('community.templates.catalogTitle')}</h2>
+            <span>{t(`community.feed.${discovery.periodValue}`)}</span>
             {discovery.filters.search ? <p>{t('community.templates.searchResult', { query: discovery.filters.search })}</p> : null}
           </div>
         </header>
@@ -100,7 +71,7 @@ export function TemplateGalleryRoute() {
             value={discovery.filters.officialTag}
             options={[
               { label: t('community.feed.categoryAll'), value: '' },
-              ...discovery.categories.map(category => ({ label: formatDiscoveryCategory(category.id), value: category.id }))
+              ...discovery.categories.filter(category => i18n.exists(`community:community.officialTag.${category.id}`)).map(category => ({ label: t(`community.officialTag.${category.id}`), value: category.id }))
             ]}
             onChange={value => discovery.setParam('category', value)}
           />
@@ -122,13 +93,14 @@ export function TemplateGalleryRoute() {
           />
         ) : null}
         {!discovery.query.isLoading && !discovery.query.isError && !discovery.posts.length ? (
-          <EmptyState title={t('community.templates.empty')} description={t('community.templates.emptyDescription')} />
+          <><EmptyState title={t('community.templates.empty')} description={t('community.templates.emptyDescription')} /><Button onClick={discovery.resetFilters}>{t('community.feed.resetFilters')}</Button></>
         ) : null}
         <div className="template-discovery-grid" aria-live="polite">
           {discovery.posts.map(post => (
             <TemplateDiscoveryCard
               key={post.id}
               post={post}
+              creations={previews.items.get(post.id)?.items || []}
               using={handoff.isPending && handoff.variables === post.id}
               onUse={() => handoff.mutate(post.id)}
             />

@@ -1,8 +1,9 @@
 import type { CommunityPost } from '../../community/schemas/communitySchemas';
 import type { CharacterSummary } from '../schemas/profileSchemas';
+import { characterDisplayImages } from '../characterDisplayImage';
 
 export function characterPortraitUrl(character: CharacterSummary) {
-  return character.displayImageUrl || character.thumbnailUrl || character.imageUrl || null;
+  return characterDisplayImages(character)[0]?.src || null;
 }
 
 export function characterGalleryImageUrl(character: CharacterSummary) {

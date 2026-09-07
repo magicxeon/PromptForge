@@ -74,6 +74,8 @@ function ShareGeneratedDialogSession({ actorId, jobId, trigger }: { actorId: str
     },
     onSuccess: (result) => {
       queryClient.setQueryData(statusKey, { shared: true });
+      void queryClient.invalidateQueries({ queryKey: ['community-template-previews', actorId] });
+      void queryClient.invalidateQueries({ queryKey: ['community-template-detail', actorId] });
       setOpen(false);
       if (result.templatePost) {
         setPublishedTemplate(result.templatePost);

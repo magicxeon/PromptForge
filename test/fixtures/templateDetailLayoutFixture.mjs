@@ -11,11 +11,11 @@ export const templateFixture = {
   templateId: 'template-fixture', templateVersionId: 'v1',
   generationMetadata: { aspectRatio: '2:3', width: 1024, height: 1536 },
   providerModelDisplay: 'Sample image model', engagementSummary: { likeCount: 35, viewCount: 160 },
-  officialTags: ['Editorial', 'Portrait'], templatePricing: { accessCredits: 0, currency: 'credits' }
+  officialTags: ['visual_style.magazine', 'content_type.portrait'], templatePricing: { accessCredits: 0, currency: 'credits' }
 };
 export const creationFixtures = Array.from({ length: 14 }, (_, index) => ({
   id: `template-work-${index}`, postType: 'image', title: `Community variation ${index + 1}`,
-  creator: { username: 'sample_creator', displayName: `Creator ${index + 1}` },
+  creator: { username: `creator_${index + 1}`, displayName: `Creator ${index + 1}` },
   status: 'published', visibility: 'public',
   imageUrl: asset(['sunlit-storefront', 'cafe-seated-lifestyle', 'window-shadow-lookbook', 'soft-character-portrait'][index % 4]),
   engagementSummary: { likeCount: 80 - index, viewCount: 250 - index },
@@ -26,6 +26,9 @@ export async function installTemplateDetailLayoutFixture(context, origin) {
   const blocked = await installCharacterDiscoveryLayoutFixture(context, origin);
   const html = await fs.readFile(new URL('../../web/dist/index.html', import.meta.url));
   const posts = [templateFixture, ...creationFixtures, { ...creationFixtures[0], id: 'ordinary-image', title: 'Standalone image' }];
+  await context.route('**/api/community/template-previews?*', route => route.fulfill({ json: {
+    items: [{ templatePostId: templateFixture.id, items: creationFixtures.slice(0, 3), hasMore: true }]
+  } }));
   await context.route(/\/explore\/templates(?:\/[^?]*)?(?:\?.*)?$/, route => route.fulfill({ body: html, contentType: 'text/html' }));
   await context.route(/\/posts\/[^/?]+(?:\?.*)?$/, route => {
     const url = new URL(route.request().url());

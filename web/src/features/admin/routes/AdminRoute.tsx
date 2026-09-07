@@ -150,7 +150,13 @@ function PostsPanel({ actorId }: { actorId: string }) {
   const query = useQuery({ queryKey: ['admin', actorId, 'posts', filters], queryFn: () => listAdminPosts(filters) });
   const moderation = useMutation({
     mutationFn: ({ postId, action }: { postId: string; action: string }) => moderatePost(postId, action, `Support moderation: ${action}`),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['admin', actorId, 'posts'] })
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['admin', actorId, 'posts'] }),
+        queryClient.invalidateQueries({ queryKey: ['community-template-previews', actorId] }),
+        queryClient.invalidateQueries({ queryKey: ['community-template-detail', actorId] })
+      ]);
+    }
   });
   if (query.isLoading) return <LoadingState label={t('ui.admin.loadingPosts')} />;
   if (query.isError || !query.data) return <ErrorState title={t('ui.admin.postsUnavailable')} description={query.error?.message} />;

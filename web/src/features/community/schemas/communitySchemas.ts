@@ -130,6 +130,14 @@ export const templateDetailPageSchema = z.object({
   hasMore: z.boolean()
 });
 
+export const templatePreviewsSchema = z.object({
+  items: z.array(z.object({
+    templatePostId: z.string(),
+    items: z.array(communityPostSchema).max(3),
+    hasMore: z.boolean()
+  })).max(24)
+});
+
 export const communityFeedPageSchema = z.object({
   items: z.array(communityPostSchema),
   ranking: z.object({

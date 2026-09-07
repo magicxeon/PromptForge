@@ -5,7 +5,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { canReuseCharacterProfile, reuseStatus } from '../server/domain/character-profiles/characterProfilePolicy.js';
 import { CharacterProfileSharingService } from '../server/domain/character-profiles/CharacterProfileSharingService.js';
+import { CharacterProfileService } from '../server/domain/character-profiles/CharacterProfileService.js';
 import { CommunityCharacterRepository } from '../server/repositories/community/CommunityCharacterRepository.js';
+import { CommunityPostRepository } from '../server/repositories/community/CommunityPostRepository.js';
 
 const owner = { userId: 'usr_owner' };
 const viewer = { userId: 'usr_viewer' };
@@ -15,6 +17,100 @@ const approved = {
   visibility: 'public',
   reusePolicy: 'public_reusable'
 };
+
+test('owner Character list shares manual artwork with public and owner detail using one page batch', async () => {
+  const fixture = ownerFeaturedFixture();
+  const before = structuredClone(fixture.profile);
+  const recent = { ...fixture.posts[0], id: 'recent', sourceGenerationResultId: 'recent-job', createdAt: '2026-09-07', engagementSummary: { likeCount: 99 } };
+  fixture.posts.push(recent);
+  fixture.results.push({ ...fixture.results[0], id: 'recent-job', timestamp: Date.parse('2026-09-07') });
+  const page = await fixture.service.listOwn({ limit: 2 }, owner);
+  assert.equal(fixture.historyReads(), 1);
+  assert.equal(fixture.postReads(), 1);
+  assert.equal(page.nextCursor, 'next-page');
+  assert.equal(page.hasMore, true);
+  assert.equal(page.items.length, 2);
+  assert.equal(page.items[0].displayImageSource, 'owner_selected_work');
+  assert.equal(page.items[0].featuredWorkPostId, 'selected-work');
+  assert.equal(page.items[0].featuredImageMode, 'manual');
+  assert.equal(page.items[0].characterProfileVersionId, 'version');
+  assert.equal(page.items[0].imageUrl, '/api/character-profiles/character/media/image');
+  assert.equal(page.items[1].displayImageSource, 'owner_canonical_sheet');
+  const publicPage = await fixture.sharing.listPublic({}, viewer);
+  const detail = await fixture.service.getOwnerDetail(fixture.profile.id, owner);
+  assert.equal(page.items[0].displayImageUrl, publicPage.items[0].displayImageUrl);
+  assert.equal(page.items[0].displayImageUrl, detail.displayImageUrl);
+  assert.equal(publicPage.items[0].displayImageSource, 'owner_selected_work');
+  assert.deepEqual(fixture.profile, before);
+  assert.ok(!JSON.stringify(page).includes('/outputs/'));
+  assert.ok(!JSON.stringify(publicPage).includes('/outputs/'));
+});
+
+for (const restriction of [
+  { visibility: 'private' }, { visibility: 'unlisted' }, { status: 'hidden' },
+  { status: 'removed' }, { deletedAt: '2026-09-07' }
+]) {
+  test(`owner Character list and public projection stop featuring inaccessible manual work: ${JSON.stringify(restriction)}`, async () => {
+    const fixture = ownerFeaturedFixture();
+    assert.equal((await fixture.service.listOwn({}, owner)).items[0].displayImageSource, 'owner_selected_work');
+    Object.assign(fixture.posts[0], restriction);
+    const ownPage = await fixture.service.listOwn({}, owner);
+    const publicPage = await fixture.sharing.listPublic({}, viewer);
+    assert.equal(ownPage.items[0].displayImageSource, 'owner_canonical_sheet');
+    assert.equal(publicPage.items[0].displayImageSource, 'canonical_sheet');
+    assert.ok(!ownPage.items[0].displayImageUrl.includes('featured-image'));
+    assert.ok(!publicPage.items[0].displayImageUrl.includes('featured-image'));
+    assert.equal(fixture.profile.featuredWorkPostId, 'selected-work');
+  });
+}
+
+test('owner Character list retains authorized private Character artwork without granting public access', async () => {
+  const fixture = ownerFeaturedFixture();
+  fixture.profile.visibility = 'private';
+  const ownPage = await fixture.service.listOwn({}, owner);
+  assert.equal(ownPage.items[0].displayImageSource, 'owner_selected_work');
+  await assert.rejects(fixture.sharing.getPublicDetail(fixture.profile.id, viewer), { code: 'character_profile_not_found' });
+  assert.equal((await fixture.service.listOwn({}, viewer)).items.length, 0);
+});
+
+function ownerFeaturedFixture() {
+  const profile = { ...approved, id: 'character', activeVersionId: 'version', displayName: 'Manual character',
+    characterType: 'styled_character', intendedUses: ['scene_story'], featuredImageMode: 'manual',
+    featuredImageSourceType: 'community_post', featuredWorkPostId: 'selected-work' };
+  const profiles = [profile, { ...approved, id: 'no-work', activeVersionId: 'other-version', displayName: 'No work',
+    characterType: 'styled_character', intendedUses: ['scene_story'] }];
+  const versions = profiles.map(item => ({ id: item.activeVersionId, characterProfileId: item.id,
+    status: 'approved', canonicalCharacterSheetAssetId: `sheet-${item.id}` }));
+  const results = [{ id: 'selected-job', ownerUserId: viewer.userId, imageUrl: '/outputs/private-source.png',
+    characterProfileContext: { characterProfileId: profile.id, characterProfileVersionId: 'version' } }];
+  const posts = [{ id: 'selected-work', sourceGenerationResultId: 'selected-job', ownerUserId: viewer.userId,
+    imageUrl: '/outputs/private-source.png', visibility: 'public', status: 'published', createdAt: '2026-09-01' }];
+  let historyReads = 0;
+  let postReads = 0;
+  const postRepository = new CommunityPostRepository();
+  // Exercise the real public-post filter without reading or writing runtime storage.
+  postRepository.readAll = async () => { postReads++; return posts; };
+  const profileRepository = {
+    findByOwner: async actorId => ({ items: profiles.filter(item => item.ownerUserId === actorId), nextCursor: 'next-page', hasMore: true }),
+    listPublic: async () => ({ items: profiles.filter(item => item.visibility === 'public'), nextCursor: null, hasMore: false }),
+    findById: async id => profiles.find(item => item.id === id),
+    findByIdForOwner: async (id, actorId) => profiles.find(item => item.id === id && item.ownerUserId === actorId)
+  };
+  const versionRepository = {
+    findById: async id => versions.find(item => item.id === id),
+    listByProfileId: async id => versions.filter(item => item.characterProfileId === id)
+  };
+  const usageService = { getStats: async () => ({ totalOutputs: 0, byUseCase: {} }) };
+  const sharing = new CharacterProfileSharingService({ profileRepository, versionRepository, usageService,
+    communityPostRepository: postRepository,
+    generationResultRepository: { findByCharacterProfileIds: async ids => {
+      historyReads++;
+      return results.filter(item => ids.includes(item.characterProfileContext.characterProfileId));
+    } }
+  });
+  const service = new CharacterProfileService({ profileRepository, versionRepository, usageService, profileSharingService: sharing });
+  return { service, sharing, profile, posts, results, historyReads: () => historyReads, postReads: () => postReads };
+}
 
 test('public reusable Character permits viewer handoff while view-only does not', () => {
   assert.equal(canReuseCharacterProfile(approved, viewer), true);

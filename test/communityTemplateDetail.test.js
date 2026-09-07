@@ -17,6 +17,67 @@ function setup(posts, jobs = posts.filter(p => p.postType === 'image').map(p => 
   }), reads: () => reads };
 }
 
+test('measures bounded preview payloads for 1/12/24 roots with one history read', async t => {
+  for (const count of [1, 12, 24]) {
+    const roots = Array.from({ length: count }, (_, i) => ({ ...root, id: i ? `root-${i}` : 'root' }));
+    const { service, reads } = setup([...roots, ...Array.from({ length: 4 }, (_, i) => makePost(`work-${i}`))]);
+    const start = performance.now();
+    const response = await service.getPreviews({ postIds: roots.map(item => item.id).join(',') }, actor);
+    const bytes = Buffer.byteLength(JSON.stringify(response));
+    assert.equal(reads(), 1);
+    assert.equal(response.items.length, count);
+    assert.ok(bytes < count * 10_000);
+    t.diagnostic(JSON.stringify({ roots: count, historyReads: reads(), responseBytes: bytes, durationMs: Number((performance.now() - start).toFixed(2)) }));
+  }
+});
+
+test('bounded previews match detail with one history lookup for 24 roots', async () => {
+  const roots = Array.from({ length: 24 }, (_, i) => ({ ...root, id: i ? `root-${i}` : 'root' }));
+  const { service, reads } = setup([...roots, ...Array.from({ length: 5 }, (_, i) => makePost(`work-${i}`))]);
+  const batch = await service.getPreviews({ postIds: roots.map(item => item.id).join(',') }, actor);
+  assert.equal(reads(), 1);
+  assert.equal(batch.items.length, 24);
+  assert.equal(batch.items[0].hasMore, true);
+  assert.equal(batch.items[0].items.length, 3);
+  assert.deepEqual(batch.items[0].items, (await service.getForPost('root', {}, actor)).items.slice(0, 3).map(post => {
+    const view = { ...post };
+    delete view.promptPreview;
+    return view;
+  }));
+  assert.ok(!JSON.stringify(batch).includes('/private/'));
+  assert.ok(!JSON.stringify(batch).includes('DO_NOT_EXPOSE'));
+});
+
+for (const promptVisibility of ['full', 'partial', 'private', 'hidden']) {
+  test(`previews omit ${promptVisibility} prompt text without changing detail or stored posts`, async () => {
+    const prompt = 'SYNTHETIC_PROMPT '.repeat(1500).trim();
+    const post = makePost('work', { promptVisibility, sharedPromptSnapshot: { publicPromptText: prompt } });
+    const { service } = setup([root, post]);
+    const batch = await service.getPreviews({ postIds: 'root' }, actor);
+    assert.equal(Object.hasOwn(batch.items[0].items[0], 'promptPreview'), false);
+    assert.ok(!JSON.stringify(batch).includes('SYNTHETIC_PROMPT'));
+    assert.equal(post.sharedPromptSnapshot.publicPromptText, prompt);
+    const detail = await service.getForPost('root', {}, actor);
+    assert.equal(detail.items[0].promptPreview, ['full', 'partial'].includes(promptVisibility) ? prompt : null);
+  });
+}
+
+test('preview bounds, inaccessible roots and duplicates do not leak metadata', async () => {
+  const { service } = setup([root, { ...root, id: 'hidden', visibility: 'private' }]);
+  for (const postIds of ['', 'root,,hidden', '../root', ['root'], Array(25).fill('root').join(',')]) {
+    await assert.rejects(service.getPreviews({ postIds }, actor), { code: 'template_preview_query_invalid' });
+  }
+  assert.deepEqual((await service.getPreviews({ postIds: 'root,root,missing,hidden' }, actor)).items,
+    [{ templatePostId: 'root', items: [], hasMore: false }]);
+});
+
+test('preview family retains ownership and visibility checks', async () => {
+  const posts = [makePost('valid'), makePost('private', { visibility: 'private' }), makePost('spoof')];
+  const jobs = posts.map(post => makeJob(post, post.id === 'spoof' ? { ownerUserId: 'wrong' } : {}));
+  const { service } = setup([root, ...posts], jobs);
+  assert.deepEqual((await service.getPreviews({ postIds: 'root' }, actor)).items[0].items.map(post => post.id), ['valid']);
+});
+
 test('template family sorts all public creators by likes before pagination; latest remains separate', async () => {
   const a = makePost('a', { engagementSummary: { likeCount: 9 } });
   const b = makePost('b', { createdAt: '2026-09-03' });
@@ -90,6 +151,27 @@ test('signed cursor rejects tampering and cross actor/template/sort; limits are 
   for (const query of [{ limit: 25 }, { limit: 0 }, { limit: 'NaN' }, { sort: 'random' }]) {
     await assert.rejects(service.getForPost('root', query, actor), { code: 'template_detail_query_invalid' });
   }
+});
+
+test('preview HTTP route preserves feature and actor gates and sanitizes errors', async () => {
+  const routes = new Map();
+  const app = Object.fromEntries(['get', 'post', 'patch', 'delete'].map(method => [method, (path, fn) => routes.set(`${method} ${path}`, fn)]));
+  let enabled = true;
+  let called = 0;
+  registerCommunityShareRoutes(app, {
+    communityFeaturePolicyService: { assertEnabled: async () => { if (!enabled) throw new RepositoryContractError('disabled', 'Disabled', 404); } },
+    communityShareService: { getTemplatePreviews: async (query, viewer) => {
+      called++; assert.equal(viewer, actor); assert.equal(query.postIds, 'root');
+      throw new Error('private secret path');
+    } }
+  });
+  const res = { statusCode: 200, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } };
+  const handler = routes.get('get /api/community/template-previews');
+  await handler({ query: { postIds: 'root' }, actorContext: actor }, res);
+  assert.equal(res.statusCode, 500); assert.ok(!JSON.stringify(res.body).includes('private secret'));
+  enabled = false;
+  await handler({ query: { postIds: 'root' }, actorContext: actor }, res);
+  assert.equal(res.statusCode, 404); assert.equal(called, 1);
 });
 
 test('HTTP route gates reads, passes actor and sanitizes unexpected failures', async () => {

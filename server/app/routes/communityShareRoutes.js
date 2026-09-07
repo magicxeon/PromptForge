@@ -25,6 +25,18 @@ export function registerCommunityShareRoutes(app, {
       return res.status(500).json({ error: { code: 'community_share_status_failed', message: 'Share status could not be loaded.' } });
     }
   });
+  app.get('/api/community/template-previews', async (req, res) => {
+    try {
+      await communityFeaturePolicyService.assertEnabled('community.enabled');
+      return res.json(await communityShareService.getTemplatePreviews(req.query, req.actorContext));
+    } catch (error) {
+      const publicError = error instanceof RepositoryContractError;
+      return res.status(publicError ? error.statusCode || 400 : 500).json({ error: {
+        code: publicError ? error.code : 'template_preview_failed',
+        message: publicError ? error.message : 'Template previews could not be loaded.'
+      } });
+    }
+  });
   app.get('/api/community/posts/:postId/template-detail', async (req, res) => {
     try {
       await communityFeaturePolicyService.assertEnabled('community.enabled');

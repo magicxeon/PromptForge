@@ -23,6 +23,7 @@
   "ui.templateScene.noPreview": "Original image unavailable",
   "ui.templateScene.details": "Template details",
   "ui.templateScene.character": "Character",
+  "ui.templateScene.characterArtwork": "Character artwork: {name}",
   "ui.templateScene.chooseCharacter": "Choose Character",
   "ui.templateScene.changeCharacter": "Change Character",
   "ui.templateScene.removeCharacter": "Remove Character",

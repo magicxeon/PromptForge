@@ -23,6 +23,7 @@
   "ui.templateScene.noPreview": "ไม่มีภาพต้นฉบับที่แสดงได้",
   "ui.templateScene.details": "รายละเอียด Template",
   "ui.templateScene.character": "ตัวละคร",
+  "ui.templateScene.characterArtwork": "ภาพแสดงตัวละคร: {name}",
   "ui.templateScene.chooseCharacter": "เลือกตัวละคร",
   "ui.templateScene.changeCharacter": "เปลี่ยนตัวละคร",
   "ui.templateScene.removeCharacter": "นำตัวละครออก",

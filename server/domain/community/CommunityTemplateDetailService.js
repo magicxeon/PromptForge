@@ -12,6 +12,29 @@ export class CommunityTemplateDetailService {
     this.generationRepository = generationRepository;
   }
 
+  async getPreviews(query = {}, actorContext) {
+    assertActorContext(actorContext);
+    const ids = typeof query.postIds === 'string' ? query.postIds.split(',') : [];
+    if (!ids.length || ids.length > 24 || ids.some(id => !/^[a-zA-Z0-9_-]{1,160}$/.test(id))) {
+      throw new RepositoryContractError('template_preview_query_invalid', 'Choose between 1 and 24 Template post IDs.');
+    }
+    const { candidates, generations, roots } = await this.readFamilySnapshot();
+    return { items: [...new Set(ids)].flatMap(id => {
+      const root = roots.find(post => post.id === id);
+      if (!root) return [];
+      const matches = familyMatches(root, candidates, generations, roots, 'likes');
+      return [{ templatePostId: id, items: matches.slice(0, 3).map(item => buildTemplatePreviewView(item.post)), hasMore: matches.length > 3 }];
+    }) };
+  }
+
+  async readFamilySnapshot(source) {
+    const posts = (await this.postRepository.readAll()).filter(visible);
+    const candidates = posts.filter(post => post.postType === 'image');
+    const ids = [...new Set([...(source ? [source] : []), ...candidates].map(generationId).filter(Boolean))];
+    const generations = new Map((await this.generationRepository.findByIds(ids)).map(item => [item.id, item]));
+    return { candidates, generations, roots: posts.filter(post => post.postType === 'template') };
+  }
+
   async getForPost(postId, query = {}, actorContext) {
     const actor = assertActorContext(actorContext);
     const sort = query.sort || 'likes';
@@ -23,12 +46,7 @@ export class CommunityTemplateDetailService {
     assertCanViewCommunityPost(source, actor, { directLink: true });
     if (source.deletedAt || !['image', 'template'].includes(source.postType)) return emptyPage();
 
-    const posts = (await this.postRepository.readAll()).filter(visible);
-    const candidates = posts.filter(post => post.postType === 'image');
-    // One history read, including older shares; never query once per thumbnail.
-    const ids = [...new Set([source, ...candidates].map(generationId).filter(Boolean))];
-    const generations = new Map((await this.generationRepository.findByIds(ids)).map(item => [item.id, item]));
-    const roots = posts.filter(post => post.postType === 'template');
+    const { candidates, generations, roots } = await this.readFamilySnapshot(source);
     const root = source.postType === 'template'
       ? roots.find(post => post.id === source.id)
       : resolveRoot(source, generations.get(generationId(source)), roots);
@@ -37,12 +55,7 @@ export class CommunityTemplateDetailService {
     const scope = JSON.stringify({ kind: 'template-creations-v1', postId: root.id, templateId: root.templateId || null, actor: actor.userId, sort });
     const cursor = query.cursor ? decodeRepositoryCursor(query.cursor, scope) : null;
     const compare = (left, right) => compareCreations(left, right, sort);
-    let matches = candidates.filter(post => {
-      if (post.id === root.id) return false;
-      const origin = resolveRoot(post, generations.get(generationId(post)), roots);
-      return origin && (root.templateId ? origin.templateId === root.templateId : origin.id === root.id);
-    }).map(post => ({ post, id: post.id, createdAt: post.createdAt, likeCount: safeCount(post.engagementSummary?.likeCount ?? post.counts?.likes) }))
-      .sort(compare);
+    let matches = familyMatches(root, candidates, generations, roots, sort);
     if (cursor) matches = matches.filter(item => compare(item, cursor) > 0);
     const selected = matches.slice(0, limit);
     const last = selected.at(-1);
@@ -54,6 +67,23 @@ export class CommunityTemplateDetailService {
       hasMore
     };
   }
+}
+
+function buildTemplatePreviewView(post) {
+  const view = buildCommunityPostPublicView(post);
+  // Gallery hydration never needs prompt text, even when a post shares it publicly.
+  delete view.promptPreview;
+  return view;
+}
+
+function familyMatches(root, candidates, generations, roots, sort) {
+  return candidates.filter(post => {
+    if (post.id === root.id) return false;
+    const origin = resolveRoot(post, generations.get(generationId(post)), roots);
+    return origin && (root.templateId ? origin.templateId === root.templateId : origin.id === root.id);
+  }).map(post => ({ post, id: post.id, createdAt: post.createdAt,
+    likeCount: safeCount(post.engagementSummary?.likeCount ?? post.counts?.likes) }))
+    .sort((left, right) => compareCreations(left, right, sort));
 }
 
 function generationId(post) {

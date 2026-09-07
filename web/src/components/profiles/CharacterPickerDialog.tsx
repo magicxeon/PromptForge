@@ -2,9 +2,9 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Check, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
-import { AuthenticatedMediaImage } from '../media/AuthenticatedMediaImage';
+import { DisplayMediaImage, type DisplayMediaSource } from '../media/DisplayMediaImage';
 
-export type CharacterPickerItem = { id: string; name: string; image?: string | null; unavailableReason?: string };
+export type CharacterPickerItem = { id: string; name: string; image?: string | null; displayImages?: DisplayMediaSource[]; unavailableReason?: string };
 export function CharacterPickerDialog({ open, onOpenChange, items, recent, current, selectedId, onSelect,
   search, onSearch, scope, onScope, loading, error, onRetry, pending, onConfirm, page, hasMore, onPrevious, onNext
 }: {
@@ -19,7 +19,7 @@ export function CharacterPickerDialog({ open, onOpenChange, items, recent, curre
     <button key={item.id} type="button" className={item.id === selectedId ? 'is-selected' : ''}
       aria-label={item.name} aria-pressed={item.id === selectedId} disabled={pending || Boolean(item.unavailableReason)}
       onClick={() => onSelect(item.id)} title={item.unavailableReason || item.name}>
-      <span className="character-picker__image"><AuthenticatedMediaImage src={item.image || ''} alt="" fallback={<span>{item.name.slice(0, 1)}</span>} />
+      <span className="character-picker__image"><DisplayMediaImage sources={item.displayImages || (item.image ? [{ src: item.image, fit: 'contain' }] : [])} alt="" fallback={<span>{item.name.slice(0, 1)}</span>} />
         {item.id === selectedId ? <Check aria-hidden="true" /> : null}</span>
       <strong>{item.name}</strong>{item.unavailableReason ? <small>{item.unavailableReason}</small> : null}
     </button>)}</div>;

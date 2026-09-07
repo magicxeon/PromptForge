@@ -1,5 +1,10 @@
 # Template Scene Workspace And Character Selection
 
+Planned display-only follow-up: [029 Character image policy](029-character-display-image-policy.md)
+and [030 picker/selected previews](030-character-picker-and-selected-previews.md)
+address Community artwork in the picker and tiny thumbnails. Authoritative
+Character handoff/reference URLs and generation workflow remain unchanged.
+
 Status: Implemented; focused verification passed. Live-data smoke test pending.
 Primary: Product Requirement Architect. Reviewers: UX and QA/privacy.
 Owners: Scene Builder composition, Profiles selection/handoff, shared UI.

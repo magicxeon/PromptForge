@@ -8,7 +8,7 @@ import { Surface } from '../ui/Surface';
 import { StatusNotice } from '../ui/StatusNotice';
 import { PromptEditor } from './PromptEditor';
 import { PromptComposerAssist } from './PromptComposerAssist';
-import { ReferenceSlotGrid } from './ReferenceSlotGrid';
+import { ReferenceSlotGrid, type ReferenceDisplayPreviews } from './ReferenceSlotGrid';
 import {
   EngineTargetPanel,
   type EngineValue
@@ -101,6 +101,7 @@ type GenerationExperienceProps = {
   initialReferences?: Partial<Record<GenerationReferenceRole, string>>;
   initialComparisonActive?: boolean;
   references?: Partial<Record<GenerationReferenceRole, string>>;
+  referenceDisplayPreviews?: ReferenceDisplayPreviews;
   onReferencesChange?: (references: Partial<Record<GenerationReferenceRole, string>>) => void;
   onReferenceAuthorityChange?: (projection: ReferenceAuthorityProjection | null) => void;
   characterProfileContext?: Record<string, unknown> | null;
@@ -168,6 +169,7 @@ export function GenerationExperience({
   initialReferences = {},
   initialComparisonActive = false,
   references: controlledReferences,
+  referenceDisplayPreviews,
   onReferencesChange,
   onReferenceAuthorityChange,
   characterProfileContext = null,
@@ -939,6 +941,7 @@ export function GenerationExperience({
   const referencesRegion = (
     <ReferenceSlotGrid
       value={references}
+      displayPreviews={referenceDisplayPreviews}
       roles={referenceRoles}
       supported={model?.capabilities.imageReferences === true}
       maxReferences={model?.capabilities.maxReferenceImages || 0}

@@ -11,7 +11,8 @@ import { Surface } from '../../../components/ui/Surface';
 import { getAttributesBundle } from '../../generation/api/generationApi';
 import type { GenerationReferenceRole } from '../../generation/api/generationApi';
 import { loadStudioVisualManifests } from '../../studio/api/visualManifestApi';
-import { getMyCreatorProfile } from '../../profiles/api/profileApi';
+import { getCharacter, getMyCreatorProfile } from '../../profiles/api/profileApi';
+import { characterDisplayImages } from '../../profiles/characterDisplayImage';
 import { readCharacterHandoffNavigationState } from '../../profiles/characterHandoffNavigation';
 import {
   compileSelectionPreview,
@@ -168,6 +169,18 @@ export function SceneBuilderRoute() {
     { authorizationToken: string; expiresAt?: string } | null
   >(initialHandoff.faceReferenceContext);
   const [historyRole, setHistoryRole] = useState<GenerationReferenceRole>('character_reference');
+  const displayCharacterId = typeof characterProfileContext?.characterProfileId === 'string' ? characterProfileContext.characterProfileId : '';
+  const displayCharacterQuery = useQuery({
+    queryKey: ['character', actor?.userId || 'loading', displayCharacterId],
+    queryFn: () => getCharacter(displayCharacterId),
+    enabled: Boolean(actor && displayCharacterId && references.character_reference),
+    staleTime: 30_000, retry: false
+  });
+  const displayCharacter = actor?.userId === persistenceActorId.current && references.character_reference
+    && !displayCharacterQuery.isError
+    && displayCharacterQuery.data?.id === displayCharacterId
+    && displayCharacterQuery.data.characterProfileVersionId === characterProfileContext?.characterProfileVersionId
+    ? displayCharacterQuery.data : null;
   useEffect(() => { if (initialHandoff.hasCharacterHandoff) clearHandoff('character'); }, [initialHandoff.hasCharacterHandoff]);
   const bundle = useQuery({ queryKey: ['attribute-bundle'], queryFn: getAttributesBundle, staleTime: 10 * 60_000 });
   const visualManifests = useQuery({
@@ -535,6 +548,9 @@ export function SceneBuilderRoute() {
         customColors={effectiveCustomColors}
         authoringMode={mode}
         references={references}
+        referenceDisplayPreviews={displayCharacter && references.character_reference ? {
+          character_reference: { reference: references.character_reference, sources: characterDisplayImages(displayCharacter), label: t('ui.templateScene.characterArtwork', { name: displayCharacter.displayName }) }
+        } : undefined}
         onReferencesChange={next => {
           if (next.face_reference !== references.face_reference) {
             setFaceReferenceContext(null);
@@ -585,6 +601,7 @@ export function SceneBuilderRoute() {
           <TemplateScenePanel key={`${actor?.userId}:${templateUseContext?.templateUseSessionId || templatePostId}`}
             postId={templateUseContext?.sourceCommunityPostId || templatePostId} accessCredits={templateUseContext?.pricing.accessCredits}
             characterAllowed={availableRoles.includes('character_reference')} characterReference={references.character_reference}
+            displayCharacter={displayCharacter}
             onCharacter={handoff => {
               setReferences(current => ({ ...current, face_reference: undefined, character_reference: handoff.characterReferenceUrl }));
               setCharacterProfileContext(handoff.characterProfileContext); setCharacterOutfitBehavior('replaceable');

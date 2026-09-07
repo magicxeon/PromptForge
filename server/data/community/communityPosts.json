@@ -480,7 +480,14 @@
     ],
     "taxonomyReviewStatus": "auto_confirmed",
     "taxonomyConfidence": 0.93,
-    "counts": {},
+    "counts": {
+      "views": 0,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
     "engagementSummary": {
       "viewCount": 0,
       "likeCount": 0,
@@ -488,14 +495,14 @@
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-09-06T15:57:20.351Z"
+      "updatedAt": "2026-09-07T01:55:36.275Z"
     },
     "id": "post_1788710240356_am6nxp1d",
     "schemaVersion": 1,
     "ownerUserId": "usr_bob",
     "ownerUsername": "user_bob",
     "createdAt": "2026-09-06T15:57:20.351Z",
-    "updatedAt": "2026-09-06T15:57:20.351Z",
+    "updatedAt": "2026-09-07T01:55:36.275Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -838,14 +845,14 @@
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-09-06T11:58:35.164Z"
+      "updatedAt": "2026-09-07T01:55:36.275Z"
     },
     "id": "post_1788142822307_c9z14dbf",
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
     "ownerUsername": "user_alice",
     "createdAt": "2026-08-31T02:20:22.306Z",
-    "updatedAt": "2026-09-06T11:58:35.164Z",
+    "updatedAt": "2026-09-07T01:55:36.275Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -1013,14 +1020,14 @@
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-09-06T11:58:35.163Z"
+      "updatedAt": "2026-09-07T01:55:36.276Z"
     },
     "id": "post_1788142431214_pb4hy2lz",
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
     "ownerUsername": "user_alice",
     "createdAt": "2026-08-31T02:13:51.210Z",
-    "updatedAt": "2026-09-06T11:58:35.163Z",
+    "updatedAt": "2026-09-07T01:55:36.276Z",
     "deletedAt": null,
     "metadata": {}
   },

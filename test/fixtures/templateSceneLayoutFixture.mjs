@@ -11,6 +11,7 @@ export async function installTemplateSceneLayoutFixture(context, origin) {
   const blocked = await installCharacterDiscoveryLayoutFixture(context, origin);
   const html = await fs.readFile(new URL('../../web/dist/index.html', import.meta.url));
   const characters = Array.from({ length: 28 }, (_, index) => ({ id: `character-${index}`, displayName: `Nara ${index + 1}`, characterProfileVersionId: 'v1',
+    displayImageUrl: asset('street-walk-editorial'), displayImageSource: 'owner_selected_work',
     imageUrl: asset(['soft-character-portrait', 'window-shadow-lookbook', 'cafe-seated-lifestyle'][index % 3]),
     handoffAvailable: true, characterType: 'reusable_model', outfitBehavior: 'replaceable', destinationCapabilities: ['scene_builder'] }));
   const drafts = [];

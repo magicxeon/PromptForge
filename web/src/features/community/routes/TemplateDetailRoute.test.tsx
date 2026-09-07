@@ -5,8 +5,12 @@ import { communityPostSchema } from '../schemas/communitySchemas';
 import { TemplateDetailRoute } from './TemplateDetailRoute';
 
 const mocks = vi.hoisted(() => ({ query: vi.fn(), mutate: vi.fn(), refetch: vi.fn(), next: vi.fn(), pending: false }));
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
+vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { exists: (key: string) => key.includes('content_type.portrait') } }) }));
 vi.mock('../hooks/useTemplateDetail', () => ({ useTemplateDetail: mocks.query }));
+vi.mock('../../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: { userId: 'viewer' } }) }));
+vi.mock('../hooks/useCommunityEngagement', () => ({ useCommunityEngagement: (post: { engagementSummary: unknown }) => ({
+  summary: post.engagementSummary, viewerState: {}, canReact: true, toggle: vi.fn()
+}) }));
 vi.mock('../hooks/useCommunityTemplateHandoff', () => ({ useCommunityTemplateHandoff: () => ({ mutate: mocks.mutate, isPending: mocks.pending }) }));
 vi.mock('../../../components/media/MediaStage', () => ({ MediaStage: ({ post, fit, source }: { post: { title: string }; fit: string; source: string }) => <img alt={post.title} data-fit={fit} data-source={source} /> }));
 const template = communityPostSchema.parse({ id: 'original', postType: 'template', title: 'Original recipe', creator: { displayName: 'Author' }, templateAvailability: true, engagementSummary: {} });
@@ -24,6 +28,14 @@ it('supports direct entry, original image inspection and original-template hando
   expect(screen.getByRole('link', { name: 'Different outfit' })).toHaveAttribute('href', '/posts/variation');
   fireEvent.click(screen.getByRole('button', { name: 'ui.action.useTemplate' }));
   expect(mocks.mutate).toHaveBeenCalledWith('original');
+});
+it('uses known localized tag keys and omits internal/unmapped tags', () => {
+  mocks.query.mockReturnValue(result({ data: { pages: [{ template: { ...template, officialTags: ['content_type.portrait', 'internal.secret'] }, items: [image] }] } }));
+  mount();
+  expect(screen.getByText('community.officialTag.content_type.portrait')).toBeVisible();
+  expect(screen.queryByText('internal.secret')).not.toBeInTheDocument();
+  expect(screen.getByText('Author')).toBeVisible();
+  expect(screen.getByText('Remixer')).toBeVisible();
 });
 it('changes sort through URL and loads the next page explicitly', () => {
   mount();

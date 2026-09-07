@@ -1,5 +1,15 @@
 # Community Page Enhancement Master Requirement
 
+## Planned Follow-up: Template, Character And Provider Presentation
+
+2026-09-07: [023 follow-up master](023-template-character-presentation-master.md)
+and [execution coordinator](implementation-plan/023-template-character-presentation-master.md)
+index requirements 024-032 and plans 024-033. Scope: Template Gallery mockup
+alignment, resource 005 Photo Template Detail, Character display-image/preview
+consistency and Landing provider artwork only. Requirements prepared; no runtime
+implementation started. Await the user's next instruction. Earlier completed
+statuses below apply to their historical delivery, not this follow-up.
+
 Template execution follow-up: [Template Scene workspace](015-template-scene-workspace.md)
 and plan 020 own schema-driven Scene presentation and reusable Character selection.
 
@@ -166,6 +176,11 @@ Review result: Ready for step-by-step implementation planning handoff; no blocki
 - Review was performed sequentially by the same agent using the Product, UX and QA charters; it is not an independent second-agent review
 
 ## 13. Implementation Record
+
+Template/Character follow-up 023-032 is implemented with isolated verification.
+See [delivery evidence](implementation-plan/034-presentation-delivery-evidence.md)
+for per-slice changes, tests and remaining live/source UAT. The supplied local
+Template URL was unavailable at final read-only check; no user data was changed.
 
 - Steps 01-07 were delivered in order without changing provider, Generation, Credit, sharing, moderation or persistence contracts.
 - `/`, `/explore/templates`, `/explore/characters` and `/explore/comparisons` now use page-specific discovery compositions over the existing APIs.

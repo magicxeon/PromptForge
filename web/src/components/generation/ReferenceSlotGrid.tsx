@@ -13,6 +13,9 @@ import {
 import type { ReferenceAuthorityProjection } from '../../features/generation/schemas/generationSchemas';
 import { ReferenceProcessingPreview } from './ReferenceProcessingPreview';
 import { ReferenceScopeSelector } from './ReferenceScopeSelector';
+import { DisplayMediaImage, type DisplayMediaSource } from '../media/DisplayMediaImage';
+
+export type ReferenceDisplayPreviews = Partial<Record<GenerationReferenceRole, { reference: string; sources: DisplayMediaSource[]; label: string }>>;
 
 const definitions: Array<{
   role: GenerationReferenceRole;
@@ -30,6 +33,7 @@ const definitions: Array<{
 
 export function ReferenceSlotGrid({
   value,
+  displayPreviews,
   maxReferences,
   supported,
   roles,
@@ -45,6 +49,7 @@ export function ReferenceSlotGrid({
   readOnly = false
 }: {
   value: Partial<Record<GenerationReferenceRole, string>>;
+  displayPreviews?: ReferenceDisplayPreviews;
   maxReferences: number;
   supported: boolean;
   roles?: GenerationReferenceRole[];
@@ -87,6 +92,7 @@ export function ReferenceSlotGrid({
               : t(definition.descriptionKey)}
             icon={definition.icon}
             value={value[definition.role]}
+            displayPreview={displayPreviews?.[definition.role]?.reference === value[definition.role] ? displayPreviews?.[definition.role] : undefined}
             disabled={!value[definition.role] && activeCount >= maxReferences}
             compact={compact}
             scope={scopes[definition.role]}
@@ -112,6 +118,7 @@ function ReferenceSlot({
   description,
   icon: Icon,
   value,
+  displayPreview,
   disabled,
   compact,
   scope,
@@ -125,6 +132,7 @@ function ReferenceSlot({
   description: string;
   icon: typeof UserRound;
   value?: string;
+  displayPreview?: ReferenceDisplayPreviews[GenerationReferenceRole];
   disabled: boolean;
   compact: boolean;
   scope?: string;
@@ -184,8 +192,8 @@ function ReferenceSlot({
     <article className={`reference-slot${compact ? ' reference-slot--compact' : ''}${value ? ' is-populated' : ''} relative min-h-40 border border-dashed border-[var(--mpf-border-strong)] bg-[var(--theme-bg-raised)] p-3`}>
       <div className="relative flex h-full flex-col">
         {value ? (
-          <figure className="reference-slot__preview" title={sourceLabel}>
-            {isAuthenticatedMediaPath(value) ? (
+          <figure className="reference-slot__preview" title={displayPreview ? displayPreview.label : sourceLabel}>
+            {displayPreview ? <DisplayMediaImage sources={displayPreview.sources} alt={displayPreview.label} fallback={<Icon className="reference-slot__icon size-6 text-cyan-300" />} /> : isAuthenticatedMediaPath(value) ? (
               <AuthenticatedMediaImage
                 src={value}
                 alt={label}

@@ -8,7 +8,8 @@ import {
   engagementResponseSchema,
   reactionResponseSchema,
   templateHandoffSchema,
-  templateDetailPageSchema
+  templateDetailPageSchema,
+  templatePreviewsSchema
 } from '../schemas/communitySchemas';
 
 export type CommunityFilters = {
@@ -42,6 +43,11 @@ export function getTemplateDetail(postId: string, sort: 'likes' | 'latest' = 'li
   const query = new URLSearchParams({ sort, limit: String(limit) });
   if (cursor) query.set('cursor', cursor);
   return apiRequest(`/api/community/posts/${encodeURIComponent(postId)}/template-detail?${query}`, { schema: templateDetailPageSchema });
+}
+
+export function getTemplatePreviews(postIds: string[]) {
+  const query = new URLSearchParams({ postIds: postIds.join(',') });
+  return apiRequest(`/api/community/template-previews?${query}`, { schema: templatePreviewsSchema });
 }
 
 export function updateCommunityPostPresentation(

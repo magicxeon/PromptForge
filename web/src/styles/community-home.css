@@ -366,6 +366,8 @@
   color: var(--section-accent);
 }
 .community-home .community-provider .provider-mark svg { width: 18px; height: 18px; }
+.provider-mark__probe { display: none; }
+.provider-mark__shape { display: block; width: 18px; height: 18px; background: currentColor; mask-mode: alpha; mask-size: contain; mask-position: center; mask-repeat: no-repeat; -webkit-mask-size: contain; -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; }
 .community-home .community-provider summary > svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--section-accent); }
 .community-home .community-provider summary > span { min-width: 0; flex: 1; }
 .community-home .community-provider summary strong { display: block; font-size: 13px; overflow-wrap: anywhere; }

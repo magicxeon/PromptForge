@@ -1,5 +1,10 @@
 # 001 Template Gallery Enhancement
 
+Planned visual follow-up: [023 master](023-template-character-presentation-master.md),
+requirements 024-026 and plans 025-027 refine Featured/card/discovery layout.
+They supersede only specified presentation clauses after implementation;
+historical execution and public-safety contracts below remain protected.
+
 Follow-up: 014-template-detail-and-creations.md and plan 019 now own direct
 Template detail navigation and public creations. The original Post route remains
 available; the Gallery-specific direct detail link supersedes Section 2 below.

@@ -27,7 +27,7 @@ beforeEach(() => {
   });
 });
 
-function setup(variant: 'detail' | 'compact' = 'compact') {
+function setup(variant: 'detail' | 'compact' | 'like-only' = 'compact') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 }, mutations: { retry: false } } });
   const content = () => <QueryClientProvider client={client}><EngagementBar post={post} variant={variant} /></QueryClientProvider>;
   return { ...render(content()), client, content };
@@ -37,6 +37,17 @@ async function readyLike() {
   await waitFor(() => expect(button).toBeEnabled());
   return button;
 }
+
+it('like-only cards hide zero visually but retain an accessible count and no views/save/share', async () => {
+  setup('like-only');
+  const button = await readyLike();
+  expect(button).not.toHaveTextContent('0');
+  expect(button).toHaveAttribute('aria-label', expect.stringContaining('0'));
+  expect(screen.queryByTitle('community.engagement.views')).not.toBeInTheDocument();
+  expect(screen.getAllByRole('button')).toHaveLength(1);
+  fireEvent.click(button);
+  await waitFor(() => expect(setCommunityReaction).toHaveBeenCalledWith(post.id, 'like', true));
+});
 
 it('renders true zero likes, views and no unrelated commands in compact mode', async () => {
   const view = setup();

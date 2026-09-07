@@ -35,7 +35,7 @@
 .character-picker__grid button.is-selected { border-color: var(--theme-primary); box-shadow: inset 0 0 0 1px var(--theme-primary); }
 .character-picker__grid button:disabled { opacity: .6; }
 .character-picker__image { display: grid; place-items: center; width: 100%; aspect-ratio: 3 / 4; position: relative; overflow: hidden; border-radius: 5px; }
-.character-picker__image img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.character-picker__image img { width: 100%; height: 100%; object-fit: contain; object-position: center; }
 .character-picker__image > svg { position: absolute; top: 8px; right: 8px; background: var(--theme-primary); color: var(--theme-on-primary); border-radius: 50%; }
 .character-picker__grid strong { font-size: 13px; overflow-wrap: anywhere; }
 .character-picker__grid small { font-size: 11px; color: var(--theme-text-muted); overflow-wrap: anywhere; }

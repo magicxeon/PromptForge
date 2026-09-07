@@ -5,7 +5,7 @@ import type { CommunityPost } from '../../features/community/schemas/communitySc
 import { useActor } from '../../lib/auth/ActorProvider';
 import { Button } from '../ui/Button';
 
-type Props = { post: CommunityPost; variant?: 'detail' | 'compact' };
+type Props = { post: CommunityPost; variant?: 'detail' | 'compact' | 'like-only' };
 
 export function EngagementBar(props: Props) {
   const { actor } = useActor();
@@ -17,7 +17,8 @@ function PostEngagement({ post, variant = 'detail' }: Props) {
   const engagement = useCommunityEngagement(post);
   const state = engagement.viewerState;
   const summary = engagement.summary;
-  const compact = variant === 'compact';
+  const compact = variant !== 'detail';
+  const likeOnly = variant === 'like-only';
   const likeLabel = t(state?.liked ? 'community.engagement.unlike' : 'community.detail.like');
 
   return (
@@ -28,16 +29,16 @@ function PostEngagement({ post, variant = 'detail' }: Props) {
         variant={state?.liked ? 'primary' : 'secondary'}
         size="sm"
         aria-pressed={state?.liked === true}
-        aria-label={compact ? `${likeLabel}: ${summary.likeCount}` : undefined}
+        aria-label={compact ? `${likeLabel}: ${summary.likeCount}${likeOnly ? `, ${post.title}` : ''}` : undefined}
         aria-busy={engagement.isPending || engagement.isLoading}
         title={engagement.hasActor ? likeLabel : t('community.engagement.signIn')}
         icon={engagement.isPending || engagement.isLoading ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Heart className="size-4" fill={state?.liked ? 'currentColor' : 'none'} aria-hidden="true" />}
         disabled={!engagement.canReact}
         onClick={() => engagement.toggle('like')}
       >
-        {compact ? summary.likeCount : `${t('community.detail.like')} ${summary.likeCount}`}
+        {compact ? (likeOnly && !summary.likeCount ? null : summary.likeCount) : `${t('community.detail.like')} ${summary.likeCount}`}
       </Button>
-      {compact ? <span className="engagement-bar__views" title={t('community.engagement.views')}>
+      {likeOnly ? null : compact ? <span className="engagement-bar__views" title={t('community.engagement.views')}>
         <Eye aria-hidden="true" /><span className="sr-only">{t('community.engagement.views')} </span>{summary.viewCount}
       </span> : <>
       <Button

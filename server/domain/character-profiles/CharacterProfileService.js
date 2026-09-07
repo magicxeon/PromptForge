@@ -105,7 +105,7 @@ export class CharacterProfileService {
   async listOwn(query = {}, actorContext) {
     const actor = assertActorContext(actorContext);
     const page = await this.profileRepository.findByOwner(actor.userId, query);
-    return {
+    const ownerPage = {
       ...page,
       items: await Promise.all(page.items.map(async profile => {
         const version = await this.versionRepository.findById(profile.activeVersionId);
@@ -147,6 +147,11 @@ export class CharacterProfileService {
           stats: await this.usageService.getStats(profile.id)
         };
       }))
+    };
+    if (typeof this.profileSharingService.applyFeaturedWork !== 'function') return ownerPage;
+    return {
+      ...ownerPage,
+      items: await this.profileSharingService.applyFeaturedWork(ownerPage.items, actor, page.items)
     };
   }
 

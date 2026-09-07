@@ -13,13 +13,16 @@ import type { CommunityPost } from '../../schemas/communitySchemas';
 export function TemplateDiscoveryCard({
   post,
   using,
+  creations = [],
   onUse
 }: {
   post: CommunityPost;
   using: boolean;
+  creations?: CommunityPost[];
   onUse: () => void;
 }) {
-  const { t } = useTranslation('community');
+  const { t, i18n } = useTranslation('community');
+  const tags = post.officialTags.filter(tag => i18n.exists(`community:community.officialTag.${tag}`));
   const location = useLocation();
   const detailHref = routeBuilders.templateDetail(post.id);
   const metadata = post.generationMetadata;
@@ -37,7 +40,7 @@ export function TemplateDiscoveryCard({
         aria-label={post.title || t('community.creator.untitled')}
       >
         <MediaStage post={post} fit="cover" source="original" />
-        {post.officialTags[0] ? <span>{formatTag(post.officialTags[0])}</span> : null}
+        {tags[0] ? <span>{t(`community.officialTag.${tags[0]}`)}</span> : null}
       </Link>
       <div className="template-discovery-card__body">
         <div className="template-discovery-card__heading">
@@ -46,7 +49,7 @@ export function TemplateDiscoveryCard({
             <CreatorIdentity creator={post.creator} compact />
           </div>
           {post.templatePricing ? (
-            <TemplatePricingBadge accessCredits={post.templatePricing.accessCredits} />
+            <span className="template-discovery-card__fee"><small>{t('community.templateVisual.fee')}</small><TemplatePricingBadge accessCredits={post.templatePricing.accessCredits} /></span>
           ) : null}
         </div>
         <DiscoveryMetricRow metrics={[
@@ -55,11 +58,17 @@ export function TemplateDiscoveryCard({
           { id: 'size', icon: <Maximize2 />, label: t('community.detail.imageSize'), value: imageSize },
           { id: 'duration', icon: <Clock3 />, label: t('community.detail.generationDuration'), value: duration }
         ]} />
-        {post.officialTags.length > 1 ? (
+        {tags.length > 1 ? (
           <div className="template-discovery-card__tags">
-            {post.officialTags.slice(1, 4).map(tag => <span key={tag}>{formatTag(tag)}</span>)}
+            {tags.slice(1, 4).map(tag => <span key={tag}>{t(`community.officialTag.${tag}`)}</span>)}
           </div>
         ) : null}
+        {creations.length ? <div className="template-discovery-card__creations" aria-label={t('community.templateDetail.creations')}>
+          {creations.slice(0, 2).map(item => <Link key={item.id} to={routeBuilders.post(item.id)}
+            state={createReturnNavigationState(location)} aria-label={item.title || t('community.creator.untitled')}>
+            <MediaStage post={item} fit="cover" /><span>{item.title}</span>
+          </Link>)}
+        </div> : null}
       </div>
       <footer className="template-discovery-card__footer">
         <Link to={detailHref} state={createReturnNavigationState(location)}>
@@ -80,11 +89,4 @@ export function TemplateDiscoveryCard({
 function formatDuration(value?: string | number | null) {
   const duration = Number(value);
   return Number.isFinite(duration) && duration > 0 ? `${duration.toFixed(1)}s` : null;
-}
-
-function formatTag(value: string) {
-  return value
-    .replace(/^[a-z0-9_-]+[.:/]/i, '')
-    .replace(/[._/-]+/g, ' ')
-    .trim();
 }

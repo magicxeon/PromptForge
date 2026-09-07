@@ -146,6 +146,8 @@ export function SharedTemplateEditDialog({
         }),
         queryClient.invalidateQueries({ queryKey: ['community-post', post.id] }),
         queryClient.invalidateQueries({ queryKey: ['community-posts'] }),
+        queryClient.invalidateQueries({ queryKey: ['community-template-previews', actorId] }),
+        queryClient.invalidateQueries({ queryKey: ['community-template-detail', actorId] }),
         queryClient.invalidateQueries({ queryKey: ['creator-page'] }),
         queryClient.invalidateQueries({ queryKey: ['fashion-ready-template-index'] })
       ]);
@@ -171,6 +173,7 @@ export function SharedTemplateEditDialog({
         queryClient.invalidateQueries({ queryKey: ['creator-page'] }),
         queryClient.invalidateQueries({ queryKey: ['template-input-policy', actorId, templateId] }),
         queryClient.invalidateQueries({ queryKey: ['community-template-detail'] }),
+        queryClient.invalidateQueries({ queryKey: ['community-template-previews', actorId] }),
         queryClient.invalidateQueries({ queryKey: ['template-pose-proxy'] }),
         queryClient.invalidateQueries({ queryKey: ['fashion-ready-template-index'] })
       ]);
@@ -196,6 +199,8 @@ export function SharedTemplateEditDialog({
         queryClient.invalidateQueries({ queryKey: ['community-posts'] }),
         queryClient.invalidateQueries({ queryKey: ['creator-page'] }),
         queryClient.invalidateQueries({ queryKey: ['fashion-templates'] }),
+        queryClient.invalidateQueries({ queryKey: ['community-template-previews', actorId] }),
+        queryClient.invalidateQueries({ queryKey: ['community-template-detail', actorId] }),
         queryClient.invalidateQueries({ queryKey: ['fashion-ready-template-index'] })
       ]);
     },

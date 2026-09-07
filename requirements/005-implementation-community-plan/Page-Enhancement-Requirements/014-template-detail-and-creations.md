@@ -1,5 +1,10 @@
 # Template Detail And Public Creations
 
+Planned presentation follow-up: [027 Photo Template](027-photo-template-original-and-information.md)
+and [028 public creation cards](028-photo-template-community-creations.md), plans
+028-029, adopt resource 005 without changing this route/lineage contract.
+Requirement 024 plans a bounded Gallery preview read sharing this resolver.
+
 Status: Implemented; focused automated and visual checks passed. Live-data smoke
 check remains pending (localhost:6500 unavailable). Owner: Community public discovery; Templates continues to
 own execution/versioning. Primary: Product Requirement Architect. Reviewers:

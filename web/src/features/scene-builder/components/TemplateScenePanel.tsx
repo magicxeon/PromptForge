@@ -15,10 +15,13 @@ import { getCommunityPost } from '../../community/api/communityApi';
 import { CharacterLibraryPicker } from '../../profiles/components/CharacterLibraryPicker';
 import { requestCharacterHandoff } from '../../profiles/api/profileApi';
 import type { CharacterSummary } from '../../profiles/schemas/profileSchemas';
+import { DisplayMediaImage } from '../../../components/media/DisplayMediaImage';
+import { characterDisplayImages } from '../../profiles/characterDisplayImage';
 import { isTemplateCharacterEligible, isTemplateCharacterHandoffValid, type SceneCharacterHandoff } from '../templateCharacterPolicy';
 
-export function TemplateScenePanel({ postId, accessCredits, characterAllowed, characterReference, onCharacter, onClearCharacter, onExit, children }: {
+export function TemplateScenePanel({ postId, accessCredits, characterAllowed, characterReference, displayCharacter, onCharacter, onClearCharacter, onExit, children }: {
   postId: string | null; accessCredits?: number; characterAllowed: boolean; characterReference?: string;
+  displayCharacter?: CharacterSummary | null;
   onCharacter: (handoff: SceneCharacterHandoff) => void; onClearCharacter: () => void;
   onExit: () => void; children?: ReactNode;
 }) {
@@ -29,7 +32,7 @@ export function TemplateScenePanel({ postId, accessCredits, characterAllowed, ch
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selected, setSelected] = useState<{ item: CharacterSummary; reference: string } | null>(null);
   const source = useQuery({ queryKey: ['community-post', postId, actor?.userId || 'loading'], queryFn: () => getCommunityPost(postId!), enabled: Boolean(postId && actor), staleTime: 30_000 });
-  const current = selected && selected.reference === characterReference ? selected.item : null;
+  const current = displayCharacter !== undefined ? displayCharacter : (selected && selected.reference === characterReference ? selected.item : null);
   const image = source.data?.imageUrl;
   return <section className="template-scene-panel">
     <header><span><LayoutTemplate aria-hidden="true" />{t('ui.templateScene.title')}</span>
@@ -50,7 +53,7 @@ export function TemplateScenePanel({ postId, accessCredits, characterAllowed, ch
       {postId ? <Link to={routeBuilders.templateDetail(postId)}>{t('ui.templateScene.details')}</Link> : null}
     </div>
     {characterAllowed ? <section className="template-scene-panel__character"><h3>{t('ui.templateScene.character')}</h3>
-      {characterReference ? <div className="template-scene-panel__selected"><AuthenticatedMediaImage src={characterReference} alt="" />
+      {characterReference ? <div className="template-scene-panel__selected"><DisplayMediaImage sources={current ? characterDisplayImages(current) : [{ src: characterReference, fit: 'contain' }]} alt="" />
         <strong>{current?.displayName || t('ui.templateScene.selectedReference')}</strong><Button icon={<X />} aria-label={t('ui.templateScene.removeCharacter')} onClick={() => { setSelected(null); onClearCharacter(); }} /></div> : null}
       <Button icon={<UserRound />} onClick={() => setPickerOpen(true)}>{t(characterReference ? 'ui.templateScene.changeCharacter' : 'ui.templateScene.chooseCharacter')}</Button>
       <CharacterLibraryPicker open={pickerOpen} onOpenChange={setPickerOpen} current={current}

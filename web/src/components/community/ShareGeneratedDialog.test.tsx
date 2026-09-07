@@ -242,7 +242,11 @@ it('hides Template and prompt controls for derived images, shares privately then
   apiMocks.createGeneratedShareDraft.mockResolvedValue({ id: 'derived', templateEligible: false,
     templateIneligibleReason: 'template_derived_generation', promptVisibility: 'private' });
   apiMocks.publishGeneratedShare.mockResolvedValue({ id: 'image', postType: 'image' });
-  renderDialog();
+  const client = renderDialog();
+  const preview = ['community-template-previews', 'alice', ['root']];
+  const otherActor = ['community-template-previews', 'bob', ['root']];
+  client.setQueryData(preview, { items: [] });
+  client.setQueryData(otherActor, { items: [] });
   await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
   fireEvent.click(screen.getByRole('button', { name: 'Share' }));
   fireEvent.change(await screen.findByPlaceholderText('Post title'), { target: { value: 'My creation' } });
@@ -254,6 +258,8 @@ it('hides Template and prompt controls for derived images, shares privately then
   expect(apiMocks.publishGeneratedShare).toHaveBeenLastCalledWith('derived', expect.objectContaining({
     publishAsTemplate: false, promptVisibility: 'private', templateInputOptions: undefined
   }));
+  expect(client.getQueryState(preview)?.isInvalidated).toBe(true);
+  expect(client.getQueryState(otherActor)?.isInvalidated).toBe(false);
 });
 
 it('disables already-shared results on load without creating a draft', async () => {
@@ -278,13 +284,16 @@ it('disables after a stale draft gets an already-shared conflict', async () => {
   apiMocks.createGeneratedShareDraft.mockResolvedValue({ id: 'stale', templateEligible: false });
   apiMocks.publishGeneratedShare.mockRejectedValue(new ApiError({ status: 409,
     code: 'community_generation_already_shared', message: 'Already shared' }));
-  renderDialog();
+  const client = renderDialog();
+  const preview = ['community-template-previews', 'alice', ['root']];
+  client.setQueryData(preview, { items: [] });
   await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
   fireEvent.click(screen.getByRole('button', { name: 'Share' }));
   fireEvent.change(await screen.findByPlaceholderText('Post title'), { target: { value: 'Duplicate' } });
   fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
   await waitFor(() => expect(screen.getByRole('button', { name: 'Shared' })).toBeDisabled());
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(client.getQueryState(preview)?.isInvalidated).toBe(false);
 });
 
 function renderDialog() {
@@ -298,4 +307,5 @@ function renderDialog() {
       </QueryClientProvider>
     </I18nextProvider>
   );
+  return queryClient;
 }

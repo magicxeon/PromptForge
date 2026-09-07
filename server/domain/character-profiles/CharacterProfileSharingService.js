@@ -396,6 +396,7 @@ export class CharacterProfileSharingService {
     );
     const postsByResultId = new Map();
     for (const post of posts) {
+      if (post.deletedAt) continue;
       const entries = postsByResultId.get(post.sourceGenerationResultId) || [];
       entries.push(post);
       postsByResultId.set(post.sourceGenerationResultId, entries);

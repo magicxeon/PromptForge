@@ -168,7 +168,11 @@ describe('SharedTemplateEditDialog', () => {
   });
 
   it('saves listing settings and constrained input choices against the loaded version', async () => {
-    renderDialog();
+    const client = renderDialog();
+    const preview = ['community-template-previews', 'usr_owner', ['root']];
+    const otherActor = ['community-template-previews', 'other', ['root']];
+    client.setQueryData(preview, { items: [] });
+    client.setQueryData(otherActor, { items: [] });
     await screen.findByRole('checkbox', { name: 'Character Optional' });
     fireEvent.click(screen.getByRole('checkbox', { name: 'Character Optional' }));
 
@@ -196,6 +200,31 @@ describe('SharedTemplateEditDialog', () => {
       );
     });
     expect(apiMocks.navigate).toHaveBeenCalledWith('/posts/post_template_draft');
+    expect(client.getQueryState(preview)?.isInvalidated).toBe(true);
+    expect(client.getQueryState(otherActor)?.isInvalidated).toBe(false);
+  });
+
+  it.each(['retire', 'approve'] as const)('invalidates actor previews after %s succeeds', async action => {
+    apiMocks.retireCommunityPost.mockResolvedValue({});
+    apiMocks.reviewTemplatePoseProxy.mockResolvedValue({});
+    if (action === 'approve') apiMocks.getTemplatePoseProxy.mockResolvedValue({
+      status: 'review_required', proxyId: 'proxy', qaDecision: 'pending'
+    });
+    const client = renderDialog();
+    const preview = ['community-template-previews', 'usr_owner', ['root']];
+    const otherActor = ['community-template-previews', 'other', ['root']];
+    client.setQueryData(preview, { items: [] });
+    client.setQueryData(otherActor, { items: [] });
+    if (action === 'retire') {
+      fireEvent.click(screen.getByRole('button', { name: 'Retire template' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Retire Template' }));
+    } else {
+      fireEvent.click(await screen.findByRole('button', { name: 'ui.templateManagement.approvePoseProxy' }));
+    }
+    await waitFor(() => expect(client.getQueryState(preview)?.isInvalidated).toBe(true));
+    expect(client.getQueryState(otherActor)?.isInvalidated).toBe(false);
+    expect(action === 'retire' ? apiMocks.retireCommunityPost : apiMocks.reviewTemplatePoseProxy).toHaveBeenCalledOnce();
+    expect(apiMocks.prepareTemplatePoseProxy).not.toHaveBeenCalled();
   });
 
   it('blocks saving when owner policy fails and permits retry without preparation', async () => {
@@ -221,4 +250,5 @@ function renderDialog() {
       </QueryClientProvider>
     </I18nextProvider>
   );
+  return queryClient;
 }
