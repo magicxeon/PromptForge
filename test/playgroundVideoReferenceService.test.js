@@ -41,6 +41,7 @@ function setup() {
     transports: [],
     revoked: false,
     version: 'profile-v1',
+    history: { id: 'job_owned', imageUrl: '/outputs/job_owned.png', status: 'completed', provider: 'gemini' },
   };
   const registry = new VideoCapabilityRegistry({
     runtimeEnvironment: 'development',
@@ -62,7 +63,11 @@ function setup() {
     capabilityRegistry: registry,
     testingEnabled: true,
     modelArkCredentialScopeResolver: () => 'test-scope',
+    playgroundHistoryRepository: { async findByIdForOwner(id, owner) {
+      return owner === actor.userId && state.history?.id === id ? state.history : null;
+    } },
     assetRepository: {
+      async findById(id) { return assets.find(asset => asset.id === id); },
       async findByIdForOwner(id, owner) {
         return assets.find(
           (asset) => asset.id === id && asset.ownerUserId === owner,
@@ -82,6 +87,7 @@ function setup() {
             code: 'character_revoked',
           });
         return {
+          authorizedCharacterReferenceAssetId: assets[1].id,
           attribution: {
             characterProfileId: input.characterProfileId,
             characterProfileVersionId: input.characterProfileVersionId,
@@ -100,8 +106,9 @@ function setup() {
       },
     },
     playgroundReferenceContentLoader: async (asset) => ({
+      width: 720, height: 1280, sizeBytes: 1000, mimeType: 'image/png',
       ...asset,
-      contentHash: asset.contentHash,
+      contentHash: asset.contentHash || 'generated-hash',
       bytes: Buffer.from('original'),
     }),
     firstFrameTransport: {
@@ -193,6 +200,34 @@ async function submit(service, input) {
   );
   return quote;
 }
+
+test('generated first frame and Character alone retain quote-to-submit reference parity', async () => {
+  for (const characterOnly of [false, true]) {
+    const { service, input, state } = setup();
+    input.references = characterOnly
+      ? [{ role: 'reference_image', purpose: 'character_reference', characterProfileId: 'character' }]
+      : [{ role: 'first_frame', purpose: 'opening_frame', referenceImageUrl: state.history.imageUrl }];
+    if (!characterOnly) {
+      input.inputMode = 'image_to_video'; input.operation = 'image_to_video';
+      delete input.characterProfileId; delete input.characterProfileVersionId;
+    }
+    await submit(service, input);
+    assert.equal(state.reservations.length, 1);
+    assert.equal(state.dispatched.length, 1);
+    assert.equal(state.transports.length, 0);
+  }
+});
+
+test('deleted generated image after quote fails before reservation', async () => {
+  const { service, input, state } = setup();
+  Object.assign(input, { operation: 'image_to_video', inputMode: 'image_to_video', characterProfileId: null, characterProfileVersionId: null,
+    references: [{ role: 'first_frame', purpose: 'opening_frame', referenceImageUrl: state.history.imageUrl }] });
+  const quote = await service.quote(input, actor);
+  state.history.status = 'deleted';
+  await assert.rejects(service.submit({ ...input, estimateId: quote.estimate.estimateId, requestFingerprint: quote.requestFingerprint, idempotencyKey: 'deleted-image' }, actor));
+  assert.equal(state.reservations.length, 0);
+  assert.equal(state.dispatched.length, 0);
+});
 
 test('invalid model dimensions or an unknown explicit plan fail before pricing', async () => {
   for (const mutate of [

@@ -2,6 +2,10 @@
 
 Status: implemented; deterministic verification passed. Paid POC remains pending.
 Current amendment: [004-trusted-source-master.md](004-trusted-source-master.md).
+Nonrestricted Video amendment (2026-09-07):
+[generated images and Character/Look alternatives](../../099-technical-dept/studio-realism-video-hardening/002-video-reference-selection.md).
+This supersedes the mandatory-Look rule below for nonrestricted Playground
+models only. Seedance trusted-only policy is unchanged.
 Its generated-only controls and server guards supersede the upload/Character
 acceptance below for Playground Seedance 2.0/2.5 only. It adds a private provenance
 store and owner-only listing endpoint; browser draft is now version 4. The

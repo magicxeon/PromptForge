@@ -12,10 +12,13 @@ import type { TrustedVideoSource } from '../api/trustedVideoSources';
 
 export type VideoLookSheet = {
   url: string;
+  generated?: boolean;
   name: string;
   assetId?: string;
   lookId?: string;
   versionId?: string;
+  characterProfileId?: string;
+  characterProfileVersionId?: string;
 };
 export type VideoReferenceSelection = {
   operation: PlaygroundVideoOperation;
@@ -47,6 +50,8 @@ export function approvedVideoLooks(
         name: look.name,
         lookId: look.id,
         versionId: version.id,
+        characterProfileId: character.id,
+        characterProfileVersionId: character.characterProfileVersionId || undefined,
         url: `/api/character-profiles/${encodeURIComponent(character.id)}/looks/${encodeURIComponent(look.id)}/versions/${encodeURIComponent(version.id)}/media/sheet`,
       },
     ];
@@ -90,6 +95,11 @@ export function buildVideoReferenceSelection(
     });
   const look =
     inputMode === 'multimodal_reference' ? selection.lookSheet : null;
+  const character = inputMode === 'multimodal_reference' ? selection.character : null;
+  // Legacy pinned Looks carry Character attribution, not a second identity image.
+  if (character && !look) references.push({
+    role: 'reference_image', purpose: 'character_reference', characterProfileId: character.id,
+  });
   if (look)
     references.push({
       role: 'reference_image',
@@ -97,11 +107,11 @@ export function buildVideoReferenceSelection(
       ...(look.lookId
         ? {
             purpose: 'character_look' as const,
-            characterProfileId: selection.character?.id,
+            characterProfileId: look.characterProfileId || selection.character?.id,
             characterLookId: look.lookId,
             characterLookVersionId: look.versionId,
           }
-        : { purpose: 'look_sheet_upload' as const, assetId: look.assetId }),
+        : { purpose: look.generated ? 'generated_look' as const : 'look_sheet_upload' as const, assetId: look.assetId }),
     });
   const modes = model?.inputModes.length
     ? model.inputModes
@@ -109,15 +119,17 @@ export function buildVideoReferenceSelection(
         value === 'character_to_video' ? 'multimodal_reference' : value,
       );
   const reason =
-    !model || !modes?.includes(inputMode)
+    character && look && !look.lookId
+      ? 'playground.video.references.identityConflict'
+      : !model || !modes?.includes(inputMode)
       ? 'playground.video.references.unsupportedMode'
       : references.length > model.referenceImageLimit ||
           (references.length > 1 && !model.supportsOrderedImageReferences)
         ? 'playground.video.references.unsupportedCount'
         : inputMode === 'image_to_video' && !references.length
           ? 'playground.video.references.needFrame'
-          : inputMode === 'multimodal_reference' && !look
-            ? 'playground.video.references.needLook'
+          : inputMode === 'multimodal_reference' && !look && !character
+            ? 'playground.video.references.needIdentity'
             : null;
   return { inputMode, references, reason, ready: !reason };
 }

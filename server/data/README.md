@@ -1,6 +1,12 @@
 # Server Runtime Data
 
 `server/data/` is the canonical local runtime-data root for the JSON-backed MVP.
+Only this README belongs in Git. Runtime JSON, signed provider URLs, backups and
+account records must remain local. `.gitignore` does not sanitize historical
+commits. Check before commit with `node scripts/check-runtime-git-hygiene.mjs`.
+Existing local stores are preserved when removing them from the Git index.
+Fresh environments require separately approved mock identity/bootstrap data;
+do not copy production/private records as development fixtures.
 It contains mutable application state only. Source modules, provider
 configuration, prompt catalogs, visual assets, and generated image binaries do
 not belong here.

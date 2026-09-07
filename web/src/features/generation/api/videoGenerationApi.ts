@@ -3,7 +3,7 @@ import { recentVideoTasksSchema, videoCapabilityCatalogSchema, videoQuoteSchema,
 
 export type PlaygroundVideoReference = {
   role: 'first_frame' | 'reference_image';
-  purpose: 'opening_frame' | 'character_look' | 'look_sheet_upload' | 'generated_look';
+  purpose: 'opening_frame' | 'character_look' | 'look_sheet_upload' | 'generated_look' | 'character_reference';
   referenceImageUrl?: string;
   generationId?: string;
   assetId?: string;

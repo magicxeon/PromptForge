@@ -1,5 +1,5 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ImagePlus, UserRound, X } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { ImagePlus, Images, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
@@ -11,6 +11,7 @@ import { uploadGenerationReference } from '../../generation/api/generationApi';
 import { listCharacterLooks } from '../../profiles/api/profileApi';
 import { characterDisplayImages } from '../../profiles/characterDisplayImage';
 import { CharacterLibraryPicker } from '../../profiles/components/CharacterLibraryPicker';
+import { GeneratedVideoImagePicker } from './GeneratedVideoImagePicker';
 import type { CharacterSummary } from '../../profiles/schemas/profileSchemas';
 import {
   approvedVideoLooks,
@@ -29,7 +30,7 @@ export function PlaygroundVideoSources({
 }) {
   const { t } = useTranslation('playground');
   const { actor } = useActor();
-  const queryClient = useQueryClient();
+  const [historySlot, setHistorySlot] = useState<'frame' | 'look' | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -68,33 +69,9 @@ export function PlaygroundVideoSources({
     : [];
 
   async function selectCharacter(character: CharacterSummary) {
-    const token = ++epoch.current;
-    setPending('character');
-    onBusy(true);
+    epoch.current += 1;
     setError(null);
-    try {
-      const result = await queryClient.fetchQuery({
-        queryKey: [
-          'character-looks',
-          actor?.userId,
-          character.id,
-          character.characterProfileVersionId,
-        ],
-        queryFn: () =>
-          listCharacterLooks(character.id, character.characterProfileVersionId),
-        staleTime: 0,
-      });
-      if (!isCurrent(token)) return;
-      onChange({
-        character,
-        lookSheet: approvedVideoLooks(result.items, character)[0] || null,
-      });
-    } finally {
-      if (isCurrent(token)) {
-        setPending(null);
-        onBusy(false);
-      }
-    }
+    onChange({ character, lookSheet: null });
   }
 
   async function upload(file: File | undefined, slot: 'frame' | 'look') {
@@ -129,6 +106,7 @@ export function PlaygroundVideoSources({
           slot === 'frame'
             ? { referenceImageUrl: uploaded.imageUrl }
             : {
+                character: null,
                 lookSheet: {
                   url: uploaded.imageUrl,
                   assetId: uploaded.referenceId,
@@ -229,6 +207,9 @@ export function PlaygroundVideoSources({
                 </small>
               ) : null}
               <div className="playground-video-references__actions">
+                <Button disabled={Boolean(pending)} icon={<Images />} onClick={() => setHistorySlot(slot)}>
+                  {t('playground.video.trusted.choose')}
+                </Button>
                 <Button
                   disabled={Boolean(pending)}
                   icon={<ImagePlus />}
@@ -276,6 +257,7 @@ export function PlaygroundVideoSources({
                     value={value.lookSheet?.versionId || ''}
                     onChange={(event) =>
                       onChange({
+                        character: null,
                         lookSheet:
                           options.find(
                             (item) => item.versionId === event.target.value,
@@ -298,15 +280,8 @@ export function PlaygroundVideoSources({
           );
         })}
       </div>
-      {withLook ? (
-        <p>{t('playground.video.references.multimodalNotice')}</p>
-      ) : null}
-      {withLook &&
-      value.character &&
-      !looks.isLoading &&
-      !looks.isError &&
-      !options.length ? (
-        <p role="status">{t('playground.video.references.noApprovedLook')}</p>
+      {withLook && !value.character && !value.lookSheet ? (
+        <p>{t('playground.video.references.needIdentity')}</p>
       ) : null}
       {looks.isError && withLook ? (
         <div role="alert">
@@ -317,6 +292,18 @@ export function PlaygroundVideoSources({
         </div>
       ) : null}
       {error ? <p role="alert">{error}</p> : null}
+      <GeneratedVideoImagePicker
+        key={`${actor?.userId}:${historySlot || 'closed'}`}
+        open={Boolean(historySlot)}
+        onClose={() => setHistorySlot(null)}
+        excludedUrl={historySlot === 'frame' ? value.lookSheet?.url : value.referenceImageUrl}
+        onSelect={item => {
+          epoch.current += 1;
+          onChange(historySlot === 'frame' ? { referenceImageUrl: item.imageUrl }
+            : { character: null, lookSheet: { url: item.imageUrl, name: item.submodel || item.id, generated: true } });
+          setHistorySlot(null);
+        }}
+      />
       <CharacterLibraryPicker
         open={pickerOpen}
         onOpenChange={setPickerOpen}

@@ -10,3 +10,9 @@ Source: requirement032 P-11 and the existing Cinematic/provider investigation.
 
 Do not resume video tests merely because UI/database work is complete. External
 confirmation, agreed payload/price and explicit bounded test approval still apply.
+
+2026-09-07: user confirmed text-only Seedream image -> Seedance video success;
+the image-reference-derived attempt failed privacy moderation. Case evidence and
+Asset Library/access support dependency:
+[current plan](../099-technical-dept/studio-realism-video-hardening/000-master.md#pending-external-qualification).
+Do not generalize one rejection into a blanket provider capability claim.

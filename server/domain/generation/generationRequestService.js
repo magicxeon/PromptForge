@@ -1,4 +1,5 @@
 import { compilePromptOnServer } from './promptCompiler.js';
+import { applyStudioNaturalRealism, studioRealismProfile } from './studioNaturalRealism.js';
 import {
   normalizeReferenceJobIds,
   normalizeReferenceValue,
@@ -314,6 +315,10 @@ export function compileGenerationContext(payload = {}, actorContext = null) {
 }
 
 export function compilePromptFromGenerationContext(context) {
+  return applyStudioNaturalRealism(compileBasePromptFromGenerationContext(context), context);
+}
+
+function compileBasePromptFromGenerationContext(context) {
   const isCinematicStoryboardScene = context.generationSurface === 'cinematic'
     && context.generationMode === 'scene';
   const adminPromptOverride = typeof context.adminPromptOverride === 'string'
@@ -543,6 +548,7 @@ export function createQueueOptions(context, {
     mode: context.mode,
     generationMode: context.generationMode || null,
     generationSurface: context.generationSurface || null,
+    studioRealismProfile: studioRealismProfile(context),
     cinematicCaptureProfileId: context.cinematicCaptureProfileId || null,
     template: context.template,
     isGptSafe: context.isGptSafe,

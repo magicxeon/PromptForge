@@ -354,3 +354,9 @@ runtime data paths introduced or changed
 architecture documentation changes, when applicable
 validation commands the user should run
 ```
+## Studio Realism And Video Reference Hardening
+
+Current bounded plan: [studio-realism-video-hardening/000-master.md](studio-realism-video-hardening/000-master.md).
+Generation owns the Studio-only recipe/compiler policy; Playground owns Video
+selection UI. Existing Character/History authorities validate references.
+Runtime Git hygiene is maintenance-only and does not move persistence ownership.

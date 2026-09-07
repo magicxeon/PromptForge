@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { applyStudioNaturalRealism } from './studioNaturalRealism.js';
 import { getPromptRefinementPolicy } from '../../config/prompt-refinement-policy.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
 import {
@@ -76,7 +77,8 @@ export class PromptRefinementService {
         maxOutputTokens: policy.maxOutputTokens,
         timeoutMs: policy.timeoutMs
       });
-      const refinedPrompt = validateRefinedPrompt(canonicalPrompt, result.refinedPrompt);
+      const refinedPrompt = applyStudioNaturalRealism(
+        validateRefinedPrompt(canonicalPrompt, result.refinedPrompt), context);
       const metadata = {
         ...baseMetadata,
         applied: true,

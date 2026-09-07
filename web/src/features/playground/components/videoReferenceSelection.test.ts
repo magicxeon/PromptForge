@@ -39,6 +39,12 @@ const selection: VideoReferenceSelection = {
 };
 
 describe('Playground video reference selection', () => {
+  it('supports Character alone and blocks Character plus uploaded Look', () => {
+    const result = buildVideoReferenceSelection({ ...selection, lookSheet: null }, model);
+    expect(result.ready).toBe(true);
+    expect(result.references.at(-1)).toEqual({ role: 'reference_image', purpose: 'character_reference', characterProfileId: 'char' });
+    expect(buildVideoReferenceSelection({ ...selection, lookSheet: { name: 'upload', url: '/outputs/look.png' } }, model).reason).toMatch(/identityConflict/);
+  });
   it('orders scene then Look with explicit reference_image roles, never the Community display image', () => {
     const plan = buildVideoReferenceSelection(selection, model);
     expect(plan.ready).toBe(true);
@@ -89,9 +95,9 @@ describe('Playground video reference selection', () => {
       ).references[0]?.purpose,
     ).toBe('look_sheet_upload');
     expect(
-      buildVideoReferenceSelection({ ...selection, lookSheet: null }, model)
+      buildVideoReferenceSelection({ ...selection, character: null, lookSheet: null }, model)
         .reason,
-    ).toMatch(/needLook/);
+    ).toMatch(/needIdentity/);
     expect(
       buildVideoReferenceSelection(selection, {
         ...model,

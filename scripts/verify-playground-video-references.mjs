@@ -76,6 +76,16 @@ const activeJobItem = {
   error: null,
 };
 const api = {
+  '/api/history': { items: ['frame', 'look'].map((id, index) => ({
+    id: `job_layout_${id}`, imageUrl: `/outputs/layout-${id}.jpg`, timestamp: 1,
+    provider: index ? 'openai' : 'gemini', submodel: index ? 'GPT Image' : 'Gemini',
+    width: 720, height: 1280,
+  })), hasMore: false },
+  '/api/history': { items: ['frame', 'look'].map((id, index) => ({
+    id: `job_layout_${id}`, imageUrl: `/outputs/layout-${id}.jpg`, timestamp: 1,
+    provider: index ? 'openai' : 'gemini', submodel: index ? 'GPT Image' : 'Gemini',
+    width: 720, height: 1280,
+  })), hasMore: false },
   '/api/generation/video/trusted-sources': { items: [...trustedImages,
     { ...trustedImages[0], id: 'expired', eligible: false, reason: 'expired', expiresAt: '2000-01-01' }], hasMore: false },
   '/api/me': actor,
@@ -302,6 +312,17 @@ try {
         assert.equal(await page.locator('.trusted-video-picker__grid').getByText('expired', { exact: true }).count(), 0);
         await page.screenshot({ path: path.join(output, `${locale}-${width}-picker.png`), fullPage: true });
         await page.keyboard.press('Escape');
+        await page.locator('[role=dialog]').waitFor({ state: 'hidden' });
+      } else {
+        await page.locator('.playground-video-references__actions button').first().click();
+        await page.locator('.trusted-video-picker__grid button').first().waitFor();
+        await page.waitForFunction(() => [...document.querySelectorAll('.trusted-video-picker__grid img')].every(img => img.complete && img.naturalWidth > 0));
+        const dialog = await page.locator('[role=dialog]').boundingBox();
+        assert.ok(dialog && dialog.x >= 0 && dialog.x + dialog.width <= width + 1);
+        assert.equal(await page.locator('.trusted-video-picker__grid button').count(), 2);
+        assert.equal(await page.locator('.trusted-video-picker__grid button:disabled').count(), 1);
+        await page.screenshot({ path: path.join(output, `${locale}-${width}-generated-picker.png`), fullPage: true });
+        await page.locator('.trusted-video-picker__grid button:enabled').click();
         await page.locator('[role=dialog]').waitFor({ state: 'hidden' });
       }
     }

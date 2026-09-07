@@ -1,7 +1,18 @@
 import { loadVideoReferenceAssetContent } from '../assets/VideoReferenceAssetContent.js';
+import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
+import { normalizeReferenceValue } from './referenceUtils.js';
 
 const fail = (code, message) =>
   Object.assign(new Error(message), { code, statusCode: 409 });
+
+// Only pass URLs obtained from an owning History/Character authority here.
+function localReferenceAsset(value, id, ownerUserId) {
+  const url = normalizeReferenceValue(value)?.imageUrl;
+  if (!url?.startsWith('/outputs/') || /[?#%\\]/.test(url)) {
+    throw fail('video_reference_unavailable', 'The original local image is unavailable.');
+  }
+  return { id, ownerUserId, publicUrl: url, storageKey: url.slice('/outputs/'.length), status: 'active' };
+}
 
 // Internal to VideoGenerationApplicationService; callers cannot grant asset authority.
 export class PlaygroundVideoReferenceService {
@@ -12,6 +23,7 @@ export class PlaygroundVideoReferenceService {
     referenceResolver,
     firstFrameTransport,
     contentLoader = loadVideoReferenceAssetContent,
+    historyRepository = generationResultRepo,
   }) {
     Object.assign(this, {
       assetRepository,
@@ -20,6 +32,7 @@ export class PlaygroundVideoReferenceService {
       referenceResolver,
       firstFrameTransport,
       contentLoader,
+      historyRepository,
     });
   }
 
@@ -41,7 +54,13 @@ export class PlaygroundVideoReferenceService {
         'Choose one first frame or an ordered reference-image plan.',
       );
     }
+    const hasCharacter = rows.some(row => row.purpose === 'character_reference');
+    if ((hasCharacter && rows.some(row => ['character_look', 'look_sheet_upload', 'generated_look'].includes(row.purpose)))
+      || (input.characterProfileId && rows.some(row => ['look_sheet_upload', 'generated_look'].includes(row.purpose)))) {
+      throw fail('video_reference_identity_conflict', 'Choose either a Character or a Look Sheet.');
+    }
     let attribution = null;
+    let characterContext = null;
     if (input.characterProfileId || input.characterProfileVersionId) {
       const context = await this.characterService.validateGenerationContext(
         {
@@ -54,6 +73,7 @@ export class PlaygroundVideoReferenceService {
         },
         actor,
       );
+      characterContext = context;
       attribution = context.attribution || {
         characterProfileId: input.characterProfileId,
         characterProfileVersionId: input.characterProfileVersionId,
@@ -64,7 +84,15 @@ export class PlaygroundVideoReferenceService {
     const references = [];
     for (const row of rows) {
       let asset;
-      if (row.purpose === 'character_look') {
+      if (row.purpose === 'character_reference') {
+        if (!characterContext || row.characterProfileId !== input.characterProfileId || mode !== 'multimodal_reference') {
+          throw fail('video_character_reference_invalid', 'Choose an available Character version.');
+        }
+        const canonical = characterContext.authorizedCharacterReferenceAssetId;
+        asset = await this.assetRepository.findById(canonical);
+        if (!asset) asset = localReferenceAsset(canonical, `character:${input.characterProfileVersionId}`, actor.userId);
+        asset = { ...asset, sourceKind: 'authorized_character' };
+      } else if (row.purpose === 'character_look') {
         if (
           !attribution ||
           row.characterProfileId !== input.characterProfileId ||
@@ -92,7 +120,7 @@ export class PlaygroundVideoReferenceService {
         }
         asset = approved.asset;
       } else {
-        if (!['opening_frame', 'look_sheet_upload'].includes(row.purpose)) {
+        if (!['opening_frame', 'look_sheet_upload', 'generated_look'].includes(row.purpose)) {
           throw fail(
             'video_reference_purpose_invalid',
             'Choose a first frame or Look Sheet.',
@@ -107,10 +135,22 @@ export class PlaygroundVideoReferenceService {
               row.referenceImageUrl,
               actor.userId,
             );
+        if (!row.assetId && (!asset || asset.assetType !== 'generation_reference')) {
+          const normalized = normalizeReferenceValue(row.referenceImageUrl);
+          const result = normalized?.jobId
+            ? await this.historyRepository.findByIdForOwner(normalized.jobId, actor.userId)
+            : null;
+          if (result && result.status !== 'deleted'
+            && !['failed', 'cancelled', 'processing', 'queued'].includes(result.status)
+            && result.artifactVisibility !== 'template_owner_only'
+            && result.imageUrl === row.referenceImageUrl) {
+            asset = { ...localReferenceAsset(result.imageUrl, result.id, actor.userId), sourceKind: 'owned_generation' };
+          }
+        }
         if (
           !asset ||
           asset.publicUrl !== row.referenceImageUrl ||
-          asset.assetType !== 'generation_reference'
+          (asset.assetType !== 'generation_reference' && asset.sourceKind !== 'owned_generation')
         ) {
           throw fail(
             'video_reference_unavailable',
@@ -118,7 +158,7 @@ export class PlaygroundVideoReferenceService {
           );
         }
       }
-      if (asset.ownerUserId !== actor.userId || asset.status === 'deleted') {
+      if ((asset.ownerUserId !== actor.userId && asset.sourceKind !== 'authorized_character') || asset.status === 'deleted') {
         throw fail(
           'video_reference_unavailable',
           'The reference is unavailable for this actor.',
@@ -133,6 +173,7 @@ export class PlaygroundVideoReferenceService {
         assetVersionId: asset.id,
         contentHash: content.contentHash,
         sourceFingerprint: content.contentHash,
+        ...(asset.sourceKind ? { sourceKind: asset.sourceKind } : {}),
         referenceImageUrl: asset.publicUrl,
         ...(row.purpose === 'character_look'
           ? {
@@ -196,7 +237,8 @@ export class PlaygroundVideoReferenceService {
     for (const [index, asset] of plan.assets.entries()) {
       const reference = plan.input.references[index];
       let value;
-      if (request.providerId === 'modelark') {
+      if (request.providerId === 'modelark'
+        && !['owned_generation', 'authorized_character'].includes(asset.sourceKind)) {
         const result = await this.firstFrameTransport.resolve({
           sourceAsset: asset,
           ownerUserId: actor.userId,
@@ -204,6 +246,12 @@ export class PlaygroundVideoReferenceService {
         });
         value = result.value;
         referenceTransports.push({ assetId: asset.id, ...result.transport });
+      } else if (['owned_generation', 'authorized_character'].includes(asset.sourceKind)) {
+        const content = await this.contentLoader(asset);
+        if (content.contentHash !== reference.contentHash) {
+          throw fail('video_reference_content_invalid', 'The selected reference changed after validation.');
+        }
+        value = `data:${content.mimeType};base64,${content.bytes.toString('base64')}`;
       } else {
         value = await this.referenceResolver(asset.publicUrl, actor.username, {
           ownerUserId: actor.userId,

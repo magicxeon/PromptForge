@@ -1,0 +1,11 @@
+{
+  "id": "studio-natural-realism",
+  "version": 1,
+  "instructions": [
+    "For photographic output, render restrained natural realism without beauty-filter smoothing, waxy skin, excessive sharpening or artificial HDR.",
+    "Preserve the specified identity, apparent age, skin tone, makeup, expression, pose, wardrobe, lighting and environment. Do not invent wrinkles, scars, blemishes, grey hair or a different body shape.",
+    "Keep the requested artistic style and all reference, template and layout constraints authoritative; do not convert illustration or stylized work into photography."
+  ],
+  "portrait": "At portrait distance, retain subtle natural skin texture and tonal variation, believable eye moisture and catchlights consistent with the light source, softly resolved lips and individual hair strands. Avoid exaggerated pores or added age cues.",
+  "contextual": "Resolve detail at the actual viewing distance: believable fabric weave and folds, coherent material response, natural hair edges, grounded contact shadows and plausible skin tone. Do not force close-up pore detail into a full-body or wide scene."
+}

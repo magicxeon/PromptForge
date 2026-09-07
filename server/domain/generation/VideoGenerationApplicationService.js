@@ -47,6 +47,7 @@ export class VideoGenerationApplicationService {
     modelArkCredentialScopeResolver = resolveModelArkCredentialScope,
     firstFrameTransport = cinematicFirstFrameTransportService,
     playgroundReferenceContentLoader,
+    playgroundHistoryRepository,
     trustedSourceService = trustedGeneratedSourceService,
     providerTaskService = null,
     testingEnabled = process.env.NODE_ENV !== 'production'
@@ -64,7 +65,8 @@ export class VideoGenerationApplicationService {
     this.firstFrameTransport = firstFrameTransport;
     this.trustedSources = trustedSourceService;
     this.playgroundReferences = new PlaygroundVideoReferenceService({ assetRepository, lookService,
-      characterService, referenceResolver, firstFrameTransport, contentLoader: playgroundReferenceContentLoader });
+      characterService, referenceResolver, firstFrameTransport, contentLoader: playgroundReferenceContentLoader,
+      historyRepository: playgroundHistoryRepository });
     this.testingEnabled = testingEnabled;
     if (providerTaskService) {
       this.providerTaskService = providerTaskService;

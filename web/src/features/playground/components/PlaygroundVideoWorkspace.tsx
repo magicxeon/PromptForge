@@ -132,9 +132,9 @@ function PlaygroundVideoSession() {
     audioMode: draft.audioMode === 'none' ? 'none' : 'generated',
     references: referencePlan.references,
     referencePlanVersion: draft.operation === 'text_to_video' ? undefined : trustedOnly ? 'playground-trusted-v1' : 'playground-reference-v1',
-    characterProfileId: !trustedOnly && draft.operation === 'character_to_video' ? draft.character?.id : null,
+    characterProfileId: !trustedOnly && draft.operation === 'character_to_video' ? draft.lookSheet?.characterProfileId || draft.character?.id : null,
     characterProfileVersionId: !trustedOnly && draft.operation === 'character_to_video'
-      ? draft.character?.characterProfileVersionId
+      ? draft.lookSheet?.characterProfileVersionId || draft.character?.characterProfileVersionId
       : null
   }) : null, [draft, selectedModel, referencePlan, trustedOnly]);
   const quote = useQuery({

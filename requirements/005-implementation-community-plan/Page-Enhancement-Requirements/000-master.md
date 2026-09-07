@@ -191,6 +191,16 @@ Template URL was unavailable at final read-only check; no user data was changed.
 - No runtime data path or migration was added. Rollback remains route/component composition reversal.
 # Template Input Policy Follow-up
 
+## Publication And Character Continuity Planning (2026-09-07)
+
+Requirements [033-037](033-publication-and-character-continuity-master.md) record
+the next requested delivery round: private image-share defaults, visible public
+work, Character lineage/identity retention, and end-user flow simplification.
+Documentation only; implementation is NOT started. Proposed UX and unresolved
+Template privacy/legacy-linking decisions require discussion before execution.
+Ordered delivery and focused gates: [plan 035](implementation-plan/035-publication-and-character-continuity.md).
+Earlier implementation records above do not close these new requirements.
+
 Derived image sharing: 019 master, 020 domain, 021 shared UI. Execution plan 022.
 Results from Use Template may be shared as images, not republished as Templates.
 Requirement 022 adds single-image duplicate prevention and persistent Share status.

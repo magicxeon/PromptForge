@@ -33,6 +33,7 @@ const groups = {
     'runner',
     'src/features/playground/components/videoReferenceSelection.test.ts',
     'src/features/playground/components/TrustedVideoSources.test.tsx',
+    'src/features/playground/components/GeneratedVideoImagePicker.test.tsx',
     'src/features/playground/components/videoModelSelection.test.ts',
     'src/features/playground/components/videoGenerationReadiness.test.ts',
     'src/features/playground/components/PlaygroundVideoSources.test.tsx',

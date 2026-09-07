@@ -119,22 +119,23 @@ async function choose() {
 }
 
 describe('Playground video sources', () => {
-  it('uses the shared picker, Community display image and approved sheet as separate previews', async () => {
+  it('selects Character without an automatic Look, and can switch to a pinned Look', async () => {
     mount();
     await choose();
     expect(screen.getByAltText('Nara')).toHaveAttribute(
       'src',
       '/community/cover.png',
     );
-    expect(
-      screen.getByAltText('playground.video.references.look'),
-    ).toHaveAttribute(
+    expect(screen.queryByAltText('playground.video.references.look')).not.toBeInTheDocument();
+    fireEvent.change(await screen.findByLabelText('playground.video.references.approvedLook'), { target: { value: 'lv' } });
+    expect(screen.queryByAltText('Nara')).not.toBeInTheDocument();
+    expect(screen.getByAltText('playground.video.references.look')).toHaveAttribute(
       'src',
       '/api/character-profiles/char/looks/look/versions/lv/media/sheet',
     );
     expect(mocks.looks).toHaveBeenCalledWith('char', 'cv');
   });
-  it('replaces the sheet with an upload without changing Character data', async () => {
+  it('replaces Character with a Look upload without modifying the profile', async () => {
     mount();
     await choose();
     fireEvent.change(
@@ -153,21 +154,17 @@ describe('Playground video sources', () => {
         screen.getByAltText('playground.video.references.look'),
       ).toHaveAttribute('src', '/outputs/upload.png'),
     );
-    expect(screen.getByAltText('Nara')).toHaveAttribute(
-      'src',
-      '/community/cover.png',
-    );
+    expect(screen.queryByAltText('Nara')).not.toBeInTheDocument();
     expect(mocks.upload.mock.calls[0]?.[0]).toBe(
       'data:image/png;base64,b3JpZ2luYWw=',
     );
   });
-  it('shows no-sheet and upload errors and allows retry', async () => {
+  it('Character requires no approved Look and upload errors allow retry', async () => {
     mocks.looks.mockResolvedValue({ items: [] });
     mount();
     await choose();
-    expect(
-      await screen.findByText('playground.video.references.noApprovedLook'),
-    ).toBeVisible();
+    expect(screen.getByAltText('Nara')).toBeVisible();
+    expect(screen.queryByText('playground.video.references.noApprovedLook')).not.toBeInTheDocument();
     const field = screen.getByLabelText(
       'playground.reference.browse playground.video.references.look',
     );
