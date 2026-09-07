@@ -29,6 +29,8 @@ import {
 import { resolveModelArkCredentialScope } from '../../providers/modelArkCredentialScope.js';
 import { cinematicFirstFrameTransportService } from '../assets/CinematicFirstFrameTransportService.js';
 import { resolveVideoProviderWorkflow } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
+import { PlaygroundVideoReferenceService } from './PlaygroundVideoReferenceService.js';
+import { trustedGeneratedSourceService } from './TrustedGeneratedSourceService.js';
 
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 
@@ -44,6 +46,8 @@ export class VideoGenerationApplicationService {
     referenceResolver = resolveReferenceForProvider,
     modelArkCredentialScopeResolver = resolveModelArkCredentialScope,
     firstFrameTransport = cinematicFirstFrameTransportService,
+    playgroundReferenceContentLoader,
+    trustedSourceService = trustedGeneratedSourceService,
     providerTaskService = null,
     testingEnabled = process.env.NODE_ENV !== 'production'
       && process.env.VIDEO_PLAYGROUND_TESTING_ENABLED !== 'false'
@@ -58,6 +62,9 @@ export class VideoGenerationApplicationService {
     this.referenceResolver = referenceResolver;
     this.modelArkCredentialScopeResolver = modelArkCredentialScopeResolver;
     this.firstFrameTransport = firstFrameTransport;
+    this.trustedSources = trustedSourceService;
+    this.playgroundReferences = new PlaygroundVideoReferenceService({ assetRepository, lookService,
+      characterService, referenceResolver, firstFrameTransport, contentLoader: playgroundReferenceContentLoader });
     this.testingEnabled = testingEnabled;
     if (providerTaskService) {
       this.providerTaskService = providerTaskService;
@@ -89,12 +96,16 @@ export class VideoGenerationApplicationService {
     });
   }
 
+  async listTrustedSources(actorContext, query = {}) {
+    return this.trustedSources.list(actorContext, query);
+  }
+
   async quote(input, actorContext, workflowContext = null) {
     const workflow = normalizeWorkflowContext(workflowContext);
-    const { request, model, durationReconciliation } = await this.#prepareValidatedRequest(
+    const { request, model, durationReconciliation, playgroundPlan } = await this.#prepareValidatedRequest(
       input, actorContext, workflow
     );
-    await this.#validateSource(request, actorContext, { resolveMedia: false, workflow, model });
+    await this.#validateSource(request, actorContext, { resolveMedia: false, workflow, model, playgroundPlan });
     await this.providerTaskService.preflightTask?.(request, { allowTesting: this.testingEnabled });
     const estimate = await this.creditService.estimateVideo({
       userId: actorContext.userId,
@@ -117,14 +128,14 @@ export class VideoGenerationApplicationService {
 
   async submit(input, actorContext, workflowContext = null) {
     const workflow = normalizeWorkflowContext(workflowContext);
-    const { request, model } = await this.#prepareValidatedRequest(input, actorContext, workflow);
+    const { request, model, playgroundPlan } = await this.#prepareValidatedRequest(input, actorContext, workflow);
     if (input.requestFingerprint && String(input.requestFingerprint) !== request.requestFingerprint) {
       throw videoError('video_quote_request_changed', 'Video request changed after the quote was prepared.', 409);
     }
     const idempotencyKey = normalizeIdempotencyKey(input.idempotencyKey);
     const replay = await this.taskRepository.findByIdempotencyKey(actorContext.userId, idempotencyKey);
     if (replay) return replay;
-    const source = await this.#validateSource(request, actorContext, { resolveMedia: true, workflow, model });
+    const source = await this.#validateSource(request, actorContext, { resolveMedia: true, workflow, model, playgroundPlan });
     await this.providerTaskService.preflightTask?.({ ...request, referenceImage: source.referenceImage,
       lastFrameImage: source.lastFrameImage, referenceImages: source.referenceImages }, {
       allowTesting: this.testingEnabled
@@ -182,6 +193,10 @@ export class VideoGenerationApplicationService {
       shotId: workflow.shotId,
       generationAttemptId: workflow.generationAttemptId || taskId
     }, actorContext, { allowTesting: this.testingEnabled });
+    if (playgroundPlan?.trusted) await this.trustedSources.recordRejection({ ...submitted,
+      submittedRequest: { references: request.references } }, actorContext).catch(() => {
+      console.warn('[Video] Trusted-source rejection evidence could not be saved');
+    });
     if (submitted.status === 'failed'
       && submitted.providerError?.providerBillableState === 'not_billable'
       && financialAuthorization.reservation?.reservationId) {
@@ -236,6 +251,11 @@ export class VideoGenerationApplicationService {
 
   async #settleTask(inputTask) {
     let task = inputTask;
+    if (task.submittedRequest?.references?.some(row => row.sourceKind === 'trusted_generated')) {
+      await this.trustedSources.recordRejection(task, { userId: task.ownerUserId }).catch(() => {
+        console.warn('[Video] Trusted-source rejection evidence could not be saved');
+      });
+    }
     const userId = String(task.ownerUserId || '').trim();
     if (!userId) {
       throw videoError('video_task_owner_missing', 'Video task owner is unavailable for settlement.', 409);
@@ -317,7 +337,26 @@ export class VideoGenerationApplicationService {
   }
 
   async #prepareValidatedRequest(input, actorContext, workflow) {
-    const { request, resolved, durationReconciliation } = this.#prepareRequest(input, workflow);
+    const sourcePolicy = this.capabilityRegistry.resolve(input.providerId, input.modelId)?.playgroundReferencePolicy;
+    const restricted = workflow.capability === 'playground_video' && sourcePolicy?.kind === 'trusted_generated_only';
+    const hasInputs = input.references?.length || input.referenceImageUrl || input.characterProfileId || input.characterProfileVersionId;
+    const needsReference = input.inputMode && input.inputMode !== 'text_to_video'
+      || ['image_to_video', 'character_to_video'].includes(input.operation);
+    if (restricted && hasInputs && input.inputMode === 'text_to_video') {
+      throw videoError('video_trusted_source_required', 'Text-only mode cannot include image references.');
+    }
+    if (workflow.capability === 'playground_video' && input.referencePlanVersion
+      && !['playground-reference-v1', 'playground-trusted-v1'].includes(input.referencePlanVersion)) {
+      throw videoError('video_reference_plan_version_invalid', 'Unsupported Playground reference plan version.');
+    }
+    const playgroundPlan = restricted && (hasInputs || needsReference)
+      ? await this.trustedSources.prepare(input, actorContext)
+      : workflow.capability === 'playground_video' && input.referencePlanVersion === 'playground-reference-v1'
+        ? await this.playgroundReferences.prepare(input, actorContext) : null;
+    const { request, resolved, durationReconciliation } = this.#prepareRequest(playgroundPlan?.input || input, workflow);
+    if (playgroundPlan && request.referenceImageCount > 1 && resolved.supportsOrderedImageReferences !== true) {
+      throw videoError('video_multiple_references_unsupported', 'This model adapter does not support multiple image references.');
+    }
     request.providerCredentialScope = request.providerId === 'modelark'
       ? this.modelArkCredentialScopeResolver()
       : null;
@@ -337,16 +376,24 @@ export class VideoGenerationApplicationService {
       request.referenceAuthorityFingerprint = fingerprintReferenceAuthority(request.referenceAuthority);
     }
     const model = this.#validateModel(request);
+    if (playgroundPlan) this.playgroundReferences.validateModel(playgroundPlan, model);
     request.developmentPocUnverified = model.developmentPocUnverified === true;
     request.developmentPocCredits = model.developmentPocUnverified === true
       ? Number(model.developmentPocCredits || 1)
       : null;
     request.developmentPocWarningCode = model.developmentPocWarningCode || null;
     request.requestFingerprint = fingerprintPreparedRequest(request);
-    return { request, model, durationReconciliation };
+    return { request, model, durationReconciliation, playgroundPlan };
   }
 
-  async #validateSource(request, actorContext, { resolveMedia, workflow, model }) {
+  async #validateSource(request, actorContext, { resolveMedia, workflow, model, playgroundPlan }) {
+    if (playgroundPlan?.trusted) {
+      const source = await this.trustedSources.resolve(playgroundPlan);
+      return resolveMedia ? source : emptyResolvedSource();
+    }
+    if (playgroundPlan) return resolveMedia
+      ? this.playgroundReferences.resolve(playgroundPlan, request, actorContext, model)
+      : { ...emptyResolvedSource(), characterAttributions: playgroundPlan.attributions };
     if (request.inputMode === 'text_to_video') return emptyResolvedSource();
     if (request.inputMode === 'image_to_video' || request.inputMode === 'first_last_frame'
       || (request.inputMode === 'multimodal_reference' && !request.characterProfileId)) {
@@ -626,6 +673,8 @@ function fingerprintPreparedRequest(request) {
     referencePlanFingerprint: request.referencePlanFingerprint,
     referenceContainsPerson: request.referenceContainsPerson === true,
     referenceAuthorityFingerprint: request.referenceAuthorityFingerprint || null,
+    characterProfileId: request.characterProfileId || null,
+    characterProfileVersionId: request.characterProfileVersionId || null,
     developmentPocUnverified: request.developmentPocUnverified === true,
     developmentPocCredits: request.developmentPocCredits,
     promptFingerprint: crypto.createHash('sha256').update(request.prompt).digest('hex')

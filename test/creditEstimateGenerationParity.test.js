@@ -219,3 +219,58 @@ test('development Seedance POC reserves exactly one server-owned test Credit', a
   });
   assert.equal(reservedAmount, 1);
 });
+
+test('Playground Seedance POC uses the same one-Credit quote and reservation contract', async () => {
+  let savedEstimate = null;
+  let reservedAmount = null;
+  const service = new CreditReservationService({
+    pricingPolicyService: {
+      async loadPolicy() {
+        return {
+          pricingFxThbPerUsd: 35, operatingSafetyBufferRate: 0.15,
+          targetGrossMarginRate: 0.7, creditsPerThbAssumption: 10,
+          creditRoundingIncrement: 5, estimateTtlSeconds: 900,
+          policyVersion: 'playground-poc-test-v1'
+        };
+      }
+    },
+    accountRepo: {
+      async saveEstimate(value) { savedEstimate = structuredClone(value); return structuredClone(value); },
+      async getEstimateById() { return structuredClone(savedEstimate); },
+      async reserveCredits(input) {
+        reservedAmount = input.amountCredits;
+        return { reservation: { reservationId: 'rsv_playground_poc' }, account: { availableCredits: 9 } };
+      }
+    }
+  });
+  const model = {
+    providerId: 'modelark', modelId: 'seedance-poc', billingMetric: 'completion_token',
+    ratesByResolutionUsdPerMillionTokens: { '480p': 10.7 }, providerRateVersion: 'unverified-rate',
+    pricingStatus: 'research_only', testingRoutingEnabled: true, paidRoutingEnabled: false,
+    developmentPocUnverified: true, developmentPocCredits: 1
+  };
+  const request = {
+    operation: 'image_to_video', commercialOperation: 'playground_video', inputMode: 'image_to_video',
+    resolution: '480p', aspectRatio: '9:16', durationSeconds: 6, audioMode: 'generated',
+    referenceImageCount: 1, referencePlanFingerprint: 'trusted-playground-v1'
+  };
+  const estimate = await service.estimateVideo({
+    userId: 'usr_poc', model, request, generationMode: 'playground_video'
+  });
+  assert.equal(estimate.estimatedCredits, 1);
+  assert.equal(estimate.chargeMode, 'development_poc_credit');
+  assert.equal(estimate.breakdown.developmentPocCredits, 1);
+  assert.ok(estimate.breakdown.providerEstimatedCredits > 1);
+
+  await service.validateAndReserveForRequest({
+    userId: 'usr_poc', estimateId: estimate.estimateId,
+    generationRequest: {
+      requestId: 'video:playground-poc:1', routingMode: 'advanced', qualityTier: 'video',
+      requestedProviderId: model.providerId, requestedModelId: model.modelId,
+      ...request, referenceCount: 1, outputCount: 1, generationMode: 'playground_video',
+      developmentPocUnverified: true, developmentPocCredits: 1
+    },
+    metadata: { jobId: 'videotask_playground_poc_1' }
+  });
+  assert.equal(reservedAmount, 1);
+});

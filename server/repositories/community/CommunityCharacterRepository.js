@@ -317,7 +317,7 @@ function normalizeStringArray(value) {
 }
 
 function normalizeDestinations(value) {
-  const allowed = new Set(['fashion_blueprint', 'scene_builder']);
+  const allowed = new Set(['fashion_blueprint', 'scene_builder', 'playground_image']);
   return normalizeStringArray(value).filter(item => allowed.has(item));
 }
 
@@ -325,8 +325,8 @@ function destinationsForType(value, characterType) {
   const destinations = normalizeDestinations(value);
   if (destinations.length) return destinations;
   return characterType === 'styled_character'
-    ? ['scene_builder']
-    : ['fashion_blueprint', 'scene_builder'];
+    ? ['scene_builder', 'playground_image']
+    : ['fashion_blueprint', 'scene_builder', 'playground_image'];
 }
 
 function normalizeOutfitBehavior(value, characterType) {

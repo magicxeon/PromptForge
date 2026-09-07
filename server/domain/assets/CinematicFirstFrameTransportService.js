@@ -3,9 +3,11 @@ import { loadVideoReferenceAssetContent } from './VideoReferenceAssetContent.js'
 import { googleCloudProviderAssetStorage } from '../../repositories/assets/GoogleCloudProviderAssetStorage.js';
 
 export class CinematicFirstFrameTransportService {
-  constructor({ storage = googleCloudProviderAssetStorage, sourceLoader = loadVerifiedStoryboardAssetContent, environment = process.env } = {}) {
+  constructor({ storage = googleCloudProviderAssetStorage, sourceLoader = loadVerifiedStoryboardAssetContent,
+    referenceSourceLoader = loadVideoReferenceAssetContent, environment = process.env } = {}) {
     this.storage = storage;
     this.sourceLoader = sourceLoader;
+    this.referenceSourceLoader = referenceSourceLoader;
     const configuredTtl = Number(environment.CINEMATIC_PROVIDER_ASSET_VIDEO_URL_TTL_SECONDS);
     this.urlTtlSeconds = Number.isInteger(configuredTtl) && configuredTtl >= 176400 && configuredTtl <= 604800
       ? configuredTtl : 259200;
@@ -18,8 +20,8 @@ export class CinematicFirstFrameTransportService {
       });
     }
     // Source verification failures must never fall back to another transport.
-    const verified = sourceAsset.assetType === 'character_look_sheet'
-      ? await loadVideoReferenceAssetContent(sourceAsset) : await this.sourceLoader(sourceAsset);
+    const verified = ['character_look_sheet', 'generation_reference'].includes(sourceAsset.assetType)
+      ? await this.referenceSourceLoader(sourceAsset) : await this.sourceLoader(sourceAsset);
     const mimeType = verified.mimeType || sourceAsset.mimeType;
     if (verified.contentHash !== expectedContentHash) {
       throw Object.assign(new Error('The approved Storyboard image content changed.'), {

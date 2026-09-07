@@ -70,7 +70,7 @@ test('Character Profile creation is owner-scoped, idempotent and optimistic', as
   assert.equal(created.id, repeated.id);
   assert.equal(created.versions.length, 1);
   assert.equal(created.characterType, 'reusable_model');
-  assert.deepEqual(created.destinationCapabilities, ['fashion_blueprint', 'scene_builder']);
+  assert.deepEqual(created.destinationCapabilities, ['fashion_blueprint', 'scene_builder', 'playground_image']);
   assert.equal(created.versions[0].sourceMode, 'character-sheet');
   assert.deepEqual(created.versions[0].identityMetadata.ageRange, {
     attributeId: 'character.004',
@@ -198,7 +198,7 @@ test('Styled Character lifecycle stays outfit-bound and Scene-only', async t => 
   }, actor);
   assert.equal(created.characterType, 'styled_character');
   assert.deepEqual(created.intendedUses, ['scene_story']);
-  assert.deepEqual(created.destinationCapabilities, ['scene_builder']);
+  assert.deepEqual(created.destinationCapabilities, ['scene_builder', 'playground_image']);
 
   await service.approveStyled(created.id, {
     characterProfileVersionId: created.activeVersionId,

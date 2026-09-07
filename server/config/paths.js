@@ -82,6 +82,7 @@ export const DATA_FILES = {
   attributeCatalogState: path.resolve(ATTRIBUTE_CATALOG_DATA_DIR, 'state.json'),
   cinematicProjects: path.resolve(CINEMATIC_DATA_DIR, 'projects.json'),
   videoProviderTasks: path.resolve(GENERATION_DATA_DIR, 'videoProviderTasks.json'),
+  trustedGeneratedSources: path.resolve(GENERATION_DATA_DIR, 'trustedGeneratedSources.json'),
   adminOperationPresentation: path.resolve(ADMIN_DATA_DIR, 'operationPresentation.json'),
   supportCases: path.resolve(SUPPORT_DATA_DIR, 'cases.json'),
   adminConfigurationRevisions: path.resolve(ADMIN_CONFIGURATION_DATA_DIR, 'revisions.json'),

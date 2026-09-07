@@ -137,7 +137,7 @@ test('Seedance generated-source policy blocks an unproven Character frame before
     aspectRatio: '9:16', resolution: '720p', durationSeconds: 6, audioMode: 'none',
     referenceContainsPerson: true,
     references: [{ role: 'first_frame', referenceImageUrl: 'https://example.com/frame.png' }]
-  }, actor), error => error.code === 'video_provider_synthetic_character_source_required');
+  }, actor), error => error.code === 'video_trusted_source_unavailable');
   assert.equal(estimates, 0);
 });
 

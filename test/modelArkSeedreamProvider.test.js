@@ -21,6 +21,16 @@ const modelConfig = {
   }
 };
 
+const seedreamProConfig = {
+  ...modelConfig,
+  id: 'dola-seedream-5-0-pro-260628',
+  capabilities: {
+    ...modelConfig.capabilities,
+    maxReferenceImages: 10,
+    resolutions: ['1K', '2K']
+  }
+};
+
 test('ModelArk credential scope matches aliases without exposing the credential', () => {
   const direct = resolveModelArkCredentialScope({
     environment: {}, baseUrl: 'https://ark.example.test/api/v3', apiKey: 'private-key-a'
@@ -36,7 +46,6 @@ test('ModelArk credential scope matches aliases without exposing the credential'
   assert.notEqual(different, direct);
   assert.doesNotMatch(direct, /private-key-a/);
 });
-
 const seedreamFourConfig = {
   id: 'seedream-4-0-250828',
   capabilities: {
@@ -62,7 +71,7 @@ function mockJsonResponse(payload, status = 200) {
   };
 }
 
-test('ModelArk sends b64_json image generation request and normalizes output', async () => {
+test('ModelArk requests original URL for Lite T2I and still normalizes image output', async () => {
   const originalFetch = globalThis.fetch;
   let captured;
   globalThis.fetch = async (url, options) => {
@@ -83,7 +92,7 @@ test('ModelArk sends b64_json image generation request and normalizes output', a
     assert.equal(captured.url, 'https://ark.ap-southeast.bytepluses.com/api/v3/images/generations');
     assert.equal(captured.body.model, modelConfig.id);
     assert.equal(captured.body.size, '2048x2048');
-    assert.equal(captured.body.response_format, 'b64_json');
+    assert.equal(captured.body.response_format, 'url');
     assert.equal(captured.body.output_format, 'png');
     assert.equal(captured.body.watermark, false);
     assert.equal(captured.body.stream, false);
@@ -93,6 +102,36 @@ test('ModelArk sends b64_json image generation request and normalizes output', a
     assert.match(result.providerMetadata.credentialScope, /^modelark:/);
     assert.doesNotMatch(result.providerMetadata.credentialScope, /ark-test-key/i);
     assert.match(result.providerMetadata.generatedAt, /^\d{4}-\d{2}-\d{2}T/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('ModelArk requests original URL for Pro T2I and Seedream 5 I2I', async () => {
+  const originalFetch = globalThis.fetch;
+  const requests = [];
+  globalThis.fetch = async (_url, options) => {
+    requests.push(JSON.parse(options.body));
+    return mockJsonResponse({ data: [{ b64_json: 'OUTPUT' }] });
+  };
+
+  try {
+    const provider = new ModelArkSeedreamProvider('secret', { defaultModel: seedreamProConfig.id });
+    await provider.generateImage('Pro portrait', {
+      submodel: seedreamProConfig.id,
+      modelConfig: seedreamProConfig
+    });
+    const referenced = await provider.generateImage('Referenced portrait', {
+      submodel: modelConfig.id,
+      modelConfig,
+      resolvedCharacterReferenceImageA: 'data:image/jpeg;base64,AAA'
+    });
+
+    assert.equal(requests[0].response_format, 'url');
+    assert.equal(requests[1].response_format, 'url');
+    assert.equal(requests[1].image, 'data:image/jpeg;base64,AAA');
+    assert.equal(referenced.originalSource.generationMode, 'image_to_image');
+    assert.equal(referenced.originalSource.referenceCount, 1);
   } finally {
     globalThis.fetch = originalFetch;
   }

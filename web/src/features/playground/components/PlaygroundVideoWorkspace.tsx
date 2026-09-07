@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowDown, Film, ImagePlus, Maximize2, Sparkles, UserRound, X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { AlertCircle, ArrowDown, CheckCircle2, Film, LoaderCircle, Maximize2, Sparkles } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EngineTargetPanelFrame } from '../../../components/generation/EngineTargetPanelFrame';
 import { GenerationStageState } from '../../../components/generation/GenerationStageState';
@@ -18,8 +18,11 @@ import { useActor } from '../../../lib/auth/ActorProvider';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { queryKeys } from '../../../lib/api/queryKeys';
 import { readActorScopedDraft, writeActorScopedDraft } from '../../../lib/persistence/actorScopedStorage';
-import { CharacterPickerDialog, type CharacterCandidate } from '../../cinematic/components/CinematicDialogs';
-import { uploadGenerationReference } from '../../generation/api/generationApi';
+import { characterSummarySchema, type CharacterSummary } from '../../profiles/schemas/profileSchemas';
+import { PlaygroundVideoSources } from './PlaygroundVideoSources';
+import { TrustedVideoSources } from './TrustedVideoSources';
+import { trustedVideoSourceSchema, type TrustedVideoSource } from '../api/trustedVideoSources';
+import { buildVideoReferenceSelection, type VideoLookSheet } from './videoReferenceSelection';
 import {
   getVideoCapabilityCatalog,
   getVideoTask,
@@ -31,9 +34,10 @@ import {
 import type { VideoTask } from '../../generation/schemas/videoGenerationSchemas';
 import { focusResultRegionAfterLayout } from './resultRegionFocus';
 import { canQuoteVideoModel, filterVideoModelsForOperation, migrateVideoProviderModelKey } from './videoModelSelection';
+import { getVideoGenerationReadiness } from './videoGenerationReadiness';
 
 const VIDEO_DRAFT_FEATURE = 'playground-video';
-const VIDEO_DRAFT_VERSION = 2;
+const VIDEO_DRAFT_VERSION = 4;
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 
 type VideoDraft = {
@@ -46,7 +50,10 @@ type VideoDraft = {
   audioMode: string;
   comparisonActive: boolean;
   referenceImageUrl: string | null;
-  character: CharacterCandidate | null;
+  character: CharacterSummary | null;
+  lookSheet: VideoLookSheet | null;
+  trustedFrame: TrustedVideoSource | null;
+  trustedLook: TrustedVideoSource | null;
   activeTaskId: string | null;
   recentExpanded: boolean;
 };
@@ -62,28 +69,36 @@ const EMPTY_DRAFT: VideoDraft = {
   comparisonActive: false,
   referenceImageUrl: null,
   character: null,
+  lookSheet: null,
+  trustedFrame: null,
+  trustedLook: null,
   activeTaskId: null,
   recentExpanded: true
 };
 
 export function PlaygroundVideoExperience() {
+  const { actor } = useActor();
+  return <PlaygroundVideoSession key={actor?.userId || 'loading'} />;
+}
+
+function PlaygroundVideoSession() {
   const { t } = useTranslation('playground');
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  const uploadRef = useRef<HTMLInputElement>(null);
   const promptRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLElement>(null);
   const cancelResultFocusRef = useRef<(() => void) | null>(null);
   const completedTaskRef = useRef<string | null>(null);
   const [draft, setDraft] = useState<VideoDraft>(() => readVideoDraft(actor?.userId));
-  const [characterPickerOpen, setCharacterPickerOpen] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(draft.activeTaskId);
   const [uploading, setUploading] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerActiveId, setViewerActiveId] = useState<string | null>(null);
+  const submittingRef = useRef(false);
+  const submissionKeyRef = useRef<{ signature: string; key: string } | null>(null);
 
   const capabilities = useQuery({
-    queryKey: ['video-capabilities'],
+    queryKey: ['video-capabilities', actor?.userId],
     queryFn: getVideoCapabilityCatalog,
     staleTime: 0,
     refetchOnMount: 'always',
@@ -96,30 +111,32 @@ export function PlaygroundVideoExperience() {
     [draft.operation, models]
   );
   const selectedModel = useMemo(
-    () => availableModels.find(model => `${model.providerId}:${model.modelId}` === draft.providerModelKey)
-      || availableModels[0]
+    () => models.find(model => `${model.providerId}:${model.modelId}` === draft.providerModelKey)
+      || (!draft.providerModelKey ? availableModels[0] : null)
       || null,
-    [availableModels, draft.providerModelKey]
+    [models, availableModels, draft.providerModelKey]
   );
   const selectedModelCanQuote = canQuoteVideoModel(selectedModel);
-  const sourceReady = draft.operation === 'text_to_video'
-    || (draft.operation === 'image_to_video' && Boolean(draft.referenceImageUrl))
-    || (draft.operation === 'character_to_video' && Boolean(draft.character?.characterProfileVersionId));
+  const trustedOnly = selectedModel?.playgroundReferencePolicy?.kind === 'trusted_generated_only';
+  const referencePlan = useMemo(() => buildVideoReferenceSelection(draft, selectedModel), [draft, selectedModel]);
+  const sourceReady = referencePlan.ready && !uploading;
   const generationInput = useMemo<VideoGenerationInput | null>(() => selectedModel ? ({
     providerId: selectedModel.providerId,
     modelId: selectedModel.modelId,
     operation: draft.operation,
+    inputMode: referencePlan.inputMode,
     prompt: draft.prompt.trim(),
     aspectRatio: draft.aspectRatio,
     resolution: draft.resolution,
     durationSeconds: draft.durationSeconds,
     audioMode: draft.audioMode === 'none' ? 'none' : 'generated',
-    referenceImageUrl: draft.operation === 'image_to_video' ? draft.referenceImageUrl : null,
-    characterProfileId: draft.operation === 'character_to_video' ? draft.character?.id : null,
-    characterProfileVersionId: draft.operation === 'character_to_video'
+    references: referencePlan.references,
+    referencePlanVersion: draft.operation === 'text_to_video' ? undefined : trustedOnly ? 'playground-trusted-v1' : 'playground-reference-v1',
+    characterProfileId: !trustedOnly && draft.operation === 'character_to_video' ? draft.character?.id : null,
+    characterProfileVersionId: !trustedOnly && draft.operation === 'character_to_video'
       ? draft.character?.characterProfileVersionId
       : null
-  }) : null, [draft, selectedModel]);
+  }) : null, [draft, selectedModel, referencePlan, trustedOnly]);
   const quote = useQuery({
     queryKey: ['video-quote', actor?.userId, generationInput],
     queryFn: () => quoteVideoGeneration(generationInput!),
@@ -141,26 +158,17 @@ export function PlaygroundVideoExperience() {
     staleTime: 15_000
   });
   const submit = useMutation({
-    mutationFn: () => submitVideoGeneration({
-      ...generationInput!,
-      estimateId: quote.data!.estimate.estimateId,
-      idempotencyKey: `playground-video:${crypto.randomUUID()}`
-    }),
+    mutationFn: (input: VideoGenerationInput & { estimateId: string; idempotencyKey: string }) => submitVideoGeneration(input),
     onSuccess: submitted => {
+      submissionKeyRef.current = null;
       setTaskId(submitted.id);
       setDraft(current => ({ ...current, activeTaskId: submitted.id }));
       void queryClient.invalidateQueries({ queryKey: ['credits'] });
       void queryClient.invalidateQueries({ queryKey: ['video-tasks', actor?.userId] });
       void queryClient.invalidateQueries({ queryKey: queryKeys.generationJobCenter(actor?.userId || 'loading') });
-    }
+    },
+    onSettled: () => { submittingRef.current = false; }
   });
-
-  useEffect(() => {
-    if (!actor?.userId) return;
-    const restored = readVideoDraft(actor.userId);
-    setDraft(restored);
-    setTaskId(restored.activeTaskId);
-  }, [actor?.userId]);
   useEffect(() => {
     if (!actor?.userId) return;
     writeActorScopedDraft({
@@ -205,37 +213,27 @@ export function PlaygroundVideoExperience() {
     completedTaskRef.current = activeTask.id;
     void queryClient.invalidateQueries({ queryKey: ['credits'] });
     void queryClient.invalidateQueries({ queryKey: ['video-tasks', actor?.userId] });
+    void queryClient.invalidateQueries({ queryKey: ['trusted-video-sources', actor?.userId] });
   }, [activeTask, actor?.userId, queryClient]);
-
-  async function receiveImage(file?: File) {
-    if (!file || !file.type.startsWith('image/') || file.size > 12 * 1024 * 1024) return;
-    setUploading(true);
-    try {
-      const uploaded = await uploadGenerationReference(
-        await readFileAsDataUrl(file),
-        'character_reference',
-        'playground-video'
-      );
-      setDraft(current => ({ ...current, referenceImageUrl: uploaded.imageUrl }));
-    } finally {
-      setUploading(false);
-      if (uploadRef.current) uploadRef.current.value = '';
-    }
-  }
 
   const comparisonEnabled = capabilities.data?.comparison.enabled === true
     && availableModels.filter(canQuoteVideoModel).length >= 2;
-  const generationReady = Boolean(
-    generationInput?.prompt
-    && sourceReady
-    && selectedModelCanQuote
-    && quote.data?.account.canAfford
-    && !submit.isPending
-  );
+  const readiness = getVideoGenerationReadiness({
+    submitting: submit.isPending,
+    hasActiveTask: Boolean(activeTask && !TERMINAL.has(activeTask.status)),
+    hasPrompt: Boolean(generationInput?.prompt),
+    sourceReady,
+    modelCanQuote: selectedModelCanQuote,
+    quoteFetching: quote.isFetching,
+    quoteFailed: quote.isError,
+    quoteAvailable: Boolean(quote.data),
+    canAfford: quote.data?.account.canAfford === true
+  });
+  const generationReady = readiness.ready;
   const loading = submit.isPending || Boolean(activeTask && !TERMINAL.has(activeTask.status));
   const providerErrorMessage = activeTask?.providerError?.code === 'ModelNotOpen'
     ? t('playground.video.providerError.modelNotOpen')
-    : activeTask?.providerError?.code || null;
+    : activeTask?.providerError?.providerCode || activeTask?.providerError?.code || null;
   const errorMessage = submit.error?.message
     || task.error?.message
     || providerErrorMessage
@@ -299,6 +297,29 @@ export function PlaygroundVideoExperience() {
             />
           )}
       </Surface>
+      {activeTask ? (
+        <div
+          className={`playground-video-task-status playground-video-task-status--${videoTaskTone(activeTask.status)}`}
+          role="status"
+        >
+          <div className="playground-video-task-status__state">
+            {videoTaskTone(activeTask.status) === 'active'
+              ? <LoaderCircle className="playground-video-task-status__spinner" aria-hidden="true" />
+              : videoTaskTone(activeTask.status) === 'success'
+                ? <CheckCircle2 aria-hidden="true" />
+                : <AlertCircle aria-hidden="true" />}
+            <span>
+              <strong>{t(videoTaskStatusKey(activeTask.status))}</strong>
+              <small title={activeTask.id}>{t('playground.video.taskStatus.taskId', { id: activeTask.id })}</small>
+            </span>
+          </div>
+          {activeTask.providerError?.providerRequestId ? (
+            <small className="playground-video-task-status__request-id">
+              {t('playground.video.references.requestId', { id: activeTask.providerError.providerRequestId })}
+            </small>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 
@@ -334,36 +355,18 @@ export function PlaygroundVideoExperience() {
                 ))}
               </div>
             </fieldset>
-            {draft.operation === 'image_to_video' ? (
-              <SourceChoice
-                title={t('playground.video.imageSource')}
-                value={draft.referenceImageUrl}
-                action={(
-                  <>
-                    <Button icon={<ImagePlus className="size-4" />} onClick={() => uploadRef.current?.click()} disabled={uploading}>
-                      {uploading ? t('playground.reference.uploading') : t('playground.reference.browse')}
-                    </Button>
-                    {draft.referenceImageUrl ? (
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        icon={<X className="size-4" />}
-                        title={t('playground.reference.remove')}
-                        onClick={() => setDraft(current => ({ ...current, referenceImageUrl: null }))}
-                      />
-                    ) : null}
-                    <input ref={uploadRef} hidden type="file" accept="image/*" onChange={event => void receiveImage(event.target.files?.[0])} />
-                  </>
-                )}
-              />
-            ) : null}
-            {draft.operation === 'character_to_video' ? (
-              <SourceChoice
-                title={t('playground.video.characterSource')}
-                value={draft.character?.displayName || null}
-                action={<Button icon={<UserRound className="size-4" />} onClick={() => setCharacterPickerOpen(true)}>{t('playground.video.chooseCharacter')}</Button>}
-              />
-            ) : null}
+            {draft.operation !== 'text_to_video' ? trustedOnly
+              ? <TrustedVideoSources key={`${actor?.userId}:${draft.providerModelKey}`} withLook={draft.operation === 'character_to_video'}
+                frame={draft.trustedFrame} look={draft.trustedLook} onChange={patch => setDraft(current => ({ ...current, ...patch }))} />
+              : <PlaygroundVideoSources key={draft.operation}
+                value={draft} onChange={patch => setDraft(current => ({ ...current, ...patch }))} onBusy={setUploading} /> : null}
+            <div className="playground-video-reference-summary">
+              {t('playground.video.references.summary', { mode: referencePlan.inputMode, count: referencePlan.references.length })}
+              {referencePlan.references.map((reference, index) => <div key={reference.purpose}>
+                {index + 1}. {reference.role} · {t(`playground.video.references.purpose.${reference.purpose}`)}
+              </div>)}
+              {referencePlan.reason ? <p role="status">{t(referencePlan.reason)}</p> : null}
+            </div>
           </div>
         )}
       />
@@ -380,9 +383,9 @@ export function PlaygroundVideoExperience() {
       >
         <p className="p-4" role="status">{t('playground.video.loadingModels')}</p>
       </EngineTargetPanelFrame>
-    ) : availableModels.length && selectedModel ? (
+    ) : selectedModel ? (
       <VideoEngineTargetPanel
-          models={availableModels}
+          models={models}
           catalogModels={models}
           selectedModel={selectedModel}
           aspectRatio={draft.aspectRatio}
@@ -425,15 +428,23 @@ export function PlaygroundVideoExperience() {
         icon={<Sparkles className="size-5" />}
         disabled={!generationReady}
         onClick={() => {
-          submit.mutate();
+          if (!generationReady || !generationInput || !quote.data || submittingRef.current) return;
+          if (new Date(quote.data.estimate.expiresAt).getTime() <= Date.now()) { void quote.refetch(); return; }
+          submittingRef.current = true;
+          const signature = JSON.stringify(generationInput);
+          if (submissionKeyRef.current?.signature !== signature) submissionKeyRef.current = { signature, key: `playground-video:${crypto.randomUUID()}` };
+          submit.mutate({ ...generationInput, estimateId: quote.data.estimate.estimateId,
+            requestFingerprint: quote.data.requestFingerprint, idempotencyKey: submissionKeyRef.current.key });
           cancelResultFocusRef.current?.();
           cancelResultFocusRef.current = focusResultRegionAfterLayout(resultRef.current);
         }}
       >
         <span>{submit.isPending ? t('playground.video.submitting') : t('playground.video.generate')}</span>
-        <small>{quote.data
+        <small>{generationReady && quote.data
           ? `${quote.data.estimate.estimatedCredits} ${t('playground.comparison.credits')}`
-          : t('playground.estimate.pending')}</small>
+          : readiness.reason === 'source_required' && referencePlan.reason
+            ? t(referencePlan.reason)
+            : t(`playground.video.readiness.${readiness.reason || 'ready'}`)}</small>
       </Button>
     </Surface>
   );
@@ -459,11 +470,6 @@ export function PlaygroundVideoExperience() {
         onRecentExpandedChange={recentExpanded => setDraft(current => ({ ...current, recentExpanded }))}
         comparisonActive={false}
       />
-      <CharacterPickerDialog
-        open={characterPickerOpen}
-        onOpenChange={setCharacterPickerOpen}
-        onSelect={character => setDraft(current => ({ ...current, character }))}
-      />
       <GenerationVideoViewer
         items={viewerItems}
         activeId={viewerActiveId}
@@ -482,6 +488,22 @@ export function PlaygroundVideoExperience() {
     setViewerActiveId(id);
     setViewerOpen(true);
   }
+}
+
+function videoTaskTone(status: string) {
+  if (status === 'completed') return 'success';
+  if (TERMINAL.has(status)) return 'error';
+  return 'active';
+}
+
+function videoTaskStatusKey(status: string) {
+  if (status === 'completed') return 'playground.video.taskStatus.completed';
+  if (TERMINAL.has(status)) return 'playground.video.taskStatus.failed';
+  if (['accepted', 'provider_submitting', 'submitted'].includes(status)) {
+    return 'playground.video.taskStatus.submitting';
+  }
+  if (['queued', 'provider_queued'].includes(status)) return 'playground.video.taskStatus.queued';
+  return 'playground.video.taskStatus.processing';
 }
 
 function RecentVideoOutputs({ tasks, loading, onSelect }: { tasks: VideoTask[]; loading: boolean; onSelect: (task: VideoTask) => void }) {
@@ -503,30 +525,24 @@ function RecentVideoOutputs({ tasks, loading, onSelect }: { tasks: VideoTask[]; 
   );
 }
 
-function SourceChoice({ title, value, action }: { title: string; value: string | null; action: ReactNode }) {
-  return <div className="playground-video-source-choice"><div><strong>{title}</strong><small>{value || '-'}</small></div><div>{action}</div></div>;
-}
-
-function readFileAsDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
 function readVideoDraft(actorId?: string): VideoDraft {
   if (!actorId) return EMPTY_DRAFT;
   const value = readActorScopedDraft<Partial<VideoDraft>>({
     actorId,
     feature: VIDEO_DRAFT_FEATURE,
     schemaVersion: VIDEO_DRAFT_VERSION,
-    fallback: EMPTY_DRAFT
+    fallback: EMPTY_DRAFT,
+    migrate: envelope => [2, 3].includes(envelope.schemaVersion) ? envelope.payload as Partial<VideoDraft> : null
   });
   const restored = { ...EMPTY_DRAFT, ...value };
+  const character = characterSummarySchema.safeParse(restored.character);
   return {
     ...restored,
+    character: character.success ? character.data : null,
+    trustedFrame: trustedVideoSourceSchema.safeParse(restored.trustedFrame).data || null,
+    trustedLook: trustedVideoSourceSchema.safeParse(restored.trustedLook).data || null,
+    referenceImageUrl: restored.referenceImageUrl?.startsWith('/outputs/') ? restored.referenceImageUrl : null,
+    lookSheet: restored.lookSheet && (restored.lookSheet.url.startsWith('/outputs/') || restored.lookSheet.url.startsWith('/api/character-profiles/')) ? restored.lookSheet : null,
     providerModelKey: migrateVideoProviderModelKey(restored.providerModelKey)
   };
 }

@@ -68,6 +68,30 @@ test('video capability route exposes only the paid catalog and exact comparison 
   });
 });
 
+test('trusted source route uses the authenticated actor and forwards only bounded filters', async () => {
+  const routes = harness();
+  registerVideoGenerationRoutes(routes.app, {
+    videoGenerationService: {
+      async listTrustedSources(actor, options) {
+        assert.equal(actor.userId, 'usr_alice');
+        assert.deepEqual(options, { cursor: 'next-page', eligibleOnly: true });
+        return { items: [], hasMore: false };
+      }
+    },
+    communityFeaturePolicyService: {
+      async assertEnabled(key) { assert.equal(key, 'cinematic.playgroundVideoEnabled'); }
+    }
+  });
+  const res = response();
+  await routes.handler('/api/generation/video/trusted-sources')({
+    actorContext: { userId: 'usr_alice' },
+    query: { cursor: 'next-page', eligibleOnly: 'true', userId: 'usr_bob', limit: 999 }
+  }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.headers['Cache-Control'], 'private, no-store');
+  assert.deepEqual(res.payload, { items: [], hasMore: false });
+});
+
 test('video task reads are actor-scoped and private no-store', async () => {
   const routes = harness();
   registerVideoGenerationRoutes(routes.app, {

@@ -776,6 +776,16 @@ still making operational cache and polling behavior tunable.
 
 ## 13. Launch Blockers
 
+Reference POC addendum (2026-09-07):
+[Playground video reference requirements](playground-video-reference-poc/000-master.md)
+owns the shared Character picker, first-frame/Look inputs, versioned source
+authority and focused verification. This does not clear the launch blockers below.
+
+Amendments 010-012 in that package also own the one-Credit Playground POC quote
+parity, eligible-only generated-source picker, Image Playground Character handoff
+and the entry into the existing Character Look Sheet lifecycle. They do not add a
+second Generation, Credit, Character Look or provider path.
+
 Public enablement remains blocked until:
 
 - at least one exact Playground video operation passes

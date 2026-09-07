@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
+import { TRUSTED_GENERATED_SOURCE_POLICY } from '../../config/trustedGeneratedSources.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_PATH = path.resolve(__dirname, '../../config/cinematic-video-models.json');
@@ -168,6 +169,10 @@ export class VideoCapabilityRegistry {
 
   #effectiveModel(model) {
     const copy = structuredClone(model);
+    copy.supportsOrderedImageReferences = copy.providerId === 'modelark';
+    if (copy.trustedGeneratedImageSource?.compatibilityId === 'modelark-seedance-2') {
+      copy.playgroundReferencePolicy = structuredClone(TRUSTED_GENERATED_SOURCE_POLICY);
+    }
     if (!this.developmentPocEnabled
       || copy.providerId !== 'modelark'
       || !String(copy.modelId || '').includes('seedance')

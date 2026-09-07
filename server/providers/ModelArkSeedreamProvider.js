@@ -1,6 +1,7 @@
 import { BaseProvider } from './BaseProvider.js';
 import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
 import { resolveModelArkCredentialScope } from './modelArkCredentialScope.js';
+import { isTrustedGeneratedSourceModel } from '../config/trustedGeneratedSources.js';
 
 const DEFAULT_BASE_URL = 'https://ark.ap-southeast.bytepluses.com/api/v3';
 const DEFAULT_TIMEOUT_MS = 180000;
@@ -78,7 +79,6 @@ function normalizeBaseUrl(value) {
   const baseUrl = typeof value === 'string' && value.trim() ? value.trim() : DEFAULT_BASE_URL;
   return baseUrl.replace(/\/+$/, '');
 }
-
 function extractImageParts(value) {
   const match = typeof value === 'string'
     ? value.match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/is)
@@ -227,7 +227,9 @@ export class ModelArkSeedreamProvider extends BaseProvider {
       throw this.createError('invalid_request', `${model} does not support output format ${outputFormat}.`, false);
     }
 
-    const responseFormat = modelConfig.defaults?.responseFormat || 'b64_json';
+    const responseFormat = isTrustedGeneratedSourceModel({ requestedModelId: model, modelId: model })
+      ? 'url'
+      : (modelConfig.defaults?.responseFormat || 'b64_json');
     let resolvedSize;
     try {
       resolvedSize = resolveModelArkOutputSize({
@@ -315,8 +317,24 @@ export class ModelArkSeedreamProvider extends BaseProvider {
       throw error;
     }
 
+    const createdDate = new Date(Number(data.created) * 1000);
+    const providerGeneratedAt = Number(data.created) > 0 && Number.isFinite(createdDate.getTime())
+      ? createdDate.toISOString() : null;
+
     return {
       base64,
+      originalSource: {
+        originalOutputUrl: image.url || null,
+        modelId: data.model || image.model || model,
+        requestedModelId: model,
+        providerRequestId: requestId,
+        credentialScope: resolveModelArkCredentialScope({ baseUrl: this.baseUrl, apiKey: this.apiKey }),
+        referenceCount: references.length,
+        generationMode: references.length ? 'image_to_image' : 'text_to_image',
+        generatedAt: providerGeneratedAt,
+        timestampSource: providerGeneratedAt ? 'provider' : 'unknown',
+        receivedAt: new Date().toISOString()
+      },
       mimeType: image.mime_type || downloadedMimeType || mimeTypeForOutputFormat(outputFormat, model),
       outputFormat,
       usage: data.usage || null,

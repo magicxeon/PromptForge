@@ -14,7 +14,8 @@ export function filterVideoModelsForOperation(
   models: VideoModelCapability[],
   operation: PlaygroundVideoOperation
 ) {
-  return models.filter(model => model.operations.includes(operation));
+  const mode = operation === 'character_to_video' ? 'multimodal_reference' : operation;
+  return models.filter(model => model.operations.includes(operation) || model.inputModes.includes(mode));
 }
 
 export function canQuoteVideoModel(model: VideoModelCapability | null | undefined) {

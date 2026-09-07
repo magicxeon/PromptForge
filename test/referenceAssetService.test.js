@@ -51,6 +51,7 @@ test('registered references are persisted as actor-owned assets and resolved wit
     outputsDirectory
   });
   assert.match(resolved, /^data:image\/png;base64,/);
+  assert.deepEqual(Buffer.from(resolved.split(',')[1], 'base64'), Buffer.from(PNG_DATA_URL.split(',')[1], 'base64'));
 
   const blocked = await resolveReferenceForProvider(reference.imageUrl, 'other_user', {
     ownerUserId: 'usr_other',

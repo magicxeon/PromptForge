@@ -1,6 +1,17 @@
 import { apiRequest } from '../../../lib/api/apiClient';
 import { recentVideoTasksSchema, videoCapabilityCatalogSchema, videoQuoteSchema, videoTaskSchema } from '../schemas/videoGenerationSchemas';
 
+export type PlaygroundVideoReference = {
+  role: 'first_frame' | 'reference_image';
+  purpose: 'opening_frame' | 'character_look' | 'look_sheet_upload' | 'generated_look';
+  referenceImageUrl?: string;
+  generationId?: string;
+  assetId?: string;
+  characterProfileId?: string;
+  characterLookId?: string;
+  characterLookVersionId?: string;
+};
+
 export type VideoGenerationInput = {
   providerId: string;
   modelId: string;
@@ -13,6 +24,8 @@ export type VideoGenerationInput = {
   durationSeconds: number;
   audioMode: 'none' | 'generated';
   referenceImageUrl?: string | null;
+  references?: PlaygroundVideoReference[];
+  referencePlanVersion?: 'playground-reference-v1' | 'playground-trusted-v1';
   characterProfileId?: string | null;
   characterProfileVersionId?: string | null;
   requestFingerprint?: string;

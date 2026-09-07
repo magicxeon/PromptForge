@@ -26,7 +26,7 @@ describe('GenerationJobCenterIndicator', () => {
         terminalCount: 0,
         polledAt: 'now',
         items: [{
-          id: 'video_1', kind: 'video_task', mediaType: 'video', status: 'provider_queued', terminal: false,
+          id: 'video_1', kind: 'video_task', mediaType: 'video', status: 'provider_processing', terminal: false,
           createdAt: null, updatedAt: null, completedAt: null, providerId: 'modelark', modelId: 'seedance',
           resultUrl: null, thumbnailUrl: null, detailHref: null, resumeHref: '/create/playground?media=video',
           billingStatus: 'reserved', estimatedCredits: 10, progress: null, error: null
@@ -40,7 +40,7 @@ describe('GenerationJobCenterIndicator', () => {
   it('shows active work and links back to its owning surface', () => {
     render(<MemoryRouter><GenerationJobCenterIndicator /></MemoryRouter>);
     expect(screen.getByLabelText('shell.jobCenter.label')).toHaveTextContent('1');
-    expect(screen.getByRole('link', { name: /shell.jobCenter.video provider_queued/i }))
+    expect(screen.getByRole('link', { name: /shell.jobCenter.video shell.jobCenter.processing/i }))
       .toHaveAttribute('href', '/create/playground?media=video');
   });
 });

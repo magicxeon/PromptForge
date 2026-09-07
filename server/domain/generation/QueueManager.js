@@ -13,6 +13,7 @@ import { characterUsageService } from '../character-profiles/CharacterUsageServi
 import { logGenerationDiagnostic } from './generationDiagnostics.js';
 import { templateCoreService } from '../templates/TemplateCoreService.js';
 import { createProviderOutputProvenance } from './ProviderOutputProvenance.js';
+import { trustedGeneratedSourceService } from './TrustedGeneratedSourceService.js';
 
 import { OUTPUTS_DIR } from '../../config/paths.js';
 
@@ -394,6 +395,19 @@ export class QueueManager {
       const filePath = path.join(OUTPUTS_DIR, filename);
       await fs.writeFile(filePath, Buffer.from(result.base64, 'base64'));
       job.outputFilePath = filePath;
+      if (job.provider === 'modelark' && result.originalSource) {
+        await trustedGeneratedSourceService.capture({
+          id: jobId,
+          ownerUserId: job.options.ownerUserId || job.options.payerUserId,
+          providerId: job.provider,
+          original: result.originalSource,
+          bytes: Buffer.from(result.base64, 'base64'),
+          mimeType,
+          storageKey: filename
+        }).catch(() => {
+          console.warn(`[Queue] Trusted source metadata unavailable for ${jobId}`);
+        });
+      }
 
       // Capture credit reservation on successful completion
       await creditApplicationService.captureForJob({

@@ -45,6 +45,17 @@ export function registerVideoGenerationRoutes(app, {
     }
   });
 
+  app.get('/api/generation/video/trusted-sources', async (req, res) => {
+    try {
+      await communityFeaturePolicyService.assertEnabled('cinematic.playgroundVideoEnabled');
+      res.set('Cache-Control', 'private, no-store');
+      return res.json(await videoGenerationService.listTrustedSources(req.actorContext, {
+        cursor: req.query?.cursor,
+        eligibleOnly: req.query?.eligibleOnly === 'true'
+      }));
+    } catch (error) { return sendVideoGenerationError(res, error); }
+  });
+
   app.post('/api/generation/video/tasks', async (req, res) => {
     try {
       await communityFeaturePolicyService.assertEnabled('cinematic.playgroundVideoEnabled');

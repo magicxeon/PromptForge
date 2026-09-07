@@ -81,7 +81,7 @@ function JobItem({ item }: { item: GenerationJobCenterItem }) {
           <strong>{item.mediaType === 'video' ? t('shell.jobCenter.video') : t('shell.jobCenter.image')}</strong>
           <small>{item.progress
             ? t('shell.jobCenter.progress', { completed: item.progress.completed, total: item.progress.total })
-            : item.status}</small>
+            : t(jobCenterStatusKey(item.status))}</small>
         </span>
         {!item.terminal
           ? <LoaderCircle className="generation-job-center__spinner" aria-hidden="true" />
@@ -93,3 +93,14 @@ function JobItem({ item }: { item: GenerationJobCenterItem }) {
   );
 }
 
+function jobCenterStatusKey(status: string) {
+  if (status === 'completed') return 'shell.jobCenter.completed';
+  if (['failed', 'cancelled', 'expired', 'reconciliation_required'].includes(status)) {
+    return 'shell.jobCenter.failed';
+  }
+  if (['accepted', 'provider_submitting', 'submitted'].includes(status)) {
+    return 'shell.jobCenter.submitting';
+  }
+  if (['queued', 'provider_queued'].includes(status)) return 'shell.jobCenter.queued';
+  return 'shell.jobCenter.processing';
+}

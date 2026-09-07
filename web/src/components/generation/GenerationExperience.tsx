@@ -102,6 +102,7 @@ type GenerationExperienceProps = {
   initialComparisonActive?: boolean;
   references?: Partial<Record<GenerationReferenceRole, string>>;
   referenceDisplayPreviews?: ReferenceDisplayPreviews;
+  referenceLead?: ReactNode;
   onReferencesChange?: (references: Partial<Record<GenerationReferenceRole, string>>) => void;
   onReferenceAuthorityChange?: (projection: ReferenceAuthorityProjection | null) => void;
   characterProfileContext?: Record<string, unknown> | null;
@@ -170,6 +171,7 @@ export function GenerationExperience({
   initialComparisonActive = false,
   references: controlledReferences,
   referenceDisplayPreviews,
+  referenceLead,
   onReferencesChange,
   onReferenceAuthorityChange,
   characterProfileContext = null,
@@ -942,6 +944,7 @@ export function GenerationExperience({
     <ReferenceSlotGrid
       value={references}
       displayPreviews={referenceDisplayPreviews}
+      leadingContent={referenceLead}
       roles={referenceRoles}
       supported={model?.capabilities.imageReferences === true}
       maxReferences={model?.capabilities.maxReferenceImages || 0}

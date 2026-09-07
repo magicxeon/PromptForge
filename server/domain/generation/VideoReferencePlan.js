@@ -49,7 +49,7 @@ export function sanitizeVideoReferences(value) {
 }
 
 function referenceBindings(reference) {
-  return Object.fromEntries(['purpose', 'contentHash', 'castAssignmentId', 'characterProfileId',
+  return Object.fromEntries(['purpose', 'sourceKind', 'contentHash', 'castAssignmentId', 'characterProfileId',
     'characterLookId', 'characterLookVersionId'].flatMap(key => reference?.[key]
     ? [[key, String(reference[key]).trim()]] : []));
 }

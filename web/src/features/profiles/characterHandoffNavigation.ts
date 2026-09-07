@@ -1,7 +1,7 @@
 const CHARACTER_HANDOFF_STATE_KEY = 'mpfCharacterHandoff';
 
 export type CharacterNavigationHandoff = {
-  destination: 'fashion_blueprint' | 'scene_builder';
+  destination: 'fashion_blueprint' | 'scene_builder' | 'playground_image';
   characterReferenceUrl: string;
   characterType?: string;
   outfitBehavior?: string;

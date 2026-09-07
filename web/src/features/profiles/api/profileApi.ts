@@ -241,7 +241,7 @@ export function updateCharacterFeaturedImage(
 
 export function requestCharacterHandoff(
   characterId: string,
-  destination: 'fashion_blueprint' | 'scene_builder'
+  destination: 'fashion_blueprint' | 'scene_builder' | 'playground_image'
 ) {
   return apiRequest(`/api/community/characters/${encodeURIComponent(characterId)}/handoffs`, {
     method: 'POST',

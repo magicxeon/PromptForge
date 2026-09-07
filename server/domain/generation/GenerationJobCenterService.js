@@ -6,7 +6,10 @@ const ACTIVE_STATUSES = new Set([
   'submitted',
   'polling',
   'provider_submitting',
-  'provider_queued'
+  'provider_queued',
+  'provider_processing',
+  'media_copying',
+  'media_retry_pending'
 ]);
 
 export class GenerationJobCenterService {
@@ -127,7 +130,12 @@ function projectHistoryItem(item) {
 }
 
 function projectVideoTask(task) {
-  const resultUrl = safeMediaUrl(task.outputAsset?.url || task.outputAsset?.videoUrl);
+  const resultUrl = safeMediaUrl(
+    task.outputAsset?.publicUrl || task.outputAsset?.url || task.outputAsset?.videoUrl
+  );
+  const thumbnailUrl = safeMediaUrl(
+    task.outputAsset?.thumbnailUrl || task.outputAsset?.posterUrl
+  );
   return baseItem({
     id: task.id,
     kind: 'video_task',
@@ -139,6 +147,7 @@ function projectVideoTask(task) {
     providerId: task.providerId,
     modelId: task.modelId,
     resultUrl,
+    thumbnailUrl,
     detailHref: '/create/playground?media=video',
     resumeHref: '/create/playground?media=video',
     billingStatus: task.billingStatus,

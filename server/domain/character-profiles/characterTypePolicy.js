@@ -7,12 +7,12 @@ export const CHARACTER_TYPE = Object.freeze({
 
 const CAPABILITIES = Object.freeze({
   [CHARACTER_TYPE.REUSABLE_MODEL]: Object.freeze({
-    destinations: Object.freeze(['fashion_blueprint', 'scene_builder']),
+    destinations: Object.freeze(['fashion_blueprint', 'scene_builder', 'playground_image']),
     outfitBehavior: 'replaceable',
     requiresCastingExport: true
   }),
   [CHARACTER_TYPE.STYLED_CHARACTER]: Object.freeze({
-    destinations: Object.freeze(['scene_builder']),
+    destinations: Object.freeze(['scene_builder', 'playground_image']),
     outfitBehavior: 'preserve',
     requiresCastingExport: false
   })
@@ -41,7 +41,7 @@ export function assertCharacterDestination(characterType, destination) {
   if (!capabilities.destinations.includes(destination)) {
     throw new RepositoryContractError(
       'character_destination_incompatible',
-      'This outfit-bound Character can be used in Scene Builder only. Create a Reusable Model casting export before using it in Fashion Blueprint.',
+      'This Character is not compatible with the selected creation destination.',
       409
     );
   }

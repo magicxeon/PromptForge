@@ -105,5 +105,8 @@
   "shell.jobCenter.video": "สร้างวิดีโอ",
   "shell.jobCenter.completed": "สร้างผลงานเสร็จแล้ว",
   "shell.jobCenter.failed": "สร้างผลงานไม่สำเร็จ",
+  "shell.jobCenter.submitting": "กำลังส่งงาน",
+  "shell.jobCenter.queued": "อยู่ในคิว",
+  "shell.jobCenter.processing": "กำลังสร้าง",
   "shell.jobCenter.progress": "เสร็จแล้ว {completed} จาก {total} ภาพ"
 }

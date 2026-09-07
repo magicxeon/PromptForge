@@ -21,6 +21,7 @@ export const characterSummarySchema = z.object({
   reusePolicy: z.string().default('view_only'),
   reuseStatus: z.string().default('view_only'),
   handoffAvailable: z.boolean().default(false),
+  isOwner: z.boolean().optional(),
   imageUrl: z.string().nullable().optional(),
   thumbnailUrl: z.string().nullable().optional(),
   faceThumbnailUrl: z.string().nullable().optional(),
@@ -291,7 +292,7 @@ export const followResponseSchema = z.object({
 
 export const characterHandoffSchema = z.object({
   handoffVersion: z.number(),
-  destination: z.enum(['fashion_blueprint', 'scene_builder']),
+  destination: z.enum(['fashion_blueprint', 'scene_builder', 'playground_image']),
   characterProfileId: z.string(),
   characterProfileVersionId: z.string(),
   characterReferenceAssetId: z.string(),
@@ -306,4 +307,5 @@ export const characterHandoffSchema = z.object({
 
 export type CreatorPage = z.infer<typeof creatorPageSchema>;
 export type CharacterSummary = z.infer<typeof characterSummarySchema>;
+export type CharacterHandoff = z.infer<typeof characterHandoffSchema>;
 export type CharacterFeaturedImageCandidate = z.infer<typeof characterFeaturedImageCandidateSchema>;

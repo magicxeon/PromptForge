@@ -14,7 +14,7 @@ vi.mock('../../lib/auth/actorStore', () => ({ getActiveActorId: () => state.acto
 vi.mock('../../lib/persistence/handoffStorage', () => ({ writeHandoff: vi.fn() }));
 vi.mock('./api/profileApi', () => ({ requestCharacterHandoff: vi.fn() }));
 
-function payload(destination: 'fashion_blueprint' | 'scene_builder') {
+function payload(destination: 'fashion_blueprint' | 'scene_builder' | 'playground_image') {
   return characterHandoffSchema.parse({
     handoffVersion: 1, destination, characterProfileId: 'identity', characterProfileVersionId: 'approved-v1',
     characterReferenceAssetId: 'reference', characterReferenceUrl: '/authorized-reference', displayName: 'Mali',

@@ -18,9 +18,14 @@ import { useSearchParams } from 'react-router-dom';
 import { useFeaturePolicy } from '../../../lib/permissions/FeaturePolicyProvider';
 import { Button } from '../../../components/ui/Button';
 import { PlaygroundVideoExperience } from '../components/PlaygroundVideoWorkspace';
+import {
+  PlaygroundImageCharacterPanel,
+  type PlaygroundImageCharacterSelection
+} from '../components/PlaygroundImageCharacterPanel';
+import { characterDisplayImages } from '../../profiles/characterDisplayImage';
 
 const FEATURE = 'playground';
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 export function PlaygroundRoute() {
   const { t } = useTranslation(['react-ui', 'shell']);
@@ -59,6 +64,9 @@ export function PlaygroundRoute() {
       expiresAt: initialFaceHandoff.expiresAt
     }
     : null);
+  const [characterSelection, setCharacterSelection] = useState<PlaygroundImageCharacterSelection | null>(
+    () => loadDraft(initialActorId).characterSelection
+  );
 
   useEffect(() => {
     const actorId = actor?.userId;
@@ -68,6 +76,7 @@ export function PlaygroundRoute() {
     setPrompt(draft.prompt);
     setReferences(draft.references);
     setFaceReferenceContext(draft.faceReferenceContext);
+    setCharacterSelection(draft.characterSelection);
     setRecentExpanded(readPlaygroundUiPreferences(actorId).recentExpanded);
     setLoadedActorId(actorId);
   }, [actor?.userId]);
@@ -78,9 +87,9 @@ export function PlaygroundRoute() {
       actorId: actor.userId,
       feature: FEATURE,
       schemaVersion: SCHEMA_VERSION,
-      payload: { prompt, references, faceReferenceContext }
+      payload: { prompt, references, faceReferenceContext, characterSelection }
     });
-  }, [actor?.userId, faceReferenceContext, loadedActorId, prompt, references]);
+  }, [actor?.userId, characterSelection, faceReferenceContext, loadedActorId, prompt, references]);
 
   useEffect(() => {
     if (!actor?.userId || loadedActorId !== actor.userId) return;
@@ -131,12 +140,40 @@ export function PlaygroundRoute() {
         prompt={prompt}
         onPromptChange={setPrompt}
         references={references}
+        referenceLead={<PlaygroundImageCharacterPanel
+          selection={characterSelection}
+          onChange={selection => {
+            setCharacterSelection(selection);
+            setFaceReferenceContext(null);
+            setReferences(current => ({
+              ...current,
+              face_reference: undefined,
+              character_reference: selection?.handoff.characterReferenceUrl
+            }));
+          }}
+        />}
+        referenceDisplayPreviews={characterSelection && references.character_reference === characterSelection.handoff.characterReferenceUrl ? {
+          character_reference: {
+            reference: characterSelection.handoff.characterReferenceUrl,
+            sources: characterDisplayImages(characterSelection.character),
+            label: t('playground.imageCharacter.preview', {
+              ns: 'playground', name: characterSelection.character.displayName
+            })
+          }
+        } : undefined}
         onReferencesChange={next => {
           if (next.face_reference !== references.face_reference) {
             setFaceReferenceContext(null);
           }
+          if (next.character_reference !== characterSelection?.handoff.characterReferenceUrl) {
+            setCharacterSelection(null);
+          }
           setReferences(next);
         }}
+        characterProfileContext={characterSelection?.handoff.characterProfileContext || null}
+        characterReferenceOutfitBehavior={characterSelection?.handoff.outfitBehavior === 'preserve'
+          ? 'preserve'
+          : 'replaceable'}
         faceReferenceContext={faceReferenceContext}
         layoutVariant="playground"
         recentExpanded={recentExpanded}
@@ -150,18 +187,23 @@ function loadDraft(actorId?: string): {
   prompt: string;
   references: Partial<Record<GenerationReferenceRole, string>>;
   faceReferenceContext: { authorizationToken: string; expiresAt?: string } | null;
+  characterSelection: PlaygroundImageCharacterSelection | null;
 } {
-  const fallback = { prompt: '', references: {}, faceReferenceContext: null };
+  const fallback = { prompt: '', references: {}, faceReferenceContext: null, characterSelection: null };
   if (!actorId) return fallback;
   const draft = readActorScopedDraft<{
     prompt?: string;
     references?: Partial<Record<GenerationReferenceRole, string>>;
     faceReferenceContext?: { authorizationToken: string; expiresAt?: string } | null;
+    characterSelection?: PlaygroundImageCharacterSelection | null;
   }>({
     actorId,
     feature: FEATURE,
     schemaVersion: SCHEMA_VERSION,
-    fallback
+    fallback,
+    migrate: envelope => envelope.schemaVersion === 1 && envelope.payload && typeof envelope.payload === 'object'
+      ? { ...fallback, ...(envelope.payload as Partial<typeof fallback>) }
+      : null
   });
   return {
     prompt: typeof draft.prompt === 'string' ? draft.prompt : '',
@@ -171,6 +213,19 @@ function loadDraft(actorId?: string): {
     faceReferenceContext: draft.faceReferenceContext
       && typeof draft.faceReferenceContext.authorizationToken === 'string'
       ? draft.faceReferenceContext
+      : null,
+    characterSelection: validCharacterSelection(draft.characterSelection)
+      ? draft.characterSelection
       : null
   };
+}
+
+function validCharacterSelection(value: unknown): value is PlaygroundImageCharacterSelection {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const selection = value as Partial<PlaygroundImageCharacterSelection>;
+  return Boolean(selection.character?.id
+    && selection.handoff?.destination === 'playground_image'
+    && selection.handoff.characterProfileId === selection.character.id
+    && selection.handoff.characterProfileVersionId === selection.character.characterProfileVersionId
+    && selection.handoff.characterReferenceUrl);
 }

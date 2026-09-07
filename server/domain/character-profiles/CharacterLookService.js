@@ -424,7 +424,7 @@ export class CharacterLookService {
   }
 
   async resolveApprovedSheetReference(characterProfileId, lookId, versionId, actorContext) {
-    const { version } = await this.resolveApprovedVersion(characterProfileId, lookId, versionId, actorContext);
+    const { look, version } = await this.resolveApprovedVersion(characterProfileId, lookId, versionId, actorContext);
     const asset = await this.assetRepository.findByIdForOwner(version.approvedSheetAsset?.assetId, actorContext.userId);
     if (!asset || asset.status === 'deleted') {
       throw new RepositoryContractError('character_look_sheet_unavailable', 'The approved Character Look Sheet is unavailable.', 409);
@@ -435,6 +435,7 @@ export class CharacterLookService {
       throw new RepositoryContractError('character_look_sheet_changed', 'The approved Character Look Sheet content changed.', 409);
     }
     return {
+      characterProfileVersionId: look.sourceCharacterProfileVersionId,
       asset: { ...asset, ...content },
       sourceFingerprint: fingerprintLookVideoReference({ assetId: asset.id, characterLookVersionId: versionId, contentHash: content.contentHash }),
       previewUrl: `/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks/${encodeURIComponent(lookId)}/versions/${encodeURIComponent(versionId)}/media/sheet`

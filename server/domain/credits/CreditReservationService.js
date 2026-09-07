@@ -432,7 +432,8 @@ function isNoChargeVideoQualification({ model, generationMode }) {
 }
 
 function getDevelopmentPocCredits({ model, generationMode }) {
-  if (String(generationMode || '') !== 'cinematic_video' || model?.developmentPocUnverified !== true) return null;
+  if (!['cinematic_video', 'playground_video'].includes(String(generationMode || ''))
+    || model?.developmentPocUnverified !== true) return null;
   const value = Number(model.developmentPocCredits);
   return Number.isInteger(value) ? Math.min(10, Math.max(1, value)) : 1;
 }

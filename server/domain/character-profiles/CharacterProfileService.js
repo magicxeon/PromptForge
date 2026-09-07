@@ -109,8 +109,10 @@ export class CharacterProfileService {
       ...page,
       items: await Promise.all(page.items.map(async profile => {
         const version = await this.versionRepository.findById(profile.activeVersionId);
+        const characterType = normalizeCharacterType(profile.characterType);
+        const capabilities = getCharacterTypeCapabilities(characterType);
         const canonicalAssetId = version && version.characterProfileId === profile.id
-          ? resolveCanonicalCharacterAsset(version, profile.characterType)
+          ? resolveCanonicalCharacterAsset(version, characterType)
             || version.canonicalCharacterSheetAssetId
             || version.sourceGenerationResultIds?.[0]
             || null
@@ -121,7 +123,7 @@ export class CharacterProfileService {
         const ownerImageUrl = canonicalAssetId
           ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/image`
           : null;
-        const hasCastingPreview = normalizeCharacterType(profile.characterType) === CHARACTER_TYPE.REUSABLE_MODEL
+        const hasCastingPreview = characterType === CHARACTER_TYPE.REUSABLE_MODEL
           && Boolean(version?.castingFrontPreviewUrl);
         const ownerDisplayUrl = hasCastingPreview ? ownerThumbnailUrl : ownerImageUrl;
         return {
@@ -132,10 +134,9 @@ export class CharacterProfileService {
           reuseStatus: profile.status === 'approved' ? 'available' : 'unavailable',
           handoffAvailable: profile.status === 'approved' && version?.status === 'approved',
           characterProfileVersionId: version?.id || '',
-          characterType: normalizeCharacterType(profile.characterType),
-          destinationCapabilities: normalizeCharacterType(profile.characterType) === CHARACTER_TYPE.STYLED_CHARACTER
-            ? ['scene_builder']
-            : ['fashion_blueprint', 'scene_builder'],
+          characterType,
+          destinationCapabilities: [...capabilities.destinations],
+          outfitBehavior: capabilities.outfitBehavior,
           imageUrl: ownerImageUrl,
           thumbnailUrl: ownerThumbnailUrl,
           displayImageUrl: ownerDisplayUrl,

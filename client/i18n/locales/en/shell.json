@@ -105,5 +105,8 @@
   "shell.jobCenter.video": "Video generation",
   "shell.jobCenter.completed": "Generation completed",
   "shell.jobCenter.failed": "Generation failed",
+  "shell.jobCenter.submitting": "Submitting",
+  "shell.jobCenter.queued": "Queued",
+  "shell.jobCenter.processing": "Generating",
   "shell.jobCenter.progress": "{completed} of {total} outputs"
 }

@@ -290,6 +290,19 @@ For a single small module, place it in the nearest existing capability folder an
 
 ### 4.5 Required Final Check
 
+Playground video reference ownership addendum (2026-09-07):
+`server/domain/generation/PlaygroundVideoReferenceService.js` is internal to
+VideoGenerationApplicationService. It resolves versioned Playground source plans
+through Character/Assets authorities; it does not own dispatch or Credit mutations.
+`web/src/features/playground/components/PlaygroundVideoSources.tsx` and
+`videoReferenceSelection.ts` own the source controls and client selection mapping,
+reusing Profiles' CharacterLibraryPicker. Scoped styling lives in
+`web/src/styles/playground-video-references.css`. No runtime storage path changes;
+existing registered reference Assets and actor-scoped Playground draft v3 apply.
+Focused checks: `scripts/test-playground-video-references.mjs` and
+`scripts/verify-playground-video-references.mjs`; owning requirements:
+`requirements/016-cinematic-studio/playground-video-reference-poc/`.
+
 Presentation ownership addendum (2026-09-07): CommunityTemplateDetailService owns
 both single-family detail and bounded Gallery preview reads through
 CommunityShareService. Profiles owns characterDisplayImage.ts and featured-work
@@ -297,6 +310,40 @@ summary projection; shared DisplayMediaImage is controlled presentation only.
 Provider mark runtime assets belong to client/assets/providers/. No new runtime
 data store, provider entry point or Generation reference authority is introduced.
 See community Page-Enhancement requirement023 and implementation-plan034.
+
+Trusted generated-source amendment (2026-09-07):
+`server/config/trustedGeneratedSources.js` owns the source allowlist and lifetime
+policy, exposed for restricted Playground models by VideoCapabilityRegistry.
+`server/domain/generation/TrustedGeneratedSourceService.js` owns capture,
+eligibility, listing projection, original URL verification and rejection evidence.
+QueueManager delegates capture after original image persistence; video callers
+use VideoGenerationApplicationService, never a second provider/credit pipeline.
+`server/repositories/generation/TrustedGeneratedSourceRepository.js` owns the
+private `server/data/generation/trustedGeneratedSources.json` via config/paths.js
+and atomic JSON storage. It is keyed by generation ID and owner ID; original
+signed URLs are never public History, task DTO or browser draft fields.
+`GET /api/generation/video/trusted-sources` exposes only owner-scoped safe data,
+24 records per history page, with existing cursor semantics and no-store.
+React owner: Playground's `api/trustedVideoSources.ts` and
+`components/TrustedVideoSources.tsx`, using actor-scoped TanStack Query, existing
+Dialog/media primitives and draft v4. No new polling/cache owner. Existing
+PlaygroundVideoSources continues to own other-model uploads/Character controls.
+See Playground POC 004-008. These amendments supersede v3/no-new-storage claims
+in the earlier addendum only for the trusted generated-source capability.
+
+Playground reference completion addendum (2026-09-07):
+`TrustedGeneratedSourceService` owns eligible-only filtering before History
+pagination, backed by `TrustedGeneratedSourceRepository.listForOwner`; the HTTP
+route exposes only the bounded `eligibleOnly` flag. Credits owns the shared
+development POC override for both `cinematic_video` and `playground_video`, while
+retaining provider cost evidence. Profiles' Character type policy now exposes
+the canonical `playground_image` handoff destination; Community projection
+normalization preserves it, and Playground consumes the handoff through the
+shared CharacterLibraryPicker. The actor-scoped Image Playground draft is schema
+version 2 and stores the selected Character summary/handoff metadata without
+Base64. Character Look creation remains owned by the existing Profile dialogs
+and services. Focused and aggregate checks remain under
+`scripts/test-playground-video-references.mjs`.
 
 Every implementation handoff must report:
 

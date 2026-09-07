@@ -62,6 +62,14 @@ test('Scene handoff snapshots personality and excludes casting outfit attributes
   assert.equal(handoff.characterProfileContext.purpose, 'character_usage');
   assert.equal(handoff.characterProfileContext.characterProfileId, profile.id);
   assert.equal(handoff.characterProfileContext.characterProfileVersionId, version.id);
+  const playgroundHandoff = await service.createHandoff(
+    profile.id,
+    { destination: 'playground_image' },
+    { userId: 'usr_viewer', username: 'viewer' }
+  );
+  assert.equal(playgroundHandoff.destination, 'playground_image');
+  assert.equal(playgroundHandoff.characterProfileContext.useCase, 'general');
+  assert.equal(playgroundHandoff.characterProfileContext.sourceType, 'direct_generation');
 });
 
 test('server replaces client Character metadata with canonical snapshots before queueing', async () => {
@@ -226,7 +234,7 @@ test('Styled Character preserves its outfit in Scene and is rejected by Fashion'
   );
   assert.equal(handoff.characterReferenceAssetId, 'job_styled_sheet');
   assert.equal(handoff.outfitBehavior, 'preserve');
-  assert.deepEqual(handoff.destinationCapabilities, ['scene_builder']);
+  assert.deepEqual(handoff.destinationCapabilities, ['scene_builder', 'playground_image']);
 
   await assert.rejects(
     service.createHandoff(

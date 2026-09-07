@@ -228,7 +228,7 @@ test('public Styled Character projection is selectable in Scene without a Castin
     displayName: 'Mina Styled',
     characterType: 'styled_character',
     canonicalCharacterSheetAssetId: 'job_styled_sheet',
-    destinationCapabilities: ['scene_builder'],
+    destinationCapabilities: ['scene_builder', 'playground_image'],
     outfitBehavior: 'preserve',
     reusePolicy: 'use_as_character',
     visibility: 'public',
@@ -237,7 +237,7 @@ test('public Styled Character projection is selectable in Scene without a Castin
 
   const page = await repository.listPublic();
   assert.equal(page.items[0].handoffAvailable, true);
-  assert.deepEqual(page.items[0].destinationCapabilities, ['scene_builder']);
+  assert.deepEqual(page.items[0].destinationCapabilities, ['scene_builder', 'playground_image']);
   assert.equal(page.items[0].outfitBehavior, 'preserve');
   assert.equal(page.items[0].canonicalCastingExportAssetId, null);
 });

@@ -159,7 +159,7 @@ export class CharacterProfileSharingService {
     const actor = assertActorContext(actorContext);
     const profile = assertProfileReuse(await this.profileRepository.findById(profileId), actor);
     const version = await this.requireActiveVersion(profile);
-    const destination = ['fashion_blueprint', 'scene_builder'].includes(input.destination)
+    const destination = ['fashion_blueprint', 'scene_builder', 'playground_image'].includes(input.destination)
       ? input.destination
       : 'scene_builder';
     const characterType = normalizeCharacterType(profile.characterType);
@@ -198,8 +198,12 @@ export class CharacterProfileSharingService {
         purpose: 'character_usage',
         characterProfileId: profile.id,
         characterProfileVersionId: version.id,
-        useCase: destination === 'fashion_blueprint' ? 'fashion' : 'scene_story',
-        sourceType: destination === 'fashion_blueprint' ? 'fashion_blueprint' : 'scene_builder',
+        useCase: destination === 'fashion_blueprint'
+          ? 'fashion'
+          : destination === 'scene_builder' ? 'scene_story' : 'general',
+        sourceType: destination === 'fashion_blueprint'
+          ? 'fashion_blueprint'
+          : destination === 'scene_builder' ? 'scene_builder' : 'direct_generation',
         sourceId: profile.id,
         characterType,
         outfitBehavior: capabilities.outfitBehavior
@@ -519,6 +523,7 @@ export class CharacterProfileSharingService {
       reusePolicy: profile.reusePolicy,
       reuseStatus: reuseStatus(profile, actor),
       handoffAvailable: profile.ownerUserId === actor.userId || profile.reusePolicy === 'public_reusable',
+      isOwner: profile.ownerUserId === actor.userId,
       imageUrl: canonicalImageUrl,
       thumbnailUrl,
       faceThumbnailUrl: `/api/community/character-profiles/${encodeURIComponent(profile.id)}/face`,

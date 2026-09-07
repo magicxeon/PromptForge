@@ -1,5 +1,5 @@
 import { ImagePlus, UserRound, Palette, PersonStanding, Shirt, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { Button } from '../ui/Button';
@@ -44,6 +44,7 @@ export function ReferenceSlotGrid({
   characterIdentityPackActive = false,
   scopes = {},
   uploadReference,
+  leadingContent,
   onScopeChange,
   onChange,
   readOnly = false
@@ -60,6 +61,7 @@ export function ReferenceSlotGrid({
   characterIdentityPackActive?: boolean;
   scopes?: Partial<Record<GenerationReferenceRole, string>>;
   uploadReference?: (dataUrl: string, role: GenerationReferenceRole) => Promise<string>;
+  leadingContent?: ReactNode;
   onScopeChange?: (role: GenerationReferenceRole, scope: string) => void;
   onChange: (value: Partial<Record<GenerationReferenceRole, string>>) => void;
   readOnly?: boolean;
@@ -81,6 +83,7 @@ export function ReferenceSlotGrid({
       <div className="reference-slot-grid__heading mb-3 flex items-end justify-between gap-3">
         <div><h2 className="m-0 text-lg">{t('playground.reference.summaryTitle')}</h2><p className="mb-0 mt-1 text-xs text-[var(--mpf-text-muted)]">{t('playground.reference.usage', { active: activeCount, max: maxReferences })}</p></div>
       </div>
+      {leadingContent}
       <div className="reference-slot-grid__items grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {definitions.filter(definition => !roles || roles.includes(definition.role)).map(definition => (
           <ReferenceSlot

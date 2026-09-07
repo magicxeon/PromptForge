@@ -80,6 +80,46 @@ test('Generation Job Center supports active and recent scopes', async () => {
   assert.deepEqual(recent.items.map(item => item.id), ['job_complete']);
 });
 
+test('Generation Job Center treats provider processing as active and projects durable Video media', async () => {
+  const service = new GenerationJobCenterService({
+    queueManager: { listActiveJobSnapshotsForUser: () => [] },
+    generationGroupRepository: { listForActor: async () => [] },
+    historyRepository: { listPage: async () => ({ items: [] }) },
+    videoGenerationService: {
+      listRecent: async () => ({ items: [{
+        id: 'video_processing',
+        status: 'provider_processing',
+        createdAt: '2026-09-07T10:00:00.000Z',
+        updatedAt: '2026-09-07T10:01:00.000Z',
+        providerId: 'modelark',
+        modelId: 'seedance-2-5'
+      }, {
+        id: 'video_complete',
+        status: 'completed',
+        createdAt: '2026-09-07T09:00:00.000Z',
+        updatedAt: '2026-09-07T09:05:00.000Z',
+        providerId: 'modelark',
+        modelId: 'seedance-2-5',
+        outputAsset: {
+          publicUrl: '/outputs/video_complete.mp4',
+          posterUrl: '/outputs/video_complete.poster.webp'
+        }
+      }] })
+    }
+  });
+
+  const actor = { userId: 'usr_alice', username: 'user_alice' };
+  const all = await service.list(actor, { scope: 'all' });
+  const active = await service.list(actor, { scope: 'active' });
+  assert.equal(all.activeCount, 1);
+  assert.equal(all.terminalCount, 1);
+  assert.deepEqual(active.items.map(item => item.id), ['video_processing']);
+  assert.equal(active.items[0].terminal, false);
+  const completed = all.items.find(item => item.id === 'video_complete');
+  assert.equal(completed.resultUrl, '/outputs/video_complete.mp4');
+  assert.equal(completed.thumbnailUrl, '/outputs/video_complete.poster.webp');
+});
+
 test('Generation Job Center rejects invalid scope and missing actor', async () => {
   const service = fixtureService();
   await assert.rejects(() => service.list(null), error => error.code === 'actor_required');

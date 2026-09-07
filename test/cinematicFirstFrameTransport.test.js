@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import test from 'node:test';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { loadVideoReferenceAssetContent } from '../server/domain/assets/VideoReferenceAssetContent.js';
 import { CinematicFirstFrameTransportService } from '../server/domain/assets/CinematicFirstFrameTransportService.js';
 
 const bytes = Buffer.from('original-approved-keyframe');
@@ -8,6 +12,29 @@ const contentHash = crypto.createHash('sha256').update(bytes).digest('hex');
 const sourceAsset = { id: 'asset_1', ownerUserId: 'usr_1', mimeType: 'image/png' };
 const input = { sourceAsset, ownerUserId: 'usr_1', expectedContentHash: contentHash };
 const sourceLoader = async () => ({ bytes, contentHash });
+
+test('uploaded image uses verified original bytes for both URL and Base64 transports', async () => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'mpf-video-upload-'));
+  const original = await fs.readFile(new URL('../client/assets/scene-builder/shot-recipes/cafe-seated-lifestyle.jpg', import.meta.url));
+  const hash = crypto.createHash('sha256').update(original).digest('hex');
+  try {
+    await fs.writeFile(path.join(directory, 'upload.jpg'), original);
+    for (const fallback of [false, true]) {
+      let published;
+      const service = new CinematicFirstFrameTransportService({ environment: {},
+        sourceLoader: async () => { throw new Error('Storyboard loader must not process uploads'); },
+        referenceSourceLoader: asset => loadVideoReferenceAssetContent(asset, { outputsDirectory: directory }),
+        storage: { async publish(value) { published = value; if (fallback) throw new Error('Unavailable');
+          return { sourceUrl: 'https://example.invalid/verified-original' }; } } });
+      const result = await service.resolve({ sourceAsset: { ...sourceAsset, assetType: 'generation_reference',
+        storageKey: 'upload.jpg', metadata: { contentHash: hash } }, ownerUserId: 'usr_1', expectedContentHash: hash });
+      assert.deepEqual(published.bytes, original);
+      assert.equal(published.mimeType, 'image/jpeg');
+      if (fallback) assert.deepEqual(Buffer.from(result.value.split(',')[1], 'base64'), original);
+      else assert.equal(result.value, 'https://example.invalid/verified-original');
+    }
+  } finally { await fs.rm(directory, { recursive: true, force: true }); }
+});
 
 test('first-frame transport prefers a reusable private GCS URL with a fresh task-length TTL', async () => {
   let published;
