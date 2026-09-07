@@ -54,7 +54,10 @@ _concept-idea.txt
 z_continue_here.txt
 _temp/
 credentials/
-server/data/
+# Mutable runtime stores may contain signed provider URLs and private records.
+# Ignore rules do not remove files already in the Git index or old commits.
+/server/data/*
+!/server/data/README.md
 
 # Local Prompt Research Lab datasets and generated output
 /lab/**/datasets/source-images/
