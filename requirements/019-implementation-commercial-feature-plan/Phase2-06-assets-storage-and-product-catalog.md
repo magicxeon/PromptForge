@@ -1,6 +1,16 @@
 # Phase 2-06 Assets, Storage and Product Catalog
 
-**Status:** Local Asset/reference service exists; Cloud Storage and Product Catalog pending
+**Status:** Local Assets and provider-handoff GCS exist; general storage cutover and Product Catalog pending (2026-09-07)
+
+`server/repositories/assets/GoogleCloudProviderAssetStorage.js` already supports
+provider handoff through `CINEMATIC_PROVIDER_ASSET_GCS_BUCKET`, signed URLs and
+reusable uploaded objects. Keep it; do not require another bucket merely to
+repeat a working provider upload. This does not establish general durable
+storage for all uploads, originals, results and derivatives.
+
+Extend the owning Asset and Reference Processing contracts for the general
+storage migration. Product Catalog below is new commercial work; the existing
+reference upload and thumbnail flows are not new work.
 
 ## 1. Business Requirement
 
@@ -23,6 +33,9 @@ Each Product Item supports one to four references:
 - Back
 - Detail
 - On-model reference
+
+This Product limit is not a global provider reference limit. Preserve each
+workflow's ordered reference roles and server provider capability constraints.
 
 ## 3. Product Data
 
@@ -64,12 +77,15 @@ request upload -> validate permission/quota -> upload temporary object
 - Never trust filename extension or client MIME type alone.
 - Reject unsupported/decompression-bomb-sized media.
 - Strip unsafe metadata when producing normalized derivatives.
-- Original may be retained according to policy.
+- Preserve approved original bytes and record checksum during storage transfer.
+  Normalization/thumbnail derivatives are separate assets and never silently
+  replace the canonical provider reference. Deletion requires retention policy.
 - Partial bulk failures do not fail accepted items.
 
 ## 6. Storage Abstraction
 
-Application services use `AssetStorage`:
+`AssetStorage` describes a storage responsibility, not a new mandatory wrapper.
+Extend existing Asset services/repositories and storage adapters:
 
 - Local filesystem adapter for development
 - Object storage adapter for production
@@ -96,4 +112,3 @@ The user reviews and confirms analysis; it never replaces product truth automati
 - Product Analysis is never started without confirmation of its price.
 - Deleting a Product follows reference and retention rules rather than orphaning billable job history.
 - Local and production storage adapters satisfy the same contract tests.
-

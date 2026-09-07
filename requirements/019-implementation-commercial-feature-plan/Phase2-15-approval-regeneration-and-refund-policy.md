@@ -1,6 +1,13 @@
 # Phase 2-15 Approval, Regeneration and Refund Policy
 
-**Status:** Proposed - Business/Legal Review Required
+**Status:** Commercial approval/revision policy pending; local retry and Credit recovery reused (2026-09-07)
+
+Current Credit capture/release/refund, result lineage and workflow-specific
+approval mechanisms are not missing infrastructure to rebuild. This phase adds
+the merchant Batch approval/revision policy after durable financial contracts.
+Do not reinterpret preference rejection as a technical failure, alter approved
+Cinematic keyframes or reset historical settlements during migration. All new
+billable/recovery behavior requires Backend, financial and QA review.
 
 ## 1. Business Requirement
 
@@ -56,4 +63,3 @@ The initial Package should state revision allowance as configurable data rather 
 - Refund and release reconcile with ledger and reservation.
 - Package revision allowance is versioned with accepted quote.
 - Bulk approval remains usable on mobile and desktop.
-

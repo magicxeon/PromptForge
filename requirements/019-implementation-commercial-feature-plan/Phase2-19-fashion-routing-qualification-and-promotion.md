@@ -1,12 +1,25 @@
 # Phase 2 Fashion Routing Qualification And Promotion
 
-**Status:** Proposed - Req 009 commercial follow-up  
+**Status:** Existing Fashion qualification baseline retained; repeated commercial promotion pending (2026-09-07)
 **Source baseline:**
 `../020-generation-providers/qualification/001-fashion-model-qualification-and-routing.md`
 **Dependencies:** Fashion Blueprint MVP qualification gate, Reference Processing,
 Template Pose Proxy, credit quote integrity, durable jobs and support tracing
 
 ## 1. Purpose
+
+Current route authority is `server/config/fashion-model-qualifications.json`
+and `server/config/fashion-quality-tiers.json`, constrained by provider catalog
+capabilities and runtime master/workflow controls. The historical evidence and
+candidate notes below do not override that configuration or enable a route.
+
+Muse success/pricing in Playground, Comparison and Face Creator does not imply
+Fashion/reference qualification. Preserve its current no-reference capability
+boundary and accepted non-Fashion availability; do not reintroduce a blanket
+internal-testing gate. Provider/model and approved-image substitutions are not
+part of this reconciliation. Seedance/BytePlus video investigation stays pending
+in `requirements/098-pending-features/005-video-and-continuity.md` and does not
+block DB/Auth. Paid benchmark fixtures require separate execution approval.
 
 The Fashion Blueprint MVP has a working server-owned qualification gate, an
 approved Pose Proxy cache and one qualified single-stage Simple route using

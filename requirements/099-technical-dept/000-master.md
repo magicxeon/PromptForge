@@ -6,6 +6,14 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Deferred Requirement Coordination
+
+- `requirements/098-pending-features/000-master.md` owns categorized deferred
+  item status, reopening conditions and user acceptance records. Domain folders
+  remain authoritative for implementation contracts; 098 adds no runtime owner.
+- Database/Auth foundation discussion remains owned by commercial plan019,
+  especially Phase2-03/04/20, not by the optional presentation backlog.
+
 ### Generated Image Publication Guard
 
 - Page-Enhancement requirements 019-022 own derived-image private sharing and

@@ -4,6 +4,19 @@
 **Audience:** Thai small merchants  
 **MVP limit:** One to five wearable clothing products per Batch
 
+## Current Baseline (2026-09-07)
+
+The existing Fashion route/plan/quote/run is the implementation starting point.
+The multi-product wizard below describes a commercial extension, not evidence
+that every step has shipped. The ordinary Template-to-Scene Builder journey
+has user acceptance and is protected, not reimplemented as this wizard.
+
+Preserve current shared Template policy: optional Character, required Outfit,
+locked pose/scene and no arbitrary face override. Preserve source lineage,
+private prompts on Template-derived outputs, prohibition on republishing them
+as reusable Templates, and duplicate publication protection. Commercial pricing
+or database changes must not weaken these rules.
+
 ## 1. Business Objective
 
 Allow merchants to create consistent selling images without understanding prompts, camera terminology or the full Advanced Studio.
@@ -76,12 +89,16 @@ Fashion module creates a validated plan, not jobs directly:
 }
 ```
 
-Core Pricing, Ledger and Job Orchestrator validate and execute it.
+Existing Fashion application contracts validate the plan and delegate to the
+canonical Credits and Generation entry points. The example is conceptual, not
+a replacement public payload or a new commercial orchestration service.
 
 The production plan must remain compatible with
 `FashionBlueprintPlan` and `FashionBlueprintQuote` from requirements 009.
-Development-only owner IDs, JSON paths, local file references and mock estimates
-must not cross the production adapter boundary.
+Preserve approved stable owner/entity IDs through migration. Mock authentication,
+JSON paths, local durable file dependencies and invented price estimates must
+not cross the production adapter boundary. Existing server estimates are real
+local contracts; they are not all mock pricing.
 
 ## 4.1 Production Adapter Responsibilities
 

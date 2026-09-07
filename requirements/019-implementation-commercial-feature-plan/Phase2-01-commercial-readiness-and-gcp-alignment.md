@@ -1,6 +1,6 @@
 # Phase 2-01 Commercial Readiness and Google Cloud Alignment
 
-**Status:** Required next; updated for the current React modular-monolith MVP  
+**Status:** Source crosswalk updated 2026-09-07; measured migration inventory and deployment proof pending
 **Target:** Convert the current local JSON/mock platform into a production-ready
 commercial foundation without rewriting established domain behavior.
 
@@ -86,34 +86,34 @@ Not required for the first paid MVP:
 | JSON repositories | `server/repositories/` | PostgreSQL adapters | Phase2-03 |
 | Runtime JSON | `server/data/` | migration source/read-only archive | Phase2-03 |
 | Mock actor | `server/middleware/actorContextMiddleware.js`, mock-user repository | authenticated actor adapter | Phase2-04 |
-| Local outputs/references | local files and asset metadata | private Cloud Storage | Phase2-06 |
-| Mock credit ledger | credit domain/repositories | transactional PostgreSQL ledger | Phase2-07 |
+| Local outputs/references and provider GCS handoff | Assets and GoogleCloudProviderAssetStorage | general private asset storage with retained original checksums | Phase2-06 |
+| Local JSON Credit ledger | credit domain/repositories | transactional PostgreSQL ledger | Phase2-07 |
 | In-memory/local queue | generation domain/repositories | Cloud Tasks + durable job tables | Phase2-10 |
-| Provider calls | `server/providers/` | Worker-only provider gateway | Phase2-10 |
-| Community/project data | community repositories | owner-scoped PostgreSQL | Phase2-03, Phase2-05 |
+| Billable generation provider calls | `server/providers/` through Generation | durable Worker dispatch behind the same facade | Phase2-10 |
+| Community and Cinematic data | separate owning repositories | owner-scoped PostgreSQL; generic commercial Project is a separate new aggregate | Phase2-03, Phase2-05 |
 
 ## 5. Stable Contracts
 
-The following contracts must remain stable while adapters change:
+The following existing entry points must remain stable while adapters change:
 
 ```text
 ActorContext
 Repository contracts
-AssetStorage
-PricingService
-CreditLedger / CreditReservationService
-GenerationRequestService
-JobOrchestrator / QueueAdapter
+ReferenceAssetService and owning Asset repositories
+CreditApplicationService and owning pricing services
+GenerationApplicationService / QueueManager / VideoProviderTaskService
 ProviderRegistry / ProviderAdapter
 AuditService
-SupportApplicationService
+SupportCaseService
+ProviderControlApplicationService / ProviderAvailabilityPolicyService
 ```
 
-`SupportApplicationService` is the Case-oriented orchestration boundary from
-`requirements/018-implementation-backend/`; it coordinates owner commands but
-does not replace Generation, Credits, Payments, Identity or Audit.
+Support recovery extensions follow `requirements/018-implementation-backend/`
+and reuse `SupportCaseService`; planned orchestration names are not permission
+to introduce parallel Generation, Credit or Support workflows. See Phase2-21
+for exact source paths. Missing Auth/Project/Payment contracts are new work.
 
-Required request context:
+Conceptual execution envelope (not a replacement for `req.actorContext`):
 
 ```json
 {
@@ -126,8 +126,11 @@ Required request context:
 }
 ```
 
-The browser never supplies an authoritative owner, price, credit balance or job
-state.
+The target browser never supplies an authoritative owner, price, credit balance
+or job state. Currently mock headers can select identity, including when
+`NODE_ENV=production`; Phase2-04 must close this gap. Preserve server-resolved
+`req.actorContext.userId` and current actor fields. Tenant membership is future
+policy, not a new required client parameter.
 
 ## 6. Commercial Invariants
 
@@ -184,7 +187,9 @@ before one vertical production path is proven.
 
 ### WP-03 Environment and Deployment Contract
 
-Define configuration for:
+Define and review configuration for the target below. These are proposed names,
+not a claim that setting them enables an adapter today; reconcile against actual
+configuration readers before adding environment variables:
 
 ```text
 APP_ENV
@@ -208,7 +213,9 @@ secret.
 
 ### WP-04 Vertical Production Proof
 
-Prove one end-to-end generation before broad migration:
+First prove DB + session -> authenticated actor -> one owner-scoped record with
+Audit, without calling a provider or accepting payment (Phase2-20 Step 1).
+Then prove one end-to-end generation before broad migration:
 
 ```text
 authenticated request
@@ -229,7 +236,7 @@ Only after this path passes should additional community/fashion entities migrate
 - Local development keeps JSON/local adapters until the PostgreSQL path is ready.
 - Adapter selection is environment-driven; production must fail closed if a mock
   adapter is configured.
-- Existing public IDs may be preserved through migration maps, but authorization
+- Existing opaque public IDs must be preserved through migration maps; authorization
   uses actor ownership, never ID secrecy.
 - Existing browser routes must continue to deep-link after Firebase Hosting SPA
   rewrites are enabled.
@@ -258,7 +265,9 @@ Required operational verification:
 
 ## 10. Exit Criteria
 
-- Product Owner approves Google Cloud as the active production target.
+- Retain the selected GCP target; obtain region, retention, budget and paid
+  provisioning approval before cloud deployment. These do not block a local
+  no-cost DB/Auth adapter proof.
 - No production write depends on local JSON or persistent container filesystem.
 - One vertical generation path passes staging failure/retry tests.
 - Source-of-truth conflicts have ADRs or explicit decisions.

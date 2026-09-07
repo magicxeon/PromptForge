@@ -1,11 +1,11 @@
 # Phase 2-02 Modular Core Architecture and Module Registry
 
-**Status:** Capability boundaries and React route registry implemented; commercial entitlement/module exposure pending  
+**Status:** Routes, feature exposure and provider controls implemented locally; paid entitlements pending (2026-09-07)
 **Goal:** Extend the current stable boundaries without creating a second core tree.
 
 ## 1. Business Requirement
 
-ModelPromptForge must support independently enabled solution modules without duplicating provider, queue, billing, asset or ownership logic. The existing generator remains available as Advanced Studio while Fashion Selling becomes an installable/disableable solution module.
+ModelPromptForge must support independently enabled solution modules without duplicating provider, queue, billing, asset or ownership logic. Preserve the existing Studio and Fashion routes. Module enablement does not require a runtime plugin installation system.
 
 ## 2. Design Principles
 
@@ -37,10 +37,17 @@ web/src/
 Do not introduce `server/core/`, `server/modules/` or a commercial-only frontend.
 Capability ownership and single workflow entry points are governed by
 `requirements/009-migration-to-react/016-capability-ownership-and-single-workflow-entry-points.md`.
-The remaining Phase2-02 work is a server-owned exposure/entitlement catalog
-consumed by the existing React route registry, not another application shell.
+Reuse Community feature policy, AdminFeaturePolicyService and provider controls
+under `server/domain/admin-configuration/`. Remaining work connects authenticated
+permissions and future purchased entitlements to those boundaries, not another
+catalog or shell. Provider/model master disablement must still apply across
+Playground, Comparison, Studio, Fashion, Cinematic and internal consumers.
 
 ## 4. Module Manifest
+
+Illustrative future entitlement metadata, not an implemented API. Resolve
+actual routes from existing feature contracts; do not add the example route as
+a parallel Fashion endpoint.
 
 ```json
 {
@@ -68,7 +75,9 @@ All mutating use cases receive an execution context:
 }
 ```
 
-Required application contracts:
+Conceptual responsibilities below are not new filenames or required wrappers.
+Use the existing facade crosswalk in Phase2-21; notably CreditApplicationService,
+GenerationApplicationService and server-resolved ActorContext.
 
 - `IdentityContext.getActor()`
 - `AuthorizationService.require(action, resource)`
@@ -104,8 +113,8 @@ registered -> enabled -> disabled -> archived
 1. Define contracts and shared error format.
 2. Reuse `GenerationApplicationService`, Credits, Assets and provider contracts;
    do not wrap them in parallel commercial services.
-3. Extend the existing React route registry with server-owned exposure and
-   entitlement metadata.
+3. Extend existing exposure policy with authenticated entitlement decisions;
+   preserve provider availability and React route-registry consumers.
 4. Replace mock exposure/actor adapters during Phase2-04 while preserving route
    IDs and deep links.
 5. Register the already implemented Fashion feature without forking its route,
@@ -120,4 +129,3 @@ registered -> enabled -> disabled -> archived
 - Existing generation behavior remains operational during migration.
 - Startup fails clearly for invalid or circular module dependencies.
 - Module status is enforced server-side and covered by tests.
-

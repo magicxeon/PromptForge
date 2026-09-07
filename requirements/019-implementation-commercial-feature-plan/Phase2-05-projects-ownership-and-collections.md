@@ -2,6 +2,15 @@
 
 **Status:** Local Collections and actor ownership exist; Project aggregate and production persistence pending
 
+## Current Baseline (2026-09-07)
+
+This phase's new Project is a commercial workspace, not the existing
+`server/domain/cinematic/` Project aggregate. Preserve Cinematic IDs, Cast,
+Storyboard and approved media. Any workspace link needs a separate reviewed
+mapping. Reuse current Collections and their owner-scoped repository instead
+of creating a commercial-only copy. Standalone Playground/Studio work must not
+suddenly require a new Project selector.
+
 ## 1. Business Requirement
 
 `Project` is the commercial workspace. It owns Products, Assets, Model Profiles, Consistency Profiles, Batches and Collections. Collection remains a flexible grouping of outputs inside a Project.
@@ -21,7 +30,7 @@ Initial Project types:
 
 - `fashion_selling`
 - `advanced_custom`
-- Future: `product_review`, `storyboard`
+- Future commercial workspace integration: `product_review`, Cinematic Project links
 
 Project state:
 
@@ -50,7 +59,8 @@ draft -> active -> archived -> scheduled_for_deletion -> deleted
 - Solution Home creates or resumes Projects.
 - Project dashboard shows products, active batches, approved outputs and credit summary.
 - Advanced Studio can open within a Project context.
-- Existing unscoped history is migrated into a legacy Project per user.
+- Existing unscoped history uses a deterministic private Project mapping only
+  after Product approval; never infer cross-user membership or rewrite source IDs.
 
 ## 6. Service/API Requirements
 
@@ -72,9 +82,10 @@ draft -> active -> archived -> scheduled_for_deletion -> deleted
 ## 8. Acceptance Criteria
 
 - A user cannot read or mutate another user's Project.
-- Every Collection belongs to exactly one Project.
+- Every migrated commercial Collection belongs to exactly one Project under
+  the approved mapping. Define links in Wave 2, migrate Collection sources in
+  Wave 6; preserve local standalone Collections until that cutover.
 - Fashion Project automatically creates expected default structures.
 - Existing Collections migrate without membership loss.
 - Archive is reversible; deletion follows retention policy.
 - Project dashboard remains usable with large result counts through pagination.
-

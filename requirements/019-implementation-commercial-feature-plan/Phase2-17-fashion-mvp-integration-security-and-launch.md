@@ -2,6 +2,25 @@
 
 **Status:** Proposed - Final MVP Gate
 
+## Current Baseline And Staged Gates (2026-09-07)
+
+Local image success and user acceptance are not production launch approval.
+The next milestone is a DB/Auth foundation slice (Phase2-20), not the full
+Fashion launch below. This phase retains the first-paid product gates without
+forcing subscriptions, social features, editorial content or video resolution
+into that first slice. BytePlus support remains pending externally.
+
+The current mock middleware can accept a supplied user header in production
+mode. Reject all mock identity injection and verify private reads as well as
+writes before exposing real accounts. Existing provider GCS handoff does not
+satisfy general private-asset durability or migration reconciliation.
+
+Run focused suites at each owning step. Reserve this full launch journey for
+explicit integration/UAT/release gates through the aggregate script planned in
+Phase2-20. Review mandatory privacy, account isolation and media-rights entries
+in `requirements/098-pending-features/004-quality-and-assets.md`; these are not
+waived because cosmetic items are deferred.
+
 ## 1. Launch Scope
 
 - Thai small-merchant Fashion Selling
@@ -92,4 +111,3 @@ Use feature flags and entitlement cohorts. Define rollback criteria for financia
 - Customer sees complete price before every paid process.
 - Fashion module can be disabled without disabling core history/export access policy.
 - Product Owner signs off private-beta scope before enabling paid users.
-

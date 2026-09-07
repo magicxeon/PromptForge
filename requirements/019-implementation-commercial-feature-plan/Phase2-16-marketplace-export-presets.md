@@ -2,6 +2,14 @@
 
 **Status:** Proposed - Platform Specifications Must Be Verified Before Implementation
 
+## Current Baseline (2026-09-07)
+
+Existing result viewing/download and Collection actions remain available. This
+phase is the separate versioned merchant export/derivative workflow, not a
+replacement downloader or a prerequisite for the first DB/Auth record. Exact
+marketplace specifications and any processing charge remain unverified target
+decisions; this reconciliation does not authorize paid export processing.
+
 ## 1. Business Requirement
 
 Small merchants export approved images for target channels without manually understanding dimensions, aspect ratios, filenames or safe areas.
@@ -51,4 +59,3 @@ Export derivatives do not replace originals.
 - Export manifest identifies source and preset version.
 - Invalid/oversized output is reported per file without corrupting the full package.
 - Platform presets are versioned and their source/spec verification date is documented.
-

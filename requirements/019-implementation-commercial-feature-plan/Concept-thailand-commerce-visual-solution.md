@@ -3,10 +3,18 @@
 
 **Document ID:** `015-thailand-commerce-visual-solution`  
 **Application:** `ModelPromptForge`  
-**Status:** Proposed Requirement  
+**Status:** Historical product concept; not the current implementation baseline
 **Target Market:** Thailand  
 **Audience:** Business Owner, Product Owner, Business Analyst, UX/UI Designer, Software Engineer, AI Engineer, QA  
 **Updated:** 2026-07-12
+
+**Reconciliation note (2026-09-07):** Preserve this dated concept as product
+context. Current source status and execution order are owned by
+[Phase2-00](Phase2-00-commercial-platform-master-roadmap.md),
+[Phase2-20](Phase2-20-current-state-reconciliation-and-execution-plan.md) and
+[Phase2-21](Phase2-21-current-source-baseline-and-gap-register.md).
+Do not treat historical capability, module-path or mock-pricing descriptions
+below as current runtime facts. The legacy document ID is retained for traceability.
 
 ---
 
@@ -1320,4 +1328,3 @@ Feature ที่ควรพัฒนาเป็นอันดับแรก
 
 - `README(1).md` — Project Understanding Guide ของ ModelPromptForge
 - `014-optional-ai-story-studio-and-character-generation.md` — Requirement ของ Story Studio เดิม
-

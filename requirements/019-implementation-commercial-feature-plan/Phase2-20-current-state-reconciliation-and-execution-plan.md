@@ -1,10 +1,10 @@
 # Phase 2-20 Current-State Reconciliation And Execution Plan
 
-**Status:** Requirement ready; implementation pending
-**Updated:** 2026-08-15
-**Primary role:** Commercial Financial Integrity
+**Status:** Source-reconciled execution plan; production implementation/cutovers pending
+**Updated:** 2026-09-07
+**Primary role:** Product And Requirement Architect (documentation reconciliation)
 **Reviewers:** Backend Platform Architect, QA And Release Engineer
-**Skills:** `review-commercial-integrity`, `plan-database-migration`
+**Skills:** `plan-database-migration`; financial implementation additionally requires `review-commercial-integrity`
 
 ## 1. Purpose
 
@@ -13,25 +13,31 @@ It does not replace each domain requirement. It determines what to reuse, what
 must be adapted, and the safest implementation order without rebuilding local
 MVP behavior.
 
+Evidence is recorded in [Phase2-21](Phase2-21-current-source-baseline-and-gap-register.md).
+Source inspection is not a completed Wave 0 inventory or production test pass.
+Backend/security and QA perspectives are applied sequentially in this review,
+not claimed as independent certification.
+
 ## 2. Current-State Classification
 
 | Capability | Classification | Next commercial work |
 |---|---|---|
 | React shell/routes/themes/i18n | Reuse | authenticated entitlements and operations routes |
 | Generation application service | Reuse and adapt adapter | durable Job/Attempt/Worker/outbox |
-| provider registry/adapters | Reuse | Worker-only dispatch and video qualification later |
+| provider registry/adapters and master controls | Reuse | durable dispatch and cross-process policy enforcement; pending video qualification stays separate |
 | Credits lifecycle | Reuse and migrate | PostgreSQL transactions and reconciliation |
-| Asset metadata/reference upload | Reuse and migrate | private Cloud Storage and signed access |
+| Asset metadata/reference upload and provider GCS | Reuse and migrate | general private storage cutover and retention, not recreation of provider handoff |
 | Character Profiles | Reuse and migrate | production privacy/version constraints |
 | Template/Pose Proxy | Reuse and migrate | durable preparation, Asset/Job linkage |
 | Fashion Blueprint | Reuse | Project/Product and production adapters |
 | Scene Builder/Studio | Reuse | commercial authorization/entitlements only |
-| Admin read models | Reuse and extend | Support Case-oriented operations |
-| Projects | Build once | canonical owner/membership aggregate |
+| Admin read models and local Support Cases | Reuse and extend | durable staff identity, approvals and recovery |
+| Commercial Projects | Build once | generic workspace ownership; preserve distinct Cinematic Projects |
 | Authentication | Build | production actor/session/roles |
 | Payments | Build | package/purchase/provider event/refund/reconcile |
-| Support Cases | Build | one orchestration path from diagnosis to recovery |
-| Database/Cloud Tasks/Cloud Storage | Build adapters | capability-by-capability cutover |
+| Reference Processing | Reuse and classify | Asset lineage/cache retention; no second authority planner |
+| Cinematic Studio | Reuse and map | preserve approved Shot/keyframe/Look/attempt data; independently gate production exposure |
+| Database/Cloud Tasks/general Asset storage | Build or extend adapters | capability-by-capability cutover; provider-specific GCS is already present |
 
 ## 3. Protected Existing Behavior
 
@@ -45,7 +51,14 @@ Commercial implementation must preserve:
 - Credit estimate/reserve/capture/refund/idempotency;
 - shared result loader/grid/viewer, queue, Credit dialog and Toast behavior;
 - provider capability catalog as the only UI model-support source;
-- local MVP workflows while non-production adapters remain enabled.
+- local MVP workflows while non-production adapters remain enabled;
+- Template Character optional/Outfit required policy, locked pose/scene,
+  private derived prompts, no derived reusable-template publication and no
+  duplicate image share;
+- user-accepted Character previews and Template-to-Scene Builder handoff;
+- provider/model master disablement, per-workflow capability constraints and
+  saved actor-scoped provider preferences;
+- current Comparison sets/history navigation and authoritative result linkage.
 
 Adapter parity tests protect these contracts before each cutover.
 
@@ -53,11 +66,14 @@ Adapter parity tests protect these contracts before each cutover.
 
 ### Step 0 - Decisions and inventory
 
-- confirm GCP topology, payment provider, data region and legal retention;
+- retain GCP topology; decide local database/auth implementation before coding;
+- decide region, retention and provisioning budget before cloud deployment;
+  gateway/tax/refund decisions belong before payments, not before local login;
 - run Phase2-03 Wave 0 inventory and schema-readiness exceptions;
 - freeze stable actor, Project, Asset, Job, ledger and Support IDs/contracts;
 - inventory direct JSON/local-file/process Queue dependencies;
-- establish staging, secrets, Terraform and CI migration gates.
+- plan staging, secrets, Terraform and CI gates; cloud provisioning is a
+  separate approval, not a side effect of requirement reconciliation.
 
 Do not implement checkout or broad database tables before this gate.
 
@@ -65,16 +81,19 @@ Do not implement checkout or broad database tables before this gate.
 
 - PostgreSQL migration framework, pool, transactions and adapter contracts;
 - real users/credentials/sessions/roles and fail-closed production actor;
-- Audit/idempotency and Support Case foundation;
+- Audit/idempotency for the first Identity slice; then adapt existing Support
+  Case persistence and staff identity without rebuilding its local lifecycle;
 - one authenticated owner-scoped record vertical slice;
 - repository contract suites against JSON/PostgreSQL.
 
 ### Step 2 - Projects and private ownership
 
 - canonical Project/member aggregate;
-- migrate Collections into owner/default Projects by approved mapping;
+- define approved Collection-to-workspace mapping; full Collection migration
+  remains Wave 6, with no forced standalone UI change in this step;
 - enforce Project/owner checks at application facades;
-- add server-owned module exposure/entitlement metadata.
+- extend existing server feature/provider policy with authenticated exposure;
+  purchased entitlements are a distinct later billing concern.
 
 ### Step 3 - Financial foundation
 
@@ -86,14 +105,18 @@ Do not implement checkout or broad database tables before this gate.
 ### Step 4 - Assets and durable Generation
 
 - copy/verify private files to Cloud Storage and switch Asset adapter;
-- persist Group/Job/Attempt/Event/Result/outbox and Cloud Task identifiers;
+- persist Group/Job/Attempt/Event/Result, Video Provider Tasks/outbox and Cloud Task identifiers;
 - move provider dispatch to Worker;
 - prove restart, duplicate task, provider error and orphan reconciliation;
 - prove quote -> reservation -> durable Job -> Asset -> capture.
+- migrate provider-control authority and invalidation before multi-process
+  dispatch; configuration disablement must not disappear on worker restart.
 
 ### Step 5 - Commercial product aggregates
 
-- migrate Character, Template, Pose Proxy and Fashion data by Phase2-03 Wave 4;
+- migrate Character/Looks, Template, Pose Proxy and Fashion by Phase2-03 Wave 4;
+- classify Reference Processing and map existing Cinematic data to dependency
+  waves; any unmigrated capability stays off production, not on JSON fallback;
 - add Product catalog and Project links without changing Fashion plan/quote/run
   entry points;
 - implement approval/regeneration/refund policy through existing owners;
@@ -109,7 +132,8 @@ Do not implement checkout or broad database tables before this gate.
 
 ### Step 7 - Discovery/history and launch
 
-- migrate Community/Comparisons/History projections last;
+- migrate Collection/Comparison/Community authoritative source records, then
+  rebuild their aggregates and History views; preserve ordering and lineage;
 - rebuild derived aggregates from authoritative records;
 - backup/restore, load, security/privacy, alert and incident drills;
 - legal copy, retention, refund policy and Support staffing;
@@ -124,14 +148,14 @@ stable.
 flowchart TD
   A[Inventory and decisions] --> B[DB + Auth + Audit]
   B --> C[Projects and ownership]
-  B --> D[Support Cases]
+  B --> D[Adapt existing Support Cases]
   C --> E[Credits ledger]
   D --> E
   C --> F[Assets]
   E --> G[Durable Generation]
   F --> G
   G --> H[Character Template Fashion migration]
-  E --> I[Packages and Payments]
+  G --> I[Packages and Payments]
   H --> J[Commercial Fashion]
   I --> J
   J --> K[Community History and Launch]
@@ -180,5 +204,56 @@ At every step:
 Start with Phase2-01 inventory plus Phase2-03 Wave 0/1 and Phase2-04. Do not
 start by migrating Community/history or by implementing payment screens. The
 first milestone is an authenticated user writing one owner-scoped PostgreSQL
-record with durable Audit and Support context. The second is one financially
+record with durable Audit. Full Support recovery is not a prerequisite for this
+first milestone. The second is one financially
 reconcilable, restart-safe Generation operation.
+
+## 10. Small Implementation Tasks And Verification
+
+Task status below is **pending implementation**, not a claim that this review
+created a database, migration script or login endpoint.
+
+| Task | Scope and exit artifact | Focused verification |
+|---|---|---|
+| F0.1 | Enumerate owners, writers, schema versions and source classes | Read-only inventory fixture, unknown-writer failure |
+| F0.2 | Counts/hash/ID/orphan and ownership report; backup manifest | Deterministic rerun, missing file/duplicate ID exceptions |
+| F0.3 | Choose migration/DB tooling, auth/session approach and account-claim policy | Reviewed decisions; no broad schema or cloud purchase |
+| F1.1 | Pool/migration/transaction infrastructure in canonical server folders | Disposable local PostgreSQL migration and transaction rollback |
+| F1.2 | Identity/session/token/Audit repository contracts and adapters | Unique email/identity policy, token hashing/expiry, atomic Audit |
+| F1.3 | Server auth entry points and trusted actor resolution | CSRF, session revoke, mock-header/query rejection and owner denial |
+| F1.4 | Existing ActorProvider and account UI integration | Login/logout/expiry, private cache clearing, desktop/tablet/mobile |
+| F1.5 | One durable owner-scoped record and restart proof | Two-account isolation; no provider call, payment or media regeneration |
+| F1.6 | Existing Support Case data and staff-role mapping | Case version/note/link parity, audited access; recovery commands later |
+| F2.1 | Generic Project contract and approved legacy mapping | Existing Cinematic/Collection IDs and standalone flow unchanged |
+| F2.2 | Credit source taxonomy and adapter transaction boundaries | Zero-difference ledger/reservation reconciliation, duplicate/concurrent use |
+| F3.1 | General Asset adapter and original-object transfer | Original byte/hash parity, private delivery/expiry and missing objects |
+| F3.2 | Durable dispatch, Tasks/leases/outbox and provider-control state | Duplicate/restart/ambiguous-provider-submit recovery with mocked provider |
+| F4+ | Continue capability waves from Phase2-03 | One owner at a time; payments only after required durability gates |
+
+### Wave Crosswalk
+
+Execution Steps 0/1 map to database Waves 0/1. Steps 2 and 3 split Wave 2
+(Projects and Credits); Step 4 maps to Wave 3; Steps 5/6/7 map to Waves 4/5/6.
+Collection mapping is designed early, but Collection source cutover is Wave 6.
+Earlier enabled production consumers must use reviewed adapters or remain
+disabled until their dependencies migrate; no paid path may depend on a live
+JSON writer. Any exception needs a bounded compatibility plan and exit gate.
+
+### Test Script Contract
+
+- During implementation add focused tests under `test/` next to owning suites.
+  Run only the affected group and known adjacent regressions at each task.
+- Reuse existing scripts where their scope matches. Planned aggregate runner:
+  `scripts/test-commercial-foundation.bat` (not created in this docs-only task).
+- The runner must offer `inventory`, `identity`, `ownership`, `credits`,
+  `assets`, `jobs`, `support` and explicit `all` groups, fail nonzero, and print
+  which group failed. Add groups incrementally when their tests exist; missing
+  required groups must not silently pass a release run.
+- Tests use isolated fixtures and disposable DB/schema. Refuse live runtime
+  data writes, production databases and paid provider/payment requests by
+  default. No cleanup may target user data.
+- `all` is for an explicit broader integration/UAT or production-build gate,
+  not every small edit. Manual UAT and production backup/restore drills retain
+  separate evidence; a passing unit runner does not replace them.
+- Record command, result, environment and unverified gaps before closing a
+  task. This requirement update itself requires document/link/diff checks only.

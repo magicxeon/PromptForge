@@ -1,6 +1,11 @@
 # Phase 2-09 Subscription, Renewal and Entitlements
 
-**Status:** Proposed - Awaiting Review
+**Status:** Deferred until one-time paid MVP is stable (2026-09-07)
+
+Basic authenticated exposure belongs to Phase2-02/04 and need not wait for
+subscriptions. Existing Community/Admin feature policy and provider/model
+runtime controls are not purchased entitlements. Reuse those policy consumers;
+do not implement a parallel flag system while adding billing lifecycle later.
 
 ## 1. Business Requirement
 
@@ -54,4 +59,3 @@ Server-side `EntitlementService` is authoritative. UI uses entitlement data only
 - One-time packages work without subscription.
 - Module registry can expose availability and reason from entitlements.
 - Historical Project data is not deleted solely because subscription expires.
-

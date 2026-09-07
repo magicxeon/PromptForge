@@ -1,7 +1,7 @@
 # Phase 2-03 Database Architecture And JSON Migration
 
-**Status:** Current-source audit complete; schema readiness partial; implementation pending
-**Updated:** 2026-08-15
+**Status:** Bounded source review updated; measured inventory, DDL and cutover pending
+**Updated:** 2026-09-07
 **Primary role:** Backend Platform Architect
 **Reviewers:** Commercial Financial Integrity, QA And Release Engineer
 **Skills:** `plan-database-migration`, `review-commercial-integrity`
@@ -12,17 +12,18 @@ adapters in dependency-ordered, reconcilable capability waves.
 
 The schema is **not ready for one-shot implementation**. Several local domain
 records have mature lifecycle and identifiers, but production identity,
-Projects, Payments, Support Cases, durable Job attempts, object storage and
+commercial Projects, Payments, production Support persistence, durable Job attempts, object storage and
 cross-capability transaction boundaries are incomplete.
 
 The correct plan is:
 
 1. freeze common conventions and build the migration/database foundation;
-2. cut over Identity, Authorization, Audit and Support Case foundations;
-3. migrate financial records before accepting payment;
-4. migrate Projects, Assets and durable Generation orchestration;
-5. migrate Character/Template/Fashion aggregates;
-6. migrate Collections, Community and History projections last.
+2. implement the Identity/Authorization/Audit slice, then adapt existing Support;
+3. add commercial Project ownership and migrate financial records before payment;
+4. migrate Assets and durable Generation orchestration;
+5. migrate Character/Template/Fashion and inventory the other existing owners;
+6. migrate Collections, Comparison and Community source records, then rebuild
+   their derived views and History. These capabilities are not all projections.
 
 Do not migrate all JSON before authentication. Do not add authentication against
 mock/JSON-owned production records. Implement a secure vertical slice after the
@@ -30,15 +31,17 @@ foundation, then move one capability at a time.
 
 ## 2. Current Persistence Inventory
 
-As audited on 2026-08-15:
+Source review dated 2026-09-07; this is not a completed Wave 0 data inventory.
+See Phase2-21 for canonical source evidence. No counts, hashes, orphan report,
+database migration or production adapter parity run is claimed here.
 
 | Capability | Current source | Current contract maturity | Production concern |
 |---|---|---|---|
 | Identity | `server/data/identity/mockUsers.json` | mock actor/user records | no credentials, sessions, roles or real tenant boundary |
 | Credits | `server/data/credits/database.json` | estimate/reserve/capture/refund and ledger IDs are mature | one large JSON mutation boundary; no DB concurrency/locking |
-| Generation | history/groups JSON plus process Queue | groups and Job IDs exist | history mixes result/read model concerns; Queue not durable |
+| Generation | history/groups and Video Provider Task JSON plus process image Queue | group/Job/Task IDs and shared Job Center exist | local Task persistence is not cross-process worker/lease/outbox durability |
 | Assets | `server/data/assets/assets.json`, local files | Asset metadata/ownership exists | private object storage, checksums and lifecycle incomplete |
-| Character Profiles | profiles/versions/usage events | mature version and usage lineage | relational constraints and publication links need freeze |
+| Character Profiles | profiles/versions/looks/usage events | version, approved Look and usage lineage exist | relational constraints, Look/version and publication links need freeze |
 | Templates | templates/versions/sessions/usage events | mature local lifecycle | version/use/proxy foreign keys and retention need freeze |
 | Pose Proxy | pose proxy JSON and generated files | explicit preparation lifecycle | durable Job/Asset linkage required |
 | Fashion | quotes/runs JSON | quote/run/operation concepts exist | immutable quote-operation-job-ledger relations need constraints |
@@ -47,14 +50,18 @@ As audited on 2026-08-15:
 | Comparisons | comparisons JSON | local product feature | ownership/result links and retention need normalization |
 | Audit | audit log JSON | append-oriented events exist | tamper resistance, retention and indexed lookup required |
 | Observability | process/request telemetry | IDs exist | durable trace store and retention incomplete |
-| Admin/Support | admin read models; no Case repository | partial | Cases, approvals and commands not implemented |
+| Admin/Support | SupportCaseService/SupportCaseRepository, notes/links/versioned updates and Audit | local lifecycle exists | real staff identity, durable storage, approval and recovery boundaries pending |
+| Provider controls/configuration | `server/repositories/admin-configuration/` | provider/model/workflow overrides and versions exist | durable policy authority, Audit and cross-process invalidation |
+| Reference Processing | `server/domain/reference-processing/` | reference authority and processing contracts exist | classify cache vs source, Asset/Job links and retention before cutover |
+| Cinematic | `server/repositories/cinematic/` | Project/Cast/Scene/Shot/Storyboard/Produce/Finish exist | pinned versions, attempts, media and snapshot relationships need separate mapping |
 | Payments | none | not ready | provider event, purchase/refund/reconciliation absent |
-| Projects | none as canonical aggregate | not ready | owner/membership root absent |
+| Commercial Projects | no generic workspace aggregate | not ready | do not confuse with or replace existing Cinematic Projects |
 
-Large current files, especially Generation history and Credit database, prove
-that whole-file mutation/scan is already a scaling and integrity risk. Exact
-counts and checksums must be regenerated by migration tooling; this document
-does not freeze sample data values.
+Whole-file mutation/scan and the process-local JSON mutex create concurrency
+and scaling risks; this review does not quantify current latency or file sizes.
+Measure them during inventory before claiming performance gains. Provider GCS
+handoff already supports signed delivery/checksums but is not the general Asset
+storage migration.
 
 ## 3. Schema Readiness Matrix
 
@@ -66,7 +73,7 @@ Grades mean readiness to author production DDL, not feature completion.
 | Identity/Auth | Not ready | mock user IDs and actor context | credential/session/role/security-event lifecycle |
 | Projects | Not ready | owner IDs used in domains | Project/member/status contract |
 | Audit/Idempotency | Partial | audit events and per-domain keys | global event envelope, retention, uniqueness scope |
-| Support | Partial-high | Case/Link/Note/Command/Approval, permission and rollout contracts in Requirements 017-002/007/009 | final DDL review, retention values, staff Identity foreign keys and PostgreSQL adapter transaction boundaries |
+| Support | Partial | implemented Case/Link/Note lifecycle; planned Command/Approval contracts in Requirements 018-002/007/009 | separate existing data from planned commands; staff Identity FKs, retention and transactional audit |
 | Credits | Partial-high | account/reservation/ledger lifecycle | SQL transaction boundaries, entry taxonomy and expiry |
 | Pricing/Payments | Not ready | local pricing snapshots | package/price/purchase/payment/refund/provider-event model |
 | Assets | Partial | Asset IDs, owner and metadata | object version/checksum/derivative/retention model |
@@ -77,6 +84,9 @@ Grades mean readiness to author production DDL, not feature completion.
 | Collections | Partial | owner and item lists | Project ownership, item union and order constraints |
 | Community | Partial | post/public snapshot/engagement IDs | source snapshot, moderation and aggregate consistency |
 | Comparisons | Partial | set/result/vote concepts | Generation/result ownership and retention |
+| Cinematic | Partial | Project/Scene/Shot, Cast/Look binding and approved media | pinned version/attempt FK rules and compatibility with commercial workspace |
+| Reference Processing | Partial | owned references and processing metadata | rebuildable cache vs authoritative asset classification |
+| Admin configuration | Partial | override versions, events and provider policy | transactional audit, durable publication and multi-process cache invalidation |
 
 No domain graded `Not ready` may receive final production DDL until its owning
 requirement resolves the missing contracts. `Partial-high` still requires DDL,
@@ -171,6 +181,8 @@ erDiagram
 users
 user_credentials
 sessions
+email_verification_tokens
+password_reset_tokens
 roles
 user_roles
 security_events
@@ -186,6 +198,9 @@ support_approvals
 `users.id` preserves current actor IDs. Credentials and raw session/reset tokens
 are never imported from mock data. Bootstrap users require a controlled account
 claim/reset flow.
+Mock identity rows must not become active real accounts or staff grants without
+an approved claim/bootstrap policy. Full Support Command/Approval implementation
+is not a prerequisite for the first authenticated owner-record test.
 
 ### 5.2 Projects And Access
 
@@ -222,6 +237,7 @@ generation_jobs
 generation_attempts
 generation_events
 generation_results
+video_provider_tasks
 job_leases
 outbox_events
 ```
@@ -255,6 +271,7 @@ idempotency are unique. Money and Credit records are related but not conflated.
 character_profiles
 character_profile_versions
 character_identity_packs
+character_looks
 character_usage_events
 templates
 template_versions
@@ -290,6 +307,21 @@ comparison_votes
 Counters are rebuildable projections. Events and source ownership remain
 authoritative.
 
+### 5.8 Additional Existing Owners
+
+These are inventory/DDL work packages, not already-approved table designs:
+
+- Cinematic Projects, Cast and pinned Character/Look versions, Story Plans,
+  Scenes/Shots, approved keyframes, Produce attempts and Finish snapshots.
+  Preserve `cineproj_*` IDs; link a commercial workspace only by approved mapping.
+- Reference Processing source metadata and Asset lineage; rebuildable caches
+  need explicit invalidation/retention rather than blind JSONB import.
+- Admin provider/model/workflow overrides, policy versions/events and Audit;
+  identify other configuration/catalog runtime writers in Wave 0.
+
+Attach each owner to a reviewed wave before enabling that capability in
+production. Never silently leave a live JSON writer outside the migration map.
+
 ## 6. Dependency-Ordered Migration Waves
 
 ### Wave 0 - Inventory and contract freeze
@@ -298,7 +330,8 @@ authoritative.
 2. Produce per-file counts, IDs, relationship/orphan report and checksums.
 3. Classify transactional source, event log, projection, configuration and
    generated file.
-4. Resolve every `Not ready` owner contract needed by Waves 1-4.
+4. Resolve the next slice's `Not ready` contracts before its DDL freeze; retain
+   named later-wave decisions without blocking Identity on Product or payment.
 5. Freeze common DDL/ID/time/retention conventions and ADRs.
 
 Exit: dry-run inventory is reproducible and no unknown writer remains.
@@ -307,15 +340,19 @@ Exit: dry-run inventory is reproducible and no unknown writer remains.
 
 1. migration framework, pool, transaction/unit-of-work and health checks;
 2. users, credentials, sessions, roles and security events;
-3. audit/idempotency and Support Case/Command/Approval tables;
+3. audit/idempotency for Identity, followed by existing Support Case data and
+   staff identity mapping; Command/Approval tables follow their reviewed scope;
 4. authenticated actor vertical slice to one owner-scoped record;
 5. production fail-closed for mock actor.
 
-Exit: real actor and staff actions are durable/audited.
+First checkpoint: real session -> actor -> owner-scoped record and Audit, with
+mock injection denied. Wave exit additionally requires migrated staff actions
+to be durable/audited. Do not wait for the full recovery console to prove login.
 
 ### Wave 2 - Projects and Credits
 
-1. Projects/membership and deterministic owner migration Projects;
+1. Projects/membership and Product-approved owner migration mapping; plan
+   Collection links here, keeping its full source migration in Wave 6;
 2. Credit quotes/accounts/reservations/ledger/billable operations;
 3. exact per-user balance, reservation and ledger reconciliation;
 4. concurrency/idempotency tests and Support financial read path.
@@ -325,7 +362,7 @@ Exit: no paid operation until Wave 2 passes zero-difference reconciliation.
 ### Wave 3 - Assets and durable Generation
 
 1. copy/verify private objects to Cloud Storage and migrate Asset metadata;
-2. Generation Groups/Jobs/Attempts/Results/events/outbox;
+2. Generation Groups/Jobs/Attempts/Results, Video Provider Tasks/events/outbox;
 3. Cloud Tasks worker, leases and restart recovery;
 4. one authenticated quote -> reserve -> Job -> Asset -> capture vertical path.
 
@@ -333,9 +370,16 @@ Exit: accepted work survives API/Worker restart and can be diagnosed.
 
 ### Wave 4 - Character, Template, Pose Proxy and Fashion
 
-Migrate in dependency order: Character/Version/identity packs, Template/Version,
+Migrate in dependency order: Character/Version/identity packs/Looks, Template/Version,
 Pose Proxy, use sessions/events, Fashion quotes/runs/items/operations. Validate
 every Asset, Job, user, Project and ledger relation.
+
+Map Reference Processing alongside Assets/Template preparation. Schedule
+Cinematic aggregate adapters after their Identity/Asset/Character/Job
+dependencies, or keep that capability off production until its own cutover.
+Existing approved images must not be regenerated as part of migration.
+Provider-control persistence and invalidation must pass before any enabled
+multi-process provider dispatch, even when remaining catalog work is later.
 
 Exit: current Fashion MVP runs on production adapters without alternate paths.
 
@@ -348,13 +392,15 @@ mock Credit grants.
 Exit: a payment provider event grants/refunds Credits exactly once and
 reconciles through Support/Finance queues.
 
-### Wave 6 - Collections, Comparisons, Community and History projections
+### Wave 6 - Collections, Comparisons, Community sources and History projections
 
 Migrate owner collections and comparison source records, then public Community
 snapshots/events. Rebuild derived counts, thumbnails and History views from
 authoritative rows where possible.
 
 Exit: no customer-facing transactional JSON writer remains.
+This exit applies to the enabled production scope. A capability explicitly
+deferred from migration must be disabled there, not silently served from JSON.
 
 ## 7. Per-Capability Cutover Runbook
 

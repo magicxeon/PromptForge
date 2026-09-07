@@ -1,6 +1,6 @@
 # Phase 2-18 Production Support And Manual Recovery
 
-**Status:** Proposed - Required before paid beta  
+**Status:** Local Support Cases implemented; production command/recovery completion pending (2026-09-07)
 **Owner:** Platform Operations, Support, Credits and Durable Jobs  
 **Dependencies:** Phase2-04, Phase2-07, Phase2-10, Phase2-15 and
 `requirements/013-implementation-fashion-blueprint/012-platform-correlation-tracing-and-credit-recovery.md`
@@ -8,9 +8,16 @@
 This requirement defines domain recovery commands. The staff-facing workflow,
 Case lifecycle, approvals and command audit are owned by
 `requirements/018-implementation-backend/`, with staff command policy in
-Requirement 017-007 and durability/rollout gates in Requirement 017-009. Every production recovery starts
+Requirement 018-007 and durability/rollout gates in Requirement 018-009. Every production recovery starts
 from a Support Case and invokes these commands through the owning capability;
 do not build a second standalone recovery console.
+
+Current implementation includes `server/domain/support/SupportCaseService.js`
+and `server/repositories/support/SupportCaseRepository.js`: Cases, links, notes,
+status transitions, version checks and Audit calls already exist. Reuse their
+IDs and contracts. This does not certify transactional Case/Audit persistence,
+two-person approvals or all recovery commands below. Inventory those commands
+individually against Backend requirements before adding an orchestrator.
 
 ## 1. Purpose
 
@@ -175,7 +182,9 @@ Manual Support is a fallback, not the normal recovery mechanism:
 
 ## 9. Architecture Ownership
 
-Planned ownership follows existing capability boundaries:
+Existing ownership starts with SupportCaseService and its repository. The
+following recovery-specific filenames are proposals, not existing modules or
+permission to bypass the current Support facade; confirm nearest owners first:
 
 ```text
 server/app/routes/supportRecoveryRoutes.js

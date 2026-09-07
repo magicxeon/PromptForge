@@ -1,6 +1,12 @@
 # Phase 2-14 Fashion Shot Packs and Photographer Styles
 
-**Status:** Proposed - Awaiting Review
+**Status:** Commercial catalog extension pending; not an immediate DB/Auth prerequisite (2026-09-07)
+
+Reuse current Fashion tier/configuration, attribute catalogs and authoritative
+prompt compiler. Existing Template, scene and style inputs must not be forked
+into another catalog/editor. Pack examples below are proposed commercial
+content; they do not replace current output counts or imply new qualification.
+Cinematic Shots already have a different owning lifecycle and remain unchanged.
 
 ## 1. Business Requirement
 

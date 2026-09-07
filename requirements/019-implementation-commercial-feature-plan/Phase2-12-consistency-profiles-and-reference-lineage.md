@@ -2,6 +2,17 @@
 
 **Status:** Reference authority and lineage foundations implemented; commercial Consistency Profile pending
 
+## Current Baseline (2026-09-07)
+
+Reuse `server/domain/reference-processing/`, Character/Profile/Look versions,
+Template use sessions and Cinematic continuity/Shot contracts. A commercial
+Consistency Profile is not a replacement prompt compiler or reference planner.
+Persist existing source IDs, roles and immutable snapshots before adding new
+Project policy. White-sign/material continuity tuning is separately deferred
+in `requirements/098-pending-features/005-video-and-continuity.md`; it does not
+block the first database/authentication slice. No new paid image/video fixture
+is authorized by this documentation reconciliation.
+
 ## 1. Business Requirement
 
 Multiple product images should appear to belong to the same photo session while allowing controlled pose and framing variation.
@@ -60,4 +71,3 @@ Prevent cycles and unauthorized cross-Project references.
 - Cross-Project and cyclic lineage is rejected.
 - Provider capability mismatch is detected before charging when possible.
 - Existing face/style/pose references migrate into documented lineage roles.
-

@@ -1,5 +1,67 @@
 [
   {
+    "templateId": "tmpl_1785605251157_gvucdef5",
+    "templateVersionId": "tmplv_1785605251161_hbpt0rmk",
+    "sourceCommunityPostId": "post_1785605251174_lbkfk59z",
+    "actorUserId": "usr_bob",
+    "actorUsername": "user_bob",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
+    "expiresAt": "2026-09-07T03:57:59.606Z",
+    "consumedAt": null,
+    "generatedJobIds": [],
+    "id": "tmpls_1788749879606_e47t6nyg",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_bob",
+    "ownerUsername": "user_bob",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-09-07T02:57:59.606Z",
+    "updatedAt": "2026-09-07T02:57:59.606Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "templateId": "tmpl_1786716962788_t1fxowtc",
     "templateVersionId": "tmplv_1788709354752_26fmy85y",
     "sourceCommunityPostId": "post_1786716962811_vz14fvt1",

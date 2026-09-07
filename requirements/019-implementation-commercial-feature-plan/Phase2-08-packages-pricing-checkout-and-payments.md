@@ -1,6 +1,13 @@
 # Phase 2-08 Packages, Pricing, Checkout and Payments
 
-**Status:** Proposed - Awaiting Review
+**Status:** Payment/purchase adapters pending; existing generation pricing is reused (2026-09-07)
+
+No checkout or payment persistence is established by local Credit success.
+One-time Credit packs remain the first paid scope; the Fashion bundles below
+are product examples, not a reason to delay DB/Auth or change existing rates.
+Keep current server pricing and immutable accepted quotes; select the payment
+gateway, currency/tax and refund rules before payment implementation, not before
+the first local Identity slice.
 
 ## 1. Business Requirement
 
@@ -41,10 +48,13 @@ Exact values remain configurable; requirement examples are not final prices:
 build plan -> request quote -> display full price and inclusions
 -> user confirms -> verify credits or create payment checkout
 -> verify provider webhook -> grant credits/entitlement
--> reserve plan credits -> execute
+-> revalidate accepted plan/quote and authorization -> reserve plan credits -> execute
 ```
 
 User confirmation must not be inferred from opening a page or selecting an option.
+The webhook grants purchased Credits; it is not implicit permission to generate.
+Execution requires the still-valid explicit plan confirmation and idempotency
+contract. Expired or changed quotes require a fresh quote and confirmation.
 
 ## 5. Payment Gateway Boundary
 
@@ -75,4 +85,3 @@ Credits are granted only from verified eligible payment state transitions.
 - Payment and credit ledger reconcile.
 - Fashion module consumes a quote/plan contract and contains no gateway code.
 - Failed, expired and refunded payments have tested state transitions.
-

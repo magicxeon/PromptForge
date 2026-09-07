@@ -4,6 +4,16 @@ Status: Implementation delivered; focused fixture gates passed. Live/source UAT 
 Parent: [023](023-template-character-presentation-master.md).
 Execution: [plan 033](implementation-plan/033-presentation-verification.md).
 
+## Current Status Register
+
+Deferred-item status is now centralized in
+[098 Pending Features](../../098-pending-features/000-master.md).
+The pending table below remains the original scope/reference, not a second
+execution queue. On 2026-09-07 the user accepted real-data Character previews
+and the Template -> Scene Builder flow. Do not keep those happy paths marked
+unverified; separate failure/security evidence remains in 098 category004.
+Featured is intentionally hidden per the latest requirement025 revision.
+
 ## Requirement-To-Evidence Matrix
 
 | Acceptance family | Short automated group | Visual/manual evidence |
@@ -19,10 +29,11 @@ Execution: [plan 033](implementation-plan/033-presentation-verification.md).
 
 ## Runner Requirement
 
-During implementation add one owning `scripts/test-template-presentation.mjs`
+Implementation added the owning `scripts/test-template-presentation.mjs`
 entry point with `--part=<group>` for the eight groups above and
-`compatibility`, `visual`, `build`, `all`. These commands are PLANNED, not present
-or runnable as evidence of this documentation change.
+`compatibility`, `visual`, `build`, `all`, plus `template-hero`. These groups now
+exist; actual run evidence is recorded in implementation-plan/034, not inferred
+from their presence alone.
 
 - No arguments prints usage, not an expensive aggregate. Unknown group exits
   nonzero. `all` explicitly runs the ordered focused groups, compatibility,

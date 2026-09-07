@@ -2,6 +2,21 @@
 
 **Status:** Character Profile and identity-pack MVP implemented; Project Model Profile policy pending
 
+## Current Baseline (2026-09-07)
+
+Face Creator, Character Sheet, Profile versions, casting exports and approved
+Character Looks already have local owners. Reuse
+`server/domain/character-profiles/` including `CharacterLookService.js`.
+Community display imagery is not the canonical generation reference; preserve
+their separate contracts and pinned Look/version IDs in downstream workflows.
+The user accepted Character preview behavior; off-center source image polish
+and Character social features stay in `requirements/098-pending-features/`.
+
+Model Sources below are commercial offerings, not permission to reopen arbitrary
+face controls on shared image Templates. Current image Template policy exposes
+optional Character replacement and required Outfit, with other inputs locked.
+Model setup/variation requires its own rights, quote and approved workflow.
+
 ## 1. Business Requirement
 
 Fashion users choose a model through three cost levels: ready template, paid template variation or custom creation. Approved identity is saved as a reusable Project-scoped Model Profile.

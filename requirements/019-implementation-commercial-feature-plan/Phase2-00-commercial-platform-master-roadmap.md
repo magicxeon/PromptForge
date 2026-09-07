@@ -1,28 +1,41 @@
 # Phase 2 Commercial Platform Master Roadmap
 
-**Status:** Current-state baseline updated; commercial implementation pending  
+**Status:** Source-reconciled plan; local capabilities implemented, production cutovers pending
 **Target:** Fashion Selling MVP for Thai small merchants  
 **Architecture:** Modular monolith first, replaceable solution modules  
-**Updated:** 2026-08-15
+**Updated:** 2026-09-07
+
+**Immediate priority:** Database and real-account foundation, not another UI
+redesign or payment screen. The Fashion first-paid product direction below is
+retained; it does not require rebuilding the current multi-workflow platform.
+
+Read [the current-source crosswalk](Phase2-21-current-source-baseline-and-gap-register.md)
+for evidence and known gaps, then follow
+[the execution plan](Phase2-20-current-state-reconciliation-and-execution-plan.md).
+This reconciliation changes documentation only. It is not a migration run,
+security certification, cloud deployment or new paid-generation approval.
 
 ## 0. Current Runtime Baseline
 
 This plan extends the current application; it must not rebuild capabilities
-that already have canonical owners. As of 2026-08-15 the local MVP provides:
+that already have canonical owners. As of the 2026-09-07 source review:
 
 | Capability | Current canonical implementation | Commercial delta |
 |---|---|---|
-| React application shell and routes | `web/src/app/`, `web/src/app/routeRegistry/` | Production hosting, authenticated entitlements and operational feature flags |
+| React application shell and routes | `web/src/app/`, `web/src/app/routeRegistry/` | Production hosting and authenticated entitlements; existing feature policy is reused |
 | Generation and provider dispatch | `server/domain/generation/`, `server/providers/` | Durable worker/attempt storage, Cloud Tasks and restart reconciliation |
 | Credits and pricing | `server/domain/credits/`, `server/repositories/credits/` | Transactional PostgreSQL ledger, purchased Credit and payment reconciliation |
-| Assets and image presentation | `server/domain/assets/`, `server/repositories/assets/` | Private Cloud Storage adapter, signed access and retention lifecycle |
+| Assets and image presentation | `server/domain/assets/`, `server/repositories/assets/` | General private object-storage cutover and retention; provider-handoff GCS already exists |
 | Character Profiles | `server/domain/character-profiles/`, `web/src/features/profiles/` | Production identity/privacy storage and Project-scoped commercial policy |
 | Template Core and Pose Proxy | `server/domain/templates/`, `server/domain/template-pose-proxy/` | Durable preparation jobs, production retention and support recovery |
 | Fashion Blueprint | `server/domain/fashion-blueprint/`, `web/src/features/fashion-blueprint/` | Project/Product integration, durable batches, approval/export and paid policy |
 | Collections and History | owning server repositories and React features | Project scoping, database migration and bounded production pagination |
 | Actor identity | mock actor middleware and actor-scoped React state | Real authentication, secure sessions, roles and tenant authorization |
 | Observability | request IDs, domain IDs and bounded performance telemetry | End-to-end correlation tree, trace repository, alerts and Support console |
-| Admin and Support | admin overview/read models, moderation, Audit and Credit adjustment | Case-oriented Support orchestration, least privilege, approvals and reconciliation per `requirements/018-implementation-backend/` |
+| Admin and Support | admin read models, moderation, Audit, Credit adjustment and local Support Case lifecycle | Production staff identity, durable Cases, approvals and recovery per `requirements/018-implementation-backend/` |
+| Provider controls | `server/domain/admin-configuration/` | Preserve master provider/model and workflow overrides; migrate configuration and multi-process invalidation |
+| Cinematic Studio | `server/domain/cinematic/`, `server/repositories/cinematic/` | Preserve existing Cast/Story Plan/Storyboard/Produce/Finish records; database adapter work is separate from pending BytePlus qualification |
+| Reference Processing and Job Center | `server/domain/reference-processing/`, `server/domain/generation/GenerationJobCenterService.js` | Preserve reference authority and shared tracking; Job Center is not a second queue |
 
 Local JSON repositories, local image files, mock actors and the process-local
 Queue are development adapters. They are migration inputs, not acceptable paid
@@ -46,7 +59,7 @@ existing capability entry points rather than introducing duplicate workflows.
   the beginner-facing Template-to-result workflow and shared-component
   composition.
 - Existing Studio Creative Configurator remains the advanced editor and consumes those shared contracts.
-- The product evolves from one long screen into an application shell with route-based pages as modules grow.
+- The route-based application shell already exists and must be preserved.
 - Navigation shows only available modules; future or unauthorized modules are not displayed.
 - Product concept may use a demo identity, but all service contracts must include actor, ownership and billing boundaries from the beginning.
 - One-time credit packs are the first paid model. Subscription is optional after
@@ -99,12 +112,12 @@ Reusable Modules
 Solution Modules
   Fashion Selling
   Product Review (later)
-  Storyboard (later)
+  Cinematic Studio / Storyboard (existing local capability)
 ```
 
 Solution modules must never call image providers, mutate balances or access persistence directly. They create validated plans and invoke core application services.
 
-Production uses Firebase Hosting, separate Cloud Run API/Worker services, Cloud
+The production target is Firebase Hosting, separate Cloud Run API/Worker services, Cloud
 Tasks, Cloud SQL PostgreSQL and private Cloud Storage. The approved frontend
 target is the React/Vite application in `requirements/009-migration-to-react/`.
 Commercial work must consume its shared contracts without creating a second
@@ -136,7 +149,8 @@ frontend or blocking independent backend migration.
 | Admin/Support MVP | `requirements/018-implementation-backend/000-admin-support-management-mvp-master.md` | Phase2-04, Audit/Observability; financial commands require Phase2-07/08 |
 | Phase2-18 | Production Support and Manual Recovery | Admin/Support Cases, Phase2-04, Phase2-07, Phase2-10, Phase2-15, platform correlation tracing |
 | Phase2-19 | Fashion Routing Qualification and Promotion | Fashion Blueprint Req 009 baseline, Phase2-07, Phase2-08, Phase2-10, Phase2-13 |
-| Phase2-20 | Current-State Reconciliation and Execution Checklist | Phase2-00 through Phase2-19, Backend Requirement 017 |
+| Phase2-20 | Current-State Reconciliation and Execution Checklist | Phase2-00 through Phase2-19, Backend Requirement 018 |
+| Phase2-21 | Current-source baseline and gap register | Evidence and scope crosswalk; not another implementation wave |
 | Phase2-17 | Fashion MVP Integration, GCP Security and Launch | All required MVP phases |
 | Phase2-09 | Subscription, Renewal and Entitlements | Deferred until one-time paid MVP is stable |
 
@@ -151,7 +165,10 @@ the Product Owner changes the revenue model.
 - Visual Character Builder Face Structure pilot accepted.
 - Character Profile casting export and private handoff accepted.
 - Fashion Blueprint Simple single-outfit prototype accepted.
-- Fashion journey and package concepts validated with demo identity and mock pricing.
+- Current image generation, central pricing and local Credit lifecycle exist;
+  proposed packages and real purchase settlement are not thereby validated.
+- Character preview and Template-to-Scene Builder were accepted by the user;
+  see `requirements/098-pending-features/000-master.md` for exact accepted scope.
 - No real payments or public launch.
 
 ### Gate B: Commercial Foundation
@@ -214,8 +231,8 @@ The current route registry exposes the organized application shell:
 
 ```text
 Explore: Gallery, Comparisons, Templates, Characters
-Create: Playground, Studio, Fashion Studio
-My Library: Recent, Collections
+Create: Playground, Studio, Fashion Studio, Cinematic Studio
+My Library: Recent, Collections, My Characters, My Templates
 Creator Profile and account/settings routes
 ```
 
@@ -247,26 +264,27 @@ registry, route and entitlement contracts.
 | Character Profile | Local MVP implemented | Production identity/reuse/privacy migration |
 | Fashion Blueprint | Local MVP implemented and locally qualified | Commercial adapters and operational gates |
 | Scene Builder Requirement 010 | Local MVP closed 2026-08-15 | Regressions remain protected; future quality work moves to Phase2-19 |
-| Phase2-01 | Next: refresh architecture/GCP readiness audit | Architecture/GCP decision |
-| Phase2-02 | Core boundaries and React route registry implemented; commercial module/entitlement registry pending | Architecture/Application shell |
-| Phase2-03 | Current-source audit complete; schema readiness is partial and migration implementation is pending | Data/Migration |
-| Phase2-04 | Proposed | Security |
+| Phase2-01 | Source crosswalk refreshed; Wave 0 inventory and deployment decisions pending | Architecture/GCP decision |
+| Phase2-02 | Routes, feature policy and provider controls exist; paid entitlements pending | Architecture/Application shell |
+| Phase2-03 | Source review updated; measured inventory, DDL and adapters pending | Data/Migration |
+| Phase2-04 | Next foundation slice; current identity is mock, not production authentication | Security |
 | Phase2-05 | Collections exist locally; Project aggregate pending | Domain/UX |
-| Phase2-06 | Local Asset capability exists; Cloud Storage and Product Catalog pending | Storage/Product |
+| Phase2-06 | Local Assets and provider-handoff GCS exist; general storage cutover and Product Catalog pending | Storage/Product |
 | Phase2-07 | Local estimate/reserve/capture/refund validated; transactional production ledger pending | Financial integrity |
 | Phase2-08 | Proposed | Payment/Legal |
 | Phase2-09 | Deferred for paid MVP | Subscription |
-| Phase2-10 | Generation groups and process queue exist; durable worker/restart recovery pending | Reliability |
+| Phase2-10 | Groups, process image queue, JSON Video Tasks and shared Job Center exist; production worker durability pending | Reliability |
 | Phase2-11 | Character Profile MVP exists; Project Model Profile policy pending | Model safety/cost |
-| Phase2-12 | Proposed | Consistency |
+| Phase2-12 | Reference authority, lineage and Cinematic continuity exist; commercial Consistency Profile pending | Consistency |
 | Phase2-13 | Fashion Blueprint MVP exists; commercial Project/Product adapters pending | Consumer UX |
 | Phase2-14 | Proposed | Commercial content |
 | Phase2-15 | Proposed | Operations/refunds |
 | Phase2-16 | Proposed | Export quality |
 | Phase2-17 | Proposed | Launch approval |
-| Phase2-18 | Proposed - required before paid beta | Production support/recovery |
+| Phase2-18 | Local Cases/notes/links exist; production diagnosis, approvals and recovery pending | Production support/recovery |
 | Phase2-19 | Active commercial follow-up | Repeated qualification/Premium promotion |
-| Phase2-20 | Requirement ready | Current-code crosswalk and implementation ordering |
+| Phase2-20 | Updated execution order; no production cutover performed | Current-code crosswalk and implementation ordering |
+| Phase2-21 | Source evidence recorded; no runtime recertification | Bounded review and gap tracking |
 
 ## 8. Recommended Next Sequence From The Current Codebase
 
@@ -275,13 +293,19 @@ registry, route and entitlement contracts.
 2. Implement Phase2-03A and Phase2-04 as the first secure vertical slice:
    migration framework -> PostgreSQL identity/audit schema -> authenticated
    actor -> owner-scoped record. Do not wait for every JSON domain to migrate.
-3. Add Support Case/Audit foundations, then move Credit transactions, private
+3. Adapt existing Support Case/Audit foundations, then move Credit transactions, private
    Asset metadata and Project ownership through production adapters before
    accepting payment.
 4. Prove one durable Generation/Fashion operation with restart reconciliation
-   and Case-oriented Support diagnosis (Phase2-10, Backend Requirement 017 and
+   and Case-oriented Support diagnosis (Phase2-10, Backend Requirement 018 and
    Phase2-18).
 5. Add packages/payment and commercial Fashion Project integration only after
    the durable Credit path passes (Phase2-08 and Phase2-13).
 6. Finish approval, export, security and operational launch gates; keep
    subscriptions deferred and Premium hidden until their evidence exists.
+
+Optional presentation, Favorites, Character social and editorial work stays in
+`requirements/098-pending-features/`. Its authorization, privacy and asset-rights
+release gates are not waived by deferring cosmetic features. BytePlus video
+support is an external dependency only for the affected video capability, not
+for the first DB/Auth slice.
