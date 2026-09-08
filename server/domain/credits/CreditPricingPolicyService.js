@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
+import { resolveBytePlusImagePricing } from './BytePlusImagePricing.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -167,6 +168,21 @@ export class CreditPricingPolicyService {
     const referencePolicy = modelRecord.referencePricing || { mode: 'free', unitCredits: 0, freeCount: 0 };
     const normalizedReferenceCount = Math.max(0, Math.floor(Number(referenceCount) || 0));
     const normalizedOutputCount = Math.max(1, Math.floor(Number(outputCount) || 1));
+    let providerCost = null;
+    let provisionalCost = false;
+    if (modelRecord.providerCostPricing) {
+      try {
+        const pricing = resolveBytePlusImagePricing(modelRecord, {
+          resolution: normalizedResolution, aspectRatio,
+          referenceCount: normalizedReferenceCount, outputCount: normalizedOutputCount
+        });
+        baseOutputCredits = pricing.baseOutputCredits;
+        providerCost = pricing.providerCost;
+        provisionalCost = pricing.provisional;
+      } catch {
+        throw createCreditError(CREDIT_ERROR_CODES.PRICING_UNAVAILABLE, 'Output dimensions or provider cost tiers are unavailable.', 400);
+      }
+    }
     const billableReferences = Math.max(0, normalizedReferenceCount - Math.max(0, Number(referencePolicy.freeCount) || 0));
     const referenceCredits = referencePolicy.mode === 'free'
       ? 0
@@ -200,6 +216,7 @@ export class CreditPricingPolicyService {
           normalizeOptional(referenceProcessingPlanFingerprint)
       },
       breakdown: {
+        ...(providerCost || {}),
         baseOutputCredits,
         referenceCredits,
         generationCredits,
@@ -214,7 +231,7 @@ export class CreditPricingPolicyService {
         totalCredits
       },
       estimatedCredits: totalCredits,
-      estimateConfidence: referencePolicy.mode === 'provisional' ? 'provisional' : 'locked',
+      estimateConfidence: provisionalCost || referencePolicy.mode === 'provisional' ? 'provisional' : 'locked',
       createdAt: now.toISOString(),
       expiresAt: new Date(now.getTime() + Number(policy.estimateTtlSeconds) * 1000).toISOString()
     };

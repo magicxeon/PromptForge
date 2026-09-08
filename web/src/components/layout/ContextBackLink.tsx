@@ -24,6 +24,9 @@ export function ContextBackLink({
   return (
     <Link
       to={safeReturn}
+      state={candidate?.actorId === getActiveActorId() && isSafeInternalPath(candidate.to) && candidate.entryKey
+        ? { mpfScrollRestore: { actorId: candidate.actorId, entryKey: candidate.entryKey } }
+        : undefined}
       className={`inline-flex min-h-10 items-center gap-2 rounded-[var(--mpf-radius-sm)] px-3 text-sm text-[var(--theme-primary)] no-underline hover:bg-[var(--theme-hover)] ${className}`}
     >
       <ArrowLeft className="size-4" aria-hidden="true" />

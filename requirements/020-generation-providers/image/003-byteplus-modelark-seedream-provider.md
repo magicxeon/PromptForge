@@ -1,5 +1,8 @@
 # 23. BytePlus ModelArk Seedream Provider
 
+Current pricing correction: 004-seedream-pro-pixel-pricing.md supersedes the
+historical 2.36M pixel threshold below with 2.61M (September 4 provider source).
+
 **ID:** `023-byteplus-modelark-seedream-provider`  
 **Application:** `ModelPromptForge`  
 **Status:** Implemented - Pending Runtime Verification  

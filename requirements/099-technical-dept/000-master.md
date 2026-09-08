@@ -6,6 +6,25 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### BytePlus Pricing Reconciliation
+
+- Provider requirements image/004 and video/004 own pixel cost tiers and dated
+  token-rate discounts. Credits remains the sole estimator/reservation owner.
+- Credits/BytePlusImagePricing.js reuses the existing exported provider output
+  size resolver; no duplicate size table, provider dispatch or new runtime store.
+- Existing quote breakdowns retain rate evidence. Finance inventory reads the
+  canonical configs; public VideoCapabilityRegistry DTOs exclude raw rate data.
+- scripts/test-byteplus-pricing.mjs provides isolated focused and aggregate gates.
+
+### Route Scroll Navigation
+
+- React migration requirement 020 owns document scroll navigation. AppShell mounts
+  components/layout/RouteScrollManager; lib/navigation/returnNavigation and
+  ContextBackLink keep return entry identity and actor-safe URLs.
+- Bounded in-memory entry positions and temporary DOM observers belong to this
+  single navigation owner, not feature pages. No runtime data or API changes.
+- scripts/test-route-scroll.mjs owns focused unit/browser and explicit all gates.
+
 ### Character Profile Maintenance
 
 - Community Page Enhancement 038-041 and implementation Plan 036 own original

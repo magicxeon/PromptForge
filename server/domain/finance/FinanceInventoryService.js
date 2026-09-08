@@ -46,7 +46,10 @@ export function buildFinanceInventory(controls, policy, video) {
     }
   for (const model of policy.models) {
     const row = ensure(model.providerId, model.modelId, 'image');
-    row.rates = leaves(model.providerCostUsd, 'providerCostUsd');
+    row.rates = model.providerCostPricing
+      ? leaves(model.providerCostPricing.outputTiers.map(({ maxPixels, usdPerImage }) => ({ maxPixels, usdPerImage })), 'outputTiers')
+        .concat(leaves(model.providerCostPricing.inputImages, 'inputImages'))
+      : leaves(model.providerCostUsd, 'providerCostUsd');
     row.retail = [
       'publishedCredits',
       'baseCreditsByResolution',
@@ -75,8 +78,12 @@ export function buildFinanceInventory(controls, policy, video) {
       'ratesByResolutionUsdPerMillionTokens',
       'ratesByAudioUsdPerMillionTokens',
       'ratesByInputModeUsdPerMillionTokens',
+      'ratesByResolutionAndInputModeUsdPerMillionTokens',
+      'providerDiscounts',
     ].flatMap((key) => leaves(model[key], key));
     row.rateVersion = model.providerRateVersion || video.catalogVersion;
+    row.source = model.providerPriceSource || null;
+    row.sourceDate = model.providerPriceSourceDate || null;
     row.billingMetric = model.billingMetric || null;
     row.coverage = row.rates.length ? 'configured' : 'missing_rate';
   }

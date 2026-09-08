@@ -1,5 +1,9 @@
 # Video Provider Pricing And Credit Model
 
+Current reconciliation: 004-byteplus-pricing-reconciliation.md supersedes the
+historical snapshot below for September 2026 promotions and implemented scope.
+Input-video minimum-floor import and commercial launch approval remain pending.
+
 **Status:** Research baseline and implementable pricing contract; retail launch
 rates remain gated by provider qualification and Commercial approval
 **Owner:** Credits with Cinematic Studio orchestration

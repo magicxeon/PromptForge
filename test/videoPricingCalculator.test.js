@@ -35,14 +35,16 @@ test('Gemini Omni uses the official effective 720p output-second rate', () => {
 });
 
 test('Seedance token pricing includes target pixels, fps and input video duration', () => {
-  const model = videoCapabilityRegistry.resolve('modelark', 'dreamina-seedance-2-0-mini-260615');
+  // Synthetic server-owned floor tests arithmetic, not provider floor qualification.
+  const model = { ...videoCapabilityRegistry.resolve('modelark', 'dreamina-seedance-2-0-mini-260615'),
+    minimumInputVideoTokens: { '720p': { '9:16': { 5: 300000 } } } };
   const withoutVideo = calculateVideoPricingPreview(model, {
     aspectRatio: '9:16', resolution: '720p', durationSeconds: 5, fps: 24, audioMode: 'none'
-  }, policy);
+  }, policy, { now: '2026-11-01T00:00:00Z' });
   const withVideo = calculateVideoPricingPreview(model, {
     aspectRatio: '9:16', resolution: '720p', durationSeconds: 5, fps: 24, audioMode: 'none', inputVideoSeconds: 10
-  }, policy);
+  }, policy, { now: '2026-11-01T00:00:00Z' });
   assert.ok(withoutVideo.estimatedCompletionTokens > 0);
   assert.ok(withVideo.providerCostUsd > withoutVideo.providerCostUsd);
-  assert.equal(withVideo.providerRateVersion, 'byteplus-seedance-2026-08-17');
+  assert.equal(withVideo.providerRateVersion, 'byteplus-seedance-2026-09-04');
 });

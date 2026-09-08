@@ -15,6 +15,7 @@ import { queryKeys } from '../../lib/api/queryKeys';
 import { useActor } from '../../lib/auth/ActorProvider';
 import { getOwnCreatorProfileLocator } from '../../lib/auth/creatorProfileLocator';
 import { Breadcrumbs } from './Breadcrumbs';
+import { RouteScrollManager } from './RouteScrollManager';
 import { useFeaturePolicy } from '../../lib/permissions/FeaturePolicyProvider';
 import { MomeloBrand } from '../brand/MomeloBrand';
 import { SidebarNavigation } from './SidebarNavigation';
@@ -91,6 +92,7 @@ export function AppShell() {
       className={`app-shell${collapsed ? ' app-shell--collapsed' : ''}`}
       data-testid="application-shell"
     >
+      <RouteScrollManager actorId={actorId} />
       <GlobalHeader
         createTarget={createTarget}
         actor={actor}

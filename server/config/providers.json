@@ -245,7 +245,7 @@
           },
           "defaults": { "resolution": "2K", "responseFormat": "b64_json", "outputFormat": "png", "watermark": false },
           "creditCost": 1,
-          "pricingReference": { "snapshotDate": "2026-07-13", "usdPerImageBelowOrEqual2360000Pixels": 0.045, "usdPerImageAbove2360000Pixels": 0.09 }
+          "pricingReference": { "snapshotDate": "2026-09-04", "usdPerImageBelowOrEqual2610000Pixels": 0.045, "usdPerImageAbove2610000Pixels": 0.09, "usdPerAdditionalInputImage": 0.003, "freeInputImages": 1 }
         }
       ]
     },

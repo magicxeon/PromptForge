@@ -25,12 +25,12 @@ export class CreditReservationService {
       throw createCreditError(CREDIT_ERROR_CODES.PRICING_UNAVAILABLE, 'Video pricing inputs are incomplete.', 400);
     }
     const policy = await this.pricingPolicyService.loadPolicy();
-    const preview = calculateVideoPricingPreview(model, request, policy);
+    const now = new Date();
+    const preview = calculateVideoPricingPreview(model, request, policy, { now });
     const developmentPocCredits = getDevelopmentPocCredits({ model, generationMode });
     const qualificationNoCharge = developmentPocCredits === null
       && isNoChargeVideoQualification({ model, generationMode });
     const customerCredits = developmentPocCredits ?? (qualificationNoCharge ? 0 : preview.estimatedCredits);
-    const now = new Date();
     const estimate = {
       estimateId: `vest_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
       userId,
@@ -63,6 +63,13 @@ export class CreditReservationService {
         providerCostUsd: preview.providerCostUsd,
         billingMetric: preview.billingMetric,
         providerRateVersion: preview.providerRateVersion,
+        tokenRateUsdPerMillion: preview.tokenRateUsdPerMillion,
+        estimatedCompletionTokens: preview.estimatedCompletionTokens,
+        discountId: preview.discountId,
+        discountEndsAt: preview.discountEndsAt,
+        costBasis: preview.costBasis,
+        providerPriceSource: model.providerPriceSource || null,
+        providerPriceSourceDate: model.providerPriceSourceDate || null,
         providerEstimatedCredits: preview.estimatedCredits,
         generationCredits: customerCredits,
         totalCredits: customerCredits,
@@ -75,7 +82,10 @@ export class CreditReservationService {
         : qualificationNoCharge ? 'qualification_no_charge' : 'user_credits',
       estimateConfidence: 'locked',
       createdAt: now.toISOString(),
-      expiresAt: new Date(now.getTime() + Number(policy.estimateTtlSeconds) * 1000).toISOString()
+      expiresAt: new Date(Math.min(
+        now.getTime() + Number(policy.estimateTtlSeconds) * 1000,
+        preview.discountEndsAt ? Date.parse(preview.discountEndsAt) : Infinity
+      )).toISOString()
     };
     this.estimateCache.set(estimate.estimateId, estimate);
     return this.accountRepo.saveEstimate(estimate);
@@ -100,7 +110,7 @@ export class CreditReservationService {
       throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_NOT_FOUND, 'Estimate does not belong to the active user.', 404);
     }
 
-    if (new Date(estimate.expiresAt) < new Date()) {
+    if (new Date(estimate.expiresAt) <= new Date()) {
       throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_EXPIRED, 'Credit estimate has expired.', 400);
     }
 

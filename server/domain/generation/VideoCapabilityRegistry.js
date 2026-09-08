@@ -264,7 +264,8 @@ function unsupported(field, value) {
 }
 
 function toPublicModel(model) {
-  const { ratesByResolutionUsd, ratesByResolutionUsdPerMillionTokens, ratesByAudioUsdPerMillionTokens, ratesByInputModeUsdPerMillionTokens, ...safe } = model;
+  const { ratesByResolutionUsd, ratesByResolutionUsdPerMillionTokens, ratesByAudioUsdPerMillionTokens, ratesByInputModeUsdPerMillionTokens,
+    ratesByResolutionAndInputModeUsdPerMillionTokens, providerDiscounts, minimumInputVideoTokens, ...safe } = model;
   return {
     ...safe,
     commercialOperations: getCommercialOperations(model),

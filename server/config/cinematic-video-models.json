@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "catalogVersion": "cinematic-video-2026-09-04-v11",
+  "catalogVersion": "cinematic-video-2026-09-08-pricing-v12",
   "models": [
     {
       "providerId": "gemini", "modelId": "veo-3.1-lite-generate-preview", "displayName": "Veo 3.1 Lite",
@@ -88,6 +88,9 @@
     },
     {
       "providerId": "modelark", "modelId": "dreamina-seedance-2-0-mini-260615", "displayName": "Seedance 2.0 Mini",
+      "providerPriceSource": "https://docs.byteplus.com/en/docs/ModelArk/1544106", "providerPriceSourceDate": "2026-09-04",
+      "requiresInputVideoMinimumTokens": true,
+      "providerDiscounts": [{ "id": "mini-60pct-20260807-20261007", "startsAt": "2026-08-07T06:00:00.000Z", "endsAt": "2026-10-07T06:00:00.000Z", "multiplier": 0.40, "resolutions": ["480p", "720p"] }],
       "developmentPocLookReferences": true,
       "operations": ["text_to_video", "cinematic_motion_preview", "cinematic_draft_clip"], "durationControlMode": "exact", "durations": [4, 5, 6, 8, 10, 12, 15],
       "commercialOperations": ["playground_video", "cinematic_motion_preview", "cinematic_draft_clip"],
@@ -97,11 +100,14 @@
       "portraitReferencePolicy": "provider_generated_asset_required",
       "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "maximumAgeDays": 30, "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
       "billingMetric": "completion_token", "ratesByInputModeUsdPerMillionTokens": { "without_video": 3.5, "with_video": 2.1 },
-      "providerRateVersion": "byteplus-seedance-2026-08-17", "pricingStatus": "research_only",
+      "providerRateVersion": "byteplus-seedance-2026-09-04", "pricingStatus": "research_only",
       "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true
     },
     {
       "providerId": "modelark", "modelId": "dreamina-seedance-2-0-fast-260128", "displayName": "Seedance 2.0 Fast",
+      "providerPriceSource": "https://docs.byteplus.com/en/docs/ModelArk/1544106", "providerPriceSourceDate": "2026-09-04",
+      "requiresInputVideoMinimumTokens": true,
+      "providerDiscounts": [{ "id": "fast-25pct-20260807-20261007", "startsAt": "2026-08-07T06:00:00.000Z", "endsAt": "2026-10-07T06:00:00.000Z", "multiplier": 0.75, "resolutions": ["480p", "720p"] }],
       "developmentPocLookReferences": true,
       "operations": ["text_to_video", "cinematic_draft_clip", "cinematic_final_clip"], "durationControlMode": "exact", "durations": [4, 5, 6, 8, 10, 12, 15],
       "commercialOperations": ["playground_video", "cinematic_draft_clip", "cinematic_final_clip"],
@@ -111,11 +117,13 @@
       "portraitReferencePolicy": "provider_generated_asset_required",
       "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "maximumAgeDays": 30, "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
       "billingMetric": "completion_token", "ratesByInputModeUsdPerMillionTokens": { "without_video": 5.6, "with_video": 3.3 },
-      "providerRateVersion": "byteplus-seedance-2026-08-17", "pricingStatus": "research_only",
+      "providerRateVersion": "byteplus-seedance-2026-09-04", "pricingStatus": "research_only",
       "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true
     },
     {
       "providerId": "modelark", "modelId": "dreamina-seedance-2-0-260128", "displayName": "Seedance 2.0",
+      "providerPriceSource": "https://docs.byteplus.com/en/docs/ModelArk/1544106", "providerPriceSourceDate": "2026-09-04",
+      "requiresInputVideoMinimumTokens": true,
       "developmentPocLookReferences": true,
       "operations": ["text_to_video", "cinematic_draft_clip", "cinematic_final_clip"], "durationControlMode": "exact", "durations": [4, 5, 6, 8, 10, 12, 15],
       "commercialOperations": ["playground_video", "cinematic_draft_clip", "cinematic_final_clip"],
@@ -124,12 +132,19 @@
       "referenceImageLimit": 9, "supportsFirstFrame": true, "supportsLastFrame": true,
       "portraitReferencePolicy": "provider_generated_asset_required",
       "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "maximumAgeDays": 30, "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
-      "billingMetric": "completion_token", "ratesByResolutionUsdPerMillionTokens": { "480p": 7.0, "720p": 7.0, "1080p": 7.7, "4K": 4.0 },
-      "providerRateVersion": "byteplus-seedance-2026-08-17", "pricingStatus": "research_only",
+      "billingMetric": "completion_token",
+      "ratesByResolutionAndInputModeUsdPerMillionTokens": {
+        "480p": { "without_video": 7.0, "with_video": 4.3 }, "720p": { "without_video": 7.0, "with_video": 4.3 },
+        "1080p": { "without_video": 7.7, "with_video": 4.7 }, "4K": { "without_video": 4.0, "with_video": 2.4 }
+      },
+      "providerRateVersion": "byteplus-seedance-2026-09-04", "pricingStatus": "research_only",
       "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true
     },
     {
       "providerId": "modelark", "modelId": "dreamina-seedance-2-5-260628", "displayName": "Seedance 2.5",
+      "providerPriceSource": "https://docs.byteplus.com/en/docs/ModelArk/1544106", "providerPriceSourceDate": "2026-09-04",
+      "requiresInputVideoMinimumTokens": true,
+      "providerDiscounts": [{ "id": "sd25-1080p-28pct-20260814-20260917", "startsAt": "2026-08-14T06:00:00.000Z", "endsAt": "2026-09-17T06:00:00.000Z", "multiplier": 0.72, "resolutions": ["1080p"] }],
       "developmentPocLookReferences": true,
       "operations": ["text_to_video", "cinematic_draft_clip", "cinematic_final_clip"], "durationControlMode": "exact", "durations": [4, 5, 6, 8, 10, 12, 15, 20, 30],
       "commercialOperations": ["playground_video", "cinematic_draft_clip", "cinematic_final_clip"],
@@ -138,8 +153,12 @@
       "referenceImageLimit": 9, "supportsFirstFrame": true, "supportsLastFrame": true,
       "portraitReferencePolicy": "provider_generated_asset_required",
       "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "maximumAgeDays": 30, "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
-      "billingMetric": "completion_token", "ratesByResolutionUsdPerMillionTokens": { "480p": 10.7, "720p": 10.7 },
-      "providerRateVersion": "byteplus-seedance-2026-08-17", "pricingStatus": "research_only",
+      "billingMetric": "completion_token",
+      "ratesByResolutionAndInputModeUsdPerMillionTokens": {
+        "480p": { "without_video": 10.7, "with_video": 6.4 }, "720p": { "without_video": 10.7, "with_video": 6.4 },
+        "1080p": { "without_video": 11.7, "with_video": 7.0 }
+      },
+      "providerRateVersion": "byteplus-seedance-2026-09-04", "pricingStatus": "research_only",
       "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true
     }
   ]

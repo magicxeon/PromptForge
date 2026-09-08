@@ -5,16 +5,19 @@ export type ReturnNavigationState = {
   mpfReturn?: {
     to?: string;
     actorId?: string;
+    entryKey?: string;
   };
+  mpfScrollRestore?: { actorId: string; entryKey: string };
 };
 
 export function createReturnNavigationState(
-  location: Pick<Location, 'pathname' | 'search' | 'hash'>
+  location: Pick<Location, 'pathname' | 'search' | 'hash'> & { key?: string }
 ) {
   return {
     mpfReturn: {
       to: `${location.pathname}${location.search}${location.hash}`,
-      actorId: getActiveActorId()
+      actorId: getActiveActorId(),
+      entryKey: location.key
     }
   };
 }

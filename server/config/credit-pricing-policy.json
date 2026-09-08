@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "mock-2026-09-05-v3",
-  "effectiveAt": "2026-09-05T00:00:00.000Z",
+  "policyVersion": "mock-2026-09-08-byteplus-v4",
+  "effectiveAt": "2026-09-08T00:00:00.000Z",
   "providerPriceSourceDate": "2026-07-24",
   "referenceFxThbPerUsd": 33.7594,
   "pricingFxThbPerUsd": 35.0,
@@ -195,12 +195,23 @@
     {
       "providerId": "modelark",
       "modelId": "dola-seedream-5-0-pro-260628",
+      "billingMetric": "returned_image",
+      "providerPriceSource": "https://docs.byteplus.com/en/docs/ModelArk/1544106",
+      "providerPriceSourceDate": "2026-09-04",
+      "providerCostPricing": {
+        "version": "byteplus-seedream-pro-2026-09-04",
+        "outputTiers": [
+          { "maxPixels": 2610000, "usdPerImage": 0.045, "publishedCredits": 60 },
+          { "maxPixels": null, "usdPerImage": 0.090, "publishedCredits": 120 }
+        ],
+        "inputImages": { "freeCount": 1, "usdPerImage": 0.003 }
+      },
       "enabled": true,
       "pricingStatus": "priced",
       "publishedCredits": 60,
       "baseCreditsByResolution": {
         "1K": 60,
-        "2K": 60,
+        "2K": 120,
         "high_mp": 120,
         "default": 60
       },
