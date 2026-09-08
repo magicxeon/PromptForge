@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026-08-professional-12",
+  "catalogVersion": "2026-09-professional-13",
   "poseStyles": [
     {
       "id": "pose-style.auto",
@@ -183,13 +183,13 @@
     },
     {
       "id": "scene-pose.street-walk-editorial",
-      "version": 3,
+      "version": 4,
       "purpose": "lookbook",
       "label": { "en": "Street Walk Editorial", "th": "เดินแฟชั่นสตรีต" },
       "description": { "en": "A natural mid-stride look with street depth and clear garment movement.", "th": "จังหวะก้าวเดินธรรมชาติ มีมิติของถนนและเห็นการเคลื่อนไหวของชุดชัดเจน" },
       "bestFor": ["street style", "casual collections", "outerwear"],
       "previewAsset": "/assets/scene-builder/shot-recipes/street-walk-editorial.jpg",
-      "clearFields": ["Lighting Accent"],
+      "clearFields": ["Lighting Accent", "Camera Imperfections"],
       "fieldSelections": {
         "Fashion Direction": "fashion.lookbook",
         "Pose Intent": "pose.fashion.street-walk-editorial",
@@ -203,8 +203,7 @@
         "Aperture": "camera.aperture_03",
         "Perspective": "camera.perspective_01",
         "Composition": "camera.composition_03",
-        "Motion Blur": "camera.blur_02",
-        "Camera Imperfections": "camera.imp_01"
+        "Motion Blur": "camera.blur_02"
       },
       "enabled": true
     },
@@ -264,13 +263,13 @@
     },
     {
       "id": "scene-pose.cafe-seated-lifestyle",
-      "version": 2,
+      "version": 3,
       "purpose": "lifestyle",
       "label": { "en": "Cafe Seated Lifestyle", "th": "นั่งคาเฟ่ไลฟ์สไตล์" },
       "description": { "en": "A natural seated fashion moment with foreground depth and a candid gaze.", "th": "ช่วงเวลานั่งแฟชั่นอย่างเป็นธรรมชาติ มีมิติด้านหน้าและสายตาแคนดิด" },
       "bestFor": ["travel fashion", "social commerce", "casual outfits"],
       "previewAsset": "/assets/scene-builder/shot-recipes/cafe-seated-lifestyle.jpg",
-      "clearFields": ["Lighting Accent"],
+      "clearFields": ["Lighting Accent", "Camera Imperfections"],
       "fieldSelections": {
         "Fashion Direction": "fashion.social",
         "Pose Intent": "pose.fashion.cafe-seated-lifestyle",
@@ -284,20 +283,19 @@
         "Aperture": "camera.aperture_03",
         "Perspective": "camera.perspective_01",
         "Composition": "camera.composition_01",
-        "Motion Blur": "camera.blur_00",
-        "Camera Imperfections": "camera.imp_01"
+        "Motion Blur": "camera.blur_00"
       },
       "enabled": true
     },
     {
       "id": "scene-pose.sunlit-storefront",
-      "version": 4,
+      "version": 5,
       "purpose": "lifestyle",
       "label": { "en": "Sunlit Storefront", "th": "แฟชั่นหน้าร้านรับแสง" },
       "description": { "en": "An approachable storefront stance with restrained interaction and lively daylight.", "th": "ท่าหน้าร้านที่เข้าถึงง่าย มีปฏิสัมพันธ์พอดีและแสงธรรมชาติมีชีวิต" },
       "bestFor": ["creator campaigns", "street lookbooks", "summer collections"],
       "previewAsset": "/assets/scene-builder/shot-recipes/sunlit-storefront.jpg",
-      "clearFields": ["Lighting Accent"],
+      "clearFields": ["Lighting Accent", "Camera Imperfections"],
       "fieldSelections": {
         "Fashion Direction": "fashion.social",
         "Pose Intent": "pose.fashion.sunlit-storefront",
@@ -311,8 +309,7 @@
         "Aperture": "camera.aperture_03",
         "Perspective": "camera.perspective_01",
         "Composition": "camera.composition_01",
-        "Motion Blur": "camera.blur_00",
-        "Camera Imperfections": "camera.imp_01"
+        "Motion Blur": "camera.blur_00"
       },
       "enabled": true
     },
@@ -345,13 +342,13 @@
     },
     {
       "id": "scene-pose.soft-character-portrait",
-      "version": 3,
+      "version": 4,
       "purpose": "lifestyle",
       "label": { "en": "Soft Character Portrait", "th": "พอร์ตเทรตตัวละครนุ่มนวล" },
       "description": { "en": "A professional close character profile whose expression and portrait mood adapt naturally to personality.", "th": "ภาพโปรไฟล์ตัวละครระยะใกล้แบบมืออาชีพที่ปรับสีหน้าและอารมณ์ภาพตามบุคลิกอย่างเป็นธรรมชาติ" },
       "bestFor": ["character profiles", "creator portraits", "beauty-led looks"],
       "previewAsset": "/assets/scene-builder/shot-recipes/soft-character-portrait.jpg",
-      "clearFields": ["Lighting Accent", "Film Look", "Color Grading"],
+      "clearFields": ["Lighting Accent", "Film Look", "Color Grading", "Camera Imperfections"],
       "fieldSelections": {
         "Fashion Direction": "fashion.character-profile",
         "Pose Intent": "pose.fashion.soft-character-portrait",
@@ -365,8 +362,7 @@
         "Aperture": "camera.aperture_03",
         "Perspective": "camera.perspective_01",
         "Composition": "camera.composition_01",
-        "Motion Blur": "camera.blur_00",
-        "Camera Imperfections": "camera.imp_01"
+        "Motion Blur": "camera.blur_00"
       },
       "enabled": true
     },

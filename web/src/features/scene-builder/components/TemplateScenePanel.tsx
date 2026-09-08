@@ -1,7 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { LayoutTemplate, UserRound, X, ZoomIn } from 'lucide-react';
+import { type ReactNode } from 'react';
+import { LayoutTemplate, X, ZoomIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
@@ -10,14 +10,10 @@ import { AuthenticatedMediaImage } from '../../../components/media/Authenticated
 import { TemplatePricingBadge } from '../../../components/templates/TemplatePricingBadge';
 import { routeBuilders } from '../../../app/routeRegistry/routes';
 import { useActor } from '../../../lib/auth/ActorProvider';
-import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { getCommunityPost } from '../../community/api/communityApi';
-import { CharacterLibraryPicker } from '../../profiles/components/CharacterLibraryPicker';
-import { requestCharacterHandoff } from '../../profiles/api/profileApi';
 import type { CharacterSummary } from '../../profiles/schemas/profileSchemas';
-import { DisplayMediaImage } from '../../../components/media/DisplayMediaImage';
-import { characterDisplayImages } from '../../profiles/characterDisplayImage';
-import { isTemplateCharacterEligible, isTemplateCharacterHandoffValid, type SceneCharacterHandoff } from '../templateCharacterPolicy';
+import { type SceneCharacterHandoff } from '../templateCharacterPolicy';
+import { SceneCharacterSelector } from './SceneCharacterSelector';
 
 export function TemplateScenePanel({ postId, accessCredits, characterAllowed, characterReference, displayCharacter, onCharacter, onClearCharacter, onExit, children }: {
   postId: string | null; accessCredits?: number; characterAllowed: boolean; characterReference?: string;
@@ -27,12 +23,7 @@ export function TemplateScenePanel({ postId, accessCredits, characterAllowed, ch
 }) {
   const { t } = useTranslation('react-ui');
   const { actor } = useActor();
-  const mounted = useRef(true);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [selected, setSelected] = useState<{ item: CharacterSummary; reference: string } | null>(null);
   const source = useQuery({ queryKey: ['community-post', postId, actor?.userId || 'loading'], queryFn: () => getCommunityPost(postId!), enabled: Boolean(postId && actor), staleTime: 30_000 });
-  const current = displayCharacter !== undefined ? displayCharacter : (selected && selected.reference === characterReference ? selected.item : null);
   const image = source.data?.imageUrl;
   return <section className="template-scene-panel">
     <header><span><LayoutTemplate aria-hidden="true" />{t('ui.templateScene.title')}</span>
@@ -52,19 +43,8 @@ export function TemplateScenePanel({ postId, accessCredits, characterAllowed, ch
       {accessCredits != null ? <TemplatePricingBadge accessCredits={accessCredits} /> : null}
       {postId ? <Link to={routeBuilders.templateDetail(postId)}>{t('ui.templateScene.details')}</Link> : null}
     </div>
-    {characterAllowed ? <section className="template-scene-panel__character"><h3>{t('ui.templateScene.character')}</h3>
-      {characterReference ? <div className="template-scene-panel__selected"><DisplayMediaImage sources={current ? characterDisplayImages(current) : [{ src: characterReference, fit: 'contain' }]} alt="" />
-        <strong>{current?.displayName || t('ui.templateScene.selectedReference')}</strong><Button icon={<X />} aria-label={t('ui.templateScene.removeCharacter')} onClick={() => { setSelected(null); onClearCharacter(); }} /></div> : null}
-      <Button icon={<UserRound />} onClick={() => setPickerOpen(true)}>{t(characterReference ? 'ui.templateScene.changeCharacter' : 'ui.templateScene.chooseCharacter')}</Button>
-      <CharacterLibraryPicker open={pickerOpen} onOpenChange={setPickerOpen} current={current}
-        unavailableReason={item => isTemplateCharacterEligible(item) ? undefined : t('ui.templateScene.characterUnavailable')}
-        onSelect={async item => {
-          const actorId = actor?.userId;
-          const handoff = await requestCharacterHandoff(item.id, 'scene_builder');
-          if (!mounted.current || getActiveActorId() !== actorId || !isTemplateCharacterHandoffValid(item, handoff)) throw new Error('Character selection is no longer valid.');
-          onCharacter(handoff); setSelected({ item, reference: handoff.characterReferenceUrl });
-        }} />
-    </section> : null}
+    {characterAllowed ? <SceneCharacterSelector templateMode characterReference={characterReference} displayCharacter={displayCharacter}
+      onCharacter={onCharacter} onClearCharacter={onClearCharacter} /> : null}
     <section className="template-scene-panel__inputs"><h3>{t('ui.templateScene.inputs')}</h3>{children}</section>
   </section>;
 }

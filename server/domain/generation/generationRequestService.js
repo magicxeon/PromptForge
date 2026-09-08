@@ -15,7 +15,7 @@ import {
   normalizeCharacterType
 } from '../character-profiles/characterTypePolicy.js';
 import {
-  compileCharacterAgeRangeDirective,
+  applyCharacterIdentity,
   normalizeCharacterIdentityText
 } from '../character-profiles/characterIdentityMetadata.js';
 import {
@@ -315,7 +315,7 @@ export function compileGenerationContext(payload = {}, actorContext = null) {
 }
 
 export function compilePromptFromGenerationContext(context) {
-  return applyStudioNaturalRealism(compileBasePromptFromGenerationContext(context), context);
+  return applyCharacterIdentity(applyStudioNaturalRealism(compileBasePromptFromGenerationContext(context), context), context);
 }
 
 function compileBasePromptFromGenerationContext(context) {
@@ -416,7 +416,6 @@ function compileBasePromptFromGenerationContext(context) {
         ...characterReferenceDirective,
         compileCharacterPersonalityDirective(context),
         directedPrompt,
-        compileCharacterAgeRangeDirective(context.characterProfileContext)
       ].filter(Boolean).join(' ')
       : characterReferenceDirective.length
         ? [...characterReferenceDirective, directedPrompt].filter(Boolean).join(' ')

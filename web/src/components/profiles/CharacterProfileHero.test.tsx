@@ -81,6 +81,16 @@ describe('CharacterProfileHero', () => {
     })).not.toBeInTheDocument();
     expect(screen.getAllByText('character-profiles.status.viewOnly')).not.toHaveLength(0);
   });
+  it('keeps private link copying disabled and opens owner sharing settings separately', () => {
+    const onShare = vi.fn(); const onManageSharing = vi.fn();
+    renderHero(<CharacterProfileHero character={{ ...reusableCharacter, visibility: 'private', displayImageUrl: '' }} ownerAccess handoffPending={false}
+      onShare={onShare} onManageSharing={onManageSharing} />);
+    const copy = screen.getByRole('button', { name: 'character-profiles.actions.copyLink' });
+    expect(copy).toBeDisabled(); fireEvent.click(copy);
+    expect(onShare).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'character-profiles.actions.visibilityReuse' }));
+    expect(onManageSharing).toHaveBeenCalledOnce();
+  });
 
   it('shows persisted owner-only reuse rights even though the owner can use the Character', () => {
     renderHero(

@@ -6,10 +6,11 @@ import { MediaCard } from '../../../components/media/MediaCard';
 import { Button } from '../../../components/ui/Button';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/AsyncState';
 import { ContextBackLink } from '../../../components/layout/ContextBackLink';
-import { routePaths } from '../../../app/routeRegistry/routes';
+import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
 import { CharacterFeaturedImagePicker } from '../../../components/profiles/CharacterFeaturedImagePicker';
 import { CharacterProfileHero } from '../../../components/profiles/CharacterProfileHero';
 import { CharacterLookDialog } from '../components/CharacterLookDialog';
+import { DeleteCharacterDialog } from '../components/DeleteCharacterDialog';
 import { showToast } from '../../../components/ui/toastStore';
 import {
   getCharacter,
@@ -27,11 +28,15 @@ import { useActor } from '../../../lib/auth/ActorProvider';
 import { useCharacterHandoff } from '../useCharacterHandoff';
 
 export function CharacterProfileRoute() {
-  return <CharacterProfilePage access="public" />;
+  const { actor } = useActor();
+  const { characterId } = useParams();
+  return <CharacterProfilePage key={`${actor?.userId}:${characterId}`} access="public" />;
 }
 
 export function CharacterOwnerProfileRoute() {
-  return <CharacterProfilePage access="owner" />;
+  const { actor } = useActor();
+  const { characterId } = useParams();
+  return <CharacterProfilePage key={`${actor?.userId}:${characterId}`} access="owner" />;
 }
 
 function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
@@ -42,6 +47,9 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
   const { t } = useTranslation('character-profiles');
   const [activeTab, setActiveTab] = useState<'overview' | 'creations' | 'details'>('overview');
   const [lookDialogOpen, setLookDialogOpen] = useState(false);
+  const [sharingOpen, setSharingOpen] = useState(false);
+  const [coverScope, setCoverScope] = useState<'linked' | 'own'>('linked');
+  const [coverCursors, setCoverCursors] = useState<(string | null)[]>([null]);
   const ownerDetail = useQuery({
     queryKey: ['owned-character', actorId, characterId],
     queryFn: () => getOwnedCharacter(characterId),
@@ -59,8 +67,8 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
     enabled: Boolean(characterId && actor && character)
   });
   const featuredCandidates = useQuery({
-    queryKey: ['character-featured-image-candidates', actorId, characterId],
-    queryFn: () => getCharacterFeaturedImageCandidates(characterId),
+    queryKey: ['character-featured-image-candidates', actorId, characterId, coverScope, coverCursors.at(-1)],
+    queryFn: () => getCharacterFeaturedImageCandidates(characterId, coverScope, coverCursors.at(-1)),
     enabled: Boolean(characterId && actor && character && access === 'owner' && character.isOwner)
   });
   const characterLooks = useQuery({
@@ -107,6 +115,7 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
       mode: 'auto' | 'manual';
       sourceType?: 'generation_result' | 'community_post' | null;
       sourceId?: string | null;
+      displayConsentAccepted?: boolean;
     }) =>
       updateCharacterFeaturedImage(characterId, {
         ...input,
@@ -138,14 +147,10 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
     && character.destinationCapabilities.includes('fashion_blueprint');
   const sceneAvailable = character.handoffAvailable
     && character.destinationCapabilities.includes('scene_builder');
-  const characterName = character.displayName;
   async function shareCharacter() {
-    const url = window.location.href;
+    if (character?.visibility === 'private') return;
+    const url = new URL(routeBuilders.character(characterId), window.location.origin).href;
     try {
-      if (navigator.share) {
-        await navigator.share({ title: characterName, url });
-        return;
-      }
       await navigator.clipboard.writeText(url);
       showToast({ tone: 'success', title: t('character-profiles.actions.linkCopied') });
     } catch (error) {
@@ -171,6 +176,7 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
           ? () => approve.mutate()
           : undefined}
         onShare={() => void shareCharacter()}
+        onManageSharing={access === 'owner' && character.isOwner ? () => { setActiveTab('details'); setSharingOpen(true); } : undefined}
       />
       {approve.isError ? <p className="text-sm text-red-300">{approve.error.message}</p> : null}
       {handoff.isError ? <p className="text-sm text-red-300">{handoff.error.message}</p> : null}
@@ -237,7 +243,12 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
               <DetailCard label={t('character-profiles.metadata.availability')} value={character.handoffAvailable ? t('character-profiles.status.available') : t('character-profiles.status.viewOnly')} />
             </div>
             {access === 'owner' && character.isOwner ? (
+              <>
+              {ownerDetail.data?.identityMetadata?.missingFields.length ? <p role="status">
+                {t('character-profiles.identity.missing', { fields: ownerDetail.data.identityMetadata.missingFields.map(field => t(`character-profiles.identity.${field}`)).join(', ') })}
+              </p> : null}
               <OwnerCharacterControls
+                open={sharingOpen} onOpenChange={setSharingOpen}
                 character={ownerDetail.data || character}
                 pending={updateMetadata.isPending || updateSharing.isPending}
                 onSave={async input => {
@@ -254,6 +265,8 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
                   ]);
                 }}
               />
+              <DeleteCharacterDialog key={`${actorId}:${characterId}`} characterId={characterId} displayName={character.displayName} />
+              </>
             ) : null}
             {access === 'owner' && character.isOwner && character.characterProfileVersionId ? (
               <>
@@ -279,6 +292,15 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
             ) : null}
             {access === 'owner' && character.isOwner ? (
               <CharacterFeaturedImagePicker
+                key={`${actorId}:${characterId}`}
+                scope={coverScope}
+                onScopeChange={scope => { setCoverScope(scope); setCoverCursors([null]); }}
+                pageNumber={coverCursors.length}
+                hasMore={featuredCandidates.data?.hasMore}
+                onPrevious={() => setCoverCursors(cursors => cursors.slice(0, -1))}
+                onNext={() => { if (featuredCandidates.data?.nextCursor) setCoverCursors(cursors => [...cursors, featuredCandidates.data!.nextCursor!]); }}
+                error={featuredCandidates.error?.message || updateFeaturedImage.error?.message}
+                onRetry={() => { updateFeaturedImage.reset(); void featuredCandidates.refetch(); }}
                 candidates={featuredCandidates.data?.items || []}
                 mode={character.featuredImageMode}
                 selectedSourceType={character.featuredImageSourceType}
@@ -286,17 +308,16 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
                   ? character.featuredGenerationResultId
                   : character.featuredWorkPostId}
                 displaySource={character.displayImageSource}
-                pending={updateFeaturedImage.isPending || featuredCandidates.isLoading}
-                onSelect={candidate => updateFeaturedImage.mutate({
+                pending={updateFeaturedImage.isPending || featuredCandidates.isFetching}
+                onSelect={(candidate, displayConsentAccepted) => displayConsentAccepted
+                  ? updateFeaturedImage.mutateAsync({ mode: 'manual', sourceType: candidate.sourceType, sourceId: candidate.sourceId, displayConsentAccepted })
+                  : updateFeaturedImage.mutate({
                   mode: 'manual',
                   sourceType: candidate.sourceType,
                   sourceId: candidate.sourceId
                 })}
                 onUseAutomatic={() => updateFeaturedImage.mutate({ mode: 'auto' })}
               />
-            ) : null}
-            {updateFeaturedImage.isError ? (
-              <p className="text-sm text-red-300">{updateFeaturedImage.error.message}</p>
             ) : null}
           </>
         ) : null}
@@ -386,8 +407,12 @@ type CharacterReusePolicy = 'owner_only' | 'view_only' | 'public_reusable';
 export function OwnerCharacterControls({
   character,
   pending,
-  onSave
+  onSave,
+  open: controlledOpen,
+  onOpenChange
 }: {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   character: {
     displayName: string;
     personalitySummary: string;
@@ -407,7 +432,9 @@ export function OwnerCharacterControls({
 }) {
   const { t } = useTranslation('character-profiles');
   const { t: tUi } = useTranslation('react-ui');
-  const [open, setOpen] = useState(false);
+  const [localOpen, setLocalOpen] = useState(false);
+  const open = controlledOpen ?? localOpen;
+  const setOpen = (value: boolean) => { setLocalOpen(value); onOpenChange?.(value); };
   const [visibility, setVisibility] = useState<CharacterVisibility>(normalizeCharacterVisibility(character.visibility));
   const [reusePolicy, setReusePolicy] = useState<CharacterReusePolicy>(normalizeCharacterReusePolicy(character.reusePolicy));
   const [rightsAccepted, setRightsAccepted] = useState(Boolean(character.rightsDeclarationAcceptedAt));
@@ -420,7 +447,7 @@ export function OwnerCharacterControls({
       setRightsAccepted(Boolean(character.rightsDeclarationAcceptedAt));
       setSubmitError('');
     }
-    setOpen(value => !value);
+    setOpen(!open);
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {

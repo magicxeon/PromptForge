@@ -16,6 +16,29 @@ const attributesById = new Map(
   [...fashionAttributes, ...cameraAttributes].map(attribute => [attribute.id, attribute])
 );
 
+test('Scene recipes never supply implicit handheld movement; explicit camera selections remain supported', () => {
+  for (const recipe of recipeCatalog.recipes) {
+    assert.notEqual(recipe.fieldSelections['Camera Imperfections'], 'camera.imp_01', recipe.id);
+    const selections = Object.fromEntries(Object.entries(recipe.fieldSelections).map(([name, id]) => {
+      const attribute = attributesById.get(id);
+      return [name, { id, value: attribute.prompt.default, group: attribute.ui?.group || attribute.category, category: attribute.category }];
+    }));
+    const prompt = compilePromptFromGenerationContext({
+      generationMode: 'scene', mode: 'normal', selections, aspectRatio: '6:8',
+      imageReferences: {}, template: 'portrait'
+    });
+    assert.doesNotMatch(prompt, /slight handheld camera movement/i, recipe.id);
+  }
+  const handheld = attributesById.get('camera.imp_01');
+  const prompt = compilePromptFromGenerationContext({
+    generationMode: 'scene', mode: 'normal', aspectRatio: '6:8', imageReferences: {},
+    selections: { 'Camera Imperfections': {
+      id: handheld.id, value: handheld.prompt.default, group: 'Camera', category: handheld.category
+    } }, template: 'portrait'
+  });
+  assert.match(prompt, /slight handheld camera movement/i);
+});
+
 const expectedPoseDetails = new Map([
   ['pose.fashion.front-product', /shoulders and pelvis square to the camera/i],
   ['pose.fashion.three-quarter', /35 to 45 degrees.+both eyes remain visible/i],
@@ -35,7 +58,7 @@ const expectedPoseDetails = new Map([
 
 test('all Simple Scene recipes resolve to precise single-subject pose directions', () => {
   assert.equal(recipeCatalog.recipes.length, expectedPoseDetails.size);
-  assert.equal(recipeCatalog.catalogVersion, '2026-08-professional-12');
+  assert.equal(recipeCatalog.catalogVersion, '2026-09-professional-13');
   assert.deepEqual(
     recipeCatalog.poseStyles.map(style => style.id),
     [
@@ -74,10 +97,11 @@ test('all Simple Scene recipes resolve to precise single-subject pose directions
     assert.match(recipe.previewAsset, /^\/assets\/scene-builder\/shot-recipes\/.+\.jpg$/);
     const expectedVersion = new Map([
       ['scene-pose.window-shadow-lookbook', 4],
-      ['scene-pose.sunlit-storefront', 4],
-      ['scene-pose.street-walk-editorial', 3],
+      ['scene-pose.sunlit-storefront', 5],
+      ['scene-pose.street-walk-editorial', 4],
+      ['scene-pose.cafe-seated-lifestyle', 3],
       ['scene-pose.low-angle-campaign-hero', 3],
-      ['scene-pose.soft-character-portrait', 3],
+      ['scene-pose.soft-character-portrait', 4],
       ['scene-pose.color-light-editorial', 3]
     ]).get(recipe.id) ?? 2;
     assert.equal(recipe.version, expectedVersion);
@@ -136,7 +160,7 @@ test('a professional Shot Recipe reaches the canonical compiler as one resolved 
     template: 'portrait'
   });
 
-  assert.equal(recipe.version, 3);
+  assert.equal(recipe.version, 4);
   assert.match(prompt, /decisive instant of a natural editorial street stride/i);
   assert.match(prompt, /complete subject inside the central horizontal corridor/i);
   assert.match(prompt, /when the actual garment has a clearly available pocket/i);
@@ -147,7 +171,7 @@ test('a professional Shot Recipe reaches the canonical compiler as one resolved 
   assert.match(prompt, /seventy-eight to eighty-six percent of the frame height/i);
   assert.match(prompt, /four to seven percent below.+both pieces of footwear/i);
   assert.match(prompt, /visual center held at approximately fifty percent of the frame width/i);
-  assert.match(prompt, /slight handheld camera movement/i);
+  assert.doesNotMatch(prompt, /slight handheld camera movement/i);
   assert.doesNotMatch(prompt, /rule-of-thirds composition/i);
   assert.doesNotMatch(prompt, /environmental portrait framing/i);
   assert.doesNotMatch(prompt, /clean outdoor open-shade lighting/i);
@@ -204,8 +228,8 @@ test('Sunlit Storefront compiles physical camera, contact, and lighting directio
     item.id === 'scene-pose.sunlit-storefront'
   );
   assert.ok(recipe);
-  assert.equal(recipe.version, 4);
-  assert.equal(recipe.fieldSelections['Camera Imperfections'], 'camera.imp_01');
+  assert.equal(recipe.version, 5);
+  assert.equal(recipe.fieldSelections['Camera Imperfections'], undefined);
 
   const selections = Object.fromEntries(
     Object.entries(recipe.fieldSelections).map(([fieldName, optionId]) => {
@@ -375,10 +399,10 @@ test('Soft Character Portrait compiles a tight identity portrait without environ
     item.id === 'scene-pose.soft-character-portrait'
   );
   assert.ok(recipe);
-  assert.equal(recipe.version, 3);
-  assert.deepEqual(recipe.clearFields, ['Lighting Accent', 'Film Look', 'Color Grading']);
+  assert.equal(recipe.version, 4);
+  assert.deepEqual(recipe.clearFields, ['Lighting Accent', 'Film Look', 'Color Grading', 'Camera Imperfections']);
   assert.equal(recipe.fieldSelections['Fashion Venue'], 'environment.fashion.character-wall');
-  assert.equal(recipe.fieldSelections['Camera Imperfections'], 'camera.imp_01');
+  assert.equal(recipe.fieldSelections['Camera Imperfections'], undefined);
 
   const selections = Object.fromEntries(
     Object.entries(recipe.fieldSelections).map(([fieldName, optionId]) => {
@@ -412,7 +436,7 @@ test('Soft Character Portrait compiles a tight identity portrait without environ
   assert.match(prompt, /seamless neutral studio surface.+softly textured matte wall.+quiet contemporary interior/i);
   assert.match(prompt, /one coherent professional portrait-lighting treatment/i);
   assert.match(prompt, /never flat passport lighting.+ring-light glare.+beauty-filter smoothing/i);
-  assert.match(prompt, /slight handheld camera movement/i);
+  assert.doesNotMatch(prompt, /slight handheld camera movement/i);
   assert.match(prompt, /no visible floor, corridor, furniture cluster/i);
   assert.doesNotMatch(prompt, /inside a real contemporary gallery|gentle highlight halation/i);
   assert.doesNotMatch(prompt, /For this full-body photograph|select simple coherent footwear/i);

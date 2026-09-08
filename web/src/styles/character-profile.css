@@ -37,6 +37,11 @@
   object-fit: cover;
 }
 
+.character-showcase__media--sheet .character-showcase__image {
+  object-fit: contain;
+  object-position: center;
+}
+
 .character-showcase__media-empty {
   display: grid;
   justify-items: center;

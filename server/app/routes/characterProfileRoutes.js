@@ -61,6 +61,16 @@ export function registerCharacterProfileRoutes(app, {
     }
   });
 
+  app.delete('/api/character-profiles/:id', async (req, res) => {
+    try {
+      return res.json(await profileService.deleteOwned(
+        req.params.id, req.body, req.actorContext, { requestId: req.requestId }
+      ));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
   app.post('/api/character-profiles/:id/archive', async (req, res) => {
     try {
       return res.json(await profileService.archive(req.params.id, req.actorContext));
@@ -264,7 +274,7 @@ export function registerCharacterProfileRoutes(app, {
     }
   });
 
-  for (const mediaKind of ['image', 'thumbnail', 'face']) {
+  for (const mediaKind of ['image', 'thumbnail', 'face', 'sheet']) {
     app.get(`/api/character-profiles/:id/media/${mediaKind}`, async (req, res) => {
       try {
         const filePath = await sharingService.getMediaFile(
@@ -353,7 +363,7 @@ export function registerCharacterProfileRoutes(app, {
     }
   });
 
-  for (const mediaKind of ['thumbnail', 'face']) {
+  for (const mediaKind of ['thumbnail', 'face', 'sheet']) {
     app.get(`/api/community/character-profiles/:id/${mediaKind}`, async (req, res) => {
       try {
         await assertCommunityEnabled();

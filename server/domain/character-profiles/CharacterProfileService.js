@@ -18,7 +18,7 @@ import {
 } from './characterTypePolicy.js';
 import { getCharacterCastingPolicy } from './characterCastingPolicy.js';
 import {
-  deriveCharacterIdentityMetadata,
+  resolveSourceCharacterIdentity,
   normalizeCharacterIdentityMetadata
 } from './characterIdentityMetadata.js';
 
@@ -84,7 +84,7 @@ export class CharacterProfileService {
       characterProfileId: profile.id,
       characterType,
       structuredCharacterSnapshot,
-      identityMetadata: deriveCharacterIdentityMetadata(structuredCharacterSnapshot),
+      identityMetadata: await resolveSourceCharacterIdentity(source, actor.userId, this.generationResultRepository),
       sourceGenerationResultIds: [source.id],
       canonicalHeadshotAssetId,
       canonicalFaceAssetId: canonicalHeadshotAssetId,
@@ -123,9 +123,9 @@ export class CharacterProfileService {
         const ownerImageUrl = canonicalAssetId
           ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/image`
           : null;
-        const hasCastingPreview = characterType === CHARACTER_TYPE.REUSABLE_MODEL
-          && Boolean(version?.castingFrontPreviewUrl);
-        const ownerDisplayUrl = hasCastingPreview ? ownerThumbnailUrl : ownerImageUrl;
+        const ownerDisplayUrl = version?.canonicalCharacterSheetAssetId && characterType === CHARACTER_TYPE.REUSABLE_MODEL
+          ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/sheet`
+          : ownerImageUrl;
         return {
           ...profile,
           identityFacets: buildCharacterIdentityFacets(version),
@@ -140,11 +140,7 @@ export class CharacterProfileService {
           imageUrl: ownerImageUrl,
           thumbnailUrl: ownerThumbnailUrl,
           displayImageUrl: ownerDisplayUrl,
-          displayImageSource: ownerThumbnailUrl
-            ? hasCastingPreview
-              ? 'casting_preview'
-              : 'owner_canonical_sheet'
-            : undefined,
+          displayImageSource: ownerDisplayUrl ? 'owner_canonical_sheet' : undefined,
           stats: await this.usageService.getStats(profile.id)
         };
       }))
@@ -177,11 +173,12 @@ export class CharacterProfileService {
     const ownerThumbnailUrl = canonicalAssetId
       ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/thumbnail`
       : null;
-    const hasCastingPreview = characterType === CHARACTER_TYPE.REUSABLE_MODEL
-      && Boolean(version?.castingFrontPreviewUrl);
-    const ownerDisplayUrl = hasCastingPreview ? ownerThumbnailUrl : ownerImageUrl;
+    const ownerDisplayUrl = version?.canonicalCharacterSheetAssetId && characterType === CHARACTER_TYPE.REUSABLE_MODEL
+      ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/sheet`
+      : ownerImageUrl;
     const ownerDetail = {
       ...profile,
+      identityMetadata: normalizeCharacterIdentityMetadata(version?.identityMetadata, version?.structuredCharacterSnapshot),
       identityFacets: buildCharacterIdentityFacets(version),
       ownerUsername: profile.ownerUsernameSnapshot || profile.ownerUsername || actor.username,
       versions: await this.versionRepository.listByProfileId(profile.id),
@@ -196,11 +193,7 @@ export class CharacterProfileService {
       imageUrl: ownerImageUrl,
       thumbnailUrl: ownerThumbnailUrl,
       displayImageUrl: ownerDisplayUrl,
-      displayImageSource: ownerDisplayUrl
-        ? hasCastingPreview
-          ? 'casting_preview'
-          : 'owner_canonical_sheet'
-        : undefined
+      displayImageSource: ownerDisplayUrl ? 'owner_canonical_sheet' : undefined
     };
     if (typeof this.profileSharingService.applyFeaturedWork !== 'function') return ownerDetail;
     const [featuredDetail] = await this.profileSharingService.applyFeaturedWork(
@@ -277,7 +270,7 @@ export class CharacterProfileService {
       characterProfileId: profile.id,
       characterType: nextCharacterType,
       structuredCharacterSnapshot,
-      identityMetadata: deriveCharacterIdentityMetadata(structuredCharacterSnapshot),
+      identityMetadata: await resolveSourceCharacterIdentity(source, actor.userId, this.generationResultRepository),
       sourceGenerationResultIds: [source.id],
       canonicalHeadshotAssetId,
       canonicalFaceAssetId: canonicalHeadshotAssetId,
@@ -378,6 +371,23 @@ export class CharacterProfileService {
     });
     await this.profileSharingService.syncProjection(updated, actor);
     return this.getOwnerDetail(updated.id, actor);
+  }
+
+  async deleteOwned(id, input = {}, actorContext, requestContext = {}) {
+    const actor = assertActorContext(actorContext);
+    if (input.confirmation !== 'DELETE') {
+      throw new RepositoryContractError('character_delete_confirmation_required', 'Type DELETE to confirm.', 400);
+    }
+    const deleted = await this.profileRepository.softDeleteOwned(id, actor);
+    // Re-running cleanup is safe after a failed projection/audit write.
+    await this.profileSharingService.syncProjection(deleted, actor);
+    await this.auditRepository.appendEvent({
+      action: 'character_profile_delete', targetType: 'character_profile', targetId: deleted.id,
+      beforeSnapshot: deleted.deletionPreviousState,
+      afterSnapshot: { status: deleted.status, deletedAt: deleted.deletedAt },
+      requestId: requestContext.requestId || null
+    }, actor);
+    return { id: deleted.id, status: 'deleted', deletedAt: deleted.deletedAt };
   }
 
   async archive(id, actorContext) {

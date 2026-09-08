@@ -28,7 +28,8 @@ export class CharacterUsageService {
   async handleCompletedGeneration({ job }) {
     const context = job?.options?.characterProfileContext;
     if (!context?.characterProfileId || context.purpose === 'character_casting_export') return null;
-    const profile = await this.profileRepository.findById(context.characterProfileId);
+    // Accepted work still contributes to historical usage after owner deletion.
+    const profile = await this.profileRepository.findById(context.characterProfileId, { includeDeleted: true });
     const version = await this.versionRepository.findById(context.characterProfileVersionId);
     if (!profile || !version || version.characterProfileId !== profile.id) return null;
     return this.usageRepository.createIdempotent({

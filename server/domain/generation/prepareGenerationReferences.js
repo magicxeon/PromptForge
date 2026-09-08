@@ -1,5 +1,7 @@
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
 import { referenceProcessingService } from '../reference-processing/index.js';
+import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
+import { resolveSourceCharacterIdentity } from '../character-profiles/characterIdentityMetadata.js';
 
 export async function prepareGenerationReferences(context, {
   actorContext,
@@ -7,7 +9,8 @@ export async function prepareGenerationReferences(context, {
   modelId,
   modelConfig,
   characterService = characterUsageService,
-  processingService = referenceProcessingService
+  processingService = referenceProcessingService,
+  generationRepository = generationResultRepo
 }) {
   context.characterProfileContext = await characterService.validateGenerationContext(
     context.characterProfileContext,
@@ -44,10 +47,17 @@ export async function prepareGenerationReferences(context, {
     }
   }
 
-  return processingService.processContext(context, {
+  const result = await processingService.processContext(context, {
     actorContext,
     providerId,
     modelId,
     modelConfig
   });
+  if (context.mode === 'character-sheet' && context.characterSheetConfig) {
+    context.characterSheetConfig.identityMetadata = await resolveSourceCharacterIdentity({
+      selections: context.selections,
+      characterSheetConfig: { sourceHeadshotIds: context.faceReferenceJobIds || [] }
+    }, actorContext.userId, generationRepository);
+  }
+  return result;
 }

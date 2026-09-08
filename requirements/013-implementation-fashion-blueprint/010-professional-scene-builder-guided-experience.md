@@ -1764,3 +1764,45 @@ requirement:
 No required MVP behavior remains open in this file. A later regression must be
 recorded as a new scoped requirement or bug and must preserve these accepted
 contracts.
+
+## 27. Remove Implicit Handheld Movement (2026-09-08)
+
+Owner: Scene Builder recipe configuration. Role: base-implementation-owner;
+this is a local prompt-default correction with unchanged workflow contracts.
+
+### Scope And Acceptance
+
+- Simple Scene hides Camera controls but Street Walk Editorial, Cafe Seated
+  Lifestyle, Sunlit Storefront and Soft Character Portrait implicitly selected
+  `camera.imp_01`, adding `slight handheld camera movement` to still prompts.
+- Remove that fixed selection from these four recipes. Keep framing, lighting,
+  pose, other camera effects, Character identity and Natural realism unchanged.
+- Increment each affected recipe version and the catalog version. Add Camera
+  Imperfections to their clearFields so existing mutable Simple drafts are
+  reconciled by the existing recipe-version effect without requiring Reset Form.
+- Do not delete the shared camera attribute, alter other workflows or rewrite
+  explicit Manual prompts, Pro selections, published Templates or historical Jobs.
+- Removing this phrase is not a guarantee that generated edges will be artifact-free.
+
+### Ordered Implementation And Verification
+
+1. [x] Update the four recipe defaults and versioned stale-selection cleanup.
+2. [x] Verify canonical compiled prompts omit implicit handheld movement while
+   retaining adjacent pose/camera directions and the shared optional attribute.
+3. [x] Verify real catalog recipe application clears stale draft selections,
+   preserves unrelated fields and respects Template/reference-owned fields.
+4. [x] Extend scripts/test-template-scene.mjs with small recipe-server and
+   recipe-client groups, included in its existing explicit all entry point.
+
+Commands: `node scripts/test-template-scene.mjs --part=recipe-server` and
+`node scripts/test-template-scene.mjs --part=recipe-client`. Prerequisites:
+installed root/web dependencies; no running backend or provider keys required.
+`--part=all` remains an explicit larger UAT run. No paid generation, live data
+mutation or worker restart is part of automated verification. No layout changes.
+
+Status: implemented and focused checks passed on 2026-09-08: recipe-server 11
+tests, recipe-client 11 tests, TypeScript noEmit and scoped git diff --check.
+Existing route version reconciliation was inspected; a live browser reload and
+paid image-quality qualification were not run. No UI layout or runtime data
+changed. Backend must load the updated catalog and the browser must refresh
+before a current Simple draft updates.

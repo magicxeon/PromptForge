@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { applyStudioNaturalRealism } from './studioNaturalRealism.js';
+import { applyCharacterIdentity } from '../character-profiles/characterIdentityMetadata.js';
 import { getPromptRefinementPolicy } from '../../config/prompt-refinement-policy.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
 import {
@@ -27,7 +28,7 @@ export class PromptRefinementService {
   }
 
   async refine({ prompt, requested = false, context = {}, requestId = null }) {
-    const canonicalPrompt = String(prompt || '').trim();
+    const canonicalPrompt = applyCharacterIdentity(String(prompt || '').trim(), context);
     const policy = this.policyLoader();
     const baseMetadata = {
       requested: requested === true,
@@ -77,8 +78,8 @@ export class PromptRefinementService {
         maxOutputTokens: policy.maxOutputTokens,
         timeoutMs: policy.timeoutMs
       });
-      const refinedPrompt = applyStudioNaturalRealism(
-        validateRefinedPrompt(canonicalPrompt, result.refinedPrompt), context);
+      const refinedPrompt = applyCharacterIdentity(applyStudioNaturalRealism(
+        validateRefinedPrompt(canonicalPrompt, result.refinedPrompt), context), context);
       const metadata = {
         ...baseMetadata,
         applied: true,

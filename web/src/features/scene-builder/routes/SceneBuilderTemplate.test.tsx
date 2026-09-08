@@ -7,19 +7,22 @@ import { SceneBuilderRoute } from './SceneBuilderRoute';
 import { writeHandoff } from '../../../lib/persistence/handoffStorage';
 import { writeActorScopedDraft } from '../../../lib/persistence/actorScopedStorage';
 import { createStudioCustomColors } from '../../studio/attributes/customColorModel';
-const mocks = vi.hoisted(() => ({ props: {} as Record<string, unknown>, actorId: 'alice', navigationState: null as unknown }));
+const mocks = vi.hoisted(() => ({ props: {} as Record<string, unknown>, actorId: 'alice', navigationState: null as unknown, handoff: vi.fn() }));
 vi.mock('../../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: { userId: mocks.actorId } }) }));
 vi.mock('../../../lib/auth/actorStore', () => ({ getActiveActorId: () => mocks.actorId }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock('../../generation/api/generationApi', () => ({ getAttributesBundle: async () => ({ schema: [], library: [] }) }));
 vi.mock('../../studio/api/visualManifestApi', () => ({ loadStudioVisualManifests: async () => ({}) }));
-vi.mock('../../profiles/api/profileApi', () => ({ getMyCreatorProfile: async () => null }));
+vi.mock('../../profiles/api/profileApi', () => ({ getMyCreatorProfile: async () => null, getCharacter: async () => null, requestCharacterHandoff: mocks.handoff }));
 vi.mock('../../community/api/communityApi', () => ({ getCommunityPost: async () => ({ title: 'Original template', imageUrl: '/assets/original.jpg', creator: { displayName: 'Creator' } }) }));
 vi.mock('../components/HistoryReferencePicker', () => ({ HistoryReferencePicker: () => <div>Normal history picker</div> }));
 vi.mock('../components/SharedTemplatePanel', () => ({ SharedTemplatePanel: () => <div>Shared Templates</div> }));
 vi.mock('../components/ScenePoseControlPanel', () => ({ ScenePoseControlPanel: () => <div>Pose and Camera</div> }));
 vi.mock('../../studio/components/GuidedAttributeForm', () => ({ GuidedAttributeForm: ({ editableFields }: { editableFields?: Set<string> }) => <div data-testid="fields">{editableFields ? [...editableFields].join(',') : 'all-fields'}</div> }));
-vi.mock('../../profiles/components/CharacterLibraryPicker', () => ({ CharacterLibraryPicker: () => null }));
+vi.mock('../../profiles/components/CharacterLibraryPicker', () => ({ CharacterLibraryPicker: ({ open, onSelect, onOpenChange }: { open: boolean; onSelect: (item: Record<string, unknown>) => Promise<void>; onOpenChange: (value: boolean) => void }) => open ? <button onClick={async () => {
+  await onSelect({ id: 'nara', displayName: 'Nara', handoffAvailable: true, characterProfileVersionId: 'v1', destinationCapabilities: ['scene_builder'], characterType: 'reusable_model', outfitBehavior: 'replaceable' });
+  onOpenChange(false);
+}}>Select Nara</button> : null }));
 vi.mock('../../../components/generation/GenerationExperience', () => ({ GenerationExperience: (props: Record<string, unknown>) => {
   mocks.props = props;
   return <>{props.studioModeSelector as ReactNode}{props.studioBuilder as ReactNode}{props.studioConfigActions as ReactNode}{props.studioQueueExtra as ReactNode}<div>Existing result preview</div></>;
@@ -31,7 +34,8 @@ function seed({ role = 'character_reference', manual = false, editableManual = f
     publicInputSchema: { inputs: [{ id: 'character', sourceFieldName: role, type: 'reference_image', required: true, replacementPolicy: 'replaceable' }, { id: 'lighting', sourceFieldName: 'Lighting', type: 'text', replacementPolicy: 'replaceable' }, { id: 'camera', sourceFieldName: 'Lens', type: 'text', replacementPolicy: 'locked' }, ...(editableManual ? [{ id: 'manual', sourceFieldName: 'manualPromptSnapshot', type: 'text', replacementPolicy: 'replaceable' }] : [])] }
   } } });
 }
-beforeEach(() => { sessionStorage.clear(); localStorage.clear(); mocks.actorId = 'alice'; mocks.navigationState = null; Element.prototype.scrollIntoView = vi.fn(); });
+const approvedHandoff = { destination: 'scene_builder', characterProfileId: 'nara', characterProfileVersionId: 'v1', characterReferenceUrl: '/authorized-character', outfitBehavior: 'replaceable', characterType: 'reusable_model', characterProfileContext: { purpose: 'character_usage', characterProfileId: 'nara', characterProfileVersionId: 'v1' } };
+beforeEach(() => { sessionStorage.clear(); localStorage.clear(); mocks.actorId = 'alice'; mocks.navigationState = null; mocks.handoff.mockReset().mockResolvedValue(approvedHandoff); Element.prototype.scrollIntoView = vi.fn(); });
 function NavigationProbe() { const navigate = useNavigate(); return <button onClick={() => navigate('/create/studio/scene#studio-configurator-title', { state: mocks.navigationState })}>Navigate probe</button>; }
 function mount() { return render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><SceneBuilderRoute /><NavigationProbe /></MemoryRouter></QueryClientProvider>); }
 it('shows source and schema fields instead of normal authoring without injecting source as a reference', async () => {
@@ -68,7 +72,45 @@ it('confirms exit, preserves normal draft while using Template and restores it',
 it('retains normal Scene controls without a Template handoff', async () => {
   mount(); expect(await screen.findByText('Pose and Camera')).toBeInTheDocument();
   expect(screen.getByText('Shared Templates')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'ui.templateScene.chooseCharacter' })).toBeInTheDocument();
   expect(screen.queryByText('ui.templateScene.exit')).not.toBeInTheDocument();
+});
+it('normal Scene picker persists only Character IDs and clears lineage with its reference', async () => {
+  mount();
+  fireEvent.click(await screen.findByRole('button', { name: 'ui.templateScene.chooseCharacter' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Select Nara' }));
+  await waitFor(() => expect(mocks.props.characterProfileContext).toEqual(approvedHandoff.characterProfileContext));
+  const saved = JSON.parse(localStorage.getItem('mpf.react.draft:scene-builder:alice')!);
+  expect(saved.payload.characterSelection).toEqual({ profileId: 'nara', versionId: 'v1' });
+  expect(JSON.stringify(saved)).not.toContain('/authorized-character');
+  fireEvent.click(screen.getByRole('button', { name: 'ui.templateScene.removeCharacter' }));
+  await waitFor(() => expect(mocks.props.characterProfileContext).toBeNull());
+  expect(JSON.parse(localStorage.getItem('mpf.react.draft:scene-builder:alice')!).payload.characterSelection).toBeNull();
+});
+it('reload reauthorizes the saved version before applying Character identity', async () => {
+  writeActorScopedDraft({ actorId: 'alice', feature: 'scene-builder', schemaVersion: 3, payload: { characterSelection: { profileId: 'nara', versionId: 'v1' } } });
+  mount();
+  await waitFor(() => expect(mocks.props.characterProfileContext).toEqual(approvedHandoff.characterProfileContext));
+  expect(mocks.handoff).toHaveBeenCalledWith('nara', 'scene_builder');
+});
+it('reload rejects version drift instead of replacing the saved identity silently', async () => {
+  writeActorScopedDraft({ actorId: 'alice', feature: 'scene-builder', schemaVersion: 3, payload: { characterSelection: { profileId: 'nara', versionId: 'old-version' } } });
+  mount();
+  await waitFor(() => expect(mocks.handoff).toHaveBeenCalled());
+  await waitFor(() => expect(mocks.props.blockedReason).toBeNull());
+  expect(mocks.props.characterProfileContext).toBeNull();
+  expect(mocks.props.references).toEqual({});
+});
+it('Template reload reauthorizes its own selection without consuming the normal Scene draft', async () => {
+  seed();
+  const stored = JSON.parse(sessionStorage.getItem('mpf.react.handoff:scene-template')!);
+  stored.payload.characterSelection = { profileId: 'nara', versionId: 'v1' };
+  sessionStorage.setItem('mpf.react.handoff:scene-template', JSON.stringify(stored));
+  mount();
+  await waitFor(() => expect(mocks.props.characterProfileContext).toEqual(approvedHandoff.characterProfileContext));
+  expect(mocks.props.templateUseContext).toEqual({ templateUseSessionId: 'session', replacements: { character: '/authorized-character' } });
+  expect(localStorage.getItem('mpf.react.draft:scene-builder:alice')).toBeNull();
+  expect(JSON.parse(sessionStorage.getItem('mpf.react.handoff:scene-template')!).payload.characterSelection).toEqual({ profileId: 'nara', versionId: 'v1' });
 });
 it('preserves an exposed Template edit during same-session hash navigation', async () => {
   seed({ manual: true, editableManual: true }); mount(); await screen.findByText('Original template');

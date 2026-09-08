@@ -1,7 +1,8 @@
 # Private Image Sharing Default
 
 Parent: [033](033-publication-and-character-continuity-master.md).
-Status: Planned; implementation held. Owner: Community publication.
+Status: Implemented; focused automated and fixture layout gates passed 2026-09-07.
+Owner: Community publication. Live owner publishing UAT not performed.
 
 ## Rules
 
@@ -28,7 +29,21 @@ isReusablePublishedSnapshot rejects private/partial. CommunityShareService
 checks that guard before creating a Template. A private default without UI
 coordination would leave a selectable Template option that fails publication.
 
-Pending discussion, not implementation permission:
+Delivery decision for this first slice: preserve existing Template publication
+rights. The user must explicitly select a compatible prompt policy; checking
+Publish Template never changes prompt visibility. Disable submission with a
+localized validation message while policy is incompatible. The server supplies
+allowedTemplatePromptVisibilities based on the actual sanitized source snapshot
+and existing manual/remix restrictions. Missing capability data fails closed
+for remix_only. No new private-recipe execution policy is introduced.
+
+Owner-only drafts retain the sanitized source recipe needed for an explicit
+later choice of Full/Partial/Remix Only. Default visibility is not a command to
+irreversibly discard that source while preparing an original-image draft.
+Derived drafts remain stripped. Publication applies the selected policy before
+any public record/projection is returned. Drafts remain actor-authorized.
+
+Alternatives retained for context:
 
 1. Smallest compatible approach: ordinary image sharing defaults private;
    choosing Publish Template explicitly requests an eligible reuse policy and
@@ -40,10 +55,10 @@ Pending discussion, not implementation permission:
 
 ## Ordered Tasks And Tests
 
-1. Inventory defaults and add focused draft/publish/schema fixtures.
-2. Set ordinary defaults and preserve existing-post and derived-image policy.
-3. After decision, coordinate Template eligibility/consent/error states.
-4. Verify shared dialog consumers: result, Recent/detail, Comparison individual
+1. [done] Inventory defaults and add focused draft/publish/schema fixtures.
+2. [done] Set ordinary defaults and preserve existing-post and derived-image policy.
+3. [done] Coordinate Template eligibility and explicit policy choice as above.
+4. [done] Verify shared dialog consumers: result, Recent/detail, Comparison individual
    image and Fashion output. Video/whole-Comparison publication unchanged.
 
 Test omitted field, explicit policy, legacy draft, reopening, derived provenance,
@@ -51,3 +66,24 @@ private public projection, actor switch, stale submit, duplicate conflict and
 ordinary Template eligibility. Reuse test-template-derived-sharing.mjs coverage.
 No retroactive migration. Roll back defaults/UI together, retaining server
 derived-image privacy and existing published records.
+
+## Delivery Evidence
+
+- Server/schema/shared-dialog defaults private; original owner drafts retain
+  sanitized recipes for explicit policy changes. Derived drafts remain stripped.
+- Server advertises compatible Template prompt policies; UI requires an explicit
+  supported choice and prevents invalid submit, including a synthetic form submit.
+- Existing-post editing, Template preparation/activation, input policy, quote/
+  Credit rules and duplicate guards are unchanged. No runtime data migration.
+- Focused tests: privacy 21; shared dialog/API 12; compatibility 46 (36 server,
+  10 UI). All 79 passed. TypeScript, i18n catalog validation, scoped ESLint and
+  git diff --check passed. Vite build passed with existing large-chunk warning.
+- Playwright: 18 ordinary/private-policy cases + 18 derived cases across EN/TH,
+  390/820/1440 and default/fashion/creative themes. All API writes intercepted;
+  no live account publication or paid provider calls. Representative Thai mobile
+  and English desktop screenshots inspected; bounds checked in every case.
+- Shared consumer reuse was source-inspected and exercised at the shared-dialog
+  boundary; browser navigation used Recent, not every production route/account.
+- Sequential QA/privacy review by the implementing agent; independent review
+  was unavailable. Live owner UAT remains follow-up evidence, not claimed.
+- Commands, artifact locations and remaining slices: implementation plan 035.

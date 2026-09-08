@@ -11,7 +11,7 @@ import { Surface } from '../../../components/ui/Surface';
 import { getAttributesBundle } from '../../generation/api/generationApi';
 import type { GenerationReferenceRole } from '../../generation/api/generationApi';
 import { loadStudioVisualManifests } from '../../studio/api/visualManifestApi';
-import { getCharacter, getMyCreatorProfile } from '../../profiles/api/profileApi';
+import { getCharacter, getMyCreatorProfile, requestCharacterHandoff } from '../../profiles/api/profileApi';
 import { characterDisplayImages } from '../../profiles/characterDisplayImage';
 import { readCharacterHandoffNavigationState } from '../../profiles/characterHandoffNavigation';
 import {
@@ -71,6 +71,7 @@ import {
   buildTemplateReplacements
 } from '../../templates/templateSerializer';
 import { TemplateScenePanel } from '../components/TemplateScenePanel';
+import { SceneCharacterSelector } from '../components/SceneCharacterSelector';
 import {
   TemplateReadinessPanel
 } from '../../../components/templates/TemplateReadinessPanel';
@@ -169,6 +170,51 @@ export function SceneBuilderRoute() {
     { authorizationToken: string; expiresAt?: string } | null
   >(initialHandoff.faceReferenceContext);
   const [historyRole, setHistoryRole] = useState<GenerationReferenceRole>('character_reference');
+  const restoreSelection = initialHandoff.snapshot ? initialHandoff.characterSelection : initialDraft.characterSelection;
+  const [restorationHandled, setRestorationHandled] = useState(initialHandoff.hasCharacterHandoff || initialHandoff.hasFaceHandoff || !restoreSelection);
+  const [restoreRejected, setRestoreRejected] = useState(false);
+  const restoreActorId = useRef(getActiveActorId());
+  const restoreScopeMatches = Boolean(initialHandoff.snapshot) === templateActive
+    && (!templateActive || initialHandoff.templateUseContext?.templateUseSessionId === templateUseContext?.templateUseSessionId);
+  const restoreCharacter = useQuery({
+    queryKey: ['scene-character-restore', actor?.userId, restoreSelection?.profileId, restoreSelection?.versionId],
+    queryFn: () => requestCharacterHandoff(restoreSelection!.profileId, 'scene_builder'),
+    enabled: Boolean(actor && actor.userId === restoreActorId.current && restoreSelection && !restorationHandled && restoreScopeMatches && !references.character_reference && !references.face_reference),
+    retry: false, gcTime: 0
+  });
+  const restoringCharacter = Boolean(!restorationHandled && restoreSelection && actor?.userId === restoreActorId.current && restoreScopeMatches);
+  useEffect(() => {
+    if (restorationHandled) return;
+    if (actor?.userId !== restoreActorId.current || !restoreScopeMatches || references.character_reference || references.face_reference) {
+      setRestorationHandled(true); return;
+    }
+    if (restoreCharacter.isError) { setRestorationHandled(true); return; }
+    const handoff = restoreCharacter.data;
+    if (!handoff) return;
+    setRestorationHandled(true);
+    if (getActiveActorId() !== restoreActorId.current || handoff.characterProfileId !== restoreSelection?.profileId
+      || handoff.characterProfileContext.characterProfileId !== restoreSelection?.profileId
+      || handoff.characterProfileVersionId !== restoreSelection?.versionId
+      || handoff.characterProfileContext.characterProfileVersionId !== restoreSelection?.versionId
+      || handoff.destination !== 'scene_builder' || handoff.characterProfileContext.purpose !== 'character_usage'
+      || (templateActive && (handoff.outfitBehavior !== 'replaceable' || !getTemplateReferenceRoles(snapshot, templateUseContext).includes('character_reference')))) {
+      setRestoreRejected(true); return;
+    }
+    setReferences(current => ({ ...current, character_reference: handoff.characterReferenceUrl }));
+    setCharacterProfileContext(handoff.characterProfileContext);
+    setCharacterOutfitBehavior(handoff.outfitBehavior === 'replaceable' ? 'replaceable' : 'preserve');
+    setCharacterPresentationGender(resolveCharacterPresentationGender(handoff));
+  }, [actor?.userId, references.character_reference, references.face_reference, restorationHandled, restoreCharacter.data, restoreCharacter.isError, restoreSelection, restoreScopeMatches, templateActive, snapshot, templateUseContext]);
+  useEffect(() => {
+    if (!templateActive || restoringCharacter || !actor?.userId || previousActorId.current !== actor.userId) return;
+    const stored = readHandoff<Record<string, unknown>>({ actorId: actor.userId, kind: 'scene-template' });
+    if (!stored || (stored.payload.templateUseContext as TemplateUseContext | undefined)?.templateUseSessionId !== templateUseContext?.templateUseSessionId) return;
+    const characterSelection = references.character_reference && characterProfileContext ? {
+      profileId: characterProfileContext.characterProfileId, versionId: characterProfileContext.characterProfileVersionId
+    } : null;
+    writeHandoff({ actorId: actor.userId, kind: 'scene-template',
+      payload: { ...stored.payload, characterSelection }, ttlMs: Math.max(1, Date.parse(stored.expiresAt) - Date.now()) });
+  }, [actor?.userId, characterProfileContext, references.character_reference, restoringCharacter, templateActive, templateUseContext?.templateUseSessionId]);
   const displayCharacterId = typeof characterProfileContext?.characterProfileId === 'string' ? characterProfileContext.characterProfileId : '';
   const displayCharacterQuery = useQuery({
     queryKey: ['character', actor?.userId || 'loading', displayCharacterId],
@@ -492,7 +538,7 @@ export function SceneBuilderRoute() {
   useEffect(() => {
     if (!actor?.userId) return;
     if (persistenceActorId.current !== actor.userId) { persistenceActorId.current = actor.userId; return; }
-    if (templateActive || previousActorId.current !== actor.userId) return;
+    if (templateActive || restoringCharacter || previousActorId.current !== actor.userId) return;
     normalDraft.current = { mode, manualPrompt, selections, lockedFields, customColors, additionalDirection, poseControlMode, scenePoseRecipeId, scenePoseRecipeVersion: appliedScenePoseRecipeVersion };
     writeActorScopedDraft({
       actorId: actor.userId,
@@ -507,10 +553,14 @@ export function SceneBuilderRoute() {
         additionalDirection,
         poseControlMode,
         scenePoseRecipeId,
-        scenePoseRecipeVersion: appliedScenePoseRecipeVersion
+        scenePoseRecipeVersion: appliedScenePoseRecipeVersion,
+        characterSelection: references.character_reference && characterProfileContext ? {
+          profileId: characterProfileContext.characterProfileId,
+          versionId: characterProfileContext.characterProfileVersionId
+        } : null
       }
     });
-  }, [actor?.userId, additionalDirection, appliedScenePoseRecipeVersion, customColors, lockedFields, manualPrompt, mode, poseControlMode, scenePoseRecipeId, selections, templateActive]);
+  }, [actor?.userId, additionalDirection, appliedScenePoseRecipeVersion, customColors, lockedFields, manualPrompt, mode, poseControlMode, scenePoseRecipeId, selections, templateActive, restoringCharacter, references.character_reference, characterProfileContext]);
 
   function exitTemplate() {
     const draft = normalDraft.current;
@@ -577,7 +627,7 @@ export function SceneBuilderRoute() {
         layoutVariant="studio"
         studioBuilderTitle={templateActive ? t('ui.templateScene.inputs') : undefined}
         studioConfigurationFirst={templateActive}
-        blockedReason={missing.length ? t('ui.scene.templateRequiredTitle') : null}
+        blockedReason={restoringCharacter ? t('ui.scene.restoringCharacter') : missing.length ? t('ui.scene.templateRequiredTitle') : null}
         blockedNotice={missing.length ? (
           <TemplateReadinessPanel
             missing={missing}
@@ -608,6 +658,7 @@ export function SceneBuilderRoute() {
               setCharacterPresentationGender(resolveCharacterPresentationGender(handoff)); setFaceReferenceContext(null);
             }} onClearCharacter={() => { setReferences(current => ({ ...current, character_reference: undefined })); setCharacterProfileContext(null); setCharacterPresentationGender(undefined); }} onExit={exitTemplate}>
             {characterHandoffBlocked ? <p role="alert">{t('ui.templateScene.handoffUnsupported')}</p> : null}
+            {restoreCharacter.isError || restoreRejected ? <p role="alert">{t('ui.scene.restoreCharacterFailed')}</p> : null}
             {editableTemplateFields?.has('manualPromptSnapshot') ? <label className="template-scene-panel__manual">{t('ui.scene.manualLabel')}<textarea value={manualPrompt} onChange={event => setManualPrompt(event.target.value)} /></label> : null}
             {editableTemplateFields && [...editableTemplateFields].some(field => field !== 'manualPromptSnapshot') ? <GuidedAttributeForm groups={groups} mode="scene" characterType="styled_character"
               manifests={visualManifests.data} selections={selections} presentationGender={characterPresentationGender} customColors={customColors}
@@ -620,6 +671,20 @@ export function SceneBuilderRoute() {
               <h1>{t('ui.scene.title')}</h1>
               <p>{t('ui.scene.description')}</p>
             </div>
+            {restoreCharacter.isError || restoreRejected ? <p role="alert">{t('ui.scene.restoreCharacterFailed')}</p> : null}
+            {availableRoles.includes('character_reference') ? <SceneCharacterSelector
+              key={actor?.userId} characterReference={references.character_reference} displayCharacter={displayCharacter}
+              onCharacter={handoff => {
+                setReferences(current => ({ ...current, face_reference: undefined, character_reference: handoff.characterReferenceUrl }));
+                setCharacterProfileContext(handoff.characterProfileContext);
+                setCharacterOutfitBehavior(handoff.outfitBehavior === 'replaceable' ? 'replaceable' : 'preserve');
+                setCharacterPresentationGender(resolveCharacterPresentationGender(handoff));
+                setFaceReferenceContext(null);
+              }} onClearCharacter={() => {
+                setReferences(current => ({ ...current, character_reference: undefined }));
+                setCharacterProfileContext(null); setCharacterPresentationGender(undefined);
+                setCharacterOutfitBehavior('preserve');
+              }} /> : null}
             <div className="studio-scene-authoring">
               <Button variant={mode === 'guided' ? 'primary' : 'secondary'} icon={<SlidersHorizontal className="size-4" />} onClick={() => {
                 setMode('guided');
@@ -823,6 +888,7 @@ export function SceneBuilderRoute() {
 }
 
 function loadSceneDraft(actorId: string): {
+  characterSelection?: { profileId: string; versionId: string } | null;
   mode: AuthoringMode;
   manualPrompt: string;
   selections: Record<string, AttributeSelection>;
@@ -834,6 +900,7 @@ function loadSceneDraft(actorId: string): {
   scenePoseRecipeVersion: number | null;
 } {
   type SceneDraft = {
+    characterSelection?: { profileId: string; versionId: string } | null;
     mode: AuthoringMode;
     manualPrompt: string;
     selections: Record<string, AttributeSelection>;
@@ -877,6 +944,7 @@ function loadSceneDraft(actorId: string): {
     }
   });
   return {
+    characterSelection: normalizeSavedCharacterSelection(parsed.characterSelection),
     mode: parsed.mode === 'manual' ? 'manual' : 'guided',
     manualPrompt: typeof parsed.manualPrompt === 'string' ? parsed.manualPrompt : '',
     selections: sanitizeAttributeSelections(parsed.selections),
@@ -960,7 +1028,16 @@ function normalizeRole(value: string): GenerationReferenceRole[] {
   return aliases[value] ? [aliases[value]] : [];
 }
 
+function normalizeSavedCharacterSelection(value: unknown): { profileId: string; versionId: string } | null {
+  if (!value || typeof value !== 'object') return null;
+  const item = value as Record<string, unknown>;
+  return typeof item.profileId === 'string' && item.profileId.length > 0 && item.profileId.length <= 200
+    && typeof item.versionId === 'string' && item.versionId.length > 0 && item.versionId.length <= 200
+    ? { profileId: item.profileId, versionId: item.versionId } : null;
+}
+
 function loadSceneHandoff(routeState: unknown = null): {
+  characterSelection: { profileId: string; versionId: string } | null;
   hasHandoff: boolean;
   hasTemplateHandoff: boolean;
   hasCharacterHandoff: boolean;
@@ -976,6 +1053,7 @@ function loadSceneHandoff(routeState: unknown = null): {
   faceReferenceContext: { authorizationToken: string; expiresAt?: string } | null;
 } {
   const empty = {
+    characterSelection: null,
     hasHandoff: false,
     hasTemplateHandoff: false,
     hasCharacterHandoff: false,
@@ -993,6 +1071,7 @@ function loadSceneHandoff(routeState: unknown = null): {
   try {
     const activeActorId = getActiveActorId();
     const storedTemplate = readHandoff<{
+      characterSelection?: unknown;
       postId?: string;
       sceneTemplateSnapshot?: SceneTemplateSnapshot;
       templateUseContext?: TemplateUseContext;
@@ -1028,6 +1107,7 @@ function loadSceneHandoff(routeState: unknown = null): {
     )));
     return {
       hasHandoff: Boolean(template || characterPayload || face),
+      characterSelection: normalizeSavedCharacterSelection(template?.payload.characterSelection),
       hasTemplateHandoff: Boolean(template),
       hasCharacterHandoff: applyCharacter,
       characterHandoffBlocked: Boolean(template && routeCharacterPayload && !applyCharacter),

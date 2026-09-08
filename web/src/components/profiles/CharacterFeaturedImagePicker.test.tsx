@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { CharacterFeaturedImagePicker } from './CharacterFeaturedImagePicker';
 
@@ -13,6 +13,40 @@ vi.mock('../media/AuthenticatedMediaImage', () => ({
 }));
 
 describe('CharacterFeaturedImagePicker', () => {
+  it('requires display consent for an unlinked image and keeps failed selection retryable', async () => {
+    const candidate = { id: 'generation_result:old', sourceType: 'generation_result' as const,
+      sourceId: 'old', generationResultId: 'old', postId: null, ownership: 'owner' as const,
+      title: 'Old image', imageUrl: '/authorized-image', createdAt: '2026-09-08', linkedToCharacter: false };
+    const onSelect = vi.fn().mockRejectedValueOnce(new Error('save failed')).mockResolvedValueOnce(undefined);
+    render(<CharacterFeaturedImagePicker candidates={[candidate]} scope="own" mode="auto"
+      selectedSourceType={null} selectedSourceId={null} onSelect={onSelect} onUseAutomatic={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'character-profiles.featured.select' }));
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'character-profiles.delete.cancel' }));
+    expect(onSelect).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'character-profiles.featured.select' }));
+    fireEvent.click(screen.getByRole('button', { name: 'character-profiles.featured.confirm' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('character-profiles.featured.saveFailed');
+    expect(onSelect).toHaveBeenCalledWith(candidate, true);
+    fireEvent.click(screen.getByRole('button', { name: 'character-profiles.featured.confirm' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('supports source changes, empty-page pagination and retry without selecting a cover', () => {
+    const scope = vi.fn(), previous = vi.fn(), next = vi.fn(), retry = vi.fn(), select = vi.fn();
+    render(<CharacterFeaturedImagePicker candidates={[]} mode="auto" scope="own" onScopeChange={scope}
+      pageNumber={2} hasMore onPrevious={previous} onNext={next} error="network" onRetry={retry}
+      selectedSourceType={null} selectedSourceId={null} onSelect={select} onUseAutomatic={vi.fn()} />);
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'linked' } });
+    expect(scope).toHaveBeenCalledWith('linked');
+    fireEvent.click(screen.getByRole('button', { name: 'character-profiles.featured.next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'character-profiles.featured.previous' }));
+    fireEvent.click(screen.getByRole('button', { name: 'character-profiles.featured.retry' }));
+    expect(next).toHaveBeenCalledOnce(); expect(previous).toHaveBeenCalledOnce(); expect(retry).toHaveBeenCalledOnce();
+    expect(select).not.toHaveBeenCalled();
+  });
+
   it('lets the owner select an eligible Character image and restore automatic selection', () => {
     const onSelect = vi.fn();
     const onUseAutomatic = vi.fn();

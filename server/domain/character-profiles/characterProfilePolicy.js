@@ -6,11 +6,12 @@ export const CHARACTER_PROFILE_STATUS = Object.freeze({
   REVIEW: 'review',
   APPROVED: 'approved',
   ARCHIVED: 'archived',
-  BLOCKED: 'blocked'
+  BLOCKED: 'blocked',
+  DELETED: 'deleted'
 });
 
 export function canViewCharacterProfile(profile, actorContext) {
-  if (!profile) return false;
+  if (!profile || profile.status === CHARACTER_PROFILE_STATUS.DELETED) return false;
   if (actorContext?.userId === profile.ownerUserId) return true;
   return ['public', 'unlisted'].includes(profile.visibility)
     && profile.status === CHARACTER_PROFILE_STATUS.APPROVED;

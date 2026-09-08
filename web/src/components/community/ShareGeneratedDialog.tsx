@@ -1,6 +1,9 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Share2, X } from 'lucide-react';
+import { ExternalLink, Share2, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { routeBuilders } from '../../app/routeRegistry/routes';
+import { getActiveActorId } from '../../lib/auth/actorStore';
 import { cloneElement, isValidElement, useEffect, useState, type FormEvent, type ReactNode, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -40,10 +43,12 @@ function ShareGeneratedDialogSession({ actorId, jobId, trigger }: { actorId: str
   const [publishedTemplate, setPublishedTemplate] = useState<CommunityPost | null>(null);
   const [templateManagementOpen, setTemplateManagementOpen] = useState(false);
   const [publishAsTemplate, setPublishAsTemplate] = useState(false);
+  const [promptVisibility, setPromptVisibility] = useState('private');
   const [templateInputOptions, setTemplateInputOptions] = useState<TemplateInputOptions>({ characterEnabled: false, outfitBackEnabled: false });
   const handleConflict = (error: Error) => {
     if (error instanceof ApiError && error.code === 'community_generation_already_shared') {
       queryClient.setQueryData(statusKey, { shared: true }); setOpen(false);
+      void queryClient.invalidateQueries({ queryKey: statusKey });
     } else {
       void queryClient.invalidateQueries({ queryKey: statusKey });
     }
@@ -65,21 +70,26 @@ function ShareGeneratedDialogSession({ actorId, jobId, trigger }: { actorId: str
       } | null;
     }) => {
       if (!draft.data) throw new Error('Create a share draft first.');
-      return publishGeneratedShare(draft.data.id, input).then(async published => ({
-        published,
-        templatePost: input.publishAsTemplate && published.postType === 'template'
-          ? await getCommunityPost(published.id)
-          : null
-      }));
+      return publishGeneratedShare(draft.data.id, input);
     },
     onSuccess: (result) => {
-      queryClient.setQueryData(statusKey, { shared: true });
+      queryClient.setQueryData(statusKey, { shared: true, post: {
+        id: result.id, postType: result.postType, visibility: result.visibility || 'public',
+        status: result.status || (result.postType === 'template' ? 'draft' : 'published')
+      } });
+      void queryClient.invalidateQueries({ queryKey: ['community-posts', actorId] });
       void queryClient.invalidateQueries({ queryKey: ['community-template-previews', actorId] });
       void queryClient.invalidateQueries({ queryKey: ['community-template-detail', actorId] });
+      if (getActiveActorId() !== actorId) return;
       setOpen(false);
-      if (result.templatePost) {
-        setPublishedTemplate(result.templatePost);
-        setTemplateManagementOpen(true);
+      if (result.postType === 'template') {
+        void getCommunityPost(result.id).then(post => {
+          if (getActiveActorId() !== actorId) return;
+          setPublishedTemplate(post);
+          setTemplateManagementOpen(true);
+        }).catch(() => {
+          if (getActiveActorId() === actorId) showToast({ tone: 'error', title: t('ui.share.templateManagementLoadFailed') });
+        });
         showToast({
           tone: 'success',
           title: t('ui.toast.templateSetupSaved'),
@@ -97,12 +107,16 @@ function ShareGeneratedDialogSession({ actorId, jobId, trigger }: { actorId: str
   });
   const derived = draft.data?.templateIneligibleReason === 'template_derived_generation';
   const canPublishTemplate = Boolean(draft.data?.templateEligible && !derived);
+  const templatePromptPolicies = draft.data?.allowedTemplatePromptVisibilities ?? ['full'];
+  const templatePromptIncompatible = publishAsTemplate && !templatePromptPolicies.some(policy => policy === promptVisibility);
   const shareDisabled = !shareStatus.data || shareStatus.isFetching || shareStatus.isError
     || shareStatus.data.shared || publish.isPending;
   const shareLabel = shareStatus.data?.shared ? t('ui.share.alreadyShared') : t('ui.action.share');
+  const sharedPost = shareStatus.data?.shared ? shareStatus.data.post : undefined;
 
   useEffect(() => {
     setPublishAsTemplate(false);
+    setPromptVisibility(draft.data?.promptVisibility || 'private');
     setTemplateInputOptions({
       characterEnabled: draft.data?.templateInputPolicy?.characterEnabled ?? false,
       outfitBackEnabled: draft.data?.templateInputPolicy?.outfitBackEnabled ?? false
@@ -117,13 +131,13 @@ function ShareGeneratedDialogSession({ actorId, jobId, trigger }: { actorId: str
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (publish.isPending || shareStatus.data?.shared) return;
+    if (publish.isPending || shareStatus.data?.shared || templatePromptIncompatible) return;
     const form = new FormData(event.currentTarget);
 
     publish.mutate({
       title: String(form.get('title') || '').trim(),
       description: String(form.get('description') || '').trim(),
-      promptVisibility: derived ? 'private' : String(form.get('promptVisibility') || 'full'),
+      promptVisibility: derived ? 'private' : promptVisibility,
       visibility: String(form.get('visibility') || 'public'),
       faceReusePolicy: form.get('faceReusePolicy') === 'public_reusable'
         ? 'public_reusable'
@@ -145,6 +159,9 @@ function ShareGeneratedDialogSession({ actorId, jobId, trigger }: { actorId: str
           <Button disabled={shareDisabled} title={shareLabel} icon={<Share2 className="size-4" />}>{shareLabel}</Button>
         )}
       </Dialog.Trigger>
+      {sharedPost ? <Link className="inline-flex min-h-10 items-center gap-2 px-3 text-sm" to={
+        sharedPost.postType === 'template' ? routeBuilders.templateDetail(sharedPost.id) : `/posts/${encodeURIComponent(sharedPost.id)}`
+      }><ExternalLink className="size-4" aria-hidden="true" />{t(sharedPost.postType === 'template' ? 'ui.share.viewTemplate' : 'ui.share.viewPost')}</Link> : null}
       <Dialog.Portal>
         <Dialog.Overlay className="share-generated-dialog__overlay" />
         <Dialog.Content className="share-generated-dialog">
@@ -192,10 +209,13 @@ function ShareGeneratedDialogSession({ actorId, jobId, trigger }: { actorId: str
                 <div className="share-generated-dialog__visibility-grid">
                   {!derived ? <label>
                     <span>{t('ui.share.promptVisibility')}</span>
-                    <select name="promptVisibility" defaultValue={draft.data.promptVisibility || 'full'}>
+                    <select name="promptVisibility" value={promptVisibility}
+                      onChange={event => setPromptVisibility(event.target.value)}
+                      aria-invalid={templatePromptIncompatible || undefined}
+                      aria-describedby={templatePromptIncompatible ? `template-prompt-policy-${jobId}` : undefined}>
                       <option value="full">{t('ui.share.full')}</option>
                       <option value="partial">{t('ui.share.partial')}</option>
-                      {draft.data.templateEligible ? (
+                      {draft.data.templateEligible && templatePromptPolicies.includes('remix_only') ? (
                         <option value="remix_only">{t('ui.share.remixOnly')}</option>
                       ) : null}
                       <option value="private">{t('ui.character.private')}</option>
@@ -228,6 +248,11 @@ function ShareGeneratedDialogSession({ actorId, jobId, trigger }: { actorId: str
 
                     {publishAsTemplate ? (
                       <>
+                      {templatePromptIncompatible ? (
+                        <p id={`template-prompt-policy-${jobId}`} role="alert" className="share-generated-dialog__status is-error">
+                          {t('ui.share.templatePromptPolicyRequired')}
+                        </p>
+                      ) : null}
                       {draft.data.templateInputPolicy ? (
                         <TemplateInputPolicyFields policy={draft.data.templateInputPolicy}
                           value={templateInputOptions} onChange={setTemplateInputOptions}
@@ -275,8 +300,8 @@ function ShareGeneratedDialogSession({ actorId, jobId, trigger }: { actorId: str
                     {t('ui.action.cancel')}
                   </Button>
                 </Dialog.Close>
-                <Button type="submit" variant="primary" disabled={publish.isPending || (publishAsTemplate && !draft.data.templateInputPolicy?.supported)}>
-                  {t('ui.action.publish')}
+                <Button type="submit" variant="primary" disabled={publish.isPending || templatePromptIncompatible || (publishAsTemplate && !draft.data.templateInputPolicy?.supported)}>
+                  {t(publishAsTemplate ? 'ui.share.publishTemplateAction' : 'ui.share.publishImageAction')}
                 </Button>
               </footer>
             </form>

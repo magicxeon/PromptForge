@@ -44,6 +44,7 @@ test('derived drafts hide source prompt and replacement settings; owner cannot r
   assert.equal(draft.suggestedTemplateInputSchema, null);
   assert.equal(draft.promptVisibility, 'private');
   assert.deepEqual(draft.allowedPromptVisibilities, ['private']);
+  assert.deepEqual(draft.allowedTemplatePromptVisibilities, []);
   assert.ok(!JSON.stringify(draft).includes('SECRET SOURCE PROMPT'));
   await assert.rejects(f.service.publishGeneratedImageShare(draft.id, {
     title: 'Copy', publishAsTemplate: true, templateEligible: true, templateUseContext: null
@@ -58,7 +59,11 @@ test('derived drafts hide source prompt and replacement settings; owner cannot r
   assert.equal(post.postType, 'image'); assert.equal(post.promptVisibility, 'private');
   assert.equal(post.sourceGenerationResultId, 'image'); assert.equal(post.sceneTemplateSnapshot, null);
   assert.ok(!JSON.stringify(post).includes('SECRET SOURCE PROMPT'));
-  assert.deepEqual(await f.service.getGenerationShareStatus('image', owner), { shared: true });
+  assert.equal((await f.service.getGenerationShareStatus('image', owner)).shared, true);
+  const status = await f.service.getGenerationShareStatus('image', owner);
+  assert.deepEqual(status.post, { id: post.id, postType: 'image', visibility: 'public', status: post.status });
+  assert.equal(JSON.stringify(status).includes('SECRET'), false);
+  await assert.rejects(f.service.getGenerationShareStatus('image', foreign), error => error.statusCode === 404);
   await assert.rejects(f.service.createGeneratedShareDraft('image', owner), e => e.code === 'community_generation_already_shared');
 });
 
@@ -125,7 +130,7 @@ test('concurrent drafts across service instances create only one post; retry det
   ]);
   assert.equal(results.filter(r => r.status === 'fulfilled').length, 1);
   assert.equal((await f.postRepository.readAll()).length, 1);
-  assert.deepEqual(await new CommunityShareService(f.dependencies).getGenerationShareStatus('image', owner), { shared: true });
+  assert.equal((await new CommunityShareService(f.dependencies).getGenerationShareStatus('image', owner)).shared, true);
 });
 
 test('atomic repository guard covers competing writers and private/unpublished legacy posts', async t => {
@@ -135,7 +140,7 @@ test('atomic repository guard covers competing writers and private/unpublished l
   const results = await Promise.allSettled([f.postRepository.create(input, owner), other.create(input, owner)]);
   assert.equal(results.filter(r => r.status === 'fulfilled').length, 1);
   assert.equal(results.find(r => r.status === 'rejected').reason.code, 'community_generation_already_shared');
-  assert.deepEqual(await f.service.getGenerationShareStatus('image', owner), { shared: true });
+  assert.equal((await f.service.getGenerationShareStatus('image', owner)).shared, true);
   await f.postRepository.create({ ...input, sourceGenerationId: 'different' }, owner);
   await f.postRepository.create(input, foreign);
   assert.equal((await f.postRepository.readAll()).length, 3);

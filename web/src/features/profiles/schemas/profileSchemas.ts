@@ -70,6 +70,10 @@ export const characterDetailSchema = characterSummarySchema.extend({
   recordVersion: z.number().optional()
 });
 export const ownerCharacterDetailSchema = characterDetailSchema.extend({
+  identityMetadata: z.object({
+    schemaVersion: z.number().optional(),
+    missingFields: z.array(z.enum(['Age', 'Gender', 'Ethnicity', 'Beauty'])).default([])
+  }).optional(),
   status: z.string().optional(),
   visibility: z.string().optional(),
   personality: z.string().optional(),
@@ -78,6 +82,9 @@ export const ownerCharacterDetailSchema = characterDetailSchema.extend({
   lifecycleStatus: z.string().optional()
 }).passthrough();
 export const characterWorksSchema = pageSchema(communityPostSchema);
+export const characterDeletionSchema = z.object({
+  id: z.string(), status: z.literal('deleted'), deletedAt: z.string()
+});
 export const characterFeaturedImageCandidateSchema = z.object({
   id: z.string(),
   sourceType: z.enum(['generation_result', 'community_post']),
@@ -85,6 +92,7 @@ export const characterFeaturedImageCandidateSchema = z.object({
   generationResultId: z.string(),
   postId: z.string().nullable(),
   ownership: z.enum(['owner', 'community']),
+  linkedToCharacter: z.boolean().optional(),
   title: z.string(),
   imageUrl: z.string().nullable().optional(),
   thumbnailUrl: z.string().nullable().optional(),

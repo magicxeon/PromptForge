@@ -143,6 +143,8 @@ test('publish blocks manual remix_only and publishes guided snapshots without pr
     job_guided: generation('job_guided')
   });
   const manualDraft = await service.createSceneShareDraft('job_manual', alice);
+  assert.equal(manualDraft.promptVisibility, 'private');
+  assert.deepEqual(manualDraft.allowedTemplatePromptVisibilities, ['full']);
   await assert.rejects(
     () => service.publishSceneTemplateShare(manualDraft.id, {
       title: 'Manual template', promptVisibility: 'remix_only'
@@ -151,6 +153,14 @@ test('publish blocks manual remix_only and publishes guided snapshots without pr
   );
 
   const guidedDraft = await service.createSceneShareDraft('job_guided', alice);
+  assert.equal(guidedDraft.promptVisibility, 'private');
+  assert.deepEqual(guidedDraft.allowedTemplatePromptVisibilities, ['full', 'remix_only']);
+  for (const promptVisibility of [undefined, 'private', 'partial']) {
+    await assert.rejects(service.publishSceneTemplateShare(guidedDraft.id, {
+      title: 'Needs explicit compatible policy', publishAsTemplate: true, promptVisibility
+    }, alice), error => error.code === 'community_template_not_reusable');
+  }
+  assert.equal(posts.length, 0);
   const post = await service.publishSceneTemplateShare(guidedDraft.id, {
     title: 'Guided template', description: 'A safe template', promptVisibility: 'remix_only',
     publishAsTemplate: true

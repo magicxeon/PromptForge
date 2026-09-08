@@ -7,12 +7,13 @@ const shareDraftSchema = z.object({
   sourceGenerationId: z.string(),
   imageUrl: z.string().default(''),
   thumbnailUrl: z.string().default(''),
-  promptVisibility: z.string().default('full'),
+  promptVisibility: z.string().default('private'),
   visibility: z.string().default('public'),
   faceReuseEligible: z.boolean().default(false),
   templateEligible: z.boolean().default(false),
   templateIneligibleReason: z.string().nullable().optional(),
   allowedPromptVisibilities: z.array(z.enum(['full', 'partial', 'remix_only', 'private'])).optional(),
+  allowedTemplatePromptVisibilities: z.array(z.enum(['full', 'remix_only'])).default(['full']),
   templateInputPolicy: templateInputPolicySchema.optional(),
   mandatoryTemplateInputIds: z.array(z.string()).default([]),
   suggestedTemplateInputSchema: z.object({
@@ -24,7 +25,10 @@ const shareDraftSchema = z.object({
 
 export function getGenerationShareStatus(jobId: string) {
   return apiRequest(`/api/community/generations/${encodeURIComponent(jobId)}/share-status`, {
-    schema: z.object({ shared: z.boolean() })
+    schema: z.object({ shared: z.boolean(), post: z.object({
+      id: z.string(), postType: z.enum(['image', 'template']),
+      visibility: z.string(), status: z.string()
+    }).optional() })
   });
 }
 

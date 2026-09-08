@@ -18,6 +18,26 @@ const approved = {
   reusePolicy: 'public_reusable'
 };
 
+test('three-view fallback replaces front preview for owner/public displays without changing reference URLs', async () => {
+  const fixture = ownerFeaturedFixture();
+  fixture.posts.length = 0;
+  fixture.results.length = 0;
+  fixture.profile.characterType = 'reusable_model';
+  const originalFind = fixture.sharing.versionRepository.findById;
+  fixture.sharing.versionRepository.findById = async id => ({
+    ...await originalFind(id), canonicalCastingExportAssetId: 'casting-export',
+    castingFrontPreviewUrl: '/outputs/front-crop.webp'
+  });
+  const own = await fixture.service.getOwnerDetail('character', owner);
+  const publicDetail = await fixture.sharing.getPublicDetail('character', viewer);
+  assert.equal(own.displayImageUrl, '/api/character-profiles/character/media/sheet');
+  assert.equal(publicDetail.displayImageUrl, '/api/community/character-profiles/character/sheet');
+  assert.equal(own.displayImageSource, 'owner_canonical_sheet');
+  assert.equal(publicDetail.displayImageSource, 'canonical_sheet');
+  assert.equal(own.imageUrl, '/api/character-profiles/character/media/image');
+  assert.equal(own.thumbnailUrl, '/api/character-profiles/character/media/thumbnail');
+});
+
 test('owner Character list shares manual artwork with public and owner detail using one page batch', async () => {
   const fixture = ownerFeaturedFixture();
   const before = structuredClone(fixture.profile);

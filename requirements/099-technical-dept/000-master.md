@@ -6,6 +6,22 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Character Profile Maintenance
+
+- Community Page Enhancement 038-041 and implementation Plan 036 own original
+  sheet fallback, confirmed owner deletion and explicit My images cover selection.
+- Existing CharacterProfileService/SharingService and ProfileRepository remain
+  canonical. Display-only sheet endpoints do not replace generation references.
+  The existing profiles JSON gains deletion time/actor/previous-state tombstone
+  fields; Audit receives sanitized events. No new runtime store or migration.
+- Profile reads exclude deleted records by default. The existing usage completion
+  handler may include tombstones only to retain historical accepted-work stats.
+  Look mutations/media reauthorize through existing CharacterUsageService.
+- DeleteCharacterDialog is feature-owned under web/src/features/profiles/components;
+  CharacterFeaturedImagePicker stays shared and receives state/callbacks. The
+  focused runner is scripts/test-character-profile-maintenance.mjs. Existing
+  publication-profile layout verification covers the new owner states.
+
 ### Admin Finance (Local Read Workspace And Planning Drafts)
 
 - `requirements/019-implementation-commercial-feature-plan/admin-finance/000-master.md`

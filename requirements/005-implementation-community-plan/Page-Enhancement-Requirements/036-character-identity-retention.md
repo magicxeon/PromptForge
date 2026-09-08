@@ -1,7 +1,14 @@
 # Approved Character Identity Retention
 
 Parent: [033](033-publication-and-character-continuity-master.md).
-Status: Planned; implementation held. Owners: Character Profiles and Generation.
+Status: Implemented 2026-09-08; deterministic verification in Plan 035.
+Live likeness/apparent-age output qualification remains pending paid UAT.
+Owners: Character Profiles and Generation.
+
+Compatibility choice: keep unknown legacy attributes non-blocking, explicitly
+report missing fields in owner identity metadata; never infer them from pixels.
+Preserve existing permissions and provider/reference/price contracts. Additive
+metadata and one canonical directive are verified before consumer integration.
 
 ## Existing Foundation
 
@@ -77,3 +84,33 @@ https://ai.google.dev/gemini-api/docs/image-generation#character-consistency-360
 Pending: conflicts between authored attributes and approved pixels require owner
 review; do not let an AI infer replacements. Preserve legacy unknowns on rollout.
 Rollback disables new prompt composition while retaining additive version data.
+
+## Implemented Contract And Consumer Matrix
+
+- Metadata schema 2 adds allowlisted stable attributes with ID/value and
+  missingFields alongside backwards-compatible ageRange/presentationGender.
+  Values are bounded; URL/Base64, outfit, pose, makeup and scene fields are excluded.
+- prepareGenerationReferences replaces incoming Sheet identity metadata with
+  server-owned source data after canonical reference processing. Exactly one
+  owned headshot may supply inherited attributes; ambiguous/foreign sources do not.
+- CharacterProfileService uses the same resolver on creation/new identity version.
+  Empty Sheet selections do not erase known Face identity. Existing versions and
+  prior generation prompts are never rewritten. Owner detail exposes missingFields.
+- applyCharacterIdentity is the one additive compiler/refinement guard. It keeps
+  authored gender, age, ethnicity, Beauty intent and stable anatomy separate from
+  outfit/scene. Natural realism scope remains unchanged. Empty prompts stay empty.
+
+| Consumer | Canonical path / evidence |
+|---|---|
+| Face -> Sheet | owned source -> reference preparation -> characterSheetConfig.identityMetadata -> existing job/history storage |
+| Sheet -> Profile | shared resolver -> immutable Character Profile version metadata |
+| Scene / Template Scene | authorized handoff -> CharacterUsageService -> canonical Generation compiler/refinement |
+| Playground image | same Generation entry point; reference role parity tests retained |
+| Fashion images | existing prepared Generation context/compiler; no Credit/price changes |
+| Cinematic storyboard images | existing storyboard composition plus canonical identity guard; no multi-cast remapping |
+| Video | unchanged approved-reference/Look and provider validation; no video prompt rewrite or provider qualification claimed |
+
+Focused identity tests cover normalization, unknown/invalid fields, inherited
+owned source, foreign/ambiguous source, compiler surfaces, refinement reattachment
+and idempotent wording. Destination tests prove forged client metadata is replaced.
+Tests validate contracts, not the resemblance or age of newly generated pixels.

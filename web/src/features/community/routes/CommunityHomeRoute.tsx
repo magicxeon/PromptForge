@@ -53,13 +53,7 @@ export function CommunityHomeRoute() {
   const featuredPosts = editorialVisible && discovery.posts.length >= 6
     ? visualPosts.filter(post => post.id !== heroPost?.id).slice(0, 4)
     : [];
-  const editorialIds = new Set([
-    ...(heroPost ? [heroPost.id] : []),
-    ...featuredPosts.map(post => post.id)
-  ]);
-  const feedPosts = editorialVisible
-    ? discovery.posts.filter(post => !editorialIds.has(post.id))
-    : discovery.posts;
+  const feedPosts = discovery.posts;
   const tutorialItems = discoveryTutorialAssets.home.map(item => ({
     ...item,
     title: t(`community.home.tutorial.${item.id}.title`),

@@ -3,7 +3,8 @@ import {
   Clock3,
   ImageIcon,
   LockKeyhole,
-  Share2,
+  Link2,
+  Settings2,
   Shirt,
   Sparkles,
   UserRound
@@ -26,6 +27,7 @@ type CharacterProfileHeroProps = {
     reusePolicy?: string;
     ownerUsername?: string | null;
     displayImageUrl?: string | null;
+    displayImageSource?: string;
     stats: {
       totalOutputs: number;
       byUseCase: {
@@ -45,6 +47,7 @@ type CharacterProfileHeroProps = {
   onScene?: () => void;
   onApprove?: () => void;
   onShare: () => void;
+  onManageSharing?: () => void;
 };
 
 export function CharacterProfileHero({
@@ -55,7 +58,8 @@ export function CharacterProfileHero({
   onFashion,
   onScene,
   onApprove,
-  onShare
+  onShare,
+  onManageSharing
 }: CharacterProfileHeroProps) {
   const { t, i18n } = useTranslation(['character-profiles', 'react-ui']);
   const creatorHandle = normalizeCreatorHandle(character.ownerUsername);
@@ -76,7 +80,7 @@ export function CharacterProfileHero({
   return (
     <section className="character-showcase" aria-labelledby="character-profile-title">
       <div className="character-showcase__hero">
-        <div className="character-showcase__media">
+        <div className={`character-showcase__media${['canonical_sheet', 'owner_canonical_sheet'].includes(character.displayImageSource || '') ? ' character-showcase__media--sheet' : ''}`}>
           {character.displayImageUrl && ownerAccess ? (
             <AuthenticatedMediaImage
               src={character.displayImageUrl}
@@ -169,9 +173,12 @@ export function CharacterProfileHero({
                 {t('character-profiles.actions.useScene')}
               </Button>
             ) : null}
-            <Button onClick={onShare} icon={<Share2 aria-hidden="true" />}>
-              {t('character-profiles.actions.share')}
+            <Button onClick={onShare} disabled={character.visibility === 'private'} icon={<Link2 aria-hidden="true" />}>
+              {t('character-profiles.actions.copyLink')}
             </Button>
+            {onManageSharing ? <Button onClick={onManageSharing} icon={<Settings2 aria-hidden="true" />}>
+              {t('character-profiles.actions.visibilityReuse')}
+            </Button> : null}
           </div>
         </div>
       </div>

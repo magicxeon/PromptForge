@@ -11,7 +11,7 @@ import { applyRecordDefaults } from '../schemaVersioning.js';
 import { paginateRepositoryRecords } from '../RepositoryCursor.js';
 
 const FALLBACK = [];
-const STATUSES = ['draft', 'export_pending', 'review', 'approved', 'archived', 'blocked'];
+const STATUSES = ['draft', 'export_pending', 'review', 'approved', 'archived', 'blocked', 'deleted'];
 const VISIBILITIES = [VISIBILITY.PRIVATE, VISIBILITY.UNLISTED, VISIBILITY.PUBLIC];
 const REUSE_POLICIES = ['owner_only', 'view_only', 'public_reusable'];
 
@@ -30,9 +30,9 @@ export class CharacterProfileRepository {
     return data.map(normalizeProfile);
   }
 
-  async findById(id) {
+  async findById(id, { includeDeleted = false } = {}) {
     if (!id) return null;
-    return (await this.readAll()).find(item => item.id === id) || null;
+    return (await this.readAll()).find(item => item.id === id && (includeDeleted || item.status !== 'deleted')) || null;
   }
 
   async findByIdForOwner(id, ownerUserId) {
@@ -152,7 +152,7 @@ export class CharacterProfileRepository {
     return mutateJsonFile(this.profilesFile, FALLBACK, async items => {
       assertStore(items);
       const index = items.findIndex(item => item.id === id);
-      if (index < 0 || items[index].ownerUserId !== actor.userId) {
+      if (index < 0 || items[index].ownerUserId !== actor.userId || items[index].status === 'deleted') {
         throw new RepositoryContractError('character_profile_not_found', 'Character Profile not found.', 404);
       }
       const current = normalizeProfile(items[index]);
@@ -174,7 +174,7 @@ export class CharacterProfileRepository {
     return mutateJsonFile(this.profilesFile, FALLBACK, async items => {
       assertStore(items);
       const index = items.findIndex(item => item.id === id);
-      if (index < 0) {
+      if (index < 0 || items[index].status === 'deleted') {
         throw new RepositoryContractError('character_profile_not_found', 'Character Profile not found.', 404);
       }
       const current = normalizeProfile(items[index]);
@@ -194,6 +194,29 @@ export class CharacterProfileRepository {
         recordVersion: current.recordVersion + 1
       };
       next.intendedUses = normalizeIntendedUsesForType(next.intendedUses, next.characterType);
+      items[index] = next;
+      return structuredClone(next);
+    });
+  }
+
+  async softDeleteOwned(id, actorContext) {
+    const actor = assertActorContext(actorContext);
+    return mutateJsonFile(this.profilesFile, FALLBACK, async items => {
+      assertStore(items);
+      const index = items.findIndex(item => item.id === id && item.ownerUserId === actor.userId);
+      if (index < 0) {
+        throw new RepositoryContractError('character_profile_not_found', 'Character Profile not found.', 404);
+      }
+      const current = normalizeProfile(items[index]);
+      if (current.status === 'deleted') return structuredClone(current);
+      const now = new Date().toISOString();
+      const next = {
+        ...current,
+        status: 'deleted', visibility: 'private', reusePolicy: 'owner_only',
+        deletedAt: now, deletedByUserId: actor.userId,
+        deletionPreviousState: { status: current.status, visibility: current.visibility, reusePolicy: current.reusePolicy },
+        updatedAt: now, recordVersion: current.recordVersion + 1
+      };
       items[index] = next;
       return structuredClone(next);
     });

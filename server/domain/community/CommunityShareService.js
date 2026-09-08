@@ -80,8 +80,10 @@ export class CommunityShareService {
       ))
       : null;
     const sharingPolicy = await this.getGenerationSharingPolicy(generation);
+    // Original drafts are owner-only and retain the sanitized recipe for an
+    // explicit policy choice. Public snapshots are filtered again at publish.
     const snapshots = applyPromptVisibilityToSnapshots(
-      buildGeneratedShareSnapshots(generation, sanitizedSceneTemplate), sharingPolicy.promptVisibility
+      buildGeneratedShareSnapshots(generation, sanitizedSceneTemplate), sharingPolicy.derived ? 'private' : 'full'
     );
     const timestamp = this.now();
     const classificationSnapshot = sanitizedSceneTemplate || {
@@ -119,6 +121,9 @@ export class CommunityShareService {
       templateEligible: inputPolicy.supported && !sharingPolicy.derived,
       templateIneligibleReason: sharingPolicy.derived ? 'template_derived_generation' : null,
       allowedPromptVisibilities: sharingPolicy.allowedPromptVisibilities,
+      allowedTemplatePromptVisibilities: inputPolicy.supported && !sharingPolicy.derived
+        ? ['full', ...(canPublishAsRemixOnly(snapshots) ? ['remix_only'] : [])]
+        : [],
       templateInputPolicy: sharingPolicy.derived ? undefined : inputPolicy,
       mandatoryTemplateInputIds,
       suggestedTemplateInputSchema: sanitizedSceneTemplate && !sharingPolicy.derived
@@ -155,7 +160,7 @@ export class CommunityShareService {
     const derived = isTemplateDerivedGeneration(generation);
     return {
       derived,
-      promptVisibility: derived ? 'private' : 'full',
+      promptVisibility: 'private',
       allowedPromptVisibilities: derived ? ['private'] : ['full', 'partial', 'remix_only', 'private']
     };
   }
@@ -166,7 +171,10 @@ export class CommunityShareService {
     if (!generation || generation.deletedAt) {
       throw new RepositoryContractError('source_generation_not_found', 'The source generation result is not available.', 404);
     }
-    return { shared: Boolean(await this.postRepository.findByGenerationForOwner(generation.id, actor.userId)) };
+    const post = await this.postRepository.findByGenerationForOwner(generation.id, actor.userId);
+    return { shared: Boolean(post), ...(post ? { post: {
+      id: post.id, postType: post.postType, visibility: post.visibility, status: post.status
+    } } : {}) };
   }
 
   async assertGenerationNotShared(generationId, ownerUserId) {
@@ -242,7 +250,7 @@ export class CommunityShareService {
 
     const title = String(payload.title ?? draft.title ?? '').trim();
     const promptVisibility = validatePromptVisibility(
-      payload.promptVisibility ?? draft.promptVisibility ?? 'full'
+      payload.promptVisibility ?? draft.promptVisibility ?? 'private'
     );
     const visibility = validatePostVisibility(payload.visibility ?? draft.visibility ?? 'public');
     if (!sharingPolicy.allowedPromptVisibilities.includes(promptVisibility)) {

@@ -1,10 +1,19 @@
 # Sharing And Character Flow Review
 
 Parent: [033](033-publication-and-character-continuity-master.md).
-Status: Current flow documented; simplified flow is a PROPOSAL for discussion.
-No new navigation, rights defaults or public visibility changes approved here.
+Status: Implemented 2026-09-08 with existing rights preserved; Plan 035 owns evidence.
+Scope: separate Publish image/Template intent, View post after publish, Copy link
+versus Character visibility/reuse settings, and shared normal Scene picker.
+Cover remains optional in Profile settings. Crop repair and legacy association
+without provenance remain pending. No automatic visibility/reuse changes.
 
-## Current Flow Inventory
+Preparation gate correction: current Template creation produces a draft until
+preparation approval. Keep the existing management/preparation UI and activation
+guard; a saved draft must not be announced as public. Making this step optional
+is deferred, not part of the approved simplification. Failure to load management
+after creation must preserve saved status and an owner recovery destination.
+
+## Source-Inspection Baseline Flow Inventory
 
 | User goal | Current entry / steps | Result and owning contract |
 |---|---|---|
@@ -36,13 +45,13 @@ This inventory is source-inspected, not a completed live browser walkthrough.
 5. Multiple entry points are useful shortcuts, but outcomes/labels must agree.
    Unifying outcomes does not require one enormous dialog or merging repositories.
 
-## Proposed Simpler End-User Model
+## Implemented End-User Model
 
 | Intent / proposed action name | Shortest safe flow | Success destination |
 |---|---|---|
 | Publish image | Result or Recent -> common share form (prompt private) -> Publish | View post; Gallery for public posts |
-| Publish Template | Eligible result -> clearly separate Template intent in the same owning dialog -> compatible inputs/privacy/fee confirmation -> Publish | Template detail; edit settings optional, not a second mandatory wizard |
-| Publish Character | My Characters -> approved Profile -> one focused visibility/reuse review with rights consent -> confirm | Character detail; Character Gallery only when public |
+| Create Template draft | Eligible result -> Template intent -> compatible inputs/privacy/fee confirmation -> create draft -> existing preparation/activation | View Template; saved draft is not yet public until preparation succeeds |
+| Visibility & reuse | My Characters -> approved Profile -> hero action opens existing details/settings with rights consent -> save | Same Character detail; Character Gallery only when public |
 | Copy link | Already published/viewable post or Character -> copy appropriate public/direct URL | No publication or permission side effect |
 | Use Character | Character card/detail or common picker -> compatible destination -> authorized selection -> Generate after quote | Result; optional Publish image using the same dialog |
 | Set cover | Eligible linked work -> optional Set Character cover, or existing Profile editor | Only display image changes; never required for image publication |
@@ -53,7 +62,7 @@ and unlisted states, owner access, explicit fee review, moderation and rights.
 An already shared ordinary image cannot currently become a second Template post;
 conversion/editing policy is pending, not an implied new shortcut.
 
-## Screen / State Contract To Discuss
+## Screen / State Contract
 
 - Pending checks/submission: stable action dimensions, no double submit.
 - Success: persisted object identity, clear View post / View Template / View
@@ -69,22 +78,26 @@ conversion/editing policy is pending, not an implied new shortcut.
 - Search/filter excludes new post: preserve filters and provide direct post link.
 - Use the existing controlled dialogs, authenticated media, query keys, toast and
   handoff hooks. New strings use i18n EN/TH, existing themes and keyboard/focus rules.
-- Normal Scene shared Character picker is a proposed extension of the Template
+- Normal Scene shared Character picker is an extension of the Template
   picker with the same search/Mine/Community/recents and authorized handoff, not
   another library. Preserve manual references and mutually exclusive selection.
 
-## Discussion Decisions / Acceptance Before Implementation
+## Resolved Decisions / Remaining Gates
 
-1. Approve distinct Publish image / Publish Template / Publish Character / Copy
-   link intents while retaining current shortcut entry points.
-2. Choose Template private-prompt compatibility approach from 034.
-3. Confirm optional cover shortcut versus existing Profile-only management;
+1. Distinct Publish image / Create Template draft / Visibility & reuse / Copy
+   link intents retain current shortcut entry points. No new publication route.
+2. Template requires an explicit compatible prompt policy from 034.
+3. Keep existing Profile-only cover management;
    no automatic selection change. Legacy manual association remains pending.
-4. Confirm normal Scene picker and approval-crop follow-ups as separate slices;
-   do not bundle derivative changes into publication UI.
+4. Normal Scene picker implemented. Approval-crop remains a separate pending slice.
 
 Usability acceptance proposal: a first-time creator can publish and reopen an
 image without visiting Character settings; can explain whether others may view
 or reuse a Character; and can return to a Template result's source. Test ordinary,
 derived, already-shared, private and denied cases at 390/820/1440px with keyboard,
 EN/TH and existing themes. No provider calls required for these walkthroughs.
+
+Copy link uses the canonical /characters/:id URL, never /me/characters/:id, and
+is disabled for private Characters. It cannot publish or grant reuse permission.
+The existing owner editor/cover/Look controls remain in Details; the new hero
+action opens that editor rather than creating a competing settings dialog.

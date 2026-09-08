@@ -2,6 +2,7 @@ import { apiRequest } from '../../../lib/api/apiClient';
 import { getOwnCreatorProfileLocator } from '../../../lib/auth/creatorProfileLocator';
 import {
   characterDetailSchema,
+  characterDeletionSchema,
   characterDirectorySchema,
   characterHandoffSchema,
   ownerCharacterDetailSchema,
@@ -14,6 +15,12 @@ import {
   creatorPageSchema,
   followResponseSchema
 } from '../schemas/profileSchemas';
+
+export function deleteCharacter(characterId: string, confirmation: string) {
+  return apiRequest(`/api/character-profiles/${encodeURIComponent(characterId)}`, {
+    method: 'DELETE', body: { confirmation }, schema: characterDeletionSchema
+  });
+}
 
 export function getMyCreatorProfile() {
   return getOwnCreatorProfileLocator();
@@ -217,8 +224,10 @@ export function getCharacterWorks(characterId: string) {
   });
 }
 
-export function getCharacterFeaturedImageCandidates(characterId: string) {
-  return apiRequest(`/api/character-profiles/${encodeURIComponent(characterId)}/featured-image-candidates?limit=36`, {
+export function getCharacterFeaturedImageCandidates(characterId: string, scope: 'linked' | 'own' = 'linked', cursor?: string | null) {
+  const query = new URLSearchParams({ limit: '36', scope });
+  if (cursor) query.set('cursor', cursor);
+  return apiRequest(`/api/character-profiles/${encodeURIComponent(characterId)}/featured-image-candidates?${query}`, {
     schema: characterFeaturedImageCandidatesSchema
   });
 }
@@ -230,6 +239,7 @@ export function updateCharacterFeaturedImage(
     sourceType?: 'generation_result' | 'community_post' | null;
     sourceId?: string | null;
     recordVersion: number;
+    displayConsentAccepted?: boolean;
   }
 ) {
   return apiRequest(`/api/character-profiles/${encodeURIComponent(characterId)}/featured-image`, {

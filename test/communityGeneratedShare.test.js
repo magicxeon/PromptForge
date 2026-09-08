@@ -88,6 +88,8 @@ test('generic generated result creates an owner-only sanitized share draft', asy
   const draft = await service.createGeneratedShareDraft(generation.id, alice);
 
   assert.equal(draft.sourceType, 'generated_image');
+  assert.equal(draft.promptVisibility, 'private');
+  assert.deepEqual(draft.allowedTemplatePromptVisibilities, []);
   assert.equal(draft.creatorProfileId, 'creator_alice');
   assert.equal(draft.sceneTemplateSnapshot, null);
   assert.equal(draft.sharedPromptSnapshot.publicPromptText, generation.prompt);
@@ -98,6 +100,44 @@ test('generic generated result creates an owner-only sanitized share draft', asy
     () => service.createGeneratedShareDraft(generation.id, bob),
     /not available/
   );
+});
+
+test('omitted image prompt policy publishes privately without changing public image visibility', async () => {
+  const generation = genericGeneration();
+  const { service, posts } = createService(generation);
+  const draft = await service.createGeneratedShareDraft(generation.id, alice);
+  const post = await service.publishGeneratedImageShare(draft.id, { title: 'Private by default' }, alice);
+  assert.equal(post.promptVisibility, 'private');
+  assert.equal(post.visibility, 'public');
+  assert.equal(post.status, 'published');
+  assert.equal(posts[0].sharedPromptSnapshot.publicPromptText, null);
+  assert.deepEqual(posts[0].workflowSnapshot, {});
+  assert.equal(posts[0].sceneTemplateSnapshot, null);
+  assert.ok(!JSON.stringify(buildCommunityPostPublicView(post)).includes(generation.prompt));
+});
+
+test('missing legacy draft policy fails closed; explicit stored draft choice remains supported', async () => {
+  for (const policy of [undefined, 'full']) {
+    const generation = genericGeneration();
+    const { service } = createService(generation);
+    const draft = await service.createGeneratedShareDraft(generation.id, alice);
+    if (policy) await service.updateGeneratedShareDraft(draft.id, { promptVisibility: policy }, alice);
+    else delete service.shareDrafts.get(draft.id).promptVisibility;
+    const post = await service.publishGeneratedImageShare(draft.id, { title: 'Owner choice' }, alice);
+    assert.equal(post.promptVisibility, policy || 'private');
+    assert.equal(post.sharedPromptSnapshot.publicPromptText, policy ? generation.prompt : null);
+  }
+});
+
+test('explicit full image publication survives the private default without changing past posts', async () => {
+  const generation = genericGeneration();
+  const { service, posts } = createService(generation);
+  const draft = await service.createGeneratedShareDraft(generation.id, alice);
+  const post = await service.publishGeneratedImageShare(draft.id, { title: 'Explicit full', promptVisibility: 'full' }, alice);
+  assert.equal(post.sharedPromptSnapshot.publicPromptText, generation.prompt);
+  const previous = structuredClone(posts[0]);
+  await service.getGenerationSharingPolicy(generation);
+  assert.deepEqual(posts[0], previous);
 });
 
 test('partial prompt publishing stores only a bounded public-safe excerpt', async () => {

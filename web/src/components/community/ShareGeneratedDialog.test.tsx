@@ -4,6 +4,7 @@ import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShareGeneratedDialog } from './ShareGeneratedDialog';
+import { MemoryRouter } from 'react-router-dom';
 import { ApiError } from '../../lib/api/apiError';
 
 const apiMocks = vi.hoisted(() => ({
@@ -26,6 +27,7 @@ vi.mock('../../features/community/api/communityApi', () => ({
 
 vi.mock('../ui/toastStore', () => ({ showToast: apiMocks.showToast }));
 vi.mock('../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: { userId: 'alice' } }) }));
+vi.mock('../../lib/auth/actorStore', () => ({ getActiveActorId: () => 'alice' }));
 
 vi.mock('../templates/SharedTemplateEditDialog', () => ({
   SharedTemplateEditDialog: ({
@@ -57,6 +59,10 @@ describe('ShareGeneratedDialog', () => {
             'ui.action.cancel': 'Cancel',
             'ui.action.close': 'Close',
             'ui.action.publish': 'Publish',
+            'ui.share.publishImageAction': 'Publish',
+            'ui.share.publishTemplateAction': 'Publish',
+            'ui.share.viewPost': 'View post',
+            'ui.share.viewTemplate': 'View Template',
             'ui.action.share': 'Share',
             'ui.character.private': 'Private',
             'ui.character.public': 'Public',
@@ -68,6 +74,7 @@ describe('ShareGeneratedDialog', () => {
             'ui.share.promptVisibility': 'Prompt visibility',
             'ui.share.publishTemplate': 'Publish as reusable template',
             'ui.share.publishTemplateHelp': 'Prepare this reusable workflow.',
+            'ui.share.templatePromptPolicyRequired': 'Choose a compatible prompt visibility before publishing this Template.',
             'ui.share.remixOnly': 'Remix only',
             'ui.share.required': 'Required',
             'ui.share.templateCredits': 'Template access credits',
@@ -131,14 +138,21 @@ describe('ShareGeneratedDialog', () => {
       name: /Publish as reusable template/
     });
     expect(templateToggle).not.toBeChecked();
+    expect(screen.getByLabelText('Prompt visibility')).toHaveValue('private');
     fireEvent.click(templateToggle);
+    expect(screen.getByLabelText('Prompt visibility')).toHaveValue('private');
+    expect(screen.getByRole('button', { name: 'Publish' })).toBeDisabled();
+    expect(screen.getByRole('alert')).toHaveTextContent('Choose a compatible prompt visibility');
+    fireEvent.submit(screen.getByPlaceholderText('Post title').closest('form')!);
+    expect(apiMocks.publishGeneratedShare).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText('Prompt visibility'), { target: { value: 'full' } });
     fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
 
     const management = await screen.findByRole('dialog', { name: 'Edit shared template' });
     expect(management).toHaveAttribute('data-auto-estimate', 'true');
     expect(apiMocks.publishGeneratedShare).toHaveBeenCalledWith(
       'draft_1',
-      expect.objectContaining({ publishAsTemplate: true })
+      expect.objectContaining({ publishAsTemplate: true, promptVisibility: 'full' })
     );
     expect(apiMocks.getCommunityPost).toHaveBeenCalledWith('post_1');
   });
@@ -172,6 +186,9 @@ describe('ShareGeneratedDialog', () => {
     });
     expect(screen.queryByRole('dialog', { name: 'Edit shared template' })).not.toBeInTheDocument();
     expect(apiMocks.getCommunityPost).not.toHaveBeenCalled();
+    expect(apiMocks.publishGeneratedShare).toHaveBeenCalledWith('draft_image', expect.objectContaining({
+      promptVisibility: 'private', visibility: 'public', publishAsTemplate: false
+    }));
     expect(apiMocks.showToast).toHaveBeenCalledWith({
       tone: 'success',
       title: 'Post published'
@@ -231,9 +248,43 @@ describe('ShareGeneratedDialog', () => {
     expect(screen.queryByRole('checkbox', { name: /Face|Pose|Environment/ })).not.toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: 'Character Optional' })).toBeChecked();
     fireEvent.click(screen.getByRole('checkbox', { name: 'Character Optional' }));
+    fireEvent.change(screen.getByLabelText('Prompt visibility'), { target: { value: 'full' } });
     fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
     await waitFor(() => expect(apiMocks.publishGeneratedShare).toHaveBeenCalledWith('draft_mandatory',
       expect.objectContaining({ templateInputOptions: { characterEnabled: false, outfitBackEnabled: true } })));
+  });
+
+  it('uses server Template policy capabilities and preserves privacy when Template intent is cancelled', async () => {
+    apiMocks.createGeneratedShareDraft.mockResolvedValue({ id: 'guided', templateEligible: true,
+      templateInputPolicy: inputPolicy, promptVisibility: 'private',
+      allowedTemplatePromptVisibilities: ['full', 'remix_only'] });
+    renderDialog();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Share' }));
+    await screen.findByPlaceholderText('Post title');
+    const toggle = screen.getByRole('checkbox', { name: /Publish as reusable template/ });
+    const prompt = screen.getByLabelText('Prompt visibility');
+    fireEvent.click(toggle);
+    fireEvent.change(prompt, { target: { value: 'remix_only' } });
+    expect(screen.getByRole('button', { name: 'Publish' })).toBeEnabled();
+    fireEvent.change(prompt, { target: { value: 'partial' } });
+    expect(screen.getByRole('button', { name: 'Publish' })).toBeDisabled();
+    fireEvent.change(prompt, { target: { value: 'private' } });
+    fireEvent.click(toggle);
+    expect(prompt).toHaveValue('private');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Publish' })).toBeEnabled();
+  });
+
+  it('does not offer unsupported Remix Only for a manual Template source', async () => {
+    apiMocks.createGeneratedShareDraft.mockResolvedValue({ id: 'manual', templateEligible: true,
+      templateInputPolicy: inputPolicy, allowedTemplatePromptVisibilities: ['full'] });
+    renderDialog();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Share' }));
+    await screen.findByPlaceholderText('Post title');
+    expect(screen.queryByRole('option', { name: 'Remix only' })).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Prompt visibility')).toHaveValue('private');
   });
 });
 
@@ -280,7 +331,8 @@ it('recovers status-read errors with an explicit retry', async () => {
 });
 
 it('disables after a stale draft gets an already-shared conflict', async () => {
-  apiMocks.getGenerationShareStatus.mockResolvedValue({ shared: false });
+  apiMocks.getGenerationShareStatus.mockResolvedValueOnce({ shared: false }).mockResolvedValue({ shared: true,
+    post: { id: 'existing', postType: 'image', visibility: 'public', status: 'published' } });
   apiMocks.createGeneratedShareDraft.mockResolvedValue({ id: 'stale', templateEligible: false });
   apiMocks.publishGeneratedShare.mockRejectedValue(new ApiError({ status: 409,
     code: 'community_generation_already_shared', message: 'Already shared' }));
@@ -294,6 +346,26 @@ it('disables after a stale draft gets an already-shared conflict', async () => {
   await waitFor(() => expect(screen.getByRole('button', { name: 'Shared' })).toBeDisabled());
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   expect(client.getQueryState(preview)?.isInvalidated).toBe(false);
+  expect(screen.getByRole('link', { name: 'View post' })).toHaveAttribute('href', '/posts/existing');
+});
+
+it('retains a saved Template destination when loading its management dialog fails', async () => {
+  vi.clearAllMocks();
+  apiMocks.getGenerationShareStatus.mockResolvedValue({ shared: false });
+  apiMocks.createGeneratedShareDraft.mockResolvedValue({ id: 'draft', templateEligible: true, templateInputPolicy: inputPolicy });
+  apiMocks.publishGeneratedShare.mockResolvedValue({ id: 'saved-template', postType: 'template' });
+  apiMocks.getCommunityPost.mockRejectedValue(new Error('offline'));
+  renderDialog();
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled());
+  fireEvent.click(screen.getByRole('button', { name: 'Share' }));
+  fireEvent.change(await screen.findByPlaceholderText('Post title'), { target: { value: 'My Template' } });
+  fireEvent.click(screen.getByRole('checkbox', { name: /Publish as reusable template/ }));
+  fireEvent.change(screen.getByLabelText('Prompt visibility'), { target: { value: 'full' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
+  expect(await screen.findByRole('link', { name: 'View Template' })).toHaveAttribute('href', '/explore/templates/saved-template');
+  expect(screen.getByRole('button', { name: 'Shared' })).toBeDisabled();
+  expect(apiMocks.publishGeneratedShare).toHaveBeenCalledTimes(1);
+  expect(apiMocks.showToast).not.toHaveBeenCalledWith(expect.objectContaining({ title: 'ui.toast.publishFailed' }));
 });
 
 function renderDialog() {
@@ -303,7 +375,7 @@ function renderDialog() {
   render(
     <I18nextProvider i18n={testI18n}>
       <QueryClientProvider client={queryClient}>
-        <ShareGeneratedDialog jobId="job_1" />
+        <MemoryRouter><ShareGeneratedDialog jobId="job_1" /></MemoryRouter>
       </QueryClientProvider>
     </I18nextProvider>
   );

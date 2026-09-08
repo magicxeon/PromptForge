@@ -156,7 +156,7 @@ test('canonical Reusable Model source enters review without a second generation'
   assert.equal(created.versions[0].castingUniformPolicyVersion, 'casting-uniform-gray-grid-v7');
   assert.equal(
     created.displayImageUrl,
-    `/api/character-profiles/${encodeURIComponent(created.id)}/media/image`
+    `/api/character-profiles/${encodeURIComponent(created.id)}/media/sheet`
   );
   assert.equal(created.handoffAvailable, false);
 });

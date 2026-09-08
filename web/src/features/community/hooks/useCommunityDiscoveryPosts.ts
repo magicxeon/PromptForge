@@ -34,7 +34,8 @@ export function useCommunityDiscoveryPosts(fixedPostType: FixedPostType | null =
     getNextPageParam: page => page.nextCursor || undefined
   });
 
-  const posts = query.data?.pages.flatMap(page => page.items) || [];
+  const posts = [...new Map((query.data?.pages.flatMap(page => page.items) || [])
+    .map(post => [post.id, post])).values()];
   const categories = query.data?.pages[0]?.facets?.officialTags || [];
   const periodValue = filters.sort === 'latest' ? 'latest' : filters.period;
 

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  ScenePoseRecipe,
-  ScenePoseStyle
+import recipeCatalog from '../../../../server/config/scene-pose-recipes.json';
+import {
+  scenePoseRecipeSchema,
+  type ScenePoseRecipe,
+  type ScenePoseStyle
 } from '../generation/schemas/generationSchemas';
 import type { AttributeGroup } from '../studio/attributes/attributeModel';
 import {
@@ -85,6 +87,43 @@ const editorialStyle = {
 } as ScenePoseStyle;
 
 describe('Scene Pose recipe model', () => {
+  it.each([
+    ['scene-pose.street-walk-editorial', 3],
+    ['scene-pose.cafe-seated-lifestyle', 2],
+    ['scene-pose.sunlit-storefront', 4],
+    ['scene-pose.soft-character-portrait', 3]
+  ])('reconciles legacy handheld selections for %s with the current catalog', (id, previousVersion) => {
+    const current = scenePoseRecipeSchema.parse(recipeCatalog.recipes.find(item => item.id === id));
+    expect(current.version).toBeGreaterThan(previousVersion as number);
+    const cameraGroups: AttributeGroup[] = [{
+      group: 'Camera',
+      fields: [{ name: 'Camera Imperfections', group: 'Camera', control: 'select', options: [] }]
+    }];
+    const selections = {
+      'Camera Imperfections': {
+        id: 'camera.imp_01', value: 'slight handheld camera movement', label: 'Handheld',
+        isCustom: false, group: 'Camera', category: 'camera_imperfections', tags: [], gptPositiveWords: []
+      },
+      Hair: {
+        id: 'hair.long', value: 'long hair', label: 'Long hair', isCustom: false,
+        group: 'Hair', category: 'hair', tags: [], gptPositiveWords: []
+      }
+    };
+    const result = applyScenePoseRecipe({ recipe: current, groups: cameraGroups, selections });
+    expect(result.selections['Camera Imperfections']).toBeUndefined();
+    expect(result.selections.Hair).toEqual(selections.Hair);
+    expect(result.clearedFields).toContain('Camera Imperfections');
+    expect(selections['Camera Imperfections'].id).toBe('camera.imp_01');
+
+    for (const restrictions of [
+      { blockedGroups: new Set(['Camera']) },
+      { editableFields: new Set(['Hair']) }
+    ]) {
+      const locked = applyScenePoseRecipe({ recipe: current, groups: cameraGroups, selections, ...restrictions });
+      expect(locked.selections['Camera Imperfections']).toEqual(selections['Camera Imperfections']);
+    }
+  });
+
   it('applies canonical catalog options without replacing unrelated selections', () => {
     const result = applyScenePoseRecipe({
       recipe,

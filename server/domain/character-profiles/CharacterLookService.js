@@ -394,6 +394,7 @@ export class CharacterLookService {
     if (!look || look.characterProfileId !== characterProfileId) {
       throw new RepositoryContractError('character_look_not_found', 'Character Look not found.', 404);
     }
+    await this.#authorizeCharacter(characterProfileId, look.sourceCharacterProfileVersionId, actorContext);
     if (look.lifecycleStatus === 'retired') return toProjection(look);
     if (look.approvedVersionId || look.lifecycleStatus === 'approved'
       || look.versions.some(version => ['approved', 'superseded'].includes(version.status))) {
@@ -464,6 +465,7 @@ export class CharacterLookService {
       || ['retired', 'deleted'].includes(look.lifecycleStatus)) {
       throw new RepositoryContractError('character_look_not_found', 'Character Look not found.', 404);
     }
+    await this.#authorizeCharacter(characterProfileId, look.sourceCharacterProfileVersionId, actorContext);
     return look;
   }
 }

@@ -116,13 +116,12 @@ describe('CommunityHomeRoute', () => {
     vi.mocked(getProviderCatalog).mockResolvedValue({ defaultProvider: '', providers: [] });
   });
 
-  it('deduplicates hero and featured posts from the continuing feed', () => {
+  it('keeps hero and featured posts discoverable in the continuing feed', () => {
     renderPage('/');
     expect(screen.getByRole('heading', { name: 'Momelo' })).toBeVisible();
     expect(screen.getByLabelText(posts[0]!.title)).toBeVisible();
-    for (const post of posts.slice(1)) {
-      expect(screen.getAllByText(post.title)).toHaveLength(1);
-    }
+    const feed = document.querySelector('.community-feed-grid')!;
+    for (const post of posts) expect(feed.querySelector(`[data-testid="post-${post.id}"]`)).not.toBeNull();
     expect(screen.getByTestId('post-post_6')).toBeVisible();
   });
 

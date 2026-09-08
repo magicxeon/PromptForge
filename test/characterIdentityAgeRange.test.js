@@ -19,6 +19,7 @@ test('Character identity metadata compacts the selected Age option into a bounde
   });
 
   assert.deepEqual(metadata, {
+    schemaVersion: 2, attributes: {}, missingFields: ['Gender', 'Ethnicity', 'Beauty'],
     ageRange: {
       attributeId: 'character.004',
       minimum: 24,
