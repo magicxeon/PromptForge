@@ -1,4 +1,5 @@
-import { Film, FlaskConical, Image as ImageIcon } from 'lucide-react';
+import { Film, FlaskConical, Image as ImageIcon, PanelsTopLeft } from 'lucide-react';
+import { CharacterLookSheetExperience } from '../../profiles/components/CharacterLookSheetExperience';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GenerationExperience } from '../../../components/generation/GenerationExperience';
@@ -36,6 +37,7 @@ export function PlaygroundRoute() {
   const previousActorId = useRef<string | undefined>(initialActorId);
   const [searchParams, setSearchParams] = useSearchParams();
   const videoEnabled = isEnabled('cinematic.playgroundVideoEnabled');
+  const lookSheetEnabled = isEnabled('generation.lookSheetDocumentEnabled');
   const mediaMode = videoEnabled && searchParams.get('media') === 'video'
     ? 'video'
     : 'image';
@@ -133,7 +135,16 @@ export function PlaygroundRoute() {
           </div>
         ) : null}
       </header>
-      {mediaMode === 'video' ? <PlaygroundVideoExperience /> : <GenerationExperience
+      {mediaMode === 'image' && lookSheetEnabled ? <div className="mb-4 flex flex-wrap gap-1" role="group" aria-label={t('lookSheet.imageMode', { ns: 'playground' })}>
+        {(['general', 'look-sheet'] as const).map(value => <Button key={value} size="sm"
+          variant={(searchParams.get('imageMode') === 'look-sheet' ? 'look-sheet' : 'general') === value ? 'primary' : 'ghost'}
+          aria-pressed={(searchParams.get('imageMode') === 'look-sheet' ? 'look-sheet' : 'general') === value}
+          icon={value === 'general' ? <ImageIcon className="size-4" /> : <PanelsTopLeft className="size-4" />}
+          onClick={() => { const next = new URLSearchParams(searchParams); if (value === 'general') next.delete('imageMode'); else next.set('imageMode', value); setSearchParams(next, { replace: true }); }}>
+          {t(value === 'general' ? 'lookSheet.generalImage' : 'lookSheet.title', { ns: 'playground' })}
+        </Button>)}
+      </div> : null}
+      {mediaMode === 'video' ? <PlaygroundVideoExperience /> : lookSheetEnabled && searchParams.get('imageMode') === 'look-sheet' ? <CharacterLookSheetExperience surface="playground" /> : <GenerationExperience
         initialComparisonActive={initialComparisonActive}
         surface="playground"
         generationMode="playground"

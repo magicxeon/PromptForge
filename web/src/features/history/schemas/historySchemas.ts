@@ -1,7 +1,9 @@
 import { z } from 'zod';
+import { lookSheetSnapshotSchema } from '../../profiles/schemas/lookSheetDefinitionSchemas';
 
 export const historyItemSchema = z.object({
   id: z.string(),
+  lookSheetSnapshot: lookSheetSnapshotSchema.nullable().optional(),
   prompt: z.string().default(''),
   imageUrl: z.string(),
   thumbnailUrl: z.string().nullable().optional(),

@@ -414,6 +414,7 @@ export class QueueManager {
         userId: job.options.payerUserId,
         reservationId: job.options.reservationId,
         jobId,
+        usage: result.usage || null,
         metadata: {
           comparisonSetId: job.options.comparisonSetId,
           comparisonRunId: job.options.comparisonRunId,
@@ -429,6 +430,7 @@ export class QueueManager {
       );
       job.status = 'completed';
       job.result = {
+        lookSheetSnapshot: job.options.lookSheetSnapshot || null,
         imageUrl: `/outputs/${filename}`,
         usage: result.usage,
         mimeType,
@@ -458,6 +460,7 @@ export class QueueManager {
           : null,
         sourceOwnership: job.options.sourceOwnership || null,
         characterSheetConfig: job.options.characterSheetConfig || null,
+        lookSheetSnapshot: job.options.lookSheetSnapshot || null,
         characterProfileContext: job.options.characterProfileContext || null,
         outfitReferenceOverrides: job.options.outfitReferenceOverrides || null,
         referenceRoleManifest: Array.isArray(job.options.referenceRoleManifest)
@@ -557,6 +560,7 @@ export class QueueManager {
         selections: job.options.selections || {},
         sceneBuilder: job.options.sceneBuilder || null,
         sceneTemplateSnapshot: historyEntry.sceneTemplateSnapshot || null,
+        lookSheetSnapshot: historyEntry.lookSheetSnapshot || null,
         generationDuration: durationSec,
         width: historyEntry.width || null,
         height: historyEntry.height || null,
@@ -703,6 +707,8 @@ export class QueueManager {
       status: 'completed',
       result: {
         imageUrl: completed.imageUrl,
+        lookSheetSnapshot: completed.lookSheetSnapshot || null,
+        lookSheetSnapshot: completed.lookSheetSnapshot || null,
         usage: completed.usage || null,
         mimeType: completed.mimeType || null,
         generationDuration: completed.generationDuration || null,

@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { ArrowLeft, Check, LoaderCircle, X } from 'lucide-react';
+import { ArrowLeft, Check, X } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GenerationExperience } from '../../../components/generation/GenerationExperience';
@@ -96,7 +97,7 @@ export function CharacterLookGenerationDialog({
             variant="primary"
             disabled={Boolean(adoptingResultId)}
             icon={adoptingResultId === completedCandidateId
-              ? <LoaderCircle className="animate-spin" aria-hidden="true" />
+              ? <ProcessingSpinner className="animate-spin" aria-hidden="true" />
               : <Check aria-hidden="true" />}
             onClick={() => onAdopt(completedCandidateId)}
           >{t(adoptingResultId === completedCandidateId
@@ -137,7 +138,7 @@ export function CharacterLookGenerationDialog({
                 variant="primary"
                 disabled={Boolean(adoptingResultId)}
                 icon={adoptingResultId === resultId
-                  ? <LoaderCircle className="animate-spin" aria-hidden="true" />
+                  ? <ProcessingSpinner className="animate-spin" aria-hidden="true" />
                   : <Check aria-hidden="true" />}
                 onClick={() => onAdopt(resultId)}
               >{t(adoptingResultId === resultId

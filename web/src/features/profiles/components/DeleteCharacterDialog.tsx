@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Trash2 } from 'lucide-react';
+import { Trash2, TriangleAlert } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { deleteCharacter } from '../api/profileApi';
@@ -48,11 +48,15 @@ export function DeleteCharacterDialog({ characterId, displayName }: { characterI
   }
   return (
     <Dialog.Root open={open} onOpenChange={changeOpen}>
-      <Dialog.Trigger asChild>
-        <Button className="mt-6 text-[var(--mpf-text)]" variant="danger" icon={<Trash2 className="size-4" aria-hidden="true" />}>
-          {t('character-profiles.delete.action')}
-        </Button>
-      </Dialog.Trigger>
+      <section className="character-delete-danger" aria-labelledby="character-delete-danger-title">
+        <h2 id="character-delete-danger-title"><TriangleAlert className="size-5 shrink-0" aria-hidden="true" />{t('character-profiles.delete.dangerTitle')}</h2>
+        <p>{t('character-profiles.delete.description')}</p>
+        <Dialog.Trigger asChild>
+          <Button variant="danger" icon={<Trash2 className="size-4" aria-hidden="true" />}>
+            {t('character-profiles.delete.action')}
+          </Button>
+        </Dialog.Trigger>
+      </section>
       <Dialog.Portal>
         <Dialog.Overlay className="app-nested-dialog__overlay fixed inset-0 bg-black/75" />
         <Dialog.Content className="app-nested-dialog__content fixed left-1/2 top-1/2 max-h-[88vh] w-[min(92vw,480px)] -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-lg border border-[var(--mpf-border)] bg-[var(--mpf-bg-raised)] p-5 text-[var(--mpf-text)]">

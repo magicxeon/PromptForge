@@ -39,6 +39,20 @@ const selection: VideoReferenceSelection = {
 };
 
 describe('Playground video reference selection', () => {
+  it('named looks keep ordered names and block duplicates, cap and model downgrade', () => {
+    const value = { ...selection, character: null, lookSheets: [
+      { url: '/outputs/a.png', name: 'A', characterName: 'Alice' },
+      { url: '/outputs/b.png', name: 'B', characterName: 'Ben' },
+    ] };
+    const plan = buildVideoReferenceSelection(value, model);
+    expect(plan.ready).toBe(true);
+    expect(plan.references.map(row => row.characterName)).toEqual([undefined, 'Alice', 'Ben']);
+    expect(buildVideoReferenceSelection(value, { ...model, referenceImageLimit: 2 }).ready).toBe(false);
+    expect(buildVideoReferenceSelection(value, { ...model, supportsOrderedImageReferences: false }).ready).toBe(false);
+    expect(buildVideoReferenceSelection({ ...value, lookSheets: [value.lookSheets[0]!, { ...value.lookSheets[1]!, characterName: 'alice' }] }, model).reason).toMatch(/invalidNames/);
+    expect(buildVideoReferenceSelection({ ...value, lookSheets: [value.lookSheets[0]!, value.lookSheets[0]!] }, model).ready).toBe(false);
+    expect(buildVideoReferenceSelection({ ...value, operation: 'image_to_video' }, model).references).toHaveLength(1);
+  });
   it('supports Character alone and blocks Character plus uploaded Look', () => {
     const result = buildVideoReferenceSelection({ ...selection, lookSheet: null }, model);
     expect(result.ready).toBe(true);

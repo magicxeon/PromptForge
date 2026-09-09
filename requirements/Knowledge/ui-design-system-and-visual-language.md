@@ -71,6 +71,12 @@ Main page sections may use the shared `.mpf-section-surface` treatment:
 
 ## 5. Spacing and Density
 
+Processing feedback uses the shared UI ProcessingSpinner (yellow warning token),
+with the existing GenerationStageState glow for media-sized placeholders and a
+compact icon inside buttons. Use localized accessible status, reduced motion,
+and no indefinite spinner in failed/cancelled/completed states. Never replace
+active Generation/Comparison feedback with only a raw status string.
+
 - Keep a clear rhythm between page sections.
 - Toolbars and filter strips are compact; default target height is `32px`.
 - Primary actions remain at least `40px` high.

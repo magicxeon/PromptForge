@@ -25,6 +25,7 @@ const featurePolicySchema = z.object({
     automaticSimpleModeEnabled: z.boolean().default(false)
   }),
   generation: z.object({
+    lookSheetDocumentEnabled: z.boolean().optional(),
     promptRefinementEnabled: z.boolean().default(false)
   }).default({ promptRefinementEnabled: false }),
   cinematic: z.object({

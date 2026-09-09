@@ -1,6 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, Film, Images, LoaderCircle, Sparkles } from 'lucide-react';
+import { CheckCircle2, Film, Images, Sparkles } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -303,7 +304,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
         />
 
         {contexts.isFetching || quotes.isFetching ? <div className="cinematic-storyboard-batch-dialog__loading" role="status">
-          <LoaderCircle className="animate-spin" aria-hidden="true" />
+          <ProcessingSpinner className="animate-spin" aria-hidden="true" />
           <span>{contexts.isFetching
             ? t('cinematic.storyboard.batch.checking')
             : t('cinematic.storyboard.batch.quoting')}</span>

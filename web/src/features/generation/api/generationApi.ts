@@ -14,6 +14,7 @@ import {
 } from '../schemas/generationSchemas';
 import type { ComparisonEstimate } from '../schemas/generationSchemas';
 import type { StudioCustomColors } from '../../studio/attributes/customColorModel';
+import type { LookSheetDefinition } from '../../profiles/schemas/lookSheetDefinitionSchemas';
 
 export type GenerationReferenceRole =
   | 'face_reference'
@@ -24,6 +25,8 @@ export type GenerationReferenceRole =
   | 'outfit_back';
 
 export type GenerationRequestDraft = {
+  lookSheetDefinition?: LookSheetDefinition | null;
+  lookSheetEnhancementId?: string | null;
   provider: string;
   submodel: string;
   prompt: string;
@@ -105,15 +108,14 @@ export function previewReferenceProcessing(draft: GenerationRequestDraft) {
 }
 
 export function previewCompiledPrompt(draft: GenerationRequestDraft) {
-  return apiRequest('/api/generation/prompt-preview', {
+  return apiRequest(draft.lookSheetDefinition ? '/api/generation/look-sheet-preview' : '/api/generation/prompt-preview', {
     method: 'POST',
     body: generationPayload(draft),
     schema: compiledPromptPreviewSchema
   });
 }
 
-export function submitGeneration(draft: GenerationRequestDraft, estimateId: string) {
-  const requestId = createRequestId('gen');
+export function submitGeneration(draft: GenerationRequestDraft, estimateId: string, requestId = createRequestId('gen')) {
   return apiRequest('/api/generate', {
     method: 'POST',
     body: generationPayload(draft, { estimateId, requestId }),
@@ -225,6 +227,8 @@ export function generationPayload(
       templateDraft: null
     },
     sceneTemplateSnapshot: draft.sceneTemplateSnapshot || null,
+    lookSheetDefinition: draft.lookSheetDefinition || null,
+    lookSheetEnhancementId: draft.lookSheetEnhancementId || null,
     templateUseSessionId: draft.templateUseSessionId || null,
     templateReplacements: draft.templateReplacements || {},
     characterProfileContext: draft.characterProfileContext || null,

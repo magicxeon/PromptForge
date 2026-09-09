@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const groups = {
+  'named-looks': ['--test', '--test-name-pattern=named-looks:', 'test/playgroundVideoReferenceService.test.js', 'test/trustedGeneratedSources.test.js'],
   trusted: ['--test', 'test/trustedGeneratedSources.test.js', 'test/modelArkSeedreamProvider.test.js'],
   contract: [
     '--test',
@@ -53,12 +54,14 @@ const groups = {
     'false',
   ],
   layout: ['scripts/verify-playground-video-references.mjs'],
+  'layout-named': ['scripts/verify-playground-video-references.mjs', '--named'],
+  'layout-named-trusted': ['scripts/verify-playground-video-references.mjs', '--named', '--trusted'],
   'layout-trusted': ['scripts/verify-playground-video-references.mjs', '--trusted'],
   'layout-active': ['scripts/verify-playground-video-references.mjs', '--active'],
 };
 const selected =
   process.argv[2] === 'all'
-    ? ['trusted', 'contract', 'regression', 'ui', 'types']
+    ? ['named-looks', 'trusted', 'contract', 'regression', 'ui', 'types']
     : [process.argv[2]];
 for (const group of selected) {
   if (!groups[group]) {

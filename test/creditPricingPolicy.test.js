@@ -30,7 +30,7 @@ test('CreditPricingPolicyService - Calculate Estimate for Priced Models (TC-005-
     userId: 'usr_demo'
   });
 
-  assert.equal(estimate.pricingPolicyVersion, 'mock-2026-09-08-byteplus-v4');
+  assert.equal(estimate.pricingPolicyVersion, 'mock-2026-09-09-image25-measured-v1');
   assert.equal(estimate.estimatedCredits, 46); // 45 base + 1 ref
   assert.equal(estimate.breakdown.baseOutputCredits, 45);
   assert.equal(estimate.breakdown.referenceCredits, 1);

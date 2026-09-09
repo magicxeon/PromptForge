@@ -109,7 +109,7 @@ export const characterFeaturedImageUpdateSchema = z.object({
 });
 
 const characterLookProvenanceSchema = z.object({
-  kind: z.enum(['system_generated', 'user_uploaded', 'legacy_unknown']),
+  kind: z.enum(['system_generated', 'user_uploaded', 'generated_import', 'legacy_unknown']),
   characterProfileId: z.string(),
   characterProfileVersionId: z.string(),
   sourceAssetIds: z.array(z.string()).default([]),
@@ -143,7 +143,7 @@ const characterLookRightsDeclarationSchema = z.object({
 export const characterLookVersionSchema = z.object({
   id: z.string(),
   versionNumber: z.number(),
-  sourceMode: z.enum(['character_default', 'uploaded', 'uploaded_character_sheet', 'ai_suggestion']),
+  sourceMode: z.enum(['character_default', 'uploaded', 'uploaded_character_sheet', 'generated_character_sheet', 'ai_suggestion']),
   sourceSheetAssetId: z.string().nullable().optional(),
   garmentAuthorities: z.record(z.string(), z.record(z.string(), z.string())).default({}),
   canonicalFaceAssetId: z.string().nullable(),

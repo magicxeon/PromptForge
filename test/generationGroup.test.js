@@ -8,10 +8,12 @@ import {
 test('Generation Group reserves once and enqueues one child Job per output', async () => {
   let nextJob = 0;
   let reserveCalls = 0;
+  let runtimeChecks = 0;
   const enqueued = [];
   const groups = new Map();
   const service = new GenerationApplicationService({
     providerRegistry: {
+      assertRuntimeAvailable: () => { runtimeChecks++; },
       shouldStream: () => false,
       getConfigVersion: () => 1
     },
@@ -76,6 +78,7 @@ test('Generation Group reserves once and enqueues one child Job per output', asy
   assert.equal(first.childJobIds.length, 3);
   assert.equal(duplicate.groupId, first.groupId);
   assert.equal(reserveCalls, 1);
+  assert.ok(runtimeChecks > 0);
   assert.equal(enqueued.length, 3);
   assert.deepEqual(enqueued.map(call => call[2]), [
     'Shared compiled prompt',

@@ -130,6 +130,8 @@ export const videoTaskSchema = z.object({
       policyId: z.string(), policyVersion: z.number().int().nonnegative()
     }).nullable().optional(),
     references: z.array(z.object({
+      characterName: z.string().max(80).optional(),
+      purpose: z.string().optional(),
       role: z.string(),
       assetId: z.string().nullable().optional(),
       assetVersionId: z.string().nullable().optional(),

@@ -1,4 +1,5 @@
-import { Bookmark, Eye, Heart, LoaderCircle, RefreshCw, Share2 } from 'lucide-react';
+import { Bookmark, Eye, Heart, RefreshCw, Share2 } from 'lucide-react';
+import { ProcessingSpinner } from '../ui/ProcessingSpinner';
 import { useTranslation } from 'react-i18next';
 import { useCommunityEngagement } from '../../features/community/hooks/useCommunityEngagement';
 import type { CommunityPost } from '../../features/community/schemas/communitySchemas';
@@ -32,7 +33,7 @@ function PostEngagement({ post, variant = 'detail' }: Props) {
         aria-label={compact ? `${likeLabel}: ${summary.likeCount}${likeOnly ? `, ${post.title}` : ''}` : undefined}
         aria-busy={engagement.isPending || engagement.isLoading}
         title={engagement.hasActor ? likeLabel : t('community.engagement.signIn')}
-        icon={engagement.isPending || engagement.isLoading ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Heart className="size-4" fill={state?.liked ? 'currentColor' : 'none'} aria-hidden="true" />}
+        icon={engagement.isPending || engagement.isLoading ? <ProcessingSpinner className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Heart className="size-4" fill={state?.liked ? 'currentColor' : 'none'} aria-hidden="true" />}
         disabled={!engagement.canReact}
         onClick={() => engagement.toggle('like')}
       >

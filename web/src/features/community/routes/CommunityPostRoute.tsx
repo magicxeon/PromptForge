@@ -385,7 +385,7 @@ function MoreFromCreator({
         </Link>
       </div>
       {items.length ? (
-        <div className="community-more-from-creator__grid">
+        <div className="community-more-from-creator__grid media-card-list">
           {items.map(item => <MediaCard key={item.id} post={item} />)}
         </div>
       ) : (

@@ -265,7 +265,6 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
                   ]);
                 }}
               />
-              <DeleteCharacterDialog key={`${actorId}:${characterId}`} characterId={characterId} displayName={character.displayName} />
               </>
             ) : null}
             {access === 'owner' && character.isOwner && character.characterProfileVersionId ? (
@@ -319,6 +318,9 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
                 onUseAutomatic={() => updateFeaturedImage.mutate({ mode: 'auto' })}
               />
             ) : null}
+            {access === 'owner' && character.isOwner ? (
+              <DeleteCharacterDialog key={`${actorId}:${characterId}`} characterId={characterId} displayName={character.displayName} />
+            ) : null}
           </>
         ) : null}
       </section>
@@ -339,7 +341,7 @@ function CharacterWorks({ title, description, items, emptyLabel }: {
         <p>{description}</p>
       </header>
       {items.length ? (
-        <div className="character-profile-work-grid">
+        <div className="character-profile-work-grid media-card-list">
           {items.map(post => <MediaCard key={post.id} post={post} previewFit="cover" />)}
         </div>
       ) : <EmptyState title={emptyLabel} />}

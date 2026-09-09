@@ -30,6 +30,21 @@ export class CinematicWardrobeAuthorityService {
     }
     return { mode, assets };
   }
+
+  async importGeneratedSheet(source, actorContext) {
+    const actor = assertActorContext(actorContext);
+    if (source?.ownerUserId !== actor.userId || !source.id || !source.contentHash) {
+      throw new RepositoryContractError('cinematic_wardrobe_asset_forbidden', 'Generated sheet is unavailable.', 403);
+    }
+    return this.assetRepository.create({
+      assetType: 'character_look_sheet', storageKey: source.storageKey,
+      publicUrl: source.publicUrl, mimeType: source.mimeType,
+      width: source.width, height: source.height, sizeBytes: source.sizeBytes,
+      sourceJobId: source.id, deduplicateSource: true,
+      metadata: { contentHash: source.contentHash, trustedGenerationId: source.id,
+        providerOutputProvenance: source.providerOutputProvenance }
+    }, actor);
+  }
 }
 
 export const cinematicWardrobeAuthorityService = new CinematicWardrobeAuthorityService();

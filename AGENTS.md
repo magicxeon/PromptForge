@@ -287,6 +287,19 @@ for performance-sensitive work.
   `requirements/Knowledge/ui-design-system-and-visual-language.md` and the
   visual reference named by the owning requirement.
 
+### Shared Processing Feedback
+
+- Processing/loading icons must use `web/src/components/ui/ProcessingSpinner.tsx`.
+  Media Generation placeholders use the existing GenerationStageState wrapper
+  and its yellow glow treatment; compact controls use the same spinner at a
+  smaller size. Do not import independent LoaderCircle/Loader2 icons or invent
+  feature-specific spinners. Preserve reduced-motion behavior.
+- Show localized accessible status while work is pending, including each active
+  Comparison slot. Completed results stay visible; failed/cancelled states stop
+  spinning. Keep duplicate prevention, cancellation and error/retry controls.
+- Skeletons may describe loading content, but must not replace processing feedback
+  with a blank viewport or a bare internal status code. Do not fabricate progress.
+
 ### 4.1 Scoped UI Preservation Gate
 
 For every screen or shared-component change:

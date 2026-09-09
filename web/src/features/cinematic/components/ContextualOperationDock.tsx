@@ -1,4 +1,5 @@
-import { Coins, LoaderCircle, LockKeyhole, Sparkles } from 'lucide-react';
+import { Coins, LockKeyhole, Sparkles } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
@@ -46,7 +47,7 @@ export function ContextualOperationDock({
         className="w-full"
         data-testid="cinematic-operation-submit"
         variant="primary"
-        icon={loading ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <LockKeyhole aria-hidden="true" />}
+        icon={loading ? <ProcessingSpinner className="animate-spin" aria-hidden="true" /> : <LockKeyhole aria-hidden="true" />}
         disabled={disabled || loading}
         onClick={onAction}
       >

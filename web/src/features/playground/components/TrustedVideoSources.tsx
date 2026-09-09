@@ -11,19 +11,26 @@ import {
   type TrustedVideoSource,
 } from '../api/trustedVideoSources';
 import '../../../styles/playground-video-references.css';
+import type { NamedTrustedVideoSource } from './videoReferenceSelection';
 
 export function TrustedVideoSources({
   withLook,
   frame,
   look,
   onChange,
+  lookOnly = false,
+  characterNumber = 1,
+  excludedIds = [],
 }: {
   withLook: boolean;
   frame: TrustedVideoSource | null;
-  look: TrustedVideoSource | null;
+  look: NamedTrustedVideoSource | null;
+  lookOnly?: boolean;
+  characterNumber?: number;
+  excludedIds?: string[];
   onChange: (patch: {
     trustedFrame?: TrustedVideoSource | null;
-    trustedLook?: TrustedVideoSource | null;
+    trustedLook?: NamedTrustedVideoSource | null;
   }) => void;
 }) {
   const { t } = useTranslation('playground');
@@ -95,10 +102,10 @@ export function TrustedVideoSources({
     && Date.parse(item.expiresAt || '') > Date.now()) || [];
   return (
     <div className="playground-video-references trusted-video-sources">
-      <p>{t('playground.video.trusted.description')}</p>
+      {!lookOnly ? <p>{t('playground.video.trusted.description')}</p> : null}
       <div className="playground-video-references__slots">
         {(
-          ['frame', ...(withLook ? ['look'] : [])] as Array<'frame' | 'look'>
+          [...(lookOnly ? [] : ['frame']), ...(withLook ? ['look'] : [])] as Array<'frame' | 'look'>
         ).map((key) => {
           const selected = key === 'frame' ? frame : look;
           const title = t(
@@ -124,6 +131,11 @@ export function TrustedVideoSources({
                 )}
               </div>
               {selected ? details(selected) : null}
+              {key === 'look' && look ? <label>
+                {t('playground.video.references.characterName', { number: characterNumber })}
+                <input maxLength={80} value={look.characterName || ''}
+                  onChange={event => onChange({ trustedLook: { ...look, characterName: event.target.value } })} />
+              </label> : null}
               <div className="playground-video-references__actions">
                 <Button
                   icon={<Images />}
@@ -153,7 +165,7 @@ export function TrustedVideoSources({
           );
         })}
       </div>
-      {withLook ? (
+      {withLook && !lookOnly ? (
         <p>{t('playground.video.references.multimodalNotice')}</p>
       ) : null}
       <Dialog.Root
@@ -201,8 +213,8 @@ export function TrustedVideoSources({
               <div className="trusted-video-picker__grid">
                 {eligibleItems.map((item) => {
                   const duplicate =
-                    withLook &&
-                    item.id === (slot === 'frame' ? look?.id : frame?.id);
+                    excludedIds.includes(item.id) || (withLook &&
+                    item.id === (slot === 'frame' ? look?.id : frame?.id));
                   return (
                     <button
                       type="button"

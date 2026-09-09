@@ -1,10 +1,11 @@
-import { AlertCircle, LoaderCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { ProcessingSpinner } from './ProcessingSpinner';
 import { Button } from './Button';
 
 export function LoadingState({ label }: { label: string }) {
   return (
     <div className="flex min-h-40 items-center justify-center gap-3 text-sm text-[var(--mpf-text-muted)]" role="status">
-      <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
+      <ProcessingSpinner className="size-5 animate-spin" aria-hidden="true" />
       <span>{label}</span>
     </div>
   );

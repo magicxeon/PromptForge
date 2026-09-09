@@ -6,6 +6,143 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Image 2.5 Measured Pricing
+
+2026-09-09: Provider image/007 supersedes the test-tariff statements below.
+Credits/OpenAIImage25Pricing is an internal pure calculator for measured quote
+baselines and modality-specific usage costs. CreditPricingPolicyService pins
+rates/evidence; CreditReservationService validates retired test quotes at all
+reservation entry points and adds usage cost metadata at capture without
+changing the confirmed charge. Queue passes usage through CreditApplicationService.
+CreditAccountRepository.getReservationForOwner is a read-only, actor-scoped
+snapshot lookup; existing capture ledger metadata holds the cost evidence.
+No new persistence path, migration, prompt storage, cache or polling. Finance
+inventory exposes token rates; monthly cash/cost reconciliation remains separate.
+
+### Shared Processing And Comparison Black Export
+
+2026-09-09: CLSFE 025-029 owns shared UI ProcessingSpinner, reused by the
+Generation loading wrapper and current spinner consumers. Comparison export
+stays in Assets/MediaExportService, with internal comparisonExportLayout and
+comparisonExportRenderer modules; imageExportRenderer retains Look Sheet behavior.
+Assets/exportText serializes native font registration/text rendering for both
+exports. Its process-lifetime registry contains at most 16 trusted font paths,
+no user text/media; font deployment changes require process restart. No polling.
+ComparisonExportDialog owns transient encoded preview/download state, never AI
+dispatch or private persistent media. New focused tests and scripts own validation.
+No new repository, runtime data path, original-media modification or polling.
+
+### Image 2.5 Testing And Generated Cast Sheets
+
+2026-09-09: Provider image/006 supersedes the prior development-only release
+block in image/005. Existing ProviderRegistry internal_testing flags open the
+two Image 2.5 models; Credits owns a versioned 1-Credit/output test tariff and
+production denial at quote/reservation. No actual cost is fabricated.
+
+Character Look workflow-redesign/006-007 owns generated-sheet import through
+CharacterLookService.importGeneratedSheet and its thin character-profile route.
+Generation's TrustedGeneratedSourceService owns describeOwnedImage and private
+resolveOwnedImage; Assets' CinematicWardrobeAuthorityService imports the original
+through AssetRepository's opt-in source deduplication. Looks retain generated_import
+provenance, manual identity confirmation, and whole-sheet references with no crops.
+CinematicVideoReferencePlanService/VideoGenerationApplicationService preserve
+trustedGenerationId and revalidate it before private original-URL dispatch.
+
+Client API ownership moves to `web/src/features/generation/api/trustedVideoSources.ts`.
+The old Playground module is a temporary re-export for existing callers/tests;
+remove it after those imports are migrated, with TrustedVideoSources regressions
+passing. Profiles' `GeneratedLookSourceField.tsx` owns the inline paginated source
+field in CharacterLookDialog, reusing existing actor-scoped Query keys and media.
+Cast > Wardrobe exposes a third direct source command opening generated mode;
+Upload/AI and existing approval/binding recovery retain their entry points.
+No new polling/cache, repository, runtime data path, media rewrite or backfill.
+New validation owners: `test/generatedCastSheet.test.js`,
+`scripts/test-generated-cast-sheets.mjs` and `scripts/verify-generated-cast-sheets.mjs`.
+Existing Image 2.5 and Look Sheet verification runners also cover test exposure.
+
+### OpenAI Image 2.5 And Editorial Look Sheets
+
+2026-09-09: Provider image/005 owns Sunburst/Flare additions to existing
+OpenAIProvider and provider catalog. Credits policy stores token-rate evidence;
+production customer-paid routing remains unavailable pending consumption/retail approval.
+No guessed per-image rates or new provider pipeline.
+
+CLSFE 022-024 activate `server/config/prompt-recipes/character-looks/document-sheet.v2.json`
+through existing LookSheetDefinitionService. New snapshots pin preset/layout/text
+policy; both preset versions remain readable. Assets' existing renderer preserves
+v1 headings and avoids duplicate v2 text. No runtime storage path, original-media
+mutation or trusted reference policy change. `scripts/test-openai-image25.mjs`
+owns provider checks; existing Look Sheet runner gains editorial groups.
+
+### Look Sheet Momelo Enhancement
+
+2026-09-09 dynamic-render addendum: CLSFE 017-021 own document-only adult
+validation, catalog ratio transitions and media-first form presentation.
+`web/src/features/generation/hooks/useLookSheetRender.ts` coordinates the existing
+Generation API contracts; Profiles' Enhancement panel is now presentation-only.
+It reuses durable enhancement operations and canonical image requests, with actor
+draft operation/image-request IDs for recovery. No new server storage or wallet.
+Studio paid enhancement exposure remains unchanged pending explicit approval.
+
+Execution addendum 2026-09-08: implementation authorized. Generation owns
+`LookSheetEnhancementService.js` and private `PromptEnhancementRepository.js`;
+the latter uses configured `DATA_FILES.promptEnhancements` under
+`server/data/generation/promptEnhancements.json`, never public assets. Records
+are bounded (5,000; fail closed at capacity); prompt artifacts expire after 30
+days, and expired private text is purged on mutation while settlement evidence
+is retained. Single API writer is required, matching current JSON wallet scope.
+Credits owns `TextEnhancementPricing.js` and text quote/reservation facade methods.
+Provider request preparation stays behind PromptRefinementService/OpenAITextProvider.
+The Profiles editor owns enhancement selection; GenerationExperience exposes a
+builder render contract, not another generation pipeline. Tests use temp storage.
+
+- [CLSFE-ME 011-016](../016-cinematic-studio/character-look-sheet-generation/form-and-export/011-momelo-enhancement-master.md)
+  own prominent Character Prompt, Natural Realism and separately quoted AI
+  rewriting. Runtime implementation and isolated regression checks are delivered;
+  paid provider UAT and production multi-writer readiness remain open.
+- GenerationApplicationService remains the public use-case owner; existing
+  PromptRefinementService/provider handles AI, Character Profiles owns normalized
+  identity/definition, and Credits alone owns text quote/reserve/settlement/recovery.
+- Private Generation records use `server/repositories/generation/PromptEnhancementRepository.js`
+  and `DATA_FILES.promptEnhancements` as described above. No public route serves this store.
+- Shared form and Profiles adapter stay in their current locations. Existing
+  Look Sheet runner includes explicit enhancement groups. No second compiler,
+  wallet, global Playground realism switch or automatic paid Studio operation.
+
+### Planned Character Look Sheet Forms And Media Exports
+
+- [CLSFE requirements and plan](../016-cinematic-studio/character-look-sheet-generation/form-and-export/000-master.md)
+  own the proposed Playground Image submode and Studio format. Documentation
+  only; generation strategy still needs confirmation and no runtime is changed.
+- Character Profiles owns definition/identity rules; existing Generation owns
+  prompt/quote/Queue/History and Credits owns settlement. Standalone authoring
+  is not an auto-created approved Character or Community Template.
+- Planned shared controlled form belongs in `web/src/components/profiles/`.
+  Feature adapters stay under Playground and Studio; typed definitions under
+  Profiles and existing Generation API schemas. No separate client pipeline.
+- Planned Download composition belongs to `server/domain/assets/` through a
+  MediaExportService facade, a thin route under `server/app/routes/`, config in
+  `server/config/` and default PNG artwork under `client/assets/brand/`.
+  Generation/Comparison source authorization remains behind owning facades.
+- Reuse existing Sharp infrastructure for bounded CPU exports. No independent
+  GPU service, new data repository, original-media rewrite or Seedance policy
+  change is part of the initial scope. Favicon reuses the existing web brand mark.
+- Proposed `scripts/test-look-sheet-exports.mjs` will own focused groups and
+  explicit aggregate checks; it is not created by the documentation delivery.
+
+### Named Video Look Sheets
+
+- Cinematic Playground reference POC requirement 014 owns named Look lists.
+- Playground VideoLookSheetSources composes existing ordinary/trusted pickers;
+  PlaygroundVideoWorkspace owns actor-draft v5 arrays and videoReferenceSelection
+  owns their ordered request projection.
+- Generation VideoReferencePlan owns validated names, fingerprints and prompt
+  mapping; VideoGenerationApplicationService enforces model capacity before source
+  loading, then existing source services retain owner/trusted transport authority.
+- Optional characterName persists in existing sanitized task references. No new
+  repository/data path or capability gates. Existing focused video-reference runner
+  includes named-looks and explicit layout-named/layout-named-trusted checks.
+
 ### BytePlus Pricing Reconciliation
 
 - Provider requirements image/004 and video/004 own pixel cost tiers and dated
@@ -395,3 +532,40 @@ Current bounded plan: [studio-realism-video-hardening/000-master.md](studio-real
 Generation owns the Studio-only recipe/compiler policy; Playground owns Video
 selection UI. Existing Character/History authorities validate references.
 Runtime Git hygiene is maintenance-only and does not move persistence ownership.
+
+## Character Document Sheet And Image Exports (2026-09-08)
+
+Owner: `requirements/016-cinematic-studio/character-look-sheet-generation/form-and-export/`.
+Profiles owns `LookSheetDefinitionService.js`, the versioned
+`server/config/prompt-recipes/character-looks/document-sheet.v1.json`, client
+`lookSheetDefinitionSchemas.ts` and `CharacterLookSheetExperience.tsx`.
+The controlled form is `web/src/components/profiles/CharacterLookSheetForm.tsx`;
+its limited responsive overrides are `web/src/styles/character-look-sheet-form.css`.
+Playground/Studio reuse it through GenerationExperience; no parallel queue,
+reference resolver or Credit lifecycle. `server/config/lookSheetDocumentPolicy.js`
+owns the production-off exposure flag. Generation's existing compiler facade
+also serves the actor-only, non-Template `/api/generation/look-sheet-preview`.
+
+Assets owns `MediaExportService.js`, `imageExportRenderer.js`,
+`server/config/mediaExports.js` and `server/app/routes/mediaExportRoutes.js`.
+It reads authorized original images through Generation's
+`GenerationExportSourceService.js` and ComparisonOrchestrator.getExportProjection.
+Comparison owns client `comparisonLayout.ts` and server `comparisonLayout.js`;
+both are checked against `test/fixtures/comparison-layout-v1.json` policy v1.
+`MediaExportButton.tsx` and `web/src/lib/api/mediaExportApi.ts` own shared binary
+Download interaction/transport, without provider or commercial logic.
+Brand export PNG is `client/assets/brand/momelo-export-mark.png`, derived from the
+existing Web Momelo SVG. Favicon remains owned by `web/index.html`.
+
+No source moves, new runtime JSON path, public derivative store or dependency.
+Optional accepted snapshot stays in existing Generation Job/History records.
+Drafts use actor-scoped schema v1 per `look-sheet-playground` / `look-sheet-studio`;
+only bounded form fields and selected Character/version IDs are retained.
+Export buffers exist only during the request, bounded by 64 MiB source bytes,
+40 MP per source, 16 MP output, two active exports and a 15-second deadline.
+Cancellation stops between native operations; the current Sharp operation uses
+the remaining deadline (one-second timeout granularity).
+Preset query is one immutable server-recipe entry per browser QueryClient,
+invalidated by reload/deployment; no feature-local polling or image cache.
+Focused checks: `scripts/test-look-sheet-exports.mjs`;
+per-page fixture layouts: `scripts/verify-look-sheet-exports.mjs`.

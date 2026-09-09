@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { lookSheetSnapshotSchema } from '../../profiles/schemas/lookSheetDefinitionSchemas';
 
 const localizedLabelSchema = z.union([z.string(), z.record(z.string(), z.string())]);
 
@@ -85,6 +86,7 @@ export const jobStatusSchema = z.object({
   jobId: z.string().optional(),
   status: z.string(),
   result: z.object({
+    lookSheetSnapshot: lookSheetSnapshotSchema.nullable().optional(),
     imageUrl: z.string().nullable().optional(),
     mimeType: z.string().nullable().optional(),
     generationDuration: z.union([z.string(), z.number()]).nullable().optional()

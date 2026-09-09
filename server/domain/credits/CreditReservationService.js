@@ -3,6 +3,7 @@ import { creditPricingPolicyService } from './CreditPricingPolicyService.js';
 import { creditAccountRepo } from '../../repositories/credits/CreditAccountRepository.js';
 import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
 import { calculateVideoPricingPreview } from './VideoPricingCalculator.js';
+import { calculateImageTokenCost } from './OpenAIImage25Pricing.js';
 
 export class CreditReservationService {
   constructor({
@@ -18,6 +19,14 @@ export class CreditReservationService {
     const estimate = await this.pricingPolicyService.calculateEstimate(options);
     this.estimateCache.set(estimate.estimateId, estimate);
     return this.accountRepo.saveEstimate(estimate);
+  }
+
+  async validateTestTariff(estimate) {
+    if (estimate?.breakdown?.testingOnly !== true) return;
+    const model = await this.pricingPolicyService.findModelPricing(
+      estimate.routing?.requestedProviderId, estimate.routing?.requestedModelId);
+    if (model.measuredUsagePricing) throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_STALE,
+      'The test tariff has ended. Confirm a new credit estimate.', 400);
   }
 
   async estimateVideo({ userId, model, request, generationMode = 'playground_video' }) {
@@ -117,6 +126,7 @@ export class CreditReservationService {
     // Parity Validation against generation request inputs
     const inputs = estimate.pricingInputs || {};
     const route = estimate.routing || {};
+    await this.validateTestTariff(estimate);
 
     const normalized = value => value === undefined || value === null || value === '' ? null : String(value).trim();
     const normalizedResolution = value => normalized(value)?.toUpperCase() || null;
@@ -153,6 +163,7 @@ export class CreditReservationService {
           : [])
       ] : []),
       ['templateUseSessionId', normalized(inputs.templateUseSessionId), normalized(generationRequest.templateUseSessionId)],
+      ['lookSheetFingerprint', normalized(inputs.lookSheetFingerprint), normalized(generationRequest.lookSheetFingerprint)],
       ...(normalized(inputs.referenceProcessingPlanFingerprint)
         ? [[
           'referenceProcessingPlanFingerprint',
@@ -227,7 +238,14 @@ export class CreditReservationService {
     };
   }
 
-  async captureForJob({ userId, reservationId, jobId, metadata = {} }) {
+  async captureForJob({ userId, reservationId, jobId, usage = null, metadata = {} }) {
+    if (typeof this.accountRepo.getReservationForOwner === 'function') {
+      const reservation = await this.accountRepo.getReservationForOwner({ userId, reservationId, jobId });
+      if (!reservation) throw createCreditError(CREDIT_ERROR_CODES.RESERVATION_NOT_FOUND, 'Reservation not found for capture.', 404);
+      const rates = reservation.pricingSnapshot?.breakdown?.tokenRates;
+      if (rates) metadata = { ...metadata, providerCostEvidence: calculateImageTokenCost(usage, rates)
+        || { costBasis: 'unavailable', providerCostUsd: null, providerRateVersion: rates.version } };
+    }
     return this.accountRepo.captureReservation({
       userId,
       reservationId,
@@ -255,6 +273,7 @@ export class CreditReservationService {
       if (new Date(estimate.expiresAt) < new Date()) {
         throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_EXPIRED, 'A plan estimate has expired.', 400);
       }
+      await this.validateTestTariff(estimate);
       const expected = operation.generationRequest || {};
       const actual = {
         providerId: estimate.routing?.requestedProviderId,
@@ -337,6 +356,7 @@ export class CreditReservationService {
     const estimate = this.estimateCache.get(estimateId)
       || await this.accountRepo.getEstimateById(estimateId);
     assertEstimateCanReserve({ estimate, userId, generationRequest });
+    await this.validateTestTariff(estimate);
     const outputCount = Math.max(1, Math.floor(Number(estimate.pricingInputs?.outputCount) || 1));
     if (children.length !== outputCount) {
       throw createCreditError(
@@ -492,6 +512,7 @@ function assertEstimateCanReserve({ estimate, userId, generationRequest }) {
     ['outputCount', Math.max(1, integer(inputs.outputCount, 1)), Math.max(1, integer(generationRequest.outputCount, 1))],
     ['generationMode', normalized(inputs.generationMode), normalized(generationRequest.generationMode)],
     ['templateUseSessionId', normalized(inputs.templateUseSessionId), normalized(generationRequest.templateUseSessionId)],
+    ['lookSheetFingerprint', normalized(inputs.lookSheetFingerprint), normalized(generationRequest.lookSheetFingerprint)],
     ...(normalized(inputs.referenceProcessingPlanFingerprint) ? [[
       'referenceProcessingPlanFingerprint',
       normalized(inputs.referenceProcessingPlanFingerprint),

@@ -8,6 +8,8 @@ import { chromium } from 'playwright';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const origin = process.env.VIDEO_LAYOUT_ORIGIN || 'http://127.0.0.1:5173';
 const trusted = process.argv.includes('--trusted');
+const named = process.argv.includes('--named');
+const expectedImages = named ? 3 : 2;
 const active = process.argv.includes('--active');
 assert.ok(['localhost', '127.0.0.1'].includes(new URL(origin).hostname));
 const output = await fs.mkdtemp(
@@ -37,7 +39,7 @@ const model = {
   aspectRatios: ['9:16'],
   audioModes: ['none'],
 };
-const trustedImages = ['frame', 'look'].map(id => ({ id, previewUrl: `/outputs/layout-${id}.jpg`,
+const trustedImages = ['frame', 'look', ...(named ? ['second'] : [])].map(id => ({ id, previewUrl: `/outputs/layout-${id}.jpg`,
   modelId: 'seedream-5-0-lite-260128', generationMode: 'text_to_image', generatedAt: '2026-09-01T00:00:00Z',
   expiresAt: '2099-01-01T00:00:00Z', eligible: true, reason: null, policyVersion: 'layout-policy' }));
 const activeTask = {
@@ -142,7 +144,7 @@ try {
       viewport: { width: 1440, height: 1000 },
     });
     await context.addInitScript(
-      ({ locale, actor, model, trusted, trustedImages, active, activeTask }) => {
+      ({ locale, actor, model, trusted, trustedImages, active, activeTask, named }) => {
         localStorage.setItem('model_prompt_forge_language', locale);
         localStorage.setItem('mpf_active_mock_user_id', actor.userId);
         localStorage.setItem(
@@ -164,6 +166,10 @@ try {
               comparisonActive: false,
               referenceImageUrl: '/outputs/layout-frame.jpg',
               character: null,
+              ...(named ? {
+                trustedLooks: trusted ? trustedImages.slice(1).map((item, index) => ({ ...item, characterName: index ? 'Ben' : 'Alice' })) : [],
+                lookSheets: trusted ? [] : ['look', 'second'].map((id, index) => ({ url: `/outputs/layout-${id}.jpg`, assetId: `fixture-${id}`, name: id, characterName: index ? 'Ben' : 'Alice' })),
+              } : {}),
               trustedFrame: trusted ? trustedImages[0] : null,
               trustedLook: trusted ? trustedImages[1] : null,
               lookSheet: {
@@ -177,7 +183,7 @@ try {
           }),
         );
       },
-      { locale, actor, model, trusted, trustedImages, active, activeTask },
+      { locale, actor, model, trusted, trustedImages, active, activeTask, named },
     );
     let lastQuote;
     await context.route('**/*', async (route) => {
@@ -246,14 +252,16 @@ try {
     await page.goto(`${origin}/create/playground?media=video`);
     await page
       .locator('.playground-video-references__slots')
+      .first()
       .waitFor({ timeout: 45000 });
     await page.waitForFunction(
-      () =>
+      (expected) =>
         [
           ...document.querySelectorAll(
             '.playground-video-references__preview img',
           ),
-        ].filter((img) => img.complete && img.naturalWidth > 0).length === 2,
+        ].filter((img) => img.complete && img.naturalWidth > 0).length === expected,
+      expectedImages,
     );
     await page.evaluate(() => document.fonts.ready);
     for (const width of [1440, 820, 390]) {
@@ -291,10 +299,11 @@ try {
       );
       assert.equal(measure.clipped, 0);
       assert.equal(measure.rawKeys, false);
+      assert.equal(await page.locator('.video-look-sheet-list').evaluate(el => /\{(?:number|count|limit)\}/.test(el.textContent || '')), false);
       assert.equal(measure.activeStatusBars, active ? 1 : 0);
       assert.equal(measure.rawProviderStatus, false);
       if (active) assert.match(measure.activeJobCount, /1/);
-      assert.equal(measure.images.length, 2);
+      assert.equal(measure.images.length, expectedImages);
       assert.ok(measure.images.every((item) => item.width > 0));
       await page.screenshot({
         path: path.join(output, `${locale}-${width}.png`),
@@ -308,7 +317,7 @@ try {
         await page.waitForFunction(() => [...document.querySelectorAll('.trusted-video-picker__grid img')].every(img => img.complete && img.naturalWidth > 0));
         const dialog = await page.locator('[role=dialog]').boundingBox();
         assert.ok(dialog && dialog.x >= 0 && dialog.x + dialog.width <= width + 1);
-        assert.equal(await page.locator('.trusted-video-picker__grid button:disabled').count(), 1);
+        assert.equal(await page.locator('.trusted-video-picker__grid button:disabled').count(), named ? 2 : 1);
         assert.equal(await page.locator('.trusted-video-picker__grid').getByText('expired', { exact: true }).count(), 0);
         await page.screenshot({ path: path.join(output, `${locale}-${width}-picker.png`), fullPage: true });
         await page.keyboard.press('Escape');
@@ -326,7 +335,7 @@ try {
         await page.locator('[role=dialog]').waitFor({ state: 'hidden' });
       }
     }
-    assert.equal(lastQuote?.references.length, 2);
+    assert.equal(lastQuote?.references.length, expectedImages);
     if (trusted) {
       assert.equal(lastQuote.referencePlanVersion, 'playground-trusted-v1');
       assert.ok(lastQuote.references.every(row => row.generationId && !row.referenceImageUrl));
@@ -334,7 +343,7 @@ try {
     }
     assert.deepEqual(
       lastQuote.references.map((item) => item.role),
-      ['reference_image', 'reference_image'],
+      Array(expectedImages).fill('reference_image'),
     );
     const translations = JSON.parse(
       await fs.readFile(
@@ -342,6 +351,21 @@ try {
         'utf8',
       ),
     );
+    if (named) {
+      const names = page.locator('.playground-video-references__slot input:not([type=file])');
+      assert.equal(await names.count(), 2);
+      await names.nth(1).fill('Changed');
+      await page.waitForTimeout(250);
+      assert.equal(lastQuote.references[2].characterName, 'Changed');
+      const add = page.getByRole('button', { name: translations['playground.video.references.addLook'], exact: true });
+      await add.click();
+      assert.equal(await page.locator('.playground-video-references__slot').count(), 4);
+      await page.getByRole('button', { name: translations['playground.video.references.cancelLook'], exact: true }).click();
+      assert.equal(await page.locator('.playground-video-references__slot').count(), 3);
+      await page.locator('.video-look-sheet-list__additional').getByRole('button', { name: new RegExp(translations['playground.reference.remove']) }).click();
+      await page.waitForTimeout(250);
+      assert.equal(lastQuote.references.length, 2);
+    }
     await page
       .getByRole('button', {
         name: translations['playground.video.operation.image_to_video'],

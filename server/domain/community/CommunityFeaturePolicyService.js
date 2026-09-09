@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { RepositoryContractError } from '../../repositories/repositoryContracts.js';
 import { getPublicPromptRefinementPolicy } from '../../config/prompt-refinement-policy.js';
+import { isLookSheetDocumentEnabled } from '../../config/lookSheetDocumentPolicy.js';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 
 const CONFIG_FILE = path.resolve(
@@ -76,6 +77,7 @@ export class CommunityFeaturePolicyService {
         automaticSimpleModeEnabled: flags.routing.automaticSimpleModeEnabled === true
       },
       generation: {
+        lookSheetDocumentEnabled: isLookSheetDocumentEnabled(),
         promptRefinementEnabled: promptRefinement.enabled
           && this.availabilityPolicy.evaluate({
             providerId: promptRefinement.provider,

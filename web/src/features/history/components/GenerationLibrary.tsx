@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowRight, Columns3, Film, Image as ImageIcon, LoaderCircle, Play, Trash2 } from 'lucide-react';
+import { ArrowRight, Columns3, Film, Image as ImageIcon, Play, Trash2 } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -364,7 +365,7 @@ function VideoRecentCard({ task, onOpen }: { task: VideoTask; onOpen: (id: strin
         <img src={apiMediaUrl(task.outputAsset.posterUrl) || undefined} alt="" loading="lazy" />
       ) : (
         <div className="studio-recent__video-placeholder" aria-hidden="true">
-          {running ? <LoaderCircle className="animate-spin" /> : <Film />}
+          {running ? <ProcessingSpinner className="animate-spin" /> : <Film />}
         </div>
       )}
       {playable ? <Play className="studio-recent__play" aria-hidden="true" /> : null}

@@ -27,6 +27,7 @@ type StudioGenerationWorkspaceProps = {
   comparisonActive?: boolean;
   configurationFirst?: boolean;
   builderTitle?: string;
+  singleBuilderHeading?: boolean;
 };
 
 export function StudioGenerationWorkspace({
@@ -44,7 +45,8 @@ export function StudioGenerationWorkspace({
   showRenderPromptHeading = true,
   comparisonActive = false,
   configurationFirst = false,
-  builderTitle
+  builderTitle,
+  singleBuilderHeading = false
 }: StudioGenerationWorkspaceProps) {
   const { t } = useTranslation('react-ui');
   const [viewportCollapsed, setViewportCollapsed] = useState(false);
@@ -124,7 +126,7 @@ export function StudioGenerationWorkspace({
         className="studio-configurator-panel"
         aria-labelledby="studio-configurator-title"
       >
-        <header className="studio-panel-heading">
+        {!singleBuilderHeading ? <header className="studio-panel-heading">
           <div className="studio-panel-heading__title">
             <Palette aria-hidden="true" />
             <div>
@@ -134,11 +136,12 @@ export function StudioGenerationWorkspace({
           </div>
         </header>
 
+        : null}
         <div className="studio-configurator-pipeline">
           <section className="studio-step-card studio-step-card--attributes">
             <header className="studio-step-heading">
               <span>{t('ui.studio.stepLabel')} 1</span>
-              <h2>{builderTitle || t('ui.studio.aestheticOptions')}</h2>
+              <h2 id={singleBuilderHeading ? 'studio-configurator-title' : undefined}>{builderTitle || t('ui.studio.aestheticOptions')}</h2>
             </header>
             {modeSelector}
             {builder}

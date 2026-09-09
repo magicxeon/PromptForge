@@ -9,6 +9,15 @@ qualification changes
 
 ## 1. Purpose
 
+2026-09-09: [Image 2.5 measured pricing](image/007-openai-image25-measured-pricing.md)
+replaces the temporary tariff with cost-derived locked Credits for measured
+768x1024 auto requests. Other sizes/qualities remain unpriced; existing jobs
+are not rebilled. New captures keep usage-derived cost evidence separately.
+
+Earlier [Image 2.5 development testing](image/006-openai-image-25-testing.md)
+used an explicit test tariff; its release gate is now superseded by 007 for
+the measured scope only.
+
 This folder is the canonical requirement owner for external AI provider
 integration across image, video, and text-generation support. It consolidates
 provider architecture, adapters, capability catalogs, pricing evidence,
@@ -49,6 +58,8 @@ entry points.
 
 ### Image Providers
 
+- [OpenAI Image 2.5](image/005-openai-image-25.md): API/catalog integration;
+  measured usage and retail pricing gate remain separate from token-rate evidence.
 - [Provider Registry And Grok Imagine](image/001-provider-registry-and-grok-imagine.md)
 - [Provider Pricing Catalog And Value Ranking](image/002-provider-pricing-catalog-and-value-ranking.md)
 - [BytePlus ModelArk Seedream Provider](image/003-byteplus-modelark-seedream-provider.md)
@@ -65,6 +76,8 @@ entry points.
 - [Luna AI Prompt Refinement Provider](text/001-luna-ai-prompt-refinement-provider.md)
 
 ### Cross-Product Qualification
+
+- [BytePlus, Muse And Google Video Cost Evidence Plan](qualification/002-byteplus-muse-cost-evidence-plan.md)
 
 - [Fashion Model Qualification And Routing](qualification/001-fashion-model-qualification-and-routing.md)
 

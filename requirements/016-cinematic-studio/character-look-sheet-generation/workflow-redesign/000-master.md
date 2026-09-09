@@ -9,6 +9,12 @@
 
 ## 1. Outcome
 
+2026-09-09 additive delivery: [Generated sheet import](006-generated-sheet-import.md)
+and its [ordered implementation plan](007-generated-sheet-implementation-plan.md)
+add an owned Seedream source choice to the existing Cast Look dialog. This is
+not a new Character, Look lifecycle or upload pipeline; original provider source
+authority is preserved through approval and video transport.
+
 Redesign the Character Look preparation experience so a creator can move from
 one wardrobe source to one inspectable Character Look Sheet and then explicitly
 approve it for the selected film without navigating through duplicated actions,

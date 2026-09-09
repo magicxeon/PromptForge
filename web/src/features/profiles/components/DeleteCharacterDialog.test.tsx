@@ -16,6 +16,15 @@ function setup() {
 }
 beforeEach(() => vi.resetAllMocks());
 describe('Delete Character', () => {
+  it('shows the warning area before opening confirmation', () => {
+    const client = new QueryClient();
+    render(<QueryClientProvider client={client}><DeleteCharacterDialog characterId="c1" displayName="Mina" /></QueryClientProvider>);
+    const area = screen.getByRole('region', { name: 'character-profiles.delete.dangerTitle' });
+    expect(area).toHaveTextContent('character-profiles.delete.description');
+    expect(area).toContainElement(screen.getByRole('button', { name: 'character-profiles.delete.action' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(mocks.remove).not.toHaveBeenCalled();
+  });
   it('requires exact DELETE and cancel never calls the API', () => {
     setup();
     const button = screen.getByRole('button', { name: 'character-profiles.delete.confirm' });

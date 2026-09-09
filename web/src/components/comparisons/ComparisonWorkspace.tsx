@@ -1,6 +1,7 @@
 import {
   ChevronLeft,
   ChevronRight,
+  Columns2,
   Crown,
   Download,
   Maximize2,
@@ -8,7 +9,9 @@ import {
   Minus,
   Move,
   Plus,
-  RotateCcw
+  RotateCcw,
+  Rows2,
+  WandSparkles
 } from 'lucide-react';
 import {
   useEffect,
@@ -23,8 +26,11 @@ import type { TFunction } from 'i18next';
 import { Button } from '../ui/Button';
 import { Surface } from '../ui/Surface';
 import { VideoMediaPlayer } from '../media/VideoMediaPlayer';
+import { MediaExportButton } from '../media/MediaExportButton';
 import { GenerationResultMetadata } from '../generation/GenerationResultMetadata';
+import { GenerationStageState } from '../generation/GenerationStageState';
 import { apiMediaUrl } from '../../lib/api/apiClient';
+import { resolveComparisonLayout, type ComparisonLayout } from '../../features/comparisons/comparisonLayout';
 import type {
   ComparisonRun,
   ComparisonSlot
@@ -58,6 +64,7 @@ type WorkspaceModeProps =
 
 type ComparisonWorkspaceProps = WorkspaceModeProps & {
   run: ComparisonRun;
+  exportSetId?: string;
   renderSlotActions?: (slot: ComparisonSlot) => ReactNode;
 };
 
@@ -84,6 +91,9 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
     [props.run.slots]
   );
   const [pageStart, setPageStart] = useState(0);
+  const [layoutSelection, setLayoutSelection] = useState<{ runId: string; value: ComparisonLayout } | null>(null);
+  const selectedLayout = layoutSelection?.runId === props.run.id ? layoutSelection.value : 'auto';
+  const resolvedLayout = resolveComparisonLayout(props.run, selectedLayout);
   const [syncView, setSyncView] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sharedTransform, setSharedTransform] = useState<ViewTransform>(DEFAULT_TRANSFORM);
@@ -103,6 +113,7 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
 
     const handleWheel = (event: WheelEvent) => {
       if (isVideo) return;
+      if (resolvedLayout === 'stacked' && !event.ctrlKey && !event.metaKey) return;
       if (!(event.target instanceof Element)) return;
       const viewport = event.target.closest<HTMLElement>(
         '[data-comparison-slot-id]'
@@ -138,7 +149,7 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
 
     workspace.addEventListener('wheel', handleWheel, { passive: false });
     return () => workspace.removeEventListener('wheel', handleWheel);
-  }, [isVideo, syncView]);
+  }, [isVideo, syncView, resolvedLayout]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -209,6 +220,7 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
   }
 
   function startDrag(slotId: string, event: ReactPointerEvent<HTMLDivElement>) {
+    if (resolvedLayout === 'stacked' && event.pointerType === 'touch') return;
     const transform = currentTransform(slotId);
     dragRef.current = {
       slotId,
@@ -245,11 +257,31 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
   }
 
   return (
-    <div className="comparison-workspace" ref={workspaceRef}>
+    <div className="comparison-workspace" data-layout={resolvedLayout} ref={workspaceRef}>
       <div
         className="comparison-workspace__toolbar"
         aria-label={t('comparisons.viewer.controls')}
       >
+        {!isVideo && props.mode !== 'public' && props.exportSetId
+          && ['completed', 'partially_completed', 'failed', 'cancelled'].includes(props.run.status)
+          && props.run.slots.filter(slot => slot.status === 'completed' && slot.result?.imageUrl).length >= 2
+          ? <MediaExportButton request={{ kind: 'comparison', setId: props.exportSetId, runId: props.run.id, layout: resolvedLayout }}
+            items={props.run.slots.filter(slot => slot.status === 'completed' && slot.result?.imageUrl).map(slot => ({
+              id: slot.jobId || slot.id, provider: localized(slot.providerDisplayName) || slot.provider,
+              model: localized(slot.modelDisplayName) || slot.model }))}
+            count={props.run.slots.filter(slot => slot.status === 'completed' && slot.result?.imageUrl).length} /> : null}
+        {!isVideo ? <div className="comparison-workspace__layout" role="group" aria-label={t('comparisons.viewer.layout')}>
+          {([
+            ['auto', WandSparkles], ['side_by_side', Columns2], ['stacked', Rows2]
+          ] as const).map(([value, Icon]) => (
+            <Button key={value} size="icon" variant={selectedLayout === value ? 'primary' : 'ghost'}
+              title={t(`comparisons.viewer.layout.${value}`)}
+              aria-label={t(`comparisons.viewer.layout.${value}`)}
+              aria-pressed={selectedLayout === value}
+              icon={<Icon className="size-4" />}
+              onClick={() => setLayoutSelection({ runId: props.run.id, value })} />
+          ))}
+        </div> : null}
         {!isVideo ? <label className="comparison-workspace__sync">
           <input
             type="checkbox"
@@ -333,7 +365,7 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
           onClick={() => setPageStart(current => Math.max(0, current - 1))}
         />
 
-        <div className={`comparison-workspace__grid${isVideo ? ' is-video' : ''}`}>
+        <div className={`comparison-workspace__grid${isVideo ? ' is-video' : resolvedLayout === 'stacked' ? ' is-stacked' : ''}`}>
           {visibleSlots.map(slot => {
             const transform = currentTransform(slot.id);
             const winner = isWinner(props, slot);
@@ -375,6 +407,8 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
                         transform: `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${transform.scale})`
                       }}
                     />
+                  ) : ['queued', 'processing', 'streaming'].includes(slot.status) ? (
+                    <GenerationStageState loading title={t(`comparisons.processing.${slot.status === 'queued' ? 'queued' : 'processing'}`)} />
                   ) : (
                     <p>{slot.error?.message || slot.status}</p>
                   )}

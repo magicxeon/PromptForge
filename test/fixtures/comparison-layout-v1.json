@@ -1,0 +1,10 @@
+[
+  { "sizes": [[1600, 900], [1280, 720]], "aspectRatio": "1:1", "expected": "stacked" },
+  { "sizes": [[900, 1600]], "aspectRatio": "16:9", "expected": "side_by_side" },
+  { "sizes": [[800, 800]], "expected": "side_by_side" },
+  { "sizes": [[1600, 900], [1600, 900], [1600, 900], [900, 1600]], "expected": "side_by_side" },
+  { "sizes": [null], "aspectRatio": "16:9", "expected": "stacked" },
+  { "sizes": [null], "aspectRatio": "16:0", "expected": "side_by_side" },
+  { "sizes": [null], "expected": "side_by_side" },
+  { "sizes": [], "aspectRatio": "16:9", "expected": "side_by_side" }
+]

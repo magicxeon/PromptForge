@@ -143,6 +143,7 @@ export function ComparisonDetailRoute() {
       {run ? (
         <ComparisonWorkspace
           mode="private"
+          exportSetId={setId}
           run={run}
           winnerJobId={comparison.data.winnerJobId}
           onWinnerChange={jobId => winner.mutate(jobId)}

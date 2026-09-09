@@ -463,6 +463,7 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
             <div>
               <button type="button" disabled={!selectedAssignment} onClick={() => { setLookToPrepare(null); setLookDialogMode('upload'); setLookDialogOpen(true); }}><span><Upload aria-hidden="true" /></span><span><strong>{t('cinematic.cast.uploadWardrobe')}</strong><small>{t('cinematic.cast.uploadForCharacter')}</small></span><ArrowRight aria-hidden="true" /></button>
               <button type="button" disabled={!selectedAssignment} onClick={() => { setLookToPrepare(null); setLookDialogMode('ai'); setLookDialogOpen(true); }}><span><Sparkles aria-hidden="true" /></span><span><strong>{t('cinematic.cast.aiWardrobe')}</strong><small>{t('cinematic.cast.aiWardrobeHint')}</small></span><ArrowRight aria-hidden="true" /></button>
+              <button type="button" className="cinematic-look-source-actions__generated" disabled={!selectedAssignment} onClick={() => { setLookToPrepare(null); setLookDialogMode('generated'); setLookDialogOpen(true); }}><span><Images aria-hidden="true" /></span><span><strong>{t('cinematic.cast.generatedSheet')}</strong><small>{t('cinematic.cast.generatedSheetHint')}</small></span><ArrowRight aria-hidden="true" /></button>
             </div>
           </fieldset>
           <div className="cinematic-look-library" aria-label={t('cinematic.cast.currentLooks')}>

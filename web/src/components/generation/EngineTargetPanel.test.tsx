@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { EngineTargetPanel } from './EngineTargetPanel';
-import { imageModelUnavailableReason } from './engineTargetPanelHelpers';
+import { imageModelUnavailableReason, supportedImageRatio } from './engineTargetPanelHelpers';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
@@ -34,6 +34,37 @@ function renderPanel(provider = 'meta-muse', comparison = false, requiredReferen
 }
 
 describe('qualified image engine exposure', () => {
+  it('adapts document ratios when switching providers instead of disabling eligible engines', () => {
+    const onChange = vi.fn();
+    const dynamic = structuredClone(catalog);
+    dynamic.providers[1]!.models[0]!.capabilities.aspectRatios = ['16:9', '6:8'];
+    render(<EngineTargetPanel catalog={dynamic}
+      value={{ provider: 'existing', model: 'existing-image', aspectRatio: '3:4', resolution: null, outputCount: 1 }}
+      adaptAspectRatio comparison={false} comparisonSlots={[]}
+      onChange={onChange} onSlotsChange={vi.fn()} onComparisonChange={vi.fn()} />);
+    expect(screen.getByRole('option', { name: 'Meta Muse' })).not.toBeDisabled();
+    fireEvent.change(screen.getByLabelText('playground.engine.provider'), { target: { value: 'meta-muse' } });
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ provider: 'meta-muse', aspectRatio: '6:8' }));
+    expect(supportedImageRatio(['16:9'], '3:4')).toBe('16:9');
+    expect(supportedImageRatio(['6:8', '16:9'], '16:9')).toBe('16:9');
+    expect(supportedImageRatio(['3:4'], '6:8')).toBe('3:4');
+  });
+  it('keeps fixed-ratio engines unavailable and dynamic reference gates intact', () => {
+    const props = { catalog, value: { provider: 'existing', model: 'existing-image', aspectRatio: '3:4', resolution: null, outputCount: 1 },
+      comparison: false, comparisonSlots: [], onChange: vi.fn(), onSlotsChange: vi.fn(), onComparisonChange: vi.fn() };
+    const view = render(<EngineTargetPanel {...props} adaptAspectRatio fixedAspectRatio="3:4" />);
+    expect(screen.getByRole('option', { name: 'Meta Muse' })).toBeDisabled();
+    view.rerender(<EngineTargetPanel {...props} adaptAspectRatio requiredReferenceCount={1} />);
+    expect(screen.getByRole('option', { name: 'Meta Muse' })).toBeDisabled();
+  });
+  it('shows portrait dimensions for the document-sheet 3:4 alias', () => {
+    render(<EngineTargetPanel catalog={catalog}
+      value={{ provider: 'existing', model: 'existing-image', aspectRatio: '3:4', resolution: null, outputCount: 1 }}
+      fixedAspectRatio="3:4" comparison={false} comparisonSlots={[]}
+      onChange={vi.fn()} onSlotsChange={vi.fn()} onComparisonChange={vi.fn()} />);
+    expect(screen.getByLabelText('playground.engine.width')).toHaveValue('768');
+    expect(screen.getByLabelText('playground.engine.height')).toHaveValue('1024');
+  });
   it('allows qualified Muse without an internal warning or fictitious pixel dimensions', () => {
     const onChange = renderPanel();
     expect(screen.getByRole('option', { name: 'Meta Muse' })).not.toBeDisabled();
@@ -43,6 +74,14 @@ describe('qualified image engine exposure', () => {
     expect(screen.queryByText('playground.engine.resolution')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '9:16 Mobile' }));
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ aspectRatio: '9:16' }));
+  });
+  it('derives dimensions for dynamic ratios beyond the old fixed table', () => {
+    render(<EngineTargetPanel catalog={catalog}
+      value={{ provider: 'existing', model: 'existing-image', aspectRatio: '2:3', resolution: null, outputCount: 1 }}
+      adaptAspectRatio comparison={false} comparisonSlots={[]}
+      onChange={vi.fn()} onSlotsChange={vi.fn()} onComparisonChange={vi.fn()} />);
+    expect(screen.getByLabelText('playground.engine.width')).toHaveValue('768');
+    expect(screen.getByLabelText('playground.engine.height')).toHaveValue('1152');
   });
 
   it('preserves existing model dimensions and resolution', () => {

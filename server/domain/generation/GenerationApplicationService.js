@@ -7,6 +7,7 @@ import {
   createQueueOptions
 } from './generationRequestService.js';
 import { prepareGenerationReferences } from './prepareGenerationReferences.js';
+import { lookSheetEnhancementService } from './LookSheetEnhancementService.js';
 import { promptRefinementService as defaultPromptRefinementService } from './PromptRefinementService.js';
 import { generationGroupRepository as defaultGenerationGroupRepository } from '../../repositories/generation/GenerationGroupRepository.js';
 
@@ -60,6 +61,27 @@ export class GenerationApplicationService {
       finish('error');
       throw error;
     }
+  }
+
+  async enhanceLookSheet({ body, actorContext, userRole, action }) {
+    if (!actorContext?.userId) throw Object.assign(new Error('Actor required.'), { statusCode: 401, code: 'actor_required' });
+    if (!body.lookSheetDefinition || body.generationSurface !== 'playground' || body.generationMode !== 'character-sheet'
+      || body.lookSheetEnhancementId || body.sceneTemplateSnapshot || body.templateUseSessionId || body.sceneBuilder?.templateDraft) {
+      throw Object.assign(new Error('Invalid enhancement request.'), { statusCode: 400, code: 'enhancement_invalid_request' });
+    }
+    const { provider, model } = this.providerRegistry.resolveSelection(body.provider, body.submodel, {
+      generationSurface: body.generationSurface, generationMode: body.generationMode });
+    const { context } = compileGenerationContext(createGenerationRequestPayload(body, userRole, null), actorContext);
+    await prepareGenerationReferences(context, { actorContext, providerId: provider.id, modelId: model.id, modelConfig: model });
+    const input = { userId: actorContext.userId, snapshot: context.lookSheetSnapshot,
+      originalPrompt: compilePromptFromGenerationContext(context) };
+    return action === 'quote' ? lookSheetEnhancementService.quote(input)
+      : lookSheetEnhancementService.execute({ ...input, id: body.enhancementQuoteId });
+  }
+
+  getLookSheetEnhancement(id, actorContext) {
+    if (!actorContext?.userId) throw Object.assign(new Error('Actor required.'), { statusCode: 401, code: 'actor_required' });
+    return lookSheetEnhancementService.read(id, actorContext.userId);
   }
 
   async submit({
@@ -137,6 +159,7 @@ export class GenerationApplicationService {
           referenceCount: context.referenceCount,
           referenceProcessingPlanFingerprint:
             context.referenceProcessing?.planFingerprint || null,
+          lookSheetFingerprint: context.lookSheetSnapshot?.fingerprint || null,
           outputCount: context.outputCount,
           routingMode: body.routingMode || 'advanced',
           qualityTier: body.qualityTier || 'standard',
@@ -374,6 +397,18 @@ export class GenerationApplicationService {
       generationRequest,
       metadata: { ...reservationMetadata, jobId }
     });
+    const acceptedJobId = reservationResult.reservation.jobId;
+    if (acceptedJobId && acceptedJobId !== jobId) {
+      const accepted = await this.queueManager.getJobStatus?.(acceptedJobId);
+      return {
+        jobId: acceptedJobId,
+        status: accepted?.status || 'queued',
+        reservation: {
+          reservationId: reservationResult.reservation.reservationId,
+          amountCredits: reservationResult.reservation.amountCredits
+        }
+      };
+    }
     const stream = this.providerRegistry.shouldStream(
       providerConfig,
       modelConfig,

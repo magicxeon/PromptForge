@@ -4,6 +4,14 @@ Status: implemented and deterministically verified.
 Parent: [000-master.md](000-master.md).
 Canonical owner: Character Profiles / Character Look lifecycle.
 
+## Related Planned Authoring Mode
+
+The [form and export package](../character-look-sheet-generation/form-and-export/000-master.md)
+adds a proposed Image-only standalone Look Sheet form. It is not a replacement
+for this owner-only existing Character Look entry or its approval contract.
+Both still reuse Generation; no Video/Seedance changes are authorized by that
+documentation package. Its implementation has not started.
+
 ## Outcome
 
 After choosing a Character in Image Playground, the creator can start Character

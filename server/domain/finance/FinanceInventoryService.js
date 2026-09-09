@@ -46,7 +46,7 @@ export function buildFinanceInventory(controls, policy, video) {
     }
   for (const model of policy.models) {
     const row = ensure(model.providerId, model.modelId, 'image');
-    row.rates = model.providerCostPricing
+    row.rates = model.tokenRateEvidence ? leaves(model.tokenRateEvidence, 'tokenRateEvidence') : model.providerCostPricing
       ? leaves(model.providerCostPricing.outputTiers.map(({ maxPixels, usdPerImage }) => ({ maxPixels, usdPerImage })), 'outputTiers')
         .concat(leaves(model.providerCostPricing.inputImages, 'inputImages'))
       : leaves(model.providerCostUsd, 'providerCostUsd');

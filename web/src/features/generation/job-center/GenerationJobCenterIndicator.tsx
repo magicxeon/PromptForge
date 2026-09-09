@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { AlertCircle, CheckCircle2, Image, LoaderCircle, Video } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Image, Video } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useActor } from '../../../lib/auth/ActorProvider';
@@ -43,14 +44,14 @@ export function GenerationJobCenterIndicator() {
     <details className="generation-job-center">
       <summary className="generation-job-center__trigger" aria-label={t('shell.jobCenter.label')}>
         {activeCount > 0
-          ? <LoaderCircle className="generation-job-center__spinner" aria-hidden="true" />
+          ? <ProcessingSpinner className="generation-job-center__spinner" aria-hidden="true" />
           : <CheckCircle2 aria-hidden="true" />}
         <span>{activeCount > 0 ? activeCount : t('shell.jobCenter.idle')}</span>
       </summary>
       <div className="generation-job-center__panel">
         <div className="generation-job-center__heading">
           <strong>{t('shell.jobCenter.label')}</strong>
-          {jobs.isFetching ? <LoaderCircle className="generation-job-center__spinner" aria-hidden="true" /> : null}
+          {jobs.isFetching ? <ProcessingSpinner className="generation-job-center__spinner" aria-hidden="true" /> : null}
         </div>
         {jobs.isError ? (
           <p className="generation-job-center__empty">{t('shell.jobCenter.unavailable')}</p>
@@ -84,7 +85,7 @@ function JobItem({ item }: { item: GenerationJobCenterItem }) {
             : t(jobCenterStatusKey(item.status))}</small>
         </span>
         {!item.terminal
-          ? <LoaderCircle className="generation-job-center__spinner" aria-hidden="true" />
+          ? <ProcessingSpinner className="generation-job-center__spinner" aria-hidden="true" />
           : item.status === 'completed'
             ? <CheckCircle2 aria-hidden="true" />
             : <AlertCircle aria-hidden="true" />}

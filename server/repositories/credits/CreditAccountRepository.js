@@ -112,6 +112,13 @@ export class CreditAccountRepository {
       Object.fromEntries(fields.map(key => [key, record?.[key] ?? null]))) };
   }
 
+  async getReservationForOwner({ userId, reservationId, jobId }) {
+    const data = await readJsonFile(this.databaseFile, DB_FALLBACK);
+    return structuredClone((data.reservations || []).find(record => record.userId === userId
+      && (reservationId ? record.reservationId === reservationId : record.jobId === jobId)
+      && (!jobId || !record.jobId || record.jobId === jobId)) || null);
+  }
+
   async getAccountByUserId(userId) {
     if (!userId) return null;
     const data = await this.readRaw();
@@ -242,7 +249,9 @@ export class CreditAccountRepository {
         expiresAt: metadata.expiresAt || new Date(Date.now() + 15 * 60 * 1000).toISOString(),
         capturedAt: null,
         refundedAt: null,
-        terminalReason: null
+        terminalReason: null,
+        ...(metadata.kind === 'look_sheet_enhancement'
+          ? { metadata: { kind: metadata.kind, operationId: metadata.operationId } } : {})
       };
       data.reservations.push(reservation);
 

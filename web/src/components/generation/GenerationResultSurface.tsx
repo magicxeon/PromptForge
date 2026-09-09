@@ -1,12 +1,5 @@
-import {
-  ArrowDown,
-  Check,
-  Download,
-  Image as ImageIcon,
-  LoaderCircle,
-  Pencil,
-  X
-} from 'lucide-react';
+import { ArrowDown, Check, Download, Image as ImageIcon, Pencil, X } from 'lucide-react';
+import { ProcessingSpinner } from '../ui/ProcessingSpinner';
 import { Link } from 'react-router-dom';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -27,6 +20,7 @@ import {
 import { newestComparisonRun } from '../../features/comparisons/comparisonRunState';
 import { GenerationResultGrid } from './GenerationResultGrid';
 import { GenerationStageState } from './GenerationStageState';
+import { MediaExportButton } from '../media/MediaExportButton';
 
 export function GenerationResultSurface({
   job,
@@ -123,7 +117,7 @@ export function GenerationResultSurface({
                 aria-label={tUi('ui.action.save')}
                 disabled={comparisonRenamePending || !comparisonNameDraft.trim()}
                 icon={comparisonRenamePending
-                  ? <LoaderCircle className="size-4 animate-spin" />
+                  ? <ProcessingSpinner className="size-4 animate-spin" />
                   : <Check className="size-4" />}
               />
               <Button
@@ -211,7 +205,7 @@ export function GenerationResultSurface({
         </Surface>
       ) : run ? (
         <>
-          <ComparisonWorkspace mode="generation" run={run} winnerJobId={comparison?.winnerJobId} />
+          <ComparisonWorkspace mode="generation" run={run} exportSetId={comparison?.id} winnerJobId={comparison?.winnerJobId} />
           {comparison?.id ? (
             <div className="mt-3 flex justify-end">
               <Link
@@ -258,14 +252,14 @@ export function GenerationResultSurface({
                 <>
                   <div className="generation-result__action-bar">
                     <div className="generation-result__utility-actions">
-                      <a
+                      {job.result.lookSheetSnapshot ? <MediaExportButton request={{ kind: 'look_sheet', jobId: job.jobId || job.id || '' }} /> : <a
                         href={apiMediaUrl(job.result.imageUrl) || ''}
                         download
                         className="generation-result__action"
                       >
                         <Download aria-hidden="true" />
                         {t('playground.result.download')}
-                      </a>
+                      </a>}
                       {job.jobId || job.id ? (
                         <>
                           <Link
@@ -334,6 +328,7 @@ function toViewerItem(
   return {
     id: job.jobId || job.id || '',
     imageUrl: typeof job.result?.imageUrl === 'string' ? job.result.imageUrl : '',
+    lookSheetSnapshot: job.result?.lookSheetSnapshot,
     title: typeof record.title === 'string' ? record.title : undefined,
     prompt: context?.prompt,
     provider: context?.provider,

@@ -1,8 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import {
-  ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, Clock3, LoaderCircle, Plus, Search,
-  Trash2, UserRound, WandSparkles
-} from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, Clock3, Plus, Search, Trash2, UserRound, WandSparkles } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
@@ -640,7 +638,7 @@ export function StoryPlanProposalDialog({ open, onOpenChange, proposal, liveProg
             <span aria-hidden="true">{stage.status === 'completed' || stage.status === 'skipped'
               ? <Check />
               : stage.status === 'processing'
-                ? <LoaderCircle className="animate-spin" />
+                ? <ProcessingSpinner className="animate-spin" />
                 : <Clock3 />}</span>
             <div><strong>{t(`cinematic.story.workflowStage.${stage.id}`)}</strong><small>{t(`cinematic.story.workflowStageStatus.${stage.status}`)}</small></div>
             {stage.issueCount || stage.repairCount ? <em>{t('cinematic.story.workflowStageEvidence', { issues: stage.issueCount, repairs: stage.repairCount })}</em> : null}

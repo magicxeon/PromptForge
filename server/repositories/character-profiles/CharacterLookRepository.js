@@ -37,7 +37,8 @@ export class CharacterLookRepository {
       if (!Array.isArray(records)) throw new TypeError('Character Looks data must be an array.');
       const idempotencyKey = String(input.idempotencyKey || '').trim();
       const existing = idempotencyKey
-        ? records.find(item => item.ownerUserId === actor.userId && item.idempotencyKey === idempotencyKey)
+        ? records.find(item => item.ownerUserId === actor.userId && item.idempotencyKey === idempotencyKey
+          && !(input.allowRetiredReplacement === true && item.lifecycleStatus === 'retired'))
         : null;
       if (existing) return structuredClone(existing);
       const version = createVersion({ ...input, versionNumber: 1 }, actor, now);
@@ -102,7 +103,7 @@ export class CharacterLookRepository {
         version.identityAssurance.status = 'lineage_bound';
         version.identityAssurance.updatedAt = now;
       }
-      if (version.provenance?.kind === 'user_uploaded'
+      if (['user_uploaded', 'generated_import'].includes(version.provenance?.kind)
         && version.rightsDeclaration?.accepted === true
         && version.identityAssurance?.status === 'unverified') {
         version.identityAssurance.status = 'user_confirmed';

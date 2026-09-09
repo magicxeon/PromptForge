@@ -1,4 +1,5 @@
-import { ArrowRight, LoaderCircle, RefreshCw, Star } from 'lucide-react';
+import { ArrowRight, RefreshCw, Star } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
@@ -35,7 +36,7 @@ export function CharacterSpotlight({ character, works, loading, error, onRetry, 
               {t('character-profiles.gallery.viewCharacter')}<ArrowRight aria-hidden="true" />
             </Link>
           </header>
-          {loading ? <div className="character-moments__state" role="status"><LoaderCircle className="animate-spin motion-reduce:animate-none" aria-hidden="true" />{t('character-profiles.gallery.momentsLoading')}</div>
+          {loading ? <div className="character-moments__state" role="status"><ProcessingSpinner className="animate-spin motion-reduce:animate-none" aria-hidden="true" />{t('character-profiles.gallery.momentsLoading')}</div>
             : error ? <div className="character-moments__state" role="alert"><p>{t('character-profiles.gallery.momentsError')}</p>
               <Button size="sm" icon={<RefreshCw className="size-4" />} onClick={onRetry}>{t('community:community.feed.retry')}</Button></div>
               : moments.length > 0 ? (

@@ -6,7 +6,7 @@ import type { ProviderCatalog } from '../../features/generation/schemas/generati
 import type { ComparisonSlotInput } from '../../features/generation/api/generationApi';
 import { ComparisonConfigurator } from '../comparisons/ComparisonConfigurator';
 import { EngineTargetPanelFrame } from './EngineTargetPanelFrame';
-import { imageModelUnavailableReason } from './engineTargetPanelHelpers';
+import { imageModelUnavailableReason, supportedImageRatio } from './engineTargetPanelHelpers';
 
 const ratioLabels: Record<string, string> = {
   '6:8': '6:8 Portrait',
@@ -39,6 +39,7 @@ export function EngineTargetPanel({
   promptRefinementEnabled = false,
   presentation = 'default',
   fixedAspectRatio = null,
+  adaptAspectRatio = false,
   requiredReferenceCount = 0,
   extraControls = null,
   onChange,
@@ -60,6 +61,7 @@ export function EngineTargetPanel({
   promptRefinementEnabled?: boolean;
   presentation?: 'default' | 'compact';
   fixedAspectRatio?: string | null;
+  adaptAspectRatio?: boolean;
   requiredReferenceCount?: number;
   extraControls?: ReactNode;
   onChange: (value: EngineValue) => void;
@@ -74,6 +76,7 @@ export function EngineTargetPanel({
   const availableRatios = model?.capabilities.aspectRatios.length ? model.capabilities.aspectRatios : ['6:8', '1:1', '16:9'];
   const ratios = fixedAspectRatio ? [fixedAspectRatio] : availableRatios;
   const resolutions = model?.capabilities.resolutions || [];
+  const selectionRatio = fixedAspectRatio || (adaptAspectRatio ? null : value.aspectRatio);
   const dimensions = dimensionsForRatio(value.aspectRatio);
   const selectedModelUnavailableReason = imageModelUnavailableReason(
     model,
@@ -92,13 +95,15 @@ export function EngineTargetPanel({
       candidate && !imageModelUnavailableReason(
         candidate,
         requiredReferenceCount,
-        fixedAspectRatio || value.aspectRatio
+        selectionRatio
       )
     )) || preferred || next?.models[0];
     onChange({
       ...value,
       provider: providerId,
       model: nextModel?.id || '',
+      aspectRatio: adaptAspectRatio && !fixedAspectRatio
+        ? supportedImageRatio(nextModel?.capabilities.aspectRatios || [], value.aspectRatio) : value.aspectRatio,
       resolution: nextModel?.capabilities.resolutions?.[0] || nextModel?.defaults?.resolution || null
     });
   }
@@ -119,11 +124,13 @@ export function EngineTargetPanel({
       <div className="engine-target-panel__controls">
         {!comparison ? (
           <div className="engine-target-panel__model-grid">
-            <Field label={t('playground.engine.provider')}><select value={value.provider} onChange={event => setProvider(event.target.value)}>{catalog.providers.map(item => <option key={item.id} value={item.id} disabled={item.models.every(candidate => Boolean(imageModelUnavailableReason(candidate, requiredReferenceCount, fixedAspectRatio || value.aspectRatio)))}>{localized(item.displayName)}</option>)}</select></Field>
-            <Field label={t('playground.engine.model')}><select value={value.model} onChange={event => {
+            <Field label={t('playground.engine.provider')}><select aria-label={t('playground.engine.provider')} value={value.provider} onChange={event => setProvider(event.target.value)}>{catalog.providers.map(item => <option key={item.id} value={item.id} disabled={item.models.every(candidate => Boolean(imageModelUnavailableReason(candidate, requiredReferenceCount, selectionRatio)))}>{localized(item.displayName)}</option>)}</select></Field>
+            <Field label={t('playground.engine.model')}><select aria-label={t('playground.engine.model')} value={value.model} onChange={event => {
               const next = provider?.models.find(item => item.id === event.target.value);
-              onChange({ ...value, model: event.target.value, resolution: next?.capabilities.resolutions?.[0] || next?.defaults?.resolution || null });
-            }}>{provider?.models.map(item => <option key={item.id} value={item.id} disabled={Boolean(imageModelUnavailableReason(item, requiredReferenceCount, fixedAspectRatio || value.aspectRatio))}>{localized(item.displayName)}</option>)}</select>
+              onChange({ ...value, model: event.target.value,
+                aspectRatio: adaptAspectRatio && !fixedAspectRatio ? supportedImageRatio(next?.capabilities.aspectRatios || [], value.aspectRatio) : value.aspectRatio,
+                resolution: next?.capabilities.resolutions?.[0] || next?.defaults?.resolution || null });
+            }}>{provider?.models.map(item => <option key={item.id} value={item.id} disabled={Boolean(imageModelUnavailableReason(item, requiredReferenceCount, selectionRatio))}>{localized(item.displayName)}</option>)}</select>
               {selectedModelUnavailableReason ? <small className="engine-target-panel__model-meta is-warning">{t(`playground.engine.unavailable.${selectedModelUnavailableReason}`)}</small> : null}
               {!selectedModelUnavailableReason && model?.testingRoutingEnabled && !model.paidRoutingEnabled
                 ? <small className="engine-target-panel__model-meta is-warning">{t('playground.engine.internalTesting')}</small> : null}
@@ -136,6 +143,7 @@ export function EngineTargetPanel({
         ) : null}
         <div className="engine-target-panel__output-grid">
           {model?.capabilities.dimensionControl !== 'aspect_ratio_only'
+            && value.aspectRatio !== 'auto'
             && !comparisonUsesAspectOnlyDimensions ? <>
             <Field label={t('playground.engine.width')}><input readOnly value={dimensions.width} /></Field>
             <Field label={t('playground.engine.height')}><input readOnly value={dimensions.height} /></Field>
@@ -233,13 +241,20 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 function dimensionsForRatio(ratio: string) {
   const dimensions: Record<string, { width: number; height: number }> = {
     '6:8': { width: 768, height: 1024 },
+    '3:4': { width: 768, height: 1024 },
     '1:1': { width: 1024, height: 1024 },
     '9:16': { width: 768, height: 1365 },
     '16:9': { width: 1365, height: 768 },
     '4:5': { width: 819, height: 1024 },
     '4:3': { width: 1024, height: 768 }
   };
-  return dimensions[ratio] || { width: 1024, height: 1024 };
+  if (dimensions[ratio]) return dimensions[ratio];
+  const [width, height] = ratio.split(':').map(Number);
+  if (width && height && width > 0 && height > 0 && Number.isFinite(width / height)) {
+    return width >= height ? { width: Math.round(768 * width / height), height: 768 }
+      : { width: 768, height: Math.round(768 * height / width) };
+  }
+  return { width: 1024, height: 1024 };
 }
 
 function localized(value: string | Record<string, string>) {

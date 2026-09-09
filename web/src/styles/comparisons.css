@@ -314,6 +314,26 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.comparison-workspace__layout {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 3px;
+  padding-right: 8px;
+  border-right: 1px solid var(--theme-border);
+}
+
+.comparison-workspace__grid.is-stacked {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.comparison-workspace .is-stacked .comparison-result-panel__viewport {
+  height: auto;
+  aspect-ratio: 16 / 9;
+  max-height: 680px;
+  touch-action: pan-y;
+  overscroll-behavior: auto;
+}
+
 .comparison-workspace__page-button {
   width: 34px;
   height: auto;

@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
 import { resolveBytePlusImagePricing } from './BytePlusImagePricing.js';
+import { resolveImage25MeasuredPrice } from './OpenAIImage25Pricing.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,9 +35,10 @@ function requireFinitePositive(value, name) {
 }
 
 export class CreditPricingPolicyService {
-  constructor({ policyPath = DEFAULT_POLICY_PATH, policyData = null } = {}) {
+  constructor({ policyPath = DEFAULT_POLICY_PATH, policyData = null, environment = process.env } = {}) {
     this.policyPath = policyPath;
     this.policy = policyData;
+    this.environment = environment;
   }
 
   validatePolicy(policy) {
@@ -102,7 +104,9 @@ export class CreditPricingPolicyService {
       model => model.providerId === providerId && model.modelId === modelId
     );
 
-    if (!modelRecord || !modelRecord.enabled || modelRecord.pricingStatus !== 'priced') {
+    if (!modelRecord || !modelRecord.enabled || modelRecord.pricingStatus !== 'priced'
+      || (modelRecord.testingOnly === true
+        && !['development', 'test'].includes(String(this.environment.NODE_ENV || 'development')))) {
       throw createCreditError(
         CREDIT_ERROR_CODES.PRICING_UNAVAILABLE,
         `Pricing is unavailable for provider "${providerId}" and model "${modelId}".`,
@@ -129,6 +133,7 @@ export class CreditPricingPolicyService {
       outputCount = 1,
       templateUseSessionId = null,
       referenceProcessingPlanFingerprint = null,
+      lookSheetFingerprint = null,
       templatePricing = null,
       userId
     } = options;
@@ -170,6 +175,22 @@ export class CreditPricingPolicyService {
     const normalizedOutputCount = Math.max(1, Math.floor(Number(outputCount) || 1));
     let providerCost = null;
     let provisionalCost = false;
+    let measuredPricing = null;
+    if (modelRecord.measuredUsagePricing) {
+      measuredPricing = resolveImage25MeasuredPrice(modelRecord, {
+        resolution: normalizedResolution, aspectRatio, quality: normalizedQuality,
+        referenceCount: Number(referenceCount), outputCount: Number(outputCount)
+      }, cost => this.calculateMinimumRetailFloorFromPolicy(cost, policy));
+      baseOutputCredits = measuredPricing.baseOutputCredits;
+      providerCost = { ...measuredPricing.providerCost, retailAssumptions: {
+        pricingFxThbPerUsd: policy.pricingFxThbPerUsd,
+        operatingSafetyBufferRate: policy.operatingSafetyBufferRate,
+        targetGrossMarginRate: policy.targetGrossMarginRate,
+        creditsPerThbAssumption: policy.creditsPerThbAssumption,
+        creditRoundingIncrement: policy.creditRoundingIncrement
+      } };
+      provisionalCost = true;
+    }
     if (modelRecord.providerCostPricing) {
       try {
         const pricing = resolveBytePlusImagePricing(modelRecord, {
@@ -184,7 +205,7 @@ export class CreditPricingPolicyService {
       }
     }
     const billableReferences = Math.max(0, normalizedReferenceCount - Math.max(0, Number(referencePolicy.freeCount) || 0));
-    const referenceCredits = referencePolicy.mode === 'free'
+    const referenceCredits = measuredPricing ? measuredPricing.referenceCredits : referencePolicy.mode === 'free'
       ? 0
       : billableReferences * Math.max(0, Number(referencePolicy.unitCredits) || 0);
     const generationCredits = (baseOutputCredits + referenceCredits) * normalizedOutputCount;
@@ -213,10 +234,12 @@ export class CreditPricingPolicyService {
         generationMode: normalizeOptional(generationMode) || 'scene',
         templateUseSessionId: normalizeOptional(templateUseSessionId),
         referenceProcessingPlanFingerprint:
-          normalizeOptional(referenceProcessingPlanFingerprint)
+          normalizeOptional(referenceProcessingPlanFingerprint),
+        lookSheetFingerprint: normalizeOptional(lookSheetFingerprint)
       },
       breakdown: {
         ...(providerCost || {}),
+        ...(modelRecord.testingOnly ? { testingOnly: true, testTariffVersion: policy.policyVersion } : {}),
         baseOutputCredits,
         referenceCredits,
         generationCredits,

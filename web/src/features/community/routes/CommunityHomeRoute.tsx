@@ -175,7 +175,7 @@ export function CommunityHomeRoute() {
         {!discovery.query.isLoading && !discovery.query.isError && !discovery.posts.length ? (
           <EmptyState title={t('community.feed.empty')} />
         ) : null}
-        <div className="community-feed-grid" aria-live="polite">
+        <div className="community-feed-grid media-card-list" aria-live="polite">
           {feedPosts.map(post => <MediaCard key={post.id} post={post} />)}
         </div>
 

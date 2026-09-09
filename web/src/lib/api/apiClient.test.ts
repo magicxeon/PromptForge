@@ -1,8 +1,21 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { apiRequestWithProgress } from './apiClient';
+import { apiRequest, apiRequestWithProgress } from './apiClient';
 
 describe('apiRequestWithProgress', () => {
+  it('preserves authorized PNG/JPEG blobs and exposes response headers without changing JSON errors', async () => {
+    for (const type of ['image/png', 'image/jpeg']) {
+      const response = new Response(null, { headers: { 'Content-Type': type, 'X-Momelo-Export': 'metadata' } });
+      vi.spyOn(response, 'blob').mockResolvedValue(new Blob(['image'], { type }));
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));
+      const onResponseHeaders = vi.fn();
+      const blob = await apiRequest('/api/media/exports', { responseType: 'blob', schema: z.instanceof(Blob), onResponseHeaders });
+      expect(blob.type).toBe(type);
+      expect(onResponseHeaders.mock.calls[0]![0].get('X-Momelo-Export')).toBe('metadata');
+    }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: { code: 'export_busy', message: 'Retry' } }), { status: 429, headers: { 'Content-Type': 'application/json' } })));
+    await expect(apiRequest('/api/media/exports', { responseType: 'blob', schema: z.instanceof(Blob) })).rejects.toMatchObject({ code: 'export_busy', status: 429 });
+  });
   afterEach(() => {
     vi.unstubAllGlobals();
   });

@@ -8,6 +8,21 @@ import { ComparisonWorkspace } from './ComparisonWorkspace';
 const testI18n = i18next.createInstance();
 
 describe('ComparisonWorkspace', () => {
+  it('shows the shared spinner per active slot and stops on terminal states without hiding finished images', () => {
+    const run = comparisonRunSchema.parse({ id: 'loading_run', status: 'processing', createdAt: Date.now(),
+      slots: ['queued', 'processing', 'failed', 'cancelled', 'completed'].map((status, index) => ({
+        id: `state_${index}`, provider: 'openai', model: 'model', status,
+        ...(status === 'completed' ? { result: { imageUrl: '/outputs/ready.png' } } : {})
+      })) });
+    const view = render(<I18nextProvider i18n={testI18n}><ComparisonWorkspace mode="generation" run={run} /></I18nextProvider>);
+    expect(view.container.querySelectorAll('[data-processing-spinner]')).toHaveLength(2);
+    expect(view.container.querySelectorAll('[aria-busy="true"]')).toHaveLength(2);
+    view.rerender(<I18nextProvider i18n={testI18n}><ComparisonWorkspace mode="generation" run={{ ...run,
+      slots: run.slots.slice(0, 2).map(slot => ({ ...slot, status: 'completed', result: { mediaType: 'image' as const, imageUrl: '/outputs/ready.png' } })) }} /></I18nextProvider>);
+    expect(view.container.querySelectorAll('[data-processing-spinner]')).toHaveLength(0);
+    expect(view.container.querySelectorAll('.comparison-result-panel__viewport img')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'Zoom in' })).toBeEnabled();
+  });
   beforeAll(async () => {
     await testI18n.use(initReactI18next).init({
       lng: 'en',

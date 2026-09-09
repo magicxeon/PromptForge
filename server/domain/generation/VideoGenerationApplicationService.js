@@ -23,6 +23,7 @@ import { VideoProviderAdapterRegistry } from '../../providers/VideoProviderAdapt
 import { reconcileVideoDuration } from './VideoDurationReconciliation.js';
 import {
   fingerprintVideoReferencePlan,
+  appendLookLegend,
   normalizeVideoReferences,
   sanitizeVideoReferences
 } from './VideoReferencePlan.js';
@@ -195,7 +196,7 @@ export class VideoGenerationApplicationService {
       shotId: workflow.shotId,
       generationAttemptId: workflow.generationAttemptId || taskId
     }, actorContext, { allowTesting: this.testingEnabled });
-    if (playgroundPlan?.trusted) await this.trustedSources.recordRejection({ ...submitted,
+    if (playgroundPlan?.trusted || request.references.some(row => row.trustedGenerationId)) await this.trustedSources.recordRejection({ ...submitted,
       submittedRequest: { references: request.references } }, actorContext).catch(() => {
       console.warn('[Video] Trusted-source rejection evidence could not be saved');
     });
@@ -253,7 +254,7 @@ export class VideoGenerationApplicationService {
 
   async #settleTask(inputTask) {
     let task = inputTask;
-    if (task.submittedRequest?.references?.some(row => row.sourceKind === 'trusted_generated')) {
+    if (task.submittedRequest?.references?.some(row => row.sourceKind === 'trusted_generated' || row.trustedGenerationId)) {
       await this.trustedSources.recordRejection(task, { userId: task.ownerUserId }).catch(() => {
         console.warn('[Video] Trusted-source rejection evidence could not be saved');
       });
@@ -339,7 +340,13 @@ export class VideoGenerationApplicationService {
   }
 
   async #prepareValidatedRequest(input, actorContext, workflow) {
-    const sourcePolicy = this.capabilityRegistry.resolve(input.providerId, input.modelId)?.playgroundReferencePolicy;
+    const sourceModel = this.capabilityRegistry.resolve(input.providerId, input.modelId);
+    const sourcePolicy = sourceModel?.playgroundReferencePolicy;
+    if (workflow.capability === 'playground_video' && Array.isArray(input.references)
+      && (input.references.length > Math.min(12, sourceModel?.referenceImageLimit || 0)
+        || (input.references.length > 1 && !sourceModel?.supportsOrderedImageReferences))) {
+      throw videoError('video_multiple_references_unsupported', 'The reference count exceeds this model adapter limit.');
+    }
     const restricted = workflow.capability === 'playground_video' && sourcePolicy?.kind === 'trusted_generated_only';
     const hasInputs = input.references?.length || input.referenceImageUrl || input.characterProfileId || input.characterProfileVersionId;
     const needsReference = input.inputMode && input.inputMode !== 'text_to_video'
@@ -356,6 +363,7 @@ export class VideoGenerationApplicationService {
       : workflow.capability === 'playground_video' && input.referencePlanVersion === 'playground-reference-v1'
         ? await this.playgroundReferences.prepare(input, actorContext) : null;
     const { request, resolved, durationReconciliation } = this.#prepareRequest(playgroundPlan?.input || input, workflow);
+    if (playgroundPlan) request.prompt = appendLookLegend(request.prompt, request.references);
     if (playgroundPlan && request.referenceImageCount > 1 && resolved.supportsOrderedImageReferences !== true) {
       throw videoError('video_multiple_references_unsupported', 'This model adapter does not support multiple image references.');
     }
@@ -414,11 +422,12 @@ export class VideoGenerationApplicationService {
         if (workflow?.capability === 'cinematic' && request.providerId === 'modelark'
           && (reference.role === 'first_frame' || request.inputMode === 'multimodal_reference')) {
           const sourceAsset = await this.assetRepository.findByIdForOwner(reference.assetId, actorContext.userId);
-          const result = await this.firstFrameTransport.resolve({
-            sourceAsset, ownerUserId: actorContext.userId,
-            expectedContentHash: request.referenceAuthority.references?.find(item => item.assetId === reference.assetId)?.contentHash
-              || request.referenceAuthority.contentHash
-          });
+          const expectedContentHash = request.referenceAuthority.references?.find(item => item.assetId === reference.assetId)?.contentHash
+            || request.referenceAuthority.contentHash;
+          const result = reference.trustedGenerationId
+            ? { value: await this.trustedSources.resolveOwnedImage(reference.trustedGenerationId, actorContext, expectedContentHash),
+              transport: { mode: 'provider_original_url', fallbackCode: null } }
+            : await this.firstFrameTransport.resolve({ sourceAsset, ownerUserId: actorContext.userId, expectedContentHash });
           value = result.value;
           referenceTransport ||= result.transport;
           referenceTransports.push({ assetId: reference.assetId, ...result.transport });
@@ -493,10 +502,14 @@ export class VideoGenerationApplicationService {
         }
         approvedLook = await this.lookService.resolveApprovedSheetReference(reference.characterProfileId,
           reference.characterLookId, reference.characterLookVersionId, actorContext);
-        if (approvedLook.asset.id !== reference.assetId || approvedLook.asset.contentHash !== reference.contentHash) {
+        if (approvedLook.asset.id !== reference.assetId || approvedLook.asset.contentHash !== reference.contentHash
+          || (approvedLook.trustedGenerationId || null) !== (reference.trustedGenerationId || null)) {
           throw videoError('cinematic_video_reference_content_changed', 'The approved Character Look changed.', 409);
         }
         asset = approvedLook.asset;
+      }
+      if (!isLook && reference.trustedGenerationId) {
+        throw videoError('cinematic_video_reference_authority_invalid', 'Only an imported Look may carry this source binding.', 409);
       }
       if (!asset || asset.status === 'deleted' || asset.publicUrl !== reference.referenceImageUrl
         || (isLook ? asset.assetType !== 'character_look_sheet'

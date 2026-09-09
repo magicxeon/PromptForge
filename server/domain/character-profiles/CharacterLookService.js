@@ -9,6 +9,7 @@ import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 import { loadVideoReferenceAssetContent, fingerprintLookVideoReference } from '../assets/VideoReferenceAssetContent.js';
+import { trustedGeneratedSourceService } from '../generation/TrustedGeneratedSourceService.js';
 
 const GARMENT_ROLES = new Set(['full_look', 'upper', 'lower', 'outerwear', 'footwear', 'accessory']);
 const SOURCE_MODES = new Set(['character_default', 'uploaded', 'uploaded_character_sheet', 'ai_suggestion']);
@@ -39,6 +40,7 @@ export class CharacterLookService {
     , generationResultRepository = generationResultRepo
     , assetRepository = assetRepo
     , outputsDirectory = OUTPUTS_DIR
+    , trustedSources = trustedGeneratedSourceService
   } = {}) {
     this.repository = repository;
     this.characterAuthorizationService = characterAuthorizationService;
@@ -46,6 +48,7 @@ export class CharacterLookService {
     this.generationResultRepository = generationResultRepository;
     this.assetRepository = assetRepository;
     this.outputsDirectory = path.resolve(outputsDirectory);
+    this.trustedSources = trustedSources;
   }
 
   async list(characterProfileId, query = {}, actorContext) {
@@ -345,8 +348,63 @@ export class CharacterLookService {
     }, actor));
   }
 
+  async importGeneratedSheet(characterProfileId, input = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const name = String(input.name || '').trim().slice(0, 100);
+    const generationId = String(input.generationResultId || '').trim();
+    if (!name || !generationId || input.identityAndViewsConfirmed !== true) {
+      throw new RepositoryContractError('character_look_import_confirmation_required',
+        'Choose a generated sheet and confirm the Character identity and front, side and back views.', 400);
+    }
+    const authorization = await this.#authorizeCharacter(characterProfileId, input.characterProfileVersionId, actor);
+    const source = await this.trustedSources.describeOwnedImage(generationId, actor);
+    const asset = await this.wardrobeAuthorityService.importGeneratedSheet(source, actor);
+    const characterProfileVersionId = authorization.identityPack.characterProfileVersionId;
+    const look = await this.repository.createDraft({
+      characterProfileId, sourceCharacterProfileVersionId: characterProfileVersionId,
+      sourceCharacterOwnerUserId: authorization.attribution.ownerUserId,
+      official: authorization.attribution.ownerUserId === actor.userId,
+      name, sourceMode: 'generated_character_sheet', sourceSheetAssetId: asset.id,
+      allowRetiredReplacement: true,
+      canonicalFaceAssetId: authorization.identityPack.canonicalFaceAssetId,
+      authoritySnapshot: [{ id: asset.id, contentHash: source.contentHash }],
+      idempotencyKey: `generated-sheet:${JSON.stringify([characterProfileId, characterProfileVersionId, generationId])}`
+    }, actor);
+    const version = look.versions.find(item => item.id === look.activeVersionId);
+    if (look.lifecycleStatus === 'retired' || !version || version.status === 'retired') {
+      throw new RepositoryContractError('character_look_not_found', 'This imported Look was retired.', 409);
+    }
+    if (version.status !== 'source_ready') return toProjection(look);
+    const recordedAt = new Date().toISOString();
+    const review = {
+      approvedViewAssets: Object.fromEntries(['front', 'side', 'back'].map(role => [role,
+        { assetId: asset.id, contentHash: source.contentHash }])),
+      approvedSheetAsset: { assetId: asset.id, contentHash: source.contentHash },
+      cropManifest: null,
+      generationLineage: { source: 'generated_import', generationResultId: source.id,
+        provider: source.providerId, model: source.modelId },
+      provenance: { kind: 'generated_import', characterProfileId, characterProfileVersionId,
+        sourceAssetIds: [asset.id], generationResultId: source.id, generationJobId: source.id,
+        recipeId: null, recipeVersion: null, recipeFingerprint: null,
+        provider: source.providerId, model: source.modelId, recordedAt },
+      identityAssurance: { status: 'unverified', characterProfileVersionId,
+        validationEvidenceId: null, updatedAt: recordedAt },
+      rightsDeclaration: { accepted: true, acceptedByUserId: actor.userId,
+        acceptedAt: recordedAt, policyVersion: 'generated-sheet-identity-views-v1' }
+    };
+    try {
+      return toProjection(await this.repository.attachReview(look.id, version.id, review, actor));
+    } catch (error) {
+      if (error.code !== 'character_look_version_not_ready') throw error;
+      const current = await this.repository.findForOwner(look.id, actor);
+      if (!['review', 'approved'].includes(current?.versions.find(item => item.id === version.id)?.status)) throw error;
+      return toProjection(current);
+    }
+  }
+
   async approve(characterProfileId, lookId, versionId, actorContext) {
-    await this.#assertOwnedLook(characterProfileId, lookId, actorContext);
+    const look = await this.#assertOwnedLook(characterProfileId, lookId, actorContext);
+    await this.#validateImportedSheet(look.versions.find(item => item.id === versionId), actorContext);
     return toProjection(await this.repository.approve(lookId, versionId, actorContext));
   }
 
@@ -426,6 +484,7 @@ export class CharacterLookService {
 
   async resolveApprovedSheetReference(characterProfileId, lookId, versionId, actorContext) {
     const { look, version } = await this.resolveApprovedVersion(characterProfileId, lookId, versionId, actorContext);
+    const imported = await this.#validateImportedSheet(version, actorContext);
     const asset = await this.assetRepository.findByIdForOwner(version.approvedSheetAsset?.assetId, actorContext.userId);
     if (!asset || asset.status === 'deleted') {
       throw new RepositoryContractError('character_look_sheet_unavailable', 'The approved Character Look Sheet is unavailable.', 409);
@@ -438,9 +497,19 @@ export class CharacterLookService {
     return {
       characterProfileVersionId: look.sourceCharacterProfileVersionId,
       asset: { ...asset, ...content },
+      trustedGenerationId: imported?.id || null,
       sourceFingerprint: fingerprintLookVideoReference({ assetId: asset.id, characterLookVersionId: versionId, contentHash: content.contentHash }),
       previewUrl: `/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks/${encodeURIComponent(lookId)}/versions/${encodeURIComponent(versionId)}/media/sheet`
     };
+  }
+
+  async #validateImportedSheet(version, actorContext) {
+    if (version?.provenance?.kind !== 'generated_import') return null;
+    const source = await this.trustedSources.describeOwnedImage(version.provenance.generationResultId, actorContext);
+    if (source.contentHash !== version.approvedSheetAsset?.contentHash) {
+      throw new RepositoryContractError('character_look_sheet_changed', 'The imported sheet content changed.', 409);
+    }
+    return source;
   }
 
   async #authorizeCharacter(characterProfileId, characterProfileVersionId, actorContext) {

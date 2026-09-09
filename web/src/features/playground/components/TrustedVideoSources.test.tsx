@@ -36,6 +36,7 @@ const model = videoModelCapabilitySchema.parse({
   operations: ['text_to_video'],
   inputModes: ['text_to_video', 'image_to_video', 'multimodal_reference'],
   referenceImageLimit: 9,
+  supportsOrderedImageReferences: true,
   qualificationStatus: 'internal_testing',
   paidRoutingEnabled: false,
   playgroundReferencePolicy: {

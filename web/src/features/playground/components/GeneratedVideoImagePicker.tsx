@@ -9,11 +9,12 @@ import { useActor } from '../../../lib/auth/ActorProvider';
 import { listHistory } from '../../history/api/historyApi';
 import type { HistoryItem } from '../../history/schemas/historySchemas';
 
-export function GeneratedVideoImagePicker({ open, onClose, onSelect, excludedUrl }: {
+export function GeneratedVideoImagePicker({ open, onClose, onSelect, excludedUrl, excludedUrls = [] }: {
   open: boolean;
   onClose: () => void;
   onSelect: (item: HistoryItem) => void;
   excludedUrl?: string | null;
+  excludedUrls?: string[];
 }) {
   const { t } = useTranslation('playground');
   const { actor } = useActor();
@@ -43,7 +44,7 @@ export function GeneratedVideoImagePicker({ open, onClose, onSelect, excludedUrl
           {!page.isFetching && !page.isError && !items.length ? <p>{t('playground.video.trusted.emptyEligible')}</p> : null}
           <div className="trusted-video-picker__grid">
             {items.map(item => <button key={item.id} type="button"
-              disabled={page.isFetching || item.imageUrl === excludedUrl} onClick={() => onSelect(item)}>
+              disabled={page.isFetching || item.imageUrl === excludedUrl || excludedUrls.includes(item.imageUrl)} onClick={() => onSelect(item)}>
               <AuthenticatedMediaImage src={item.thumbnailUrl || item.imageUrl} alt={item.submodel || item.id} />
               <div className="trusted-video-picker__details"><strong>{item.submodel || item.provider}</strong>
                 <span>{item.width && item.height ? `${item.width} x ${item.height}` : ''}</span>

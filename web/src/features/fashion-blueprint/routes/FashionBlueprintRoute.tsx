@@ -4,16 +4,8 @@ import {
   useQuery,
   useQueryClient
 } from '@tanstack/react-query';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Coins,
-  LoaderCircle,
-  PackagePlus,
-  Search,
-  Sparkles,
-  X
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Coins, PackagePlus, Search, Sparkles, X } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode, RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -960,7 +952,7 @@ function FashionProductsStep({
       />
       {uploading ? (
         <p className="flex items-center gap-2 text-sm text-[var(--theme-primary)]">
-          <LoaderCircle className="size-4 animate-spin" />
+          <ProcessingSpinner className="size-4 animate-spin" />
           {t('fashion.uploading')}
         </p>
       ) : null}
@@ -1173,7 +1165,7 @@ function FashionReviewStep({
           <Button
             disabled={!planReady || quotePending}
             icon={quotePending
-              ? <LoaderCircle className="size-4 animate-spin" />
+              ? <ProcessingSpinner className="size-4 animate-spin" />
               : <Coins className="size-4" />}
             onClick={onCalculate}
           >
@@ -1185,7 +1177,7 @@ function FashionReviewStep({
             variant="primary"
             disabled={!quote || runPending}
             icon={runPending
-              ? <LoaderCircle className="size-4 animate-spin" />
+              ? <ProcessingSpinner className="size-4 animate-spin" />
               : <Sparkles className="size-4" />}
             onClick={onGenerate}
           >

@@ -2,6 +2,7 @@ import { creditAccountRepo } from '../../repositories/credits/CreditAccountRepos
 import { creditLedgerRepo } from '../../repositories/credits/CreditLedgerRepository.js';
 import { creditAdjustmentService } from './CreditAdjustmentService.js';
 import { creditReservationService } from './CreditReservationService.js';
+import { calculateTextEnhancementPrice } from './TextEnhancementPricing.js';
 
 export class CreditApplicationService {
   constructor({
@@ -26,6 +27,25 @@ export class CreditApplicationService {
 
   estimateVideo(options) {
     return this.reservationService.estimateVideo(options);
+  }
+
+  async quoteTextEnhancement(inputs) {
+    return calculateTextEnhancementPrice(await this.pricingPolicyService.loadPolicy(), inputs);
+  }
+
+  reserveTextEnhancement({ userId, operationId, quote }) {
+    return this.accountRepository.reserveCredits({
+      userId, amountCredits: quote.totalCredits, estimateId: operationId,
+      requestId: operationId, jobId: null, pricingSnapshot: structuredClone(quote),
+      metadata: { kind: 'look_sheet_enhancement', operationId, expiresAt: quote.expiresAt,
+        idempotencyKey: `reserve:${userId}:${operationId}` }
+    });
+  }
+
+  async findTextEnhancementReservation(userId, operationId) {
+    const data = await this.accountRepository.readRaw();
+    return data.reservations.find(item => item.userId === userId
+      && item.metadata?.kind === 'look_sheet_enhancement' && item.metadata.operationId === operationId) || null;
   }
 
   validateAndReserveForRequest(input) {

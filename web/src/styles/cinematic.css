@@ -1447,6 +1447,7 @@
 .cinematic-look-source-actions legend > strong { color: var(--theme-text); font-size: 0.86rem; }
 .cinematic-look-source-actions legend > small { color: var(--theme-text-muted); font-size: 0.68rem; }
 .cinematic-look-source-actions > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.cinematic-look-source-actions__generated { grid-column: 1 / -1; }
 .cinematic-look-source-actions button { display: grid; grid-template-columns: 38px minmax(0, 1fr) 18px; align-items: center; gap: 10px; min-height: 68px; border: 1px solid color-mix(in srgb, var(--theme-primary) 42%, var(--theme-border)); border-radius: var(--mpf-radius-sm); background: color-mix(in srgb, var(--theme-primary) 6%, var(--theme-input)); color: var(--theme-text); padding: 10px; text-align: left; }
 .cinematic-look-source-actions button:hover:not(:disabled),
 .cinematic-look-source-actions button:focus-visible { border-color: var(--theme-primary); background: color-mix(in srgb, var(--theme-primary) 12%, var(--theme-input)); }

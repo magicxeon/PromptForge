@@ -1,4 +1,9 @@
 .playground-video-references { display: grid; gap: 12px; min-width: 0; }
+.video-look-sheet-list { display: grid; gap: 16px; min-width: 0; }
+.video-look-sheet-list > fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.video-look-sheet-list__additional .playground-video-references__slots { grid-template-columns: minmax(0, 1fr); }
+.video-look-sheet-list__additional { max-width: 100%; min-width: 0; }
+.playground-video-references__slot input:not([type='file']) { width: 100%; min-width: 0; box-sizing: border-box; padding: 8px; color: var(--mpf-text); background: var(--theme-bg-raised); border: 1px solid var(--mpf-border); border-radius: 6px; }
 .playground-video-references__character,
 .playground-video-references__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .playground-video-references__character strong { overflow-wrap: anywhere; }

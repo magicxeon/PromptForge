@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Coins, LoaderCircle, Plus, X } from 'lucide-react';
+import { Coins, Plus, X } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
@@ -79,7 +80,7 @@ export function CreditExhaustedDialog({
                 variant="primary"
                 disabled={grantPending}
                 icon={grantPending
-                  ? <LoaderCircle className="size-4 animate-spin" />
+                  ? <ProcessingSpinner className="size-4 animate-spin" />
                   : <Plus className="size-4" />}
                 onClick={onGrantMockCredits}
               >

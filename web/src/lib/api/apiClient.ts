@@ -8,6 +8,8 @@ const apiBaseUrl = String(import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/
 type ApiRequestOptions<TSchema extends ZodType | undefined> = Omit<RequestInit, 'body'> & {
   body?: BodyInit | Record<string, unknown> | unknown[] | null;
   schema?: TSchema;
+  responseType?: 'blob';
+  onResponseHeaders?: (headers: Headers) => void;
 };
 
 type ApiProgressRequestOptions<TResultSchema extends ZodType, TProgressSchema extends ZodType>
@@ -48,8 +50,12 @@ export async function apiRequest<TSchema extends ZodType | undefined = undefined
     return undefined as TSchema extends ZodType ? z.infer<TSchema> : unknown;
   }
 
+  options.onResponseHeaders?.(response.headers);
+
   const contentType = response.headers.get('content-type') || '';
-  const payload = contentType.includes('application/json')
+  const payload = options.responseType === 'blob' && /^image\/(png|jpeg)(;|$)/i.test(contentType)
+    ? await response.blob()
+    : contentType.includes('application/json')
     ? await response.json()
     : await response.text();
 

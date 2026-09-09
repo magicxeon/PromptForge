@@ -625,6 +625,19 @@
 .character-look-analysis > button { flex: 0 0 auto; }
 .character-look-source-mode { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .character-look-source-mode--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.character-look-source-mode--four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.character-look-source-mode--four button { min-width: 0; overflow-wrap: anywhere; }
+.character-look-generated { min-width: 0; display: grid; gap: 12px; }
+.character-look-generated p, .character-look-generated small { color: var(--theme-text-muted); font-size: 0.78rem; }
+.character-look-generated__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.character-look-generated__grid button { min-width: 0; padding: 8px; display: grid; gap: 6px; text-align: left; border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-bg); color: var(--theme-text); }
+.character-look-generated__grid button:hover, .character-look-generated__grid button:focus-visible { border-color: var(--theme-primary); }
+.character-look-generated__grid img { width: 100%; aspect-ratio: 3 / 4; object-fit: contain; border-radius: 4px; }
+.character-look-generated strong, .character-look-generated span { overflow-wrap: anywhere; font-size: 0.8rem; }
+.character-look-generated__selection { display: grid; gap: 8px; min-width: 0; }
+.character-look-generated__selection img { width: 100%; height: 290px; object-fit: contain; border-radius: 6px; }
+.character-look-generated__selection button { justify-self: start; }
+.character-look-generated nav { display: flex; align-items: center; justify-content: center; gap: 12px; }
 .character-look-source-mode,
 .character-look-upload-kind,
 .character-look-garment-mode,
@@ -843,4 +856,26 @@
   .character-look-panel__grid {
     grid-template-columns: 1fr;
   }
+}
+.character-delete-danger {
+  margin-top: 32px;
+  padding: 20px;
+  border: 1px solid var(--theme-danger);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--theme-danger) 8%, var(--mpf-surface));
+}
+.character-delete-danger h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+  color: var(--theme-danger);
+}
+.character-delete-danger p {
+  margin: 12px 0 16px;
+  max-width: 80ch;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--mpf-text);
 }

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowUp, Coins, Copy, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLookSheetRender, type LookSheetEnhancementControl, type LookSheetRenderState } from '../../features/generation/hooks/useLookSheetRender';
 import { Button } from '../ui/Button';
 import { ErrorState, LoadingState } from '../ui/AsyncState';
 import { Surface } from '../ui/Surface';
@@ -17,6 +18,7 @@ import {
   createDefaultComparisonSlots,
   filterImageCatalogForSurface,
   imageModelUnavailableReason,
+  supportedImageRatio,
   resolveAvailableImageEngine
 } from './engineTargetPanelHelpers';
 import { GenerationResultSurface } from './GenerationResultSurface';
@@ -90,6 +92,8 @@ import {
 } from '../../features/generation/job-center/generationRoutePointer';
 
 type GenerationExperienceProps = {
+  lookSheetDefinition?: GenerationRequestDraft['lookSheetDefinition'];
+  lookSheetEnhancementId?: string | null;
   surface: 'playground' | 'studio' | 'fashion' | 'cinematic';
   generationMode: 'playground' | 'headshot' | 'scene' | 'character-sheet' | 'fashion';
   initialPrompt?: string;
@@ -137,7 +141,8 @@ type GenerationExperienceProps = {
   onRecentExpandedChange?: (expanded: boolean) => void;
   referenceRoles?: GenerationReferenceRole[];
   renderResultActions?: (job: JobStatus, context: { closeViewer: () => void }) => ReactNode;
-  studioBuilder?: ReactNode;
+  studioBuilder?: ReactNode | ((draft: GenerationRequestDraft, enhancement: LookSheetRenderState) => ReactNode);
+  lookSheetEnhancement?: LookSheetEnhancementControl;
   studioBuilderTitle?: string;
   studioConfigurationFirst?: boolean;
   studioModeSelector?: ReactNode;
@@ -159,6 +164,8 @@ type GenerationExperienceProps = {
 };
 
 export function GenerationExperience({
+  lookSheetDefinition = null,
+  lookSheetEnhancementId = null,
   surface,
   generationMode,
   initialPrompt = '',
@@ -200,6 +207,7 @@ export function GenerationExperience({
   referenceRoles,
   renderResultActions,
   studioBuilder,
+  lookSheetEnhancement,
   studioBuilderTitle,
   studioConfigurationFirst = false,
   studioModeSelector,
@@ -267,6 +275,7 @@ export function GenerationExperience({
     ? null
     : Math.max(1, Math.min(4, Math.trunc(requestedFixedOutputCount)));
   const fixedAspectRatio = requestedFixedAspectRatio || (generationMode === 'character-sheet'
+    && !lookSheetDefinition
     && characterType === 'reusable_model'
     ? '1:1'
     : null);
@@ -380,7 +389,8 @@ export function GenerationExperience({
       model: model?.id || '',
       resolution: model?.capabilities.resolutions?.[0] || model?.defaults?.resolution || null,
       aspectRatio: fixedAspectRatio
-        || (model?.capabilities.aspectRatios.includes('6:8') ? '6:8' : model?.capabilities.aspectRatios[0] || '1:1'),
+        || (lookSheetDefinition ? supportedImageRatio(model?.capabilities.aspectRatios || [])
+          : model?.capabilities.aspectRatios.includes('6:8') ? '6:8' : model?.capabilities.aspectRatios[0] || '1:1'),
       outputCount: fixedOutputCount || engine.outputCount
     });
     setEnginePreferenceActorId(actor.userId);
@@ -409,7 +419,7 @@ export function GenerationExperience({
       catalog.data,
       { provider: engine.provider, model: engine.model },
       requiredReferenceCount,
-      fixedAspectRatio || engine.aspectRatio
+      fixedAspectRatio || (lookSheetDefinition ? null : engine.aspectRatio)
     );
     const nextModel = resolved?.model;
     setEngine(current => ({
@@ -420,9 +430,8 @@ export function GenerationExperience({
         || nextModel?.defaults?.resolution
         || null,
       aspectRatio: fixedAspectRatio
-        || (nextModel?.capabilities.aspectRatios.includes(current.aspectRatio)
-          ? current.aspectRatio
-          : nextModel?.capabilities.aspectRatios[0] || '1:1')
+        || (lookSheetDefinition ? supportedImageRatio(nextModel?.capabilities.aspectRatios || [], current.aspectRatio)
+          : nextModel?.capabilities.aspectRatios.includes(current.aspectRatio) ? current.aspectRatio : nextModel?.capabilities.aspectRatios[0] || '1:1')
     }));
   }, [
     actor,
@@ -432,6 +441,7 @@ export function GenerationExperience({
     engine.provider,
     enginePreferenceActorId,
     fixedAspectRatio,
+    lookSheetDefinition,
     requiredReferenceCount
   ]);
 
@@ -520,8 +530,10 @@ export function GenerationExperience({
     faceReferenceContext,
     authoringMode,
     characterType,
+    lookSheetDefinition,
+    lookSheetEnhancementId,
     promptRefinementEnabled: promptRefinementAvailable && promptRefinementEnabled
-  }), [additionalDirection, authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, cinematicCaptureProfileId, comparison, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
+  }), [additionalDirection, authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, cinematicCaptureProfileId, comparison, customColors, engine, faceReferenceContext, generationMode, lookSheetDefinition, lookSheetEnhancementId, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedDraft(draft), 320);
@@ -540,11 +552,15 @@ export function GenerationExperience({
     debouncedDraft?.provider
     && debouncedDraft.submodel
     && !modelAvailabilityReason
+    && !(lookSheetDefinition && blockedReason)
   );
-  const estimateKey = debouncedDraft ? createEstimateKey(debouncedDraft) : null;
+  const enhancement = useLookSheetRender({ draft, pricedDraft: debouncedDraft, valid: canEstimate && !blockedReason, control: lookSheetEnhancement });
+  const pricedDraft = debouncedDraft ? { ...debouncedDraft,
+    lookSheetEnhancementId: enhancement.enabled ? enhancement.readyId : debouncedDraft.lookSheetEnhancementId } : null;
+  const estimateKey = pricedDraft ? createEstimateKey(pricedDraft) : null;
   const singleEstimate = useQuery({
     queryKey: ['generation-estimate', actor?.userId || 'loading', estimateKey],
-    queryFn: () => estimateGeneration(debouncedDraft as GenerationRequestDraft),
+    queryFn: () => estimateGeneration(pricedDraft as GenerationRequestDraft),
     enabled: canEstimate && !comparison,
     staleTime: 20_000,
     retry: false
@@ -560,6 +576,10 @@ export function GenerationExperience({
     staleTime: 20_000,
     retry: false
   });
+  useEffect(() => {
+    if (enhancement.readyId && singleEstimate.error && 'code' in singleEstimate.error
+      && singleEstimate.error.code === 'enhancement_stale') enhancement.invalidate();
+  }, [singleEstimate.error, enhancement.readyId]);
   const debugPromptEnabled = surface === 'studio'
     && (actor?.role === 'admin'
       || isEnabled('development.debugPromptOverrideEnabled'));
@@ -569,8 +589,8 @@ export function GenerationExperience({
       actor?.userId || 'loading',
       estimateKey
     ],
-    queryFn: () => previewCompiledPrompt(debouncedDraft as GenerationRequestDraft),
-    enabled: Boolean(canEstimate && debugPromptEnabled && debouncedDraft),
+    queryFn: () => previewCompiledPrompt(pricedDraft as GenerationRequestDraft),
+    enabled: Boolean(canEstimate && (debugPromptEnabled || lookSheetDefinition) && debouncedDraft),
     staleTime: 20_000,
     retry: false
   });
@@ -590,7 +610,9 @@ export function GenerationExperience({
   const submitSingle = useMutation({
     // Lock pricing from the exact draft being submitted. The displayed query
     // may still represent the previous debounced selection for a few frames.
-    mutationFn: () => submitSingleDraft
+    mutationFn: () => enhancement.enabled
+      ? enhancement.submit(draft, singleEstimate.data?.estimate.estimatedCredits)
+      : submitSingleDraft
       ? submitSingleDraft(draft)
       : estimateAndSubmitGeneration(draft),
     onMutate: () => {
@@ -762,10 +784,13 @@ export function GenerationExperience({
   if (catalog.isLoading) return <LoadingState label={t('playground.engine.loading')} />;
   if (catalog.isError || !catalog.data) return <ErrorState title={t('playground.engine.unavailable')} description={catalog.error?.message} onRetry={() => void catalog.refetch()} />;
   const model = selectedCatalogModel;
-  const effectiveBlockedReason = blockedReason || (modelAvailabilityReason
+  const effectiveBlockedReason = blockedReason || (enhancement.enabled && (enhancement.blocked || !singleEstimate.data || singleEstimate.isFetching)
+    ? t('lookSheet.auto.priceRequired') : null) || (modelAvailabilityReason
     ? t(`playground.engine.unavailable.${modelAvailabilityReason}`)
     : null);
-  const estimate = comparison ? comparisonEstimate.data?.estimatedTotalCredit : singleEstimate.data?.estimate.estimatedCredits;
+  const imageEstimate = singleEstimate.data?.estimate.estimatedCredits;
+  const estimate = comparison ? comparisonEstimate.data?.estimatedTotalCredit
+    : imageEstimate === undefined || enhancement.fee === undefined ? undefined : imageEstimate + enhancement.fee;
   const availableCredits = comparison
     ? creditAccount.data?.account.availableCredits
     : singleEstimate.data?.account.availableCredits
@@ -822,6 +847,7 @@ export function GenerationExperience({
 
   const resultRegion = (
     <div ref={node => { resultRef.current = node; }}>
+      {enhancement.stage !== 'idle' ? <p role="status">{t(`lookSheet.auto.${enhancement.stage}`)}</p> : null}
       <GenerationResultSurface
         job={job.data}
         group={generationGroup.data}
@@ -862,6 +888,7 @@ export function GenerationExperience({
     </div>
   );
   const canRevealStudioPrompt = layoutVariant === 'studio'
+    && !lookSheetDefinition
     && (actor?.role === 'admin'
       || isEnabled('development.debugPromptOverrideEnabled'));
   const hasVisiblePromptRegion = showPromptEditor
@@ -869,6 +896,9 @@ export function GenerationExperience({
     || Boolean(readOnlyPromptSupplement)
     || canRevealStudioPrompt;
   const debugPromptText = compiledPromptPreview.data?.compiledPrompt || prompt;
+  const readOnlyPromptText = lookSheetDefinition
+    ? compiledPromptPreview.data?.compiledPrompt || t(compiledPromptPreview.isError ? 'lookSheet.loadError' : 'lookSheet.loading')
+    : prompt;
   const promptRegion = hasVisiblePromptRegion ? (
     <div ref={node => { promptRef.current = node; }}>
       {showPromptEditor ? (
@@ -892,10 +922,10 @@ export function GenerationExperience({
               title={t('playground.prompt.copy')}
               aria-label={t('playground.prompt.copy')}
               icon={<Copy className="size-4" aria-hidden="true" />}
-              onClick={() => void navigator.clipboard.writeText(prompt)}
+              onClick={() => void navigator.clipboard.writeText(readOnlyPromptText)}
             />
           </div>
-          <textarea aria-label={readOnlyPrompt.label} readOnly value={prompt} />
+          <textarea aria-label={readOnlyPrompt.label} readOnly value={readOnlyPromptText} />
           {readOnlyPromptSupplement ? (
             <div className="studio-prompt-preview__supplement">
               {readOnlyPromptSupplement}
@@ -977,6 +1007,7 @@ export function GenerationExperience({
       promptRefinementEnabled={promptRefinementEnabled}
       presentation={enginePresentation}
       fixedAspectRatio={fixedAspectRatio}
+      adaptAspectRatio={Boolean(lookSheetDefinition)}
       requiredReferenceCount={requiredReferenceCount}
       extraControls={engineOptions}
       onChange={next => {
@@ -1006,6 +1037,7 @@ export function GenerationExperience({
     })}
   </>) : null;
   const submitGenerationRequest = () => {
+    if (pending || effectiveBlockedReason) return;
     if (estimate !== undefined && !canAfford) {
       setCreditDialogOpen(true);
       return;
@@ -1027,6 +1059,8 @@ export function GenerationExperience({
     || layoutVariant === 'playground';
   const actionRegion = usesStudioCommandPresentation ? (
     <Surface className="studio-generation-action">
+      {enhancement.enabled && imageEstimate !== undefined && enhancement.fee !== undefined
+        ? <p className="mb-3 text-sm" role="status">{t('lookSheet.auto.breakdown', { image: imageEstimate, enhancement: enhancement.fee, total: estimate })}</p> : null}
       <Button
         className="studio-generate-button btn-neon-yellow-glow"
         size="lg"
@@ -1147,12 +1181,15 @@ export function GenerationExperience({
     return (
       <StudioGenerationWorkspace
         modeSelector={studioModeSelector}
-        builder={studioBuilder}
+        builder={lookSheetDefinition ? <fieldset disabled={pending} className="m-0 min-w-0 border-0 p-0">
+          {typeof studioBuilder === 'function' ? studioBuilder(draft, enhancement) : studioBuilder}
+        </fieldset> : typeof studioBuilder === 'function' ? studioBuilder(draft, enhancement) : studioBuilder}
         builderTitle={studioBuilderTitle}
+        singleBuilderHeading={Boolean(lookSheetDefinition)}
         configurationFirst={studioConfigurationFirst}
         result={resultRegion}
         queue={queueRegion}
-        engine={engineRegion}
+        engine={lookSheetDefinition ? <fieldset disabled={pending} className="m-0 min-w-0 border-0 p-0">{engineRegion}</fieldset> : engineRegion}
         references={referencesRegion}
         prompt={promptRegion}
         configActions={studioConfigActions}
@@ -1218,6 +1255,8 @@ function createEstimateKey(draft: GenerationRequestDraft) {
     generationMode: draft.generationMode,
     authoringMode: draft.authoringMode,
     characterType: draft.characterType,
+    lookSheetDefinition: draft.lookSheetDefinition,
+    lookSheetEnhancementId: draft.lookSheetEnhancementId,
     templateUseSessionId: draft.templateUseSessionId,
     templateReplacements: draft.templateReplacements,
     references: Object.entries(draft.references || {})

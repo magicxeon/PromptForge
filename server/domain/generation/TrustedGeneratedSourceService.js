@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { normalizeLookName, validateLookNames } from './VideoReferencePlan.js';
 import {
   TRUSTED_GENERATED_SOURCE_POLICY as POLICY,
   isTrustedGeneratedSourceMode,
@@ -9,6 +10,7 @@ import { trustedGeneratedSourceRepository } from '../../repositories/generation/
 import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
 import { resolveModelArkCredentialScope } from '../../providers/modelArkCredentialScope.js';
 import { loadVideoReferenceAssetContent } from '../assets/VideoReferenceAssetContent.js';
+import { createProviderOutputProvenance } from './ProviderOutputProvenance.js';
 
 const fail = (reason) =>
   Object.assign(new Error(`Trusted reference unavailable: ${reason}`), {
@@ -195,6 +197,37 @@ export class TrustedGeneratedSourceService {
     };
   }
 
+  async describeOwnedImage(generationId, actor) {
+    const plan = await this.prepareOwnedImage(generationId, actor);
+    const source = plan.sources[0];
+    const content = plan.assets[0];
+    return {
+      id: source.id, ownerUserId: actor.userId, storageKey: source.storageKey,
+      publicUrl: `/outputs/${source.storageKey.replace(/\\/g, '/')}`,
+      contentHash: content.contentHash, mimeType: content.mimeType,
+      width: content.width, height: content.height, sizeBytes: content.sizeBytes,
+      modelId: source.modelId, providerId: source.providerId,
+      expiresAt: trustedSourceEligibility(source, { scope: this.scopeResolver(), now: this.now() }).expiresAt,
+      providerOutputProvenance: createProviderOutputProvenance({
+        providerId: source.providerId, requestedModelId: source.requestedModelId || source.modelId,
+        providerMetadata: { resolvedModel: source.modelId, requestId: source.providerRequestId,
+          credentialScope: source.credentialScope, generatedAt: source.generatedAt },
+        originalBytesPreserved: true
+      })
+    };
+  }
+
+  prepareOwnedImage(generationId, actor) {
+    return this.prepare({ referencePlanVersion: 'playground-trusted-v1', inputMode: 'image_to_video',
+      references: [{ role: 'first_frame', purpose: 'opening_frame', generationId }] }, actor);
+  }
+
+  async resolveOwnedImage(generationId, actor, expectedContentHash) {
+    const plan = await this.prepareOwnedImage(generationId, actor);
+    if (!expectedContentHash || plan.assets[0].contentHash !== expectedContentHash) throw fail('content_changed');
+    return (await this.resolve(plan)).referenceImage;
+  }
+
   async prepare(input, actor) {
     const rows = input.references;
     if (
@@ -204,7 +237,7 @@ export class TrustedGeneratedSourceService {
       input.referenceImageUrl ||
       !Array.isArray(rows) ||
       rows.length < 1 ||
-      rows.length > 2
+      rows.length > 12
     )
       throw fail('generated_selection_required');
     const first = input.inputMode === 'image_to_video';
@@ -217,7 +250,7 @@ export class TrustedGeneratedSourceService {
       (!first &&
         (rows.some((row) => row.role !== 'reference_image') ||
           rows.at(-1).purpose !== 'generated_look' ||
-          (rows.length === 2 && rows[0].purpose !== 'opening_frame'))) ||
+          rows.some((row, index) => row.purpose !== 'generated_look' && !(index === 0 && row.purpose === 'opening_frame')))) ||
       rows.some(
         (row) =>
           !row.generationId ||
@@ -229,6 +262,7 @@ export class TrustedGeneratedSourceService {
       new Set(rows.map((row) => row.generationId)).size !== rows.length
     )
       throw fail('generated_selection_required');
+    validateLookNames(rows);
     const records = await this.repository.findManyForOwner(
       rows.map((row) => row.generationId),
       actor.userId,
@@ -266,6 +300,7 @@ export class TrustedGeneratedSourceService {
       assets.push({ ...content, id: source.id });
       sources.push(source);
       references.push({
+        ...(normalizeLookName(row.characterName) ? { characterName: normalizeLookName(row.characterName) } : {}),
         role: row.role,
         purpose: row.purpose,
         assetId: source.id,
@@ -326,7 +361,7 @@ export class TrustedGeneratedSourceService {
       task?.providerError?.providerCode || task?.providerError?.code || '';
     if (!code.includes('InputImageSensitiveContentDetected')) return;
     const ids = (task.submittedRequest?.references || [])
-      .map((row) => row.assetId)
+      .map((row) => row.trustedGenerationId || row.assetId)
       .filter(Boolean);
     if (ids.length)
       await this.repository.reject(ids, actor.userId, {

@@ -201,6 +201,38 @@ async function submit(service, input) {
   return quote;
 }
 
+test('named-looks: scene plus two owned sheets preserve order, legend and quote parity', async () => {
+  const { service, input, state, assets } = setup();
+  assets.push({ ...assets[2], id: 'second', publicUrl: '/outputs/second.png', contentHash: 'second-hash' });
+  delete input.characterProfileId; delete input.characterProfileVersionId;
+  input.references = [input.references[0], ...['upload', 'second'].map((id, index) => ({
+    role: 'reference_image', purpose: 'look_sheet_upload', referenceImageUrl: `/outputs/${id}.png`, characterName: index ? 'Ben' : 'Alice',
+  }))];
+  const quote = await submit(service, input);
+  assert.equal(quote.selection.referenceImageCount, 3);
+  assert.equal(state.reservations[0].generationRequest.referenceCount, 3);
+  const sent = state.dispatched[0];
+  assert.match(sent.prompt, /Image 2: Character 1, name "Alice"/);
+  assert.match(sent.prompt, /Image 3: Character 2, name "Ben"/);
+  assert.equal(sent.referenceImages.length, 3);
+  const renamed = structuredClone(input);
+  renamed.references[2].characterName = 'Changed';
+  const changed = await service.quote(renamed, actor);
+  assert.notEqual(changed.requestFingerprint, quote.requestFingerprint);
+  await assert.rejects(service.submit({ ...renamed, requestFingerprint: quote.requestFingerprint,
+    estimateId: 'quote', idempotencyKey: 'renamed' }, actor));
+  assert.equal(state.reservations.length, 1);
+});
+
+test('named-looks: invalid and duplicate names fail before pricing', async () => {
+  for (const name of ['A\nB', 'A'.repeat(81), 123]) {
+    const { service, input, state } = setup();
+    input.references[1].characterName = name;
+    await assert.rejects(service.quote(input, actor), { code: 'video_look_name_invalid' });
+    assert.equal(state.estimates.length, 0);
+  }
+});
+
 test('generated first frame and Character alone retain quote-to-submit reference parity', async () => {
   for (const characterOnly of [false, true]) {
     const { service, input, state } = setup();

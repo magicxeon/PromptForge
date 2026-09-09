@@ -174,6 +174,7 @@ async function resolveEstimateReferenceProcessing({
   return {
     referenceCount: result.providerPlan.referenceCount,
     planFingerprint: result.planFingerprint,
+    lookSheetFingerprint: context.lookSheetSnapshot?.fingerprint || null,
     aspectRatio: context.aspectRatio,
     outputCount: context.outputCount,
     generationMode: context.generationMode
@@ -196,6 +197,7 @@ export function createEstimateOptions({
       : Math.max(0, Number(body.referenceCount) || 0)
         + Math.max(0, Number(templatePricing?.executionReferenceCount) || 0),
     referenceProcessingPlanFingerprint: processing?.planFingerprint || null,
+    lookSheetFingerprint: processing?.lookSheetFingerprint || null,
     templatePricing,
     userId
   };

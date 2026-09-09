@@ -47,6 +47,7 @@ export const DATA_FILES = {
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
   history: path.resolve(GENERATION_DATA_DIR, 'history.json'),
   generationGroups: path.resolve(GENERATION_DATA_DIR, 'groups.json'),
+  promptEnhancements: path.resolve(GENERATION_DATA_DIR, 'promptEnhancements.json'),
   collections: path.resolve(COLLECTIONS_DATA_DIR, 'collections.json'),
   database: path.resolve(CREDITS_DATA_DIR, 'database.json'),
   communityPosts: path.resolve(COMMUNITY_DATA_DIR, 'communityPosts.json'),

@@ -66,6 +66,10 @@ account-specific packs/taxes and billing reconciliation remain pending.
 
 ## Acceptance And Evidence
 
+Expanded owner-prompt-first evidence inventory (Seedance versions, Seedream and
+Muse): ../qualification/002-byteplus-muse-cost-evidence-plan.md. This adds pending
+manual evidence gates, not paid-route authorization or new model integration.
+
 Tests: before/start/end promotion boundaries; 480p unaffected by 1080p promotion;
 first frame uses no-video rate; missing floor/rate fails; no mutation of models;
 reference cost/pixel thresholds/counts; immutable stored discounted quote; POC

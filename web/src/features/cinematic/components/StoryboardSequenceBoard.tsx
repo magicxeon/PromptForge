@@ -1,4 +1,5 @@
-import { ArrowLeft, ArrowRight, Clock3, GripVertical, Image as ImageIcon, LoaderCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Clock3, GripVertical, Image as ImageIcon } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useTranslation } from 'react-i18next';
 import { useGenerationJob } from '../../generation/hooks/useGenerationJob';
 
@@ -136,7 +137,7 @@ function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, 
               {imageUrl
                 ? <img src={imageUrl} alt="" />
                 : shot.generationJobId && status === 'queued'
-                  ? <><LoaderCircle className="animate-spin" aria-hidden="true" /><span>{t('cinematic.storyboard.status.queued')}</span></>
+                  ? <><ProcessingSpinner className="animate-spin" aria-hidden="true" /><span>{t('cinematic.storyboard.status.queued')}</span></>
                   : <><ImageIcon aria-hidden="true" /><span>{t('cinematic.storyboard.previewEmpty')}</span></>}
             </button>
             <div className="cinematic-storyboard-card__body">

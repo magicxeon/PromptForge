@@ -32,6 +32,10 @@
   box-sizing: border-box;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .mpf-processing-spinner { animation: none !important; }
+}
+
 html {
   background: var(--mpf-bg);
 }

@@ -6,7 +6,7 @@ import { createReturnNavigationState } from '../../lib/navigation/returnNavigati
 import { MediaStage } from './MediaStage';
 import { useTranslation } from 'react-i18next';
 import { TemplatePricingBadge } from '../templates/TemplatePricingBadge';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { routeBuilders } from '../../app/routeRegistry/routes';
 
 export function MediaCard({
@@ -23,15 +23,19 @@ export function MediaCard({
   const summary = post.engagementSummary;
   const retired = post.status === 'owner_unpublished';
   const setupRequired = post.status === 'draft';
+  const adaptive = post.postType === 'image';
   return (
-    <article className={`community-media-card group relative overflow-hidden rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)] transition hover:-translate-y-0.5 hover:border-cyan-400/45${retired ? ' is-retired' : ''}`}>
+    <article
+      className={`community-media-card group relative overflow-hidden rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)] transition hover:-translate-y-0.5 hover:border-cyan-400/45${retired ? ' is-retired' : ''}${adaptive ? ' community-media-card--adaptive-image' : ''}`}
+      style={adaptive ? { '--media-card-ratio': featuredImageRatio(post.generationMetadata) } as CSSProperties : undefined}
+    >
       <Link
         to={routeBuilders.post(post.id)}
         state={createReturnNavigationState(location)}
         className="block text-inherit no-underline"
         aria-label={post.title || post.postType}
       >
-        <MediaStage post={post} fit={previewFit} className="community-media-card__stage" />
+        <MediaStage post={post} fit={adaptive ? 'contain' : previewFit} source={adaptive ? 'original' : 'preview'} className="community-media-card__stage" />
         {post.postType === 'video' && post.durationSeconds ? (
           <span className="absolute right-3 top-3 rounded bg-black/75 px-2 py-1 text-xs font-semibold text-white">
             {formatDuration(post.durationSeconds)}
@@ -71,6 +75,14 @@ export function MediaCard({
       ) : null}
     </article>
   );
+}
+
+export function featuredImageRatio(metadata: CommunityPost['generationMetadata']) {
+  const { width, height, aspectRatio } = metadata;
+  const match = /^(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)$/.exec(aspectRatio?.trim() || '');
+  const ratio = width && height && Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
+    ? width / height : match ? Number(match[1]) / Number(match[2]) : NaN;
+  return Number.isFinite(ratio) && ratio > 0 ? Math.min(2, Math.max(0.625, ratio)) : 0.75;
 }
 
 function formatDuration(seconds: number) {

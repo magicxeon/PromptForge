@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "mock-2026-09-08-byteplus-v4",
-  "effectiveAt": "2026-09-08T00:00:00.000Z",
+  "policyVersion": "mock-2026-09-09-image25-measured-v1",
+  "effectiveAt": "2026-09-09T00:00:00.000Z",
   "providerPriceSourceDate": "2026-07-24",
   "referenceFxThbPerUsd": 33.7594,
   "pricingFxThbPerUsd": 35.0,
@@ -12,6 +12,22 @@
   "creditsPerThbAssumption": 10,
   "creditRoundingIncrement": 5,
   "estimateTtlSeconds": 900,
+  "textEnhancement": {
+    "version": "momelo-look-sheet-text-2026-09-08-v1",
+    "enabled": true,
+    "billingMode": "fixed_service_fee",
+    "roundingIncrement": 1,
+    "providerId": "openai",
+    "modelId": "gpt-5.6-luna",
+    "effectiveAt": "2026-09-08T00:00:00Z",
+    "reviewBy": "2026-10-08T00:00:00Z",
+    "inputUsdPerMillion": 0.20,
+    "outputUsdPerMillion": 1.20,
+    "cachedInputUsdPerMillion": 0.02,
+    "maxInputTokenBudget": 40000,
+    "maxOutputTokens": 1800,
+    "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+  },
   "models": [
     {
       "providerId": "meta-muse",
@@ -290,6 +306,78 @@
       "referencePricing": { "mode": "provisional", "unitCredits": 10, "freeCount": 0 },
       "providerCostUsd": 0.034,
       "notes": "OpenAI GPT Image 1.5. Reference surcharge is provisional pending measured image-input usage."
+    },
+    {
+      "providerId": "openai",
+      "modelId": "gpt-image-2.5-sunburst",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 55,
+      "billingMetric": "image_tokens",
+      "providerPriceSourceDate": "2026-09-09",
+      "providerPriceSource": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst",
+      "measuredUsagePricing": {
+        "version": "sunburst-768x1024-auto-2026-09-09-v1",
+        "aspectRatios": ["6:8", "3:4"], "maxReferences": 2,
+        "textOnly": { "jobId": "job_1788961128682_vr145zye4", "usage": {
+          "input_tokens": 660, "input_tokens_details": { "text_tokens": 660, "image_tokens": 0 },
+          "output_tokens": 1204, "output_tokens_details": { "image_tokens": 1204, "text_tokens": 0 }, "total_tokens": 1864
+        } },
+        "withReferences": { "jobId": "job_1788968339660_hco841fct", "referenceCount": 2, "usage": {
+          "input_tokens": 2433, "input_tokens_details": { "text_tokens": 1409, "image_tokens": 1024 },
+          "output_tokens": 1204, "output_tokens_details": { "image_tokens": 1204, "text_tokens": 0 }, "total_tokens": 3637
+        } }
+      },
+      "referencePricing": { "mode": "measured_usage_bucket" },
+      "tokenRateEvidence": {
+        "version": "openai-image25-2026-09-09",
+        "verifiedAt": "2026-09-09",
+        "currency": "USD",
+        "unit": "million_tokens",
+        "textInput": 5,
+        "cachedTextInput": 1.25,
+        "imageInput": 8,
+        "cachedImageInput": 2,
+        "imageOutput": 30,
+        "source": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst"
+      },
+      "notes": "Measured cost-based locked retail: 55 Credits text-only; 70 with 1-2 references. 1K 768x1024 auto only. Baseline estimate is provisional; actual usage cost is recorded separately, with no post-confirmation surcharge."
+    },
+    {
+      "providerId": "openai",
+      "modelId": "gpt-image-2.5-flare",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 55,
+      "billingMetric": "image_tokens",
+      "providerPriceSourceDate": "2026-09-09",
+      "providerPriceSource": "https://developers.openai.com/api/docs/models/gpt-image-2.5-flare",
+      "measuredUsagePricing": {
+        "version": "flare-768x1024-auto-2026-09-09-v1",
+        "aspectRatios": ["6:8", "3:4"], "maxReferences": 2,
+        "textOnly": { "jobId": "job_1788966593111_y2272shw8", "usage": {
+          "input_tokens": 618, "input_tokens_details": { "text_tokens": 618, "image_tokens": 0 },
+          "output_tokens": 1204, "output_tokens_details": { "image_tokens": 1204, "text_tokens": 0 }, "total_tokens": 1822
+        } },
+        "withReferences": { "jobId": "job_1788968172852_pk2saeo9y", "referenceCount": 2, "usage": {
+          "input_tokens": 2877, "input_tokens_details": { "text_tokens": 1356, "image_tokens": 1521 },
+          "output_tokens": 1204, "output_tokens_details": { "image_tokens": 1204, "text_tokens": 0 }, "total_tokens": 4081
+        } }
+      },
+      "referencePricing": { "mode": "measured_usage_bucket" },
+      "tokenRateEvidence": {
+        "version": "openai-image25-2026-09-09",
+        "verifiedAt": "2026-09-09",
+        "currency": "USD",
+        "unit": "million_tokens",
+        "textInput": 5,
+        "cachedTextInput": 1.25,
+        "imageInput": 8,
+        "cachedImageInput": 2,
+        "imageOutput": 30,
+        "source": "https://developers.openai.com/api/docs/models/gpt-image-2.5-flare"
+      },
+      "notes": "Measured cost-based locked retail: 55 Credits text-only; 75 with 1-2 references. 1K 768x1024 auto only. Baseline estimate is provisional; actual usage cost is recorded separately, with no post-confirmation surcharge."
     },
     {
       "providerId": "openai",

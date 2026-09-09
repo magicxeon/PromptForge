@@ -4,6 +4,7 @@ import {
   generationPayload,
   getJobStatus,
   pricingPayload,
+  submitGeneration,
   type GenerationRequestDraft
 } from './generationApi';
 
@@ -30,6 +31,15 @@ function draft(overrides: Partial<GenerationRequestDraft> = {}): GenerationReque
 }
 
 describe('React generation contract', () => {
+  it('preserves an explicit image request ID for uncertain Look Sheet submission replay', async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => new Response(JSON.stringify({ jobId: 'same-job', status: 'queued' }), { headers: { 'content-type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+    await submitGeneration(draft(), 'locked-estimate', 'gen-replay');
+    await submitGeneration(draft(), 'locked-estimate', 'gen-replay');
+    for (const call of fetchMock.mock.calls) {
+      expect(JSON.parse(call[1].body)).toMatchObject({ requestId: 'gen-replay', estimateId: 'locked-estimate' });
+    }
+  });
   it('carries the Cinematic capture profile without changing pricing parameters', () => {
     const request = draft({
       generationMode: 'scene',

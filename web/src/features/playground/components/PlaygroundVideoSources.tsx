@@ -23,10 +23,16 @@ export function PlaygroundVideoSources({
   value,
   onChange,
   onBusy,
+  lookOnly = false,
+  characterNumber = 1,
+  excludedUrls = [],
 }: {
   value: VideoReferenceSelection;
   onChange: (patch: Partial<VideoReferenceSelection>) => void;
   onBusy: (busy: boolean) => void;
+  lookOnly?: boolean;
+  characterNumber?: number;
+  excludedUrls?: string[];
 }) {
   const { t } = useTranslation('playground');
   const { actor } = useActor();
@@ -131,7 +137,7 @@ export function PlaygroundVideoSources({
   const withLook = value.operation === 'character_to_video';
   return (
     <div className="playground-video-references">
-      {withLook ? (
+      {withLook && !lookOnly ? (
         <div className="playground-video-references__character">
           {value.character ? (
             <>
@@ -164,7 +170,7 @@ export function PlaygroundVideoSources({
       ) : null}
       <div className="playground-video-references__slots">
         {(
-          ['frame', ...(withLook ? ['look'] : [])] as Array<'frame' | 'look'>
+          [...(lookOnly ? [] : ['frame']), ...(withLook ? ['look'] : [])] as Array<'frame' | 'look'>
         ).map((slot) => {
           const image =
             slot === 'frame' ? value.referenceImageUrl : value.lookSheet?.url;
@@ -201,6 +207,13 @@ export function PlaygroundVideoSources({
                   <ImagePlus aria-hidden="true" />
                 )}
               </div>
+              {slot === 'look' && value.lookSheet ? (
+                <label>
+                  {t('playground.video.references.characterName', { number: characterNumber })}
+                  <input maxLength={80} value={value.lookSheet.characterName || ''}
+                    onChange={event => onChange({ lookSheet: { ...value.lookSheet!, characterName: event.target.value } })} />
+                </label>
+              ) : null}
               {slot === 'look' && value.lookSheet ? (
                 <small className="playground-video-references__filename">
                   {value.lookSheet.name}
@@ -297,6 +310,7 @@ export function PlaygroundVideoSources({
         open={Boolean(historySlot)}
         onClose={() => setHistorySlot(null)}
         excludedUrl={historySlot === 'frame' ? value.lookSheet?.url : value.referenceImageUrl}
+        excludedUrls={excludedUrls}
         onSelect={item => {
           epoch.current += 1;
           onChange(historySlot === 'frame' ? { referenceImageUrl: item.imageUrl }

@@ -150,6 +150,12 @@ export class AssetRepository {
 
     return mutateJsonFile(this.assetsFile, ASSET_FALLBACK, async items => {
       if (!Array.isArray(items)) throw new TypeError('Assets data must be an array.');
+      if (recordInput.deduplicateSource === true && record.sourceJobId) {
+        const existing = items.find(item => item.ownerUserId === actor.userId
+          && item.sourceJobId === record.sourceJobId && item.assetType === record.assetType
+          && item.status !== 'deleted');
+        if (existing) return structuredClone(existing);
+      }
       items.unshift(record);
       return structuredClone(record);
     });

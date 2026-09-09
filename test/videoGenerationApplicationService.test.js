@@ -8,12 +8,13 @@ const actor = { userId: 'usr_video', username: 'video_user', role: 'user' };
 const TEST_MODELARK_SCOPE = 'modelark:ark.test:account:video-test';
 
 
-test('Cinematic multimodal quote binds every Look and dispatches URL references once without a duplicate first frame', async () => {
+for (const imported of [false, true]) test(`Cinematic multimodal quote binds every Look and dispatches URL references once (imported=${imported})`, async () => {
   const board = compatibleSeedreamAsset();
   const look = { id: 'look_sheet', ownerUserId: actor.userId, assetType: 'character_look_sheet',
     publicUrl: '/outputs/look.png', mimeType: 'image/png', width: 1024, height: 1024, sizeBytes: 1000,
     contentHash: 'look_hash', metadata: {} };
   let revoked = false;
+  let urlFailure = false;
   let dispatched;
   let estimated;
   let reserved;
@@ -26,8 +27,17 @@ test('Cinematic multimodal quote binds every Look and dispatches URL references 
     lookService: { async resolveApprovedSheetReference(profile, id, version, owner) {
       assert.equal(profile, 'character'); assert.equal(version, 'look_version'); assert.equal(owner.userId, actor.userId);
       if (revoked) throw Object.assign(new Error('Look revoked'), { code: 'look_revoked' });
-      return { asset: look, sourceFingerprint: 'look_fingerprint' };
+      return { asset: look, sourceFingerprint: 'look_fingerprint', ...(imported ? { trustedGenerationId: 'original_sheet' } : {}) };
     } },
+    trustedSourceService: {
+      async resolveOwnedImage(id, owner, hash) {
+        assert.equal(id, 'original_sheet'); assert.equal(owner.userId, actor.userId); assert.equal(hash, look.contentHash);
+        if (urlFailure) throw Object.assign(new Error('Trusted URL unavailable'), { code: 'video_trusted_source_unavailable' });
+        calls.push('resolve:original_sheet');
+        return 'https://provider.bytepluses.com/original.png';
+      },
+      async recordRejection() {}
+    },
     firstFrameTransport: { async resolve({ sourceAsset, expectedContentHash }) {
       assert.equal(expectedContentHash, sourceAsset.id === look.id ? look.contentHash : board.metadata.contentHash);
       calls.push(`resolve:${sourceAsset.id}`);
@@ -53,6 +63,7 @@ test('Cinematic multimodal quote binds every Look and dispatches URL references 
         sourceFingerprint: createStoryboardSourceFingerprint(board), referenceImageUrl: board.publicUrl },
       { role: 'reference_image', purpose: 'character_look', assetId: look.id, assetVersionId: look.id,
         characterProfileId: 'character', characterLookId: 'look', characterLookVersionId: 'look_version',
+        ...(imported ? { trustedGenerationId: 'original_sheet' } : {}),
         contentHash: look.contentHash, sourceFingerprint: 'look_fingerprint', referenceImageUrl: look.publicUrl }
     ] };
   const workflow = { capability: 'cinematic', generationMode: 'cinematic_video', projectId: 'project', sceneId: 'scene', shotId: 'shot' };
@@ -66,15 +77,27 @@ test('Cinematic multimodal quote binds every Look and dispatches URL references 
   await assert.rejects(service.submit(submission, actor, workflow), { code: 'cinematic_video_reference_content_changed' });
   assert.deepEqual(calls, []);
   look.contentHash = 'look_hash';
+  if (imported) {
+    const forged = structuredClone(request);
+    forged.references[1].trustedGenerationId = 'other_sheet';
+    await assert.rejects(service.quote(forged, actor, workflow), { code: 'cinematic_video_reference_content_changed' });
+    urlFailure = true;
+    await assert.rejects(service.submit(submission, actor, workflow), { code: 'video_trusted_source_unavailable' });
+    assert.equal(calls.includes('reserve'), false);
+    assert.equal(calls.includes('dispatch'), false);
+    calls.length = 0;
+    urlFailure = false;
+  }
   await service.submit(submission, actor, workflow);
   assert.equal(dispatched.referenceImage, null);
-  assert.deepEqual(dispatched.referenceImages.map(item => item.url), [`https://example.com/${board.id}.png`, 'https://example.com/look_sheet.png']);
+  assert.deepEqual(dispatched.referenceImages.map(item => item.url), [`https://example.com/${board.id}.png`,
+    imported ? 'https://provider.bytepluses.com/original.png' : 'https://example.com/look_sheet.png']);
   assert.equal(estimated.referenceImageCount, 2);
   assert.equal(reserved.referenceCount, 2);
   assert.equal(reserved.referencePlanFingerprint, estimated.referencePlanFingerprint);
   assert.equal(dispatched.referenceAuthorityFingerprint, quote.selection.referenceAuthorityFingerprint);
   assert.equal(dispatched.referenceTransports.length, 2);
-  assert.deepEqual(calls, [`resolve:${board.id}`, 'resolve:look_sheet', 'preflight-resolved', 'reserve', 'dispatch']);
+  assert.deepEqual(calls, [`resolve:${board.id}`, imported ? 'resolve:original_sheet' : 'resolve:look_sheet', 'preflight-resolved', 'reserve', 'dispatch']);
 });
 const input = {
   providerId: 'gemini', modelId: 'veo-3.1-lite-generate-preview', operation: 'text_to_video',

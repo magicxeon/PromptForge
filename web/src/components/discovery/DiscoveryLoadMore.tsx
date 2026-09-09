@@ -1,4 +1,4 @@
-import { LoaderCircle } from 'lucide-react';
+import { ProcessingSpinner } from '../ui/ProcessingSpinner';
 import { Button } from '../ui/Button';
 
 export function DiscoveryLoadMore({
@@ -20,7 +20,7 @@ export function DiscoveryLoadMore({
     <div className="discovery-load-more">
       {hasMore ? (
         <Button type="button" disabled={loading} onClick={onLoadMore}>
-          {loading ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : null}
+          {loading ? <ProcessingSpinner className="animate-spin" aria-hidden="true" /> : null}
           {loading ? loadingLabel : loadLabel}
         </Button>
       ) : endLabel ? <p>{endLabel}</p> : null}

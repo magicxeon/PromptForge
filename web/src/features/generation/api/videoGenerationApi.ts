@@ -2,6 +2,7 @@ import { apiRequest } from '../../../lib/api/apiClient';
 import { recentVideoTasksSchema, videoCapabilityCatalogSchema, videoQuoteSchema, videoTaskSchema } from '../schemas/videoGenerationSchemas';
 
 export type PlaygroundVideoReference = {
+  characterName?: string;
   role: 'first_frame' | 'reference_image';
   purpose: 'opening_frame' | 'character_look' | 'look_sheet_upload' | 'generated_look' | 'character_reference';
   referenceImageUrl?: string;

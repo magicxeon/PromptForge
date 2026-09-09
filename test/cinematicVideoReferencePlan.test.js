@@ -139,7 +139,7 @@ test('legacy approved sheets are probed without rewriting assets and reject chan
   const service = new CharacterLookService({ outputsDirectory: directory, assetRepository: {
     async findByIdForOwner(id, owner) { return id === 'sheet' && owner === 'owner' ? asset : null; }
   } });
-  service.resolveApprovedVersion = async () => ({ version: { approvedSheetAsset: { assetId: 'sheet' } } });
+  service.resolveApprovedVersion = async () => ({ look: { sourceCharacterProfileVersionId: 'charv1' }, version: { approvedSheetAsset: { assetId: 'sheet' } } });
   const reference = await service.resolveApprovedSheetReference('character', 'look', 'v1', { userId: 'owner' });
   assert.equal(reference.asset.contentHash, resolved.contentHash);
   assert.deepEqual(asset, snapshot);

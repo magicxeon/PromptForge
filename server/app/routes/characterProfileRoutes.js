@@ -109,6 +109,14 @@ export function registerCharacterProfileRoutes(app, {
     }
   });
 
+  app.post('/api/character-profiles/:id/looks/import-generated', async (req, res) => {
+    try {
+      return res.status(201).json(await lookService.importGeneratedSheet(req.params.id, req.body, req.actorContext));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
   app.post('/api/character-profiles/:id/looks', async (req, res) => {
     try {
       return res.status(201).json(await lookService.createDraft(req.params.id, req.body, req.actorContext));

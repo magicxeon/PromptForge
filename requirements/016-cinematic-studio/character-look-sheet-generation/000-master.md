@@ -6,6 +6,16 @@
 **Entry surface:** Cinematic Studio -> Cast & Wardrobe  
 **Parent requirements:** `013-cinematic-character-look-pack-and-cast-readiness.md`, `fix-tickets/CINE-FIX-006-cast-character-look-preparation-and-story-plan-gate.md`
 
+## Planned Form And Export Extension (2026-09-08)
+
+[Character Look Sheet Forms And Branded Exports](form-and-export/000-master.md)
+owns the proposed Image Playground submode, shared minimal form, Studio format,
+Download-only branding, merged Comparison export and Momelo favicon. Its
+[implementation plan](form-and-export/010-implementation-plan.md) is documentation
+only. Single-image vs full fixed-slot generation remains an explicit decision
+gate. This extension does not change the existing approved-Look lifecycle,
+three-view recipe, provider qualification or Seedance reference policy.
+
 ## 1. Outcome
 
 Make the Wardrobe tab explain what already exists, what is ready, and what the

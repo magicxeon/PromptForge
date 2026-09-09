@@ -1,5 +1,13 @@
 # Community Page Enhancement Master Requirement
 
+Current shared-card follow-up: [045](045-shared-image-card-framing.md) and
+[plan 038](implementation-plan/038-shared-image-card-framing.md) extend 044 to
+Community images and other canonical post lists using one MediaCard policy.
+
+Implemented and fixture-verified 2026-09-08: [042 Profile danger and Public work framing](042-profile-danger-and-public-work-master.md)
+owns requirements 043/044 and plan 037. This is scoped presentation work, not
+a change to deletion retention, scoring or the Overview/Creations data flow.
+
 ## Planned Follow-up: Template, Character And Provider Presentation
 
 2026-09-07: [023 follow-up master](023-template-character-presentation-master.md)

@@ -120,7 +120,9 @@ test('project catalog sorts each provider by the configured local price order', 
     'gpt-image-1.5',
     'dall-e-3',
     'gpt-image-1',
-    'gpt-image-2'
+    'gpt-image-2',
+    'gpt-image-2.5-sunburst',
+    'gpt-image-2.5-flare'
   ]);
   assert.deepEqual(providers.get('xai').models.map(model => model.id), [
     'grok-imagine-image',

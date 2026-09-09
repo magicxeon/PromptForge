@@ -472,3 +472,37 @@
     right: 8px;
   }
 }
+.comparison-export-action { background: var(--theme-action); border-color: var(--theme-action); color: var(--theme-on-action); box-shadow: 0 0 16px color-mix(in srgb, var(--theme-action) 18%, transparent); }
+.comparison-export-action:hover:not(:disabled) { border-color: var(--theme-action); filter: brightness(1.08); }
+.comparison-export-overlay { position: fixed; inset: 0; z-index: 180; background: var(--theme-overlay); }
+.comparison-export-dialog { position: fixed; z-index: 181; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(960px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); display: flex; flex-direction: column; border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-bg-raised); color: var(--theme-text); overflow: hidden; }
+.comparison-export-dialog > header, .comparison-export-dialog > footer { display: flex; align-items: center; gap: 10px; padding: 12px 16px; flex: none; }
+.comparison-export-dialog > header { justify-content: space-between; border-bottom: 1px solid var(--theme-border); }
+.comparison-export-dialog > header h2 { margin: 0; font-size: 1rem; }
+.comparison-export-dialog > footer { border-top: 1px solid var(--theme-border); justify-content: flex-end; flex-wrap: wrap; }
+.comparison-export-dialog > footer > span { margin-right: auto; font-size: .7rem; color: var(--theme-text-muted); }
+.comparison-export-dialog__body { padding: 14px 16px; overflow: auto; min-height: 0; }
+.comparison-export-selection { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; margin: 0 0 12px; padding: 0; border: 0; }
+.comparison-export-selection legend { margin-bottom: 8px; color: var(--theme-text-muted); }
+.comparison-export-selection label { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.comparison-export-selection label > span { display: grid; min-width: 0; }
+.comparison-export-selection :is(small,strong) { overflow-wrap: anywhere; }
+.comparison-export-selection small { color: var(--theme-text-muted); }
+.comparison-export-selection input { accent-color: var(--theme-action); flex: none; }
+.comparison-export-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+.comparison-export-options label { display: grid; gap: 5px; min-width: 0; font-size: .7rem; color: var(--theme-text-muted); }
+.comparison-export-options select { min-width: 0; width: 100%; min-height: 38px; padding: 6px 8px; border: 1px solid var(--theme-border); border-radius: 6px; background: var(--theme-input); color: var(--theme-text); }
+.comparison-export-preview { position: relative; display: grid; align-items: center; min-height: 220px; max-height: 52dvh; width: 100%; overflow: auto; background: #050505; border: 1px solid var(--theme-border); border-radius: 6px; }
+.comparison-export-preview > :is(p,div) { padding: 16px; text-align: center; }
+.comparison-export-preview > img { display: block; margin: auto; max-width: 100%; max-height: 50dvh; object-fit: contain; }
+.comparison-export-zoom { display: flex; align-items: center; gap: 4px; margin-top: 8px; }
+.comparison-export-zoom output { margin-right: auto; color: var(--theme-text-muted); }
+.comparison-export-warnings { margin: 8px 0 0; padding-left: 18px; color: var(--theme-warning); font-size: .7rem; }
+@media (max-width: 540px) {
+  .comparison-export-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
+  .comparison-export-dialog__body { padding: 12px; }
+  .comparison-export-selection { grid-template-columns: minmax(0, 1fr); }
+  .comparison-export-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .comparison-export-options > label:first-child { grid-column: 1 / -1; }
+  .comparison-export-dialog > footer > span:not(:empty) { flex-basis: 100%; }
+}

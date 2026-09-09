@@ -4,6 +4,14 @@ import { imageModelUnavailableReason } from '../../features/generation/modelAvai
 
 export { imageModelUnavailableReason } from '../../features/generation/modelAvailability';
 
+export function supportedImageRatio(ratios: string[], preferred = '6:8') {
+  if (ratios.includes(preferred)) return preferred;
+  const alias = preferred === '3:4' ? '6:8' : preferred === '6:8' ? '3:4' : null;
+  if (alias && ratios.includes(alias)) return alias;
+  return ratios.find(ratio => ['6:8', '3:4', '2:3', '4:5', '9:16'].includes(ratio))
+    || ratios[0] || '1:1';
+}
+
 export type ImageGenerationSurface = 'playground' | 'studio' | 'fashion' | 'cinematic';
 export type ImageGenerationMode = 'playground' | 'headshot' | 'scene' | 'character-sheet' | 'fashion';
 

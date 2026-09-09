@@ -49,6 +49,7 @@ export class CinematicVideoReferencePlanService {
         contentHash: resolved.asset.contentHash, castAssignmentId,
         characterProfileId: assignment.characterProfileId,
         characterLookId: look.characterLookId, characterLookVersionId: look.characterLookVersionId,
+        ...(resolved.trustedGenerationId ? { trustedGenerationId: resolved.trustedGenerationId } : {}),
         roleName: label, lookName: look.name || '', previewUrl: resolved.previewUrl
       });
     }

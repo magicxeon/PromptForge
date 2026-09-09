@@ -54,7 +54,7 @@ export class CharacterProfileService {
       input.sourceGenerationResultId,
       actor.userId
     );
-    if (!source || source.mode !== 'character-sheet') {
+    if (!source || source.mode !== 'character-sheet' || source.lookSheetSnapshot) {
       throw new RepositoryContractError(
         'character_sheet_result_required',
         'A successful owned Character Sheet result is required.',
@@ -244,7 +244,7 @@ export class CharacterProfileService {
       input.sourceGenerationResultId,
       actor.userId
     );
-    if (!source || source.mode !== 'character-sheet') {
+    if (!source || source.mode !== 'character-sheet' || source.lookSheetSnapshot) {
       throw new RepositoryContractError(
         'character_sheet_result_required',
         'A successful owned Character Sheet result is required.',

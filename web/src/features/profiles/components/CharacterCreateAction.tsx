@@ -1,5 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { ChevronDown, Clapperboard, LoaderCircle, Shirt, Sparkles } from 'lucide-react';
+import { ChevronDown, Clapperboard, Shirt, Sparkles } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
 import type { CharacterSummary } from '../schemas/profileSchemas';
@@ -17,7 +18,7 @@ export function CharacterCreateAction({ character, showName = false }: { charact
         <DropdownMenu.Trigger asChild>
           <Button variant="primary" disabled={handoff.isPending} aria-busy={handoff.isPending}
             aria-label={t('character-profiles.gallery.createWithName', { name: character.displayName })}
-            icon={handoff.isPending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Sparkles className="size-4" />}>
+            icon={handoff.isPending ? <ProcessingSpinner className="size-4 animate-spin motion-reduce:animate-none" /> : <Sparkles className="size-4" />}>
             <span className="character-create-action__label">{t(handoff.isPending ? 'character-profiles.gallery.preparing'
               : showName ? 'character-profiles.gallery.createWithName' : 'character-profiles.gallery.createWith', { name: character.displayName })}</span>
             <ChevronDown className="size-4" aria-hidden="true" />

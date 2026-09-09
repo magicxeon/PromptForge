@@ -390,7 +390,7 @@ function ProfileContent({ page, profileBase }: { page: CreatorPage; profileBase:
     return parsed.success || post.success ? [] : [item];
   });
   return (
-    <div className="creator-profile-tab-grid">
+    <div className={`creator-profile-tab-grid${posts.length && !characters.length && !mediaItems.length ? ' media-card-list' : ''}`}>
       {characters.map(item => (
         <CharacterCard
           key={item.id}

@@ -7,6 +7,7 @@ import {
   promptRefinementAuditRepository as defaultAuditRepository
 } from '../../repositories/generation/PromptRefinementAuditRepository.js';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
+import { enhancementInstructions, enhancementOutputSchema } from './lookSheetEnhancementPrompt.js';
 
 const MAX_PROMPT_LENGTH = 24_000;
 
@@ -128,6 +129,23 @@ export class PromptRefinementService {
     return this.auditRepository.write(jobId, audit, {
       maxFiles: policy.auditMaxFiles
     });
+  }
+
+  getLookSheetPolicy() {
+    const policy = this.policyLoader();
+    if (!policy.enabled) throw Object.assign(new Error('Enhancement is unavailable.'), { code: 'enhancement_unavailable', statusCode: 403 });
+    this.availabilityPolicy.assertAvailable({ providerId: policy.provider, modelId: policy.model, workflow: 'ai.prompt_refinement' });
+    return policy;
+  }
+
+  async enhanceLookSheet(input, acceptedPolicy) {
+    const current = this.getLookSheetPolicy();
+    if (current.model !== acceptedPolicy.model || current.maxOutputTokens !== acceptedPolicy.maxOutputTokens
+      || current.reasoningEffort !== acceptedPolicy.reasoningEffort) {
+      throw Object.assign(new Error('Enhancement configuration changed.'), { code: 'enhancement_stale' });
+    }
+    return this.providerFactory(current).enhanceLookSheet({ ...current, input,
+      instructions: enhancementInstructions, schema: enhancementOutputSchema });
   }
 
   logResult(metadata, requestId, prompts = null) {

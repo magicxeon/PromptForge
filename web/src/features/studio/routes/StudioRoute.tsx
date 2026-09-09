@@ -55,6 +55,8 @@ import {
 } from '../attributes/customColorModel';
 import { ADDITIONAL_DIRECTION_MAX_LENGTH } from '../additionalDirectionContract';
 import { AdditionalDirectionField } from '../components/AdditionalDirectionField';
+import { CharacterLookSheetExperience } from '../../profiles/components/CharacterLookSheetExperience';
+import { useFeaturePolicy } from '../../../lib/permissions/FeaturePolicyProvider';
 
 const STUDIO_DRAFT_FEATURE = 'studio';
 const STUDIO_DRAFT_VERSION = 2;
@@ -79,6 +81,8 @@ const emptyDraft: StudioDraft = {
 };
 
 export function StudioRoute() {
+  const { isEnabled } = useFeaturePolicy();
+  const lookSheetEnabled = isEnabled('generation.lookSheetDocumentEnabled');
   const { t } = useTranslation(['react-ui', 'shell']);
   const { actor } = useActor();
   const navigate = useNavigate();
@@ -324,7 +328,15 @@ export function StudioRoute() {
         </div>
       </header>
 
-      <GenerationExperience
+      {mode === 'character-sheet' && lookSheetEnabled ? <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label={t('lookSheet.format', { ns: 'playground' })}>
+        {(['original', 'look-sheet'] as const).map(format => <Button key={format} size="sm" icon={<FileUser className="size-4" />}
+          variant={(params.get('format') === 'look-sheet' ? 'look-sheet' : 'original') === format ? 'primary' : 'ghost'}
+          aria-pressed={(params.get('format') === 'look-sheet' ? 'look-sheet' : 'original') === format}
+          onClick={() => { const next = new URLSearchParams(params); if (format === 'original') next.delete('format'); else next.set('format', format); navigate(`${location.pathname}${next.size ? `?${next}` : ''}`, { replace: true }); }}>
+          {t(format === 'original' ? 'lookSheet.originalFormat' : 'lookSheet.title', { ns: 'playground' })}
+        </Button>)}
+      </div> : null}
+      {mode === 'character-sheet' && lookSheetEnabled && params.get('format') === 'look-sheet' ? <CharacterLookSheetExperience surface="studio" /> : <GenerationExperience
         surface="studio"
         generationMode={mode}
         prompt={preview}
@@ -477,7 +489,7 @@ export function StudioRoute() {
             />
           </>
         ) : null}
-      />
+      />}
     </main>
   );
 }

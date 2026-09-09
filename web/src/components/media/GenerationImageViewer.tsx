@@ -16,10 +16,12 @@ import { Link } from 'react-router-dom';
 import { apiMediaUrl } from '../../lib/api/apiClient';
 import { CollectionMembershipSection } from '../collections/CollectionMembershipSection';
 import { Button } from '../ui/Button';
+import { MediaExportButton } from './MediaExportButton';
 
 export type GenerationViewerItem = {
   id: string;
   imageUrl: string;
+  lookSheetSnapshot?: { presetId: string } | null;
   title?: string;
   prompt?: string;
   provider?: string;
@@ -232,14 +234,14 @@ export function GenerationImageViewer({
 
               <div className="generation-viewer__actions">
                 {renderActions?.(item)}
-                <a
+                {item.lookSheetSnapshot?.presetId === 'character-document-sheet' ? <MediaExportButton request={{ kind: 'look_sheet', jobId: item.id }} /> : <a
                   href={apiMediaUrl(item.imageUrl) || ''}
                   download
                   className="generation-viewer__download"
                 >
                   <Download aria-hidden="true" />
                   {t('ui.action.download')}
-                </a>
+                </a>}
               </div>
             </aside>
           ) : null}

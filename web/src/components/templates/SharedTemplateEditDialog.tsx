@@ -1,16 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Calculator,
-  CheckCircle2,
-  CircleX,
-  Clock3,
-  LoaderCircle,
-  Pencil,
-  Share2,
-  Trash2,
-  X
-} from 'lucide-react';
+import { Calculator, CheckCircle2, CircleX, Clock3, Pencil, Share2, Trash2, X } from 'lucide-react';
+import { ProcessingSpinner } from '../ui/ProcessingSpinner';
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -344,7 +335,7 @@ export function SharedTemplateEditDialog({
                   <div className={`template-management-dialog__lifecycle-row is-${readinessTone(displayedReadinessStatus)}`}>
                     <span className="template-management-dialog__lifecycle-icon" aria-hidden="true">
                       {readinessWorking
-                        ? <LoaderCircle className="animate-spin" />
+                        ? <ProcessingSpinner className="animate-spin" />
                         : displayedReadinessStatus === 'active'
                           ? <CheckCircle2 />
                           : displayedReadinessStatus === 'failed'
@@ -392,7 +383,7 @@ export function SharedTemplateEditDialog({
                         className="template-management-dialog__readiness-action"
                         disabled={prepareProxy.isPending}
                         icon={prepareProxy.isPending
-                          ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                          ? <ProcessingSpinner className="size-4 animate-spin" aria-hidden="true" />
                           : undefined}
                         onClick={() => prepareProxy.mutate()}
                       >
@@ -410,7 +401,7 @@ export function SharedTemplateEditDialog({
                         className="template-management-dialog__readiness-action"
                         disabled={estimateProxy.isPending}
                         icon={estimateProxy.isPending
-                          ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                          ? <ProcessingSpinner className="size-4 animate-spin" aria-hidden="true" />
                           : <Calculator className="size-4" aria-hidden="true" />}
                         onClick={() => estimateProxy.mutate()}
                       >

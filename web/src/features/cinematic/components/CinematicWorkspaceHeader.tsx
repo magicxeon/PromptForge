@@ -1,4 +1,5 @@
-import { CircleAlert, CloudOff, LoaderCircle, Save } from 'lucide-react';
+import { CircleAlert, CloudOff, Save } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useTranslation } from 'react-i18next';
 import { ProjectCostSummary, type ProjectCostReadModel } from './ProjectCostSummary';
 
@@ -15,7 +16,7 @@ export function CinematicWorkspaceHeader({
 }) {
   const { t } = useTranslation('cinematic');
   const SaveIcon = saveState === 'saving'
-    ? LoaderCircle
+    ? ProcessingSpinner
     : saveState === 'offline'
       ? CloudOff
       : saveState === 'failed' ? CircleAlert : Save;

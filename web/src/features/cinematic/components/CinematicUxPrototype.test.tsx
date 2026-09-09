@@ -55,6 +55,10 @@ vi.mock('../../../lib/auth/ActorProvider', () => ({
   useActor: () => ({ actor: { userId: 'usr_alice', username: 'alice', role: 'user' } })
 }));
 
+vi.mock('../../generation/api/trustedVideoSources', () => ({
+  listTrustedVideoSources: vi.fn().mockResolvedValue({ items: [], hasMore: false })
+}));
+
 vi.mock('../../generation/hooks/useGenerationJob', () => ({
   useGenerationJob: (jobId: string | null) => ({
     data: jobId ? { status: 'completed', result: { imageUrl: `/outputs/${jobId}.jpg` } } : undefined
@@ -289,9 +293,9 @@ describe('Cinematic UX prototype', () => {
     expect(screen.getByRole('button', { name: 'cinematic.lookDraft.generateSuggestion' })).toBeVisible();
   });
 
-  it('separates existing Looks from the two new-Look source commands without changing their dialog modes', () => {
+  it('separates existing Looks from the three new-Look source commands without changing their dialog modes', () => {
     const project = castProjectFixture();
-    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider></QueryClientProvider>);
 
     fireEvent.click(screen.getByRole('tab', { name: 'cinematic.cast.tab.wardrobe' }));
     expect(screen.getByLabelText('cinematic.cast.currentLooks')).toBeVisible();
@@ -302,8 +306,10 @@ describe('Cinematic UX prototype', () => {
     expect(lookPreparation.compareDocumentPosition(boundLook) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const upload = within(sourceGroup).getByRole('button', { name: /cinematic\.cast\.uploadWardrobe/ });
     const ai = within(sourceGroup).getByRole('button', { name: /cinematic\.cast\.aiWardrobe/ });
+    const generated = within(sourceGroup).getByRole('button', { name: /cinematic\.cast\.generatedSheet/ });
     expect(upload.closest('.cinematic-look-card')).toBeNull();
     expect(ai.closest('.cinematic-look-card')).toBeNull();
+    expect(generated.closest('.cinematic-look-card')).toBeNull();
 
     fireEvent.click(upload);
     expect(screen.getByRole('radio', { name: 'cinematic.lookDraft.uploadWardrobe' })).toHaveAttribute('aria-checked', 'true');
@@ -315,6 +321,9 @@ describe('Cinematic UX prototype', () => {
     fireEvent.click(cancelAction!);
     fireEvent.click(ai);
     expect(screen.getByRole('radio', { name: 'cinematic.lookDraft.aiSuggestion' })).toHaveAttribute('aria-checked', 'true');
+    fireEvent.click(within(screen.getByRole('dialog')).getAllByRole('button', { name: 'cinematic.actions.cancel' }).find(button => button.textContent === 'cinematic.actions.cancel')!);
+    fireEvent.click(generated);
+    expect(screen.getByRole('radio', { name: 'cinematic.lookDraft.generatedSheet' })).toHaveAttribute('aria-checked', 'true');
   });
 
   it('removes only a confirmed unapproved Look preparation and keeps approved Looks protected', async () => {

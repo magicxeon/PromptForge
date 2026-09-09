@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertCircle, ArrowDown, CheckCircle2, Film, LoaderCircle, Maximize2, Sparkles } from 'lucide-react';
+import { AlertCircle, ArrowDown, CheckCircle2, Film, Maximize2, Sparkles } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { EngineTargetPanelFrame } from '../../../components/generation/EngineTargetPanelFrame';
 import { GenerationStageState } from '../../../components/generation/GenerationStageState';
 import { PlaygroundGenerationWorkspace } from '../../../components/generation/PlaygroundGenerationWorkspace';
@@ -19,10 +21,9 @@ import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { queryKeys } from '../../../lib/api/queryKeys';
 import { readActorScopedDraft, writeActorScopedDraft } from '../../../lib/persistence/actorScopedStorage';
 import { characterSummarySchema, type CharacterSummary } from '../../profiles/schemas/profileSchemas';
-import { PlaygroundVideoSources } from './PlaygroundVideoSources';
-import { TrustedVideoSources } from './TrustedVideoSources';
+import { VideoLookSheetSources } from './VideoLookSheetSources';
 import { trustedVideoSourceSchema, type TrustedVideoSource } from '../api/trustedVideoSources';
-import { buildVideoReferenceSelection, type VideoLookSheet } from './videoReferenceSelection';
+import { buildVideoReferenceSelection, selectedLooks, type NamedTrustedVideoSource, type VideoLookSheet } from './videoReferenceSelection';
 import {
   getVideoCapabilityCatalog,
   getVideoTask,
@@ -37,10 +38,12 @@ import { canQuoteVideoModel, filterVideoModelsForOperation, migrateVideoProvider
 import { getVideoGenerationReadiness } from './videoGenerationReadiness';
 
 const VIDEO_DRAFT_FEATURE = 'playground-video';
-const VIDEO_DRAFT_VERSION = 4;
+const VIDEO_DRAFT_VERSION = 5;
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 
 type VideoDraft = {
+  lookSheets?: VideoLookSheet[];
+  trustedLooks?: NamedTrustedVideoSource[];
   prompt: string;
   operation: 'text_to_video' | 'image_to_video' | 'character_to_video';
   providerModelKey: string;
@@ -132,9 +135,9 @@ function PlaygroundVideoSession() {
     audioMode: draft.audioMode === 'none' ? 'none' : 'generated',
     references: referencePlan.references,
     referencePlanVersion: draft.operation === 'text_to_video' ? undefined : trustedOnly ? 'playground-trusted-v1' : 'playground-reference-v1',
-    characterProfileId: !trustedOnly && draft.operation === 'character_to_video' ? draft.lookSheet?.characterProfileId || draft.character?.id : null,
+    characterProfileId: !trustedOnly && draft.operation === 'character_to_video' ? selectedLooks(draft)[0]?.characterProfileId || draft.character?.id : null,
     characterProfileVersionId: !trustedOnly && draft.operation === 'character_to_video'
-      ? draft.lookSheet?.characterProfileVersionId || draft.character?.characterProfileVersionId
+      ? selectedLooks(draft)[0]?.characterProfileVersionId || draft.character?.characterProfileVersionId
       : null
   }) : null, [draft, selectedModel, referencePlan, trustedOnly]);
   const quote = useQuery({
@@ -304,7 +307,7 @@ function PlaygroundVideoSession() {
         >
           <div className="playground-video-task-status__state">
             {videoTaskTone(activeTask.status) === 'active'
-              ? <LoaderCircle className="playground-video-task-status__spinner" aria-hidden="true" />
+              ? <ProcessingSpinner className="playground-video-task-status__spinner" aria-hidden="true" />
               : videoTaskTone(activeTask.status) === 'success'
                 ? <CheckCircle2 aria-hidden="true" />
                 : <AlertCircle aria-hidden="true" />}
@@ -355,14 +358,11 @@ function PlaygroundVideoSession() {
                 ))}
               </div>
             </fieldset>
-            {draft.operation !== 'text_to_video' ? trustedOnly
-              ? <TrustedVideoSources key={`${actor?.userId}:${draft.providerModelKey}`} withLook={draft.operation === 'character_to_video'}
-                frame={draft.trustedFrame} look={draft.trustedLook} onChange={patch => setDraft(current => ({ ...current, ...patch }))} />
-              : <PlaygroundVideoSources key={draft.operation}
-                value={draft} onChange={patch => setDraft(current => ({ ...current, ...patch }))} onBusy={setUploading} /> : null}
+            {draft.operation !== 'text_to_video' ? <VideoLookSheetSources key={`${draft.operation}:${draft.providerModelKey}`}
+              model={selectedModel} value={draft} onChange={patch => setDraft(current => ({ ...current, ...patch }))} onBusy={setUploading} /> : null}
             <div className="playground-video-reference-summary">
               {t('playground.video.references.summary', { mode: referencePlan.inputMode, count: referencePlan.references.length })}
-              {referencePlan.references.map((reference, index) => <div key={reference.purpose}>
+              {referencePlan.references.map((reference, index) => <div key={`${reference.purpose}:${index}`}>
                 {index + 1}. {reference.role} · {t(`playground.video.references.purpose.${reference.purpose}`)}
               </div>)}
               {referencePlan.reason ? <p role="status">{t(referencePlan.reason)}</p> : null}
@@ -532,20 +532,32 @@ function readVideoDraft(actorId?: string): VideoDraft {
     feature: VIDEO_DRAFT_FEATURE,
     schemaVersion: VIDEO_DRAFT_VERSION,
     fallback: EMPTY_DRAFT,
-    migrate: envelope => [2, 3].includes(envelope.schemaVersion) ? envelope.payload as Partial<VideoDraft> : null
+    migrate: envelope => [2, 3, 4].includes(envelope.schemaVersion) ? envelope.payload as Partial<VideoDraft> : null
   });
   const restored = { ...EMPTY_DRAFT, ...value };
   const character = characterSummarySchema.safeParse(restored.character);
+  const lookSheets = z.array(videoLookDraftSchema).max(12).safeParse(restored.lookSheets ?? (restored.lookSheet ? [restored.lookSheet] : [])).data || [];
+  const trustedLooks = z.array(trustedVideoSourceSchema.extend({ characterName: z.string().max(80).optional() })).max(12)
+    .safeParse(restored.trustedLooks ?? (restored.trustedLook ? [restored.trustedLook] : [])).data || [];
   return {
     ...restored,
+    lookSheets,
+    trustedLooks,
     character: character.success ? character.data : null,
     trustedFrame: trustedVideoSourceSchema.safeParse(restored.trustedFrame).data || null,
-    trustedLook: trustedVideoSourceSchema.safeParse(restored.trustedLook).data || null,
-    referenceImageUrl: restored.referenceImageUrl?.startsWith('/outputs/') ? restored.referenceImageUrl : null,
-    lookSheet: restored.lookSheet && (restored.lookSheet.url.startsWith('/outputs/') || restored.lookSheet.url.startsWith('/api/character-profiles/')) ? restored.lookSheet : null,
+    trustedLook: trustedLooks[0] || null,
+    referenceImageUrl: typeof restored.referenceImageUrl === 'string' && restored.referenceImageUrl.startsWith('/outputs/') ? restored.referenceImageUrl : null,
+    lookSheet: lookSheets[0] || null,
     providerModelKey: migrateVideoProviderModelKey(restored.providerModelKey)
   };
 }
+
+const videoLookDraftSchema = z.object({
+  url: z.string().refine(url => url.startsWith('/outputs/') || url.startsWith('/api/character-profiles/')),
+  name: z.string(), characterName: z.string().max(80).optional(), generated: z.boolean().optional(),
+  assetId: z.string().optional(), lookId: z.string().optional(), versionId: z.string().optional(),
+  characterProfileId: z.string().optional(), characterProfileVersionId: z.string().optional(),
+});
 
 function toVideoViewerItem(task: VideoTask): GenerationVideoViewerItem {
   const request = task.submittedRequest;

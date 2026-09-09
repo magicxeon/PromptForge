@@ -1,6 +1,7 @@
 import { loadVideoReferenceAssetContent } from '../assets/VideoReferenceAssetContent.js';
 import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
 import { normalizeReferenceValue } from './referenceUtils.js';
+import { normalizeLookName, validateLookNames } from './VideoReferencePlan.js';
 
 const fail = (code, message) =>
   Object.assign(new Error(message), { code, statusCode: 409 });
@@ -42,7 +43,7 @@ export class PlaygroundVideoReferenceService {
     if (
       !Array.isArray(rows) ||
       rows.length < 1 ||
-      rows.length > 2 ||
+      rows.length > 12 ||
       !['image_to_video', 'multimodal_reference'].includes(mode) ||
       (mode === 'image_to_video' &&
         (rows.length !== 1 || rows[0]?.role !== 'first_frame')) ||
@@ -54,6 +55,7 @@ export class PlaygroundVideoReferenceService {
         'Choose one first frame or an ordered reference-image plan.',
       );
     }
+    validateLookNames(rows);
     const hasCharacter = rows.some(row => row.purpose === 'character_reference');
     if ((hasCharacter && rows.some(row => ['character_look', 'look_sheet_upload', 'generated_look'].includes(row.purpose)))
       || (input.characterProfileId && rows.some(row => ['look_sheet_upload', 'generated_look'].includes(row.purpose)))) {
@@ -167,6 +169,7 @@ export class PlaygroundVideoReferenceService {
       const { bytes: _bytes, ...content } = await this.contentLoader(asset);
       assets.push({ ...asset, ...content });
       references.push({
+        ...(normalizeLookName(row.characterName) ? { characterName: normalizeLookName(row.characterName) } : {}),
         role: row.role,
         purpose: row.purpose,
         assetId: asset.id,
@@ -189,7 +192,8 @@ export class PlaygroundVideoReferenceService {
       (mode === 'image_to_video' && purposes[0] !== 'opening_frame') ||
       (mode === 'multimodal_reference' &&
         (purposes.at(-1) === 'opening_frame' ||
-          (purposes.length === 2 && purposes[0] !== 'opening_frame'))) ||
+          purposes.slice(1).includes('opening_frame') ||
+          purposes.filter(purpose => purpose === 'character_reference').length > 1)) ||
       new Set(assets.map((asset) => asset.id)).size !== assets.length
     ) {
       throw fail(

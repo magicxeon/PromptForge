@@ -7,8 +7,9 @@
   must use version playground-trusted-v1 and owned generation IDs, never uploads,
   caller URLs or Character profile previews. Enforce before legacy resolution.
 - First-frame mode: one source, opening_frame purpose, first_frame role.
-  Character/reference mode: optional scene then required Look, one/two distinct
-  generated sources, reference_image roles. No mixed first_frame/reference_image.
+  Character/reference mode: optional scene then required Looks, distinct generated
+  sources bounded by the effective model/adapter limit (amendment 014), all using
+  reference_image roles. No mixed first_frame/reference_image.
 - Each reference independently passes current source policy, owner/history,
   account, age and source bytes; bind ID/hash/roles and expiry in fingerprints.
   Check original URL readability/hash before quote and submit, bounded timeout,

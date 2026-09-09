@@ -125,7 +125,7 @@ test('trusted family matches every currently cataloged Seedream model marked for
   assert.deepEqual([...policy.modelIds].sort(), cataloged);
 });
 
-async function fixture(t) {
+async function fixture(t, ids = ['first', 'look']) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'trusted-video-'));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const bytes = await fs.readFile(
@@ -137,7 +137,7 @@ async function fixture(t) {
   const repository = new TrustedGeneratedSourceRepository({
     file: path.join(directory, 'sources.json'),
   });
-  const histories = ['first', 'look'].map((id) => ({
+  const histories = ids.map((id) => ({
     id,
     ownerUserId: actor.userId,
     imageUrl: `/outputs/${id}.jpg`,
@@ -302,6 +302,31 @@ async function fixture(t) {
     input,
   };
 }
+
+test('named-looks: three trusted references preserve source URLs and reject renamed or expired submissions', async t => {
+  const f = await fixture(t, ['first', 'look', 'second']);
+  f.input.references[1].characterName = 'Alice';
+  f.input.references.push({ generationId: 'second', role: 'reference_image', purpose: 'generated_look', characterName: 'Ben' });
+  const quote = await f.app.quote(f.input, actor);
+  assert.equal(quote.selection.referenceImageCount, 3);
+  await f.app.submit({ ...f.input, estimateId: 'quote', requestFingerprint: quote.requestFingerprint, idempotencyKey: 'three-looks' }, actor);
+  const sent = f.calls.dispatched[0];
+  assert.match(sent.prompt, /Image 3: Character 2, name "Ben"/);
+  assert.deepEqual(sent.referenceImages.map(row => row.url), ['first', 'look', 'second'].map(id => source.originalOutputUrl.replace('original', id)));
+  assert.equal(f.calls.reserves[0].generationRequest.referenceCount, 3);
+  const noScene = { ...f.input, references: f.input.references.slice(1).map(row => ({ ...row, characterName: '' })) };
+  const noSceneQuote = await f.app.quote(noScene, actor);
+  assert.equal(noSceneQuote.selection.referenceImageCount, 2);
+  assert.match(f.calls.estimates.at(-1).request.prompt, /Image 1: Character 1/);
+  const reversedQuote = await f.app.quote({ ...noScene, references: [...noScene.references].reverse() }, actor);
+  assert.notEqual(noSceneQuote.requestFingerprint, reversedQuote.requestFingerprint);
+  f.input.references[2].characterName = 'alice';
+  await assert.rejects(f.app.quote(f.input, actor), { code: 'video_look_name_duplicate' });
+  f.input.references[2].characterName = 'Ben';
+  f.service.now = () => Date.parse('2026-11-01');
+  await assert.rejects(f.app.submit({ ...f.input, estimateId: 'quote', requestFingerprint: quote.requestFingerprint, idempotencyKey: 'expired-three' }, actor));
+  assert.equal(f.calls.reserves.length, 1);
+});
 
 test('private captured URL does not leak through listing or task references', async (t) => {
   const f = await fixture(t);

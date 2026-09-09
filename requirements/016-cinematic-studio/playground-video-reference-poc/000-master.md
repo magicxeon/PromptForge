@@ -63,3 +63,8 @@ stay on their existing paths; unknown Playground versions are rejected.
 Browser draft version 3 migrates version 2 without copying Base64/private signed
 URLs. Uploaded references reuse existing Assets/outputs storage; no database,
 new endpoint, queue, rate card or provider activation changes.
+## Multiple Look Sheet Amendment
+
+Requirement [014](014-multiple-named-look-sheets.md) extends the single-Look UI
+and reference plan to capability-bounded named lists. It supersedes only the
+one/two-image count restriction in 001/006; trusted source authority is unchanged.

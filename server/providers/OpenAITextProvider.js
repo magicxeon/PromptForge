@@ -187,6 +187,13 @@ export class OpenAITextProvider {
     };
   }
 
+  async enhanceLookSheet({ input, instructions, schema, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({ input, instructions, schema, model, reasoningEffort,
+      maxOutputTokens, timeoutMs, schemaName: 'momelo_look_sheet_enhancement', errorPrefix: 'look_sheet_enhancement' });
+    if (payload?.status !== 'completed') throw createProviderError('enhancement_incomplete', 'Enhancement did not complete.');
+    return { ...parseJsonOutput(payload, 'look_sheet_enhancement'), usage: payload.usage || null, responseId: payload.id || null };
+  }
+
   async enhanceCinematicStory({ story, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
     const payload = await this.requestStructured({
       model,

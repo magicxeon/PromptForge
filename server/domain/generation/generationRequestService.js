@@ -1,4 +1,6 @@
 import { compilePromptOnServer } from './promptCompiler.js';
+import { isLookSheetDocumentEnabled } from '../../config/lookSheetDocumentPolicy.js';
+import { normalizeLookSheetDefinition, compileLookSheetPrompt } from '../character-profiles/LookSheetDefinitionService.js';
 import { applyStudioNaturalRealism, studioRealismProfile } from './studioNaturalRealism.js';
 import {
   normalizeReferenceJobIds,
@@ -127,6 +129,17 @@ function normalizeCinematicCaptureProfileId(payload) {
 }
 
 export function normalizeGenerationContext(payload = {}, actorContext = null) {
+  const lookSheetDefinition = payload.lookSheetDefinition == null ? null : normalizeLookSheetDefinition(payload.lookSheetDefinition);
+  if (payload.lookSheetEnhancementId != null && (typeof payload.lookSheetEnhancementId !== 'string'
+    || !/^enh_[a-f0-9-]{36}$/.test(payload.lookSheetEnhancementId))) {
+    throw Object.assign(new Error('Invalid enhancement reference.'), { code: 'enhancement_stale', statusCode: 400 });
+  }
+  if (lookSheetDefinition && !isLookSheetDocumentEnabled()) throw Object.assign(new Error('Look Sheet preset is unavailable.'), { statusCode: 403, code: 'look_sheet_disabled' });
+  if (lookSheetDefinition && (!['studio', 'playground'].includes(payload.generationSurface)
+    || payload.generationMode !== 'character-sheet' || payload.sceneTemplateSnapshot || payload.templateUseSessionId
+    || Number(payload.outputCount || 1) !== 1)) {
+    throw Object.assign(new Error('Look Sheet requires one standalone Character Sheet image.'), { statusCode: 400, code: 'look_sheet_context_invalid' });
+  }
   validatePlaygroundReferenceRoles(payload);
   const isCharacterCastingExport = payload.characterProfileContext?.purpose === 'character_casting_export';
   const requestedOutputCount = Number(payload.outputCount || 1);
@@ -154,7 +167,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   const characterType = mode === 'character-sheet'
     ? normalizeCharacterType(payload.characterType)
     : null;
-  const reusableCharacterSheet = mode === 'character-sheet'
+  const reusableCharacterSheet = !lookSheetDefinition && mode === 'character-sheet'
     && characterType === CHARACTER_TYPE.REUSABLE_MODEL;
   const characterLookSheetRequest = mode === 'character-sheet'
     && payload.generationMode === 'character-sheet'
@@ -262,11 +275,14 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     ...payload,
     cinematicCaptureProfileId: normalizeCinematicCaptureProfileId(payload),
     promptRefinement: {
-      enabled: !characterLookSheetRequest
+      enabled: !lookSheetDefinition && !characterLookSheetRequest
         && !(payload.generationSurface === 'cinematic' && payload.generationMode === 'scene')
         && payload.promptRefinement?.enabled === true
     },
     mode,
+    lookSheetDefinition,
+    lookSheetSnapshot: null,
+    lookSheetEnhancementId: typeof payload.lookSheetEnhancementId === 'string' ? payload.lookSheetEnhancementId : null,
     characterType,
     characterReferenceOutfitBehavior,
     selections,
@@ -281,7 +297,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     sourceOwnership: payload.sourceOwnership && typeof payload.sourceOwnership === 'object'
       ? payload.sourceOwnership
       : null,
-    characterSheetConfig: createCharacterSheetConfigSnapshot({
+    characterSheetConfig: lookSheetDefinition ? null : createCharacterSheetConfigSnapshot({
       ...payload,
       faceReferenceJobIds: effectiveFaceReferenceJobIds,
       mode,
@@ -319,6 +335,7 @@ export function compilePromptFromGenerationContext(context) {
 }
 
 function compileBasePromptFromGenerationContext(context) {
+  if (context.lookSheetDefinition) return compileLookSheetPrompt(context);
   const isCinematicStoryboardScene = context.generationSurface === 'cinematic'
     && context.generationMode === 'scene';
   const adminPromptOverride = typeof context.adminPromptOverride === 'string'
@@ -483,6 +500,7 @@ export function createQueueOptions(context, {
     jobId,
     selections: context.selections && typeof context.selections === 'object' ? context.selections : {},
     sceneBuilder: context.sceneBuilder || null,
+    lookSheetSnapshot: context.lookSheetSnapshot || null,
     sceneTemplateSnapshot: context.sceneTemplateSnapshot || null,
     referenceRoleManifest: context.referenceRoleManifest || [],
     referenceProcessingLineage: context.referenceProcessingLineage || null,
@@ -533,7 +551,7 @@ export function createQueueOptions(context, {
       context.authorizedTemplateReferenceJobIds
     ),
     outfitReferenceOverrides: context.outfitReferenceOverrides || normalizeOutfitReferenceOverrides(null),
-    storyReferenceHandoff: context.mode === 'character-sheet'
+    storyReferenceHandoff: context.mode === 'character-sheet' && !context.lookSheetDefinition
       ? {
         referenceType: 'character-sheet',
         identityLocked: true,

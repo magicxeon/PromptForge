@@ -121,6 +121,8 @@ describe('CommunityHomeRoute', () => {
     expect(screen.getByRole('heading', { name: 'Momelo' })).toBeVisible();
     expect(screen.getByLabelText(posts[0]!.title)).toBeVisible();
     const feed = document.querySelector('.community-feed-grid')!;
+    expect(document.querySelectorAll('.community-featured article')).toHaveLength(4);
+    expect(feed).toHaveClass('media-card-list');
     for (const post of posts) expect(feed.querySelector(`[data-testid="post-${post.id}"]`)).not.toBeNull();
     expect(screen.getByTestId('post-post_6')).toBeVisible();
   });

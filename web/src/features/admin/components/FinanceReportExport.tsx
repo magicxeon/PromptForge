@@ -1,4 +1,5 @@
-import { FileSpreadsheet, LoaderCircle } from 'lucide-react';
+import { FileSpreadsheet } from 'lucide-react';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
@@ -56,7 +57,7 @@ export function FinanceReportExport({
         aria-busy={exporting}
       >
         {exporting ? (
-          <LoaderCircle size={16} aria-hidden="true" />
+          <ProcessingSpinner size={16} aria-hidden="true" />
         ) : (
           <FileSpreadsheet size={16} aria-hidden="true" />
         )}

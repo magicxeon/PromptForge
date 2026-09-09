@@ -8,6 +8,7 @@ import { getProviderRegistry } from '../providers/ProviderRegistry.js';
 import { queueManager } from '../domain/generation/QueueManager.js';
 import { creditManager } from '../domain/credits/CreditManager.js';
 import { creditApplicationService } from '../domain/credits/CreditApplicationService.js';
+import { lookSheetEnhancementService } from '../domain/generation/LookSheetEnhancementService.js';
 import { ComparisonOrchestrator } from '../domain/comparisons/ComparisonOrchestrator.js';
 import { historyRepository } from '../repositories/generation/HistoryRepository.js';
 import { communityShareService } from '../domain/community/CommunityShareService.js';
@@ -18,6 +19,9 @@ import { registerIdentityRoutes } from './routes/identityRoutes.js';
 import { registerCreditRoutes } from './routes/creditRoutes.js';
 import { registerCollectionRoutes } from './routes/collectionRoutes.js';
 import { registerGenerationRoutes } from './routes/generationRoutes.js';
+import { registerMediaExportRoutes } from './routes/mediaExportRoutes.js';
+import { MediaExportService } from '../domain/assets/MediaExportService.js';
+import { GenerationExportSourceService } from '../domain/generation/GenerationExportSourceService.js';
 import { registerHistoryRoutes } from './routes/historyRoutes.js';
 import { registerComparisonRoutes } from './routes/comparisonRoutes.js';
 import { registerSceneTemplateRoutes } from './routes/sceneTemplateRoutes.js';
@@ -134,10 +138,11 @@ export function createApp() {
   const adminInvestigationService = new AdminInvestigationService({ providerRegistry });
   const providerControlService = new ProviderControlApplicationService({ imageRegistry: providerRegistry });
 
-  const startupCreditReconciliation = creditApplicationService.reconcileStartupOrphanReservations({
-    shouldPreserveReservation: reservation =>
-      videoGenerationApplicationService.hasDurableTaskForReservation(reservation)
-  });
+  const startupCreditReconciliation = lookSheetEnhancementService.recover().then(() =>
+    creditApplicationService.reconcileStartupOrphanReservations({
+      shouldPreserveReservation: reservation => reservation.metadata?.kind === 'look_sheet_enhancement'
+        || videoGenerationApplicationService.hasDurableTaskForReservation(reservation)
+    }));
 
   app.use(cors());
   app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20mb' }));
@@ -188,6 +193,7 @@ export function createApp() {
   registerCreditRoutes(app, sharedDependencies);
   registerCollectionRoutes(app, sharedDependencies);
   registerGenerationRoutes(app, sharedDependencies);
+  registerMediaExportRoutes(app, { mediaExportService: new MediaExportService({ generationSources: new GenerationExportSourceService(), comparisons: comparisonOrchestrator }) });
   registerGenerationJobCenterRoutes(app, { generationJobCenterService });
   registerFashionBlueprintRoutes(app, sharedDependencies);
   registerReferenceRoutes(app, sharedDependencies);

@@ -1,4 +1,4 @@
-import { LoaderCircle } from 'lucide-react';
+import { ProcessingSpinner } from '../ui/ProcessingSpinner';
 import type { ReactNode } from 'react';
 import momeloMark from '../../assets/brand/momelo-mark.svg';
 import { cn } from '../../lib/utils/cn';
@@ -14,7 +14,7 @@ export function GenerationLoadingIndicator({
     <span className={cn('generation-loading-indicator', className)} aria-hidden="true">
       <span className="generation-loading-indicator__pulse" />
       <span className="generation-loading-indicator__glow" />
-      <LoaderCircle className={cn('generation-loading-indicator__spinner animate-spin', iconClassName)} />
+      <ProcessingSpinner className={cn('generation-loading-indicator__spinner animate-spin', iconClassName)} />
     </span>
   );
 }

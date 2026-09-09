@@ -250,6 +250,20 @@ export class ComparisonOrchestrator {
     return this.hydrateSetFromHistory(set, actor);
   }
 
+  async getExportProjection(setId, runId, actor) {
+    // Read only: exporting must not reconcile Jobs or trigger Credit settlement.
+    const set = await this.repository.get(setId, actor);
+    const run = set.runs.find(item => item.id === runId);
+    const slots = run?.slots.filter(slot => slot.status === 'completed' && slot.jobId && slot.result?.imageUrl) || [];
+    if (!run || run.mediaType === 'video' || !['completed', 'partially_completed', 'failed', 'cancelled'].includes(run.status)
+      || slots.length < 2 || slots.length > 6 || new Set(slots.map(slot => slot.jobId)).size !== slots.length) {
+      throw Object.assign(new Error('Comparison is not ready for export.'), { statusCode: 409, code: 'comparison_export_unavailable' });
+    }
+    return { runId, aspectRatio: run.configurationSnapshot?.aspectRatio || null,
+      slots: slots.map(slot => ({ jobId: slot.jobId, provider: slot.provider, model: slot.model,
+        providerDisplayName: slot.providerDisplayName, modelDisplayName: slot.modelDisplayName })) };
+  }
+
   async hydrateSetFromHistory(set, actor) {
     const history = await this.repository.readHistory();
     const historyById = new Map(
