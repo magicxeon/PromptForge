@@ -1,5 +1,6 @@
 import { BaseProvider } from './BaseProvider.js';
 import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
+import { OPENAI_IMAGE25_SIZES } from '../config/openAIImage25.js';
 
 export function isOpenAIAPIStreamingEnabled() {
   const value = process.env.ENABLE_OPENAI_API_STREAMING;
@@ -290,11 +291,7 @@ export class OpenAIProvider extends BaseProvider {
    */
   resolveOpenAIImageSize(model, aspectRatio) {
     if (this.isGPTImage25Model(model)) {
-      const sizes = {
-        '1:1': '1024x1024', '16:9': '1536x864', '9:16': '864x1536',
-        '6:8': '768x1024', '3:4': '768x1024', '4:3': '1024x768',
-        '4:5': '1024x1280', '3:2': '1536x1024', '2:3': '1024x1536'
-      };
+      const sizes = OPENAI_IMAGE25_SIZES;
       if (!sizes[aspectRatio]) throw new Error('Unsupported GPT Image 2.5 aspect ratio.');
       return sizes[aspectRatio];
     }

@@ -14,11 +14,14 @@ describe('Cinematic actor-scoped draft storage', () => {
   it('restores only the matching actor draft', () => {
     const draft = {
       ...createCinematicSetupDraft(new Date('2026-08-17T00:00:00.000Z')),
-      projectName: 'Night train'
+      projectName: 'Night train',
+      storyCountryStyle: 'japan'
     };
     writeCinematicSetupDraft('usr_alice', draft);
 
     expect(readCinematicSetupDraft('usr_alice').projectName).toBe('Night train');
+    expect(readCinematicSetupDraft('usr_alice').storyCountryStyle).toBe('japan');
+    expect(readCinematicSetupDraft('usr_bob').storyCountryStyle).toBe('none');
     expect(readCinematicSetupDraft('usr_bob').projectName).toBe('');
   });
 
@@ -26,7 +29,7 @@ describe('Cinematic actor-scoped draft storage', () => {
     const draft = createCinematicSetupDraft();
     expect(() => writeCinematicSetupDraft('usr_alice', {
       ...draft,
-      storyBrief: 'x'.repeat(601)
+      storyBrief: 'x'.repeat(10001)
     })).toThrow();
 
     writeCinematicSetupDraft('usr_alice', {

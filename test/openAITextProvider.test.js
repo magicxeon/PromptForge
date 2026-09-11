@@ -77,7 +77,7 @@ test('OpenAI text provider localizes Attribute labels with a strict locale schem
 });
 
 
-test('OpenAI text provider requests a bounded Cinematic story and role plan', async () => {
+test('OpenAI text provider separates story output from bounded role-only analysis', async () => {
   let request = null;
   const provider = new OpenAITextProvider('test-key', {
     endpoint: 'https://example.test/responses',
@@ -113,8 +113,17 @@ test('OpenAI text provider requests a bounded Cinematic story and role plan', as
 
   assert.equal(request.store, false);
   assert.equal(request.text.format.name, 'momelo_cinematic_story_enhancement');
+  assert.equal(request.text.format.schema.properties.recommendedRoles, undefined);
+  assert.ok(request.text.format.schema.properties.enhancedStoryBrief);
+  await provider.enhanceCinematicStory({
+    story: { storyBrief: 'Two people meet at a station.', purpose: 'roles', storyCountryStyle: 'japan' },
+    model: 'test-model', reasoningEffort: 'low', maxOutputTokens: 1200, timeoutMs: 1000
+  });
+  assert.equal(request.text.format.name, 'momelo_cinematic_story_roles');
+  assert.equal(request.text.format.schema.properties.enhancedStoryBrief, undefined);
+  assert.equal(request.text.format.schema.properties.creativeDirection, undefined);
   assert.equal(request.text.format.schema.properties.recommendedRoles.maxItems, 4);
   assert.equal(request.text.format.schema.properties.recommendedRoles.items.properties.personalityTraits.maxItems, 6);
-  assert.match(request.instructions, /off-screen notification sender/);
+  assert.match(request.instructions, /do not rewrite/);
   assert.equal(result.recommendedRoles[0].label, 'Lead');
 });

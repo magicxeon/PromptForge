@@ -12,7 +12,8 @@ const groups = {
   ],
   adjacent: [
     'test/cinematicApplicationService.test.js', 'test/cinematicVideoPacketCompiler.test.js',
-    'test/videoPricingCalculator.test.js', 'test/videoGenerationRoutes.test.js'
+    'test/videoPricingCalculator.test.js', 'test/videoGenerationRoutes.test.js',
+    'test/cinematicTimelineCompiler.test.js', 'test/cinematicDataLineageService.test.js'
   ]
 };
 const suite = process.argv[2] || 'help';
@@ -30,8 +31,12 @@ if (suite === 'help' || suite === '--help') {
   const files = suite === 'full' ? [...new Set(Object.values(groups).flat())] : groups[suite];
   if (files) run('backend', ['--test', ...files], root);
   if (!process.exitCode && ['ui', 'full'].includes(suite)) {
-    run('ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run',
-      'src/features/cinematic/components/CinematicProduceRuntime.test.tsx'], path.join(root, 'web'));
+    run('ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicProduceRuntime.test.tsx',
+      'src/features/cinematic/components/StoryboardShotDialog.test.tsx',
+      'src/features/cinematic/components/storyboardGenerationAdapter.test.ts',
+      'src/features/cinematic/components/produce/produceReadModel.test.ts',
+      'src/features/cinematic/schemas/cinematicCoreContracts.test.ts'], path.join(root, 'web'));
   }
   console.log(`[cinematic-video:${suite}] ${process.exitCode ? 'FAILED' : 'PASSED'} in ${((performance.now() - startedAt) / 1000).toFixed(1)}s`);
 }

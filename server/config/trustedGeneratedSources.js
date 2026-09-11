@@ -1,6 +1,6 @@
 export const TRUSTED_GENERATED_SOURCE_POLICY = Object.freeze({
   kind: 'trusted_generated_only',
-  version: 'modelark-seedream-5-family-2026-09-07',
+  version: 'modelark-seedream-5-family-2026-09-12',
   providerId: 'modelark',
   modelIds: ['seedream-5-0-lite-260128', 'dola-seedream-5-0-pro-260628'],
   resolvedModelAliases: ['seedream-5-0-260128'],

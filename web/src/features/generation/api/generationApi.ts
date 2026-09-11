@@ -25,6 +25,8 @@ export type GenerationReferenceRole =
   | 'outfit_back';
 
 export type GenerationRequestDraft = {
+  cinematicCastReferences?: import('../schemas/generationSchemas').CinematicCastReference[];
+  cinematicContainsPeople?: boolean;
   lookSheetDefinition?: LookSheetDefinition | null;
   lookSheetEnhancementId?: string | null;
   provider: string;
@@ -200,6 +202,8 @@ export function generationPayload(
     generationMode: draft.generationMode,
     generationSurface: draft.generationSurface,
     cinematicCaptureProfileId: draft.cinematicCaptureProfileId,
+    cinematicCastReferences: draft.cinematicCastReferences,
+    cinematicContainsPeople: draft.cinematicContainsPeople,
     template: 'portrait',
     selections: draft.selections || {},
     customColors: draft.customColors || {},
@@ -263,7 +267,7 @@ export function pricingPayload(draft: GenerationRequestDraft) {
     resolution: draft.imageResolution || '1K',
     aspectRatio: draft.aspectRatio,
     quality: null,
-    referenceCount: Object.values(draft.references).filter(Boolean).length,
+    referenceCount: Object.values(draft.references).filter(Boolean).length + (draft.cinematicCastReferences?.length || 0),
     outputCount: draft.outputCount,
     routingMode: 'advanced',
     qualityTier: 'standard',

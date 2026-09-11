@@ -1,3 +1,5 @@
+import { loadPromptRecipe } from '../config/prompt-recipes/loadPromptRecipe.js';
+import { storyAuthoringConfiguration } from '../config/cinematicStoryConfiguration.js';
 import {
   CINEMATIC_SCENE_DIRECTION_SCHEMA,
   CINEMATIC_STORY_PLAN_SCHEMA
@@ -70,16 +72,6 @@ const CINEMATIC_STORY_SCHEMA = Object.freeze({
   }
 });
 
-const CINEMATIC_STORY_INSTRUCTION = [
-  'You are Momelo Cinematic Story Director for short-form professional video.',
-  'Convert the supplied brief into one coherent, production-ready story direction that fits the exact duration, platform, genre, pacing, audience feeling and ending intent.',
-  'Preserve the user premise and do not invent branded products, copyrighted characters, graphic content or unnecessary cast.',
-  'Recommend only the smallest on-screen cast needed, between one and four roles. Roles are story slots, never named real actors.',
-  'Create a role only for a visibly present person who needs a stable Character identity. Never create roles for an off-screen notification sender, an unreadable message source, a disembodied voice, a mentioned person, background crowd, or implied memory unless that person visibly appears in the film.',
-  'For every role, provide a practical objective, concise emotional arc, up to six playable personality traits, and restrained performance direction that can seed the Cast dossier.',
-  'The enhancedStoryBrief must be concise and at most 600 characters. creativeDirection must be at most 800 characters.',
-  'Candidate scenes must be filmable and ordered. Return only the requested structured result.'
-].join(' ');
 
 const CINEMATIC_WARDROBE_SCHEMA = Object.freeze({
   type: 'object',
@@ -195,13 +187,18 @@ export class OpenAITextProvider {
   }
 
   async enhanceCinematicStory({ story, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const rolesOnly = story.purpose === 'roles';
+    const properties = rolesOnly ? {
+      recommendedRoles: CINEMATIC_STORY_SCHEMA.properties.recommendedRoles,
+      warnings: CINEMATIC_STORY_SCHEMA.properties.warnings
+    } : Object.fromEntries(Object.entries(CINEMATIC_STORY_SCHEMA.properties).filter(([key]) => key !== 'recommendedRoles'));
     const payload = await this.requestStructured({
       model,
-      instructions: CINEMATIC_STORY_INSTRUCTION,
-      input: story,
+      instructions: loadPromptRecipe(rolesOnly ? 'cinematic/story-role-analysis.v1.json' : 'cinematic/story-enhancement.v1.json').instruction,
+      input: { ...story, authoringLimits: storyAuthoringConfiguration.limits },
       reasoningEffort,
-      schemaName: 'momelo_cinematic_story_enhancement',
-      schema: CINEMATIC_STORY_SCHEMA,
+      schemaName: rolesOnly ? 'momelo_cinematic_story_roles' : 'momelo_cinematic_story_enhancement',
+      schema: { type: 'object', additionalProperties: false, required: Object.keys(properties), properties },
       maxOutputTokens,
       timeoutMs,
       errorPrefix: 'cinematic_story_enhancement'

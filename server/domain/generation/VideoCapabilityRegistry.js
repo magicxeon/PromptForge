@@ -198,9 +198,21 @@ export class VideoCapabilityRegistry {
 export function validateTrustedGeneratedImageSource(input, model, { now = new Date() } = {}) {
   const requirement = model?.trustedGeneratedImageSource;
   const authority = input?.referenceAuthority;
+  if (['cinematic_look_sources', 'cinematic_storyboard_source'].includes(authority?.kind)
+    && Array.isArray(authority.references)) {
+    if (!authority.references.length || authority.references.length !== Number(input.referenceImageCount)) {
+      throw new VideoCapabilityError('video_provider_synthetic_character_source_required', 'The trusted image authority count changed.', 409);
+    }
+    for (const reference of authority.references) {
+      validateTrustedGeneratedImageSource({ ...input, referenceAuthority: {
+        ...reference, kind: ['character_look', 'generated_look'].includes(reference.purpose) ? 'cinematic_look_source' : 'cinematic_storyboard_source'
+      } }, model, { now });
+    }
+    return true;
+  }
   const provenance = authority?.providerOutputProvenance;
   let reason = null;
-  if (!requirement || !authority || authority.kind !== 'cinematic_storyboard_source') {
+  if (!requirement || !authority || !['cinematic_storyboard_source', 'cinematic_look_source'].includes(authority.kind)) {
     reason = 'source_authority_missing';
   } else if (authority.immutable !== true || !authority.contentHash || !authority.sourceFingerprint) {
     reason = 'source_authority_invalid';

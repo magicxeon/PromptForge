@@ -217,3 +217,21 @@ only when the current catalog accepts its aspect and reference requirements and
 is written only after accepted work. Prop material/color continuity is recorded
 as a deferred visual-authority gap without changing prompt or approval behavior.
 See `implemetation-plan/014-storyboard-render-engine-memory.md`.
+
+Package [017](017-directed-opening-foundation-master.md) adds JSON-driven ordered
+creative intent, explicit no-person/selected Cast coverage, named multi-Cast
+Storyboard references, art direction and time-zero opening semantics. Trusted
+Seedream Storyboards now bind their original provider source for Seedance.
+Storyboard approval remains mandatory for every Shot. Isolated tests and EN/TH
+responsive checks pass; paid visual qualification remains open. See
+[023](023-directed-opening-implementation-plan.md) for implementation evidence and
+[022](022-series-readiness-deferred.md) for Series/Season/Chapter awareness only.
+
+Follow-up [024](024-country-style-and-cast-picker.md) owns Story Country Style,
+Setup analysis action presentation and generated Cast sheet-category filtering.
+
+Follow-up [025](025-separate-story-and-role-actions.md) separates story and role
+AI output, dialog presentation and Apply semantics without a second text pipeline.
+
+Follow-up [026](026-seedance-source-diagnostics.md) distinguishes approved
+Storyboard status from Seedance model authorization and source-check diagnostics.

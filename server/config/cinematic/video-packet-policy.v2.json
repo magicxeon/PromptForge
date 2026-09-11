@@ -4,6 +4,14 @@
   "version": 2,
   "contractVersion": "cinematic-video-packet-v2",
   "maximumPromptCharacters": 3200,
+  "looksOnlyMode": {
+    "maximumPromptCharacters": 4000,
+    "promptPrefix": "Use character look sheet references to preserve each named character's identity and wardrobe. Create one continuous photorealistic live-action shot from the authored scene and action below.",
+    "startAuthority": "No First Frame is supplied. Compose the opening from the authored visible moment, blocking, camera, location and lighting below.",
+    "characterMapping": "Image {imageNumber} is the Look Sheet for {roleName}, Look {lookName}. Preserve this character's identity and wardrobe only.",
+    "prohibitions": "Never reproduce sheet panels, labels, multiple views, neutral poses or sheet backgrounds. Do not duplicate or swap characters. Use the authored scene and performance, not the sheet composition.",
+    "sectionLabel": "CAST REFERENCES AND AUTHORED OPENING"
+  },
   "promptSectionOrder": [
     "startAuthority",
     "temporalAction",

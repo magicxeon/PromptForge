@@ -38,9 +38,9 @@ test('invalid or ambiguous usage is unknown; explicitly split cached tokens use 
   assert.equal(calculateImageTokenCost(usage, model.tokenRateEvidence).providerCostUsd, 0.050682);
 });
 
-test('unmeasured requests fail closed while count multiplication, reference buckets and template fees stay consistent', async () => {
-  for (const overrides of [{ aspectRatio: '1:1' }, { aspectRatio: '16:9' }, { resolution: '2K' },
-    { quality: 'high' }, { referenceCount: 3 }, { referenceCount: 0.5 }, { outputCount: 0 }, { outputCount: 5 }]) {
+test('unsupported inputs fail while count multiplication, reference buckets and template fees stay consistent', async () => {
+  for (const overrides of [{ aspectRatio: '10:1' }, { quality: 'standard' }, { referenceCount: 7 },
+    { referenceCount: 0.5 }, { outputCount: 0 }, { outputCount: 5 }]) {
     await assert.rejects(pricing.calculateEstimate({ ...request, ...overrides }), { code: 'credit_pricing_unavailable' });
   }
   const quote = await pricing.calculateEstimate({ ...request, outputCount: 2, templatePricing: { totalCredits: 14 } });
@@ -48,6 +48,20 @@ test('unmeasured requests fail closed while count multiplication, reference buck
   assert.equal(quote.breakdown.providerCostUsd, 0.102714);
   assert.equal(quote.breakdown.retailAssumptions.pricingFxThbPerUsd, 35);
   assert.equal((await pricing.calculateEstimate({ ...request, referenceCount: 1 })).estimatedCredits, 70);
+});
+
+test('all dispatched Image 2.5 dimensions and supported qualities get immutable provisional prices', async () => {
+  const { OPENAI_IMAGE25_SIZES } = await import('../server/config/openAIImage25.js');
+  for (const model of models) for (const [aspectRatio, size] of Object.entries(OPENAI_IMAGE25_SIZES)) {
+    for (const quality of ['auto', 'low', 'medium', 'high', 'xhigh', 'max']) for (const referenceCount of [0, 1, 2, 3, 4, 5, 6]) {
+      const quote = await pricing.calculateEstimate({ ...request, requestedModelId: model.modelId, aspectRatio, quality, referenceCount });
+      assert.ok(quote.estimatedCredits >= 55);
+      assert.equal(`${quote.breakdown.estimation.width}x${quote.breakdown.estimation.height}`, size);
+      assert.equal(quote.breakdown.estimation.referenceCount, referenceCount);
+      assert.equal(quote.breakdown.testingOnly, undefined);
+      if (quality === 'high' || referenceCount > 2) assert.equal(quote.breakdown.costBasis, 'provisional_usage_estimate');
+    }
+  }
 });
 
 test('Finance inventory exposes token units/rates rather than a fabricated universal per-image cost', () => {

@@ -134,11 +134,12 @@ test('catalog: production can select both measured-price models', () => {
   }
 });
 
-test('pricing: production rejects unmeasured parameters instead of falling back to one credit', async () => {
+test('pricing: production estimates unmeasured parameters without falling back to one credit', async () => {
   for (const NODE_ENV of ['production', 'staging']) for (const id of ids) {
     const pricing = new CreditPricingPolicyService({ environment: { NODE_ENV } });
-    await assert.rejects(pricing.calculateEstimate({ userId: 'owner', requestedProviderId: 'openai', requestedModelId: id }),
-      { code: 'credit_pricing_unavailable' });
+    const estimated = await pricing.calculateEstimate({ userId: 'owner', requestedProviderId: 'openai', requestedModelId: id, aspectRatio: '1:1' });
+    assert.ok(estimated.estimatedCredits > 55);
+    assert.equal(estimated.breakdown.costBasis, 'provisional_usage_estimate');
     const measured = await pricing.calculateEstimate({ userId: 'owner', requestedProviderId: 'openai', requestedModelId: id, aspectRatio: '3:4' });
     assert.equal(measured.estimatedCredits, 55);
   }

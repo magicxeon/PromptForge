@@ -1,5 +1,7 @@
-const DEFAULT_MODEL = 'gpt-5.6-terra';
-const DEFAULT_FALLBACK_MODEL = 'gemini-3.8-flash';
+import { cinematicTextModelDefaults } from './cinematicStoryConfiguration.js';
+const defaults = cinematicTextModelDefaults.storyPlan;
+const DEFAULT_MODEL = defaults.model;
+const DEFAULT_FALLBACK_MODEL = defaults.fallbackModel;
 
 export function getCinematicStoryPlanPolicy(env = process.env) {
   const apiKey = normalizeApiKey(env.OPENAI_API_KEY);
@@ -13,13 +15,13 @@ export function getCinematicStoryPlanPolicy(env = process.env) {
   );
   const generationTimeoutMs = boundedInteger(
     env.CINEMATIC_STORY_PLAN_GENERATION_TIMEOUT_MS ?? env.CINEMATIC_STORY_PLAN_TIMEOUT_MS,
-    120_000,
+    defaults.generationTimeoutMs,
     10_000,
     240_000
   );
   const repairTimeoutMs = boundedInteger(
     env.CINEMATIC_STORY_PLAN_REPAIR_TIMEOUT_MS,
-    90_000,
+    defaults.repairTimeoutMs,
     10_000,
     180_000
   );
@@ -32,7 +34,7 @@ export function getCinematicStoryPlanPolicy(env = process.env) {
     timeoutMs: generationTimeoutMs,
     generationTimeoutMs,
     repairTimeoutMs,
-    maxOutputTokens: boundedInteger(env.CINEMATIC_STORY_PLAN_MAX_OUTPUT_TOKENS, 8_000, 1_000, 16_000),
+    maxOutputTokens: boundedInteger(env.CINEMATIC_STORY_PLAN_MAX_OUTPUT_TOKENS, defaults.maxOutputTokens, 1_000, 16_000),
     apiKey,
     fallback: {
       requestedEnabled: fallbackRequestedEnabled,
@@ -60,7 +62,7 @@ function normalizeApiKey(value) {
 }
 
 function normalizeEffort(value) {
-  const effort = String(value || 'medium').trim().toLowerCase();
+  const effort = String(value || defaults.reasoningEffort).trim().toLowerCase();
   return ['none', 'low', 'medium', 'high', 'xhigh', 'max'].includes(effort) ? effort : 'medium';
 }
 

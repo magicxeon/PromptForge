@@ -24,7 +24,10 @@ export function applySceneDirectionFieldProposals(
     }
     if (parsed.entity === 'shot' && parsed.sceneId === result.id) {
       const shot = result.shots.find(item => item.id === parsed.entityId);
-      if (shot) (shot as unknown as Record<string, unknown>)[parsed.field] = structuredClone(proposal.proposedValue);
+      if (shot) {
+        (shot as unknown as Record<string, unknown>)[parsed.field] = structuredClone(proposal.proposedValue);
+        if (['visibleMoment', 'continuityEntry'].includes(parsed.field)) shot.openingFrameVersion = 1;
+      }
     }
   }
   result.durationMs = result.shots.reduce((total, shot) => total + shot.durationMs, 0);

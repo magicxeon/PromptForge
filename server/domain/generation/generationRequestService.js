@@ -28,6 +28,7 @@ import {
 import { faceReferenceHandoffService } from './FaceReferenceHandoffService.js';
 import { normalizeCustomAttributeSelections } from './customAttributeInputPolicy.js';
 import { cinematicStoryboardPromptComposer } from '../cinematic/CinematicStoryboardPromptComposer.js';
+import { normalizeCinematicCastReferences } from '../cinematic/CinematicImageCastReferences.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 export const CINEMATIC_NATURAL_CAMERA_PROFILE_ID = 'photorealistic-cinematic';
@@ -274,6 +275,8 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   const normalizedContext = {
     ...payload,
     cinematicCaptureProfileId: normalizeCinematicCaptureProfileId(payload),
+    cinematicCastReferences: payload.generationSurface === 'cinematic' ? normalizeCinematicCastReferences(payload.cinematicCastReferences) : [],
+    cinematicContainsPeople: payload.generationSurface === 'cinematic' ? payload.cinematicContainsPeople !== false : true,
     promptRefinement: {
       enabled: !lookSheetDefinition && !characterLookSheetRequest
         && !(payload.generationSurface === 'cinematic' && payload.generationMode === 'scene')
@@ -567,6 +570,8 @@ export function createQueueOptions(context, {
     generationSurface: context.generationSurface || null,
     studioRealismProfile: studioRealismProfile(context),
     cinematicCaptureProfileId: context.cinematicCaptureProfileId || null,
+    cinematicCastReferences: normalizeCinematicCastReferences(context.cinematicCastReferences),
+    cinematicContainsPeople: context.cinematicContainsPeople,
     template: context.template,
     isGptSafe: context.isGptSafe,
     username,

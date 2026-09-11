@@ -2,6 +2,19 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { loadPromptRecipe } from '../server/config/prompt-recipes/loadPromptRecipe.js';
 
+test('directed recipes preserve ordered intent, no-person coverage, art direction and time-zero motion separation', () => {
+  for (const path of ['cinematic/story-plan.v8.json', 'cinematic/scene-direction.v7.json']) {
+    const recipe = loadPromptRecipe(path);
+    assert.match(recipe.instruction, /time-zero|t=0/);
+    assert.match(recipe.instruction, /subjectAction/);
+    assert.match(recipe.instruction, /continuityExit/);
+    assert.match(recipe.instruction, /artDirection/);
+    assert.match(recipe.instruction, /no visible people/i);
+    assert.match(recipe.instruction, /locked fields/i);
+  }
+  assert.match(loadPromptRecipe('cinematic/story-plan.v8.json').instruction, /ordered genres, audienceFeelings and pacingTraits/);
+});
+
 test('Story Plan v7 prepares complete observable keyframe direction', () => {
   const recipe = loadPromptRecipe('cinematic/story-plan.v7.json');
   assert.equal(recipe.version, 7);

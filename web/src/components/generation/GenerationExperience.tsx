@@ -110,6 +110,8 @@ type GenerationExperienceProps = {
   onReferencesChange?: (references: Partial<Record<GenerationReferenceRole, string>>) => void;
   onReferenceAuthorityChange?: (projection: ReferenceAuthorityProjection | null) => void;
   characterProfileContext?: Record<string, unknown> | null;
+  cinematicCastReferences?: GenerationRequestDraft['cinematicCastReferences'];
+  cinematicContainsPeople?: boolean;
   characterReferenceOutfitBehavior?: 'replaceable' | 'preserve';
   faceReferenceContext?: { authorizationToken: string; expiresAt?: string } | null;
   sceneTemplateSnapshot?: Record<string, unknown> | null;
@@ -182,6 +184,8 @@ export function GenerationExperience({
   onReferencesChange,
   onReferenceAuthorityChange,
   characterProfileContext = null,
+  cinematicCastReferences,
+  cinematicContainsPeople,
   characterReferenceOutfitBehavior = 'preserve',
   faceReferenceContext = null,
   sceneTemplateSnapshot = null,
@@ -280,7 +284,7 @@ export function GenerationExperience({
     ? '1:1'
     : null);
   const requiredReferenceCount = Object.values(references).filter(Boolean).length
-    + (characterProfileContext?.purpose === 'character_usage' ? 1 : 0);
+    + (characterProfileContext?.purpose === 'character_usage' ? 1 : 0) + (cinematicCastReferences?.length || 0);
 
   const catalog = useQuery({
     queryKey: ['provider-catalog', surface, generationMode, comparison ? 'comparison.image' : null],
@@ -526,6 +530,8 @@ export function GenerationExperience({
     templateUseSessionId: templateUseContext?.templateUseSessionId || null,
     templateReplacements: templateUseContext?.replacements || {},
     characterProfileContext,
+    cinematicCastReferences,
+    cinematicContainsPeople,
     characterReferenceOutfitBehavior,
     faceReferenceContext,
     authoringMode,
@@ -533,7 +539,7 @@ export function GenerationExperience({
     lookSheetDefinition,
     lookSheetEnhancementId,
     promptRefinementEnabled: promptRefinementAvailable && promptRefinementEnabled
-  }), [additionalDirection, authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, cinematicCaptureProfileId, comparison, customColors, engine, faceReferenceContext, generationMode, lookSheetDefinition, lookSheetEnhancementId, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
+  }), [additionalDirection, authoringMode, characterProfileContext, cinematicCastReferences, cinematicContainsPeople, characterReferenceOutfitBehavior, characterType, cinematicCaptureProfileId, comparison, customColors, engine, faceReferenceContext, generationMode, lookSheetDefinition, lookSheetEnhancementId, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedDraft(draft), 320);
@@ -1263,7 +1269,9 @@ function createEstimateKey(draft: GenerationRequestDraft) {
       .filter(([, value]) => Boolean(value))
       .map(([role, value]) => [role, value || ''] as const)
       .sort(([left], [right]) => left.localeCompare(right)),
-    referenceScopes: draft.referenceScopes || {}
+    referenceScopes: draft.referenceScopes || {},
+    cinematicCastReferences: draft.cinematicCastReferences,
+    cinematicContainsPeople: draft.cinematicContainsPeople
   };
 }
 

@@ -54,6 +54,7 @@ export class GenerationResultRepository {
       collectionId: query.collectionId || 'all',
       allowedJobIds: query.allowedJobIds || null,
       filterKey: query.filterKey || null,
+      itemFilter: query.itemFilter || null,
       username: owner.username
     });
     const items = await Promise.all(page.items.map(item => normalizeGenerationHistoryRecord(item, this.userRepository)));

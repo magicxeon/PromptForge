@@ -51,7 +51,8 @@ export function registerVideoGenerationRoutes(app, {
       res.set('Cache-Control', 'private, no-store');
       return res.json(await videoGenerationService.listTrustedSources(req.actorContext, {
         cursor: req.query?.cursor,
-        eligibleOnly: req.query?.eligibleOnly === 'true'
+        eligibleOnly: req.query?.eligibleOnly === 'true',
+        category: req.query?.category
       }));
     } catch (error) { return sendVideoGenerationError(res, error); }
   });

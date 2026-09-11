@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { cinematicCastReferenceSchema } from '../../generation/schemas/generationSchemas';
 import { videoQuoteSchema, videoTaskSchema } from '../../generation/schemas/videoGenerationSchemas';
 
 export const cinematicStageSchema = z.enum([
@@ -28,11 +29,15 @@ export const cinematicSetupDraftSchema = z.object({
   format: z.literal('short-film'),
   platform: z.enum(['tiktok', 'youtube-shorts', 'reels', 'multi-platform']),
   durationSeconds: z.union([z.literal(20), z.literal(30), z.literal(45), z.literal(60)]),
-  storyBrief: z.string().max(600),
-  creativeDirection: z.string().max(800),
-  genre: z.enum(['drama', 'romance', 'comedy', 'thriller', 'fashion']),
-  audienceFeeling: z.enum(['moved', 'excited', 'curious', 'uplifted', 'surprised']),
-  pacing: z.enum(['slow', 'balanced', 'fast']),
+  storyBrief: z.string().max(10000),
+  creativeDirection: z.string().max(10000),
+  genre: z.string().min(1).max(40),
+  audienceFeeling: z.string().min(1).max(40),
+  pacing: z.string().min(1).max(40),
+  genres: z.array(z.string().max(40)).min(1).max(3).optional(),
+  audienceFeelings: z.array(z.string().max(40)).min(1).max(3).optional(),
+  pacingTraits: z.array(z.string().max(40)).min(1).max(3).optional(),
+  storyCountryStyle: z.string().min(1).max(40).optional(),
   endingIntent: z.enum(['resolved', 'hopeful', 'twist', 'cliffhanger']),
   mode: z.enum(['simple', 'advanced']),
   castPlanningMode: z.enum(['ai-recommended', 'solo', 'duo', 'manual']).default('ai-recommended'),
@@ -44,15 +49,16 @@ export const cinematicSetupDraftSchema = z.object({
 export type CinematicSetupDraft = z.infer<typeof cinematicSetupDraftSchema>;
 
 export const cinematicStoryEnhancementSchema = z.object({
+  purpose: z.enum(['story', 'roles']).optional(),
   enhancementId: z.string().min(1),
-  enhancedStoryBrief: z.string().min(1).max(600),
-  creativeDirection: z.string().max(800),
+  enhancedStoryBrief: z.string().min(1).max(10000),
+  creativeDirection: z.string().max(10000),
   premise: z.string(),
   conflict: z.string(),
   emotionalArc: z.string(),
   ending: z.string(),
   candidateScenes: z.array(z.string()).max(5),
-  recommendedRoles: z.array(cinematicStoryRoleSlotSchema).min(1).max(4),
+  recommendedRoles: z.array(cinematicStoryRoleSlotSchema).max(4),
   warnings: z.array(z.string()),
   provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
   billingStatus: z.literal('qualification_no_charge')
@@ -138,8 +144,13 @@ export const cinematicProjectListResponseSchema = z.object({
 
 export const cinematicCastAssignmentSchema = z.object({
   id: z.string().min(1),
-  characterProfileId: z.string().min(1),
-  characterProfileVersionId: z.string().min(1),
+  sourceType: z.enum(['character', 'generated_sheet']).optional(),
+  generatedSheet: z.object({
+    generationId: z.string(), assetId: z.string(), contentHash: z.string(), previewUrl: z.string(),
+    modelId: z.string(), expiresAt: z.string(), sourceFingerprint: z.string(), assurance: z.literal('user_confirmed')
+  }).nullable().optional(),
+  characterProfileId: z.string().min(1).nullable(),
+  characterProfileVersionId: z.string().min(1).nullable(),
   portraitUrl: z.string().nullable().optional(),
   displayName: z.string().min(1),
   storyRole: z.string(),
@@ -165,6 +176,12 @@ export const cinematicCastAssignmentSchema = z.object({
   looks: z.array(z.unknown()),
   active: z.boolean(),
   updatedAt: z.string().datetime()
+}).superRefine((assignment, context) => {
+  const sheet = assignment.sourceType === 'generated_sheet';
+  if (sheet ? !assignment.generatedSheet || Boolean(assignment.characterProfileId || assignment.characterProfileVersionId)
+    : !assignment.characterProfileId || !assignment.characterProfileVersionId || Boolean(assignment.generatedSheet)) {
+    context.addIssue({ code: 'custom', path: ['sourceType'], message: 'A Cast assignment requires exactly one identity source.' });
+  }
 });
 
 const cinematicProviderOutputProvenanceSchema = z.object({
@@ -295,6 +312,8 @@ export const cinematicStoryboardKeyframeContractSchema = z.object({
 });
 
 export const cinematicStoryboardGenerationContextSchema = z.object({
+  cinematicCastReferences: z.array(cinematicCastReferenceSchema).max(6).optional(),
+  cinematicContainsPeople: z.boolean().optional(),
   schemaVersion: z.literal(1),
   projectId: z.string(),
   projectVersion: z.number().int().positive(),
@@ -303,6 +322,7 @@ export const cinematicStoryboardGenerationContextSchema = z.object({
   shotVersion: z.number().int().positive(),
   characterProfileContext: z.record(z.string(), z.unknown()).nullable(),
   references: z.object({
+    character_reference: z.string().nullable().optional(),
     outfit_front: z.string().nullable(),
     outfit_back: z.string().nullable(),
     style_reference: z.string().nullable()
@@ -340,6 +360,8 @@ export const cinematicStoryboardBatchResponseSchema = z.object({
 });
 
 export const cinematicShotSchema = z.object({
+  castMode: z.enum(['none', 'selected', 'inherit']).optional(),
+  openingFrameVersion: z.literal(1).optional(),
   id: z.string().min(1),
   version: z.number().int().positive(),
   orderKey: z.number(),
@@ -388,6 +410,8 @@ export const cinematicShotSchema = z.object({
   continuityNotes: z.array(z.string()),
   storyboardStatus: z.string(),
   approvedStoryboardSource: cinematicApprovedStoryboardSourceSchema.optional(),
+  videoReferenceMode: z.enum(['storyboard_only', 'storyboard_and_looks', 'looks_only']).optional(),
+  lastFirstFrameMode: z.enum(['storyboard_only', 'storyboard_and_looks']).optional(),
   approvedStoryboardAttemptId: z.string().optional(),
   approvedVideoAttemptId: z.string().nullable().optional(),
   approvedVideoSourceFingerprint: z.string().nullable().optional()
@@ -411,6 +435,8 @@ export const cinematicStoryBeatSchema = z.object({
 });
 
 export const cinematicSceneSchema = z.object({
+  castMode: z.enum(['none', 'selected', 'inherit']).optional(),
+  artDirection: z.string().max(1000).optional(),
   id: z.string().min(1),
   version: z.number().int().positive(),
   orderKey: z.number(),
@@ -697,7 +723,21 @@ const cinematicAuthoringFieldStateSchema = z.object({
   updatedByActorId: z.string().nullable()
 });
 
+const storyChoiceSchema = z.object({
+  maxSelections: z.number().int().min(1).max(3), default: z.string(), ids: z.array(z.string()).max(40),
+  incompatiblePairs: z.array(z.tuple([z.string(), z.string()])).optional()
+});
+export const cinematicStoryAuthoringSchema = z.object({
+  schemaVersion: z.literal(1), version: z.number().int().positive(),
+  limits: z.object({ storyBrief: z.number().int().positive().max(10000), creativeDirection: z.number().int().positive().max(10000) }),
+  choices: z.object({ genres: storyChoiceSchema, audienceFeelings: storyChoiceSchema, pacingTraits: storyChoiceSchema }),
+  countryStyles: z.object({ default: z.string(), options: z.array(z.object({
+      id: z.string().min(1).max(40), flag: z.string().regex(/^[a-z]{2}$/).nullable(), guidance: z.string().max(1200)
+    })).max(30) }).optional()
+});
+export type CinematicStoryAuthoring = z.infer<typeof cinematicStoryAuthoringSchema>;
 export const cinematicAuthoringManifestSchema = z.object({
+  storyAuthoring: cinematicStoryAuthoringSchema.optional(),
   schemaVersion: z.literal(1),
   id: z.literal('cinematic-authoring-field-manifest'),
   version: z.number().int().positive(),
@@ -801,6 +841,10 @@ export const cinematicProjectSchema = z.object({
     genre: cinematicSetupDraftSchema.shape.genre,
     audienceFeeling: cinematicSetupDraftSchema.shape.audienceFeeling,
     pacing: cinematicSetupDraftSchema.shape.pacing,
+    genres: cinematicSetupDraftSchema.shape.genres,
+    audienceFeelings: cinematicSetupDraftSchema.shape.audienceFeelings,
+    pacingTraits: cinematicSetupDraftSchema.shape.pacingTraits,
+    storyCountryStyle: cinematicSetupDraftSchema.shape.storyCountryStyle,
     endingIntent: cinematicSetupDraftSchema.shape.endingIntent,
     mode: cinematicSetupDraftSchema.shape.mode,
     castPlanningMode: cinematicSetupDraftSchema.shape.castPlanningMode,
@@ -837,9 +881,11 @@ export const cinematicVideoPacketSchema = z.object({
   keyframeContractFingerprint: z.string().min(1),
   approvedKeyframeContractFingerprint: z.string().nullable(),
   approvedStoryboardSourceFingerprint: z.string().nullable(),
+  referenceMode: z.literal('looks_only').optional(),
+  composition: cinematicStoryboardKeyframeContractSchema.shape.composition.optional(),
   timing: z.object({ plannedDurationMs: z.number().nonnegative(), estimatedActionDurationMs: z.number().nonnegative() }),
   referenceStrategy: z.object({
-    mode: z.enum(['first_frame', 'unavailable']),
+    mode: z.enum(['first_frame', 'unavailable', 'looks_only']),
     firstFrameAssetVersionId: z.string().nullable(),
     firstFrameSourceFingerprint: z.string().nullable(),
     lastFrameAssetVersionId: z.string().nullable(),
@@ -889,6 +935,7 @@ export const cinematicVideoPacketSchema = z.object({
 });
 
 export const cinematicProduceShotContextSchema = z.object({
+  referenceMode: z.enum(['storyboard_only', 'storyboard_and_looks', 'looks_only']).optional(),
   projectId: z.string().min(1),
   projectVersion: z.number().int().positive(),
   sceneId: z.string().min(1),
@@ -938,25 +985,25 @@ export const cinematicProduceShotContextSchema = z.object({
 });
 
 export const cinematicVideoQuoteSchema = videoQuoteSchema.extend({
-  referenceMode: z.enum(['storyboard_only', 'storyboard_and_looks']).optional(),
+  referenceMode: z.enum(['storyboard_only', 'storyboard_and_looks', 'looks_only']).optional(),
   renderedPrompt: z.string().optional(),
   referenceSummary: z.array(z.object({
     imageNumber: z.number().int().positive(), assetId: z.string().nullable(),
-    purpose: z.enum(['storyboard_opening', 'character_look']),
+    purpose: z.enum(['storyboard_opening', 'character_look', 'generated_look']),
     roleName: z.string().nullable(), lookName: z.string().nullable(), previewUrl: z.string()
   })).optional(),
   projectId: z.string(),
   sceneId: z.string(),
   shotId: z.string(),
   shotVersion: z.number().int().positive(),
-  sourceFingerprint: z.string(),
+  sourceFingerprint: z.string().nullable(),
   videoPacketFingerprint: z.string(),
   promptStrategy: z.object({
     id: z.string(), version: z.number().int().positive(),
     policyId: z.string(), policyVersion: z.number().int().positive()
   }).nullable().optional(),
   renderedPromptFingerprint: z.string().nullable().optional(),
-  approvedStoryboardAssetVersionId: z.string()
+  approvedStoryboardAssetVersionId: z.string().nullable()
 });
 
 export const cinematicVideoAttemptResponseSchema = z.object({

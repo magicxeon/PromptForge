@@ -9,18 +9,15 @@ import { composeGenerationReferences, uploadGenerationReference } from '../../ge
 import {
   approveCharacterLookVersion,
   createCharacterLookDraft,
-  importGeneratedCharacterLook,
   getCharacterLookGenerationPlan,
   reviewGeneratedCharacterLookVersion,
   reviewCharacterLookVersion
 } from '../api/profileApi';
 import type { CharacterLook, CharacterLookGenerationPlan } from '../schemas/profileSchemas';
 import { CharacterLookGenerationDialog } from './CharacterLookGenerationDialog';
-import { GeneratedLookSourceField } from './GeneratedLookSourceField';
-import type { TrustedVideoSource } from '../../generation/api/trustedVideoSources';
 import { ApiError } from '../../../lib/api/apiError';
 
-export type CharacterLookDialogMode = 'ai' | 'upload' | 'generated';
+export type CharacterLookDialogMode = 'ai' | 'upload';
 
 export type CharacterLookSuggestion = {
   lookName: string;
@@ -82,8 +79,6 @@ export function CharacterLookDialog({
   const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [pieceFiles, setPieceFiles] = useState<Partial<Record<GarmentRole, File>>>({});
   const [rightsAccepted, setRightsAccepted] = useState(false);
-  const [generatedSource, setGeneratedSource] = useState<TrustedVideoSource | null>(null);
-  const [generatedPreviewReady, setGeneratedPreviewReady] = useState(false);
   const [saving, setSaving] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [suggestionFailed, setSuggestionFailed] = useState(false);
@@ -135,8 +130,6 @@ export function CharacterLookDialog({
     setSourceFile(null);
     setPieceFiles({});
     setRightsAccepted(false);
-    setGeneratedSource(null);
-    setGeneratedPreviewReady(false);
     setError(null);
     setSuggestionFailed(false);
     setSuggestion(null);
@@ -157,10 +150,7 @@ export function CharacterLookDialog({
         : sourceFile && sourcePreviewReady && rightsAccepted)
       : name.trim()
         && !saving
-        && (mode === 'generated'
-          ? generatedSource?.eligible && generatedPreviewReady && rightsAccepted
-            && generatedSource.expiresAt && Date.parse(generatedSource.expiresAt) > Date.now()
-          : mode === 'ai'
+        && (mode === 'ai'
           ? description.trim()
           : uploadKind === 'sheet'
             ? sourceFile && sourcePreviewReady
@@ -271,15 +261,6 @@ export function CharacterLookDialog({
         return;
       }
       const idempotencyKey = `character-look:${characterProfileId}:${crypto.randomUUID()}`;
-      if (mode === 'generated' && generatedSource) {
-        const reviewed = await importGeneratedCharacterLook(characterProfileId, {
-          characterProfileVersionId, name: name.trim(), generationResultId: generatedSource.id,
-          identityAndViewsConfirmed: rightsAccepted
-        });
-        if (reviewed.lifecycleStatus === 'approved') finish(reviewed);
-        else setReturnedReviewLook(reviewed);
-        return;
-      }
       if (mode === 'ai') {
         const proposal = await createCharacterLookDraft(characterProfileId, {
           characterProfileVersionId,
@@ -384,11 +365,10 @@ export function CharacterLookDialog({
           <div><Dialog.Title>{t(preparationLook ? 'cinematic.lookDraft.prepareTitle' : 'cinematic.lookDraft.title')}</Dialog.Title><Dialog.Description>{t(preparationLook ? 'cinematic.lookDraft.prepareDescription' : 'cinematic.lookDraft.description')}</Dialog.Description></div>
           <Button type="button" size="sm" variant="ghost" icon={<X aria-hidden="true" />} aria-label={t('cinematic.actions.cancel')} onClick={closeFlow} />
         </header>
-        {!preparationLook ? <div className="character-look-source-mode character-look-source-mode--four" role="radiogroup" aria-label={t('cinematic.lookDraft.sourceMode')}>
+        {!preparationLook ? <div className="character-look-source-mode character-look-source-mode--three" role="radiogroup" aria-label={t('cinematic.lookDraft.sourceMode')}>
           <button type="button" role="radio" aria-checked={mode === 'ai'} className={mode === 'ai' ? 'is-active' : ''} onClick={() => { setMode('ai'); setUploadKind('garment'); setSourceFile(null); setPieceFiles({}); setRightsAccepted(false); setError(null); }}><Sparkles aria-hidden="true" />{t('cinematic.lookDraft.aiSuggestion')}</button>
           <button type="button" role="radio" aria-checked={mode === 'upload' && uploadKind === 'garment'} className={mode === 'upload' && uploadKind === 'garment' ? 'is-active' : ''} onClick={() => { setMode('upload'); setUploadKind('garment'); setSourceFile(null); setPieceFiles({}); setRightsAccepted(false); setError(null); }}><Upload aria-hidden="true" />{t('cinematic.lookDraft.uploadWardrobe')}</button>
           <button type="button" role="radio" aria-checked={mode === 'upload' && uploadKind === 'sheet'} className={mode === 'upload' && uploadKind === 'sheet' ? 'is-active' : ''} onClick={() => { setMode('upload'); setUploadKind('sheet'); setSourceFile(null); setPieceFiles({}); setRightsAccepted(false); setError(null); }}><ImageIcon aria-hidden="true" />{t('cinematic.lookDraft.completeSheet')}</button>
-          <button type="button" role="radio" disabled={saving} aria-checked={mode === 'generated'} className={mode === 'generated' ? 'is-active' : ''} onClick={() => { setMode('generated'); setSourceFile(null); setPieceFiles({}); setRightsAccepted(false); setError(null); }}><ImageIcon aria-hidden="true" />{t('cinematic.lookDraft.generatedSheet')}</button>
         </div> : null}
         <form className="character-look-draft-form" onSubmit={event => void save(event)}>
           {preparationLook ? <>
@@ -439,13 +419,6 @@ export function CharacterLookDialog({
                 <ul><li>{t('cinematic.lookDraft.checkOneCharacter')}</li><li>{t('cinematic.lookDraft.checkConsistentIdentity')}</li><li>{t('cinematic.lookDraft.checkConsistentOutfit')}</li><li>{t('cinematic.lookDraft.checkViews')}</li><li>{t('cinematic.lookDraft.checkCanonicalFace')}</li><li>{t(preparationVersion?.provenance?.kind === 'generated_import' ? 'cinematic.lookDraft.checkImportedSheet' : 'cinematic.lookDraft.checkCleanSheet')}</li></ul>
               </div>
             </section> : null}
-          </> : mode === 'generated' ? <>
-            <label><span>{t('cinematic.lookDraft.name')}</span><input value={name} maxLength={100} disabled={saving} onChange={event => setName(event.target.value)} required /></label>
-            <GeneratedLookSourceField value={generatedSource} disabled={saving} onPreviewReady={setGeneratedPreviewReady}
-              onChange={source => { setGeneratedSource(source); setGeneratedPreviewReady(false); setRightsAccepted(false); setError(null); }} />
-            <label className="character-look-rights-row is-terminal"><input type="checkbox" checked={rightsAccepted}
-              disabled={saving || !generatedSource || !generatedPreviewReady}
-              onChange={event => setRightsAccepted(event.target.checked)} /><span>{t('cinematic.lookDraft.generatedConfirm', { name: characterDisplayName || t('cinematic.lookDraft.character') })}</span></label>
           </> : mode === 'ai' ? <>
             <section className="character-look-analysis" aria-busy={suggesting}>
               <div>
@@ -486,7 +459,7 @@ export function CharacterLookDialog({
           {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
           <footer className="character-look-dialog__footer">
             <Button type="button" onClick={closeFlow}>{t('cinematic.actions.cancel')}</Button>
-            {!preparationLook && mode !== 'generated' && !(mode === 'upload' && uploadKind === 'sheet') ? <Button
+            {!preparationLook && !(mode === 'upload' && uploadKind === 'sheet') ? <Button
               type="submit" variant="secondary" disabled={!canSave} data-intent="draft">
               {t('cinematic.lookDraft.saveAsDraft')}
             </Button> : null}
@@ -495,7 +468,7 @@ export function CharacterLookDialog({
               icon={saving ? <ProcessingSpinner className="animate-spin" aria-hidden="true" /> : <Check aria-hidden="true" />}>
               {t(reviewedPreparation
                 ? 'cinematic.lookDraft.approveUse'
-                : mode === 'generated' || (mode === 'upload' && uploadKind === 'sheet') || needsCompleteSheetUpload
+                : (mode === 'upload' && uploadKind === 'sheet') || needsCompleteSheetUpload
                   ? 'cinematic.lookDraft.continueToReview'
                   : 'cinematic.lookDraft.savePrepare')}
             </Button> : null}

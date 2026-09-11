@@ -9,11 +9,13 @@
 
 ## 1. Outcome
 
-2026-09-09 additive delivery: [Generated sheet import](006-generated-sheet-import.md)
-and its [ordered implementation plan](007-generated-sheet-implementation-plan.md)
-add an owned Seedream source choice to the existing Cast Look dialog. This is
-not a new Character, Look lifecycle or upload pipeline; original provider source
-authority is preserved through approval and video transport.
+2026-09-10 correction: [Direct generated Cast](008-direct-generated-cast-master.md)
+and [ordered implementation and verification](011-direct-cast-implementation-plan.md)
+replace the incorrect Character-bound Generated sheet import entry from 006-007.
+An owned eligible Seedream 5.0 Look Sheet is an alternate Cast identity source,
+not wardrobe for a required Character. Historical imports remain readable and
+resolvable; the old new-import HTTP/UI command is retired. The ordinary reusable
+Character Look lifecycle documented below is preserved.
 
 Redesign the Character Look preparation experience so a creator can move from
 one wardrobe source to one inspectable Character Look Sheet and then explicitly

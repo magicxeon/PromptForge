@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "mock-2026-09-09-image25-measured-v1",
+  "policyVersion": "mock-2026-09-09-image25-estimated-v2",
   "effectiveAt": "2026-09-09T00:00:00.000Z",
   "providerPriceSourceDate": "2026-07-24",
   "referenceFxThbPerUsd": 33.7594,
@@ -318,6 +318,8 @@
       "providerPriceSource": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst",
       "measuredUsagePricing": {
         "version": "sunburst-768x1024-auto-2026-09-09-v1",
+        "estimation": { "version": "pixel-reference-bucket-v1", "baselinePixels": 786432, "maxReferences": 6,
+          "qualityFactors": { "auto": 1, "low": 1, "medium": 1, "high": 2, "xhigh": 3, "max": 4 } },
         "aspectRatios": ["6:8", "3:4"], "maxReferences": 2,
         "textOnly": { "jobId": "job_1788961128682_vr145zye4", "usage": {
           "input_tokens": 660, "input_tokens_details": { "text_tokens": 660, "image_tokens": 0 },
@@ -341,7 +343,7 @@
         "imageOutput": 30,
         "source": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst"
       },
-      "notes": "Measured cost-based locked retail: 55 Credits text-only; 70 with 1-2 references. 1K 768x1024 auto only. Baseline estimate is provisional; actual usage cost is recorded separately, with no post-confirmation surcharge."
+      "notes": "Measured baseline: 55 Credits text-only; 70 with 1-2 references at 768x1024 auto. Other supported settings use provisional pixel/quality/reference estimates, not official token predictions. Fixed quote; actual usage cost recorded separately."
     },
     {
       "providerId": "openai",
@@ -354,6 +356,8 @@
       "providerPriceSource": "https://developers.openai.com/api/docs/models/gpt-image-2.5-flare",
       "measuredUsagePricing": {
         "version": "flare-768x1024-auto-2026-09-09-v1",
+        "estimation": { "version": "pixel-reference-bucket-v1", "baselinePixels": 786432, "maxReferences": 6,
+          "qualityFactors": { "auto": 1, "low": 1, "medium": 1, "high": 2, "xhigh": 3, "max": 4 } },
         "aspectRatios": ["6:8", "3:4"], "maxReferences": 2,
         "textOnly": { "jobId": "job_1788966593111_y2272shw8", "usage": {
           "input_tokens": 618, "input_tokens_details": { "text_tokens": 618, "image_tokens": 0 },
@@ -377,7 +381,7 @@
         "imageOutput": 30,
         "source": "https://developers.openai.com/api/docs/models/gpt-image-2.5-flare"
       },
-      "notes": "Measured cost-based locked retail: 55 Credits text-only; 75 with 1-2 references. 1K 768x1024 auto only. Baseline estimate is provisional; actual usage cost is recorded separately, with no post-confirmation surcharge."
+      "notes": "Measured baseline: 55 Credits text-only; 75 with 1-2 references at 768x1024 auto. Other supported settings use provisional pixel/quality/reference estimates, not official token predictions. Fixed quote; actual usage cost recorded separately."
     },
     {
       "providerId": "openai",

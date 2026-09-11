@@ -31,7 +31,7 @@ import { resolveModelArkCredentialScope } from '../../providers/modelArkCredenti
 import { cinematicFirstFrameTransportService } from '../assets/CinematicFirstFrameTransportService.js';
 import { resolveVideoProviderWorkflow } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 import { PlaygroundVideoReferenceService } from './PlaygroundVideoReferenceService.js';
-import { trustedGeneratedSourceService } from './TrustedGeneratedSourceService.js';
+import { trustedGeneratedSourceService, generatedCastSourceFingerprint } from './TrustedGeneratedSourceService.js';
 
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 
@@ -384,6 +384,7 @@ export class VideoGenerationApplicationService {
         request.references, actorContext, resolved
       );
       request.referenceAuthorityFingerprint = fingerprintReferenceAuthority(request.referenceAuthority);
+      request.referencePlanFingerprint = fingerprintVideoReferencePlan(request.references, request.inputMode);
     }
     const model = this.#validateModel(request);
     if (playgroundPlan) this.playgroundReferences.validateModel(playgroundPlan, model);
@@ -493,9 +494,24 @@ export class VideoGenerationApplicationService {
         throw videoError('cinematic_video_reference_authority_invalid', 'The Storyboard reference Asset authority is incomplete.', 409);
       }
       let asset = await this.assetRepository.findByIdForOwner(reference.assetId, actorContext.userId);
-      const isLook = reference.purpose === 'character_look';
+      const isGeneratedCast = reference.purpose === 'generated_look';
+      const isLook = reference.purpose === 'character_look' || isGeneratedCast;
       let approvedLook = null;
-      if (isLook) {
+      let trustedLookSource = null;
+      if (isGeneratedCast) {
+        if (!model?.supportsCinematicLookReferences || reference.role !== 'reference_image'
+          || !reference.trustedGenerationId || !reference.castAssignmentId || reference.characterProfileId
+          || reference.characterLookId || reference.characterLookVersionId) {
+          throw videoError('cinematic_video_reference_authority_invalid', 'Select the generated Cast sheet again.', 409);
+        }
+        const source = await this.trustedSources.describeOwnedImage(reference.trustedGenerationId, actorContext);
+        trustedLookSource = source;
+        if (!asset || asset.metadata?.trustedGenerationId !== source.id || asset.contentHash !== source.contentHash
+          || reference.contentHash !== source.contentHash || asset.publicUrl !== source.publicUrl) {
+          throw videoError('cinematic_video_reference_content_changed', 'The generated Cast sheet changed.', 409);
+        }
+        approvedLook = { asset, sourceFingerprint: generatedCastSourceFingerprint(source.id, source.contentHash) };
+      } else if (isLook) {
         if (!model?.supportsCinematicLookReferences || reference.role !== 'reference_image'
           || !reference.characterProfileId || !reference.characterLookId || !reference.characterLookVersionId) {
           throw videoError('cinematic_video_reference_authority_invalid', 'The Character Look reference authority is incomplete.', 409);
@@ -508,8 +524,30 @@ export class VideoGenerationApplicationService {
         }
         asset = approvedLook.asset;
       }
-      if (!isLook && reference.trustedGenerationId) {
-        throw videoError('cinematic_video_reference_authority_invalid', 'Only an imported Look may carry this source binding.', 409);
+      if (isLook && model?.trustedGeneratedImageSource) {
+        if (!reference.trustedGenerationId) {
+          throw videoError('video_provider_synthetic_character_source_required', 'This model requires eligible original Seedream Look Sheets.', 409);
+        }
+        trustedLookSource ||= await this.trustedSources.describeOwnedImage(reference.trustedGenerationId, actorContext);
+        if (trustedLookSource.contentHash !== asset?.contentHash || trustedLookSource.publicUrl !== asset?.publicUrl) {
+          throw videoError('cinematic_video_reference_content_changed', 'The Look Sheet does not match its trusted original.', 409);
+        }
+      }
+      if (!isLook && model?.trustedGeneratedImageSource && asset?.assetType === 'cinematic_storyboard_source') {
+        // Derive authority from the owned immutable Asset, never from a browser URL.
+        const generationId = asset.sourceJobId;
+        if (!generationId || (reference.trustedGenerationId && reference.trustedGenerationId !== generationId)) {
+          throw videoError('cinematic_video_reference_authority_invalid', 'The Storyboard original source binding is invalid.', 409);
+        }
+        const original = await this.trustedSources.describeOwnedImage(generationId, actorContext);
+        if (original.id !== generationId || original.publicUrl !== asset.publicUrl
+          || original.contentHash !== asset.metadata?.contentHash) {
+          throw videoError('cinematic_video_reference_content_changed', 'The Storyboard does not match its trusted original.', 409);
+        }
+        reference.trustedGenerationId = generationId;
+        reference.contentHash = original.contentHash;
+      } else if (!isLook && reference.trustedGenerationId) {
+        throw videoError('cinematic_video_reference_authority_invalid', 'This model does not use a trusted Storyboard binding.', 409);
       }
       if (!asset || asset.status === 'deleted' || asset.publicUrl !== reference.referenceImageUrl
         || (isLook ? asset.assetType !== 'character_look_sheet'
@@ -535,15 +573,16 @@ export class VideoGenerationApplicationService {
       }
       authorities.push({
         role: reference.role,
+        ...(reference.trustedGenerationId ? { trustedGenerationId: reference.trustedGenerationId } : {}),
         ...(isLook ? { purpose: reference.purpose, characterProfileId: reference.characterProfileId,
           characterLookId: reference.characterLookId, characterLookVersionId: reference.characterLookVersionId } : {}),
         assetId: asset.id,
         assetVersionId: asset.id,
         sourceFingerprint,
         contentHash: verifiedContent.contentHash,
-        immutable: asset.metadata?.immutable === true,
+        immutable: Boolean(trustedLookSource) || asset.metadata?.immutable === true,
         providerOutputProvenance: normalizeProviderOutputProvenance(
-          asset.metadata?.providerOutputProvenance
+          trustedLookSource?.providerOutputProvenance || asset.metadata?.providerOutputProvenance
         )
       });
       const constraints = model?.referenceConstraints || null;
@@ -569,9 +608,10 @@ export class VideoGenerationApplicationService {
     }
     const firstFrame = authorities.find(item => item.role === 'first_frame') || authorities[0];
     return firstFrame ? {
-      kind: 'cinematic_storyboard_source',
+      kind: references.every(item => ['character_look', 'generated_look'].includes(item.purpose))
+        ? 'cinematic_look_sources' : 'cinematic_storyboard_source',
       ...firstFrame,
-      ...(references.some(item => item.purpose === 'character_look') ? { references: authorities } : {})
+      ...(references.some(item => ['character_look', 'generated_look'].includes(item.purpose)) ? { references: authorities } : {})
     } : null;
   }
 }

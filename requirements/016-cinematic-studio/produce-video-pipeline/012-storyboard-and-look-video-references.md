@@ -2,6 +2,10 @@
 
 **ID:** 016-PVP-012
 **Status:** Implemented and locally verified; live provider qualification pending
+**Implemented extension:** [013](013-optional-first-frame-and-looks-only.md) adds
+looks_only with no included Storyboard and conditional image approval. Its plan
+003i records regression evidence and pending live UAT; the existing two modes
+remain available unchanged for frame-based generation.
 **Owner:** Cinematic reference-plan orchestration; Generation dispatch
 **Primary:** Product and Requirement Architect
 **Reviewers:** Backend Platform Architect and QA Release Engineer, sequential.

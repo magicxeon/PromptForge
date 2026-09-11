@@ -1,4 +1,5 @@
 import * as Select from '@radix-ui/react-select';
+import type { ReactNode } from 'react';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '../../lib/utils/cn';
 
@@ -8,6 +9,7 @@ export type ThemeSelectOption = {
   value: string;
   label: string;
   disabled?: boolean;
+  icon?: ReactNode;
 };
 
 type ThemeSelectProps = {
@@ -67,7 +69,7 @@ export function ThemeSelect({
                 <Select.ItemIndicator className="absolute left-2 grid size-4 place-items-center text-[var(--theme-primary)]">
                   <Check className="size-3.5" />
                 </Select.ItemIndicator>
-                <Select.ItemText>{option.label}</Select.ItemText>
+                <Select.ItemText><span className="inline-flex min-w-0 items-center gap-2">{option.icon ? <span aria-hidden="true" className="shrink-0">{option.icon}</span> : null}<span>{option.label}</span></span></Select.ItemText>
               </Select.Item>
             ))}
           </Select.Viewport>

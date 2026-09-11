@@ -1,4 +1,11 @@
 import { z } from 'zod';
+export const cinematicCastReferenceSchema = z.object({
+  castAssignmentId: z.string().min(1).max(120), displayName: z.string().min(1).max(120),
+  sourceType: z.enum(['generated_sheet', 'character_look']), contentHash: z.string().min(1).max(120),
+  generationId: z.string().optional(), characterProfileId: z.string().optional(),
+  characterLookId: z.string().optional(), characterLookVersionId: z.string().optional()
+});
+export type CinematicCastReference = z.infer<typeof cinematicCastReferenceSchema>;
 import { lookSheetSnapshotSchema } from '../../profiles/schemas/lookSheetDefinitionSchemas';
 
 const localizedLabelSchema = z.union([z.string(), z.record(z.string(), z.string())]);

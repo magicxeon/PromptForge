@@ -1,4 +1,6 @@
-const DEFAULT_MODEL = 'gpt-5.6-luna';
+import { cinematicTextModelDefaults } from './cinematicStoryConfiguration.js';
+const defaults = cinematicTextModelDefaults.enhancement;
+const DEFAULT_MODEL = defaults.model;
 
 export function getCinematicStoryEnhancementPolicy(env = process.env) {
   const apiKey = normalizeApiKey(env.OPENAI_API_KEY);
@@ -9,8 +11,8 @@ export function getCinematicStoryEnhancementPolicy(env = process.env) {
     provider: 'openai',
     model: String(env.CINEMATIC_STORY_ENHANCEMENT_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL,
     reasoningEffort: normalizeEffort(env.CINEMATIC_STORY_ENHANCEMENT_REASONING_EFFORT),
-    timeoutMs: boundedInteger(env.CINEMATIC_STORY_ENHANCEMENT_TIMEOUT_MS, 45_000, 1_000, 120_000),
-    maxOutputTokens: boundedInteger(env.CINEMATIC_STORY_ENHANCEMENT_MAX_OUTPUT_TOKENS, 2_400, 512, 8_000),
+    timeoutMs: boundedInteger(env.CINEMATIC_STORY_ENHANCEMENT_TIMEOUT_MS, defaults.timeoutMs, 1_000, 120_000),
+    maxOutputTokens: boundedInteger(env.CINEMATIC_STORY_ENHANCEMENT_MAX_OUTPUT_TOKENS, defaults.maxOutputTokens, 512, 8_000),
     apiKey
   };
 }
@@ -25,7 +27,7 @@ function normalizeApiKey(value) {
 }
 
 function normalizeEffort(value) {
-  const effort = String(value || 'low').trim().toLowerCase();
+  const effort = String(value || defaults.reasoningEffort).trim().toLowerCase();
   return ['none', 'low', 'medium', 'high', 'xhigh', 'max'].includes(effort) ? effort : 'low';
 }
 

@@ -36,6 +36,10 @@ conditional; provider rejection is surfaced, not automatically retried.
 Legacy data: no fabricated timestamps, URLs, mode or trusted status. No backfill.
 Rollback: revert policy + new controls together; retain private source evidence.
 
+Correction [015](015-rejected-images-remain-selectable.md): previous provider
+rejections never hide, disable or block an otherwise valid generated image.
+Rejection evidence is retained; retries remain explicit and normally priced.
+
 ## Ownership
 
 Generation captures provenance after successful image persistence through

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { ProviderFactory } from '../../providers/ProviderFactory.js';
 import { collectionManager } from '../collections/CollectionManager.js';
 import { dedupeResolvedReferenceImages, normalizeReferenceJobIds, resolveReferenceForProvider } from './referenceUtils.js';
+import { resolveCinematicCastReferences } from '../cinematic/CinematicImageCastReferences.js';
 import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { thumbnailService } from './thumbnailService.js';
@@ -320,6 +321,17 @@ export class QueueManager {
       }
       const resolvedOutfitFront = await resolveReferenceForProvider(job.options.outfitReferenceImageFront, job.options.username, referenceAccess);
       const resolvedOutfitBack = await resolveReferenceForProvider(job.options.outfitReferenceImageBack, job.options.username, referenceAccess);
+      const resolvedCast = {};
+      const castReferences = await resolveCinematicCastReferences(job.options.cinematicCastReferences, {
+        userId: job.options.payerUserId, username: job.options.username
+      });
+      for (const [index, reference] of castReferences.entries()) {
+        const value = await resolveReferenceForProvider(reference.referenceValue, job.options.username, {
+          ...referenceAccess, authorizedImageUrls: [reference.referenceValue]
+        });
+        if (!value) throw Object.assign(new Error('A Cast sheet is unavailable.'), { code: 'cinematic_cast_references_invalid' });
+        resolvedCast[`cinematic_cast_${index}`] = value;
+      }
 
       const uniqueReferences = dedupeResolvedReferenceImages([
         ['templateBaseline', resolvedTemplateBaseline],
@@ -347,6 +359,7 @@ export class QueueManager {
         job.options.referenceProcessingPlan?.providerPlan?.orderedReferences,
         {
           template_baseline: resolvedTemplateBaseline,
+          ...resolvedCast,
           character_reference_a: resolvedCharacterA,
           character_reference_b: resolvedCharacterB,
           outfit_front: resolvedOutfitFront,

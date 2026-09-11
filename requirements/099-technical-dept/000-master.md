@@ -6,6 +6,47 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Optional Cinematic First Frame (2026-09-12)
+
+Produce-video-pipeline/013 and plan 003i extend CinematicApplicationService's
+existing context/quote/attempt/approval contract with looks_only. The
+updateShotVideoReferences use case and thin Shot video-references PATCH store
+videoReferenceMode/lastFirstFrameMode in existing Project JSON. No migration,
+new runtime directory, provider pipeline or Credit owner is introduced.
+Reference planning stays in CinematicVideoReferencePlanService; prompt policy is
+video-packet-policy.v2.json. Generation derives real per-sheet trusted authority
+and resolves each original URL privately. Timeline/lineage ignore unused frame
+dependencies without fabricating image approval.
+
+React Cinematic state/useShotVideoReferences.ts owns the shared server mutation
+for Storyboard and Produce, with existing actor identity and Project refresh.
+ProduceVideoReferences is controlled presentation. Preview mapping extends the
+existing storyboardGenerationAdapter; it is not a trust validator. No browser
+media persistence, new cache or polling loop. scripts/test-cinematic-video.js
+is the aggregate gate; existing reference-layout runner owns scoped visual QA.
+
+### Direct Generated Cast And Provisional Image 2.5 Pricing
+
+2026-09-09: Cinematic workflow-redesign/008-011 supersedes the generated Wardrobe
+entry below. CinematicApplicationService.upsertCastAssignment owns the source
+union; internal CinematicGeneratedCastService delegates source authority to
+Generation/TrustedGeneratedSourceService and original Asset import to Assets.
+An intrinsic project Look supports scene/shot selection without a Character
+Profile or CharacterLook. Existing project JSON gains sourceType/generatedSheet;
+no new runtime file or destructive backfill. The old import HTTP route is retired;
+historical Character Looks remain resolvable.
+
+GeneratedLookSourceField moves from Profiles/components to
+web/src/components/generation/GeneratedLookSourceField.tsx; Cast's
+GeneratedCastDialog consumes it with the existing Generation source API.
+No new polling, persistent browser media or signed-URL exposure. The existing
+bounded source page/query ownership remains unchanged.
+
+Image provider/008 extends measured baselines with configurable provisional
+pixel/quality/reference assumptions. server/config/openAIImage25.js owns output
+dimensions shared by provider dispatch and Credits; no duplicated size mapping.
+Immutable quote, actual usage cost and old reserved charge remain separate.
+
 ### Image 2.5 Measured Pricing
 
 2026-09-09: Provider image/007 supersedes the test-tariff statements below.
@@ -569,3 +610,50 @@ Preset query is one immutable server-recipe entry per browser QueryClient,
 invalidated by reload/deployment; no feature-local polling or image cache.
 Focused checks: `scripts/test-look-sheet-exports.mjs`;
 per-page fixture layouts: `scripts/verify-look-sheet-exports.mjs`.
+
+## Cinematic Directed Openings (2026-09-10)
+
+Owner: `requirements/016-cinematic-studio/enhancement-core-engine/017-023`.
+Versioned authoring choices/limits and text-model defaults live in
+`server/config/cinematic/story-authoring.v1.json` and `text-model-policy.v1.json`,
+validated by `server/config/cinematicStoryConfiguration.js`. Existing policy
+facades preserve environment overrides and keep credentials private. The existing
+public Cinematic authoring manifest projects safe choices; no second catalog API.
+Recipes `cinematic/story-plan.v8.json`, `scene-direction.v7.json` and
+`story-enhancement.v1.json` stay under `server/config/prompt-recipes/`.
+
+Cinematic owns `CinematicCastCoverage.js` and `CinematicImageCastReferences.js`
+under `server/domain/cinematic/`. They define explicit coverage and at most six
+named, actor-authorized sheet bindings. Generation prepares/revalidates sources;
+Reference Processing remains the owner of order/count/capacity/fingerprint.
+Queue dispatch consumes that plan, not a separate Cinematic provider pipeline.
+The Video application derives trusted Storyboard Job IDs from immutable Assets
+and resolves provider-original URLs privately through the existing trust facade.
+
+React `StoryIntentChoices.tsx` belongs to Cinematic components. Scene Director,
+proposal merging, single/batch Storyboard and GenerationExperience extend their
+existing contracts. Responsive checkbox overrides stay scoped in cinematic.css.
+No new cache, polling owner, runtime data directory or file move. Additive arrays,
+castMode, artDirection and openingFrameVersion stay in existing Project records;
+bounded named sheet bindings stay in existing Generation requests/Jobs. No
+Base64 or signed original URL is added to client drafts or named bindings.
+
+Validation owners: `test/cinematicDirectedOpeningConfiguration.test.js`,
+`test/cinematicDirectedOpenings.test.js` and existing capability tests;
+`scripts/test-cinematic-directed-openings.mjs` is the focused/aggregate entry;
+`scripts/verify-cinematic-directed-openings.mjs` is isolated browser QA.
+Series/Season/Chapter is documented but has no runtime/schema implementation yet.
+
+Story Country Style follow-up (Cinematic enhancement-core-engine/024) uses the
+same authoring JSON/normalizer and Setup persistence. Flag assets are local under
+client/assets/cinematic/flags; ThemeSelect accepts optional decorative icons.
+TrustedGeneratedSourceService owns Look Sheet category classification and filters
+through the GenerationResultRepository history predicate before pagination.
+No additional storage, provider dispatch, cache or polling owner is introduced.
+
+Story versus role operation follow-up (Cinematic enhancement-core-engine/025)
+adds validated purpose to the existing Generation story-enhancement facade.
+The provider selects story-enhancement.v1.json or story-role-analysis.v1.json
+and its corresponding structured output schema. Cinematic's
+state/applyStoryEnhancement.ts owns purpose-specific draft application; it does
+not create another server workflow. No new persistence, endpoint or cost policy.

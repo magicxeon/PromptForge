@@ -16,6 +16,7 @@ import { CinematicWorkspaceHeader } from '../components/CinematicWorkspaceHeader
 import { CinematicSetupForm } from '../components/CinematicSetupForm';
 import { ProjectCostSummary } from '../components/ProjectCostSummary';
 import { StoryEnhanceDialog } from '../components/CinematicDialogs';
+import { applyStoryEnhancement } from '../state/applyStoryEnhancement';
 import { cinematicStageSchema } from '../schemas/cinematicSchemas';
 import type { CinematicAuthoringManifest, CinematicSetupDraft } from '../schemas/cinematicSchemas';
 import {
@@ -139,6 +140,9 @@ function CinematicWorkspace({
   const { t } = useTranslation('cinematic');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const configuration = useQuery({ queryKey: ['cinematic-authoring-manifest'], queryFn: getCinematicAuthoringManifest,
+    staleTime: Infinity, enabled: !authoringManifest });
+  const resolvedManifest = authoringManifest || configuration.data;
   const initialDraft = useMemo(() => resolveInitialDraft(actorId, project), [actorId, project]);
   const [draft, setDraft] = useState<CinematicSetupDraft>(initialDraft);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'offline' | 'failed'>('idle');
@@ -367,6 +371,7 @@ function CinematicWorkspace({
           <div className="min-w-0">
           {activeStage === 'setup' ? (
           <CinematicSetupForm
+            storyAuthoring={resolvedManifest?.storyAuthoring}
             draft={draft}
             saveState={saveState}
             saveError={saveError || (createProject.isError ? createProject.error : null)}
@@ -387,7 +392,7 @@ function CinematicWorkspace({
               activeStage={activeStage}
               mode={draft.mode}
               project={project}
-              authoringManifest={authoringManifest}
+              authoringManifest={resolvedManifest}
               onModeChange={mode => update('mode', mode)}
               onPrevious={() => moveStage(-1)}
               onNext={() => moveStage(1)}
@@ -402,6 +407,9 @@ function CinematicWorkspace({
                   expectedVersion: projectVersionRef.current,
                   characterProfileId: input.characterProfileId,
                   characterProfileVersionId: input.characterProfileVersionId,
+                  sourceType: input.sourceType,
+                  generationId: input.generationId,
+                  sheetConfirmed: input.sheetConfirmed,
                   displayName: input.displayName,
                   storyImportance: input.storyImportance,
                   storyRole: input.storyRole,
@@ -432,14 +440,7 @@ function CinematicWorkspace({
         <ProjectCostSummary />
       </Surface>
       <StoryEnhanceDialog open={enhanceOpen} onOpenChange={setEnhanceOpen} draft={draft} purpose={enhancePurpose} onApply={enhancement => {
-        setDraft(current => ({
-          ...current,
-          storyBrief: enhancePurpose === 'story' ? enhancement.enhancedStoryBrief : current.storyBrief,
-          creativeDirection: enhancePurpose === 'story' ? (enhancement.creativeDirection || current.creativeDirection) : current.creativeDirection,
-          castPlanningMode: 'ai-recommended',
-          storyRoleSlots: enhancement.recommendedRoles,
-          updatedAt: new Date().toISOString()
-        }));
+        setDraft(current => applyStoryEnhancement(current, enhancement, enhancePurpose));
       }} />
     </main>
   );
@@ -471,6 +472,10 @@ function projectToDraft(project: CinematicProject): CinematicSetupDraft {
     genre: project.setup.genre,
     audienceFeeling: project.setup.audienceFeeling,
     pacing: project.setup.pacing,
+    genres: project.setup.genres,
+    audienceFeelings: project.setup.audienceFeelings,
+    pacingTraits: project.setup.pacingTraits,
+    storyCountryStyle: project.setup.storyCountryStyle ?? 'none',
     endingIntent: project.setup.endingIntent,
     mode: project.setup.mode,
     castPlanningMode: project.setup.castPlanningMode,
@@ -499,6 +504,10 @@ function serializeSetup(draft: CinematicSetupDraft) {
     genre: draft.genre,
     audienceFeeling: draft.audienceFeeling,
     pacing: draft.pacing,
+    genres: draft.genres,
+    audienceFeelings: draft.audienceFeelings,
+    pacingTraits: draft.pacingTraits,
+    storyCountryStyle: draft.storyCountryStyle ?? 'none',
     endingIntent: draft.endingIntent,
     mode: draft.mode,
     castPlanningMode: draft.castPlanningMode,

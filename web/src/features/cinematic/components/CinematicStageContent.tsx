@@ -17,6 +17,8 @@ import {
   StoryPlanProposalDialog, type CharacterCandidate
 } from './CinematicDialogs';
 import { CharacterLookDialog, type CharacterLookDialogMode } from '../../profiles/components/CharacterLookDialog';
+import { GeneratedCastDialog } from './GeneratedCastDialog';
+import type { TrustedVideoSource } from '../../generation/api/trustedVideoSources';
 import { CinematicControlLevel } from './CinematicControlLevel';
 import { applySceneDirectionFieldProposals } from './authoring/sceneDirectionProposal';
 import { ContextualOperationDock } from './ContextualOperationDock';
@@ -25,6 +27,8 @@ import { StoryboardShotDialog } from './StoryboardShotDialog';
 import { StoryboardGenerateAllDialog } from './StoryboardGenerateAllDialog';
 import { ProduceMediaReview } from './produce/ProduceMediaReview';
 import { ProduceVideoReferences } from './produce/ProduceVideoReferences';
+import { useShotVideoReferences } from '../state/useShotVideoReferences';
+import { shotVideoReferencePreviews } from './storyboardGenerationAdapter';
 import { ProduceReadinessHeader } from './produce/ProduceReadinessHeader';
 import { ProduceRoughSequence } from './produce/ProduceRoughSequence';
 import { ProduceShotQueue } from './produce/ProduceShotQueue';
@@ -61,8 +65,11 @@ type Props = {
   onProjectChanged?: (project: CinematicProject) => void;
   onAddCastCharacter?: (input: {
     assignmentId: string;
-    characterProfileId: string;
-    characterProfileVersionId: string;
+    sourceType?: 'character' | 'generated_sheet';
+    generationId?: string;
+    sheetConfirmed?: boolean;
+    characterProfileId?: string | null;
+    characterProfileVersionId?: string | null;
     displayName: string;
     storyImportance: 'protagonist' | 'supporting';
     storyRole: string;
@@ -98,9 +105,11 @@ export function currentSceneCastAssignments(project?: CinematicProject) {
   ));
   const assignmentsByCharacter = new Map<string, (typeof currentAssignments)[number]>();
   for (const assignment of currentAssignments) {
-    const existing = assignmentsByCharacter.get(assignment.characterProfileId);
+    const sourceKey = assignment.sourceType === 'generated_sheet'
+      ? `sheet:${assignment.generatedSheet?.generationId}` : assignment.characterProfileId || assignment.id;
+    const existing = assignmentsByCharacter.get(sourceKey);
     if (!existing || (!referencedIds.has(existing.id) && referencedIds.has(assignment.id))) {
-      assignmentsByCharacter.set(assignment.characterProfileId, assignment);
+      assignmentsByCharacter.set(sourceKey, assignment);
     }
   }
   return [...assignmentsByCharacter.values()];
@@ -127,6 +136,7 @@ function StageHeading({ stage, action, showPrototypeBadge = true }: { stage: Cin
 function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCharacter, onRemoveCastCharacter }: { mode: 'simple' | 'advanced'; onModeChange?: (mode: 'simple' | 'advanced') => void; project?: CinematicProject; onProjectChanged?: (project: CinematicProject) => void; onAddCastCharacter?: Props['onAddCastCharacter']; onRemoveCastCharacter?: Props['onRemoveCastCharacter'] }) {
   const { t } = useTranslation('cinematic');
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [sheetPickerOpen, setSheetPickerOpen] = useState(false);
   const [pendingRoleId, setPendingRoleId] = useState<string | null>(null);
   const [replacementAssignmentId, setReplacementAssignmentId] = useState<string | null>(null);
   const [lookDialogOpen, setLookDialogOpen] = useState(false);
@@ -268,6 +278,26 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
       throw error;
     }
   }
+  async function addGeneratedCast(source: TrustedVideoSource, name: string) {
+    if (!project) throw new Error(t('cinematic.status.saveFailed'));
+    const replacement = project.castAssignments.find(item => item.id === replacementAssignmentId);
+    const existing = project.castAssignments.find(item => item.sourceType === 'generated_sheet'
+      && item.generatedSheet?.generationId === source.id && item.active);
+    const assignmentId = replacement?.id || existing?.id || `cinecast_${source.id}`;
+    const role = roleSlots.find(item => item.id === pendingRoleId) || nextUnfilledRole;
+    const input = {
+      assignmentId, sourceType: 'generated_sheet' as const, generationId: source.id, sheetConfirmed: true,
+      displayName: name, storyImportance: replacement?.storyImportance || (project.castAssignments.length ? 'supporting' as const : 'protagonist' as const),
+      storyRole: replacement?.storyRole || role?.label || 'Lead', storyRoleSlotId: replacement?.storyRoleSlotId || role?.id || null,
+      ...castDirectionFromRole(role),
+      ...(replacement ? { objective: replacement.objective, personalityTraits: replacement.personalityTraits,
+        emotionalBaseline: replacement.emotionalBaseline, performanceDirection: replacement.performanceDirection } : {})
+    };
+    const saved = onAddCastCharacter ? await onAddCastCharacter(input)
+      : await upsertCinematicCast(project.id, assignmentId, { expectedVersion: project.version, ...input });
+    setSelectedCharacter(assignmentId); setPendingRoleId(null); setReplacementAssignmentId(null);
+    if (!onAddCastCharacter) onProjectChanged?.(saved);
+  }
   async function removeSelectedCharacter() {
     if (!project || !selectedAssignment) return;
     setCastError(null);
@@ -295,6 +325,8 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
         expectedVersion: project.version,
         characterProfileId: selectedAssignment.characterProfileId,
         characterProfileVersionId: selectedAssignment.characterProfileVersionId,
+        sourceType: selectedAssignment.sourceType,
+        generationId: selectedAssignment.generatedSheet?.generationId,
         displayName: selectedAssignment.displayName,
         storyRoleSlotId: selectedAssignment.storyRoleSlotId,
         storyImportance: values.get('storyImportance') === 'lead' ? 'protagonist' : 'supporting',
@@ -386,6 +418,7 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
     setCastError(null);
     setRetiringLookId(look.id);
     try {
+      if (!selectedAssignment.characterProfileId) return;
       await retireCharacterLook(selectedAssignment.characterProfileId, look.id);
       setCharacterLooks(current => current.filter(item => item.id !== look.id));
       if (lookToPrepare?.id === look.id) setLookToPrepare(null);
@@ -434,23 +467,30 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
           {orderedRoleSlots.map(role => {
             const assignment = assignmentForRole(role);
             return assignment
-              ? <CastCard key={role.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={role.label} required={role.importance === 'required'} name={assignment.displayName} portraitUrl={cinematicCastPortraitUrl(assignment)} identityReady={assignment.identityReady} lookReady={assignment.looks.some(isProductionReadyBoundLook)} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? String((assignment.looks[0] as { name?: string })?.name || t('cinematic.cast.characterWardrobe')) : t('cinematic.cast.characterWardrobe')} scenes={project?.scenes.length ? String(project.scenes.length) : null} tone="cyan" />
+              ? <CastCard key={role.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={role.label} required={role.importance === 'required'} name={assignment.displayName} portraitUrl={cinematicCastPortraitUrl(assignment)} generatedSheet={assignment.sourceType === 'generated_sheet'} identityReady={assignment.identityReady} lookReady={assignment.looks.some(isProductionReadyBoundLook)} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? String((assignment.looks[0] as { name?: string })?.name || t('cinematic.cast.characterWardrobe')) : t('cinematic.cast.characterWardrobe')} scenes={project?.scenes.length ? String(project.scenes.length) : null} tone="cyan" />
               : <button key={role.id} type="button" className="cinematic-unassigned-cast-card" onClick={() => { setPendingRoleId(role.id); setReplacementAssignmentId(null); setPickerOpen(true); }}><CharacterPortrait tone="cyan" /><span><strong>{role.label}</strong><small>{t(`cinematic.roleImportance.${role.importance}`)}</small><b>{t('cinematic.cast.noCharacterAssigned')}</b><em>{role.storyFunction}</em></span></button>;
           })}
-          {!roleSlots.length && project?.castAssignments.map(assignment => <CastCard key={assignment.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={assignment.storyRole} required={assignment.storyImportance === 'protagonist'} name={assignment.displayName} portraitUrl={cinematicCastPortraitUrl(assignment)} identityReady={assignment.identityReady} lookReady={assignment.looks.some(isProductionReadyBoundLook)} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? t('cinematic.cast.lookArrival') : t('cinematic.cast.characterWardrobe')} scenes={project?.scenes.length ? String(project.scenes.length) : null} tone="cyan" />)}
+          {!roleSlots.length && project?.castAssignments.map(assignment => <CastCard key={assignment.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={assignment.storyRole} required={assignment.storyImportance === 'protagonist'} name={assignment.displayName} portraitUrl={cinematicCastPortraitUrl(assignment)} generatedSheet={assignment.sourceType === 'generated_sheet'} identityReady={assignment.identityReady} lookReady={assignment.looks.some(isProductionReadyBoundLook)} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? t('cinematic.cast.lookArrival') : t('cinematic.cast.characterWardrobe')} scenes={project?.scenes.length ? String(project.scenes.length) : null} tone="cyan" />)}
           {!project ? <><CastCard active={selectedCharacter === 'mira'} onSelect={() => setSelectedCharacter('mira')} role={t('cinematic.cast.lead')} name="Mira Chen" personality={t('cinematic.cast.miraTraits')} look={t('cinematic.cast.lookArrival')} scenes="3" tone="cyan" /><CastCard active={selectedCharacter === 'noah'} onSelect={() => setSelectedCharacter('noah')} role={t('cinematic.cast.supporting')} name="Noah Lin" personality={t('cinematic.cast.noahTraits')} look={t('cinematic.cast.lookPlatform')} scenes="2" tone="amber" /></> : null}
         </div>
       </section>
       {(!project || selectedAssignment) ? <aside key={selectedCharacter} className="cinematic-character-dossier">
-        <header className="cinematic-dossier-header"><div className="cinematic-dossier-header__selection"><Link2 aria-hidden="true" /><span>{t('cinematic.cast.selectedFromProjectCast')}</span></div><div><span>{selectedAssignment?.storyRole || t('cinematic.cast.selectedCharacter')}</span><h3>{selectedAssignment?.displayName || (selectedCharacter === 'mira' ? 'Mira Chen' : 'Noah Lin')}</h3><p className={selectedAssignment && !selectedAssignment.identityReady ? 'is-needs-preparation' : ''}>{selectedAssignment && !selectedAssignment.identityReady ? <Clock3 aria-hidden="true" /> : <Check aria-hidden="true" />}{t(selectedAssignment && !selectedAssignment.identityReady ? 'cinematic.cast.needsPreparation' : 'cinematic.cast.identityReady')}</p><small>{selectedAssignment?.characterProfileVersionId ? t('cinematic.cast.profileVersionPinned') : t('cinematic.cast.projectOnlyChanges')}</small></div><div className="cinematic-dossier-header__status"><strong className={`is-${dossierSaveState}`}>{t(`cinematic.save.${dossierSaveState}`)}</strong><small>{t('cinematic.cast.projectOnlyChanges')}</small>{selectedAssignment ? <><Button size="sm" variant="secondary" onClick={() => { setPendingRoleId(selectedAssignment.storyRoleSlotId || null); setReplacementAssignmentId(selectedAssignment.id); setPickerOpen(true); }}>{t('cinematic.cast.changeCharacter')}</Button>{selectedAssignmentInUse ? <><Button size="sm" variant="ghost" icon={<Trash2 aria-hidden="true" />} disabled title={t('cinematic.cast.assignmentInUse', selectedAssignmentUsage)}>{t('cinematic.cast.removeAssignment')}</Button><small className="is-warning">{t('cinematic.cast.assignmentInUse', selectedAssignmentUsage)}</small></> : <ConfirmDialog trigger={<Button size="sm" variant="ghost" icon={<Trash2 aria-hidden="true" />} disabled={removingCharacter}>{t('cinematic.cast.removeAssignment')}</Button>} title={t('cinematic.cast.removeTitle')} description={t('cinematic.cast.removeDescription', { name: selectedAssignment.displayName })} confirmLabel={t('cinematic.cast.removeConfirm')} destructive pending={removingCharacter} onConfirm={() => void removeSelectedCharacter()} />}</> : null}</div></header>
+        <header className="cinematic-dossier-header"><div className="cinematic-dossier-header__selection"><Link2 aria-hidden="true" /><span>{t('cinematic.cast.selectedFromProjectCast')}</span></div><div><span>{selectedAssignment?.storyRole || t('cinematic.cast.selectedCharacter')}</span><h3>{selectedAssignment?.displayName || (selectedCharacter === 'mira' ? 'Mira Chen' : 'Noah Lin')}</h3><p className={selectedAssignment && !selectedAssignment.identityReady ? 'is-needs-preparation' : ''}>{selectedAssignment && !selectedAssignment.identityReady ? <Clock3 aria-hidden="true" /> : <Check aria-hidden="true" />}{t(selectedAssignment && !selectedAssignment.identityReady ? 'cinematic.cast.needsPreparation' : selectedAssignment?.sourceType === 'generated_sheet' ? 'cinematic.castSource.sheet' : 'cinematic.cast.identityReady')}</p><small>{selectedAssignment?.characterProfileVersionId ? t('cinematic.cast.profileVersionPinned') : t('cinematic.cast.projectOnlyChanges')}</small></div><div className="cinematic-dossier-header__status"><strong className={`is-${dossierSaveState}`}>{t(`cinematic.save.${dossierSaveState}`)}</strong><small>{t('cinematic.cast.projectOnlyChanges')}</small>{selectedAssignment ? <><Button size="sm" variant="secondary" onClick={() => { setPendingRoleId(selectedAssignment.storyRoleSlotId || null); setReplacementAssignmentId(selectedAssignment.id); setPickerOpen(true); }}>{t('cinematic.cast.changeCharacter')}</Button>{selectedAssignmentInUse ? <><Button size="sm" variant="ghost" icon={<Trash2 aria-hidden="true" />} disabled title={t('cinematic.cast.assignmentInUse', selectedAssignmentUsage)}>{t('cinematic.cast.removeAssignment')}</Button><small className="is-warning">{t('cinematic.cast.assignmentInUse', selectedAssignmentUsage)}</small></> : <ConfirmDialog trigger={<Button size="sm" variant="ghost" icon={<Trash2 aria-hidden="true" />} disabled={removingCharacter}>{t('cinematic.cast.removeAssignment')}</Button>} title={t('cinematic.cast.removeTitle')} description={t('cinematic.cast.removeDescription', { name: selectedAssignment.displayName })} confirmLabel={t('cinematic.cast.removeConfirm')} destructive pending={removingCharacter} onConfirm={() => void removeSelectedCharacter()} />}</> : null}</div></header>
         <div className="cinematic-character-tabs" role="tablist" aria-label={t('cinematic.cast.characterDetails')}>
-          {(['direction', 'wardrobe', 'continuity'] as const).map(tab => <button key={tab} type="button" role="tab" aria-selected={activeDetailTab === tab} className={activeDetailTab === tab ? 'is-active' : ''} onClick={() => setActiveDetailTab(tab)}>{t(`cinematic.cast.tab.${tab}`)}</button>)}
+          {(['direction', 'wardrobe', 'continuity'] as const).map(tab => <button key={tab} type="button" role="tab" aria-selected={activeDetailTab === tab} className={activeDetailTab === tab ? 'is-active' : ''} onClick={() => setActiveDetailTab(tab)}>{t(tab === 'wardrobe' && selectedAssignment?.sourceType === 'generated_sheet' ? 'cinematic.castSource.sheet' : `cinematic.cast.tab.${tab}`)}</button>)}
         </div>
         {activeDetailTab === 'direction' ? <form onSubmit={saveDossier} onChange={scheduleDossierSave}>
         <section className="cinematic-dossier-section"><SectionHeading title={t('cinematic.cast.rolePersonality')} hint={t('cinematic.cast.rolePersonalityHint')} /><div className="cinematic-dossier-fields"><label><span>{t('cinematic.cast.storyRole')}</span><input readOnly value={selectedAssignment?.storyRole || (selectedRole === 'lead' ? t('cinematic.cast.lead') : t('cinematic.cast.supporting'))} /><input type="hidden" name="storyImportance" value={selectedRole} /></label><label><span>{t('cinematic.cast.emotionalBaseline')}</span><select name="emotionalBaseline" defaultValue={selectedAssignment?.emotionalBaseline || 'guarded'}><option value="guarded">{t('cinematic.cast.guarded')}</option><option value="open">{t('cinematic.cast.open')}</option></select></label><label className="is-wide"><span>{t('cinematic.cast.objective')}</span><textarea name="objective" rows={2} defaultValue={selectedObjective} /></label><label className="is-wide"><span>{t('cinematic.cast.personality')}</span><input name="personalityTraits" defaultValue={selectedTraits} /></label>{mode === 'advanced' && <><label className="is-wide"><span>{t('cinematic.cast.motivation')}</span><textarea name="motivation" rows={2} defaultValue={selectedAssignment?.motivation || ''} /></label><label className="is-wide"><span>{t('cinematic.cast.pressure')}</span><textarea name="pressure" rows={2} defaultValue={selectedAssignment?.pressure || t('cinematic.cast.pressureValue')} /></label><label className="is-wide"><span>{t('cinematic.cast.dialogueStyle')}</span><input name="dialogueStyle" defaultValue={selectedAssignment?.dialogueStyle || t('cinematic.cast.dialogueStyleValue')} /></label></>}</div></section>
         <section className="cinematic-dossier-section"><SectionHeading title={t('cinematic.cast.performanceDirection')} hint={t('cinematic.cast.performanceDirectionHint')} /><textarea name="performanceDirection" rows={3} defaultValue={selectedPerformance} />{dossierSaveState === 'failed' ? <Button type="submit" size="sm" disabled={!selectedAssignment}>{t('cinematic.cast.saveDossier')}</Button> : null}</section>
         </form> : null}
-        {activeDetailTab === 'wardrobe' ? <section className="cinematic-dossier-section">
+        {selectedAssignment?.generatedSheet ? <section className="cinematic-dossier-section" aria-label={t('cinematic.castSource.sheet')}>
+          <strong>{t('cinematic.castSource.sheet')}</strong>
+          <AuthenticatedMediaImage src={selectedAssignment.generatedSheet.previewUrl} alt={selectedAssignment.displayName} className="mx-auto max-h-80 w-full object-contain" />
+          <p>{selectedAssignment.generatedSheet.modelId}</p>
+          <small>{t('cinematic.lookDraft.generatedExpiry', { date: new Date(selectedAssignment.generatedSheet.expiresAt).toLocaleDateString() })}</small>
+          <p>{t('cinematic.castSource.pinned')}</p>
+        </section> : null}
+        {activeDetailTab === 'wardrobe' && selectedAssignment?.sourceType !== 'generated_sheet' ? <section className="cinematic-dossier-section">
           <SectionHeading title={t('cinematic.cast.wardrobeLooks')} hint={t('cinematic.cast.wardrobeOwnedHint')} />
           <ol className="cinematic-look-readiness" aria-label={t('cinematic.cast.lookReadiness')}>
             <li className={characterLooks.length || hasBoundLook ? 'is-complete' : 'is-current'}><span>1</span><div><strong>{t('cinematic.cast.lookStepSource')}</strong><small>{t('cinematic.cast.lookStepSourceHint')}</small></div></li>
@@ -463,7 +503,6 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
             <div>
               <button type="button" disabled={!selectedAssignment} onClick={() => { setLookToPrepare(null); setLookDialogMode('upload'); setLookDialogOpen(true); }}><span><Upload aria-hidden="true" /></span><span><strong>{t('cinematic.cast.uploadWardrobe')}</strong><small>{t('cinematic.cast.uploadForCharacter')}</small></span><ArrowRight aria-hidden="true" /></button>
               <button type="button" disabled={!selectedAssignment} onClick={() => { setLookToPrepare(null); setLookDialogMode('ai'); setLookDialogOpen(true); }}><span><Sparkles aria-hidden="true" /></span><span><strong>{t('cinematic.cast.aiWardrobe')}</strong><small>{t('cinematic.cast.aiWardrobeHint')}</small></span><ArrowRight aria-hidden="true" /></button>
-              <button type="button" className="cinematic-look-source-actions__generated" disabled={!selectedAssignment} onClick={() => { setLookToPrepare(null); setLookDialogMode('generated'); setLookDialogOpen(true); }}><span><Images aria-hidden="true" /></span><span><strong>{t('cinematic.cast.generatedSheet')}</strong><small>{t('cinematic.cast.generatedSheetHint')}</small></span><ArrowRight aria-hidden="true" /></button>
             </div>
           </fieldset>
           <div className="cinematic-look-library" aria-label={t('cinematic.cast.currentLooks')}>
@@ -485,12 +524,13 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
             <article className="cinematic-look-card"><div className="cinematic-look-card__preview"><Shirt aria-hidden="true" /></div><div><span>{t('cinematic.cast.boundLook')}</span><h4>{hasBoundLook ? selectedLookName : t('cinematic.cast.noPrimaryLook')}</h4><p>{hasBoundLook ? t('cinematic.cast.sceneScope') : t('cinematic.cast.chooseLookHint')}</p></div><span className={`cinematic-status-pill${hasBoundLook ? ' is-ready' : ''}`}>{hasBoundLook ? t('cinematic.cast.locked') : t('cinematic.cast.lookNotReady')}</span></article>
           </div>
         </section> : null}
-        {activeDetailTab === 'continuity' ? <section className="cinematic-dossier-section cinematic-continuity-panel"><SectionHeading title={t('cinematic.cast.continuity')} hint={t('cinematic.cast.continuityHint')} /><ul><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.identityVersionReady')}</li><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.faceAuthorityReady')}</li><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.reuseRightsReady')}</li><li className={hasBoundLook ? 'is-ready' : ''}>{hasBoundLook ? <Check aria-hidden="true" /> : <Clock3 aria-hidden="true" />}{t(hasBoundLook ? 'cinematic.cast.lookBound' : 'cinematic.cast.lookPreparationRequired')}</li><li><Clock3 aria-hidden="true" />{project?.scenes.length ? t('cinematic.cast.sceneContinuityReady') : t('cinematic.cast.scenesNotPlanned')}</li></ul><label className="cinematic-check-row"><input type="checkbox" defaultChecked />{t('cinematic.cast.lockWardrobe')}</label>{mode === 'advanced' && <label className="cinematic-check-row"><input type="checkbox" disabled={!project?.scenes.length} />{t('cinematic.cast.allowSceneChanges')}</label>}</section> : null}
+        {activeDetailTab === 'continuity' && selectedAssignment?.sourceType !== 'generated_sheet' ? <section className="cinematic-dossier-section cinematic-continuity-panel"><SectionHeading title={t('cinematic.cast.continuity')} hint={t('cinematic.cast.continuityHint')} /><ul><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.identityVersionReady')}</li><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.faceAuthorityReady')}</li><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.reuseRightsReady')}</li><li className={hasBoundLook ? 'is-ready' : ''}>{hasBoundLook ? <Check aria-hidden="true" /> : <Clock3 aria-hidden="true" />}{t(hasBoundLook ? 'cinematic.cast.lookBound' : 'cinematic.cast.lookPreparationRequired')}</li><li><Clock3 aria-hidden="true" />{project?.scenes.length ? t('cinematic.cast.sceneContinuityReady') : t('cinematic.cast.scenesNotPlanned')}</li></ul><label className="cinematic-check-row"><input type="checkbox" defaultChecked />{t('cinematic.cast.lockWardrobe')}</label>{mode === 'advanced' && <label className="cinematic-check-row"><input type="checkbox" disabled={!project?.scenes.length} />{t('cinematic.cast.allowSceneChanges')}</label>}</section> : null}
       </aside> : <aside className="cinematic-character-dossier cinematic-character-dossier--empty"><UserRound aria-hidden="true" /><h3>{t('cinematic.cast.addCharacter')}</h3><p>{t('cinematic.cast.charactersHint')}</p></aside>}
     </div>
     {castError ? <p role="alert" className="text-sm text-red-400">{castError}</p> : null}
-    <CharacterPickerDialog open={pickerOpen} onOpenChange={open => { setPickerOpen(open); if (!open) { setPendingRoleId(null); setReplacementAssignmentId(null); } }} onSelect={addCharacter} />
-    {selectedAssignment ? <CharacterLookDialog open={lookDialogOpen} onOpenChange={open => { setLookDialogOpen(open); if (!open) setLookToPrepare(null); }} initialMode={lookDialogMode} lookToPrepare={lookToPrepare} characterProfileId={selectedAssignment.characterProfileId} characterProfileVersionId={selectedAssignment.characterProfileVersionId} characterDisplayName={selectedAssignment.displayName} requestAiSuggestion={project ? () => suggestCinematicWardrobe(project.id, selectedAssignment.id) : undefined} onSaved={look => void handleLookSaved(look)} /> : null}
+    <CharacterPickerDialog open={pickerOpen} onChooseGenerated={() => { setPickerOpen(false); setSheetPickerOpen(true); }} onOpenChange={open => { setPickerOpen(open); if (!open) { setPendingRoleId(null); setReplacementAssignmentId(null); } }} onSelect={addCharacter} />
+    <GeneratedCastDialog open={sheetPickerOpen} onOpenChange={open => { setSheetPickerOpen(open); if (!open) { setPendingRoleId(null); setReplacementAssignmentId(null); } }} onCharacter={() => { setSheetPickerOpen(false); setPickerOpen(true); }} onSelect={addGeneratedCast} />
+    {selectedAssignment?.characterProfileId && selectedAssignment.characterProfileVersionId ? <CharacterLookDialog open={lookDialogOpen} onOpenChange={open => { setLookDialogOpen(open); if (!open) setLookToPrepare(null); }} initialMode={lookDialogMode} lookToPrepare={lookToPrepare} characterProfileId={selectedAssignment.characterProfileId} characterProfileVersionId={selectedAssignment.characterProfileVersionId} characterDisplayName={selectedAssignment.displayName} requestAiSuggestion={project ? () => suggestCinematicWardrobe(project.id, selectedAssignment.id) : undefined} onSaved={look => void handleLookSaved(look)} /> : null}
   </>;
 }
 
@@ -508,11 +548,11 @@ export function castDirectionFromRole(role?: CinematicProject['setup']['storyRol
   };
 }
 
-function CastCard({ role, required = false, name, portraitUrl, identityReady = true, lookReady = true, personality, look, scenes, tone, active, onSelect }: { role: string; required?: boolean; name: string; portraitUrl?: string | null; identityReady?: boolean; lookReady?: boolean; personality: string; look: string; scenes: string | null; tone: 'cyan' | 'amber'; active: boolean; onSelect: () => void }) {
+function CastCard({ role, required = false, name, portraitUrl, generatedSheet = false, identityReady = true, lookReady = true, personality, look, scenes, tone, active, onSelect }: { role: string; required?: boolean; name: string; portraitUrl?: string | null; generatedSheet?: boolean; identityReady?: boolean; lookReady?: boolean; personality: string; look: string; scenes: string | null; tone: 'cyan' | 'amber'; active: boolean; onSelect: () => void }) {
   const { t } = useTranslation('cinematic');
   const ready = identityReady && lookReady;
-  const statusKey = !identityReady ? 'cinematic.cast.needsPreparation' : !lookReady ? 'cinematic.cast.lookPreparationRequired' : 'cinematic.cast.identityReady';
-  return <button type="button" className={`cinematic-cast-card${active ? ' is-active' : ''}${ready ? '' : ' is-needs-preparation'}`} onClick={onSelect}><CharacterPortrait portraitUrl={portraitUrl} tone={tone} /><div className="cinematic-cast-card__body"><span>{role}{required ? <b>{t('cinematic.roleImportance.required')}</b> : null}</span><h4>{name}</h4><small>{personality}</small><p>{ready ? <Check aria-hidden="true" /> : <Clock3 aria-hidden="true" />} {t(statusKey)}</p><div className="cinematic-card-facts"><span>{look}</span><span>{scenes ? `${scenes} ${t('cinematic.cast.scenes')}` : t('cinematic.cast.scenesNotPlanned')}</span></div></div></button>;
+  const statusKey = !identityReady ? 'cinematic.cast.needsPreparation' : !lookReady ? 'cinematic.cast.lookPreparationRequired' : generatedSheet ? 'cinematic.castSource.reviewed' : 'cinematic.cast.identityReady';
+  return <button type="button" className={`cinematic-cast-card${active ? ' is-active' : ''}${ready ? '' : ' is-needs-preparation'}`} onClick={onSelect}><CharacterPortrait portraitUrl={portraitUrl} tone={tone} /><div className="cinematic-cast-card__body"><span>{role}{required ? <b>{t('cinematic.roleImportance.required')}</b> : null}</span><h4>{name}</h4><small>{generatedSheet ? t('cinematic.castSource.sheet') : personality}</small><p>{ready ? <Check aria-hidden="true" /> : <Clock3 aria-hidden="true" />} {t(statusKey)}</p><div className="cinematic-card-facts"><span>{generatedSheet ? name : look}</span><span>{scenes ? `${scenes} ${t('cinematic.cast.scenes')}` : t('cinematic.cast.scenesNotPlanned')}</span></div></div></button>;
 }
 
 function CharacterPortrait({ portraitUrl, tone }: { portraitUrl?: string | null; tone: 'cyan' | 'amber' }) {
@@ -1041,23 +1081,24 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }
     return preference ? `${preference.providerId}:${preference.modelId}` : '';
   });
   const [resolution, setResolution] = useState('720p');
-  const [referenceMode, setReferenceMode] = useState<'storyboard_only' | 'storyboard_and_looks'>('storyboard_only');
   const [durationSeconds, setDurationSeconds] = useState(Math.max(1, Math.round((selectedShotRecord?.durationMs || 4000) / 1000)));
   const [audioMode, setAudioMode] = useState<'none' | 'generated'>('none');
   const [taskId, setTaskId] = useState<string | null>(() => currentVideoTaskId(latestAttempt));
   const [attemptId, setAttemptId] = useState<string | null>(() => currentVideoAttemptId(latestAttempt));
-  const produceContext = useQuery({
-    queryKey: ['cinematic-produce-context', project.id, selectedScene?.id, selectedShotRecord?.id, project.version, actorId],
-    queryFn: () => getCinematicProduceContext(project.id, selectedScene!.id, selectedShotRecord!.id),
-    enabled: Boolean(selectedScene?.id && selectedShotRecord?.id),
-    retry: false
-  });
   const catalog = useQuery({ queryKey: ['video-capabilities', 'cinematic'], queryFn: getCinematicVideoCapabilityCatalog });
   const models = useMemo(() => (catalog.data?.models || []).filter(model => (
     model.inputModes.includes('image_to_video')
     && model.commercialOperations.includes('cinematic_draft_clip')
   )), [catalog.data]);
   const selectedModel = models.find(model => `${model.providerId}:${model.modelId}` === modelKey) || models[0];
+  const videoReferences = useShotVideoReferences(project, selectedScene, selectedShotRecord, onProjectRefresh, selectedModel?.supportsCinematicLookReferences);
+  const referenceMode = videoReferences.mode;
+  const produceContext = useQuery({
+    queryKey: ['cinematic-produce-context', project.id, selectedScene?.id, selectedShotRecord?.id, videoReferences.projectVersion, referenceMode, actorId],
+    queryFn: () => getCinematicProduceContext(project.id, selectedScene!.id, selectedShotRecord!.id, referenceMode),
+    enabled: Boolean(selectedScene?.id && selectedShotRecord?.id && !videoReferences.pending),
+    retry: false
+  });
   useEffect(() => {
     const preference = readProduceVideoEnginePreference(actorId);
     const preferredKey = preference ? `${preference.providerId}:${preference.modelId}` : '';
@@ -1102,10 +1143,11 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }
   const videoPacket = produceContext.data?.videoPacket;
   const source = produceContext.data?.approvedStoryboardSource || selectedShotRecord?.approvedStoryboardSource;
   const prompt = videoPacket?.providerIndependentPrompt || '';
-  const quoteInput = selectedModel && selectedShotRecord && source && videoPacket && produceContext.data?.generationEligible ? {
+  const referenceModeSupported = referenceMode === 'storyboard_only' || selectedModel?.supportsCinematicLookReferences === true;
+  const quoteInput = referenceModeSupported && !videoReferences.pending && selectedModel && selectedShotRecord && (source || referenceMode === 'looks_only') && videoPacket && produceContext.data?.generationEligible ? {
     expectedVersion: produceContext.data.projectVersion,
     expectedShotVersion: produceContext.data.shotVersion,
-    sourceFingerprint: source.sourceFingerprint,
+    sourceFingerprint: referenceMode === 'looks_only' ? null : source?.sourceFingerprint || null,
     videoPacketFingerprint: videoPacket.packetFingerprint,
     providerId: selectedModel.providerId,
     modelId: selectedModel.modelId,
@@ -1164,14 +1206,16 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }
   const isRunning = submit.isPending
     || ['accepted', 'preparing', 'provider_submitting', 'provider_queued', 'provider_processing',
       'provider_succeeded', 'media_copying', 'media_retry_pending', 'pending', 'queued', 'processing', 'running'].includes(observedTaskStatus);
-  const sourceNeedsCompatibleSeedream = quote.error instanceof ApiError
+  const sourceNeedsCompatibleSeedream = referenceMode !== 'looks_only' && quote.error instanceof ApiError
     && quote.error.code === 'video_provider_synthetic_character_source_required';
   const generateBlockedReason = isRunning
     ? t(submit.isPending ? 'cinematic.produce.submitting' : 'cinematic.produce.generating')
     : observedTaskStatus === 'reconciliation_required' ? t('cinematic.produce.reconciliationRequired')
     : produceContext.isFetching ? t('cinematic.produce.checkingSource')
     : produceContext.error ? produceContext.error.message
-    : !source ? t('cinematic.produce.sourceRequired')
+    : videoReferences.pending ? t('cinematic.save.saving')
+    : !referenceModeSupported ? t('cinematic.produce.references.unsupported')
+    : !source && referenceMode !== 'looks_only' ? t('cinematic.produce.sourceRequired')
     : !produceContext.data?.generationEligible ? produceContext.data?.blockingReason || t('cinematic.produce.sourceNotReady')
     : !prompt.trim() ? t('cinematic.produce.promptMissing')
     : quote.isFetching ? t('cinematic.produce.preparingQuote')
@@ -1179,15 +1223,20 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }
     : !quote.data ? t('cinematic.produce.estimateRequired')
     : !quote.data.account.canAfford ? t('cinematic.produce.insufficientCredits')
     : null;
-  const operationError = submit.error || quote.error || task.error || approve.error;
+  const operationError = videoReferences.error || submit.error || quote.error || task.error || approve.error;
   const taskModelKey = task.data?.providerId && task.data?.modelId
     ? `${task.data.providerId}:${task.data.modelId}`
     : '';
   const taskPortraitAuthorizationBlocked = taskModelKey === `${selectedModel?.providerId}:${selectedModel?.modelId}`
     && isPortraitAuthorizationErrorCode(task.data?.providerError?.code);
   const quotePortraitAuthorizationBlocked = isPortraitAuthorizationError(quote.error);
+  const quoteRequiresPortraitAsset = quote.error instanceof ApiError
+    && quote.error.code === 'video_provider_portrait_authorization_required';
+  const quoteTrustedSourceUnavailable = referenceMode !== 'looks_only' && quote.error instanceof ApiError
+    && quote.error.code === 'video_trusted_source_unavailable';
   const providerRecoveryRequired = sourceNeedsCompatibleSeedream
     || quotePortraitAuthorizationBlocked
+    || quoteTrustedSourceUnavailable
     || taskPortraitAuthorizationBlocked;
   const visibleOperationError = providerRecoveryRequired ? null : operationError;
   const visibleQuoteError = produceContext.error?.message || quote.error?.message;
@@ -1206,12 +1255,15 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }
     .map(item => item.id === attemptId && task.data ? { ...item, status: task.data.status, outputAsset: task.data.outputAsset } : item)
     .slice(-8)
     .reverse();
-  const queueScenes = useMemo(() => buildProduceSceneQueue(project), [project]);
+  const effectiveVideoProject = useMemo(() => ({ ...project, scenes: project.scenes.map(scene => ({
+    ...scene, shots: scene.shots.map(shot => shot.id === selectedShotRecord?.id ? { ...shot, videoReferenceMode: referenceMode } : shot)
+  })) }), [project, selectedShotRecord?.id, referenceMode]);
+  const queueScenes = useMemo(() => buildProduceSceneQueue(effectiveVideoProject), [effectiveVideoProject]);
   const displayedQueueScenes = useMemo(
     () => overlayProduceTaskStatus(queueScenes, selectedShotRecord?.id, task.data?.status),
     [queueScenes, selectedShotRecord?.id, task.data?.status]
   );
-  const readiness = useMemo(() => buildProduceReadiness(project), [project]);
+  const readiness = useMemo(() => buildProduceReadiness(effectiveVideoProject), [effectiveVideoProject]);
   const allShots = project.scenes.flatMap(scene => scene.shots);
   const selectedShotIndex = allShots.findIndex(shot => shot.id === selectedShotRecord?.id);
   const previousShot = selectedShotIndex > 0 ? allShots[selectedShotIndex - 1] : null;
@@ -1247,14 +1299,15 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }
     const nextModel = models.find(model => `${model.providerId}:${model.modelId}` === nextModelKey);
     if (!nextModel) return;
     setModelKey(nextModelKey);
-    if (!nextModel.supportsCinematicLookReferences) setReferenceMode('storyboard_only');
     writeProduceVideoEnginePreference(actorId, { providerId: nextModel.providerId, modelId: nextModel.modelId });
   };
   const providerRecoveryTitle = taskPortraitAuthorizationBlocked
     ? t('cinematic.produce.portraitRejectedTitle')
+    : quoteRequiresPortraitAsset ? t('cinematic.produce.modelAuthorizationTitle')
     : t('cinematic.produce.portraitAuthorizationTitle');
   const providerRecoveryDescription = taskPortraitAuthorizationBlocked
     ? t('cinematic.produce.portraitRejectedDescription')
+    : quoteRequiresPortraitAsset ? t('cinematic.produce.modelAuthorizationDescription')
     : t('cinematic.produce.portraitAuthorizationDescription');
   const providerRecoveryHint = taskPortraitAuthorizationBlocked
     ? t('cinematic.produce.portraitRejectedNoRetry')
@@ -1278,12 +1331,17 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }
           <div>
             <strong>{providerRecoveryRequired ? providerRecoveryTitle : t('cinematic.produce.attemptFailed')}</strong>
             {providerRecoveryRequired ? <p>{providerRecoveryDescription}</p> : null}
+            {providerRecoveryRequired && selectedModel ? <p>{t('cinematic.produce.sourceCheckModel', { model: selectedModel.displayName })}</p> : null}
+            {providerRecoveryRequired && quote.error ? <>
+              <p className="break-words">{quote.error.message}</p>
+              {quote.error instanceof ApiError ? <p className="break-all">{t('cinematic.produce.providerErrorCode', { code: quote.error.code })}</p> : null}
+            </> : null}
             {taskErrorCode ? <p className="break-all">{t('cinematic.produce.providerErrorCode', { code: taskErrorCode })}</p> : null}
             {taskErrorRequestId ? <p className="break-all">{t('cinematic.produce.providerRequestId', { id: taskErrorRequestId })}</p> : null}
             {failedTask && task.data?.billingStatus === 'refunded' ? <p>{t('cinematic.produce.portraitAuthorizationRefunded')}</p> : null}
             <small>{providerRecoveryRequired ? providerRecoveryHint : t('cinematic.produce.portraitRejectedNoRetry')}</small>
           </div>
-          {!taskPortraitAuthorizationBlocked && onEditStoryboard ? <Button size="sm" icon={<ImageIcon aria-hidden="true" />} onClick={onEditStoryboard}>{t('cinematic.produce.seedreamRecovery')}</Button> : null}
+          {!taskPortraitAuthorizationBlocked && !quoteRequiresPortraitAsset && onEditStoryboard ? <Button size="sm" icon={<ImageIcon aria-hidden="true" />} onClick={onEditStoryboard}>{t('cinematic.produce.seedreamRecovery')}</Button> : null}
         </section> : null}
         {visibleOperationError ? <p role="alert" className="text-sm text-red-400">{visibleOperationError.message}</p> : null}
         {selectedScene && selectedShotRecord ? <ProduceStoryContext
@@ -1334,7 +1392,13 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }
           description={t('cinematic.produce.operationDescription')}
           badge={<Sparkles aria-hidden="true" />}
           showComparisonAction={false}
-          summary={<>{selectedModel.supportsCinematicLookReferences ? <ProduceVideoReferences mode={referenceMode} onChange={setReferenceMode} disabled={isRunning} loading={quote.isFetching} references={quote.data?.referenceSummary} /> : null}<DurationReconciliationSummary value={quote.data?.durationReconciliation} />{quote.data?.estimate.billingStatus === 'qualification_no_charge' ? <p className="cinematic-produce-render-panel__qualification">{t('cinematic.produce.qualificationNoCharge')}</p> : null}<p className={`cinematic-produce-render-panel__source${source && !sourceNeedsCompatibleSeedream ? ' is-ready' : ''}`}>{sourceNeedsCompatibleSeedream ? t('cinematic.produce.seedreamSourceRequired') : source ? t('cinematic.produce.sourceReady') : t('cinematic.produce.sourceRequired')}</p></>}
+          summary={<><ProduceVideoReferences mode={referenceMode} lastFirstFrameMode={videoReferences.lastFirstFrameMode}
+            onChange={videoReferences.changeMode} disabled={isRunning || videoReferences.pending} loading={quote.isFetching || videoReferences.pending}
+            supported={selectedModel.supportsCinematicLookReferences} references={quote.data?.referenceSummary
+              || (selectedScene && selectedShotRecord ? shotVideoReferencePreviews(project, selectedScene, selectedShotRecord, referenceMode) : [])} />
+            <DurationReconciliationSummary value={quote.data?.durationReconciliation} />
+            {quote.data?.estimate.billingStatus === 'qualification_no_charge' ? <p className="cinematic-produce-render-panel__qualification">{t('cinematic.produce.qualificationNoCharge')}</p> : null}
+            {referenceMode !== 'looks_only' ? <p className={`cinematic-produce-render-panel__source${source && !sourceNeedsCompatibleSeedream ? ' is-ready' : ''}`}>{sourceNeedsCompatibleSeedream ? t('cinematic.produce.seedreamSourceRequired') : source ? t('cinematic.produce.sourceReady') : t('cinematic.produce.sourceRequired')}</p> : null}</>}
           footer={<div className="cinematic-produce-render-panel__footer"><Button className="w-full" variant="primary" icon={<Film aria-hidden="true" />} aria-describedby="cinematic-video-generate-reason" disabled={Boolean(generateBlockedReason)} onClick={() => submit.mutate()}>{isRunning ? t('cinematic.produce.generating') : t('cinematic.produce.generate')}</Button><p id="cinematic-video-generate-reason" aria-live="polite">{generateBlockedReason || t('cinematic.produce.lockedEstimate')}</p></div>}
           onModelChange={changeModel}
           onAspectRatioChange={() => undefined}
@@ -1846,6 +1910,8 @@ function isBoundCharacterLook(value: unknown, look: CharacterLook) {
 function isProductionReadyBoundLook(value: unknown): value is Record<string, unknown> {
   if (!value || typeof value !== 'object') return false;
   const look = value as Record<string, unknown>;
+  if (look.mode === 'generated_sheet') return Boolean(look.trustedGenerationId && look.contentHash
+    && look.locked === true && Array.isArray(look.assetIds) && look.assetIds.length === 1);
   return look.mode === 'character_look'
     && typeof look.characterLookId === 'string'
     && typeof look.characterLookVersionId === 'string'

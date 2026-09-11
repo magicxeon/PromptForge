@@ -80,6 +80,7 @@ The baseline still does not yet provide:
 | `010-produce-data-lineage-checklist.md` | Data handoff and fingerprint invariants from Storyboard through final export |
 | `011-seedream-seedance-synthetic-character-keyframe-flow.md` | Same-account Seedream provenance, synthetic Character first-frame trust and Seedance 2.x POC recovery |
 | `012-storyboard-and-look-video-references.md` | Dynamic Storyboard + 1..N Look references implemented and locally verified; strict first-frame remains default; live qualification pending |
+| `013-optional-first-frame-and-looks-only.md` | Implemented: no-frame or disabled-frame video from selected Cast sheets and Shot description; conditional Storyboard approval, evidence and live UAT in plan 003i |
 | `implementation-plan/` | Dependency-ordered implementation packages; only one package may be active |
 
 ## 5. Capability Ownership
@@ -101,8 +102,11 @@ a repository or a Credit ledger directly.
 ## 6. Non-Negotiable Rules
 
 1. The approved Storyboard Asset Version is the default immutable first frame.
-2. A video attempt cannot be approved when its Storyboard, Shot, packet or
-   reference fingerprint is stale.
+   Exception 013 permits looks_only without a Storyboard, while retaining
+   existing images/approvals when disabled. Not yet implemented.
+2. A video attempt cannot be approved when an active source, Shot, packet or
+   reference fingerprint is stale. Under 013, disabled Storyboard media
+   is not an active source dependency for looks_only.
 3. `cinematic_draft_clip` and `cinematic_final_clip` describe product and
    billing intent; `image_to_video`, `first_last_frame` and
    `multimodal_reference` describe provider input mode. They are not one field.

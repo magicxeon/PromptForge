@@ -1,5 +1,8 @@
 # Cast: Import An Owned Generated Sheet
 
+Superseded for new selection by [Direct Cast](008-direct-generated-cast-master.md).
+Keep historical imported Looks readable; do not implement this older entry again.
+
 Date: 2026-09-09. Status: implemented; isolated automated and responsive checks
 passed. Live provider UAT remains pending and is not implied by fixture evidence.
 Owner: Character Profiles (Look lifecycle), Generation (trusted source),

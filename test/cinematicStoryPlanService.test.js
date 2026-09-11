@@ -107,6 +107,8 @@ test('Scene Direction AI stays scoped to the selected persisted Scene', async ()
   const planner = service({
     generateCinematicSceneDirection: async ({ context }) => {
       capturedContext = context;
+      assert.equal(context.project.storyCountryStyle, 'none');
+      assert.match(context.project.storyCountryStyleGuidance, /No regional/);
       return ({
       title: 'Platform Choice', purpose: 'Choose', storyChange: 'She leaves', location: 'Station', time: 'Night',
       emotionalStart: 'guarded', emotionalEnd: 'hopeful', transitionIntent: 'end', castAssignmentIds: ['cast_lead'],
@@ -160,11 +162,14 @@ test('Story Plan preflight blocks a conflicting source without dispatching the p
 test('Story Brief source resolution dispatches one film-directed request and returns readiness plus script', async () => {
   let capturedContext = null;
   const conflicted = structuredClone(project);
+  conflicted.setup.storyCountryStyle = 'south-korea';
   conflicted.setup.storyBrief = 'Mira waits alone on the last train station platform.';
   conflicted.setup.creativeDirection = 'Keep the entire story inside a small cafe kitchen.';
   const planner = service({
     async generateCinematicStoryPlan({ context }) {
       capturedContext = context;
+      assert.equal(context.project.storyCountryStyle, 'south-korea');
+      assert.match(context.project.storyCountryStyleGuidance, /Korean drama/);
       return {
         objective: 'Mira chooses to leave the past behind.',
         logline: 'At the last train, Mira chooses a warmer way forward.',
@@ -392,7 +397,9 @@ test('Story Plan repair timeout retains the generated Plan and stops later repai
     async generateCinematicStoryPlan({ timeoutMs }) {
       calls.push(timeoutMs);
       if (calls.length === 1) {
-        return repairPlanResponse({ subjectAction: 'She stands still and breathes softly.' });
+        const response = repairPlanResponse({ subjectAction: 'She stands still and breathes softly.' });
+        response.scenes[0].propContinuity = 'She holds the sign then drops it.';
+        return response;
       }
       const error = new Error('provider timeout');
       error.code = 'cinematic_story_plan_timeout';
@@ -419,7 +426,7 @@ test('Story Plan repair timeout retains the generated Plan and stops later repai
     stage: 'visual_repair',
     timeoutMs: 7_000
   });
-  assert.ok(result.workflow.remainingFindings.some(item => item.code === 'non_visual_action'));
+  assert.ok(result.workflow.remainingFindings.some(item => item.code === 'future_prop_action_leakage'));
 });
 
 function repairPlanResponse({ subjectAction }) {

@@ -71,10 +71,10 @@ export function completeSimpleSceneContract(scene: CinematicScene): CinematicSce
       estimatedActionDurationMs: Number(shot.estimatedActionDurationMs) > 0
         ? shot.estimatedActionDurationMs
         : shot.durationMs,
-      castAssignmentIds: shot.castAssignmentIds.length
+      castAssignmentIds: shot.castMode === 'none' || scene.castMode === 'none' ? [] : shot.castMode === 'selected' || shot.castAssignmentIds.length
         ? shot.castAssignmentIds
         : [...scene.castAssignmentIds],
-      wardrobeLookIds: shot.wardrobeLookIds.length
+      wardrobeLookIds: shot.castMode === 'none' || scene.castMode === 'none' || (shot.castMode === 'selected' && !shot.castAssignmentIds.length) ? [] : shot.wardrobeLookIds.length
         ? shot.wardrobeLookIds
         : [...scene.wardrobeLookIds]
     };

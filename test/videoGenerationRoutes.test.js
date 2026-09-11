@@ -74,7 +74,7 @@ test('trusted source route uses the authenticated actor and forwards only bounde
     videoGenerationService: {
       async listTrustedSources(actor, options) {
         assert.equal(actor.userId, 'usr_alice');
-        assert.deepEqual(options, { cursor: 'next-page', eligibleOnly: true });
+        assert.deepEqual(options, { cursor: 'next-page', eligibleOnly: true, category: 'look-sheet' });
         return { items: [], hasMore: false };
       }
     },
@@ -85,7 +85,7 @@ test('trusted source route uses the authenticated actor and forwards only bounde
   const res = response();
   await routes.handler('/api/generation/video/trusted-sources')({
     actorContext: { userId: 'usr_alice' },
-    query: { cursor: 'next-page', eligibleOnly: 'true', userId: 'usr_bob', limit: 999 }
+    query: { cursor: 'next-page', eligibleOnly: 'true', category: 'look-sheet', userId: 'usr_bob', limit: 999 }
   }, res);
   assert.equal(res.statusCode, 200);
   assert.equal(res.headers['Cache-Control'], 'private, no-store');

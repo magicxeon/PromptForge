@@ -106,7 +106,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
     (maximum, item) => Math.max(
       maximum,
       Object.values(item.context.references || {}).filter(Boolean).length
-        + (item.context.characterProfileContext ? 1 : 0)
+        + (item.context.characterProfileContext ? 1 : 0) + (item.context.cinematicCastReferences?.length || 0)
     ),
     0
   ), [contexts.data]);
@@ -163,7 +163,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
     const references = Object.fromEntries(Object.entries(item.context.references || {})
       .filter((entry): entry is [GenerationReferenceRole, string] => Boolean(entry[1])));
     const requiredReferenceCount = Object.values(references).length
-      + (item.context.characterProfileContext ? 1 : 0);
+      + (item.context.characterProfileContext ? 1 : 0) + (item.context.cinematicCastReferences?.length || 0);
     const modelReason = imageModelUnavailableReason(
       selectedModel,
       requiredReferenceCount,
@@ -189,6 +189,8 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
           : null,
         references,
         characterProfileContext: item.context.characterProfileContext,
+        cinematicCastReferences: item.context.cinematicCastReferences,
+        cinematicContainsPeople: item.context.cinematicContainsPeople,
         characterReferenceOutfitBehavior: references.outfit_front ? 'replaceable' : 'preserve',
         authoringMode: 'manual'
       }

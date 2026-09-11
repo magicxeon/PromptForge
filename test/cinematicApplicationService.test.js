@@ -62,6 +62,17 @@ const setup = {
   endingIntent: 'resolved', mode: 'simple'
 };
 
+test('country style survives project save/reload without rewriting the supplied story', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject({ ...setup, storyCountryStyle: 'japan' }, alice);
+  assert.equal((await service.getProject(project.id, alice)).setup.storyCountryStyle, 'japan');
+  const updated = await service.updateSetup(project.id, { ...setup, storyCountryStyle: 'thailand', expectedVersion: project.version }, alice);
+  assert.equal(updated.setup.storyCountryStyle, 'thailand');
+  assert.equal(updated.setup.storyBrief, setup.storyBrief);
+  assert.throws(() => service.updateSetup(project.id, { ...setup, storyCountryStyle: 'invalid', expectedVersion: updated.version }, alice), { code: 'cinematic_story_intent_invalid' });
+});
+
 test('CinematicApplicationService creates, updates and archives a Project with optimistic versioning', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));

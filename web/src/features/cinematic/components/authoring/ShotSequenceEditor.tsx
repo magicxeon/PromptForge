@@ -43,10 +43,21 @@ export function ShotSequenceEditor({
         </div>
       </div>
       <div className="cinematic-director-shot-contract">
+        <label><span>{t('cinematic.director.castCoverage')}</span><select value={shot.castMode || 'inherit'} onChange={event => onUpdateShot(shot.id, 'castMode', event.target.value as CinematicShot['castMode'])}>
+          <option value="inherit">{t('cinematic.director.castInherit')}</option>
+          <option value="none">{t('cinematic.director.castNone')}</option>
+          <option value="selected">{t('cinematic.director.castSelected')}</option>
+        </select></label>
+        {shot.castMode === 'selected' ? <fieldset className="cinematic-director-grid__wide cinematic-shot-cast-choices"><legend>{t('cinematic.director.castSelected')}</legend>
+          {castAssignments.filter(assignment => scene.castAssignmentIds.includes(assignment.id)).map(assignment => <label key={assignment.id}>
+            <input type="checkbox" checked={shot.castAssignmentIds.includes(assignment.id)} onChange={event => onUpdateShot(shot.id, 'castAssignmentIds', event.target.checked ? [...shot.castAssignmentIds, assignment.id] : shot.castAssignmentIds.filter(id => id !== assignment.id))} />
+            <span>{assignment.displayName}</span>
+          </label>)}
+        </fieldset> : null}
         <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.visibleMoment')}</span><textarea rows={2} value={shot.visibleMoment || ''} onChange={event => onUpdateShot(shot.id, 'visibleMoment', event.target.value)} /></label>
         <label><span>{t('cinematic.director.subjectAction')}</span><textarea rows={2} value={shot.subjectAction || ''} onChange={event => onUpdateShot(shot.id, 'subjectAction', event.target.value)} /></label>
         <label><span>{t('cinematic.director.emotionalTarget')}</span><textarea rows={2} value={shot.emotionalTarget || ''} onChange={event => onUpdateShot(shot.id, 'emotionalTarget', event.target.value)} /></label>
-        {visible('shot.performanceCue') ? <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.performanceCue')}</span><textarea rows={2} value={shot.performanceCue || ''} onChange={event => onUpdateShot(shot.id, 'performanceCue', event.target.value)} /></label> : null}
+        {shot.castMode !== 'none' && scene.castMode !== 'none' && visible('shot.performanceCue') ? <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.performanceCue')}</span><textarea rows={2} value={shot.performanceCue || ''} onChange={event => onUpdateShot(shot.id, 'performanceCue', event.target.value)} /></label> : null}
         {visible('shot.continuityEntry') ? <label><span>{t('cinematic.director.continuityEntry')}</span><textarea rows={2} value={shot.continuityEntry || ''} onChange={event => onUpdateShot(shot.id, 'continuityEntry', event.target.value)} /></label> : null}
         {visible('shot.continuityExit') ? <label><span>{t('cinematic.director.continuityExit')}</span><textarea rows={2} value={shot.continuityExit || ''} onChange={event => onUpdateShot(shot.id, 'continuityExit', event.target.value)} /></label> : null}
         {visible('shot.transitionToNext') ? <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.transitionToNext')}</span><input value={shot.transitionToNext || ''} onChange={event => onUpdateShot(shot.id, 'transitionToNext', event.target.value)} /></label> : null}
@@ -54,6 +65,7 @@ export function ShotSequenceEditor({
       {mode === 'advanced' ? <details className="cinematic-director-shot-advanced">
         <summary>{t('cinematic.director.shotAdvanced')}</summary>
         <div className="cinematic-director-shot-contract">
+          {(['framing', 'cameraAngle', 'lensIntent', 'cameraMovement', 'lighting', 'environment'] as const).map(field => <label key={field}><span>{t(`cinematic.director.${field === 'lighting' ? 'shotLighting' : field}`)}</span><textarea rows={2} value={shot[field] || ''} onChange={event => onUpdateShot(shot.id, field, event.target.value)} /></label>)}
           <label><span>{t('cinematic.director.coverageRole')}</span><select value={shot.coverageRole || (index === 0 ? 'establishing' : 'action')} onChange={event => onUpdateShot(shot.id, 'coverageRole', event.target.value as NonNullable<CinematicShot['coverageRole']>)}>
             {(['establishing', 'action', 'reaction', 'insert', 'transition', 'payoff'] as const).map(role => <option key={role} value={role}>{t(`cinematic.director.coverageRole.${role}`)}</option>)}
           </select></label>

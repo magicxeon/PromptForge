@@ -1,3 +1,5 @@
+import { resolveShotCastIds } from './CinematicCastCoverage.js';
+
 export class CinematicSimpleAuthoringService {
   completeStoryPlanInput(input = {}) {
     const completions = [];
@@ -45,11 +47,12 @@ function completeScene(value, sceneIndex, completions) {
       shot.estimatedActionDurationMs = Number(shot.durationMs) || 0;
       completions.push(shotCompletion(scene, sceneIndex, shot, index, 'estimatedActionDurationMs'));
     }
-    if (!Array.isArray(shot.castAssignmentIds) || !shot.castAssignmentIds.length) {
+    if (!shot.castMode && (!Array.isArray(shot.castAssignmentIds) || !shot.castAssignmentIds.length)) {
       shot.castAssignmentIds = [...(scene.castAssignmentIds || [])];
       completions.push(shotCompletion(scene, sceneIndex, shot, index, 'castAssignmentIds', 'inherited'));
     }
-    if (!Array.isArray(shot.wardrobeLookIds) || !shot.wardrobeLookIds.length) {
+    if (!resolveShotCastIds(scene, shot).length) shot.wardrobeLookIds = [];
+    else if (!Array.isArray(shot.wardrobeLookIds) || !shot.wardrobeLookIds.length) {
       shot.wardrobeLookIds = [...(scene.wardrobeLookIds || [])];
       completions.push(shotCompletion(scene, sceneIndex, shot, index, 'wardrobeLookIds', 'inherited'));
     }

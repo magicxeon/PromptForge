@@ -13,7 +13,8 @@ const api = vi.hoisted(() => ({
   quoteCinematicVideoAttempt: vi.fn(),
   createCinematicVideoAttempt: vi.fn(),
   approveCinematicVideoAttempt: vi.fn(),
-  updateCinematicShotMotionDirection: vi.fn()
+  updateCinematicShotMotionDirection: vi.fn(),
+  updateCinematicShotVideoReferences: vi.fn()
 }));
 const generationApi = vi.hoisted(() => ({ getVideoTask: vi.fn() }));
 
@@ -40,6 +41,7 @@ describe('Cinematic Produce runtime workspace', () => {
       lng: 'en', keySeparator: false, interpolation: { prefix: '{', suffix: '}' },
       resources: { en: { cinematic: {
         'cinematic.produce.providerErrorCode': 'Error: {code}',
+        'cinematic.produce.sourceCheckModel': 'Selected Video model: {model}',
         'cinematic.produce.providerRequestId': 'Provider request ID: {id}'
       }, playground: {}, 'react-ui': {} } }
     });
@@ -65,6 +67,13 @@ describe('Cinematic Produce runtime workspace', () => {
       }]
     });
     api.getCinematicProduceContext.mockResolvedValue(produceContext());
+    api.updateCinematicShotVideoReferences.mockImplementation(async (_project, _scene, _shot, input) => {
+      const updated = projectFixture();
+      updated.version = input.expectedVersion + 1;
+      updated.scenes[0]!.shots[0]!.videoReferenceMode = input.referenceMode;
+      updated.scenes[0]!.shots[0]!.lastFirstFrameMode = input.referenceMode === 'looks_only' ? 'storyboard_and_looks' : input.referenceMode;
+      return updated;
+    });
     api.quoteCinematicVideoAttempt.mockResolvedValue({
       estimate: { estimateId: 'estimate-1', estimatedCredits: 24, expiresAt: new Date(Date.now() + 60_000).toISOString(), breakdown: {} },
       account: { availableCredits: 100, canAfford: true },
@@ -94,7 +103,7 @@ describe('Cinematic Produce runtime workspace', () => {
       expect(document.querySelector('.cinematic-produce-render-panel .engine-target-panel--compact')).toBeInTheDocument();
     });
     await waitFor(() => expect(api.quoteCinematicVideoAttempt).toHaveBeenCalledTimes(1));
-    expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
   });
 
   it('requotes an explicit multi-reference selection and displays the exact mapped provider prompt', async () => {
@@ -148,6 +157,52 @@ describe('Cinematic Produce runtime workspace', () => {
     expect(onOpenStage).toHaveBeenCalledWith('storyboard');
   });
 
+  it('turns First Frame off without deleting its preview, requotes and restores the saved on-mode', async () => {
+    const catalog = await api.getCinematicVideoCapabilityCatalog();
+    catalog.models[0].supportsCinematicLookReferences = true;
+    catalog.models[0].inputModes.push('multimodal_reference');
+    api.getCinematicVideoCapabilityCatalog.mockResolvedValue(catalog);
+    const project = projectFixture();
+    project.scenes[0]!.shots[0]!.videoReferenceMode = 'storyboard_and_looks';
+    renderRuntime(project);
+    const toggle = await screen.findByRole('switch', { name: 'cinematic.produce.references.useFirstFrame' });
+    fireEvent.click(toggle);
+    await waitFor(() => expect(api.updateCinematicShotVideoReferences).toHaveBeenCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'looks_only' })));
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'false'));
+    await waitFor(() => expect(api.quoteCinematicVideoAttempt).toHaveBeenLastCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'looks_only', sourceFingerprint: null })));
+    expect(screen.getByRole('img', { name: 'cinematic.produce.approvedKeyframe' })).toHaveAttribute('src', '/source-1.jpg');
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+    fireEvent.click(toggle);
+    await waitFor(() => expect(api.updateCinematicShotVideoReferences).toHaveBeenLastCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'storyboard_and_looks' })));
+  });
+
+  it('proposes sheets-only for an unconfigured no-frame Shot on a compatible model without auto-generating', async () => {
+    const catalog = await api.getCinematicVideoCapabilityCatalog();
+    catalog.models[0].supportsCinematicLookReferences = true;
+    catalog.models[0].inputModes.push('multimodal_reference');
+    api.getCinematicVideoCapabilityCatalog.mockResolvedValue(catalog);
+    const project = projectFixture();
+    delete project.scenes[0]!.shots[0]!.approvedStoryboardSource;
+    api.getCinematicProduceContext.mockResolvedValue({ ...produceContext(), approvedStoryboardSource: null, referenceMode: 'looks_only' });
+    renderRuntime(project);
+    await waitFor(() => expect(api.quoteCinematicVideoAttempt).toHaveBeenLastCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'looks_only', sourceFingerprint: null })));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+    expect(api.updateCinematicShotVideoReferences).not.toHaveBeenCalled();
+  });
+
+  it('keeps stored First Frame off on an unsupported model and blocks rather than silently switching', async () => {
+    const project = projectFixture();
+    project.scenes[0]!.shots[0]!.videoReferenceMode = 'looks_only';
+    renderRuntime(project);
+    const toggle = await screen.findByRole('switch', { name: 'cinematic.produce.references.useFirstFrame' });
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getAllByText('cinematic.produce.references.unsupported')[0]).toBeVisible();
+    expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeDisabled();
+    expect(api.quoteCinematicVideoAttempt).not.toHaveBeenCalled();
+    expect(api.updateCinematicShotVideoReferences).not.toHaveBeenCalled();
+  });
+
   it('enables Generate for a Character shot with a currently compatible Seedream source', async () => {
     const context = produceContext();
     (context.videoPacket.authority.characters as unknown[]).push({ assignmentId: 'cast-1' });
@@ -168,8 +223,49 @@ describe('Cinematic Produce runtime workspace', () => {
     renderRuntime();
 
     await waitFor(() => expect(api.quoteCinematicVideoAttempt).toHaveBeenCalledTimes(1));
-    expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
     expect(screen.queryByText('cinematic.produce.portraitAuthorizationTitle')).not.toBeInTheDocument();
+  });
+
+  it('distinguishes model portrait authorization and preserves the approved frame without offering regeneration', async () => {
+    const catalog = await api.getCinematicVideoCapabilityCatalog();
+    catalog.models.push({ ...catalog.models[0], modelId: 'compatible-seedance', displayName: 'Compatible Seedance' });
+    api.getCinematicVideoCapabilityCatalog.mockResolvedValue(catalog);
+    const goodQuote = await api.quoteCinematicVideoAttempt();
+    api.quoteCinematicVideoAttempt.mockClear();
+    api.quoteCinematicVideoAttempt.mockRejectedValue(new ApiError({ status: 409,
+      code: 'video_provider_portrait_authorization_required', message: 'The selected model requires an authorized portrait Asset.' }));
+    const onOpenStage = vi.fn();
+    renderRuntime(projectFixture(), onOpenStage);
+    const title = await screen.findByText('cinematic.produce.modelAuthorizationTitle');
+    const alert = title.closest('[role="alert"]')!;
+    expect(within(alert as HTMLElement).getByText('The selected model requires an authorized portrait Asset.')).toBeVisible();
+    expect(within(alert as HTMLElement).getByText('Error: video_provider_portrait_authorization_required')).toBeVisible();
+    expect(within(alert as HTMLElement).getByText('Selected Video model: Seedance Test')).toBeVisible();
+    expect(screen.queryByText('cinematic.produce.portraitAuthorizationTitle')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'cinematic.produce.seedreamRecovery' })).not.toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'cinematic.produce.approvedKeyframe' })).toHaveAttribute('src', '/source-1.jpg');
+    expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeDisabled();
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+    expect(onOpenStage).not.toHaveBeenCalled();
+    api.quoteCinematicVideoAttempt.mockResolvedValue(goodQuote);
+    fireEvent.change(screen.getByRole('combobox', { name: 'playground.engine.model' }), { target: { value: 'modelark:compatible-seedance' } });
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
+    expect(screen.queryByText('cinematic.produce.modelAuthorizationTitle')).not.toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'cinematic.produce.approvedKeyframe' })).toHaveAttribute('src', '/source-1.jpg');
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
+  it('shows a trusted-source failure beside the approved preview without submitting work', async () => {
+    api.quoteCinematicVideoAttempt.mockRejectedValue(new ApiError({ status: 409,
+      code: 'video_trusted_source_unavailable', message: 'Trusted reference unavailable: expired' }));
+    renderRuntime();
+    const title = await screen.findByText('cinematic.produce.portraitAuthorizationTitle');
+    const alert = title.closest('[role="alert"]')!;
+    expect(within(alert as HTMLElement).getByText('Trusted reference unavailable: expired')).toBeVisible();
+    expect(within(alert as HTMLElement).getByText('Error: video_trusted_source_unavailable')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeDisabled();
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
   });
 
   it('shows progress as soon as the video submit request starts', async () => {
@@ -261,7 +357,7 @@ describe('Cinematic Produce runtime workspace', () => {
     api.quoteCinematicVideoAttempt.mockImplementation(() => new Promise((_resolve, reject) => { rejectQuote = reject; }));
     act(() => { void queryClient.invalidateQueries({ queryKey: ['cinematic-video-quote'] }); });
     await waitFor(() => expect(button).toBeDisabled());
-    expect(screen.getByText('cinematic.produce.preparingQuote')).toBeVisible();
+    expect(screen.getAllByText('cinematic.produce.preparingQuote')[0]).toBeVisible();
     act(() => rejectQuote(new Error('The provider quote is unavailable.')));
     expect((await screen.findAllByText('The provider quote is unavailable.'))[0]).toBeVisible();
     expect(button).toBeDisabled();
@@ -398,7 +494,7 @@ describe('Cinematic Produce runtime workspace', () => {
     renderRuntime(project);
 
     await waitFor(() => expect(api.quoteCinematicVideoAttempt).toHaveBeenCalled());
-    expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
     expect(screen.queryByText('cinematic.produce.generating')).not.toBeInTheDocument();
   });
 });

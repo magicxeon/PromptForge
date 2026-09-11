@@ -1,6 +1,9 @@
 # Image 2.5 Measured Cost And Retail Activation
 
-Date: 2026-09-09. Status: implemented; scoped checks passed. Unmeasured coverage remains gated.
+Date: 2026-09-09. Status: implemented; scoped checks passed.
+2026-09-10: [Provisional estimation](008-openai-image25-provisional-estimation.md)
+supersedes only the unmeasured-coverage gate below. Historical measured evidence,
+fixed quote consent and actual-cost capture remain authoritative.
 Primary: Commercial Financial Integrity. Sequential reviewers: Backend and QA;
 review independence is limited. Skills: review-commercial-integrity,
 implement-generation-workflow, verify-release-regressions, openai-docs.
@@ -28,7 +31,8 @@ History confirms 768x1024. Persisted locked estimates confirm 1K, 6:8,
 quality null (adapter defaults to auto), one output; edit cases each had TWO
 effective references, not one. No prompts, actors or private URLs in fixtures.
 Equivalent 3:4 is covered. Other ratios/resolutions/explicit qualities and
-more than two references remain unpriced, not guessed from Image 2 rates.
+more than two references were unpriced in this delivery; 008 now estimates them
+from these 2.5 baselines using explicit assumptions, not Image 2 rates.
 One-reference quotes use the measured two-reference edit price conservatively;
 this is a retail bucket, not a claim of identical token consumption.
 

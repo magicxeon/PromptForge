@@ -48,7 +48,13 @@ export class ReferenceProcessingService {
       }
       let processed = processedByValue.get(input.value);
       if (!processed) {
-        processed = await this.processorRegistry.process(input, {
+        const castIndex = /^cinematic_cast_(\d+)$/.exec(input.slotId);
+        // Approved Cast sheets keep original bytes; Generation already resolved their ownership and hash.
+        processed = castIndex ? {
+          sourceAssetId: null, derivativeAssetId: null, imageUrl: input.value,
+          contentFingerprint: context.cinematicCastReferences[Number(castIndex[1])].contentHash,
+          processorIds: [], processorVersions: {}, fallback: false
+        } : await this.processorRegistry.process(input, {
           actorContext,
           policyVersion: this.policyRegistry.getPolicyVersion()
         });
@@ -99,6 +105,11 @@ export class ReferenceProcessingService {
       context
     );
     const ordered = dispatch.references;
+    const castCount = context.cinematicCastReferences?.length || 0;
+    if (castCount && (!Number.isFinite(modelConfig?.capabilities?.maxReferenceImages)
+      || context.cinematicCastReferences.some((_, index) => !ordered.some(row => row.slots.includes(`cinematic_cast_${index}`))))) {
+      throw new ReferenceProcessingError('reference_capacity_exceeded', 'This model cannot preserve every Cast reference.', 400);
+    }
     const configuredMaxReferences = modelConfig?.capabilities?.maxReferenceImages;
     const maxReferences = configuredMaxReferences === undefined
       || configuredMaxReferences === null
@@ -134,7 +145,8 @@ export class ReferenceProcessingService {
         processedValue: reference.processedValue,
         scope: reference.detectedScope
       })),
-      authorityFingerprint: authority.fingerprint
+      authorityFingerprint: authority.fingerprint,
+      ...(castCount ? { castBindings: context.cinematicCastReferences.map(({ referenceValue, ...binding }) => binding) } : {})
     });
     const result = {
       schemaVersion: REFERENCE_PROCESSING_SCHEMA_VERSION,
@@ -190,7 +202,11 @@ export class ReferenceProcessingService {
     context.referenceProcessingLineage = publicPlanLineage(result);
     context.referenceRoleManifest = ordered.map((reference, index) => ({
       index: index + 1,
-      roles: [...reference.roles]
+      roles: [...reference.roles],
+      ...(context.cinematicCastReferences?.length ? { castNames: reference.slots.flatMap(slot => {
+        const match = /^cinematic_cast_(\d+)$/.exec(slot);
+        return match ? [context.cinematicCastReferences[Number(match[1])].displayName] : [];
+      }) } : {})
     }));
     return result;
   }

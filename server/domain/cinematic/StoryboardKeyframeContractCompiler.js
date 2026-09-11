@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { resolveShotCastIds, resolveShotLookIds } from './CinematicCastCoverage.js';
 import { cinematicKeyframeConfigurationService } from './CinematicKeyframeConfigurationService.js';
 
 const SECTION_LABELS = Object.freeze({
@@ -54,13 +55,18 @@ export class StoryboardKeyframeContractCompiler {
         sceneEntryState: compactText(scene.entryState),
         sceneExitState: compactText(scene.exitState),
         exactVisibleMoment: compactText(shot.visibleMoment),
-        primaryPhysicalAction: compactText(shot.subjectAction),
+        primaryPhysicalAction: compactText(shot.openingFrameVersion === 1 ? shot.continuityEntry : shot.subjectAction),
+        ...(shot.openingFrameVersion === 1 ? { openingFrameVersion: 1 } : {}),
         coverageRole
       },
       characterAuthority: cast.map(assignment => ({
         assignmentId: assignment.id,
         characterProfileId: assignment.characterProfileId || null,
         characterProfileVersionId: assignment.characterProfileVersionId || null,
+        sourceType: assignment.sourceType || 'character',
+        generatedSheet: assignment.generatedSheet ? {
+          generationId: assignment.generatedSheet.generationId, contentHash: assignment.generatedSheet.contentHash
+        } : null,
         displayName: compactText(assignment.displayName),
         storyRole: compactText(assignment.storyRole),
         identityReady: assignment.identityReady === true
@@ -91,6 +97,7 @@ export class StoryboardKeyframeContractCompiler {
         gaze: compactText(shot.gaze)
       },
       lightingEnvironment: {
+        ...(scene.artDirection ? { artDirection: compactText(scene.artDirection) } : {}),
         location: compactText(scene.location),
         time: compactText(scene.time),
         lighting: compactText(shot.lighting || scene.lighting),
@@ -181,6 +188,7 @@ function buildVisualSpec(contract) {
       gaze: contract.performance.gaze
     },
     environment: {
+      ...(contract.lightingEnvironment.artDirection ? { artDirection: contract.lightingEnvironment.artDirection } : {}),
       location: contract.lightingEnvironment.location,
       time: contract.lightingEnvironment.time,
       requiredElements: uniqueText([contract.lightingEnvironment.environment]),
@@ -217,9 +225,11 @@ function buildPromptSections(contract) {
   ].filter(Boolean).join(', '));
   return {
     keyframeMoment: sentences([
-      `${capitalize(spec.moment.coverageRole)} keyframe.`,
+      contract.currentState.openingFrameVersion === 1
+        ? 'Time zero: the actual opening frame before the Shot action develops. Do not show the climax or end state.'
+        : `${capitalize(spec.moment.coverageRole)} keyframe.`,
       labeledSentence('Exact moment', spec.moment.description),
-      labeledSentence('One visible action', spec.moment.action)
+      labeledSentence(contract.currentState.openingFrameVersion === 1 ? 'Opening state' : 'One visible action', spec.moment.action)
     ]),
     subjectAuthority: sentences([
       names.length ? `Characters: ${names.join('; ')}.` : 'Environment-only Shot; do not add a person.',
@@ -234,15 +244,16 @@ function buildPromptSections(contract) {
       labeledSentence('Placement', spec.composition.blocking),
       labeledSentence('Screen direction', spec.composition.screenDirection)
     ]),
-    performance: sentences([
+    performance: spec.subject.characters.length ? sentences([
       spec.performance.emotion
         ? `${labeledSentence('Visible emotion', spec.performance.emotion)} Show only this state.`
         : '',
       labeledSentence('Expression and posture', spec.performance.expressionAndPosture),
       labeledSentence('Observable cue', spec.performance.observableCue),
       labeledSentence('Gaze', spec.performance.gaze)
-    ]),
+    ]) : '',
     lightingEnvironment: sentences([
+      labeledSentence('Art direction', spec.environment.artDirection),
       spec.environment.location || spec.environment.time
         ? labeledSentence('Setting', [spec.environment.location, spec.environment.time].filter(Boolean).join(', '))
         : '',
@@ -282,11 +293,11 @@ function compileFindings({ scene, shot, cast, looks, emotionalTarget, shotPositi
     if (!compactText(shot[field])) findings.push(finding('blocking', 'missing_shot_authority', `shot.${field}`));
   }
   if (!emotionalTarget) findings.push(finding('blocking', 'missing_shot_authority', 'shot.emotionalTarget'));
-  const selectedCastIds = new Set(shot.castAssignmentIds?.length ? shot.castAssignmentIds : scene.castAssignmentIds || []);
+  const selectedCastIds = new Set(resolveShotCastIds(scene, shot));
   if (cast.length !== selectedCastIds.size) findings.push(finding('blocking', 'cast_authority_missing', 'shot.castAssignmentIds'));
   if (cast.some(item => item.identityReady !== true)) findings.push(finding('blocking', 'character_identity_not_ready', 'cast.characterProfileVersionId'));
   if (looks.some(item => item.locked !== true)) findings.push(finding('blocking', 'look_authority_not_ready', 'scene.wardrobeLookIds'));
-  if (containsMultipleActions(shot.subjectAction)) findings.push(finding('warning', 'multiple_visible_actions', 'shot.subjectAction'));
+  if (shot.openingFrameVersion !== 1 && containsMultipleActions(shot.subjectAction)) findings.push(finding('warning', 'multiple_visible_actions', 'shot.subjectAction'));
   if (containsMultipleActions(shot.performanceCue)) findings.push(finding('warning', 'multiple_visible_performance_cues', 'shot.performanceCue'));
   if (shotPosition === 'first' && ['action', 'transition', 'payoff'].includes(coverageRole)) {
     findings.push(finding('warning', 'first_shot_non_establishing', 'shot.coverageRole'));
@@ -310,7 +321,7 @@ function resolvePlan(project, sceneId) {
 }
 
 function resolveCast(project, scene, shot) {
-  const ids = shot.castAssignmentIds?.length ? shot.castAssignmentIds : scene.castAssignmentIds || [];
+  const ids = resolveShotCastIds(scene, shot);
   return ids.flatMap(id => {
     const assignment = project.castAssignments?.find(item => item.id === id && item.active !== false);
     return assignment ? [assignment] : [];
@@ -318,7 +329,7 @@ function resolveCast(project, scene, shot) {
 }
 
 function resolveLooks(assignments, scene, shot) {
-  const selectedIds = new Set(shot.wardrobeLookIds?.length ? shot.wardrobeLookIds : scene.wardrobeLookIds || []);
+  const selectedIds = new Set(resolveShotLookIds(scene, shot));
   return assignments.flatMap(assignment => (assignment.looks || []).flatMap(look => (
     look && selectedIds.has(look.id) ? [{ ...look, assignmentId: assignment.id }] : []
   )));
@@ -344,6 +355,7 @@ function resolveEmotionalTarget(scene, shot, position) {
 }
 
 function resolveStillFramePosition(shot, position, policy) {
+  if (shot.openingFrameVersion === 1) return 'time-zero opening frame';
   const authored = compactText(shot.stillFramePosition);
   return authored || policy.stillFramePositions[position] || policy.stillFramePositions.middle;
 }

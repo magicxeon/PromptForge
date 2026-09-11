@@ -3,16 +3,35 @@ import test from 'node:test';
 import { VideoGenerationApplicationService } from '../server/domain/generation/VideoGenerationApplicationService.js';
 import { VideoCapabilityRegistry } from '../server/domain/generation/VideoCapabilityRegistry.js';
 import { createStoryboardSourceFingerprint } from '../server/domain/assets/CinematicStoryboardAssetService.js';
+import { generatedCastSourceFingerprint } from '../server/domain/generation/TrustedGeneratedSourceService.js';
 
 const actor = { userId: 'usr_video', username: 'video_user', role: 'user' };
 const TEST_MODELARK_SCOPE = 'modelark:ark.test:account:video-test';
 
+function trustedBoardFixture(asset, resolve = async () => 'https://provider.example/original.png') {
+  return {
+    async describeOwnedImage(id, owner) {
+      assert.equal(id, asset.sourceJobId);
+      assert.equal(owner.userId, actor.userId);
+      return { id, contentHash: asset.metadata.contentHash, publicUrl: asset.publicUrl };
+    },
+    async resolveOwnedImage(id, owner, hash) {
+      assert.equal(id, asset.sourceJobId);
+      assert.equal(owner.userId, actor.userId);
+      assert.equal(hash, asset.metadata.contentHash);
+      return resolve();
+    },
+    async recordRejection() {}
+  };
+}
 
-for (const imported of [false, true]) test(`Cinematic multimodal quote binds every Look and dispatches URL references once (imported=${imported})`, async () => {
+
+for (const looksOnly of [false, true]) for (const imported of [false, true, 'direct_cast']) test(`Cinematic multimodal quote binds every Look and dispatches URL references once (imported=${imported}, looksOnly=${looksOnly})`, async () => {
+  const direct = imported === 'direct_cast';
   const board = compatibleSeedreamAsset();
   const look = { id: 'look_sheet', ownerUserId: actor.userId, assetType: 'character_look_sheet',
     publicUrl: '/outputs/look.png', mimeType: 'image/png', width: 1024, height: 1024, sizeBytes: 1000,
-    contentHash: 'look_hash', metadata: {} };
+    contentHash: 'look_hash', metadata: direct ? { trustedGenerationId: 'original_sheet' } : {} };
   let revoked = false;
   let urlFailure = false;
   let dispatched;
@@ -21,16 +40,32 @@ for (const imported of [false, true]) test(`Cinematic multimodal quote binds eve
   const calls = [];
   const service = new VideoGenerationApplicationService({
     capabilityRegistry: new VideoCapabilityRegistry({ runtimeEnvironment: 'development', developmentPocEnabled: true }),
-    assetRepository: { async findByIdForOwner(id, owner) { return owner === actor.userId ? [board, look].find(item => item.id === id) : null; } },
+    assetRepository: { async findByIdForOwner(id, owner) {
+      if (looksOnly) assert.notEqual(id, board.id, 'Disabled Storyboard must never be read');
+      return owner === actor.userId ? [board, look].find(item => item.id === id) : null;
+    } },
     storyboardAssetContentVerifier: async asset => ({ contentHash: asset.metadata.contentHash }),
     modelArkCredentialScopeResolver: () => TEST_MODELARK_SCOPE,
     lookService: { async resolveApprovedSheetReference(profile, id, version, owner) {
+      assert.equal(direct, false, 'Direct Cast must not resolve a Character Look');
       assert.equal(profile, 'character'); assert.equal(version, 'look_version'); assert.equal(owner.userId, actor.userId);
       if (revoked) throw Object.assign(new Error('Look revoked'), { code: 'look_revoked' });
       return { asset: look, sourceFingerprint: 'look_fingerprint', ...(imported ? { trustedGenerationId: 'original_sheet' } : {}) };
     } },
     trustedSourceService: {
+      async describeOwnedImage(id, owner) {
+        assert.equal(owner.userId, actor.userId);
+        if (id === board.sourceJobId) return { id, contentHash: board.metadata.contentHash, publicUrl: board.publicUrl };
+        if (revoked) throw Object.assign(new Error('Look revoked'), { code: 'look_revoked' });
+        return { id, contentHash: look.contentHash, publicUrl: look.publicUrl,
+          providerOutputProvenance: board.metadata.providerOutputProvenance };
+      },
       async resolveOwnedImage(id, owner, hash) {
+        if (id === board.sourceJobId) {
+          assert.equal(hash, board.metadata.contentHash);
+          calls.push(`resolve:${board.id}`);
+          return `https://example.com/${board.id}.png`;
+        }
         assert.equal(id, 'original_sheet'); assert.equal(owner.userId, actor.userId); assert.equal(hash, look.contentHash);
         if (urlFailure) throw Object.assign(new Error('Trusted URL unavailable'), { code: 'video_trusted_source_unavailable' });
         calls.push('resolve:original_sheet');
@@ -51,7 +86,7 @@ for (const imported of [false, true]) test(`Cinematic multimodal quote binds eve
     },
     taskRepository: repositoryStub(new Map()),
     providerTaskService: { async preflightTask(value) {
-      if (value.referenceImages?.length) { assert.equal(value.referenceImage, null); assert.equal(value.referenceImages.length, 2); calls.push('preflight-resolved'); }
+      if (value.referenceImages?.length) { assert.equal(value.referenceImage, null); assert.equal(value.referenceImages.length, looksOnly ? 1 : 2); calls.push('preflight-resolved'); }
     }, async submitTask(value) { dispatched = value; calls.push('dispatch'); return { id: value.id, ownerUserId: actor.userId, status: 'provider_queued' }; } },
     testingEnabled: true
   });
@@ -66,7 +101,20 @@ for (const imported of [false, true]) test(`Cinematic multimodal quote binds eve
         ...(imported ? { trustedGenerationId: 'original_sheet' } : {}),
         contentHash: look.contentHash, sourceFingerprint: 'look_fingerprint', referenceImageUrl: look.publicUrl }
     ] };
+  if (direct) {
+    Object.assign(request.references[1], { purpose: 'generated_look', castAssignmentId: 'cast1', characterName: 'Mira',
+      sourceFingerprint: generatedCastSourceFingerprint('original_sheet', look.contentHash) });
+    delete request.references[1].characterProfileId;
+    delete request.references[1].characterLookId;
+    delete request.references[1].characterLookVersionId;
+  }
+  if (looksOnly) request.references.shift();
   const workflow = { capability: 'cinematic', generationMode: 'cinematic_video', projectId: 'project', sceneId: 'scene', shotId: 'shot' };
+  if (!imported) {
+    await assert.rejects(service.quote(request, actor, workflow), { code: 'video_provider_synthetic_character_source_required' });
+    assert.deepEqual(calls, [], 'Untrusted sheets never reserve or dispatch');
+    return;
+  }
   const quote = await service.quote(request, actor, workflow);
   const submission = { ...request, estimateId: 'multi_quote', requestFingerprint: quote.requestFingerprint, idempotencyKey: 'multi-look-reference' };
   revoked = true;
@@ -79,7 +127,7 @@ for (const imported of [false, true]) test(`Cinematic multimodal quote binds eve
   look.contentHash = 'look_hash';
   if (imported) {
     const forged = structuredClone(request);
-    forged.references[1].trustedGenerationId = 'other_sheet';
+    forged.references.at(-1).trustedGenerationId = 'other_sheet';
     await assert.rejects(service.quote(forged, actor, workflow), { code: 'cinematic_video_reference_content_changed' });
     urlFailure = true;
     await assert.rejects(service.submit(submission, actor, workflow), { code: 'video_trusted_source_unavailable' });
@@ -90,14 +138,14 @@ for (const imported of [false, true]) test(`Cinematic multimodal quote binds eve
   }
   await service.submit(submission, actor, workflow);
   assert.equal(dispatched.referenceImage, null);
-  assert.deepEqual(dispatched.referenceImages.map(item => item.url), [`https://example.com/${board.id}.png`,
+  assert.deepEqual(dispatched.referenceImages.map(item => item.url), [...(looksOnly ? [] : [`https://example.com/${board.id}.png`]),
     imported ? 'https://provider.bytepluses.com/original.png' : 'https://example.com/look_sheet.png']);
-  assert.equal(estimated.referenceImageCount, 2);
-  assert.equal(reserved.referenceCount, 2);
+  assert.equal(estimated.referenceImageCount, looksOnly ? 1 : 2);
+  assert.equal(reserved.referenceCount, looksOnly ? 1 : 2);
   assert.equal(reserved.referencePlanFingerprint, estimated.referencePlanFingerprint);
   assert.equal(dispatched.referenceAuthorityFingerprint, quote.selection.referenceAuthorityFingerprint);
-  assert.equal(dispatched.referenceTransports.length, 2);
-  assert.deepEqual(calls, [`resolve:${board.id}`, imported ? 'resolve:original_sheet' : 'resolve:look_sheet', 'preflight-resolved', 'reserve', 'dispatch']);
+  assert.equal(dispatched.referenceTransports.length, looksOnly ? 1 : 2);
+  assert.deepEqual(calls, [...(looksOnly ? [] : [`resolve:${board.id}`]), imported ? 'resolve:original_sheet' : 'resolve:look_sheet', 'preflight-resolved', 'reserve', 'dispatch']);
 });
 const input = {
   providerId: 'gemini', modelId: 'veo-3.1-lite-generate-preview', operation: 'text_to_video',
@@ -168,6 +216,7 @@ test('Cinematic Seedance quote accepts an owner-scoped compatible Seedream first
   let estimates = 0;
   const asset = compatibleSeedreamAsset();
   const service = new VideoGenerationApplicationService({
+    trustedSourceService: trustedBoardFixture(asset),
     capabilityRegistry: new VideoCapabilityRegistry({
       runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
     }),
@@ -248,6 +297,7 @@ test('Cinematic Seedance 2.5 dispatches the approved Pro frame URL without Asset
   const calls = [];
   let dispatched = null;
   const service = new VideoGenerationApplicationService({
+    trustedSourceService: trustedBoardFixture(asset, async () => { calls.push('resolve-original'); return originalUrl; }),
     capabilityRegistry: new VideoCapabilityRegistry({
       runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
     }),
@@ -316,7 +366,7 @@ test('Cinematic Seedance 2.5 dispatches the approved Pro frame URL without Asset
   }, actor, workflow);
 
   assert.equal(dispatched.referenceImage, originalUrl);
-  assert.equal(dispatched.referenceTransport.mode, 'gcs_url');
+  assert.equal(dispatched.referenceTransport.mode, 'provider_original_url');
   assert.equal(dispatched.modelId, 'dreamina-seedance-2-5-260628');
   assert.equal(dispatched.resolution, '480p');
   assert.deepEqual(dispatched.providerReferenceRegistrations, []);
@@ -331,6 +381,7 @@ test('Cinematic Seedance unavailable original bytes fail before Credit reservati
   const asset = compatibleSeedreamAsset();
   let reservations = 0;
   const service = new VideoGenerationApplicationService({
+    trustedSourceService: trustedBoardFixture(asset, async () => null),
     capabilityRegistry: new VideoCapabilityRegistry({
       runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
     }),

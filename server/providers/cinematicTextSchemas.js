@@ -164,7 +164,7 @@ export const CINEMATIC_STORY_PLAN_SCHEMA = Object.freeze({
           'key', 'beatKey', 'title', 'purpose', 'storyChange', 'entryState',
           'exitState', 'objective', 'pressure', 'location', 'time',
           'emotionalStart', 'emotionalEnd', 'transitionIntent',
-          'castAssignmentIds', 'wardrobeLookIds', 'blocking', 'lighting',
+          'castAssignmentIds', 'wardrobeLookIds', 'blocking', 'lighting', 'artDirection',
           'performance', 'audioIntent', 'propContinuity', 'screenDirection',
           'continuityNotes', 'shots'
         ],
@@ -187,6 +187,7 @@ export const CINEMATIC_STORY_PLAN_SCHEMA = Object.freeze({
           wardrobeLookIds: { type: 'array', maxItems: 12, items: { type: 'string' } },
           blocking: { type: 'string' },
           lighting: { type: 'string' },
+          artDirection: { type: 'string' },
           performance: { type: 'string' },
           audioIntent: { type: 'string' },
           propContinuity: { type: 'string' },
@@ -221,7 +222,7 @@ export const CINEMATIC_SCENE_DIRECTION_SCHEMA = Object.freeze({
     'key', 'title', 'purpose', 'storyChange', 'entryState', 'exitState',
     'objective', 'pressure', 'location', 'time', 'emotionalStart',
     'emotionalEnd', 'transitionIntent', 'castAssignmentIds', 'wardrobeLookIds',
-    'blocking', 'lighting', 'performance', 'audioIntent', 'continuityNotes',
+    'blocking', 'lighting', 'artDirection', 'performance', 'audioIntent', 'continuityNotes',
     'propContinuity', 'screenDirection', 'shots', 'warnings'
   ],
   properties: {
@@ -245,6 +246,7 @@ export const CINEMATIC_SCENE_DIRECTION_SCHEMA = Object.freeze({
     performance: { type: 'string' },
     audioIntent: { type: 'string' },
     propContinuity: { type: 'string' },
+    artDirection: { type: 'string' },
     screenDirection: { type: 'string' },
     continuityNotes: { type: 'array', maxItems: 12, items: { type: 'string' } },
     shots: {

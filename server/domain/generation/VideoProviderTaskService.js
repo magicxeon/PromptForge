@@ -247,11 +247,11 @@ function sanitizeRequest(request) {
     promptStrategy: sanitizePromptStrategy(request.promptStrategy),
     references: sanitizeVideoReferences(request.references),
     referenceTransports: (request.referenceTransports || []).slice(0, 12)
-      .filter(item => ['gcs_url', 'base64'].includes(item.mode))
+      .filter(item => ['gcs_url', 'base64', 'provider_original_url'].includes(item.mode))
       .map(item => ({ assetId: boundedIdentifier(item.assetId), mode: item.mode,
         fallbackCode: boundedIdentifier(item.fallbackCode) })),
     providerReferenceRegistrations: sanitizeProviderReferenceRegistrations(request.providerReferenceRegistrations),
-    referenceTransport: ['gcs_url', 'base64'].includes(request.referenceTransport?.mode) ? {
+    referenceTransport: ['gcs_url', 'base64', 'provider_original_url'].includes(request.referenceTransport?.mode) ? {
       mode: request.referenceTransport.mode,
       fallbackCode: boundedIdentifier(request.referenceTransport.fallbackCode)
     } : null,

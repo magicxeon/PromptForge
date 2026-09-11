@@ -22,6 +22,7 @@ export function createCinematicSetupDraft(now = new Date()): CinematicSetupDraft
     genre: 'drama',
     audienceFeeling: 'moved',
     pacing: 'balanced',
+    storyCountryStyle: 'none',
     endingIntent: 'resolved',
     mode: 'simple',
     castPlanningMode: 'ai-recommended',

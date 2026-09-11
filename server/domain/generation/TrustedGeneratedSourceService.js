@@ -20,6 +20,15 @@ const fail = (reason) =>
   });
 const hash = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
 
+export function isGeneratedLookSheet(item) {
+  return item?.mode === 'character-sheet'
+    || (item?.lookSheetSnapshot?.schemaVersion === 1 && typeof item.lookSheetSnapshot.presetId === 'string'
+      && item.lookSheetSnapshot.presetId.length > 0);
+}
+
+export const generatedCastSourceFingerprint = (generationId, contentHash) =>
+  hash(JSON.stringify(['cinematic-generated-cast-v1', generationId, contentHash]));
+
 export function trustedSourceEligibility(
   source,
   { scope, now = Date.now(), policy = POLICY } = {},
@@ -30,7 +39,6 @@ export function trustedSourceEligibility(
     : null;
   let reason = null;
   if (!source) reason = 'metadata_missing';
-  else if (source.rejection) reason = 'provider_rejected';
   else if (
     source.providerId !== policy.providerId ||
     !isTrustedGeneratedSourceModel(source, policy)
@@ -152,6 +160,10 @@ export class TrustedGeneratedSourceService {
 
   async list(actor, query = {}) {
     const eligibleOnly = query.eligibleOnly === true;
+    if (query.category != null && query.category !== 'look-sheet') {
+      throw Object.assign(new Error('Unsupported generated source category.'), { code: 'video_source_category_invalid', statusCode: 400 });
+    }
+    const sheetsOnly = query.category === 'look-sheet';
     const scope = this.scopeResolver();
     const eligibleRecords = eligibleOnly
       ? (await this.repository.listForOwner(actor.userId)).filter((row) => (
@@ -162,7 +174,8 @@ export class TrustedGeneratedSourceService {
       limit: 24,
       cursor: query.cursor,
       allowedJobIds: eligibleRecords ? new Set(eligibleRecords.map((row) => row.id)) : null,
-      filterKey: eligibleOnly ? `trusted-eligible:${POLICY.version}` : null,
+      filterKey: `${eligibleOnly ? `trusted-eligible:${POLICY.version}` : 'trusted-all'}${sheetsOnly ? ':look-sheet' : ''}`,
+      itemFilter: sheetsOnly ? isGeneratedLookSheet : null,
     });
     const records = eligibleRecords || await this.repository.findManyForOwner(
       page.items.map((row) => row.id), actor.userId,
@@ -186,6 +199,7 @@ export class TrustedGeneratedSourceService {
             modelId:
               source?.modelId || row.resolvedSubmodel || row.submodel || '',
             generationMode: source?.generationMode || 'unknown',
+            category: isGeneratedLookSheet(row) ? 'look-sheet' : 'image',
             generatedAt: source?.generatedAt || null,
             ...trustedSourceEligibility(source, {
               scope,
@@ -197,7 +211,10 @@ export class TrustedGeneratedSourceService {
     };
   }
 
-  async describeOwnedImage(generationId, actor) {
+  async describeOwnedImage(generationId, actor, { requireLookSheet = false } = {}) {
+    if (requireLookSheet && !isGeneratedLookSheet(await this.history.findByIdForOwner(generationId, actor.userId))) {
+      throw fail('look_sheet_required');
+    }
     const plan = await this.prepareOwnedImage(generationId, actor);
     const source = plan.sources[0];
     const content = plan.assets[0];

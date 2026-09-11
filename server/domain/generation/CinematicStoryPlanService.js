@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { getCinematicStoryPlanPolicy } from '../../config/cinematic-story-plan-policy.js';
+import { normalizeStoryIntent, storyCountryStyleGuidance } from '../../config/cinematicStoryConfiguration.js';
 import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
 import { CinematicTextProviderRouter } from './CinematicTextProviderRouter.js';
@@ -13,7 +14,7 @@ import { cinematicFieldKey, parseFieldKey } from '../cinematic/CinematicAuthorin
 import { cinematicVisualPlanQualityService } from '../cinematic/CinematicVisualPlanQualityService.js';
 
 const VISUAL_REPAIR_SCENE_FIELDS = Object.freeze([
-  'entryState', 'exitState', 'location', 'time', 'blocking', 'lighting', 'performance',
+  'entryState', 'exitState', 'location', 'time', 'blocking', 'lighting', 'artDirection', 'performance',
   'propContinuity', 'screenDirection', 'continuityNotes'
 ]);
 const VISUAL_REPAIR_SHOT_FIELDS = Object.freeze([
@@ -30,8 +31,8 @@ const STORY_PLAN_PROGRESS_STAGE_IDS = Object.freeze([
 export class CinematicStoryPlanService {
   constructor({
     policyLoader = getCinematicStoryPlanPolicy,
-    storyRecipeLoader = () => loadPromptRecipe('cinematic/story-plan.v7.json'),
-    sceneRecipeLoader = () => loadPromptRecipe('cinematic/scene-direction.v6.json'),
+    storyRecipeLoader = () => loadPromptRecipe('cinematic/story-plan.v8.json'),
+    sceneRecipeLoader = () => loadPromptRecipe('cinematic/scene-direction.v7.json'),
     providerFactory = policy => new CinematicTextProviderRouter(policy),
     fieldManifestService = cinematicFieldManifestService,
     visualQualityService = cinematicVisualPlanQualityService
@@ -432,9 +433,8 @@ function buildProjectContext(project, { preflight, mode }) {
       platform: project.setup?.platform,
       aspectRatio: project.aspectRatio,
       targetDurationSeconds: project.durationTargetMs / 1000,
-      genre: project.setup?.genre,
-      audienceFeeling: project.setup?.audienceFeeling,
-      pacing: project.setup?.pacing,
+      ...normalizeStoryIntent(project.setup),
+      storyCountryStyleGuidance: storyCountryStyleGuidance(project.setup),
       endingIntent: project.setup?.endingIntent,
       storyBrief: storyText,
       creativeDirection,
@@ -585,6 +585,8 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
       title: bounded(shot.title, 100) || `Shot ${index + 1}`,
       purpose: bounded(shot.purpose, 500),
       coverageRole: normalizeCoverageRole(shot.coverageRole, index),
+      openingFrameVersion: 1,
+      castMode: shotCast.length ? 'selected' : 'none',
       durationMs: durations[index],
       visibleMoment: bounded(shot.visibleMoment, 800) || bounded(shot.prompt, 800) || bounded(shot.purpose, 500),
       subjectAction: bounded(shot.subjectAction, 500) || bounded(shot.blocking, 500) || bounded(shot.purpose, 500),
@@ -632,6 +634,8 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
     transitionIntent: bounded(input.transitionIntent, 160) || 'cut',
     castAssignmentIds,
     wardrobeLookIds,
+    castMode: castAssignmentIds.length ? 'selected' : 'none',
+    ...(input.artDirection !== undefined ? { artDirection: bounded(input.artDirection, 1000) } : {}),
     blocking: bounded(input.blocking, 500),
     lighting: bounded(input.lighting, 500),
     performance: bounded(input.performance, 500),

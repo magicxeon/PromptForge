@@ -30,6 +30,64 @@ test('Cinematic Storyboard batch accepts the server keyframe fingerprint and pre
   assert.deepEqual(submission.metadata.keyframeContractFingerprints, ['keyframe_route_1']);
 });
 
+test('Cinematic Storyboard batch preserves a direct Cast sheet without a Character Profile', async () => {
+  const sheet = '/outputs/direct-cast-sheet.png';
+  const contextValue = structuredClone(context);
+  contextValue.references.character_reference = sheet;
+  const fixture = routeFixture({ contextValue });
+  const request = requestFixture();
+  request.body.operations[0].generationRequest.characterReferenceImageA = sheet;
+  const response = responseFixture();
+  await fixture.handler(request, response);
+  assert.equal(response.statusCode, 202);
+  const submitted = fixture.generationApplicationService.calls[0].operations[0].body;
+  assert.equal(submitted.characterReferenceImageA, sheet);
+  assert.equal(submitted.characterProfileContext, null);
+  assert.equal(submitted.outfitReferenceImageFront, null);
+});
+
+test('Cinematic Storyboard batch rejects missing, replaced or additional Cast sheet references', async () => {
+  const sheet = '/outputs/direct-cast-sheet.png';
+  const contextValue = structuredClone(context);
+  contextValue.references.character_reference = sheet;
+  for (const references of [
+    {},
+    { characterReferenceImageA: '/outputs/other-sheet.png' },
+    { characterReferenceImageA: sheet, characterReferenceImageB: '/outputs/extra-sheet.png' }
+  ]) {
+    const fixture = routeFixture({ contextValue });
+    const request = requestFixture();
+    Object.assign(request.body.operations[0].generationRequest, references);
+    const response = responseFixture();
+    await fixture.handler(request, response);
+    assert.equal(response.statusCode, 409);
+    assert.equal(response.body.error.code, 'cinematic_storyboard_reference_authority_mismatch');
+    assert.equal(fixture.generationApplicationService.calls.length, 0);
+  }
+});
+
+test('Cinematic Storyboard batch binds named Cast order and rejects substituted, missing or extra identity references', async () => {
+  const rows = ['a', 'b'].map(id => ({ castAssignmentId: id, displayName: id, sourceType: 'generated_sheet', generationId: `job_${id}`, contentHash: `hash_${id}` }));
+  const contextValue = { ...structuredClone(context), cinematicCastReferences: rows, cinematicContainsPeople: true };
+  for (const [patch, expected] of [
+    [{ cinematicCastReferences: rows.map(row => Object.fromEntries(Object.entries(row).reverse())) }, 202],
+    [{ cinematicCastReferences: [] }, 409],
+    [{ cinematicCastReferences: [...rows].reverse() }, 409],
+    [{ cinematicCastReferences: [rows[0], { ...rows[1], generationId: 'job_other' }] }, 409],
+    [{ faceReferenceImageA: '/outputs/unrelated.png' }, 409],
+    [{ styleReferenceImageB: '/outputs/unrelated.png' }, 409],
+    [{ cinematicContainsPeople: false }, 409]
+  ]) {
+    const fixture = routeFixture({ contextValue });
+    const request = requestFixture();
+    Object.assign(request.body.operations[0].generationRequest, { cinematicCastReferences: rows, cinematicContainsPeople: true }, patch);
+    const response = responseFixture();
+    await fixture.handler(request, response);
+    assert.equal(response.statusCode, expected);
+    assert.equal(fixture.generationApplicationService.calls.length, expected === 202 ? 1 : 0);
+  }
+});
+
 test('Cinematic Storyboard accepts a new candidate while an approved source remains authoritative', async () => {
   const approvedProject = structuredClone(project);
   approvedProject.scenes[0].shots[0].approvedStoryboardSource = {
@@ -108,7 +166,7 @@ test('Cinematic Story Plan proposal route streams real progress and the same fin
   assert.equal(cinematicService.storyPlanCalls.length, 1);
 });
 
-function routeFixture({ projectValue = project } = {}) {
+function routeFixture({ projectValue = project, contextValue = context } = {}) {
   const handlers = new Map();
   const app = {};
   for (const method of ['get', 'post', 'put', 'patch', 'delete']) {
@@ -117,7 +175,7 @@ function routeFixture({ projectValue = project } = {}) {
   const cinematicService = {
     storyPlanCalls: [],
     getProject: async () => structuredClone(projectValue),
-    getStoryboardGenerationContext: async () => structuredClone(context),
+    getStoryboardGenerationContext: async () => structuredClone(contextValue),
     registerStoryboardBatchAttempts: async () => structuredClone(project),
     async generateStoryPlan(projectId, input, actorContext, operation = {}) {
       this.storyPlanCalls.push({ projectId, input, actorContext });

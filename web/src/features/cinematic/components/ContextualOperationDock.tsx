@@ -10,6 +10,7 @@ type ContextualOperationDockProps = {
   operation: string;
   credits?: number;
   actionLabel: string;
+  actionIcon?: ReactNode;
   children?: ReactNode;
   media?: boolean;
   disabled?: boolean;
@@ -24,6 +25,7 @@ export function ContextualOperationDock({
   operation,
   credits,
   actionLabel,
+  actionIcon,
   children,
   media = false,
   disabled = true,
@@ -47,7 +49,7 @@ export function ContextualOperationDock({
         className="w-full"
         data-testid="cinematic-operation-submit"
         variant="primary"
-        icon={loading ? <ProcessingSpinner className="animate-spin" aria-hidden="true" /> : <LockKeyhole aria-hidden="true" />}
+        icon={loading ? <ProcessingSpinner className="animate-spin" aria-hidden="true" /> : actionIcon ?? <LockKeyhole aria-hidden="true" />}
         disabled={disabled || loading}
         onClick={onAction}
       >

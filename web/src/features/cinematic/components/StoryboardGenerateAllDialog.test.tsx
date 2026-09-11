@@ -180,6 +180,28 @@ describe('StoryboardGenerateAllDialog', () => {
     expect(await screen.findByText('cinematic.storyboard.batch.queued')).toBeVisible();
   });
 
+  it('quotes and submits a direct Cast sheet as identity without inventing a Character Profile', async () => {
+    const context = await mocks.getContext('cineproj_batch', 'scene_1', 'shot_pending');
+    context.references.character_reference = '/outputs/direct-cast-sheet.png';
+    mocks.getContext.mockResolvedValue(context);
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={testI18n}>
+        <StoryboardGenerateAllDialog open onOpenChange={vi.fn()} project={projectFixture()} />
+      </I18nextProvider>
+    </QueryClientProvider>);
+    expect(await screen.findByText('12 cinematic.cost.credits')).toBeVisible();
+    const expected = expect.objectContaining({
+      characterProfileContext: null,
+      references: { character_reference: '/outputs/direct-cast-sheet.png' },
+      characterReferenceOutfitBehavior: 'preserve'
+    });
+    expect(mocks.estimateGeneration).toHaveBeenCalledWith(expected);
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' }));
+    await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
+    expect(mocks.submitBatch.mock.calls[0]?.[1].operations[0].draft).toEqual(expected);
+  });
+
   it('excludes Playground-only models from the Cinematic selector', async () => {
     const catalog = await mocks.getProviderCatalog();
     catalog.providers.find((provider: { id: string }) => provider.id === 'meta-muse')

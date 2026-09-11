@@ -1,8 +1,15 @@
 {
   "schemaVersion": 1,
   "id": "cinematic-authoring-field-dependencies",
-  "version": 1,
+  "version": 3,
   "dependencies": [
+    { "source": "setup.storyCountryStyle", "targets": ["plan.logline", "plan.emotionalArc", "scene.storyChange", "scene.performance"] },
+    { "source": "setup.genres", "targets": ["plan.logline", "scene.artDirection", "scene.lighting"] },
+    { "source": "setup.audienceFeelings", "targets": ["plan.emotionalArc"] },
+    { "source": "setup.pacingTraits", "targets": ["beat.targetDurationMs", "shot.durationMs", "shot.cameraMovement"] },
+    { "source": "scene.artDirection", "targets": ["shot.environment", "shot.lighting"] },
+    { "source": "scene.castMode", "targets": ["scene.castAssignmentIds", "scene.wardrobeLookIds", "shot.castMode"] },
+    { "source": "shot.castMode", "targets": ["shot.castAssignmentIds", "shot.wardrobeLookIds", "shot.visibleMoment"] },
     { "source": "setup.storyBrief", "targets": ["plan.objective", "plan.logline", "plan.emotionalArc", "beat.storyChange", "scene.storyChange", "shot.visibleMoment"] },
     { "source": "setup.creativeDirection", "targets": ["scene.lighting", "scene.performance", "shot.framing", "shot.cameraMovement", "shot.lighting"] },
     { "source": "setup.durationSeconds", "targets": ["beat.targetDurationMs", "shot.durationMs", "shot.estimatedActionDurationMs"] },

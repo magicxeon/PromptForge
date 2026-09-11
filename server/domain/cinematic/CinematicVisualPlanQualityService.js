@@ -130,6 +130,14 @@ function normalizeCompilerFinding(item, scene, shot) {
 
 function evaluateCrossFieldRules(plan, scene, shot) {
   const findings = [];
+  if (shot.openingFrameVersion === 1 && scene.artDirection !== undefined) {
+    const missing = [!String(scene.artDirection).trim() ? 'scene.artDirection' : null,
+      ...['framing', 'cameraAngle', 'lensIntent', 'cameraMovement', 'lighting', 'environment'].filter(field => !String(shot[field] || (field === 'lighting' ? scene.lighting : '') || '').trim()).map(field => `shot.${field}`)].filter(Boolean);
+    if (missing.length) findings.push(finding('directed_opening_incomplete', 'warning', true, scene, shot, missing, {
+      summary: 'The generated opening is missing concrete visual direction.',
+      recommendation: 'Supply art direction, framing, lens, motivated light and spatial environment for this opening.'
+    }));
+  }
   const moment = normalized(shot.visibleMoment);
   const action = normalized(shot.subjectAction);
   if (moment && action && (moment === action || (Math.min(moment.length, action.length) >= 18
@@ -137,7 +145,7 @@ function evaluateCrossFieldRules(plan, scene, shot) {
     findings.push(finding('duplicate_moment_and_action', 'warning', true, scene, shot,
       ['shot.visibleMoment', 'shot.subjectAction']));
   }
-  if (isNonVisualAction(shot.subjectAction)) {
+  if (shot.openingFrameVersion !== 1 && isNonVisualAction(shot.subjectAction)) {
     findings.push(finding('non_visual_action', 'warning', true, scene, shot, ['shot.subjectAction']));
   }
   if (hasFramingPerformanceMismatch(shot)) {

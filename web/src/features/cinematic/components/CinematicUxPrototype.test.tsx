@@ -293,7 +293,7 @@ describe('Cinematic UX prototype', () => {
     expect(screen.getByRole('button', { name: 'cinematic.lookDraft.generateSuggestion' })).toBeVisible();
   });
 
-  it('separates existing Looks from the three new-Look source commands without changing their dialog modes', () => {
+  it('separates existing Looks from the two new-Look source commands and retires generated Wardrobe import', () => {
     const project = castProjectFixture();
     render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider></QueryClientProvider>);
 
@@ -306,10 +306,10 @@ describe('Cinematic UX prototype', () => {
     expect(lookPreparation.compareDocumentPosition(boundLook) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const upload = within(sourceGroup).getByRole('button', { name: /cinematic\.cast\.uploadWardrobe/ });
     const ai = within(sourceGroup).getByRole('button', { name: /cinematic\.cast\.aiWardrobe/ });
-    const generated = within(sourceGroup).getByRole('button', { name: /cinematic\.cast\.generatedSheet/ });
+    expect(within(sourceGroup).queryByRole('button', { name: /cinematic\.cast\.generatedSheet/ })).not.toBeInTheDocument();
+    expect(within(sourceGroup).getAllByRole('button')).toHaveLength(2);
     expect(upload.closest('.cinematic-look-card')).toBeNull();
     expect(ai.closest('.cinematic-look-card')).toBeNull();
-    expect(generated.closest('.cinematic-look-card')).toBeNull();
 
     fireEvent.click(upload);
     expect(screen.getByRole('radio', { name: 'cinematic.lookDraft.uploadWardrobe' })).toHaveAttribute('aria-checked', 'true');
@@ -322,8 +322,6 @@ describe('Cinematic UX prototype', () => {
     fireEvent.click(ai);
     expect(screen.getByRole('radio', { name: 'cinematic.lookDraft.aiSuggestion' })).toHaveAttribute('aria-checked', 'true');
     fireEvent.click(within(screen.getByRole('dialog')).getAllByRole('button', { name: 'cinematic.actions.cancel' }).find(button => button.textContent === 'cinematic.actions.cancel')!);
-    fireEvent.click(generated);
-    expect(screen.getByRole('radio', { name: 'cinematic.lookDraft.generatedSheet' })).toHaveAttribute('aria-checked', 'true');
   });
 
   it('removes only a confirmed unapproved Look preparation and keeps approved Looks protected', async () => {
@@ -556,6 +554,28 @@ describe('Cinematic UX prototype', () => {
     expect(screen.getByText('cinematic.director.continuity')).toBeVisible();
     fireEvent.click(screen.getByText('cinematic.director.shotAdvanced'));
     expect(screen.getByText('cinematic.director.coverageRole')).toBeVisible();
+  });
+
+  it('saves explicit empty and selected Shot Cast, upgrades edited openings, and preserves sibling Scene direction', () => {
+    const project = completeStoryPlanFixture();
+    const scene = structuredClone(project.scenes[0]!);
+    const assignment = project.castAssignments[0]!;
+    Object.assign(scene, { location: 'Train station', time: 'Blue hour', emotionalEnd: 'quiet resolve' });
+    const onSave = vi.fn();
+    render(<I18nextProvider i18n={testI18n}><SceneDirectorDialog open onOpenChange={vi.fn()} scene={scene} castAssignments={[assignment]} onSave={onSave} /></I18nextProvider>);
+    fireEvent.change(screen.getByRole('combobox', { name: 'cinematic.director.castCoverage' }), { target: { value: 'none' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'cinematic.director.visibleMoment' }), { target: { value: 'An empty platform before the train arrives.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.director.save' }));
+    expect(onSave.mock.calls.at(-1)?.[0]).toEqual(expect.objectContaining({ castAssignmentIds: scene.castAssignmentIds, location: scene.location }));
+    expect(onSave.mock.calls.at(-1)?.[0].shots[0]).toEqual(expect.objectContaining({ castMode: 'none', castAssignmentIds: [], wardrobeLookIds: [], openingFrameVersion: 1 }));
+    fireEvent.change(screen.getByRole('combobox', { name: 'cinematic.director.castCoverage' }), { target: { value: 'selected' } });
+    const selected = screen.getByRole('group', { name: 'cinematic.director.castSelected' });
+    fireEvent.click(within(selected).getByRole('checkbox', { name: assignment.displayName }));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.director.save' }));
+    expect(onSave.mock.calls.at(-1)?.[0].shots[0]).toEqual(expect.objectContaining({ castMode: 'selected', castAssignmentIds: [assignment.id] }));
+    fireEvent.click(within(selected).getByRole('checkbox', { name: assignment.displayName }));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.director.save' }));
+    expect(onSave.mock.calls.at(-1)?.[0].shots[0]).toEqual(expect.objectContaining({ castMode: 'selected', castAssignmentIds: [], wardrobeLookIds: [] }));
   });
 
   it('preserves Advanced Scene authority while switching through Simple mode', () => {

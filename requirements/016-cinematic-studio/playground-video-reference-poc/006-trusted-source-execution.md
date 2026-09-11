@@ -19,8 +19,9 @@
   not guaranteed accepted. Existing uploads/transports survive for other models.
 - Revalidate on submit; fail before reservation. Keep exact quote/count/parity,
   idempotency, terminal status/error/request ID and canonical settlement behavior.
-- Provider privacy rejection blocks another identical trusted-source attempt;
-  record task/model/request evidence conservatively for all selected sources when
-  no reliable offending index exists. Do not claim every source is proven bad.
+- Provider privacy rejection is retained as attempt evidence only (correction
+  015). It must not hide a source, disable selection or block an explicit retry.
+  Record task/model/request evidence conservatively; do not claim every selected
+  source is individually proven bad. All other source checks remain mandatory.
 - TOS, trusted-source recovery/backfill, automatic regeneration and live paid
   provider qualification are pending, not part of this implementation.

@@ -2,10 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
-import { Button } from '../../../components/ui/Button';
-import { useActor } from '../../../lib/auth/ActorProvider';
-import { listTrustedVideoSources, type TrustedVideoSource } from '../../generation/api/trustedVideoSources';
+import { AuthenticatedMediaImage } from '../media/AuthenticatedMediaImage';
+import { Button } from '../ui/Button';
+import { ProcessingSpinner } from '../ui/ProcessingSpinner';
+import { useActor } from '../../lib/auth/ActorProvider';
+import { listTrustedVideoSources, type TrustedVideoSource } from '../../features/generation/api/trustedVideoSources';
 
 export function GeneratedLookSourceField({ value, disabled, onChange, onPreviewReady }: {
   value: TrustedVideoSource | null;
@@ -18,14 +19,14 @@ export function GeneratedLookSourceField({ value, disabled, onChange, onPreviewR
   const [cursors, setCursors] = useState<Array<string | null>>([null]);
   const [previewFailed, setPreviewFailed] = useState(false);
   const page = useQuery({
-    queryKey: ['trusted-video-sources', actor?.userId, cursors.at(-1)],
-    queryFn: () => listTrustedVideoSources(cursors.at(-1)),
+    queryKey: ['trusted-video-sources', actor?.userId, 'look-sheet', cursors.at(-1)],
+    queryFn: () => listTrustedVideoSources(cursors.at(-1), 'look-sheet'),
     enabled: Boolean(actor?.userId), staleTime: 0, retry: false,
   });
   const expiry = (item: TrustedVideoSource) => t('cinematic.lookDraft.generatedExpiry', {
     date: item.expiresAt ? new Date(item.expiresAt).toLocaleDateString(i18n.language) : ''
   });
-  const items = (page.data?.items || []).filter(item => item.eligible && item.expiresAt && Date.parse(item.expiresAt) > Date.now());
+  const items = (page.data?.items || []).filter(item => item.category === 'look-sheet' && item.eligible && item.expiresAt && Date.parse(item.expiresAt) > Date.now());
   return <section className="character-look-generated" aria-label={t('cinematic.lookDraft.generatedSheet')}>
     <p>{t('cinematic.lookDraft.generatedHint')}</p>
     {value ? <div className="character-look-generated__selection">
@@ -39,7 +40,7 @@ export function GeneratedLookSourceField({ value, disabled, onChange, onPreviewR
       <Button type="button" disabled={disabled} icon={<RefreshCw aria-hidden="true" />}
         onClick={() => { onChange(null); setPreviewFailed(false); onPreviewReady(false); }}>{t('cinematic.lookDraft.changeGenerated')}</Button>
     </div> : <>
-      {page.isFetching ? <p role="status">{t('cinematic.lookDraft.generatedLoading')}</p> : null}
+      {page.isFetching ? <p role="status"><ProcessingSpinner />{t('cinematic.lookDraft.generatedLoading')}</p> : null}
       {page.isError ? <div role="alert">{t('cinematic.lookDraft.generatedError')}
         <Button type="button" icon={<RefreshCw aria-hidden="true" />} onClick={() => void page.refetch()}>{t('cinematic.lookDraft.generatedRetry')}</Button>
       </div> : null}

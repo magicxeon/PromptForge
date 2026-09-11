@@ -35,7 +35,10 @@ import {
   resolveStoryboardShotCast,
   resolveStoryboardShotLooks
 } from './storyboardGenerationAdapter';
+import { shotVideoReferencePreviews } from './storyboardGenerationAdapter';
 import { StoryboardVideoCompatibilityNotice } from './StoryboardVideoCompatibilityNotice';
+import { ProduceVideoReferences } from './produce/ProduceVideoReferences';
+import { useShotVideoReferences } from '../state/useShotVideoReferences';
 import {
   readStoryboardEnginePreference,
   writeStoryboardEnginePreference
@@ -62,6 +65,7 @@ export function StoryboardShotDialog({
 }: Props) {
   const { t } = useTranslation('cinematic');
   const { actor } = useActor();
+  const videoReferences = useShotVideoReferences(project, scene, shot, onProjectRefresh);
   const initialDirection = useMemo(() => readStoryboardAuthorDirection(shot.prompt), [shot.prompt]);
   const initialEnginePreference = actor?.userId
     ? readStoryboardEnginePreference(actor.userId)
@@ -95,7 +99,7 @@ export function StoryboardShotDialog({
     staleTime: 10_000,
     retry: false
   });
-  const fallbackCharacterProfileContext = primaryCharacter ? {
+  const fallbackCharacterProfileContext = primaryCharacter?.characterProfileId ? {
     purpose: 'character_usage',
     characterProfileId: primaryCharacter.characterProfileId,
     characterProfileVersionId: primaryCharacter.characterProfileVersionId,
@@ -103,8 +107,8 @@ export function StoryboardShotDialog({
     sourceType: 'scene_builder',
     sourceId: project.id
   } : null;
-  const characterProfileContext = generationContext.data?.characterProfileContext
-    || fallbackCharacterProfileContext;
+  const characterProfileContext = generationContext.data ? generationContext.data.characterProfileContext
+    : fallbackCharacterProfileContext;
   const references = Object.fromEntries(Object.entries(generationContext.data?.references || {})
     .filter((entry): entry is [GenerationReferenceRole, string] => Boolean(entry[1])));
   const referenceRoles = Object.keys(references) as GenerationReferenceRole[];
@@ -210,6 +214,10 @@ export function StoryboardShotDialog({
           {previousSource ? <span>{t('cinematic.storyboard.previousFrameAttached')}</span> : null}
         </div>
         {blockedReason ? <StatusNotice tone="warning" title={t('cinematic.storyboard.generationBlocked')}>{blockedReason}</StatusNotice> : null}
+        <ProduceVideoReferences mode={videoReferences.mode} lastFirstFrameMode={videoReferences.lastFirstFrameMode}
+          onChange={videoReferences.changeMode} disabled={saving || approvingJobId !== null || videoReferences.pending}
+          loading={videoReferences.pending} references={shotVideoReferencePreviews(project, scene, shot, videoReferences.mode)} />
+        {videoReferences.error ? <p role="alert">{videoReferences.error.message}</p> : null}
         <div className="cinematic-storyboard-shot-dialog__generation">
         <GenerationExperience
           key={`${shot.id}:${shot.version}:${generationContext.data?.keyframeContract.sourceFingerprint || 'loading'}`}
@@ -253,6 +261,8 @@ export function StoryboardShotDialog({
           />}
           references={references}
           characterProfileContext={characterProfileContext}
+          cinematicCastReferences={generationContext.data?.cinematicCastReferences}
+          cinematicContainsPeople={generationContext.data?.cinematicContainsPeople}
           characterReferenceOutfitBehavior={references.outfit_front ? 'replaceable' : 'preserve'}
           allowComparison={false}
           enginePresentation="compact"

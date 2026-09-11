@@ -3,6 +3,15 @@ import type { CinematicScene, CinematicSceneDirectionProposal } from '../../sche
 import { applySceneDirectionFieldProposals, recommendedSceneDirectionFields } from './sceneDirectionProposal';
 
 describe('Scene direction field proposal merge', () => {
+  it('upgrades only a Shot whose opening proposal was accepted', () => {
+    const scene = fixture();
+    const proposal = field('shot:scene-1:shot-1.visibleMoment', 'A cup rests unopened on the table.', true);
+    expect(applySceneDirectionFieldProposals(scene, [proposal], []).shots[0]?.openingFrameVersion).toBeUndefined();
+    const result = applySceneDirectionFieldProposals(scene, [proposal], [proposal.fieldKey]);
+    expect(result.shots[0]?.openingFrameVersion).toBe(1);
+    expect(result.shots[0]?.visibleMoment).toBe(proposal.proposedValue);
+    expect(scene.shots[0]?.openingFrameVersion).toBeUndefined();
+  });
   it('applies only selected proposed fields and preserves locked or unselected authority', () => {
     const scene = fixture();
     const proposal = {

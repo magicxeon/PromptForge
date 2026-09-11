@@ -49,7 +49,7 @@ export function buildProduceReadiness(project: CinematicProject): ProduceReadine
   const videoAttempts = records(project.generationAttempts).filter(isVideoAttempt);
   return {
     totalShots: shots.length,
-    storyboardReady: shots.filter(shot => shot.status !== 'storyboard_required').length,
+    storyboardReady: project.scenes.flatMap(scene => scene.shots).filter(shot => Boolean(shot.approvedStoryboardSource)).length,
     videoApproved: shots.filter(shot => shot.status === 'approved').length,
     activeJobs: videoAttempts.filter(attempt => isActiveStatus(text(attempt.status))).length,
     failedJobs: videoAttempts.filter(attempt => text(attempt.status) === 'failed').length,
@@ -116,7 +116,7 @@ function resolveStatus(
   shot: CinematicShot,
   attempt: Record<string, unknown> | null
 ): StoryboardShotSummary['status'] {
-  if (!shot.approvedStoryboardSource) return 'storyboard_required';
+  if (!shot.approvedStoryboardSource && shot.videoReferenceMode !== 'looks_only') return 'storyboard_required';
   if (shot.approvedVideoAttemptId) return 'approved';
   if (!attempt) return 'ready';
   if (['source_changed', 'packet_changed'].includes(text(attempt.downstreamSourceStatus))) return 'source_changed';

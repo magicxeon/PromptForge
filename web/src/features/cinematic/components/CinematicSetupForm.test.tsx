@@ -4,6 +4,8 @@ import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { createCinematicSetupDraft } from '../state/cinematicDraftStorage';
 import { CinematicSetupForm } from './CinematicSetupForm';
+import storyAuthoring from '../../../../../server/config/cinematic/story-authoring.v1.json';
+import { cinematicStoryAuthoringSchema } from '../schemas/cinematicSchemas';
 
 const testI18n = i18next.createInstance();
 
@@ -41,6 +43,16 @@ describe('CinematicSetupForm', () => {
     renderForm();
     expect(screen.getByRole('button', { name: 'cinematic.actions.continueToCast' }).closest('footer'))
       .toHaveClass('cinematic-setup-actions--inline');
+  });
+
+  it('shows the configured country style with a local flag and themed analysis action', () => {
+    renderForm({ storyCountryStyle: 'thailand', storyBrief: 'A valid story.' });
+    const country = screen.getByRole('combobox', { name: 'cinematic.setup.storyCountryStyle' });
+    expect(country).toHaveTextContent('cinematic.countryStyle.thailand');
+    expect(country.querySelector('img')).toHaveAttribute('src', '/assets/cinematic/flags/th.svg');
+    const analyze = screen.getByRole('button', { name: 'cinematic.setup.analyzeStoryRoles' });
+    expect(analyze.className).toContain('--theme-primary-gradient');
+    expect(analyze.querySelector('.lucide-sparkles')).not.toBeNull();
   });
 
   it('does not allow Enhance Story before a Story Brief exists', () => {
@@ -100,6 +112,7 @@ function renderForm(
   return render(
     <I18nextProvider i18n={testI18n}>
       <CinematicSetupForm
+        storyAuthoring={cinematicStoryAuthoringSchema.parse(storyAuthoring)}
         draft={draft}
         saveState="saved"
         pending={false}

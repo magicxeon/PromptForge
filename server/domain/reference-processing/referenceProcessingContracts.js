@@ -93,6 +93,9 @@ export function collectReferenceInputs(context = {}) {
       outfitBehavior: context.characterReferenceOutfitBehavior || 'preserve'
     });
   }
+  for (const [index, row] of (context.cinematicCastReferences || []).entries()) {
+    add(`cinematic_cast_${index}`, 'character_reference', row.referenceValue, 'character', { outfitBehavior: 'preserve' });
+  }
   if (enabled.faceMatch) {
     add('face_reference_a', 'face_reference', context.faceReferenceImageA);
     add('face_reference_b', 'face_reference', context.faceReferenceImageB);

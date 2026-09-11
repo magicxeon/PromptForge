@@ -102,17 +102,6 @@ export function reviewGeneratedCharacterLookVersion(
   );
 }
 
-export function importGeneratedCharacterLook(characterProfileId: string, input: {
-  characterProfileVersionId: string;
-  name: string;
-  generationResultId: string;
-  identityAndViewsConfirmed: boolean;
-}) {
-  return apiRequest(`/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks/import-generated`, {
-    method: 'POST', body: input, schema: characterLookSchema
-  });
-}
-
 export function createCharacterLookDraft(characterProfileId: string, input: {
   characterProfileVersionId: string;
   name: string;

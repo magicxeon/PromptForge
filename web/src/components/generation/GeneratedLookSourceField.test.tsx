@@ -3,19 +3,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GeneratedLookSourceField } from './GeneratedLookSourceField';
-import type { TrustedVideoSource } from '../../generation/api/trustedVideoSources';
+import type { TrustedVideoSource } from '../../features/generation/api/trustedVideoSources';
 
 const api = vi.hoisted(() => ({ list: vi.fn() }));
-vi.mock('../../generation/api/trustedVideoSources', () => ({ listTrustedVideoSources: (...args: unknown[]) => api.list(...args) }));
-vi.mock('../../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: { userId: 'owner' } }) }));
+vi.mock('../../features/generation/api/trustedVideoSources', () => ({ listTrustedVideoSources: (...args: unknown[]) => api.list(...args) }));
+vi.mock('../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: { userId: 'owner' } }) }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en' } }) }));
-vi.mock('../../../components/media/AuthenticatedMediaImage', () => ({ AuthenticatedMediaImage: (props: {
+vi.mock('../media/AuthenticatedMediaImage', () => ({ AuthenticatedMediaImage: (props: {
   src: string; alt: string; renderResolved?: (src: string) => unknown;
 }) => props.renderResolved ? props.renderResolved(props.src) : <img src={props.src} alt={props.alt} /> }));
 
 const source: TrustedVideoSource = { id: 'source', modelId: 'Seedream 5.0 Pro', previewUrl: '/outputs/sheet.png',
   generationMode: 'text_to_image', generatedAt: null, expiresAt: new Date(Date.now() + 86400000).toISOString(),
-  eligible: true, reason: null, policyVersion: 'test' };
+  eligible: true, reason: null, policyVersion: 'test', category: 'look-sheet' };
 
 function mount() {
   const ready = vi.fn();
@@ -32,14 +32,16 @@ describe('Generated Look source selection', () => {
   beforeEach(() => api.list.mockReset());
 
   it('uses actor-scoped eligible pages and gates confirmation on the full preview', async () => {
-    api.list.mockResolvedValue({ items: [source, { ...source, id: 'expired', modelId: 'Expired', expiresAt: '2020-01-01' }], hasMore: false });
+    api.list.mockResolvedValue({ items: [source, { ...source, id: 'scene', modelId: 'Scene', category: 'image' }, { ...source, id: 'untagged', modelId: 'Untagged', category: undefined }, { ...source, id: 'expired', modelId: 'Expired', expiresAt: '2020-01-01' }], hasMore: false });
     const { ready, queryClient } = mount();
     fireEvent.click(await screen.findByRole('button', { name: /Seedream 5.0 Pro/i }));
     expect(screen.queryByText('Expired')).not.toBeInTheDocument();
+    expect(screen.queryByText('Scene')).not.toBeInTheDocument();
+    expect(screen.queryByText('Untagged')).not.toBeInTheDocument();
     expect(ready).toHaveBeenLastCalledWith(false);
     fireEvent.load(screen.getByAltText('cinematic.lookDraft.generatedPreview'));
     expect(ready).toHaveBeenLastCalledWith(true);
-    expect(queryClient.getQueryCache().getAll()[0]?.queryKey).toEqual(['trusted-video-sources', 'owner', null]);
+    expect(queryClient.getQueryCache().getAll()[0]?.queryKey).toEqual(['trusted-video-sources', 'owner', 'look-sheet', null]);
     fireEvent.click(screen.getByRole('button', { name: /changeGenerated/i }));
     expect(ready).toHaveBeenLastCalledWith(false);
   });
@@ -53,7 +55,7 @@ describe('Generated Look source selection', () => {
     fireEvent.click(screen.getByRole('button', { name: /generatedRetry/ }));
     expect(await screen.findByText('cinematic.lookDraft.generatedEmpty')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /generatedNext/ }));
-    await waitFor(() => expect(api.list).toHaveBeenCalledWith('next'));
+    await waitFor(() => expect(api.list).toHaveBeenCalledWith('next', 'look-sheet'));
     expect(await screen.findByRole('button', { name: /Seedream/ })).toBeInTheDocument();
   });
 });

@@ -44,13 +44,6 @@ vi.mock('../api/profileApi', () => ({
 
 const testI18n = i18next.createInstance();
 
-vi.mock('./GeneratedLookSourceField', () => ({ GeneratedLookSourceField: (props: {
-  onChange: (value: unknown) => void; onPreviewReady: (value: boolean) => void;
-}) => <button type="button" onClick={() => {
-  props.onChange({ id: 'seedream-sheet', eligible: true, expiresAt: new Date(Date.now() + 86400000).toISOString() });
-  props.onPreviewReady(true);
-}}>select-owned-generated-sheet</button> }));
-
 describe('CharacterLookDialog', () => {
   beforeAll(async () => {
     await testI18n.use(initReactI18next).init({
@@ -89,34 +82,18 @@ describe('CharacterLookDialog', () => {
     api.reviewGenerated.mockReset().mockResolvedValue(reviewReadyLook());
   });
 
-  it('imports an owned generated sheet only after confirmation, retaining review and approval', async () => {
+  it('retires generated import from Character preparation while keeping three original source choices', async () => {
     const onSaved = vi.fn();
     renderDialog(<CharacterLookDialog open onOpenChange={vi.fn()} characterProfileId="char_1"
       characterProfileVersionId="charver_1" characterDisplayName="Lalin" onSaved={onSaved} />);
-    expect(within(screen.getByRole('radiogroup', { name: /sourceMode/ })).getAllByRole('radio')).toHaveLength(4);
-    fireEvent.click(screen.getByRole('radio', { name: /generatedSheet/i }));
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Garden Look' } });
-    expect(screen.getByRole('button', { name: /continueToReview/i })).toBeDisabled();
-    fireEvent.click(screen.getByText('select-owned-generated-sheet'));
-    expect(screen.getByRole('button', { name: /continueToReview/i })).toBeDisabled();
-    fireEvent.click(screen.getByRole('checkbox'));
-    api.importGenerated.mockRejectedValueOnce(new Error('Source expired; choose a current image.'));
-    fireEvent.click(screen.getByRole('button', { name: /continueToReview/i }));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Source expired');
-    expect(screen.getByRole('textbox')).toHaveValue('Garden Look');
-    fireEvent.click(screen.getByRole('button', { name: /continueToReview/i }));
-    await waitFor(() => expect(api.importGenerated).toHaveBeenCalledWith('char_1', {
-      characterProfileVersionId: 'charver_1', name: 'Garden Look', generationResultId: 'seedream-sheet', identityAndViewsConfirmed: true
-    }));
-    const approve = await screen.findByRole('button', { name: /approveUse/i });
-    expect(approve).toBeDisabled();
+    expect(within(screen.getByRole('radiogroup', { name: /sourceMode/ })).getAllByRole('radio')).toHaveLength(3);
+    expect(screen.queryByRole('radio', { name: /generatedSheet/i })).not.toBeInTheDocument();
+    expect(api.importGenerated).not.toHaveBeenCalled();
     expect(api.approve).not.toHaveBeenCalled();
     expect(api.upload).not.toHaveBeenCalled();
     expect(api.create).not.toHaveBeenCalled();
     expect(api.plan).not.toHaveBeenCalled();
-    fireEvent.load(screen.getByAltText(/reviewPreviewAlt/i));
-    fireEvent.click(approve);
-    await waitFor(() => expect(onSaved).toHaveBeenCalledWith(expect.objectContaining({ lifecycleStatus: 'approved' })));
+    expect(onSaved).not.toHaveBeenCalled();
   });
 
   it('approves one owned Character Look Sheet without starting Generation', async () => {

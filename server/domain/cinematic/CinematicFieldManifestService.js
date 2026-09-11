@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { storyAuthoringConfiguration } from '../../config/cinematicStoryConfiguration.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,12 +26,17 @@ export class CinematicFieldManifestService {
       readinessPolicy: readinessPolicy || loadJson(paths.readinessPolicy)
     };
     this.manifest = validateManifest(loaded.manifest);
+    for (const field of this.manifest.fields) {
+      const limit = storyAuthoringConfiguration.limits[field.path.replace(/^setup\./, '')];
+      if (limit) field.maxLength = limit;
+    }
     this.dependencies = validateDependencies(loaded.dependencies, this.manifest);
     this.readinessPolicy = validateReadinessPolicy(loaded.readinessPolicy, this.manifest);
     this.fingerprint = fingerprint({
       manifest: this.manifest,
       dependencies: this.dependencies,
-      readinessPolicy: this.readinessPolicy
+      readinessPolicy: this.readinessPolicy,
+      storyAuthoring: storyAuthoringConfiguration
     });
     this.fieldByPath = new Map(this.manifest.fields.map(field => [field.path, field]));
     this.dependents = buildDependents(this.dependencies.dependencies);
@@ -43,6 +49,7 @@ export class CinematicFieldManifestService {
       version: this.manifest.version,
       fingerprint: this.fingerprint,
       fields: this.manifest.fields,
+      storyAuthoring: storyAuthoringConfiguration,
       readiness: this.readinessPolicy.stages
     });
   }
@@ -185,4 +192,3 @@ function invalid(message) {
 }
 
 export const cinematicFieldManifestService = new CinematicFieldManifestService();
-

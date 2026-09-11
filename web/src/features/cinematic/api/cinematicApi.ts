@@ -88,10 +88,10 @@ export function updateCinematicSetup(projectId: string, draft: CinematicSetupDra
   });
 }
 
-export function enhanceCinematicStory(draft: CinematicSetupDraft) {
+export function enhanceCinematicStory(draft: CinematicSetupDraft, purpose: 'story' | 'roles' = 'story') {
   return apiRequest('/api/cinematic/story-enhancements', {
     method: 'POST',
-    body: draft,
+    body: { ...draft, purpose },
     schema: cinematicStoryEnhancementSchema
   });
 }
@@ -113,8 +113,11 @@ export function updateCinematicStage(projectId: string, stage: CinematicStage, e
 
 export function upsertCinematicCast(projectId: string, assignmentId: string, input: {
   expectedVersion: number;
-  characterProfileId: string;
-  characterProfileVersionId: string;
+  sourceType?: 'character' | 'generated_sheet';
+  generationId?: string;
+  sheetConfirmed?: boolean;
+  characterProfileId?: string | null;
+  characterProfileVersionId?: string | null;
   displayName: string;
   storyImportance: 'protagonist' | 'supporting';
   storyRole?: string;
@@ -270,17 +273,19 @@ export function submitCinematicStoryboardBatch(projectId: string, input: {
   });
 }
 
-export function getCinematicProduceContext(projectId: string, sceneId: string, shotId: string) {
-  return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/produce-context`, {
+export type CinematicVideoReferenceMode = 'storyboard_only' | 'storyboard_and_looks' | 'looks_only';
+
+export function getCinematicProduceContext(projectId: string, sceneId: string, shotId: string, referenceMode?: CinematicVideoReferenceMode) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/produce-context${referenceMode ? `?referenceMode=${referenceMode}` : ''}`, {
     schema: cinematicProduceShotContextSchema
   });
 }
 
 export type CinematicVideoAttemptInput = {
-  referenceMode?: 'storyboard_only' | 'storyboard_and_looks';
+  referenceMode?: CinematicVideoReferenceMode;
   expectedVersion: number;
   expectedShotVersion: number;
-  sourceFingerprint: string;
+  sourceFingerprint: string | null;
   videoPacketFingerprint: string;
   providerId: string;
   modelId: string;
@@ -294,6 +299,14 @@ export type CinematicVideoAttemptInput = {
 
 function cinematicShotVideoPath(projectId: string, sceneId: string, shotId: string) {
   return `${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}`;
+}
+
+export function updateCinematicShotVideoReferences(projectId: string, sceneId: string, shotId: string, input: {
+  expectedVersion: number; expectedShotVersion: number; referenceMode: CinematicVideoReferenceMode;
+}) {
+  return apiRequest(`${cinematicShotVideoPath(projectId, sceneId, shotId)}/video-references`, {
+    method: 'PATCH', body: input, schema: cinematicProjectSchema
+  });
 }
 
 export function quoteCinematicVideoAttempt(projectId: string, sceneId: string, shotId: string, input: CinematicVideoAttemptInput) {

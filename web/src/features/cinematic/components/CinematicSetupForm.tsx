@@ -1,15 +1,18 @@
-import { Clapperboard, Save, Sparkles, Trash2 } from 'lucide-react';
+import { Clapperboard, Globe, Save, Sparkles, Trash2 } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
+import { ThemeSelect } from '../../../components/ui/ThemeSelect';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
-import type { CinematicSetupDraft } from '../schemas/cinematicSchemas';
+import type { CinematicSetupDraft, CinematicStoryAuthoring } from '../schemas/cinematicSchemas';
+import { StoryIntentChoices } from './StoryIntentChoices';
 import { CinematicControlLevel } from './CinematicControlLevel';
 import type { CinematicSaveState } from './CinematicWorkspaceHeader';
 
 type RoleSlot = CinematicSetupDraft['storyRoleSlots'][number];
 
 export function CinematicSetupForm({
+  storyAuthoring,
   draft,
   saveState,
   saveError,
@@ -25,6 +28,7 @@ export function CinematicSetupForm({
   onSave,
   onContinue
 }: {
+  storyAuthoring?: CinematicStoryAuthoring;
   draft: CinematicSetupDraft;
   saveState: CinematicSaveState;
   saveError?: Error | null;
@@ -91,16 +95,16 @@ export function CinematicSetupForm({
             title={t('cinematic.setup.storySourceTitle')}
             description={t('cinematic.setup.storySourceDescription')}
             action={(
-              <Button type="button" size="sm" icon={<Sparkles aria-hidden="true" />} disabled={!validStory} onClick={onEnhance} title={!validStory ? t('cinematic.setup.addBriefFirst') : undefined}>
+              <Button type="button" size="sm" variant="primary" icon={<Sparkles aria-hidden="true" />} disabled={!validStory || pending} onClick={onEnhance} title={!validStory ? t('cinematic.setup.addBriefFirst') : undefined}>
                 {t('cinematic.setup.enhanceStory')}
               </Button>
             )}
           />
-          <Field label={t('cinematic.setup.storyBrief')} hint={`${draft.storyBrief.length} / 600`} required description={t('cinematic.setup.storyBriefHint')}>
-            <textarea rows={5} maxLength={600} required aria-required="true" value={draft.storyBrief} onChange={event => onUpdate('storyBrief', event.target.value)} placeholder={t('cinematic.setup.storyBriefPlaceholder')} />
+          <Field label={t('cinematic.setup.storyBrief')} hint={`${draft.storyBrief.length}${storyAuthoring ? ` / ${storyAuthoring.limits.storyBrief}` : ''}`} required description={t('cinematic.setup.storyBriefHint')}>
+            <textarea rows={5} maxLength={storyAuthoring?.limits.storyBrief} required aria-required="true" value={draft.storyBrief} onChange={event => onUpdate('storyBrief', event.target.value)} placeholder={t('cinematic.setup.storyBriefPlaceholder')} />
           </Field>
-          <Field label={t('cinematic.setup.creativeDirection')} hint={`${draft.creativeDirection.length} / 800`} description={t('cinematic.setup.creativeDirectionHint')}>
-            <textarea rows={4} maxLength={800} value={draft.creativeDirection} onChange={event => onUpdate('creativeDirection', event.target.value)} placeholder={t('cinematic.setup.creativeDirectionPlaceholder')} />
+          <Field label={t('cinematic.setup.creativeDirection')} hint={`${draft.creativeDirection.length}${storyAuthoring ? ` / ${storyAuthoring.limits.creativeDirection}` : ''}`} description={t('cinematic.setup.creativeDirectionHint')}>
+            <textarea rows={4} maxLength={storyAuthoring?.limits.creativeDirection} value={draft.creativeDirection} onChange={event => onUpdate('creativeDirection', event.target.value)} placeholder={t('cinematic.setup.creativeDirectionPlaceholder')} />
           </Field>
           <details className="cinematic-setup-examples">
             <summary>{t('cinematic.setup.whatBelongsHere')}</summary>
@@ -111,16 +115,28 @@ export function CinematicSetupForm({
         <section className="cinematic-setup-section cinematic-creative-intent" aria-labelledby="cinematic-intent-title">
           <SectionHeading id="cinematic-intent-title" eyebrow={t('cinematic.setup.intentEyebrow')} title={t('cinematic.setup.intentTitle')} />
           <div className="cinematic-intent-fields">
-            <SelectField label={t('cinematic.setup.genre')} value={draft.genre} values={['drama', 'romance', 'comedy', 'thriller', 'fashion']} onChange={value => onUpdate('genre', value as CinematicSetupDraft['genre'])} translationPrefix="cinematic.genre" />
-            <SelectField label={t('cinematic.setup.feeling')} value={draft.audienceFeeling} values={['moved', 'excited', 'curious', 'uplifted', 'surprised']} onChange={value => onUpdate('audienceFeeling', value as CinematicSetupDraft['audienceFeeling'])} translationPrefix="cinematic.feeling" />
-            <SelectField label={t('cinematic.setup.pacing')} value={draft.pacing} values={['slow', 'balanced', 'fast']} onChange={value => onUpdate('pacing', value as CinematicSetupDraft['pacing'])} translationPrefix="cinematic.pacing" />
+            {storyAuthoring?.countryStyles ? <div className="cinematic-country-style">
+              <span>{t('cinematic.setup.storyCountryStyle')}</span>
+              <ThemeSelect ariaLabel={t('cinematic.setup.storyCountryStyle')} disabled={pending}
+                value={draft.storyCountryStyle ?? storyAuthoring.countryStyles.default}
+                onValueChange={value => onUpdate('storyCountryStyle', value)}
+                options={storyAuthoring.countryStyles.options.map(option => ({
+                  value: option.id, label: t(`cinematic.countryStyle.${option.id}`),
+                  icon: option.flag ? <img className="cinematic-country-flag" src={`/assets/cinematic/flags/${option.flag}.svg`} alt="" /> : <Globe className="size-4" />
+                }))} />
+            </div> : null}
+            {storyAuthoring ? <>
+              <StoryIntentChoices label={t('cinematic.setup.genre')} prefix="cinematic.genre" rule={storyAuthoring.choices.genres} value={draft.genres || [draft.genre]} disabled={pending} onChange={value => onUpdate('genres', value)} />
+              <StoryIntentChoices label={t('cinematic.setup.feeling')} prefix="cinematic.feeling" rule={storyAuthoring.choices.audienceFeelings} value={draft.audienceFeelings || [draft.audienceFeeling]} disabled={pending} onChange={value => onUpdate('audienceFeelings', value)} />
+              <StoryIntentChoices label={t('cinematic.setup.pacing')} prefix="cinematic.pacing" rule={storyAuthoring.choices.pacingTraits} value={draft.pacingTraits || [draft.pacing]} disabled={pending} onChange={value => onUpdate('pacingTraits', value)} />
+            </> : <p role="status">{t('cinematic.intent.configurationUnavailable')}</p>}
             <SelectField label={t('cinematic.setup.ending')} value={draft.endingIntent} values={['resolved', 'hopeful', 'twist', 'cliffhanger']} onChange={value => onUpdate('endingIntent', value as CinematicSetupDraft['endingIntent'])} translationPrefix="cinematic.ending" />
           </div>
           <p className="cinematic-intent-summary">
             {t('cinematic.setup.intentSummary', {
-              genre: t(`cinematic.genre.${draft.genre}`),
-              pacing: t(`cinematic.pacing.${draft.pacing}`),
-              feeling: t(`cinematic.feeling.${draft.audienceFeeling}`),
+              genre: (draft.genres || [draft.genre]).map(id => t(`cinematic.genre.${id}`)).join(' + '),
+              pacing: (draft.pacingTraits || [draft.pacing]).map(id => t(`cinematic.pacing.${id}`)).join(' + '),
+              feeling: (draft.audienceFeelings || [draft.audienceFeeling]).map(id => t(`cinematic.feeling.${id}`)).join(' > '),
               ending: t(`cinematic.ending.${draft.endingIntent}`)
             })}
           </p>
@@ -137,7 +153,7 @@ export function CinematicSetupForm({
           {draft.castPlanningMode === 'ai-recommended' ? (
             <div className="cinematic-role-plan__toolbar">
               <p>{t('cinematic.setup.aiRoleAnalysisHelp')}</p>
-              <Button type="button" size="sm" icon={<Sparkles aria-hidden="true" />} disabled={!validStory} onClick={onAnalyzeRoles}>
+              <Button type="button" size="sm" variant="primary" icon={<Sparkles aria-hidden="true" />} disabled={!validStory || pending} onClick={onAnalyzeRoles}>
                 {t('cinematic.setup.analyzeStoryRoles')}
               </Button>
             </div>

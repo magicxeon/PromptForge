@@ -23,7 +23,7 @@ export class CinematicDataLineageService {
     });
 
     const castAssignments = (project.castAssignments || []).filter(item => item.active !== false).map(assignment => {
-      if (!assignment.characterProfileVersionId) addFinding(findings, 'cinematic_lineage_character_version_missing', 'blocking', 'cast', 'castAssignment', assignment.id, 'cast.characterProfileVersionId', 'cast', assignment.id);
+      if (!assignment.characterProfileVersionId && !(assignment.sourceType === 'generated_sheet' && assignment.generatedSheet?.generationId)) addFinding(findings, 'cinematic_lineage_character_version_missing', 'blocking', 'cast', 'castAssignment', assignment.id, 'cast.characterProfileVersionId', 'cast', assignment.id);
       if (assignment.identityReady !== true) addFinding(findings, 'cinematic_lineage_character_identity_not_ready', 'blocking', 'cast', 'castAssignment', assignment.id, 'cast.identityReady', 'cast', assignment.id);
       const approvedLooks = (assignment.looks || []).filter(isApprovedLook);
       if (!approvedLooks.length) addFinding(findings, 'cinematic_lineage_approved_look_missing', 'blocking', 'cast', 'castAssignment', assignment.id, 'cast.looks', 'cast', assignment.id);
@@ -107,7 +107,7 @@ export class CinematicDataLineageService {
       const located = findShot(project, shot.id);
       const source = located?.shot.approvedStoryboardSource;
       if (!source) {
-        addFinding(findings, 'cinematic_lineage_storyboard_source_missing', 'blocking', 'storyboard', 'shot', shot.id, 'approvedStoryboardSource', 'storyboard', shot.id);
+        if (located?.shot.videoReferenceMode !== 'looks_only') addFinding(findings, 'cinematic_lineage_storyboard_source_missing', 'blocking', 'storyboard', 'shot', shot.id, 'approvedStoryboardSource', 'storyboard', shot.id);
         return [];
       }
       return [{
@@ -158,7 +158,7 @@ export class CinematicDataLineageService {
         return [];
       }
       const attempt = attempts.find(item => item.id === shot.approvedVideoAttemptId && isVideoAttempt(item));
-      const current = attempt && attempt.status === 'approved' && attempt.downstreamSourceStatus !== 'source_changed';
+      const current = attempt && attempt.status === 'approved' && !['source_changed', 'packet_changed'].includes(attempt.downstreamSourceStatus);
       if (!current) addFinding(findings, 'cinematic_lineage_video_source_stale', 'blocking', 'produce', 'shot', shot.id, 'approvedVideoAttemptId', 'produce', shot.id);
       return [{
         shotId: shot.id, attemptId: shot.approvedVideoAttemptId,

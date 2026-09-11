@@ -4,6 +4,7 @@ import { generationResultRepo } from '../../repositories/generation/GenerationRe
 import { resolveSourceCharacterIdentity } from '../character-profiles/characterIdentityMetadata.js';
 import { acceptLookSheetSnapshot, compileLookSheetPrompt } from '../character-profiles/LookSheetDefinitionService.js';
 import { lookSheetEnhancementService } from './LookSheetEnhancementService.js';
+import { resolveCinematicCastReferences } from '../cinematic/CinematicImageCastReferences.js';
 
 export async function prepareGenerationReferences(context, {
   actorContext,
@@ -13,8 +14,15 @@ export async function prepareGenerationReferences(context, {
   characterService = characterUsageService,
   processingService = referenceProcessingService,
   generationRepository = generationResultRepo,
-  enhancementService = lookSheetEnhancementService
+  enhancementService = lookSheetEnhancementService,
+  cinematicCastResolver = resolveCinematicCastReferences
 }) {
+  if (context.cinematicCastReferences?.length) {
+    if (context.generationSurface !== 'cinematic' || context.characterProfileContext) {
+      throw Object.assign(new Error('Cinematic Cast sheets cannot be mixed with a Character override.'), { code: 'cinematic_cast_references_invalid', statusCode: 400 });
+    }
+    context.cinematicCastReferences = await cinematicCastResolver(context.cinematicCastReferences, actorContext);
+  }
   context.characterProfileContext = await characterService.validateGenerationContext(
     context.characterProfileContext,
     actorContext

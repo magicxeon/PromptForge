@@ -1,4 +1,5 @@
 import { CinematicError } from '../../domain/cinematic/CinematicApplicationService.js';
+import { normalizeCinematicCastReferences } from '../../domain/cinematic/CinematicImageCastReferences.js';
 import { RepositoryContractError } from '../../repositories/repositoryContracts.js';
 
 export function registerCinematicRoutes(app, {
@@ -275,7 +276,8 @@ export function registerCinematicRoutes(app, {
         req.params.projectId,
         req.params.sceneId,
         req.params.shotId,
-        req.actorContext
+        req.actorContext,
+        req.query.referenceMode
       ));
     } catch (error) {
       sendCinematicError(res, error);
@@ -337,6 +339,16 @@ export function registerCinematicRoutes(app, {
         req.params.shotId,
         req.body || {},
         req.actorContext
+      ));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
+  app.patch('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/video-references', async (req, res) => {
+    try {
+      res.json(await cinematicService.updateShotVideoReferences(
+        req.params.projectId, req.params.sceneId, req.params.shotId, req.body || {}, req.actorContext
       ));
     } catch (error) {
       sendCinematicError(res, error);
@@ -560,6 +572,10 @@ function assertStoryboardBatchOperation(project, operation, context) {
     );
   }
   const request = operation.generationRequest || {};
+  if (JSON.stringify(normalizeCinematicCastReferences(request.cinematicCastReferences)) !== JSON.stringify(normalizeCinematicCastReferences(context.cinematicCastReferences))
+    || (context.cinematicContainsPeople !== undefined && request.cinematicContainsPeople !== context.cinematicContainsPeople)) {
+    throw new CinematicError('cinematic_storyboard_reference_authority_mismatch', 'The Shot Cast reference plan changed.', 409);
+  }
   if (![undefined, null, 'photorealistic-cinematic'].includes(request.cinematicCaptureProfileId)) {
     throw new CinematicError(
       'cinematic_capture_profile_invalid',
@@ -585,13 +601,20 @@ function assertStoryboardBatchOperation(project, operation, context) {
       'Storyboard batch settings do not match the Project output contract.'
     );
   }
-  const expectedReferences = context.references || {};
+  const expectedReferences = {
+    character_reference: context.references?.character_reference || null,
+    outfit_front: context.references?.outfit_front || null,
+    outfit_back: context.references?.outfit_back || null,
+    style_reference: context.references?.style_reference || null
+  };
   const submittedReferences = {
+    character_reference: request.characterReferenceImageA || null,
     outfit_front: request.outfitReferenceImageFront || null,
     outfit_back: request.outfitReferenceImageBack || null,
     style_reference: request.styleReferenceImageA || null
   };
-  if (JSON.stringify(submittedReferences) !== JSON.stringify(expectedReferences)) {
+  if (request.characterReferenceImageB || request.faceReferenceImageA || request.faceReferenceImageB
+    || request.styleReferenceImageB || JSON.stringify(submittedReferences) !== JSON.stringify(expectedReferences)) {
     throw new CinematicError(
       'cinematic_storyboard_reference_authority_mismatch',
       'Storyboard reference authority changed before batch submission.',

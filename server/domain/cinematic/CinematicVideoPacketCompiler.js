@@ -4,6 +4,7 @@ import {
   storyboardKeyframeContractCompiler
 } from './StoryboardKeyframeContractCompiler.js';
 import { cinematicVideoPacketConfigurationService } from './CinematicVideoPacketConfigurationService.js';
+import { cinematicVideoReferenceMode } from './CinematicVideoReferencePlanService.js';
 
 const LEGACY_SECTION_LABELS = Object.freeze({
   startAuthority: 'APPROVED START FRAME',
@@ -26,15 +27,18 @@ export class CinematicVideoPacketCompiler {
     this.configurationService = configurationService;
   }
 
-  compile({ project, scene, shot, approvedStoryboardSource, storyboardAttempt = null }) {
+  compile({ project, scene, shot, approvedStoryboardSource, storyboardAttempt = null, referenceMode = shot?.videoReferenceMode }) {
     if (!project?.id || !scene?.id || !shot?.id) {
       throw new TypeError('Project, Scene and Shot are required to compile a Cinematic video packet.');
     }
     const policy = this.configurationService.getPolicy();
     const promptStrategy = this.configurationService.getPromptStrategy();
-    const source = approvedStoryboardSource || shot.approvedStoryboardSource || null;
-    const approvedContractFingerprint = compact(storyboardAttempt?.keyframeContractFingerprint) || null;
-    const keyframeCandidates = compileKeyframeCandidates(this.keyframeCompiler, project, scene, shot);
+    const looksOnly = cinematicVideoReferenceMode(referenceMode) === 'looks_only';
+    if (looksOnly && !policy.looksOnlyMode) throw new TypeError('The Looks-only prompt policy is not configured.');
+    const source = looksOnly ? null : approvedStoryboardSource || shot.approvedStoryboardSource || null;
+    const approvedContractFingerprint = looksOnly ? null : compact(storyboardAttempt?.keyframeContractFingerprint) || null;
+    const keyframeCandidates = looksOnly ? [this.keyframeCompiler.compile({ project, scene, shot })]
+      : compileKeyframeCandidates(this.keyframeCompiler, project, scene, shot);
     const matchingKeyframeContract = approvedContractFingerprint
       ? keyframeCandidates.find(candidate => (
           matchesStoryboardKeyframeFingerprint(candidate, approvedContractFingerprint)
@@ -42,7 +46,13 @@ export class CinematicVideoPacketCompiler {
       : null;
     const keyframeContract = matchingKeyframeContract || keyframeCandidates[0];
     const findings = [];
-    if (!source?.sourceFingerprint || !source?.imageUrl) {
+    if (looksOnly) {
+      findings.push(...keyframeContract.findings.filter(item => item.severity === 'blocking'));
+      if (!keyframeContract.characterAuthority.length) {
+        findings.push(finding('blocking', 'cinematic_video_reference_cast_missing', 'shot.castAssignmentIds'));
+      }
+    }
+    if (!looksOnly && (!source?.sourceFingerprint || !source?.imageUrl)) {
       findings.push(finding('blocking', 'cinematic_storyboard_source_required', 'shot.approvedStoryboardSource'));
     }
     if (approvedContractFingerprint && !matchingKeyframeContract) {
@@ -59,6 +69,7 @@ export class CinematicVideoPacketCompiler {
     }
 
     const packet = {
+      ...(looksOnly ? { referenceMode: 'looks_only', composition: keyframeContract.composition } : {}),
       contractVersion: policy.contractVersion,
       projectId: project.id,
       projectVersion: Number(project.version || 1),
@@ -74,7 +85,7 @@ export class CinematicVideoPacketCompiler {
         estimatedActionDurationMs: Number(shot.estimatedActionDurationMs || shot.durationMs || 0)
       },
       referenceStrategy: {
-        mode: source ? 'first_frame' : 'unavailable',
+        mode: looksOnly ? 'looks_only' : source ? 'first_frame' : 'unavailable',
         firstFrameAssetVersionId: source?.assetVersionId || null,
         firstFrameSourceFingerprint: source?.sourceFingerprint || null,
         lastFrameAssetVersionId: null,
@@ -100,6 +111,7 @@ export class CinematicVideoPacketCompiler {
         gaze: compact(shot.gaze)
       },
       environment: {
+        ...(scene.artDirection ? { artDirection: compact(scene.artDirection) } : {}),
         location: compact(scene.location),
         time: compact(scene.time),
         lighting: compact(shot.lighting || scene.lighting),
@@ -131,6 +143,10 @@ export class CinematicVideoPacketCompiler {
     const renderedPromptFingerprint = fingerprint(providerIndependentPrompt);
     const fingerprintInput = { ...packet, providerIndependentPrompt };
     delete fingerprintInput.projectVersion;
+    if (looksOnly) {
+      delete fingerprintInput.shotVersion;
+      delete fingerprintInput.sceneVersion;
+    }
     return {
       ...packet,
       packetFingerprint: fingerprint(fingerprintInput),
@@ -181,7 +197,9 @@ function compileKeyframeCandidates(compiler, project, scene, shot) {
 }
 
 function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
-  const referenceMode = referencePlan?.inputMode === 'multimodal_reference' ? strategy?.lookReferenceMode : null;
+  const looksOnly = packet.referenceMode === 'looks_only' || referencePlan?.mode === 'looks_only';
+  const referenceMode = looksOnly ? policy.looksOnlyMode
+    : referencePlan?.inputMode === 'multimodal_reference' ? strategy?.lookReferenceMode : null;
   if (referencePlan?.inputMode === 'multimodal_reference' && !referenceMode) {
     throw new TypeError('The provider has no configured Look reference prompt strategy.');
   }
@@ -205,22 +223,25 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
       packet.motion.screenDirection ? phrase('screenDirection', 'Maintain screen direction: {value}.', { value: packet.motion.screenDirection }) : ''
     ]),
     camera: sentences([
+      ...(looksOnly ? [packet.composition?.framing, packet.composition?.cameraAngle, packet.composition?.lensIntent] : []),
       packet.motion.cameraMovement || phrase('stableCamera', 'Keep the camera restrained and stable.'),
       phrase('cameraImperfection', 'Use subtle natural handheld or optical imperfection only when compatible with the authored camera direction.')
     ]),
-    performance: sentences([
+    performance: packet.authority.characters.length ? sentences([
       packet.performance.emotionalTarget ? phrase('emotionalTarget', 'Visible emotional target: {value}.', { value: packet.performance.emotionalTarget }) : '',
       packet.performance.direction,
       packet.performance.observableCue ? phrase('observableCue', 'Observable cue: {value}.', { value: packet.performance.observableCue }) : '',
       packet.performance.gaze ? phrase('gaze', 'Gaze: {value}.', { value: packet.performance.gaze }) : ''
-    ]),
+    ]) : '',
     environment: sentences([
+      packet.environment.artDirection ? `Art direction: ${packet.environment.artDirection}.` : '',
       [packet.environment.location, packet.environment.time].filter(Boolean).join(', '),
       packet.environment.lighting ? phrase('lighting', 'Lighting: {value}.', { value: packet.environment.lighting }) : '',
       packet.environment.environment,
       packet.environment.propContinuity ? phrase('propContinuity', 'Prop continuity: {value}.', { value: packet.environment.propContinuity }) : ''
     ]),
     continuity: sentences([
+      looksOnly && packet.continuity.entry ? `Entry state: ${packet.continuity.entry}.` : '',
       packet.motion.visibleEnd ? phrase('endState', 'End state: {value}.', { value: packet.motion.visibleEnd }) : '',
       packet.continuity.exit ? phrase('exitAnchor', 'Exit anchor: {value}.', { value: packet.continuity.exit }) : '',
       packet.continuity.transitionToNext ? phrase('prepareFor', 'Prepare for: {value}.', { value: packet.continuity.transitionToNext }) : '',
@@ -235,10 +256,11 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
     authorDirection: packet.authorDirection
   };
   const omittedSections = new Set(strategy?.omitSections || []);
+  if (looksOnly) omittedSections.delete('authorDirection');
   if (referenceMode) {
     sections.startAuthority = sentences([referenceMode.startAuthority, packet.motion.visibleStart,
-      ...referencePlan.references.slice(1).map((reference, index) => template(referenceMode.characterMapping, {
-        imageNumber: index + 2, roleName: reference.roleName, lookName: reference.lookName
+      ...(referencePlan?.references || []).slice(looksOnly ? 0 : 1).map((reference, index) => template(referenceMode.characterMapping, {
+        imageNumber: index + (looksOnly ? 1 : 2), roleName: reference.roleName, lookName: reference.lookName
       })), referenceMode.prohibitions]);
   }
   const prompt = [

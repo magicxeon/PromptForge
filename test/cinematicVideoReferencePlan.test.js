@@ -10,6 +10,7 @@ import { CharacterLookService } from '../server/domain/character-profiles/Charac
 import { CinematicApplicationService } from '../server/domain/cinematic/CinematicApplicationService.js';
 import { createSingleCharacterCinematicProject } from './fixtures/cinematic/cinematicProjectFixtures.js';
 import { normalizeVideoReferences, fingerprintVideoReferencePlan, sanitizeVideoReferences } from '../server/domain/generation/VideoReferencePlan.js';
+import { CinematicTimelineCompiler } from '../server/domain/cinematic/CinematicTimelineCompiler.js';
 
 function fixture() {
   const calls = [];
@@ -96,11 +97,124 @@ test('single first-frame mode remains unchanged and never loads a Look', async (
   assert.equal(calls.length, 0);
 });
 
+test('looks-only resolves N sheets without reading the disabled source and preserves Cast order', async () => {
+  const { input, service } = fixture();
+  input.mode = 'looks_only';
+  input.model.referenceImageLimit = 2;
+  input.source = new Proxy({}, { get() { throw new Error('Disabled First Frame was read'); } });
+  const result = await service.prepare(input);
+  assert.equal(result.references.length, 2);
+  assert.deepEqual(result.references.map(item => item.role), ['reference_image', 'reference_image']);
+  assert.deepEqual(result.references.map(item => item.castAssignmentId), ['b', 'a']);
+  assert.equal(result.inputMode, 'multimodal_reference');
+  input.source = null;
+  assert.deepEqual(await service.prepare(input), result);
+  input.shot.castMode = 'none';
+  await assert.rejects(service.prepare(input), { code: 'cinematic_video_reference_cast_missing' });
+});
+
+test('only looks-only permits absent frame and unknown modes fail closed', async () => {
+  const { input, service } = fixture();
+  for (const mode of [undefined, 'storyboard_only', 'storyboard_and_looks']) {
+    await assert.rejects(service.prepare({ ...input, source: null, mode }), { code: 'cinematic_storyboard_source_required' });
+  }
+  await assert.rejects(service.prepare({ ...input, mode: 'unknown' }), { code: 'cinematic_video_reference_mode_invalid' });
+});
+
+test('looks-only persists per Shot, quotes, submits, approves and enters Timeline without a Storyboard', async () => {
+  const { input: referenceFixture, service: resolver } = fixture();
+  let project = createSingleCharacterCinematicProject();
+  const scene = project.scenes[0];
+  const shot = scene.shots[0];
+  project.scenes = [scene]; scene.shots = [shot]; scene.shotOrder = [shot.id];
+  const look = project.castAssignments[0].looks[0];
+  Object.assign(look, { mode: 'character_look', locked: true, characterLookId: 'look', characterLookVersionId: 'version' });
+  delete shot.approvedStoryboardSource;
+  delete shot.approvedStoryboardAttemptId;
+  const actor = { ...referenceFixture.actorContext, userId: 'owner' };
+  const requests = [];
+  const service = new CinematicApplicationService({
+    repository: { async findForActor(_id, owner) { assert.equal(owner.userId, 'owner'); return structuredClone(project); },
+      async mutateForActor(_id, owner, update) {
+        assert.equal(owner.userId, 'owner');
+        const draft = structuredClone(project); const result = update(draft); project = draft; return result;
+      } },
+    lookService: resolver.lookService,
+    videoCapabilities: { resolve: () => referenceFixture.model },
+    videoGenerationService: {
+      async quote(request) { requests.push(request); return { estimate: { estimateId: 'quote' } }; },
+      async submit(request) { requests.push(request); return { id: 'task', status: 'completed', providerId: request.providerId, modelId: request.modelId }; },
+      async getAndPoll() { return { id: 'task', status: 'completed', billingStatus: 'captured', durationSeconds: 6,
+        outputAsset: { id: 'clip', publicUrl: '/video.mp4', technicalProbe: { status: 'passed' } } }; }
+    },
+    providerTaskRepository: { async findForActor() { return null; } }
+  });
+  const selection = () => ({ expectedVersion: project.version, expectedShotVersion: shot.version });
+  await service.updateShotVideoReferences(project.id, scene.id, shot.id, { ...selection(), referenceMode: 'storyboard_and_looks' }, actor);
+  await service.updateShotVideoReferences(project.id, scene.id, shot.id, { ...selection(), referenceMode: 'looks_only' }, actor);
+  assert.equal(project.scenes[0].shots[0].lastFirstFrameMode, 'storyboard_and_looks');
+  let context = await service.getProduceShotContext(project.id, scene.id, shot.id, actor);
+  assert.equal(context.generationEligible, true);
+  assert.equal(context.approvedStoryboardSource, null);
+  assert.equal(context.referenceMode, 'looks_only');
+  const input = { ...selection(), sourceFingerprint: null, referenceMode: 'looks_only',
+    videoPacketFingerprint: context.videoPacket.packetFingerprint, prompt: context.videoPacket.providerIndependentPrompt,
+    providerId: 'modelark', modelId: 'dreamina-seedance-2-5-260628', durationSeconds: 6,
+    resolution: '480p', audioMode: 'none' };
+  const quote = await service.quoteVideoAttempt(project.id, scene.id, shot.id, input, actor);
+  assert.equal(quote.referenceSummary.length, 1);
+  assert.equal(quote.approvedStoryboardAssetVersionId, null);
+  const { attemptId } = await service.createVideoAttempt(project.id, scene.id, shot.id,
+    { ...input, estimateId: 'quote', idempotencyKey: 'looks-only' }, actor);
+  assert.equal(requests[0].referenceImageUrl, null);
+  assert.deepEqual(requests[0].references, requests[1].references);
+  assert.equal(requests[1].references[0].role, 'reference_image');
+  assert.match(requests[1].prompt, /Image 1 is the Look Sheet/);
+  // Image-only changes are not effective video dependencies while First Frame is off.
+  project.scenes[0].shots[0].approvedStoryboardSource = { assetId: 'unused', imageUrl: '/unused.png', sourceFingerprint: 'new-unused' };
+  project.scenes[0].shots[0].version += 1;
+  context = await service.approveVideoAttempt(project.id, scene.id, shot.id, attemptId, { expectedVersion: project.version }, actor);
+  assert.equal(context.videoAttempts.find(item => item.id === attemptId).status, 'approved');
+  const timeline = new CinematicTimelineCompiler().compile({ entries: [{ shotId: shot.id }] }, project);
+  assert.equal(timeline.entries[0].downstreamSourceStatus, 'current');
+  assert.equal(timeline.entries[0].sourceFingerprint, null);
+  project.scenes[0].shots[0].subjectAction = 'An entirely different action';
+  await assert.rejects(service.approveVideoAttempt(project.id, scene.id, shot.id, attemptId,
+    { expectedVersion: project.version }, actor), { code: 'cinematic_video_packet_stale' });
+});
+
 test('scene selections are the fallback when the Shot has no overrides', async () => {
   const { input, service } = fixture();
   input.shot = {};
   const result = await service.prepare(input);
   assert.deepEqual(result.references.slice(1).map(item => item.castAssignmentId), ['a', 'b']);
+});
+
+test('First Frame preference preserves the image, rejects active tasks, and accepts a terminal task despite stale Attempt projection', async () => {
+  let project = createSingleCharacterCinematicProject();
+  const sceneId = project.scenes[0].id;
+  const shotId = project.scenes[0].shots[0].id;
+  const original = structuredClone(project.scenes[0].shots[0].approvedStoryboardSource);
+  let taskStatus = 'provider_processing';
+  const service = new CinematicApplicationService({
+    repository: { async findForActor() { return structuredClone(project); },
+      async mutateForActor(_id, _actor, update) { const draft = structuredClone(project); const result = update(draft); project = draft; return result; } },
+    providerTaskRepository: { async findForActor() { return { status: taskStatus }; } }
+  });
+  const change = referenceMode => service.updateShotVideoReferences(project.id, sceneId, shotId, {
+    expectedVersion: project.version, expectedShotVersion: project.scenes[0].shots[0].version, referenceMode
+  }, { userId: 'owner' });
+  await change('storyboard_and_looks');
+  await change('looks_only');
+  assert.equal(project.scenes[0].shots[0].lastFirstFrameMode, 'storyboard_and_looks');
+  assert.deepEqual(project.scenes[0].shots[0].approvedStoryboardSource, original);
+  project.generationAttempts.push({ id: 'active', shotId, operation: 'cinematic_draft_clip', generationJobId: 'task', status: 'provider_queued' });
+  await assert.rejects(change('storyboard_and_looks'), { code: 'cinematic_video_attempt_active' });
+  taskStatus = 'failed';
+  await change('storyboard_and_looks');
+  assert.deepEqual(project.scenes[0].shots[0].approvedStoryboardSource, original);
+  assert.equal(project.scenes[0].shots[0].videoReferenceMode, 'storyboard_and_looks');
+  await assert.rejects(change('invalid'), { code: 'cinematic_video_reference_mode_invalid' });
 });
 
 test('unsupported mode and reference overflow fail before loading media', async () => {

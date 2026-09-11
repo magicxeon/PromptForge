@@ -1,8 +1,16 @@
 {
   "schemaVersion": 1,
   "id": "cinematic-authoring-field-manifest",
-  "version": 2,
+  "version": 4,
   "fields": [
+    { "path": "setup.storyCountryStyle", "group": "intent", "visibility": "simple", "requirement": "optional", "authorities": ["user", "legacy_inferred"], "consumers": ["story-plan"], "localizationKey": "cinematic.setup.storyCountryStyle" },
+    { "path": "setup.genres", "group": "intent", "visibility": "simple", "requirement": "optional", "authorities": ["user", "legacy_inferred"], "consumers": ["story-plan", "storyboard", "produce"], "localizationKey": "cinematic.setup.genre" },
+    { "path": "setup.audienceFeelings", "group": "intent", "visibility": "simple", "requirement": "optional", "authorities": ["user", "legacy_inferred"], "consumers": ["story-plan", "storyboard", "produce"], "localizationKey": "cinematic.setup.audienceFeeling" },
+    { "path": "setup.pacingTraits", "group": "intent", "visibility": "simple", "requirement": "optional", "authorities": ["user", "legacy_inferred"], "consumers": ["story-plan", "produce", "finish"], "localizationKey": "cinematic.setup.pacing" },
+    { "path": "scene.artDirection", "group": "visual", "visibility": "advanced", "requirement": "optional", "authorities": ["user", "ai"], "consumers": ["storyboard", "produce"], "localizationKey": "cinematic.director.artDirection", "maxLength": 1000 },
+    { "path": "scene.castMode", "group": "cast", "visibility": "simple", "requirement": "optional", "authorities": ["user", "ai", "legacy_inferred"], "consumers": ["storyboard", "produce"], "localizationKey": "cinematic.director.castCoverage" },
+    { "path": "shot.castMode", "group": "cast", "visibility": "simple", "requirement": "optional", "authorities": ["user", "ai", "inherited", "legacy_inferred"], "consumers": ["storyboard", "produce"], "localizationKey": "cinematic.director.castCoverage" },
+    { "path": "shot.openingFrameVersion", "group": "visual", "visibility": "system", "requirement": "derived", "authorities": ["default"], "consumers": ["storyboard", "produce"], "localizationKey": "cinematic.director.visibleMoment" },
     { "path": "setup.storyBrief", "group": "story", "visibility": "simple", "requirement": "required", "authorities": ["user", "ai"], "consumers": ["story-plan", "storyboard", "produce"], "localizationKey": "cinematic.setup.storyBrief", "maxLength": 600 },
     { "path": "setup.creativeDirection", "group": "story", "visibility": "simple", "requirement": "optional", "authorities": ["user", "ai"], "consumers": ["story-plan", "storyboard", "produce"], "localizationKey": "cinematic.setup.creativeDirection", "maxLength": 800 },
     { "path": "setup.format", "group": "format", "visibility": "system", "requirement": "required", "authorities": ["default"], "consumers": ["story-plan", "storyboard", "produce", "finish"], "localizationKey": "cinematic.setup.format" },

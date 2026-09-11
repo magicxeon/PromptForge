@@ -1,7 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, Clock3, Plus, Search, Trash2, UserRound, WandSparkles } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, ChevronLeft, ChevronRight, Clock3, Plus, Search, Sparkles, Trash2, UserRound, WandSparkles } from 'lucide-react';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
@@ -96,32 +96,46 @@ export function StoryEnhanceDialog({ open, onOpenChange, draft, purpose = 'story
   const { t } = useTranslation('cinematic');
   const [result, setResult] = useState<CinematicStoryEnhancement | null>(null);
   const [editedBrief, setEditedBrief] = useState('');
+  const [editedDirection, setEditedDirection] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const request = useRef(0);
+  const rolesOnly = purpose === 'roles';
+  const sourceKey = JSON.stringify(draft);
   useEffect(() => {
-    if (!open) return;
+    request.current++;
     setResult(null);
     setEditedBrief('');
+    setEditedDirection('');
     setError(null);
-  }, [open, draft.storyBrief]);
+    setLoading(false);
+    return () => { request.current++; };
+  }, [open, sourceKey, purpose]);
 
   async function generate() {
+    if (loading) return;
+    const current = ++request.current;
     setLoading(true);
     setError(null);
+    setResult(null);
     try {
-      const enhancement = await enhanceCinematicStory(draft);
+      const enhancement = await enhanceCinematicStory(draft, purpose);
+      if (request.current !== current) return;
+      if ((enhancement.purpose && enhancement.purpose !== purpose) || (rolesOnly && !enhancement.recommendedRoles.length)) throw new Error(t('cinematic.enhance.failed'));
       setResult(enhancement);
       setEditedBrief(enhancement.enhancedStoryBrief);
+      setEditedDirection(enhancement.creativeDirection);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : t('cinematic.enhance.failed'));
+      if (request.current === current) setError(reason instanceof Error ? reason.message : t('cinematic.enhance.failed'));
     } finally {
-      setLoading(false);
+      if (request.current === current) setLoading(false);
     }
   }
 
+  const canApply = Boolean(result && !loading && (rolesOnly ? result.recommendedRoles.length : editedBrief.trim()));
   function apply() {
-    if (!result || !editedBrief.trim()) return;
-    onApply({ ...result, enhancedStoryBrief: editedBrief.trim() });
+    if (!result || !canApply) return;
+    onApply(rolesOnly ? result : { ...result, enhancedStoryBrief: editedBrief.trim(), creativeDirection: editedDirection.trim() });
     onOpenChange(false);
   }
 
@@ -131,31 +145,55 @@ export function StoryEnhanceDialog({ open, onOpenChange, draft, purpose = 'story
         <Dialog.Overlay className="cinematic-dialog__overlay" />
         <Dialog.Content className="cinematic-dialog__content cinematic-dialog__content--wide">
           <DialogHeader title={t(purpose === 'roles' ? 'cinematic.enhance.roleTitle' : 'cinematic.enhance.title')} description={t(purpose === 'roles' ? 'cinematic.enhance.roleDescription' : 'cinematic.enhance.description')} />
-          <div className="cinematic-compare-grid">
+          <dl className="cinematic-operation-intent">
+            {[
+              ['cinematic.setup.storyCountryStyle', t(`cinematic.countryStyle.${draft.storyCountryStyle ?? 'none'}`)],
+              ['cinematic.setup.genre', (draft.genres || [draft.genre]).map(id => t(`cinematic.genre.${id}`)).join(' + ')],
+              ['cinematic.setup.feeling', (draft.audienceFeelings || [draft.audienceFeeling]).map(id => t(`cinematic.feeling.${id}`)).join(' > ')],
+              ['cinematic.setup.pacing', (draft.pacingTraits || [draft.pacing]).map(id => t(`cinematic.pacing.${id}`)).join(' + ')]
+            ].map(([label, value]) => <div key={label}><dt>{t(label!)}</dt><dd>{value}</dd></div>)}
+          </dl>
+          {rolesOnly ? <>
+            <details className="cinematic-role-analysis-source"><summary>{t('cinematic.roles.source')}</summary><p>{draft.storyBrief}</p></details>
+            <section className="cinematic-role-analysis" aria-label={t('cinematic.enhance.recommendedCast')}>
+              <h3>{t('cinematic.enhance.recommendedCast')}{result ? ` (${result.recommendedRoles.length})` : ''}</h3>
+              {result ? result.recommendedRoles.map(role => <article key={role.id}>
+                <header><h4>{role.label}</h4><span>{t(`cinematic.roleImportance.${role.importance}`)}</span></header>
+                <dl>{[
+                  ['cinematic.setup.storyFunction', role.storyFunction], ['cinematic.setup.roleObjective', role.objective],
+                  ['cinematic.setup.relationshipHint', role.relationshipHint], ['cinematic.setup.roleEmotionalArc', role.emotionalArc],
+                  ['cinematic.setup.roleTraits', role.personalityTraits?.join(', ')], ['cinematic.setup.rolePerformance', role.performanceDirection]
+                ].filter(([, value]) => value).map(([label, value]) => <div key={label}><dt>{t(label!)}</dt><dd>{value}</dd></div>)}</dl>
+              </article>) : <p>{t('cinematic.roles.empty')}</p>}
+            </section>
+          </> : <div className="cinematic-compare-grid">
             <article><span>{t('cinematic.enhance.original')}</span><p>{draft.storyBrief}</p></article>
             <article className="is-enhanced"><span>{t('cinematic.enhance.preview')}</span>{result
               ? <textarea aria-label={t('cinematic.enhance.preview')} maxLength={600} rows={7} value={editedBrief} onChange={event => setEditedBrief(event.target.value)} />
               : <p>{t('cinematic.enhance.previewEmpty')}</p>}</article>
-          </div>
-          {result ? <section className="cinematic-enhancement-details">
+          </div>}
+          {result && !rolesOnly ? <section className="cinematic-enhancement-details">
             <div><strong>{t('cinematic.enhance.conflict')}</strong><p>{result.conflict}</p></div>
             <div><strong>{t('cinematic.enhance.arc')}</strong><p>{result.emotionalArc}</p></div>
-            <div className="is-wide"><strong>{t('cinematic.enhance.recommendedCast')}</strong><ul>{result.recommendedRoles.map(role => <li key={role.id}><b>{role.label}</b> · {t(`cinematic.roleImportance.${role.importance}`)} — {role.storyFunction}</li>)}</ul></div>
+            <label className="is-wide"><strong>{t('cinematic.setup.creativeDirection')}</strong><textarea rows={3} maxLength={800} value={editedDirection} onChange={event => setEditedDirection(event.target.value)} /></label>
           </section> : null}
+          <p className="cinematic-operation-apply-note">{t(rolesOnly ? 'cinematic.roles.applyNote' : 'cinematic.enhance.rolesPreserved')}</p>
+          {result?.warnings.length ? <ul className="cinematic-operation-warnings">{result.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul> : null}
           {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
           <ContextualOperationDock
-            title={t('cinematic.enhance.operationTitle')}
-            description={t('cinematic.enhance.operationDescription')}
+            title={t(rolesOnly ? 'cinematic.roles.operationTitle' : 'cinematic.enhance.operationTitle')}
+            description={t(rolesOnly ? 'cinematic.roles.operationDescription' : 'cinematic.enhance.operationDescription')}
             operation={t('cinematic.enhance.operation')}
             notice={t('cinematic.enhance.qualificationNotice')}
-            actionLabel={t('cinematic.enhance.generate')}
+            actionLabel={t(rolesOnly ? 'cinematic.roles.generate' : 'cinematic.enhance.generateStory')}
+            actionIcon={<Sparkles aria-hidden="true" />}
             disabled={!draft.storyBrief.trim() || loading}
             loading={loading}
             onAction={() => void generate()}
           />
           <div className="cinematic-dialog__footer">
             <Dialog.Close asChild><Button>{t('cinematic.actions.cancel')}</Button></Dialog.Close>
-            <Button variant="primary" disabled={!result || !editedBrief.trim()} icon={<Check aria-hidden="true" />} onClick={apply}>{t('cinematic.enhance.apply')}</Button>
+            <Button variant="primary" disabled={!canApply} icon={<Check aria-hidden="true" />} onClick={apply}>{t(rolesOnly ? 'cinematic.roles.apply' : 'cinematic.enhance.applyStory')}</Button>
           </div>
         </Dialog.Content>
       </Dialog.Portal>
@@ -171,7 +209,9 @@ type CharacterCandidatePage = {
   hasMore: boolean;
 };
 
-export function CharacterPickerDialog({ open, onOpenChange, onSelect }: OpenDialogProps & { onSelect?: (character: CharacterCandidate) => void | Promise<void> }) {
+export function CharacterPickerDialog({ open, onOpenChange, onSelect, onChooseGenerated }: OpenDialogProps & {
+  onSelect?: (character: CharacterCandidate) => void | Promise<void>; onChooseGenerated?: () => void;
+}) {
   const { t } = useTranslation('cinematic');
   const [query, setQuery] = useState('');
   const [gender, setGender] = useState('all');
@@ -258,6 +298,10 @@ export function CharacterPickerDialog({ open, onOpenChange, onSelect }: OpenDial
         <Dialog.Content className="cinematic-dialog__content cinematic-dialog__content--wide cinematic-dialog__character-picker-shell">
           <div className="cinematic-dialog__character-picker-header">
             <DialogHeader title={t('cinematic.picker.title')} description={t('cinematic.picker.description')} />
+            {onChooseGenerated ? <div className="cinematic-character-tabs" aria-label={t('cinematic.castSource.source')}>
+              <button type="button" className="is-active" aria-pressed="true">{t('cinematic.castSource.character')}</button>
+              <button type="button" disabled={submitting} aria-pressed="false" onClick={onChooseGenerated}>{t('cinematic.castSource.sheet')}</button>
+            </div> : null}
           <div className="cinematic-picker-filters">
             <label className="cinematic-search-field"><Search aria-hidden="true" /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={t('cinematic.picker.search')} /></label>
             <select aria-label={t('cinematic.picker.gender')} value={gender} onChange={event => setGender(event.target.value)}>
@@ -384,7 +428,17 @@ export function SceneDirectorDialog({
   ) {
     setDraft(current => {
       if (!current) return current;
-      const shots = current.shots.map(shot => shot.id === shotId ? { ...shot, [field]: value } : shot);
+      const shots = current.shots.map(shot => shot.id === shotId ? {
+        ...shot, [field]: value,
+        ...(['visibleMoment', 'continuityEntry'].includes(field) ? { openingFrameVersion: 1 as const } : {}),
+        ...(field === 'castMode' && value === 'none' ? { castAssignmentIds: [], wardrobeLookIds: [], dialogueCues: [], performance: '', performanceCue: '', gaze: '' } : {}),
+        ...(field === 'castMode' && value === 'inherit' ? { castAssignmentIds: [...current.castAssignmentIds], wardrobeLookIds: [...current.wardrobeLookIds] } : {}),
+        ...(field === 'castAssignmentIds' && Array.isArray(value) ? {
+          castMode: 'selected' as const,
+          wardrobeLookIds: castAssignments.filter(assignment => value.some(id => id === assignment.id))
+            .flatMap(assignment => readAssignmentLooks(assignment).filter(look => current.wardrobeLookIds.includes(look.id)).map(look => look.id))
+        } : {})
+      } : shot);
       return { ...current, shots, durationMs: shots.reduce((total, shot) => total + shot.durationMs, 0) };
     });
   }
@@ -418,6 +472,7 @@ export function SceneDirectorDialog({
       id, version: 1, orderKey: shots.length + 1,
       title: t('cinematic.story.newShotTitle', { count: shots.length + 1 }), purpose: '', durationMs: 1000,
       coverageRole: shots.length ? 'action' : 'establishing',
+      openingFrameVersion: 1, castMode: draft.castMode === 'none' ? 'none' : 'inherit',
       visibleMoment: '', subjectAction: '', emotionalTarget: '', performanceCue: '',
       framing: 'medium shot', cameraAngle: 'eye level', cameraMovement: 'locked camera', lensIntent: '',
       blocking: '', performance: '', gaze: '', lighting: '', environment: '', audioIntent: '', prompt: '',
@@ -450,14 +505,14 @@ export function SceneDirectorDialog({
         : current.wardrobeLookIds.filter(id => !assignmentLookIds.has(id));
       const shots = current.shots.map(shot => ({
         ...shot,
-        castAssignmentIds: selected
+        castAssignmentIds: selected && shot.castMode !== 'none' && shot.castMode !== 'selected'
           ? uniqueIds([...shot.castAssignmentIds, assignmentId])
-          : shot.castAssignmentIds.filter(id => id !== assignmentId),
+          : selected ? shot.castAssignmentIds : shot.castAssignmentIds.filter(id => id !== assignmentId),
         wardrobeLookIds: selected
           ? shot.wardrobeLookIds
           : shot.wardrobeLookIds.filter(id => !assignmentLookIds.has(id))
       }));
-      return { ...current, castAssignmentIds, wardrobeLookIds, shots };
+      return { ...current, castMode: castAssignmentIds.length ? 'selected' : 'none', castAssignmentIds, wardrobeLookIds, shots };
     });
   };
   const selectWardrobeLook = (assignmentId: string, lookId: string) => {
@@ -472,7 +527,8 @@ export function SceneDirectorDialog({
       return {
         ...current,
         wardrobeLookIds: replaceLook(current.wardrobeLookIds),
-        shots: current.shots.map(shot => ({ ...shot, wardrobeLookIds: replaceLook(shot.wardrobeLookIds) }))
+        shots: current.shots.map(shot => ({ ...shot, wardrobeLookIds: shot.castMode === 'none' ? []
+          : shot.castMode === 'selected' && !shot.castAssignmentIds.includes(assignmentId) ? shot.wardrobeLookIds : replaceLook(shot.wardrobeLookIds) }))
       };
     });
   };
@@ -534,6 +590,7 @@ export function SceneDirectorDialog({
           {authoringMode === 'advanced' ? <details className="cinematic-director-advanced" open>
             <summary>{t('cinematic.director.advanced')}</summary>
             <div className="cinematic-director-grid">
+              <label className="cinematic-director-grid__wide"><span>{t('cinematic.director.artDirection')}</span><textarea rows={3} maxLength={1000} value={displayScene.artDirection || ''} onChange={event => update('artDirection', event.target.value)} /></label>
               <label><span>{t('cinematic.director.lighting')}</span><textarea rows={3} value={displayScene.lighting} onChange={event => update('lighting', event.target.value)} /></label>
               <label><span>{t('cinematic.director.performance')}</span><textarea rows={3} value={displayScene.performance} onChange={event => update('performance', event.target.value)} /></label>
               <label><span>{t('cinematic.director.audio')}</span><textarea rows={3} value={displayScene.audioIntent} onChange={event => update('audioIntent', event.target.value)} /></label>

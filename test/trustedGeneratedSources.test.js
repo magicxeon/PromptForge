@@ -5,8 +5,11 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { TrustedGeneratedSourceRepository } from '../server/repositories/generation/TrustedGeneratedSourceRepository.js';
+import { GenerationResultRepository } from '../server/repositories/generation/GenerationResultRepository.js';
+import { HistoryRepository } from '../server/repositories/generation/HistoryRepository.js';
 import {
   TrustedGeneratedSourceService,
+  isGeneratedLookSheet,
   trustedSourceEligibility,
   verifyTrustedOutputUrl,
 } from '../server/domain/generation/TrustedGeneratedSourceService.js';
@@ -93,11 +96,10 @@ test('eligibility distinguishes age, source model/mode, account and missing evid
       { originalOutputUrl: 'https://bytepluses.com.attacker.test/image' },
       'url_unavailable',
     ],
-    [{ rejection: { taskId: 'failed' } }, 'provider_rejected'],
   ])
     assert.equal(
       trustedSourceEligibility(
-        { ...source, ...patch },
+        { ...source, rejection: { taskId: 'failed' }, ...patch },
         { scope: 'account', now },
       ).reason,
       reason,
@@ -142,6 +144,7 @@ async function fixture(t, ids = ['first', 'look']) {
     ownerUserId: actor.userId,
     imageUrl: `/outputs/${id}.jpg`,
     submodel: policy.modelIds[0],
+    mode: id === 'look' ? 'character-sheet' : 'scene',
   }));
   const history = {
     async findByOwner(owner, query) {
@@ -150,6 +153,7 @@ async function fixture(t, ids = ['first', 'look']) {
       if (query.allowedJobIds instanceof Set) {
         selected = selected.filter((row) => query.allowedJobIds.has(row.id));
       }
+      if (query.itemFilter) selected = selected.filter(query.itemFilter);
       return {
         items: selected,
         hasMore: false,
@@ -361,14 +365,54 @@ test('private captured URL does not leak through listing or task references', as
   assert.equal(f.checked.length, 4);
 });
 
-test('eligible-only listing filters before the paged history projection', async (t) => {
+test('past rejection remains eligible in image and Look Sheet listings without erasing evidence', async (t) => {
   const f = await fixture(t);
   await f.repository.reject(['look'], actor.userId, {
     reason: 'provider_rejected', createdAt: new Date(now).toISOString()
   });
   const page = await f.service.list(actor, { eligibleOnly: true });
-  assert.deepEqual(page.items.map((row) => row.id), ['first']);
-  assert.equal(page.items[0].eligible, true);
+  assert.deepEqual(page.items.map((row) => row.id), ['first', 'look']);
+  assert.ok(page.items.every(row => row.eligible && row.reason === null));
+  const sheets = await f.service.list(actor, { eligibleOnly: true, category: 'look-sheet' });
+  assert.deepEqual(sheets.items.map(row => row.id), ['look']);
+  assert.equal((await f.repository.findManyForOwner(['look'], actor.userId))[0].rejection.reason, 'provider_rejected');
+  assert.equal(f.calls.reserves.length, 0);
+  assert.equal(f.calls.dispatched.length, 0);
+});
+
+test('sheet-only listing excludes other categories without restricting generic first-frame selection', async (t) => {
+  const f = await fixture(t);
+  const sheets = await f.service.list(actor, { eligibleOnly: true, category: 'look-sheet' });
+  assert.deepEqual(sheets.items.map(row => row.id), ['look']);
+  assert.equal(sheets.items[0].category, 'look-sheet');
+  assert.equal((await f.service.list(actor, { eligibleOnly: true })).items.length, 2);
+  assert.deepEqual((await f.service.list({ userId: 'other' }, { category: 'look-sheet' })).items, []);
+  await assert.rejects(f.service.describeOwnedImage('first', actor, { requireLookSheet: true }), error => error.details.reason === 'look_sheet_required');
+  assert.equal((await f.service.describeOwnedImage('look', actor, { requireLookSheet: true })).id, 'look');
+  await assert.rejects(f.service.list(actor, { category: 'anything' }), { code: 'video_source_category_invalid' });
+});
+
+test('Look Sheet metadata filtering precedes real repository pagination and binds cursor scope', async (t) => {
+  const f = await fixture(t);
+  const rows = Array.from({ length: 60 }, (_, index) => ({
+    id: `item-${index}`, timestamp: 1000 - index, username: actor.username,
+    imageUrl: `/outputs/${index}.jpg`, mode: index % 2 ? 'scene' : 'character-sheet'
+  }));
+  const store = new HistoryRepository();
+  store.readAll = async () => rows;
+  f.service.history = new GenerationResultRepository({ historyStore: store,
+    userRepository: { findById: async id => id === actor.userId ? actor : null,
+      findByUsername: async () => actor } });
+  const first = await f.service.list(actor, { category: 'look-sheet' });
+  assert.equal(first.items.length, 24);
+  assert.ok(first.items.every(item => item.category === 'look-sheet'));
+  assert.equal(first.hasMore, true);
+  const next = await f.service.list(actor, { category: 'look-sheet', cursor: first.nextCursor });
+  assert.equal(next.items.length, 6);
+  assert.equal(next.hasMore, false);
+  await assert.rejects(f.service.list(actor, { cursor: first.nextCursor }), { code: 'invalid_history_cursor' });
+  assert.equal(isGeneratedLookSheet({ lookSheetSnapshot: { schemaVersion: 1, presetId: 'momelo' } }), true);
+  assert.equal(isGeneratedLookSheet({ prompt: 'character look sheet', mode: 'scene' }), false);
 });
 
 test('first frame sends one original URL with no ratio or hidden Look', async (t) => {
@@ -438,7 +482,7 @@ test('all restricted catalog models reject legacy upload/URL/Character and forge
   assert.equal(f.calls.reserves.length, 0);
 });
 
-test('deleted/foreign/changed originals and post-quote rejection fail before reservation', async (t) => {
+test('past rejection permits explicit retry while deleted, foreign and changed originals remain blocked', async (t) => {
   const f = await fixture(t);
   await assert.rejects(f.app.quote(f.input, { userId: 'other' }));
   f.histories[0].status = 'deleted';
@@ -456,21 +500,27 @@ test('deleted/foreign/changed originals and post-quote rejection fail before res
     },
     actor,
   );
-  await assert.rejects(
-    f.app.submit(
+  assert.equal(f.calls.reserves.length, 0);
+  assert.equal(f.calls.dispatched.length, 0);
+  const retryQuote = await f.app.quote(f.input, actor);
+  assert.equal(retryQuote.requestFingerprint, quote.requestFingerprint);
+  await f.app.submit(
       {
         ...f.input,
         estimateId: 'quote',
         requestFingerprint: quote.requestFingerprint,
-        idempotencyKey: 'changed',
+        idempotencyKey: 'explicit-user-retry',
       },
       actor,
-    ),
-  );
-  assert.equal(f.calls.reserves.length, 0);
+    );
+  assert.equal(f.calls.reserves.length, 1);
+  assert.equal(f.calls.dispatched.length, 1);
+  assert.deepEqual(buildModelArkSeedancePayload(f.calls.dispatched[0]).content.slice(1).map(row => row.image_url.url),
+    ['first', 'look'].map(id => source.originalOutputUrl.replace('original', id)));
+  assert.equal((await f.repository.findManyForOwner(['first'], actor.userId))[0].rejection.taskId, 'failed-task');
   assert.equal(
     (await f.service.list(actor)).items[0].reason,
-    'provider_rejected',
+    null,
   );
   await fs.writeFile(path.join(f.directory, 'look.jpg'), 'changed');
   await assert.rejects(

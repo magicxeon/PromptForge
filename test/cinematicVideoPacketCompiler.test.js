@@ -53,6 +53,35 @@ test('Cinematic video packet is deterministic and binds approved first-frame aut
   assert.ok(first.providerIndependentPrompt.length <= 3800);
 });
 
+test('looks-only packet ignores unused images, maps from Image 1 and keeps authored opening', () => {
+  const project = createSingleCharacterCinematicProject();
+  const scene = project.scenes[0];
+  const shot = scene.shots[0];
+  shot.videoReferenceMode = 'looks_only';
+  shot.framing = 'Wide shot under the cafe awning';
+  const compiler = new CinematicVideoPacketCompiler();
+  const before = compiler.compile({ project, scene, shot });
+  assert.equal(before.approvedStoryboardSourceFingerprint, null);
+  assert.equal(before.findings.some(item => item.severity === 'blocking'), false);
+  delete shot.approvedStoryboardSource;
+  shot.version += 1;
+  scene.version += 1;
+  assert.equal(compiler.compile({ project, scene, shot }).packetFingerprint, before.packetFingerprint);
+  const referencePlan = { mode: 'looks_only', inputMode: 'multimodal_reference', references: [
+    { roleName: 'Mira', lookName: 'Cafe' }, { roleName: 'Kin', lookName: 'Visitor' }
+  ] };
+  const rendered = compiler.renderForProvider(before, { providerId: 'modelark', referencePlan }).prompt;
+  assert.match(rendered, /Image 1.*Mira/);
+  assert.match(rendered, /Image 2.*Kin/);
+  assert.match(rendered, /Wide shot under the cafe awning/);
+  assert.doesNotMatch(rendered, /immutable first frame|APPROVED START FRAME|Image 1 is the Storyboard|Animate the supplied first frame/);
+  assert.match(rendered, /Never reproduce sheet panels/);
+  shot.subjectAction = 'Pick up the cup';
+  assert.notEqual(compiler.compile({ project, scene, shot }).packetFingerprint, before.packetFingerprint);
+  referencePlan.references[0].roleName = 'a'.repeat(4000);
+  assert.throws(() => compiler.renderForProvider(before, { providerId: 'modelark', referencePlan }), { code: 'cinematic_video_reference_prompt_too_long' });
+});
+
 test('Cinematic video packet renders deterministic provider strategies from one authority packet', () => {
   const project = createSingleCharacterCinematicProject();
   const scene = project.scenes[0];

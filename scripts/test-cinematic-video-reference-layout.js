@@ -45,12 +45,16 @@ try {
       const e = React.createElement;
       function Screen() {
         const [mode,setMode] = React.useState('storyboard_and_looks');
+        const [loading,setLoading] = React.useState(false);
+        window.setReferenceLoading = setLoading;
+        const references = [
+          {assetId:'board',purpose:'storyboard_opening',previewUrl:'/api/test-reference'},
+          {assetId:'look-a',purpose:'character_look',roleName:'Character with a long role name',lookName:'A long approved wardrobe name for responsive wrapping',previewUrl:'/api/test-reference'},
+          {assetId:'look-b',purpose:'character_look',roleName:'Second Character',lookName:'Visitor',previewUrl:'/api/test-reference'}
+        ].filter(item => mode === 'looks_only' ? item.purpose !== 'storyboard_opening' : true)
+          .map((item,index) => ({...item,imageNumber:index+1}));
         return e(EngineTargetPanelFrame,{title:'Render video',studioLayout:true,className:'engine-target-panel--compact'},
-          e(ProduceVideoReferences,{mode,onChange:setMode,disabled:false,loading:false,references:[
-            {imageNumber:1,assetId:'board',purpose:'storyboard_opening',previewUrl:'/api/test-reference'},
-            {imageNumber:2,assetId:'look-a',purpose:'character_look',roleName:'Character with a long role name',lookName:'A long approved wardrobe name for responsive wrapping',previewUrl:'/api/test-reference'},
-            {imageNumber:3,assetId:'look-b',purpose:'character_look',roleName:'Second Character',lookName:'Visitor',previewUrl:'/api/test-reference'}
-          ]}));
+          e(ProduceVideoReferences,{mode,onChange:setMode,lastFirstFrameMode:'storyboard_and_looks',disabled:loading,loading,references}));
       }
       ReactDOM.createRoot(document.getElementById('root')).render(e(QueryClientProvider,{client:new QueryClient()},e(ActorProvider,null,e(I18nextProvider,{i18n},e(Screen)))));
     </script></body></html>` }));
@@ -67,6 +71,21 @@ try {
       await page.getByRole('combobox', { name: 'Reference mode' }).click();
       await page.getByRole('option', { name: 'Storyboard + Character Looks', exact: true }).click();
       await page.screenshot({ path: path.join(output, `${width}-${theme}.png`), fullPage: true });
+      const toggle = page.getByRole('switch', { name: 'Use First Frame' });
+      await toggle.focus();
+      await page.keyboard.press('Space');
+      assert.equal(await toggle.getAttribute('aria-checked'), 'false');
+      assert.equal(await page.locator('li').count(), 2);
+      assert.equal(await page.getByText('Storyboard reference', { exact: false }).count(), 0);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      await toggle.evaluate(element => Promise.all(element.getAnimations({ subtree: true }).map(animation => animation.finished)));
+      await page.screenshot({ path: path.join(output, `${width}-${theme}-looks-only.png`), fullPage: true });
+      await page.evaluate(() => window.setReferenceLoading(true));
+      await page.locator('[data-processing-spinner]').waitFor();
+      assert.equal(await toggle.isDisabled(), true);
+      await page.evaluate(() => window.setReferenceLoading(false));
+      await toggle.click();
+      assert.equal(await page.locator('li').count(), 3);
     }
   }
   assert.deepEqual(errors, []);

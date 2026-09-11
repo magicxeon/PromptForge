@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "version": 2,
+  "countryStyles": {
+    "default": "none",
+    "options": [
+      { "id": "none", "flag": null, "guidance": "No regional storytelling preset. Follow the supplied premise and creative intent." },
+      { "id": "thailand", "flag": "th", "guidance": "Thai contemporary drama inspiration: grounded everyday relationships, warm moments alongside conflict, socially aware subtext and earned emotional release. Use only where compatible with the selected genre." },
+      { "id": "south-korea", "flag": "kr", "guidance": "Korean drama inspiration: relationship-driven tension, layered motivations, carefully timed revelations and emotionally earned turning points. Preserve the chosen genre and duration." },
+      { "id": "japan", "flag": "jp", "guidance": "Japanese observational drama inspiration: meaningful everyday details, restrained dialogue, expressive pauses and small actions that reveal internal change. Do not override an explicitly fast or heightened genre." },
+      { "id": "china", "flag": "cn", "guidance": "Chinese drama inspiration: interwoven personal goals and obligations, clear relationship stakes, visual motifs and emotional reversals. Do not invent a historical setting or period costume." },
+      { "id": "europe", "flag": "eu", "guidance": "European auteur-drama inspiration: character ambiguity, observational situations, purposeful visual storytelling and space for interpretation. Respect the explicitly selected ending; Europe is a broad inspiration, not one uniform culture." },
+      { "id": "united-states", "flag": "us", "guidance": "American mainstream narrative inspiration: a clear character goal, causal escalation, distinct turning points and a readable payoff. Adapt to the requested genre and emotional arc rather than forcing spectacle." }
+    ]
+  },
+  "limits": {
+    "storyBrief": 600,
+    "creativeDirection": 800
+  },
+  "choices": {
+    "genres": {
+      "maxSelections": 3,
+      "default": "drama",
+      "ids": [
+        "drama",
+        "romance",
+        "comedy",
+        "thriller",
+        "fashion",
+        "mystery",
+        "adventure",
+        "fantasy",
+        "sci-fi",
+        "horror",
+        "documentary",
+        "slice-of-life"
+      ]
+    },
+    "audienceFeelings": {
+      "maxSelections": 3,
+      "default": "moved",
+      "ids": [
+        "moved",
+        "excited",
+        "curious",
+        "uplifted",
+        "surprised",
+        "tense",
+        "hopeful",
+        "relieved",
+        "nostalgic",
+        "uneasy",
+        "awe",
+        "amused"
+      ]
+    },
+    "pacingTraits": {
+      "maxSelections": 2,
+      "default": "balanced",
+      "ids": [
+        "slow",
+        "balanced",
+        "fast",
+        "slow-burn",
+        "accelerating",
+        "rhythmic",
+        "contemplative"
+      ],
+      "incompatiblePairs": [
+        [
+          "slow",
+          "fast"
+        ],
+        [
+          "balanced",
+          "slow"
+        ],
+        [
+          "balanced",
+          "fast"
+        ],
+        [
+          "contemplative",
+          "fast"
+        ]
+      ]
+    }
+  }
+}

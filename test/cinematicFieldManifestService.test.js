@@ -13,8 +13,9 @@ test('Cinematic field manifest exposes versioned Simple, Advanced and system pro
   assert.ok(manifest.fields.some(field => field.path === 'scene.storyChange' && field.visibility === 'simple'));
   assert.ok(manifest.fields.some(field => field.path === 'shot.cameraMovement' && field.visibility === 'advanced'));
   assert.ok(manifest.fields.some(field => field.path === 'cast.characterProfileVersionId' && field.visibility === 'system'));
-  manifest.fields[0].visibility = 'advanced';
-  assert.notEqual(cinematicFieldManifestService.getPublicManifest().fields[0].visibility, 'advanced');
+  const originalVisibility = manifest.fields[0].visibility;
+  manifest.fields[0].visibility = originalVisibility === 'advanced' ? 'simple' : 'advanced';
+  assert.equal(cinematicFieldManifestService.getPublicManifest().fields[0].visibility, originalVisibility);
 });
 
 test('Cinematic field manifest resolves transitive stale dependencies deterministically', () => {
@@ -64,4 +65,3 @@ function dependencyConfig(dependencies) {
 function readinessConfig(requiredPaths) {
   return { schemaVersion: 1, id: 'test-readiness', version: 1, stages: { scene: { requiredPaths } } };
 }
-
