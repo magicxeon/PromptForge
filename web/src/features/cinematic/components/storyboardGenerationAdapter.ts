@@ -42,8 +42,9 @@ export function resolveStoryboardShotCast(project: CinematicProject, scene: Cine
 
 // Preview pinned selections only. Quote/submit still resolve and validate on the server.
 export function shotVideoReferencePreviews(project: CinematicProject, scene: CinematicScene, shot: CinematicShot,
-  mode: 'storyboard_only' | 'storyboard_and_looks' | 'looks_only') {
+  mode: 'storyboard_only' | 'storyboard_and_looks' | 'looks_only' | 'text_only') {
   const rows: Array<{ assetId: string | null; purpose: string; roleName: string | null; lookName: string | null; previewUrl: string }> = [];
+  if (mode === 'text_only') return [];
   if (mode !== 'looks_only' && shot.approvedStoryboardSource) rows.push({
     assetId: shot.approvedStoryboardSource.assetId, purpose: 'storyboard_opening', roleName: null, lookName: null,
     previewUrl: shot.approvedStoryboardSource.imageUrl

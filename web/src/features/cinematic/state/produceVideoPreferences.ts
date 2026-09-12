@@ -5,7 +5,8 @@ const FEATURE = 'cinematic-produce-video-engine';
 const SCHEMA_VERSION = 1;
 const schema = z.object({
   providerId: z.string().min(1),
-  modelId: z.string().min(1)
+  modelId: z.string().min(1),
+  audioMode: z.enum(['none', 'generated']).optional()
 });
 
 export type ProduceVideoEnginePreference = z.infer<typeof schema>;
@@ -25,6 +26,6 @@ export function writeProduceVideoEnginePreference(actorId: string, preference: P
     actorId,
     feature: FEATURE,
     schemaVersion: SCHEMA_VERSION,
-    payload: schema.parse(preference)
+    payload: schema.parse({ ...readProduceVideoEnginePreference(actorId), ...preference })
   });
 }

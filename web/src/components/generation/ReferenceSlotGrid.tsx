@@ -1,4 +1,5 @@
-import { ImagePlus, UserRound, Palette, PersonStanding, Shirt, X } from 'lucide-react';
+import { ImagePlus, UserRound, Palette, PersonStanding, Shirt, X, PanelsTopLeft } from 'lucide-react';
+import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
@@ -14,6 +15,8 @@ import type { ReferenceAuthorityProjection } from '../../features/generation/sch
 import { ReferenceProcessingPreview } from './ReferenceProcessingPreview';
 import { ReferenceScopeSelector } from './ReferenceScopeSelector';
 import { DisplayMediaImage, type DisplayMediaSource } from '../media/DisplayMediaImage';
+import { GeneratedLookSourceField } from './GeneratedLookSourceField';
+import { ProcessingSpinner } from '../ui/ProcessingSpinner';
 
 export type ReferenceDisplayPreviews = Partial<Record<GenerationReferenceRole, { reference: string; sources: DisplayMediaSource[]; label: string }>>;
 
@@ -47,7 +50,8 @@ export function ReferenceSlotGrid({
   leadingContent,
   onScopeChange,
   onChange,
-  readOnly = false
+  readOnly = false,
+  lookSheetSelection = false
 }: {
   value: Partial<Record<GenerationReferenceRole, string>>;
   displayPreviews?: ReferenceDisplayPreviews;
@@ -65,6 +69,7 @@ export function ReferenceSlotGrid({
   onScopeChange?: (role: GenerationReferenceRole, scope: string) => void;
   onChange: (value: Partial<Record<GenerationReferenceRole, string>>) => void;
   readOnly?: boolean;
+  lookSheetSelection?: boolean;
 }) {
   const { t } = useTranslation('playground');
   const location = useLocation();
@@ -103,6 +108,7 @@ export function ReferenceSlotGrid({
             onScopeChange={scope => onScopeChange?.(definition.role, scope)}
             onChange={next => onChange({ ...value, [definition.role]: next || undefined })}
             readOnly={readOnly}
+            lookSheetSelection={lookSheetSelection && definition.role === 'character_reference'}
           />
         ))}
       </div>
@@ -128,7 +134,8 @@ function ReferenceSlot({
   uploadReference,
   onScopeChange,
   onChange,
-  readOnly
+  readOnly,
+  lookSheetSelection
 }: {
   role: GenerationReferenceRole;
   label: string;
@@ -143,11 +150,13 @@ function ReferenceSlot({
   onScopeChange: (scope: string) => void;
   onChange: (value: string | null) => void;
   readOnly: boolean;
+  lookSheetSelection: boolean;
 }) {
   const { t } = useTranslation('playground');
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [lookPickerOpen, setLookPickerOpen] = useState(false);
   const sourceLabel = value
     ? referenceSourceLabel(
       value,
@@ -220,12 +229,32 @@ function ReferenceSlot({
             onChange={onScopeChange}
           />
         ) : null}
-        {!readOnly ? <div className="reference-slot__actions mt-auto flex gap-2 pt-3">
-          <Button size="sm" disabled={disabled || uploading} icon={<ImagePlus className="size-4" />} onClick={() => inputRef.current?.click()}>{uploading ? t('playground.reference.uploading') : t(value ? 'playground.reference.replace' : 'playground.reference.browse')}</Button>
+        {!readOnly ? <div className="reference-slot__actions mt-auto flex flex-wrap gap-2 pt-3">
+          {lookSheetSelection ? <Button size="sm" disabled={disabled || uploading} icon={<PanelsTopLeft className="size-4" />}
+            onClick={() => setLookPickerOpen(true)}>{t('playground.reference.chooseLookSheet')}</Button> : null}
+          <Button size="sm" disabled={disabled || uploading} icon={uploading ? <ProcessingSpinner /> : <ImagePlus className="size-4" />} onClick={() => inputRef.current?.click()}>{uploading ? t('playground.reference.uploading') : t(lookSheetSelection ? 'playground.reference.browseLookSheet' : value ? 'playground.reference.replace' : 'playground.reference.browse')}</Button>
           {value ? <Button size="icon" variant="ghost" disabled={uploading} title={t('playground.reference.remove')} icon={<X className="size-4" />} onClick={() => onChange(null)} /> : null}
         </div> : null}
         {!readOnly ? <input ref={inputRef} type="file" accept="image/*" hidden aria-label={label} onChange={event => receive(event.target.files?.[0])} data-reference-role={role} /> : null}
         {error ? <span className="mt-2 text-xs text-red-300">{error}</span> : null}
+        {lookSheetSelection && !readOnly && lookPickerOpen ? <Dialog.Root open onOpenChange={setLookPickerOpen}>
+          <Dialog.Portal><Dialog.Overlay className="cinematic-dialog__overlay" />
+            <Dialog.Content className="cinematic-dialog__content">
+              <div className="flex items-center justify-between gap-3">
+                <Dialog.Title>{t('playground.reference.chooseLookSheet')}</Dialog.Title>
+                <Dialog.Close asChild><Button size="icon" variant="ghost" icon={<X />}
+                  aria-label={t('playground.reference.closeLookSheet')} /></Dialog.Close>
+              </div>
+              <Dialog.Description className="sr-only">{t('playground.reference.characterScope')}</Dialog.Description>
+              <GeneratedLookSourceField value={null} disabled={disabled || uploading}
+                onPreviewReady={() => {}} onChange={source => {
+                  if (!source || disabled || uploading) return;
+                  onChange(source.previewUrl);
+                  setLookPickerOpen(false);
+                }} />
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root> : null}
       </div>
     </article>
   );

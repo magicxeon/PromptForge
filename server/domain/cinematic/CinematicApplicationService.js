@@ -32,6 +32,8 @@ import { deriveStoryboardVideoCompatibility } from './CinematicStoryboardSourceC
 import { fingerprintVideoReferencePlan } from '../generation/VideoReferencePlan.js';
 import { CinematicVideoReferencePlanService, cinematicVideoReferenceMode } from './CinematicVideoReferencePlanService.js';
 import { cinematicGeneratedCastService } from './CinematicGeneratedCastService.js';
+import { videoClipBundleService } from '../assets/VideoClipBundleService.js';
+import { CinematicSeriesService } from './CinematicSeriesService.js';
 
 const STAGES = ['setup', 'cast', 'story-plan', 'storyboard', 'produce', 'finish'];
 const DURATIONS = new Set([20, 30, 45, 60]);
@@ -52,6 +54,7 @@ export class CinematicApplicationService {
     wardrobeSuggestionService = cinematicWardrobeSuggestionService,
     storyPlanService = cinematicStoryPlanService,
     assetRepository = assetRepo,
+    clipBundleService = videoClipBundleService,
     dataLineageService = cinematicDataLineageService,
     fieldManifestService = cinematicFieldManifestService,
     authoringStateService = cinematicAuthoringStateService,
@@ -61,6 +64,7 @@ export class CinematicApplicationService {
     timelineCompiler = cinematicTimelineCompiler
   } = {}) {
     this.repository = repository;
+    this.seriesService = new CinematicSeriesService({ repository, normalizeSetup });
     this.storyboardAssetService = storyboardAssetService;
     this.wardrobeAuthorityService = wardrobeAuthorityService;
     this.characterAuthorizationService = characterAuthorizationService;
@@ -75,6 +79,7 @@ export class CinematicApplicationService {
     this.wardrobeSuggestionService = wardrobeSuggestionService;
     this.storyPlanService = storyPlanService;
     this.assetRepository = assetRepository;
+    this.clipBundleService = clipBundleService;
     this.dataLineageService = dataLineageService;
     this.fieldManifestService = fieldManifestService;
     this.authoringStateService = authoringStateService;
@@ -86,6 +91,18 @@ export class CinematicApplicationService {
 
   listProjects(actorContext, query) {
     return this.repository.listForActor(actorContext, query);
+  }
+
+  getSeriesWorkspace(projectId, actor) { return this.seriesService.getWorkspace(projectId, actor); }
+  async createSeries(projectId, input, actor) {
+    const result = await this.seriesService.createFromProject(projectId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor) };
+  }
+  updateSeries(seriesId, input, actor) { return this.seriesService.update(seriesId, input, actor); }
+  addSeriesSeason(seriesId, input, actor) { return this.seriesService.addSeason(seriesId, input, actor); }
+  async addSeriesChapter(seriesId, input, actor) {
+    const result = await this.seriesService.addChapter(seriesId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor) };
   }
 
   getVideoCapabilities() {
@@ -104,6 +121,15 @@ export class CinematicApplicationService {
   async getProject(projectId, actorContext) {
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    const summaries = this.videoGenerationService.getStoredTaskSummaries
+      ? await this.videoGenerationService.getStoredTaskSummaries(
+        project.generationAttempts.map(item => item.generationJobId).filter(id => id?.startsWith('videotask_')), actorContext) : [];
+    const tasks = new Map(summaries.map(task => [task.id, task]));
+    project.generationAttempts = project.generationAttempts.map(attempt => {
+      const task = tasks.get(attempt.generationJobId);
+      return task ? { ...attempt, status: ['approved', 'superseded'].includes(attempt.status) ? attempt.status : task.status,
+        outputAsset: task.outputAsset, settlementStatus: task.billingStatus || attempt.settlementStatus } : attempt;
+    });
     return reconcileCastIdentityReadiness(project);
   }
 
@@ -553,6 +579,10 @@ export class CinematicApplicationService {
       }
       shot.approvedStoryboardSource = approvedAsset;
       shot.approvedStoryboardAttemptId = attempt.id;
+      if (approvedAsset.storyboardRenderStyle === 'concept_sketch_v1'
+        && (!shot.videoReferenceMode || shot.videoReferenceMode === 'storyboard_only')) {
+        shot.videoReferenceMode = 'storyboard_and_looks';
+      }
       shot.storyboardStatus = 'approved';
       shot.version = Number(shot.version || 1) + 1;
       if (previous && previous.sourceFingerprint !== approvedAsset.sourceFingerprint) {
@@ -837,7 +867,7 @@ export class CinematicApplicationService {
       assertExpectedVersion(draft, input.expectedVersion);
       const located = findShot(draft, shot.id);
       if (!located || located.scene.id !== scene.id
-        || (referencePlan.mode !== 'looks_only'
+        || (!['looks_only', 'text_only'].includes(referencePlan.mode)
           && located.shot.approvedStoryboardSource?.sourceFingerprint !== source?.sourceFingerprint)) {
         throw new CinematicError('cinematic_storyboard_source_changed', 'The approved Storyboard source changed before generation.', 409);
       }
@@ -876,7 +906,7 @@ export class CinematicApplicationService {
         createdAt: new Date().toISOString()
       });
       located.shot.videoReferenceMode = referencePlan.mode;
-      if (referencePlan.mode !== 'looks_only') located.shot.lastFirstFrameMode = referencePlan.mode;
+      if (!['looks_only', 'text_only'].includes(referencePlan.mode)) located.shot.lastFirstFrameMode = referencePlan.mode;
       draft.status = 'producing';
       draft.version += 1;
       return draft;
@@ -931,6 +961,37 @@ export class CinematicApplicationService {
     return { attemptId, task };
   }
 
+  async prepareClipBundle(projectId, input, actorContext) {
+    const project = await this.getProject(projectId, actorContext);
+    if (input.expectedVersion !== undefined) assertExpectedVersion(project, input.expectedVersion);
+    const items = [], missing = [];
+    for (const [sceneIndex, scene] of project.scenes.entries()) {
+      const shots = (scene.shotOrder?.length ? scene.shotOrder.map(id => scene.shots.find(shot => shot.id === id)).filter(Boolean) : scene.shots);
+      for (const [shotIndex, shot] of shots.entries()) {
+        const takes = project.generationAttempts.filter(item => item.shotId === shot.id && ['cinematic_draft_clip', 'cinematic_final_clip', 'cinematic_motion_preview'].includes(item.operation));
+        const attempt = takes.find(item => item.id === shot.approvedVideoAttemptId);
+        if (!attempt || attempt.status !== 'approved' || ['packet_changed', 'source_changed'].includes(attempt.downstreamSourceStatus) || !attempt.outputAsset?.id) {
+          missing.push({ sceneNumber: sceneIndex + 1, shotNumber: shotIndex + 1, shotId: shot.id });
+          continue;
+        }
+        items.push({ sceneNumber: sceneIndex + 1, shotNumber: shotIndex + 1, takeNumber: takes.indexOf(attempt) + 1,
+          shotId: shot.id, attemptId: attempt.id, assetId: attempt.outputAsset.id });
+      }
+    }
+    const plan = await this.clipBundleService.prepare(items, actorContext);
+    const manifest = { projectId: project.id, projectVersion: project.version, missing,
+      sizeBytes: plan.sizeBytes, clips: plan.files.map(({ filePath: _path, ...file }) => file) };
+    return { plan, manifest };
+  }
+
+  async downloadClipBundle(projectId, input, actorContext, destination, onReady = () => {}) {
+    if (!Number.isInteger(input.expectedVersion)) throw new CinematicError('cinematic_project_version_required', 'Refresh the clip list before downloading.');
+    const { plan, manifest } = await this.prepareClipBundle(projectId, input, actorContext);
+    if (!manifest.clips.length || (manifest.missing.length && input.allowPartial !== true)) throw new CinematicError('cinematic_clip_bundle_incomplete', 'Confirm downloading the ready subset of selected clips.', 409);
+    onReady();
+    this.clipBundleService.stream(plan, manifest, destination);
+  }
+
   async approveVideoAttempt(projectId, sceneId, shotId, attemptId, input, actorContext) {
     const project = await this.getProject(projectId, actorContext);
     const located = findShot(project, shotId);
@@ -963,7 +1024,7 @@ export class CinematicApplicationService {
       if (!current || current.scene.id !== sceneId || !target) {
         throw new CinematicError('cinematic_video_attempt_not_found', 'Video Attempt not found.', 404);
       }
-      if ((target.referenceMode !== 'looks_only'
+      if ((!['looks_only', 'text_only'].includes(target.referenceMode)
           && target.sourceFingerprint !== current.shot.approvedStoryboardSource?.sourceFingerprint)
         || target.downstreamSourceStatus === 'source_changed') {
         throw new CinematicError('cinematic_video_source_stale', 'The Storyboard source changed after this Video Attempt.', 409);
@@ -1009,6 +1070,16 @@ export class CinematicApplicationService {
         ? Math.round(Number(task.durationSeconds) * 1000)
         : Math.round(Number(target.renderDurationMs || current.shot.durationMs));
       target.videoSourceFingerprint = cinematicVideoSourceFingerprint(target);
+      if (current.shot.approvedVideoAttemptId !== target.id) {
+        for (const timeline of draft.timelineVersions || []) {
+          for (const entry of timeline.entries || []) {
+            if (entry.shotId !== shotId) continue;
+            entry.downstreamSourceStatus = 'source_changed';
+            timeline.status = 'stale';
+            timeline.exportEligible = false;
+          }
+        }
+      }
       current.shot.approvedVideoAttemptId = target.id;
       current.shot.approvedVideoSourceFingerprint = target.sourceFingerprint;
       draft.status = 'review';
@@ -1025,11 +1096,16 @@ export class CinematicApplicationService {
       throw new CinematicError('cinematic_shot_not_found', 'Produce Shot not found.', 404);
     }
     const mode = cinematicVideoReferenceMode(input.referenceMode);
-    if (located.shot.videoReferenceMode && mode !== located.shot.videoReferenceMode) {
+    const policyModel = this.videoCapabilities.resolve(input.providerId, input.modelId);
+    const sketchComposition = mode === 'storyboard_and_looks'
+      && located.shot.approvedStoryboardSource?.storyboardRenderStyle === 'concept_sketch_v1';
+    const policyMode = policyModel?.firstFrameEnabled === false && !sketchComposition
+      ? (resolveShotCastIds(located.scene, located.shot).length ? 'looks_only' : 'text_only') : null;
+    if (located.shot.videoReferenceMode && mode !== located.shot.videoReferenceMode && mode !== policyMode) {
       throw new CinematicError('cinematic_video_reference_mode_changed', 'The Shot reference mode changed. Refresh the quote.', 409);
     }
-    const source = mode === 'looks_only' ? null : located.shot.approvedStoryboardSource;
-    if (!source && mode !== 'looks_only') throw new CinematicError('cinematic_storyboard_source_required', 'Approve a Storyboard source before generating video.', 409);
+    const source = ['looks_only', 'text_only'].includes(mode) ? null : located.shot.approvedStoryboardSource;
+    if (!source && !['looks_only', 'text_only'].includes(mode)) throw new CinematicError('cinematic_storyboard_source_required', 'Approve a Storyboard source before generating video.', 409);
     if (Number(input.expectedShotVersion) !== Number(located.shot.version || 1)
       || String(input.sourceFingerprint || '') !== (source?.sourceFingerprint || '')) {
       throw new CinematicError('cinematic_storyboard_source_changed', 'The approved Storyboard source changed before generation.', 409);
@@ -1094,8 +1170,6 @@ export class CinematicApplicationService {
       Object.assign(shot, next);
       shot.version = Number(shot.version || 1) + 1;
       shot.storyboardStatus = 'draft';
-      shot.approvedStoryboardSource = undefined;
-      shot.approvedStoryboardAttemptId = undefined;
       if (previousSource) markSourceChanged(project, shot, previousSource.sourceFingerprint);
       markVideoPacketChanged(project, shot);
       scene.durationMs = scene.shots.reduce((total, item) => total + item.durationMs, 0);
@@ -1155,8 +1229,8 @@ export class CinematicApplicationService {
         throw new CinematicError('cinematic_video_attempt_active', 'Wait for the active Video Attempt before changing references.', 409);
       }
       if (shot.videoReferenceMode === mode) return project;
-      shot.lastFirstFrameMode = mode === 'looks_only'
-        ? (shot.videoReferenceMode && shot.videoReferenceMode !== 'looks_only' ? shot.videoReferenceMode : shot.lastFirstFrameMode || 'storyboard_only')
+      shot.lastFirstFrameMode = ['looks_only', 'text_only'].includes(mode)
+        ? (shot.videoReferenceMode && !['looks_only', 'text_only'].includes(shot.videoReferenceMode) ? shot.videoReferenceMode : shot.lastFirstFrameMode || 'storyboard_only')
         : mode;
       shot.videoReferenceMode = mode;
       markVideoPacketChanged(project, shot);
@@ -1412,8 +1486,7 @@ function reconcileCastIdentityReadiness(project) {
   const normalized = structuredClone(project);
   for (const assignment of normalized.castAssignments || []) {
     if (assignment.sourceType === 'generated_sheet') {
-      assignment.identityReady = Boolean(assignment.generatedSheet?.contentHash
-        && Date.parse(assignment.generatedSheet.expiresAt) > Date.now());
+      assignment.identityReady = Boolean(assignment.generatedSheet?.contentHash);
       continue;
     }
     if (assignment.identityReadinessSnapshot?.status === 'identity_pack_ready') {
@@ -1441,6 +1514,7 @@ function normalizeStoryPlan(input = {}, project, contractVersion = normalizeStor
   const usedSceneIds = new Set();
   const usedShotIds = new Set();
   const scenes = scenesInput.map((sceneInput, sceneIndex) => {
+    if (sceneInput.cinematicOpening === true && sceneIndex !== 0) throw new CinematicError('cinematic_opening_scene_order', 'The cinematic opening must remain the first Scene. Disable it before reordering.');
     const requestedSceneId = String(sceneInput.id || '').trim();
     const sceneId = requestedSceneId || createPrefixedId('cinescene');
     if (usedSceneIds.has(sceneId)) throw new CinematicError('cinematic_story_plan_invalid', 'Scene IDs must be unique.');
@@ -1458,6 +1532,7 @@ function normalizeStoryPlan(input = {}, project, contractVersion = normalizeStor
       usedShotIds.add(shotId);
       const existing = existingShots.get(shotId);
       const durationMs = normalizeDurationMs(shotInput.durationMs ?? Number(shotInput.durationSeconds) * 1000);
+      if (shotInput.audioDirectionVersion === 1) validateAuthoredCues(shotInput, durationMs, project.castAssignments, resolveShotCastIds(sceneInput, shotInput));
       return {
         ...(existing ? structuredClone(existing) : {}),
         id: shotId,
@@ -1491,6 +1566,7 @@ function normalizeStoryPlan(input = {}, project, contractVersion = normalizeStor
         continuityExit: bounded(shotInput.continuityExit, 500, ''),
         transitionToNext: bounded(shotInput.transitionToNext, 240, ''),
         estimatedActionDurationMs: Math.max(0, Math.round(Number(shotInput.estimatedActionDurationMs) || 0)),
+        ...(shotInput.audioDirectionVersion === 1 ? { audioDirectionVersion: 1 } : {}),
         dialogueCues: normalizeDialogueCues(shotInput.dialogueCues),
         audioCues: normalizeAudioCues(shotInput.audioCues),
         castAssignmentIds: shotInput.castMode === 'none' || sceneInput.castMode === 'none' ? [] : normalizeStringList(shotInput.castAssignmentIds, 6),
@@ -1503,6 +1579,7 @@ function normalizeStoryPlan(input = {}, project, contractVersion = normalizeStor
       id: sceneId,
       version: Number(existingScene?.version || 1),
       orderKey: sceneIndex + 1,
+      ...(sceneInput.cinematicOpening !== undefined ? { cinematicOpening: sceneInput.cinematicOpening === true } : {}),
       beatId: bounded(sceneInput.beatId, 100, beats[0]?.id || ''),
       title: bounded(sceneInput.title, 120, `Scene ${sceneIndex + 1}`),
       purpose: bounded(sceneInput.purpose, 800, ''),
@@ -1697,6 +1774,18 @@ function normalizeCharacterAliases(value, project) {
     used.add(castAssignmentId);
     return [{ castAssignmentId, storyCharacterName }];
   });
+}
+
+function validateAuthoredCues(shot, durationMs, cast = [], visibleCastIds = []) {
+  const dialogue = shot.dialogueCues || [], audio = shot.audioCues || [];
+  const validStart = cue => Number.isFinite(cue.startOffsetMs) && cue.startOffsetMs >= 0 && cue.startOffsetMs <= durationMs;
+  if (!Array.isArray(dialogue) || !Array.isArray(audio) || dialogue.length > 12 || audio.length > 12
+    || dialogue.some(cue => !cue || !String(cue.text || '').trim() || !validStart(cue)
+      || (cue.speakerVisible === true && !visibleCastIds.includes(cue.speakerCastAssignmentId))
+      || (cue.speakerCastAssignmentId ? !cast.some(item => item.active !== false && item.id === cue.speakerCastAssignmentId) : !String(cue.offscreenVoiceRole || '').trim()))
+    || audio.some(cue => !cue || !String(cue.description || '').trim() || !validStart(cue))) {
+    throw new CinematicError('cinematic_audio_cue_invalid', 'Complete each cue, its speaker and timing before saving.');
+  }
 }
 
 function normalizeDialogueCues(value) {
@@ -1990,7 +2079,7 @@ function buildCinematicVideoRequest(input, project, shot, source, videoPacket, p
     durationSeconds,
     plannedDurationSeconds,
     audioMode: String(input.audioMode || 'none'),
-    referenceImageUrl: referencePlan?.mode === 'looks_only' ? null : source?.imageUrl,
+    referenceImageUrl: ['looks_only', 'text_only'].includes(referencePlan?.mode) ? null : source?.imageUrl,
     referenceContainsPerson: Array.isArray(videoPacket.authority?.characters)
       && videoPacket.authority.characters.length > 0,
     references,
@@ -2043,7 +2132,7 @@ function markSourceChanged(project, shot, previousFingerprint) {
   for (const attempt of project.generationAttempts || []) {
     if (attempt.shotId === shot.id
       && ['cinematic_motion_preview', 'cinematic_draft_clip', 'cinematic_final_clip'].includes(attempt.operation)
-      && attempt.referenceMode !== 'looks_only'
+      && !['looks_only', 'text_only'].includes(attempt.referenceMode)
       && attempt.sourceFingerprint === previousFingerprint) {
       attempt.downstreamSourceStatus = 'source_changed';
     }
@@ -2161,7 +2250,7 @@ function buildProduceContext(project, scene, shot, videoPacketCompiler, requeste
     shotVersion: shot.version || 1,
     approvedStoryboardSource: source,
     referenceMode,
-    generationEligible: (referenceMode === 'looks_only' || Boolean(source)) && !blockingFinding,
+    generationEligible: (['looks_only', 'text_only'].includes(referenceMode) || Boolean(source)) && !blockingFinding,
     blockingReason: blockingFinding?.code || null,
     videoPacket,
     directingContract: {
@@ -2198,7 +2287,7 @@ function buildProduceContext(project, scene, shot, videoPacketCompiler, requeste
       settlementStatus: attempt.settlementStatus || null,
       reviewDecision: attempt.reviewDecision || 'pending',
       downstreamSourceStatus: attempt.downstreamSourceStatus || (
-        attempt.referenceMode === 'looks_only' || attempt.sourceFingerprint === source?.sourceFingerprint ? 'current' : 'source_changed'
+        ['looks_only', 'text_only'].includes(attempt.referenceMode) || attempt.sourceFingerprint === source?.sourceFingerprint ? 'current' : 'source_changed'
       )
     })),
     timelineDependencyStatus: timelineDependency?.downstreamSourceStatus || 'current'
@@ -2208,7 +2297,8 @@ function buildProduceContext(project, scene, shot, videoPacketCompiler, requeste
 const SHOT_DIRECTION_FIELDS = [
   'title', 'purpose', 'durationMs', 'framing', 'cameraAngle', 'cameraMovement',
   'lensIntent', 'blocking', 'performance', 'gaze', 'lighting', 'environment',
-  'audioIntent', 'prompt'
+  'audioIntent', 'prompt', 'visibleMoment', 'subjectAction', 'emotionalTarget',
+  'performanceCue', 'continuityEntry', 'continuityExit', 'transitionToNext'
 ];
 
 function normalizeShotDirection(input, current) {
@@ -2223,7 +2313,11 @@ function normalizeShotDirection(input, current) {
       continue;
     }
     const value = String(input[field] ?? current[field] ?? '').trim();
-    if (field === 'prompt' && !value) throw new CinematicError('cinematic_shot_prompt_required', 'Shot prompt is required.');
+    if (field === 'prompt' && !value
+      && !String(input.visibleMoment ?? current.visibleMoment ?? '').trim()
+      && !String(input.subjectAction ?? current.subjectAction ?? '').trim()) {
+      throw new CinematicError('cinematic_shot_prompt_required', 'A Shot direction or opening/action description is required.');
+    }
     normalized[field] = value;
   }
   return normalized;

@@ -1,10 +1,11 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Clock, Images, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Images, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import { Button } from '../../../components/ui/Button';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import {
   listTrustedVideoSources,
@@ -21,6 +22,7 @@ export function TrustedVideoSources({
   lookOnly = false,
   characterNumber = 1,
   excludedIds = [],
+  frameLabel,
 }: {
   withLook: boolean;
   frame: TrustedVideoSource | null;
@@ -28,6 +30,7 @@ export function TrustedVideoSources({
   lookOnly?: boolean;
   characterNumber?: number;
   excludedIds?: string[];
+  frameLabel?: string;
   onChange: (patch: {
     trustedFrame?: TrustedVideoSource | null;
     trustedLook?: NamedTrustedVideoSource | null;
@@ -38,17 +41,14 @@ export function TrustedVideoSources({
   const [slot, setSlot] = useState<'frame' | 'look' | null>(null);
   const [cursors, setCursors] = useState<Array<string | null>>([null]);
   const page = useQuery({
-    queryKey: ['trusted-video-sources', actor?.userId, cursors.at(-1)],
-    queryFn: () => listTrustedVideoSources(cursors.at(-1)),
+    queryKey: ['trusted-video-sources', actor?.userId, slot === 'look' ? 'look-sheet' : 'image', cursors.at(-1)],
+    queryFn: () => listTrustedVideoSources(cursors.at(-1), slot === 'look' ? 'look-sheet' : undefined),
     enabled: Boolean(slot && actor?.userId),
     staleTime: 0,
     retry: false,
   });
   const status = (item: TrustedVideoSource) => {
-    const expired = item.expiresAt && Date.parse(item.expiresAt) <= Date.now();
-    return expired
-      ? t('playground.video.trusted.reason.expired')
-      : item.reason
+    return item.reason
         ? t(`playground.video.trusted.reason.${item.reason}`, {
             defaultValue: t('playground.video.trusted.unavailable'),
           })
@@ -65,50 +65,26 @@ export function TrustedVideoSources({
           })}
         </span>
       ) : null}
-      <span>
-        <Clock size={12} aria-hidden="true" />{' '}
-        {item.expiresAt
-          ? t('playground.video.trusted.expires', {
-              date: new Date(item.expiresAt).toLocaleString(),
-            })
-          : t('playground.video.trusted.reason.timestamp_unknown')}
-      </span>
-      {item.eligible &&
-      item.expiresAt &&
-      Date.parse(item.expiresAt) > Date.now() ? (
-        <span>
-          {t('playground.video.trusted.remaining', {
-            days: Math.ceil(
-              (Date.parse(item.expiresAt) - Date.now()) / 86400000,
-            ),
-          })}
-        </span>
-      ) : null}
       <strong>{status(item)}</strong>
     </div>
   );
   const pickerDetails = (item: TrustedVideoSource) => {
-    const remainingDays = item.expiresAt
-      ? Math.max(0, Math.ceil((Date.parse(item.expiresAt) - Date.now()) / 86400000))
-      : 0;
     return <div className="trusted-video-picker__details">
       <strong>{trustedModelLabel(item.modelId)}</strong>
       <span>{t(`playground.video.trusted.mode.${item.generationMode}`, { defaultValue: item.generationMode })}</span>
-      <span><Clock size={12} aria-hidden="true" />{t('playground.video.trusted.remainingCompact', { days: remainingDays })}</span>
     </div>;
   };
-  const eligibleItems = page.data?.items.filter((item) => item.eligible
-    && Boolean(item.expiresAt)
-    && Date.parse(item.expiresAt || '') > Date.now()) || [];
+  const eligibleItems = page.data?.items.filter(item => item.eligible
+    && (slot !== 'look' || item.category === 'look-sheet')) || [];
   return (
     <div className="playground-video-references trusted-video-sources">
-      {!lookOnly ? <p>{t('playground.video.trusted.description')}</p> : null}
+      {!lookOnly && !frameLabel ? <p>{t('playground.video.trusted.description')}</p> : null}
       <div className="playground-video-references__slots">
         {(
           [...(lookOnly ? [] : ['frame']), ...(withLook ? ['look'] : [])] as Array<'frame' | 'look'>
         ).map((key) => {
           const selected = key === 'frame' ? frame : look;
-          const title = t(
+          const title = key === 'frame' && frameLabel ? frameLabel : t(
             key === 'look'
               ? 'playground.video.references.look'
               : withLook
@@ -130,7 +106,7 @@ export function TrustedVideoSources({
                   <Images aria-hidden="true" />
                 )}
               </div>
-              {selected ? details(selected) : null}
+              {selected ? frameLabel ? pickerDetails(selected) : details(selected) : null}
               {key === 'look' && look ? <label>
                 {t('playground.video.references.characterName', { number: characterNumber })}
                 <input maxLength={80} value={look.characterName || ''}
@@ -197,7 +173,7 @@ export function TrustedVideoSources({
             </Dialog.Description>
             <div className="character-picker__body">
               {page.isFetching ? (
-                <p role="status">{t('playground.video.trusted.loading')}</p>
+                <p role="status"><ProcessingSpinner />{t('playground.video.trusted.loading')}</p>
               ) : null}
               {page.isError ? (
                 <p role="alert">
@@ -222,9 +198,7 @@ export function TrustedVideoSources({
                       disabled={
                         page.isFetching ||
                         !item.eligible ||
-                        duplicate ||
-                        !item.expiresAt ||
-                        Date.parse(item.expiresAt) <= Date.now()
+                        duplicate
                       }
                       onClick={() => {
                         onChange(

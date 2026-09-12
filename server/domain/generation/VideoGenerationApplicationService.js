@@ -5,6 +5,7 @@ import { characterLookService } from '../character-profiles/CharacterLookService
 import { resolveReferenceForProvider } from './referenceUtils.js';
 import {
   normalizeVideoExecutionSelection,
+  assertFirstFramePolicy,
   videoCapabilityRegistry
 } from './VideoCapabilityRegistry.js';
 import { VideoProviderTaskService } from './VideoProviderTaskService.js';
@@ -13,6 +14,7 @@ import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { cinematicVideoAssetService } from '../assets/CinematicVideoAssetService.js';
 import {
   createStoryboardSourceFingerprint,
+  loadVerifiedStoryboardAssetContent,
   verifyStoryboardAssetContent
 } from '../assets/CinematicStoryboardAssetService.js';
 import { normalizeProviderOutputProvenance } from './ProviderOutputProvenance.js';
@@ -32,6 +34,8 @@ import { cinematicFirstFrameTransportService } from '../assets/CinematicFirstFra
 import { resolveVideoProviderWorkflow } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 import { PlaygroundVideoReferenceService } from './PlaygroundVideoReferenceService.js';
 import { trustedGeneratedSourceService, generatedCastSourceFingerprint } from './TrustedGeneratedSourceService.js';
+import { assertGeneratedReferenceAllowed } from '../../config/generatedReferencePolicy.js';
+import { loadVideoReferenceAssetContent } from '../assets/VideoReferenceAssetContent.js';
 
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 
@@ -44,6 +48,8 @@ export class VideoGenerationApplicationService {
     taskRepository = videoProviderTaskRepository,
     assetRepository = assetRepo,
     storyboardAssetContentVerifier = verifyStoryboardAssetContent,
+    storyboardAssetContentLoader = loadVerifiedStoryboardAssetContent,
+    videoReferenceContentLoader = loadVideoReferenceAssetContent,
     referenceResolver = resolveReferenceForProvider,
     modelArkCredentialScopeResolver = resolveModelArkCredentialScope,
     firstFrameTransport = cinematicFirstFrameTransportService,
@@ -61,6 +67,8 @@ export class VideoGenerationApplicationService {
     this.taskRepository = taskRepository;
     this.assetRepository = assetRepository;
     this.storyboardAssetContentVerifier = storyboardAssetContentVerifier;
+    this.storyboardAssetContentLoader = storyboardAssetContentLoader;
+    this.videoReferenceContentLoader = videoReferenceContentLoader;
     this.referenceResolver = referenceResolver;
     this.modelArkCredentialScopeResolver = modelArkCredentialScopeResolver;
     this.firstFrameTransport = firstFrameTransport;
@@ -230,6 +238,11 @@ export class VideoGenerationApplicationService {
     return this.#settleTask(task);
   }
 
+  async getStoredTaskSummaries(taskIds, actorContext) {
+    if (!actorContext?.userId) throw videoError('actor_context_required', 'Actor context is required.', 401);
+    return this.taskRepository.findManyForActor(taskIds, actorContext);
+  }
+
   async resumeRecoverable() {
     const recovered = await this.providerTaskService.resumeRecoverable();
     const results = [];
@@ -342,12 +355,21 @@ export class VideoGenerationApplicationService {
   async #prepareValidatedRequest(input, actorContext, workflow) {
     const sourceModel = this.capabilityRegistry.resolve(input.providerId, input.modelId);
     const sourcePolicy = sourceModel?.playgroundReferencePolicy;
+    assertFirstFramePolicy(input, sourceModel);
     if (workflow.capability === 'playground_video' && Array.isArray(input.references)
       && (input.references.length > Math.min(12, sourceModel?.referenceImageLimit || 0)
         || (input.references.length > 1 && !sourceModel?.supportsOrderedImageReferences))) {
       throw videoError('video_multiple_references_unsupported', 'The reference count exceeds this model adapter limit.');
     }
     const restricted = workflow.capability === 'playground_video' && sourcePolicy?.kind === 'trusted_generated_only';
+    const compositionUpload = restricted && sourcePolicy.allowImageReferenceUploads === true
+      && input.operation === 'image_to_video' && input.inputMode === 'multimodal_reference'
+      && input.referencePlanVersion === 'playground-reference-v1'
+      && !input.characterProfileId && !input.characterProfileVersionId && !input.referenceImageUrl
+      && Array.isArray(input.references) && input.references.length > 0
+      && input.references.every(row => row.role === 'reference_image' && row.purpose === 'image_reference'
+        && typeof row.referenceImageUrl === 'string' && row.referenceImageUrl.startsWith('/outputs/')
+        && !row.generationId && !row.characterProfileId && !row.characterLookId && !row.characterLookVersionId);
     const hasInputs = input.references?.length || input.referenceImageUrl || input.characterProfileId || input.characterProfileVersionId;
     const needsReference = input.inputMode && input.inputMode !== 'text_to_video'
       || ['image_to_video', 'character_to_video'].includes(input.operation);
@@ -358,7 +380,7 @@ export class VideoGenerationApplicationService {
       && !['playground-reference-v1', 'playground-trusted-v1'].includes(input.referencePlanVersion)) {
       throw videoError('video_reference_plan_version_invalid', 'Unsupported Playground reference plan version.');
     }
-    const playgroundPlan = restricted && (hasInputs || needsReference)
+    const playgroundPlan = restricted && !compositionUpload && (hasInputs || needsReference)
       ? await this.trustedSources.prepare(input, actorContext)
       : workflow.capability === 'playground_video' && input.referencePlanVersion === 'playground-reference-v1'
         ? await this.playgroundReferences.prepare(input, actorContext) : null;
@@ -371,7 +393,7 @@ export class VideoGenerationApplicationService {
       ? this.modelArkCredentialScopeResolver()
       : null;
     if (request.providerId === 'modelark'
-      && resolved.trustedGeneratedImageSource?.requiresSameCredentialScope === true
+      && resolved.allowAnySourceProvider !== true && resolved.trustedGeneratedImageSource?.requiresSameCredentialScope === true
       && !request.providerCredentialScope) {
       throw videoError(
         'video_provider_credentials_missing',
@@ -425,9 +447,17 @@ export class VideoGenerationApplicationService {
           const sourceAsset = await this.assetRepository.findByIdForOwner(reference.assetId, actorContext.userId);
           const expectedContentHash = request.referenceAuthority.references?.find(item => item.assetId === reference.assetId)?.contentHash
             || request.referenceAuthority.contentHash;
-          const result = reference.trustedGenerationId
-            ? { value: await this.trustedSources.resolveOwnedImage(reference.trustedGenerationId, actorContext, expectedContentHash),
-              transport: { mode: 'provider_original_url', fallbackCode: null } }
+          const sketchComposition = sourceAsset?.metadata?.storyboardRenderStyle === 'concept_sketch_v1'
+            && reference.role === 'reference_image' && reference.purpose === 'sketch_composition';
+          const localLook = model.allowAnySourceProvider === true && !reference.trustedGenerationId
+            && ['character_look', 'generated_look'].includes(reference.purpose);
+          const sketchContent = sketchComposition ? await this.storyboardAssetContentLoader(sourceAsset)
+            : localLook ? await this.videoReferenceContentLoader({ ...sourceAsset, contentHash: expectedContentHash }) : null;
+          const result = sketchContent ? {
+            value: `data:${sourceAsset.mimeType};base64,${sketchContent.bytes.toString('base64')}`,
+            transport: { mode: 'base64', source: localLook ? 'approved_look' : 'approved_sketch', contentHash: sketchContent.contentHash }
+          } : reference.trustedGenerationId
+            ? await this.trustedSources.resolveOwnedImageWithTransport(reference.trustedGenerationId, actorContext, expectedContentHash)
             : await this.firstFrameTransport.resolve({ sourceAsset, ownerUserId: actorContext.userId, expectedContentHash });
           value = result.value;
           referenceTransport ||= result.transport;
@@ -499,6 +529,8 @@ export class VideoGenerationApplicationService {
       let approvedLook = null;
       let trustedLookSource = null;
       if (isGeneratedCast) {
+        // Imported Cast Assets persist the hash in metadata; resolved Looks expose it directly.
+        if (asset) asset = { ...asset, contentHash: asset.metadata?.contentHash || asset.contentHash };
         if (!model?.supportsCinematicLookReferences || reference.role !== 'reference_image'
           || !reference.trustedGenerationId || !reference.castAssignmentId || reference.characterProfileId
           || reference.characterLookId || reference.characterLookVersionId) {
@@ -524,7 +556,7 @@ export class VideoGenerationApplicationService {
         }
         asset = approvedLook.asset;
       }
-      if (isLook && model?.trustedGeneratedImageSource) {
+      if (isLook && model?.trustedGeneratedImageSource && model?.allowAnySourceProvider !== true) {
         if (!reference.trustedGenerationId) {
           throw videoError('video_provider_synthetic_character_source_required', 'This model requires eligible original Seedream Look Sheets.', 409);
         }
@@ -533,7 +565,14 @@ export class VideoGenerationApplicationService {
           throw videoError('cinematic_video_reference_content_changed', 'The Look Sheet does not match its trusted original.', 409);
         }
       }
-      if (!isLook && model?.trustedGeneratedImageSource && asset?.assetType === 'cinematic_storyboard_source') {
+      const sketchComposition = asset?.metadata?.storyboardRenderStyle === 'concept_sketch_v1'
+        && reference.role === 'reference_image' && reference.purpose === 'sketch_composition'
+        && model?.supportsCinematicLookReferences === true;
+      if (reference.purpose === 'sketch_composition' && !sketchComposition) {
+        throw videoError('cinematic_video_reference_authority_invalid', 'Select an approved generated storyboard sketch.', 409);
+      }
+      assertGeneratedReferenceAllowed(trustedLookSource || { providerOutputProvenance: asset?.metadata?.providerOutputProvenance });
+      if (!isLook && !sketchComposition && model?.trustedGeneratedImageSource && asset?.assetType === 'cinematic_storyboard_source') {
         // Derive authority from the owned immutable Asset, never from a browser URL.
         const generationId = asset.sourceJobId;
         if (!generationId || (reference.trustedGenerationId && reference.trustedGenerationId !== generationId)) {
@@ -573,6 +612,7 @@ export class VideoGenerationApplicationService {
       }
       authorities.push({
         role: reference.role,
+        ...(sketchComposition ? { purpose: 'sketch_composition', storyboardRenderStyle: 'concept_sketch_v1' } : {}),
         ...(reference.trustedGenerationId ? { trustedGenerationId: reference.trustedGenerationId } : {}),
         ...(isLook ? { purpose: reference.purpose, characterProfileId: reference.characterProfileId,
           characterLookId: reference.characterLookId, characterLookVersionId: reference.characterLookVersionId } : {}),
@@ -760,6 +800,7 @@ function fingerprintReferenceAuthority(authority) {
   if (!authority) return null;
   return crypto.createHash('sha256').update(JSON.stringify({
     kind: authority.kind,
+    ...(authority.storyboardRenderStyle ? { purpose: authority.purpose, storyboardRenderStyle: authority.storyboardRenderStyle } : {}),
     role: authority.role,
     assetId: authority.assetId,
     assetVersionId: authority.assetVersionId,

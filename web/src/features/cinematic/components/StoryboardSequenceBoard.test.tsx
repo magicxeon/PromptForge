@@ -61,4 +61,18 @@ describe('StoryboardSequenceBoard read-only mode', () => {
     expect(card?.querySelector('.cinematic-storyboard-card__duration')).toHaveTextContent('6s');
     expect(card?.textContent).not.toContain('cineshot_1788454401629_very_long_internal_identifier');
   });
+
+  it('offers a direct Edit Shot action and retains the stale image and normal selection', () => {
+    const onEdit = vi.fn(), onSelect = vi.fn();
+    render(<I18nextProvider i18n={i18n}><StoryboardSequenceBoard sceneTitle="Scene A" sceneDurationSeconds={4}
+      shots={[{ id: 'shot-a', title: 'Opening', durationSeconds: 4, framing: 'wide', action: 'Lift', status: 'source_changed', imageUrl: '/old.png' }]}
+      selectedShotId="shot-a" onSelectShot={onSelect} onEditShot={onEdit} onMoveShot={vi.fn()} /></I18nextProvider>);
+    expect(document.querySelector('.cinematic-storyboard-card__media img')).toHaveAttribute('src', '/old.png');
+    expect(screen.getByText('cinematic.storyboard.status.source_changed')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.editShot: Opening' }));
+    expect(onEdit).toHaveBeenCalledWith('shot-a');
+    expect(onSelect).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.editShot shot-a' }));
+    expect(onSelect).toHaveBeenCalledWith('shot-a');
+  });
 });

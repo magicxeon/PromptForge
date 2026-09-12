@@ -8,6 +8,71 @@ import { CinematicVideoPacketConfigurationService } from '../server/domain/cinem
 import { CinematicVideoPacketCompiler } from '../server/domain/cinematic/CinematicVideoPacketCompiler.js';
 import { StoryboardKeyframeContractCompiler } from '../server/domain/cinematic/StoryboardKeyframeContractCompiler.js';
 
+test('video packet does not import future Scene consequences into the current Shot', () => {
+  const project = createSingleCharacterCinematicProject();
+  const scene = project.scenes[0];
+  const shot = scene.shots[0];
+  shot.videoReferenceMode = 'looks_only';
+  scene.propContinuity = 'FUTURE_PHONE_ALREADY_IN_WATER';
+  scene.screenDirection = 'FUTURE_RESCUE_PULL';
+  scene.exitState = 'FUTURE_CHARACTER_DEPARTED';
+  scene.transitionIntent = 'FUTURE_MORNING_CUT';
+  scene.continuityNotes = ['FUTURE_PHONE_RECOVERED'];
+  shot.continuityEntry = 'Kin holds his phone and looks away.';
+  shot.subjectAction = 'Kin turns and notices the danger.';
+  shot.continuityExit = 'Kin sees the danger, still holding his phone.';
+  shot.transitionToNext = '';
+  const compiler = new CinematicVideoPacketCompiler();
+  const packet = compiler.compile({ project, scene, shot });
+  const prompt = compiler.renderForProvider(packet, { providerId: 'modelark' }).prompt;
+  assert.doesNotMatch(prompt, /FUTURE_/);
+  assert.ok(prompt.includes(shot.continuityEntry));
+  assert.ok(prompt.includes(shot.subjectAction));
+  assert.ok(prompt.includes(shot.continuityExit));
+});
+
+test('prompt budget removes overhead without dropping mappings or repeated dialogue', () => {
+  const project = createSingleCharacterCinematicProject();
+  const scene = project.scenes[0];
+  const shot = scene.shots[0];
+  shot.videoReferenceMode = 'looks_only';
+  const compiler = new CinematicVideoPacketCompiler();
+  const packet = compiler.compile({ project, scene, shot });
+  packet.motion.visibleStart = 'She holds the cup.';
+  packet.continuity.entry = packet.motion.visibleStart;
+  packet.motion.visibleEnd = 'The cup rests on the table.';
+  packet.continuity.exit = packet.motion.visibleEnd;
+  packet.audio.dialogueCues = [
+    { speaker: 'Mira', text: 'Wait.', startOffsetMs: 1000 },
+    { speaker: 'Mira', text: 'Wait.', startOffsetMs: 3000 }
+  ];
+  const referencePlan = { mode: 'looks_only', references: [
+    { roleName: 'Mira', lookName: 'Cafe' }, { roleName: 'Kin', lookName: 'Visitor' }
+  ] };
+  const baseline = compiler.renderForProvider(packet, { providerId: 'modelark', referencePlan }).prompt;
+  assert.equal(baseline.split('She holds the cup.').length - 1, 1);
+  assert.equal(baseline.split('The cup rests on the table.').length - 1, 1);
+  const config = new CinematicVideoPacketConfigurationService();
+  const policy = config.getPolicy();
+  policy.looksOnlyMode.maximumPromptCharacters = baseline.length - 1;
+  const bounded = new CinematicVideoPacketCompiler({ configurationService: {
+    getPolicy: () => policy, getPromptStrategy: id => config.getPromptStrategy(id)
+  } });
+  const options = { providerId: 'modelark', referencePlan };
+  const result = bounded.renderForProvider(packet, options);
+  assert.ok(result.prompt.length <= policy.looksOnlyMode.maximumPromptCharacters);
+  assert.doesNotMatch(result.prompt, /CINEMATIC VIDEO EXECUTION PACKET/);
+  assert.match(result.prompt, /Image 1.*Mira/);
+  assert.match(result.prompt, /Image 2.*Kin/);
+  assert.match(result.prompt, /Wait. at 1000ms/);
+  assert.match(result.prompt, /Wait. at 3000ms/);
+  assert.equal(bounded.renderForProvider(packet, options).promptFingerprint, result.promptFingerprint);
+  packet.authorDirection = 'z'.repeat(5000);
+  assert.throws(() => bounded.renderForProvider(packet, options), { code: 'cinematic_video_reference_prompt_too_long' });
+  packet.referenceMode = 'first_frame';
+  assert.throws(() => bounded.renderForProvider(packet, { providerId: 'gemini' }), { code: 'cinematic_video_reference_prompt_too_long' });
+});
+
 test('Look reference strategy maps Image 1 and multiple Characters without changing the first-frame packet', () => {
   const project = createSingleCharacterCinematicProject();
   const scene = project.scenes[0];
@@ -45,7 +110,7 @@ test('Cinematic video packet is deterministic and binds approved first-frame aut
   assert.equal(first.packetFingerprint, changedCounter.packetFingerprint);
   assert.equal(first.referenceStrategy.mode, 'first_frame');
   assert.equal(first.contractVersion, 'cinematic-video-packet-v2');
-  assert.equal(first.provenance.policyVersion, 2);
+  assert.equal(first.provenance.policyVersion, 6);
   assert.match(first.renderedPromptFingerprint, /^[a-f0-9]{64}$/);
   assert.equal(first.approvedStoryboardSourceFingerprint, shot.approvedStoryboardSource.sourceFingerprint);
   assert.match(first.providerIndependentPrompt, /APPROVED START FRAME/);

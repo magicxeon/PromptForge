@@ -3,20 +3,22 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 import { assetRepo } from '../../repositories/assets/AssetRepository.js';
-import { historyRepository } from '../../repositories/generation/HistoryRepository.js';
+import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
 import { normalizeProviderOutputProvenance } from '../generation/ProviderOutputProvenance.js';
 import { deriveStoryboardVideoCompatibility } from '../cinematic/CinematicStoryboardSourceCompatibility.js';
 
 export class CinematicStoryboardAssetService {
   constructor({
     assetRepository = assetRepo,
-    generationHistory = historyRepository,
+    generationHistory,
+    generationResults = generationResultRepo,
     outputsDirectory = OUTPUTS_DIR,
     providerRegistry,
     clock = () => new Date()
   } = {}) {
     this.assetRepository = assetRepository;
     this.generationHistory = generationHistory;
+    this.generationResults = generationResults;
     this.outputsDirectory = outputsDirectory;
     this.providerRegistry = providerRegistry;
     this.clock = clock;
@@ -36,7 +38,9 @@ export class CinematicStoryboardAssetService {
     );
     if (existing) return toApprovedSource(existing);
 
-    const history = await this.generationHistory.getById(normalizedJobId);
+    const history = this.generationHistory
+      ? await this.generationHistory.getById(normalizedJobId)
+      : await this.generationResults.findStoryboardSourceForOwner(normalizedJobId, actorContext);
     if (!history || history.username !== actorUsername || !history.imageUrl) {
       throw sourceError('cinematic_storyboard_source_unavailable', 'Storyboard source is unavailable.', 404);
     }
@@ -73,6 +77,7 @@ export class CinematicStoryboardAssetService {
         contentHash,
         generationMode: history.generationMode || null,
         operationPurpose: 'cinematic_storyboard_still',
+        storyboardRenderStyle: history.storyboardRenderStyle === 'concept_sketch_v1' ? 'concept_sketch_v1' : null,
         providerOutputProvenance,
         videoCompatibility
       }
@@ -91,6 +96,7 @@ function toApprovedSource(asset) {
     thumbnailUrl: asset.thumbnailUrl || asset.publicUrl,
     contentHash,
     sourceFingerprint: createStoryboardSourceFingerprint(asset),
+    storyboardRenderStyle: asset.metadata?.storyboardRenderStyle || null,
     providerOutputProvenance: normalizeProviderOutputProvenance(asset.metadata?.providerOutputProvenance),
     videoCompatibility: normalizeVideoCompatibility(asset.metadata?.videoCompatibility),
     approvedAt: asset.createdAt

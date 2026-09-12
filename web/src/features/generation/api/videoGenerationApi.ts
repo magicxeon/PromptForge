@@ -4,7 +4,7 @@ import { recentVideoTasksSchema, videoCapabilityCatalogSchema, videoQuoteSchema,
 export type PlaygroundVideoReference = {
   characterName?: string;
   role: 'first_frame' | 'reference_image';
-  purpose: 'opening_frame' | 'character_look' | 'look_sheet_upload' | 'generated_look' | 'character_reference';
+  purpose: 'opening_frame' | 'image_reference' | 'character_look' | 'look_sheet_upload' | 'generated_look' | 'character_reference';
   referenceImageUrl?: string;
   generationId?: string;
   assetId?: string;

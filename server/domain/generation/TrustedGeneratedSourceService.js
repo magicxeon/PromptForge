@@ -11,6 +11,8 @@ import { generationResultRepo } from '../../repositories/generation/GenerationRe
 import { resolveModelArkCredentialScope } from '../../providers/modelArkCredentialScope.js';
 import { loadVideoReferenceAssetContent } from '../assets/VideoReferenceAssetContent.js';
 import { createProviderOutputProvenance } from './ProviderOutputProvenance.js';
+import { generatedReferencePolicy, generatedSourceIdentity, isGeneratedReferenceAllowed,
+  assertGeneratedReferenceAllowed } from '../../config/generatedReferencePolicy.js';
 
 const fail = (reason) =>
   Object.assign(new Error(`Trusted reference unavailable: ${reason}`), {
@@ -31,12 +33,8 @@ export const generatedCastSourceFingerprint = (generationId, contentHash) =>
 
 export function trustedSourceEligibility(
   source,
-  { scope, now = Date.now(), policy = POLICY } = {},
+  { scope, policy = POLICY } = {},
 ) {
-  const generated = Date.parse(source?.generatedAt || '');
-  const expires = Number.isFinite(generated)
-    ? generated + policy.maximumAgeDays * 86400000
-    : null;
   let reason = null;
   if (!source) reason = 'metadata_missing';
   else if (
@@ -46,11 +44,6 @@ export function trustedSourceEligibility(
     reason = 'unsupported_model';
   else if (!isTrustedGeneratedSourceMode(source, policy))
     reason = 'unsupported_mode';
-  else if (!Number.isFinite(generated) || source.timestampSource !== 'provider')
-    reason = 'timestamp_unknown';
-  else if (generated > now || generated < Date.parse(policy.effectiveFrom))
-    reason = 'timestamp_invalid';
-  else if (expires <= now) reason = 'expired';
   else if (!scope || source.credentialScope !== scope)
     reason = 'account_mismatch';
   else if (!source.contentHash || !source.providerRequestId)
@@ -60,7 +53,7 @@ export function trustedSourceEligibility(
   return {
     eligible: !reason,
     reason,
-    expiresAt: expires ? new Date(expires).toISOString() : null,
+    expiresAt: null,
     policyVersion: policy.version,
   };
 }
@@ -68,13 +61,18 @@ export function trustedSourceEligibility(
 export async function verifyTrustedOutputUrl(source, { fetcher = fetch } = {}) {
   if (!isTrustedOutputUrl(source.originalOutputUrl))
     throw fail('url_unavailable');
+  if (trustedOutputUrlExpired(source.originalOutputUrl)) throw fail('url_expired');
   let response;
   try {
     response = await fetcher(source.originalOutputUrl, {
       redirect: 'error',
       signal: AbortSignal.timeout(12000),
     });
-    if (!response.ok || !response.body) throw fail('url_unavailable');
+    if (!response.ok || !response.body) {
+      const errorBody = response.status === 403 ? await response.json().catch(() => null) : null;
+      throw fail(errorBody?.Code === 'AccessDenied' && errorBody?.Message === 'Request has expired'
+        ? 'url_expired' : 'url_unavailable');
+    }
     const declared = Number(response.headers.get('content-length'));
     if (declared > 30 * 1024 * 1024) throw fail('content_changed');
     const reader = response.body.getReader();
@@ -102,6 +100,16 @@ export async function verifyTrustedOutputUrl(source, { fetcher = fetch } = {}) {
   }
 }
 
+export function trustedOutputUrlExpired(value, now = Date.now()) {
+  const url = new URL(value);
+  const date = url.searchParams.get('X-Tos-Date');
+  const seconds = Number(url.searchParams.get('X-Tos-Expires'));
+  const parts = date?.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/);
+  if (!parts || !Number.isFinite(seconds) || seconds <= 0) return false;
+  const signedAt = Date.parse(`${parts[1]}-${parts[2]}-${parts[3]}T${parts[4]}:${parts[5]}:${parts[6]}Z`);
+  return Number.isFinite(signedAt) && signedAt + seconds * 1000 <= now;
+}
+
 export class TrustedGeneratedSourceService {
   constructor({
     repository = trustedGeneratedSourceRepository,
@@ -110,6 +118,7 @@ export class TrustedGeneratedSourceService {
     now = () => Date.now(),
     contentLoader = loadVideoReferenceAssetContent,
     urlVerifier = verifyTrustedOutputUrl,
+    sourcePolicy = generatedReferencePolicy,
   } = {}) {
     Object.assign(this, {
       repository,
@@ -118,6 +127,7 @@ export class TrustedGeneratedSourceService {
       now,
       contentLoader,
       urlVerifier,
+      sourcePolicy,
     });
   }
 
@@ -165,7 +175,8 @@ export class TrustedGeneratedSourceService {
     }
     const sheetsOnly = query.category === 'look-sheet';
     const scope = this.scopeResolver();
-    const eligibleRecords = eligibleOnly
+    const open = this.sourcePolicy.allowAnyProvider;
+    const eligibleRecords = eligibleOnly && !open
       ? (await this.repository.listForOwner(actor.userId)).filter((row) => (
           trustedSourceEligibility(row, { scope, now: this.now() }).eligible
         ))
@@ -174,8 +185,10 @@ export class TrustedGeneratedSourceService {
       limit: 24,
       cursor: query.cursor,
       allowedJobIds: eligibleRecords ? new Set(eligibleRecords.map((row) => row.id)) : null,
-      filterKey: `${eligibleOnly ? `trusted-eligible:${POLICY.version}` : 'trusted-all'}${sheetsOnly ? ':look-sheet' : ''}`,
-      itemFilter: sheetsOnly ? isGeneratedLookSheet : null,
+      filterKey: `${open ? this.sourcePolicy.policyVersion : eligibleOnly ? `trusted-eligible:${POLICY.version}` : 'trusted-all'}${sheetsOnly ? ':look-sheet' : ''}`,
+      itemFilter: row => (!sheetsOnly || isGeneratedLookSheet(row))
+        && isGeneratedReferenceAllowed(row, this.sourcePolicy)
+        && (!open || isOwnedImageCandidate(row)),
     });
     const records = eligibleRecords || await this.repository.findManyForOwner(
       page.items.map((row) => row.id), actor.userId,
@@ -198,13 +211,15 @@ export class TrustedGeneratedSourceService {
             previewUrl: row.imageUrl,
             modelId:
               source?.modelId || row.resolvedSubmodel || row.submodel || '',
-            generationMode: source?.generationMode || 'unknown',
+            generationMode: source?.generationMode || row.generationMode || 'unknown',
             category: isGeneratedLookSheet(row) ? 'look-sheet' : 'image',
             generatedAt: source?.generatedAt || null,
             ...trustedSourceEligibility(source, {
               scope,
               now: this.now(),
             }),
+            ...(open ? { eligible: true, reason: null, expiresAt: null,
+              policyVersion: this.sourcePolicy.policyVersion } : {}),
           };
         })
         .filter((row) => !eligibleOnly || row.eligible),
@@ -224,8 +239,8 @@ export class TrustedGeneratedSourceService {
       contentHash: content.contentHash, mimeType: content.mimeType,
       width: content.width, height: content.height, sizeBytes: content.sizeBytes,
       modelId: source.modelId, providerId: source.providerId,
-      expiresAt: trustedSourceEligibility(source, { scope: this.scopeResolver(), now: this.now() }).expiresAt,
-      providerOutputProvenance: createProviderOutputProvenance({
+      expiresAt: null,
+      providerOutputProvenance: source.sourceKind === 'owned_generation' ? source.providerOutputProvenance || null : createProviderOutputProvenance({
         providerId: source.providerId, requestedModelId: source.requestedModelId || source.modelId,
         providerMetadata: { resolvedModel: source.modelId, requestId: source.providerRequestId,
           credentialScope: source.credentialScope, generatedAt: source.generatedAt },
@@ -240,9 +255,15 @@ export class TrustedGeneratedSourceService {
   }
 
   async resolveOwnedImage(generationId, actor, expectedContentHash) {
+    return (await this.resolveOwnedImageWithTransport(generationId, actor, expectedContentHash)).value;
+  }
+
+  async resolveOwnedImageWithTransport(generationId, actor, expectedContentHash) {
     const plan = await this.prepareOwnedImage(generationId, actor);
     if (!expectedContentHash || plan.assets[0].contentHash !== expectedContentHash) throw fail('content_changed');
-    return (await this.resolve(plan)).referenceImage;
+    const result = await this.resolve(plan);
+    const { mode, fallbackCode = null } = result.referenceTransports[0];
+    return { value: result.referenceImage, transport: { mode, fallbackCode } };
   }
 
   async prepare(input, actor) {
@@ -258,6 +279,7 @@ export class TrustedGeneratedSourceService {
     )
       throw fail('generated_selection_required');
     const first = input.inputMode === 'image_to_video';
+    const generalImages = rows.every(row => row.purpose === 'image_reference');
     if (
       (!first && input.inputMode !== 'multimodal_reference') ||
       (first &&
@@ -266,8 +288,8 @@ export class TrustedGeneratedSourceService {
           rows[0].purpose !== 'opening_frame')) ||
       (!first &&
         (rows.some((row) => row.role !== 'reference_image') ||
-          rows.at(-1).purpose !== 'generated_look' ||
-          rows.some((row, index) => row.purpose !== 'generated_look' && !(index === 0 && row.purpose === 'opening_frame')))) ||
+          (!generalImages && (rows.at(-1).purpose !== 'generated_look' ||
+          rows.some((row, index) => row.purpose !== 'generated_look' && !(index === 0 && row.purpose === 'opening_frame')))))) ||
       rows.some(
         (row) =>
           !row.generationId ||
@@ -298,12 +320,16 @@ export class TrustedGeneratedSourceService {
         history.artifactVisibility === 'template_owner_only'
       )
         throw fail('source_unavailable');
-      const source = records.find((item) => item.id === row.generationId);
-      const eligibility = trustedSourceEligibility(source, {
+      assertGeneratedReferenceAllowed(history, this.sourcePolicy);
+      const original = records.find((item) => item.id === row.generationId);
+      const eligibility = trustedSourceEligibility(original, {
         scope: this.scopeResolver(),
         now: this.now(),
       });
-      if (!eligibility.eligible) throw fail(eligibility.reason);
+      if (!eligibility.eligible && !this.sourcePolicy.allowAnyProvider) throw fail(eligibility.reason);
+      const source = eligibility.eligible ? original : ownedImageSource(history, actor, original);
+      assertGeneratedReferenceAllowed(source, this.sourcePolicy);
+      if (row.purpose === 'generated_look' && !isGeneratedLookSheet(history)) throw fail('look_sheet_required');
       const { bytes: _bytes, ...content } = await this.contentLoader(source);
       const fingerprint = hash(
         JSON.stringify([
@@ -311,7 +337,7 @@ export class TrustedGeneratedSourceService {
           content.contentHash,
           source.generatedAt,
           source.credentialScope,
-          POLICY.version,
+          this.sourcePolicy.allowAnyProvider ? this.sourcePolicy.policyVersion : POLICY.version,
         ]),
       );
       assets.push({ ...content, id: source.id });
@@ -322,7 +348,7 @@ export class TrustedGeneratedSourceService {
         purpose: row.purpose,
         assetId: source.id,
         assetVersionId: source.id,
-        sourceKind: 'trusted_generated',
+        sourceKind: source.sourceKind || 'trusted_generated',
         contentHash: content.contentHash,
         sourceFingerprint: fingerprint,
         referenceImageUrl: `generated:${source.id}`,
@@ -338,38 +364,53 @@ export class TrustedGeneratedSourceService {
   }
 
   async resolve(plan, { verifyUrl = true } = {}) {
-    for (const source of plan.sources) {
+    const values = [], referenceTransports = [];
+    for (const [index, source] of plan.sources.entries()) {
+      assertGeneratedReferenceAllowed(source, this.sourcePolicy);
+      if (source.sourceKind === 'owned_generation') {
+        if (!this.sourcePolicy.allowAnyProvider) throw fail('unsupported_model');
+        const current = await this.history.findByIdForOwner(source.id, source.ownerUserId);
+        if (!isOwnedImageCandidate(current) || current.imageUrl !== `/outputs/${source.storageKey}`) throw fail('source_unavailable');
+        assertGeneratedReferenceAllowed(current, this.sourcePolicy);
+        const content = await this.contentLoader({ ...source, contentHash: plan.assets[index].contentHash });
+        values.push(`data:${content.mimeType};base64,${content.bytes.toString('base64')}`);
+        referenceTransports.push({ assetId: source.id, mode: 'base64' });
+        continue;
+      }
       const eligibility = trustedSourceEligibility(source, {
         scope: this.scopeResolver(),
         now: this.now(),
       });
       if (!eligibility.eligible) throw fail(eligibility.reason);
-      if (verifyUrl) await this.urlVerifier(source);
-    }
-    // The first source can expire while the second URL is being verified.
-    for (const source of plan.sources) {
-      const eligibility = trustedSourceEligibility(source, {
-        scope: this.scopeResolver(),
-        now: this.now(),
-      });
-      if (!eligibility.eligible) throw fail(eligibility.reason);
+      let value = source.originalOutputUrl;
+      let mode = 'provider_original_url', fallbackCode = null;
+      try {
+        if (verifyUrl) await this.urlVerifier(source);
+      } catch (error) {
+        const localAllowed = ['url_expired', 'url_unavailable'].includes(error?.details?.reason);
+        if (!localAllowed) throw error;
+        const content = await this.contentLoader(source);
+        if (content.contentHash !== source.contentHash || content.sizeBytes !== source.sizeBytes) throw fail('content_changed');
+        value = `data:${content.mimeType};base64,${content.bytes.toString('base64')}`;
+        mode = 'base64';
+        fallbackCode = 'generated_source_local_original';
+      }
+      values.push(value);
+      referenceTransports.push({ assetId: source.id, mode, ...(fallbackCode ? { fallbackCode } : {}) });
     }
     const ordered = plan.input.inputMode === 'multimodal_reference';
     return {
-      referenceImage: ordered ? null : plan.sources[0].originalOutputUrl,
+      referenceImage: ordered ? null : values[0],
       lastFrameImage: null,
       referenceImages: ordered
         ? plan.sources.map((source, i) => ({
             role: plan.input.references[i].role,
-            url: source.originalOutputUrl,
+            url: values[i],
           }))
         : [],
       characterAttributions: [],
       providerReferenceRegistrations: [],
-      referenceTransports: plan.sources.map((source) => ({
-        assetId: source.id,
-        mode: 'provider_original_url',
-      })),
+      referenceTransports,
     };
   }
 
@@ -389,6 +430,22 @@ export class TrustedGeneratedSourceService {
         createdAt: new Date(this.now()).toISOString(),
       });
   }
+}
+function isOwnedImageCandidate(row) {
+  return Boolean(row && row.status !== 'deleted' && row.artifactVisibility !== 'template_owner_only'
+    && !['failed', 'cancelled', 'processing', 'queued'].includes(row.status)
+    && typeof row.imageUrl === 'string' && row.imageUrl.startsWith('/outputs/')
+    && !/[?#%\\]/.test(row.imageUrl) && !row.imageUrl.split('/').includes('..'));
+}
+
+function ownedImageSource(history, actor, original) {
+  if (!isOwnedImageCandidate(history)) throw fail('source_unavailable');
+  const identity = generatedSourceIdentity(history);
+  return { id: history.id, ownerUserId: actor.userId, ...identity,
+    storageKey: history.imageUrl.slice('/outputs/'.length), sourceKind: 'owned_generation',
+    contentHash: original?.contentHash || null, sizeBytes: original?.sizeBytes || null,
+    providerOutputProvenance: history.providerOutputProvenance || null,
+    generatedAt: history.createdAt || null, generationMode: history.generationMode || 'unknown' };
 }
 export const trustedGeneratedSourceService =
   new TrustedGeneratedSourceService();

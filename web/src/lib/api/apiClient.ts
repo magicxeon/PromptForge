@@ -53,7 +53,7 @@ export async function apiRequest<TSchema extends ZodType | undefined = undefined
   options.onResponseHeaders?.(response.headers);
 
   const contentType = response.headers.get('content-type') || '';
-  const payload = options.responseType === 'blob' && /^image\/(png|jpeg)(;|$)/i.test(contentType)
+  const payload = options.responseType === 'blob' && /^(image\/(png|jpeg)|application\/zip)(;|$)/i.test(contentType)
     ? await response.blob()
     : contentType.includes('application/json')
     ? await response.json()

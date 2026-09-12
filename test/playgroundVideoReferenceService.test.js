@@ -5,7 +5,36 @@ import { VideoCapabilityRegistry } from '../server/domain/generation/VideoCapabi
 import { buildModelArkSeedancePayload } from '../server/providers/ModelArkSeedanceProvider.js';
 
 const actor = { userId: 'poc-owner', username: 'poc', role: 'user' };
-function setup() {
+
+test('composition-browse: Seedance accepts owned uploads as references without relaxing Look rules', async () => {
+  const { service, input, state } = setup({ trusted: true });
+  const request = { ...input, operation: 'image_to_video', characterProfileId: null, characterProfileVersionId: null,
+    references: [{ purpose: 'image_reference', role: 'reference_image', referenceImageUrl: '/outputs/upload.png', characterName: 'Sketch' }] };
+  await submit(service, request);
+  assert.equal(state.reservations.length, 1);
+  assert.equal(state.dispatched[0].referenceImage, null);
+  assert.equal(state.dispatched[0].referenceImages.length, 1);
+  assert.match(JSON.stringify(state.dispatched[0].referenceImages), /data:image\/png;base64/);
+  assert.equal(state.transports.length, 0);
+  await assert.rejects(service.quote({ ...request, references: [{ ...request.references[0], referenceImageUrl: '/outputs/not-owned.png' }] }, actor));
+  await assert.rejects(service.quote({ ...request, operation: 'character_to_video', references: [{ ...request.references[0], purpose: 'look_sheet_upload' }] }, actor));
+});
+
+test('named-images: ordinary Start images are named ordered references and rename invalidates quote', async () => {
+  const { service, input, state } = setup();
+  const request = { ...input, operation: 'image_to_video', characterProfileId: null, characterProfileVersionId: null,
+    references: ['frame', 'upload'].map((id, index) => ({ purpose: 'image_reference', role: 'reference_image',
+      referenceImageUrl: `/outputs/${id}.png`, characterName: `Image ${index + 1}` })) };
+  const quote = await service.quote(request, actor);
+  const changed = structuredClone(request); changed.references[1].characterName = 'Different';
+  await assert.rejects(service.submit({ ...changed, requestFingerprint: quote.requestFingerprint, estimateId: 'quote', idempotencyKey: 'named-change' }, actor), { code: 'video_quote_request_changed' });
+  await submit(service, request);
+  assert.equal(state.reservations.length, 1);
+  assert.equal(state.dispatched[0].referenceImage, null);
+  assert.equal(state.dispatched[0].referenceImages.length, 2);
+  assert.match(state.dispatched[0].prompt, /Image reference mapping/);
+});
+function setup({ trusted = false } = {}) {
   const assets = [
     {
       id: 'frame',
@@ -43,7 +72,7 @@ function setup() {
     version: 'profile-v1',
     history: { id: 'job_owned', imageUrl: '/outputs/job_owned.png', status: 'completed', provider: 'gemini' },
   };
-  const registry = new VideoCapabilityRegistry({
+  const registry = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
     runtimeEnvironment: 'development',
     developmentPocEnabled: true,
     availabilityPolicy: {
@@ -58,7 +87,7 @@ function setup() {
   });
   // This fixture exercises the generic adapter contract. Real Seedance 2.x's
   // stricter catalog gate is covered in trustedGeneratedSources.test.js.
-  for (const model of registry.load().models) delete model.trustedGeneratedImageSource;
+  if (!trusted) for (const model of registry.load().models) delete model.trustedGeneratedImageSource;
   const service = new VideoGenerationApplicationService({
     capabilityRegistry: registry,
     testingEnabled: true,

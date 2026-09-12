@@ -1,6 +1,10 @@
 {
   "schemaVersion": 1,
-  "version": 2,
+  "version": 3,
+  "openingDirection": {
+    "version": 2,
+    "guidance": "Direct the marked first Scene as a visual cinematic opening understandable without reading text or hearing specific words. Follow supplied country style, primary genre, audience feeling and pacing. Choose a story-motivated hook: a revealing gesture or interrupted routine for romance/drama; an unexplained discrepancy for mystery/thriller; an established ordinary space disturbed for horror; a readable goal and obstacle for action/adventure; expectation and visual reversal for comedy. Adapt other genres to the premise; these are options, not mandatory events. Specify time-zero composition, motivated light, playable action, reaction, timing and transition. Anchor reactions to visible events, never to a quoted phrase. No readable text in any language, titles, subtitles, captions, logos or explanatory signs/screens. Preserve runtime, plot, approved Cast, shot count and locked dialogue in its separate audio fields. No extra people or automatic aerial/slow-motion montage. A no-person opening is valid. Return a reviewable proposal."
+  },
   "countryStyles": {
     "default": "none",
     "options": [

@@ -1,4 +1,5 @@
-import { ArrowLeft, ArrowRight, Clock3, GripVertical, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Clock3, GripVertical, Image as ImageIcon, ContactRound, Clapperboard, Pencil } from 'lucide-react';
+import { Button } from '../../../components/ui/Button';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useTranslation } from 'react-i18next';
 import { useGenerationJob } from '../../generation/hooks/useGenerationJob';
@@ -13,6 +14,7 @@ export type StoryboardShotSummary = {
   status: 'ready' | 'draft' | 'warning' | 'quoted' | 'queued' | 'generating' | 'review' | 'approved' | 'failed' | 'storyboard_required' | 'source_changed' | 'audio_incomplete';
   imageUrl?: string | null;
   generationJobId?: string | null;
+  videoReferenceMode?: 'storyboard_only' | 'storyboard_and_looks' | 'looks_only' | 'text_only';
   castNames?: string[];
   lookNames?: string[];
 };
@@ -24,6 +26,7 @@ type StoryboardSequenceBoardProps = {
   shots: StoryboardShotSummary[];
   selectedShotId: string;
   onSelectShot: (shotId: string) => void;
+  onEditShot?: (shotId: string) => void;
   onMoveShot: (shotId: string, direction: 'earlier' | 'later') => void;
   readOnly?: boolean;
   variant?: 'board' | 'queue';
@@ -36,6 +39,7 @@ export function StoryboardSequenceBoard({
   shots,
   selectedShotId,
   onSelectShot,
+  onEditShot,
   onMoveShot,
   readOnly = false,
   variant = 'board'
@@ -67,6 +71,7 @@ export function StoryboardSequenceBoard({
           selected={selectedShotId === shot.id}
           last={index === shots.length - 1}
           onSelectShot={onSelectShot}
+          onEditShot={onEditShot}
           onMoveShot={onMoveShot}
           readOnly={readOnly}
         />)}
@@ -75,21 +80,22 @@ export function StoryboardSequenceBoard({
   );
 }
 
-function StoryboardShotCard({ shot, index, selected, last, onSelectShot, onMoveShot, readOnly }: {
+function StoryboardShotCard({ shot, index, selected, last, onSelectShot, onEditShot, onMoveShot, readOnly }: {
   shot: StoryboardShotSummary;
   index: number;
   selected: boolean;
   last: boolean;
   onSelectShot: (shotId: string) => void;
+  onEditShot?: (shotId: string) => void;
   onMoveShot: (shotId: string, direction: 'earlier' | 'later') => void;
   readOnly: boolean;
 }) {
   if (shot.generationJobId && !readOnly) {
     return <TrackedStoryboardShotCard shot={shot} index={index} selected={selected} last={last}
-      onSelectShot={onSelectShot} onMoveShot={onMoveShot} readOnly={readOnly} />;
+      onSelectShot={onSelectShot} onEditShot={onEditShot} onMoveShot={onMoveShot} readOnly={readOnly} />;
   }
   return <StoryboardShotCardContent shot={shot} index={index} selected={selected} last={last}
-    onSelectShot={onSelectShot} onMoveShot={onMoveShot} readOnly={readOnly} />;
+    onSelectShot={onSelectShot} onEditShot={onEditShot} onMoveShot={onMoveShot} readOnly={readOnly} />;
 }
 
 function TrackedStoryboardShotCard(props: Parameters<typeof StoryboardShotCardContent>[0]) {
@@ -98,13 +104,14 @@ function TrackedStoryboardShotCard(props: Parameters<typeof StoryboardShotCardCo
     generationStatus={job.data?.status || 'queued'} />;
 }
 
-function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, onMoveShot,
+function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, onEditShot, onMoveShot,
   readOnly, generatedImageUrl = null, generationStatus = null }: {
   shot: StoryboardShotSummary;
   index: number;
   selected: boolean;
   last: boolean;
   onSelectShot: (shotId: string) => void;
+  onEditShot?: (shotId: string) => void;
   onMoveShot: (shotId: string, direction: 'earlier' | 'later') => void;
   readOnly: boolean;
   generatedImageUrl?: string | null;
@@ -112,8 +119,8 @@ function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, 
 }) {
   const { t } = useTranslation('cinematic');
   const imageUrl = shot.imageUrl || generatedImageUrl;
-  const status = shot.status === 'ready'
-    ? 'ready'
+  const status = ['ready', 'source_changed'].includes(shot.status)
+    ? shot.status
     : generationStatus === 'completed' && generatedImageUrl
       ? 'review'
       : generationStatus === 'failed'
@@ -134,7 +141,9 @@ function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, 
               aria-label={`${t(readOnly ? 'cinematic.storyboard.selectShot' : 'cinematic.storyboard.editShot')} ${shot.id}`}
               onClick={() => onSelectShot(shot.id)}
             >
-              {imageUrl
+              {['looks_only', 'text_only'].includes(shot.videoReferenceMode || '')
+                ? <div className="cinematic-source-tile"><span>{shot.videoReferenceMode === 'text_only' ? <Clapperboard aria-hidden="true" /> : <><ContactRound aria-hidden="true" /><Clapperboard aria-hidden="true" /></>}</span><small>{t(shot.videoReferenceMode === 'text_only' ? 'cinematic.produce.references.textOnlyShort' : 'cinematic.produce.references.lookSheetShort')}</small></div>
+                : imageUrl
                 ? <img src={imageUrl} alt="" />
                 : shot.generationJobId && status === 'queued'
                   ? <><ProcessingSpinner className="animate-spin" aria-hidden="true" /><span>{t('cinematic.storyboard.status.queued')}</span></>
@@ -158,6 +167,9 @@ function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, 
                   <button type="button" disabled={last} aria-label={`${t('cinematic.storyboard.moveLater')} ${shot.id}`} onClick={() => onMoveShot(shot.id, 'later')}><ArrowRight aria-hidden="true" /></button>
                 </div> : null}
               </footer>
+              {!readOnly && onEditShot ? <Button size="sm" icon={<Pencil />}
+                aria-label={`${t('cinematic.storyboard.editShot')}: ${shot.title}`}
+                onClick={() => onEditShot(shot.id)}>{t('cinematic.storyboard.editShot')}</Button> : null}
             </div>
           </article>
   );

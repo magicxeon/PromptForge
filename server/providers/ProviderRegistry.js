@@ -1,4 +1,5 @@
 import { loadProviderConfig } from './ProviderConfigLoader.js';
+import { generatedReferencePolicy } from '../config/generatedReferencePolicy.js';
 import {
   providerAvailabilityPolicyService,
   resolveImageProviderWorkflow
@@ -93,7 +94,7 @@ export class ProviderRegistry {
           .map(model => ({
             id: model.id,
             displayName: model.displayName,
-            capabilities: model.capabilities,
+            capabilities: { ...model.capabilities, generatedReferenceSourcesOpen: generatedReferencePolicy.allowAnyProvider },
             defaults: model.defaults || {},
             ...(model.allowedGenerationSurfaces ? { allowedGenerationSurfaces: [...model.allowedGenerationSurfaces] } : {}),
             ...(model.allowedGenerationModes ? { allowedGenerationModes: [...model.allowedGenerationModes] } : {}),

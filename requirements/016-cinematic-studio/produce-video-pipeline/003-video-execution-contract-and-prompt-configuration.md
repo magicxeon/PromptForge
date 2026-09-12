@@ -6,6 +6,78 @@
 
 ## 1. Contract Layers
 
+### Shot-Local Sequence Isolation (2026-09-12)
+
+Owner: Cinematic planning and VideoPacketCompiler. Scope: preserve the generated
+plot while preventing Scene-wide future prop states/actions from being rendered
+early. No paid generation, live Project rewrites or changes to approved media.
+
+Tasks: (1) direct Plan/Scene Direction to define causal per-Shot start, action,
+end, prop possession and body/head/gaze orientation; (2) stop treating Scene
+propContinuity, screenDirection and transitionIntent as current Shot directions
+in video packets; (3) check compiler regressions offline.
+Use Shot continuityEntry as current prop context; use Shot blocking as spatial
+authority. Do not infer that a pot must fall or that a phone must drop. Existing
+authored Shot actions remain intact. Saved plans need explicit Scene Direction
+regeneration to repair their authored handoffs; no automatic rewrite/approval.
+Acceptance: Scene-only future wet-phone state, pulling action and end-of-Scene
+transition are absent from the first Shot packet. Shot-local action/end survive.
+Storyboard keyframe contracts remain unchanged in this bounded fix to avoid
+invalidating approved frames; existing stills require separate review if used.
+Evidence: compiler suite passed 12/12. Read-only recompilation of the Shot linked
+to videotask_2851115a493488ae5526 confirms premature wet-phone and Scene pull
+instructions are absent while the authored action remains. No provider call or
+live mutation. Generated sequence quality remains user UAT.
+
+### Deterministic Prompt Budget Optimization (2026-09-12)
+
+Owner: CinematicVideoPacketCompiler and existing JSON prompt policies. Primary:
+Product Requirement Architect; QA review applied sequentially by implementer
+(not independent). No provider, reference, billing or UI workflow changes.
+
+Ordered tasks:
+1. Make planning/Scene Direction wording concise without duplicating field data.
+2. Shorten shared policy instructions; eliminate exact duplicate start/entry and
+   end/exit values only where their temporal meaning is identical. Never dedupe
+   dialogue, Character mappings or opposite temporal states.
+3. At final render, retain all content and mappings; when over budget omit only
+   the internal packet heading and reduce separator whitespace. If still too
+   long, fail explicitly with the existing code, never truncate authored content.
+4. Focused offline compiler tests: deterministic output, full mappings/dialogue,
+   temporal deduplication, compact near-limit success and true overflow failure.
+   Command: node --test test/cinematicVideoPacketCompiler.test.js (existing
+   Cinematic test runner also owns this file). No paid generation or live writes.
+
+Limits remain unchanged: this is not a claim about provider maximums. No AI
+rewrite call, new cache, runtime path, schema or data migration. Existing plans
+stay unchanged; new renders consume optimized wording. Provider motion UAT is
+separate. Status: implemented; offline compiler suite passed 11/11 on 2026-09-12.
+Coverage includes compact near-limit rendering, repeated dialogue preservation,
+ordered mappings, deterministic fingerprints and explicit overflow for both
+reference and non-reference modes. Live failing Shot/provider output is not
+verified; unusually long authored content can still exceed the unchanged limit.
+
+### Natural Motion Wording Update (2026-09-12)
+
+Scope: prompt wording only, owned by CinematicVideoPacketCompiler and its
+existing video-packet-policy.v2.json configuration. No workflow or UI changes.
+
+Ordered tasks and acceptance:
+1. Specify causal motion from the authored start through action and reaction
+   to the authored end. Preserve existing prop support/contact positions; do not
+   invent a railing, ledge, collision or slipping incident to explain motion.
+2. Use real-time motion by default, plausible weight, gravity and body response.
+   Respect explicit timing; use slow motion/speed ramps only when authored.
+   Never impose a universal timestamp sequence or a new outcome on every Shot.
+3. Leave references, approved frames, saved plans, attempts, pricing and dispatch
+   unchanged. This wording cannot repair an already incorrect opening frame.
+4. User will generate and inspect the next attempt. Automated tests and paid
+   generation are intentionally not run for this wording-only change.
+
+Implementation plan: update this requirement, revise existing primaryAction and
+duration policy phrases, then inspect the scoped diff. No new runtime paths.
+Status: wording implemented; motion quality awaits user generation/UAT.
+
 Video execution is represented by four separate layers:
 
 1. **Cinematic authority:** approved Story, Scene, Shot, Character, Look,

@@ -21,8 +21,7 @@ export function GeneratedCastDialog({ open, onOpenChange, onCharacter, onSelect 
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => { setSource(null); setName(''); setReady(false); setConfirmed(false); setError(null); }, [open, actor?.userId]);
-  const canAssign = source?.eligible && ready && confirmed && name.trim()
-    && source.expiresAt && Date.parse(source.expiresAt) > Date.now() && !pending;
+  const canAssign = source?.eligible && ready && confirmed && name.trim() && !pending;
   async function assign() {
     if (!canAssign || !source) return;
     setPending(true); setError(null);

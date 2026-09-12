@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import { DisplayMediaImage } from '../../../components/media/DisplayMediaImage';
 import { Button } from '../../../components/ui/Button';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { uploadGenerationReference } from '../../generation/api/generationApi';
@@ -26,6 +27,10 @@ export function PlaygroundVideoSources({
   lookOnly = false,
   characterNumber = 1,
   excludedUrls = [],
+  frameLabel,
+  frameRole,
+  frameName,
+  onFrameNameChange,
 }: {
   value: VideoReferenceSelection;
   onChange: (patch: Partial<VideoReferenceSelection>) => void;
@@ -33,6 +38,10 @@ export function PlaygroundVideoSources({
   lookOnly?: boolean;
   characterNumber?: number;
   excludedUrls?: string[];
+  frameLabel?: string;
+  frameRole?: 'first_frame' | 'reference_image';
+  frameName?: string;
+  onFrameNameChange?: (name: string) => void;
 }) {
   const { t } = useTranslation('playground');
   const { actor } = useActor();
@@ -175,7 +184,7 @@ export function PlaygroundVideoSources({
           const image =
             slot === 'frame' ? value.referenceImageUrl : value.lookSheet?.url;
           const input = slot === 'frame' ? frameInput : lookInput;
-          const title = t(
+          const title = slot === 'frame' && frameLabel ? frameLabel : t(
             slot === 'frame'
               ? withLook
                 ? 'playground.video.references.scene'
@@ -187,10 +196,12 @@ export function PlaygroundVideoSources({
               <header>
                 <strong>{title}</strong>
                 <small>
-                  {slot === 'frame' && !withLook
-                    ? 'first_frame'
-                    : 'reference_image'}
+                  {t(slot === 'frame' && (frameRole === 'first_frame' || (!frameRole && !withLook))
+                    ? 'playground.video.references.frame' : 'playground.video.references.imageReference')}
                 </small>
+                {image ? <Button className="playground-video-references__remove" disabled={Boolean(pending)} size="icon" icon={<X />}
+                  title={`${t('playground.reference.remove')} ${title}`} aria-label={`${t('playground.reference.remove')} ${title}`}
+                  onClick={() => onChange(slot === 'frame' ? { referenceImageUrl: null } : { lookSheet: null })} /> : null}
               </header>
               <div className="playground-video-references__preview">
                 {image ? (
@@ -207,6 +218,10 @@ export function PlaygroundVideoSources({
                   <ImagePlus aria-hidden="true" />
                 )}
               </div>
+              {slot === 'frame' && image && onFrameNameChange ? <label>
+                {t('playground.video.references.imageName', { number: characterNumber })}
+                <input maxLength={80} value={frameName || ''} onChange={event => onFrameNameChange(event.target.value)} />
+              </label> : null}
               {slot === 'look' && value.lookSheet ? (
                 <label>
                   {t('playground.video.references.characterName', { number: characterNumber })}
@@ -225,7 +240,7 @@ export function PlaygroundVideoSources({
                 </Button>
                 <Button
                   disabled={Boolean(pending)}
-                  icon={<ImagePlus />}
+                  icon={pending === slot ? <ProcessingSpinner className="size-4" /> : <ImagePlus />}
                   onClick={() => input.current?.click()}
                 >
                   {t(
@@ -234,21 +249,6 @@ export function PlaygroundVideoSources({
                       : 'playground.reference.browse',
                   )}
                 </Button>
-                {image ? (
-                  <Button
-                    disabled={Boolean(pending)}
-                    size="icon"
-                    icon={<X />}
-                    aria-label={`${t('playground.reference.remove')} ${title}`}
-                    onClick={() =>
-                      onChange(
-                        slot === 'frame'
-                          ? { referenceImageUrl: null }
-                          : { lookSheet: null },
-                      )
-                    }
-                  />
-                ) : null}
                 <input
                   ref={input}
                   hidden

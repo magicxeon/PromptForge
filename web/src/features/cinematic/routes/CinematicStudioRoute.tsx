@@ -8,12 +8,14 @@ import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { Surface } from '../../../components/ui/Surface';
 import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
 import { useActor } from '../../../lib/auth/ActorProvider';
+import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { useFeaturePolicy } from '../../../lib/permissions/FeaturePolicyProvider';
 import { CinematicStageRail } from '../components/CinematicStageRail';
 import { cinematicStages } from '../cinematicStages';
 import { CinematicStageContent } from '../components/CinematicStageContent';
 import { CinematicWorkspaceHeader } from '../components/CinematicWorkspaceHeader';
 import { CinematicSetupForm } from '../components/CinematicSetupForm';
+import { SeriesWorkspaceControls } from '../components/SeriesWorkspaceControls';
 import { ProjectCostSummary } from '../components/ProjectCostSummary';
 import { StoryEnhanceDialog } from '../components/CinematicDialogs';
 import { applyStoryEnhancement } from '../state/applyStoryEnhancement';
@@ -30,6 +32,7 @@ import {
 } from '../state/cinematicDraftStorage';
 import {
   createCinematicProject,
+  enhanceCinematicStory,
   getCinematicAuthoringManifest,
   getCinematicProject,
   listCinematicProjects,
@@ -103,7 +106,7 @@ function CinematicProjectList({ actorId }: { actorId: string }) {
         {projects.data.items.map(project => <Link key={project.projectId} to={routeBuilders.cinematicProject(project.projectId, project.activeStage)} className="cinematic-project-card">
           <Clapperboard aria-hidden="true" />
           <div><strong title={project.title}>{project.title}</strong><span>{t(`cinematic.stages.${project.activeStage}`)}</span></div>
-          <small>{project.durationSeconds}s</small>
+          <small>{project.seriesMembership ? <span>{t('cinematic.series.chapterNumber', { number: project.seriesMembership.chapterNumber })} / </span> : null}{project.durationSeconds}s</small>
         </Link>)}
       </div> : null}
     </main>
@@ -149,6 +152,9 @@ function CinematicWorkspace({
   const [saveError, setSaveError] = useState<Error | null>(null);
   const [online, setOnline] = useState(() => typeof navigator === 'undefined' || navigator.onLine);
   const [enhanceOpen, setEnhanceOpen] = useState(false);
+  const [seriesBusy, setSeriesBusy] = useState(false);
+  const [simplePreparing, setSimplePreparing] = useState(false);
+  const simplePreparingRef = useRef(false);
   const [enhancePurpose, setEnhancePurpose] = useState<'story' | 'roles'>('story');
   const projectVersionRef = useRef(project?.version ?? 0);
   const mutationChainRef = useRef<Promise<void>>(Promise.resolve());
@@ -159,6 +165,7 @@ function CinematicWorkspace({
   const createProject = useMutation({
     mutationFn: createCinematicProject,
     onSuccess: created => {
+      if (getActiveActorId() !== actorId) return;
       removeCinematicSetupDraft(actorId);
       queryClient.invalidateQueries({ queryKey: ['cinematic-projects', actorId] });
       navigate(routeBuilders.cinematicProject(created.id, 'cast'));
@@ -197,7 +204,7 @@ function CinematicWorkspace({
   }, [actorId, draft, online, project, t]);
 
   useEffect(() => {
-    if (!project) return;
+    if (!project || seriesBusy) return;
     const serialized = serializeSetup(draft);
     if (serialized === lastSavedSetupRef.current) return;
     if (!online) {
@@ -230,7 +237,7 @@ function CinematicWorkspace({
       }
     }, 600);
     return () => window.clearTimeout(timer);
-  }, [actorId, draft, online, project, queryClient, t]);
+  }, [actorId, draft, online, project, queryClient, seriesBusy, t]);
 
   function enqueueProjectMutation(operation: () => Promise<CinematicProject>) {
     const result = mutationChainRef.current.then(operation, operation);
@@ -292,7 +299,7 @@ function CinematicWorkspace({
   }
 
   async function setActiveStage(nextStage: CinematicSetupDraft['activeStage']) {
-    if (!project) return;
+    if (!project || seriesBusy) return;
     setSaveState('saving');
     setSaveError(null);
     try {
@@ -324,9 +331,40 @@ function CinematicWorkspace({
     if (nextStage) void setActiveStage(nextStage);
   }
 
-  function continueFromSetup() {
-    if (project) void setActiveStage('cast');
-    else createProject.mutate(draft);
+  async function continueFromSetup() {
+    if (simplePreparingRef.current || createProject.isPending) return;
+    if (draft.mode !== 'simple') {
+      if (project) void setActiveStage('cast');
+      else createProject.mutate(draft);
+      return;
+    }
+    simplePreparingRef.current = true;
+    setSimplePreparing(true);
+    setSaveError(null);
+    try {
+      let prepared = { ...draft, projectName: draft.projectName.trim() || Array.from(draft.storyBrief.trim()).slice(0, 80).join('') };
+      if (!prepared.storyRoleSlots.length) {
+        const result = await enhanceCinematicStory(prepared, 'roles');
+        if (getActiveActorId() !== actorId) return;
+        if (!result.recommendedRoles.length) throw new Error(t('cinematic.setup.rolePlanRequired'));
+        prepared = applyStoryEnhancement(prepared, result, 'roles');
+      }
+      if (getActiveActorId() !== actorId) return;
+      setDraft(prepared);
+      if (project) {
+        const saved = await enqueueProjectMutation(() => updateCinematicSetup(project.id, prepared, projectVersionRef.current));
+        if (getActiveActorId() !== actorId) return;
+        projectVersionRef.current = saved.version;
+        lastSavedSetupRef.current = serializeSetup(prepared);
+        queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+        await setActiveStage('cast');
+      } else await createProject.mutateAsync(prepared);
+    } catch (reason) {
+      setSaveError(reason instanceof Error ? reason : new Error(t('cinematic.enhance.failed')));
+    } finally {
+      simplePreparingRef.current = false;
+      setSimplePreparing(false);
+    }
   }
 
   async function saveDraftNow() {
@@ -359,15 +397,36 @@ function CinematicWorkspace({
     }
   }
 
+  async function prepareSeriesChange() {
+    if (!project || !online) throw new Error(t('cinematic.series.saveBeforeSwitch'));
+    return enqueueProjectMutation(async () => {
+      const serialized = serializeSetup(draft);
+      if (serialized === lastSavedSetupRef.current) return {
+        ...(queryClient.getQueryData<CinematicProject>(['cinematic-project', actorId, project.id]) || project), version: projectVersionRef.current
+      };
+      const saved = await updateCinematicSetup(project.id, draft, projectVersionRef.current);
+      projectVersionRef.current = saved.version;
+      lastSavedSetupRef.current = serialized;
+      queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+      removeCinematicSetupRecoveryDraft(actorId, project.id);
+      setSaveState('saved'); setSaveError(null);
+      return saved;
+    });
+  }
+
   return (
     <main className="grid gap-4" data-testid="cinematic-workspace">
       <CinematicWorkspaceHeader
         projectTitle={draft.projectName || t('cinematic.setup.untitled')}
         saveState={saveState}
       />
+      {project ? <SeriesWorkspaceControls actorId={actorId} project={project} isSetup={activeStage === 'setup'}
+        onPrepare={prepareSeriesChange} onBusyChange={setSeriesBusy}
+        onProjectChanged={saved => { projectVersionRef.current = saved.version; queryClient.setQueryData(['cinematic-project', actorId, saved.id], saved); }}
+        onNavigate={(id, nextStage) => navigate(routeBuilders.cinematicProject(id, cinematicStageSchema.parse(nextStage)))} /> : null}
       <Surface className={`cinematic-workspace-surface p-4${activeStage === 'produce' ? ' cinematic-workspace-surface--produce' : ''}`}>
         <CinematicStageRail activeStage={activeStage} onStageChange={setActiveStage} />
-        <div className="cinematic-workspace-layout">
+        <div className="cinematic-workspace-layout" inert={seriesBusy || undefined}>
           <div className="min-w-0">
           {activeStage === 'setup' ? (
           <CinematicSetupForm
@@ -375,7 +434,7 @@ function CinematicWorkspace({
             draft={draft}
             saveState={saveState}
             saveError={saveError || (createProject.isError ? createProject.error : null)}
-            pending={createProject.isPending}
+            pending={createProject.isPending || simplePreparing}
             onUpdate={update}
             onPlanningModeChange={changeCastPlanningMode}
             onAddRole={addRoleSlot}

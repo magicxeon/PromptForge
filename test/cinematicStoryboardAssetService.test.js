@@ -12,6 +12,20 @@ import {
 
 const alice = { userId: 'usr_alice', username: 'user_alice', role: 'user' };
 
+test('sketch: approval preserves only generated history style, never a client override', async t => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'cinematic-sketch-source-'));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  await fs.writeFile(path.join(directory, 'sketch.png'), Buffer.from('sketch-image'));
+  let generatedStyle = 'concept_sketch_v1';
+  const service = new CinematicStoryboardAssetService({ outputsDirectory: directory,
+    assetRepository: { findBySourceJobIdForOwner: async () => null, create: async input => ({ id: 'asset', createdAt: new Date().toISOString(), ...input }) },
+    generationHistory: { getById: async () => ({ username: alice.username, imageUrl: '/outputs/sketch.png', storyboardRenderStyle: generatedStyle }) }
+  });
+  assert.equal((await service.approveGenerationResult({ jobId: 'sketch' }, alice)).storyboardRenderStyle, 'concept_sketch_v1');
+  generatedStyle = null;
+  assert.equal((await service.approveGenerationResult({ jobId: 'old', storyboardRenderStyle: 'concept_sketch_v1' }, alice)).storyboardRenderStyle, null);
+});
+
 test('CinematicStoryboardAssetService adopts an owned durable Generation result idempotently', async t => {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'cinematic-storyboard-asset-'));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
@@ -120,7 +134,7 @@ test('CinematicStoryboardAssetService preserves compatible Seedream provenance o
 
   assert.equal(approved.providerOutputProvenance.resolvedModelId, 'seedream-5-0-lite-260128');
   assert.equal(approved.videoCompatibility.status, 'eligible_internal_testing');
-  assert.equal(approved.videoCompatibility.validUntil, '2026-10-03T00:00:00.000Z');
+  assert.equal(approved.videoCompatibility.validUntil, null);
   assert.equal(records[0].metadata.providerOutputProvenance.providerRequestId, 'req_seedream');
   assert.equal(records[0].metadata.contentHash, approved.contentHash);
 });

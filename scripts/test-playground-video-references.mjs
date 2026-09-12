@@ -2,6 +2,10 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const groups = {
+  'composition-browse': ['--test', '--test-name-pattern=composition-browse:', 'test/playgroundVideoReferenceService.test.js'],
+  'layout-composition': ['scripts/verify-playground-video-references.mjs', '--images', '--composition'],
+  fallback: ['--test', '--test-name-pattern=fallback:', 'test/trustedGeneratedSources.test.js'],
+  'named-images': ['--test', '--test-name-pattern=named-images:', 'test/playgroundVideoReferenceService.test.js', 'test/trustedGeneratedSources.test.js'],
   'named-looks': ['--test', '--test-name-pattern=named-looks:', 'test/playgroundVideoReferenceService.test.js', 'test/trustedGeneratedSources.test.js'],
   trusted: ['--test', 'test/trustedGeneratedSources.test.js', 'test/modelArkSeedreamProvider.test.js'],
   contract: [
@@ -54,6 +58,8 @@ const groups = {
     'false',
   ],
   layout: ['scripts/verify-playground-video-references.mjs'],
+  'layout-images': ['scripts/verify-playground-video-references.mjs', '--images'],
+  'layout-images-trusted': ['scripts/verify-playground-video-references.mjs', '--images', '--trusted'],
   'layout-named': ['scripts/verify-playground-video-references.mjs', '--named'],
   'layout-named-trusted': ['scripts/verify-playground-video-references.mjs', '--named', '--trusted'],
   'layout-trusted': ['scripts/verify-playground-video-references.mjs', '--trusted'],
@@ -61,7 +67,7 @@ const groups = {
 };
 const selected =
   process.argv[2] === 'all'
-    ? ['named-looks', 'trusted', 'contract', 'regression', 'ui', 'types']
+    ? ['fallback', 'named-images', 'named-looks', 'trusted', 'contract', 'regression', 'ui', 'types']
     : [process.argv[2]];
 for (const group of selected) {
   if (!groups[group]) {

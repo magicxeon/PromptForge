@@ -568,6 +568,8 @@ export function createQueueOptions(context, {
     mode: context.mode,
     generationMode: context.generationMode || null,
     generationSurface: context.generationSurface || null,
+    storyboardRenderStyle: context.generationSurface === 'cinematic' && context.generationMode === 'scene'
+      ? 'concept_sketch_v1' : null,
     studioRealismProfile: studioRealismProfile(context),
     cinematicCaptureProfileId: context.cinematicCaptureProfileId || null,
     cinematicCastReferences: normalizeCinematicCastReferences(context.cinematicCastReferences),

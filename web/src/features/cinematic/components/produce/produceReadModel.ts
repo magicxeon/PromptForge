@@ -92,6 +92,7 @@ function buildShot(project: CinematicProject, scene: CinematicScene, shot: Cinem
   return {
     id: shot.id,
     sceneId: scene.id,
+    videoReferenceMode: shot.videoReferenceMode,
     sceneTitle: scene.title,
     durationSeconds: shot.durationMs / 1000,
     title: shot.title,
@@ -116,7 +117,7 @@ function resolveStatus(
   shot: CinematicShot,
   attempt: Record<string, unknown> | null
 ): StoryboardShotSummary['status'] {
-  if (!shot.approvedStoryboardSource && shot.videoReferenceMode !== 'looks_only') return 'storyboard_required';
+  if (!shot.approvedStoryboardSource && !['looks_only', 'text_only'].includes(shot.videoReferenceMode || '')) return 'storyboard_required';
   if (shot.approvedVideoAttemptId) return 'approved';
   if (!attempt) return 'ready';
   if (['source_changed', 'packet_changed'].includes(text(attempt.downstreamSourceStatus))) return 'source_changed';

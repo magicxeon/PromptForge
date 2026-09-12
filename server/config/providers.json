@@ -211,7 +211,6 @@
             "downstreamVideoCompatibility": {
               "modelark-seedance-2": {
                 "status": "internal_testing",
-                "maximumAgeDays": 30,
                 "requiresSameCredentialScope": true,
                 "requiresOriginalBytes": true
               }
@@ -263,7 +262,6 @@
             "downstreamVideoCompatibility": {
               "modelark-seedance-2": {
                 "status": "internal_testing",
-                "maximumAgeDays": 30,
                 "requiresSameCredentialScope": true,
                 "requiresOriginalBytes": true
               }
@@ -290,8 +288,8 @@
         {
           "id": "muse-image-1.0",
           "enabled": true,
-          "allowedGenerationSurfaces": ["playground", "studio"],
-          "allowedGenerationModes": ["playground", "headshot"],
+          "allowedGenerationSurfaces": ["playground", "studio", "cinematic"],
+          "allowedGenerationModes": ["playground", "headshot", "scene", "character-sheet"],
           "displayName": { "en": "Muse Image 1.0", "th": "Muse Image 1.0" },
           "displayOrder": 10,
           "capabilities": {

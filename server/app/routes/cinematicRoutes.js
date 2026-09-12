@@ -38,6 +38,45 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.get('/api/cinematic/projects/:projectId/series', async (req, res) => {
+    try { res.set('Cache-Control', 'private, no-store').json(await cinematicService.getSeriesWorkspace(req.params.projectId, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+  app.post('/api/cinematic/projects/:projectId/series', async (req, res) => {
+    try { res.set('Cache-Control', 'private, no-store').status(201).json(await cinematicService.createSeries(req.params.projectId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+  app.patch('/api/cinematic/series/:seriesId', async (req, res) => {
+    try { res.set('Cache-Control', 'private, no-store').json(await cinematicService.updateSeries(req.params.seriesId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+  app.post('/api/cinematic/series/:seriesId/seasons', async (req, res) => {
+    try { res.set('Cache-Control', 'private, no-store').status(201).json(await cinematicService.addSeriesSeason(req.params.seriesId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+  app.post('/api/cinematic/series/:seriesId/chapters', async (req, res) => {
+    try { res.set('Cache-Control', 'private, no-store').status(201).json(await cinematicService.addSeriesChapter(req.params.seriesId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.get('/api/cinematic/projects/:projectId/clip-bundle', async (req, res) => {
+    try {
+      const { manifest } = await cinematicService.prepareClipBundle(req.params.projectId, {}, req.actorContext);
+      res.set('Cache-Control', 'private, no-store').json(manifest);
+    } catch (error) { sendCinematicError(res, error); }
+  });
+  app.post('/api/cinematic/projects/:projectId/clip-bundle', async (req, res) => {
+    try {
+      await cinematicService.downloadClipBundle(req.params.projectId, req.body || {}, req.actorContext, res, () => {
+        res.set('Content-Type', 'application/zip');
+        res.set('Content-Disposition', 'attachment; filename="momelo-selected-clips.zip"');
+        res.set('Cache-Control', 'private, no-store');
+      });
+    } catch (error) {
+      if (res.headersSent) res.destroy(); else sendCinematicError(res, error);
+    }
+  });
+
   app.post('/api/cinematic/projects', async (req, res) => {
     try {
       res.status(201).json(await cinematicService.createProject(req.body, req.actorContext));

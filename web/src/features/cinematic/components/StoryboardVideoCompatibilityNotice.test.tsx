@@ -55,6 +55,14 @@ describe('StoryboardVideoCompatibilityNotice', () => {
     expect(screen.getByText('Ready for Seedance 2.x testing')).toBeInTheDocument();
   });
 
+  it('does not show the Seedream-only warning when source providers are open', () => {
+    render(<I18nextProvider i18n={i18n}>
+      <StoryboardVideoCompatibilityNotice model={{ ...baseModel,
+        capabilities: { ...baseModel.capabilities, generatedReferenceSourcesOpen: true } }} containsCharacter />
+    </I18nextProvider>);
+    expect(screen.queryByText('Not ready for Seedance 2.x')).not.toBeInTheDocument();
+  });
+
   it('warns for another image model and stays hidden for environment-only Shots', () => {
     const { rerender } = render(<I18nextProvider i18n={i18n}>
       <StoryboardVideoCompatibilityNotice model={baseModel} containsCharacter />

@@ -176,3 +176,30 @@ before trying the new endpoint. Runtime JSON was not edited or backfilled.
 3. No tests run for this follow-up, as explicitly requested. Manual prompt
    inspection and generation are pending user UAT; prior evidence above predates
    this wording update. Restart the backend to reload its prompt configuration.
+
+### Retry Lock And Notice Follow-Up (2026-09-12)
+
+- Primary: UX implementation owner; scoped to Produce task observation/recovery
+  and shared VideoEngineTargetPanel notice. No provider/Credit contract change.
+- Keep fetching the durable task ID after packet_changed; approval still requires
+  a current attempt/packet. This prevents stale processing snapshots from locking
+  Generate after reference changes when the real task has already failed.
+- Treat historical rejection as attempt history, not a new quote/source failure.
+  No Storyboard recovery button in looks-only; retry copy refers to references.
+- Remove Development POC notice from the shared video engine; preserve estimates.
+- Implemented; no automated, browser or paid tests run at user request. Live
+  button recovery is not verified in this follow-up; user UAT pending.
+
+### Live Quote Diagnosis (2026-09-12)
+
+- Owner: Generation's Cinematic reference validation. No pricing or storage change.
+- Actual Produce context permits looks_only. Inspecting the built page with
+  Seedance 2.5 reproduced "The generated Cast sheet changed." at quote time.
+- Both selected Cast Assets have matching metadata.contentHash, generation binding
+  and preview URL, but no top-level contentHash. Normalize the canonical stored
+  hash in memory before existing source validation and authority construction.
+- No migration, replacement sheet or re-selection required. Actual mismatches
+  remain blocked. Removed the model selector's appended POC suffix as requested.
+- No test suite or paid generation run. Diagnosis used persisted metadata, current
+  context and the page's normal quote request. Post-fix UAT remains pending;
+  restart the backend to load the corrected validator.

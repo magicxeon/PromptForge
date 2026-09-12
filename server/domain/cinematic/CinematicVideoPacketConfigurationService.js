@@ -43,6 +43,7 @@ export class CinematicVideoPacketConfigurationService {
 }
 
 function validatePolicy(policy) {
+  if (policy.sketchReferenceMode) validateReferenceMode(policy.sketchReferenceMode);
   if (policy.looksOnlyMode) validateReferenceMode(policy.looksOnlyMode);
   if (![1, 2].includes(policy?.schemaVersion) || !policy.id || !Number.isInteger(policy.version)
     || !policy.contractVersion) {

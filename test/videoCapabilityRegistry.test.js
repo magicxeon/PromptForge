@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 test('Cinematic Look mode is catalog-driven and development-only for Seedance 2.x', () => {
-  const development = new VideoCapabilityRegistry({ runtimeEnvironment: 'development', developmentPocEnabled: true });
-  const production = new VideoCapabilityRegistry({ runtimeEnvironment: 'production', developmentPocEnabled: true });
+  const development = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true, runtimeEnvironment: 'development', developmentPocEnabled: true });
+  const production = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true, runtimeEnvironment: 'production', developmentPocEnabled: true });
   const model = development.resolve('modelark', 'dreamina-seedance-2-5-260628');
   assert.equal(model.supportsCinematicLookReferences, true);
   assert.ok(model.inputModes.includes('multimodal_reference'));
@@ -29,7 +29,7 @@ test('video catalog and validation honor a workflow-specific runtime disable', (
       }
     }
   });
-  const registry = new VideoCapabilityRegistry({
+  const registry = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
     runtimeEnvironment: 'development', developmentPocEnabled: true, availabilityPolicy
   });
   const models = registry.getPublicCatalog({
@@ -88,10 +88,10 @@ test('Seedance internal routing accepts Prompt only and blocks unqualified priva
 });
 
 test('development POC exposes unverified Seedance first-frame modes without changing production', () => {
-  const development = new VideoCapabilityRegistry({
+  const development = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
     runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
   });
-  const production = new VideoCapabilityRegistry({
+  const production = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
     runtimeEnvironment: 'production', developmentPocEnabled: true, developmentPocCredits: 1
   });
   const request = {
@@ -180,6 +180,7 @@ test('development POC exposes unverified Seedance first-frame modes without chan
 });
 
 test('commercial operation and provider input mode are validated independently', () => {
+  const videoCapabilityRegistry = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true });
   const request = {
     providerId: 'modelark', modelId: 'seedance-1-0-pro-fast-251015',
     commercialOperation: 'cinematic_draft_clip', inputMode: 'image_to_video',
@@ -232,6 +233,7 @@ test('video capability validation blocks paid routing and rejects unsupported Ve
 });
 
 test('Seedance 2.5 keeps 1080p blocked by capability evidence', () => {
+  const videoCapabilityRegistry = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true });
   assert.throws(() => videoCapabilityRegistry.validateRequest({
     providerId: 'modelark', modelId: 'dreamina-seedance-2-5-260628',
     operation: 'cinematic_final_clip', aspectRatio: '9:16', resolution: '1080p',

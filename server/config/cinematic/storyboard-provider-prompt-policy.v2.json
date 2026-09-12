@@ -1,7 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "cinematic-storyboard-provider-prompt-policy",
-  "version": 2,
+  "version": 4,
+  "renderStyle": "concept_sketch_v1",
+  "renderStyleInstruction": "Draw a monochrome graphite life-study storyboard of a real film set, not stylized concept art. Use lifelike anatomy, reference-matched facial proportions, real object scale, accurate lens perspective and continuous tonal shading; keep pencil marks fine and sparse, without heavy outlines or dense cross-hatching. Preserve the authored time, weather, exposure and light direction; rain at night must not become a bright daytime scene. Show the opening instant before action, with exact hand/prop contact and ground levels. No text or panels.",
   "defaultMaximumPromptCharacters": 4700,
   "providerMaximumPromptCharacters": {
     "modelark": 4700
@@ -56,16 +58,16 @@
     "Keep every prop at the authored hand, body height and angle; do not raise, center or turn it toward camera for readability unless that display is the authored action."
   ],
   "baselinePhotographicInstructions": [
-    "Create one physically plausible live-action frame with readable Scene context, moderate depth separation and motivated available or practical light.",
+    "Draw convincing three-dimensional bodies and practical materials: fabric folds, wet pavement, skin planes and solid props. Use realistic depth, contact shadows and reflected light, not flat cutout layers or decorative pencil texture.",
     "The authored light controls exposure: preserve subject-to-background contrast and falloff; do not add beauty fill, lift the face or activate an unrequested fixture."
   ],
   "captureProfileInstructions": {
     "photorealistic-cinematic": [
-      "Use source-consistent unretouched skin and restrained digital-camera response with natural highlight roll-off, subtle sensor noise in darker tones and slight optical softness; keep imperfections unobtrusive."
+      "Use observational life-drawing realism with natural facial asymmetry and exact apparent age, anatomy and wardrobe. Keep graphite rendering subtle; no enlarged eyes, idealized doll faces, caricature or sheet layout."
     ]
   },
   "constraintInstructions": [
-    "No glossy retouch, plastic skin, illustration, anime or CGI; no exaggerated grain, aberration, halation, HDR, sharpness or bokeh.",
+    "Graphite storyboard, not a color photo. No cartoon, anime, painterly stylization, heavy outlines, exaggerated anatomy, text or panels.",
     "No duplicate people, copied sheet layout, impossible reflections or unauthorized objects."
   ]
 }

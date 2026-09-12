@@ -10,7 +10,7 @@ export function StoryboardVideoCompatibilityNotice({
   containsCharacter: boolean;
 }) {
   const { t } = useTranslation('cinematic');
-  if (!model || !containsCharacter) return null;
+  if (!model || !containsCharacter || model.capabilities.generatedReferenceSourcesOpen === true) return null;
   const compatibility = model.capabilities.downstreamVideoCompatibility?.['modelark-seedance-2'] as {
     status?: string;
   } | undefined;

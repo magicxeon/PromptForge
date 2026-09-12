@@ -120,6 +120,7 @@ test('Scene Direction AI stays scoped to the selected persisted Scene', async ()
   });
   const sceneDraft = structuredClone(projectWithScene.scenes[0]);
   sceneDraft.title = 'Unsaved Scene title';
+  sceneDraft.cinematicOpening = true;
   const result = await planner.generateScene(projectWithScene, 'scene_platform', {
     direction: 'Keep the blocking unchanged.',
     sceneDraft,
@@ -137,6 +138,9 @@ test('Scene Direction AI stays scoped to the selected persisted Scene', async ()
   assert.equal(result.fieldProposals.find(item => item.manifestPath === 'scene.blocking').outcome, 'locked');
   assert.equal(result.mergeSummary.locked, 1);
   assert.equal(capturedContext.selectedScene.title, 'Unsaved Scene title');
+  assert.match(capturedContext.openingDirection.guidance, /cinematic opening/);
+  assert.equal(result.scene.cinematicOpening, true);
+  assert.equal(projectWithScene.scenes[0].cinematicOpening, undefined);
   assert.equal(capturedContext.fieldSelection.lockedFieldKeys[0], 'scene:scene_platform.blocking');
   assert.equal(result.billingStatus, 'qualification_no_charge');
 });

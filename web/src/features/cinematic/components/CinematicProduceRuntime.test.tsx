@@ -35,6 +35,38 @@ vi.mock('../../generation/api/videoGenerationApi', async importOriginal => ({
 const i18n = i18next.createInstance();
 
 describe('Cinematic Produce runtime workspace', () => {
+  it('offers the sketch reference and Generate with Seedance first frames disabled', async () => {
+    const catalog = await api.getCinematicVideoCapabilityCatalog();
+    catalog.models[0].firstFrameEnabled = false;
+    catalog.models[0].supportsCinematicLookReferences = true;
+    catalog.models[0].audioModes = ['none', 'generated'];
+    catalog.models[0].inputModes.push('multimodal_reference');
+    api.getCinematicVideoCapabilityCatalog.mockResolvedValue(catalog);
+    const project = projectFixture();
+    const shot = project.scenes[0]!.shots[0]!;
+    shot.approvedStoryboardSource!.storyboardRenderStyle = 'concept_sketch_v1';
+    shot.videoReferenceMode = 'storyboard_and_looks';
+    renderRuntime(project);
+    const toggle = await screen.findByRole('switch', { name: 'cinematic.produce.references.useSketch' });
+    expect(toggle).toBeEnabled();
+    expect(toggle).toHaveAttribute('aria-checked', 'true');
+    await waitFor(() => expect(api.quoteCinematicVideoAttempt).toHaveBeenCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'storyboard_and_looks', audioMode: 'generated' })));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
+  it('previews a previous-plan Take without approving it against a different Shot', async () => {
+    const project = projectFixture();
+    project.generationAttempts = [{ id: 'previous-plan-take', shotId: 'removed-shot', operation: 'cinematic_draft_clip', status: 'completed', generationJobId: 'videotask_previous_plan', videoPacketFingerprint: 'packet-1' }];
+    generationApi.getVideoTask.mockResolvedValue({ id: 'videotask_previous_plan', status: 'completed', billingStatus: 'captured', outputAsset: { publicUrl: '/previous-plan.mp4', technicalProbe: { status: 'passed' } } });
+    renderRuntime(project);
+    const history = screen.getByText(/cinematic.takes.previousPlan/).closest('details')!;
+    fireEvent.click(within(history).getByRole('button'));
+    await waitFor(() => expect(document.querySelector('video source')).toHaveAttribute('src', '/previous-plan.mp4'));
+    expect(screen.queryByRole('button', { name: 'cinematic.takes.use' })).not.toBeInTheDocument();
+    expect(api.approveCinematicVideoAttempt).not.toHaveBeenCalled();
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
   beforeAll(async () => {
     HTMLElement.prototype.scrollIntoView = vi.fn();
     await i18n.use(initReactI18next).init({
@@ -71,7 +103,7 @@ describe('Cinematic Produce runtime workspace', () => {
       const updated = projectFixture();
       updated.version = input.expectedVersion + 1;
       updated.scenes[0]!.shots[0]!.videoReferenceMode = input.referenceMode;
-      updated.scenes[0]!.shots[0]!.lastFirstFrameMode = input.referenceMode === 'looks_only' ? 'storyboard_and_looks' : input.referenceMode;
+      updated.scenes[0]!.shots[0]!.lastFirstFrameMode = ['looks_only', 'text_only'].includes(input.referenceMode) ? 'storyboard_and_looks' : input.referenceMode;
       return updated;
     });
     api.quoteCinematicVideoAttempt.mockResolvedValue({
@@ -88,6 +120,54 @@ describe('Cinematic Produce runtime workspace', () => {
         shots: [{ ...projectFixture().scenes[0]!.shots[0]!, version: 2, additionalMotionDirection: 'Use a slower push-in.' }]
       }]
     });
+  });
+
+  it('previews and selects an older Take while the latest task remains observed', async () => {
+    const project = projectFixture();
+    project.generationAttempts = [
+      { id: 'old-take', shotId: 'shot-1', operation: 'cinematic_draft_clip', status: 'completed', generationJobId: 'old-task', videoPacketFingerprint: 'packet-1' },
+      { id: 'new-take', shotId: 'shot-1', operation: 'cinematic_draft_clip', status: 'provider_processing', generationJobId: 'new-task', videoPacketFingerprint: 'packet-1' }
+    ];
+    generationApi.getVideoTask.mockImplementation(async id => id === 'old-task'
+      ? { id, status: 'completed', billingStatus: 'captured', outputAsset: { id: 'old-asset', publicUrl: '/old-clip.mp4', technicalProbe: { status: 'passed' } } }
+      : { id, status: 'provider_processing', billingStatus: 'reserved' });
+    api.approveCinematicVideoAttempt.mockResolvedValue(produceContext());
+    renderRuntime(project);
+    await waitFor(() => expect(generationApi.getVideoTask).toHaveBeenCalledWith('new-task'));
+    fireEvent.click(document.querySelectorAll('.cinematic-take')[1]!);
+    await waitFor(() => expect(generationApi.getVideoTask).toHaveBeenCalledWith('old-task'));
+    await waitFor(() => expect(document.querySelector('video source')).toHaveAttribute('src', '/old-clip.mp4'));
+    expect(api.approveCinematicVideoAttempt).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole('button', { name: 'cinematic.takes.use' }));
+    await waitFor(() => expect(api.approveCinematicVideoAttempt).toHaveBeenCalledWith('project-1', 'scene-1', 'shot-1', 'old-take', 4));
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
+  it('disabled Seedance First Frame exposes a ready no-Cast text route without removing the saved still', async () => {
+    const catalog = await api.getCinematicVideoCapabilityCatalog();
+    catalog.models[0].firstFrameEnabled = false;
+    catalog.models[0].inputModes.push('text_to_video');
+    api.getCinematicVideoCapabilityCatalog.mockResolvedValue(catalog);
+    const project = projectFixture();
+    renderRuntime(project);
+    const toggle = await screen.findByRole('switch', { name: 'cinematic.produce.references.useFirstFrame' });
+    await waitFor(() => expect(toggle).toBeDisabled());
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
+    await waitFor(() => expect(api.quoteCinematicVideoAttempt).toHaveBeenCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'text_only', sourceFingerprint: null })));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
+    expect(project.scenes[0]!.shots[0]!.approvedStoryboardSource?.imageUrl).toBe('/source-1.jpg');
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
+  it('shows the shared processing indicator immediately before the Project refresh returns', async () => {
+    api.createCinematicVideoAttempt.mockResolvedValue({ attemptId: 'new-take', task: { id: 'new-task', status: 'provider_processing', billingStatus: 'reserved' } });
+    generationApi.getVideoTask.mockResolvedValue({ id: 'new-task', status: 'provider_processing', billingStatus: 'reserved' });
+    renderRuntime(projectFixture());
+    const generate = await screen.findByRole('button', { name: 'cinematic.produce.generate' });
+    await waitFor(() => expect(generate).toBeEnabled());
+    fireEvent.click(generate);
+    await waitFor(() => expect(document.querySelector('.cinematic-produce-media .generation-stage-state')).toHaveAttribute('aria-busy', 'true'));
+    expect(document.querySelector('.cinematic-produce-media .generation-loading-indicator')).toBeInTheDocument();
   });
 
   it('shows immutable Story order, media-first review and the shared render panel', async () => {
@@ -157,7 +237,7 @@ describe('Cinematic Produce runtime workspace', () => {
     expect(onOpenStage).toHaveBeenCalledWith('storyboard');
   });
 
-  it('turns First Frame off without deleting its preview, requotes and restores the saved on-mode', async () => {
+  it('turns First Frame off without deleting its saved image, requotes and restores the saved on-mode', async () => {
     const catalog = await api.getCinematicVideoCapabilityCatalog();
     catalog.models[0].supportsCinematicLookReferences = true;
     catalog.models[0].inputModes.push('multimodal_reference');
@@ -167,10 +247,10 @@ describe('Cinematic Produce runtime workspace', () => {
     renderRuntime(project);
     const toggle = await screen.findByRole('switch', { name: 'cinematic.produce.references.useFirstFrame' });
     fireEvent.click(toggle);
-    await waitFor(() => expect(api.updateCinematicShotVideoReferences).toHaveBeenCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'looks_only' })));
+    await waitFor(() => expect(api.updateCinematicShotVideoReferences).toHaveBeenCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'text_only' })));
     await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'false'));
-    await waitFor(() => expect(api.quoteCinematicVideoAttempt).toHaveBeenLastCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'looks_only', sourceFingerprint: null })));
-    expect(screen.getByRole('img', { name: 'cinematic.produce.approvedKeyframe' })).toHaveAttribute('src', '/source-1.jpg');
+    expect(screen.queryByRole('img', { name: 'cinematic.produce.approvedKeyframe' })).not.toBeInTheDocument();
+    expect(project.scenes[0]!.shots[0]!.approvedStoryboardSource?.imageUrl).toBe('/source-1.jpg');
     expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
     fireEvent.click(toggle);
     await waitFor(() => expect(api.updateCinematicShotVideoReferences).toHaveBeenLastCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'storyboard_and_looks' })));
@@ -502,7 +582,8 @@ describe('Cinematic Produce runtime workspace', () => {
 function renderRuntime(project = projectFixture(), onOpenStage = vi.fn()) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const view = render(<QueryClientProvider client={queryClient}><I18nextProvider i18n={i18n}><CinematicStageContent
-    activeStage="produce"
+      activeStage="produce"
+      mode="advanced"
     project={project}
     onPrevious={vi.fn()}
     onNext={vi.fn()}

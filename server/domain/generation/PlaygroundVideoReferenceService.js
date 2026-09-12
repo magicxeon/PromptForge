@@ -2,6 +2,7 @@ import { loadVideoReferenceAssetContent } from '../assets/VideoReferenceAssetCon
 import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
 import { normalizeReferenceValue } from './referenceUtils.js';
 import { normalizeLookName, validateLookNames } from './VideoReferencePlan.js';
+import { assertGeneratedReferenceAllowed } from '../../config/generatedReferencePolicy.js';
 
 const fail = (code, message) =>
   Object.assign(new Error(message), { code, statusCode: 409 });
@@ -122,7 +123,7 @@ export class PlaygroundVideoReferenceService {
         }
         asset = approved.asset;
       } else {
-        if (!['opening_frame', 'look_sheet_upload', 'generated_look'].includes(row.purpose)) {
+        if (!['opening_frame', 'image_reference', 'look_sheet_upload', 'generated_look'].includes(row.purpose)) {
           throw fail(
             'video_reference_purpose_invalid',
             'Choose a first frame or Look Sheet.',
@@ -146,6 +147,7 @@ export class PlaygroundVideoReferenceService {
             && !['failed', 'cancelled', 'processing', 'queued'].includes(result.status)
             && result.artifactVisibility !== 'template_owner_only'
             && result.imageUrl === row.referenceImageUrl) {
+            assertGeneratedReferenceAllowed(result);
             asset = { ...localReferenceAsset(result.imageUrl, result.id, actor.userId), sourceKind: 'owned_generation' };
           }
         }
@@ -166,6 +168,7 @@ export class PlaygroundVideoReferenceService {
           'The reference is unavailable for this actor.',
         );
       }
+      assertGeneratedReferenceAllowed({ providerOutputProvenance: asset.metadata?.providerOutputProvenance });
       const { bytes: _bytes, ...content } = await this.contentLoader(asset);
       assets.push({ ...asset, ...content });
       references.push({
@@ -188,10 +191,11 @@ export class PlaygroundVideoReferenceService {
       });
     }
     const purposes = references.map((row) => row.purpose);
+    const generalImages = purposes.every(purpose => purpose === 'image_reference');
     if (
       (mode === 'image_to_video' && purposes[0] !== 'opening_frame') ||
       (mode === 'multimodal_reference' &&
-        (purposes.at(-1) === 'opening_frame' ||
+        ((!generalImages && purposes.includes('image_reference')) || purposes.at(-1) === 'opening_frame' ||
           purposes.slice(1).includes('opening_frame') ||
           purposes.filter(purpose => purpose === 'character_reference').length > 1)) ||
       new Set(assets.map((asset) => asset.id)).size !== assets.length
@@ -241,7 +245,15 @@ export class PlaygroundVideoReferenceService {
     for (const [index, asset] of plan.assets.entries()) {
       const reference = plan.input.references[index];
       let value;
-      if (request.providerId === 'modelark'
+      if (request.providerId === 'modelark' && reference.purpose === 'image_reference'
+        && reference.role === 'reference_image' && model.playgroundReferencePolicy?.allowImageReferenceUploads === true) {
+        const content = await this.contentLoader(asset);
+        if (content.contentHash !== reference.contentHash) {
+          throw fail('video_reference_content_invalid', 'The selected reference changed after validation.');
+        }
+        value = `data:${content.mimeType};base64,${content.bytes.toString('base64')}`;
+        referenceTransports.push({ assetId: asset.id, mode: 'base64', purpose: 'image_reference' });
+      } else if (request.providerId === 'modelark'
         && !['owned_generation', 'authorized_character'].includes(asset.sourceKind)) {
         const result = await this.firstFrameTransport.resolve({
           sourceAsset: asset,

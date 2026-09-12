@@ -14,7 +14,7 @@ export class CinematicStoryboardPromptComposer {
     const configuration = this.configurationService.getCompilerConfiguration();
     const policy = configuration.providerPromptPolicy;
     const blocks = {
-      visualAuthority,
+      visualAuthority: joinUnique([policy.renderStyleInstruction, visualAuthority]),
       referenceAuthority: compileReferenceAuthority(context, policy),
       subjectBehavior: compileSubjectBehavior(context, policy),
       photographicBehavior: compilePhotographicBehavior(context, configuration),

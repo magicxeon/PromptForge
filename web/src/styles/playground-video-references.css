@@ -1,5 +1,21 @@
 .playground-video-references { display: grid; gap: 12px; min-width: 0; }
 .video-look-sheet-list { display: grid; gap: 16px; min-width: 0; }
+.video-image-reference-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; }
+.video-image-reference-grid > fieldset { height: 100%; }
+.video-image-reference-grid .playground-video-references,
+.video-image-reference-grid .playground-video-references__slots { height: 100%; }
+.video-image-reference-grid .playground-video-references__slot { display: flex; flex-direction: column; gap: 10px; }
+.video-image-reference-grid .playground-video-references__preview { height: 216px; flex: 0 0 216px; margin: 0; }
+.video-image-reference-grid .playground-video-references__actions { margin-top: auto; display: grid; grid-template-columns: minmax(0, 1fr); }
+.video-image-reference-grid .playground-video-references__actions > button:first-child { grid-column: 1 / -1; }
+.video-image-reference-grid .playground-video-references__actions button { min-width: 0; white-space: normal; }
+.video-image-reference-grid .playground-video-references__slot header { margin: 0; }
+.video-image-reference-grid .playground-video-references__slot label { margin-top: 0; }
+.video-image-reference-list .playground-video-references__slots { grid-template-columns: minmax(0, 1fr); }
+.video-image-reference-list fieldset { border: 0; padding: 0; margin: 0; min-width: 0; align-content: start; }
+.video-image-reference-name input { width: 100%; min-width: 0; padding: 8px; color: var(--mpf-text); background: var(--theme-bg-raised); border: 1px solid var(--mpf-border); border-radius: 6px; }
+.video-image-reference-list .trusted-video-picker__details { margin-bottom: 10px; grid-template-columns: minmax(0, 1fr); }
+.video-image-reference-list .trusted-video-picker__details span:last-child { justify-self: start; }
 .video-look-sheet-list > fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .video-look-sheet-list__additional .playground-video-references__slots { grid-template-columns: minmax(0, 1fr); }
 .video-look-sheet-list__additional { max-width: 100%; min-width: 0; }
@@ -11,7 +27,9 @@
 .playground-video-references__portrait img { width: 100%; height: 100%; }
 .playground-video-references__slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .playground-video-references__slot { min-width: 0; padding: 12px; border: 1px solid var(--mpf-border); border-radius: 8px; }
-.playground-video-references__slot header { display: grid; gap: 4px; margin-bottom: 8px; }
+.playground-video-references__slot header { display: grid; grid-template-columns: minmax(0, 1fr) 40px; gap: 4px 8px; margin-bottom: 8px; }
+.playground-video-references__slot header strong, .playground-video-references__slot header small { grid-column: 1; }
+.playground-video-references__slot header .playground-video-references__remove { grid-column: 2; grid-row: 1 / 3; align-self: center; }
 .playground-video-references__slot small { color: var(--mpf-text-muted); font-size: 11px; }
 .playground-video-references__preview { height: 200px; display: grid; place-items: center; background: var(--theme-bg-raised); overflow: hidden; border-radius: 6px; margin-bottom: 10px; }
 .playground-video-references__preview img { width: 100%; height: 100%; object-fit: contain; object-position: center; min-height: 0; }

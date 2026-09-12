@@ -981,6 +981,7 @@ export function GenerationExperience({
       value={references}
       displayPreviews={referenceDisplayPreviews}
       leadingContent={referenceLead}
+      lookSheetSelection={surface === 'playground' && generationMode === 'playground'}
       roles={referenceRoles}
       supported={model?.capabilities.imageReferences === true}
       maxReferences={model?.capabilities.maxReferenceImages || 0}

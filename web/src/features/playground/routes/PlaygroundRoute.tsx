@@ -38,7 +38,8 @@ export function PlaygroundRoute() {
   const [searchParams, setSearchParams] = useSearchParams();
   const videoEnabled = isEnabled('cinematic.playgroundVideoEnabled');
   const lookSheetEnabled = isEnabled('generation.lookSheetDocumentEnabled');
-  const mediaMode = videoEnabled && searchParams.get('media') === 'video'
+  const requestedMedia = searchParams.get('media') || (searchParams.has('imageMode') || searchParams.has('compare') ? 'image' : readPlaygroundUiPreferences(actor?.userId).mediaMode);
+  const mediaMode = videoEnabled && requestedMedia === 'video'
     ? 'video'
     : 'image';
   const initialComparisonActive = searchParams.get('compare') === '1';
@@ -74,6 +75,11 @@ export function PlaygroundRoute() {
     const actorId = actor?.userId;
     if (!actorId || previousActorId.current === actorId) return;
     previousActorId.current = actorId;
+    const next = new URLSearchParams(searchParams);
+    next.set('media', readPlaygroundUiPreferences(actorId).mediaMode || 'image');
+    next.delete('imageMode');
+    next.delete('compare');
+    setSearchParams(next, { replace: true });
     const draft = loadDraft(actorId);
     setPrompt(draft.prompt);
     setReferences(draft.references);
@@ -113,7 +119,8 @@ export function PlaygroundRoute() {
               aria-pressed={mediaMode === 'image'}
               onClick={() => {
                 const next = new URLSearchParams(searchParams);
-                next.delete('media');
+                next.set('media', 'image');
+                if (actor?.userId) writePlaygroundUiPreferences(actor.userId, { recentExpanded, mediaMode: 'image' });
                 setSearchParams(next, { replace: true });
               }}
             >
@@ -127,6 +134,7 @@ export function PlaygroundRoute() {
               onClick={() => {
                 const next = new URLSearchParams(searchParams);
                 next.set('media', 'video');
+                if (actor?.userId) writePlaygroundUiPreferences(actor.userId, { recentExpanded, mediaMode: 'video' });
                 setSearchParams(next, { replace: true });
               }}
             >

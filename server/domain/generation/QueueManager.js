@@ -473,6 +473,7 @@ export class QueueManager {
           : null,
         sourceOwnership: job.options.sourceOwnership || null,
         characterSheetConfig: job.options.characterSheetConfig || null,
+        storyboardRenderStyle: job.options.storyboardRenderStyle || null,
         lookSheetSnapshot: job.options.lookSheetSnapshot || null,
         characterProfileContext: job.options.characterProfileContext || null,
         outfitReferenceOverrides: job.options.outfitReferenceOverrides || null,
@@ -517,6 +518,8 @@ export class QueueManager {
         routingSnapshot: job.options.routingSnapshot || null
       };
       const operationPurpose = job.options.routingSnapshot?.operationPurpose || null;
+      job.result.storyboardRenderStyle = historyEntry.storyboardRenderStyle || null;
+      job.result.providerOutputProvenance = historyEntry.providerOutputProvenance || null;
       historyEntry.operationPurpose = operationPurpose;
       historyEntry.artifactVisibility = operationPurpose === 'template_pose_proxy_prepare'
         ? 'template_owner_only'

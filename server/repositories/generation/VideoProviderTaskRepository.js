@@ -54,6 +54,15 @@ export class VideoProviderTaskRepository {
     return task?.ownerUserId === actorContext?.userId ? task : null;
   }
 
+  async findManyForActor(taskIds, actorContext) {
+    if (!actorContext?.userId || !taskIds.length) return [];
+    const ids = new Set(taskIds.slice(-128));
+    const data = await this.#read();
+    return data.tasks.filter(task => task.ownerUserId === actorContext?.userId && ids.has(task.id)).map(task => ({
+      id: task.id, status: task.status, outputAsset: structuredClone(task.outputAsset), billingStatus: task.billingStatus
+    }));
+  }
+
   async findByIdempotencyKey(ownerUserId, idempotencyKey) {
     const data = await this.#read();
     const task = data.tasks.find(item => item.ownerUserId === ownerUserId && item.idempotencyKey === idempotencyKey);

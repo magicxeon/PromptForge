@@ -33,9 +33,12 @@ export class CinematicVideoPacketCompiler {
     }
     const policy = this.configurationService.getPolicy();
     const promptStrategy = this.configurationService.getPromptStrategy();
-    const looksOnly = cinematicVideoReferenceMode(referenceMode) === 'looks_only';
+    const mode = cinematicVideoReferenceMode(referenceMode);
+    const textOnly = mode === 'text_only';
+    const looksOnly = ['looks_only', 'text_only'].includes(mode);
     if (looksOnly && !policy.looksOnlyMode) throw new TypeError('The Looks-only prompt policy is not configured.');
     const source = looksOnly ? null : approvedStoryboardSource || shot.approvedStoryboardSource || null;
+    const sketchComposition = mode === 'storyboard_and_looks' && source?.storyboardRenderStyle === 'concept_sketch_v1';
     const approvedContractFingerprint = looksOnly ? null : compact(storyboardAttempt?.keyframeContractFingerprint) || null;
     const keyframeCandidates = looksOnly ? [this.keyframeCompiler.compile({ project, scene, shot })]
       : compileKeyframeCandidates(this.keyframeCompiler, project, scene, shot);
@@ -48,9 +51,10 @@ export class CinematicVideoPacketCompiler {
     const findings = [];
     if (looksOnly) {
       findings.push(...keyframeContract.findings.filter(item => item.severity === 'blocking'));
-      if (!keyframeContract.characterAuthority.length) {
+      if (!textOnly && !keyframeContract.characterAuthority.length) {
         findings.push(finding('blocking', 'cinematic_video_reference_cast_missing', 'shot.castAssignmentIds'));
       }
+      if (textOnly && keyframeContract.characterAuthority.length) findings.push(finding('blocking', 'cinematic_video_text_only_cast', 'shot.castAssignmentIds'));
     }
     if (!looksOnly && (!source?.sourceFingerprint || !source?.imageUrl)) {
       findings.push(finding('blocking', 'cinematic_storyboard_source_required', 'shot.approvedStoryboardSource'));
@@ -69,7 +73,8 @@ export class CinematicVideoPacketCompiler {
     }
 
     const packet = {
-      ...(looksOnly ? { referenceMode: 'looks_only', composition: keyframeContract.composition } : {}),
+      ...(sketchComposition ? { storyboardRenderStyle: 'concept_sketch_v1' } : {}),
+      ...(looksOnly ? { referenceMode: mode, composition: keyframeContract.composition } : {}),
       contractVersion: policy.contractVersion,
       projectId: project.id,
       projectVersion: Number(project.version || 1),
@@ -85,7 +90,7 @@ export class CinematicVideoPacketCompiler {
         estimatedActionDurationMs: Number(shot.estimatedActionDurationMs || shot.durationMs || 0)
       },
       referenceStrategy: {
-        mode: looksOnly ? 'looks_only' : source ? 'first_frame' : 'unavailable',
+        mode: looksOnly ? mode : sketchComposition ? 'composition_reference' : source ? 'first_frame' : 'unavailable',
         firstFrameAssetVersionId: source?.assetVersionId || null,
         firstFrameSourceFingerprint: source?.sourceFingerprint || null,
         lastFrameAssetVersionId: null,
@@ -99,10 +104,10 @@ export class CinematicVideoPacketCompiler {
         visibleStart: compact(shot.visibleMoment),
         primaryAction: compact(shot.subjectAction),
         additionalDirection: compact(shot.additionalMotionDirection),
-        visibleEnd: compact(shot.continuityExit || scene.exitState),
+        visibleEnd: compact(shot.continuityExit),
         cameraMovement: compact(shot.cameraMovement),
-        blocking: compact(shot.blocking || scene.blocking),
-        screenDirection: compact(scene.screenDirection)
+        blocking: compact(shot.blocking),
+        screenDirection: ''
       },
       performance: {
         emotionalTarget: compact(shot.emotionalTarget),
@@ -116,17 +121,18 @@ export class CinematicVideoPacketCompiler {
         time: compact(scene.time),
         lighting: compact(shot.lighting || scene.lighting),
         environment: compact(shot.environment),
-        propContinuity: compact(scene.propContinuity)
+        propContinuity: compact(shot.continuityEntry)
       },
       continuity: {
         entry: compact(shot.continuityEntry),
         exit: compact(shot.continuityExit),
-        transitionToNext: compact(shot.transitionToNext || scene.transitionIntent),
-        notes: unique([...(scene.continuityNotes || []), ...(shot.continuityNotes || [])])
+        transitionToNext: compact(shot.transitionToNext),
+        notes: unique(shot.continuityNotes || [])
       },
       audio: {
+        ...(shot.audioDirectionVersion === 1 ? { directionVersion: 1 } : {}),
         intent: compact(shot.audioIntent || scene.audioIntent),
-        dialogueCues: normalizeDialogueCues(shot.dialogueCues),
+        dialogueCues: normalizeDialogueCues(shot.dialogueCues, shot.audioDirectionVersion === 1 ? project.castAssignments : []),
         audioCues: normalizeAudioCues(shot.audioCues)
       },
       authorDirection: keyframeContract.authorDirection,
@@ -197,8 +203,11 @@ function compileKeyframeCandidates(compiler, project, scene, shot) {
 }
 
 function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
-  const looksOnly = packet.referenceMode === 'looks_only' || referencePlan?.mode === 'looks_only';
-  const referenceMode = looksOnly ? policy.looksOnlyMode
+  const textOnly = packet.referenceMode === 'text_only' || referencePlan?.mode === 'text_only';
+  const looksOnly = textOnly || packet.referenceMode === 'looks_only' || referencePlan?.mode === 'looks_only';
+  const sketchComposition = referencePlan?.storyboardRenderStyle === 'concept_sketch_v1' || packet.storyboardRenderStyle === 'concept_sketch_v1';
+  const referenceMode = sketchComposition ? strategy?.sketchReferenceMode || policy.sketchReferenceMode
+    : textOnly ? policy.textOnlyMode : looksOnly ? policy.looksOnlyMode
     : referencePlan?.inputMode === 'multimodal_reference' ? strategy?.lookReferenceMode : null;
   if (referencePlan?.inputMode === 'multimodal_reference' && !referenceMode) {
     throw new TypeError('The provider has no configured Look reference prompt strategy.');
@@ -238,18 +247,22 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
       [packet.environment.location, packet.environment.time].filter(Boolean).join(', '),
       packet.environment.lighting ? phrase('lighting', 'Lighting: {value}.', { value: packet.environment.lighting }) : '',
       packet.environment.environment,
-      packet.environment.propContinuity ? phrase('propContinuity', 'Prop continuity: {value}.', { value: packet.environment.propContinuity }) : ''
+      packet.environment.propContinuity && compact(packet.environment.propContinuity) !== compact(packet.continuity.entry)
+        ? phrase('propContinuity', 'Prop continuity: {value}.', { value: packet.environment.propContinuity }) : ''
     ]),
     continuity: sentences([
-      looksOnly && packet.continuity.entry ? `Entry state: ${packet.continuity.entry}.` : '',
+      looksOnly && packet.continuity.entry && compact(packet.continuity.entry) !== compact(packet.motion.visibleStart)
+        ? `Entry state: ${packet.continuity.entry}.` : '',
       packet.motion.visibleEnd ? phrase('endState', 'End state: {value}.', { value: packet.motion.visibleEnd }) : '',
-      packet.continuity.exit ? phrase('exitAnchor', 'Exit anchor: {value}.', { value: packet.continuity.exit }) : '',
+      packet.continuity.exit && compact(packet.continuity.exit) !== compact(packet.motion.visibleEnd)
+        ? phrase('exitAnchor', 'Exit anchor: {value}.', { value: packet.continuity.exit }) : '',
       packet.continuity.transitionToNext ? phrase('prepareFor', 'Prepare for: {value}.', { value: packet.continuity.transitionToNext }) : '',
       packet.continuity.notes.length ? phrase('keep', 'Keep {value}.', { value: packet.continuity.notes.join('; ') }) : ''
     ]),
     audio: sentences([
       packet.audio.intent,
       ...packet.audio.dialogueCues.map(cue => phrase('dialogueCue', '{speaker}: {text} at {startOffsetMs}ms.', cue)),
+      ...(packet.audio.directionVersion === 1 ? packet.audio.dialogueCues.filter(cue => cue.delivery).map(cue => `${cue.speaker} delivery: ${cue.delivery}.`) : []),
       ...packet.audio.audioCues.map(cue => phrase('audioCue', '{kind}: {description} at {startOffsetMs}ms.', cue))
     ]),
     prohibitions: packet.prohibitions.join(' '),
@@ -263,34 +276,37 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
         imageNumber: index + (looksOnly ? 1 : 2), roleName: reference.roleName, lookName: reference.lookName
       })), referenceMode.prohibitions]);
   }
-  const prompt = [
+  const promptParts = [
     ...(compact(referenceMode?.promptPrefix || strategy?.promptPrefix) ? [compact(referenceMode?.promptPrefix || strategy.promptPrefix)] : []),
-    `CINEMATIC VIDEO EXECUTION PACKET ${packet.contractVersion}`,
     ...policy.promptSectionOrder.flatMap(section => {
       if (omittedSections.has(section)) return [];
       const value = compact(sections[section]);
       return value ? [`${section === 'startAuthority' && referenceMode ? referenceMode.sectionLabel : labels[section]}:\n${value}`] : [];
     }),
     ...(compact(strategy?.promptSuffix) ? [compact(strategy.promptSuffix)] : [])
+  ];
+  const prompt = [
+    `CINEMATIC VIDEO EXECUTION PACKET ${packet.contractVersion}`, ...promptParts
   ].join('\n\n');
-  if (referenceMode) {
-    if (prompt.length > referenceMode.maximumPromptCharacters) {
+  const maximum = referenceMode?.maximumPromptCharacters || policy.maximumPromptCharacters;
+  if (prompt.length <= maximum) return prompt;
+  // Only remove presentation overhead. Authored content and image mappings stay intact.
+  const optimized = promptParts.map(compact).filter(Boolean).join('\n');
+  if (optimized.length > maximum) {
       throw Object.assign(new Error('The video direction and Character mappings exceed the prompt limit. Shorten this Shot direction before generating.'), {
         code: 'cinematic_video_reference_prompt_too_long', statusCode: 409
       });
-    }
-    return prompt;
   }
-  return truncate(prompt, policy.maximumPromptCharacters);
+  return optimized;
 }
 
 function template(value, variables) {
   return String(value || '').replace(/\{([a-zA-Z0-9_]+)\}/g, (_, key) => String(variables[key] ?? ''));
 }
 
-function normalizeDialogueCues(values) {
+function normalizeDialogueCues(values, cast = []) {
   return (values || []).map(value => ({
-    speaker: compact(value.speakerCastAssignmentId || value.offscreenVoiceRole || 'speaker'),
+    speaker: compact(cast.find(item => item.id === value.speakerCastAssignmentId)?.displayName || value.speakerCastAssignmentId || value.offscreenVoiceRole || 'speaker'),
     text: compact(value.text),
     delivery: compact(value.delivery),
     startOffsetMs: Number(value.startOffsetMs || 0),
@@ -323,13 +339,6 @@ function unique(values) {
 
 function compact(value) {
   return String(value || '').replace(/\s+/g, ' ').trim();
-}
-
-function truncate(value, maximum) {
-  if (value.length <= maximum) return value;
-  const sliced = value.slice(0, maximum - 3);
-  const boundary = sliced.lastIndexOf(' ');
-  return `${sliced.slice(0, boundary > maximum * 0.7 ? boundary : sliced.length).trim()}...`;
 }
 
 function fingerprint(value) {

@@ -6,7 +6,7 @@ import type { TrustedVideoSource } from '../../generation/api/trustedVideoSource
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock('../../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: { userId: 'owner' } }) }));
 const source: TrustedVideoSource = { id: 'seedream-sheet', previewUrl: '/outputs/sheet.png', modelId: 'seedream-5-0-pro',
-  eligible: true, expiresAt: '2099-01-01T00:00:00Z', reason: null, generatedAt: null, policyVersion: 'test', generationMode: 'text_to_image' };
+  eligible: true, expiresAt: null, reason: null, generatedAt: null, policyVersion: 'test', generationMode: 'text_to_image' };
 vi.mock('../../../components/generation/GeneratedLookSourceField', () => ({ GeneratedLookSourceField: (props: {
   onChange: (value: TrustedVideoSource) => void; onPreviewReady: (value: boolean) => void;
 }) => <button onClick={() => { props.onChange(source); props.onPreviewReady(true); }}>Select sheet</button> }));

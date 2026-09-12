@@ -10,19 +10,19 @@
     },
     {
       "id": "cinematic-video-modelark-v2",
-      "version": 2,
+      "version": 4,
       "providerIds": ["modelark"],
       "promptPrefix": "Animate the supplied first frame as one continuous photorealistic live-action shot. Preserve its exact Character identity, wardrobe, framing and motivated light.",
       "omitSections": ["authorDirection"],
       "lookReferenceMode": {
         "maximumPromptCharacters": 4000,
-        "promptPrefix": "Create one continuous photorealistic live-action shot from the ordered reference images.",
-        "startAuthority": "Image 1 is the Storyboard reference: use its opening composition, environment, props, pose, emotion and motivated lighting as the scene authority.",
+        "promptPrefix": "Create one fully photorealistic live-action take from frame one: real actors, physical materials and optical depth, never animated illustration.",
+        "startAuthority": "Image 1 governs opening composition, environment, props, pose and emotion. If drawn, use staging only: rebuild real skin, fabric and surfaces, not colorized pencil shading. Follow authored time/weather and motivated lighting.",
         "characterMapping": "Image {imageNumber} is the approved Character Look Sheet for {roleName}, Look {lookName}. Use it only for this Character's identity and wardrobe.",
         "prohibitions": "Do not copy a Look Sheet's multi-view layout, background, neutral pose or smile into the video. Do not swap identities or outfits between Characters or add people from sheet views. The authored performance controls expression.",
         "sectionLabel": "ORDERED IMAGE REFERENCES"
       },
-      "promptSuffix": "Keep motion restrained and physically plausible: natural breathing and blinking, believable body weight, and coherent hair and fabric inertia. Retain subtle optical softness, natural focus behavior and fine sensor noise from the source without reshaping the face, smoothing skin or adding mechanically perfect motion."
+      "promptSuffix": "Use natural breathing, blinking, weight and hair/fabric inertia; real lens focus and fine sensor grain. Never transfer drawn texture, outlines or painted shading. No face reshaping, plastic skin or mechanical motion."
     },
     {
       "id": "cinematic-video-gemini-v1",

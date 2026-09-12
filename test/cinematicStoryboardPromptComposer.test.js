@@ -57,7 +57,8 @@ test('provider-ready Storyboard prompt is Shot-first, role-bounded and generatio
     visualPrompt: VISUAL_PROMPT
   });
 
-  assert.ok(prompt.startsWith('STORYBOARD KEYFRAME CONTRACT'));
+  assert.ok(prompt.startsWith('Create a detailed monochrome graphite'));
+  assert.match(prompt, /STORYBOARD KEYFRAME CONTRACT/);
   assert.ok(prompt.indexOf('KEYFRAME MOMENT') < prompt.indexOf('REFERENCE AUTHORITY'));
   assert.equal((prompt.match(/Reference image 1/g) || []).length, 1);
   assert.equal((prompt.match(/Reference image 2/g) || []).length, 1);
@@ -71,21 +72,21 @@ test('provider-ready Storyboard prompt is Shot-first, role-bounded and generatio
   assert.match(prompt, /do not add a friendly micro-smile or direct camera gaze/i);
   assert.match(prompt, /do not raise, center or turn it toward camera/i);
   assert.match(prompt, /do not add beauty fill, lift the face or activate an unrequested fixture/i);
-  assert.match(prompt, /subtle sensor noise/i);
+  assert.match(prompt, /clearly hand-drawn sketch/i);
   assert.doesNotMatch(prompt, /chromatic aberration|camera body|shutter speed|ISO \d/i);
   assert.doesNotMatch(prompt, /Cheerful, smiling and energetic/i);
   assert.ok(prompt.length < 6955);
   assert.ok(prompt.length <= 4700);
 });
 
-test('capture profile can be disabled without removing baseline Scene realism', () => {
+test('capture profile can be disabled without removing baseline sketch staging', () => {
   const prompt = cinematicStoryboardPromptComposer.compose({
     context: context({ cinematicCaptureProfileId: null }),
     visualPrompt: VISUAL_PROMPT
   });
 
-  assert.match(prompt, /physically plausible live-action frame/i);
-  assert.match(prompt, /motivated available or practical light/i);
+  assert.match(prompt, /physically plausible cinematic composition/i);
+  assert.match(prompt, /motivated light expressed through graphite/i);
   assert.doesNotMatch(prompt, /subtle sensor noise|source-consistent unretouched skin/i);
 });
 
@@ -96,7 +97,8 @@ test('composer truncates optional tail blocks at configured boundaries and stays
     visualPrompt: longVisualPrompt
   });
 
-  assert.ok(prompt.startsWith('STORYBOARD KEYFRAME CONTRACT'));
+  assert.ok(prompt.startsWith('Create a detailed monochrome graphite'));
+  assert.match(prompt, /STORYBOARD KEYFRAME CONTRACT/);
   assert.match(prompt, /REFERENCE AUTHORITY/);
   assert.match(prompt, /PHOTOGRAPHIC BEHAVIOR/);
   assert.ok(prompt.length <= 4700);

@@ -1,0 +1,6 @@
+{
+  "version": "generated-reference-policy-v1",
+  "allowAnyProvider": true,
+  "blockedSources": [
+  ]
+}

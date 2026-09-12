@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
 import { ThemeSelect } from '../../../components/ui/ThemeSelect';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import type { CinematicSetupDraft, CinematicStoryAuthoring } from '../schemas/cinematicSchemas';
 import { StoryIntentChoices } from './StoryIntentChoices';
 import { CinematicControlLevel } from './CinematicControlLevel';
@@ -52,6 +53,49 @@ export function CinematicSetupForm({
     && draft.storyRoleSlots.every(role => role.label.trim())
     && (draft.castPlanningMode !== 'manual' || draft.storyRoleSlots.every(role => role.storyFunction.trim()));
   const canContinue = validProject && validStory && validRoles;
+
+  if (draft.mode === 'simple') return <form className="cinematic-setup-form cinematic-simple-setup" onSubmit={event => event.preventDefault()}>
+    <header className="cinematic-setup-heading">
+      <div><p>{t('cinematic.setup.eyebrow')}</p><h2>{t('cinematic.setup.title')}</h2></div>
+      <CinematicControlLevel disabled={pending} mode={draft.mode} label={t('cinematic.setup.authoringMode')} helpText={t('cinematic.setup.modeHelp')} onChange={mode => onUpdate('mode', mode)} />
+    </header>
+    <fieldset disabled={pending} className="cinematic-simple-fields">
+      <Field label={t('cinematic.setup.storyBrief')} required>
+        <textarea rows={8} maxLength={storyAuthoring?.limits.storyBrief} value={draft.storyBrief} onChange={event => onUpdate('storyBrief', event.target.value)} placeholder={t('cinematic.setup.storyBriefPlaceholder')} />
+      </Field>
+      <div className="cinematic-simple-output">
+        <Field label={t('cinematic.setup.duration')}><ThemeSelect value={String(draft.durationSeconds)} ariaLabel={t('cinematic.setup.duration')}
+          options={[20, 30, 45, 60].map(value => ({ value: String(value), label: `${value} ${t('cinematic.units.seconds')}` }))}
+          onValueChange={value => onUpdate('durationSeconds', Number(value) as CinematicSetupDraft['durationSeconds'])} /></Field>
+        <SelectField label={t('cinematic.setup.platform')} value={draft.platform} values={['tiktok', 'youtube-shorts', 'reels', 'multi-platform']} onChange={value => onUpdate('platform', value as CinematicSetupDraft['platform'])} translationPrefix="cinematic.platform" />
+      </div>
+      <details className="cinematic-simple-options"><summary>{t('cinematic.simple.preferences')}</summary>
+        <Field label={t('cinematic.setup.projectName')}><input value={draft.projectName} maxLength={120} onChange={event => onUpdate('projectName', event.target.value)} /></Field>
+        {storyAuthoring?.countryStyles ? <Field label={t('cinematic.setup.storyCountryStyle')}><ThemeSelect value={draft.storyCountryStyle || 'none'} ariaLabel={t('cinematic.setup.storyCountryStyle')}
+          options={storyAuthoring.countryStyles.options.map(option => ({ value: option.id, label: t(`cinematic.countryStyle.${option.id}`), icon: option.flag ? <img className="cinematic-country-flag" src={`/assets/cinematic/flags/${option.flag}.svg`} alt="" /> : <Globe className="size-4" /> }))}
+          onValueChange={value => onUpdate('storyCountryStyle', value)} /></Field> : null}
+        {storyAuthoring ? <div className="cinematic-intent-fields">
+          <StoryIntentChoices label={t('cinematic.setup.genre')} prefix="cinematic.genre" rule={storyAuthoring.choices.genres} value={draft.genres || [draft.genre]} disabled={pending} onChange={value => onUpdate('genres', value)} />
+          <StoryIntentChoices label={t('cinematic.setup.feeling')} prefix="cinematic.feeling" rule={storyAuthoring.choices.audienceFeelings} value={draft.audienceFeelings || [draft.audienceFeeling]} disabled={pending} onChange={value => onUpdate('audienceFeelings', value)} />
+          <StoryIntentChoices label={t('cinematic.setup.pacing')} prefix="cinematic.pacing" rule={storyAuthoring.choices.pacingTraits} value={draft.pacingTraits || [draft.pacing]} disabled={pending} onChange={value => onUpdate('pacingTraits', value)} />
+        </div> : null}
+        <Field label={t('cinematic.setup.creativeDirection')}><textarea rows={3} maxLength={storyAuthoring?.limits.creativeDirection} value={draft.creativeDirection} onChange={event => onUpdate('creativeDirection', event.target.value)} /></Field>
+      </details>
+      {draft.storyRoleSlots.length ? <details className="cinematic-simple-options"><summary>{t('cinematic.setup.roleDetails')} ({draft.storyRoleSlots.length})</summary>
+        {draft.storyRoleSlots.map(role => <p key={role.id}><strong>{role.label}</strong>{role.storyFunction ? `: ${role.storyFunction}` : ''}</p>)}
+        <Button icon={<Sparkles />} onClick={onAnalyzeRoles}>{t('cinematic.setup.analyzeStoryRoles')}</Button>
+      </details> : null}
+      <footer className="cinematic-setup-actions cinematic-setup-actions--inline">
+        <Button size="icon" icon={<Save />} title={t('cinematic.actions.saveDraft')} aria-label={t('cinematic.actions.saveDraft')} onClick={onSave} />
+        <Button variant="primary" icon={<Sparkles />} disabled={!validStory || pending} onClick={onEnhance}>{t('cinematic.setup.enhanceStory')}</Button>
+        <Button variant="primary" icon={pending ? <ProcessingSpinner className="size-4" /> : <Clapperboard />} disabled={!validStory || pending} onClick={onContinue}>
+          {t(pending ? 'cinematic.simple.preparing' : 'cinematic.simple.prepare')}
+        </Button>
+      </footer>
+    </fieldset>
+    <p role="status" className="text-xs text-[var(--mpf-text-muted)]">{t(`cinematic.save.${saveState}`)}</p>
+    {saveError ? <StatusNotice tone="error" title={t('cinematic.status.saveFailed')}>{saveError.message}</StatusNotice> : null}
+  </form>;
 
   return (
     <form className="cinematic-setup-form" onSubmit={event => event.preventDefault()}>

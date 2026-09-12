@@ -98,7 +98,7 @@
       "resolutions": ["480p", "720p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
       "referenceImageLimit": 9, "supportsFirstFrame": true, "supportsLastFrame": true,
       "portraitReferencePolicy": "provider_generated_asset_required",
-      "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "maximumAgeDays": 30, "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
+      "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
       "billingMetric": "completion_token", "ratesByInputModeUsdPerMillionTokens": { "without_video": 3.5, "with_video": 2.1 },
       "providerRateVersion": "byteplus-seedance-2026-09-04", "pricingStatus": "research_only",
       "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true
@@ -115,7 +115,7 @@
       "resolutions": ["480p", "720p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
       "referenceImageLimit": 9, "supportsFirstFrame": true, "supportsLastFrame": true,
       "portraitReferencePolicy": "provider_generated_asset_required",
-      "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "maximumAgeDays": 30, "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
+      "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
       "billingMetric": "completion_token", "ratesByInputModeUsdPerMillionTokens": { "without_video": 5.6, "with_video": 3.3 },
       "providerRateVersion": "byteplus-seedance-2026-09-04", "pricingStatus": "research_only",
       "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true
@@ -131,7 +131,7 @@
       "resolutions": ["480p", "720p", "1080p", "4K"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
       "referenceImageLimit": 9, "supportsFirstFrame": true, "supportsLastFrame": true,
       "portraitReferencePolicy": "provider_generated_asset_required",
-      "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "maximumAgeDays": 30, "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
+      "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
       "billingMetric": "completion_token",
       "ratesByResolutionAndInputModeUsdPerMillionTokens": {
         "480p": { "without_video": 7.0, "with_video": 4.3 }, "720p": { "without_video": 7.0, "with_video": 4.3 },
@@ -152,7 +152,7 @@
       "resolutions": ["480p", "720p"], "qualificationBlockedResolutions": ["1080p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
       "referenceImageLimit": 9, "supportsFirstFrame": true, "supportsLastFrame": true,
       "portraitReferencePolicy": "provider_generated_asset_required",
-      "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "maximumAgeDays": 30, "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
+      "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
       "billingMetric": "completion_token",
       "ratesByResolutionAndInputModeUsdPerMillionTokens": {
         "480p": { "without_video": 10.7, "with_video": 6.4 }, "720p": { "without_video": 10.7, "with_video": 6.4 },

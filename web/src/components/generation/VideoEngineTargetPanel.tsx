@@ -120,9 +120,7 @@ export function VideoEngineTargetPanel({
             >
               {providerModels.map(model => (
                 <option key={`${model.providerId}:${model.modelId}`} value={`${model.providerId}:${model.modelId}`}>
-                  {model.displayName}{model.developmentPocUnverified
-                    ? ` - ${t('playground.video.unverifiedPocBadge')}`
-                    : ''}
+                  {model.displayName}
                 </option>
               ))}
             </select>
@@ -166,11 +164,7 @@ export function VideoEngineTargetPanel({
             {t('playground.video.catalogOnlyNotice')}
           </p>
         )}
-        {selectedModel.developmentPocUnverified ? (
-          <p className="engine-target-panel__video-notice engine-target-panel__video-notice--poc" role="alert">
-            {t('playground.video.unverifiedPocNotice', { credits: selectedModel.developmentPocCredits || 1 })}
-          </p>
-        ) : selectedModel.testingRoutingEnabled && !selectedModel.paidRoutingEnabled ? (
+        {!selectedModel.developmentPocUnverified && selectedModel.testingRoutingEnabled && !selectedModel.paidRoutingEnabled ? (
           <p className="engine-target-panel__video-notice">{t('playground.video.internalTestingNotice')}</p>
         ) : null}
         {summary}

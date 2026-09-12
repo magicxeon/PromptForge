@@ -14,9 +14,11 @@ export const videoModelCapabilitySchema = z.object({
   audioModes: z.array(z.enum(['none', 'generated'])).default([]),
   referenceImageLimit: z.number().int().nonnegative().default(0),
   supportsFirstFrame: z.boolean().default(false),
+  firstFrameEnabled: z.boolean().optional(),
   supportsOrderedImageReferences: z.boolean().optional(),
   playgroundReferencePolicy: z.object({ kind: z.literal('trusted_generated_only'),
-    version: z.string(), maximumAgeDays: z.number() }).passthrough().optional(),
+    allowImageReferenceUploads: z.boolean().optional(),
+    version: z.string() }).passthrough().optional(),
   supportsCinematicLookReferences: z.boolean().optional(),
   supportsLastFrame: z.boolean().default(false),
   portraitReferencePolicy: z.enum([

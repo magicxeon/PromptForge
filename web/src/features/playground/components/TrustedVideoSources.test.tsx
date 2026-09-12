@@ -24,7 +24,8 @@ const image = {
   modelId: 'seedream',
   generationMode: 'text_to_image',
   generatedAt: '2026-09-01',
-  expiresAt: '2099-01-01',
+  expiresAt: null,
+  category: 'look-sheet' as const,
   eligible: true,
   reason: null,
   policyVersion: 'policy',
@@ -42,7 +43,6 @@ const model = videoModelCapabilitySchema.parse({
   playgroundReferencePolicy: {
     kind: 'trusted_generated_only',
     version: 'policy',
-    maximumAgeDays: 30,
   },
 });
 beforeEach(() => {
@@ -143,10 +143,10 @@ it('ignores saved upload/Character sources on restricted models and never submit
   ).toEqual(['reference_image', 'reference_image']);
   expect(
     buildVideoReferenceSelection(
-      { ...selected, trustedLook: { ...image, expiresAt: '2000-01-01' } },
+      { ...selected, trustedLook: { ...image, id: 'look', expiresAt: '2000-01-01' } },
       model,
     ).ready,
-  ).toBe(false);
+  ).toBe(true);
   expect(
     buildVideoReferenceSelection({ ...selected, trustedLook: image }, model)
       .reason,

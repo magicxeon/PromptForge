@@ -273,7 +273,7 @@ export function submitCinematicStoryboardBatch(projectId: string, input: {
   });
 }
 
-export type CinematicVideoReferenceMode = 'storyboard_only' | 'storyboard_and_looks' | 'looks_only';
+export type CinematicVideoReferenceMode = 'storyboard_only' | 'storyboard_and_looks' | 'looks_only' | 'text_only';
 
 export function getCinematicProduceContext(projectId: string, sceneId: string, shotId: string, referenceMode?: CinematicVideoReferenceMode) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/produce-context${referenceMode ? `?referenceMode=${referenceMode}` : ''}`, {
@@ -335,6 +335,21 @@ export function updateCinematicShotDirection(projectId: string, sceneId: string,
   expectedShotVersion: number;
   prompt: string;
   durationMs?: number;
+  title?: string;
+  purpose?: string;
+  visibleMoment?: string;
+  subjectAction?: string;
+  emotionalTarget?: string;
+  performanceCue?: string;
+  continuityEntry?: string;
+  continuityExit?: string;
+  transitionToNext?: string;
+  framing?: string;
+  cameraAngle?: string;
+  lensIntent?: string;
+  cameraMovement?: string;
+  lighting?: string;
+  environment?: string;
 }) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}`, {
     method: 'PATCH', body: input, schema: cinematicProjectSchema

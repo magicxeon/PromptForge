@@ -5,6 +5,7 @@ import { Button } from '../../../components/ui/Button';
 import type { VideoModelCapability } from '../../generation/schemas/videoGenerationSchemas';
 import { PlaygroundVideoSources } from './PlaygroundVideoSources';
 import { TrustedVideoSources } from './TrustedVideoSources';
+import { VideoImageReferenceSources } from './VideoImageReferenceSources';
 import { selectedLooks, selectedTrustedLooks, type VideoReferenceSelection } from './videoReferenceSelection';
 
 export function VideoLookSheetSources({ value, model, onChange, onBusy }: {
@@ -22,7 +23,7 @@ export function VideoLookSheetSources({ value, model, onChange, onBusy }: {
   const looks = selectedLooks(value);
   const trustedLooks = selectedTrustedLooks(value);
   const count = trusted ? trustedLooks.length : looks.length;
-  const frameCount = Number(Boolean(trusted ? value.trustedFrame : value.referenceImageUrl));
+  const frameCount = model?.firstFrameEnabled === false ? 0 : Number(Boolean(trusted ? value.trustedFrame : value.referenceImageUrl));
   const limit = Math.min(12, model?.supportsOrderedImageReferences ? model.referenceImageLimit : Math.min(1, model?.referenceImageLimit || 0));
   const rows = withLook ? Math.max(1, count + Number(adding)) : 1;
   function change(index: number, patch: Partial<VideoReferenceSelection>) {
@@ -42,14 +43,15 @@ export function VideoLookSheetSources({ value, model, onChange, onBusy }: {
       setAdding(false);
     } else onChange(patch);
   }
+  if (value.operation === 'image_to_video') return <VideoImageReferenceSources value={value} model={model} onChange={onChange} onBusy={onBusy} />;
   return <div className="video-look-sheet-list">
     {Array.from({ length: rows }, (_, index) => <fieldset disabled={busy} key={index} className={index ? 'video-look-sheet-list__additional' : undefined}>
       {trusted ? <TrustedVideoSources withLook={withLook} frame={value.trustedFrame || null}
-        look={trustedLooks[index] || null} lookOnly={index > 0} characterNumber={index + 1}
+        look={trustedLooks[index] || null} lookOnly={index > 0 || model?.firstFrameEnabled === false} characterNumber={index + 1}
         excludedIds={trustedLooks.filter((_, i) => i !== index).map(item => item.id)}
         onChange={patch => change(index, patch)} />
         : <PlaygroundVideoSources value={{ ...value, lookSheet: looks[index] || null }}
-          lookOnly={index > 0} characterNumber={index + 1}
+          lookOnly={index > 0 || model?.firstFrameEnabled === false} characterNumber={index + 1}
           excludedUrls={looks.filter((_, i) => i !== index).map(item => item.url)}
           onBusy={reportBusy} onChange={patch => change(index, patch)} />}
     </fieldset>)}

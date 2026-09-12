@@ -1,12 +1,11 @@
 export const TRUSTED_GENERATED_SOURCE_POLICY = Object.freeze({
   kind: 'trusted_generated_only',
+  allowImageReferenceUploads: true,
   version: 'modelark-seedream-5-family-2026-09-12',
   providerId: 'modelark',
   modelIds: ['seedream-5-0-lite-260128', 'dola-seedream-5-0-pro-260628'],
   resolvedModelAliases: ['seedream-5-0-260128'],
   generationModes: ['text_to_image', 'image_to_image'],
-  effectiveFrom: '2026-04-16T00:00:00.000Z',
-  maximumAgeDays: 30,
 });
 
 export function isTrustedGeneratedSourceModel(

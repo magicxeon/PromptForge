@@ -20,8 +20,8 @@ const output = await fs.mkdtemp(path.join(os.tmpdir(), 'mpf-direct-cast-'));
 const photo = await fs.readFile(process.env.CAST_SHEET_VISUAL_FILE || path.join(root, 'client/assets/scene-builder/shot-recipes/cafe-seated-lifestyle.jpg'));
 const actor = { userId: 'fixture-owner', username: 'fixture', role: 'user', displayName: 'Fixture' };
 const now = new Date().toISOString();
-const sheet = { id: 'fixture-sheet', modelId: 'dola-seedream-5-0-pro-260628', previewUrl: '/api/fixture-media',
-  generationMode: 'text_to_image', generatedAt: now, expiresAt: new Date(Date.now() + 29 * 86400000).toISOString(),
+const sheet = { id: 'fixture-sheet', modelId: 'gpt-image-2', previewUrl: '/api/fixture-media',
+  generationMode: 'text_to_image', generatedAt: now, expiresAt: null,
   eligible: true, reason: null, policyVersion: 'fixture', category: 'look-sheet' };
 const initial = createSingleCharacterCinematicProject();
 Object.assign(initial, { ownerUserId: actor.userId, ownerUsername: actor.username, activeStage: 'cast',
@@ -106,11 +106,11 @@ try {
       await page.setViewportSize({ width, height: 950 });
       await page.goto(`${origin}/__cast-sheet-check`);
       await openSheetPicker();
-      await page.getByRole('button', { name: /dola-seedream/ }).first().waitFor();
+      await page.getByRole('button', { name: /gpt-image-2/ }).first().waitFor();
       assert.equal(await page.getByText('Non-sheet scene', { exact: true }).count(), 0);
       await page.evaluate(() => document.fonts.ready);
       await page.screenshot({ path: path.join(output, `${locale}-${width}-choose.png`) });
-      await page.getByRole('button', { name: /dola-seedream/ }).first().click();
+      await page.getByRole('button', { name: /gpt-image-2/ }).first().click();
       await page.getByRole('textbox', { name: label('castSource.name') }).fill('Mira');
       await page.waitForFunction(() => !document.querySelector('input[type=checkbox]').disabled);
       assert.equal(await page.locator('.character-look-generated__selection img').evaluate(el => getComputedStyle(el).objectFit), 'contain');

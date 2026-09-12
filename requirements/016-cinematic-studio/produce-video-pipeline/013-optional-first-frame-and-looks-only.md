@@ -55,6 +55,24 @@ Do not silently reinterpret legacy API requests as looks_only.
 
 ## 3. State And Recovery Rules
 
+Retry follow-up (2026-09-12): changing references must not stop observing an
+existing durable video task. Packet staleness prevents approval, not task-status
+refresh. A terminal rejected task must not leave Generate locked by an outdated
+Project attempt status. Historical rejection is not a current source-check error;
+keep diagnostics without requesting First Frame approval in looks-only mode.
+Remove the shared video engine's Development POC notice, retaining the actual
+Credit estimate, errors and billing behavior. User requests no test runs for this
+follow-up; manual UAT remains pending.
+
+Retry follow-up (2026-09-12): changing references must not stop observing an
+existing durable video task. Packet staleness prevents approval, not task-status
+refresh. A terminal rejected task must not leave Generate locked by an outdated
+Project attempt status. Historical rejection is not a current source-check error;
+keep diagnostics without requesting First Frame approval in looks-only mode.
+Remove the shared video engine's Development POC notice, retaining the actual
+Credit estimate, errors and billing behavior. User requests no test runs for this
+follow-up; manual UAT remains pending.
+
 | State | Expected behavior |
 |---|---|
 | No frame, valid selected Cast sheets, supported model | Looks only available; quote and manual Generate do not require image approval |
@@ -75,6 +93,17 @@ No-Cast prompt-only video is outside this package; do not force an unrelated
 Character into an environment Shot to make it eligible.
 
 ## 4. Cast And Trusted Source Authority
+
+2026-09-12 transport amendment: playground-video-reference-poc/016 permits
+identical local Look Sheet bytes as Base64 when the original signed download URL
+expires. This is an explicit alternative, not provider-trust equivalence; First
+Frame and other rejection/ownership/content constraints remain unchanged.
+
+Runtime repair (2026-09-12): generated Cast Assets persist their content hash in
+metadata.contentHash. Generation must normalize that canonical field before
+comparing the Asset with the pinned reference and trusted source, for both quote
+and submit. Do not require a new sheet or change stored data. Preserve rejection
+of actual hash/URL/owner/source mismatches and the original-URL transport rules.
 
 - Resolve only the Cast that appear in this Shot, using the current explicit
   none/selected/inherited coverage rules and stable Cast ordering.

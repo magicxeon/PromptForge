@@ -16,7 +16,8 @@ verify-release-regressions. No paid provider generation is authorized by tests.
 2. 019: explicit no-person coverage and multiple Cast reference authority.
 3. 020: art/light/camera direction and a true opening-state Storyboard per Shot.
 4. 021: trusted original Seedream Storyboard URL handoff to Seedance.
-5. 022: Series architecture awareness only; no Season/Chapter implementation.
+5. 022: Series architecture awareness in this foundation; subsequent explicit
+   implementation is owned by 026-028, without changing existing Shot workflows.
 6. 023: ordered tasks, focused checks, aggregate runner and release evidence.
 
 The last user decision supersedes the proposed optional-Storyboard flow: every

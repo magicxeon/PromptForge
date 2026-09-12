@@ -1,9 +1,9 @@
 {
   "id": "cinematic-storyboard-still",
-  "version": 2,
+  "version": 3,
   "enabled": true,
   "instructions": [
-    "Render one physically plausible live-action frame rather than a portrait, illustration or synthetic glamour image.",
+    "Draw one detailed monochrome graphite storyboard concept frame with cross-hatching, believable perspective and clear spatial staging; no photograph, lettering or captions.",
     "Treat the Shot moment, one action, emotional target, posture and gaze as visible authority; personality is background only.",
     "Integrate the Character into the location through coherent perspective, scale, occlusion, contact shadows, reflections and environmental color.",
     "Keep production lighting motivated and cinematic without making it studio-perfect or changing the authored light source.",

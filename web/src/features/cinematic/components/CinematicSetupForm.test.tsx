@@ -10,6 +10,12 @@ import { cinematicStoryAuthoringSchema } from '../schemas/cinematicSchemas';
 const testI18n = i18next.createInstance();
 
 describe('CinematicSetupForm', () => {
+  it('simple mode accepts a brief without a manual title or role form', () => {
+    renderForm({ mode: 'simple', projectName: '', storyBrief: 'Two strangers shelter from the rain.', storyRoleSlots: [] });
+    expect(screen.getByRole('button', { name: 'cinematic.simple.prepare' })).toBeEnabled();
+    expect(screen.queryByRole('heading', { name: 'cinematic.setup.foundationTitle' })).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'cinematic.setup.projectName' }).closest('details')).not.toHaveAttribute('open');
+  });
   beforeAll(async () => {
     await testI18n.use(initReactI18next).init({
       lng: 'en', resources: { en: { cinematic: {} } }, keySeparator: false,
@@ -108,7 +114,7 @@ function renderForm(
     onUpdateRole?: ReturnType<typeof vi.fn>;
   } = {}
 ) {
-  const draft = { ...createCinematicSetupDraft(new Date('2026-08-29T00:00:00.000Z')), ...patch };
+  const draft = { ...createCinematicSetupDraft(new Date('2026-08-29T00:00:00.000Z')), mode: 'advanced' as const, ...patch };
   return render(
     <I18nextProvider i18n={testI18n}>
       <CinematicSetupForm

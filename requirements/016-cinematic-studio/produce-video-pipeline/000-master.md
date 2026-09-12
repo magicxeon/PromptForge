@@ -201,7 +201,8 @@ In scope:
 
 Out of scope:
 
-- changing Setup, Cast, Story Plan or Storyboard authoring semantics;
+- changing Setup/Cast semantics or authoring outside the explicit pilot additions
+  in 018-019 and 021;
 - automatic Story or Shot rewriting during Produce;
 - advanced nonlinear editing, overlays, keyframed effects or compositing;
 - voice cloning, public publishing or social distribution;
@@ -209,6 +210,30 @@ Out of scope:
 - deleting historical Jobs, Assets, attempts or Credit evidence.
 
 ## 11. Requirement Closure
+
+### Pilot Review UX Addendum (2026-09-12)
+
+Implementation is now authorized under [021 Scope Reconciliation](021-pilot-scope-reconciliation.md).
+That reconciliation takes precedence over discussion/pending labels below and
+in 014-020; runtime completion still requires the recorded acceptance evidence.
+
+Implemented pilot follow-up, with verification tracked in plan 009:
+
+- [014 Shot Video Takes](014-shot-video-take-selection.md): independent preview
+  and explicit selected Take, preserving existing approval and timeline ownership.
+- [015 Shot Card Interaction](015-shot-card-selection-and-reference-preview.md):
+  whole-card selection and a mode-aware Look Sheet tile in Storyboard/Produce.
+- [016 Download And Dialogue Discussion](016-clip-bundle-and-dialogue-discussion.md):
+  selected-clip ZIP packaging, bounded download and explicit partial-set consent.
+- [Ordered Plan](implementation-plan/009-take-review-and-shot-navigation.md).
+- [017 Seedance First Frame Switch](017-seedance-first-frame-runtime-switch.md):
+  default-off server policy, preserved stills and effective reference-mode parity.
+- [018 Dialogue & Sound](018-dialogue-and-sound-authoring.md): discoverable
+  multi-line authored dialogue/sound, no new exact-speech service.
+- [019 Opening Scene](019-cinematic-opening-scene-direction.md): optional
+  checkbox-driven cinematic opening direction, distinct from First Frame.
+- [020 Pilot UX Closure](020-pilot-ux-and-flow-closure.md): mandatory final
+  professional responsive UI and end-to-end scoped flow verification.
 
 This requirement set is ready for implementation when all child files remain
 mutually consistent and every open commercial/provider decision has a stop

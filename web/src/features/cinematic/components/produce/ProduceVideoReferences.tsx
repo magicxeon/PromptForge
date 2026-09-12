@@ -14,25 +14,29 @@ type Props = {
   onChange: (mode: ReferenceMode) => void;
   lastFirstFrameMode?: 'storyboard_only' | 'storyboard_and_looks';
   supported?: boolean;
+  firstFrameEnabled?: boolean;
+  sketchAvailable?: boolean;
   references?: Array<{ imageNumber: number; assetId: string | null; purpose: string;
     roleName: string | null; lookName: string | null; previewUrl: string }>;
 };
 
-export function ProduceVideoReferences({ mode, disabled, loading, onChange, references, lastFirstFrameMode = 'storyboard_only', supported = true }: Props) {
+export function ProduceVideoReferences({ mode, disabled, loading, onChange, references, lastFirstFrameMode = 'storyboard_only', supported = true, firstFrameEnabled = true, sketchAvailable = false }: Props) {
   const { t } = useTranslation('cinematic');
   return <section className="min-w-0 space-y-3 py-2 text-sm" aria-label={t('cinematic.produce.references.title')}>
     <strong>{t('cinematic.produce.references.title')}</strong>
     <div className="flex items-center justify-between gap-3">
-      <span>{t('cinematic.produce.references.useFirstFrame')}</span>
-      <ToggleSwitch label={t('cinematic.produce.references.useFirstFrame')} checked={mode !== 'looks_only'}
-        disabled={disabled} onClick={() => onChange(mode === 'looks_only' ? lastFirstFrameMode : 'looks_only')} />
+      <span>{t(sketchAvailable ? 'cinematic.produce.references.useSketch' : 'cinematic.produce.references.useFirstFrame')}</span>
+      <ToggleSwitch label={t(sketchAvailable ? 'cinematic.produce.references.useSketch' : 'cinematic.produce.references.useFirstFrame')} checked={!['looks_only', 'text_only'].includes(mode)}
+        disabled={disabled || (!firstFrameEnabled && !sketchAvailable)} onClick={() => onChange(['looks_only', 'text_only'].includes(mode) ? (sketchAvailable ? 'storyboard_and_looks' : lastFirstFrameMode) : 'looks_only')} />
     </div>
-    {mode !== 'looks_only' && supported ? <ThemeSelect value={mode} ariaLabel={t('cinematic.produce.references.mode')} disabled={disabled}
+    {!['looks_only', 'text_only'].includes(mode) && supported && !sketchAvailable ? <ThemeSelect value={mode} ariaLabel={t('cinematic.produce.references.mode')} disabled={disabled}
       onValueChange={value => onChange(value as ReferenceMode)} options={[
         { value: 'storyboard_only', label: t('cinematic.produce.references.single') },
         { value: 'storyboard_and_looks', label: t('cinematic.produce.references.multiple') }
       ]} /> : null}
     {mode === 'looks_only' ? <p className="text-xs text-[var(--mpf-text-muted)]">{t('cinematic.produce.references.looksOnlyHint')}</p> : null}
+    {!firstFrameEnabled && !sketchAvailable ? <p className="text-xs text-[var(--mpf-text-muted)]">{t('cinematic.produce.references.firstFrameDisabled')}</p> : null}
+    {mode === 'text_only' ? <p className="text-xs text-[var(--mpf-text-muted)]">{t('cinematic.produce.references.textOnly')}</p> : null}
     {!supported && mode !== 'storyboard_only' ? <p role="alert">{t('cinematic.produce.references.unsupported')}</p> : null}
     {mode === 'storyboard_and_looks' ? <p className="text-xs text-[var(--mpf-text-muted)]">{t('cinematic.produce.references.caveat')}</p> : null}
     <div aria-live="polite" aria-busy={loading}>
@@ -42,7 +46,7 @@ export function ProduceVideoReferences({ mode, disabled, loading, onChange, refe
             <AuthenticatedMediaImage src={reference.previewUrl} alt="" className="size-full object-contain" fallback={<ImageIcon className="size-5" aria-hidden="true" />} />
           </div>
           <div className="min-w-0 break-words text-xs">
-            <strong>{t('cinematic.produce.references.image', { number: reference.imageNumber })}: {t(reference.purpose === 'storyboard_opening' ? 'cinematic.produce.references.storyboard' : 'cinematic.produce.references.look')}</strong>
+            <strong>{t('cinematic.produce.references.image', { number: reference.imageNumber })}: {t(['storyboard_opening', 'sketch_composition'].includes(reference.purpose) ? 'cinematic.produce.references.storyboard' : 'cinematic.produce.references.look')}</strong>
             {reference.roleName ? <p>{reference.roleName} / {reference.lookName}</p> : null}
           </div>
         </li>)}

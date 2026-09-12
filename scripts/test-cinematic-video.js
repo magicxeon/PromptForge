@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
+  pilot: ['test/cinematicPilotPolicy.test.js', 'test/cinematicStoryPlanService.test.js', 'test/videoClipBundleService.test.js'],
   references: ['test/cinematicVideoReferencePlan.test.js', 'test/cinematicVideoPacketCompiler.test.js'],
   payload: ['test/modelArkSeedanceProvider.test.js', 'test/videoCapabilityRegistry.test.js'],
   flow: [
@@ -18,12 +19,12 @@ const groups = {
 };
 const suite = process.argv[2] || 'help';
 if (suite === 'help' || suite === '--help') {
-  console.log('Usage: node scripts/test-cinematic-video.js <references|payload|flow|ui|full>');
+  console.log('Usage: node scripts/test-cinematic-video.js <pilot|references|payload|flow|ui|full>');
   console.log('payload: adapter payload and catalog; flow: source, storage, Credits and task lifecycle');
   console.log('references: dynamic Cast/Look authority and configured video prompt');
   console.log('ui: Produce controls/status/preview; full: all groups plus adjacent regressions');
   console.log('Mocked tests only. No live provider calls, build or browser sweep.');
-} else if (!['references', 'payload', 'flow', 'ui', 'full'].includes(suite) || process.argv.length > 3) {
+} else if (!['pilot', 'references', 'payload', 'flow', 'ui', 'full'].includes(suite) || process.argv.length > 3) {
   console.error('Unknown suite. Use --help.');
   process.exitCode = 2;
 } else {
@@ -33,6 +34,10 @@ if (suite === 'help' || suite === '--help') {
   if (!process.exitCode && ['ui', 'full'].includes(suite)) {
     run('ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
       'src/features/cinematic/components/CinematicProduceRuntime.test.tsx',
+      'src/features/cinematic/components/StoryboardSequenceBoard.test.tsx',
+      'src/features/cinematic/components/authoring/DialogueSoundEditor.test.tsx',
+      'src/features/cinematic/components/produce/VideoTakeList.test.tsx',
+      'src/lib/api/apiClient.test.ts',
       'src/features/cinematic/components/StoryboardShotDialog.test.tsx',
       'src/features/cinematic/components/storyboardGenerationAdapter.test.ts',
       'src/features/cinematic/components/produce/produceReadModel.test.ts',

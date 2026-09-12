@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 import { TRUSTED_GENERATED_SOURCE_POLICY } from '../../config/trustedGeneratedSources.js';
+import { generatedReferencePolicy, assertGeneratedReferenceAllowed } from '../../config/generatedReferencePolicy.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_PATH = path.resolve(__dirname, '../../config/cinematic-video-models.json');
@@ -48,7 +49,9 @@ export class VideoCapabilityRegistry {
     runtimeEnvironment = process.env.NODE_ENV || 'development',
     developmentPocEnabled = process.env.CINEMATIC_VIDEO_POC_ENABLE_UNVERIFIED_SEEDANCE === 'true',
     developmentPocCredits = process.env.CINEMATIC_VIDEO_POC_CREDITS,
-    availabilityPolicy = providerAvailabilityPolicyService
+    seedanceFirstFrameEnabled = process.env.SEEDANCE_FIRST_FRAME_ENABLED === 'true',
+    availabilityPolicy = providerAvailabilityPolicyService,
+    sourcePolicy = generatedReferencePolicy
   } = {}) {
     this.catalogPath = catalogPath;
     this.catalog = null;
@@ -56,6 +59,8 @@ export class VideoCapabilityRegistry {
     this.developmentPocEnabled = runtimeEnvironment !== 'production' && developmentPocEnabled === true;
     this.developmentPocCredits = boundedInteger(developmentPocCredits, 1, 10, 1);
     this.availabilityPolicy = availabilityPolicy;
+    this.seedanceFirstFrameEnabled = seedanceFirstFrameEnabled;
+    this.sourcePolicy = sourcePolicy;
   }
 
   load() {
@@ -127,6 +132,7 @@ export class VideoCapabilityRegistry {
       throw new VideoCapabilityError('video_model_not_qualified', 'Video model is not qualified for paid routing.', 409);
     }
     const selection = normalizeVideoExecutionSelection(input);
+    assertFirstFramePolicy(input, model);
     const commercialOperations = getCommercialOperations(model);
     const inputModes = getInputModes(model);
     if (!commercialOperations.includes(selection.commercialOperation)) {
@@ -169,9 +175,14 @@ export class VideoCapabilityRegistry {
 
   #effectiveModel(model) {
     const copy = structuredClone(model);
+    copy.allowAnySourceProvider = this.sourcePolicy.allowAnyProvider;
+    if (copy.providerId === 'modelark' && copy.modelId.includes('seedance')) {
+      copy.firstFrameEnabled = this.seedanceFirstFrameEnabled;
+    }
     copy.supportsOrderedImageReferences = copy.providerId === 'modelark';
     if (copy.trustedGeneratedImageSource?.compatibilityId === 'modelark-seedance-2') {
       copy.playgroundReferencePolicy = structuredClone(TRUSTED_GENERATED_SOURCE_POLICY);
+      if (this.sourcePolicy.allowAnyProvider) copy.playgroundReferencePolicy.version = this.sourcePolicy.policyVersion;
     }
     if (!this.developmentPocEnabled
       || copy.providerId !== 'modelark'
@@ -195,7 +206,18 @@ export class VideoCapabilityRegistry {
   }
 }
 
-export function validateTrustedGeneratedImageSource(input, model, { now = new Date() } = {}) {
+export function assertFirstFramePolicy(input, model) {
+  if (model?.firstFrameEnabled !== false) return;
+  const mode = normalizeVideoExecutionSelection(input).inputMode;
+  if (['image_to_video', 'first_last_frame'].includes(mode)
+    || input.references?.some(row => ['first_frame', 'last_frame'].includes(row.role)
+      || ['opening_frame', 'storyboard_opening'].includes(row.purpose))) {
+    throw new VideoCapabilityError('video_first_frame_disabled',
+      'First Frame is disabled for this model. Use Look Sheets or image references instead.', 409);
+  }
+}
+
+export function validateTrustedGeneratedImageSource(input, model) {
   const requirement = model?.trustedGeneratedImageSource;
   const authority = input?.referenceAuthority;
   if (['cinematic_look_sources', 'cinematic_storyboard_source'].includes(authority?.kind)
@@ -206,11 +228,19 @@ export function validateTrustedGeneratedImageSource(input, model, { now = new Da
     for (const reference of authority.references) {
       validateTrustedGeneratedImageSource({ ...input, referenceAuthority: {
         ...reference, kind: ['character_look', 'generated_look'].includes(reference.purpose) ? 'cinematic_look_source' : 'cinematic_storyboard_source'
-      } }, model, { now });
+      } }, model);
     }
     return true;
   }
   const provenance = authority?.providerOutputProvenance;
+  assertGeneratedReferenceAllowed({ providerOutputProvenance: provenance });
+  if (model?.allowAnySourceProvider === true && authority?.immutable === true
+      && authority.contentHash && authority.sourceFingerprint
+      && ['cinematic_storyboard_source', 'cinematic_look_source'].includes(authority.kind)) return true;
+  if (authority?.kind === 'cinematic_storyboard_source' && authority.purpose === 'sketch_composition'
+      && authority.storyboardRenderStyle === 'concept_sketch_v1' && authority.role === 'reference_image'
+      && authority.immutable === true && authority.contentHash && authority.sourceFingerprint
+      && model?.supportsCinematicLookReferences === true && input.inputMode === 'multimodal_reference') return true;
   let reason = null;
   if (!requirement || !authority || !['cinematic_storyboard_source', 'cinematic_look_source'].includes(authority.kind)) {
     reason = 'source_authority_missing';
@@ -228,14 +258,6 @@ export function validateTrustedGeneratedImageSource(input, model, { now = new Da
     && (!provenance.credentialScope
       || provenance.credentialScope !== input.providerCredentialScope)) {
     reason = 'source_credential_scope_mismatch';
-  } else {
-    const generatedAt = new Date(provenance.generatedAt);
-    const maximumAgeMs = Math.max(1, Number(requirement.maximumAgeDays || 30)) * 24 * 60 * 60 * 1000;
-    if (!Number.isFinite(generatedAt.getTime())
-      || generatedAt.getTime() > new Date(now).getTime() + 5 * 60 * 1000
-      || generatedAt.getTime() + maximumAgeMs <= new Date(now).getTime()) {
-      reason = 'source_trust_window_expired';
-    }
   }
   if (!reason) return true;
   throw new VideoCapabilityError(

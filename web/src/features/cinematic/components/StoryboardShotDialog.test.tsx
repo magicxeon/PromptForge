@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import type { ReactNode } from 'react';
@@ -139,6 +139,42 @@ describe('StoryboardShotDialog', () => {
       'shot_1',
       expect.objectContaining({ expectedVersion: 12, expectedShotVersion: 7 })
     ));
+  });
+
+  it('edits the Shot inline, preserves the preview node and submits only on Save', async () => {
+    renderDialog();
+    await screen.findByRole('textbox', { name: 'cinematic.storyboard.compiledPrompt' });
+    const preview = screen.getByTestId('generation-preview');
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.editShot' }));
+    const editor = within(screen.getByRole('region', { name: 'cinematic.storyboard.editShot' }));
+    fireEvent.change(editor.getByRole('textbox', { name: 'cinematic.director.subjectAction' }), {
+      target: { value: 'Grip the pot before trying to lift it' }
+    });
+    fireEvent.change(editor.getByRole('textbox', { name: 'cinematic.storyboard.shotDirection' }), { target: { value: '' } });
+    expect(mocks.updateDirection).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Generate test image' })).toBeDisabled();
+    fireEvent.click(editor.getByRole('button', { name: 'cinematic.storyboard.saveDirection' }));
+    await waitFor(() => expect(mocks.updateDirection).toHaveBeenCalledWith('cineproj_1', 'scene_1', 'shot_1',
+      expect.objectContaining({ prompt: '', subjectAction: 'Grip the pot before trying to lift it', expectedVersion: 12, expectedShotVersion: 7 })));
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'cinematic.storyboard.editShot' })).not.toBeInTheDocument());
+    expect(screen.getByTestId('generation-preview')).toBe(preview);
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+  });
+
+  it('retains inline edits after a save error and Cancel does not save', async () => {
+    mocks.updateDirection.mockRejectedValue(new Error('Version conflict'));
+    renderDialog();
+    await screen.findByRole('textbox', { name: 'cinematic.storyboard.compiledPrompt' });
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.editShot' }));
+    const editor = within(screen.getByRole('region', { name: 'cinematic.storyboard.editShot' }));
+    const field = editor.getByRole('textbox', { name: 'cinematic.director.visibleMoment' });
+    fireEvent.change(field, { target: { value: 'Hands just above the rim' } });
+    fireEvent.click(editor.getByRole('button', { name: 'cinematic.storyboard.saveDirection' }));
+    await screen.findByText('Version conflict');
+    expect(field).toHaveValue('Hands just above the rim');
+    fireEvent.click(editor.getByRole('button', { name: 'cinematic.actions.cancel' }));
+    expect(mocks.updateDirection).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('region', { name: 'cinematic.storyboard.editShot' })).not.toBeInTheDocument();
   });
 
   it('shows the exact server-compiled prompt as read-only beside editable Shot direction', async () => {

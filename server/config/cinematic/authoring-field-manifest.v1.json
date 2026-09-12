@@ -100,7 +100,7 @@
     { "path": "shot.continuityExit", "group": "continuity", "visibility": "advanced", "requirement": "derived", "authorities": ["user", "ai", "default"], "consumers": ["storyboard", "produce"], "localizationKey": "cinematic.director.continuityExit" },
     { "path": "shot.transitionToNext", "group": "continuity", "visibility": "advanced", "requirement": "derived", "authorities": ["user", "ai", "default"], "consumers": ["storyboard", "produce", "finish"], "localizationKey": "cinematic.director.transitionToNext" },
     { "path": "shot.estimatedActionDurationMs", "group": "timing", "visibility": "advanced", "requirement": "derived", "authorities": ["user", "ai", "default"], "consumers": ["produce"], "localizationKey": "cinematic.director.estimatedActionDuration" },
-    { "path": "shot.dialogueCues", "group": "audio", "visibility": "advanced", "requirement": "optional", "authorities": ["user", "ai"], "consumers": ["produce"], "localizationKey": "cinematic.director.dialogue" },
-    { "path": "shot.audioCues", "group": "audio", "visibility": "advanced", "requirement": "optional", "authorities": ["user", "ai"], "consumers": ["produce"], "localizationKey": "cinematic.director.audio" }
+    { "path": "shot.dialogueCues", "group": "audio", "visibility": "simple", "requirement": "optional", "authorities": ["user", "ai"], "consumers": ["produce"], "localizationKey": "cinematic.director.dialogue" },
+    { "path": "shot.audioCues", "group": "audio", "visibility": "simple", "requirement": "optional", "authorities": ["user", "ai"], "consumers": ["produce"], "localizationKey": "cinematic.director.audio" }
   ]
 }

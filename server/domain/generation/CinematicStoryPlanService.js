@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { getCinematicStoryPlanPolicy } from '../../config/cinematic-story-plan-policy.js';
-import { normalizeStoryIntent, storyCountryStyleGuidance } from '../../config/cinematicStoryConfiguration.js';
+import { normalizeStoryIntent, storyCountryStyleGuidance, storyAuthoringConfiguration } from '../../config/cinematicStoryConfiguration.js';
 import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
 import { CinematicTextProviderRouter } from './CinematicTextProviderRouter.js';
@@ -234,6 +234,7 @@ export class CinematicStoryPlanService {
     const context = {
       ...buildProjectContext(project, { preflight, mode: 'review_current' }),
       selectedScene: current,
+      ...(current.cinematicOpening === true ? { openingDirection: storyAuthoringConfiguration.openingDirection } : {}),
       previousScene: project.scenes[sceneIndex - 1] || null,
       nextScene: project.scenes[sceneIndex + 1] || null,
       userDirection: bounded(request.direction, 1200)
@@ -258,7 +259,7 @@ export class CinematicStoryPlanService {
       maxOutputTokens: policy.maxOutputTokens,
       timeoutMs: policy.timeoutMs
     });
-    const candidate = alignCandidateShotStructure(current, normalizeScene(result, project, {
+    const candidate = alignCandidateShotStructure(current, normalizeScene({ ...result, cinematicOpening: current.cinematicOpening }, project, {
       id: current.id,
       beatId: current.beatId || null,
       targetDurationMs: current.durationMs,
@@ -441,6 +442,7 @@ function buildProjectContext(project, { preflight, mode }) {
       storySourceVersionId: project.activeStorySourceVersionId
     },
     videoTimingGuidance: {
+      ...(project.scenes?.[0]?.cinematicOpening === true ? { openingDirection: storyAuthoringConfiguration.openingDirection, openingSceneId: project.scenes[0].id } : {}),
       ownership: 'editorial_planning_only',
       preferredShotDurationsSeconds: [4, 6, 8],
       portableShotMaximumSeconds: 8,
@@ -514,7 +516,7 @@ function normalizePlan(result, project, { sourceResolution = null, directorOpera
   const sceneKeyMap = new Map();
   const scenes = scenesInput.map((scene, index) => {
     const beatId = beatKeyMap.get(String(scene.beatKey || '').trim()) || beats[0].id;
-    const normalized = normalizeScene(scene, project, {
+    const normalized = normalizeScene({ ...scene, cinematicOpening: index === 0 ? project.scenes?.[0]?.cinematicOpening : undefined }, project, {
       id: createPrefixedId('cinescene'), beatId,
       targetDurationMs: sceneDurations[index], existingShots: [], orderKey: index + 1
     });
@@ -607,6 +609,7 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
       continuityExit: bounded(shot.continuityExit, 500) || stringList(shot.continuityNotes, 20, 240).at(-1) || 'Hold established Scene state.',
       transitionToNext: bounded(shot.transitionToNext, 240) || bounded(input.transitionIntent, 160) || 'cut',
       estimatedActionDurationMs: Math.max(0, Math.round(Number(shot.estimatedActionDurationSeconds || 0) * 1000)),
+      audioDirectionVersion: 1,
       dialogueCues: normalizeDialogueCues(shot.dialogueCues, durations[index]),
       audioCues: normalizeAudioCues(shot.audioCues, durations[index]),
       castAssignmentIds: shotCast,
@@ -635,6 +638,7 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
     castAssignmentIds,
     wardrobeLookIds,
     castMode: castAssignmentIds.length ? 'selected' : 'none',
+    ...(input.cinematicOpening !== undefined ? { cinematicOpening: input.cinematicOpening === true } : {}),
     ...(input.artDirection !== undefined ? { artDirection: bounded(input.artDirection, 1000) } : {}),
     blocking: bounded(input.blocking, 500),
     lighting: bounded(input.lighting, 500),

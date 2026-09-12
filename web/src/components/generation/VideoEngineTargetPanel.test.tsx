@@ -117,7 +117,7 @@ describe('VideoEngineTargetPanel', () => {
     expect(modelSelect).not.toHaveTextContent('Veo Test');
   });
 
-  it('marks an unverified development POC model and states its test Credit charge', () => {
+  it('shows the Credit estimate without adding a POC notice or model suffix', () => {
     const pocModel: VideoModelCapability = {
       ...seedance,
       developmentPocUnverified: true,
@@ -147,8 +147,8 @@ describe('VideoEngineTargetPanel', () => {
     );
 
     const modelSelect = screen.getAllByRole('combobox')[1];
-    expect(modelSelect).toHaveTextContent('playground.video.unverifiedPocBadge');
-    expect(screen.getByRole('alert')).toHaveTextContent('playground.video.unverifiedPocNotice');
+    expect(modelSelect).not.toHaveTextContent('playground.video.unverifiedPocBadge');
+    expect(screen.queryByText('playground.video.unverifiedPocNotice')).not.toBeInTheDocument();
     expect(screen.getByText('1 playground.comparison.credits')).toBeInTheDocument();
   });
 

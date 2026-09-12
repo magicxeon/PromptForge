@@ -6,6 +6,58 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Series, Seasons And Chapter Workspaces (2026-09-12)
+
+Owner: Cinematic enhancement-core-engine/026-028 supersedes 022 runtime deferral.
+CinematicApplicationService remains the public facade; internal
+CinematicSeriesService owns structure rules. CinematicProjectRepository atomically
+mutates owner-scoped Series and Chapter Projects in the existing cinematicProjects
+envelope. cinematicProjectRecord owns the shared new-Project factory. Additive
+seriesMembership/chapterOrigin fields preserve existing routes and production IDs.
+No new runtime file, database migration, provider path, Credit or media owner.
+React SeriesWorkspaceControls/SeriesManagerDialog and cinematicSeries schemas/API
+live in the Cinematic feature; actor/project Query ownership refetches on changes
+and has no polling. Bounded workspace read: 24 Seasons and 120 Chapter summaries.
+Validation owners: scripts/test-cinematic-series.mjs and verify-cinematic-series.mjs.
+Shared live Series Bible/AI season planning and season movie assembly remain future.
+
+### Cinematic Pilot Authoring, Takes And Clip ZIP (2026-09-12)
+
+Owner: Cinematic produce-video-pipeline/014-021, plan 009. Generation's existing
+VideoCapabilityRegistry exposes firstFrameEnabled from SEEDANCE_FIRST_FRAME_ENABLED
+(default false). Quotes/submissions reject disabled Seedance frames before billing.
+Cinematic context/reference/packet/timeline owners add text_only for no-Cast Shots.
+Existing Project storage retains stills, modes and approvedVideoAttemptId; no new
+runtime directory, backfill, Credit owner or provider dispatch path is introduced.
+
+Scene.cinematicOpening and Shot.audioDirectionVersion=1 are additive fields in
+the existing Cinematic Project/plan contracts. Opening guidance lives in
+server/config/cinematic/story-authoring.v1.json. Versioned audio rendering keeps
+unmodified legacy packets stable. React authoring owns DialogueSoundEditor and
+DialogueSoundSummary; Produce owns VideoTakeList and ClipBundleDownload. Shared
+StoryboardSequenceBoard owns whole-card hit areas and source-mode icon previews.
+
+CinematicApplicationService prepares selected-clip manifests and delegates file
+validation/ZIP streaming to server/domain/assets/VideoClipBundleService.js.
+The existing cinematicRoutes register GET/POST projects/:projectId/clip-bundle.
+Archives contain at most 128 clips / 128 MiB media plus ZIP overhead. Server
+streams without retained archives; browser uses a bounded authenticated Blob.
+Manifest Query keys include actor/project/version, refetch on open, GC after 60s;
+no new polling or transport cache. Existing Assets storage stays authoritative.
+Validation: scripts/test-cinematic-video.js and scripts/verify-cinematic-pilot.mjs.
+Series/Season/Chapter remains design-only under enhancement-core-engine/022.
+
+### Look Sheet URL Fallback And Named Start Images (2026-09-12)
+
+Owner: Cinematic playground-video-reference-poc/016-018. Generation's
+TrustedGeneratedSourceService resolves expired original URLs to identical local
+Look Sheet bytes via VideoReferenceAssetContent, shared by Cinematic and Playground.
+No persistent Base64, transport cache, new provider pipeline or runtime data path.
+VideoReferencePlan owns the additive image_reference purpose and neutral name
+mapping. Playground's VideoImageReferenceSources reuses its existing pickers;
+PlaygroundVideoWorkspace actor draft v6 migrates legacy single images to named
+arrays. Validation extends scripts/test-playground-video-references.mjs.
+
 ### Optional Cinematic First Frame (2026-09-12)
 
 Produce-video-pipeline/013 and plan 003i extend CinematicApplicationService's
@@ -657,3 +709,71 @@ The provider selects story-enhancement.v1.json or story-role-analysis.v1.json
 and its corresponding structured output schema. Cinematic's
 state/applyStoryEnhancement.ts owns purpose-specific draft application; it does
 not create another server workflow. No new persistence, endpoint or cost policy.
+
+## Simple Production And Sketch Composition (2026-09-12)
+
+Cinematic enhancement-core-engine/029-033 owns this additive package. Cinematic's
+existing Setup/Stage components provide Simple/Advanced views over the same
+Project. Missing role preparation uses the existing story-enhancement facade.
+Series runtime is now owned by enhancement-core-engine/026-028; the earlier
+deferred-Series statement above is historical, not the current runtime status.
+
+Storyboard prompt policy owns sketch style. Generation derives style metadata
+in queue options and persists it in existing History; Storyboard Asset approval
+adopts server-derived provenance. CinematicVideoReferencePlanService supplies
+sketch_composition followed by existing Look mappings. Generation validates and
+loads the immutable sketch through the existing verified Asset loader, then sends
+reference_image, never first_frame. Video packet policy owns photoreal execution.
+The disabled Seedance first-frame policy and Look authority rules remain intact.
+
+Generation.getStoredTaskSummaries is the public bounded, owner-filtered read for
+Cinematic Take reconciliation; no direct cross-capability repository mutation.
+Previous-plan previews use existing task queries. No additional polling/cache.
+Playground preferences/drafts and Produce preferences retain actor ownership;
+attachment layout extends existing shared source controls and spinner.
+
+No runtime data path or module move. Additive metadata stays in existing History,
+Assets and actor-scoped preferences. New isolated tests remain under test/ and
+owning selectable/browser runners under scripts/. Validation and manual pilot
+prerequisites are documented in enhancement-core-engine/029.
+
+### Open Generated Sources (034)
+
+`server/config/generated-reference-policy.json` plus its validated loader
+`generatedReferencePolicy.js` owns allowAnyProvider and blockedSources. Configuration
+is read once per process; a content-derived policy version invalidates stale source
+selections after restart. Existing TrustedGeneratedSourceService is the single
+authorized list/prepare/resolve facade for generated Cast/Looks, including local
+originals from other image providers; its legacy API name remains for compatibility.
+No new reference cache, repository, polling path or private-data directory.
+
+Local original transport does not confer provider-trusted provenance. Only selected
+registered adapters receive verified bytes after quote/reservation. Source-provider
+blocks are checked in the list and again at prepare/submit; upload ownership is
+unchanged. Image age is no longer an eligibility rule; signed URL expiry falls back
+to existing local bytes. Nullable legacy expiry fields remain readable without live
+backfill. Credit, quote, auth-token and task expiry are not changed.
+
+ProviderRegistry exposes source openness for Storyboard notices; image adapters
+still enforce reference count/format. Muse's existing allowed surfaces/modes now
+include reference-free Cinematic scene/Look Sheet generation. No Fashion exposure.
+Shared source controls remove expiry UI without a layout redesign. Validation uses
+existing test-generated-cast-sheets and verify-generated-cast-sheets runners; owning
+requirements and commands are recorded in enhancement-core-engine/034.
+
+Storyboard approval recovery (034 follow-up) uses the explicit
+GenerationResultRepository.findStoryboardSourceForOwner read contract. History
+remains authoritative; missing rows may resolve through completed, captured,
+owner-matched Cinematic scene children in the existing Generation Groups store.
+The Asset service still verifies local output bytes and creates its immutable
+record. No History backfill, new runtime path or provider dispatch occurs.
+Legacy child results without sketch metadata are never automatically relabeled.
+
+Inline Storyboard editing (enhancement-core-engine/035) adds StoryboardShotEditor
+under Cinematic components. It reuses authoring/ShotSequenceEditor in direction-only
+mode and the existing version-checked Shot PATCH, retaining approved media while
+marking downstream packets stale. Plan continues reading project.scenes.
+ReferenceSlotGrid exposes an opt-in generated Look chooser for Playground general
+Image; GeneratedLookSourceField owns category-filtered listing, and existing
+upload/reference callbacks retain slot, actor and provider-capability ownership.
+No new runtime data path or cross-capability mutation is introduced.

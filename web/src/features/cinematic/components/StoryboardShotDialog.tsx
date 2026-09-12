@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Check, Clock3, RotateCcw, UsersRound } from 'lucide-react';
+import { Check, Clock3, Pencil, RotateCcw, UsersRound } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -38,6 +38,8 @@ import {
 import { shotVideoReferencePreviews } from './storyboardGenerationAdapter';
 import { StoryboardVideoCompatibilityNotice } from './StoryboardVideoCompatibilityNotice';
 import { ProduceVideoReferences } from './produce/ProduceVideoReferences';
+import { DialogueSoundSummary } from './authoring/DialogueSoundSummary';
+import { StoryboardShotEditor } from './StoryboardShotEditor';
 import { useShotVideoReferences } from '../state/useShotVideoReferences';
 import {
   readStoryboardEnginePreference,
@@ -52,6 +54,8 @@ type Props = {
   shot: CinematicShot;
   resumeJobId?: string | null;
   onProjectRefresh?: () => void;
+  onEditStory?: () => void;
+  initialEditorOpen?: boolean;
 };
 
 export function StoryboardShotDialog({
@@ -61,7 +65,9 @@ export function StoryboardShotDialog({
   scene,
   shot,
   resumeJobId = null,
-  onProjectRefresh
+  onProjectRefresh,
+  onEditStory,
+  initialEditorOpen = false
 }: Props) {
   const { t } = useTranslation('cinematic');
   const { actor } = useActor();
@@ -74,6 +80,7 @@ export function StoryboardShotDialog({
   const [savedDirection, setSavedDirection] = useState(initialDirection);
   const [generationRequestId, setGenerationRequestId] = useState(() => createShotGenerationKey(project.id, shot.id));
   const [saving, setSaving] = useState(false);
+  const [editingShot, setEditingShot] = useState(initialEditorOpen);
   const [approvingJobId, setApprovingJobId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [naturalRealismEnabled, setNaturalRealismEnabled] = useState(true);
@@ -120,6 +127,8 @@ export function StoryboardShotDialog({
       ? generationContext.error.message
       : generationContext.data?.generationEligible === false
         ? t(storyboardBlockingKey(generationContext.data.blockingReason))
+        : editingShot
+          ? t('cinematic.storyboard.saveDirectionBeforeGeneration')
         : directionDirty
           ? t('cinematic.storyboard.saveDirectionBeforeGeneration')
           : null;
@@ -213,14 +222,27 @@ export function StoryboardShotDialog({
           {selectedLooks.length ? <span>{selectedLooks.map(look => look.name).join(', ')}</span> : null}
           {previousSource ? <span>{t('cinematic.storyboard.previousFrameAttached')}</span> : null}
         </div>
+        <div className="mb-3 flex justify-end">
+          <Button icon={<Pencil />} disabled={editingShot || saving || approvingJobId !== null}
+            onClick={() => setEditingShot(true)}>{t('cinematic.storyboard.editShot')}</Button>
+        </div>
+        {editingShot ? <StoryboardShotEditor key={shot.id}
+          project={{ ...project, version: generationContext.data?.projectVersion || project.version }}
+          scene={scene} shot={{ ...shot, version: generationContext.data?.shotVersion || shot.version }}
+          initialPrompt={direction} onClose={() => setEditingShot(false)} onSaved={() => {
+            setEditingShot(false);
+            onProjectRefresh?.();
+            void generationContext.refetch();
+          }} /> : null}
         {blockedReason ? <StatusNotice tone="warning" title={t('cinematic.storyboard.generationBlocked')}>{blockedReason}</StatusNotice> : null}
-        <ProduceVideoReferences mode={videoReferences.mode} lastFirstFrameMode={videoReferences.lastFirstFrameMode}
+        <DialogueSoundSummary shot={shot} cast={project.castAssignments} onEdit={onEditStory ? () => { onOpenChange(false); onEditStory(); } : undefined} />
+        <ProduceVideoReferences firstFrameEnabled={videoReferences.firstFrameEnabled} mode={videoReferences.mode} lastFirstFrameMode={videoReferences.lastFirstFrameMode}
           onChange={videoReferences.changeMode} disabled={saving || approvingJobId !== null || videoReferences.pending}
           loading={videoReferences.pending} references={shotVideoReferencePreviews(project, scene, shot, videoReferences.mode)} />
         {videoReferences.error ? <p role="alert">{videoReferences.error.message}</p> : null}
         <div className="cinematic-storyboard-shot-dialog__generation">
         <GenerationExperience
-          key={`${shot.id}:${shot.version}:${generationContext.data?.keyframeContract.sourceFingerprint || 'loading'}`}
+          key={shot.id}
           surface="cinematic"
           generationMode="scene"
           initialPrompt={keyframePrompt}
@@ -238,14 +260,15 @@ export function StoryboardShotDialog({
               id={`cinematic-shot-direction-${shot.id}`}
               aria-label={t('cinematic.storyboard.shotDirection')}
               value={direction}
+              disabled={editingShot}
               onChange={event => setDirection(event.target.value)}
               placeholder={t('cinematic.storyboard.shotDirectionPlaceholder')}
               rows={3}
             />
             <small>{t('cinematic.storyboard.shotDirectionDescription')}</small>
             <div className="cinematic-storyboard-shot-dialog__direction-actions">
-              <Button icon={<RotateCcw aria-hidden="true" />} onClick={() => setDirection(savedDirection)}>{t('cinematic.storyboard.reset')}</Button>
-              <Button disabled={saving || !directionDirty} onClick={() => void savePrompt()}>{saving ? t('cinematic.save.saving') : t('cinematic.storyboard.saveDirection')}</Button>
+              <Button disabled={editingShot} icon={<RotateCcw aria-hidden="true" />} onClick={() => setDirection(savedDirection)}>{t('cinematic.storyboard.reset')}</Button>
+              <Button disabled={editingShot || saving || !directionDirty} onClick={() => void savePrompt()}>{saving ? t('cinematic.save.saving') : t('cinematic.storyboard.saveDirection')}</Button>
             </div>
           </div>}
           cinematicCaptureProfileId={naturalRealismEnabled
@@ -287,7 +310,7 @@ export function StoryboardShotDialog({
               variant="primary"
               size="lg"
               icon={<Check aria-hidden="true" />}
-              disabled={approvingJobId != null}
+              disabled={editingShot || approvingJobId != null}
               onClick={() => void approveJob(job)}
             >{approvingJobId ? t('cinematic.storyboard.approvingSource') : t('cinematic.storyboard.approveGeneratedSource')}</Button>
           </div>}

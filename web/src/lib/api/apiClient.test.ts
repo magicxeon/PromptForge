@@ -4,7 +4,7 @@ import { apiRequest, apiRequestWithProgress } from './apiClient';
 
 describe('apiRequestWithProgress', () => {
   it('preserves authorized PNG/JPEG blobs and exposes response headers without changing JSON errors', async () => {
-    for (const type of ['image/png', 'image/jpeg']) {
+    for (const type of ['image/png', 'image/jpeg', 'application/zip']) {
       const response = new Response(null, { headers: { 'Content-Type': type, 'X-Momelo-Export': 'metadata' } });
       vi.spyOn(response, 'blob').mockResolvedValue(new Blob(['image'], { type }));
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));

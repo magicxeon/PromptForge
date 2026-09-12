@@ -22,6 +22,20 @@ export class GenerationGroupRepository {
     ) || null);
   }
 
+  async findCompletedStoryboardChildForOwner(jobId, ownerUserId) {
+    if (!jobId || !ownerUserId) return null;
+    const groups = await readJsonFile(this.groupsFile, FALLBACK);
+    for (const group of groups) {
+      if (group.actorUserId !== ownerUserId || group.generationSurface !== 'cinematic'
+        || group.generationMode !== 'scene' || !group.childJobIds?.includes(jobId)) continue;
+      const child = group.children?.find(item => item.jobId === jobId);
+      if (child?.status !== 'completed' || child.creditRefunded === true
+        || child.creditCharged !== true || !child.result?.imageUrl) continue;
+      return structuredClone({ group, child });
+    }
+    return null;
+  }
+
   async listForActor(actorUserId, { limit = 50 } = {}) {
     if (!actorUserId) return [];
     const safeLimit = Math.min(50, Math.max(1, Number(limit) || 50));

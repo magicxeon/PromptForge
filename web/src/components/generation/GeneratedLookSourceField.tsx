@@ -14,7 +14,7 @@ export function GeneratedLookSourceField({ value, disabled, onChange, onPreviewR
   onChange: (source: TrustedVideoSource | null) => void;
   onPreviewReady: (ready: boolean) => void;
 }) {
-  const { t, i18n } = useTranslation('cinematic');
+  const { t } = useTranslation('cinematic');
   const { actor } = useActor();
   const [cursors, setCursors] = useState<Array<string | null>>([null]);
   const [previewFailed, setPreviewFailed] = useState(false);
@@ -23,10 +23,7 @@ export function GeneratedLookSourceField({ value, disabled, onChange, onPreviewR
     queryFn: () => listTrustedVideoSources(cursors.at(-1), 'look-sheet'),
     enabled: Boolean(actor?.userId), staleTime: 0, retry: false,
   });
-  const expiry = (item: TrustedVideoSource) => t('cinematic.lookDraft.generatedExpiry', {
-    date: item.expiresAt ? new Date(item.expiresAt).toLocaleDateString(i18n.language) : ''
-  });
-  const items = (page.data?.items || []).filter(item => item.category === 'look-sheet' && item.eligible && item.expiresAt && Date.parse(item.expiresAt) > Date.now());
+  const items = (page.data?.items || []).filter(item => item.category === 'look-sheet' && item.eligible);
   return <section className="character-look-generated" aria-label={t('cinematic.lookDraft.generatedSheet')}>
     <p>{t('cinematic.lookDraft.generatedHint')}</p>
     {value ? <div className="character-look-generated__selection">
@@ -36,7 +33,7 @@ export function GeneratedLookSourceField({ value, disabled, onChange, onPreviewR
           onLoad={() => { setPreviewFailed(false); onPreviewReady(true); }}
           onError={() => { setPreviewFailed(true); onPreviewReady(false); }} />} />
       {previewFailed ? <p role="alert">{t('cinematic.lookDraft.previewFailed')}</p> : null}
-      <span>{value.modelId}</span><small>{expiry(value)}</small>
+      <span>{value.modelId}</span>
       <Button type="button" disabled={disabled} icon={<RefreshCw aria-hidden="true" />}
         onClick={() => { onChange(null); setPreviewFailed(false); onPreviewReady(false); }}>{t('cinematic.lookDraft.changeGenerated')}</Button>
     </div> : <>
@@ -49,7 +46,7 @@ export function GeneratedLookSourceField({ value, disabled, onChange, onPreviewR
         {items.map(item => <button key={item.id} type="button" disabled={disabled || page.isFetching}
           onClick={() => { onPreviewReady(false); onChange(item); }}>
           <AuthenticatedMediaImage src={item.previewUrl} alt={item.modelId} />
-          <strong>{item.modelId}</strong><small>{expiry(item)}</small>
+          <strong>{item.modelId}</strong>
         </button>)}
       </div>
       <nav aria-label={t('cinematic.lookDraft.generatedPages')}>

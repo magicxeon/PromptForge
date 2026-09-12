@@ -39,6 +39,41 @@ const selection: VideoReferenceSelection = {
 };
 
 describe('Playground video reference selection', () => {
+  it('Seedance composition Browse uses ordinary reference images while Look mode stays trusted', () => {
+    const seedance = { ...model, firstFrameEnabled: true, playgroundReferencePolicy: {
+      kind: 'trusted_generated_only' as const, version: 'v1', maximumAgeDays: 30, allowImageReferenceUploads: true
+    } };
+    const value = { ...selection, operation: 'image_to_video' as const, imageReferences: [{ url: '/outputs/sketch.png', characterName: 'Composition' }] };
+    const result = buildVideoReferenceSelection(value, seedance);
+    expect(result.ready).toBe(true);
+    expect(result.inputMode).toBe('multimodal_reference');
+    expect(result.references).toEqual([{ role: 'reference_image', purpose: 'image_reference', characterName: 'Composition', referenceImageUrl: '/outputs/sketch.png' }]);
+    expect(buildVideoReferenceSelection(selection, seedance).ready).toBe(false);
+    const legacy = { ...value, imageReferences: [], referenceImageUrl: null, trustedImages: [{
+      id: 'legacy', previewUrl: '/outputs/legacy.png', modelId: 'seedream', generationMode: 'text_to_image',
+      generatedAt: null, expiresAt: null, eligible: false, reason: 'expired', policyVersion: 'v1'
+    }] };
+    expect(buildVideoReferenceSelection(legacy, seedance).references[0]?.referenceImageUrl).toBe('/outputs/legacy.png');
+  });
+  it('Start images use one first frame or multiple named references without changing Look mode', () => {
+    const value = { ...selection, operation: 'image_to_video' as const, imageReferences: [
+      { url: '/outputs/a.png', characterName: 'Market' }, { url: '/outputs/b.png', characterName: 'Rain' }
+    ] };
+    const plan = buildVideoReferenceSelection(value, model);
+    expect(plan.ready).toBe(true);
+    expect(plan.inputMode).toBe('multimodal_reference');
+    expect(plan.references.map(row => [row.purpose, row.role, row.characterName])).toEqual([
+      ['image_reference', 'reference_image', 'Market'], ['image_reference', 'reference_image', 'Rain']
+    ]);
+    const single = buildVideoReferenceSelection({ ...value, imageReferences: value.imageReferences.slice(0, 1) }, model);
+    expect(single.inputMode).toBe('image_to_video');
+    expect(single.references[0]?.role).toBe('first_frame');
+    expect(buildVideoReferenceSelection(value, { ...model, referenceImageLimit: 1 }).ready).toBe(false);
+    expect(buildVideoReferenceSelection(value, { ...model, supportsOrderedImageReferences: false }).ready).toBe(false);
+    expect(buildVideoReferenceSelection({ ...value, imageReferences: [value.imageReferences[0]!, value.imageReferences[0]!] }, model).ready).toBe(false);
+    expect(buildVideoReferenceSelection({ ...value, imageReferences: [{ url: '/outputs/a.png', characterName: 'rain' }, value.imageReferences[1]!] }, model).ready).toBe(false);
+    expect(buildVideoReferenceSelection({ ...value, operation: 'character_to_video' }, model).references).toEqual(buildVideoReferenceSelection(selection, model).references);
+  });
   it('named looks keep ordered names and block duplicates, cap and model downgrade', () => {
     const value = { ...selection, character: null, lookSheets: [
       { url: '/outputs/a.png', name: 'A', characterName: 'Alice' },

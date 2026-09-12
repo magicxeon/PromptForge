@@ -41,7 +41,7 @@ export function ProduceMediaReview({
         </div>
         {video ? <div className="cinematic-produce-media__modes" aria-label={t('cinematic.produce.comparisonMode')}>
           <Button size="sm" variant={mode === 'video' ? 'primary' : 'ghost'} icon={<Play aria-hidden="true" />} aria-pressed={mode === 'video'} onClick={() => setMode('video')}>{t('cinematic.produce.videoAttempt')}</Button>
-          <Button size="sm" variant={mode === 'keyframe' ? 'primary' : 'ghost'} icon={<ImageIcon aria-hidden="true" />} aria-pressed={mode === 'keyframe'} onClick={() => setMode('keyframe')}>{t('cinematic.produce.approvedKeyframe')}</Button>
+          {sourceImageUrl ? <Button size="sm" variant={mode === 'keyframe' ? 'primary' : 'ghost'} icon={<ImageIcon aria-hidden="true" />} aria-pressed={mode === 'keyframe'} onClick={() => setMode('keyframe')}>{t('cinematic.produce.approvedKeyframe')}</Button> : null}
           {sourceImageUrl ? <Button size="sm" variant={mode === 'compare' ? 'primary' : 'ghost'} icon={<Columns2 aria-hidden="true" />} aria-pressed={mode === 'compare'} onClick={() => setMode('compare')}>{t('cinematic.produce.compare')}</Button> : null}
           <Button size="icon" variant="ghost" title={t('cinematic.produce.openVideo')} icon={<Maximize2 aria-hidden="true" />} onClick={() => setViewerOpen(true)} />
         </div> : null}
@@ -59,7 +59,7 @@ export function ProduceMediaReview({
         ) : sourceImageUrl ? (
           <img src={sourceImageUrl} alt={t('cinematic.produce.approvedKeyframe')} />
         ) : (
-          <GenerationStageState title={t('cinematic.results.videoEmpty')} description={t('cinematic.produce.sourceRequired')} />
+          <GenerationStageState title={t('cinematic.results.videoEmpty')} description={statusDescription || t('cinematic.produce.noFrameEmpty')} />
         )}
       </div>
       {video ? <GenerationVideoViewer items={[video]} activeId={video.id} open={viewerOpen} onOpenChange={setViewerOpen} onActiveIdChange={() => undefined} /> : null}

@@ -225,7 +225,10 @@ Seedream Storyboards now bind their original provider source for Seedance.
 Storyboard approval remains mandatory for every Shot. Isolated tests and EN/TH
 responsive checks pass; paid visual qualification remains open. See
 [023](023-directed-opening-implementation-plan.md) for implementation evidence and
-[022](022-series-readiness-deferred.md) for Series/Season/Chapter awareness only.
+[022](022-series-readiness-deferred.md) for the original Series awareness boundary,
+now superseded by [026](026-season-chapter-workspace.md),
+[027](027-season-chapter-setup-navigation.md) and
+[028](028-season-chapter-implementation-plan.md) for organizational Series runtime.
 
 Follow-up [024](024-country-style-and-cast-picker.md) owns Story Country Style,
 Setup analysis action presentation and generated Cast sheet-category filtering.
@@ -235,3 +238,24 @@ AI output, dialog presentation and Apply semantics without a second text pipelin
 
 Follow-up [026](026-seedance-source-diagnostics.md) distinguishes approved
 Storyboard status from Seedance model authorization and source-check diagnostics.
+
+Package [029](029-simple-production-master.md) owns guided Simple production,
+[030](030-previous-plan-take-history.md) previous-plan Takes,
+[031](031-sketch-storyboard-production.md) sketch composition with photoreal video,
+[032](032-playground-preferences-attachments.md) Playground preferences/attachments,
+and [033](033-simple-cinematic-interface.md) progressive Simple/Advanced authoring.
+The sketch contract supersedes photoreal still defaults for NEW Storyboards only;
+it does not enable Seedance first_frame transport or rewrite existing approvals.
+Offline checks passed; the live paid pilot remains user-controlled.
+
+Follow-up [034](034-open-generated-reference-providers.md) opens generated source
+providers in Playground/Cinematic and removes image-age expiry. It supersedes
+031's unchanged Seedream-only Look restriction and all earlier 30-day selection
+gates. One generated-reference-policy.json owns optional source deny rules.
+Ownership, hashes, real model constraints and the actual First Frame .env switch
+remain in force. Provider acceptance remains manual UAT.
+
+Follow-up [035](035-inline-shot-edit-and-image-look-reference.md) adds direct
+Storyboard Edit Shot using Plan's fields and canonical Shot PATCH, retaining old
+media as stale. Playground general Image can select or upload a Look Sheet through
+its existing Character reference slot; no new reference or generation pipeline.

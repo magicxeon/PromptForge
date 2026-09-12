@@ -9,6 +9,10 @@ review-generative-media-pipeline. No independent reviewer available.
 
 ## Scope
 
+2026-09-12 amendment: 016 authorizes verified local Base64 fallback ONLY for
+expired download URLs of actual Look Sheets. 017 extends Start from image to
+multiple named general references. All other trust/ownership rules remain.
+
 Extend the current video source controls for every model whose effective catalog
 supports multimodal references. Multiple sheets require ordered-reference support
 AND a sufficient referenceImageLimit. Single-reference models still allow one

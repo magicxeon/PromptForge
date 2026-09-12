@@ -2,14 +2,38 @@ import { createPage, assertOwnerScope } from '../repositoryContracts.js';
 import { normalizeGenerationHistoryRecord } from '../recordNormalizer.js';
 import { historyRepository } from './HistoryRepository.js';
 import { mockUserRepo } from '../identity/MockUserRepository.js';
+import { generationGroupRepository } from './GenerationGroupRepository.js';
 
 export class GenerationResultRepository {
   constructor({
     historyStore = historyRepository,
-    userRepository = mockUserRepo
+    userRepository = mockUserRepo,
+    groupRepository = generationGroupRepository
   } = {}) {
     this.historyStore = historyStore;
     this.userRepository = userRepository;
+    this.groupRepository = groupRepository;
+  }
+
+  async findStoryboardSourceForOwner(id, actor) {
+    if (!id || !actor?.userId || !actor?.username) return null;
+    const history = await this.historyStore.getById(id);
+    if (history) return history.username === actor.username ? history : null;
+    // Recovery is limited to server-recorded, completed Cinematic outputs.
+    const stored = await this.groupRepository.findCompletedStoryboardChildForOwner(id, actor.userId);
+    if (!stored || stored.group.actorUsername !== actor.username) return null;
+    const { result } = stored.child;
+    return {
+      id,
+      username: stored.group.actorUsername,
+      imageUrl: result.imageUrl,
+      mimeType: result.mimeType || null,
+      width: result.width || null,
+      height: result.height || null,
+      generationMode: stored.group.generationMode,
+      storyboardRenderStyle: result.storyboardRenderStyle || null,
+      providerOutputProvenance: result.providerOutputProvenance || null
+    };
   }
 
   async findById(id) {

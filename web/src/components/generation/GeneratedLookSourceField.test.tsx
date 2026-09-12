@@ -14,7 +14,7 @@ vi.mock('../media/AuthenticatedMediaImage', () => ({ AuthenticatedMediaImage: (p
 }) => props.renderResolved ? props.renderResolved(props.src) : <img src={props.src} alt={props.alt} /> }));
 
 const source: TrustedVideoSource = { id: 'source', modelId: 'Seedream 5.0 Pro', previewUrl: '/outputs/sheet.png',
-  generationMode: 'text_to_image', generatedAt: null, expiresAt: new Date(Date.now() + 86400000).toISOString(),
+  generationMode: 'text_to_image', generatedAt: null, expiresAt: null,
   eligible: true, reason: null, policyVersion: 'test', category: 'look-sheet' };
 
 function mount() {
@@ -34,10 +34,10 @@ describe('Generated Look source selection', () => {
   it('uses actor-scoped eligible pages and gates confirmation on the full preview', async () => {
     api.list.mockResolvedValue({ items: [source, { ...source, id: 'scene', modelId: 'Scene', category: 'image' }, { ...source, id: 'untagged', modelId: 'Untagged', category: undefined }, { ...source, id: 'expired', modelId: 'Expired', expiresAt: '2020-01-01' }], hasMore: false });
     const { ready, queryClient } = mount();
-    fireEvent.click(await screen.findByRole('button', { name: /Seedream 5.0 Pro/i }));
-    expect(screen.queryByText('Expired')).not.toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /Expired/i })).toBeEnabled();
     expect(screen.queryByText('Scene')).not.toBeInTheDocument();
     expect(screen.queryByText('Untagged')).not.toBeInTheDocument();
+    fireEvent.click(await screen.findByRole('button', { name: /Seedream 5.0 Pro/i }));
     expect(ready).toHaveBeenLastCalledWith(false);
     fireEvent.load(screen.getByAltText('cinematic.lookDraft.generatedPreview'));
     expect(ready).toHaveBeenLastCalledWith(true);

@@ -147,7 +147,7 @@ test('Muse rejects an unmapped ratio before provider dispatch', async () => {
   await assert.rejects(provider.generateImage('A mug', { aspectRatio: '100:1' }), error => error.code === 'invalid_request');
 });
 
-test('Muse surface and mode policy allows Playground and reference-free Studio Face Creator only', async () => {
+test('Muse surface and mode policy allows reference-free Storyboards and Look Sheets', async () => {
   const config = loadProviderConfig();
   const muse = config.providers.find(provider => provider.id === 'meta-muse');
   muse.enabled = true;
@@ -158,13 +158,13 @@ test('Muse surface and mode policy allows Playground and reference-free Studio F
   assert.equal(registry.resolveSelection('meta-muse', 'muse-image-1.0', {
     generationSurface: 'studio', generationMode: 'headshot'
   }).model.id, 'muse-image-1.0');
-  for (const generationSurface of [undefined, 'cinematic', 'fashion', 'template_pose_proxy']) {
+  for (const generationSurface of [undefined, 'fashion', 'template_pose_proxy']) {
     assert.throws(() => registry.resolveSelection('meta-muse', 'muse-image-1.0', {
       generationSurface, generationMode: 'headshot'
     }),
       error => error.code === 'provider_surface_unsupported');
   }
-  for (const generationMode of [undefined, 'scene', 'character-sheet', 'fashion']) {
+  for (const generationMode of [undefined, 'fashion']) {
     assert.throws(() => registry.resolveSelection('meta-muse', 'muse-image-1.0', {
       generationSurface: 'studio', generationMode
     }), error => error.code === 'provider_mode_unsupported');
@@ -179,13 +179,18 @@ test('Muse surface and mode policy allows Playground and reference-free Studio F
   await assert.rejects(service.submit({
     body: {
       provider: 'meta-muse', submodel: 'muse-image-1.0',
-      generationSurface: 'studio', generationMode: 'character-sheet'
+      generationSurface: 'studio', generationMode: 'fashion'
     },
     actorContext: { userId: 'usr_test', username: 'test' }, requestId: 'test-no-dispatch'
   }), error => error.code === 'provider_mode_unsupported');
   const publicModel = registry.getPublicCatalog().providers[0].models[0];
-  assert.deepEqual(publicModel.allowedGenerationSurfaces, ['playground', 'studio']);
-  assert.deepEqual(publicModel.allowedGenerationModes, ['playground', 'headshot']);
+  assert.deepEqual(publicModel.allowedGenerationSurfaces, ['playground', 'studio', 'cinematic']);
+  assert.deepEqual(publicModel.allowedGenerationModes, ['playground', 'headshot', 'scene', 'character-sheet']);
+  for (const generationMode of ['scene', 'character-sheet']) {
+    const selected = registry.resolveSelection('meta-muse', 'muse-image-1.0', { generationSurface: 'cinematic', generationMode });
+    assert.doesNotThrow(() => registry.validateRequest(selected.model, { referenceCount: 0 }));
+    assert.throws(() => registry.validateRequest(selected.model, { referenceCount: 1 }), /does not support reference images/);
+  }
 });
 
 test('Muse surface configuration rejects empty, duplicate and unknown surface lists', () => {

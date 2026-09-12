@@ -5,8 +5,7 @@ export const SEEDANCE_2_COMPATIBILITY_ID = 'modelark-seedance-2';
 
 export function deriveStoryboardVideoCompatibility({
   providerOutputProvenance,
-  providerRegistry = getProviderRegistry(),
-  now = new Date()
+  providerRegistry = getProviderRegistry()
 } = {}) {
   const provenance = normalizeProviderOutputProvenance(providerOutputProvenance);
   const base = {
@@ -32,17 +31,10 @@ export function deriveStoryboardVideoCompatibility({
   if (capability.requiresSameCredentialScope === true && !provenance.credentialScope) {
     return { ...base, reasonCode: 'source_credential_scope_missing' };
   }
-  const generatedAt = new Date(provenance.generatedAt);
-  const maximumAgeDays = Math.max(1, Number(capability.maximumAgeDays || 30));
-  const validUntilDate = new Date(generatedAt.getTime() + maximumAgeDays * 24 * 60 * 60 * 1000);
-  const validUntil = validUntilDate.toISOString();
-  if (!Number.isFinite(generatedAt.getTime()) || validUntilDate.getTime() <= new Date(now).getTime()) {
-    return { ...base, validUntil, reasonCode: 'source_trust_window_expired' };
-  }
   return {
     ...base,
     status: 'eligible_internal_testing',
     reasonCode: null,
-    validUntil
+    validUntil: null
   };
 }

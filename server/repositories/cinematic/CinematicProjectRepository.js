@@ -7,8 +7,7 @@ import {
   RepositoryContractError
 } from '../repositoryContracts.js';
 import { paginateRepositoryRecords } from '../RepositoryCursor.js';
-import { createPrefixedId } from '../schemaVersioning.js';
-import { normalizeCinematicAuthoringEnvelope } from './cinematicProjectRecord.js';
+import { createCinematicProjectRecord, normalizeCinematicAuthoringEnvelope } from './cinematicProjectRecord.js';
 
 const FALLBACK = { schemaVersion: 1, projects: [] };
 
@@ -70,47 +69,7 @@ export class CinematicProjectRepository {
 
   async create(input, actorContext) {
     const actor = assertActorContext(actorContext);
-    const now = new Date().toISOString();
-    const id = createPrefixedId('cineproj');
-    const storySourceId = createPrefixedId('cinesrc');
-    const project = normalizeCinematicAuthoringEnvelope({
-      id,
-      projectId: id,
-      schemaVersion: 1,
-      version: 1,
-      ownerUserId: actor.userId,
-      ownerUsername: actor.username,
-      title: input.title,
-      format: 'short-film',
-      platformTargets: [input.platform],
-      aspectRatio: '9:16',
-      durationTargetMs: input.durationSeconds * 1000,
-      activeStage: 'setup',
-      status: 'draft',
-      setup: structuredClone(input),
-      storySourceVersions: [{
-        id: storySourceId,
-        version: 1,
-        storyBrief: input.storyBrief,
-        creativeDirection: input.creativeDirection,
-        status: 'applied',
-        source: 'manual',
-        createdAt: now
-      }],
-      activeStorySourceVersionId: storySourceId,
-      castAssignments: [],
-      storyPlanVersions: [],
-      scenes: [],
-      generationAttempts: [],
-      timelineVersions: [],
-      commandReceipts: [],
-      activeStoryPlanVersionId: null,
-      activeTimelineVersionId: null,
-      createdAt: now,
-      updatedAt: now,
-      archivedAt: null
-    }, { newRecord: true });
-
+    const project = createCinematicProjectRecord(input, actor);
     return mutateJsonFile(this.projectsFile, FALLBACK, data => {
       assertStore(data);
       data.projects.unshift(project);
@@ -134,6 +93,33 @@ export class CinematicProjectRepository {
     });
   }
 
+  async readSeriesWorkspaceForActor(actorContext) {
+    const actor = assertActorContext(actorContext);
+    const data = await this.#read();
+    return structuredClone({
+      projects: data.projects.filter(project => project.ownerUserId === actor.userId),
+      series: (data.series || []).filter(series => series.ownerUserId === actor.userId)
+    });
+  }
+
+  async mutateSeriesWorkspaceForActor(actorContext, operation) {
+    const actor = assertActorContext(actorContext);
+    return mutateJsonFile(this.projectsFile, FALLBACK, async data => {
+      assertStore(data);
+      const owned = structuredClone({
+        projects: data.projects.filter(project => project.ownerUserId === actor.userId),
+        series: (data.series || []).filter(series => series.ownerUserId === actor.userId)
+      });
+      const result = await operation(owned);
+      if ([...owned.projects, ...owned.series].some(record => record.ownerUserId !== actor.userId)) {
+        throw new RepositoryContractError('cinematic_owner_invalid', 'Invalid workspace owner.', 403);
+      }
+      data.projects = [...owned.projects, ...data.projects.filter(project => project.ownerUserId !== actor.userId)];
+      data.series = [...owned.series, ...(data.series || []).filter(series => series.ownerUserId !== actor.userId)];
+      return structuredClone(result);
+    });
+  }
+
   async #read() {
     const data = await readJsonFile(this.projectsFile, FALLBACK);
     assertStore(data);
@@ -142,7 +128,7 @@ export class CinematicProjectRepository {
   }
 }
 
-function normalizeLegacyProject(project) {
+export function normalizeLegacyProject(project) {
   normalizeCinematicAuthoringEnvelope(project);
   if (project?.status === 'storyboarding') project.status = 'planned';
   if (project?.status === 'planned' && project.storyPlanVersions?.length) {
@@ -166,7 +152,7 @@ function assertStore(data) {
   }
 }
 
-function toProjectSummary(project) {
+export function toProjectSummary(project) {
   return {
     projectId: project.id,
     ownerUserId: project.ownerUserId,
@@ -174,7 +160,8 @@ function toProjectSummary(project) {
     activeStage: project.activeStage,
     durationSeconds: Math.round(project.durationTargetMs / 1000),
     status: project.status,
-    updatedAt: project.updatedAt
+    updatedAt: project.updatedAt,
+    ...(project.seriesMembership ? { seriesMembership: structuredClone(project.seriesMembership) } : {})
   };
 }
 

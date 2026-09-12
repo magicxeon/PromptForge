@@ -22,6 +22,8 @@ export type VideoLookSheet = {
   characterProfileVersionId?: string;
 };
 export type VideoReferenceSelection = {
+  imageReferences?: VideoImageReference[];
+  trustedImages?: NamedTrustedVideoSource[];
   lookSheets?: VideoLookSheet[];
   trustedLooks?: NamedTrustedVideoSource[];
   operation: PlaygroundVideoOperation;
@@ -33,6 +35,13 @@ export type VideoReferenceSelection = {
 };
 
 export type NamedTrustedVideoSource = TrustedVideoSource & { characterName?: string };
+export type VideoImageReference = { url: string; characterName?: string };
+export const selectedImages = (value: VideoReferenceSelection): VideoImageReference[] => value.imageReferences ?? (value.referenceImageUrl ? [{ url: value.referenceImageUrl }] : []);
+export const selectedTrustedImages = (value: VideoReferenceSelection): NamedTrustedVideoSource[] => value.trustedImages ?? (value.trustedFrame ? [value.trustedFrame] : []);
+export const selectedCompositionImages = (value: VideoReferenceSelection): VideoImageReference[] => {
+  const images = selectedImages(value);
+  return images.length ? images : selectedTrustedImages(value).map(image => ({ url: image.previewUrl, characterName: image.characterName }));
+};
 export const selectedLooks = (value: VideoReferenceSelection) => value.lookSheets ?? (value.lookSheet ? [value.lookSheet] : []);
 export const selectedTrustedLooks = (value: VideoReferenceSelection): NamedTrustedVideoSource[] => value.trustedLooks ?? (value.trustedLook ? [value.trustedLook] : []);
 
@@ -75,6 +84,7 @@ export function buildVideoReferenceSelection(
   selection: VideoReferenceSelection,
   model: VideoModelCapability | null,
 ) {
+  if (selection.operation === 'image_to_video') return buildStartImageSelection(selection, model);
   const inputMode: NonNullable<VideoGenerationInput['inputMode']> =
     selection.operation === 'character_to_video'
       ? 'multimodal_reference'
@@ -82,10 +92,10 @@ export function buildVideoReferenceSelection(
   const references: PlaygroundVideoReference[] = [];
   if (model?.playgroundReferencePolicy?.kind === 'trusted_generated_only') {
     const sources = [];
-    if (inputMode !== 'text_to_video' && selection.trustedFrame) {
+    if (inputMode !== 'text_to_video' && selection.trustedFrame && model.firstFrameEnabled !== false) {
       sources.push(selection.trustedFrame);
       references.push({ generationId: selection.trustedFrame.id, purpose: 'opening_frame',
-        role: inputMode === 'image_to_video' ? 'first_frame' : 'reference_image' });
+        role: 'reference_image' });
     }
     const looks = inputMode === 'multimodal_reference' ? selectedTrustedLooks(selection) : [];
     for (const look of looks) {
@@ -93,18 +103,16 @@ export function buildVideoReferenceSelection(
       references.push({ generationId: look.id, purpose: 'generated_look', role: 'reference_image', characterName: look.characterName?.trim() || undefined });
     }
     const reason = !model.inputModes.includes(inputMode) ? 'playground.video.references.unsupportedMode'
-      : inputMode === 'image_to_video' && !selection.trustedFrame ? 'playground.video.references.needFrame'
       : inputMode === 'multimodal_reference' && !looks.length ? 'playground.video.references.needLook'
-      : sources.some(source => !source.eligible || source.policyVersion !== model.playgroundReferencePolicy?.version
-        || !source.expiresAt || Date.parse(source.expiresAt) <= Date.now()) ? 'playground.video.trusted.unavailable'
+      : sources.some(source => !source.eligible || source.policyVersion !== model.playgroundReferencePolicy?.version) ? 'playground.video.trusted.unavailable'
       : new Set(sources.map(source => source.id)).size !== sources.length ? 'playground.video.trusted.duplicate'
       : references.length > model.referenceImageLimit || (references.length > 1 && !model.supportsOrderedImageReferences)
         ? 'playground.video.references.unsupportedCount' : lookNameProblem(looks);
     return { inputMode, references, reason, ready: !reason };
   }
-  if (inputMode !== 'text_to_video' && selection.referenceImageUrl)
+  if (inputMode !== 'text_to_video' && selection.referenceImageUrl && model?.firstFrameEnabled !== false)
     references.push({
-      role: inputMode === 'image_to_video' ? 'first_frame' : 'reference_image',
+      role: 'reference_image',
       purpose: 'opening_frame',
       referenceImageUrl: selection.referenceImageUrl,
     });
@@ -142,11 +150,38 @@ export function buildVideoReferenceSelection(
       : references.length > model.referenceImageLimit ||
           (references.length > 1 && !model.supportsOrderedImageReferences)
         ? 'playground.video.references.unsupportedCount'
-        : inputMode === 'image_to_video' && !references.length
-          ? 'playground.video.references.needFrame'
-          : inputMode === 'multimodal_reference' && !look && !character
+        : inputMode === 'multimodal_reference' && !look && !character
             ? 'playground.video.references.needIdentity'
             : new Set(references.map(row => row.referenceImageUrl || row.characterProfileId)).size !== references.length
               ? 'playground.video.trusted.duplicate' : null);
   return { inputMode, references, reason, ready: !reason };
+}
+
+function buildStartImageSelection(selection: VideoReferenceSelection, model: VideoModelCapability | null) {
+  const uploaded = usesUploadedCompositionReferences(selection, model);
+  const trusted = model?.playgroundReferencePolicy?.kind === 'trusted_generated_only' && !uploaded;
+  const images = trusted ? selectedTrustedImages(selection) : uploaded ? selectedCompositionImages(selection) : selectedImages(selection);
+  const multiple = images.length > 1;
+  const asReferences = uploaded || multiple || model?.firstFrameEnabled === false;
+  const inputMode = asReferences ? 'multimodal_reference' as const : 'image_to_video' as const;
+  const references: PlaygroundVideoReference[] = images.map(image => ({
+    role: asReferences ? 'reference_image' : 'first_frame', purpose: asReferences ? 'image_reference' : 'opening_frame',
+    characterName: image.characterName?.trim() || undefined,
+    ...('id' in image ? { generationId: image.id } : { referenceImageUrl: image.url })
+  }));
+  const unavailable = trusted && selectedTrustedImages(selection).some(source => !source.eligible
+    || source.policyVersion !== model?.playgroundReferencePolicy?.version);
+  const reason = !model?.inputModes.includes(inputMode) ? 'playground.video.references.unsupportedMode'
+    : !images.length ? 'playground.video.references.needFrame'
+    : unavailable ? 'playground.video.trusted.unavailable'
+    : images.length > Math.min(12, model.referenceImageLimit) || (multiple && !model.supportsOrderedImageReferences)
+      ? 'playground.video.references.unsupportedCount'
+    : new Set(references.map(row => row.generationId || row.referenceImageUrl)).size !== images.length
+      ? 'playground.video.trusted.duplicate' : lookNameProblem(images);
+  return { inputMode, references, reason, ready: !reason };
+}
+
+export function usesUploadedCompositionReferences(selection: VideoReferenceSelection, model: VideoModelCapability | null) {
+  return selection.operation === 'image_to_video'
+    && model?.playgroundReferencePolicy?.allowImageReferenceUploads === true;
 }

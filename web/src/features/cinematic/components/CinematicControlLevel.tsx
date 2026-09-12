@@ -3,12 +3,13 @@ import { Button } from '../../../components/ui/Button';
 
 type CinematicControlLevelProps = {
   mode: 'simple' | 'advanced';
+  disabled?: boolean;
   helpText: string;
   label: string;
   onChange: (mode: 'simple' | 'advanced') => void;
 };
 
-export function CinematicControlLevel({ mode, helpText, label, onChange }: CinematicControlLevelProps) {
+export function CinematicControlLevel({ mode, helpText, label, onChange, disabled = false }: CinematicControlLevelProps) {
   const { t } = useTranslation('cinematic');
 
   return (
@@ -18,6 +19,7 @@ export function CinematicControlLevel({ mode, helpText, label, onChange }: Cinem
         {(['simple', 'advanced'] as const).map(item => (
           <Button
             key={item}
+            disabled={disabled}
             type="button"
             size="sm"
             variant={mode === item ? 'primary' : 'ghost'}

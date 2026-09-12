@@ -12,6 +12,8 @@ import {
   isGeneratedLookSheet,
   trustedSourceEligibility,
   verifyTrustedOutputUrl,
+  trustedOutputUrlExpired,
+  generatedCastSourceFingerprint,
 } from '../server/domain/generation/TrustedGeneratedSourceService.js';
 import { TRUSTED_GENERATED_SOURCE_POLICY as policy } from '../server/config/trustedGeneratedSources.js';
 import { VideoGenerationApplicationService } from '../server/domain/generation/VideoGenerationApplicationService.js';
@@ -21,8 +23,105 @@ import { loadProviderConfig } from '../server/providers/ProviderConfigLoader.js'
 import { buildModelArkSeedancePayload } from '../server/providers/ModelArkSeedanceProvider.js';
 import { loadVideoReferenceAssetContent } from '../server/domain/assets/VideoReferenceAssetContent.js';
 import { sanitizeVideoReferences } from '../server/domain/generation/VideoReferencePlan.js';
+import { validateGeneratedReferencePolicy, isGeneratedReferenceAllowed } from '../server/config/generatedReferencePolicy.js';
 
 const actor = { userId: 'trusted-owner', username: 'trusted', role: 'user' };
+
+test('fallback: signed expiry and expired provider response are distinct from general URL errors', async () => {
+  const url = 'https://images.bytepluses.com/a?X-Tos-Date=20260910T142828Z&X-Tos-Expires=86400';
+  assert.equal(trustedOutputUrlExpired(url, Date.parse('2026-09-11T14:28:27Z')), false);
+  assert.equal(trustedOutputUrlExpired(url, Date.parse('2026-09-11T14:28:28Z')), true);
+  await assert.rejects(verifyTrustedOutputUrl({ originalOutputUrl: url }, { fetcher: () => assert.fail('Expired URL should not be fetched') }), { details: { reason: 'url_expired' } });
+  await assert.rejects(verifyTrustedOutputUrl(source, { fetcher: async () => Response.json({ Code: 'AccessDenied', Message: 'Request has expired' }, { status: 403 }) }), { details: { reason: 'url_expired' } });
+  await assert.rejects(verifyTrustedOutputUrl(source, { fetcher: async () => Response.json({ Code: 'AccessDenied', Message: 'Access denied' }, { status: 403 }) }), { details: { reason: 'url_unavailable' } });
+});
+
+test('fallback: Playground mixes original frame URL and local Look bytes once without losing names or price parity', async t => {
+  const f = await fixture(t);
+  f.service.urlVerifier = async row => { if (row.id === 'look') throw Object.assign(new Error('expired'), { details: { reason: 'url_expired' } }); };
+  f.input.references[1].characterName = 'Lalin';
+  const quote = await f.app.quote(f.input, actor);
+  await f.app.submit({ ...f.input, requestFingerprint: quote.requestFingerprint, estimateId: 'quote', idempotencyKey: 'fallback-mixed' }, actor);
+  assert.equal(f.calls.reserves.length, 1);
+  assert.equal(f.calls.dispatched.length, 1);
+  const request = f.calls.dispatched[0];
+  assert.match(request.referenceImages[0].url, /^https:/);
+  assert.equal(request.referenceImages[1].url, `data:image/jpeg;base64,${f.bytes.toString('base64')}`);
+  assert.deepEqual(request.referenceTransports.map(row => row.mode), ['provider_original_url', 'base64']);
+  assert.equal(request.referenceTransports[1].fallbackCode, 'generated_source_local_original');
+  assert.equal(f.calls.estimates[0].request.referenceImageCount, 2);
+  assert.equal(f.calls.reserves[0].generationRequest.referenceCount, 2);
+  assert.match(request.prompt, /Lalin/);
+  assert.doesNotMatch(JSON.stringify(sanitizeVideoReferences(request.references)), /base64|secret=private/);
+});
+
+test('fallback: Cinematic uses verified local originals for sheets and scene images', async t => {
+  const f = await fixture(t);
+  f.service.urlVerifier = async () => { throw Object.assign(new Error('expired'), { details: { reason: 'url_expired' } }); };
+  const sheet = await f.service.describeOwnedImage('look', actor);
+  const resolved = await f.service.resolveOwnedImageWithTransport('look', actor, sheet.contentHash, { allowLookSheetFallback: true });
+  assert.equal(resolved.value, `data:image/jpeg;base64,${f.bytes.toString('base64')}`);
+  assert.equal(resolved.transport.mode, 'base64');
+  assert.match(await f.service.resolveOwnedImage('look', actor, sheet.contentHash), /^data:image/);
+  const first = await f.service.describeOwnedImage('first', actor);
+  assert.equal((await f.service.resolveOwnedImageWithTransport('first', actor, first.contentHash)).transport.mode, 'base64');
+  await fs.writeFile(path.join(f.directory, 'look.jpg'), Buffer.from('changed'));
+  await assert.rejects(f.service.resolveOwnedImageWithTransport('look', actor, sheet.contentHash, { allowLookSheetFallback: true }), { code: 'video_reference_content_invalid' });
+});
+
+test('fallback: changed remote content never falls back and never reserves', async t => {
+  const f = await fixture(t);
+  for (const reason of ['content_changed']) {
+    f.service.urlVerifier = async () => { throw Object.assign(new Error(reason), { details: { reason } }); };
+    await assert.rejects(f.app.submit({ ...f.input, estimateId: 'quote', idempotencyKey: 'no-fallback' }, actor), { details: { reason } });
+  }
+  assert.equal(f.calls.reserves.length, 0);
+  assert.equal(f.calls.dispatched.length, 0);
+});
+
+
+test('fallback: Cinematic quote and submission with metadata-only Cast Assets dispatch both expired sheets as exact base64', async t => {
+  const f = await fixture(t);
+  f.histories.forEach(row => { row.mode = 'character-sheet'; });
+  const sheets = await Promise.all(['first', 'look'].map(id => f.service.describeOwnedImage(id, actor)));
+  const assets = sheets.map(sheet => ({ id: `asset_${sheet.id}`, ownerUserId: actor.userId, status: 'active',
+    assetType: 'character_look_sheet', publicUrl: sheet.publicUrl, mimeType: sheet.mimeType,
+    width: sheet.width, height: sheet.height, sizeBytes: sheet.sizeBytes,
+    metadata: { trustedGenerationId: sheet.id, contentHash: sheet.contentHash } }));
+  f.app.assetRepository = { async findByIdForOwner(id, owner) { return assets.find(asset => asset.id === id && asset.ownerUserId === owner); } };
+  f.service.urlVerifier = async () => { throw Object.assign(new Error('expired'), { details: { reason: 'url_expired' } }); };
+  const input = { ...f.input, operation: 'image_to_video', referencePlanVersion: undefined,
+    commercialOperation: 'cinematic_draft_clip', referenceContainsPerson: true,
+    references: sheets.map((sheet, index) => ({ role: 'reference_image', purpose: 'generated_look',
+      assetId: assets[index].id, assetVersionId: assets[index].id, trustedGenerationId: sheet.id,
+      castAssignmentId: `cast_${index}`, characterName: `Actor ${index + 1}`,
+      contentHash: sheet.contentHash, referenceImageUrl: sheet.publicUrl,
+      sourceFingerprint: generatedCastSourceFingerprint(sheet.id, sheet.contentHash) })) };
+  const workflow = { capability: 'cinematic', generationMode: 'cinematic_video', projectId: 'project', sceneId: 'scene', shotId: 'shot' };
+  const quote = await f.app.quote(input, actor, workflow);
+  await f.app.submit({ ...input, requestFingerprint: quote.requestFingerprint, estimateId: 'quote', idempotencyKey: 'cinematic-local-sheets' }, actor, workflow);
+  const sent = f.calls.dispatched[0];
+  assert.equal(sent.referenceImage, null);
+  assert.deepEqual(sent.referenceImages.map(row => row.url), sheets.map(() => `data:image/jpeg;base64,${f.bytes.toString('base64')}`));
+  assert.deepEqual(sent.referenceTransports.map(row => row.mode), ['base64', 'base64']);
+  const payload = buildModelArkSeedancePayload(sent, { requestId: 'payload-only' });
+  assert.equal(payload.content.filter(row => row.type === 'image_url').length, 2);
+  assert.equal(f.calls.reserves.length, 1);
+  assert.equal(f.calls.estimates[0].request.referenceImageCount, 2);
+});
+
+test('named-images: trusted general references retain names and roles without granting Look fallback', async t => {
+  const f = await fixture(t);
+  const input = { ...f.input, operation: 'image_to_video', references: f.input.references.map((row, index) => ({ ...row, purpose: 'image_reference', characterName: `Photo ${index + 1}` })) };
+  const quote = await f.app.quote(input, actor);
+  await f.app.submit({ ...input, requestFingerprint: quote.requestFingerprint, estimateId: 'quote', idempotencyKey: 'named-images' }, actor);
+  assert.equal(f.calls.dispatched[0].inputMode, 'multimodal_reference');
+  assert.equal(f.calls.dispatched[0].referenceImage, null);
+  assert.deepEqual(f.calls.dispatched[0].referenceImages.map(row => row.role), ['reference_image', 'reference_image']);
+  assert.match(f.calls.dispatched[0].prompt, /Image reference mapping/);
+  f.service.urlVerifier = async () => { throw Object.assign(new Error('expired'), { details: { reason: 'url_expired' } }); };
+  assert.equal((await f.app.quote(input, actor)).selection.referenceImageCount, 2);
+});
 const now = Date.parse('2026-09-07T00:00:00Z');
 const source = {
   id: 'first',
@@ -43,7 +142,7 @@ const source = {
   storageKey: 'first.png',
 };
 
-test('eligibility distinguishes age, source model/mode, account and missing evidence', () => {
+test('original URL eligibility distinguishes source model/mode, account and missing evidence without image-age rules', () => {
   assert.equal(
     trustedSourceEligibility(source, { scope: 'account', now }).eligible,
     true,
@@ -86,10 +185,6 @@ test('eligibility distinguishes age, source model/mode, account and missing evid
       { generationMode: 'text_to_image', referenceCount: 1 },
       'unsupported_mode',
     ],
-    [{ generatedAt: null }, 'timestamp_unknown'],
-    [{ timestampSource: 'received' }, 'timestamp_unknown'],
-    [{ generatedAt: '2026-09-08T00:00:00Z' }, 'timestamp_invalid'],
-    [{ generatedAt: '2026-08-08T00:00:00Z' }, 'expired'],
     [{ credentialScope: 'other' }, 'account_mismatch'],
     [{ originalOutputUrl: 'http://127.0.0.1/private' }, 'url_unavailable'],
     [
@@ -127,6 +222,108 @@ test('trusted family matches every currently cataloged Seedream model marked for
   assert.deepEqual([...policy.modelIds].sort(), cataloged);
 });
 
+test('open-source: JSON policy validates rules and matches provider, resolved and requested model IDs', () => {
+  const config = validateGeneratedReferencePolicy({ version: 'test', allowAnyProvider: true,
+    blockedSources: [{ providerId: 'openai', modelId: 'blocked' }, { providerId: 'disabled' }] });
+  assert.equal(isGeneratedReferenceAllowed({ provider: 'openai', submodel: 'allowed' }, config), true);
+  assert.equal(isGeneratedReferenceAllowed({ provider: 'openai', submodel: 'blocked', resolvedSubmodel: 'snapshot' }, config), false);
+  assert.equal(isGeneratedReferenceAllowed({ provider: 'disabled' }, config), false);
+  assert.equal(isGeneratedReferenceAllowed({ provider: 'gemini', submodel: 'blocked' }, config), true);
+  assert.throws(() => validateGeneratedReferencePolicy({ version: 'test', allowAnyProvider: true, blockedSources: [{}] }), TypeError);
+  assert.throws(() => validateGeneratedReferencePolicy({ version: 'test', allowAnyProvider: true, blockedSources: [{ provider: 'typo' }] }), TypeError);
+});
+
+test('open-source: local OpenAI and Gemini Looks are listed and quoted/submitted only to selected Seedance', async t => {
+  const f = await fixture(t);
+  const rows = [{ id: 'openai-look', provider: 'openai', submodel: 'gpt-image-2' },
+    { id: 'gemini-look', provider: 'gemini', submodel: 'gemini-image' }];
+  for (const row of rows) {
+    f.histories.push({ ...row, ownerUserId: actor.userId, imageUrl: `/outputs/${row.id}.jpg`,
+      mode: 'character-sheet', createdAt: '2020-01-01T00:00:00Z' });
+    await fs.writeFile(path.join(f.directory, `${row.id}.jpg`), f.bytes);
+  }
+  const page = await f.service.list(actor, { eligibleOnly: true, category: 'look-sheet' });
+  for (const row of rows) {
+    assert.equal(page.items.find(item => item.id === row.id)?.eligible, true);
+    assert.equal(page.items.find(item => item.id === row.id)?.expiresAt, null);
+  }
+  assert.ok(!page.items.some(item => item.id === 'first'));
+  const input = { ...f.input, references: rows.map((row, index) => ({ generationId: row.id,
+    purpose: 'generated_look', role: 'reference_image', characterName: `Cast ${index + 1}` })) };
+  const quote = await f.app.quote(input, actor);
+  assert.equal(f.calls.dispatched.length, 0);
+  await f.app.submit({ ...input, estimateId: 'quote', requestFingerprint: quote.requestFingerprint,
+    idempotencyKey: 'open-sources' }, actor);
+  assert.equal(f.calls.dispatched.length, 1);
+  assert.equal(f.calls.reserves.length, 1);
+  const sent = f.calls.dispatched[0];
+  assert.equal(sent.providerId, 'modelark');
+  assert.equal(sent.modelId, input.modelId);
+  assert.equal(sent.referenceImageCount, 2);
+  assert.ok(sent.references.every(row => row.sourceKind === 'owned_generation'));
+  assert.ok(sent.referenceImages.every(row => row.url === `data:image/jpeg;base64,${f.bytes.toString('base64')}`));
+  const source = await f.service.describeOwnedImage(rows[0].id, actor, { requireLookSheet: true });
+  assert.equal(source.providerId, 'openai');
+  assert.equal(source.providerOutputProvenance, null);
+  assert.equal(source.expiresAt, null);
+});
+
+test('open-source: Cinematic generated Cast uses non-Seedream sheets without inventing original-provider trust', async t => {
+  const f = await fixture(t);
+  const row = { id: 'other-sheet', provider: 'openai', submodel: 'gpt-image-2', ownerUserId: actor.userId,
+    imageUrl: '/outputs/other-sheet.jpg', mode: 'character-sheet' };
+  f.histories.push(row);
+  await fs.writeFile(path.join(f.directory, 'other-sheet.jpg'), f.bytes);
+  const sheet = await f.service.describeOwnedImage(row.id, actor, { requireLookSheet: true });
+  const asset = { id: 'cast-sheet-asset', ownerUserId: actor.userId, status: 'active', assetType: 'character_look_sheet',
+    publicUrl: sheet.publicUrl, mimeType: sheet.mimeType, width: sheet.width, height: sheet.height, sizeBytes: sheet.sizeBytes,
+    metadata: { trustedGenerationId: sheet.id, contentHash: sheet.contentHash, providerOutputProvenance: null } };
+  f.app.assetRepository = { async findByIdForOwner(id, owner) { return id === asset.id && owner === actor.userId ? asset : null; } };
+  const input = { ...f.input, operation: 'image_to_video', referencePlanVersion: undefined,
+    commercialOperation: 'cinematic_draft_clip', referenceContainsPerson: true,
+    references: [{ role: 'reference_image', purpose: 'generated_look', assetId: asset.id, assetVersionId: asset.id,
+      trustedGenerationId: sheet.id, castAssignmentId: 'cast-one', characterName: 'Lalin', contentHash: sheet.contentHash,
+      referenceImageUrl: sheet.publicUrl, sourceFingerprint: generatedCastSourceFingerprint(sheet.id, sheet.contentHash) }] };
+  const workflow = { capability: 'cinematic', generationMode: 'cinematic_video', projectId: 'project', sceneId: 'scene', shotId: 'shot' };
+  const quote = await f.app.quote(input, actor, workflow);
+  await f.app.submit({ ...input, requestFingerprint: quote.requestFingerprint, estimateId: 'quote',
+    idempotencyKey: 'cinematic-other-source' }, actor, workflow);
+  const sent = f.calls.dispatched[0];
+  assert.equal(sent.providerId, 'modelark');
+  assert.equal(sent.referenceImages[0].url, `data:image/jpeg;base64,${f.bytes.toString('base64')}`);
+  assert.equal(sent.referenceAuthority.references[0].providerOutputProvenance, null);
+  assert.equal(f.calls.estimates[0].request.referenceImageCount, 1);
+  assert.equal(f.calls.reserves[0].generationRequest.referenceCount, 1);
+  f.service.sourcePolicy = validateGeneratedReferencePolicy({ version: 'closed', allowAnyProvider: false, blockedSources: [] });
+  await assert.rejects(f.app.quote(input, actor, workflow), { details: { reason: 'metadata_missing' } });
+});
+
+test('open-source: deny rules, foreign images and altered bytes fail before dispatch', async t => {
+  const f = await fixture(t);
+  f.histories.push({ id: 'foreign', ownerUserId: 'someone-else', mode: 'character-sheet', imageUrl: '/outputs/foreign.jpg' });
+  await assert.rejects(f.service.describeOwnedImage('foreign', actor), { details: { reason: 'source_unavailable' } });
+  f.service.sourcePolicy = validateGeneratedReferencePolicy({ version: 'blocked', allowAnyProvider: true,
+    blockedSources: [{ modelId: policy.modelIds[0] }] });
+  await assert.rejects(f.app.quote(f.input, actor), { code: 'video_reference_source_disabled' });
+  assert.equal(f.calls.estimates.length, 0);
+  assert.equal(f.calls.reserves.length, 0);
+  assert.equal(f.calls.dispatched.length, 0);
+  f.service.sourcePolicy = validateGeneratedReferencePolicy({ version: 'open', allowAnyProvider: true, blockedSources: [] });
+  await fs.writeFile(path.join(f.directory, 'look.jpg'), Buffer.from('changed'));
+  await assert.rejects(f.service.describeOwnedImage('look', actor), { code: 'video_reference_content_invalid' });
+});
+
+test('open-source: image age no longer expires and signed URL expiry uses verified local bytes', async t => {
+  assert.equal(trustedSourceEligibility({ ...source, generatedAt: '2020-01-01T00:00:00Z' }, { scope: 'account' }).eligible, true);
+  assert.equal(trustedSourceEligibility(source, { scope: 'account' }).expiresAt, null);
+  const f = await fixture(t);
+  f.service.urlVerifier = async () => { throw Object.assign(new Error('expired'), { details: { reason: 'url_expired' } }); };
+  const sheet = await f.service.describeOwnedImage('look', actor);
+  const result = await f.service.resolveOwnedImageWithTransport('look', actor, sheet.contentHash);
+  assert.equal(result.transport.mode, 'base64');
+  assert.equal(result.value, `data:image/jpeg;base64,${f.bytes.toString('base64')}`);
+});
+
 async function fixture(t, ids = ['first', 'look']) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'trusted-video-'));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
@@ -144,7 +341,7 @@ async function fixture(t, ids = ['first', 'look']) {
     ownerUserId: actor.userId,
     imageUrl: `/outputs/${id}.jpg`,
     submodel: policy.modelIds[0],
-    mode: id === 'look' ? 'character-sheet' : 'scene',
+    mode: id === 'first' ? 'scene' : 'character-sheet',
   }));
   const history = {
     async findByOwner(owner, query) {
@@ -203,7 +400,7 @@ async function fixture(t, ids = ['first', 'look']) {
       storageKey: `${row.id}.jpg`,
     });
   }
-  const registry = new VideoCapabilityRegistry({
+  const registry = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
     developmentPocEnabled: true,
     runtimeEnvironment: 'development',
     availabilityPolicy: {
@@ -307,7 +504,7 @@ async function fixture(t, ids = ['first', 'look']) {
   };
 }
 
-test('named-looks: three trusted references preserve source URLs and reject renamed or expired submissions', async t => {
+test('named-looks: three references preserve URLs and mappings without age expiry', async t => {
   const f = await fixture(t, ['first', 'look', 'second']);
   f.input.references[1].characterName = 'Alice';
   f.input.references.push({ generationId: 'second', role: 'reference_image', purpose: 'generated_look', characterName: 'Ben' });
@@ -328,8 +525,8 @@ test('named-looks: three trusted references preserve source URLs and reject rena
   await assert.rejects(f.app.quote(f.input, actor), { code: 'video_look_name_duplicate' });
   f.input.references[2].characterName = 'Ben';
   f.service.now = () => Date.parse('2026-11-01');
-  await assert.rejects(f.app.submit({ ...f.input, estimateId: 'quote', requestFingerprint: quote.requestFingerprint, idempotencyKey: 'expired-three' }, actor));
-  assert.equal(f.calls.reserves.length, 1);
+  await f.app.submit({ ...f.input, estimateId: 'quote', requestFingerprint: quote.requestFingerprint, idempotencyKey: 'older-three' }, actor);
+  assert.equal(f.calls.reserves.length, 2);
 });
 
 test('private captured URL does not leak through listing or task references', async (t) => {
@@ -531,7 +728,7 @@ test('past rejection permits explicit retry while deleted, foreign and changed o
   );
 });
 
-test('source expiry during URL verification is rejected before pricing', async (t) => {
+test('image age crossing thirty days during verification does not invalidate the source', async (t) => {
   const f = await fixture(t);
   let time = now;
   f.service.now = () => time;
@@ -552,10 +749,7 @@ test('source expiry during URL verification is rejected before pricing', async (
     },
     actor,
   );
-  await assert.rejects(
-    f.service.resolve(plan),
-    (error) => error.details.reason === 'expired',
-  );
+  assert.ok((await f.service.resolve(plan)).referenceImage);
   assert.equal(f.calls.estimates.length, 0);
 });
 

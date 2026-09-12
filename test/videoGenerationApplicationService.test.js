@@ -8,8 +8,48 @@ import { generatedCastSourceFingerprint } from '../server/domain/generation/Trus
 const actor = { userId: 'usr_video', username: 'video_user', role: 'user' };
 const TEST_MODELARK_SCOPE = 'modelark:ark.test:account:video-test';
 
+test('sketch: full quote accepts owned composition with disabled first frame; rejects forged style', async () => {
+  const asset = compatibleSeedreamAsset();
+  asset.metadata.storyboardRenderStyle = 'concept_sketch_v1';
+  asset.metadata.providerOutputProvenance = null;
+  let estimates = 0;
+  let dispatched;
+  let reserved = 0;
+  const service = new VideoGenerationApplicationService({
+    capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: false, runtimeEnvironment: 'development', developmentPocEnabled: true }),
+    assetRepository: { findByIdForOwner: async (id, owner) => id === asset.id && owner === actor.userId ? asset : null },
+    creditService: { async estimateVideo() { estimates++; return { estimateId: 'sketch_quote', estimatedCredits: 1 }; }, async getAccount() { return { availableCredits: 10 }; },
+      async validateAndReserveForRequest() { reserved++; return { estimate: { estimateId: 'sketch_quote', estimatedCredits: 1 }, reservation: { reservationId: 'sketch_reservation' }, billingStatus: 'reserved' }; } },
+    taskRepository: repositoryStub(new Map()), providerTaskService: { async preflightTask() {}, async submitTask(value) { dispatched = value; return { id: value.id, ownerUserId: actor.userId, status: 'provider_queued' }; } },
+    trustedSourceService: { async describeOwnedImage() { throw new Error('Sketch must not resolve a trusted original'); } },
+    storyboardAssetContentVerifier: async candidate => ({ contentHash: candidate.metadata.contentHash }),
+    storyboardAssetContentLoader: async candidate => ({ contentHash: candidate.metadata.contentHash, bytes: Buffer.from('verified-sketch-fixture') }),
+    modelArkCredentialScopeResolver: () => TEST_MODELARK_SCOPE, testingEnabled: true
+  });
+  const request = { providerId: 'modelark', modelId: 'dreamina-seedance-2-0-mini-260615', commercialOperation: 'cinematic_draft_clip',
+    inputMode: 'multimodal_reference', operation: 'image_to_video', prompt: 'Create photoreal live action from the sketch composition.',
+    aspectRatio: '9:16', resolution: '720p', durationSeconds: 6, audioMode: 'generated', referenceContainsPerson: true,
+    references: [{ role: 'reference_image', purpose: 'sketch_composition', assetId: asset.id, assetVersionId: asset.id,
+      sourceFingerprint: createStoryboardSourceFingerprint(asset), referenceImageUrl: asset.publicUrl }] };
+  const workflow = { capability: 'cinematic', generationMode: 'cinematic_video', projectId: 'project_sketch', sceneId: 'scene', shotId: 'shot' };
+  const quote = await service.quote(request, actor, workflow);
+  assert.equal(estimates, 1);
+  await service.submit({ ...request, estimateId: 'sketch_quote', requestFingerprint: quote.requestFingerprint, idempotencyKey: 'sketch_submit' }, actor, workflow);
+  assert.equal(reserved, 1);
+  assert.equal(dispatched.referenceImage, null);
+  assert.equal(dispatched.referenceImages.length, 1);
+  assert.equal(dispatched.referenceImages[0].role, 'reference_image');
+  assert.match(dispatched.referenceImages[0].url, /^data:image\/png;base64,/);
+  asset.metadata.storyboardRenderStyle = null;
+  await assert.rejects(service.quote(request, actor, workflow), { code: 'cinematic_video_reference_authority_invalid' });
+  assert.equal(estimates, 1);
+});
+
 function trustedBoardFixture(asset, resolve = async () => 'https://provider.example/original.png') {
   return {
+    async resolveOwnedImageWithTransport(id, owner, hash) {
+      return { value: await this.resolveOwnedImage(id, owner, hash), transport: { mode: 'provider_original_url', fallbackCode: null } };
+    },
     async describeOwnedImage(id, owner) {
       assert.equal(id, asset.sourceJobId);
       assert.equal(owner.userId, actor.userId);
@@ -39,9 +79,13 @@ for (const looksOnly of [false, true]) for (const imported of [false, true, 'dir
   let reserved;
   const calls = [];
   const service = new VideoGenerationApplicationService({
-    capabilityRegistry: new VideoCapabilityRegistry({ runtimeEnvironment: 'development', developmentPocEnabled: true }),
+    capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true, runtimeEnvironment: 'development', developmentPocEnabled: true }),
     assetRepository: { async findByIdForOwner(id, owner) {
       if (looksOnly) assert.notEqual(id, board.id, 'Disabled Storyboard must never be read');
+      if (direct && id === look.id && owner === actor.userId) {
+        const { contentHash, ...stored } = look;
+        return { ...stored, metadata: { ...stored.metadata, contentHash } };
+      }
       return owner === actor.userId ? [board, look].find(item => item.id === id) : null;
     } },
     storyboardAssetContentVerifier: async asset => ({ contentHash: asset.metadata.contentHash }),
@@ -53,6 +97,9 @@ for (const looksOnly of [false, true]) for (const imported of [false, true, 'dir
       return { asset: look, sourceFingerprint: 'look_fingerprint', ...(imported ? { trustedGenerationId: 'original_sheet' } : {}) };
     } },
     trustedSourceService: {
+      async resolveOwnedImageWithTransport(id, owner, hash) {
+        return { value: await this.resolveOwnedImage(id, owner, hash), transport: { mode: 'provider_original_url', fallbackCode: null } };
+      },
       async describeOwnedImage(id, owner) {
         assert.equal(owner.userId, actor.userId);
         if (id === board.sourceJobId) return { id, contentHash: board.metadata.contentHash, publicUrl: board.publicUrl };
@@ -184,7 +231,7 @@ test('video quote rejects an empty prompt before pricing', async () => {
 test('Seedance generated-source policy blocks an unproven Character frame before pricing', async () => {
   let estimates = 0;
   const service = new VideoGenerationApplicationService({
-    capabilityRegistry: new VideoCapabilityRegistry({
+    capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
       runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
     }),
     creditService: {
@@ -217,7 +264,7 @@ test('Cinematic Seedance quote accepts an owner-scoped compatible Seedream first
   const asset = compatibleSeedreamAsset();
   const service = new VideoGenerationApplicationService({
     trustedSourceService: trustedBoardFixture(asset),
-    capabilityRegistry: new VideoCapabilityRegistry({
+    capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
       runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
     }),
     assetRepository: { findByIdForOwner: async (id, ownerUserId) => (
@@ -260,7 +307,7 @@ test('Cinematic Seedance quote accepts an owner-scoped compatible Seedream first
 test('Cinematic Seedance reports missing ModelArk credentials before pricing', async () => {
   let estimates = 0;
   const service = new VideoGenerationApplicationService({
-    capabilityRegistry: new VideoCapabilityRegistry({
+    capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
       runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
     }),
     modelArkCredentialScopeResolver: () => null,
@@ -298,7 +345,7 @@ test('Cinematic Seedance 2.5 dispatches the approved Pro frame URL without Asset
   let dispatched = null;
   const service = new VideoGenerationApplicationService({
     trustedSourceService: trustedBoardFixture(asset, async () => { calls.push('resolve-original'); return originalUrl; }),
-    capabilityRegistry: new VideoCapabilityRegistry({
+    capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
       runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
     }),
     assetRepository: { findByIdForOwner: async (id, ownerUserId) => (
@@ -382,7 +429,7 @@ test('Cinematic Seedance unavailable original bytes fail before Credit reservati
   let reservations = 0;
   const service = new VideoGenerationApplicationService({
     trustedSourceService: trustedBoardFixture(asset, async () => null),
-    capabilityRegistry: new VideoCapabilityRegistry({
+    capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
       runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
     }),
     assetRepository: { findByIdForOwner: async () => asset },

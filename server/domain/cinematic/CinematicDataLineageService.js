@@ -107,7 +107,7 @@ export class CinematicDataLineageService {
       const located = findShot(project, shot.id);
       const source = located?.shot.approvedStoryboardSource;
       if (!source) {
-        if (located?.shot.videoReferenceMode !== 'looks_only') addFinding(findings, 'cinematic_lineage_storyboard_source_missing', 'blocking', 'storyboard', 'shot', shot.id, 'approvedStoryboardSource', 'storyboard', shot.id);
+        if (!['looks_only', 'text_only'].includes(located?.shot.videoReferenceMode)) addFinding(findings, 'cinematic_lineage_storyboard_source_missing', 'blocking', 'storyboard', 'shot', shot.id, 'approvedStoryboardSource', 'storyboard', shot.id);
         return [];
       }
       return [{

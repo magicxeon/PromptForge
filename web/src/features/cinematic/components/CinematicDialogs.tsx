@@ -15,6 +15,7 @@ import { CinematicReadinessSummary } from './authoring/CinematicReadinessSummary
 import { SceneCastLookSelector, readAssignmentLooks } from './authoring/SceneCastLookSelector';
 import { isCinematicFieldVisible } from './authoring/cinematicFieldProjection';
 import { ShotSequenceEditor } from './authoring/ShotSequenceEditor';
+import { hasInvalidCues } from './authoring/DialogueSoundEditor';
 import { listCharacters, listOwnedCharacters } from '../../profiles/api/profileApi';
 import type { z } from 'zod';
 import { characterSummarySchema } from '../../profiles/schemas/profileSchemas';
@@ -394,7 +395,7 @@ export function formatFacetLabel(value?: string | null) {
 
 export function SceneDirectorDialog({
   open, onOpenChange, scene, castAssignments = [], authoringManifest, onSave, onGenerate, generating = false,
-  defaultMode = 'simple', onModeChange
+  defaultMode = 'simple', onModeChange, isFirstScene = false
 }: OpenDialogProps & {
   scene?: CinematicScene | null;
   castAssignments?: CinematicCastAssignment[];
@@ -403,6 +404,7 @@ export function SceneDirectorDialog({
   onGenerate?: (sceneId: string, direction: string, sceneDraft: CinematicScene) => void;
   generating?: boolean;
   defaultMode?: 'simple' | 'advanced';
+  isFirstScene?: boolean;
   onModeChange?: (mode: 'simple' | 'advanced') => void;
 }) {
   const { t } = useTranslation('cinematic');
@@ -430,8 +432,9 @@ export function SceneDirectorDialog({
       if (!current) return current;
       const shots = current.shots.map(shot => shot.id === shotId ? {
         ...shot, [field]: value,
+        ...(['dialogueCues', 'audioCues'].includes(field) ? { audioDirectionVersion: 1 as const } : {}),
         ...(['visibleMoment', 'continuityEntry'].includes(field) ? { openingFrameVersion: 1 as const } : {}),
-        ...(field === 'castMode' && value === 'none' ? { castAssignmentIds: [], wardrobeLookIds: [], dialogueCues: [], performance: '', performanceCue: '', gaze: '' } : {}),
+        ...(field === 'castMode' && value === 'none' ? { castAssignmentIds: [], wardrobeLookIds: [], dialogueCues: (shot.dialogueCues || []).filter(cue => !cue.speakerVisible), performance: '', performanceCue: '', gaze: '' } : {}),
         ...(field === 'castMode' && value === 'inherit' ? { castAssignmentIds: [...current.castAssignmentIds], wardrobeLookIds: [...current.wardrobeLookIds] } : {}),
         ...(field === 'castAssignmentIds' && Array.isArray(value) ? {
           castMode: 'selected' as const,
@@ -442,22 +445,6 @@ export function SceneDirectorDialog({
       return { ...current, shots, durationMs: shots.reduce((total, shot) => total + shot.durationMs, 0) };
     });
   }
-  const updateDialogueCue = (shotId: string, patch: Partial<NonNullable<CinematicScene['shots'][number]['dialogueCues']>[number]>) => {
-    const shot = draft?.shots.find(item => item.id === shotId);
-    if (!shot) return;
-    const current = shot.dialogueCues?.[0] || {
-      speakerCastAssignmentId: shot.castAssignmentIds[0] || '', offscreenVoiceRole: '', text: '', delivery: '',
-      startOffsetMs: 0, estimatedDurationMs: Math.min(2000, shot.durationMs), speakerVisible: true
-    };
-    updateShot(shotId, 'dialogueCues', [{ ...current, ...patch }]);
-  };
-  const updateAudioCue = (shotId: string, description: string) => {
-    const shot = draft?.shots.find(item => item.id === shotId);
-    if (!shot) return;
-    updateShot(shotId, 'audioCues', description.trim() ? [{
-      kind: 'ambience', source: 'scene', description, startOffsetMs: 0, durationMs: shot.durationMs
-    }] : []);
-  };
   const setShots = (updater: (shots: CinematicScene['shots']) => CinematicScene['shots']) => {
     setDraft(current => {
       if (!current) return current;
@@ -544,6 +531,10 @@ export function SceneDirectorDialog({
             <span>{t('cinematic.story.sceneDuration', { seconds: (displayScene.durationMs / 1000).toFixed(1) })}</span>
             <span>{t('cinematic.story.shotCount', { count: displayScene.shots.length })}</span>
           </div>
+          {isFirstScene || displayScene.cinematicOpening ? <label className="cinematic-opening-control">
+            <input type="checkbox" checked={displayScene.cinematicOpening === true} onChange={event => setDraft(current => current ? { ...current, cinematicOpening: event.target.checked } : current)} />
+            <span>{t('cinematic.opening.label')}</span>
+          </label> : null}
           <CinematicAuthoringModeHeader
             mode={authoringMode}
             label={t('cinematic.director.modeLabel')}
@@ -584,8 +575,6 @@ export function SceneDirectorDialog({
             onMoveShot={moveShot}
             onRemoveShot={removeShot}
             onUpdateShot={updateShot}
-            onUpdateDialogueCue={updateDialogueCue}
-            onUpdateAudioCue={updateAudioCue}
           />
           {authoringMode === 'advanced' ? <details className="cinematic-director-advanced" open>
             <summary>{t('cinematic.director.advanced')}</summary>
@@ -608,7 +597,8 @@ export function SceneDirectorDialog({
             readyMessage={t('cinematic.director.simpleReady')}
             incompleteMessage={t('cinematic.director.simpleRequiredHint')}
           /> : null}
-          <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button>{t('cinematic.actions.close')}</Button></Dialog.Close><Button variant="primary" disabled={!draft || !onSave || (authoringMode === 'simple' ? !isSimpleSceneReady(draft) : !displayScene.title.trim())} icon={<Check aria-hidden="true" />} onClick={() => draft && onSave?.(draft)}>{t('cinematic.director.save')}</Button></div>
+          {draft?.shots.some(hasInvalidCues) ? <p role="alert">{t('cinematic.cues.invalid')}</p> : null}
+          <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button>{t('cinematic.actions.close')}</Button></Dialog.Close><Button variant="primary" disabled={!draft || draft.shots.some(hasInvalidCues) || !onSave || (authoringMode === 'simple' ? !isSimpleSceneReady(draft) : !displayScene.title.trim())} icon={<Check aria-hidden="true" />} onClick={() => draft && onSave?.(draft)}>{t('cinematic.director.save')}</Button></div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

@@ -58,7 +58,7 @@ export class CinematicTimelineCompiler {
         sceneId: located.scene.id,
         shotId: shot.id,
         approvedVideoAttemptId: approvedAttemptId,
-        sourceFingerprint: attempt?.referenceMode === 'looks_only' ? null : attempt?.sourceFingerprint || shot.approvedStoryboardSource?.sourceFingerprint || null,
+        sourceFingerprint: ['looks_only', 'text_only'].includes(attempt?.referenceMode) ? null : attempt?.sourceFingerprint || shot.approvedStoryboardSource?.sourceFingerprint || null,
         videoSourceFingerprint: attempt ? videoSourceFingerprint(attempt) : null,
         outputAssetIds: [...(attempt?.outputAssetIds || [])],
         trimInMs,
@@ -135,7 +135,7 @@ function orderedShots(project) {
 function isCurrentVideoSource(shot, attempt) {
   return Boolean(attempt
     && attempt.status === 'approved'
-    && (attempt.referenceMode === 'looks_only' || attempt.sourceFingerprint === shot.approvedStoryboardSource?.sourceFingerprint)
+    && (['looks_only', 'text_only'].includes(attempt.referenceMode) || attempt.sourceFingerprint === shot.approvedStoryboardSource?.sourceFingerprint)
     && !['source_changed', 'packet_changed'].includes(attempt.downstreamSourceStatus)
     && shot.approvedVideoAttemptId === attempt.id);
 }

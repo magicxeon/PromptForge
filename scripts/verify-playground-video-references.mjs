@@ -9,7 +9,8 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const origin = process.env.VIDEO_LAYOUT_ORIGIN || 'http://127.0.0.1:5173';
 const trusted = process.argv.includes('--trusted');
 const named = process.argv.includes('--named');
-const expectedImages = named ? 3 : 2;
+const startImages = process.argv.includes('--images');
+const expectedImages = named || startImages ? 3 : 2;
 const active = process.argv.includes('--active');
 assert.ok(['localhost', '127.0.0.1'].includes(new URL(origin).hostname));
 const output = await fs.mkdtemp(
@@ -22,6 +23,7 @@ const actor = {
   role: 'admin',
 };
 const model = {
+  ...(process.argv.includes('--composition') ? { playgroundReferencePolicy: { kind: 'trusted_generated_only', version: 'layout-policy', maximumAgeDays: 30, allowImageReferenceUploads: true } } : {}),
   ...(trusted ? { playgroundReferencePolicy: { kind: 'trusted_generated_only', version: 'layout-policy', maximumAgeDays: 30 } } : {}),
   providerId: 'modelark',
   modelId: 'dreamina-seedance-2-5-260628',
@@ -39,7 +41,7 @@ const model = {
   aspectRatios: ['9:16'],
   audioModes: ['none'],
 };
-const trustedImages = ['frame', 'look', ...(named ? ['second'] : [])].map(id => ({ id, previewUrl: `/outputs/layout-${id}.jpg`,
+const trustedImages = ['frame', 'look', ...(named || startImages ? ['second'] : [])].map(id => ({ id, previewUrl: `/outputs/layout-${id}.jpg`,
   modelId: 'seedream-5-0-lite-260128', generationMode: 'text_to_image', generatedAt: '2026-09-01T00:00:00Z',
   expiresAt: '2099-01-01T00:00:00Z', eligible: true, reason: null, policyVersion: 'layout-policy' }));
 const activeTask = {
@@ -144,9 +146,10 @@ try {
       viewport: { width: 1440, height: 1000 },
     });
     await context.addInitScript(
-      ({ locale, actor, model, trusted, trustedImages, active, activeTask, named }) => {
+      ({ locale, actor, model, trusted, trustedImages, active, activeTask, named, startImages }) => {
         localStorage.setItem('model_prompt_forge_language', locale);
         localStorage.setItem('mpf_active_mock_user_id', actor.userId);
+        if (localStorage.getItem(`mpf.react.draft:playground-video:${actor.userId}`)) return;
         localStorage.setItem(
           `mpf.react.draft:playground-video:${actor.userId}`,
           JSON.stringify({
@@ -157,7 +160,11 @@ try {
             payload: {
               prompt:
                 'Subtle motion in the supplied scene. Preserve identity and wardrobe.',
-              operation: 'character_to_video',
+              operation: startImages ? 'image_to_video' : 'character_to_video',
+              ...(startImages ? {
+                imageReferences: trusted ? [] : ['frame', 'look', 'second'].map((id, index) => ({ url: `/outputs/layout-${id}.jpg`, characterName: `Photo ${index + 1}` })),
+                trustedImages: trusted ? trustedImages.map((item, index) => ({ ...item, characterName: `Photo ${index + 1}` })) : []
+              } : {}),
               providerModelKey: `${model.providerId}:${model.modelId}`,
               aspectRatio: '9:16',
               resolution: '480p',
@@ -183,7 +190,7 @@ try {
           }),
         );
       },
-      { locale, actor, model, trusted, trustedImages, active, activeTask, named },
+      { locale, actor, model, trusted, trustedImages, active, activeTask, named, startImages },
     );
     let lastQuote;
     await context.route('**/*', async (route) => {
@@ -284,7 +291,7 @@ try {
           return r.width > 0 && (r.left < 0 || r.right > innerWidth + 1);
         }).length,
         rawKeys: /playground\.video\.(references|trusted)\./.test(
-          document.querySelector('.playground-video-references')?.textContent ||
+          document.querySelector('.generation-experience')?.textContent || document.body.textContent ||
           '',
         ),
         activeStatusBars: document.querySelectorAll('.playground-video-task-status').length,
@@ -317,7 +324,7 @@ try {
         await page.waitForFunction(() => [...document.querySelectorAll('.trusted-video-picker__grid img')].every(img => img.complete && img.naturalWidth > 0));
         const dialog = await page.locator('[role=dialog]').boundingBox();
         assert.ok(dialog && dialog.x >= 0 && dialog.x + dialog.width <= width + 1);
-        assert.equal(await page.locator('.trusted-video-picker__grid button:disabled').count(), named ? 2 : 1);
+        assert.equal(await page.locator('.trusted-video-picker__grid button:disabled').count(), named || startImages ? 2 : 1);
         assert.equal(await page.locator('.trusted-video-picker__grid').getByText('expired', { exact: true }).count(), 0);
         await page.screenshot({ path: path.join(output, `${locale}-${width}-picker.png`), fullPage: true });
         await page.keyboard.press('Escape');
@@ -331,7 +338,8 @@ try {
         assert.equal(await page.locator('.trusted-video-picker__grid button').count(), 2);
         assert.equal(await page.locator('.trusted-video-picker__grid button:disabled').count(), 1);
         await page.screenshot({ path: path.join(output, `${locale}-${width}-generated-picker.png`), fullPage: true });
-        await page.locator('.trusted-video-picker__grid button:enabled').click();
+        if (startImages) await page.keyboard.press('Escape');
+        else await page.locator('.trusted-video-picker__grid button:enabled').click();
         await page.locator('[role=dialog]').waitFor({ state: 'hidden' });
       }
     }
@@ -351,7 +359,35 @@ try {
         'utf8',
       ),
     );
-    if (named) {
+    if (startImages) {
+      const names = page.locator('.video-look-sheet-list label input:not([type=file])');
+      assert.equal(await names.count(), 3);
+      await names.nth(1).fill('Market');
+      await page.waitForTimeout(250);
+      assert.equal(lastQuote.references[1].characterName, 'Market');
+      assert.ok(lastQuote.references.every(row => row.purpose === 'image_reference'));
+      await page.reload();
+      await page.locator('.video-look-sheet-list').waitFor();
+      assert.equal(await names.nth(1).inputValue(), 'Market');
+      await page.getByRole('button', { name: translations['playground.video.references.addImage'], exact: true }).click();
+      assert.equal(await page.locator('.playground-video-references__slot').count(), 4);
+      await page.getByRole('button', { name: translations['playground.video.references.cancelLook'], exact: true }).click();
+      for (let count = 3; count > 1; count--) {
+        await page.locator('.video-look-sheet-list').getByRole('button', { name: new RegExp(translations['playground.reference.remove']) }).last().click();
+        await page.waitForTimeout(250);
+        assert.equal(lastQuote.references.length, count - 1);
+      }
+      await page.getByRole('button', { name: translations['playground.video.references.addImage'], exact: true }).click();
+      await page.locator('.playground-video-references__slot').last().getByRole('button', { name: translations['playground.video.trusted.choose'], exact: true }).click();
+      await page.locator('.trusted-video-picker__grid button:enabled').first().click();
+      await page.locator('[role=dialog]').waitFor({ state: 'hidden' });
+      await page.waitForTimeout(250);
+      assert.equal(lastQuote.references.length, 2);
+      assert.equal(lastQuote.inputMode, 'multimodal_reference');
+      await page.locator('.video-look-sheet-list').getByRole('button', { name: new RegExp(translations['playground.reference.remove']) }).last().click();
+      await names.first().fill('Final frame');
+      await page.waitForTimeout(250);
+    } else if (named) {
       const names = page.locator('.playground-video-references__slot input:not([type=file])');
       assert.equal(await names.count(), 2);
       await names.nth(1).fill('Changed');
@@ -379,7 +415,7 @@ try {
     );
     await page.waitForTimeout(250);
     assert.equal(lastQuote.references.length, 1);
-    assert.equal(lastQuote.references[0].role, 'first_frame');
+    assert.equal(lastQuote.references[0].role, process.argv.includes('--composition') ? 'reference_image' : 'first_frame');
     assert.deepEqual(errors, []);
     await context.close();
   }

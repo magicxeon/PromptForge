@@ -1,9 +1,33 @@
 {
   "schemaVersion": 2,
   "id": "cinematic-video-packet-policy",
-  "version": 2,
+  "version": 7,
+  "sketchReferenceMode": {
+    "maximumPromptCharacters": 4000,
+    "promptPrefix": "Shoot one fully photorealistic live-action take from frame one: real actors on a physical set, not an animated or colorized drawing. Image 1 provides staging only; rebuild every surface photographically.",
+    "startAuthority": "Match image 1's composition, blocking, gaze and prop positions, not its marks or shading. Render real skin pores, individual hair, woven fabric, solid props and optical depth with physical shadows/reflections. Authored time/weather/light override sketch tone. Look Sheets govern identity, age and wardrobe.",
+    "characterMapping": "Image {imageNumber}: Look Sheet for {roleName}, Look {lookName}; identity and wardrobe only.",
+    "prohibitions": "No pencil texture, painted faces/backgrounds, cartoon, CGI look, flat cutouts, 2.5D parallax, sketch-to-real transition or text. No copied sheet poses, duplicate/swapped characters or future prop events. The entire frame must look filmed.",
+    "sectionLabel": "SKETCH COMPOSITION AND CHARACTER REFERENCES"
+  },
   "contractVersion": "cinematic-video-packet-v2",
   "maximumPromptCharacters": 3200,
+  "textOnlyMode": {
+    "maximumPromptCharacters": 4000,
+    "promptPrefix": "Create one continuous cinematic live-action shot from the authored scene. No reference image or visible character is supplied.",
+    "startAuthority": "Compose the opening from the authored location, visual moment, camera, art direction and motivated lighting.",
+    "characterMapping": "",
+    "prohibitions": "Do not introduce people or reference-sheet layouts. Preserve the authored environment, props and continuity.",
+    "sectionLabel": "AUTHORED OPENING"
+  },
+  "textOnlyMode": {
+    "maximumPromptCharacters": 4000,
+    "promptPrefix": "Create one continuous cinematic live-action shot from the authored scene. No reference image or visible character is supplied.",
+    "startAuthority": "Compose the opening from the authored location, visual moment, camera, art direction and motivated lighting.",
+    "characterMapping": "",
+    "prohibitions": "Do not introduce people or reference-sheet layouts. Preserve the authored environment, props and continuity.",
+    "sectionLabel": "AUTHORED OPENING"
+  },
   "looksOnlyMode": {
     "maximumPromptCharacters": 4000,
     "promptPrefix": "Use character look sheet references to preserve each named character's identity and wardrobe. Create one continuous photorealistic live-action shot from the authored scene and action below.",
@@ -37,9 +61,9 @@
   "phrasing": {
     "startFrame": "Begin from the approved Storyboard image as the immutable first frame.",
     "preserveStartFrame": "Preserve every visible identity, garment, prop, spatial relation and motivated light source from that frame.",
-    "primaryAction": "One primary action: {value}.",
+    "primaryAction": "One primary action: {value}. Keep authored cause/action/reaction order and prop contact until release; invent no support or cause. React to visible events, not text or exact words. Respect weight/gravity; no hovering, teleporting or repeated falls.",
     "additionalMotionDirection": "Creator motion correction: {value}.",
-    "duration": "Complete the action within {seconds} seconds.",
+    "duration": "Duration: {seconds}s. Honor authored timing; otherwise real time with readable start/reaction. Falling objects accelerate. Slow motion/speed ramps only if directed; no filler events.",
     "blocking": "Blocking: {value}.",
     "screenDirection": "Maintain screen direction: {value}.",
     "stableCamera": "Keep the camera restrained and stable.",
@@ -57,6 +81,7 @@
     "audioCue": "{kind}: {description} at {startOffsetMs}ms."
   },
   "globalProhibitions": [
+    "Do not render readable text in any language: no titles, subtitles, captions, dialogue lettering, logos or readable signs/screens. Keep dialogue audio-only; communicate story through visible action and reaction.",
     "Do not change character identity, apparent age, body proportions, hairstyle or approved wardrobe.",
     "Do not invent a second action, a new scene, a new Character, dialogue, prop or camera move.",
     "Avoid synthetic CGI surfaces, plastic skin, beauty filtering and mechanically perfect motion."

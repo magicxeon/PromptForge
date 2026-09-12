@@ -1,10 +1,13 @@
 import { characterLookService } from '../character-profiles/CharacterLookService.js';
 import { cinematicGeneratedCastService } from './CinematicGeneratedCastService.js';
 import { resolveShotCastIds, resolveShotLookIds } from './CinematicCastCoverage.js';
+import { assertFirstFramePolicy } from '../generation/VideoCapabilityRegistry.js';
+
+export const usesFirstFrame = mode => !['looks_only', 'text_only'].includes(mode);
 
 export function cinematicVideoReferenceMode(value) {
   const mode = value || 'storyboard_only';
-  if (!['storyboard_only', 'storyboard_and_looks', 'looks_only'].includes(mode)) throw referenceError('cinematic_video_reference_mode_invalid', 'Unknown video reference mode.');
+  if (!['storyboard_only', 'storyboard_and_looks', 'looks_only', 'text_only'].includes(mode)) throw referenceError('cinematic_video_reference_mode_invalid', 'Unknown video reference mode.');
   return mode;
 }
 
@@ -15,6 +18,13 @@ export class CinematicVideoReferencePlanService {
 
   async prepare({ project, scene, shot, source, mode, model, actorContext }) {
     mode = cinematicVideoReferenceMode(mode);
+    if (mode === 'text_only') {
+      if (resolveShotCastIds(scene, shot).length) throw referenceError('cinematic_video_text_only_cast', 'Use Look Sheets for a Shot with Cast.');
+      if (!model?.inputModes?.includes('text_to_video')) throw referenceError('cinematic_video_text_only_unsupported', 'Choose a model that supports text-to-video.');
+      return { mode, inputMode: 'text_to_video', references: [] };
+    }
+    const sketchComposition = mode === 'storyboard_and_looks' && source?.storyboardRenderStyle === 'concept_sketch_v1';
+    if (usesFirstFrame(mode) && !sketchComposition) assertFirstFramePolicy({ inputMode: 'image_to_video' }, model);
     const multiple = mode !== 'storyboard_only';
     if (mode !== 'looks_only' && !source?.sourceFingerprint) {
       throw referenceError('cinematic_storyboard_source_required', 'Approve a Storyboard source before using First Frame.');
@@ -23,14 +33,14 @@ export class CinematicVideoReferencePlanService {
       role: multiple ? 'reference_image' : 'first_frame',
       assetId: source.assetId || null, assetVersionId: source.assetVersionId,
       sourceFingerprint: source.sourceFingerprint, referenceImageUrl: source.imageUrl,
-      ...(multiple ? { purpose: 'storyboard_opening' } : {})
+      ...(multiple ? { purpose: sketchComposition ? 'sketch_composition' : 'storyboard_opening' } : {})
     }];
     if (!multiple) return { mode, inputMode: 'image_to_video', references };
     if (!model?.supportsCinematicLookReferences || !model.inputModes?.includes('multimodal_reference')) {
       throw referenceError('cinematic_video_look_references_unsupported', 'This model does not support the Storyboard and Look reference mode.');
     }
     const castIds = resolveShotCastIds(scene, shot);
-    if (!castIds.length) throw referenceError('cinematic_video_reference_cast_missing', 'This Shot has no selected Character for a Look Sheet reference.');
+    if (!castIds.length && !sketchComposition) throw referenceError('cinematic_video_reference_cast_missing', 'This Shot has no selected Character for a Look Sheet reference.');
     const referenceCount = castIds.length + references.length;
     if (referenceCount > model.referenceImageLimit) throw referenceError('cinematic_video_reference_limit', `This Shot needs ${referenceCount} images; the selected model allows ${model.referenceImageLimit}.`);
     const selectedLooks = new Set(resolveShotLookIds(scene, shot));
@@ -73,7 +83,7 @@ export class CinematicVideoReferencePlanService {
         roleName: label, lookName: look.name || '', previewUrl: resolved.previewUrl
       });
     }
-    return { mode, inputMode: 'multimodal_reference', references };
+    return { mode, inputMode: 'multimodal_reference', references, ...(sketchComposition ? { storyboardRenderStyle: 'concept_sketch_v1' } : {}) };
   }
 }
 

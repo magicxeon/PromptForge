@@ -1,6 +1,15 @@
 # Series Readiness (Deferred)
 
-Status: design awareness only. No runtime Season/Chapter feature this phase.
+Status: runtime deferral superseded by explicit user approval on 2026-09-12.
+Active requirements: 026-season-chapter-workspace.md, 027 Setup/navigation and
+028 implementation plan. The notes below record the earlier phase boundary;
+they do not prohibit the now-authorized organizational Series implementation.
+
+2026-09-12 reconciliation: produce-video-pipeline/021 is the current pilot scope.
+Future Series/Project is a user-facing container; each Chapter is a separately
+versioned production unit, reconciling older one-episode-per-Project language.
+No Series controls in Setup this round. Opening direction is per production unit,
+not one global opening shared by all future Chapters. Existing films stay intact.
 
 Future conceptual hierarchy: Project/Series -> Season -> Chapter -> Scenes ->
 Shots -> attempts/approved media. The current short-film Project remains a valid

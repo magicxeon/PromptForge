@@ -23,7 +23,7 @@ import { readActorScopedDraft, writeActorScopedDraft } from '../../../lib/persis
 import { characterSummarySchema, type CharacterSummary } from '../../profiles/schemas/profileSchemas';
 import { VideoLookSheetSources } from './VideoLookSheetSources';
 import { trustedVideoSourceSchema, type TrustedVideoSource } from '../api/trustedVideoSources';
-import { buildVideoReferenceSelection, selectedLooks, type NamedTrustedVideoSource, type VideoLookSheet } from './videoReferenceSelection';
+import { buildVideoReferenceSelection, selectedLooks, usesUploadedCompositionReferences, type NamedTrustedVideoSource, type VideoLookSheet } from './videoReferenceSelection';
 import {
   getVideoCapabilityCatalog,
   getVideoTask,
@@ -38,10 +38,12 @@ import { canQuoteVideoModel, filterVideoModelsForOperation, migrateVideoProvider
 import { getVideoGenerationReadiness } from './videoGenerationReadiness';
 
 const VIDEO_DRAFT_FEATURE = 'playground-video';
-const VIDEO_DRAFT_VERSION = 5;
+const VIDEO_DRAFT_VERSION = 6;
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 
 type VideoDraft = {
+  imageReferences?: Array<{ url: string; characterName?: string }>;
+  trustedImages?: NamedTrustedVideoSource[];
   lookSheets?: VideoLookSheet[];
   trustedLooks?: NamedTrustedVideoSource[];
   prompt: string;
@@ -51,6 +53,7 @@ type VideoDraft = {
   resolution: string;
   durationSeconds: number;
   audioMode: string;
+  audioPreference?: 'none' | 'generated';
   comparisonActive: boolean;
   referenceImageUrl: string | null;
   character: CharacterSummary | null;
@@ -132,9 +135,10 @@ function PlaygroundVideoSession() {
     aspectRatio: draft.aspectRatio,
     resolution: draft.resolution,
     durationSeconds: draft.durationSeconds,
-    audioMode: draft.audioMode === 'none' ? 'none' : 'generated',
+    audioMode: (selectedModel.audioModes.includes(draft.audioPreference || 'generated')
+      ? draft.audioPreference || 'generated' : selectedModel.audioModes[0] || 'none') as 'none' | 'generated',
     references: referencePlan.references,
-    referencePlanVersion: draft.operation === 'text_to_video' ? undefined : trustedOnly ? 'playground-trusted-v1' : 'playground-reference-v1',
+    referencePlanVersion: draft.operation === 'text_to_video' ? undefined : trustedOnly && !usesUploadedCompositionReferences(draft, selectedModel) ? 'playground-trusted-v1' : 'playground-reference-v1',
     characterProfileId: !trustedOnly && draft.operation === 'character_to_video' ? selectedLooks(draft)[0]?.characterProfileId || draft.character?.id : null,
     characterProfileVersionId: !trustedOnly && draft.operation === 'character_to_video'
       ? selectedLooks(draft)[0]?.characterProfileVersionId || draft.character?.characterProfileVersionId
@@ -196,9 +200,9 @@ function PlaygroundVideoSession() {
       durationSeconds: selectedModel.durations.includes(current.durationSeconds)
         ? current.durationSeconds
         : (selectedModel.durations[0] ?? current.durationSeconds),
-      audioMode: selectedModel.audioModes.includes(current.audioMode as 'none' | 'generated')
-        ? current.audioMode
-        : (selectedModel.audioModes[0] ?? current.audioMode)
+      audioMode: selectedModel.audioModes.includes(current.audioPreference || 'generated')
+        ? current.audioPreference || 'generated'
+        : (selectedModel.audioModes[0] ?? 'none')
     }));
   }, [selectedModel]);
 
@@ -402,7 +406,7 @@ function PlaygroundVideoSession() {
           onAspectRatioChange={aspectRatio => setDraft(current => ({ ...current, aspectRatio }))}
           onResolutionChange={resolution => setDraft(current => ({ ...current, resolution }))}
           onDurationChange={durationSeconds => setDraft(current => ({ ...current, durationSeconds }))}
-          onAudioModeChange={audioMode => setDraft(current => ({ ...current, audioMode }))}
+          onAudioModeChange={audioMode => setDraft(current => ({ ...current, audioMode, audioPreference: audioMode === 'none' ? 'none' : 'generated' }))}
           onComparisonChange={() => setDraft(current => ({ ...current, comparisonActive: !current.comparisonActive }))}
       />
     ) : (
@@ -532,15 +536,23 @@ function readVideoDraft(actorId?: string): VideoDraft {
     feature: VIDEO_DRAFT_FEATURE,
     schemaVersion: VIDEO_DRAFT_VERSION,
     fallback: EMPTY_DRAFT,
-    migrate: envelope => [2, 3, 4].includes(envelope.schemaVersion) ? envelope.payload as Partial<VideoDraft> : null
+    migrate: envelope => [2, 3, 4, 5].includes(envelope.schemaVersion) ? envelope.payload as Partial<VideoDraft> : null
   });
   const restored = { ...EMPTY_DRAFT, ...value };
+  restored.audioPreference = value.audioPreference === 'none' || value.audioPreference === 'generated'
+    ? value.audioPreference : undefined;
+  const imageReferences = z.array(z.object({ url: z.string().startsWith('/outputs/'), characterName: z.string().max(80).optional() })).max(12)
+    .safeParse(restored.imageReferences ?? (restored.referenceImageUrl ? [{ url: restored.referenceImageUrl }] : [])).data || [];
+  const trustedImages = z.array(trustedVideoSourceSchema.extend({ characterName: z.string().max(80).optional() })).max(12)
+    .safeParse(restored.trustedImages ?? (restored.trustedFrame ? [restored.trustedFrame] : [])).data || [];
   const character = characterSummarySchema.safeParse(restored.character);
   const lookSheets = z.array(videoLookDraftSchema).max(12).safeParse(restored.lookSheets ?? (restored.lookSheet ? [restored.lookSheet] : [])).data || [];
   const trustedLooks = z.array(trustedVideoSourceSchema.extend({ characterName: z.string().max(80).optional() })).max(12)
     .safeParse(restored.trustedLooks ?? (restored.trustedLook ? [restored.trustedLook] : [])).data || [];
   return {
     ...restored,
+    imageReferences,
+    trustedImages,
     lookSheets,
     trustedLooks,
     character: character.success ? character.data : null,

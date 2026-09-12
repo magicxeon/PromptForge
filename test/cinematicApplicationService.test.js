@@ -62,6 +62,26 @@ const setup = {
   endingIntent: 'resolved', mode: 'simple'
 };
 
+test('opening and multi-line audio round-trip; invalid edited cues and a displaced opening are rejected', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const cues = ['First line', 'Second line', 'Third line'].map((text, i) => ({ text, speakerCastAssignmentId: '', offscreenVoiceRole: 'Narrator', delivery: 'gentle', startOffsetMs: i * 1000, estimatedDurationMs: 1000, speakerVisible: false }));
+  const scenes = [{ id: 'opening', title: 'Opening', cinematicOpening: true, castMode: 'none', shots: [{ id: 'first', title: 'Arrival', durationMs: 8000, castMode: 'none', audioDirectionVersion: 1, dialogueCues: cues, audioCues: [{ kind: 'ambience', description: 'Rain', source: 'scene', startOffsetMs: 0, durationMs: 8000 }] }] }];
+  const saved = await service.saveStoryPlan(project.id, { expectedVersion: project.version, scenes }, alice);
+  const reloaded = await service.getProject(project.id, alice);
+  assert.equal(reloaded.scenes[0].cinematicOpening, true);
+  assert.deepEqual(reloaded.scenes[0].shots[0].dialogueCues, cues);
+  const invalid = structuredClone(scenes); invalid[0].shots[0].dialogueCues[1].text = '';
+  await assert.rejects(service.saveStoryPlan(project.id, { expectedVersion: saved.version, scenes: invalid }, alice), { code: 'cinematic_audio_cue_invalid' });
+  invalid[0].shots[0].dialogueCues = { text: 'Not an array' };
+  await assert.rejects(service.saveStoryPlan(project.id, { expectedVersion: saved.version, scenes: invalid }, alice), { code: 'cinematic_audio_cue_invalid' });
+  invalid[0].shots[0].dialogueCues = [null];
+  await assert.rejects(service.saveStoryPlan(project.id, { expectedVersion: saved.version, scenes: invalid }, alice), { code: 'cinematic_audio_cue_invalid' });
+  const moved = [{ id: 'new', title: 'New scene', shots: [{ id: 'new-shot', title: 'New shot', durationMs: 1000 }] }, ...scenes];
+  await assert.rejects(service.saveStoryPlan(project.id, { expectedVersion: saved.version, scenes: moved }, alice), { code: 'cinematic_opening_scene_order' });
+});
+
 test('country style survives project save/reload without rewriting the supplied story', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
@@ -1108,6 +1128,21 @@ test('Cinematic video attempt uses the approved Storyboard source and can be app
     { expectedVersion: stored.version }, alice
   );
   assert.equal(qualificationContext.videoAttempts[0].settlementStatus, 'qualification_no_charge');
+  const withSecondTake = await service.repository.mutateForActor(created.id, alice, draft => {
+    const first = draft.generationAttempts.find(item => item.id === submitted.attemptId);
+    draft.generationAttempts.push({ ...structuredClone(first), id: 'second_take', status: 'completed', reviewDecision: null });
+    draft.timelineVersions = [{ id: 'timeline', status: 'approved', exportEligible: true, entries: [{ shotId: 'shot_a', videoAttemptId: first.id }] }];
+    draft.version += 1; return draft;
+  });
+  await service.approveVideoAttempt(created.id, 'scene_a', 'shot_a', 'second_take', { expectedVersion: withSecondTake.version }, alice);
+  const selectedSecond = await service.getProject(created.id, alice);
+  assert.equal(selectedSecond.scenes[0].shots[0].approvedVideoAttemptId, 'second_take');
+  assert.equal(selectedSecond.timelineVersions[0].exportEligible, false);
+  assert.equal(selectedSecond.generationAttempts.find(item => item.id === submitted.attemptId).status, 'superseded');
+  await service.approveVideoAttempt(created.id, 'scene_a', 'shot_a', submitted.attemptId, { expectedVersion: selectedSecond.version }, alice);
+  const restoredFirst = await service.getProject(created.id, alice);
+  assert.equal(restoredFirst.scenes[0].shots[0].approvedVideoAttemptId, submitted.attemptId);
+  assert.equal(restoredFirst.generationAttempts.find(item => item.id === 'second_take').status, 'superseded');
 });
 
 test('Cinematic video quote rejects stale Storyboard and video-packet lineage before pricing', async t => {
@@ -1171,7 +1206,7 @@ test('Cinematic video quote rejects stale Storyboard and video-packet lineage be
   assert.equal(quoteCalls, 0);
 });
 
-test('Shot direction edits stale only that Shot source while reorder preserves identity', async t => {
+test('Shot direction edits retain media and stale only that Shot while reorder preserves identity', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const project = await service.createProject(setup, alice);
@@ -1190,10 +1225,20 @@ test('Shot direction edits stale only that Shot source while reorder preserves i
   const edited = await service.updateShotDirection(project.id, 'scene_a', 'shot_a', {
     expectedVersion: approved.version,
     expectedShotVersion: approved.scenes[0].shots[0].version,
-    prompt: 'Revised direction'
+    prompt: '', visibleMoment: 'Hands above the pot',
+    subjectAction: 'Grip and try to lift', continuityExit: 'Hands remain on the rim'
   }, alice);
-  assert.equal(edited.scenes[0].shots[0].prompt, 'Revised direction');
-  assert.equal(edited.scenes[0].shots[0].approvedStoryboardSource, undefined);
+  assert.equal(edited.scenes[0].shots[0].prompt, '');
+  assert.deepEqual(edited.scenes[0].shots[0].approvedStoryboardSource, approved.scenes[0].shots[0].approvedStoryboardSource);
+  assert.equal(edited.scenes[0].shots[0].approvedStoryboardAttemptId, approved.scenes[0].shots[0].approvedStoryboardAttemptId);
+  assert.equal(edited.scenes[0].shots[0].storyboardStatus, 'draft');
+  assert.equal(edited.scenes[0].shots[0].visibleMoment, 'Hands above the pot');
+  assert.equal(edited.scenes[0].shots[0].subjectAction, 'Grip and try to lift');
+  assert.equal(edited.scenes[0].shots[0].continuityExit, 'Hands remain on the rim');
+  assert.equal(edited.generationAttempts.length, approved.generationAttempts.length);
+  await assert.rejects(service.updateShotDirection(project.id, 'scene_a', 'shot_a', {
+    expectedVersion: approved.version, expectedShotVersion: 1, prompt: 'Stale edit'
+  }, alice), error => error.code === 'cinematic_version_conflict');
   assert.equal(edited.scenes[0].shots[1].prompt, 'Second direction');
   const reordered = await service.reorderSceneShots(project.id, 'scene_a', {
     expectedVersion: edited.version,
