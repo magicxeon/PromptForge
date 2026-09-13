@@ -6,6 +6,54 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Cinematic Pilot Timing And Prompt Preparation (2026-09-13)
+
+Cinematic enhancement-core-engine/050 coordinates delivery, not another runtime
+owner. Existing CinematicApplicationService and CinematicVideoPacketCompiler own
+selected Take timing, immutable authority and derived usable ranges. Original
+download bytes remain unchanged; ZIP manifests carry the selected Take's range.
+VideoMediaPlayer remains the shared player; URL identity remount and cleanup stop
+stale video/audio. Produce scope captures actor/Project/Scene/Shot before submit.
+
+GenerationPromptBudget.js under server/domain/generation owns final-text counting
+and validation using server/config/generation-prompt-budget.json. Existing still/
+video compilers remain canonical and no longer truncate at internal recommendations.
+Verified provider limits are distinct from internal recommendations/request bounds.
+Keyframe legacy prompt projection remains only for prior approval fingerprint
+compatibility until an explicitly approved migration; full text drives execution.
+Existing Generation single/group reservation and Video reference preparation paths
+run the final guard, without new Credit, queue or provider dispatch ownership.
+
+CinematicDialogueTiming.js is a pure Cinematic assessment helper using
+server/config/cinematic/dialogue-timing.v1.json. Existing CinematicStoryPlanService
+uses story-plan.v9.json / scene-direction.v8.json recipes and shared bounded repair.
+Additive dialogueReview stays inside existing proposal/Plan contracts; current
+version opts into freshly computed advisory readiness, never a minimum Take lock.
+No separate AI orchestrator, speech service, persistence file or Credit workflow.
+
+GET /api/cinematic/projects/:projectId/prompt-preflight is a private owner-scoped
+read through CinematicApplicationService, bounded to 128 Shots with partial status.
+PromptPreflightSummary uses actor/Project/version Query keys (20s stale, 60s GC,
+no polling); shared PromptBudgetStatus is passive presentation only. Early results
+are provisional until actual provider and ordered references are known. No new
+runtime path, AI invocation, durable prompt cache, file move or pricing activation.
+Focused runner: scripts/test-cinematic-video.js take-duration/prompt-budget/
+preview-selection; intercepted browser: scripts/verify-cinematic-pilot.mjs.
+
+### Bounded Video Recovery And Activity (2026-09-13)
+
+Job Center 005-006 extends Generation's existing Video task/application owners.
+server/config/videoRecoveryPolicy.js owns operational stage budgets;
+server/domain/generation/VideoTaskRecovery.js owns the shared pure eligibility
+and read-only activity projection. Recovery metadata remains additive in the
+existing videoProviderTasks file; no new runtime path, replay or Credit transition.
+VideoProviderTaskRepository exposes bounded actor activity with counts before
+pagination. QueueManager counts active Image work by distinct Job/Group before
+display limits. Existing Job Center hook/indicator remains the sole header owner.
+scripts/test-video-recovery.mjs owns recovery/activity/ui and explicit all checks.
+This JSON runtime coalesces in-process provider/copy work; distributed execution
+remains a database/worker migration concern, not a new lock service here.
+
 ### Scene Environment And White Previs (2026-09-13)
 
 Cinematic enhancement-core-engine/042-045 owns White Previs settings, derived

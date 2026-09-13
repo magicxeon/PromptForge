@@ -1,5 +1,9 @@
 # 003 Restart Recovery And Reconciliation
 
+Planned extension [005](005-bounded-video-recovery.md) adds bounded Video recovery
+without weakening the ownership, no-replay or Credit reconciliation rules below.
+It is documentation only and awaits separate implementation approval.
+
 ## Current Boundary
 
 - Video Provider Tasks are durable and keep existing recovery behavior.

@@ -12,6 +12,7 @@ import {
 import { cinematicFieldManifestService } from '../cinematic/CinematicFieldManifestService.js';
 import { cinematicFieldKey, parseFieldKey } from '../cinematic/CinematicAuthoringStateService.js';
 import { cinematicVisualPlanQualityService } from '../cinematic/CinematicVisualPlanQualityService.js';
+import { assessDialoguePlan, dialogueTimingPolicyVersion, dialogueTimingMaximumRepairRounds } from '../cinematic/CinematicDialogueTiming.js';
 
 const VISUAL_REPAIR_SCENE_FIELDS = Object.freeze([
   'entryState', 'exitState', 'location', 'time', 'blocking', 'lighting', 'artDirection', 'performance',
@@ -31,8 +32,8 @@ const STORY_PLAN_PROGRESS_STAGE_IDS = Object.freeze([
 export class CinematicStoryPlanService {
   constructor({
     policyLoader = getCinematicStoryPlanPolicy,
-    storyRecipeLoader = () => loadPromptRecipe('cinematic/story-plan.v8.json'),
-    sceneRecipeLoader = () => loadPromptRecipe('cinematic/scene-direction.v7.json'),
+    storyRecipeLoader = () => loadPromptRecipe('cinematic/story-plan.v9.json'),
+    sceneRecipeLoader = () => loadPromptRecipe('cinematic/scene-direction.v8.json'),
     providerFactory = policy => new CinematicTextProviderRouter(policy),
     fieldManifestService = cinematicFieldManifestService,
     visualQualityService = cinematicVisualPlanQualityService
@@ -76,6 +77,7 @@ export class CinematicStoryPlanService {
     }
     const policy = assertEnabled(this.policyLoader());
     const recipe = assertRecipe(this.storyRecipeLoader());
+    const dialogueTiming = recipe.limits?.dialogueTimingReview === true;
     const context = buildProjectContext(project, { preflight, mode: normalizedMode });
     const provider = this.providerFactory(policy);
     const generationTimeoutMs = resolveGenerationTimeout(policy);
@@ -106,22 +108,37 @@ export class CinematicStoryPlanService {
       sourceResolution: normalizedResolution,
       directorOperation: normalizedMode
     });
+    const proposalDialogue = dialogueTiming ? assessDialoguePlan(rawTimingPlan(initialResult)) : null;
+    const allocatedDialogue = dialogueTiming ? assessDialoguePlan(plan) : null;
+    let dialogueAssessment = allocatedDialogue;
+    const dialogueRounds = [];
     progress.processing('visual_validation');
     const initialVisualQuality = this.visualQualityService.evaluate(project, plan);
     let visualQuality = initialVisualQuality;
     const repairRounds = [];
     const acceptedChanges = [];
-    const maximumRepairRounds = Math.min(2, Math.max(0, Number(recipe.limits?.maximumVisualRepairRounds ?? 2)));
-    if (visualQuality.repairableCount > 0 && maximumRepairRounds > 0) {
+    const maximumRepairRounds = Math.min(dialogueTimingMaximumRepairRounds, Math.max(0, Number(recipe.limits?.maximumVisualRepairRounds ?? 2)));
+    const needsRepair = () => visualQuality.repairableCount > 0 || (dialogueAssessment?.repairableCount || 0) > 0;
+    if (needsRepair() && maximumRepairRounds > 0) {
       progress.processing('visual_repair');
     } else {
       progress.skipped('visual_repair');
     }
-    for (let round = 1; round <= maximumRepairRounds && visualQuality.repairableCount > 0; round += 1) {
+    for (let round = 1; round <= maximumRepairRounds && needsRepair(); round += 1) {
       let repairResult;
+      const dialogueBefore = dialogueAssessment;
+      const repairContext = buildVisualRepairContext(context, currentResult, plan, visualQuality, round, maximumRepairRounds);
+      if (dialogueAssessment?.repairableCount) {
+        repairContext.dialogueDirectionRepair = {
+          contractVersion: dialogueTimingPolicyVersion, round, maximumRounds: maximumRepairRounds,
+          assessment: dialogueAssessment,
+          normalizedPlan: plan,
+          rule: 'Use this same repair call and shared budget. Propose only listed direction fields and unlocked timing. Preserve exact dialogue, delivery, speakers, visibility, audio, Cast/Looks, count, order and causal continuity. Do not shorten action to manufacture spare time. No total-runtime change.'
+        };
+      }
       try {
         repairResult = await provider.generateCinematicStoryPlan({
-          context: buildVisualRepairContext(context, currentResult, plan, visualQuality, round, maximumRepairRounds),
+          context: repairContext,
           recipe,
           model: policy.model,
           reasoningEffort: policy.reasoningEffort,
@@ -145,23 +162,33 @@ export class CinematicStoryPlanService {
             timeoutMs: repairTimeoutMs
           }
         ));
+        if (dialogueTiming) dialogueRounds.push({ round, status: 'provider_timeout', before: dialogueBefore, after: dialogueBefore, changes: [] });
         break;
       }
       const mergedResult = mergeVisualRepairResult(currentResult, repairResult, plan, visualQuality.findings);
+      if (dialogueAssessment?.repairableCount) mergeDialogueRepairResult(mergedResult, repairResult, plan, dialogueAssessment, project);
       const candidatePlan = normalizePlan(mergedResult, project, {
         sourceResolution: normalizedResolution,
         directorOperation: normalizedMode
       });
-      const changes = collectVisualRepairChanges(plan, candidatePlan, visualQuality.findings, round);
+      if (dialogueTiming) preservePlanIdentity(plan, candidatePlan);
+      const changes = collectVisualRepairChanges(plan, candidatePlan, [...visualQuality.findings, ...(dialogueBefore?.findings || [])], round);
+      if (dialogueTiming) changes.push(...collectDialogueRepairChanges(plan, candidatePlan, dialogueBefore, round));
       if (!changes.length) {
         repairRounds.push(repairRoundEvidence(round, 'no_change', visualQuality, visualQuality, 0,
           provenance(repairResult, policy, recipe)));
+        if (dialogueTiming) dialogueRounds.push({ round, status: 'no_change', before: dialogueBefore, after: dialogueBefore, changes: [] });
         break;
       }
       const candidateQuality = this.visualQualityService.evaluate(project, candidatePlan);
-      if (candidateQuality.repairableCount >= visualQuality.repairableCount) {
+      const candidateDialogue = dialogueTiming ? assessDialoguePlan(candidatePlan) : null;
+      const dialogueImproved = candidateDialogue && candidateDialogue.repairableCount < dialogueBefore.repairableCount;
+      const invalidTimingChange = dialogueTiming && !safeDialogueRepair(plan, candidatePlan, project, dialogueBefore, candidateDialogue);
+      if (invalidTimingChange || candidateQuality.repairableCount > visualQuality.repairableCount
+        || (candidateQuality.repairableCount >= visualQuality.repairableCount && !dialogueImproved)) {
         repairRounds.push(repairRoundEvidence(round, 'no_progress', visualQuality, candidateQuality, 0,
           provenance(repairResult, policy, recipe)));
+        if (dialogueTiming) dialogueRounds.push({ round, status: 'no_progress', before: dialogueBefore, after: candidateDialogue, changes: [] });
         break;
       }
       currentResult = mergedResult;
@@ -170,16 +197,29 @@ export class CinematicStoryPlanService {
       repairRounds.push(repairRoundEvidence(round, 'accepted', visualQuality, candidateQuality, changes.length,
         provenance(repairResult, policy, recipe)));
       visualQuality = candidateQuality;
+      if (dialogueTiming) {
+        dialogueAssessment = candidateDialogue;
+        dialogueRounds.push({ round, status: 'accepted', before: dialogueBefore, after: candidateDialogue, changes });
+      }
     }
     progress.processing('storyboard_readiness');
     const filmReadiness = evaluateStoryPlanFilmReadiness(project, plan, {
       preflight,
       aiFindings: plan.directorFindings,
-      visualFindings: visualQuality.findings
+      visualFindings: visualQuality.findings,
+      dialogueTiming
     });
     const scriptPreview = buildFilmScriptPreview(plan);
     plan.filmReadiness = filmReadiness;
     plan.scriptPreview = scriptPreview;
+    const dialogueReview = dialogueTiming ? {
+      contractVersion: dialogueTimingPolicyVersion,
+      assessmentKind: 'deterministic_estimate_and_model_self_review',
+      advisory: true, proposal: proposalDialogue, afterAllocation: allocatedDialogue,
+      final: dialogueAssessment, rounds: dialogueRounds,
+      additionalBillableCalls: 0
+    } : null;
+    if (dialogueReview) plan.dialogueReview = dialogueReview;
     progress.completed('storyboard_readiness');
     return {
       proposalId: createProposalId(),
@@ -195,6 +235,7 @@ export class CinematicStoryPlanService {
       plan,
       filmReadiness,
       scriptPreview,
+      ...(dialogueReview ? { dialogueReview } : {}),
       workflow: buildWorkflowEvidence({
         preflight,
         plan,
@@ -202,7 +243,8 @@ export class CinematicStoryPlanService {
         visualQuality,
         repairRounds,
         acceptedChanges,
-        filmReadiness
+        filmReadiness,
+        dialogueReview
       }),
       provenance: provenance(initialResult, policy, recipe),
       billingStatus: 'qualification_no_charge'
@@ -213,6 +255,7 @@ export class CinematicStoryPlanService {
     const request = typeof options === 'string' ? { direction: options } : (options || {});
     const policy = assertEnabled(this.policyLoader());
     const recipe = assertRecipe(this.sceneRecipeLoader());
+    const dialogueTiming = recipe.limits?.dialogueTimingReview === true;
     const sceneIndex = project.scenes.findIndex(item => item.id === sceneId);
     if (sceneIndex < 0) throw createError('cinematic_scene_not_found', 'Scene not found.', 404);
     const persisted = project.scenes[sceneIndex];
@@ -251,6 +294,10 @@ export class CinematicStoryPlanService {
       lockedFieldKeys: selection.lockedKeys,
       rule: 'Return a complete Scene contract. Requested keys are proposed changes; locked keys must remain unchanged.'
     };
+    if (dialogueTiming) context.dialogueTimingAssessment = assessDialoguePlan({
+      spokenLanguage: activePlan?.spokenLanguage || project.setup?.spokenLanguage,
+      scenes: [current]
+    });
     const result = await this.providerFactory(policy).generateCinematicSceneDirection({
       context,
       recipe,
@@ -259,13 +306,34 @@ export class CinematicStoryPlanService {
       maxOutputTokens: policy.maxOutputTokens,
       timeoutMs: policy.timeoutMs
     });
-    const candidate = alignCandidateShotStructure(current, normalizeScene({ ...result, cinematicOpening: current.cinematicOpening }, project, {
+    let candidate = alignCandidateShotStructure(current, normalizeScene({ ...result, cinematicOpening: current.cinematicOpening }, project, {
       id: current.id,
       beatId: current.beatId || null,
       targetDurationMs: current.durationMs,
       existingShots: current.shots,
       orderKey: current.orderKey
     }));
+    if (dialogueTiming) {
+      // Scene Direction has no structural acceptance contract. Retain original media,
+      // IDs and exact supplied dialogue, and never map a reordered reply by index.
+      const stableOrder = result.shots?.length === current.shots.length
+        && current.shots.every((shot, index) => result.shots[index]?.title === shot.title);
+      candidate.shots = current.shots.map((shot, index) => stableOrder ? {
+        ...structuredClone(persisted.shots.find(item => item.id === shot.id) || {}),
+        ...structuredClone(shot), ...candidate.shots[index],
+        castAssignmentIds: structuredClone(shot.castAssignmentIds || []),
+        wardrobeLookIds: structuredClone(shot.wardrobeLookIds || []),
+        dialogueCues: structuredClone(shot.dialogueCues || []),
+        audioCues: structuredClone(shot.audioCues || []),
+        durationMs: shot.durationMs,
+        storyboardStatus: persisted.shots.find(item => item.id === shot.id)?.storyboardStatus || shot.storyboardStatus,
+        ...(shot.approvedVideoAttemptId ? { approvedVideoAttemptId: shot.approvedVideoAttemptId } : {})
+      } : structuredClone(shot));
+      candidate.castAssignmentIds = structuredClone(current.castAssignmentIds || []);
+      candidate.wardrobeLookIds = structuredClone(current.wardrobeLookIds || []);
+      candidate = preserveLockedFields(current, candidate, selection.lockedKeys);
+      candidate.durationMs = candidate.shots.reduce((sum, shot) => sum + shot.durationMs, 0);
+    }
     const fieldProposals = buildFieldProposals({
       project,
       current,
@@ -284,6 +352,14 @@ export class CinematicStoryPlanService {
       fieldProposals,
       mergeSummary: summarizeFieldProposals(fieldProposals),
       warnings: stringList(result.warnings, 20, 240),
+      ...(dialogueTiming ? { dialogueReview: {
+        contractVersion: dialogueTimingPolicyVersion, advisory: true,
+        assessmentKind: 'deterministic_estimate_and_model_self_review',
+        before: context.dialogueTimingAssessment,
+        proposal: assessDialoguePlan(rawTimingPlan({ spokenLanguage: activePlan?.spokenLanguage, scenes: [result] })),
+        final: assessDialoguePlan({ spokenLanguage: activePlan?.spokenLanguage, scenes: [candidate] }),
+        additionalBillableCalls: 0
+      } } : {}),
       provenance: provenance(result, policy, recipe),
       billingStatus: 'qualification_no_charge'
     };
@@ -444,11 +520,11 @@ function buildProjectContext(project, { preflight, mode }) {
     videoTimingGuidance: {
       ...(project.scenes?.[0]?.cinematicOpening === true ? { openingDirection: storyAuthoringConfiguration.openingDirection, openingSceneId: project.scenes[0].id } : {}),
       ownership: 'editorial_planning_only',
-      preferredShotDurationsSeconds: [4, 6, 8],
-      portableShotMaximumSeconds: 8,
+      dialogueTimingPolicyVersion,
       rules: [
         'Preserve the exact Project total duration.',
-        'Prefer a supported duration only when it preserves performance, dialogue and continuity.',
+        'Budget language-aware speech, pauses and listener response before allocating editorial time. Do not restrict editorial defaults to 4/6/8 seconds.',
+        'A supported user-selected Take duration remains their choice; these estimates never create a minimum or acknowledgement requirement.',
         'Do not select a provider, model or price in Story Plan.',
         'A later Generation quote reconciles editorial duration with the selected provider.'
       ]
@@ -576,7 +652,7 @@ function normalizeScene(input, project, { id, beatId, targetDurationMs, existing
   const wardrobeLookIds = stringList(input.wardrobeLookIds, 12, 100)
     .filter(value => castAssignmentIds.includes(lookOwner.get(value)));
   const shotsInput = Array.isArray(input.shots) && input.shots.length ? input.shots.slice(0, 20) : [{ title: 'Scene action', durationSeconds: targetDurationMs / 1000 }];
-  const durations = allocateDurations(targetDurationMs, shotsInput.map(shot => Number(shot.durationSeconds) || 1), 250);
+  const durations = allocateDurations(targetDurationMs, shotsInput.map(shot => Number(shot.durationSeconds ?? Number(shot.durationMs) / 1000) || 1), 250);
   const shots = shotsInput.map((shot, index) => {
     const shotCast = stringList(shot.castAssignmentIds, 6, 100).filter(value => castAssignmentIds.includes(value));
     const shotLooks = stringList(shot.wardrobeLookIds, 12, 100).filter(value => shotCast.includes(lookOwner.get(value)));
@@ -666,8 +742,8 @@ function normalizeDialogueCues(value, shotDurationMs) {
     offscreenVoiceRole: bounded(cue.offscreenVoiceRole, 100),
     text: bounded(cue.text, 600),
     delivery: bounded(cue.delivery, 240),
-    startOffsetMs: clampMs(Number(cue.startOffsetSeconds || 0) * 1000, shotDurationMs),
-    estimatedDurationMs: Math.max(0, Math.round(Number(cue.estimatedDurationSeconds || 0) * 1000)),
+    startOffsetMs: clampMs(Number(cue.startOffsetSeconds ?? Number(cue.startOffsetMs || 0) / 1000) * 1000, shotDurationMs),
+    estimatedDurationMs: Math.max(0, Math.round(Number(cue.estimatedDurationSeconds ?? Number(cue.estimatedDurationMs || 0) / 1000) * 1000)),
     speakerVisible: cue.speakerVisible === true
   })).filter(cue => cue.text);
 }
@@ -677,8 +753,8 @@ function normalizeAudioCues(value, shotDurationMs) {
     kind: bounded(cue.kind, 60),
     source: bounded(cue.source, 160),
     description: bounded(cue.description, 500),
-    startOffsetMs: clampMs(Number(cue.startOffsetSeconds || 0) * 1000, shotDurationMs),
-    durationMs: Math.max(0, Math.round(Number(cue.durationSeconds || 0) * 1000))
+    startOffsetMs: clampMs(Number(cue.startOffsetSeconds ?? Number(cue.startOffsetMs || 0) / 1000) * 1000, shotDurationMs),
+    durationMs: Math.max(0, Math.round(Number(cue.durationSeconds ?? Number(cue.durationMs || 0) / 1000) * 1000))
   })).filter(cue => cue.description || cue.source);
 }
 
@@ -744,6 +820,111 @@ function stripProviderMetadata(result) {
   delete copy.responseId;
   delete copy.usage;
   return copy;
+}
+
+function rawTimingPlan(result) {
+  return { spokenLanguage: result.spokenLanguage, scenes: (result.scenes || []).slice(0, 24).map(scene => ({
+    ...scene, shots: (scene.shots || []).slice(0, 20).map(shot => ({
+      ...shot, durationMs: Number(shot.durationSeconds || 0) * 1000,
+      estimatedActionDurationMs: Number(shot.estimatedActionDurationSeconds || 0) * 1000,
+      dialogueCues: (shot.dialogueCues || []).slice(0, 12).map(cue => ({ ...cue,
+        startOffsetMs: Number(cue.startOffsetSeconds || 0) * 1000,
+        estimatedDurationMs: Number(cue.estimatedDurationSeconds || 0) * 1000
+      }))
+    }))
+  })) };
+}
+
+function mergeDialogueRepairResult(merged, candidate, plan, assessment, project) {
+  if (candidate.scenes?.length !== merged.scenes?.length) return;
+  const hasLocks = Object.values(project.authoringState?.fieldStates || {}).some(state => state.locked);
+  for (const [sceneIndex, scene] of merged.scenes.entries()) {
+    const proposed = candidate.scenes[sceneIndex];
+    if (proposed.key !== scene.key || proposed.shots?.length !== scene.shots?.length
+      || scene.shots.some((shot, index) => shot.title !== proposed.shots[index]?.title)) continue;
+    for (const [shotIndex, shot] of scene.shots.entries()) {
+      const next = proposed.shots[shotIndex];
+      const related = assessment.findings.filter(item => item.repairable && item.sceneIndex === sceneIndex && item.shotIndex === shotIndex);
+      const fields = new Set(related.flatMap(item => item.fieldPaths));
+      // New plans have new IDs, so existing user locks cannot be safely matched by
+      // array position. Leave their timing/direction to explicit Scene proposals.
+      if (hasLocks) continue;
+      copyAllowlistedFields(shot, next, ['framing', 'performanceCue', 'performance', 'gaze', 'blocking']
+        .filter(field => fields.has(`shot.${field}`)));
+      if (assessment.findings.some(item => item.fieldPaths.includes('shot.durationMs'))
+        && Number.isFinite(next.durationSeconds) && next.durationSeconds > 0) shot.durationSeconds = next.durationSeconds;
+      if (fields.has('shot.dialogueCues') && next.dialogueCues?.length === shot.dialogueCues?.length) {
+        shot.dialogueCues = shot.dialogueCues.map((cue, index) => ({ ...cue,
+          ...(Number.isFinite(next.dialogueCues[index].startOffsetSeconds) && next.dialogueCues[index].startOffsetSeconds >= 0
+            ? { startOffsetSeconds: next.dialogueCues[index].startOffsetSeconds } : {})
+        }));
+      }
+    }
+  }
+}
+
+function preservePlanIdentity(before, after) {
+  const beatIds = new Map(after.beats.map((beat, index) => [beat.id, before.beats[index].id]));
+  const sceneIds = new Map(after.scenes.map((scene, index) => [scene.id, before.scenes[index].id]));
+  const shotIds = new Map();
+  after.beats.forEach(beat => { beat.id = beatIds.get(beat.id); beat.sceneIds = beat.sceneIds.map(id => sceneIds.get(id)); });
+  after.scenes.forEach((scene, sceneIndex) => {
+    scene.id = sceneIds.get(scene.id);
+    scene.beatId = beatIds.get(scene.beatId);
+    scene.shots.forEach((shot, shotIndex) => {
+      const id = before.scenes[sceneIndex].shots[shotIndex].id;
+      shotIds.set(shot.id, id);
+      shot.id = id;
+    });
+    scene.shotOrder = scene.shots.map(shot => shot.id);
+  });
+  after.directorFindings.forEach(item => {
+    item.beatId = beatIds.get(item.beatId) || item.beatId;
+    item.sceneId = sceneIds.get(item.sceneId) || item.sceneId;
+    item.shotId = shotIds.get(item.shotId) || item.shotId;
+  });
+}
+
+function collectDialogueRepairChanges(before, after, assessment, round) {
+  const changes = [];
+  before.scenes.forEach((scene, sceneIndex) => scene.shots.forEach((shot, shotIndex) => {
+    const next = after.scenes[sceneIndex].shots[shotIndex];
+    for (const field of ['durationMs', 'dialogueCues']) {
+      if (!equalValue(shot[field], next[field])) changes.push({
+        round, sceneIndex, shotIndex, sceneTitle: scene.title, shotTitle: shot.title,
+        fieldPath: `shot.${field}`, before: JSON.stringify(shot[field]), after: JSON.stringify(next[field]),
+        reasonCodes: [...new Set(assessment.findings.filter(item => item.repairable).map(item => item.code))]
+      });
+    }
+  }));
+  return changes;
+}
+
+function safeDialogueRepair(before, after, project, previousAssessment, nextAssessment) {
+  if (after.scenes.reduce((sum, scene) => sum + scene.durationMs, 0) !== project.durationTargetMs) return false;
+  const previousIssues = new Set(previousAssessment.findings.filter(item => item.repairable)
+    .map(item => `${item.sceneIndex}:${item.shotIndex}:${item.cueIndex ?? ''}:${item.code}`));
+  if (nextAssessment.findings.some(item => item.repairable
+    && !previousIssues.has(`${item.sceneIndex}:${item.shotIndex}:${item.cueIndex ?? ''}:${item.code}`))) return false;
+  return before.scenes.every((scene, sceneIndex) => scene.shots.every((shot, shotIndex) => {
+    const next = after.scenes[sceneIndex].shots[shotIndex];
+    if (shot.dialogueCues.length !== next.dialogueCues.length) return false;
+    if (shot.dialogueCues.some((cue, index) => {
+      const { startOffsetMs, ...authority } = cue;
+      const { startOffsetMs: nextStart, ...nextAuthority } = next.dialogueCues[index];
+      return !equalValue(authority, nextAuthority) || nextStart >= next.durationMs;
+    })) return false;
+    if (next.durationMs < shot.durationMs) {
+      const knownActionMs = Number(shot.estimatedActionDurationMs || 0);
+      const audioEndMs = Math.max(0, ...(shot.audioCues || []).map(cue => cue.startOffsetMs + cue.durationMs));
+      const timing = nextAssessment.shots.find(item => item.sceneIndex === sceneIndex && item.shotIndex === shotIndex);
+      const speechEndMs = Math.max(0, ...(timing?.estimates || []).map(item => item.maximumEndMs));
+      // No invented spare time: an unbudgeted silent action is not a donor.
+      if ((!knownActionMs && !shot.dialogueCues.length)
+        || next.durationMs < Math.max(250, knownActionMs, audioEndMs, speechEndMs)) return false;
+    }
+    return true;
+  }));
 }
 
 function mergeVisualRepairResult(current, candidate, plan, findings) {
@@ -879,7 +1060,7 @@ function repairRoundEvidence(round, status, before, after, acceptedChangeCount, 
 }
 
 function buildWorkflowEvidence({ preflight, plan, initialVisualQuality, visualQuality, repairRounds,
-  acceptedChanges, filmReadiness }) {
+  acceptedChanges, filmReadiness, dialogueReview = null }) {
   const repaired = repairRounds.some(item => item.status === 'accepted');
   const blocked = filmReadiness.status === 'not_ready' || visualQuality.status === 'blocked';
   return {
@@ -892,11 +1073,13 @@ function buildWorkflowEvidence({ preflight, plan, initialVisualQuality, visualQu
     stages: [
       workflowStage('source_preflight', preflight.status === 'blocked' ? 'blocked' : 'completed', preflight.diagnostics.length, 0),
       workflowStage('plan_generation', 'completed', 0, 0),
-      workflowStage('director_review', 'completed', plan.directorFindings?.length || 0, 0),
+      { ...workflowStage('director_review', 'completed', (plan.directorFindings?.length || 0) + (dialogueReview?.afterAllocation.findings.length || 0), 0),
+        assessmentKind: 'normalization_and_model_self_review', independentAiReview: false },
       workflowStage('visual_validation', 'completed', initialVisualQuality.findingCount, 0),
-      workflowStage('visual_repair', initialVisualQuality.repairableCount
+      { ...workflowStage('visual_repair', initialVisualQuality.repairableCount || dialogueReview?.afterAllocation.repairableCount
         ? repaired ? 'completed' : 'stopped'
-        : 'skipped', initialVisualQuality.repairableCount, acceptedChanges.length),
+        : 'skipped', initialVisualQuality.repairableCount + (dialogueReview?.afterAllocation.repairableCount || 0), acceptedChanges.length),
+        ...(dialogueReview ? { executionKind: 'shared_bounded_visual_and_dialogue_repair' } : {}) },
       workflowStage('storyboard_readiness', blocked ? 'blocked' : 'completed', visualQuality.findingCount, 0)
     ],
     repairRoundCount: repairRounds.length,

@@ -55,8 +55,8 @@ export function submitVideoGeneration(input: VideoGenerationInput & { estimateId
   });
 }
 
-export function getVideoTask(taskId: string) {
-  return apiRequest(`/api/generation/video/tasks/${encodeURIComponent(taskId)}`, {
+export function getVideoTask(taskId: string, { recheck = false }: { recheck?: boolean } = {}) {
+  return apiRequest(`/api/generation/video/tasks/${encodeURIComponent(taskId)}${recheck ? '?recheck=true' : ''}`, {
     schema: videoTaskSchema,
     cache: 'no-store'
   });

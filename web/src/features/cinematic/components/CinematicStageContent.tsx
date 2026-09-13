@@ -4,8 +4,11 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { PromptBudgetStatus } from '../../../components/generation/PromptBudgetStatus';
+import { PromptPreflightSummary } from './PromptPreflightSummary';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Surface } from '../../../components/ui/Surface';
 import { GenerationStageState } from '../../../components/generation/GenerationStageState';
@@ -136,6 +139,8 @@ export function CinematicStageContent({ activeStage, mode = 'simple', onModeChan
   const castBlocked = activeStage === 'cast' && hasIncompleteRequiredCast(project);
   const storyPlanBlockReason = activeStage === 'story-plan' && mode !== 'simple' ? storyPlanStageBlockReason(project) : null;
   return <div className="cinematic-stage-content" data-testid={`cinematic-stage-${activeStage}`}>
+    {project?.scenes.length && ['story-plan', 'storyboard'].includes(activeStage)
+      ? <PromptPreflightSummary projectId={project.id} version={project.version} /> : null}
     {activeStage === 'cast' && <CastStage mode={mode} onModeChange={onModeChange} project={project} onProjectChanged={onProjectChanged} onAddCastCharacter={onAddCastCharacter} onRemoveCastCharacter={onRemoveCastCharacter} />}
     {mode === 'simple' && project && ['story-plan', 'storyboard', 'produce'].includes(activeStage) ? <>
       <CinematicControlLevel mode={mode} disabled={manualDirty} label={t('cinematic.mode.control')} helpText={manualDirty ? t('cinematic.manual.saveBeforeLeave') : ''} onChange={value => onModeChange?.(value)} />
@@ -766,7 +771,8 @@ function StoryPlanStage({ mode, onModeChange, project, authoringManifest, onProj
   async function materializePlanProposal(next: CinematicStoryPlanProposal, closeAfterSave: boolean) {
     if (!next.plan) return;
     setApplyingProposal(true);
-    const saved = await persistPlan(next.plan, false);
+    const saved = await persistPlan({ ...next.plan,
+      ...(next.dialogueReview ? { dialogueReview: next.dialogueReview } : {}) }, false);
     if (saved) {
       const savedDraft = createStoryPlanDraft(saved, saved.storyPlanVersions.at(-1), t);
       setDraft(savedDraft);
@@ -789,6 +795,7 @@ function StoryPlanStage({ mode, onModeChange, project, authoringManifest, onProj
       ...draft,
       source: 'generated',
       warnings: [...new Set([...draft.warnings, ...next.warnings])],
+      ...(next.dialogueReview ? { dialogueReview: next.dialogueReview } : {}),
       scenes: draft.scenes.map(scene => scene.id === next.sceneId ? proposedScene : scene)
     });
     setApplyingProposal(true);
@@ -1124,17 +1131,36 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
     return preference ? `${preference.providerId}:${preference.modelId}` : '';
   });
   const [resolution, setResolution] = useState('720p');
-  const [durationSeconds, setDurationSeconds] = useState(Math.max(1, Math.round((selectedShotRecord?.durationMs || 4000) / 1000)));
+  const selectionScope = `${actorId}:${project.id}:${selectedScene?.id}:${selectedShotRecord?.id}`;
+  const operationOwner = useMemo(() => ({ active: true, actorId, projectId: project.id }), [actorId, project.id]);
+  useEffect(() => {
+    operationOwner.active = true;
+    return () => { operationOwner.active = false; };
+  }, [operationOwner]);
+  const operationScope = {
+    actorId, projectId: project.id, sceneId: selectedScene?.id || '',
+    shotId: selectedShotRecord?.id || '', scope: selectionScope, owner: operationOwner
+  };
+  const [durationDrafts, setDurationDrafts] = useState<Record<string, number>>({});
   const [audioPreference, setAudioPreference] = useState<'none' | 'generated'>(() => readProduceVideoEnginePreference(actorId)?.audioMode || 'generated');
-  const [taskId, setTaskId] = useState<string | null>(() => currentVideoTaskId(latestAttempt));
-  const [attemptId, setAttemptId] = useState<string | null>(() => currentVideoAttemptId(latestAttempt));
+  const [submittedTask, setSubmittedTask] = useState<{ scope: string; taskId: string; attemptId: string } | null>(null);
+  const awaitingSubmittedAttempt = submittedTask?.scope === selectionScope
+    && !project.generationAttempts.some(item => item && typeof item === 'object' && 'id' in item && item.id === submittedTask.attemptId);
+  const taskId = awaitingSubmittedAttempt ? submittedTask.taskId : currentVideoTaskId(latestAttempt);
+  const attemptId = awaitingSubmittedAttempt ? submittedTask.attemptId : currentVideoAttemptId(latestAttempt);
   const catalog = useQuery({ queryKey: ['video-capabilities', 'cinematic'], queryFn: getCinematicVideoCapabilityCatalog });
   const models = useMemo(() => (catalog.data?.models || []).filter(model => (
     model.inputModes.includes('image_to_video')
     && model.commercialOperations.includes('cinematic_draft_clip')
   )), [catalog.data]);
   const selectedModel = models.find(model => `${model.providerId}:${model.modelId}` === modelKey) || models[0];
+  const plannedSeconds = Math.max(0.001, (selectedShotRecord?.durationMs || 4000) / 1000);
+  const durationSeconds = durationDrafts[selectionScope]
+    ?? selectedModel?.durations.find(value => value >= plannedSeconds)
+    ?? selectedModel?.durations.at(-1) ?? plannedSeconds;
+  const setDurationSeconds = (value: number) => setDurationDrafts(current => ({ ...current, [selectionScope]: value }));
   const audioMode = (selectedModel?.audioModes.includes(audioPreference) ? audioPreference : selectedModel?.audioModes[0] || 'none') as 'none' | 'generated';
+  const durationSupported = selectedModel?.durations.includes(durationSeconds) === true;
   const videoReferences = useShotVideoReferences(project, selectedScene, selectedShotRecord, onProjectRefresh, selectedModel?.supportsCinematicLookReferences, selectedModel?.firstFrameEnabled !== false);
   const referenceMode = videoReferences.mode;
   const produceContext = useQuery({
@@ -1156,21 +1182,16 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
   useEffect(() => {
     if (!selectedModel) return;
     if (!selectedModel.resolutions.includes(resolution)) setResolution(selectedModel.resolutions[0] || '720p');
-    const plannedDurationSeconds = Math.max(0.001, Number(selectedShotRecord?.durationMs || 0) / 1000);
-    const selectedDurationCoversShot = selectedModel.durations.includes(durationSeconds)
-      && durationSeconds >= plannedDurationSeconds;
-    if (!selectedDurationCoversShot) {
-      const coveringDuration = selectedModel.durations.find(value => value >= plannedDurationSeconds)
-        || selectedModel.durations.at(-1)
-        || 4;
-      setDurationSeconds(coveringDuration);
-    }
-  }, [audioMode, audioPreference, durationSeconds, resolution, selectedModel, selectedShotRecord?.durationMs]);
+  }, [resolution, selectedModel]);
   useEffect(() => {
-    setDurationSeconds(Math.max(1, Math.round((selectedShotRecord?.durationMs || 4000) / 1000)));
-    setTaskId(currentVideoTaskId(latestAttempt));
-    setAttemptId(currentVideoAttemptId(latestAttempt));
-  }, [latestAttempt, selectedShotRecord?.id, selectedShotRecord?.durationMs]);
+    setDurationDrafts({});
+    setSubmittedTask(null);
+    setPreviewSelection(null);
+  }, [actorId, project.id]);
+  useEffect(() => {
+    setSelectedSceneId(sceneId || project.scenes[0]?.id || '');
+    setSelectedShot(shotId || project.scenes.find(scene => scene.id === sceneId)?.shots[0]?.id || project.scenes[0]?.shots[0]?.id || '');
+  }, [actorId, project.id, sceneId, shotId]);
   useEffect(() => {
     const shotId = selectedShotRecord?.id || '';
     setMotionDirectionState(current => {
@@ -1205,20 +1226,23 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
   const quote = useQuery({
     queryKey: ['cinematic-video-quote', project.id, selectedScene?.id, selectedShotRecord?.id, quoteInput, actorId],
     queryFn: () => quoteCinematicVideoAttempt(project.id, selectedScene!.id, selectedShotRecord!.id, quoteInput!),
-    enabled: Boolean(quoteInput && prompt.trim() && !blockedReason),
+    enabled: Boolean(quoteInput && durationSupported && prompt.trim() && !blockedReason),
     staleTime: 20_000,
     retry: false
   });
   const submit = useMutation({
-    mutationFn: () => createCinematicVideoAttempt(project.id, selectedScene!.id, selectedShotRecord!.id, {
-      ...quoteInput!, estimateId: quote.data!.estimate.estimateId,
-      requestFingerprint: quote.data!.requestFingerprint,
-      idempotencyKey: `cinematic:${project.id}:${selectedShotRecord!.id}:${crypto.randomUUID()}`
-    }),
-    onSuccess: response => {
-      queryClient.setQueryData(['video-task', actorId, response.task.id], response.task);
-      setAttemptId(response.attemptId);
-      setTaskId(response.task.id);
+    mutationFn: (variables: typeof operationScope & { input: Parameters<typeof createCinematicVideoAttempt>[3] }) => {
+      if (!variables.owner.active || variables.actorId !== getActiveActorId()) throw new Error(t('cinematic.produce.contextChanged'));
+      return createCinematicVideoAttempt(variables.projectId, variables.sceneId, variables.shotId, variables.input);
+    },
+    retry: false,
+    onSuccess: (response, variables) => {
+      // Mutation options can change while a request is pending; identity cannot.
+      if (!variables.owner.active || variables.actorId !== getActiveActorId()) return;
+      queryClient.setQueryData(['video-task', variables.actorId, response.task.id], response.task);
+      setSubmittedTask(current => current?.scope === selectionScope && variables.scope !== selectionScope
+        ? current : { scope: variables.scope, taskId: response.task.id, attemptId: response.attemptId });
+      void queryClient.invalidateQueries({ queryKey: ['generation-job-center', variables.actorId] });
       onProjectRefresh?.();
     }
   });
@@ -1228,6 +1252,33 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
     enabled: Boolean(taskId),
     refetchInterval: query => ['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required'].includes(query.state.data?.status || '') ? false : 5_000
   });
+  const recheck = useMutation({
+    mutationFn: (variables: typeof operationScope & { taskId: string }) => {
+      if (!variables.owner.active || variables.actorId !== getActiveActorId()) throw new Error(t('cinematic.produce.contextChanged'));
+      return getVideoTask(variables.taskId, { recheck: true });
+    },
+    retry: false,
+    onSuccess: (response, variables) => {
+      if (!variables.owner.active || variables.actorId !== getActiveActorId()) return;
+      queryClient.setQueryData(['video-task', variables.actorId, variables.taskId], response);
+      void queryClient.invalidateQueries({ queryKey: ['generation-job-center', variables.actorId] });
+      onProjectRefresh?.();
+    }
+  });
+  const recheckPending = recheck.isPending && recheck.variables?.scope === selectionScope && recheck.variables.taskId === taskId;
+  const recovery = task.data?.recovery;
+  useEffect(() => {
+    const nextCheck = Date.parse(recovery?.explicitNextCheckAt || '');
+    if (!taskId || !task.data?.reviewRequired || !Number.isFinite(nextCheck) || nextCheck <= Date.now()
+      || (recovery?.explicitCheckCount ?? 0) >= (recovery?.explicitMaxChecks ?? 0)) return;
+    // One ordinary status read refreshes server eligibility at cooldown expiry.
+    const timer = window.setTimeout(() => {
+      if (operationOwner.active && actorId === getActiveActorId()) {
+        void queryClient.invalidateQueries({ queryKey: ['video-task', actorId, taskId], exact: true });
+      }
+    }, nextCheck - Date.now() + 50);
+    return () => window.clearTimeout(timer);
+  }, [actorId, operationOwner, queryClient, recovery?.explicitCheckCount, recovery?.explicitMaxChecks, recovery?.explicitNextCheckAt, task.data?.reviewRequired, taskId]);
   const approve = useMutation({
     mutationFn: (id: string) => approveCinematicVideoAttempt(project.id, selectedScene!.id, selectedShotRecord!.id, id, project.version),
     onSuccess: () => onProjectRefresh?.()
@@ -1255,14 +1306,17 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
     }
   });
   const observedTaskStatus = task.data?.status || stringField(latestAttempt, 'status') || '';
-  const isRunning = submit.isPending
+  const submissionPending = submit.isPending && submit.variables?.owner.active;
+  const submittingHere = submissionPending && submit.variables?.scope === selectionScope;
+  const isRunning = submittingHere
     || ['accepted', 'preparing', 'provider_submitting', 'provider_queued', 'provider_processing',
       'provider_succeeded', 'media_copying', 'media_retry_pending', 'pending', 'queued', 'processing', 'running'].includes(observedTaskStatus);
   const sourceNeedsCompatibleSeedream = !['looks_only', 'text_only'].includes(referenceMode || '') && quote.error instanceof ApiError
     && quote.error.code === 'video_provider_synthetic_character_source_required';
-  const generateBlockedReason = blockedReason || (isRunning
-    ? t(submit.isPending ? 'cinematic.produce.submitting' : 'cinematic.produce.generating')
+  const generateBlockedReason = blockedReason || (submissionPending ? t('cinematic.produce.submitting') : isRunning
+    ? t(submittingHere ? 'cinematic.produce.submitting' : 'cinematic.produce.generating')
     : observedTaskStatus === 'reconciliation_required' ? t('cinematic.produce.reconciliationRequired')
+    : !durationSupported ? t('cinematic.produce.durationUnsupported', { durations: selectedModel?.durations.join(', ') || '' })
     : produceContext.isFetching ? t('cinematic.produce.checkingSource')
     : produceContext.error ? produceContext.error.message
     : videoReferences.pending ? t('cinematic.save.saving')
@@ -1275,7 +1329,10 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
     : !quote.data ? t('cinematic.produce.estimateRequired')
     : !quote.data.account.canAfford ? t('cinematic.produce.insufficientCredits')
     : null);
-  const operationError = videoReferences.error || submit.error || quote.error || task.error || approve.error;
+  const operationError = videoReferences.error
+    || (submit.variables?.scope === selectionScope && submit.variables.owner.active ? submit.error : null)
+    || (recheck.variables?.scope === selectionScope && recheck.variables.taskId === taskId && recheck.variables.owner.active ? recheck.error : null)
+    || quote.error || task.error || approve.error;
   const quotePortraitAuthorizationBlocked = isPortraitAuthorizationError(quote.error);
   const quoteRequiresPortraitAsset = quote.error instanceof ApiError
     && quote.error.code === 'video_provider_portrait_authorization_required';
@@ -1372,13 +1429,13 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
           aspectRatio={project.aspectRatio}
           sourceImageUrl={['looks_only', 'text_only'].includes(referenceMode) ? null : source?.imageUrl}
           video={videoViewerItem}
-          loading={(!videoViewerItem && isRunning && previewTaskId === taskId) || (historicalTask.isFetching && previewTaskId !== taskId)}
-          statusDescription={submit.isPending ? t('cinematic.produce.submitting') : isRunning ? t('cinematic.produce.generating') : undefined}
+          loading={!videoViewerItem && ((isRunning && previewTaskId === taskId) || (historicalTask.isLoading && previewTaskId !== taskId))}
+          statusDescription={submittingHere ? t('cinematic.produce.submitting') : isRunning ? t('cinematic.produce.generating') : undefined}
         />
         {providerRecoveryRequired || failedTask ? <section className="cinematic-produce-provider-recovery" role="alert">
           <AlertTriangle aria-hidden="true" />
           <div>
-            <strong>{failedTask && String(taskErrorCode).includes('PrivacyInformation') ? t('cinematic.produce.portraitRejectedTitle') : providerRecoveryRequired ? providerRecoveryTitle : t('cinematic.produce.attemptFailed')}</strong>
+            <strong>{observedTaskStatus === 'reconciliation_required' ? t('cinematic.produce.reviewRequiredTitle') : failedTask && String(taskErrorCode).includes('PrivacyInformation') ? t('cinematic.produce.portraitRejectedTitle') : providerRecoveryRequired ? providerRecoveryTitle : t('cinematic.produce.attemptFailed')}</strong>
             {providerRecoveryRequired ? <p>{providerRecoveryDescription}</p> : null}
             {providerRecoveryRequired && selectedModel ? <p>{t('cinematic.produce.sourceCheckModel', { model: selectedModel.displayName })}</p> : null}
             {providerRecoveryRequired && quote.error ? <>
@@ -1388,9 +1445,15 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
             {taskErrorCode ? <p className="break-all">{t('cinematic.produce.providerErrorCode', { code: taskErrorCode })}</p> : null}
             {taskErrorRequestId ? <p className="break-all">{t('cinematic.produce.providerRequestId', { id: taskErrorRequestId })}</p> : null}
             {failedTask && task.data?.billingStatus === 'refunded' ? <p>{t('cinematic.produce.portraitAuthorizationRefunded')}</p> : null}
-            <small>{providerRecoveryRequired ? providerRecoveryHint : t('cinematic.produce.portraitRejectedNoRetry')}</small>
+            <small>{observedTaskStatus === 'reconciliation_required' ? t('cinematic.produce.reconciliationRequired') : providerRecoveryRequired ? providerRecoveryHint : t('cinematic.produce.portraitRejectedNoRetry')}</small>
+            {task.data?.reviewRequired && recovery ? <p>{t('cinematic.produce.recheckBudget', { count: recovery.explicitCheckCount ?? 0, max: recovery.explicitMaxChecks ?? 0 })}
+              {recovery.explicitNextCheckAt && Date.parse(recovery.explicitNextCheckAt) > Date.now() ? ` ${t('cinematic.produce.recheckAfter', { time: new Date(recovery.explicitNextCheckAt).toLocaleTimeString() })}` : null}
+            </p> : null}
           </div>
           {providerRecoveryRequired && !['looks_only', 'text_only'].includes(referenceMode || '') && !quoteRequiresPortraitAsset && onEditStoryboard ? <Button size="sm" icon={<ImageIcon aria-hidden="true" />} onClick={onEditStoryboard}>{t('cinematic.produce.seedreamRecovery')}</Button> : null}
+          {task.data?.reviewRequired && taskId ? <Button size="sm" className="h-10 w-52 max-w-full shrink-0" disabled={!task.data.recheckAllowed || recheckPending || task.isFetching}
+            icon={recheckPending ? <ProcessingSpinner className="size-4" aria-hidden="true" /> : <RotateCcw className="size-4" aria-hidden="true" />}
+            onClick={() => recheck.mutate({ ...operationScope, taskId })}>{t(recheckPending ? 'cinematic.produce.rechecking' : 'cinematic.produce.recheckStatus')}</Button> : null}
         </section> : null}
         {visibleOperationError ? <p role="alert" className="text-sm text-red-400">{visibleOperationError.message}</p> : null}
         {!embedded && selectedScene && selectedShotRecord ? <details className="cinematic-simple-options" open={mode === 'advanced' ? true : undefined} key={mode}>
@@ -1455,9 +1518,16 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
             supported={referenceMode === 'text_only' ? selectedModel.inputModes.includes('text_to_video') : selectedModel.supportsCinematicLookReferences} references={quote.data?.referenceSummary
               || (selectedScene && selectedShotRecord ? shotVideoReferencePreviews(project, selectedScene, selectedShotRecord, referenceMode) : [])} />
             <DurationReconciliationSummary value={quote.data?.durationReconciliation} usableRange={quote.data?.usableRange} />
+            <PromptBudgetStatus value={quote.data?.promptBudget} pending={quote.isFetching} />
+            {selectedShotRecord && (selectedShotRecord.dialogueCues?.some(cue => cue.startOffsetMs + (cue.estimatedDurationMs || 0) > durationSeconds * 1000)
+              || selectedShotRecord.videoActionTimeline?.some(event => event.endMs > durationSeconds * 1000))
+              ? <p role="status">{t('cinematic.produce.durationAdvice')}</p> : null}
             {quote.data?.estimate.billingStatus === 'qualification_no_charge' ? <p className="cinematic-produce-render-panel__qualification">{t('cinematic.produce.qualificationNoCharge')}</p> : null}
             {!['looks_only', 'text_only'].includes(referenceMode || '') ? <p className={`cinematic-produce-render-panel__source${source && !sourceNeedsCompatibleSeedream ? ' is-ready' : ''}`}>{sourceNeedsCompatibleSeedream ? t('cinematic.produce.seedreamSourceRequired') : source ? t('cinematic.produce.sourceReady') : t('cinematic.produce.sourceRequired')}</p> : null}</>}
-          footer={<div className="cinematic-produce-render-panel__footer"><Button className="w-full" variant="primary" icon={<Film aria-hidden="true" />} aria-describedby="cinematic-video-generate-reason" disabled={Boolean(generateBlockedReason)} onClick={() => submit.mutate()}>{isRunning ? t('cinematic.produce.generating') : t('cinematic.produce.generate')}</Button><p id="cinematic-video-generate-reason" aria-live="polite">{generateBlockedReason || t('cinematic.produce.lockedEstimate')}</p></div>}
+          footer={<div className="cinematic-produce-render-panel__footer"><Button className="w-full" variant="primary" icon={<Film aria-hidden="true" />} aria-describedby="cinematic-video-generate-reason" disabled={Boolean(generateBlockedReason)} onClick={() => submit.mutate({ ...operationScope, input: {
+            ...quoteInput!, estimateId: quote.data!.estimate.estimateId, requestFingerprint: quote.data!.requestFingerprint,
+            idempotencyKey: `cinematic:${project.id}:${selectedShotRecord!.id}:${crypto.randomUUID()}`
+          } })}>{isRunning ? t('cinematic.produce.generating') : t('cinematic.produce.generate')}</Button><p id="cinematic-video-generate-reason" aria-live="polite">{generateBlockedReason || t('cinematic.produce.lockedEstimate')}</p></div>}
           onModelChange={changeModel}
           onAspectRatioChange={() => undefined}
           onResolutionChange={setResolution}
@@ -1545,6 +1615,7 @@ function createStoryPlanDraft(
       sourceResolution: version?.sourceResolution || null,
       warningsAcknowledged: version?.warningsAcknowledged || false,
       filmReadiness: version?.filmReadiness,
+      dialogueReview: version?.dialogueReview ? structuredClone(version.dialogueReview) : undefined,
       scriptPreview: structuredClone(version?.scriptPreview || []),
       beats: structuredClone(version?.beats || []),
       scenes: structuredClone(project.scenes),

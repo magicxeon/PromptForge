@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
+  'take-duration': ['test/cinematicVideoPacketCompiler.test.js', 'test/cinematicApplicationService.test.js', 'test/cinematicWhitePrevis.test.js'],
+  'prompt-budget': ['test/generationPromptBudget.test.js', 'test/generationPromptRefinementEntryPoint.test.js', 'test/cinematicStoryboardPromptComposer.test.js', 'test/cinematicVideoPacketCompiler.test.js', 'test/storyboardKeyframeContractCompiler.test.js'],
   timing: ['test/cinematicVideoPacketCompiler.test.js', 'test/cinematicDataLineageService.test.js', 'test/cinematicApplicationService.test.js'],
   pilot: ['test/cinematicPilotPolicy.test.js', 'test/cinematicStoryPlanService.test.js', 'test/videoClipBundleService.test.js'],
   references: ['test/cinematicVideoReferencePlan.test.js', 'test/cinematicVideoPacketCompiler.test.js'],
@@ -20,13 +22,13 @@ const groups = {
 };
 const suite = process.argv[2] || 'help';
 if (suite === 'help' || suite === '--help') {
-  console.log('Usage: node scripts/test-cinematic-video.js <timing|timing-ui|pilot|references|payload|flow|ui|full>');
+  console.log('Usage: node scripts/test-cinematic-video.js <timing|timing-ui|take-duration|prompt-budget|preview-selection|pilot|references|payload|flow|ui|full>');
   console.log('timing / timing-ui: advisory action estimate and Generate button regressions only');
   console.log('payload: adapter payload and catalog; flow: source, storage, Credits and task lifecycle');
   console.log('references: dynamic Cast/Look authority and configured video prompt');
   console.log('ui: Produce controls/status/preview; full: all groups plus adjacent regressions');
   console.log('Mocked tests only. No live provider calls, build or browser sweep.');
-} else if (!['timing', 'timing-ui', 'pilot', 'references', 'payload', 'flow', 'ui', 'full'].includes(suite) || process.argv.length > 3) {
+} else if (!['timing', 'timing-ui', 'take-duration', 'prompt-budget', 'preview-selection', 'pilot', 'references', 'payload', 'flow', 'ui', 'full'].includes(suite) || process.argv.length > 3) {
   console.error('Unknown suite. Use --help.');
   process.exitCode = 2;
 } else {
@@ -36,6 +38,10 @@ if (suite === 'help' || suite === '--help') {
   if (!process.exitCode && suite === 'timing-ui') {
     run('ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
       'src/features/cinematic/components/CinematicProduceRuntime.test.tsx', '-t', 'action duration estimate'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'preview-selection') {
+    run('ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicProduceRuntime.test.tsx'], path.join(root, 'web'));
   }
   if (!process.exitCode && ['ui', 'full'].includes(suite)) {
     run('ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',

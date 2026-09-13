@@ -1,4 +1,6 @@
 import crypto from 'node:crypto';
+import { validateGenerationPrompt } from './GenerationPromptBudget.js';
+
 import { isStoryboardCompositionReference } from '../cinematic/CinematicStoryboardRenderStyle.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
@@ -10,6 +12,7 @@ import {
   videoCapabilityRegistry
 } from './VideoCapabilityRegistry.js';
 import { VideoProviderTaskService } from './VideoProviderTaskService.js';
+import { projectVideoRecovery } from './VideoTaskRecovery.js';
 import { videoProviderTaskRepository } from '../../repositories/generation/VideoProviderTaskRepository.js';
 import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { cinematicVideoAssetService } from '../assets/CinematicVideoAssetService.js';
@@ -39,6 +42,7 @@ import { assertGeneratedReferenceAllowed } from '../../config/generatedReference
 import { loadVideoReferenceAssetContent } from '../assets/VideoReferenceAssetContent.js';
 
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
+const settlementFlights = new Map();
 
 export class VideoGenerationApplicationService {
   constructor({
@@ -232,11 +236,11 @@ export class VideoGenerationApplicationService {
     });
   }
 
-  async getAndPoll(taskId, actorContext) {
+  async getAndPoll(taskId, actorContext, { recheck = false } = {}) {
     const owned = await this.taskRepository.findForActor(taskId, actorContext);
     if (!owned) throw videoError('video_task_not_found', 'Video task not found.', 404);
-    const task = TERMINAL.has(owned.status) ? owned : await this.providerTaskService.pollTask(taskId);
-    return this.#settleTask(task);
+    const task = TERMINAL.has(owned.status) && !recheck ? owned : await this.providerTaskService.pollTask(taskId, { recheck });
+    return projectVideoRecovery(await this.#settleTask(task));
   }
 
   async getStoredTaskSummaries(taskIds, actorContext) {
@@ -266,8 +270,22 @@ export class VideoGenerationApplicationService {
     return results;
   }
 
-  async #settleTask(inputTask) {
-    let task = inputTask;
+  #settleTask(inputTask) {
+    const owner = this.taskRepository.tasksFile || this.taskRepository;
+    const flights = settlementFlights.get(owner) || new Map();
+    if (flights.has(inputTask.id)) return flights.get(inputTask.id);
+    settlementFlights.set(owner, flights);
+    const flight = this.#settleCurrentTask(inputTask).finally(() => {
+      flights.delete(inputTask.id);
+      if (!flights.size) settlementFlights.delete(owner);
+    });
+    flights.set(inputTask.id, flight);
+    return flight;
+  }
+
+  async #settleCurrentTask(inputTask) {
+    let task = await this.taskRepository.findForActor(inputTask.id, { userId: inputTask.ownerUserId });
+    if (!task) throw videoError('video_task_not_found', 'Video task not found.', 404);
     if (task.submittedRequest?.references?.some(row => row.sourceKind === 'trusted_generated' || row.trustedGenerationId)) {
       await this.trustedSources.recordRejection(task, { userId: task.ownerUserId }).catch(() => {
         console.warn('[Video] Trusted-source rejection evidence could not be saved');
@@ -312,9 +330,16 @@ export class VideoGenerationApplicationService {
   async listRecent(actorContext, { limit = 6 } = {}) {
     const tasks = await this.taskRepository.listForActor(actorContext, { limit });
     return {
-      items: tasks.map(toPublicTask),
+      items: tasks.map(task => toPublicTask(projectVideoRecovery(task))),
       hasMore: false
     };
+  }
+
+  async listActivity(actorContext, { limit = 24, scope = 'all' } = {}) {
+    if (!actorContext?.userId) throw videoError('actor_context_required', 'Actor context is required.', 401);
+    return this.taskRepository.listActivityForActor(actorContext, {
+      limit, scope, project: task => toPublicTask(projectVideoRecovery(task))
+    });
   }
 
   async hasDurableTaskForReservation({ userId, reservationId, jobId } = {}) {
@@ -387,6 +412,9 @@ export class VideoGenerationApplicationService {
         ? await this.playgroundReferences.prepare(input, actorContext) : null;
     const { request, resolved, durationReconciliation } = this.#prepareRequest(playgroundPlan?.input || input, workflow);
     if (playgroundPlan) request.prompt = appendLookLegend(request.prompt, request.references);
+    request.promptBudget = validateGenerationPrompt(request.prompt, {
+      providerId: request.providerId, modelId: request.modelId, operation: 'video'
+    });
     if (playgroundPlan && request.referenceImageCount > 1 && resolved.supportsOrderedImageReferences !== true) {
       throw videoError('video_multiple_references_unsupported', 'This model adapter does not support multiple image references.');
     }
@@ -673,7 +701,7 @@ function normalizeRequest(input = {}, workflow = normalizeWorkflowContext(null))
     commercialOperation: selection.commercialOperation,
     inputMode: selection.inputMode,
     legacyOperationInferred: selection.legacyInferred,
-    prompt: String(input.prompt || '').trim().slice(0, 4000),
+    prompt: String(input.prompt || '').trim(),
     aspectRatio: String(input.aspectRatio || '9:16'),
     resolution: String(input.resolution || '720p'),
     durationSeconds: Number(input.durationSeconds || 8),
@@ -701,6 +729,13 @@ function toPublicTask(task) {
   return {
     id: task.id,
     status: task.status,
+    projectId: task.projectId || null,
+    sceneId: task.sceneId || null,
+    shotId: task.shotId || null,
+    automaticMonitoring: task.automaticMonitoring,
+    reviewRequired: task.reviewRequired,
+    recheckAllowed: task.recheckAllowed,
+    recovery: task.recovery || null,
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
     completedAt: task.completedAt || null,

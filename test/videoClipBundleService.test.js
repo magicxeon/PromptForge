@@ -72,12 +72,16 @@ test('bundle chooses pinned Take, reports gaps, checks project version and requi
   service.getProject = async (_id, actor) => {
     assert.equal(actor.userId, 'alice');
     return { id: 'project', version: 3, scenes: [{ id: 'scene', shots: [{ id: 'a', approvedVideoAttemptId: 'take1' }, { id: 'b' }], shotOrder: ['a', 'b'] }],
-      generationAttempts: [{ id: 'take1', shotId: 'a', operation: 'cinematic_draft_clip', status: 'approved', outputAsset: { id: 'asset1' } },
+      generationAttempts: [{ id: 'take1', shotId: 'a', operation: 'cinematic_draft_clip', status: 'approved', outputAsset: { id: 'asset1' },
+        renderDurationMs: 5000, usableRange: { leadInMs: 500, usableDurationMs: 4000, trimInMs: 500, trimOutMs: 4500 } },
         { id: 'take2', shotId: 'a', operation: 'cinematic_draft_clip', status: 'completed', outputAsset: { id: 'asset2' } }] };
   };
   const actor = { userId: 'alice' };
   const { manifest } = await service.prepareClipBundle('project', {}, actor);
   assert.equal(selected[0].assetId, 'asset1'); assert.equal(manifest.missing.length, 1);
+  assert.equal(manifest.clips[0].usableRange.usableDurationMs, 4000);
+  assert.equal(manifest.clips[0].usableRange.trimInMs, 500);
+  assert.equal(manifest.clips[0].renderDurationMs, 5000);
   assert.equal(JSON.stringify(manifest).includes('private'), false);
   await assert.rejects(service.downloadClipBundle('project', { expectedVersion: 2 }, actor, {}), { code: 'cinematic_version_conflict' });
   await assert.rejects(service.downloadClipBundle('project', { expectedVersion: 3 }, actor, {}), { code: 'cinematic_clip_bundle_incomplete' });

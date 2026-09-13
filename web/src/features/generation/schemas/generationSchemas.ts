@@ -84,8 +84,16 @@ export const generationSubmitSchema = z.object({
   }).optional()
 }).passthrough();
 
+export const promptBudgetSchema = z.object({
+  policyVersion: z.number(), unit: z.literal('unicode_code_points'), characters: z.number(),
+  originalCharacters: z.number(), recommendedCharacters: z.number(), hardLimit: z.number().nullable(),
+  hardLimitSource: z.string().nullable(), requestSafetyCharacters: z.number(),
+  status: z.enum(['over_limit', 'above_recommendation', 'optimized', 'within_budget']),
+  scope: z.enum(['provider_limit_unknown', 'provider_verified'])
+});
+
 export const compiledPromptPreviewSchema = z.object({
-  compiledPrompt: z.string()
+  compiledPrompt: z.string(), promptBudget: promptBudgetSchema.optional()
 });
 
 export const jobStatusSchema = z.object({

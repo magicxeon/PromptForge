@@ -1,4 +1,5 @@
 import { Play } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { apiMediaUrl } from '../../lib/api/apiClient';
 import { cn } from '../../lib/utils/cn';
 
@@ -17,6 +18,11 @@ export function VideoMediaPlayer({
   controls?: boolean;
   preload?: 'none' | 'metadata';
 }) {
+  const playerRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const player = playerRef.current;
+    return () => { if (player && !player.paused) player.pause(); };
+  }, [videoUrl]);
   if (!videoUrl) {
     return (
       <div className={cn('grid aspect-video place-items-center bg-black text-[var(--mpf-text-muted)]', className)}>
@@ -27,6 +33,8 @@ export function VideoMediaPlayer({
 
   return (
     <video
+      key={videoUrl}
+      ref={playerRef}
       className={cn('h-full w-full bg-black object-contain', className)}
       controls={controls}
       preload={preload}

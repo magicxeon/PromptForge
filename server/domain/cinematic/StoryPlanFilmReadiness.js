@@ -1,3 +1,5 @@
+import { assessDialoguePlan } from './CinematicDialogueTiming.js';
+
 const LOCATION_GROUPS = Object.freeze({
   station: ['station', 'platform', 'train', 'railway', 'tracks', 'สถานี', 'ชานชาลา', 'รถไฟ', 'รางรถไฟ'],
   cafe: ['cafe', 'café', 'coffee shop', 'coffeehouse', 'ร้านกาแฟ', 'คาเฟ่'],
@@ -111,7 +113,8 @@ export function analyzeStoryPlanSource(project, { sourceResolution = null } = {}
 export function evaluateStoryPlanFilmReadiness(project, plan, {
   preflight = null,
   aiFindings = [],
-  visualFindings = []
+  visualFindings = [],
+  dialogueTiming = false
 } = {}) {
   const findings = [];
   const activeCastIds = new Set((project?.castAssignments || []).filter(item => item.active !== false).map(item => item.id));
@@ -174,7 +177,9 @@ export function evaluateStoryPlanFilmReadiness(project, plan, {
         findings.push(finding('film_dialogue_start_outside_shot', 'script', 'blocking', `Dialogue starts outside Shot "${shot.title || shot.id}".`, 'Move the dialogue start inside this Shot or assign the line to the next Shot.', context));
       } else if (endMs > shotDurationMs) {
         // Speaking duration is an estimate, not measured audio or an authored end time.
-        findings.push(finding('film_dialogue_timing_overflow', 'script', 'warning', `Estimated dialogue duration extends beyond Shot "${shot.title || shot.id}".`, 'Approval may proceed after acknowledgement. Review delivery speed or intended audio overlap before generating video.', context));
+        findings.push(finding('film_dialogue_timing_overflow', 'script', dialogueTiming ? 'info' : 'warning', `Estimated dialogue duration extends beyond Shot "${shot.title || shot.id}".`, dialogueTiming
+          ? 'Advisory only: review the editorial interval and intended performance; do not accelerate or truncate exact speech.'
+          : 'Approval may proceed after acknowledgement. Review delivery speed or intended audio overlap before generating video.', context));
       }
     }
     for (const cue of shot.audioCues || []) {
@@ -206,6 +211,8 @@ export function evaluateStoryPlanFilmReadiness(project, plan, {
     ));
   }
 
+  const dialogueAssessment = dialogueTiming ? assessDialoguePlan(plan) : null;
+  if (dialogueAssessment) findings.push(...dialogueAssessment.findings);
   const uniqueFindings = deduplicateReadinessFindings(findings);
 
   const dimensions = Object.fromEntries(DIMENSIONS.map(dimension => {
@@ -218,7 +225,8 @@ export function evaluateStoryPlanFilmReadiness(project, plan, {
   const status = uniqueFindings.some(item => item.severity === 'blocking')
     ? 'not_ready'
     : uniqueFindings.some(item => item.severity === 'warning') ? 'ready_with_warnings' : 'ready';
-  return { status, dimensions, findings: uniqueFindings };
+  return { status, dimensions, findings: uniqueFindings,
+    ...(dialogueAssessment ? { dialogueAssessment } : {}) };
 }
 
 function deduplicateReadinessFindings(findings) {

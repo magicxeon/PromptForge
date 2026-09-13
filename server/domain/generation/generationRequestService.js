@@ -403,10 +403,12 @@ function compileBasePromptFromGenerationContext(context) {
       }
     ));
   if (isCinematicStoryboardScene) {
-    return cinematicStoryboardPromptComposer.compose({
+    const prepared = cinematicStoryboardPromptComposer.prepare({
       context,
       visualPrompt: basePrompt
     });
+    context.cinematicPromptBudget = prepared.promptBudget;
+    return prepared.prompt;
   }
   const templateDirectedPrompt = context.templateBaselineReference
     ? [compileReferenceRoleDirective(context), basePrompt].filter(Boolean).join(' ')

@@ -2,6 +2,11 @@ import crypto from 'node:crypto';
 import { videoProviderTaskRepository } from '../../repositories/generation/VideoProviderTaskRepository.js';
 import { videoCapabilityRegistry } from './VideoCapabilityRegistry.js';
 import { sanitizeVideoReferences } from './VideoReferencePlan.js';
+import { videoRecoveryPolicy } from '../../config/videoRecoveryPolicy.js';
+import { recoveryState, recoveryCutoff, projectVideoRecovery } from './VideoTaskRecovery.js';
+
+// Single-process JSON runtime: coalesce across service/repository instances.
+const recoveryFlights = new Map();
 
 const PROVIDER_TO_TASK = {
   provider_queued: 'provider_queued',
@@ -13,12 +18,14 @@ const PROVIDER_TO_TASK = {
 };
 
 export class VideoProviderTaskService {
-  constructor({ repository = videoProviderTaskRepository, capabilityRegistry = videoCapabilityRegistry, adapter, adapterRegistry, mediaPersister } = {}) {
+  constructor({ repository = videoProviderTaskRepository, capabilityRegistry = videoCapabilityRegistry, adapter, adapterRegistry, mediaPersister, clock = Date.now, recoveryPolicy = videoRecoveryPolicy } = {}) {
     this.repository = repository;
     this.capabilityRegistry = capabilityRegistry;
     this.adapter = adapter;
     this.adapterRegistry = adapterRegistry;
     this.mediaPersister = mediaPersister;
+    this.clock = clock;
+    this.recoveryPolicy = recoveryPolicy;
   }
 
   async submitTask(request, actorContext, { allowResearch = false, allowTesting = false } = {}) {
@@ -53,7 +60,10 @@ export class VideoProviderTaskService {
       acceptedAt: new Date().toISOString()
     });
     if (accepted.providerTaskId || accepted.status !== 'accepted') return accepted;
-    await this.repository.update(accepted.id, draft => { draft.status = 'provider_submitting'; });
+    await this.repository.update(accepted.id, draft => {
+      draft.status = 'provider_submitting';
+      draft.recovery = recoveryState(draft, this.clock(), this.recoveryPolicy);
+    });
     try {
       const response = await adapter.submit({ ...request, submittedFingerprint });
       return this.repository.update(accepted.id, draft => {
@@ -61,6 +71,7 @@ export class VideoProviderTaskService {
         draft.providerOperationId = response.providerOperationId || response.providerTaskId;
         draft.status = 'provider_queued';
         draft.submittedAt = new Date().toISOString();
+        draft.recovery = recoveryState(draft, this.clock(), this.recoveryPolicy);
       });
     } catch (error) {
       return this.repository.update(accepted.id, draft => {
@@ -85,23 +96,96 @@ export class VideoProviderTaskService {
     return model;
   }
 
-  async pollTask(taskId) {
-    const task = await this.repository.find(taskId);
+  pollTask(taskId, { recheck = false } = {}) {
+    const key = `${this.repository.tasksFile || ''}:${taskId}`;
+    if (recoveryFlights.has(key)) return recoveryFlights.get(key);
+    if (recoveryFlights.size >= this.recoveryPolicy.maxConcurrent) return this.repository.find(taskId);
+    const flight = this.#recoverTask(taskId, recheck).finally(() => recoveryFlights.delete(key));
+    recoveryFlights.set(key, flight);
+    return flight;
+  }
+
+  async #recoverTask(taskId, recheck) {
+    let task = await this.repository.find(taskId);
     if (!task) throw taskError('video_task_not_found', 'Video provider task not found.', 404);
-    if (isTerminal(task.status)) return task;
-    if (!task.providerTaskId) throw taskError('video_provider_task_id_missing', 'Provider task ID is missing.', 409);
+    const now = this.clock();
+    if (isTerminal(task.status) && !recheck) return task;
+    if (recheck && !projectVideoRecovery(task, now, this.recoveryPolicy).recheckAllowed) {
+      throw taskError('video_status_recheck_unavailable', 'Status recheck is unavailable or cooling down.', 409);
+    }
+    task = await this.repository.update(taskId, draft => {
+      draft.recovery = recoveryState(draft, now, this.recoveryPolicy);
+    });
+    if (!task.providerTaskId) return this.#stopRecovery(taskId, 'video_provider_submission_state_unknown');
+    const cutoff = recoveryCutoff(task.recovery, now);
+    if (cutoff && !recheck) return this.#stopRecovery(taskId, cutoff);
+    if (!recheck && Date.parse(task.recovery.nextCheckAt) > now) return task;
+    task = await this.repository.update(taskId, draft => {
+      if (recheck) {
+        draft.recovery.explicitCheckCount += 1;
+        draft.recovery.explicitNextCheckAt = new Date(now + draft.recovery.explicitCooldownMs).toISOString();
+        draft.recovery.stoppedReason ||= cutoff || 'video_recovery_explicit_review';
+        draft.recovery.stoppedAt ||= new Date(now).toISOString();
+      }
+      // Persist eligibility before external I/O so interruption cannot renew it.
+      draft.recovery.checkId = crypto.randomUUID();
+      draft.recovery.nextCheckAt = new Date(now + draft.recovery.budget.baseDelayMs).toISOString();
+    });
+    let result = await this.#pollProvider(task);
+    if (recheck && !isTerminal(result.status)) {
+      result = await this.#stopRecovery(taskId, result.recovery.stoppedReason);
+    } else if (!isTerminal(result.status)) {
+      const reason = recoveryCutoff(result.recovery, this.clock());
+      if (reason) result = await this.#stopRecovery(taskId, reason);
+    }
+    return result;
+  }
+
+  #stopRecovery(taskId, code) {
+    return this.repository.update(taskId, draft => {
+      if (isTerminal(draft.status) && draft.status !== 'reconciliation_required') return;
+      if (draft.providerError?.category === 'credits') return;
+      if (draft.providerError && draft.providerError.category !== 'recovery') {
+        draft.recovery.lastError = sanitizeError(draft.providerError, 'video_provider_recovery_failed');
+      }
+      draft.recovery.stoppedReason ||= code;
+      draft.recovery.stoppedAt ||= new Date(this.clock()).toISOString();
+      draft.status = 'reconciliation_required';
+      draft.providerError = { code, category: 'recovery', retryable: false, providerBillableState: 'unknown' };
+      draft.completedAt ||= new Date(this.clock()).toISOString();
+    });
+  }
+
+  #updateRecovery(task, operation) {
+    return this.repository.update(task.id, draft => {
+      if (draft.recovery?.checkId !== task.recovery?.checkId
+        || draft.revision !== task.revision
+        || (isTerminal(draft.status) && draft.status !== task.status)) return;
+      operation(draft);
+    });
+  }
+
+  #recordRetry(draft) {
+    draft.recovery.errorCount += 1;
+    const { baseDelayMs, maxDelayMs } = draft.recovery.budget;
+    draft.recovery.nextCheckAt = new Date(this.clock()
+      + Math.min(maxDelayMs, baseDelayMs * 2 ** (draft.recovery.errorCount - 1))).toISOString();
+  }
+
+  async #pollProvider(task) {
     const adapter = this.#resolveAdapter(task.providerId, task.modelId);
     let response;
     try {
       response = await adapter.poll(task.providerTaskId, { task });
     } catch (error) {
       const providerError = sanitizeError(error, 'video_provider_poll_failed');
-      return this.repository.update(task.id, draft => {
+      return this.#updateRecovery(task, draft => {
         draft.pollCount = Number(draft.pollCount || 0) + 1;
         draft.lastPolledAt = new Date().toISOString();
         draft.providerError = providerError;
         if (providerError.retryable) {
-          if (!['provider_queued', 'provider_processing'].includes(draft.status)) {
+          this.#recordRetry(draft);
+          if (!['provider_queued', 'provider_processing', 'media_retry_pending', 'media_copying'].includes(draft.status)) {
             draft.status = 'provider_processing';
           }
           draft.lastRetryableErrorAt = new Date().toISOString();
@@ -113,7 +197,7 @@ export class VideoProviderTaskService {
     }
     const nextStatus = PROVIDER_TO_TASK[response.providerStatus];
     if (!nextStatus) {
-      return this.repository.update(task.id, draft => {
+      return this.#updateRecovery(task, draft => {
         draft.pollCount = Number(draft.pollCount || 0) + 1;
         draft.lastPolledAt = new Date().toISOString();
         draft.status = 'reconciliation_required';
@@ -127,10 +211,11 @@ export class VideoProviderTaskService {
       });
     }
     if (nextStatus === 'provider_succeeded') return this.#completeSuccessfulTask(task, response, adapter);
-    return this.repository.update(task.id, draft => {
+    return this.#updateRecovery(task, draft => {
       draft.pollCount = Number(draft.pollCount || 0) + 1;
       draft.lastPolledAt = new Date().toISOString();
       draft.status = nextStatus;
+      if (!isTerminal(nextStatus)) draft.providerError = null;
       if (isTerminal(nextStatus)) {
         draft.providerError = response.providerError || null;
         draft.completedAt = new Date().toISOString();
@@ -139,22 +224,9 @@ export class VideoProviderTaskService {
   }
 
   async resumeRecoverable() {
-    const tasks = await this.repository.listRecoverable();
+    const tasks = await this.repository.listRecoverable({ limit: this.recoveryPolicy.batchSize, now: this.clock() });
     const results = [];
     for (const task of tasks) {
-      if (!task.providerTaskId) {
-        results.push(await this.repository.update(task.id, draft => {
-          draft.status = 'reconciliation_required';
-          draft.providerError = {
-            code: 'video_provider_submission_state_unknown',
-            category: 'provider',
-            retryable: false,
-            providerBillableState: 'unknown'
-          };
-          draft.completedAt = new Date().toISOString();
-        }));
-        continue;
-      }
       try {
         results.push(await this.pollTask(task.id));
       } catch (error) {
@@ -170,24 +242,32 @@ export class VideoProviderTaskService {
 
   async #completeSuccessfulTask(task, response, adapter) {
     if (!this.mediaPersister) throw taskError('video_media_persister_unavailable', 'Durable video media persistence is unavailable.', 503);
-    await this.repository.update(task.id, draft => {
+    task = await this.#updateRecovery(task, draft => {
       draft.status = 'media_copying';
+      draft.mediaStartedAt ||= new Date(this.clock()).toISOString();
+      draft.recovery = recoveryState(draft, this.clock(), this.recoveryPolicy);
       draft.pollCount = Number(draft.pollCount || 0) + 1;
       draft.lastPolledAt = new Date().toISOString();
     });
+    if (task.status !== 'media_copying') {
+      await adapter.cleanupOutput?.(response.output).catch(() => {});
+      return task;
+    }
     try {
       const outputAsset = await this.mediaPersister.persistVideoOutput({ task, output: response.output });
-      return this.repository.update(task.id, draft => {
+      return this.#updateRecovery(task, draft => {
         draft.outputAsset = outputAsset;
+        draft.providerError = null;
         draft.providerUsage = response.usage || null;
         draft.status = response.usage ? 'completed' : 'reconciliation_required';
         draft.completedAt = new Date().toISOString();
       });
     } catch (error) {
-      return this.repository.update(task.id, draft => {
+      return this.#updateRecovery(task, draft => {
         const providerError = sanitizeError(error, 'video_media_copy_failed');
         draft.status = providerError.retryable ? 'media_retry_pending' : 'reconciliation_required';
         draft.providerError = providerError;
+        if (providerError.retryable) this.#recordRetry(draft);
         if (error?.outputAsset) draft.outputAsset = error.outputAsset;
         if (response.usage) draft.providerUsage = response.usage;
         draft.completedAt = providerError.retryable ? null : new Date().toISOString();

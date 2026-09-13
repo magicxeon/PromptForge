@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 import {
   cinematicArchiveResponseSchema,
+  cinematicPromptPreflightSchema,
   cinematicProjectSchema,
   cinematicProjectListResponseSchema,
   cinematicProjectSummarySchema,
@@ -54,6 +55,10 @@ export function getCinematicVideoCapabilityCatalog() {
 
 export function getCinematicProject(projectId: string) {
   return apiRequest(cinematicApiPaths.project(projectId), { schema: cinematicProjectSchema });
+}
+
+export function getCinematicPromptPreflight(projectId: string) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/prompt-preflight`, { schema: cinematicPromptPreflightSchema });
 }
 
 export function getCinematicAuthoringManifest() {

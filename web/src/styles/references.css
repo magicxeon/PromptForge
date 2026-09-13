@@ -1,3 +1,47 @@
+.reference-slot-grid--rows {
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.reference-slot-grid--rows .reference-slot-grid__heading { margin-bottom: 4px; }
+.reference-slot-grid--rows .reference-slot-grid__heading h2 { font-size: 14px; }
+.reference-slot-grid--rows .reference-slot-grid__items { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+.reference-slot-grid--rows .reference-slot,
+.reference-slot-grid--rows .reference-slot.is-populated { min-height: 0; padding: 12px 0; border: 0; border-bottom: 1px solid var(--theme-border); border-radius: 0; box-shadow: none; background: transparent; }
+.reference-slot-grid--rows .reference-slot > div { display: grid; height: auto; grid-template-columns: 80px minmax(0, 1fr); column-gap: 12px; align-items: start; }
+.reference-slot-grid--rows .reference-slot__preview { grid-column: 1; grid-row: 1 / span 5; width: 80px; height: 64px; border-color: var(--theme-border); border-radius: 4px; box-shadow: none; }
+.reference-slot-grid--rows .reference-slot__preview img { object-fit: contain; }
+.reference-slot-grid--rows .reference-slot__label,
+.reference-slot-grid--rows .reference-slot__description,
+.reference-slot-grid--rows .reference-slot__source,
+.reference-slot-grid--rows .reference-slot .reference-row-status { grid-column: 2; margin: 0; min-width: 0; overflow-wrap: anywhere; white-space: normal; }
+.reference-slot-grid--rows .reference-slot__description,
+.reference-slot-grid--rows .reference-slot__source { font-size: 11px; color: var(--theme-text-muted); }
+.reference-slot-grid--rows .reference-slot__source { margin-top: 3px; }
+.reference-slot-grid--rows .reference-slot__icon { color: var(--theme-text-muted); }
+.reference-source-row { display: grid; grid-template-columns: 80px minmax(0, 1fr) 20px; align-items: center; gap: 12px; min-width: 0; padding: 12px 0; border-bottom: 1px solid var(--theme-border); }
+.reference-source-row__preview { display: grid; place-items: center; width: 80px; height: 64px; margin: 0; overflow: hidden; border: 1px solid var(--theme-border); border-radius: 4px; background: var(--theme-media-backdrop); color: var(--theme-text-muted); }
+.reference-source-row__preview img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.reference-source-row__preview,
+.reference-slot-grid--rows .reference-slot__preview { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.reference-source-row__preview img,
+.reference-slot-grid--rows .reference-slot__preview img { min-width: 0; min-height: 0; max-height: 100%; }
+.reference-source-row__identity { display: grid; gap: 3px; min-width: 0; overflow-wrap: anywhere; }
+.reference-source-row__identity strong { font-size: 13px; font-weight: 500; }
+.reference-source-row__identity small { font-size: 11px; color: var(--theme-text-muted); }
+.reference-source-row__authority { color: var(--theme-text-muted); }
+.reference-row-status { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 11px; color: var(--theme-success); }
+.reference-row-status.is-warning { color: var(--theme-warning); }
+.reference-row-status svg { flex: none; }
+.reference-rows-processing { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: var(--theme-text-muted); }
+
+@container (max-width: 300px) {
+  .reference-source-row { gap: 8px; grid-template-columns: 64px minmax(0, 1fr) 16px; }
+  .reference-source-row__preview { width: 64px; height: 64px; }
+  .reference-slot-grid--rows .reference-slot > div { grid-template-columns: 64px minmax(0, 1fr); column-gap: 8px; }
+  .reference-slot-grid--rows .reference-slot__preview { width: 64px; height: 64px; }
+}
+
 .reference-slot {
   overflow: hidden;
   border-radius: 10px;

@@ -1,12 +1,17 @@
 import { cinematicKeyframeConfigurationService } from './CinematicKeyframeConfigurationService.js';
 import { resolveStoryboardPromptPolicy } from './CinematicStoryboardRenderStyle.js';
+import { validateGenerationPrompt } from '../generation/GenerationPromptBudget.js';
 
 export class CinematicStoryboardPromptComposer {
   constructor({ configurationService = cinematicKeyframeConfigurationService } = {}) {
     this.configurationService = configurationService;
   }
 
-  compose({ context = {}, visualPrompt = '' } = {}) {
+  compose(input = {}) {
+    return this.prepare(input).prompt;
+  }
+
+  prepare({ context = {}, visualPrompt = '' } = {}) {
     const visualAuthority = normalizeBlock(visualPrompt);
     if (!visualAuthority) {
       throw new TypeError('A Cinematic Storyboard visual prompt is required.');
@@ -24,7 +29,13 @@ export class CinematicStoryboardPromptComposer {
       constraints: joinUnique(policy.constraintInstructions)
     };
     const maximumPromptCharacters = resolveMaximumPromptCharacters(context, policy);
-    return renderBlocks(blocks, policy, maximumPromptCharacters, context.cinematicManualStoryboard === true);
+    const original = renderBlocks(blocks, policy, Infinity);
+    const prompt = renderBlocks(blocks, policy, maximumPromptCharacters);
+    return { prompt, promptBudget: validateGenerationPrompt(prompt, {
+      providerId: context.provider || context.providerId || '', modelId: context.submodel || context.modelId || '',
+      operation: 'image', originalCharacters: Array.from(original).length,
+      recommendedCharacters: maximumPromptCharacters
+    }) };
   }
 }
 
@@ -132,50 +143,18 @@ function resolveMaximumPromptCharacters(context, policy) {
     || policy.defaultMaximumPromptCharacters;
 }
 
-function renderBlocks(blocks, policy, maximumPromptCharacters, preserveVisualAuthority = false) {
-  // Cast bindings are mandatory; compact visual prose before dropping a reference mapping.
-  const referenceLength = normalizeBlock(blocks.referenceAuthority).length;
-  const referenceOverflow = Math.max(0, referenceLength - policy.blockCharacterLimits.referenceAuthority);
-  const visualBudget = policy.blockCharacterLimits.visualAuthority - referenceOverflow;
-  if (visualBudget < 500) {
-    throw new TypeError('The Cinematic reference authority exceeds its provider prompt budget.');
-  }
+function renderBlocks(blocks, policy, maximumPromptCharacters) {
   const rendered = [];
   for (const blockName of policy.blockOrder) {
-    const content = blockName === 'referenceAuthority' || (preserveVisualAuthority && blockName === 'visualAuthority') ? normalizeBlock(blocks[blockName]) : truncateAtBoundary(
-      blocks[blockName],
-      blockName === 'visualAuthority' ? visualBudget : policy.blockCharacterLimits[blockName]
-    );
+    const content = normalizeBlock(blocks[blockName]);
     if (!content) continue;
     const label = blockName === 'visualAuthority' ? '' : policy.blockLabels[blockName];
     rendered.push(label ? `${label}:\n${content}` : content);
   }
 
   const prompt = rendered.join('\n\n').trim();
-  if (prompt.length > maximumPromptCharacters) {
-    throw new TypeError('The composed Cinematic Storyboard prompt exceeds its provider budget.');
-  }
-  return prompt;
-}
-
-function truncateAtBoundary(value, maximum) {
-  const normalized = normalizeBlock(value);
-  if (!normalized || normalized.length <= maximum) return normalized;
-
-  const slice = normalized.slice(0, maximum);
-  const floor = Math.floor(maximum * 0.65);
-  const structuralCandidates = [
-    slice.lastIndexOf('\n\n'),
-    slice.lastIndexOf('\n'),
-    slice.lastIndexOf('. '),
-    slice.lastIndexOf('; ')
-  ].filter(index => index >= floor);
-  const wordBoundary = slice.lastIndexOf(' ');
-  const boundary = structuralCandidates.length
-    ? Math.max(...structuralCandidates)
-    : (wordBoundary >= floor ? wordBoundary : maximum);
-  const includePunctuation = /[.!?;]/u.test(slice[boundary] || '') ? 1 : 0;
-  return slice.slice(0, boundary + includePunctuation).trim().replace(/[,:;]+$/u, '').trim();
+  return prompt.length > maximumPromptCharacters
+    ? rendered.map(block => block.replace(/:\n/g, ': ')).join('\n') : prompt;
 }
 
 function joinUnique(values) {

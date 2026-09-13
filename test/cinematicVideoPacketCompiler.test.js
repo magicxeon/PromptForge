@@ -8,6 +8,23 @@ import { CinematicVideoPacketConfigurationService } from '../server/domain/cinem
 import { CinematicVideoPacketCompiler } from '../server/domain/cinematic/CinematicVideoPacketCompiler.js';
 import { StoryboardKeyframeContractCompiler } from '../server/domain/cinematic/StoryboardKeyframeContractCompiler.js';
 
+test('selected Take duration changes execution timing without changing the approved packet or dialogue', () => {
+  const project = createSingleCharacterCinematicProject();
+  const scene = project.scenes[0], shot = scene.shots[0];
+  shot.videoReferenceMode = 'looks_only';
+  const compiler = new CinematicVideoPacketCompiler();
+  const packet = compiler.compile({ project, scene, shot });
+  packet.audio.dialogueCues = [{ speaker: 'Mira', text: 'Wait for me.', startOffsetMs: 3500 }];
+  const before = structuredClone(packet);
+  for (const seconds of [2, 8]) {
+    const result = compiler.renderForProvider(packet, { providerId: 'modelark', takeDurationSeconds: seconds });
+    assert.match(result.prompt, new RegExp(`Duration: ${seconds}\\.000s`));
+    assert.match(result.prompt, /Wait for me. at 3500ms/);
+    assert.deepEqual(packet, before);
+  }
+  assert.throws(() => compiler.renderForProvider(packet, { takeDurationSeconds: NaN }), /duration/);
+});
+
 test('video packet does not import future Scene consequences into the current Shot', () => {
   const project = createSingleCharacterCinematicProject();
   const scene = project.scenes[0];
@@ -68,9 +85,9 @@ test('prompt budget removes overhead without dropping mappings or repeated dialo
   assert.match(result.prompt, /Wait. at 3000ms/);
   assert.equal(bounded.renderForProvider(packet, options).promptFingerprint, result.promptFingerprint);
   packet.authorDirection = 'z'.repeat(5000);
-  assert.throws(() => bounded.renderForProvider(packet, options), { code: 'cinematic_video_reference_prompt_too_long' });
+  assert.equal(bounded.renderForProvider(packet, options).promptBudget.status, 'above_recommendation');
   packet.referenceMode = 'first_frame';
-  assert.throws(() => bounded.renderForProvider(packet, { providerId: 'gemini' }), { code: 'cinematic_video_reference_prompt_too_long' });
+  assert.equal(bounded.renderForProvider(packet, { providerId: 'gemini' }).promptBudget.status, 'above_recommendation');
 });
 
 test('final reference budget shortens only labels after provider wording and mappings are added', () => {
@@ -110,6 +127,32 @@ test('final reference budget shortens only labels after provider wording and map
   assert.equal(compiler.renderForProvider(packet, options).prompt, original);
 });
 
+test('static scene compaction requires a real primary composition reference, never style or Looks alone', () => {
+  const config = new CinematicVideoPacketConfigurationService();
+  const policy = config.getPolicy();
+  policy.compositionReferenceMode.maximumPromptCharacters = 100;
+  const compiler = new CinematicVideoPacketCompiler({ configurationService: {
+    getPolicy: () => policy, getPromptStrategy: id => config.getPromptStrategy(id)
+  } });
+  const input = manualPacketInput('storyboard_and_looks', 'faceless_previs_v1');
+  const packet = compiler.compile(input);
+  packet.environment.artDirection = 'STATIC_SET_GEOMETRY';
+  packet.environment.propContinuity = 'PHONE_STAYS_IN_POCKET';
+  packet.environment.time = 'RAINY_NIGHT';
+  const before = structuredClone(packet);
+  for (const purpose of ['storyboard_composition', 'style_reference', 'character_look']) {
+    const referencePlan = packetReferencePlan('storyboard_and_looks', 'faceless_previs_v1');
+    referencePlan.references[0].purpose = purpose;
+    const result = compiler.renderForProvider(packet, { providerId: 'modelark', referencePlan });
+    assert.equal(result.prompt.includes('STATIC_SET_GEOMETRY'), purpose !== 'storyboard_composition');
+    assert.match(result.prompt, /PHONE_STAYS_IN_POCKET/);
+    assert.match(result.prompt, /RAINY_NIGHT/);
+    assert.match(result.prompt, /Wait. at 1000ms/);
+    for (const event of packet.motion.timeline) assert.ok(result.prompt.includes(event.description));
+    assert.deepEqual(packet, before);
+  }
+});
+
 test('Look reference strategy maps Image 1 and multiple Characters without changing the first-frame packet', () => {
   const project = createSingleCharacterCinematicProject();
   const scene = project.scenes[0];
@@ -131,7 +174,7 @@ test('Look reference strategy maps Image 1 and multiple Characters without chang
   assert.doesNotMatch(result.prompt, /immutable first frame|APPROVED START FRAME/);
   assert.equal(compiler.renderForProvider(packet, { providerId: 'modelark' }).prompt, single.prompt);
   referencePlan.references[1].lookName = 'x'.repeat(4000);
-  assert.throws(() => compiler.renderForProvider(packet, { providerId: 'modelark', referencePlan }), { code: 'cinematic_video_reference_prompt_too_long' });
+  assert.ok(compiler.renderForProvider(packet, { providerId: 'modelark', referencePlan }).prompt.includes('x'.repeat(4000)));
 });
 import {
   createMultiCharacterCinematicProject,
@@ -214,7 +257,7 @@ test('looks-only packet ignores unused images, maps from Image 1 and keeps autho
   shot.subjectAction = 'Pick up the cup';
   assert.notEqual(compiler.compile({ project, scene, shot }).packetFingerprint, before.packetFingerprint);
   referencePlan.references[0].roleName = 'a'.repeat(4000);
-  assert.throws(() => compiler.renderForProvider(before, { providerId: 'modelark', referencePlan }), { code: 'cinematic_video_reference_prompt_too_long' });
+  assert.ok(compiler.renderForProvider(before, { providerId: 'modelark', referencePlan }).prompt.includes('a'.repeat(4000)));
 });
 
 test('Cinematic video packet renders deterministic provider strategies from one authority packet', () => {
@@ -377,6 +420,7 @@ test('Cinematic video packet accepts the bounded legacy fingerprint created befo
   });
   const {
     sourceFingerprint: _sourceFingerprint,
+    legacyProviderIndependentPrompt: _legacyPrompt,
     providerIndependentPrompt,
     ...legacyContract
   } = generationContract;
@@ -578,9 +622,9 @@ test('manual video timeline: twelve events and Look mappings survive prompt budg
   }
   assert.equal(bounded.renderForProvider(packet, options).promptFingerprint, result.promptFingerprint);
   packet.motion.timeline[11].description = 'z'.repeat(5000);
-  assert.throws(() => bounded.renderForProvider(packet, options), { code: 'cinematic_video_reference_prompt_too_long' });
+  assert.ok(bounded.renderForProvider(packet, options).prompt.includes('z'.repeat(5000)));
   input.shot.videoActionTimeline[11].description = 'z'.repeat(5000);
-  assert.throws(() => compiler.compile(input), { code: 'cinematic_video_reference_prompt_too_long' });
+  assert.ok(compiler.compile(input).providerIndependentPrompt.includes('z'.repeat(5000)));
 });
 
 test('manual video timeline: missing and stale sources and Look authority still block', () => {
@@ -623,6 +667,21 @@ test('manual video timeline: legacy optional fields do not change nonmanual temp
     assert.doesNotMatch(prompt, /UNUSED_MANUAL_EVENT|Manual timeline/);
     if (mode === 'text_only') assert.doesNotMatch(prompt, /PERFORMANCE:|OWN Look Sheet/);
   }
+});
+
+test('selected shorter Take preserves manual timestamps without demanding later events or acceleration', () => {
+  const compiler = new CinematicVideoPacketCompiler();
+  const packet = compiler.compile(manualPacketInput());
+  const original = structuredClone(packet);
+  const result = compiler.renderForProvider(packet, {
+    providerId: 'modelark', referencePlan: packetReferencePlan('looks_only'), takeDurationSeconds: 2
+  });
+  assert.match(result.prompt, /This Take stops at 2\.000s/);
+  assert.match(result.prompt, /later events are continuity notes, not actions/);
+  assert.match(result.prompt, /Do not accelerate, compress, or move later events earlier/);
+  assert.match(result.prompt, /0:03\.500-0:06: Nara sets down the cup/);
+  assert.doesNotMatch(result.prompt, /execute only these events in order at their exact intervals/);
+  assert.deepEqual(packet, original);
 });
 
 function manualPacketInput(mode = 'looks_only', style = null) {

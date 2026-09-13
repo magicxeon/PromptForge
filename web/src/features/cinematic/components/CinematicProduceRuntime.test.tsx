@@ -6,6 +6,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CinematicProject } from '../schemas/cinematicSchemas';
 import { cinematicVideoQuoteSchema } from '../schemas/cinematicSchemas';
 import { ApiError } from '../../../lib/api/apiError';
+import { persistActiveActorId } from '../../../lib/auth/actorStore';
 import { CinematicStageContent } from './CinematicStageContent';
 
 const api = vi.hoisted(() => ({
@@ -36,6 +37,185 @@ vi.mock('../../generation/api/videoGenerationApi', async importOriginal => ({
 const i18n = i18next.createInstance();
 
 describe('Cinematic Produce runtime workspace', () => {
+  it.each(['shot', 'scene'])('keeps a late submission bound to its original %s and actor cache', async target => {
+    const response = { attemptId: 'late-attempt', task: { id: 'late-task', status: 'provider_processing' } };
+    const pending = deferred<typeof response>();
+    api.createCinematicVideoAttempt.mockReturnValue(pending.promise);
+    generationApi.getVideoTask.mockResolvedValue(response.task);
+    const project = projectFixture();
+    const secondShot = { ...project.scenes[0]!.shots[0]!, id: 'shot-2', title: 'Second shot' };
+    if (target === 'shot') project.scenes[0]!.shots.push(secondShot);
+    else project.scenes.push({ ...project.scenes[0]!, id: 'scene-2', shots: [secondShot] });
+    const { queryClient, onProjectRefresh } = renderRuntime(project);
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.produce.generate' }));
+    await waitFor(() => expect(api.createCinematicVideoAttempt).toHaveBeenCalledWith('project-1', 'scene-1', 'shot-1',
+      expect.objectContaining({ estimateId: 'estimate-1', durationSeconds: 4, requestFingerprint: 'request-1' })));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.selectShot shot-2' }));
+    await act(async () => pending.resolve(response));
+    await waitFor(() => expect(onProjectRefresh).toHaveBeenCalledTimes(1));
+    expect(queryClient.getQueryData(['video-task', 'usr_demo', 'late-task'])).toEqual(response.task);
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['generation-job-center', 'usr_demo'] });
+    expect(generationApi.getVideoTask).not.toHaveBeenCalled();
+    expect(screen.queryByText('cinematic.produce.generating')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.selectShot shot-1' }));
+    await waitFor(() => expect(generationApi.getVideoTask).toHaveBeenCalledWith('late-task'));
+    expect(api.createCinematicVideoAttempt).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['actor', 'project', 'unmount'])('ignores a late submission after %s ownership changes', async change => {
+    const response = { attemptId: 'late-attempt', task: { id: 'late-task', status: 'provider_processing' } };
+    const pending = deferred<typeof response>();
+    api.createCinematicVideoAttempt.mockReturnValue(pending.promise);
+    const { queryClient, onProjectRefresh, rerenderProject, unmount } = renderRuntime();
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.produce.generate' }));
+    await waitFor(() => expect(api.createCinematicVideoAttempt).toHaveBeenCalledTimes(1));
+    if (change === 'actor') {
+      persistActiveActorId('actor-b');
+      queryClient.clear();
+      rerenderProject(projectFixture());
+    } else if (change === 'project') rerenderProject({ ...projectFixture(), id: 'project-b' });
+    else unmount();
+    await act(async () => pending.resolve(response));
+    expect(queryClient.getQueryData(['video-task', 'usr_demo', 'late-task'])).toBeUndefined();
+    expect(queryClient.getQueryData(['video-task', 'actor-b', 'late-task'])).toBeUndefined();
+    expect(onProjectRefresh).not.toHaveBeenCalled();
+    expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ['generation-job-center', 'actor-b'] });
+    expect(generationApi.getVideoTask).not.toHaveBeenCalled();
+  });
+
+  it('explicitly rechecks the same task once and preserves an older Take and motion draft', async () => {
+    const review = reviewTask();
+    const completed = { ...review, status: 'completed', reviewRequired: false, recheckAllowed: false,
+      outputAsset: { publicUrl: '/recovered.mp4' } };
+    const pending = deferred<typeof completed>();
+    generationApi.getVideoTask.mockImplementation((id, options) => options?.recheck ? pending.promise
+      : Promise.resolve(id === 'old-task' ? { id, status: 'completed', outputAsset: { publicUrl: '/old.mp4' } } : review));
+    const project = reviewProject();
+    project.generationAttempts.unshift({ id: 'old-take', shotId: 'shot-1', operation: 'cinematic_draft_clip',
+      generationJobId: 'old-task', status: 'completed' });
+    const { queryClient, onProjectRefresh } = renderRuntime(project);
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    const button = await screen.findByRole('button', { name: 'cinematic.produce.recheckStatus' });
+    await waitFor(() => expect(button).toBeEnabled());
+    fireEvent.click(document.querySelectorAll('.cinematic-take')[1]!);
+    await waitFor(() => expect(document.querySelector('video source')).toHaveAttribute('src', '/old.mp4'));
+    const video = document.querySelector('video');
+    const draft = screen.getByLabelText('cinematic.produce.additionalMotionDirection');
+    fireEvent.change(draft, { target: { value: 'Keep this unsaved direction.' } });
+    fireEvent.click(button);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.rechecking' })).toBeDisabled());
+    fireEvent.click(button);
+    expect(generationApi.getVideoTask.mock.calls.filter(([, options]) => options?.recheck)).toEqual([['review-task', { recheck: true }]]);
+    expect(document.querySelector('video')).toBe(video);
+    await act(async () => pending.resolve(completed));
+    await waitFor(() => expect(onProjectRefresh).toHaveBeenCalledTimes(1));
+    expect(queryClient.getQueryData(['video-task', 'usr_demo', 'review-task'])).toEqual(completed);
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['generation-job-center', 'usr_demo'] });
+    expect(document.querySelector('video source')).toHaveAttribute('src', '/old.mp4');
+    expect(draft).toHaveValue('Keep this unsaved direction.');
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+    expect(api.approveCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
+  it.each(['actor', 'project'])('ignores a late explicit recheck after an %s switch', async change => {
+    const completed = { ...reviewTask(), status: 'completed', outputAsset: { publicUrl: '/private-a.mp4' } };
+    const pending = deferred<typeof completed>();
+    generationApi.getVideoTask.mockImplementation((_id, options) => options?.recheck ? pending.promise : Promise.resolve(reviewTask()));
+    const { queryClient, onProjectRefresh, rerenderProject } = renderRuntime(reviewProject());
+    const button = await screen.findByRole('button', { name: 'cinematic.produce.recheckStatus' });
+    await waitFor(() => expect(button).toBeEnabled());
+    fireEvent.click(button);
+    await waitFor(() => expect(generationApi.getVideoTask).toHaveBeenCalledWith('review-task', { recheck: true }));
+    if (change === 'actor') persistActiveActorId('actor-b');
+    queryClient.clear();
+    rerenderProject({ ...projectFixture(), id: change === 'project' ? 'project-b' : 'project-1' });
+    await act(async () => pending.resolve(completed));
+    expect(queryClient.getQueryData(['video-task', 'usr_demo', 'review-task'])).toBeUndefined();
+    expect(queryClient.getQueryData(['video-task', 'actor-b', 'review-task'])).toBeUndefined();
+    expect(onProjectRefresh).not.toHaveBeenCalled();
+    expect(document.querySelector('video')).toBeNull();
+  });
+
+  it.each(['cooldown', 'exhausted', 'financial'])('keeps explicit recheck disabled for %s without resubmission', async reason => {
+    const review = reviewTask();
+    review.recheckAllowed = false;
+    if (reason === 'cooldown') review.recovery.explicitNextCheckAt = new Date(Date.now() + 60_000).toISOString();
+    if (reason === 'exhausted') review.recovery.explicitCheckCount = 3;
+    generationApi.getVideoTask.mockResolvedValue(review);
+    renderRuntime(reviewProject());
+    const button = await screen.findByRole('button', { name: 'cinematic.produce.recheckStatus' });
+    expect(button).toBeDisabled();
+    fireEvent.click(button);
+    expect(generationApi.getVideoTask.mock.calls.some(([, options]) => options?.recheck)).toBe(false);
+    expect(screen.queryByText('cinematic.produce.attemptFailed')).not.toBeInTheDocument();
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
+  it('refreshes eligibility once at cooldown expiry using an ordinary read', async () => {
+    const review = reviewTask();
+    review.recheckAllowed = false;
+    review.recovery.explicitNextCheckAt = new Date(Date.now() + 350).toISOString();
+    generationApi.getVideoTask.mockResolvedValueOnce(review).mockResolvedValue({ ...review, recheckAllowed: true });
+    renderRuntime(reviewProject());
+    const button = await screen.findByRole('button', { name: 'cinematic.produce.recheckStatus' });
+    expect(button).toBeDisabled();
+    await waitFor(() => expect(button).toBeEnabled());
+    expect(generationApi.getVideoTask.mock.calls).toEqual([['review-task'], ['review-task']]);
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
+  it('shows a recheck transport failure without automatically retrying or replacing media', async () => {
+    generationApi.getVideoTask.mockImplementation((_id, options) => options?.recheck
+      ? Promise.reject(new Error('Status unavailable.')) : Promise.resolve({ ...reviewTask(), outputAsset: { publicUrl: '/retained.mp4' } }));
+    renderRuntime(reviewProject());
+    const button = await screen.findByRole('button', { name: 'cinematic.produce.recheckStatus' });
+    await waitFor(() => expect(button).toBeEnabled());
+    fireEvent.click(button);
+    expect(await screen.findByText('Status unavailable.')).toBeVisible();
+    expect(document.querySelector('video source')).toHaveAttribute('src', '/retained.mp4');
+    expect(generationApi.getVideoTask.mock.calls.filter(([, options]) => options?.recheck)).toHaveLength(1);
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+  it('keeps an explicit shorter Take duration while switching Shots and requotes the chosen duration', async () => {
+    const catalog = await api.getCinematicVideoCapabilityCatalog();
+    catalog.models[0].durations = [4, 8];
+    api.getCinematicVideoCapabilityCatalog.mockResolvedValue(catalog);
+    const project = projectFixture();
+    project.scenes[0]!.shots[0]!.durationMs = 8000;
+    project.scenes[0]!.shots.push({ ...project.scenes[0]!.shots[0]!, id: 'shot-2', title: 'Second shot' });
+    renderRuntime(project);
+    const duration = await screen.findByRole('combobox', { name: 'playground.video.duration' });
+    expect(duration).toHaveValue('8');
+    fireEvent.change(duration, { target: { value: '4' } });
+    await waitFor(() => expect(api.quoteCinematicVideoAttempt).toHaveBeenLastCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ durationSeconds: 4 })));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.selectShot shot-2' }));
+    expect(duration).toHaveValue('8');
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.selectShot shot-1' }));
+    expect(duration).toHaveValue('4');
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
+  it('switches the actual player node between Takes and never carries it into an empty Shot', async () => {
+    const project = projectFixture();
+    project.scenes[0]!.shots.push({ ...project.scenes[0]!.shots[0]!, id: 'shot-2', title: 'Empty shot' });
+    project.generationAttempts = [1, 2].map(n => ({ id: `take-${n}`, shotId: 'shot-1', operation: 'cinematic_draft_clip',
+      status: 'completed', generationJobId: `videotask_${n}`, createdAt: `2026-09-13T10:0${n}:00Z`, outputAsset: { publicUrl: `/take-${n}.mp4` } }));
+    generationApi.getVideoTask.mockImplementation(async id => ({ id, status: 'completed', billingStatus: 'captured',
+      outputAsset: { publicUrl: `/take-${id.endsWith('1') ? 1 : 2}.mp4`, technicalProbe: { status: 'passed' } } }));
+    renderRuntime(project);
+    await waitFor(() => expect(document.querySelector('video source')).toHaveAttribute('src', '/take-2.mp4'));
+    const outgoing = document.querySelector('video')!;
+    fireEvent.click(within(screen.getByRole('region', { name: 'cinematic.takes.title' })).getAllByRole('button')[1]!);
+    await waitFor(() => expect(document.querySelector('video source')).toHaveAttribute('src', '/take-1.mp4'));
+    await waitFor(() => expect(document.querySelector('video')).not.toBe(outgoing));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.selectShot shot-2' }));
+    await waitFor(() => expect(document.querySelector('video')).toBeNull());
+    expect(api.approveCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
   it('shows usable four seconds, opening buffer and the actual priced five-second render', async () => {
     const originalQuote = await api.quoteCinematicVideoAttempt();
     api.quoteCinematicVideoAttempt.mockResolvedValue({ ...originalQuote,
@@ -147,6 +327,7 @@ describe('Cinematic Produce runtime workspace', () => {
     vi.clearAllMocks();
     localStorage.clear();
     generationApi.getVideoTask.mockReset();
+    api.createCinematicVideoAttempt.mockReset();
     api.getCinematicVideoCapabilityCatalog.mockResolvedValue({
       schemaVersion: 3,
       catalogVersion: 'test',
@@ -487,7 +668,7 @@ describe('Cinematic Produce runtime workspace', () => {
         name: reconciling ? 'cinematic.produce.generate' : 'cinematic.produce.generating'
       });
       expect(button).toBeDisabled();
-      if (reconciling) expect(await screen.findByText('cinematic.produce.reconciliationRequired')).toBeVisible();
+      if (reconciling) expect(button).toHaveAccessibleDescription('cinematic.produce.reconciliationRequired');
       fireEvent.click(button);
       expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
     }
@@ -644,16 +825,37 @@ describe('Cinematic Produce runtime workspace', () => {
 });
 
 function renderRuntime(project = projectFixture(), onOpenStage = vi.fn()) {
+  const onProjectRefresh = vi.fn();
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  const view = render(<QueryClientProvider client={queryClient}><I18nextProvider i18n={i18n}><CinematicStageContent
+  const element = (currentProject: CinematicProject) => <QueryClientProvider client={queryClient}><I18nextProvider i18n={i18n}><CinematicStageContent
       activeStage="produce"
       mode="advanced"
-    project={project}
+    project={currentProject}
+    onProjectRefresh={onProjectRefresh}
     onPrevious={vi.fn()}
     onNext={vi.fn()}
     onOpenStage={onOpenStage}
-  /></I18nextProvider></QueryClientProvider>);
-  return { ...view, queryClient };
+  /></I18nextProvider></QueryClientProvider>;
+  const view = render(element(project));
+  return { ...view, queryClient, onProjectRefresh, rerenderProject: (currentProject: CinematicProject) => view.rerender(element(currentProject)) };
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>(done => { resolve = done; });
+  return { promise, resolve };
+}
+
+function reviewTask() {
+  return { id: 'review-task', status: 'reconciliation_required', billingStatus: 'reserved',
+    reviewRequired: true, recheckAllowed: true, recovery: { explicitCheckCount: 0, explicitMaxChecks: 3, explicitNextCheckAt: '' } };
+}
+
+function reviewProject() {
+  const project = projectFixture();
+  project.generationAttempts = [{ id: 'review-take', shotId: 'shot-1', operation: 'cinematic_draft_clip',
+    generationJobId: 'review-task', status: 'reconciliation_required' }];
+  return project;
 }
 
 function projectFixture() {

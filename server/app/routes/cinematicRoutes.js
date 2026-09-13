@@ -38,6 +38,12 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.get('/api/cinematic/projects/:projectId/prompt-preflight', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store').json(await cinematicService.inspectStoryboardPrompts(req.params.projectId, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
   app.get('/api/cinematic/projects/:projectId/series', async (req, res) => {
     try { res.set('Cache-Control', 'private, no-store').json(await cinematicService.getSeriesWorkspace(req.params.projectId, req.actorContext)); }
     catch (error) { sendCinematicError(res, error); }

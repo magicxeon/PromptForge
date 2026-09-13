@@ -98,6 +98,8 @@
   "shell.footer.version": "Version {version}",
   "shell.jobCenter.label": "Generation jobs",
   "shell.jobCenter.idle": "Idle",
+  "shell.jobCenter.reviewRequired": "Needs review",
+  "shell.jobCenter.unknown": "Unknown",
   "shell.jobCenter.empty": "No generation jobs yet.",
   "shell.jobCenter.unavailable": "Job status is temporarily unavailable.",
   "shell.jobCenter.viewHistory": "View recent outputs",

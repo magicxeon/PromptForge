@@ -1,4 +1,9 @@
 {
+  "ui.promptBudget.checking": "กำลังตรวจ Prompt",
+  "ui.promptBudget.within_budget": "Prompt: {count} ตัวอักษร",
+  "ui.promptBudget.optimized": "ย่อ Prompt แล้ว: {count} ตัวอักษร",
+  "ui.promptBudget.above_recommendation": "Prompt: {count} ตัวอักษร งบแนะนำ {budget} ตัวอักษร ไม่ใช่ limit ที่ยืนยันจากผู้ให้บริการ",
+  "ui.promptBudget.over_limit": "Prompt เกินขนาดคำขอที่รองรับ: {count} ตัวอักษร",
   "ui.templateInputs.title": "สิ่งที่เปลี่ยนได้ใน Template",
   "ui.templateInputs.outfitFront": "ชุดด้านหน้า",
   "ui.templateInputs.outfitBack": "ชุดด้านหลัง",

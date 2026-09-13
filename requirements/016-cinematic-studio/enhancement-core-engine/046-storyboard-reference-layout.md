@@ -1,7 +1,14 @@
 # 046 - Storyboard Reference Image Layout
 
-Status: Planned / parked, documentation only (2026-09-13).
-Implementation and runtime validation have NOT started.
+Status: Scoped reference presentation implemented and isolated component/browser
+validation passed (2026-09-13). No paid/live-data UAT performed.
+
+Scheduling: [050](050-pilot-stability-consolidated-plan.md) includes this scoped
+layout work in the final UX pass of the consolidated pending round. This replaces
+the earlier parked scheduling label, not the preservation rules below.
+Parent owns master 050, all prompt work and GenerationExperience. This pass owns
+StoryboardShotDialog, SceneEnvironmentControl, opt-in ReferenceSlotGrid presentation,
+scoped styles/localization and focused component/browser tests. No master 050 edits.
 
 ## Outcome And Scope
 
@@ -91,7 +98,20 @@ and approval rules are not reopened.
 
 ## Ordered Implementation Tasks
 
-All tasks are pending and require a later implementation instruction.
+Execution plan (UX/UI primary; sequential QA, no independent review):
+
+- Task 1 baseline complete: current real Shot modal browser runner passed EN/TH
+  at 390/820/1440 with themes/tabs/prompt/processing/failure. Attached Shot 3 image
+  is unavailable in this execution context; inspected canonical Momelo references
+  and current modal screenshots instead. No exact screenshot-match claim.
+- Tasks 2-4 complete: added a controlled opt-in row presentation wrapper to the reference
+  region, named Cast previews from the existing immutable generation binding,
+  Scene compact presentation and readable style labels. Keep canonical count and
+  submission unchanged. Keep all processing warnings and authority information.
+- Task 5 complete: extended directed-openings runner with reference-layout component group;
+  extend existing verify-storyboard-shot-workspace.mjs with an explicit references
+  mode. Run small groups, then intercepted browser checks using existing Vite
+  at http://127.0.0.1:6501. No live API mutation, paid call or server restart.
 
 1. Inventory current reference sources, authorized preview data and controls;
    record narrow-panel and adjacent working states. Resolve display data through
@@ -126,5 +146,80 @@ All tasks are pending and require a later implementation instruction.
 
 ## Current Evidence
 
-Requirement recorded only. No UI/code/config changes, tests, builds or paid
-generation for this request. Implementation and visual UAT remain pending.
+Implemented through existing owners:
+
+- StoryboardShotDialog wraps only its modal reference region in ReferenceRows;
+  embedded Simple presentation and all sibling regions retain their defaults.
+  Named rows use cinematicCastReferences order/IDs. Generated preview matching
+  checks generation ID and content hash; Character Look previews use the bound
+  immutable profile/Look/version route. Missing previews retain named fallbacks.
+- ReferenceSlotGrid exports a controlled presentation-only ReferenceRows wrapper.
+  Existing count, value, authority, callbacks and submission remain unchanged.
+  Cast/style processing status moves into its corresponding row; overall warning,
+  unmatched role and authority information remains in ReferenceProcessingPreview.
+  The opt-in pending state uses ProcessingSpinner and retains existing images.
+- SceneEnvironmentControl has an opt-in compact row. Scene name, contained image,
+  select/change button and toggle stay together. OFF retains the selected image
+  with an explicit localized inactive label. Existing gallery/mutations are unchanged.
+- references.css and cinematic.css constrain 80x64 previews (64x64 in panels under
+  300px), with contained images and container-width layout. EN/TH add three
+  functional label keys; no new locale namespace or user-data localization.
+
+Focused evidence, all passed:
+
+```powershell
+node scripts/test-cinematic-directed-openings.mjs reference-layout
+# 24/24: existing shared chooser and Shot dialog tests + named rows/status/count,
+# Scene OFF/ON, empty state, gallery reuse, unsaved edits and error preservation.
+node scripts/verify-storyboard-shot-workspace.mjs references
+# EN/TH, 390/820/1440, all three themes, portrait/landscape containment,
+# equal preview boxes, named read-only Cast, long text, missing preview,
+# keyboard toggle, 4-to-3 active count with OFF image retained, processing/errors.
+node scripts/verify-storyboard-shot-workspace.mjs
+# Existing full Shot modal: tabs, unsaved editor, result/approval, prompt,
+# sticky Generate, processing/failure, EN/TH and all viewport/theme combinations.
+node node_modules/typescript/bin/tsc -p web/tsconfig.app.json --noEmit --incremental false
+# Passed.
+```
+
+Scoped git diff --check passed. Parsed the three new EN/TH keys and confirmed
+interpolation parity. Reviewed desktop Pearl and mobile Thai screenshots, including
+complete portraits/landscape, wrapping and controls. Reference screenshots:
+`C:/Users/punya/AppData/Local/Temp/mpf-shot-workspace-NhZje2`; adjacent Shot dialog:
+`C:/Users/punya/AppData/Local/Temp/mpf-shot-workspace-fVsrx6`.
+
+Browser checks used an existing Vite server at http://127.0.0.1:6501 and intercepted
+all APIs/media. Unexpected API/mutation/network requests fail closed. No app server
+or worker restart, paid generation, persisted user-data mutation, new runtime data
+path, provider payload/order/price change, file move or new source file. No changes
+to GenerationExperience, master 050, stage/application/prompt compiler owners.
+
+Review was sequential, not independent. The original Shot 3 attachment was not
+available, so exact visual comparison with that attachment remains unverified.
+Production-provider and live gallery UAT were intentionally not run; isolated
+gallery component regressions and adjacent workflow checks passed. Parent owns
+cross-workstream integration and any later full release aggregate.
+
+### Scoped Catalog Follow-Up
+
+Removed the repeated agent-added environment enabled/gallery/refresh/loading/
+empty/select/more block from EN and TH, retaining each value once. The owning
+`test/cinematicReferenceLocalization.test.js` uses TypeScript's JSON AST to inspect
+raw object keys before JSON.parse, including a nested-duplicate fixture, and
+checks EN/TH key and interpolation parity. Run:
+`node scripts/test-cinematic-directed-openings.mjs reference-localization` (1/1
+passed). No source/UI behavior or sibling catalog values changed.
+
+The whole catalogs are NOT duplicate-free: comparison against HEAD confirmed
+13 EN and 16 TH pre-existing duplicate keys outside this scope. Shared debt is
+enhance.generateStory/applyStory/rolesPreserved, roles.source/empty/operationTitle/
+operationDescription/generate/apply/applyNote, and save.idle/saved/failed (all
+prefixed cinematic.). TH additionally duplicates produce.modelAuthorizationTitle,
+produce.modelAuthorizationDescription and produce.sourceCheckModel. The focused
+check explicitly reports this baseline debt and rejects other duplicate keys;
+it does not silently equate parsed parity with raw uniqueness. These baseline
+entries remain unchanged per the scoped preservation instruction.
+
+Parent reports its latest full pilot browser passing EN/TH at 390/820/1440 after
+the harness FeaturePolicyProvider update. This follow-up did not rerun browsers
+or start/restart a server; the scoped browser evidence above remains applicable.

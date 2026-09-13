@@ -799,6 +799,16 @@ export class QueueManager {
       }));
   }
 
+  countActiveWorkForUser(username) {
+    const ids = new Set();
+    for (const job of this.jobs.values()) {
+      if (['completed', 'failed', 'cancelled'].includes(job.status)) continue;
+      if ((job.options?.username || 'user_demo') !== username) continue;
+      ids.add(job.options?.generationGroupId ? `group:${job.options.generationGroupId}` : `job:${job.id}`);
+    }
+    return ids.size;
+  }
+
   async getHistoryEntryForUser(jobId, username) {
     const entry = await historyRepository.getById(jobId);
     if (!entry) return null;

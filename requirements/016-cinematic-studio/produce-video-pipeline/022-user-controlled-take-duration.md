@@ -1,6 +1,7 @@
 # 022 - User-Controlled Take Duration
 
-Status: Planned / requirement only (2026-09-13). Not implemented.
+Status: Implemented (2026-09-13); isolated timing/UI verification passed.
+Paid provider performance remains a separate user UAT.
 
 ## Product Decision
 
@@ -108,7 +109,7 @@ or workflow barriers unrelated to the selected operation.
 
 ## Ordered Tasks And Acceptance
 
-All tasks remain pending until implementation is requested.
+Tasks authorized and implemented under enhancement-core-engine/050.
 
 1. Trace default versus explicit Take timing through UI, packet, quote, request,
    attempt and usable-range readers. Add fixtures for Plan=8s/Take=4s and
@@ -138,5 +139,30 @@ attempt timing metadata and never delete user work.
 
 ## Current Delivery
 
-Documentation only. No code/configuration changes, test runs, price changes,
-server restarts or live project edits for this request.
+Per-Shot drafts are actor/Project/Scene/Shot scoped and survive Take refresh and
+Shot switching. Unsupported explicit model durations stay visible and block with
+supported choices; supported durations have no Story Plan minimum or mandatory
+creative-warning acknowledgement. Quote/create validate the same catalog values.
+
+renderForProvider derives selected Take timing without mutating the approved
+packet. Selected timing enters request, quote, rendered fingerprint and new
+attempt.usableRange. White Previs adds its existing 500ms lead-in before Generation
+chooses the physical render duration. Finish reads the selected Take's usable
+range. Individual/ZIP downloads retain original provider bytes; ZIP manifest now
+includes that Take's usable range and physical duration for editing. No destructive
+transcode or implicit trim to the old Plan. Existing Take records are untouched.
+
+Manual event text/timestamps remain exact. If a chosen Take is shorter, execution
+explicitly stops at its action-time boundary; later events are continuity notes,
+not a demand to accelerate or fit the entire old timeline. Dialogue is not rewritten.
+
+Validation: scripts/test-cinematic-video.js take-duration owns compiler/application/
+White Previs groups; scripts/test-cinematic-video.js preview-selection owns Produce
+UI (48 passed). White Previs/clip bundle nine passed; shared VideoEngineTargetPanel,
+GenerationVideoViewer and produceReadModel nine passed. Browser pilot passed EN/TH
+at 390/820/1440; media-only group also inspected actual currentSrc and outgoing pause.
+Commands: node scripts/test-cinematic-video.js take-duration; node
+scripts/test-cinematic-video.js preview-selection; node scripts/verify-cinematic-pilot.mjs;
+node scripts/verify-cinematic-pilot.mjs --media-only. Browser requires an existing
+local Vite at CINEMATIC_WEB_ORIGIN (default 6501); all APIs are intercepted.
+No price activation, paid jobs, worker restart or live Project edits.

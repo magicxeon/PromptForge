@@ -91,3 +91,20 @@ test('Film Readiness blocks missing visible authority and overflowing dialogue',
 test('legacy readiness is explicit and never presented as ready', () => {
   assert.equal(filmReadinessNotEvaluated().status, 'not_evaluated');
 });
+
+test('opt-in timing is advisory while legacy estimated-overflow acknowledgement and technical gates stay unchanged', () => {
+  const plan = readyPlan();
+  const shot = plan.scenes[0].shots[0];
+  shot.durationMs = 8000;
+  shot.dialogueCues[0].estimatedDurationMs = 7000;
+  const legacy = evaluateStoryPlanFilmReadiness(project(), plan);
+  const current = evaluateStoryPlanFilmReadiness(project(), plan, { dialogueTiming: true });
+  assert.equal(legacy.findings.find(item => item.code === 'film_dialogue_timing_overflow').severity, 'warning');
+  assert.equal(current.findings.find(item => item.code === 'film_dialogue_timing_overflow').severity, 'info');
+  assert.equal(current.dialogueAssessment.measured, false);
+  shot.dialogueCues[0].startOffsetMs = 8000;
+  shot.dialogueCues[0].speakerCastAssignmentId = 'unauthorized';
+  const invalid = evaluateStoryPlanFilmReadiness(project(), plan, { dialogueTiming: true });
+  assert.equal(invalid.findings.find(item => item.code === 'film_dialogue_start_outside_shot').severity, 'blocking');
+  assert.equal(invalid.findings.find(item => item.code === 'film_dialogue_speaker_invalid').severity, 'blocking');
+});

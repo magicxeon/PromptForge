@@ -9,10 +9,11 @@ export function useGenerationJobCenter(limit = 12) {
     queryKey: queryKeys.generationJobCenter(actor?.userId || 'loading'),
     queryFn: () => getGenerationJobCenter(limit),
     enabled: Boolean(actor?.userId),
-    refetchInterval: query => (query.state.data?.activeCount || 0) > 0 ? 3_000 : false,
+    gcTime: 5 * 60_000,
+    refetchInterval: query => query.state.fetchStatus === 'fetching'
+      ? false : (query.state.data?.activeCount || 0) > 0 ? 3_000 : false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     retry: 2
   });
 }
-

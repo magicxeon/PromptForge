@@ -281,19 +281,28 @@ an optional facial treatment, a priced video lead-in preserving usable duration,
 and per-Scene empty environment generation/reference. Requirements 043-044 and
 ordered plan 045 preserve the existing Simple/Advanced and Generation owners.
 
-Parked follow-up [046](046-storyboard-reference-layout.md) owns the Shot dialog's
+Planned follow-up [046](046-storyboard-reference-layout.md) owns the Shot dialog's
 reference image layout cleanup: consistent previews, named Cast sources, aligned
 Scene/style controls and responsive states. Documentation only; existing reference
 selection, payload, pricing and sibling UI behavior remain unchanged.
 
-Planned [047](047-dialogue-timing-and-performance-readiness.md) and ordered plan
+Implemented [047](047-dialogue-timing-and-performance-readiness.md) and ordered plan
 [048](048-dialogue-direction-implementation-plan.md) address infeasible dialogue
 timing and missing emotional coverage in AI-generated Story Plans. They add a
-planned targeted direction review separate from visual-only repair, preserve
-legacy approvals/media and keep reference-layout and Credit activation work
-separately parked. Requirements only; implementation has not started.
+targeted direction review separate from visual-only repair, preserve
+legacy approvals/media. Reference layout is scheduled separately within 050;
+Credit activation stays parked. Focused timing/service and layout evidence is recorded.
 
-Planned [049](049-final-prompt-budget-preflight.md) adds early per-Shot final
+Scoped [049](049-final-prompt-budget-preflight.md) adds early per-Shot final
 prompt budget checks, automatic bounded optimization and a repeat check after
 all provider/reference additions. It preserves navigation, authored intent and
-quote parity; only technically invalid requests block. Documentation only.
+quote parity; only technically invalid requests block. Deterministic preparation
+is implemented; semantic fallback and general visual contradiction checks remain open.
+
+Consolidated delivery [050](050-pilot-stability-consolidated-plan.md) owns
+delivery order across Job Center recovery/header feedback, Produce selection and
+Take duration, AI dialogue direction, final reference-aware prompt budgets and
+reference layout. It replaces older scheduling notes, not behavior ownership.
+The user's implementation instruction authorized this round; per-workstream evidence
+and remaining qualification gaps are recorded there. Seedance Credit activation
+stays parked and completed source-fingerprint fixes are preserved.

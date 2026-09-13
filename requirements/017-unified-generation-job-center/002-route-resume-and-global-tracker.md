@@ -1,5 +1,9 @@
 # 002 Route Resume And Global Tracker
 
+Planned extension [006](006-video-header-processing-feedback.md) repairs Video
+activity discovery and stable status through these same owners. No second poller;
+implementation awaits explicit approval.
+
 ## Image Route Pointer
 
 `GenerationExperience` persists one pointer per actor and generation surface:
@@ -35,4 +39,3 @@
 - Focus and reconnect refresh the projection.
 - Feature routes may poll their selected detail resource.
 - Actor ID is part of query and notification keys.
-

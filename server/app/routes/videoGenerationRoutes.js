@@ -88,7 +88,12 @@ export function registerVideoGenerationRoutes(app, {
     try {
       await communityFeaturePolicyService.assertEnabled('cinematic.playgroundVideoEnabled');
       res.set('Cache-Control', 'private, no-store');
-      const task = await videoGenerationService.getAndPoll(req.params.taskId, req.actorContext);
+      if (req.query?.recheck !== undefined && !['true', 'false'].includes(req.query.recheck)) {
+        return res.status(400).json({ error: 'Invalid status recheck option.', code: 'video_status_recheck_invalid' });
+      }
+      const task = await videoGenerationService.getAndPoll(req.params.taskId, req.actorContext, {
+        recheck: req.query?.recheck === 'true'
+      });
       return res.json(task);
     } catch (error) {
       return sendVideoGenerationError(res, error);

@@ -15,7 +15,7 @@ import type { CinematicProject, CinematicScene } from '../schemas/cinematicSchem
 import { DialogHeader } from './ProjectCostSummary';
 
 type Props = { project: CinematicProject; scene: CinematicScene; onProjectRefresh?: () => void; disabled?: boolean;
-  onBusyChange?: (busy: boolean) => void };
+  onBusyChange?: (busy: boolean) => void; compact?: boolean };
 
 export function SceneEnvironmentControl(props: Props) {
   const { t } = useTranslation('cinematic');
@@ -41,9 +41,15 @@ export function SceneEnvironmentControl(props: Props) {
     } catch (cause) { setError(cause instanceof Error ? cause.message : t('cinematic.status.saveFailed')); }
     finally { setBusy(false); }
   }
-  return <div className="cinematic-scene-environment">
-    {source ? <AuthenticatedMediaImage className="cinematic-scene-environment__thumbnail"
+  return <div className={`cinematic-scene-environment${props.compact ? ' cinematic-scene-environment--row' : ''}${source && !enabled ? ' is-inactive' : ''}`}>
+    {props.compact ? <div className="cinematic-scene-environment__preview">
+      {source ? <AuthenticatedMediaImage src={source.thumbnailUrl || source.imageUrl} alt={props.scene.title}
+        fallback={<Images aria-hidden="true" />} /> : <Images aria-hidden="true" />}
+    </div> : source ? <AuthenticatedMediaImage className="cinematic-scene-environment__thumbnail"
       src={source.thumbnailUrl || source.imageUrl} alt={t('cinematic.environment.active')} /> : null}
+    {props.compact ? <div className="cinematic-scene-environment__identity"><strong>{props.scene.title}</strong>
+      <small>{t('cinematic.storyboard.referenceScene')}{source && !enabled ? ` / ${t('cinematic.storyboard.referenceInactive')}` : ''}</small>
+    </div> : null}
     <Button size="sm" icon={<ImagePlus aria-hidden="true" />} disabled={props.disabled || busy} onClick={() => setOpen(true)}>
       {t(props.scene.approvedEnvironmentSource ? 'cinematic.environment.edit' : 'cinematic.environment.generate')}
     </Button>

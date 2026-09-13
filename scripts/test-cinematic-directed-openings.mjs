@@ -4,6 +4,12 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const ui = ['node_modules/vitest/vitest.mjs', 'run', '--config', 'vitest.config.ts', '--root', 'web', '--configLoader', 'runner'];
 const groups = {
+  'reference-localization': ['--test', 'test/cinematicReferenceLocalization.test.js'],
+  'reference-layout': [...ui, 'src/components/generation/ReferenceSlotGrid.test.tsx', 'src/features/cinematic/components/StoryboardShotDialog.test.tsx', 'src/features/cinematic/components/SceneEnvironmentControl.test.tsx'],
+  'dialogue-timing': ['--test', 'test/cinematicDialogueTiming.test.js', 'test/cinematicStoryPlanFilmReadiness.test.js'],
+  'dialogue-persistence': ['--test', '--test-name-pattern=dialogueReview|approv|legacy|Story Plan', 'test/cinematicApplicationService.test.js'],
+  'dialogue-metadata': [...ui, 'src/features/cinematic/schemas/cinematicSchemas.test.ts', 'src/features/cinematic/components/CinematicUxPrototype.test.tsx', '-t', 'dialogueReview|applied Scene Direction'],
+  'dialogue-direction': ['--test', 'test/cinematicDialogueDirection.test.js', 'test/cinematicStoryPlanService.test.js', 'test/cinematicPromptRecipePolicy.test.js'],
   'source-retry': ['--test', 'test/trustedGeneratedSources.test.js', 'test/videoGenerationApplicationService.test.js'],
   'source-ui': [...ui, 'src/features/cinematic/components/CinematicProduceRuntime.test.tsx', 'src/features/cinematic/components/StoryboardVideoCompatibilityNotice.test.tsx'],
   actions: ['--test', 'test/cinematicStoryEnhancementService.test.js', 'test/openAITextProvider.test.js'],

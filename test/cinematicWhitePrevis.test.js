@@ -80,7 +80,7 @@ test('White quote and submit delegate the same buffered duration to Generation a
     repository: { findForActor: async () => structuredClone(project), mutateForActor: async (_id, _actor, fn) => {
       const draft = structuredClone(project); const result = await fn(draft); project = draft; return structuredClone(result);
     } },
-    videoCapabilities: { resolve: () => ({ firstFrameEnabled: false }) },
+    videoCapabilities: { resolve: () => ({ firstFrameEnabled: false, durations: [4, 5, 6, 8] }) },
     videoGenerationService: { getStoredTaskSummaries: async () => [],
       quote: async request => { calls.push(request); return { estimate: { estimateId: 'white_quote', estimatedCredits: 10 } }; },
       submit: async request => { calls.push(request); return { id: 'video_white', status: 'provider_queued', durationSeconds: 5, billingStatus: 'reserved' }; }
@@ -95,6 +95,9 @@ test('White quote and submit delegate the same buffered duration to Generation a
     referenceMode: 'storyboard_and_looks', providerId: 'modelark', modelId: 'fixture', prompt: context.videoPacket.providerIndependentPrompt,
     aspectRatio: '9:16', resolution: '720p', durationSeconds: 4, audioMode: 'none' };
   const quote = await service.quoteVideoAttempt(project.id, scene.id, shot.id, input, actor);
+  await assert.rejects(service.quoteVideoAttempt(project.id, scene.id, shot.id, { ...input, durationSeconds: 7 }, actor),
+    { code: 'cinematic_take_duration_unsupported' });
+  assert.equal(calls.length, 1, 'Unsupported explicit duration must not reach pricing');
   const result = await service.createVideoAttempt(project.id, scene.id, shot.id, { ...input, estimateId: quote.estimate.estimateId, idempotencyKey: 'white_submit' }, actor);
   assert.equal(calls[0].plannedDurationSeconds, 4.5);
   assert.equal(calls[1].plannedDurationSeconds, calls[0].plannedDurationSeconds);

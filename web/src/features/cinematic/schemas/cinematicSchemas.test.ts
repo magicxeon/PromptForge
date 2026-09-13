@@ -2,9 +2,36 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { quoteCinematicVideoAttempt } from '../api/cinematicApi';
 import {
   cinematicLifecycleEventSchema,
+  cinematicStoryPlanProposalSchema,
+  cinematicStoryPlanVersionSchema,
+  cinematicStoryPlanDraftSchema,
+  cinematicSceneDirectionProposalSchema,
+  cinematicFilmReadinessSchema,
   cinematicVideoCapabilitySchema,
   cinematicVideoQuoteSchema
 } from './cinematicSchemas';
+
+describe('dialogueReview metadata', () => {
+  it('survives every additive proposal, draft and saved-version boundary', () => {
+    const review = {
+      contractVersion: 'cinematic-dialogue-timing-v1',
+      assessmentKind: 'deterministic_estimate_and_model_self_review', advisory: true,
+      proposal: { measured: false, findings: [{ code: 'film_dialogue_estimated_overload' }] },
+      afterAllocation: { status: 'needs_review' },
+      final: { measured: false, status: 'needs_review', shots: [{ estimates: [{ minimumMs: 3000 }] }] },
+      rounds: [{ round: 1, status: 'no_progress', changes: [] }], additionalBillableCalls: 0
+    };
+    for (const schema of [cinematicStoryPlanProposalSchema.pick({ dialogueReview: true }),
+      cinematicStoryPlanVersionSchema.pick({ dialogueReview: true }),
+      cinematicStoryPlanDraftSchema.pick({ dialogueReview: true }),
+      cinematicSceneDirectionProposalSchema.pick({ dialogueReview: true })]) {
+      expect(schema.parse({ dialogueReview: review })).toEqual({ dialogueReview: review });
+      expect(schema.parse({})).toEqual({});
+    }
+    expect(cinematicFilmReadinessSchema.parse({ status: 'ready', dimensions: {}, findings: [],
+      dialogueAssessment: review.final }).dialogueAssessment).toEqual(review.final);
+  });
+});
 
 describe('Cinematic C1 contracts', () => {
   it('keeps provider candidates disabled until qualification', () => {

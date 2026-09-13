@@ -147,10 +147,13 @@ export class StoryboardKeyframeContractCompiler {
         'KEYFRAME MOMENT:\nOne still opening frame before the manually authored video action begins.'
       ].join('\n\n')
       : renderPrompt(sections, configuration);
-    const sourceFingerprint = fingerprint(buildSemanticFingerprintPayload(contract, providerIndependentPrompt));
+    const legacyProviderIndependentPrompt = manualStill ? providerIndependentPrompt : renderPrompt(sections, configuration, true);
+    // Keep approved semantic lineage stable; execution no longer discards authored text.
+    const sourceFingerprint = fingerprint(buildSemanticFingerprintPayload(contract, legacyProviderIndependentPrompt));
     return {
       ...contract,
       sourceFingerprint,
+      legacyProviderIndependentPrompt,
       providerIndependentPrompt
     };
   }
@@ -160,14 +163,14 @@ export function matchesStoryboardKeyframeFingerprint(contract, candidateFingerpr
   const candidate = compactText(candidateFingerprint);
   if (!candidate || !contract) return false;
   if (candidate === contract.sourceFingerprint) return true;
+  const compatiblePrompts = [...new Set([contract.providerIndependentPrompt, contract.legacyProviderIndependentPrompt].filter(Boolean))];
+  if (compatiblePrompts.some(prompt => candidate === fingerprint(buildSemanticFingerprintPayload(contract, prompt)))) return true;
 
   // Plan saves can change revision identity without changing any still authority.
   for (const storyPlanVersionId of [...new Set(historicalPlanIds)].slice(-64)) {
     if (!storyPlanVersionId || storyPlanVersionId === contract.storyPlanVersionId) continue;
     const historicalIdentity = { ...contract, storyPlanVersionId };
-    if (candidate === fingerprint(buildSemanticFingerprintPayload(
-      historicalIdentity, contract.providerIndependentPrompt
-    ))) return true;
+    if (compatiblePrompts.some(prompt => candidate === fingerprint(buildSemanticFingerprintPayload(historicalIdentity, prompt)))) return true;
   }
 
   const currentShotVersion = Math.max(1, Number(contract.shotVersion || 1));
@@ -177,7 +180,9 @@ export function matchesStoryboardKeyframeFingerprint(contract, candidateFingerpr
     historicalVersions.add(shotVersion);
   }
   for (const shotVersion of historicalVersions) {
-    if (candidate === fingerprint(buildLegacyVersionedFingerprintPayload(contract, shotVersion))) {
+    if (compatiblePrompts.some(prompt => candidate === fingerprint(buildLegacyVersionedFingerprintPayload({
+      ...contract, providerIndependentPrompt: prompt
+    }, shotVersion)))) {
       return true;
     }
   }
@@ -304,15 +309,13 @@ function buildPromptSections(contract) {
   };
 }
 
-function renderPrompt(sections, configuration) {
+function renderPrompt(sections, configuration, legacyBudget = false) {
   const rendered = configuration.policy.promptSectionOrder.flatMap(section => {
-    const value = truncate(sections[section], configuration.budget.sectionCharacterLimits[section]);
+    const value = legacyBudget ? truncate(sections[section], configuration.budget.sectionCharacterLimits[section]) : compactText(sections[section]);
     return value ? [`${SECTION_LABELS[section]}:\n${value}`] : [];
   });
-  return truncatePrompt(
-    [`STORYBOARD KEYFRAME CONTRACT ${configuration.policy.contractVersion}`, ...rendered].join('\n\n'),
-    configuration.budget.maximumPromptCharacters
-  );
+  const prompt = [`STORYBOARD KEYFRAME CONTRACT ${configuration.policy.contractVersion}`, ...rendered].join('\n\n');
+  return legacyBudget ? truncatePrompt(prompt, configuration.budget.maximumPromptCharacters) : prompt;
 }
 
 function compileFindings({ scene, shot, cast, looks, emotionalTarget, shotPosition, coverageRole }) {
@@ -520,6 +523,7 @@ function buildSemanticFingerprintPayload(contract, providerIndependentPrompt) {
     shotVersion: _shotVersion,
     sourceFingerprint: _sourceFingerprint,
     providerIndependentPrompt: _storedPrompt,
+    legacyProviderIndependentPrompt: _legacyPrompt,
     ...semanticContract
   } = contract;
   return { ...semanticContract, providerIndependentPrompt };
@@ -530,6 +534,7 @@ function buildLegacyVersionedFingerprintPayload(contract, shotVersion) {
     projectVersion: _projectVersion,
     sourceFingerprint: _sourceFingerprint,
     providerIndependentPrompt,
+    legacyProviderIndependentPrompt: _legacyPrompt,
     ...legacyContract
   } = contract;
   return { ...legacyContract, shotVersion, providerIndependentPrompt };

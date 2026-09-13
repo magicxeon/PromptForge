@@ -1184,7 +1184,8 @@
     transition: none;
   }
 
-  .app-sidebar {
+  .app-sidebar,
+  .generation-job-center__spinner {
     animation: none;
   }
 }

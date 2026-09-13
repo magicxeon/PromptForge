@@ -20,48 +20,59 @@ export function GenerationJobCenterIndicator() {
 
   useEffect(() => {
     if (!jobs.data) return;
-    const next = new Map(jobs.data.items.map(item => [item.id, item.status]));
+    const next = new Map(previousStatuses.current || []);
     if (previousStatuses.current) {
       for (const item of jobs.data.items) {
-        const previous = previousStatuses.current.get(item.id);
+        const previous = previousStatuses.current.get(`${item.kind}:${item.id}`);
         if (!previous || previous === item.status || !item.terminal) continue;
         showToast({
-          tone: item.status === 'completed' ? 'success' : 'error',
-          title: item.status === 'completed'
-            ? t('shell.jobCenter.completed')
-            : t('shell.jobCenter.failed'),
+          tone: item.status === 'completed' ? 'success' : item.status === 'reconciliation_required' ? 'warning' : 'error',
+          title: t(jobCenterStatusKey(item.status)),
           description: item.mediaType === 'video'
             ? t('shell.jobCenter.video')
             : t('shell.jobCenter.image')
         });
       }
     }
-    previousStatuses.current = next;
+    for (const item of jobs.data.items) {
+      const key = `${item.kind}:${item.id}`;
+      next.delete(key);
+      next.set(key, item.status);
+    }
+    previousStatuses.current = new Map([...next].slice(-128));
   }, [jobs.data, t]);
 
   const activeCount = jobs.data?.activeCount || 0;
+  const reviewRequired = (jobs.data?.reviewRequiredCount || 0) > 0
+    || jobs.data?.items.some(item => item.status === 'reconciliation_required');
+  const activityLabel = t(activeCount > 0 ? 'shell.jobCenter.processing' : reviewRequired ? 'shell.jobCenter.reviewRequired'
+    : jobs.isError || !jobs.data ? 'shell.jobCenter.unknown' : 'shell.jobCenter.idle');
   return (
     <details className="generation-job-center">
-      <summary className="generation-job-center__trigger" aria-label={t('shell.jobCenter.label')}>
+      <summary className="generation-job-center__trigger" aria-label={t('shell.jobCenter.label')}
+        aria-description={activityLabel} title={activityLabel}>
         {activeCount > 0
           ? <ProcessingSpinner className="generation-job-center__spinner" aria-hidden="true" />
-          : <CheckCircle2 aria-hidden="true" />}
-        <span>{activeCount > 0 ? activeCount : t('shell.jobCenter.idle')}</span>
+          : reviewRequired || jobs.isError || !jobs.data ? <AlertCircle aria-hidden="true" /> : <CheckCircle2 aria-hidden="true" />}
+        <span role="status" title={activeCount > 0 ? t('shell.jobCenter.processing') : undefined}>
+          {activeCount > 0 ? activeCount : t(reviewRequired ? 'shell.jobCenter.reviewRequired'
+            : jobs.isError || !jobs.data ? 'shell.jobCenter.unknown' : 'shell.jobCenter.idle')}
+        </span>
       </summary>
       <div className="generation-job-center__panel">
         <div className="generation-job-center__heading">
           <strong>{t('shell.jobCenter.label')}</strong>
-          {jobs.isFetching ? <ProcessingSpinner className="generation-job-center__spinner" aria-hidden="true" /> : null}
         </div>
         {jobs.isError ? (
           <p className="generation-job-center__empty">{t('shell.jobCenter.unavailable')}</p>
-        ) : jobs.data?.items.length ? (
+        ) : null}
+        {jobs.data?.items.length ? (
           <ul className="generation-job-center__list">
             {jobs.data.items.slice(0, 8).map(item => <JobItem key={`${item.kind}:${item.id}`} item={item} />)}
           </ul>
-        ) : (
+        ) : !jobs.isError ? (
           <p className="generation-job-center__empty">{t('shell.jobCenter.empty')}</p>
-        )}
+        ) : null}
         <Link className="generation-job-center__history" to="/library/recent">
           {t('shell.jobCenter.viewHistory')}
         </Link>
@@ -96,7 +107,8 @@ function JobItem({ item }: { item: GenerationJobCenterItem }) {
 
 function jobCenterStatusKey(status: string) {
   if (status === 'completed') return 'shell.jobCenter.completed';
-  if (['failed', 'cancelled', 'expired', 'reconciliation_required'].includes(status)) {
+  if (status === 'reconciliation_required') return 'shell.jobCenter.reviewRequired';
+  if (['failed', 'cancelled', 'expired'].includes(status)) {
     return 'shell.jobCenter.failed';
   }
   if (['accepted', 'provider_submitting', 'submitted'].includes(status)) {

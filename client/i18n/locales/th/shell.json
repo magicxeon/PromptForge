@@ -98,6 +98,8 @@
   "shell.footer.version": "เวอร์ชัน {version}",
   "shell.jobCenter.label": "งานที่กำลังสร้าง",
   "shell.jobCenter.idle": "ว่าง",
+  "shell.jobCenter.reviewRequired": "ต้องตรวจสอบ",
+  "shell.jobCenter.unknown": "ไม่ทราบสถานะ",
   "shell.jobCenter.empty": "ยังไม่มีงานสร้างภาพหรือวิดีโอ",
   "shell.jobCenter.unavailable": "ไม่สามารถโหลดสถานะงานได้ชั่วคราว",
   "shell.jobCenter.viewHistory": "ดูผลงานล่าสุด",

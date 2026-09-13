@@ -127,6 +127,32 @@ test('CinematicApplicationService exposes actor-owned read-only authoring manife
   assert.equal(stored.version, project.version);
 });
 
+test('prompt preflight is provisional, actor-owned and read-only with isolated Shot failures', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const saved = await service.saveStoryPlan(project.id, { expectedVersion: project.version,
+    scenes: [{ id: 'scene_check', title: 'Check', castMode: 'none', shots: [
+      { id: 'small', title: 'Small', durationMs: 4000, castMode: 'none', prompt: 'Rain falls onto the empty pavement.' },
+      { id: 'large', title: 'Large', durationMs: 4000, castMode: 'none', prompt: 'A long description. '.repeat(100) }
+    ] }] }, alice);
+  const before = await service.getProject(saved.id, alice);
+  const compiler = service.keyframeContractCompiler;
+  service.keyframeContractCompiler = { compile(input) {
+    if (input.shot.id === 'large') throw Object.assign(new Error('Isolated fixture'), { code: 'generation_prompt_too_long' });
+    return compiler.compile(input);
+  } };
+  const result = await service.inspectStoryboardPrompts(saved.id, alice);
+  assert.equal(result.items.length, 2);
+  assert.equal(result.items[0].scope, 'provisional');
+  assert.equal(result.items[0].promptBudget.scope, 'provider_limit_unknown');
+  assert.equal('prompt' in result.items[0], false);
+  assert.equal(result.items[1].errorCode, 'generation_prompt_too_long');
+  assert.deepEqual(await service.getProject(saved.id, alice), before);
+  await assert.rejects(service.inspectStoryboardPrompts(saved.id, { userId: 'usr_bob', username: 'bob', role: 'user' }),
+    { code: 'cinematic_project_not_found' });
+});
+
 test('CinematicApplicationService pins Cast versions and keeps one protagonist', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
@@ -618,6 +644,73 @@ test('Story Plan v3 keeps corrected drafts inactive and gates approval on Film R
   assert.equal(approved.storyPlanVersions.at(-1).filmReadiness.status, 'ready_with_warnings');
   assert.equal(approved.storyPlanVersions.at(-1).scriptPreview[0].visual, readyScene.shots[0].visibleMoment);
   assert.equal(approved.activeStoryPlanVersionId, approved.storyPlanVersions.at(-1).id);
+});
+
+test('dialogueReview persistence opts new plans into advisory timing without changing legacy approval', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject({ ...setup, durationSeconds: 20 }, alice);
+  const input = {
+    contractVersion: 'story-plan-v3', source: 'generated', spokenLanguage: 'en',
+    beats: [{ id: 'beat', title: 'Choice', purpose: 'Show a decision', storyChange: 'She leaves.',
+      cause: 'The train arrives.', consequence: 'She leaves the platform.' }],
+    scenes: [{ id: 'scene', beatId: 'beat', title: 'Choice', purpose: 'Show a decision',
+      storyChange: 'She leaves.', entryState: 'Waiting.', exitState: 'Leaving.',
+      shots: Array.from({ length: 5 }, (_, index) => ({
+        id: `shot_${index}`, title: 'Choice', purpose: 'Show the choice', durationMs: 4000,
+        visibleMoment: 'A hand holds the ticket.', subjectAction: 'The hand folds the ticket.',
+        emotionalTarget: 'resolve', continuityEntry: 'Unfolded ticket.', continuityExit: 'Folded ticket.',
+        dialogueCues: index ? [] : [{ text: 'I have waited here every day hoping that you would return and tell me why you left.',
+          offscreenVoiceRole: 'Narrator', speakerVisible: false, startOffsetMs: 2000, estimatedDurationMs: 7000 }]
+      })) }]
+  };
+  const legacy = await service.saveStoryPlan(project.id, {
+    ...input, approved: false, expectedVersion: project.version
+  }, alice);
+  const oldVersion = structuredClone(legacy.storyPlanVersions[0]);
+  assert.equal(oldVersion.dialogueReview, undefined);
+  assert.equal(oldVersion.filmReadiness.status, 'ready_with_warnings');
+  await assert.rejects(service.saveStoryPlan(project.id, {
+    ...input, approved: true, expectedVersion: legacy.version
+  }, alice), error => error.code === 'cinematic_story_plan_warnings_acknowledgement_required');
+  const review = { contractVersion: 'cinematic-dialogue-timing-v1',
+    proposal: { status: 'needs_review' }, rounds: [{ round: 1, status: 'no_progress' }],
+    final: { status: 'forged_ready', measured: true }, unexpected: 'discard' };
+  const approved = await service.saveStoryPlan(project.id, {
+    ...input, dialogueReview: review, approved: true, expectedVersion: legacy.version
+  }, alice);
+  const saved = approved.storyPlanVersions.at(-1);
+  assert.equal(saved.status, 'approved');
+  assert.equal(saved.warningsAcknowledged, false);
+  assert.equal(saved.filmReadiness.status, 'ready');
+  assert.equal(saved.dialogueReview.final.status, 'needs_review');
+  assert.equal(saved.dialogueReview.final.measured, false);
+  assert.equal(saved.dialogueReview.historySource, 'submitted_review');
+  assert.equal(saved.dialogueReview.unexpected, undefined);
+  assert.deepEqual(saved.dialogueReview.rounds, review.rounds);
+  assert.deepEqual(saved.dialogueReview.final, saved.filmReadiness.dialogueAssessment);
+  assert.deepEqual(approved.storyPlanVersions[0].filmReadiness, oldVersion.filmReadiness);
+  assert.deepEqual((await service.getProject(project.id, alice)).storyPlanVersions.at(-1), saved);
+  assert.equal(approved.scenes[0].shots[0].dialogueCues[0].text, input.scenes[0].shots[0].dialogueCues[0].text);
+
+  const edited = structuredClone(input);
+  Object.assign(edited.scenes[0].shots[0].dialogueCues[0], { text: 'Yes.', startOffsetMs: 0, estimatedDurationMs: 300 });
+  const revised = await service.saveStoryPlan(project.id, {
+    ...edited, dialogueReview: saved.dialogueReview, approved: false, expectedVersion: approved.version
+  }, alice);
+  const revisedAssessment = revised.storyPlanVersions.at(-1).dialogueReview.final;
+  assert.ok(!revisedAssessment.findings.some(item => item.code === 'film_dialogue_estimated_overload'));
+  assert.ok(revisedAssessment.shots[0].estimates[0].maximumMs < saved.dialogueReview.final.shots[0].estimates[0].maximumMs);
+  assert.equal(revised.storyPlanVersions[1].dialogueReview.final.status, 'needs_review');
+  edited.scenes[0].shots[0].dialogueCues[0].startOffsetMs = 4000;
+  await assert.rejects(service.saveStoryPlan(project.id, {
+    ...edited, dialogueReview: saved.dialogueReview, approved: true, expectedVersion: revised.version
+  }, alice), error => ['cinematic_audio_cue_invalid', 'cinematic_story_plan_film_not_ready'].includes(error.code));
+  await assert.rejects(service.saveStoryPlan(project.id, {
+    ...input, dialogueReview: saved.dialogueReview, approved: true, expectedVersion: revised.version,
+    directorFindings: [{ code: 'author_continuity_review', dimension: 'continuity', severity: 'warning',
+      summary: 'Check the ticket handoff.', recommendation: 'Confirm continuity.' }]
+  }, alice), error => error.code === 'cinematic_story_plan_warnings_acknowledgement_required');
 });
 
 test('Story Plan v2 rejects Cast and Look references outside Scene authority', async t => {
@@ -1168,6 +1261,17 @@ test('Cinematic video attempt uses the approved Storyboard source and can be app
   const restoredFirst = await service.getProject(created.id, alice);
   assert.equal(restoredFirst.scenes[0].shots[0].approvedVideoAttemptId, submitted.attemptId);
   assert.equal(restoredFirst.generationAttempts.find(item => item.id === 'second_take').status, 'superseded');
+  for (const seconds of [2, 8]) {
+    const takeQuote = await service.quoteVideoAttempt(created.id, 'scene_a', 'shot_a', {
+      ...input, expectedVersion: restoredFirst.version, durationSeconds: seconds
+    }, alice);
+    assert.equal(calls.at(-1)[1].plannedDurationSeconds, seconds);
+    assert.equal(calls.at(-1)[1].durationSeconds, seconds);
+    assert.equal(takeQuote.usableRange.usableDurationMs, seconds * 1000);
+    assert.equal(takeQuote.usableRange.trimOutMs, seconds * 1000);
+    assert.match(takeQuote.renderedPrompt, new RegExp(`Duration: ${seconds}\\.000s`));
+  }
+  assert.equal((await service.getProject(created.id, alice)).scenes[0].shots[0].durationMs, 4000);
 });
 
 test('Cinematic video quote rejects stale Storyboard and video-packet lineage before pricing', async t => {

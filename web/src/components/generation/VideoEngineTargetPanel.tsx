@@ -134,6 +134,7 @@ export function VideoEngineTargetPanel({
           </Field>
           <Field label={t('playground.video.duration')}>
             <select value={durationSeconds} onChange={event => onDurationChange(Number(event.target.value))}>
+              {!selectedModel.durations.includes(durationSeconds) ? <option value={durationSeconds} disabled>{durationSeconds}s</option> : null}
               {selectedModel.durations.map(value => <option key={value} value={value}>{value}s</option>)}
             </select>
           </Field>

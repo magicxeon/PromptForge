@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { validateGenerationPrompt } from '../generation/GenerationPromptBudget.js';
 import {
   matchesStoryboardKeyframeFingerprint,
   storyboardKeyframeContractCompiler
@@ -179,15 +180,19 @@ export class CinematicVideoPacketCompiler {
     };
   }
 
-  renderForProvider(packet, { providerId = '', referencePlan = null } = {}) {
+  renderForProvider(packet, { providerId = '', modelId = '', referencePlan = null, takeDurationSeconds } = {}) {
     if (!packet?.contractVersion || !packet?.packetFingerprint) {
       throw new TypeError('A compiled Cinematic video packet is required.');
     }
     const policy = this.configurationService.getPolicy();
     const strategy = this.configurationService.getPromptStrategy(providerId);
-    const prompt = renderPrompt(packet, policy, strategy, referencePlan);
+    const executionPacket = takeDurationSeconds === undefined ? packet : {
+      ...packet, timing: { ...packet.timing, plannedDurationMs: selectedTakeDurationMs(takeDurationSeconds) }
+    };
+    const prompt = renderPrompt(executionPacket, policy, strategy, referencePlan);
     return {
       prompt,
+      promptBudget: validateGenerationPrompt(prompt, { providerId, modelId, operation: 'video' }),
       promptFingerprint: fingerprint(prompt),
       strategyId: strategy.id,
       strategyVersion: strategy.version,
@@ -195,6 +200,12 @@ export class CinematicVideoPacketCompiler {
       policyVersion: policy.version
     };
   }
+}
+
+function selectedTakeDurationMs(value) {
+  const duration = Number(value);
+  if (!Number.isFinite(duration) || duration <= 0) throw new TypeError('Take duration must be positive.');
+  return Math.round(duration * 1000);
 }
 
 function compileKeyframeCandidates(compiler, project, scene, shot) {
@@ -245,7 +256,9 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
         : ''
     ]),
     temporalAction: manualTimeline ? sentences([
-      phrase('manualTimeline', 'Manual timeline, local to this clip starting at 0:00; execute only these events in order at their exact intervals.'),
+      packet.motion.timeline.some(event => event.endMs > packet.timing.plannedDurationMs)
+        ? phrase('manualTakeWindow', 'Authored timeline below is unchanged. This Take stops at {seconds}s of action time. Execute only the portion within that window; later events are continuity notes, not actions for this Take. Do not accelerate, compress, or move later events earlier.', { seconds: (packet.timing.plannedDurationMs / 1000).toFixed(3) })
+        : phrase('manualTimeline', 'Manual timeline, local to this clip starting at 0:00; execute only these events in order at their exact intervals.'),
       ...packet.motion.timeline.map(event => `${timelineClock(event.startMs + leadInMs)}-${timelineClock(event.endMs + leadInMs)}: ${event.description}`),
       phrase('manualDuration', 'Clip duration: {seconds}s. No automatic extra events.', {
         seconds: ((packet.timing.plannedDurationMs + leadInMs) / 1000).toFixed(3)
@@ -327,6 +340,18 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
   ].join('\n\n');
   const maximum = referenceMode?.maximumPromptCharacters || policy.maximumPromptCharacters;
   if (prompt.length <= maximum) return prompt;
+  const compositionAuthority = referencePlan?.mode === 'storyboard_and_looks'
+    && ['storyboard_composition', 'sketch_composition'].includes(referencePlan.references?.[0]?.purpose)
+    && packet.referenceStrategy.firstFrameSourceFingerprint;
+  if (compositionAuthority && policy.compactCompositionEnvironment) {
+    sections.environment = sentences([
+      policy.compactCompositionEnvironment,
+      packet.environment.time,
+      packet.environment.lighting,
+      packet.environment.environment,
+      packet.environment.propContinuity
+    ]);
+  }
   // Only remove presentation overhead. Authored content and image mappings stay intact.
   let optimized = promptParts.map(compact).filter(Boolean).join('\n');
   if (optimized.length > maximum && policy.compactSectionLabels) {
@@ -340,11 +365,8 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
       compact(promptSuffix)
     ].filter(Boolean).join('\n');
   }
-  if (optimized.length > maximum) {
-      throw Object.assign(new Error('The video direction and Character mappings exceed the prompt limit. Shorten this Shot direction before generating.'), {
-        code: 'cinematic_video_reference_prompt_too_long', statusCode: 409
-      });
-  }
+  // This legacy budget is a recommendation, not a verified provider API limit.
+  validateGenerationPrompt(optimized, { operation: 'video', recommendedCharacters: maximum });
   return optimized;
 }
 

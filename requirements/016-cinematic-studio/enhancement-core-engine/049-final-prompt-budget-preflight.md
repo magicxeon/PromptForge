@@ -1,6 +1,7 @@
 # 049 - Final Prompt Budget Preflight And Automatic Optimization
 
-Status: Planned / documentation only (2026-09-13). Implementation not started.
+Status: Deterministic preflight implemented and verified (2026-09-13).
+Semantic fallback/general visual contradiction checks remain open; see evidence.
 
 ## Outcome And Scope
 
@@ -91,6 +92,53 @@ switch or new reference can require a new check even after early preflight.
    that authorization. Commercial, Backend and QA gates apply before changing
    any billable behavior; no pricing activation is included in this requirement.
 
+## Reference-Aware Compaction And Conflicting Direction
+
+This section incorporates the user's Storyboard-image discussion. It belongs to
+the same optimization contract, not another AI pass or prompt compiler.
+
+1. Separate STILL creation from VIDEO using an existing approved composition image.
+   A still prompt with only Look Sheets cannot assume that a finished Scene image
+   supplies setting, framing or lighting. Keep the necessary authored description.
+2. For an actually attached, authorized composition/environment reference, compact
+   repeated static descriptions of its setting, palette, material and placement
+   into a concise role-specific preservation clause. Do not assume all invisible
+   details are known, or remove essential story-specific spatial constraints.
+3. A style-only reference remains style-only. Do not silently promote it to scene,
+   pose, facial or blocking authority to save characters. Derive mappings from
+   actual payload order and assigned roles, not assumed Image 1/2/3 numbering.
+   Look Sheets retain each named person's identity/wardrobe authority; faceless/
+   White Previs composition never becomes final-video facial authority.
+4. Consolidate duplicate identity/wardrobe and photographic rules into one concise
+   block per responsibility. Keep only relevant negative constraints once. Internal
+   contract IDs/headings belong in metadata unless required for provider execution;
+   retain diagnostic provenance outside the provider prompt.
+5. Spend the freed budget on information a static image cannot establish: ordered
+   actions, duration/intervals, hand/prop contact changes, facial performance and
+   gaze, exact dialogue, pauses/listener reaction, camera motion, sound and end state.
+   "Preserve the image" alone is not a complete motion instruction.
+6. Flag contradictory authored states for user choice; never silently select a new
+   plot or overwrite approvals during compaction. The supplied sample describes
+   phone-underwater/wrist-holding at time zero but also phone pickup, and a hand
+   insert versus visible faces. Its attached image shows Kin gripping the phone,
+   no wrist hold and a fallen pot. Choosing that image as the start does not justify
+   reintroducing the earlier pickup/hold state as if it were visible.
+7. Enforce contradictions among structured protected fields deterministically where
+   possible. Do not claim vision verification from metadata or introduce a hidden
+   paid image-analysis call. When image/text correspondence cannot be checked,
+   expose uncertainty or an existing user review action, not a false verified result.
+   Creative discrepancies remain advisory; malformed required payloads are separate.
+8. Do not infer that a shorter prompt guarantees photorealism or provider adherence.
+   Keep raw authored text, reference bindings and existing images/Takes unchanged;
+   attach derived wording and protected-invariant findings to the same fingerprint.
+
+Initial implementation inventory must distinguish configured internal 4,000-character
+budgets from verified model limits. Audit VideoGenerationApplicationService's current
+prompt slice(0, 4000) and downstream adapters: no final silent truncation after a
+validated quote. Confirm the actual limit/unit from authoritative provider evidence
+before labeling a local budget as a provider rejection. Unknown limits must be
+reported as unknown, not used to create a new undocumented Generate lock.
+
 ## Presentation And Failure States
 
 - Show concise per-Shot states: checking, optimizing, passed, optimized,
@@ -106,14 +154,18 @@ switch or new reference can require a new check even after early preflight.
   actor-scoped Query/draft ownership; no new polling/cache owner. If a new cache
   is unavoidable, document TTL, invalidation, size and ownership before adding it.
 - Timeout/error retains all user work, allows navigation and exposes retry for
-  that check. An affected request without a validated hard-limit result must not
-  be dispatched, but neither Project nor other valid Shots are globally locked.
+  that check. A request known to exceed an authoritative hard limit, or whose
+  required technical validation failed, must not be dispatched. Unknown provider
+  limits alone are not proof of overflow or a new blanket lock. Neither Project
+  nor other valid Shots are globally locked.
 - Do not auto-approve, submit image/video generation, change a model or create a
   new Take as a side effect of checking/optimizing prompt length.
 
 ## Ordered Tasks And Acceptance
 
-All tasks pending; execute only after an implementation instruction.
+Implementation authorized; evidence and remaining scope are recorded below. Cross-feature
+sequence is owned by [050](050-pilot-stability-consolidated-plan.md); inventory can
+start early, but final integration follows selected Take timing and AI direction.
 
 1. Inventory final still/video composition paths and actual limit units; add
    fixtures for the recurring overflow cases including reference-added overhead.
@@ -135,6 +187,10 @@ limit, Thai/non-ASCII counting, multiple named references, environment/Look/faci
 policies, repeated dialogue, conflicting start/end wording, near-limit overhead,
 unknown/finalized model selection, changed duration/reference invalidation,
 stale async responses, timeout, no safe shortening, and mixed valid/invalid Shots.
+Include Look-only stills versus composition-backed video, style-only authority,
+phone-underwater versus already-gripped conflicts, faceless/White Previs rules,
+duplicate-policy removal and no post-validation truncation. Do not count a
+reference-aware rewrite as correct merely because its text is shorter.
 An early pass is never reused after inputs change; final quote and request must
 use the same validated text. Test short prompts remain unchanged where possible.
 
@@ -152,5 +208,55 @@ not blanket permission for new charges. Prompt preparation stays shared and
 visual authority stays immutable. Before-storyboard results are provider/input
 scoped, never a promise that every future request will fit.
 
-Requirement written only. No implementation, tests, builds, API calls, pricing
-changes or live Project edits performed for this request.
+### Implemented 2026-09-13
+
+- GenerationPromptBudget.js is one pure final-text validator, not a new compiler.
+  server/config/generation-prompt-budget.json owns Unicode-code-point counts,
+  internal image/video recommendations (4700/4000) and a separate 32000-character
+  application request bound. providerLimits is empty until direct API limit/unit
+  evidence is verified. The application bound is NOT a claimed Seedance limit.
+  Sourced per-provider/model/operation limits can be added in this configuration.
+- Video normalization no longer slices to 4000. Existing keyframe/still composers
+  retain authored text beyond recommended budgets. Video compaction removes
+  headings/spacing and simplifies static setting only when an attached primary
+  composition reference owns it. Look-only/style-only sources do not authorize
+  removing scene geometry. Dialogue, timestamps, named mappings, face rules,
+  prop states and motion remain. Unknown provider limits do not lock Generate.
+- Still prepare/preview and final execution share the existing composer. Final
+  validation follows refinement and runs again before single/group reservations.
+  Video validates after reference-legend assembly; quote/create use identical
+  selected-Take rendering and final request validation. No paid optimizer runs
+  implicitly. Over the application bound fails explicitly, never truncates.
+- Read-only owner-scoped GET projects/:projectId/prompt-preflight examines up to
+  128 Shots independently. Plan/Storyboard Query keys include actor, Project and
+  version, staleTime 20s, GC 60s, no polling or AI. Checks are explicitly provisional
+  before final model/references. Actual still preview and video quote recheck final
+  inputs; edits use existing request keys. Failed checks permit navigation/retry.
+- Shared PromptBudgetStatus and Cinematic PromptPreflightSummary expose localized
+  pending/count/recommendation/error states using ProcessingSpinner. No auto-submit,
+  auto-approval, model switch, live repair or reference removal.
+
+Compatibility: keyframe sourceFingerprint retains the legacy prompt projection,
+while full text is used for new execution. Structured semantic fields still bind
+the fingerprint. legacyProviderIndependentPrompt exists only to match prior approved
+records; no second compiler or storage owner. Remove this compatibility projection
+only after an explicit migration of all approved keyframe consumers with fixture
+parity. Plan-version-only identity fixes remain intact.
+
+### Evidence And Remaining Scope
+
+node scripts/test-cinematic-video.js prompt-budget: 61 passed (composer, packet,
+keyframe, Unicode/known-vs-unknown bounds, final single/group pre-reservation checks).
+Application preflight fixture proves actor isolation, no Project mutation, no raw
+prompt response, and one failed Shot does not prevent another result. Backend
+review independently checked preflight, selected timing and legacy fingerprints.
+Produce/browser and layout evidence is linked by 050. No live/paid submission.
+
+Not claimed complete: semantic AI fallback needs an explicitly authorized existing
+text-operation budget and is documented as deferred, not a working enable switch.
+General image/text contradiction detection (for example underwater versus already
+gripped phone) is not proven by metadata-only preflight; existing compiler findings
+remain advisory and no visual verification is claimed. Early preflight is a bounded
+Project-version pass rather than an incremental persisted per-Shot cache. Provider
+limit qualification and actual adherence/photorealism remain user UAT. This is
+scoped deterministic delivery, not closure of every future acceptance case above.

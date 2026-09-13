@@ -43,11 +43,11 @@ beforeEach(async () => {
 });
 afterEach(cleanup);
 
-function setup() {
+function setup(compact = false) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   function Harness() {
     const [project, setProject] = useState(current);
-    return <SceneEnvironmentControl project={project} scene={project.scenes[0]!} onProjectRefresh={() => setProject(current)} />;
+    return <SceneEnvironmentControl project={project} scene={project.scenes[0]!} compact={compact} onProjectRefresh={() => setProject(current)} />;
   }
   render(<QueryClientProvider client={client}><I18nextProvider i18n={i18next}><Harness /></I18nextProvider></QueryClientProvider>);
 }
@@ -63,6 +63,26 @@ it('defaults to enabled and retains the selected image while toggled off and on'
   fireEvent.click(toggle);
   await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'true'));
   expect(mocks.approve).not.toHaveBeenCalled();
+});
+
+it('compact Scene row keeps name, preview, selection action and disabled selection together', async () => {
+  setup(true);
+  expect(screen.getByText('Rainy street')).toBeInTheDocument();
+  expect(screen.getByAltText('Rainy street')).toHaveAttribute('src', '/a.jpg');
+  const toggle = screen.getByRole('switch');
+  fireEvent.click(toggle);
+  await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'false'));
+  expect(screen.getByText(/cinematic.storyboard.referenceInactive/)).toBeInTheDocument();
+  expect(screen.getByAltText('Rainy street')).toHaveAttribute('src', '/a.jpg');
+  expect(screen.getByRole('button', { name: 'cinematic.environment.edit' })).toBeEnabled();
+});
+
+it('compact empty Scene row reserves preview space without inventing a toggle', () => {
+  current.scenes[0]!.approvedEnvironmentSource = null;
+  setup(true);
+  expect(document.querySelector('.cinematic-scene-environment__preview')).not.toBeNull();
+  expect(screen.getByRole('button', { name: 'cinematic.environment.generate' })).toBeEnabled();
+  expect(screen.queryByRole('switch')).not.toBeInTheDocument();
 });
 
 it('shows Project images and explicitly selects an older image without replacing generation controls', async () => {

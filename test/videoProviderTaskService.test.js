@@ -86,7 +86,8 @@ test('research video task is idempotent, survives repository restart and complet
   const restarted = new VideoProviderTaskService({
     repository: restartedRepository,
     adapter: service.adapter,
-    mediaPersister: service.mediaPersister
+    mediaPersister: service.mediaPersister,
+    clock: () => Date.now() + 5_000
   });
   const [completed] = await restarted.resumeRecoverable();
   assert.equal(completed.status, 'completed');
@@ -136,6 +137,7 @@ test('retryable poster failure retains partial Video lineage and repairs the sam
       sourceJobId: recoveredTask.id
     };
   };
+  service.clock = () => Date.now() + 10_000;
   const [repaired] = await service.resumeRecoverable();
   assert.equal(repaired.status, 'completed');
   assert.equal(repaired.outputAsset.assetId, 'asset_partial');

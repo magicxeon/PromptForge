@@ -80,11 +80,13 @@
     "prohibitions": "Rules",
     "authorDirection": "Direction"
   },
+  "compactCompositionEnvironment": "Use the approved composition image for set geometry, palette and physical materials. Preserve the authored time, light and state below.",
   "phrasing": {
     "startFrame": "Begin from the approved Storyboard image as the immutable first frame.",
     "preserveStartFrame": "Preserve every visible identity, garment, prop, spatial relation and motivated light source from that frame.",
     "primaryAction": "One primary action: {value}. Keep authored cause/action/reaction order and prop contact until release; invent no support or cause. React to visible events, not text or exact words. Respect weight/gravity; no hovering, teleporting or repeated falls.",
     "manualTimeline": "Manual timeline, local to this clip starting at 0:00: perform ONLY these events in this order at the exact intervals. Do not merge, reorder, retime or add events; preserve state in gaps.",
+    "manualTakeWindow": "Authored timeline below is unchanged. This Take stops at {seconds}s of action time. Execute only the portion within that window; later events are continuity notes, not actions for this Take. Do not accelerate, compress, or move later events earlier.",
     "manualDuration": "Clip duration: {seconds}s. The timeline alone controls action, camera moves, performance changes and end state; no automatic extra events.",
     "manualCamera": "Preserve opening framing unless the timeline directs a camera move.",
     "manualPromptSuffix": "Continuous real video throughout, with natural physical motion and photographic surfaces; never a still or slideshow.",

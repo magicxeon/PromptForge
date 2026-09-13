@@ -8,6 +8,7 @@ const ACTIVE_STATUSES = new Set([
   'provider_submitting',
   'provider_queued',
   'provider_processing',
+  'provider_succeeded',
   'media_copying',
   'media_retry_pending'
 ]);
@@ -44,7 +45,9 @@ export class GenerationJobCenterService {
         includeInternalArtifacts: false,
         filterKey: 'generation-job-center'
       }),
-      this.videoGenerationService.listRecent(actorContext, { limit: Math.min(24, sourceLimit) })
+      this.videoGenerationService.listActivity
+        ? this.videoGenerationService.listActivity(actorContext, { limit: Math.min(24, sourceLimit), scope: safeScope })
+        : this.videoGenerationService.listRecent(actorContext, { limit: Math.min(24, sourceLimit) })
     ]);
 
     const resolvedGroups = this.generationApplicationService
@@ -53,19 +56,24 @@ export class GenerationJobCenterService {
       ))).filter(Boolean)
       : groups;
     const groupChildIds = new Set(groups.flatMap(group => group.childJobIds || []));
-    const items = [
+    const candidates = [
       ...resolvedGroups.map(projectGroup),
       ...queueJobs.filter(job => !groupChildIds.has(job.id)).map(projectQueueJob),
       ...historyPage.items.filter(item => !item.generationGroupId).map(projectHistoryItem),
       ...videoPage.items.map(projectVideoTask)
-    ]
+    ];
+    const items = candidates
       .filter(item => matchesScope(item, safeScope))
-      .sort(compareNewestFirst)
+      .sort((a, b) => Number(a.terminal) - Number(b.terminal)
+        || Number(b.reviewRequired) - Number(a.reviewRequired) || compareNewestFirst(a, b))
       .slice(0, safeLimit);
 
     return {
       items,
-      activeCount: items.filter(item => !item.terminal).length,
+      activeCount: (this.queueManager.countActiveWorkForUser?.(actorContext.username)
+        ?? candidates.filter(item => item.mediaType === 'image' && !item.terminal).length)
+        + (videoPage.activeCount ?? candidates.filter(item => item.mediaType === 'video' && !item.terminal).length),
+      reviewRequiredCount: videoPage.reviewRequiredCount ?? candidates.filter(item => item.reviewRequired).length,
       terminalCount: items.filter(item => item.terminal).length,
       polledAt: new Date().toISOString()
     };
@@ -148,12 +156,18 @@ function projectVideoTask(task) {
     modelId: task.modelId,
     resultUrl,
     thumbnailUrl,
-    detailHref: '/create/playground?media=video',
-    resumeHref: '/create/playground?media=video',
+    detailHref: videoResumeHref(task),
+    resumeHref: videoResumeHref(task),
     billingStatus: task.billingStatus,
     estimatedCredits: Number(task.estimatedCredits || 0),
     error: sanitizeError(task.providerError)
   });
+}
+
+function videoResumeHref(task) {
+  return task.projectId
+    ? `/create/cinematic/${encodeURIComponent(task.projectId)}/produce`
+    : '/create/playground?media=video';
 }
 
 function baseItem(input) {
@@ -164,6 +178,7 @@ function baseItem(input) {
     mediaType: input.mediaType,
     status,
     terminal: !ACTIVE_STATUSES.has(status),
+    reviewRequired: status === 'reconciliation_required',
     createdAt: input.createdAt || null,
     updatedAt: input.updatedAt || input.createdAt || null,
     completedAt: input.completedAt || null,

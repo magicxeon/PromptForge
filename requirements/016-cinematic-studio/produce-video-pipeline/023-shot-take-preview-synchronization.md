@@ -1,7 +1,6 @@
 # 023 - Shot And Take Preview Synchronization
 
-Status: Planned / requirement only (2026-09-13). Not implemented or reproduced
-in a browser yet; symptoms below are user-reported.
+Status: Implemented (2026-09-13); focused component and browser checks passed.
 
 ## Outcome And Scope
 
@@ -80,7 +79,7 @@ explicit selected-for-use Take semantics.
 
 ## Ordered Tasks And Acceptance
 
-All tasks pending until implementation is requested.
+Tasks authorized and implemented under enhancement-core-engine/050.
 
 1. Reproduce with two Scenes, multiple Shots and at least three distinct Takes
    in one Shot. Trace selected identity through query data and actual player src;
@@ -114,6 +113,21 @@ video currentSrc/source identity and playback, not just screenshots.
 
 ## Current Delivery
 
-Requirement recorded only. No implementation, tests, build, server restart or
-live data edits. Coordinate with the separate header-status/recovery-cutoff work
-without expanding this requirement into a new task-status lifecycle.
+The shared VideoMediaPlayer remounts only when the actual URL changes and pauses
+the outgoing element. Unchanged sources retain playback. Produce derives active
+task scope directly from the selected Shot, keeps explicit historical preview
+separate, and captures submission actor/Project/Scene/Shot before dispatch.
+Late acceptance cannot rebind a task to another Shot or actor. Historical query
+refresh no longer blanks existing media. Preview never approves or selects a Take
+for assembly. All existing source, download and approval actions remain.
+
+Evidence: Produce 48/48 passed, including distinct media elements/URLs, empty Shot,
+delayed submit, actor/Project/unmount, retained older Take and draft, and recovery.
+Shared viewer/engine/read-model nine passed. node scripts/verify-cinematic-pilot.mjs
+passed EN/TH at 390/820/1440 (navigation, >8 Takes, adjacent controls, ZIP consent).
+Its --media-only group creates disposable canvas-recorded fixture media and checks
+actual currentSrc, old element pause, empty selection and viewport bounds. It does
+not depend on title changes as proof. Screenshots: temporary mpf-cinematic-pilot-
+k9ugRM (media) and mpf-cinematic-pilot-pLZl4e (Produce) directories.
+Runner: node scripts/test-cinematic-video.js preview-selection. No live mutation,
+paid generation, server restart or alternate player/polling workflow.

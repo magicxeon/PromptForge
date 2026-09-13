@@ -7,6 +7,7 @@ import { generatedCastSourceFingerprint } from '../server/domain/generation/Trus
 
 const actor = { userId: 'usr_video', username: 'video_user', role: 'user' };
 const TEST_MODELARK_SCOPE = 'modelark:ark.test:account:video-test';
+const RESTRICTED_SOURCE_POLICY = { allowAnyProvider: false, blockedSources: [], policyVersion: 'test-restricted-source-v1' };
 
 for (const style of ['concept_sketch_v1', 'photorealistic_storyboard_v1', 'faceless_previs_v1']) test(`composition: ${style} quote and submit with disabled first frame; rejects forged style`, async () => {
   const asset = compatibleSeedreamAsset();
@@ -79,7 +80,8 @@ for (const looksOnly of [false, true]) for (const imported of [false, true, 'dir
   let reserved;
   const calls = [];
   const service = new VideoGenerationApplicationService({
-    capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true, runtimeEnvironment: 'development', developmentPocEnabled: true }),
+    capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true, runtimeEnvironment: 'development', developmentPocEnabled: true,
+      sourcePolicy: RESTRICTED_SOURCE_POLICY }),
     assetRepository: { async findByIdForOwner(id, owner) {
       if (looksOnly) assert.notEqual(id, board.id, 'Disabled Storyboard must never be read');
       if (direct && id === look.id && owner === actor.userId) {
@@ -308,7 +310,8 @@ test('Cinematic Seedance reports missing ModelArk credentials before pricing', a
   let estimates = 0;
   const service = new VideoGenerationApplicationService({
     capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
-      runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
+      runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1,
+      sourcePolicy: RESTRICTED_SOURCE_POLICY
     }),
     modelArkCredentialScopeResolver: () => null,
     creditService: {

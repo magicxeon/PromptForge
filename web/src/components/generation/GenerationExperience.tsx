@@ -8,6 +8,7 @@ import { ErrorState, LoadingState } from '../ui/AsyncState';
 import { Surface } from '../ui/Surface';
 import { StatusNotice } from '../ui/StatusNotice';
 import { PromptEditor } from './PromptEditor';
+import { PromptBudgetStatus } from './PromptBudgetStatus';
 import { PromptComposerAssist } from './PromptComposerAssist';
 import { ReferenceSlotGrid, type ReferenceDisplayPreviews } from './ReferenceSlotGrid';
 import {
@@ -621,7 +622,7 @@ export function GenerationExperience({
       estimateKey
     ],
     queryFn: () => previewCompiledPrompt(pricedDraft as GenerationRequestDraft),
-    enabled: Boolean(canEstimate && (debugPromptEnabled || lookSheetDefinition) && debouncedDraft),
+    enabled: Boolean(canEstimate && (debugPromptEnabled || lookSheetDefinition || cinematicContainsPeople !== undefined) && debouncedDraft),
     staleTime: 20_000,
     retry: false
   });
@@ -815,7 +816,8 @@ export function GenerationExperience({
   if (catalog.isLoading) return <LoadingState label={t('playground.engine.loading')} />;
   if (catalog.isError || !catalog.data) return <ErrorState title={t('playground.engine.unavailable')} description={catalog.error?.message} onRetry={() => void catalog.refetch()} />;
   const model = selectedCatalogModel;
-  const effectiveBlockedReason = blockedReason || (enhancement.enabled && (enhancement.blocked || !singleEstimate.data || singleEstimate.isFetching)
+  const effectiveBlockedReason = blockedReason || (cinematicContainsPeople !== undefined && compiledPromptPreview.error?.message)
+    || (enhancement.enabled && (enhancement.blocked || !singleEstimate.data || singleEstimate.isFetching)
     ? t('lookSheet.auto.priceRequired') : null) || (modelAvailabilityReason
     ? t(`playground.engine.unavailable.${modelAvailabilityReason}`)
     : null);
@@ -1088,6 +1090,8 @@ export function GenerationExperience({
     || layoutVariant === 'playground';
   const actionRegion = usesStudioCommandPresentation ? (
     <Surface className="studio-generation-action">
+      {cinematicContainsPeople !== undefined ? <PromptBudgetStatus value={compiledPromptPreview.data?.promptBudget}
+        pending={compiledPromptPreview.isFetching} error={compiledPromptPreview.error?.message} /> : null}
       {enhancement.enabled && imageEstimate !== undefined && enhancement.fee !== undefined
         ? <p className="mb-3 text-sm" role="status">{t('lookSheet.auto.breakdown', { image: imageEstimate, enhancement: enhancement.fee, total: estimate })}</p> : null}
       <Button
@@ -1117,6 +1121,8 @@ export function GenerationExperience({
     </Surface>
   ) : (
     <Surface className="generation-command-bar sticky bottom-3 z-30 flex flex-wrap items-center justify-between gap-4 border-cyan-400/35 bg-[#0e1320f2] p-4 shadow-[var(--mpf-shadow-raised)] backdrop-blur">
+        {cinematicContainsPeople !== undefined ? <PromptBudgetStatus value={compiledPromptPreview.data?.promptBudget}
+          pending={compiledPromptPreview.isFetching} error={compiledPromptPreview.error?.message} /> : null}
         <div className="flex items-center gap-3">
           <Coins className="size-6 text-amber-300" />
           <span><strong className="block">{singleEstimate.isFetching || comparisonEstimate.isFetching ? t('playground.estimate.loading') : estimate !== undefined ? `${estimate} ${t('playground.comparison.credits')}` : t('playground.estimate.pending')}</strong><small className="text-[var(--mpf-text-muted)]">{canAfford ? t('playground.estimate.locked') : t('playground.estimate.insufficient')}</small></span>

@@ -1,6 +1,8 @@
 # 047 - Dialogue Timing And Performance Readiness
 
-Status: Planned. Requirement only, requested 2026-09-13; not implemented.
+Status: Scoped planning and authorized projection/persistence integration verified
+2026-09-13 under master 050 workstream 5. Human timing/video UAT remains open;
+not a whole-requirement completion claim.
 Ordered tasks: [048](048-dialogue-direction-implementation-plan.md).
 
 ## Outcome And Evidence
@@ -117,6 +119,33 @@ existing visual validation/repair -> final readiness -> editable Draft.
   and idempotency contract. Do not silently enable new charges or uncapped retries.
   Any required financial contract change needs Backend, Commercial and QA gates
   before implementation; this requirement does not change rates or activate billing.
+
+Implementation boundary (2026-09-13): new Story Plan v9 and Scene Direction v8
+opt into the independent `CinematicDialogueTiming` assessment. Timing/performance
+repair shares the existing maximum two visual-repair calls and timeout; there is
+no added loop, TTS, media generation or charge. Timing proposals only redistribute
+known spare time within the exact total, preserve all cue authority except start
+offset, and are rejected on new conflicts or no improvement. Unknown silent-action
+budgets cannot donate time. Visual-only repair still cannot change cue/duration
+authority. Existing field locks conservatively suppress automatic dialogue repair
+because new-plan IDs cannot safely be mapped back by index. Explicit Scene
+Direction preserves supplied dialogue, timing, stable order and media; unmatched
+or reordered Shots retain their original contracts. Structure changes remain
+unresolved alternatives for explicit review, not automatic ID reassignment.
+
+The helper uses script-unit ranges (Thai base letters, CJK characters, words for
+recognized spaced languages and a low-confidence fallback), not a calibrated
+speech model. Delivery and pause assumptions live in dialogue-timing.v1.json.
+Independent findings are `info` with advisory metadata, avoiding the old warning
+acknowledgement gate. `evaluateStoryPlanFilmReadiness(..., { dialogueTiming: true })`
+adopts this behavior explicitly; default calls preserve legacy readiness. The
+authorized integration now adopts that option at new-plan persistence when the
+current versioned `dialogueReview` is present. Proposal, draft, saved-version and
+Scene Direction schemas retain its before/allocation/final evidence. Saving
+recomputes final assessment from normalized current content, bounds submitted
+history to 256000 characters and two rounds, and labels history as submitted
+advisory evidence. Unknown versions do not opt into changed approval semantics.
+Old plans and unrelated warnings retain their existing acknowledgement rules.
 
 ## Readiness And Compatibility
 

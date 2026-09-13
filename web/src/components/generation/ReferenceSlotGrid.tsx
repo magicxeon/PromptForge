@@ -1,6 +1,6 @@
-import { ImagePlus, UserRound, Palette, PersonStanding, Shirt, X, PanelsTopLeft } from 'lucide-react';
+import { ImagePlus, UserRound, Palette, PersonStanding, Shirt, X, PanelsTopLeft, ShieldCheck, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { Button } from '../ui/Button';
@@ -19,6 +19,15 @@ import { GeneratedLookSourceField } from './GeneratedLookSourceField';
 import { ProcessingSpinner } from '../ui/ProcessingSpinner';
 
 export type ReferenceDisplayPreviews = Partial<Record<GenerationReferenceRole, { reference: string; sources: DisplayMediaSource[]; label: string }>>;
+
+export type ReferenceRowSource = { slotId: string; name: string; description: string; sources: DisplayMediaSource[] };
+type RowPresentation = { sources: ReferenceRowSource[]; labels?: Partial<Record<GenerationReferenceRole, string>> };
+const ReferenceRowsContext = createContext<RowPresentation | null>(null);
+
+// Presentation only: the owning Generation region still supplies count, authority and mutations.
+export function ReferenceRows({ children, sources, labels }: RowPresentation & { children: ReactNode }) {
+  return <ReferenceRowsContext.Provider value={{ sources, labels }}>{children}</ReferenceRowsContext.Provider>;
+}
 
 const definitions: Array<{
   role: GenerationReferenceRole;
@@ -74,6 +83,7 @@ export function ReferenceSlotGrid({
   lookSheetSelection?: boolean;
 }) {
   const { t } = useTranslation('playground');
+  const rowPresentation = useContext(ReferenceRowsContext);
   const location = useLocation();
   const activeCount = Object.values(value).filter(Boolean).length + additionalReferenceCount;
   useEffect(() => {
@@ -85,12 +95,23 @@ export function ReferenceSlotGrid({
   return (
     <section
       id="reference-images"
-      className={`reference-slot-grid${compact ? ' reference-slot-grid--compact' : ''}`}
+      className={`reference-slot-grid${compact ? ' reference-slot-grid--compact' : ''}${rowPresentation ? ' reference-slot-grid--rows' : ''}`}
     >
       <div className="reference-slot-grid__heading mb-3 flex items-end justify-between gap-3">
         <div><h2 className="m-0 text-lg">{t('playground.reference.summaryTitle')}</h2><p className="mb-0 mt-1 text-xs text-[var(--mpf-text-muted)]">{t('playground.reference.usage', { active: activeCount, max: maxReferences })}</p></div>
       </div>
       {leadingContent}
+      {rowPresentation?.sources.map(source => <article className="reference-source-row" key={source.slotId}>
+        <figure className="reference-source-row__preview">
+          <DisplayMediaImage sources={source.sources} alt={source.name} fallback={<UserRound aria-hidden="true" />} />
+        </figure>
+        <div className="reference-source-row__identity"><strong>{source.name}</strong><small>{source.description}</small>
+          <ReferenceRowStatus reference={authorityProjection?.references.find(item => item.slotId === source.slotId)} />
+        </div>
+        <span className="reference-source-row__authority" title={t('playground.reference.authorityTitle')} aria-label={t('playground.reference.authorityTitle')}>
+          <ShieldCheck size={16} aria-hidden="true" />
+        </span>
+      </article>)}
       <div className="reference-slot-grid__items grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {definitions.filter(definition => !roles || roles.includes(definition.role)).map(definition => (
           <ReferenceSlot
@@ -111,12 +132,20 @@ export function ReferenceSlotGrid({
             onChange={next => onChange({ ...value, [definition.role]: next || undefined })}
             readOnly={readOnly}
             lookSheetSelection={lookSheetSelection && definition.role === 'character_reference'}
+            rowLabel={rowPresentation?.labels?.[definition.role]}
+            rowPresentation={Boolean(rowPresentation)}
+            rowStatus={rowPresentation ? authorityProjection?.references.find(item => item.slotId === definition.role) : undefined}
           />
         ))}
       </div>
+      {rowPresentation && processing ? <div className="reference-rows-processing" role="status"><ProcessingSpinner />{t('playground.reference.processing')}</div> : null}
       <ReferenceProcessingPreview
-        projection={authorityProjection}
-        loading={processing}
+        projection={rowPresentation && authorityProjection ? { ...authorityProjection,
+          references: authorityProjection.references.filter(item =>
+            !rowPresentation.sources.some(source => source.slotId === item.slotId)
+            && !definitions.some(definition => definition.role === item.slotId && value[definition.role] && (!roles || roles.includes(definition.role))))
+        } : authorityProjection}
+        loading={rowPresentation ? false : processing}
         error={processingError}
       />
     </section>
@@ -137,7 +166,8 @@ function ReferenceSlot({
   onScopeChange,
   onChange,
   readOnly,
-  lookSheetSelection
+  lookSheetSelection,
+  rowLabel, rowPresentation = false, rowStatus
 }: {
   role: GenerationReferenceRole;
   label: string;
@@ -153,6 +183,9 @@ function ReferenceSlot({
   onChange: (value: string | null) => void;
   readOnly: boolean;
   lookSheetSelection: boolean;
+  rowLabel?: string;
+  rowPresentation?: boolean;
+  rowStatus?: ReferenceAuthorityProjection['references'][number];
 }) {
   const { t } = useTranslation('playground');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -207,7 +240,9 @@ function ReferenceSlot({
       <div className="relative flex h-full flex-col">
         {value ? (
           <figure className="reference-slot__preview" title={displayPreview ? displayPreview.label : sourceLabel}>
-            {displayPreview ? <DisplayMediaImage sources={displayPreview.sources} alt={displayPreview.label} fallback={<Icon className="reference-slot__icon size-6 text-cyan-300" />} /> : isAuthenticatedMediaPath(value) ? (
+            {rowPresentation ? <DisplayMediaImage sources={(displayPreview?.sources || [{ src: value, fit: 'contain' }]).map(source => ({ ...source, fit: 'contain' }))}
+              alt={rowLabel || displayPreview?.label || label} fallback={<Icon className="reference-slot__icon size-6" aria-hidden="true" />} />
+              : displayPreview ? <DisplayMediaImage sources={displayPreview.sources} alt={displayPreview.label} fallback={<Icon className="reference-slot__icon size-6 text-cyan-300" />} /> : isAuthenticatedMediaPath(value) ? (
               <AuthenticatedMediaImage
                 src={value}
                 alt={label}
@@ -220,11 +255,12 @@ function ReferenceSlot({
         ) : (
           <Icon className="reference-slot__icon size-6 text-cyan-300" />
         )}
-        <strong className="reference-slot__label mt-3 text-sm">{label}</strong>
+        <strong className="reference-slot__label mt-3 text-sm">{rowLabel || label}</strong>
         <small className="reference-slot__description mt-1 text-[var(--mpf-text-muted)]">{description}</small>
         {value ? (
-          <small className="reference-slot__source">{sourceLabel}</small>
+          <small className="reference-slot__source" title={sourceLabel}>{rowPresentation ? displayPreview?.label || label : sourceLabel}</small>
         ) : null}
+        {rowPresentation ? <ReferenceRowStatus reference={rowStatus} /> : null}
         {!readOnly && value && (role === 'outfit_front' || role === 'outfit_back') ? (
           <ReferenceScopeSelector
             value={scope || 'full_look'}
@@ -260,6 +296,17 @@ function ReferenceSlot({
       </div>
     </article>
   );
+}
+
+function ReferenceRowStatus({ reference }: { reference?: ReferenceAuthorityProjection['references'][number] }) {
+  const { t } = useTranslation('playground');
+  if (!reference) return null;
+  const Icon = reference.status === 'warning' ? AlertTriangle : CheckCircle2;
+  return <span className={`reference-row-status is-${reference.status}`}>
+    <Icon size={14} aria-hidden="true" />
+    {t(`playground.reference.role.${reference.role}`)}
+    {reference.detectedScope ? ` / ${t(`playground.reference.scope.${reference.detectedScope}`)}` : ''}
+  </span>;
 }
 
 function readFileAsDataUrl(file: File) {

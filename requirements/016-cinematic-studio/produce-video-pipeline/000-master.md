@@ -211,17 +211,27 @@ Out of scope:
 
 ## 11. Requirement Closure
 
+### Stability Delivery (2026-09-13)
+
+[Enhancement 050](../enhancement-core-engine/050-pilot-stability-consolidated-plan.md)
+consolidates pending recovery, header activity, Shot/Take selection, user-controlled
+duration, AI direction, prompt budget and reference-layout tasks in dependency
+order. The user's next instruction authorized implementation; 050 records scoped
+delivery, focused evidence and remaining semantic/provider-quality work. Existing
+media and approval ownership are preserved.
+
 ### Pilot Review UX Addendum (2026-09-12)
 
-Planned regression [023 Shot/Take Preview Synchronization](023-shot-take-preview-synchronization.md)
+Implemented regression [023 Shot/Take Preview Synchronization](023-shot-take-preview-synchronization.md)
 tracks center video not following selected Shot or Take. Reuse existing media
 and selection owners; preserve old Takes, explicit approval and active-task
-monitoring. Requirement only; no implementation or browser reproduction yet.
+monitoring. Component tests and actual-source browser verification are recorded.
 
-Planned follow-up [022 User-Controlled Take Duration](022-user-controlled-take-duration.md)
+Implemented follow-up [022 User-Controlled Take Duration](022-user-controlled-take-duration.md)
 uses Story Plan duration as a default only. Explicit supported Take duration is
 user-controlled; creative timing advice does not lock Generate. Actual provider,
-source authority, quote and financial safeguards remain. Documentation only.
+source authority, quote and financial safeguards remain. Selected timing now drives
+execution, quote, usable range and the download manifest without rewriting Plan.
 
 Implementation is now authorized under [021 Scope Reconciliation](021-pilot-scope-reconciliation.md).
 That reconciliation takes precedence over discussion/pending labels below and

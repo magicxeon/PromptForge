@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { GenerationExperience } from '../../../components/generation/GenerationExperience';
+import { ReferenceRows, type ReferenceRowSource } from '../../../components/generation/ReferenceSlotGrid';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import { Button } from '../../../components/ui/Button';
 import { ToggleSwitch } from '../../../components/ui/ToggleSwitch';
@@ -138,6 +139,22 @@ export function StoryboardShotDialog({
   const references = Object.fromEntries(Object.entries(generationContext.data?.references || {})
     .filter((entry): entry is [GenerationReferenceRole, string] => Boolean(entry[1])));
   const referenceRoles = Object.keys(references) as GenerationReferenceRole[];
+  const referenceRows: ReferenceRowSource[] = (generationContext.data?.cinematicCastReferences || []).map((binding, index) => {
+    const cast = project.castAssignments.find(item => item.id === binding.castAssignmentId);
+    const look = generationContext.data?.looks.find(item => item.assignmentId === binding.castAssignmentId);
+    const sheet = cast?.generatedSheet;
+    const preview = binding.sourceType === 'generated_sheet'
+      ? sheet && sheet.generationId === binding.generationId && sheet.contentHash === binding.contentHash ? sheet.previewUrl : null
+      : binding.characterProfileId && binding.characterLookId && binding.characterLookVersionId
+        ? `/api/character-profiles/${encodeURIComponent(binding.characterProfileId)}/looks/${encodeURIComponent(binding.characterLookId)}/versions/${encodeURIComponent(binding.characterLookVersionId)}/media/sheet`
+        : null;
+    return { slotId: `cinematic_cast_${index}`, name: binding.displayName,
+      description: [cast?.storyRole, look?.name].filter(Boolean).join(' / '),
+      sources: preview ? [{ src: preview, fit: 'contain' }] : [] };
+  });
+  const continuityShot = scene.shots.find(item => item.id === generationContext.data?.continuitySource?.shotId);
+  const referenceLabels = continuityShot && references.style_reference
+    ? { style_reference: t('cinematic.storyboard.referencePrevious', { title: continuityShot.title }) } : undefined;
   const keyframePrompt = generationContext.data?.keyframeContract.providerIndependentPrompt || '';
   const directionDirty = direction.trim() !== savedDirection.trim();
   const blockedReason = externalBlockedReason || (savingSettings || environmentBusy ? t('cinematic.save.saving') : null) || (generationContext.isPending
@@ -249,7 +266,8 @@ export function StoryboardShotDialog({
             {error ? <p role="alert">{error}</p> : null}
             {regions.messages}{regions.actions}
           </div> : <StoryboardShotWorkspace
-            regions={regions} tab={workspaceTab} onTabChange={setWorkspaceTab} editingShot={editingShot}
+            regions={{ ...regions, references: <ReferenceRows sources={referenceRows} labels={referenceLabels}>{regions.references}</ReferenceRows> }}
+            tab={workspaceTab} onTabChange={setWorkspaceTab} editingShot={editingShot}
             notice={<>
               {error ? <p className="cinematic-storyboard-shot-dialog__error" role="alert">{error}</p> : null}
               {videoReferences.error ? <p role="alert">{videoReferences.error.message}</p> : null}
@@ -330,7 +348,7 @@ export function StoryboardShotDialog({
           characterProfileContext={characterProfileContext}
           cinematicCastReferences={generationContext.data?.cinematicCastReferences}
           cinematicSceneReference={generationContext.data?.cinematicSceneReference}
-          referenceLead={<SceneEnvironmentControl project={project} scene={scene} onProjectRefresh={onProjectRefresh}
+          referenceLead={<SceneEnvironmentControl project={project} scene={scene} compact={!embedded} onProjectRefresh={onProjectRefresh}
             onBusyChange={setEnvironmentBusy} disabled={saving || savingSettings || Boolean(externalBlockedReason)} />}
           cinematicContainsPeople={generationContext.data?.cinematicContainsPeople}
           cinematicFaceless={generationContext.data?.cinematicFaceless === true}

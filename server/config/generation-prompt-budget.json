@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "countUnit": "unicode_code_points",
+  "requestSafetyCharacters": 32000,
+  "recommendedCharacters": { "image": 4700, "video": 4000 },
+  "providerLimits": {},
+  "semanticOptimization": { "status": "deferred", "reason": "Requires an authorized text-operation budget; deterministic preparation remains automatic." },
+  "sourceNote": "Recommendations and the application request safety bound are not provider API limits. Add verified provider/model/operation limits with source evidence only."
+}

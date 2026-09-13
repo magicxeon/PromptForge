@@ -37,6 +37,9 @@ const profileApiMocks = vi.hoisted(() => ({
   retireCharacterLook: vi.fn()
 }));
 
+// This suite owns authoring persistence; prompt preflight has its own query boundary.
+vi.mock('./PromptPreflightSummary', () => ({ PromptPreflightSummary: () => null }));
+
 vi.mock('../api/cinematicApi', async importOriginal => ({
   ...await importOriginal<typeof import('../api/cinematicApi')>(),
   ...cinematicApiMocks
@@ -703,10 +706,16 @@ describe('Cinematic UX prototype', () => {
     expect(screen.getByRole('button', { name: 'cinematic.actions.next' })).toBeDisabled();
   });
 
-  it('automatically persists generated Beats, Scenes and Shots as an editable Draft', async () => {
+  it('automatically persists generated Beats, Scenes, Shots and dialogueReview as an editable Draft', async () => {
     const project = completeStoryPlanFixture();
     const proposal = storyPlanProposalFixture(project);
+    proposal.dialogueReview = {
+      contractVersion: 'cinematic-dialogue-timing-v1', advisory: true,
+      assessmentKind: 'deterministic_estimate_and_model_self_review',
+      final: { measured: false, status: 'needs_review' }, rounds: [], additionalBillableCalls: 0
+    };
     const savedProject = projectWithSavedProposal(project, proposal);
+    savedProject.storyPlanVersions.at(-1)!.dialogueReview = structuredClone(proposal.dialogueReview);
     const onProjectChanged = vi.fn();
     cinematicApiMocks.generateCinematicStoryPlan.mockResolvedValue(proposal);
     cinematicApiMocks.saveCinematicStoryPlan.mockResolvedValue(savedProject);
@@ -721,6 +730,7 @@ describe('Cinematic UX prototype', () => {
       expect.objectContaining({
         contractVersion: 'story-plan-v3', expectedVersion: project.version,
         approved: false, source: 'generated',
+        dialogueReview: proposal.dialogueReview,
         scenes: expect.arrayContaining([expect.objectContaining({ id: 'scene_generated' })])
       })
     ));
@@ -728,6 +738,9 @@ describe('Cinematic UX prototype', () => {
     expect(within(dialog).getByText('cinematic.story.generatedDraftSaved')).toBeVisible();
     fireEvent.click(within(dialog).getByRole('button', { name: 'cinematic.story.continueEditing' }));
     expect(screen.queryByRole('dialog', { name: 'cinematic.story.proposalTitle' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.saveDraft' }));
+    await waitFor(() => expect(cinematicApiMocks.saveCinematicStoryPlan).toHaveBeenCalledTimes(2));
+    expect(cinematicApiMocks.saveCinematicStoryPlan.mock.calls[1]![1].dialogueReview).toEqual(proposal.dialogueReview);
   });
 
   it('opens the Story Plan proposal dialog in a loading state before AI generation completes', async () => {
@@ -939,6 +952,11 @@ describe('Cinematic UX prototype', () => {
   it('persists an applied Scene Direction proposal through the Story Plan save contract', async () => {
     const project = completeStoryPlanFixture();
     const sceneProposal = sceneDirectionProposalFixture(project);
+    sceneProposal.dialogueReview = {
+      contractVersion: 'cinematic-dialogue-timing-v1', advisory: true,
+      assessmentKind: 'deterministic_estimate_and_model_self_review',
+      before: { measured: false }, final: { measured: false }, additionalBillableCalls: 0
+    };
     const savedProject = projectWithSavedSceneProposal(project, sceneProposal);
     cinematicApiMocks.generateCinematicSceneDirection.mockResolvedValue(sceneProposal);
     cinematicApiMocks.saveCinematicStoryPlan.mockResolvedValue(savedProject);
@@ -954,6 +972,7 @@ describe('Cinematic UX prototype', () => {
       expect.objectContaining({
         approved: false,
         aiFieldKeys: [`scene:${project.scenes[0]!.id}.title`],
+        dialogueReview: sceneProposal.dialogueReview,
         scenes: expect.arrayContaining([expect.objectContaining({
           id: project.scenes[0]!.id,
           title: 'Generated Scene Direction'

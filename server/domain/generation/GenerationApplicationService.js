@@ -1,6 +1,7 @@
 import { characterCastingExportService } from '../character-profiles/CharacterCastingExportService.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { performanceTelemetry } from '../observability/PerformanceTelemetry.js';
+import { validateGenerationPrompt } from './GenerationPromptBudget.js';
 import {
   compileGenerationContext,
   compilePromptFromGenerationContext,
@@ -56,7 +57,7 @@ export class GenerationApplicationService {
       });
       const compiledPrompt = compilePromptFromGenerationContext(context);
       finish('ok');
-      return { compiledPrompt };
+      return { compiledPrompt, ...(context.cinematicPromptBudget ? { promptBudget: context.cinematicPromptBudget } : {}) };
     } catch (error) {
       finish('error');
       throw error;
@@ -357,12 +358,16 @@ export class GenerationApplicationService {
 
   async compilePromptForExecution(context, { requestId = null } = {}) {
     const canonicalPrompt = compilePromptFromGenerationContext(context);
-    return this.promptRefinementService.refine({
+    const result = await this.promptRefinementService.refine({
       prompt: canonicalPrompt,
       requested: context.promptRefinement?.enabled === true,
       context,
       requestId
     });
+    if (context.cinematicPromptBudget) validateGenerationPrompt(result.prompt, {
+      providerId: context.provider, modelId: context.submodel, operation: 'image'
+    });
+    return result;
   }
 
   async submitPreparedOperation({
@@ -386,6 +391,9 @@ export class GenerationApplicationService {
     providerWorkflow = null
   }) {
     const jobId = preparedJobId || this.queueManager.createJobId();
+    if (context.cinematicPromptBudget || context.cinematicContainsPeople !== undefined) {
+      validateGenerationPrompt(compiledPrompt, { providerId, modelId, operation: 'image' });
+    }
     this.providerRegistry.assertRuntimeAvailable(providerId, modelId, {
       generationSurface: context.generationSurface,
       generationMode: generationRequest?.generationMode || context.generationMode,
@@ -499,6 +507,9 @@ export class GenerationApplicationService {
       generationMode: generationRequest?.generationMode || context.generationMode,
       workflow: providerWorkflow
     });
+    if (context.cinematicPromptBudget || context.cinematicContainsPeople !== undefined) {
+      validateGenerationPrompt(compiledPrompt, { providerId, modelId, operation: 'image' });
+    }
     const requestedOutputCount = context.outputCount;
     const groupId = `ggrp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
     const children = Array.from({ length: requestedOutputCount }, (_, outputIndex) => ({

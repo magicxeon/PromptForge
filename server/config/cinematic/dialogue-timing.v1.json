@@ -1,0 +1,21 @@
+{
+  "version": "cinematic-dialogue-timing-v1",
+  "method": "uncalibrated-script-unit-range",
+  "rates": {
+    "spaced": { "fast": 3.5, "slow": 1.8 },
+    "thai": { "fast": 16, "slow": 7 },
+    "cjk": { "fast": 6, "slow": 3 },
+    "fallback": { "fast": 14, "slow": 5 }
+  },
+  "preparationMs": 150,
+  "reactionMs": 300,
+  "pauseMs": { "minimum": 120, "maximum": 350 },
+  "turnGapMs": 150,
+  "toleranceMs": 250,
+  "slowDeliveryMultiplier": 1.2,
+  "slowDeliveryTerms": ["slow", "hesitan", "tear", "whisper", "breath", "quiet", "\u0e0a\u0e49\u0e32", "\u0e01\u0e23\u0e30\u0e0b\u0e34\u0e1a"],
+  "pauseTerms": ["pause", "beat", "hesitat", "breath", "\u0e40\u0e27\u0e49\u0e19", "\u0e2b\u0e22\u0e38\u0e14"],
+  "overlapTerms": ["overlap", "simultaneous", "interrupt", "\u0e1e\u0e39\u0e14\u0e1e\u0e23\u0e49\u0e2d\u0e21", "\u0e1e\u0e39\u0e14\u0e41\u0e17\u0e23\u0e01"],
+  "maximumRepairRounds": 2,
+  "limits": { "textCharacters": 10000, "cues": 12, "shots": 20, "scenes": 24, "reviewHistoryCharacters": 256000 }
+}

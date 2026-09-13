@@ -95,7 +95,7 @@ for (const cinematicFaceless of [true, false]) test(`capture profile can be disa
   assert.match(withProfile, cinematicFaceless ? /Natural body anatomy and asymmetry/ : /Natural facial anatomy, subtle microtexture/);
 });
 
-test('composer truncates optional tail blocks at configured boundaries and stays bounded', () => {
+test('composer preserves authored tail blocks above the recommended budget', () => {
   const longVisualPrompt = `${VISUAL_PROMPT}\n\nAUTHOR NOTES:\n${'Natural observed action in the current frame. '.repeat(120)}`;
   const prompt = cinematicStoryboardPromptComposer.compose({
     context: context({ cinematicFaceless: true }),
@@ -106,7 +106,7 @@ test('composer truncates optional tail blocks at configured boundaries and stays
   assert.match(prompt, /STORYBOARD KEYFRAME CONTRACT/);
   assert.match(prompt, /REFERENCE AUTHORITY/);
   assert.match(prompt, /PHOTOGRAPHIC BEHAVIOR/);
-  assert.ok(prompt.length <= 4700);
+  assert.ok(prompt.includes('Natural observed action in the current frame. '.repeat(120).trim()));
 });
 
 for (const cinematicFaceless of [true, false]) test(`composer rejects unowned Reference Processing roles, faceless=${cinematicFaceless}`, () => {
@@ -184,12 +184,15 @@ for (const cinematicFaceless of [true, false]) test(`all six Look bindings survi
     assert.doesNotMatch(prompt, /with BLANK FACES|Their face stays BLANK/);
   }
   assert.doesNotMatch(prompt, /Reference image 7|Reference image 1.*Scene\/blocking only/);
-  assert.ok(prompt.length <= 4700);
+  assert.ok(prompt.includes('Optional scenic detail. '.repeat(200).trim()));
 });
 
-for (const cinematicFaceless of [true, false]) test(`mandatory reference authority fails explicitly instead of truncating, faceless=${cinematicFaceless}`, () => {
-  assert.throws(() => cinematicStoryboardPromptComposer.compose({ context: context({
+for (const cinematicFaceless of [true, false]) test(`mandatory reference authority survives recommendation overflow, faceless=${cinematicFaceless}`, () => {
+  const result = cinematicStoryboardPromptComposer.prepare({ context: context({
     cinematicFaceless,
     referenceRoleManifest: Array.from({ length: 20 }, (_, index) => ({ index: index + 1, roles: ['character_reference'], castNames: ['n'.repeat(120)] }))
-  }), visualPrompt: 'Opening moment.' }), /reference authority exceeds/);
+  }), visualPrompt: 'Opening moment.' });
+  assert.match(result.prompt, /Reference image 20/);
+  assert.equal(result.promptBudget.status, 'above_recommendation');
+  assert.equal(result.promptBudget.hardLimit, null);
 });

@@ -6,6 +6,7 @@ export const generationJobCenterItemSchema = z.object({
   mediaType: z.enum(['image', 'video']),
   status: z.string(),
   terminal: z.boolean(),
+  reviewRequired: z.boolean().optional(),
   createdAt: z.string().nullable(),
   updatedAt: z.string().nullable(),
   completedAt: z.string().nullable(),
@@ -29,9 +30,9 @@ export const generationJobCenterItemSchema = z.object({
 export const generationJobCenterSchema = z.object({
   items: z.array(generationJobCenterItemSchema),
   activeCount: z.number().int().nonnegative(),
+  reviewRequiredCount: z.number().int().nonnegative().default(0),
   terminalCount: z.number().int().nonnegative(),
   polledAt: z.string()
 });
 
 export type GenerationJobCenterItem = z.infer<typeof generationJobCenterItemSchema>;
-

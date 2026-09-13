@@ -1,4 +1,9 @@
 {
+  "ui.promptBudget.checking": "Checking prompt",
+  "ui.promptBudget.within_budget": "Prompt: {count} characters",
+  "ui.promptBudget.optimized": "Optimized prompt: {count} characters",
+  "ui.promptBudget.above_recommendation": "Prompt: {count} characters. Recommended budget: {budget}; not a verified provider limit.",
+  "ui.promptBudget.over_limit": "Prompt exceeds the request limit: {count} characters",
   "ui.templateInputs.title": "Template replacements",
   "ui.templateInputs.outfitFront": "Outfit front",
   "ui.templateInputs.outfitBack": "Outfit back",

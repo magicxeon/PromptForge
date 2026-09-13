@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { cinematicStoryboardPromptComposer } from './CinematicStoryboardPromptComposer.js';
 import { createManualStoryboardScene, normalizeManualStoryboard } from './CinematicManualStoryboard.js';
 import { normalizeStoryboardRenderStyle } from './CinematicStoryboardRenderStyle.js';
 import { sceneEnvironmentContext, normalizeCinematicSceneReference } from './CinematicSceneEnvironment.js';
@@ -15,6 +16,7 @@ import { characterLookService } from '../character-profiles/CharacterLookService
 import { adminPolicyService } from '../admin/AdminPolicyService.js';
 import { videoProviderTaskRepository } from '../../repositories/generation/VideoProviderTaskRepository.js';
 import { videoCapabilityRegistry } from '../generation/VideoCapabilityRegistry.js';
+import { eligibleDurations } from '../generation/VideoDurationReconciliation.js';
 import { videoGenerationApplicationService } from '../generation/VideoGenerationApplicationService.js';
 import { cinematicStoryEnhancementService } from '../generation/CinematicStoryEnhancementService.js';
 import { cinematicWardrobeSuggestionService } from '../generation/CinematicWardrobeSuggestionService.js';
@@ -25,6 +27,7 @@ import {
   evaluateStoryPlanFilmReadiness,
   filmReadinessNotEvaluated
 } from './StoryPlanFilmReadiness.js';
+import { normalizeDialogueReview } from './CinematicDialogueTiming.js';
 import { cinematicDataLineageService } from './CinematicDataLineageService.js';
 import { cinematicFieldManifestService } from './CinematicFieldManifestService.js';
 import { cinematicAuthoringStateService, cinematicFieldKey } from './CinematicAuthoringStateService.js';
@@ -478,6 +481,7 @@ export class CinematicApplicationService {
         sourceResolution: plan.sourceResolution,
         warningsAcknowledged: plan.warningsAcknowledged,
         filmReadiness: plan.filmReadiness,
+        ...(plan.dialogueReview ? { dialogueReview: plan.dialogueReview } : {}),
         scriptPreview: plan.scriptPreview,
         sceneIds: plan.scenes.map(scene => scene.id),
         estimatedDurationMs: plan.scenes.reduce((sum, scene) => sum + scene.durationMs, 0),
@@ -604,6 +608,28 @@ export class CinematicApplicationService {
       project.commandReceipts = project.commandReceipts.slice(-100);
       return result;
     });
+  }
+
+  async inspectStoryboardPrompts(projectId, actorContext) {
+    const project = await this.getProject(projectId, actorContext);
+    const shots = project.scenes.flatMap(scene => scene.shots.map(shot => ({ scene, shot })));
+    const items = shots.slice(0, 128).map(({ scene, shot }) => {
+      try {
+        const contract = this.keyframeContractCompiler.compile({ project, scene, shot });
+        const prepared = cinematicStoryboardPromptComposer.prepare({ visualPrompt: contract.providerIndependentPrompt, context: {
+          cinematicContainsPeople: resolveShotCastIds(scene, shot).length > 0,
+          cinematicFaceless: shot.storyboardFaceless === true,
+          cinematicFacialTreatment: shot.storyboardFacialTreatment || 'blank',
+          cinematicManualStoryboard: shot.manualStoryboard === true && shot.manualStillAuthority !== false
+        } });
+        return { sceneId: scene.id, shotId: shot.id, title: shot.title, scope: 'provisional',
+          promptBudget: prepared.promptBudget, errorCode: null };
+      } catch (error) {
+        return { sceneId: scene.id, shotId: shot.id, title: shot.title, scope: 'provisional',
+          promptBudget: null, errorCode: error.code || 'cinematic_prompt_preflight_unavailable' };
+      }
+    });
+    return { projectId: project.id, projectVersion: project.version, items, hasMore: shots.length > items.length };
   }
 
   async getProduceShotContext(projectId, sceneId, shotId, actorContext, referenceMode) {
@@ -907,6 +933,7 @@ export class CinematicApplicationService {
     try {
       const referencePlan = await this.videoReferencePlanService.prepare({ project, scene, shot, source,
         mode: input.referenceMode, model: this.videoCapabilities.resolve(input.providerId, input.modelId), actorContext });
+      assertSelectedTakeDuration(input, this.videoCapabilities.resolve(input.providerId, input.modelId), referencePlan);
       const providerPrompt = renderProviderVideoPrompt(this.videoPacketCompiler, videoPacket, input, referencePlan);
       const preparedRequest = buildCinematicVideoRequest(input, project, shot, source, videoPacket, providerPrompt, referencePlan);
       const quote = await this.videoGenerationService.quote(
@@ -916,9 +943,10 @@ export class CinematicApplicationService {
       );
       return {
         ...quote,
-        ...(videoPacket.timing?.leadInMs ? { usableRange: cinematicUsableRange(shot, videoPacket) } : {}),
+        usableRange: cinematicUsableRange(shot, videoPacket, input),
         referenceMode: referencePlan.mode,
         renderedPrompt: providerPrompt.prompt,
+        promptBudget: providerPrompt.promptBudget,
         referenceSummary: referencePlan.references.map((reference, index) => ({
           imageNumber: index + 1, assetId: reference.assetId,
           purpose: reference.purpose || 'storyboard_opening',
@@ -956,6 +984,7 @@ export class CinematicApplicationService {
     );
     const referencePlan = await this.videoReferencePlanService.prepare({ project, scene, shot, source,
       mode: input.referenceMode, model: this.videoCapabilities.resolve(input.providerId, input.modelId), actorContext });
+    assertSelectedTakeDuration(input, this.videoCapabilities.resolve(input.providerId, input.modelId), referencePlan);
     const providerPrompt = renderProviderVideoPrompt(this.videoPacketCompiler, videoPacket, input, referencePlan);
     const preparedRequest = buildCinematicVideoRequest(input, project, shot, source, videoPacket, providerPrompt, referencePlan);
     await this.repository.mutateForActor(project.id, actorContext, draft => {
@@ -998,7 +1027,7 @@ export class CinematicApplicationService {
         referencePlanFingerprint: preparedRequest.referencePlanFingerprint || null,
         referenceMode: referencePlan.mode,
         downstreamSourceStatus: 'current',
-        ...(videoPacket.timing?.leadInMs ? { usableRange: cinematicUsableRange(shot, videoPacket) } : {}),
+        usableRange: cinematicUsableRange(shot, videoPacket, input),
         status: 'preparing',
         reviewDecision: 'pending',
         createdAt: new Date().toISOString()
@@ -1073,12 +1102,16 @@ export class CinematicApplicationService {
           continue;
         }
         items.push({ sceneNumber: sceneIndex + 1, shotNumber: shotIndex + 1, takeNumber: takes.indexOf(attempt) + 1,
-          shotId: shot.id, attemptId: attempt.id, assetId: attempt.outputAsset.id });
+          shotId: shot.id, attemptId: attempt.id, assetId: attempt.outputAsset.id,
+          ...(attempt.usableRange ? { usableRange: structuredClone(attempt.usableRange), renderDurationMs: attempt.renderDurationMs || null } : {}) });
       }
     }
     const plan = await this.clipBundleService.prepare(items, actorContext);
     const manifest = { projectId: project.id, projectVersion: project.version, missing,
-      sizeBytes: plan.sizeBytes, clips: plan.files.map(({ filePath: _path, ...file }) => file) };
+      sizeBytes: plan.sizeBytes, clips: plan.files.map(({ filePath: _path, ...file }) => {
+        const timing = items.find(item => item.attemptId === file.attemptId);
+        return { ...file, ...(timing?.usableRange ? { usableRange: timing.usableRange, renderDurationMs: timing.renderDurationMs } : {}) };
+      }) };
     return { plan, manifest };
   }
 
@@ -1813,10 +1846,12 @@ function normalizeStoryPlan(input = {}, project, contractVersion = normalizeStor
     scenes
   };
   if (contractVersion === 'story-plan-v3') {
+    plan.dialogueReview = normalizeDialogueReview(input.dialogueReview, plan);
     const preflight = analyzeStoryPlanSource(project, { sourceResolution: plan.sourceResolution });
     plan.filmReadiness = evaluateStoryPlanFilmReadiness(project, plan, {
       preflight,
-      aiFindings: plan.directorFindings
+      aiFindings: plan.directorFindings,
+      dialogueTiming: Boolean(plan.dialogueReview)
     });
     plan.scriptPreview = buildFilmScriptPreview(plan);
   } else {
@@ -2225,8 +2260,9 @@ function buildCinematicWorkflow(project, scene, shot, generationAttemptId) {
 }
 
 function buildCinematicVideoRequest(input, project, shot, source, videoPacket, providerPrompt = null, referencePlan = null) {
-  const plannedDurationSeconds = Math.max(0.001, (Number(shot.durationMs) + Number(videoPacket.timing?.leadInMs || 0)) / 1000);
-  const durationSeconds = Math.max(1, Number(input.durationSeconds || plannedDurationSeconds));
+  const usableRange = cinematicUsableRange(shot, videoPacket, input);
+  const plannedDurationSeconds = (usableRange.usableDurationMs + usableRange.leadInMs) / 1000;
+  const durationSeconds = Number(input.durationSeconds ?? plannedDurationSeconds);
   const references = referencePlan?.references || [{
     role: 'first_frame',
     assetId: source.assetId || null,
@@ -2263,9 +2299,25 @@ function buildCinematicVideoRequest(input, project, shot, source, videoPacket, p
   };
 }
 
-function cinematicUsableRange(shot, packet) {
+function assertSelectedTakeDuration(input, model, referencePlan) {
+  if (input.durationSeconds === undefined) return;
+  const duration = Number(input.durationSeconds);
+  const supportedDurations = model ? eligibleDurations(model, {
+    resolution: input.resolution,
+    referenceImageCount: referencePlan?.inputMode === 'multimodal_reference' ? referencePlan.references.length : 0
+  }) : [];
+  if (!Number.isFinite(duration) || duration <= 0 || (model && !supportedDurations.includes(duration))) {
+    throw new CinematicError('cinematic_take_duration_unsupported', 'Choose a supported Take duration for the selected model.', 400, { supportedDurations });
+  }
+}
+
+function cinematicUsableRange(shot, packet, input = {}) {
   const leadInMs = Number(packet.timing?.leadInMs || 0);
-  return { leadInMs, usableDurationMs: Number(shot.durationMs), trimInMs: leadInMs, trimOutMs: leadInMs + Number(shot.durationMs) };
+  const usableDurationMs = input.durationSeconds === undefined ? Number(shot.durationMs) : Math.round(Number(input.durationSeconds) * 1000);
+  if (!Number.isFinite(usableDurationMs) || usableDurationMs <= 0) {
+    throw new CinematicError('cinematic_video_duration_invalid', 'Take duration must be positive.', 400);
+  }
+  return { leadInMs, usableDurationMs, trimInMs: leadInMs, trimOutMs: leadInMs + usableDurationMs };
 }
 
 function renderProviderVideoPrompt(compiler, videoPacket, input, referencePlan) {
@@ -2273,6 +2325,7 @@ function renderProviderVideoPrompt(compiler, videoPacket, input, referencePlan) 
     return compiler.renderForProvider(videoPacket, {
       providerId: String(input.providerId || ''),
       referencePlan,
+      takeDurationSeconds: input.durationSeconds,
       modelId: String(input.modelId || '')
     });
   }

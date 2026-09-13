@@ -42,6 +42,27 @@ function response() {
   };
 }
 
+test('explicit recheck uses existing owner-scoped task route and validates its flag', async () => {
+  const routes = harness();
+  let calls = 0;
+  registerVideoGenerationRoutes(routes.app, {
+    communityFeaturePolicyService: { async assertEnabled() {} },
+    videoGenerationService: { async getAndPoll(id, actor, options) {
+      calls++; assert.equal(id, 'same-task'); assert.equal(actor.userId, 'owner');
+      assert.deepEqual(options, { recheck: true }); return { id, status: 'reconciliation_required' };
+    } }
+  });
+  const req = { params: { taskId: 'same-task' }, actorContext: { userId: 'owner' }, query: { recheck: 'true', userId: 'forged' } };
+  const res = response();
+  await routes.handler('/api/generation/video/tasks/:taskId')(req, res);
+  assert.equal(res.headers['Cache-Control'], 'private, no-store');
+  assert.equal(calls, 1);
+  const bad = response();
+  await routes.handler('/api/generation/video/tasks/:taskId')({ ...req, query: { recheck: ['true'] } }, bad);
+  assert.equal(bad.statusCode, 400);
+  assert.equal(calls, 1);
+});
+
 test('video capability route exposes only the paid catalog and exact comparison bounds', async () => {
   const routes = harness();
   registerVideoGenerationRoutes(routes.app, {

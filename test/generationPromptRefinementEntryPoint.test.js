@@ -2,6 +2,26 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { GenerationApplicationService } from '../server/domain/generation/GenerationApplicationService.js';
 
+for (const method of ['submitPreparedOperation', 'submitPreparedGroup']) {
+  test(`Cinematic final prompt bound precedes Credit reservation in ${method}`, async () => {
+    let reservations = 0;
+    const application = new GenerationApplicationService({
+      providerRegistry: { assertRuntimeAvailable() {} },
+      queueManager: { createJobId: () => 'isolated_prompt_test' },
+      generationGroupRepository: { findByRequest: async () => null },
+      creditService: {
+        validateAndReserveForRequest: async () => { reservations += 1; },
+        reserveGenerationGroup: async () => { reservations += 1; }
+      }
+    });
+    await assert.rejects(application[method]({
+      providerId: 'fixture', modelId: 'fixture', context: { cinematicContainsPeople: false },
+      compiledPrompt: 'x'.repeat(32001)
+    }), { code: 'generation_prompt_too_long' });
+    assert.equal(reservations, 0);
+  });
+}
+
 test('Generation application compiles canonically and invokes refinement once per execution', async () => {
   const calls = [];
   const application = new GenerationApplicationService({

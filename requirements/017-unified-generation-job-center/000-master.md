@@ -50,6 +50,19 @@ actor-scoped view of all currently active media work.
 3. `003-restart-recovery-and-reconciliation.md`
 4. `004-regression-and-release-gate.md`
 
+### Pending Pilot Follow-Up (2026-09-13)
+
+5. [005 Bounded Video Recovery](005-bounded-video-recovery.md) extends 003 with
+   durable stage cutoffs, bounded retry/recheck and stable review-required state.
+6. [006 Video Header Feedback](006-video-header-processing-feedback.md) extends
+   002 using the same activity projection and accepted-submit invalidation.
+
+These follow-ups are requirements only, not included in the earlier MVP completion.
+Cross-feature order is in
+[Cinematic 050](../016-cinematic-studio/enhancement-core-engine/050-pilot-stability-consolidated-plan.md).
+Await explicit implementation approval; no new queue, polling owner, Credit
+settlement path or runtime data file is authorized by this documentation update.
+
 ## Definition Of Done
 
 - An actor can list their active and recent Image, group, and Video work through

@@ -92,6 +92,20 @@ export const videoQuoteSchema = z.object({
 });
 
 export const videoTaskSchema = z.object({
+  automaticMonitoring: z.boolean().optional(),
+  reviewRequired: z.boolean().optional(),
+  recheckAllowed: z.boolean().optional(),
+  recovery: z.object({
+    stage: z.enum(['submission', 'provider', 'media']),
+    policyVersion: z.string(),
+    startedAt: z.string().nullable(),
+    deadlineAt: z.string().nullable(),
+    nextCheckAt: z.string().nullable(),
+    stoppedReason: z.string().optional(),
+    explicitCheckCount: z.number().int().nonnegative(),
+    explicitMaxChecks: z.number().int().nonnegative(),
+    explicitNextCheckAt: z.string().optional()
+  }).passthrough().nullable().optional(),
   id: z.string(),
   status: z.string(),
   createdAt: z.string().optional(),

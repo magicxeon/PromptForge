@@ -234,3 +234,37 @@ function activeImage(id, overrides = {}) {
     ...overrides
   };
 }
+
+test('activity counts survive visible pagination and review-required resumes Cinematic ownership', async () => {
+  const service = fixtureService();
+  service.queueManager.countActiveWorkForUser = username => { assert.equal(username, 'user_alice'); return 72; };
+  service.videoGenerationService.listActivity = async (actor, options) => {
+    assert.equal(actor.userId, 'usr_alice');
+    assert.equal(options.scope, 'all');
+    assert.ok(options.limit <= 24);
+    return { activeCount: 31, reviewRequiredCount: 1, items: [{
+      id: 'review', projectId: 'project_1', status: 'reconciliation_required', billingStatus: 'reserved',
+      providerError: { code: 'video_recovery_deadline_elapsed' }, outputAsset: { publicUrl: '/outputs/retained.mp4' }
+    }] };
+  };
+  const page = await service.list({ userId: 'usr_alice', username: 'user_alice' }, { limit: 2 });
+  assert.equal(page.activeCount, 103);
+  assert.equal(page.reviewRequiredCount, 1);
+  assert.equal(page.items.length, 2);
+  const review = page.items.find(item => item.id === 'review');
+  assert.equal(review.terminal, true);
+  assert.equal(review.reviewRequired, true);
+  assert.equal(review.resumeHref, '/create/cinematic/project_1/produce');
+  assert.equal(review.resultUrl, '/outputs/retained.mp4');
+});
+
+test('Queue counts unique active Jobs and Groups beyond the 50-row display limit', () => {
+  const queue = new QueueManager();
+  for (let i = 0; i < 80; i++) queue.jobs.set(`job_${i}`, {
+    id: `job_${i}`, created: Date.now(), status: 'processing', options: { username: 'user_alice', generationGroupId: i < 10 ? 'group_1' : null }
+  });
+  queue.jobs.set('other', { id: 'other', status: 'processing', options: { username: 'user_bob' } });
+  queue.jobs.set('done', { id: 'done', status: 'completed', options: { username: 'user_alice' } });
+  assert.equal(queue.listActiveJobSnapshotsForUser('user_alice').length, 50);
+  assert.equal(queue.countActiveWorkForUser('user_alice'), 71);
+});
