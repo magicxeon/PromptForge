@@ -30,18 +30,31 @@ function context(overrides = {}) {
   };
 }
 
-test('Cinematic Storyboard final prompt gives Shot emotion authority over personality', () => {
-  const prompt = compilePromptFromGenerationContext(context());
-  assert.ok(prompt.startsWith('Create a detailed monochrome graphite'));
+for (const cinematicFaceless of [true, false]) test(`Cinematic Storyboard gives Shot emotion authority over personality, faceless=${cinematicFaceless}`, () => {
+  const prompt = compilePromptFromGenerationContext(context({ cinematicFaceless }));
   assert.match(prompt, /STORYBOARD STILL CONTRACT/);
+  assert.match(prompt, /Selected Shot emotional target: Tense and watchful/);
+  assert.match(prompt, /Do not smile unless this Shot explicitly requests it/);
   assert.doesNotMatch(prompt, /cute, beautiful smile|Character personality baseline/i);
-  assert.match(prompt, /observed narrative moment, not a posed portrait, fashion image or sales presentation/i);
-  assert.match(prompt, /clearly hand-drawn sketch/i);
-  assert.match(prompt, /graphite contours and cross-hatching/i);
-  assert.match(prompt, /No photorealistic rendering/i);
-  assert.match(prompt, /do not add a friendly micro-smile or direct camera gaze/i);
-  assert.match(prompt, /do not raise, center or turn it toward camera/i);
-  assert.match(prompt, /do not add beauty fill, lift the face or activate an unrequested fixture/i);
+  if (cinematicFaceless) {
+    assert.ok(prompt.startsWith('Create ONE full-color photorealistic scene previs with BLANK FACES'));
+    assert.match(prompt, /Natural body weight, hands and shoulders; no posed portrait/i);
+    assert.match(prompt, /Rest of scene photographic, not sketch, anime or CGI/i);
+    assert.match(prompt, /BLANK faces with faint thin guides ONLY/i);
+    assert.match(prompt, /Head angle conveys attention, never facial expression/i);
+    assert.match(prompt, /The opening moment controls body pose and head direction/i);
+    assert.match(prompt, /Keep authored hand\/prop contact and placement/i);
+    assert.match(prompt, /Preserve authored exposure and light falloff, without beauty fill/i);
+  } else {
+    assert.ok(prompt.startsWith('Create ONE full-color photorealistic live-action opening frame with complete natural faces'));
+    assert.match(prompt, /EACH person's own Look Sheet portrait for their exact facial identity/);
+    assert.match(prompt, /perform the authored emotion and attention without posing for a portrait/);
+    assert.match(prompt, /Authored opening moment controls pose and head direction/);
+    assert.match(prompt, /No blank or unfinished faces, construction guides/);
+    assert.doesNotMatch(prompt, /with BLANK FACES|face stays BLANK|faces stay blank|BLANK faces with faint thin guides ONLY|BLANK-FACE previs overrides|ZERO eyes/i);
+  }
+  assert.doesNotMatch(prompt, /Draw a monochrome|Graphite storyboard|No photorealistic rendering/i);
+  assert.ok(prompt.length <= 4700);
 });
 
 test('Cinematic Storyboard realism policy does not affect non-Cinematic Scene generation', () => {
@@ -51,11 +64,12 @@ test('Cinematic Storyboard realism policy does not affect non-Cinematic Scene ge
   assert.match(prompt, /Portray the character personality as/i);
 });
 
-test('Cinematic Storyboard can disable only the optional natural camera profile', () => {
-  const prompt = compilePromptFromGenerationContext(context({ cinematicCaptureProfileId: null }));
-  assert.match(prompt, /physically plausible cinematic composition/i);
-  assert.match(prompt, /motivated light expressed through graphite/i);
-  assert.doesNotMatch(prompt, /source-consistent unretouched skin|subtle sensor noise/i);
+for (const cinematicFaceless of [true, false]) test(`Cinematic Storyboard can disable only the optional natural camera profile, faceless=${cinematicFaceless}`, () => {
+  const prompt = compilePromptFromGenerationContext(context({ cinematicFaceless, cinematicCaptureProfileId: null }));
+  assert.match(prompt, /woven fabric, solid props, contact shadows/i);
+  if (cinematicFaceless) assert.match(prompt, /Preserve authored exposure and light falloff, without beauty fill/i);
+  else assert.match(prompt, /Real actors, natural skin pores, individual hairs/i);
+  assert.doesNotMatch(prompt, /Natural body anatomy and asymmetry|Natural facial anatomy, subtle microtexture/i);
   assert.match(prompt, /Selected Shot emotional target: Tense and watchful/i);
 });
 
@@ -69,7 +83,16 @@ test('Cinematic Storyboard defaults and validates the capture profile before est
   );
 });
 
-test('sketch: queue metadata is derived only for the Cinematic still compiler', () => {
-  assert.equal(createQueueOptions(normalizeGenerationContext(context()), { modelConfig: { defaults: {} } }).storyboardRenderStyle, 'concept_sketch_v1');
+test('queue metadata follows normalized default/OFF/ON rather than a caller-supplied Storyboard style', () => {
+  for (const cinematicFaceless of [undefined, false, true]) {
+    const request = context({ storyboardRenderStyle: 'concept_sketch_v1' });
+    if (cinematicFaceless !== undefined) request.cinematicFaceless = cinematicFaceless;
+    const normalized = normalizeGenerationContext(request);
+    assert.equal(normalized.cinematicFaceless, cinematicFaceless === true);
+    const style = cinematicFaceless === true ? 'faceless_previs_v1' : 'photorealistic_storyboard_v1';
+    assert.equal(createQueueOptions(normalized, { modelConfig: { defaults: {} } }).storyboardRenderStyle, style);
+    const prompt = compilePromptFromGenerationContext(normalized);
+    assert.match(prompt, cinematicFaceless === true ? /^Create ONE.*with BLANK FACES/ : /^Create ONE.*with complete natural faces/);
+  }
   assert.equal(createQueueOptions(normalizeGenerationContext(context({ generationSurface: 'studio', storyboardRenderStyle: 'concept_sketch_v1' })), { modelConfig: { defaults: {} } }).storyboardRenderStyle, null);
 });

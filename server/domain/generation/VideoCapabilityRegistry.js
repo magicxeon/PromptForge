@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { isStoryboardCompositionReference } from '../cinematic/CinematicStoryboardRenderStyle.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
@@ -237,8 +238,8 @@ export function validateTrustedGeneratedImageSource(input, model) {
   if (model?.allowAnySourceProvider === true && authority?.immutable === true
       && authority.contentHash && authority.sourceFingerprint
       && ['cinematic_storyboard_source', 'cinematic_look_source'].includes(authority.kind)) return true;
-  if (authority?.kind === 'cinematic_storyboard_source' && authority.purpose === 'sketch_composition'
-      && authority.storyboardRenderStyle === 'concept_sketch_v1' && authority.role === 'reference_image'
+  if (authority?.kind === 'cinematic_storyboard_source'
+      && isStoryboardCompositionReference(authority, authority.storyboardRenderStyle)
       && authority.immutable === true && authority.contentHash && authority.sourceFingerprint
       && model?.supportsCinematicLookReferences === true && input.inputMode === 'multimodal_reference') return true;
   let reason = null;

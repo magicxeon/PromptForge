@@ -13,6 +13,8 @@ import {
   cinematicStoryPlanLiveProgressSchema,
   cinematicSceneDirectionProposalSchema,
   cinematicStoryboardGenerationContextSchema,
+  cinematicSceneEnvironmentContextSchema,
+  cinematicSceneEnvironmentImagesSchema,
   cinematicStoryboardBatchResponseSchema,
   cinematicAuthoringManifestSchema,
   cinematicDataLineageSchema
@@ -244,9 +246,12 @@ export function submitCinematicStoryboardBatch(projectId: string, input: {
   operations: Array<{
     operationId: string;
     sceneId: string;
-    shotId: string;
-    expectedShotVersion: number;
-    keyframeContractFingerprint: string;
+    shotId?: string;
+    expectedShotVersion?: number;
+    keyframeContractFingerprint?: string;
+    purpose?: 'scene_environment';
+    expectedSceneVersion?: number;
+    promptFingerprint?: string;
     estimateId: string;
     draft: GenerationRequestDraft;
   }>;
@@ -258,6 +263,9 @@ export function submitCinematicStoryboardBatch(projectId: string, input: {
       idempotencyKey: input.idempotencyKey,
       operations: input.operations.map(operation => ({
         operationId: operation.operationId,
+        purpose: operation.purpose,
+        expectedSceneVersion: operation.expectedSceneVersion,
+        promptFingerprint: operation.promptFingerprint,
         sceneId: operation.sceneId,
         shotId: operation.shotId,
         expectedShotVersion: operation.expectedShotVersion,
@@ -271,6 +279,25 @@ export function submitCinematicStoryboardBatch(projectId: string, input: {
     },
     schema: cinematicStoryboardBatchResponseSchema
   });
+}
+
+function cinematicEnvironmentPath(projectId: string, sceneId: string) {
+  return `${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/environment`;
+}
+export function getCinematicSceneEnvironment(projectId: string, sceneId: string) {
+  return apiRequest(cinematicEnvironmentPath(projectId, sceneId), { schema: cinematicSceneEnvironmentContextSchema });
+}
+export function saveCinematicSceneEnvironment(projectId: string, sceneId: string, input: {
+  expectedVersion: number; expectedSceneVersion: number; environmentPrompt?: string; referenceEnabled?: boolean;
+}) {
+  return apiRequest(cinematicEnvironmentPath(projectId, sceneId), { method: 'PATCH', body: input, schema: cinematicProjectSchema });
+}
+export function listCinematicSceneEnvironmentImages(projectId: string, sceneId: string, cursor: string | null = null) {
+  const query = new URLSearchParams({ limit: '12', ...(cursor ? { cursor } : {}) });
+  return apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/images?${query}`, { schema: cinematicSceneEnvironmentImagesSchema });
+}
+export function approveCinematicSceneEnvironment(projectId: string, sceneId: string, input: { expectedVersion: number; jobId: string; reuse?: boolean }) {
+  return apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/approve`, { method: 'POST', body: input, schema: cinematicProjectSchema });
 }
 
 export type CinematicVideoReferenceMode = 'storyboard_only' | 'storyboard_and_looks' | 'looks_only' | 'text_only';
@@ -352,6 +379,31 @@ export function updateCinematicShotDirection(projectId: string, sceneId: string,
   environment?: string;
 }) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}`, {
+    method: 'PATCH', body: input, schema: cinematicProjectSchema
+  });
+}
+
+export function createCinematicSimpleScene(projectId: string, input: { expectedVersion: number; idempotencyKey: string }) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/simple-scenes`, {
+    method: 'POST', body: input, schema: cinematicProjectSchema
+  });
+}
+
+export function saveCinematicManualStoryboard(projectId: string, sceneId: string, shotId: string, input: {
+  expectedVersion: number; expectedShotVersion: number; title: string; imagePrompt: string; durationMs: number;
+  castAssignmentIds: string[]; wardrobeLookIds: string[];
+  videoActionTimeline: Array<{ startMs: number; endMs: number; description: string }>;
+}) {
+  return apiRequest(`${cinematicShotVideoPath(projectId, sceneId, shotId)}/manual-storyboard`, {
+    method: 'PATCH', body: input, schema: cinematicProjectSchema
+  });
+}
+
+export function updateCinematicStoryboardSettings(projectId: string, sceneId: string, shotId: string, input: {
+  expectedVersion: number; expectedShotVersion: number; storyboardFaceless: boolean;
+  storyboardFacialTreatment?: 'blank' | 'white_previs';
+}) {
+  return apiRequest(`${cinematicShotVideoPath(projectId, sceneId, shotId)}/storyboard-settings`, {
     method: 'PATCH', body: input, schema: cinematicProjectSchema
   });
 }

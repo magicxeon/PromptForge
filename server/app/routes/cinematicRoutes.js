@@ -85,6 +85,19 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.post('/api/cinematic/projects/:projectId/simple-scenes', async (req, res) => {
+    try { res.status(201).json(await cinematicService.createSimpleScene(req.params.projectId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+  app.patch('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/manual-storyboard', async (req, res) => {
+    try { res.json(await cinematicService.saveManualStoryboard(req.params.projectId, req.params.sceneId, req.params.shotId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+  app.patch('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/storyboard-settings', async (req, res) => {
+    try { res.json(await cinematicService.updateStoryboardSettings(req.params.projectId, req.params.sceneId, req.params.shotId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
   app.post('/api/cinematic/story-enhancements', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
@@ -251,6 +264,29 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.get('/api/cinematic/projects/:projectId/scenes/:sceneId/environment', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.getSceneEnvironmentContext(req.params.projectId, req.params.sceneId, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+  app.patch('/api/cinematic/projects/:projectId/scenes/:sceneId/environment', async (req, res) => {
+    try {
+      res.json(await cinematicService.saveSceneEnvironment(req.params.projectId, req.params.sceneId, req.body || {}, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+  app.get('/api/cinematic/projects/:projectId/scenes/:sceneId/environment/images', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.listSceneEnvironmentImages(req.params.projectId, req.params.sceneId, req.actorContext, req.query));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/environment/approve', async (req, res) => {
+    try {
+      res.json(await cinematicService.approveSceneEnvironment(req.params.projectId, req.params.sceneId, req.body || {}, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
   app.post('/api/cinematic/projects/:projectId/storyboard-generation-batches', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
@@ -259,6 +295,14 @@ export function registerCinematicRoutes(app, {
       assertStoryboardBatchInput(project, input);
       const operations = [];
       for (const operation of input.operations) {
+        if (operation.purpose === 'scene_environment') {
+          const context = await cinematicService.getSceneEnvironmentContext(project.id, operation.sceneId, req.actorContext);
+          assertSceneEnvironmentOperation(project, operation, context);
+          operations.push({ operationId: operation.operationId || `environment:${operation.sceneId}`,
+            sceneId: operation.sceneId, estimateId: operation.estimateId, body: operation.generationRequest,
+            metadata: { purpose: 'scene_environment', expectedSceneVersion: context.sceneVersion, promptFingerprint: context.promptFingerprint } });
+          continue;
+        }
         const context = await cinematicService.getStoryboardGenerationContext(
           project.id,
           operation.sceneId,
@@ -584,6 +628,22 @@ function assertStoryboardBatchInput(project, input) {
   }
 }
 
+function assertSceneEnvironmentOperation(project, operation, context) {
+  const request = operation.generationRequest || {};
+  if (Number(operation.expectedSceneVersion) !== context.sceneVersion
+    || operation.promptFingerprint !== context.promptFingerprint
+    || request.sceneBuilder?.manualPromptText !== context.compiledPrompt
+    || request.generationSurface !== 'cinematic' || request.generationMode !== 'scene'
+    || request.aspectRatio !== project.aspectRatio || Number(request.outputCount) !== 1
+    || request.cinematicContainsPeople !== false || request.cinematicFaceless !== false
+    || request.characterProfileContext || request.cinematicCastReferences?.length || request.cinematicSceneReference
+    || request.characterReferenceImageA || request.characterReferenceImageB || request.faceReferenceImageA
+    || request.faceReferenceImageB || request.outfitReferenceImageFront || request.outfitReferenceImageBack
+    || request.styleReferenceImageA || request.styleReferenceImageB || request.templateBaselineReference) {
+    throw new CinematicError('cinematic_scene_environment_changed', 'Scene generation no longer matches its approved request context.', 409);
+  }
+}
+
 function assertStoryboardBatchOperation(project, operation, context) {
   const scene = project.scenes.find(item => item.id === operation.sceneId);
   const shot = scene?.shots.find(item => item.id === operation.shotId);
@@ -611,6 +671,18 @@ function assertStoryboardBatchOperation(project, operation, context) {
     );
   }
   const request = operation.generationRequest || {};
+  if (JSON.stringify(request.cinematicSceneReference || null) !== JSON.stringify(context.cinematicSceneReference || null)) {
+    throw new CinematicError('cinematic_scene_environment_changed', 'The Scene reference changed. Refresh the estimate.', 409);
+  }
+  if ((request.cinematicFacialTreatment || 'blank') !== (context.cinematicFacialTreatment || 'blank')) {
+    throw new CinematicError('cinematic_storyboard_settings_changed', 'The facial treatment changed. Refresh the estimate.', 409);
+  }
+  if ((request.cinematicManualStoryboard === true) !== (context.cinematicManualStoryboard === true)) {
+    throw new CinematicError('cinematic_storyboard_settings_changed', 'The Storyboard authoring mode changed. Refresh the estimate.', 409);
+  }
+  if ((request.cinematicFaceless === true) !== (context.cinematicFaceless === true)) {
+    throw new CinematicError('cinematic_storyboard_settings_changed', 'The Storyboard face setting changed. Refresh the estimate.', 409);
+  }
   if (JSON.stringify(normalizeCinematicCastReferences(request.cinematicCastReferences)) !== JSON.stringify(normalizeCinematicCastReferences(context.cinematicCastReferences))
     || (context.cinematicContainsPeople !== undefined && request.cinematicContainsPeople !== context.cinematicContainsPeople)) {
     throw new CinematicError('cinematic_storyboard_reference_authority_mismatch', 'The Shot Cast reference plan changed.', 409);

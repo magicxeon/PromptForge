@@ -49,8 +49,9 @@ export class CinematicDataLineageService {
     const lookById = new Map(lookBindings.map(look => [look.id, look]));
 
     const activePlan = (project.storyPlanVersions || []).find(item => item.id === project.activeStoryPlanVersionId) || null;
-    if (!activePlan) addFinding(findings, 'cinematic_lineage_story_plan_missing', 'blocking', 'story-plan', 'project', project.id, 'activeStoryPlanVersionId', 'story-plan');
-    if (activePlan && activePlan.storySourceVersionId !== project.activeStorySourceVersionId) {
+    const simple = project.setup?.mode === 'simple';
+    if (!simple && !activePlan) addFinding(findings, 'cinematic_lineage_story_plan_missing', 'blocking', 'story-plan', 'project', project.id, 'activeStoryPlanVersionId', 'story-plan');
+    if (!simple && activePlan && activePlan.storySourceVersionId !== project.activeStorySourceVersionId) {
       addFinding(findings, 'cinematic_lineage_story_plan_source_stale', 'blocking', 'story-plan', 'storyPlan', activePlan.id, 'storySourceVersionId', 'story-plan', activePlan.id);
     }
 
@@ -75,7 +76,7 @@ export class CinematicDataLineageService {
     });
 
     const scenes = scopedScenes.map(scene => {
-      if (!beatById.has(scene.beatId)) addFinding(findings, 'cinematic_lineage_scene_beat_missing', 'blocking', 'story-plan', 'scene', scene.id, 'scene.beatId', 'story-plan', scene.id);
+      if (!simple && !beatById.has(scene.beatId)) addFinding(findings, 'cinematic_lineage_scene_beat_missing', 'blocking', 'story-plan', 'scene', scene.id, 'scene.beatId', 'story-plan', scene.id);
       validateCastAndLooks(findings, scene, activeCastIds, lookById, 'scene', scene.id);
       const calculatedDurationMs = (scene.shots || []).reduce((total, shot) => total + Number(shot.durationMs || 0), 0);
       if (calculatedDurationMs !== Number(scene.durationMs || 0)) addFinding(findings, 'cinematic_lineage_scene_duration_mismatch', 'blocking', 'scene', 'scene', scene.id, 'scene.durationMs', 'story-plan', scene.id);
@@ -89,10 +90,10 @@ export class CinematicDataLineageService {
 
     const shots = scopedScenes.flatMap(scene => orderedShots(scene).filter(shot => !shotId || shot.id === shotId).map(shot => {
       validateCastAndLooks(findings, shot, new Set(scene.castAssignmentIds || []), lookById, 'shot', shot.id, scene.id);
-      if (!meaningful(shot.visibleMoment)) addFinding(findings, 'cinematic_lineage_shot_visible_moment_missing', 'blocking', 'shot', 'shot', shot.id, 'shot.visibleMoment', 'story-plan', scene.id);
-      if (!meaningful(shot.subjectAction)) addFinding(findings, 'cinematic_lineage_shot_action_missing', 'blocking', 'shot', 'shot', shot.id, 'shot.subjectAction', 'story-plan', scene.id);
-      if (!meaningful(shot.emotionalTarget)) addFinding(findings, 'cinematic_lineage_shot_emotion_missing', 'blocking', 'shot', 'shot', shot.id, 'shot.emotionalTarget', 'story-plan', scene.id);
-      if (Number(shot.estimatedActionDurationMs || 0) > Number(shot.durationMs || 0)) addFinding(findings, 'cinematic_lineage_shot_action_overflow', 'blocking', 'shot', 'shot', shot.id, 'shot.estimatedActionDurationMs', 'story-plan', scene.id);
+      if (!meaningful(shot.manualStoryboard ? shot.prompt : shot.visibleMoment)) addFinding(findings, 'cinematic_lineage_shot_visible_moment_missing', 'blocking', 'shot', 'shot', shot.id, 'shot.visibleMoment', shot.manualStoryboard ? 'storyboard' : 'story-plan', scene.id);
+      if (!shot.manualStoryboard && !meaningful(shot.subjectAction)) addFinding(findings, 'cinematic_lineage_shot_action_missing', 'blocking', 'shot', 'shot', shot.id, 'shot.subjectAction', 'story-plan', scene.id);
+      if (!shot.manualStoryboard && !meaningful(shot.emotionalTarget)) addFinding(findings, 'cinematic_lineage_shot_emotion_missing', 'blocking', 'shot', 'shot', shot.id, 'shot.emotionalTarget', 'story-plan', scene.id);
+      if (Number(shot.estimatedActionDurationMs || 0) > Number(shot.durationMs || 0)) addFinding(findings, 'cinematic_lineage_shot_action_overflow', 'warning', 'shot', 'shot', shot.id, 'shot.estimatedActionDurationMs', 'story-plan', scene.id);
       return {
         id: shot.id, sceneId: scene.id, version: Number(shot.version || 1),
         castAssignmentIds: [...(shot.castAssignmentIds || [])], wardrobeLookIds: [...(shot.wardrobeLookIds || [])],

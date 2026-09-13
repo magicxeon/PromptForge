@@ -43,6 +43,14 @@ export class CinematicVideoPacketConfigurationService {
 }
 
 function validatePolicy(policy) {
+  if (policy.compactSectionLabels && [...REQUIRED_SECTIONS].some(section =>
+    !String(policy.compactSectionLabels[section] || '').trim())) {
+    throw new TypeError('Cinematic compact section labels are invalid.');
+  }
+  if (policy.whitePrevisLeadInMs !== undefined && (!Number.isInteger(policy.whitePrevisLeadInMs)
+    || policy.whitePrevisLeadInMs < 0 || policy.whitePrevisLeadInMs > 2000
+    || !String(policy.whitePrevisLeadInInstruction || '').trim())) throw new TypeError('White Previs lead-in configuration is invalid.');
+  if (policy.compositionReferenceMode) validateReferenceMode(policy.compositionReferenceMode);
   if (policy.sketchReferenceMode) validateReferenceMode(policy.sketchReferenceMode);
   if (policy.looksOnlyMode) validateReferenceMode(policy.looksOnlyMode);
   if (![1, 2].includes(policy?.schemaVersion) || !policy.id || !Number.isInteger(policy.version)

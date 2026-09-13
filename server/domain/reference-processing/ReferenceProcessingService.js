@@ -54,6 +54,10 @@ export class ReferenceProcessingService {
           sourceAssetId: null, derivativeAssetId: null, imageUrl: input.value,
           contentFingerprint: context.cinematicCastReferences[Number(castIndex[1])].contentHash,
           processorIds: [], processorVersions: {}, fallback: false
+        } : input.slotId === 'cinematic_environment' ? {
+          sourceAssetId: context.cinematicSceneReference.assetId, derivativeAssetId: null, imageUrl: input.value,
+          contentFingerprint: context.cinematicSceneReference.contentHash,
+          processorIds: [], processorVersions: {}, fallback: false
         } : await this.processorRegistry.process(input, {
           actorContext,
           policyVersion: this.policyRegistry.getPolicyVersion()
@@ -105,6 +109,10 @@ export class ReferenceProcessingService {
       context
     );
     const ordered = dispatch.references;
+    if (context.cinematicSceneReference && (!Number.isFinite(modelConfig?.capabilities?.maxReferenceImages)
+      || !ordered.some(row => row.slots.includes('cinematic_environment')))) {
+      throw new ReferenceProcessingError('reference_capacity_exceeded', 'This model cannot preserve the Scene environment reference.', 400);
+    }
     const castCount = context.cinematicCastReferences?.length || 0;
     if (castCount && (!Number.isFinite(modelConfig?.capabilities?.maxReferenceImages)
       || context.cinematicCastReferences.some((_, index) => !ordered.some(row => row.slots.includes(`cinematic_cast_${index}`))))) {
@@ -146,6 +154,7 @@ export class ReferenceProcessingService {
         scope: reference.detectedScope
       })),
       authorityFingerprint: authority.fingerprint,
+      ...(context.cinematicSceneReference ? { sceneBinding: { assetId: context.cinematicSceneReference.assetId, contentHash: context.cinematicSceneReference.contentHash } } : {}),
       ...(castCount ? { castBindings: context.cinematicCastReferences.map(({ referenceValue, ...binding }) => binding) } : {})
     });
     const result = {

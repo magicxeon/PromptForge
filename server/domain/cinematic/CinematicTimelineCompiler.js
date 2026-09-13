@@ -28,8 +28,8 @@ export class CinematicTimelineCompiler {
       ));
       const sourceCurrent = isCurrentVideoSource(shot, attempt);
       const sourceDurationMs = resolveSourceDurationMs(shot, attempt);
-      const trimInMs = nonNegativeInteger(entry.trimInMs, 0);
-      const trimOutMs = nonNegativeInteger(entry.trimOutMs, sourceDurationMs);
+      const trimInMs = nonNegativeInteger(entry.trimInMs, attempt?.usableRange?.trimInMs || 0);
+      const trimOutMs = nonNegativeInteger(entry.trimOutMs, attempt?.usableRange?.trimOutMs || sourceDurationMs);
       if (trimInMs >= sourceDurationMs || trimOutMs > sourceDurationMs || trimOutMs <= trimInMs) {
         throw timelineError(
           'cinematic_timeline_trim_invalid',

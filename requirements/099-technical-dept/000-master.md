@@ -6,6 +6,44 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Scene Environment And White Previs (2026-09-13)
+
+Cinematic enhancement-core-engine/042-045 owns White Previs settings, derived
+video lead-in and per-Scene environment images. Existing CinematicApplicationService
+and image batch routes own the commands; GenerationExperience owns paid UI actions.
+New pure helper server/domain/cinematic/CinematicSceneEnvironment.js owns prompt
+projection and bounded bindings; web/src/features/cinematic/components/SceneEnvironmentControl.tsx
+owns the shared Scene generation dialog. Assets validates immutable
+Scene image bindings, Reference Processing owns environment_reference and ordered
+count parity, and Queue uses its existing reference resolution. No new runtime
+paths or independent generation, pricing, polling or storage workflow.
+
+The Scene gallery follow-up extends the same facade with owner-scoped,
+cursor-paged environment-result reads (12 default, 24 maximum) and explicit
+reuse from this Project's registered environment attempts. Assets exposes
+getGenerationPreview through existing GenerationResult authority; it does not
+create records on reads. Scene.environmentReferenceEnabled defaults to true;
+OFF retains the immutable selection and suppresses only future still binding.
+Environment-only commands change Project.version, not authored Scene.version.
+SceneEnvironmentControl also appears in the Shot image reference area. Its
+actor-scoped Query list uses existing 10s stale/normal invalidation, no polling,
+at most five retained pages; shared Generation completion refreshes the list.
+Validation adds environment-ui and scene-gallery groups to existing runners.
+
+### Manual Cinematic Storyboard Rows (2026-09-13)
+
+Owner: Cinematic enhancement-core-engine/038-041. CinematicApplicationService
+owns versioned manual-row and future still-option commands; the internal pure
+CinematicManualStoryboard.js owns their bounded field/interval normalization.
+Existing Project JSON stores additive Shot manualStoryboard, manualStillAuthority, videoActionTimeline
+and storyboardFaceless. No separate persistence, generation, Credit or queue path.
+React SimpleStoryboardWorkspace/row components reuse opt-in embedded presentations
+of StoryboardShotDialog and CinematicProduceRuntime. Existing Advanced callers
+remain default. Validation owner: scripts/test-cinematic-manual-storyboard.mjs;
+responsive intercepted browser checks: scripts/verify-cinematic-manual-storyboard.mjs.
+Faceless defaults OFF for new stills; this supersedes the mandatory faceless
+default in the historical 037 addendum below without relabeling existing outputs.
+
 ### Series, Seasons And Chapter Workspaces (2026-09-12)
 
 Owner: Cinematic enhancement-core-engine/026-028 supersedes 022 runtime deferral.
@@ -777,3 +815,26 @@ ReferenceSlotGrid exposes an opt-in generated Look chooser for Playground genera
 Image; GeneratedLookSourceField owns category-filtered listing, and existing
 upload/reference callbacks retain slot, actor and provider-capability ownership.
 No new runtime data path or cross-capability mutation is introduced.
+
+Storyboard previs (enhancement-core-engine/037, correcting 036) uses the existing
+CinematicStoryboardPromptComposer and still policy JSON. The pure
+server/domain/cinematic/CinematicStoryboardRenderStyle.js contract owns recognized
+persisted styles and composition purposes. Generation derives new-output style
+from the same validated compiler configuration; History/Groups/Assets retain it
+without backfilling old media. Photoreal storyboard_composition and legacy
+sketch_composition both use the existing verified reference_image pipeline.
+The real first_frame feature gate remains unchanged. Client schema readers and
+the existing Storyboard/Produce reference controls recognize legacy sketch,
+photoreal and new faceless_previs_v1 styles. New stills keep blank faces with faint
+head-angle guides. Facial reconstruction from Look Sheets belongs to VIDEO only.
+Focused checks extend test-cinematic-simple-production.mjs; browser label/toggle
+checks belong to scripts/verify-cinematic-composition-reference.mjs. No new runtime
+data path, endpoint, billing owner or additional AI operation.
+
+StoryboardShotWorkspace.tsx under web/src/features/cinematic/components owns only
+the Shot modal's media/control layout and mounted Radix tabs. Its CSS uses the
+cinematic-storyboard-workspace namespace, not Produce's cinematic-shot-workspace.
+GenerationExperience exposes opt-in renderWorkspace presentation regions and
+readOnlyPrompt.collapsed; Generation retains all state, quotes, submission and
+polling. Other layout variants retain their defaults. Visual verification lives
+in scripts/verify-storyboard-shot-workspace.mjs, using intercepted fixtures only.

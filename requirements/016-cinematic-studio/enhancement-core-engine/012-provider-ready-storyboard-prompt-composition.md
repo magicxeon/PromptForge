@@ -7,6 +7,11 @@
 **Triggered skills:** `design-cinematic-experience`, `review-generative-media-pipeline`, `verify-release-regressions`
 **Implementation package:** `implemetation-plan/011-provider-ready-storyboard-prompt-composition.md`
 
+Planned extension: [049](049-final-prompt-budget-preflight.md) adds early and
+final-request budget preflight using these same composition owners. It specifies
+safe automatic optimization and a bounded, explicitly budget-authorized AI
+fallback exception to the original no-additional-AI rule. No runtime change yet.
+
 ## 1. User Outcome
 
 The final Storyboard render prompt must be complete, concise and ready to

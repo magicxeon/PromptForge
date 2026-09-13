@@ -5,6 +5,7 @@ import { resolveSourceCharacterIdentity } from '../character-profiles/characterI
 import { acceptLookSheetSnapshot, compileLookSheetPrompt } from '../character-profiles/LookSheetDefinitionService.js';
 import { lookSheetEnhancementService } from './LookSheetEnhancementService.js';
 import { resolveCinematicCastReferences } from '../cinematic/CinematicImageCastReferences.js';
+import { cinematicStoryboardAssetService } from '../assets/CinematicStoryboardAssetService.js';
 
 export async function prepareGenerationReferences(context, {
   actorContext,
@@ -15,8 +16,13 @@ export async function prepareGenerationReferences(context, {
   processingService = referenceProcessingService,
   generationRepository = generationResultRepo,
   enhancementService = lookSheetEnhancementService,
-  cinematicCastResolver = resolveCinematicCastReferences
+  cinematicCastResolver = resolveCinematicCastReferences,
+  sceneAssetService = cinematicStoryboardAssetService
 }) {
+  if (context.cinematicSceneReference) {
+    if (context.generationSurface !== 'cinematic') throw Object.assign(new Error('Scene references require Cinematic.'), { statusCode: 400, code: 'cinematic_scene_reference_invalid' });
+    context.cinematicSceneReference = await sceneAssetService.resolveSceneReference(context.cinematicSceneReference, actorContext);
+  }
   if (context.cinematicCastReferences?.length) {
     if (context.generationSurface !== 'cinematic' || context.characterProfileContext) {
       throw Object.assign(new Error('Cinematic Cast sheets cannot be mixed with a Character override.'), { code: 'cinematic_cast_references_invalid', statusCode: 400 });

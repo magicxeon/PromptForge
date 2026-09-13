@@ -26,7 +26,11 @@ export type GenerationReferenceRole =
 
 export type GenerationRequestDraft = {
   cinematicCastReferences?: import('../schemas/generationSchemas').CinematicCastReference[];
+  cinematicSceneReference?: { assetId: string; contentHash: string } | null;
   cinematicContainsPeople?: boolean;
+  cinematicFaceless?: boolean;
+  cinematicFacialTreatment?: 'blank' | 'white_previs';
+  cinematicManualStoryboard?: boolean;
   lookSheetDefinition?: LookSheetDefinition | null;
   lookSheetEnhancementId?: string | null;
   provider: string;
@@ -203,7 +207,11 @@ export function generationPayload(
     generationSurface: draft.generationSurface,
     cinematicCaptureProfileId: draft.cinematicCaptureProfileId,
     cinematicCastReferences: draft.cinematicCastReferences,
+    cinematicSceneReference: draft.cinematicSceneReference,
     cinematicContainsPeople: draft.cinematicContainsPeople,
+    cinematicFaceless: draft.cinematicFaceless,
+    cinematicFacialTreatment: draft.cinematicFacialTreatment,
+    cinematicManualStoryboard: draft.cinematicManualStoryboard,
     template: 'portrait',
     selections: draft.selections || {},
     customColors: draft.customColors || {},
@@ -267,7 +275,7 @@ export function pricingPayload(draft: GenerationRequestDraft) {
     resolution: draft.imageResolution || '1K',
     aspectRatio: draft.aspectRatio,
     quality: null,
-    referenceCount: Object.values(draft.references).filter(Boolean).length + (draft.cinematicCastReferences?.length || 0),
+    referenceCount: Object.values(draft.references).filter(Boolean).length + (draft.cinematicCastReferences?.length || 0) + (draft.cinematicSceneReference ? 1 : 0),
     outputCount: draft.outputCount,
     routingMode: 'advanced',
     qualityTier: 'standard',

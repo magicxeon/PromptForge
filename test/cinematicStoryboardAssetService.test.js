@@ -22,6 +22,10 @@ test('sketch: approval preserves only generated history style, never a client ov
     generationHistory: { getById: async () => ({ username: alice.username, imageUrl: '/outputs/sketch.png', storyboardRenderStyle: generatedStyle }) }
   });
   assert.equal((await service.approveGenerationResult({ jobId: 'sketch' }, alice)).storyboardRenderStyle, 'concept_sketch_v1');
+  generatedStyle = 'photorealistic_storyboard_v1';
+  assert.equal((await service.approveGenerationResult({ jobId: 'photo' }, alice)).storyboardRenderStyle, 'photorealistic_storyboard_v1');
+  generatedStyle = 'faceless_previs_v1';
+  assert.equal((await service.approveGenerationResult({ jobId: 'previs' }, alice)).storyboardRenderStyle, 'faceless_previs_v1');
   generatedStyle = null;
   assert.equal((await service.approveGenerationResult({ jobId: 'old', storyboardRenderStyle: 'concept_sketch_v1' }, alice)).storyboardRenderStyle, null);
 });

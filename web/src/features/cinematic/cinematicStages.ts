@@ -11,3 +11,9 @@ export const cinematicStages: CinematicStage[] = [
   'produce',
   'finish'
 ];
+
+export const simpleCinematicStages: CinematicStage[] = ['setup', 'cast', 'storyboard', 'finish'];
+
+export function visibleCinematicStage(stage: CinematicStage, mode: 'simple' | 'advanced'): CinematicStage {
+  return mode === 'simple' && ['story-plan', 'produce'].includes(stage) ? 'storyboard' : stage;
+}

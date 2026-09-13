@@ -8,9 +8,9 @@ import { generatedCastSourceFingerprint } from '../server/domain/generation/Trus
 const actor = { userId: 'usr_video', username: 'video_user', role: 'user' };
 const TEST_MODELARK_SCOPE = 'modelark:ark.test:account:video-test';
 
-test('sketch: full quote accepts owned composition with disabled first frame; rejects forged style', async () => {
+for (const style of ['concept_sketch_v1', 'photorealistic_storyboard_v1', 'faceless_previs_v1']) test(`composition: ${style} quote and submit with disabled first frame; rejects forged style`, async () => {
   const asset = compatibleSeedreamAsset();
-  asset.metadata.storyboardRenderStyle = 'concept_sketch_v1';
+  asset.metadata.storyboardRenderStyle = style;
   asset.metadata.providerOutputProvenance = null;
   let estimates = 0;
   let dispatched;
@@ -29,7 +29,7 @@ test('sketch: full quote accepts owned composition with disabled first frame; re
   const request = { providerId: 'modelark', modelId: 'dreamina-seedance-2-0-mini-260615', commercialOperation: 'cinematic_draft_clip',
     inputMode: 'multimodal_reference', operation: 'image_to_video', prompt: 'Create photoreal live action from the sketch composition.',
     aspectRatio: '9:16', resolution: '720p', durationSeconds: 6, audioMode: 'generated', referenceContainsPerson: true,
-    references: [{ role: 'reference_image', purpose: 'sketch_composition', assetId: asset.id, assetVersionId: asset.id,
+    references: [{ role: 'reference_image', purpose: style === 'concept_sketch_v1' ? 'sketch_composition' : 'storyboard_composition', assetId: asset.id, assetVersionId: asset.id,
       sourceFingerprint: createStoryboardSourceFingerprint(asset), referenceImageUrl: asset.publicUrl }] };
   const workflow = { capability: 'cinematic', generationMode: 'cinematic_video', projectId: 'project_sketch', sceneId: 'scene', shotId: 'shot' };
   const quote = await service.quote(request, actor, workflow);

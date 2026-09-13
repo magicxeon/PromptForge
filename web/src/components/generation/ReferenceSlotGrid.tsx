@@ -38,6 +38,7 @@ export function ReferenceSlotGrid({
   value,
   displayPreviews,
   maxReferences,
+  additionalReferenceCount = 0,
   supported,
   roles,
   compact = false,
@@ -56,6 +57,7 @@ export function ReferenceSlotGrid({
   value: Partial<Record<GenerationReferenceRole, string>>;
   displayPreviews?: ReferenceDisplayPreviews;
   maxReferences: number;
+  additionalReferenceCount?: number;
   supported: boolean;
   roles?: GenerationReferenceRole[];
   compact?: boolean;
@@ -73,7 +75,7 @@ export function ReferenceSlotGrid({
 }) {
   const { t } = useTranslation('playground');
   const location = useLocation();
-  const activeCount = Object.values(value).filter(Boolean).length;
+  const activeCount = Object.values(value).filter(Boolean).length + additionalReferenceCount;
   useEffect(() => {
     if (location.hash === '#reference-images') {
       scheduleHashTargetScroll(location.hash);

@@ -4,6 +4,7 @@ import { getCinematicVideoCapabilityCatalog, updateCinematicShotVideoReferences,
 import { readProduceVideoEnginePreference } from './produceVideoPreferences';
 import { resolveStoryboardShotCast } from '../components/storyboardGenerationAdapter';
 import type { CinematicProject, CinematicScene, CinematicShot } from '../schemas/cinematicSchemas';
+import { isStoryboardCompositionStyle } from '../schemas/cinematicSchemas';
 
 export function useShotVideoReferences(project: CinematicProject, scene: CinematicScene | undefined,
   shot: CinematicShot | undefined, onRefresh?: () => void, suggestLooksOnly = false, firstFrameEnabled?: boolean) {
@@ -22,9 +23,9 @@ export function useShotVideoReferences(project: CinematicProject, scene: Cinemat
   const effectiveProject = saved && saved.version >= project.version ? saved : project;
   const effectiveShot = effectiveProject.scenes.find(item => item.id === scene?.id)?.shots.find(item => item.id === shot?.id) || shot;
   const noCast = Boolean(scene && effectiveShot && !resolveStoryboardShotCast(effectiveProject, scene, effectiveShot).length);
-  const sketchAvailable = effectiveShot?.approvedStoryboardSource?.storyboardRenderStyle === 'concept_sketch_v1' && suggestLooksOnly;
+  const sketchAvailable = isStoryboardCompositionStyle(effectiveShot?.approvedStoryboardSource?.storyboardRenderStyle);
   const mode = !framesEnabled && !sketchAvailable ? (noCast ? 'text_only' : 'looks_only') : effectiveShot?.videoReferenceMode
-    || (suggestLooksOnly && !effectiveShot?.approvedStoryboardSource ? 'looks_only' : 'storyboard_only');
+    || (sketchAvailable ? 'storyboard_and_looks' : suggestLooksOnly && !effectiveShot?.approvedStoryboardSource ? 'looks_only' : 'storyboard_only');
   return { mode, sketchAvailable, firstFrameEnabled: framesEnabled, lastFirstFrameMode: effectiveShot?.lastFirstFrameMode || 'storyboard_only',
     changeMode: (value: CinematicVideoReferenceMode) => mutation.mutate(value === 'looks_only' && noCast ? 'text_only' : value), pending: mutation.isPending, error: mutation.error,
     projectVersion: effectiveProject.version };

@@ -7,6 +7,12 @@
 **Triggered skills:** `design-cinematic-experience`, `review-product-ux`, `verify-release-regressions`  
 **Implementation package:** `implemetation-plan/009-unified-story-plan-direct-review-and-visual-repair.md`
 
+Planned correction: [047](047-dialogue-timing-and-performance-readiness.md) and
+[048](048-dialogue-direction-implementation-plan.md) address dialogue feasibility
+and performance coverage. The existing Director self-review is not an independent
+second AI review. Future timing/direction repair must remain separate from this
+requirement's visual-only protected-field contract. No runtime change yet.
+
 ## 1. User Outcome
 
 A creator presses one `Generate Plan` button and receives one reviewable,

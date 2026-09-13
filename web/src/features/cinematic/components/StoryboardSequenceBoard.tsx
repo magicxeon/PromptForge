@@ -3,6 +3,7 @@ import { Button } from '../../../components/ui/Button';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useTranslation } from 'react-i18next';
 import { useGenerationJob } from '../../generation/hooks/useGenerationJob';
+import type { ReactNode } from 'react';
 
 export type StoryboardShotSummary = {
   id: string;
@@ -29,6 +30,7 @@ type StoryboardSequenceBoardProps = {
   onEditShot?: (shotId: string) => void;
   onMoveShot: (shotId: string, direction: 'earlier' | 'later') => void;
   readOnly?: boolean;
+  sceneTools?: ReactNode;
   variant?: 'board' | 'queue';
 };
 
@@ -42,6 +44,7 @@ export function StoryboardSequenceBoard({
   onEditShot,
   onMoveShot,
   readOnly = false,
+  sceneTools,
   variant = 'board'
 }: StoryboardSequenceBoardProps) {
   const { t } = useTranslation('cinematic');
@@ -63,6 +66,7 @@ export function StoryboardSequenceBoard({
           <small>{shots.length} {t('cinematic.storyboard.shots')}</small>
         </div>
       </header>
+      {sceneTools}
       <div className="cinematic-storyboard-board__grid">
         {shots.map((shot, index) => <StoryboardShotCard
           key={shot.id}

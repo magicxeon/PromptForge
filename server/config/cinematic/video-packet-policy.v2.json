@@ -1,7 +1,18 @@
 {
   "schemaVersion": 2,
   "id": "cinematic-video-packet-policy",
-  "version": 7,
+  "version": 11,
+  "whitePrevisLeadInMs": 500,
+  "whitePrevisLeadInInstruction": "PRE-ROLL 0:00-{start}: hold the opening pose and prop state; no story action yet. Complete photographic Look Sheet faces from frame 0, never white faces or guide lines. The full usable action lasts {duration}s starting at {start}; hold after it until the source clip ends.",
+  "compositionReferenceMode": {
+    "maximumPromptCharacters": 4000,
+    "promptPrefix": "Create one fully photorealistic live-action take from frame one, with real actors on a physical set in natural color.",
+    "startAuthority": "Image 1 supplies opening camera, blocking, geometry and light placement, NOT facial identity. Blank faces and faint guide lines indicate head angle only. Authored starting hand/prop contact, time, weather and performance override incidental reference content.",
+    "characterMapping": "Image {imageNumber}: PRIMARY face and Look Sheet for {roleName}, Look {lookName}; this person only.",
+    "prohibitions": "No blank faces, guide lines, drawn texture, animation, CGI humans, copied sheet panels, swapped identities or unrequested text.",
+    "sectionLabel": "SCENE COMPOSITION AND LOOK SHEET REFERENCES"
+  },
+  "lookFacialIdentityInstruction": "BEFORE output time 0:00 (frame 0), reconstruct every visible face as an anatomically complete photographic face from that person's OWN Look Sheet. Looks OVERRIDE scene facial appearance: match face shape, age, eyes, nose, mouth, skin and hair. Preserve head pose and occlusion; no forced frontal faces or features on back-facing/hidden heads. Keep identity through motion, turns and reappearance. No blank initial faces, guide lines, delayed face reveal, morph or fade-in. Keep wardrobe and authored expression/gaze. Continuous real video throughout.",
   "sketchReferenceMode": {
     "maximumPromptCharacters": 4000,
     "promptPrefix": "Shoot one fully photorealistic live-action take from frame one: real actors on a physical set, not an animated or colorized drawing. Image 1 provides staging only; rebuild every surface photographically.",
@@ -58,10 +69,25 @@
     "prohibitions": "PROHIBITIONS",
     "authorDirection": "AUTHOR DIRECTION"
   },
+  "compactSectionLabels": {
+    "startAuthority": "References/start",
+    "temporalAction": "Action",
+    "camera": "Camera",
+    "performance": "Performance",
+    "environment": "Environment",
+    "continuity": "Continuity",
+    "audio": "Audio",
+    "prohibitions": "Rules",
+    "authorDirection": "Direction"
+  },
   "phrasing": {
     "startFrame": "Begin from the approved Storyboard image as the immutable first frame.",
     "preserveStartFrame": "Preserve every visible identity, garment, prop, spatial relation and motivated light source from that frame.",
     "primaryAction": "One primary action: {value}. Keep authored cause/action/reaction order and prop contact until release; invent no support or cause. React to visible events, not text or exact words. Respect weight/gravity; no hovering, teleporting or repeated falls.",
+    "manualTimeline": "Manual timeline, local to this clip starting at 0:00: perform ONLY these events in this order at the exact intervals. Do not merge, reorder, retime or add events; preserve state in gaps.",
+    "manualDuration": "Clip duration: {seconds}s. The timeline alone controls action, camera moves, performance changes and end state; no automatic extra events.",
+    "manualCamera": "Preserve opening framing unless the timeline directs a camera move.",
+    "manualPromptSuffix": "Continuous real video throughout, with natural physical motion and photographic surfaces; never a still or slideshow.",
     "additionalMotionDirection": "Creator motion correction: {value}.",
     "duration": "Duration: {seconds}s. Honor authored timing; otherwise real time with readable start/reaction. Falling objects accelerate. Slow motion/speed ramps only if directed; no filler events.",
     "blocking": "Blocking: {value}.",
@@ -80,10 +106,14 @@
     "dialogueCue": "{speaker}: {text} at {startOffsetMs}ms.",
     "audioCue": "{kind}: {description} at {startOffsetMs}ms."
   },
+  "actionScopes": {
+    "singleAction": "a second action",
+    "manualTimeline": "events outside the manual timeline"
+  },
   "globalProhibitions": [
     "Do not render readable text in any language: no titles, subtitles, captions, dialogue lettering, logos or readable signs/screens. Keep dialogue audio-only; communicate story through visible action and reaction.",
     "Do not change character identity, apparent age, body proportions, hairstyle or approved wardrobe.",
-    "Do not invent a second action, a new scene, a new Character, dialogue, prop or camera move.",
+    "Do not invent {actionScope}, a new scene, a new Character, dialogue, prop or camera move.",
     "Avoid synthetic CGI surfaces, plastic skin, beauty filtering and mechanically perfect motion."
   ]
 }

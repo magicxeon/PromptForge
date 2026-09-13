@@ -11,7 +11,7 @@ import { useActor } from '../../../lib/auth/ActorProvider';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { useFeaturePolicy } from '../../../lib/permissions/FeaturePolicyProvider';
 import { CinematicStageRail } from '../components/CinematicStageRail';
-import { cinematicStages } from '../cinematicStages';
+import { cinematicStages, simpleCinematicStages, visibleCinematicStage } from '../cinematicStages';
 import { CinematicStageContent } from '../components/CinematicStageContent';
 import { CinematicWorkspaceHeader } from '../components/CinematicWorkspaceHeader';
 import { CinematicSetupForm } from '../components/CinematicSetupForm';
@@ -153,6 +153,7 @@ function CinematicWorkspace({
   const [online, setOnline] = useState(() => typeof navigator === 'undefined' || navigator.onLine);
   const [enhanceOpen, setEnhanceOpen] = useState(false);
   const [seriesBusy, setSeriesBusy] = useState(false);
+  const [manualDirty, setManualDirty] = useState(false);
   const [simplePreparing, setSimplePreparing] = useState(false);
   const simplePreparingRef = useRef(false);
   const [enhancePurpose, setEnhancePurpose] = useState<'story' | 'roles'>('story');
@@ -160,7 +161,7 @@ function CinematicWorkspace({
   const mutationChainRef = useRef<Promise<void>>(Promise.resolve());
   const lastSavedSetupRef = useRef(project ? serializeSetup(projectToDraft(project)) : '');
   const requestedStageResult = cinematicStageSchema.safeParse(requestedStage);
-  const activeStage = requestedStageResult.success ? requestedStageResult.data : draft.activeStage;
+  const activeStage = visibleCinematicStage(requestedStageResult.success ? requestedStageResult.data : draft.activeStage, draft.mode);
 
   const createProject = useMutation({
     mutationFn: createCinematicProject,
@@ -299,7 +300,8 @@ function CinematicWorkspace({
   }
 
   async function setActiveStage(nextStage: CinematicSetupDraft['activeStage']) {
-    if (!project || seriesBusy) return;
+    if (!project || seriesBusy || manualDirty) return;
+    nextStage = visibleCinematicStage(nextStage, draft.mode);
     setSaveState('saving');
     setSaveError(null);
     try {
@@ -326,8 +328,9 @@ function CinematicWorkspace({
   }
 
   function moveStage(offset: -1 | 1) {
-    const currentIndex = cinematicStages.indexOf(activeStage);
-    const nextStage = cinematicStages[currentIndex + offset];
+    const stages = draft.mode === 'simple' ? simpleCinematicStages : cinematicStages;
+    const currentIndex = stages.indexOf(activeStage);
+    const nextStage = stages[currentIndex + offset];
     if (nextStage) void setActiveStage(nextStage);
   }
 
@@ -398,6 +401,7 @@ function CinematicWorkspace({
   }
 
   async function prepareSeriesChange() {
+    if (manualDirty) throw new Error(t('cinematic.manual.saveBeforeLeave'));
     if (!project || !online) throw new Error(t('cinematic.series.saveBeforeSwitch'));
     return enqueueProjectMutation(async () => {
       const serialized = serializeSetup(draft);
@@ -425,7 +429,7 @@ function CinematicWorkspace({
         onProjectChanged={saved => { projectVersionRef.current = saved.version; queryClient.setQueryData(['cinematic-project', actorId, saved.id], saved); }}
         onNavigate={(id, nextStage) => navigate(routeBuilders.cinematicProject(id, cinematicStageSchema.parse(nextStage)))} /> : null}
       <Surface className={`cinematic-workspace-surface p-4${activeStage === 'produce' ? ' cinematic-workspace-surface--produce' : ''}`}>
-        <CinematicStageRail activeStage={activeStage} onStageChange={setActiveStage} />
+        <CinematicStageRail mode={draft.mode} activeStage={activeStage} onStageChange={manualDirty ? undefined : setActiveStage} />
         <div className="cinematic-workspace-layout" inert={seriesBusy || undefined}>
           <div className="min-w-0">
           {activeStage === 'setup' ? (
@@ -453,6 +457,7 @@ function CinematicWorkspace({
               project={project}
               authoringManifest={resolvedManifest}
               onModeChange={mode => update('mode', mode)}
+              onDirtyChange={setManualDirty}
               onPrevious={() => moveStage(-1)}
               onNext={() => moveStage(1)}
               onOpenStage={stage => void setActiveStage(stage)}

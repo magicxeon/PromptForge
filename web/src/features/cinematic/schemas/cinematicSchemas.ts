@@ -1,4 +1,7 @@
 import { z } from 'zod';
+
+export const storyboardRenderStyleSchema = z.enum(['concept_sketch_v1', 'photorealistic_storyboard_v1', 'faceless_previs_v1', 'white_previs_v1']);
+export const isStoryboardCompositionStyle = (value: unknown) => storyboardRenderStyleSchema.safeParse(value).success;
 import { cinematicCastReferenceSchema } from '../../generation/schemas/generationSchemas';
 import { videoQuoteSchema, videoTaskSchema } from '../../generation/schemas/videoGenerationSchemas';
 
@@ -213,7 +216,7 @@ const cinematicStoryboardVideoCompatibilitySchema = z.object({
 });
 
 export const cinematicApprovedStoryboardSourceSchema = z.object({
-  storyboardRenderStyle: z.literal('concept_sketch_v1').nullable().optional(),
+  storyboardRenderStyle: storyboardRenderStyleSchema.nullable().optional(),
   assetId: z.string().min(1),
   assetVersionId: z.string().min(1),
   sourceJobId: z.string().min(1),
@@ -317,7 +320,24 @@ export const cinematicStoryboardKeyframeContractSchema = z.object({
   providerIndependentPrompt: z.string().min(1)
 });
 
+export const cinematicSceneEnvironmentContextSchema = z.object({
+  projectId: z.string(), projectVersion: z.number().int().positive(), sceneId: z.string(), sceneVersion: z.number().int().positive(),
+  environmentPrompt: z.string(), compiledPrompt: z.string(), promptFingerprint: z.string(),
+  approvedSource: cinematicApprovedStoryboardSourceSchema.nullable(),
+  referenceEnabled: z.boolean().optional().default(true)
+});
+
+export const cinematicSceneEnvironmentImagesSchema = z.object({
+  items: z.array(z.object({ jobId: z.string(), imageUrl: z.string(), thumbnailUrl: z.string(),
+    sceneId: z.string(), sceneTitle: z.string(), createdAt: z.string().nullable() })).max(24),
+  nextCursor: z.string().nullable()
+});
+
 export const cinematicStoryboardGenerationContextSchema = z.object({
+  cinematicSceneReference: z.object({ assetId: z.string().min(1), contentHash: z.string().regex(/^[a-f0-9]{64}$/) }).nullable().optional(),
+  cinematicFacialTreatment: z.enum(['blank', 'white_previs']).optional(),
+  cinematicManualStoryboard: z.boolean().optional(),
+  cinematicFaceless: z.boolean().optional(),
   cinematicCastReferences: z.array(cinematicCastReferenceSchema).max(6).optional(),
   cinematicContainsPeople: z.boolean().optional(),
   schemaVersion: z.literal(1),
@@ -366,6 +386,13 @@ export const cinematicStoryboardBatchResponseSchema = z.object({
 });
 
 export const cinematicShotSchema = z.object({
+  manualStoryboard: z.boolean().optional(),
+  manualStillAuthority: z.boolean().optional(),
+  storyboardFaceless: z.boolean().optional(),
+  storyboardFacialTreatment: z.enum(['blank', 'white_previs']).optional(),
+  videoActionTimeline: z.array(z.object({
+    startMs: z.number().int().nonnegative(), endMs: z.number().int().positive(), description: z.string()
+  })).max(12).optional(),
   castMode: z.enum(['none', 'selected', 'inherit']).optional(),
   openingFrameVersion: z.literal(1).optional(),
   audioDirectionVersion: z.literal(1).optional(),
@@ -442,6 +469,9 @@ export const cinematicStoryBeatSchema = z.object({
 });
 
 export const cinematicSceneSchema = z.object({
+  environmentPrompt: z.string().max(2500).optional(),
+  approvedEnvironmentSource: cinematicApprovedStoryboardSourceSchema.nullable().optional(),
+  environmentReferenceEnabled: z.boolean().optional(),
   cinematicOpening: z.boolean().optional(),
   castMode: z.enum(['none', 'selected', 'inherit']).optional(),
   artDirection: z.string().max(1000).optional(),
@@ -891,10 +921,10 @@ export const cinematicVideoPacketSchema = z.object({
   keyframeContractFingerprint: z.string().min(1),
   approvedKeyframeContractFingerprint: z.string().nullable(),
   approvedStoryboardSourceFingerprint: z.string().nullable(),
-  storyboardRenderStyle: z.literal('concept_sketch_v1').optional(),
+  storyboardRenderStyle: storyboardRenderStyleSchema.optional(),
   referenceMode: z.enum(['looks_only', 'text_only']).optional(),
   composition: cinematicStoryboardKeyframeContractSchema.shape.composition.optional(),
-  timing: z.object({ plannedDurationMs: z.number().nonnegative(), estimatedActionDurationMs: z.number().nonnegative() }),
+  timing: z.object({ plannedDurationMs: z.number().nonnegative(), estimatedActionDurationMs: z.number().nonnegative(), leadInMs: z.number().int().nonnegative().optional() }),
   referenceStrategy: z.object({
     mode: z.enum(['first_frame', 'composition_reference', 'unavailable', 'looks_only', 'text_only']),
     firstFrameAssetVersionId: z.string().nullable(),
@@ -907,6 +937,7 @@ export const cinematicVideoPacketSchema = z.object({
     looks: cinematicStoryboardKeyframeContractSchema.shape.lookAuthority
   }),
   motion: z.object({
+    timeline: z.array(z.object({ startMs: z.number().int().nonnegative(), endMs: z.number().int().positive(), description: z.string() })).max(12).optional(),
     visibleStart: z.string(), primaryAction: z.string(), visibleEnd: z.string(),
     additionalDirection: z.string().optional(),
     cameraMovement: z.string(), blocking: z.string(), screenDirection: z.string()
@@ -997,11 +1028,12 @@ export const cinematicProduceShotContextSchema = z.object({
 });
 
 export const cinematicVideoQuoteSchema = videoQuoteSchema.extend({
+  usableRange: z.object({ leadInMs: z.number().nonnegative(), usableDurationMs: z.number().positive(), trimInMs: z.number().nonnegative(), trimOutMs: z.number().positive() }).optional(),
   referenceMode: z.enum(['storyboard_only', 'storyboard_and_looks', 'looks_only', 'text_only']).optional(),
   renderedPrompt: z.string().optional(),
   referenceSummary: z.array(z.object({
     imageNumber: z.number().int().positive(), assetId: z.string().nullable(),
-    purpose: z.enum(['storyboard_opening', 'sketch_composition', 'character_look', 'generated_look']),
+    purpose: z.enum(['storyboard_opening', 'sketch_composition', 'storyboard_composition', 'character_look', 'generated_look']),
     roleName: z.string().nullable(), lookName: z.string().nullable(), previewUrl: z.string()
   })).optional(),
   projectId: z.string(),

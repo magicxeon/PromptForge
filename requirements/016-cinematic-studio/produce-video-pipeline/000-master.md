@@ -213,6 +213,16 @@ Out of scope:
 
 ### Pilot Review UX Addendum (2026-09-12)
 
+Planned regression [023 Shot/Take Preview Synchronization](023-shot-take-preview-synchronization.md)
+tracks center video not following selected Shot or Take. Reuse existing media
+and selection owners; preserve old Takes, explicit approval and active-task
+monitoring. Requirement only; no implementation or browser reproduction yet.
+
+Planned follow-up [022 User-Controlled Take Duration](022-user-controlled-take-duration.md)
+uses Story Plan duration as a default only. Explicit supported Take duration is
+user-controlled; creative timing advice does not lock Generate. Actual provider,
+source authority, quote and financial safeguards remain. Documentation only.
+
 Implementation is now authorized under [021 Scope Reconciliation](021-pilot-scope-reconciliation.md).
 That reconciliation takes precedence over discussion/pending labels below and
 in 014-020; runtime completion still requires the recorded acceptance evidence.

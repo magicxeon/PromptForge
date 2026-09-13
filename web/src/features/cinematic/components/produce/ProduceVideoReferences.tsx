@@ -46,7 +46,7 @@ export function ProduceVideoReferences({ mode, disabled, loading, onChange, refe
             <AuthenticatedMediaImage src={reference.previewUrl} alt="" className="size-full object-contain" fallback={<ImageIcon className="size-5" aria-hidden="true" />} />
           </div>
           <div className="min-w-0 break-words text-xs">
-            <strong>{t('cinematic.produce.references.image', { number: reference.imageNumber })}: {t(['storyboard_opening', 'sketch_composition'].includes(reference.purpose) ? 'cinematic.produce.references.storyboard' : 'cinematic.produce.references.look')}</strong>
+            <strong>{t('cinematic.produce.references.image', { number: reference.imageNumber })}: {t(['storyboard_opening', 'sketch_composition', 'storyboard_composition'].includes(reference.purpose) ? 'cinematic.produce.references.storyboard' : 'cinematic.produce.references.look')}</strong>
             {reference.roleName ? <p>{reference.roleName} / {reference.lookName}</p> : null}
           </div>
         </li>)}

@@ -8,6 +8,17 @@ import {
 
 const service = new CinematicDataLineageService();
 
+test('action duration estimate remains advisory in lineage without rewriting timing or Takes', () => {
+  const project = createSingleCharacterCinematicProject();
+  const shot = project.scenes[0].shots[0];
+  shot.estimatedActionDurationMs = shot.durationMs + 1000;
+  const before = structuredClone(project);
+  const result = service.build(project);
+  assert.equal(result.findings.find(item => item.code === 'cinematic_lineage_shot_action_overflow')?.severity, 'warning');
+  assert.equal(result.findings.some(item => item.severity === 'blocking'), false);
+  assert.deepEqual(project, before);
+});
+
 test('Cinematic data lineage deterministically traces a complete Setup-to-Finish Project', () => {
   const project = createSingleCharacterCinematicProject();
   const first = service.build(project);

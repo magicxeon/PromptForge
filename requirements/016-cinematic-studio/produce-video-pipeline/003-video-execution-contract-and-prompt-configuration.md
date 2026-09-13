@@ -6,6 +6,71 @@
 
 ## 1. Contract Layers
 
+### Shot 3 Final Reference Budget Recovery (2026-09-13)
+
+Owner: CinematicVideoPacketCompiler. Project cineproj_1789050713436_vfjpcrx6,
+Shot cineshot_1789210678867_n2mizlwf: the packet fits at 3704 characters, but
+ModelArk wording plus the two named Look mappings produces 4072 characters,
+or 4003 after existing whitespace/header optimization, exceeding 4000.
+
+Ordered tasks: reproduce read-only (done); add a final compact section-label
+presentation from the existing JSON policy; run focused compiler regressions and
+recompile this Project without writes or provider calls. Preserve every authored
+field, dialogue cue/timestamp, facial reconstruction instruction and ordered
+reference binding. Never raise provider limits, truncate user text or mutate
+approved media/Takes. Prompts already within budget remain byte-identical.
+Keep existing packet policy identity for compatible prompts; only fallback
+rendered text/fingerprint changes. Truly oversized content retains its error.
+
+Status: implemented. `node --test test/cinematicVideoPacketCompiler.test.js`
+passed 30/30. Read-only recompilation of this Shot now yields 3922/4000 with
+all start/action/dialogue text and three ordered images retained. Runtime JSON
+bytes were unchanged. Actual motion remains user UAT; no paid request was sent.
+
+### Advisory Action Timing And Produce Recovery (2026-09-13)
+
+Status: implemented; focused checks passed; live reload/UAT pending.
+Primary: Generative Cinematic Production;
+QA review is scoped to readiness and source preservation. Owners remain
+CinematicVideoPacketCompiler, CinematicDataLineageService and Produce context.
+
+Observed: Project cineproj_1789050713436_vfjpcrx6, Shot
+cineshot_1789210678867_bma5h748 has an approved faceless Storyboard and
+storyboard_and_looks mode. GET produce-context returns generationEligible=false
+with cinematic_video_action_overflow: planned duration is 4000ms, while the
+action-duration estimate is 5000ms. This is not a reference rejection.
+
+The action estimate is advisory, not measured output or a provider restriction.
+Retain the overflow finding as a warning in packet and lineage, without blocking
+quote/Generate solely on this estimate. This supersedes the hard estimate
+inequality in story-improvement-loop/001 section 4.9, not actual timing checks.
+Do not clamp the estimate, extend the Shot, modify its prompt, invalidate its
+approved source, remove Takes or change any stored Project data. Source approval,
+current fingerprints, required action, provider limits, actual clip duration,
+quote affordability and normal billing/idempotency remain enforced.
+
+Ordered tasks:
+1. Document the observed blocker and reconcile the timing requirement. Done.
+2. Make only estimated-action overflow advisory in packet and lineage. Implemented.
+3. Verify a 4s Shot/5s estimate is eligible, the warning survives, missing/stale
+   authority still blocks, and Produce can quote/enable Generate. Passed.
+   Use `node scripts/test-cinematic-video.js timing` for the small backend group
+   and `node scripts/test-cinematic-video.js timing-ui` for the isolated button
+   check. `full` remains the explicit later aggregate. No paid generation,
+   live-data rewrite or automatic worker restart. Actual motion quality is UAT.
+
+Evidence: `timing` passed 8 backend cases; `timing-ui` passed its one targeted
+button case (29 other UI cases intentionally skipped). Existing missing-source
+and stale-authority checks were included. Read-only execution of the application
+facade against a cloned live Project returns generationEligible=true,
+blockingReason=null, the retained 4000/5000ms timing warning, the same approved
+source and two prior Takes. Runtime JSON bytes remained unchanged. No source
+files moved, new runtime paths, provider calls, UI layout changes or billing
+changes. `git diff --check` passed. QA lenses applied sequentially, not an
+independent execution. Port 6500 was reachable for diagnosis but returned
+ECONNREFUSED on the final recheck; this session did not stop/restart it. Reload
+the normal backend with the change and reopen Produce for live button UAT.
+
 ### Shot-Local Sequence Isolation (2026-09-12)
 
 Owner: Cinematic planning and VideoPacketCompiler. Scope: preserve the generated
@@ -30,6 +95,12 @@ instructions are absent while the authored action remains. No provider call or
 live mutation. Generated sequence quality remains user UAT.
 
 ### Deterministic Prompt Budget Optimization (2026-09-12)
+
+Planned follow-up:
+[enhancement 049](../enhancement-core-engine/049-final-prompt-budget-preflight.md)
+adds early per-Shot preflight plus final-request validation and bounded automatic
+optimization through the same compiler. Current hard limits, authored authority
+and pricing remain unchanged until that requirement is implemented.
 
 Owner: CinematicVideoPacketCompiler and existing JSON prompt policies. Primary:
 Product Requirement Architect; QA review applied sequentially by implementer
@@ -267,3 +338,40 @@ Warnings include legacy authority and recommended last-frame continuity.
 - Prompt policy changes are versioned, schema-tested and independently
   rollbackable.
 - Existing Playground Video contract tests remain green.
+
+## 12. Plan Revision Identity False Stale (2026-09-13)
+
+Status: implemented; focused compiler and live API checks passed. Browser click
+and paid video generation remain user UAT. Scope: Produce keyframe compatibility only.
+Observed project cineproj_1789050713436_vfjpcrx6, Scene 1 / Shot 3: after changing
+duration from 4s to 8s and saving the Plan, Produce returned
+cinematic_video_keyframe_contract_stale. Read-only recompilation proved the
+approved and current still contracts differ only in storyPlanVersionId, not
+visual authority, prompt or the previous approved reference.
+
+1. Preserve stored fingerprints and sources. Accept the historical semantic hash
+   when substituting ONLY a known same-Project, same-Scene Plan revision ID into
+   the current contract reproduces the exact approved hash. Bound fallback work
+   to the most recent 64 relevant historical IDs; do not substitute historical
+   visual content, Cast, configuration or reference fingerprints.
+2. Current video duration, packet fingerprint and quote still change normally.
+   Do not reuse an old quote or change Credits, task state, selected source or Takes.
+3. Unknown Plan IDs, changed composition/identity/continuity/policy and genuinely
+   stale sources remain blocked. Existing legacy version matching stays intact.
+4. Ordered work: owning compiler compatibility fix, focused regression cases,
+   read-only reproduction against this Project, then reload the API process if
+   required. No paid generation or live project JSON edits for verification.
+
+Validation command: node --test test/cinematicVideoPacketCompiler.test.js.
+Evidence: 32/32 compiler tests passed, including unchanged Plan identity/duration,
+genuine composition changes, unknown/other-Scene Plan identities and existing
+legacy matching. Read-only compilation of the reported Project returned no
+blocking findings at 8,000ms with the original approved source fingerprint.
+The stopped local API was started normally on port 6500; live Produce context
+then returned generationEligible=true. Seedance 2.5 quote at 720p/8s/audio ON
+returned HTTP 200, canAfford=true, three references and a 3,922-character prompt.
+No video submission, manual project JSON edit or new generation was performed.
+Normal server startup recovery was allowed; existing tasks/sources were not
+manually changed. Review was sequential, not an independent subagent review.
+This fix does not implement the separately planned dialogue-direction or
+reference-layout requirements.

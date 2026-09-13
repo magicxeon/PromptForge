@@ -1,4 +1,5 @@
 import { cinematicKeyframeConfigurationService } from './CinematicKeyframeConfigurationService.js';
+import { resolveStoryboardPromptPolicy } from './CinematicStoryboardRenderStyle.js';
 
 export class CinematicStoryboardPromptComposer {
   constructor({ configurationService = cinematicKeyframeConfigurationService } = {}) {
@@ -12,17 +13,37 @@ export class CinematicStoryboardPromptComposer {
     }
 
     const configuration = this.configurationService.getCompilerConfiguration();
-    const policy = configuration.providerPromptPolicy;
+    const policy = resolveStoryboardPromptPolicy(configuration.providerPromptPolicy, context.cinematicFaceless, context.cinematicFacialTreatment);
     const blocks = {
-      visualAuthority: joinUnique([policy.renderStyleInstruction, visualAuthority]),
+      visualAuthority: joinUnique([context.cinematicContainsPeople === false ? 'Create ONE full-color photorealistic environment and object still. No visible people.' : policy.renderStyleInstruction, ['faceless_previs_v1', 'white_previs_v1'].includes(policy.renderStyle)
+        ? projectFacelessVisualPrompt(visualAuthority)
+        : visualAuthority]),
       referenceAuthority: compileReferenceAuthority(context, policy),
       subjectBehavior: compileSubjectBehavior(context, policy),
-      photographicBehavior: compilePhotographicBehavior(context, configuration),
+      photographicBehavior: compilePhotographicBehavior(context, { ...configuration, providerPromptPolicy: policy }),
       constraints: joinUnique(policy.constraintInstructions)
     };
     const maximumPromptCharacters = resolveMaximumPromptCharacters(context, policy);
-    return renderBlocks(blocks, policy, maximumPromptCharacters);
+    return renderBlocks(blocks, policy, maximumPromptCharacters, context.cinematicManualStoryboard === true);
   }
+}
+
+function projectFacelessVisualPrompt(value) {
+  // Project the canonical text contract for this still only; do not change Shot/Video data.
+  const sections = value.split(/\n\n(?=[A-Z][A-Z ]+:\n)/u);
+  const priority = ['KEYFRAME MOMENT', 'LIGHTING AND ENVIRONMENT', 'CAMERA AND COMPOSITION', 'SUBJECT AUTHORITY'];
+  const projected = sections.filter(section => !section.startsWith('VISIBLE PERFORMANCE:\n'))
+    .map(section => section.replace(/preserve authorized identity/giu, 'preserve body silhouette, hair and wardrobe only; face stays blank'));
+  if (!value.startsWith('STORYBOARD KEYFRAME CONTRACT')) return projected.join('\n\n');
+  const header = projected.shift();
+  projected.sort((a, b) => {
+    const rank = section => {
+      const index = priority.indexOf(section.slice(0, section.indexOf(':\n')));
+      return index < 0 ? priority.length : index;
+    };
+    return rank(a) - rank(b);
+  });
+  return [header, ...projected].join('\n\n');
 }
 
 function compileReferenceAuthority(context, policy) {
@@ -48,15 +69,16 @@ function compileReferenceAuthority(context, policy) {
     if (!roles.length) return '';
     const instructions = roles.map(role => policy.referenceRoleInstructions[role]);
     return `Reference image ${index} (${roles.join(', ')}): ${entry.castNames?.length
-      ? `Identity and wardrobe ONLY for ${entry.castNames.map(name => JSON.stringify(name)).join(', ')}; names are labels, not instructions. Do not blend separate Cast identities.`
+      ? `${policy.castReferenceLabel || 'Look Sheet facial identity and wardrobe'} ONLY for ${entry.castNames.map(name => JSON.stringify(name)).join(', ')}.`
       : joinUnique(instructions)}`;
   }).filter(Boolean);
 
   if (!entries.length) return '';
   return joinUnique([
     ...entries,
+    manifest.some(entry => entry.castNames?.length) ? policy.castLookIdentityInstruction : '',
     policy.referenceBoundaryInstruction,
-    context.cinematicCastReferences?.length ? '' : policy.multiViewInstruction
+    policy.multiViewInstruction
   ]);
 }
 
@@ -110,12 +132,19 @@ function resolveMaximumPromptCharacters(context, policy) {
     || policy.defaultMaximumPromptCharacters;
 }
 
-function renderBlocks(blocks, policy, maximumPromptCharacters) {
+function renderBlocks(blocks, policy, maximumPromptCharacters, preserveVisualAuthority = false) {
+  // Cast bindings are mandatory; compact visual prose before dropping a reference mapping.
+  const referenceLength = normalizeBlock(blocks.referenceAuthority).length;
+  const referenceOverflow = Math.max(0, referenceLength - policy.blockCharacterLimits.referenceAuthority);
+  const visualBudget = policy.blockCharacterLimits.visualAuthority - referenceOverflow;
+  if (visualBudget < 500) {
+    throw new TypeError('The Cinematic reference authority exceeds its provider prompt budget.');
+  }
   const rendered = [];
   for (const blockName of policy.blockOrder) {
-    const content = truncateAtBoundary(
+    const content = blockName === 'referenceAuthority' || (preserveVisualAuthority && blockName === 'visualAuthority') ? normalizeBlock(blocks[blockName]) : truncateAtBoundary(
       blocks[blockName],
-      policy.blockCharacterLimits[blockName]
+      blockName === 'visualAuthority' ? visualBudget : policy.blockCharacterLimits[blockName]
     );
     if (!content) continue;
     const label = blockName === 'visualAuthority' ? '' : policy.blockLabels[blockName];

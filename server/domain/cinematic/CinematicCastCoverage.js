@@ -8,6 +8,7 @@ export function resolveShotCastIds(scene, shot) {
 
 export function resolveShotLookIds(scene, shot) {
   if (!resolveShotCastIds(scene, shot).length) return [];
+  if (shot.manualStoryboard) return [...new Set(shot.wardrobeLookIds || [])];
   return [...new Set(shot.wardrobeLookIds?.length ? shot.wardrobeLookIds : scene.wardrobeLookIds || [])];
 }
 

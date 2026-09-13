@@ -6,6 +6,8 @@ import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
 import { normalizeProviderOutputProvenance } from '../generation/ProviderOutputProvenance.js';
 import { deriveStoryboardVideoCompatibility } from '../cinematic/CinematicStoryboardSourceCompatibility.js';
+import { normalizeStoryboardRenderStyle } from '../cinematic/CinematicStoryboardRenderStyle.js';
+import { normalizeCinematicSceneReference } from '../cinematic/CinematicSceneEnvironment.js';
 
 export class CinematicStoryboardAssetService {
   constructor({
@@ -22,6 +24,28 @@ export class CinematicStoryboardAssetService {
     this.outputsDirectory = outputsDirectory;
     this.providerRegistry = providerRegistry;
     this.clock = clock;
+  }
+
+  async resolveSceneReference(value, actorContext) {
+    const binding = normalizeCinematicSceneReference(value);
+    if (!binding) return null;
+    if (!actorContext?.userId) throw sourceError('actor_required', 'An active actor is required.', 401);
+    const asset = await this.assetRepository.findByIdForOwner(binding.assetId, actorContext.userId);
+    if (!asset || asset.status === 'deleted' || asset.assetType !== 'cinematic_storyboard_source'
+      || asset.metadata?.immutable !== true || asset.metadata.contentHash !== binding.contentHash || !asset.publicUrl) {
+      throw sourceError('cinematic_scene_source_unavailable', 'The approved Scene reference is unavailable.', 409);
+    }
+    await verifyStoryboardAssetContent(asset, { outputsDirectory: this.outputsDirectory });
+    return { ...binding, referenceValue: asset.publicUrl };
+  }
+
+  async getGenerationPreview(jobId, actorContext) {
+    if (!actorContext?.userId || !actorContext?.username) throw sourceError('actor_required', 'An active actor is required.', 401);
+    const result = this.generationHistory
+      ? await this.generationHistory.getById(jobId)
+      : await this.generationResults.findStoryboardSourceForOwner(jobId, actorContext);
+    if (!result || result.username !== actorContext.username || !result.imageUrl) return null;
+    return { jobId, imageUrl: result.imageUrl, thumbnailUrl: result.thumbnailUrl || result.imageUrl };
   }
 
   async approveGenerationResult({ jobId }, actorContext) {
@@ -77,7 +101,7 @@ export class CinematicStoryboardAssetService {
         contentHash,
         generationMode: history.generationMode || null,
         operationPurpose: 'cinematic_storyboard_still',
-        storyboardRenderStyle: history.storyboardRenderStyle === 'concept_sketch_v1' ? 'concept_sketch_v1' : null,
+        storyboardRenderStyle: normalizeStoryboardRenderStyle(history.storyboardRenderStyle),
         providerOutputProvenance,
         videoCompatibility
       }

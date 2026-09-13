@@ -28,7 +28,10 @@ import {
 import { faceReferenceHandoffService } from './FaceReferenceHandoffService.js';
 import { normalizeCustomAttributeSelections } from './customAttributeInputPolicy.js';
 import { cinematicStoryboardPromptComposer } from '../cinematic/CinematicStoryboardPromptComposer.js';
+import { cinematicKeyframeConfigurationService } from '../cinematic/CinematicKeyframeConfigurationService.js';
+import { resolveStoryboardPromptPolicy } from '../cinematic/CinematicStoryboardRenderStyle.js';
 import { normalizeCinematicCastReferences } from '../cinematic/CinematicImageCastReferences.js';
+import { normalizeCinematicSceneReference } from '../cinematic/CinematicSceneEnvironment.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 export const CINEMATIC_NATURAL_CAMERA_PROFILE_ID = 'photorealistic-cinematic';
@@ -130,6 +133,13 @@ function normalizeCinematicCaptureProfileId(payload) {
 }
 
 export function normalizeGenerationContext(payload = {}, actorContext = null) {
+  if (payload.generationSurface === 'cinematic' && payload.cinematicFacialTreatment !== undefined
+    && !['blank', 'white_previs'].includes(payload.cinematicFacialTreatment)) {
+    throw Object.assign(new Error('Unknown facial treatment.'), { code: 'cinematic_storyboard_settings_invalid', statusCode: 400 });
+  }
+  if (payload.generationSurface === 'cinematic' && payload.cinematicFaceless !== undefined && typeof payload.cinematicFaceless !== 'boolean') {
+    throw Object.assign(new Error('Faceless must be a boolean.'), { code: 'cinematic_storyboard_settings_invalid', statusCode: 400 });
+  }
   const lookSheetDefinition = payload.lookSheetDefinition == null ? null : normalizeLookSheetDefinition(payload.lookSheetDefinition);
   if (payload.lookSheetEnhancementId != null && (typeof payload.lookSheetEnhancementId !== 'string'
     || !/^enh_[a-f0-9-]{36}$/.test(payload.lookSheetEnhancementId))) {
@@ -275,7 +285,11 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   const normalizedContext = {
     ...payload,
     cinematicCaptureProfileId: normalizeCinematicCaptureProfileId(payload),
+    cinematicFaceless: payload.generationSurface === 'cinematic' && payload.cinematicFaceless === true,
+    cinematicFacialTreatment: payload.generationSurface === 'cinematic' && payload.cinematicFacialTreatment === 'white_previs' ? 'white_previs' : 'blank',
+    cinematicManualStoryboard: payload.generationSurface === 'cinematic' && payload.cinematicManualStoryboard === true,
     cinematicCastReferences: payload.generationSurface === 'cinematic' ? normalizeCinematicCastReferences(payload.cinematicCastReferences) : [],
+    cinematicSceneReference: payload.generationSurface === 'cinematic' ? normalizeCinematicSceneReference(payload.cinematicSceneReference) : null,
     cinematicContainsPeople: payload.generationSurface === 'cinematic' ? payload.cinematicContainsPeople !== false : true,
     promptRefinement: {
       enabled: !lookSheetDefinition && !characterLookSheetRequest
@@ -569,10 +583,11 @@ export function createQueueOptions(context, {
     generationMode: context.generationMode || null,
     generationSurface: context.generationSurface || null,
     storyboardRenderStyle: context.generationSurface === 'cinematic' && context.generationMode === 'scene'
-      ? 'concept_sketch_v1' : null,
+      ? resolveStoryboardPromptPolicy(cinematicKeyframeConfigurationService.getCompilerConfiguration().providerPromptPolicy, context.cinematicFaceless, context.cinematicFacialTreatment).renderStyle : null,
     studioRealismProfile: studioRealismProfile(context),
     cinematicCaptureProfileId: context.cinematicCaptureProfileId || null,
     cinematicCastReferences: normalizeCinematicCastReferences(context.cinematicCastReferences),
+    cinematicSceneReference: normalizeCinematicSceneReference(context.cinematicSceneReference),
     cinematicContainsPeople: context.cinematicContainsPeople,
     template: context.template,
     isGptSafe: context.isGptSafe,

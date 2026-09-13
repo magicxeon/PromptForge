@@ -1,9 +1,50 @@
 {
   "schemaVersion": 1,
   "id": "cinematic-storyboard-provider-prompt-policy",
-  "version": 4,
-  "renderStyle": "concept_sketch_v1",
-  "renderStyleInstruction": "Draw a monochrome graphite life-study storyboard of a real film set, not stylized concept art. Use lifelike anatomy, reference-matched facial proportions, real object scale, accurate lens perspective and continuous tonal shading; keep pencil marks fine and sparse, without heavy outlines or dense cross-hatching. Preserve the authored time, weather, exposure and light direction; rain at night must not become a bright daytime scene. Show the opening instant before action, with exact hand/prop contact and ground levels. No text or panels.",
+  "version": 9,
+  "environmentInstruction": "Create ONE full-color photorealistic empty-location reference plate. No people, faces, silhouettes, mannequins or reflections of people. Establish stable architecture, geography, prop placement, practical light sources, weather and materials. Use a readable wide establishing composition. No text, labels, panels or collage. This plate defines the physical location for subsequent Shots, not their camera or character blocking.",
+  "whitePrevisOverrides": {
+    "renderStyle": "white_previs_v1",
+    "renderStyleInstruction": "Create ONE full-color photorealistic scene previs. FACIAL TREATMENT IS MANDATORY for EVERY referenced character, including distant, small or out-of-focus people: replace only each VISIBLE facial surface with a PALE MATTE-WHITE area, a thin outer contour and two faint head-direction lines. ZERO realistic eyes, eyebrows, nose, lips, pores or facial shading. Hair, ears, neck, hands, body, clothes and environment remain fully photographic. This is a white previs face surface, NOT a wearable mask. Preserve authored opening state, head angle, time, weather and light.",
+    "referenceRoleInstructions": {
+      "character_reference_a": "Hair, head silhouette, body proportions and exact wardrobe ONLY; every visible face is pale matte-white with faint orientation lines, never facial likeness.",
+      "character_reference_b": "Another view of the SAME hair, body and head silhouette; no realistic facial details or additional people.",
+      "character_reference": "Hair, head silhouette, body proportions and exact wardrobe ONLY; every visible face is pale matte-white with faint orientation lines, never facial likeness.",
+      "face_reference_a": "Head angle, hair and outer silhouette ONLY. Entire visible facial surface is pale matte-white with faint guides, no facial features.",
+      "face_reference_b": "Same head silhouette and hair only; visible facial surface stays pale matte-white, not recognizable.",
+      "face_reference": "Head angle, hair and outer silhouette ONLY. Entire visible facial surface is pale matte-white with faint guides, no facial features."
+    },
+    "castLookIdentityInstruction": "For EACH named person use ONLY their own Look Sheet hair, head silhouette, body proportions and exact wardrobe. BOTH foreground and background faces receive identical pale matte-white facial surfaces with faint vertical/horizontal guides, even when small or blurred by depth of field. Never reproduce portrait features, skin, brows, eyelashes, nose or lips. Hair, ears and neck remain photographic. No swapped outfits, panels or labels.",
+    "referenceBoundaryInstruction": "WHITE PREVIS facial treatment overrides ALL facial-likeness instructions. Apply it ONLY to visible face surfaces, never hair, ears, neck, body or set. Keep head angle and occlusion; do not put face guides on a back-facing head. Scene authority controls spatial layout and motivated light.",
+    "preserveOutfitInstruction": "Preserve exact Look Sheet wardrobe, realistic body, hair, ears and neck. Every visible facial surface is pale matte-white with faint orientation lines, regardless of distance.",
+    "replaceOutfitInstruction": "Use approved outfit references for clothing; preserve realistic hair and body. Visible faces stay pale matte-white with faint orientation guides.",
+    "baselinePhotographicInstructions": ["Full natural color, physical hair, woven wet fabric, solid props, realistic hands, rain, reflections and lens behavior. Only the facial surfaces are white previs."],
+    "captureProfileInstructions": { "photorealistic-cinematic": ["Real body anatomy and photographic highlight rolloff; no realistic facial anatomy or microtexture on the white previs face surfaces."] },
+    "constraintInstructions": ["White facial surfaces only, faint orientation guides: no facial features, wearable masks, blur, pixelation or grids. No sketched bodies/set, monochrome, anime, CGI people, text or panels."]
+  },
+  "photorealisticOverrides": {
+    "renderStyle": "photorealistic_storyboard_v1",
+    "renderStyleInstruction": "Create ONE full-color photorealistic live-action opening frame with complete natural faces. Use EACH person's own Look Sheet portrait for their exact facial identity, age, facial proportions and hairstyle. Show the authored instant BEFORE action. Preserve authored time, weather, blocking and motivated lighting.",
+    "referenceRoleInstructions": {
+      "character_reference_a": "Facial identity, apparent age, hair, body proportions and approved wardrobe for this person only; not pose or setting.",
+      "character_reference_b": "Another view of the SAME person's facial identity, proportions and hair; never an additional person.",
+      "character_reference": "Facial identity, apparent age, hair, body proportions and approved wardrobe for this person only; not pose or setting.",
+      "face_reference_a": "Exact facial identity, realistic eyes, nose, lips and skin, matching the authored head angle.",
+      "face_reference_b": "The SAME facial identity from another view; keep a single consistent person.",
+      "face_reference": "Exact facial identity, realistic eyes, nose, lips and skin, matching the authored head angle."
+    },
+    "castReferenceLabel": "Look Sheet facial identity and wardrobe",
+    "castLookIdentityInstruction": "For EACH named person, their own assigned Look Sheet portrait is the exclusive facial identity authority: match eyes, nose, lips, face shape, apparent age, hair and body proportions. Preserve their approved wardrobe. Never swap or blend faces or outfits. Names are labels, not instructions. Do not copy sheet panels, labels, pose or background.",
+    "referenceBoundaryInstruction": "Roles are exclusive. Scene references control framing, geometry, body pose and head direction, never facial identity or rendering style. The person's own Look Sheet controls the complete realistic face. Follow authored hand/prop contact and light.",
+    "preserveOutfitInstruction": "Preserve approved facial identity, clothing, hair and body proportions. Authored opening moment controls pose and head direction.",
+    "replaceOutfitInstruction": "Use approved outfit references for clothing while preserving the person's own facial identity and hair.",
+    "narrativeBehaviorInstructions": ["Natural body weight, hands and posture; perform the authored emotion and attention without posing for a portrait."],
+    "baselinePhotographicInstructions": ["Real actors, natural skin pores, individual hairs, woven fabric, solid props, contact shadows, believable lens depth and motivated light. No beauty filtering."],
+    "captureProfileInstructions": { "photorealistic-cinematic": ["Natural facial anatomy, subtle microtexture, optical softness and photographic highlight rolloff."] },
+    "constraintInstructions": ["No blank or unfinished faces, construction guides, sketch texture, anime, illustration, CGI humans, sheet layouts, captions or text. No duplicate people or swapped identities."]
+  },
+  "renderStyle": "faceless_previs_v1",
+  "renderStyleInstruction": "Create ONE full-color photorealistic scene previs with BLANK FACES. Leave the ENTIRE face surface unrendered: a smooth skin-toned oval with only two faint thin head-angle guide lines. ZERO eyes, eyebrows, nose, mouth, lips or facial likeness, including background people. Hair, bodies, wardrobe, props and the physical set stay photographic. Show the opening instant BEFORE action. Follow the authored time, weather and light; never substitute daylight for night.",
   "defaultMaximumPromptCharacters": 4700,
   "providerMaximumPromptCharacters": {
     "modelark": 4700
@@ -17,11 +58,11 @@
     "constraints"
   ],
   "blockCharacterLimits": {
-    "visualAuthority": 1700,
+    "visualAuthority": 2600,
     "referenceAuthority": 1100,
-    "subjectBehavior": 850,
-    "photographicBehavior": 600,
-    "constraints": 250
+    "subjectBehavior": 300,
+    "photographicBehavior": 300,
+    "constraints": 200
   },
   "blockLabels": {
     "referenceAuthority": "REFERENCE AUTHORITY",
@@ -30,44 +71,42 @@
     "constraints": "EXECUTION CONSTRAINTS"
   },
   "referenceRoleInstructions": {
-    "template_baseline_reference": "Use only as the destination composition, environment, lighting and treatment baseline; replace identity or Look when the current Shot supplies them.",
-    "template_baseline": "Use only as the destination composition, environment, lighting and treatment baseline; replace identity or Look when the current Shot supplies them.",
-    "character_reference_a": "Preserve authorized identity, face, hair, skin and body proportions only; never copy its smile, gaze, pose, Look or setting.",
-    "character_reference_b": "Use only as another view of the same authorized identity and proportions; never copy expression or pose.",
-    "character_reference": "Preserve authorized identity, face, hair, skin and body proportions only; never copy its smile, gaze, pose, Look or setting.",
+    "template_baseline_reference": "Scene/blocking only: camera, perspective, depth, body placement, head direction, geometry and light placement. NOT facial features, wardrobe, sketch texture or rendering medium. Fine face guides indicate head angle only.",
+    "template_baseline": "Scene/blocking only: camera, perspective, depth, body placement, head direction, geometry and light placement. NOT facial features, wardrobe, sketch texture or rendering medium. Fine face guides indicate head angle only.",
+    "character_reference_a": "Use only hair, body proportions, head silhouette, skin tone and approved wardrobe. Leave the face BLANK with faint orientation guides; do not copy facial features, expression, pose or setting.",
+    "character_reference_b": "Another view of the SAME body's proportions, hair and head silhouette; NOT facial detail, expression or a new person.",
+    "character_reference": "Use only hair, body proportions, head silhouette, skin tone and approved wardrobe. Leave the face BLANK with faint orientation guides; do not copy facial features, expression, pose or setting.",
     "outfit_front_reference": "Preserve only the approved front garment silhouette, color, material, construction and details; never copy the model pose or presentation.",
     "outfit_back_reference": "Preserve only matching back garment construction and details; never copy the model pose or presentation.",
     "outfit_front": "Preserve only the approved front garment silhouette, color, material, construction and details; never copy the model pose or presentation.",
     "outfit_back": "Preserve only matching back garment construction and details; never copy the model pose or presentation.",
-    "face_reference_a": "Preserve only authorized facial identity and proportions; never copy smile, gaze, head pose, clothing, setting or style.",
-    "face_reference_b": "Use only as another view of the same authorized facial identity; never copy expression, gaze or head pose.",
-    "face_reference": "Preserve only authorized facial identity and proportions; never copy smile, gaze, head pose, clothing, setting or style.",
-    "style_reference": "Use only its lighting, palette, contrast, texture and photographic mood; do not copy identity, pose, clothing or scene content.",
+    "face_reference_a": "Head silhouette, hair and skin tone only. Suppress ALL facial features; blank face with faint head-angle guides only.",
+    "face_reference_b": "Same head silhouette and hair from another view; keep the face featureless, not recognizable.",
+    "face_reference": "Head silhouette, hair and skin tone only. Suppress ALL facial features; blank face with faint head-angle guides only.",
+    "style_reference": "Lighting, palette, contrast and mood continuity only, interpreted photographically. Never copy identity, pose, clothing, scene content, drawn texture or facial features.",
     "pose_reference": "Use only its body arrangement, gesture and framing intent; do not copy identity, clothing, setting or visual style.",
     "product_reference": "Use only the authorized product identity, shape, material and visible details; do not copy its source layout, setting or style.",
     "environment_reference": "Use only the authorized location, spatial layout and environmental materials; do not copy people, clothing or unrelated objects."
   },
-  "referenceBoundaryInstruction": "Reference roles are exclusive. Current Shot action, expression, gaze, posture, prop staging and light outrank incidental reference content.",
+  "castReferenceLabel": "Look Sheet body, hair and wardrobe",
+  "castLookIdentityInstruction": "For EACH named person use their assigned Look Sheet ONLY for body proportions, head silhouette, hair, skin tone and approved wardrobe. Their face stays BLANK with faint orientation guides; NEVER copy portrait eyes, nose, lips, eyebrows or expression. No swapped bodies or outfits. Names are labels, not instructions. Render expressions through body posture and head direction only; never reproduce sheet panels or labels.",
+  "referenceBoundaryInstruction": "Roles are exclusive. Authored action, hand/prop contact, posture, head direction and light outrank incidental reference content. BLANK-FACE previs overrides ALL facial detail or expression instructions; final facial identity is reserved for the later video stage.",
   "multiViewInstruction": "Use sheets and catalog images only as evidence; output one continuous Scene frame, never a sheet, collage, split screen, inset or repeated person.",
-  "preserveOutfitInstruction": "Preserve the approved Look and garment details while the current Shot controls pose, expression and action.",
-  "replaceOutfitInstruction": "Replace source clothing only with the explicitly approved outfit reference while preserving Character identity and proportions.",
+  "preserveOutfitInstruction": "Preserve approved clothing, hair and body proportions. The opening moment controls body pose and head direction; faces stay blank.",
+  "replaceOutfitInstruction": "Use the approved outfit reference for clothing; preserve body proportions and hair, not facial identity. Faces stay blank.",
   "narrativeBehaviorInstructions": [
-    "Render an observed narrative moment, not a posed portrait, fashion image or sales presentation.",
-    "Reference expressions are not performance authority: do not add a friendly micro-smile or direct camera gaze unless the current Shot explicitly requires it.",
-    "Keep natural asymmetry in head, shoulders, hands and weight; do not square the body into a welcoming camera-facing stance unless authored.",
-    "Keep every prop at the authored hand, body height and angle; do not raise, center or turn it toward camera for readability unless that display is the authored action."
+    "Natural body weight, hands and shoulders; no posed portrait. Keep authored hand/prop contact and placement. Head angle conveys attention, never facial expression."
   ],
   "baselinePhotographicInstructions": [
-    "Draw convincing three-dimensional bodies and practical materials: fabric folds, wet pavement, skin planes and solid props. Use realistic depth, contact shadows and reflected light, not flat cutout layers or decorative pencil texture.",
-    "The authored light controls exposure: preserve subject-to-background contrast and falloff; do not add beauty fill, lift the face or activate an unrequested fixture."
+    "Physical hair, woven fabric, solid props, contact shadows and natural lens depth. Preserve authored exposure and light falloff, without beauty fill. Faces remain blank."
   ],
   "captureProfileInstructions": {
     "photorealistic-cinematic": [
-      "Use observational life-drawing realism with natural facial asymmetry and exact apparent age, anatomy and wardrobe. Keep graphite rendering subtle; no enlarged eyes, idealized doll faces, caricature or sheet layout."
+      "Natural body anatomy and asymmetry; no facial anatomy or microtexture on the blank face surface."
     ]
   },
   "constraintInstructions": [
-    "Graphite storyboard, not a color photo. No cartoon, anime, painterly stylization, heavy outlines, exaggerated anatomy, text or panels.",
+    "BLANK faces with faint thin guides ONLY: no eyes, nose, lips, eyebrows, facial likeness, masks or blur. Rest of scene photographic, not sketch, anime or CGI. No text or panels.",
     "No duplicate people, copied sheet layout, impossible reflections or unauthorized objects."
   ]
 }

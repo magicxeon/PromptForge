@@ -2,8 +2,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
-import type { ReactNode } from 'react';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ComponentProps, ReactNode } from 'react';
+import type { GenerationWorkspaceRegions } from '../../../components/generation/GenerationExperience';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GenerationRequestDraft } from '../../generation/api/generationApi';
 import type { CinematicProject } from '../schemas/cinematicSchemas';
 import {
@@ -17,7 +18,8 @@ const mocks = vi.hoisted(() => ({
   estimateGeneration: vi.fn(),
   getContext: vi.fn(),
   submitBatch: vi.fn(),
-  updateDirection: vi.fn()
+  updateDirection: vi.fn(),
+  updateSettings: vi.fn()
 }));
 
 vi.mock('../../../components/generation/GenerationExperience', () => ({
@@ -27,42 +29,46 @@ vi.mock('../../../components/generation/GenerationExperience', () => ({
     readOnlyPrompt,
     readOnlyPromptSupplement,
     cinematicCaptureProfileId,
+    cinematicFaceless,
     initialEnginePreference,
     engineOptions,
     showEmptyResult,
-    submitSingleDraft
+    submitSingleDraft,
+    renderWorkspace
   }: {
     blockedReason?: string | null;
     prompt?: string;
     readOnlyPrompt?: { label: string; description?: string } | null;
     readOnlyPromptSupplement?: ReactNode;
     cinematicCaptureProfileId?: 'photorealistic-cinematic' | null;
+    cinematicFaceless?: boolean;
     initialEnginePreference?: { provider: string; model: string } | null;
     engineOptions?: ReactNode;
     showEmptyResult?: boolean;
     submitSingleDraft?: (draft: GenerationRequestDraft) => Promise<unknown>;
-  }) => <section
+    renderWorkspace?: (regions: GenerationWorkspaceRegions) => ReactNode;
+  }) => {
+    const regions = {
+      result: <div data-testid="generation-preview">Preview</div>,
+      prompt: readOnlyPrompt ? <section data-testid="storyboard-prompt-group">
+        <label>{readOnlyPrompt.label}<textarea aria-label={readOnlyPrompt.label} readOnly value={prompt || ''} /></label>
+        {readOnlyPrompt.description ? <small>{readOnlyPrompt.description}</small> : null}
+        {readOnlyPromptSupplement}
+      </section> : null,
+      engine: engineOptions,
+      references: null, messages: null, queue: null,
+      actions: <button type="button" disabled={Boolean(blockedReason)}
+        onClick={() => void submitSingleDraft?.(generationDraft({ cinematicCaptureProfileId, cinematicFaceless }))}>Generate test image</button>
+    };
+    return <section
     data-testid="generation-experience"
     data-show-empty-result={String(Boolean(showEmptyResult))}
     data-provider={initialEnginePreference?.provider || ''}
     data-model={initialEnginePreference?.model || ''}
   >
-    <div data-testid="generation-preview">Preview</div>
-    {readOnlyPrompt ? <section data-testid="storyboard-prompt-group">
-      <label>
-        {readOnlyPrompt.label}
-        <textarea aria-label={readOnlyPrompt.label} readOnly value={prompt || ''} />
-      </label>
-      {readOnlyPrompt.description ? <small>{readOnlyPrompt.description}</small> : null}
-      {readOnlyPromptSupplement}
-    </section> : null}
-    {engineOptions}
-    <button
-      type="button"
-      disabled={Boolean(blockedReason)}
-      onClick={() => void submitSingleDraft?.(generationDraft({ cinematicCaptureProfileId }))}
-    >Generate test image</button>
-  </section>
+    {renderWorkspace?.(regions)}
+  </section>;
+  }
 }));
 
 vi.mock('../../../lib/auth/ActorProvider', () => ({
@@ -79,12 +85,60 @@ vi.mock('../api/cinematicApi', async importOriginal => ({
   approveCinematicStoryboardSource: mocks.approveSource,
   getCinematicStoryboardGenerationContext: mocks.getContext,
   submitCinematicStoryboardBatch: mocks.submitBatch,
-  updateCinematicShotDirection: mocks.updateDirection
+  updateCinematicShotDirection: mocks.updateDirection,
+  updateCinematicStoryboardSettings: mocks.updateSettings
 }));
 
 const testI18n = i18next.createInstance();
 
 describe('StoryboardShotDialog', () => {
+  it('opens image settings, preserves unsaved direction and preview across tabs, and keeps Generate visible', async () => {
+    renderDialog();
+    expect(screen.getByRole('tab', { name: 'cinematic.storyboard.workspace.image' })).toHaveAttribute('aria-selected', 'true');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Generate test image' })).toBeEnabled());
+    const preview = screen.getByTestId('generation-preview');
+    openTab('shot');
+    const direction = await screen.findByRole('textbox', { name: 'cinematic.storyboard.shotDirection' });
+    fireEvent.change(direction, { target: { value: 'Keep both hands above the rim' } });
+    openTab('video');
+    expect(screen.getByRole('button', { name: 'Generate test image' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Generate test image' })).toBeDisabled();
+    openTab('shot');
+    expect(screen.getByRole('textbox', { name: 'cinematic.storyboard.shotDirection' })).toBe(direction);
+    expect(direction).toHaveValue('Keep both hands above the rim');
+    expect(screen.getByTestId('generation-preview')).toBe(preview);
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+    expect(mocks.updateDirection).not.toHaveBeenCalled();
+  });
+
+  it('opens the inline editor directly from the header without losing image settings', async () => {
+    renderDialog();
+    await screen.findByRole('switch', { name: 'cinematic.storyboard.naturalRealism' });
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.editShot' }));
+    expect(screen.getByRole('tab', { name: 'cinematic.storyboard.workspace.shot' })).toHaveAttribute('aria-selected', 'true');
+    const editor = screen.getByRole('region', { name: 'cinematic.storyboard.editShot' });
+    openTab('image');
+    expect(screen.getByRole('switch', { name: 'cinematic.storyboard.naturalRealism' })).toHaveAttribute('aria-checked', 'true');
+    openTab('shot');
+    expect(screen.getByRole('region', { name: 'cinematic.storyboard.editShot' })).toBe(editor);
+  });
+  it('keeps the approved photoreal composition selectable in Storyboard', async () => {
+    const project = projectFixture();
+    const shot = project.scenes[0]!.shots[0]!;
+    shot.approvedStoryboardSource = {
+      assetId: 'photo', assetVersionId: 'photo', sourceJobId: 'job-photo',
+      imageUrl: '/outputs/photo.png', thumbnailUrl: '/outputs/photo.png',
+      contentHash: 'hash', sourceFingerprint: 'fingerprint', approvedAt: '2026-09-12T00:00:00Z',
+      storyboardRenderStyle: 'photorealistic_storyboard_v1'
+    };
+    shot.videoReferenceMode = 'storyboard_and_looks';
+    renderDialog(project);
+    openTab('video');
+    const toggle = await screen.findByRole('switch', { name: 'cinematic.produce.references.useSketch' });
+    expect(toggle).toBeEnabled();
+    expect(toggle).toHaveAttribute('aria-checked', 'true');
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+  });
   beforeAll(async () => {
     await testI18n.use(initReactI18next).init({
       lng: 'en',
@@ -96,12 +150,14 @@ describe('StoryboardShotDialog', () => {
   });
 
   beforeEach(() => {
+    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
     localStorage.clear();
     mocks.approveSource.mockReset();
     mocks.estimateGeneration.mockReset();
     mocks.getContext.mockReset();
     mocks.submitBatch.mockReset();
     mocks.updateDirection.mockReset();
+    mocks.updateSettings.mockReset();
     mocks.getContext.mockResolvedValue(generationContext());
     mocks.estimateGeneration.mockResolvedValue({
       estimate: { estimateId: 'estimate_1', estimatedCredits: 10, expiresAt: Date.now() + 60_000 },
@@ -126,8 +182,11 @@ describe('StoryboardShotDialog', () => {
     mocks.updateDirection.mockResolvedValue({});
   });
 
+  afterEach(() => vi.unstubAllGlobals());
+
   it('saves author direction against the latest server context versions', async () => {
     renderDialog();
+    openTab('shot');
 
     const direction = await screen.findByRole('textbox', { name: 'cinematic.storyboard.shotDirection' });
     fireEvent.change(direction, { target: { value: 'Hold on the Character at the doorway.' } });
@@ -143,6 +202,7 @@ describe('StoryboardShotDialog', () => {
 
   it('edits the Shot inline, preserves the preview node and submits only on Save', async () => {
     renderDialog();
+    openTab('shot');
     await screen.findByRole('textbox', { name: 'cinematic.storyboard.compiledPrompt' });
     const preview = screen.getByTestId('generation-preview');
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.editShot' }));
@@ -164,6 +224,7 @@ describe('StoryboardShotDialog', () => {
   it('retains inline edits after a save error and Cancel does not save', async () => {
     mocks.updateDirection.mockRejectedValue(new Error('Version conflict'));
     renderDialog();
+    openTab('shot');
     await screen.findByRole('textbox', { name: 'cinematic.storyboard.compiledPrompt' });
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.editShot' }));
     const editor = within(screen.getByRole('region', { name: 'cinematic.storyboard.editShot' }));
@@ -179,6 +240,7 @@ describe('StoryboardShotDialog', () => {
 
   it('shows the exact server-compiled prompt as read-only beside editable Shot direction', async () => {
     renderDialog();
+    openTab('shot');
 
     await waitFor(() => expect(screen.getByRole('textbox', {
       name: 'cinematic.storyboard.compiledPrompt'
@@ -194,6 +256,7 @@ describe('StoryboardShotDialog', () => {
 
   it('orders Preview before the compiled prompt and groups Additional direction after it', async () => {
     renderDialog();
+    openTab('shot');
 
     const compiledPrompt = await screen.findByRole('textbox', {
       name: 'cinematic.storyboard.compiledPrompt'
@@ -276,10 +339,12 @@ describe('StoryboardShotDialog', () => {
       name: 'cinematic.storyboard.naturalRealism'
     });
     expect(toggle).toHaveAttribute('aria-checked', 'true');
+    openTab('shot');
     expect(await screen.findByRole('textbox', {
       name: 'cinematic.storyboard.compiledPrompt'
     })).not.toHaveValue(expect.stringContaining('Natural camera realism'));
 
+    openTab('image');
     const readyToggle = screen.getByRole('switch', {
       name: 'cinematic.storyboard.naturalRealism'
     });
@@ -290,9 +355,50 @@ describe('StoryboardShotDialog', () => {
       expect.objectContaining({ cinematicCaptureProfileId: null })
     ));
   });
+
+  it('defaults Faceless off, saves explicitly and submits the new setting without generating automatically', async () => {
+    renderDialog();
+    const toggle = await screen.findByRole('switch', { name: 'cinematic.storyboard.faceless' });
+    await waitFor(() => expect(toggle).toBeEnabled());
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
+    mocks.updateSettings.mockImplementation(async () => {
+      mocks.getContext.mockResolvedValue({ ...generationContext(), cinematicFaceless: true });
+      return {};
+    });
+    fireEvent.click(toggle);
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-checked', 'true'));
+    expect(mocks.updateSettings).toHaveBeenCalledWith('cineproj_1', 'scene_1', 'shot_1', {
+      expectedVersion: 12, expectedShotVersion: 7, storyboardFaceless: true, storyboardFacialTreatment: 'blank'
+    });
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+    expect(mocks.approveSource).not.toHaveBeenCalled();
+    mocks.updateSettings.mockImplementation(async (_project, _scene, _shot, input) => {
+      mocks.getContext.mockResolvedValue({ ...generationContext(), cinematicFaceless: true, cinematicFacialTreatment: input.storyboardFacialTreatment });
+      return {};
+    });
+    fireEvent.change(screen.getByRole('combobox', { name: 'cinematic.storyboard.facialTreatment' }), { target: { value: 'white_previs' } });
+    await waitFor(() => expect(mocks.updateSettings).toHaveBeenLastCalledWith('cineproj_1', 'scene_1', 'shot_1', expect.objectContaining({ storyboardFacialTreatment: 'white_previs' })));
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'cinematic.storyboard.facialTreatment' })).toHaveValue('white_previs'));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate test image' }));
+    await waitFor(() => expect(mocks.estimateGeneration).toHaveBeenCalledWith(expect.objectContaining({ cinematicFaceless: true })));
+  });
+
+  it('embeds the existing image workflow without a modal or duplicate prompt editor and respects the row save blocker', async () => {
+    renderDialog(projectFixture(), { embedded: true, blockedReason: 'Save row first' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'cinematic.storyboard.shotDirection' })).not.toBeInTheDocument();
+    expect(screen.getByTestId('generation-preview')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Generate test image' })).toBeDisabled();
+    expect(screen.getByRole('switch', { name: 'cinematic.storyboard.faceless' })).toBeDisabled();
+  });
 });
 
-function renderDialog(project = projectFixture()) {
+function openTab(tab: 'image' | 'shot' | 'video') {
+  fireEvent.mouseDown(screen.getByRole('tab', { name: `cinematic.storyboard.workspace.${tab}` }), { button: 0, ctrlKey: false });
+}
+
+function renderDialog(project = projectFixture(), props: Partial<ComponentProps<typeof StoryboardShotDialog>> = {}) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const scene = project.scenes[0]!;
   const shot = scene.shots[0]!;
@@ -304,6 +410,7 @@ function renderDialog(project = projectFixture()) {
         project={project}
         scene={scene}
         shot={shot}
+        {...props}
       />
     </I18nextProvider>
   </QueryClientProvider>);

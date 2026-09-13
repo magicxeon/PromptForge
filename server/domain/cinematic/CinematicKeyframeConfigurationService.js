@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { normalizeStoryboardRenderStyle, resolveStoryboardPromptPolicy } from './CinematicStoryboardRenderStyle.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CONFIG_ROOT = path.resolve(__dirname, '../../config/cinematic');
@@ -62,6 +63,12 @@ export class CinematicKeyframeConfigurationService {
       providerPromptPolicy || loadJson(resolvedPaths.providerPromptPolicy),
       this.policy
     );
+    if (this.providerPromptPolicy.photorealisticOverrides) {
+      validateProviderPromptPolicy(resolveStoryboardPromptPolicy(this.providerPromptPolicy, false), this.policy);
+    }
+    if (this.providerPromptPolicy.whitePrevisOverrides) {
+      validateProviderPromptPolicy(resolveStoryboardPromptPolicy(this.providerPromptPolicy, true, 'white_previs'), this.policy);
+    }
     if (this.policy.defaultCaptureProfileId !== this.captureProfile.id) {
       invalid('The keyframe policy default capture profile is unavailable.');
     }
@@ -151,6 +158,10 @@ function validateCaptureProfile(value) {
 
 function validateProviderPromptPolicy(value, keyframePolicy) {
   assertHeader(value, 'provider prompt policy');
+  if (!normalizeStoryboardRenderStyle(value.renderStyle) || !text(value.renderStyleInstruction)
+    || !text(value.castLookIdentityInstruction)) {
+    invalid('The provider prompt policy render style and Look reference authority are required.');
+  }
   if (!Number.isInteger(value.defaultMaximumPromptCharacters)
     || value.defaultMaximumPromptCharacters < 1000) {
     invalid('The provider prompt policy default maximum is invalid.');

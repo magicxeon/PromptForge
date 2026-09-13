@@ -91,6 +91,16 @@ import {
   writeGenerationRoutePointer
 } from '../../features/generation/job-center/generationRoutePointer';
 
+export type GenerationWorkspaceRegions = {
+  result: ReactNode;
+  prompt: ReactNode;
+  references: ReactNode;
+  engine: ReactNode;
+  actions: ReactNode;
+  messages: ReactNode;
+  queue: ReactNode;
+};
+
 type GenerationExperienceProps = {
   lookSheetDefinition?: GenerationRequestDraft['lookSheetDefinition'];
   lookSheetEnhancementId?: string | null;
@@ -111,7 +121,11 @@ type GenerationExperienceProps = {
   onReferenceAuthorityChange?: (projection: ReferenceAuthorityProjection | null) => void;
   characterProfileContext?: Record<string, unknown> | null;
   cinematicCastReferences?: GenerationRequestDraft['cinematicCastReferences'];
+  cinematicSceneReference?: GenerationRequestDraft['cinematicSceneReference'];
   cinematicContainsPeople?: boolean;
+  cinematicFaceless?: boolean;
+  cinematicFacialTreatment?: 'blank' | 'white_previs';
+  cinematicManualStoryboard?: boolean;
   characterReferenceOutfitBehavior?: 'replaceable' | 'preserve';
   faceReferenceContext?: { authorizationToken: string; expiresAt?: string } | null;
   sceneTemplateSnapshot?: Record<string, unknown> | null;
@@ -123,7 +137,7 @@ type GenerationExperienceProps = {
   characterType?: 'reusable_model' | 'styled_character' | null;
   allowComparison?: boolean;
   showPromptEditor?: boolean;
-  readOnlyPrompt?: { label: string; description?: string } | null;
+  readOnlyPrompt?: { label: string; description?: string; collapsed?: boolean } | null;
   readOnlyPromptSupplement?: ReactNode;
   cinematicCaptureProfileId?: 'photorealistic-cinematic' | null;
   engineOptions?: ReactNode;
@@ -138,6 +152,7 @@ type GenerationExperienceProps = {
   showEngine?: boolean;
   enginePresentation?: 'default' | 'compact';
   layoutVariant?: 'stacked' | 'studio' | 'playground';
+  renderWorkspace?: (regions: GenerationWorkspaceRegions) => ReactNode;
   showRecentGenerations?: boolean;
   recentExpanded?: boolean;
   onRecentExpandedChange?: (expanded: boolean) => void;
@@ -185,7 +200,11 @@ export function GenerationExperience({
   onReferenceAuthorityChange,
   characterProfileContext = null,
   cinematicCastReferences,
+  cinematicSceneReference,
   cinematicContainsPeople,
+  cinematicFaceless,
+  cinematicFacialTreatment,
+  cinematicManualStoryboard,
   characterReferenceOutfitBehavior = 'preserve',
   faceReferenceContext = null,
   sceneTemplateSnapshot = null,
@@ -205,6 +224,7 @@ export function GenerationExperience({
   showEngine = true,
   enginePresentation = 'default',
   layoutVariant = 'stacked',
+  renderWorkspace,
   showRecentGenerations = true,
   recentExpanded = true,
   onRecentExpandedChange = () => {},
@@ -284,7 +304,7 @@ export function GenerationExperience({
     ? '1:1'
     : null);
   const requiredReferenceCount = Object.values(references).filter(Boolean).length
-    + (characterProfileContext?.purpose === 'character_usage' ? 1 : 0) + (cinematicCastReferences?.length || 0);
+    + (characterProfileContext?.purpose === 'character_usage' ? 1 : 0) + (cinematicCastReferences?.length || 0) + (cinematicSceneReference ? 1 : 0);
 
   const catalog = useQuery({
     queryKey: ['provider-catalog', surface, generationMode, comparison ? 'comparison.image' : null],
@@ -531,7 +551,11 @@ export function GenerationExperience({
     templateReplacements: templateUseContext?.replacements || {},
     characterProfileContext,
     cinematicCastReferences,
+    cinematicSceneReference,
     cinematicContainsPeople,
+    cinematicFaceless,
+    cinematicFacialTreatment,
+    cinematicManualStoryboard,
     characterReferenceOutfitBehavior,
     faceReferenceContext,
     authoringMode,
@@ -539,7 +563,7 @@ export function GenerationExperience({
     lookSheetDefinition,
     lookSheetEnhancementId,
     promptRefinementEnabled: promptRefinementAvailable && promptRefinementEnabled
-  }), [additionalDirection, authoringMode, characterProfileContext, cinematicCastReferences, cinematicContainsPeople, characterReferenceOutfitBehavior, characterType, cinematicCaptureProfileId, comparison, customColors, engine, faceReferenceContext, generationMode, lookSheetDefinition, lookSheetEnhancementId, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
+  }), [additionalDirection, authoringMode, characterProfileContext, cinematicCastReferences, cinematicSceneReference, cinematicContainsPeople, cinematicFaceless, cinematicFacialTreatment, cinematicManualStoryboard, characterReferenceOutfitBehavior, characterType, cinematicCaptureProfileId, comparison, customColors, engine, faceReferenceContext, generationMode, lookSheetDefinition, lookSheetEnhancementId, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedDraft(draft), 320);
@@ -578,7 +602,8 @@ export function GenerationExperience({
       estimateKey
     ],
     queryFn: () => previewReferenceProcessing(debouncedDraft as GenerationRequestDraft),
-    enabled: canEstimate && Object.values(debouncedDraft?.references || {}).some(Boolean),
+    enabled: canEstimate && (Object.values(debouncedDraft?.references || {}).some(Boolean)
+      || Boolean(debouncedDraft?.cinematicSceneReference) || Boolean(debouncedDraft?.cinematicCastReferences?.length)),
     staleTime: 20_000,
     retry: false
   });
@@ -796,7 +821,8 @@ export function GenerationExperience({
     : null);
   const imageEstimate = singleEstimate.data?.estimate.estimatedCredits;
   const estimate = comparison ? comparisonEstimate.data?.estimatedTotalCredit
-    : imageEstimate === undefined || enhancement.fee === undefined ? undefined : imageEstimate + enhancement.fee;
+    : imageEstimate === undefined || (enhancement.enabled && enhancement.fee === undefined)
+      ? undefined : imageEstimate + (enhancement.enabled ? enhancement.fee || 0 : 0);
   const availableCredits = comparison
     ? creditAccount.data?.account.availableCredits
     : singleEstimate.data?.account.availableCredits
@@ -862,7 +888,7 @@ export function GenerationExperience({
         onGoToPrompt={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
         renderActions={effectiveResultActions}
         showEmpty={showEmptyResult || layoutVariant === 'studio' || layoutVariant === 'playground'}
-        showGoToPrompt={layoutVariant !== 'studio'}
+        showGoToPrompt={layoutVariant !== 'studio' && !renderWorkspace}
         comparisonActive={comparison}
         canRevealPrompt={actor?.role === 'admin'
           || (surface === 'studio'
@@ -905,6 +931,18 @@ export function GenerationExperience({
   const readOnlyPromptText = lookSheetDefinition
     ? compiledPromptPreview.data?.compiledPrompt || t(compiledPromptPreview.isError ? 'lookSheet.loadError' : 'lookSheet.loading')
     : prompt;
+  const readOnlyPromptBody = readOnlyPrompt ? <>
+    <div className="studio-prompt-preview__heading">
+      <span>
+        {!readOnlyPrompt.collapsed ? <strong className="block text-[var(--mpf-text)]">{readOnlyPrompt.label}</strong> : null}
+        {readOnlyPrompt.description ? <small>{readOnlyPrompt.description}</small> : null}
+      </span>
+      <Button variant="ghost" size="icon" title={t('playground.prompt.copy')} aria-label={t('playground.prompt.copy')}
+        icon={<Copy className="size-4" aria-hidden="true" />} onClick={() => void navigator.clipboard.writeText(readOnlyPromptText)} />
+    </div>
+    <textarea aria-label={readOnlyPrompt.label} readOnly value={readOnlyPromptText} />
+  </> : null;
+  const promptSupplement = readOnlyPromptSupplement ? <div className="studio-prompt-preview__supplement">{readOnlyPromptSupplement}</div> : null;
   const promptRegion = hasVisiblePromptRegion ? (
     <div ref={node => { promptRef.current = node; }}>
       {showPromptEditor ? (
@@ -917,26 +955,9 @@ export function GenerationExperience({
         />
       ) : readOnlyPrompt ? (
         <Surface className="studio-prompt-preview">
-          <div className="studio-prompt-preview__heading">
-            <span>
-              <strong className="block text-[var(--mpf-text)]">{readOnlyPrompt.label}</strong>
-              {readOnlyPrompt.description ? <small>{readOnlyPrompt.description}</small> : null}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              title={t('playground.prompt.copy')}
-              aria-label={t('playground.prompt.copy')}
-              icon={<Copy className="size-4" aria-hidden="true" />}
-              onClick={() => void navigator.clipboard.writeText(readOnlyPromptText)}
-            />
-          </div>
-          <textarea aria-label={readOnlyPrompt.label} readOnly value={readOnlyPromptText} />
-          {readOnlyPromptSupplement ? (
-            <div className="studio-prompt-preview__supplement">
-              {readOnlyPromptSupplement}
-            </div>
-          ) : null}
+          {readOnlyPrompt.collapsed ? <>{promptSupplement}<details className="studio-prompt-preview__details">
+            <summary>{readOnlyPrompt.label}</summary>{readOnlyPromptBody}
+          </details></> : <>{readOnlyPromptBody}{promptSupplement}</>}
         </Surface>
       ) : canRevealStudioPrompt ? (
         <Surface className="studio-prompt-preview">
@@ -981,6 +1002,7 @@ export function GenerationExperience({
       value={references}
       displayPreviews={referenceDisplayPreviews}
       leadingContent={referenceLead}
+      additionalReferenceCount={(cinematicCastReferences?.length || 0) + (cinematicSceneReference ? 1 : 0)}
       lookSheetSelection={surface === 'playground' && generationMode === 'playground'}
       roles={referenceRoles}
       supported={model?.capabilities.imageReferences === true}
@@ -1100,7 +1122,7 @@ export function GenerationExperience({
           <span><strong className="block">{singleEstimate.isFetching || comparisonEstimate.isFetching ? t('playground.estimate.loading') : estimate !== undefined ? `${estimate} ${t('playground.comparison.credits')}` : t('playground.estimate.pending')}</strong><small className="text-[var(--mpf-text-muted)]">{canAfford ? t('playground.estimate.locked') : t('playground.estimate.insufficient')}</small></span>
         </div>
         <div className="flex gap-2">
-          <Button variant="ghost" icon={<ArrowUp className="size-4" />} onClick={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>{t('playground.action.goToPrompt')}</Button>
+          {!renderWorkspace ? <Button variant="ghost" icon={<ArrowUp className="size-4" />} onClick={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>{t('playground.action.goToPrompt')}</Button> : null}
           <Button
             variant="primary"
             size="lg"
@@ -1174,6 +1196,9 @@ export function GenerationExperience({
         && (submitSingle.isPending || submitCompare.isPending)}
     />
   );
+
+  if (renderWorkspace) return renderWorkspace({ result: resultRegion, prompt: promptRegion,
+    references: referencesRegion, engine: engineRegion, actions: actionRegion, messages, queue: queueStatusRegion });
 
   if (layoutVariant === 'studio') {
     const queueRegion = comparison
@@ -1272,7 +1297,11 @@ function createEstimateKey(draft: GenerationRequestDraft) {
       .sort(([left], [right]) => left.localeCompare(right)),
     referenceScopes: draft.referenceScopes || {},
     cinematicCastReferences: draft.cinematicCastReferences,
-    cinematicContainsPeople: draft.cinematicContainsPeople
+    cinematicSceneReference: draft.cinematicSceneReference,
+    cinematicContainsPeople: draft.cinematicContainsPeople,
+    cinematicFaceless: draft.cinematicFaceless,
+    cinematicFacialTreatment: draft.cinematicFacialTreatment,
+    cinematicManualStoryboard: draft.cinematicManualStoryboard
   };
 }
 

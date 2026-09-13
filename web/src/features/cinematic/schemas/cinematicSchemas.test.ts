@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { quoteCinematicVideoAttempt } from '../api/cinematicApi';
 import {
   cinematicLifecycleEventSchema,
-  cinematicVideoCapabilitySchema
+  cinematicVideoCapabilitySchema,
+  cinematicVideoQuoteSchema
 } from './cinematicSchemas';
 
 describe('Cinematic C1 contracts', () => {
@@ -43,5 +45,46 @@ describe('Cinematic C1 contracts', () => {
       occurredAt: '2026-08-17T00:00:00.000Z'
     });
     expect(event.correlationId).toBe('corr_1');
+  });
+});
+
+describe('Cinematic composition quote contracts', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  const quoteFixture = (purpose = 'storyboard_composition') => ({
+    estimate: { estimateId: 'estimate-1', estimatedCredits: 24, expiresAt: '2026-09-14T00:00:00Z', breakdown: {} },
+    account: { availableCredits: 100, canAfford: true },
+    requestFingerprint: 'request-1', projectId: 'project-1', sceneId: 'scene-1', shotId: 'shot-1', shotVersion: 1,
+    sourceFingerprint: 'source-1', videoPacketFingerprint: 'packet-1', approvedStoryboardAssetVersionId: 'asset-1',
+    referenceMode: 'storyboard_and_looks', renderedPrompt: 'Use Image 1 for composition and Image 2 for identity.',
+    referenceSummary: [
+      { imageNumber: 1, assetId: 'asset-1', purpose, roleName: null, lookName: null, previewUrl: '/board.png' },
+      { imageNumber: 2, assetId: 'look-1', purpose: 'generated_look', roleName: 'Lalin', lookName: 'Florist', previewUrl: '/look.png' }
+    ]
+  });
+
+  it.each(['storyboard_opening', 'sketch_composition', 'storyboard_composition', 'character_look', 'generated_look'])('accepts the complete quote with %s without losing ordered references', purpose => {
+    const input = quoteFixture(purpose);
+    expect(cinematicVideoQuoteSchema.parse(input)).toEqual(input);
+  });
+
+  it('continues rejecting unknown reference purposes', () => {
+    expect(cinematicVideoQuoteSchema.safeParse(quoteFixture('unknown_reference')).success).toBe(false);
+  });
+
+  it('reads composition through the real quote API response boundary', async () => {
+    const quote = quoteFixture();
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(quote), {
+      status: 200, headers: { 'content-type': 'application/json' }
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const result = await quoteCinematicVideoAttempt('project-1', 'scene-1', 'shot-1', {
+      expectedVersion: 1, expectedShotVersion: 1, sourceFingerprint: 'source-1', videoPacketFingerprint: 'packet-1',
+      providerId: 'modelark', modelId: 'seedance-test', referenceMode: 'storyboard_and_looks',
+      prompt: quote.renderedPrompt, aspectRatio: '9:16', resolution: '720p', durationSeconds: 4, audioMode: 'generated'
+    });
+    expect(result).toEqual(quote);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(fetchMock.mock.calls[0]![0]).toContain('/shots/shot-1/video-quote');
   });
 });

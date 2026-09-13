@@ -5,6 +5,7 @@ import { ProviderFactory } from '../../providers/ProviderFactory.js';
 import { collectionManager } from '../collections/CollectionManager.js';
 import { dedupeResolvedReferenceImages, normalizeReferenceJobIds, resolveReferenceForProvider } from './referenceUtils.js';
 import { resolveCinematicCastReferences } from '../cinematic/CinematicImageCastReferences.js';
+import { cinematicStoryboardAssetService } from '../assets/CinematicStoryboardAssetService.js';
 import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { thumbnailService } from './thumbnailService.js';
@@ -322,6 +323,16 @@ export class QueueManager {
       const resolvedOutfitFront = await resolveReferenceForProvider(job.options.outfitReferenceImageFront, job.options.username, referenceAccess);
       const resolvedOutfitBack = await resolveReferenceForProvider(job.options.outfitReferenceImageBack, job.options.username, referenceAccess);
       const resolvedCast = {};
+      if (job.options.cinematicSceneReference) {
+        const reference = await cinematicStoryboardAssetService.resolveSceneReference(job.options.cinematicSceneReference, {
+          userId: job.options.payerUserId, username: job.options.username
+        });
+        const value = await resolveReferenceForProvider(reference.referenceValue, job.options.username, {
+          ...referenceAccess, authorizedImageUrls: [reference.referenceValue]
+        });
+        if (!value) throw Object.assign(new Error('The Scene reference is unavailable.'), { code: 'cinematic_scene_source_unavailable' });
+        resolvedCast.cinematic_environment = value;
+      }
       const castReferences = await resolveCinematicCastReferences(job.options.cinematicCastReferences, {
         userId: job.options.payerUserId, username: job.options.username
       });

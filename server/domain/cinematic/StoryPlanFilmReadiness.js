@@ -167,8 +167,15 @@ export function evaluateStoryPlanFilmReadiness(project, plan, {
       const offscreenRole = String(cue.offscreenVoiceRole || '').trim();
       if (!speakerId && !offscreenRole) findings.push(finding('film_dialogue_speaker_required', 'script', 'blocking', `Dialogue in Shot "${shot.title || shot.id}" has no authorized speaker.`, 'Choose a Cast Assignment or name an off-screen story role.', context));
       if (speakerId && !activeCastIds.has(speakerId)) findings.push(finding('film_dialogue_speaker_invalid', 'script', 'blocking', `Dialogue in Shot "${shot.title || shot.id}" references unavailable Cast.`, 'Choose an active Cast Assignment.', context));
-      const endMs = Number(cue.startOffsetMs || 0) + Number(cue.estimatedDurationMs || 0);
-      if (endMs > Number(shot.durationMs || 0)) findings.push(finding('film_dialogue_timing_overflow', 'script', 'blocking', `Dialogue exceeds the duration of Shot "${shot.title || shot.id}".`, 'Shorten the line, move it or increase Shot duration.', context));
+      const startMs = Number(cue.startOffsetMs || 0);
+      const shotDurationMs = Number(shot.durationMs || 0);
+      const endMs = startMs + Number(cue.estimatedDurationMs || 0);
+      if (startMs >= shotDurationMs) {
+        findings.push(finding('film_dialogue_start_outside_shot', 'script', 'blocking', `Dialogue starts outside Shot "${shot.title || shot.id}".`, 'Move the dialogue start inside this Shot or assign the line to the next Shot.', context));
+      } else if (endMs > shotDurationMs) {
+        // Speaking duration is an estimate, not measured audio or an authored end time.
+        findings.push(finding('film_dialogue_timing_overflow', 'script', 'warning', `Estimated dialogue duration extends beyond Shot "${shot.title || shot.id}".`, 'Approval may proceed after acknowledgement. Review delivery speed or intended audio overlap before generating video.', context));
+      }
     }
     for (const cue of shot.audioCues || []) {
       const endMs = Number(cue.startOffsetMs || 0) + Number(cue.durationMs || 0);

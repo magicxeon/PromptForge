@@ -1,5 +1,10 @@
 # Sketch Storyboard Production
 
+Current override: [036](036-photoreal-storyboard-look-identity.md) replaces the
+graphite default for NEW still generations with photoreal live-action and Look
+facial authority. This file retains the historical sketch contract and its
+continued compatibility; old images, approvals and Takes are not relabeled.
+
 Owner: Cinematic storyboard compiler, video reference plan and Generation facade.
 New storyboard images use monochrome graphite/charcoal sketch: readable silhouettes,
 hand/prop contacts, perspective and motivated light, no panels, labels or lettering.

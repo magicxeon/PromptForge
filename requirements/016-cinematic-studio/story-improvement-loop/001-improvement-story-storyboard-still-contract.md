@@ -180,11 +180,17 @@ text and qualification must check its accuracy.
 
 ### 4.9 Timing Must Reconcile Before Video Qualification
 
-For every Shot:
+Action timing target for every Shot:
 
 ```text
 estimatedActionDurationMs <= durationMs
 ```
+
+2026-09-13 clarification, owned by produce-video-pipeline/003: exceeding this
+estimate target is an advisory packet/lineage warning, not a quote/Generate
+blocker. Estimates can lag manual direction/duration edits and do not measure
+the resulting clip. Keep both authored values; never silently extend a Shot or
+clamp the estimate. Actual media timing and provider limits still require checks.
 
 Scene duration must equal the sum of its Shot durations, and total Scene
 duration must equal the Project target within the configured tolerance. Audio

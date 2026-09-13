@@ -24,6 +24,8 @@ import { applySceneDirectionFieldProposals } from './authoring/sceneDirectionPro
 import { ContextualOperationDock } from './ContextualOperationDock';
 import { StoryboardSequenceBoard, type StoryboardShotSummary } from './StoryboardSequenceBoard';
 import { StoryboardShotDialog } from './StoryboardShotDialog';
+import { SceneEnvironmentControl } from './SceneEnvironmentControl';
+import { SimpleStoryboardWorkspace } from './SimpleStoryboardWorkspace';
 import { StoryboardGenerateAllDialog } from './StoryboardGenerateAllDialog';
 import { ProduceMediaReview } from './produce/ProduceMediaReview';
 import { VideoTakeList } from './produce/VideoTakeList';
@@ -31,6 +33,7 @@ import { ClipBundleDownload } from './produce/ClipBundleDownload';
 import { DialogueSoundSummary } from './authoring/DialogueSoundSummary';
 import { ProduceVideoReferences } from './produce/ProduceVideoReferences';
 import { useShotVideoReferences, usePreferredFirstFramePolicy } from '../state/useShotVideoReferences';
+import { isStoryboardCompositionStyle } from '../schemas/cinematicSchemas';
 import { shotVideoReferencePreviews } from './storyboardGenerationAdapter';
 import { ProduceReadinessHeader } from './produce/ProduceReadinessHeader';
 import { ProduceRoughSequence } from './produce/ProduceRoughSequence';
@@ -61,6 +64,7 @@ type Props = {
   activeStage: CinematicStage;
   mode?: 'simple' | 'advanced';
   onModeChange?: (mode: 'simple' | 'advanced') => void;
+  onDirtyChange?: (dirty: boolean) => void;
   onPrevious: () => void;
   onNext: () => void;
   project?: CinematicProject;
@@ -118,16 +122,37 @@ export function currentSceneCastAssignments(project?: CinematicProject) {
   return [...assignmentsByCharacter.values()];
 }
 
-export function CinematicStageContent({ activeStage, mode = 'simple', onModeChange, onPrevious, onNext, project, authoringManifest, onProjectChanged, onAddCastCharacter, onRemoveCastCharacter, onProjectRefresh, onOpenStage }: Props) {
+export function CinematicStageContent({ activeStage, mode = 'simple', onModeChange, onDirtyChange, onPrevious, onNext, project, authoringManifest, onProjectChanged, onAddCastCharacter, onRemoveCastCharacter, onProjectRefresh, onOpenStage }: Props) {
+  const { t } = useTranslation('cinematic');
+  const [manualDirty, setManualDirty] = useState(false);
+  useEffect(() => { onDirtyChange?.(manualDirty); }, [manualDirty, onDirtyChange]);
+  useEffect(() => {
+    if (!manualDirty) return;
+    const beforeUnload = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
+    window.addEventListener('beforeunload', beforeUnload);
+    return () => window.removeEventListener('beforeunload', beforeUnload);
+  }, [manualDirty]);
+  useEffect(() => () => onDirtyChange?.(false), [onDirtyChange]);
   const castBlocked = activeStage === 'cast' && hasIncompleteRequiredCast(project);
-  const storyPlanBlockReason = activeStage === 'story-plan' ? storyPlanStageBlockReason(project) : null;
+  const storyPlanBlockReason = activeStage === 'story-plan' && mode !== 'simple' ? storyPlanStageBlockReason(project) : null;
   return <div className="cinematic-stage-content" data-testid={`cinematic-stage-${activeStage}`}>
     {activeStage === 'cast' && <CastStage mode={mode} onModeChange={onModeChange} project={project} onProjectChanged={onProjectChanged} onAddCastCharacter={onAddCastCharacter} onRemoveCastCharacter={onRemoveCastCharacter} />}
-    {activeStage === 'story-plan' && <StoryPlanStage mode={mode} onModeChange={onModeChange} project={project} authoringManifest={authoringManifest} onProjectChanged={onProjectChanged} />}
-    {activeStage === 'storyboard' && <StoryboardStage project={project} onEditStory={() => onOpenStage?.('story-plan')} onProjectRefresh={onProjectRefresh} />}
-    {activeStage === 'produce' && <ProduceStage mode={mode} project={project} onEditStory={() => onOpenStage?.('story-plan')} onEditStoryboard={() => onOpenStage?.('storyboard')} onProjectRefresh={onProjectRefresh} />}
+    {mode === 'simple' && project && ['story-plan', 'storyboard', 'produce'].includes(activeStage) ? <>
+      <CinematicControlLevel mode={mode} disabled={manualDirty} label={t('cinematic.mode.control')} helpText={manualDirty ? t('cinematic.manual.saveBeforeLeave') : ''} onChange={value => onModeChange?.(value)} />
+      <SimpleStoryboardWorkspace project={project} onDirtyChange={setManualDirty} onProjectChanged={saved => onProjectChanged?.(saved)} onProjectRefresh={onProjectRefresh}
+        renderImage={(scene, shot, blockedReason) => <StoryboardShotDialog key={shot.id} open embedded onOpenChange={() => undefined}
+          project={project} scene={scene} shot={shot} blockedReason={blockedReason}
+          resumeJobId={stringField(latestStoryboardAttempt(project, shot.id), 'generationJobId') || shot.approvedStoryboardSource?.sourceJobId}
+          onProjectRefresh={onProjectRefresh} />}
+        renderVideo={(scene, shot, blockedReason) => <CinematicProduceRuntime key={shot.id} embedded mode="simple"
+          project={project} sceneId={scene.id} shotId={shot.id} blockedReason={blockedReason} onProjectRefresh={onProjectRefresh} />} />
+    </> : <>
+      {activeStage === 'story-plan' && <StoryPlanStage mode={mode} onModeChange={onModeChange} project={project} authoringManifest={authoringManifest} onProjectChanged={onProjectChanged} />}
+      {activeStage === 'storyboard' && <StoryboardStage project={project} onEditStory={() => onOpenStage?.('story-plan')} onProjectRefresh={onProjectRefresh} />}
+      {activeStage === 'produce' && <ProduceStage mode={mode} project={project} onEditStory={() => onOpenStage?.('story-plan')} onEditStoryboard={() => onOpenStage?.('storyboard')} onProjectRefresh={onProjectRefresh} />}
+    </>}
     {activeStage === 'finish' && <FinishStage project={project} onProjectChanged={onProjectChanged} />}
-    <StageFooter activeStage={activeStage} onPrevious={onPrevious} onNext={onNext} nextDisabled={castBlocked || Boolean(storyPlanBlockReason)} storyPlanBlockReason={storyPlanBlockReason} />
+    <StageFooter simple={mode === 'simple' && Boolean(project)} activeStage={activeStage} onPrevious={onPrevious} onNext={onNext} previousDisabled={manualDirty} nextDisabled={manualDirty || castBlocked || Boolean(storyPlanBlockReason)} storyPlanBlockReason={storyPlanBlockReason} />
   </div>;
 }
 
@@ -981,7 +1006,7 @@ function StoryboardStage({ project, onProjectRefresh, onEditStory }: { project?:
           action: shot.blocking || shot.purpose,
           status: shot.approvedStoryboardSource ? (shot.storyboardStatus === 'draft' ? 'source_changed' : 'ready') : shot.storyboardStatus === 'warning' ? 'warning' : 'draft',
           imageUrl: shot.approvedStoryboardSource?.thumbnailUrl || shot.approvedStoryboardSource?.imageUrl || null,
-          videoReferenceMode: firstFrameEnabled || shot.approvedStoryboardSource?.storyboardRenderStyle === 'concept_sketch_v1' ? shot.videoReferenceMode : (project && resolveStoryboardShotCast(project, scene, shot).length ? 'looks_only' : 'text_only'),
+          videoReferenceMode: firstFrameEnabled || isStoryboardCompositionStyle(shot.approvedStoryboardSource?.storyboardRenderStyle) ? shot.videoReferenceMode : (project && resolveStoryboardShotCast(project, scene, shot).length ? 'looks_only' : 'text_only'),
           castNames: shotCastNames(project, scene, shot),
           lookNames: shotLookNames(project, scene, shot)
         } satisfies StoryboardShotSummary));
@@ -990,6 +1015,7 @@ function StoryboardStage({ project, onProjectRefresh, onEditStory }: { project?:
           sceneId={scene.id}
           sceneTitle={`${t('cinematic.storyboard.scene')} ${sceneIndex + 1}: ${scene.title}`}
           sceneDurationSeconds={scene.durationMs / 1000}
+          sceneTools={project ? <SceneEnvironmentControl project={project} scene={scene} onProjectRefresh={onProjectRefresh} /> : null}
           shots={summaries}
           selectedShotId={selected?.shotId || ''}
           onSelectShot={shotId => setSelected({ sceneId: scene.id, shotId })}
@@ -1069,12 +1095,15 @@ function ProduceStage({ project, onEditStoryboard, onProjectRefresh, onEditStory
   </>;
 }
 
-function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, onEditStory, mode }: { mode: 'simple' | 'advanced'; project: CinematicProject; onEditStoryboard?: () => void; onProjectRefresh?: () => void; onEditStory?: () => void }) {
+function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, onEditStory, mode, sceneId, shotId, embedded = false, blockedReason }: {
+  mode: 'simple' | 'advanced'; project: CinematicProject; onEditStoryboard?: () => void; onProjectRefresh?: () => void;
+  onEditStory?: () => void; sceneId?: string; shotId?: string; embedded?: boolean; blockedReason?: string | null;
+}) {
   const { t } = useTranslation('cinematic');
   const queryClient = useQueryClient();
   const actorId = getActiveActorId();
-  const activeScene = project?.scenes[0];
-  const [selectedShot, setSelectedShot] = useState(activeScene?.shots[0]?.id || '01A');
+  const activeScene = project.scenes.find(scene => scene.id === sceneId) || project.scenes[0];
+  const [selectedShot, setSelectedShot] = useState(shotId || activeScene?.shots[0]?.id || '01A');
   const [selectedSceneId, setSelectedSceneId] = useState(activeScene?.id || '');
   const [roughSequenceOpen, setRoughSequenceOpen] = useState(false);
   const selectedScene = project.scenes.find(scene => scene.id === selectedSceneId) || activeScene;
@@ -1176,7 +1205,7 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
   const quote = useQuery({
     queryKey: ['cinematic-video-quote', project.id, selectedScene?.id, selectedShotRecord?.id, quoteInput, actorId],
     queryFn: () => quoteCinematicVideoAttempt(project.id, selectedScene!.id, selectedShotRecord!.id, quoteInput!),
-    enabled: Boolean(quoteInput && prompt.trim()),
+    enabled: Boolean(quoteInput && prompt.trim() && !blockedReason),
     staleTime: 20_000,
     retry: false
   });
@@ -1231,7 +1260,7 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
       'provider_succeeded', 'media_copying', 'media_retry_pending', 'pending', 'queued', 'processing', 'running'].includes(observedTaskStatus);
   const sourceNeedsCompatibleSeedream = !['looks_only', 'text_only'].includes(referenceMode || '') && quote.error instanceof ApiError
     && quote.error.code === 'video_provider_synthetic_character_source_required';
-  const generateBlockedReason = isRunning
+  const generateBlockedReason = blockedReason || (isRunning
     ? t(submit.isPending ? 'cinematic.produce.submitting' : 'cinematic.produce.generating')
     : observedTaskStatus === 'reconciliation_required' ? t('cinematic.produce.reconciliationRequired')
     : produceContext.isFetching ? t('cinematic.produce.checkingSource')
@@ -1245,7 +1274,7 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
     : quote.error ? quote.error.message
     : !quote.data ? t('cinematic.produce.estimateRequired')
     : !quote.data.account.canAfford ? t('cinematic.produce.insufficientCredits')
-    : null;
+    : null);
   const operationError = videoReferences.error || submit.error || quote.error || task.error || approve.error;
   const quotePortraitAuthorizationBlocked = isPortraitAuthorizationError(quote.error);
   const quoteRequiresPortraitAsset = quote.error instanceof ApiError
@@ -1280,7 +1309,7 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
   const viewingPreviousPlan = Boolean(previewAttempt && !currentShotIds.has(stringField(previewAttempt, 'shotId') || ''));
   const effectiveVideoProject = useMemo(() => ({ ...project, scenes: project.scenes.map(scene => ({
     ...scene, shots: scene.shots.map(shot => shot.id === selectedShotRecord?.id ? { ...shot, videoReferenceMode: referenceMode }
-      : selectedModel?.firstFrameEnabled === false && shot.approvedStoryboardSource?.storyboardRenderStyle !== 'concept_sketch_v1' ? { ...shot, videoReferenceMode: (resolveStoryboardShotCast(project, scene, shot).length ? 'looks_only' : 'text_only') as NonNullable<CinematicScene['shots'][number]['videoReferenceMode']> } : shot)
+      : selectedModel?.firstFrameEnabled === false && !isStoryboardCompositionStyle(shot.approvedStoryboardSource?.storyboardRenderStyle) ? { ...shot, videoReferenceMode: (resolveStoryboardShotCast(project, scene, shot).length ? 'looks_only' : 'text_only') as NonNullable<CinematicScene['shots'][number]['videoReferenceMode']> } : shot)
   })) }), [project, selectedShotRecord?.id, referenceMode, selectedModel?.firstFrameEnabled]);
   const queueScenes = useMemo(() => buildProduceSceneQueue(effectiveVideoProject), [effectiveVideoProject]);
   const displayedQueueScenes = useMemo(
@@ -1333,10 +1362,10 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
     : t('cinematic.produce.portraitAuthorizationDescription');
   const providerRecoveryHint = t('cinematic.produce.portraitAuthorizationNoRetry');
   return <>
-    <StageHeading stage="produce" showPrototypeBadge={false} />
-    <ProduceReadinessHeader readiness={readiness} onRecoverStoryboard={onEditStoryboard} onReviewSequence={() => setRoughSequenceOpen(true)} />
-    <div className="cinematic-produce-workspace">
-      <ProduceShotQueue scenes={displayedQueueScenes} selectedShotId={selectedShot} onSelectShot={selectShot} />
+    {!embedded ? <><StageHeading stage="produce" showPrototypeBadge={false} />
+    <ProduceReadinessHeader readiness={readiness} onRecoverStoryboard={onEditStoryboard} onReviewSequence={() => setRoughSequenceOpen(true)} /></> : null}
+    <div className={embedded ? 'cinematic-inline-video' : 'cinematic-produce-workspace'}>
+      {!embedded ? <ProduceShotQueue scenes={displayedQueueScenes} selectedShotId={selectedShot} onSelectShot={selectShot} /> : null}
       <section className="cinematic-produce-selected" aria-label={`${t('cinematic.produce.editShot')} ${selectedShot}`}>
         <ProduceMediaReview
           title={viewingPreviousPlan ? t('cinematic.takes.previousPlan') : `${selectedQueueShot?.sequenceLabel || t('cinematic.storyboard.shot')} / ${selectedShotRecord?.title || ''}`}
@@ -1364,7 +1393,7 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
           {providerRecoveryRequired && !['looks_only', 'text_only'].includes(referenceMode || '') && !quoteRequiresPortraitAsset && onEditStoryboard ? <Button size="sm" icon={<ImageIcon aria-hidden="true" />} onClick={onEditStoryboard}>{t('cinematic.produce.seedreamRecovery')}</Button> : null}
         </section> : null}
         {visibleOperationError ? <p role="alert" className="text-sm text-red-400">{visibleOperationError.message}</p> : null}
-        {selectedScene && selectedShotRecord ? <details className="cinematic-simple-options" open={mode === 'advanced' ? true : undefined} key={mode}>
+        {!embedded && selectedScene && selectedShotRecord ? <details className="cinematic-simple-options" open={mode === 'advanced' ? true : undefined} key={mode}>
           <summary>{t('cinematic.produce.technicalPrompt')}</summary><ProduceStoryContext
           scene={selectedScene}
           shot={selectedShotRecord}
@@ -1381,7 +1410,7 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
           onMotionDirectionSave={() => updateMotionDirection.mutate()}
           onMotionDirectionReset={() => setMotionDirectionState(current => ({ ...current, draft: current.saved }))}
         /></details> : null}
-        {selectedShotRecord ? <DialogueSoundSummary shot={selectedShotRecord} cast={project.castAssignments} silent={audioMode === 'none'} onEdit={onEditStory} /> : null}
+        {!embedded && selectedShotRecord ? <DialogueSoundSummary shot={selectedShotRecord} cast={project.castAssignments} silent={audioMode === 'none'} onEdit={onEditStory} /> : null}
         <section className="cinematic-produce-review">
           <header><div><span>{t('cinematic.produce.reviewEyebrow')}</span><h3>{t('cinematic.produce.reviewTitle')}</h3></div>{viewedTask?.status === 'completed' && taskIsSettled && taskProbePassed && viewedId && currentAttemptPacketMatches ? <Button variant="primary" icon={<Check aria-hidden="true" />} disabled={approve.isPending || viewedId === selectedShotRecord?.approvedVideoAttemptId} onClick={() => approve.mutate(viewedId)}>{t(viewedId === selectedShotRecord?.approvedVideoAttemptId ? 'cinematic.takes.selected' : 'cinematic.takes.use')}</Button> : null}</header>
           {historicalTask.error ? <p role="alert">{historicalTask.error.message}</p> : null}
@@ -1391,7 +1420,7 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
             <VideoTakeList attempts={previousPlanTakes} previewId={viewedId} onPreview={id => setPreviewSelection({ shotId: selectedShotRecord!.id, actorId, id })} />
           </details> : null}
           {viewingPreviousPlan ? <p role="status">{t('cinematic.takes.previousPlanPreview')}</p> : null}
-          <ClipBundleDownload projectId={project.id} version={project.version} />
+          {!embedded ? <ClipBundleDownload projectId={project.id} version={project.version} /> : null}
           <details className="cinematic-produce-prompt">
             <summary>{t('cinematic.produce.technicalPrompt')}</summary>
             <p>{t('cinematic.produce.technicalPromptDescription')}</p>
@@ -1422,10 +1451,10 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
           badge={<Sparkles aria-hidden="true" />}
           showComparisonAction={false}
           summary={<><ProduceVideoReferences sketchAvailable={videoReferences.sketchAvailable} firstFrameEnabled={selectedModel?.firstFrameEnabled !== false} mode={referenceMode} lastFirstFrameMode={videoReferences.lastFirstFrameMode}
-            onChange={videoReferences.changeMode} disabled={isRunning || videoReferences.pending} loading={quote.isFetching || videoReferences.pending}
+            onChange={videoReferences.changeMode} disabled={isRunning || videoReferences.pending || Boolean(blockedReason)} loading={quote.isFetching || videoReferences.pending}
             supported={referenceMode === 'text_only' ? selectedModel.inputModes.includes('text_to_video') : selectedModel.supportsCinematicLookReferences} references={quote.data?.referenceSummary
               || (selectedScene && selectedShotRecord ? shotVideoReferencePreviews(project, selectedScene, selectedShotRecord, referenceMode) : [])} />
-            <DurationReconciliationSummary value={quote.data?.durationReconciliation} />
+            <DurationReconciliationSummary value={quote.data?.durationReconciliation} usableRange={quote.data?.usableRange} />
             {quote.data?.estimate.billingStatus === 'qualification_no_charge' ? <p className="cinematic-produce-render-panel__qualification">{t('cinematic.produce.qualificationNoCharge')}</p> : null}
             {!['looks_only', 'text_only'].includes(referenceMode || '') ? <p className={`cinematic-produce-render-panel__source${source && !sourceNeedsCompatibleSeedream ? ' is-ready' : ''}`}>{sourceNeedsCompatibleSeedream ? t('cinematic.produce.seedreamSourceRequired') : source ? t('cinematic.produce.sourceReady') : t('cinematic.produce.sourceRequired')}</p> : null}</>}
           footer={<div className="cinematic-produce-render-panel__footer"><Button className="w-full" variant="primary" icon={<Film aria-hidden="true" />} aria-describedby="cinematic-video-generate-reason" disabled={Boolean(generateBlockedReason)} onClick={() => submit.mutate()}>{isRunning ? t('cinematic.produce.generating') : t('cinematic.produce.generate')}</Button><p id="cinematic-video-generate-reason" aria-live="polite">{generateBlockedReason || t('cinematic.produce.lockedEstimate')}</p></div>}
@@ -1439,7 +1468,7 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
         /> : <section className="cinematic-produce-render-panel__empty"><GenerationStageState loading={catalog.isLoading} title={t('cinematic.produce.operationTitle')} description={catalog.error?.message || t('cinematic.engine.qualificationPending')} /></section>}
       </aside>
     </div>
-    <ProduceRoughSequence open={roughSequenceOpen} onOpenChange={setRoughSequenceOpen} scenes={queueScenes} selectedShotId={selectedShot} onSelectShot={selectShot} />
+    {!embedded ? <ProduceRoughSequence open={roughSequenceOpen} onOpenChange={setRoughSequenceOpen} scenes={queueScenes} selectedShotId={selectedShot} onSelectShot={selectShot} /> : null}
   </>;
 }
 
@@ -1458,7 +1487,8 @@ function isPortraitAuthorizationError(error: unknown) {
   return error instanceof ApiError && isPortraitAuthorizationErrorCode(error.code);
 }
 
-function DurationReconciliationSummary({ value }: {
+function DurationReconciliationSummary({ value, usableRange }: {
+  usableRange?: { leadInMs: number; usableDurationMs: number };
   value?: {
     plannedDurationSeconds: number;
     renderDurationSeconds: number;
@@ -1472,7 +1502,8 @@ function DurationReconciliationSummary({ value }: {
     ? t('cinematic.produce.generateTarget')
     : t('cinematic.produce.renderDuration');
   return <dl className="cinematic-duration-reconciliation">
-    <div><dt>{t('cinematic.produce.plannedDuration')}</dt><dd>{value.plannedDurationSeconds}s</dd></div>
+    <div><dt>{t('cinematic.produce.plannedDuration')}</dt><dd>{usableRange ? usableRange.usableDurationMs / 1000 : value.plannedDurationSeconds}s</dd></div>
+    {usableRange ? <div><dt>{t('cinematic.produce.leadIn')}</dt><dd>{usableRange.leadInMs / 1000}s</dd></div> : null}
     <div><dt>{renderLabel}</dt><dd>{value.renderDurationSeconds}s</dd></div>
     {value.trimDurationSeconds > 0 ? <div><dt>{t('cinematic.produce.trimAfterGeneration')}</dt><dd>{value.trimDurationSeconds}s</dd></div> : null}
     {value.durationControlMode === 'prompted' ? <div className="cinematic-duration-reconciliation__hint"><p>{t('cinematic.produce.promptedDurationHint')}</p></div> : null}
@@ -1883,12 +1914,18 @@ function createFinishTimelineDraft(project?: CinematicProject): FinishTimelineDr
       : 'cut';
     return {
       shotId: shot.id,
-      trimInMs: Number(saved?.trimInMs ?? 0),
-      trimOutMs: Number(saved?.trimOutMs ?? shot.durationMs),
+      trimInMs: Number(saved?.trimInMs ?? selectedUsableRange(project, shot)?.trimInMs ?? 0),
+      trimOutMs: Number(saved?.trimOutMs ?? selectedUsableRange(project, shot)?.trimOutMs ?? shot.durationMs),
       transition,
       transitionDurationMs: transition === 'cut' ? 0 : Number(saved?.transitionDurationMs ?? 500)
     };
   });
+}
+
+function selectedUsableRange(project: CinematicProject, shot: CinematicShot) {
+  const attempt = project.generationAttempts.find(value => value && typeof value === 'object'
+    && (value as Record<string, unknown>).id === shot.approvedVideoAttemptId) as Record<string, unknown> | undefined;
+  return attempt?.usableRange as { trimInMs: number; trimOutMs: number } | undefined;
 }
 
 function AttemptHistory({ type, attempts }: { type: 'image' | 'video'; attempts?: Record<string, unknown>[] }) {
@@ -1899,7 +1936,7 @@ function AttemptHistory({ type, attempts }: { type: 'image' | 'video'; attempts?
 
 function SectionHeading({ title, hint, action }: { title: string; hint: string; action?: ReactNode }) { return <div className="cinematic-section-heading"><div><h3>{title}</h3><p>{hint}</p></div>{action}</div>; }
 function LabeledValue({ icon, label, value }: { icon?: ReactNode; label: string; value: string }) { return <div className="cinematic-labeled-value">{icon && <span>{icon}</span>}<div><small>{label}</small><strong>{value}</strong></div></div>; }
-function StageFooter({ activeStage, onPrevious, onNext, nextDisabled = false, storyPlanBlockReason = null }: Pick<Props, 'activeStage' | 'onPrevious' | 'onNext'> & { nextDisabled?: boolean; storyPlanBlockReason?: StoryPlanStageBlockReason }) {
+function StageFooter({ activeStage, onPrevious, onNext, nextDisabled = false, previousDisabled = false, storyPlanBlockReason = null, simple = false }: Pick<Props, 'activeStage' | 'onPrevious' | 'onNext'> & { nextDisabled?: boolean; previousDisabled?: boolean; storyPlanBlockReason?: StoryPlanStageBlockReason; simple?: boolean }) {
   const { t } = useTranslation('cinematic');
   const castStage = activeStage === 'cast';
   const storyPlanStage = activeStage === 'story-plan';
@@ -1913,7 +1950,7 @@ function StageFooter({ activeStage, onPrevious, onNext, nextDisabled = false, st
     : storyPlanStage
       ? (storyPlanBlockReason === 'approval_required' ? 'cinematic.story.currentDraftNeedsApprovalDescription' : storyPlanBlockReason === 'review_required' ? 'cinematic.story.currentPlanNeedsReviewDescription' : 'cinematic.story.currentPlanReadyDescription')
       : 'cinematic.prototype.description';
-  return <Surface className="cinematic-stage-footer"><div><strong>{t(titleKey)}</strong><p>{t(descriptionKey)}</p></div><div><Button icon={<ArrowLeft />} onClick={onPrevious}>{castStage ? t('cinematic.cast.backToSetup') : t('cinematic.actions.back')}</Button><Button variant="primary" icon={<ArrowRight />} onClick={onNext} disabled={activeStage === 'finish' || nextDisabled}>{castStage ? t('cinematic.cast.continueToStoryPlan') : t('cinematic.actions.next')}</Button></div></Surface>;
+  return <Surface className="cinematic-stage-footer"><div>{!simple || castStage ? <><strong>{t(titleKey)}</strong><p>{t(descriptionKey)}</p></> : null}</div><div><Button icon={<ArrowLeft />} onClick={onPrevious} disabled={previousDisabled}>{castStage ? t('cinematic.cast.backToSetup') : t('cinematic.actions.back')}</Button><Button variant="primary" icon={<ArrowRight />} onClick={onNext} disabled={activeStage === 'finish' || nextDisabled}>{castStage ? t(simple ? 'cinematic.manual.continueToStoryboard' : 'cinematic.cast.continueToStoryPlan') : t('cinematic.actions.next')}</Button></div></Surface>;
 }
 
 function hasIncompleteRequiredCast(project?: CinematicProject) {

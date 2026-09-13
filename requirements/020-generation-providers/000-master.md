@@ -70,6 +70,9 @@ entry points.
 - [Video Provider Pricing And Credit Model](video/001-video-provider-pricing-and-credit-model.md)
 - [Video Generation Provider Contract](video/002-video-generation-provider-contract.md)
 - [Gemini Omni Flash Interactions Video Provider](video/003-gemini-omni-flash-interactions-provider.md)
+- [Seedance 2.5 Usage-Based Credits](video/005-seedance-25-usage-based-credit-activation.md):
+  parked requirement based on existing completed-task usage; no price activation.
+  [Ordered implementation plan](video/006-seedance-25-credit-implementation-plan.md).
 
 ### Text Providers
 

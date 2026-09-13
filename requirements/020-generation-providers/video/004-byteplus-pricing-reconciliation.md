@@ -2,6 +2,12 @@
 
 Status: scoped implementation verified (2026-09-08); commercial qualification
 and the explicit pending items below are NOT complete. Image details in ../image/004.
+
+2026-09-13 follow-up: [005 Seedance 2.5 usage-based Credits](005-seedance-25-usage-based-credit-activation.md)
+records existing successful-task evidence and a future scoped transition from
+test charges. [006](006-seedance-25-credit-implementation-plan.md) is parked;
+no current charge, configuration or qualification gate changes in that task.
+
 Primary: Commercial Financial Integrity. Reviewers: Backend and QA (sequential,
 not independent). Skills: review-commercial-integrity, implement-generation-workflow,
 verify-release-regressions. Capability owners: Credits and provider configuration;

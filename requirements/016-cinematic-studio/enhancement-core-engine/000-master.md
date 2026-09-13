@@ -244,7 +244,7 @@ Package [029](029-simple-production-master.md) owns guided Simple production,
 [031](031-sketch-storyboard-production.md) sketch composition with photoreal video,
 [032](032-playground-preferences-attachments.md) Playground preferences/attachments,
 and [033](033-simple-cinematic-interface.md) progressive Simple/Advanced authoring.
-The sketch contract supersedes photoreal still defaults for NEW Storyboards only;
+The original sketch contract superseded photoreal still defaults for NEW Storyboards;
 it does not enable Seedance first_frame transport or rewrite existing approvals.
 Offline checks passed; the live paid pilot remains user-controlled.
 
@@ -259,3 +259,41 @@ Follow-up [035](035-inline-shot-edit-and-image-look-reference.md) adds direct
 Storyboard Edit Shot using Plan's fields and canonical Shot PATCH, retaining old
 media as stale. Playground general Image can select or upload a Look Sheet through
 its existing Character reference slot; no new reference or generation pipeline.
+
+Follow-up [037](037-faceless-previs-and-shot-workspace.md) CORRECTS
+[036](036-photoreal-storyboard-look-identity.md): new Storyboard stills use realistic
+full-color scenes but BLANK FACES with faint head-angle guides. Look Sheets define
+body/hair/wardrobe in stills and complete real facial identity in VIDEO. Named
+mappings survive compaction; honest faceless_previs_v1 metadata supports composition
+references alongside both legacy styles, without enabling real first_frame or
+relabeling old media. The Shot modal now has media-first review, mounted image/Shot/
+video tabs, inline editing and a bounded desktop generation action area through
+the existing Generation owner. Evidence and manual AI-output gap are recorded in 037.
+
+Package [038](038-manual-storyboard-master.md) supersedes mandatory faceless stills
+and the Simple Story Plan/Produce navigation. [039](039-manual-storyboard-rows.md)
+owns direct one-row/one-clip authoring, [040](040-optional-faceless-and-video-faces.md)
+owns optional faceless images and video faces from time zero; ordered tasks and
+validation are in [041](041-manual-storyboard-implementation-plan.md).
+
+Package [042](042-white-previs-and-scene-reference-master.md) adds White Previs as
+an optional facial treatment, a priced video lead-in preserving usable duration,
+and per-Scene empty environment generation/reference. Requirements 043-044 and
+ordered plan 045 preserve the existing Simple/Advanced and Generation owners.
+
+Parked follow-up [046](046-storyboard-reference-layout.md) owns the Shot dialog's
+reference image layout cleanup: consistent previews, named Cast sources, aligned
+Scene/style controls and responsive states. Documentation only; existing reference
+selection, payload, pricing and sibling UI behavior remain unchanged.
+
+Planned [047](047-dialogue-timing-and-performance-readiness.md) and ordered plan
+[048](048-dialogue-direction-implementation-plan.md) address infeasible dialogue
+timing and missing emotional coverage in AI-generated Story Plans. They add a
+planned targeted direction review separate from visual-only repair, preserve
+legacy approvals/media and keep reference-layout and Credit activation work
+separately parked. Requirements only; implementation has not started.
+
+Planned [049](049-final-prompt-budget-preflight.md) adds early per-Shot final
+prompt budget checks, automatic bounded optimization and a repeat check after
+all provider/reference additions. It preserves navigation, authored intent and
+quote parity; only technically invalid requests block. Documentation only.

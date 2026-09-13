@@ -2,21 +2,24 @@ import { Check, ChevronDown, Circle } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../lib/utils/cn';
-import { cinematicStages, type CinematicStage } from '../cinematicStages';
+import { cinematicStages, simpleCinematicStages, type CinematicStage } from '../cinematicStages';
 
 export function CinematicStageRail({
   activeStage,
-  onStageChange
+  onStageChange,
+  mode = 'advanced'
 }: {
   activeStage: CinematicStage;
   onStageChange?: (stage: CinematicStage) => void;
+  mode?: 'simple' | 'advanced';
 }) {
   const { t } = useTranslation('cinematic');
-  const activeIndex = cinematicStages.indexOf(activeStage);
+  const stages = mode === 'simple' ? simpleCinematicStages : cinematicStages;
+  const activeIndex = stages.indexOf(activeStage);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav aria-label={t('cinematic.stages.label')} className={`cinematic-stage-navigation${mobileOpen ? ' is-mobile-open' : ''}`}>
+    <nav data-mode={mode} aria-label={t('cinematic.stages.label')} className={`cinematic-stage-navigation${mobileOpen ? ' is-mobile-open' : ''}`}>
       <button
         type="button"
         className="cinematic-stage-navigation__mobile-trigger"
@@ -24,11 +27,11 @@ export function CinematicStageRail({
         aria-controls="cinematic-stage-list"
         onClick={() => setMobileOpen(open => !open)}
       >
-        <span>{t('cinematic.stages.mobileSummary', { current: activeIndex + 1, total: cinematicStages.length, stage: t(`cinematic.stages.${activeStage}`) })}</span>
+        <span>{t('cinematic.stages.mobileSummary', { current: activeIndex + 1, total: stages.length, stage: t(`cinematic.stages.${activeStage}`) })}</span>
         <span>{t('cinematic.stages.viewStages')} <ChevronDown aria-hidden="true" /></span>
       </button>
       <ol id="cinematic-stage-list" className="cinematic-stage-navigation__list">
-        {cinematicStages.map((stage, index) => {
+        {stages.map((stage, index) => {
           const complete = index < activeIndex;
           const active = stage === activeStage;
           return (

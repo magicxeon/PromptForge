@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
+  timing: ['test/cinematicVideoPacketCompiler.test.js', 'test/cinematicDataLineageService.test.js', 'test/cinematicApplicationService.test.js'],
   pilot: ['test/cinematicPilotPolicy.test.js', 'test/cinematicStoryPlanService.test.js', 'test/videoClipBundleService.test.js'],
   references: ['test/cinematicVideoReferencePlan.test.js', 'test/cinematicVideoPacketCompiler.test.js'],
   payload: ['test/modelArkSeedanceProvider.test.js', 'test/videoCapabilityRegistry.test.js'],
@@ -19,18 +20,23 @@ const groups = {
 };
 const suite = process.argv[2] || 'help';
 if (suite === 'help' || suite === '--help') {
-  console.log('Usage: node scripts/test-cinematic-video.js <pilot|references|payload|flow|ui|full>');
+  console.log('Usage: node scripts/test-cinematic-video.js <timing|timing-ui|pilot|references|payload|flow|ui|full>');
+  console.log('timing / timing-ui: advisory action estimate and Generate button regressions only');
   console.log('payload: adapter payload and catalog; flow: source, storage, Credits and task lifecycle');
   console.log('references: dynamic Cast/Look authority and configured video prompt');
   console.log('ui: Produce controls/status/preview; full: all groups plus adjacent regressions');
   console.log('Mocked tests only. No live provider calls, build or browser sweep.');
-} else if (!['pilot', 'references', 'payload', 'flow', 'ui', 'full'].includes(suite) || process.argv.length > 3) {
+} else if (!['timing', 'timing-ui', 'pilot', 'references', 'payload', 'flow', 'ui', 'full'].includes(suite) || process.argv.length > 3) {
   console.error('Unknown suite. Use --help.');
   process.exitCode = 2;
 } else {
   const startedAt = performance.now();
   const files = suite === 'full' ? [...new Set(Object.values(groups).flat())] : groups[suite];
-  if (files) run('backend', ['--test', ...files], root);
+  if (files) run('backend', ['--test', ...(suite === 'timing' ? ['--test-name-pattern=action duration estimate|without an approved immutable Storyboard source|stale Shot authority'] : []), ...files], root);
+  if (!process.exitCode && suite === 'timing-ui') {
+    run('ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicProduceRuntime.test.tsx', '-t', 'action duration estimate'], path.join(root, 'web'));
+  }
   if (!process.exitCode && ['ui', 'full'].includes(suite)) {
     run('ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
       'src/features/cinematic/components/CinematicProduceRuntime.test.tsx',

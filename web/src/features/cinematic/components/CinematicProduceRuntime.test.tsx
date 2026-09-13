@@ -4,6 +4,7 @@ import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CinematicProject } from '../schemas/cinematicSchemas';
+import { cinematicVideoQuoteSchema } from '../schemas/cinematicSchemas';
 import { ApiError } from '../../../lib/api/apiError';
 import { CinematicStageContent } from './CinematicStageContent';
 
@@ -35,7 +36,70 @@ vi.mock('../../generation/api/videoGenerationApi', async importOriginal => ({
 const i18n = i18next.createInstance();
 
 describe('Cinematic Produce runtime workspace', () => {
-  it('offers the sketch reference and Generate with Seedance first frames disabled', async () => {
+  it('shows usable four seconds, opening buffer and the actual priced five-second render', async () => {
+    const originalQuote = await api.quoteCinematicVideoAttempt();
+    api.quoteCinematicVideoAttempt.mockResolvedValue({ ...originalQuote,
+      usableRange: { leadInMs: 500, usableDurationMs: 4000, trimInMs: 500, trimOutMs: 4500 },
+      durationReconciliation: { plannedDurationSeconds: 4.5, renderDurationSeconds: 5, trimDurationSeconds: 0.5,
+        durationControlMode: 'exact', strategy: 'pad_and_trim', supportedDurations: [4, 5, 6], requiresSplit: false, reasonCode: 'video_duration_padded_for_provider' }
+    });
+    renderRuntime(projectFixture());
+    await screen.findByText('cinematic.produce.leadIn');
+    const summary = screen.getByText('cinematic.produce.leadIn').closest('dl')!;
+    expect(summary).toHaveTextContent('cinematic.produce.plannedDuration4s');
+    expect(summary).toHaveTextContent('cinematic.produce.leadIn0.5s');
+    expect(summary).toHaveTextContent('cinematic.produce.renderDuration5s');
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+  it('accepts a parsed storyboard composition quote and enables Generate with correct reference labels', async () => {
+    const catalog = await api.getCinematicVideoCapabilityCatalog();
+    catalog.models[0].firstFrameEnabled = false;
+    catalog.models[0].supportsCinematicLookReferences = true;
+    catalog.models[0].inputModes.push('multimodal_reference');
+    api.getCinematicVideoCapabilityCatalog.mockResolvedValue(catalog);
+    const project = projectFixture();
+    const shot = project.scenes[0]!.shots[0]!;
+    shot.videoReferenceMode = 'storyboard_and_looks';
+    shot.approvedStoryboardSource!.storyboardRenderStyle = 'faceless_previs_v1';
+    const rawQuote = { ...await api.quoteCinematicVideoAttempt(), referenceSummary: [
+      { imageNumber: 1, assetId: 'board', purpose: 'storyboard_composition', roleName: null, lookName: null, previewUrl: '/board.png' },
+      { imageNumber: 2, assetId: 'look', purpose: 'generated_look', roleName: 'Lalin', lookName: 'Florist', previewUrl: '/look.png' }
+    ] };
+    api.quoteCinematicVideoAttempt.mockImplementation(async () => cinematicVideoQuoteSchema.parse(rawQuote));
+    renderRuntime(project);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
+    const references = within(screen.getByRole('region', { name: 'cinematic.produce.references.title' })).getAllByRole('listitem');
+    expect(references[0]).toHaveTextContent('cinematic.produce.references.storyboard');
+    expect(references[1]).toHaveTextContent('cinematic.produce.references.look');
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
+  it('action duration estimate warning still quotes and enables Generate for an approved faceless source', async () => {
+    const catalog = await api.getCinematicVideoCapabilityCatalog();
+    catalog.models[0].firstFrameEnabled = false;
+    catalog.models[0].supportsCinematicLookReferences = true;
+    catalog.models[0].inputModes.push('multimodal_reference');
+    api.getCinematicVideoCapabilityCatalog.mockResolvedValue(catalog);
+    const project = projectFixture();
+    const shot = project.scenes[0]!.shots[0]!;
+    shot.estimatedActionDurationMs = 5000;
+    shot.videoReferenceMode = 'storyboard_and_looks';
+    shot.approvedStoryboardSource!.storyboardRenderStyle = 'faceless_previs_v1';
+    const context = produceContext();
+    api.getCinematicProduceContext.mockResolvedValue({ ...context,
+      videoPacket: { ...context.videoPacket,
+        timing: { plannedDurationMs: 4000, estimatedActionDurationMs: 5000 },
+        findings: [{ code: 'cinematic_video_action_overflow', severity: 'warning', fieldPath: 'shot.estimatedActionDurationMs' }]
+      }
+    });
+    renderRuntime(project);
+    await waitFor(() => expect(api.quoteCinematicVideoAttempt).toHaveBeenCalledWith('project-1', 'scene-1', 'shot-1', expect.objectContaining({ referenceMode: 'storyboard_and_looks', durationSeconds: 4 })));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+    expect(shot.approvedStoryboardSource!.imageUrl).toBe('/source-1.jpg');
+  });
+
+  it.each(['concept_sketch_v1', 'photorealistic_storyboard_v1', 'faceless_previs_v1', 'white_previs_v1'] as const)('offers %s composition and Generate with Seedance first frames disabled', async style => {
     const catalog = await api.getCinematicVideoCapabilityCatalog();
     catalog.models[0].firstFrameEnabled = false;
     catalog.models[0].supportsCinematicLookReferences = true;
@@ -44,7 +108,7 @@ describe('Cinematic Produce runtime workspace', () => {
     api.getCinematicVideoCapabilityCatalog.mockResolvedValue(catalog);
     const project = projectFixture();
     const shot = project.scenes[0]!.shots[0]!;
-    shot.approvedStoryboardSource!.storyboardRenderStyle = 'concept_sketch_v1';
+    shot.approvedStoryboardSource!.storyboardRenderStyle = style;
     shot.videoReferenceMode = 'storyboard_and_looks';
     renderRuntime(project);
     const toggle = await screen.findByRole('switch', { name: 'cinematic.produce.references.useSketch' });

@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { isStoryboardCompositionReference } from '../cinematic/CinematicStoryboardRenderStyle.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
 import { characterLookService } from '../character-profiles/CharacterLookService.js';
@@ -447,15 +448,14 @@ export class VideoGenerationApplicationService {
           const sourceAsset = await this.assetRepository.findByIdForOwner(reference.assetId, actorContext.userId);
           const expectedContentHash = request.referenceAuthority.references?.find(item => item.assetId === reference.assetId)?.contentHash
             || request.referenceAuthority.contentHash;
-          const sketchComposition = sourceAsset?.metadata?.storyboardRenderStyle === 'concept_sketch_v1'
-            && reference.role === 'reference_image' && reference.purpose === 'sketch_composition';
+          const compositionReference = isStoryboardCompositionReference(reference, sourceAsset?.metadata?.storyboardRenderStyle);
           const localLook = model.allowAnySourceProvider === true && !reference.trustedGenerationId
             && ['character_look', 'generated_look'].includes(reference.purpose);
-          const sketchContent = sketchComposition ? await this.storyboardAssetContentLoader(sourceAsset)
+          const sketchContent = compositionReference ? await this.storyboardAssetContentLoader(sourceAsset)
             : localLook ? await this.videoReferenceContentLoader({ ...sourceAsset, contentHash: expectedContentHash }) : null;
           const result = sketchContent ? {
             value: `data:${sourceAsset.mimeType};base64,${sketchContent.bytes.toString('base64')}`,
-            transport: { mode: 'base64', source: localLook ? 'approved_look' : 'approved_sketch', contentHash: sketchContent.contentHash }
+            transport: { mode: 'base64', source: localLook ? 'approved_look' : reference.purpose === 'sketch_composition' ? 'approved_sketch' : 'approved_storyboard', contentHash: sketchContent.contentHash }
           } : reference.trustedGenerationId
             ? await this.trustedSources.resolveOwnedImageWithTransport(reference.trustedGenerationId, actorContext, expectedContentHash)
             : await this.firstFrameTransport.resolve({ sourceAsset, ownerUserId: actorContext.userId, expectedContentHash });
@@ -565,14 +565,13 @@ export class VideoGenerationApplicationService {
           throw videoError('cinematic_video_reference_content_changed', 'The Look Sheet does not match its trusted original.', 409);
         }
       }
-      const sketchComposition = asset?.metadata?.storyboardRenderStyle === 'concept_sketch_v1'
-        && reference.role === 'reference_image' && reference.purpose === 'sketch_composition'
+      const compositionReference = isStoryboardCompositionReference(reference, asset?.metadata?.storyboardRenderStyle)
         && model?.supportsCinematicLookReferences === true;
-      if (reference.purpose === 'sketch_composition' && !sketchComposition) {
-        throw videoError('cinematic_video_reference_authority_invalid', 'Select an approved generated storyboard sketch.', 409);
+      if (['sketch_composition', 'storyboard_composition'].includes(reference.purpose) && !compositionReference) {
+        throw videoError('cinematic_video_reference_authority_invalid', 'Select an approved generated storyboard composition.', 409);
       }
       assertGeneratedReferenceAllowed(trustedLookSource || { providerOutputProvenance: asset?.metadata?.providerOutputProvenance });
-      if (!isLook && !sketchComposition && model?.trustedGeneratedImageSource && asset?.assetType === 'cinematic_storyboard_source') {
+      if (!isLook && !compositionReference && model?.trustedGeneratedImageSource && asset?.assetType === 'cinematic_storyboard_source') {
         // Derive authority from the owned immutable Asset, never from a browser URL.
         const generationId = asset.sourceJobId;
         if (!generationId || (reference.trustedGenerationId && reference.trustedGenerationId !== generationId)) {
@@ -612,7 +611,7 @@ export class VideoGenerationApplicationService {
       }
       authorities.push({
         role: reference.role,
-        ...(sketchComposition ? { purpose: 'sketch_composition', storyboardRenderStyle: 'concept_sketch_v1' } : {}),
+        ...(compositionReference ? { purpose: reference.purpose, storyboardRenderStyle: asset.metadata.storyboardRenderStyle } : {}),
         ...(reference.trustedGenerationId ? { trustedGenerationId: reference.trustedGenerationId } : {}),
         ...(isLook ? { purpose: reference.purpose, characterProfileId: reference.characterProfileId,
           characterLookId: reference.characterLookId, characterLookVersionId: reference.characterLookVersionId } : {}),

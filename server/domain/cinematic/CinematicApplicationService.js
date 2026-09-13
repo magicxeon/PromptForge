@@ -1,6 +1,10 @@
 import crypto from 'crypto';
+import { createManualStoryboardScene, normalizeManualStoryboard } from './CinematicManualStoryboard.js';
+import { normalizeStoryboardRenderStyle } from './CinematicStoryboardRenderStyle.js';
+import { sceneEnvironmentContext, normalizeCinematicSceneReference } from './CinematicSceneEnvironment.js';
 import { normalizeStoryIntent, storyAuthoringConfiguration } from '../../config/cinematicStoryConfiguration.js';
 import { normalizeCastMode, resolveShotCastIds, resolveShotLookIds } from './CinematicCastCoverage.js';
+import { extractAuthorDirection } from './StoryboardKeyframeContractCompiler.js';
 import { cinematicProjectRepository } from '../../repositories/cinematic/CinematicProjectRepository.js';
 import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
@@ -233,7 +237,7 @@ export class CinematicApplicationService {
     return this.repository.mutateForActor(projectId, actorContext, project => {
       assertExpectedVersion(project, expectedVersion);
       assertEditable(project);
-      if (STAGES.indexOf(stage) >= STAGES.indexOf('storyboard') && !hasCurrentApprovedStoryPlan(project)) {
+      if (project.setup?.mode !== 'simple' && STAGES.indexOf(stage) >= STAGES.indexOf('storyboard') && !hasCurrentApprovedStoryPlan(project)) {
         throw new CinematicError(
           'cinematic_story_plan_approval_required',
           'Approve the current Story Plan before continuing to Storyboard.',
@@ -579,7 +583,7 @@ export class CinematicApplicationService {
       }
       shot.approvedStoryboardSource = approvedAsset;
       shot.approvedStoryboardAttemptId = attempt.id;
-      if (approvedAsset.storyboardRenderStyle === 'concept_sketch_v1'
+      if (normalizeStoryboardRenderStyle(approvedAsset.storyboardRenderStyle)
         && (!shot.videoReferenceMode || shot.videoReferenceMode === 'storyboard_only')) {
         shot.videoReferenceMode = 'storyboard_and_looks';
       }
@@ -609,6 +613,82 @@ export class CinematicApplicationService {
       throw new CinematicError('cinematic_shot_not_found', 'Produce Shot not found.', 404);
     }
     return buildProduceContext(project, located.scene, located.shot, this.videoPacketCompiler, referenceMode);
+  }
+
+  async getSceneEnvironmentContext(projectId, sceneId, actorContext) {
+    const project = await this.getProject(projectId, actorContext);
+    const scene = project.scenes.find(item => item.id === sceneId);
+    if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+    return sceneEnvironmentContext(project, scene);
+  }
+
+  async listSceneEnvironmentImages(projectId, sceneId, actorContext, query = {}) {
+    const project = await this.getProject(projectId, actorContext);
+    if (!project.scenes.some(scene => scene.id === sceneId)) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+    const limit = Math.min(24, Math.max(1, Math.trunc(Number(query.limit) || 12)));
+    const seen = new Set();
+    const attempts = [...project.generationAttempts].reverse().filter(attempt => {
+      if (attempt.operation !== 'cinematic_scene_environment' || !attempt.generationJobId || seen.has(attempt.generationJobId)) return false;
+      seen.add(attempt.generationJobId);
+      return true;
+    });
+    const cursorIndex = query.cursor ? attempts.findIndex(attempt => attempt.generationJobId === query.cursor) : -1;
+    if (query.cursor && cursorIndex < 0) throw new CinematicError('cinematic_scene_cursor_invalid', 'Refresh the Scene image list.', 400);
+    const page = attempts.slice(cursorIndex + 1, cursorIndex + 1 + limit);
+    const items = [];
+    for (const attempt of page) {
+      const preview = await this.storyboardAssetService.getGenerationPreview(attempt.generationJobId, actorContext);
+      if (preview) items.push({ ...preview, sceneId: attempt.sceneId,
+        sceneTitle: project.scenes.find(scene => scene.id === attempt.sceneId)?.title || '', createdAt: attempt.createdAt || null });
+    }
+    return { items, nextCursor: cursorIndex + 1 + page.length < attempts.length ? page.at(-1).generationJobId : null };
+  }
+
+  saveSceneEnvironment(projectId, sceneId, input, actorContext) {
+    if ((input.environmentPrompt === undefined && input.referenceEnabled === undefined)
+      || (input.environmentPrompt !== undefined && (typeof input.environmentPrompt !== 'string' || input.environmentPrompt.length > 2500))
+      || (input.referenceEnabled !== undefined && typeof input.referenceEnabled !== 'boolean')) {
+      throw new CinematicError('cinematic_scene_environment_invalid', 'Scene direction must contain at most 2500 characters.');
+    }
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input.expectedVersion);
+      assertEditable(project);
+      const scene = project.scenes.find(item => item.id === sceneId);
+      if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+      if (Number(input.expectedSceneVersion) !== Number(scene.version || 1)) {
+        throw new CinematicError('cinematic_scene_version_conflict', 'The Scene changed. Refresh before saving.', 409);
+      }
+      if (input.environmentPrompt !== undefined) scene.environmentPrompt = input.environmentPrompt.trim();
+      if (input.referenceEnabled !== undefined) scene.environmentReferenceEnabled = input.referenceEnabled;
+      // Environment preparation changes future still inputs, not authored video direction.
+      project.version += 1;
+      return project;
+    });
+  }
+
+  async approveSceneEnvironment(projectId, sceneId, input, actorContext) {
+    const current = await this.getProject(projectId, actorContext);
+    const scene = current.scenes.find(item => item.id === sceneId);
+    const attempt = current.generationAttempts?.find(item => item.operation === 'cinematic_scene_environment'
+      && (input.reuse === true || item.sceneId === sceneId) && item.generationJobId === input.jobId);
+    if (!scene || !attempt) throw new CinematicError('cinematic_scene_source_unavailable', 'This Scene source is unavailable.', 404);
+    const approvedAsset = await this.storyboardAssetService.approveGenerationResult({ jobId: input.jobId }, actorContext);
+    if (input.reuse === true) await this.storyboardAssetService.resolveSceneReference(approvedAsset, actorContext);
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      const target = project.scenes.find(item => item.id === sceneId);
+      if (target?.approvedEnvironmentSource?.sourceJobId === input.jobId && target.environmentReferenceEnabled !== false) return project;
+      assertExpectedVersion(project, input.expectedVersion);
+      assertEditable(project);
+      const candidate = project.generationAttempts.find(item => item.id === attempt.id);
+      if (!target || !candidate || (input.reuse !== true && candidate.promptFingerprint !== sceneEnvironmentContext(project, target).promptFingerprint)) {
+        throw new CinematicError('cinematic_scene_environment_changed', 'The Scene direction changed. Generate a new Scene source.', 409);
+      }
+      target.approvedEnvironmentSource = approvedAsset;
+      target.environmentReferenceEnabled = true;
+      Object.assign(candidate, { status: 'approved', reviewDecision: 'approved', outputAssetIds: [approvedAsset.assetId] });
+      project.version += 1;
+      return project;
+    });
   }
 
   async getStoryboardGenerationContext(projectId, sceneId, shotId, actorContext) {
@@ -689,7 +769,11 @@ export class CinematicApplicationService {
       shotId: shot.id,
       shotVersion: shot.version,
       cinematicCastReferences,
+      cinematicSceneReference: scene.environmentReferenceEnabled !== false && scene.approvedEnvironmentSource ? normalizeCinematicSceneReference(scene.approvedEnvironmentSource) : null,
       cinematicContainsPeople: castIds.length > 0,
+      cinematicFaceless: shot.storyboardFaceless === true,
+      cinematicFacialTreatment: shot.storyboardFacialTreatment || 'blank',
+      cinematicManualStoryboard: shot.manualStoryboard === true && shot.manualStillAuthority !== false,
       characterProfileContext: primary && !generatedSheet ? {
         purpose: 'character_usage',
         characterProfileId: primary.characterProfileId,
@@ -731,7 +815,8 @@ export class CinematicApplicationService {
             : missingLookReference
               ? 'cinematic_storyboard_look_asset_unavailable'
               : blockingCompilerFinding
-                ? 'cinematic_storyboard_direction_incomplete'
+                ? (shot.manualStoryboard && blockingCompilerFinding.code === 'look_authority_not_ready'
+                  ? 'cinematic_storyboard_manual_look_required' : 'cinematic_storyboard_direction_incomplete')
                 : null
     };
   }
@@ -755,6 +840,17 @@ export class CinematicApplicationService {
       const now = new Date().toISOString();
       for (const child of children) {
         if (project.generationAttempts.some(attempt => attempt.generationJobId === child.jobId)) continue;
+        if (child.metadata?.purpose === 'scene_environment') {
+          const scene = project.scenes.find(item => item.id === child.sceneId);
+          if (!scene || Number(scene.version || 1) !== Number(child.metadata.expectedSceneVersion)
+            || sceneEnvironmentContext(project, scene).promptFingerprint !== child.metadata.promptFingerprint) {
+            throw new CinematicError('cinematic_scene_environment_changed', 'The Scene changed before generation.', 409);
+          }
+          project.generationAttempts.push({ id: createPrefixedId('cineattempt'), operation: 'cinematic_scene_environment',
+            batchId, sceneId: scene.id, generationJobId: child.jobId, quoteId: child.estimateId,
+            promptFingerprint: child.metadata.promptFingerprint, outputAssetIds: [], status: 'queued', reviewDecision: 'pending', createdAt: now });
+          continue;
+        }
         const located = findShot(project, child.shotId);
         if (!located || located.scene.id !== child.sceneId) {
           throw new CinematicError(
@@ -820,6 +916,7 @@ export class CinematicApplicationService {
       );
       return {
         ...quote,
+        ...(videoPacket.timing?.leadInMs ? { usableRange: cinematicUsableRange(shot, videoPacket) } : {}),
         referenceMode: referencePlan.mode,
         renderedPrompt: providerPrompt.prompt,
         referenceSummary: referencePlan.references.map((reference, index) => ({
@@ -901,6 +998,7 @@ export class CinematicApplicationService {
         referencePlanFingerprint: preparedRequest.referencePlanFingerprint || null,
         referenceMode: referencePlan.mode,
         downstreamSourceStatus: 'current',
+        ...(videoPacket.timing?.leadInMs ? { usableRange: cinematicUsableRange(shot, videoPacket) } : {}),
         status: 'preparing',
         reviewDecision: 'pending',
         createdAt: new Date().toISOString()
@@ -1097,9 +1195,9 @@ export class CinematicApplicationService {
     }
     const mode = cinematicVideoReferenceMode(input.referenceMode);
     const policyModel = this.videoCapabilities.resolve(input.providerId, input.modelId);
-    const sketchComposition = mode === 'storyboard_and_looks'
-      && located.shot.approvedStoryboardSource?.storyboardRenderStyle === 'concept_sketch_v1';
-    const policyMode = policyModel?.firstFrameEnabled === false && !sketchComposition
+    const compositionReference = mode === 'storyboard_and_looks'
+      && normalizeStoryboardRenderStyle(located.shot.approvedStoryboardSource?.storyboardRenderStyle);
+    const policyMode = policyModel?.firstFrameEnabled === false && !compositionReference
       ? (resolveShotCastIds(located.scene, located.shot).length ? 'looks_only' : 'text_only') : null;
     if (located.shot.videoReferenceMode && mode !== located.shot.videoReferenceMode && mode !== policyMode) {
       throw new CinematicError('cinematic_video_reference_mode_changed', 'The Shot reference mode changed. Refresh the quote.', 409);
@@ -1147,6 +1245,70 @@ export class CinematicApplicationService {
       );
     }
     return { project, scene: located.scene, shot: located.shot, source, videoPacket };
+  }
+
+  createSimpleScene(projectId, input, actorContext) {
+    const idempotencyKey = normalizeIdempotencyKey(input.idempotencyKey);
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertEditable(project);
+      if ((project.commandReceipts || []).some(receipt => receipt.operation === 'create_simple_scene'
+        && receipt.idempotencyKey === idempotencyKey)) return project;
+      assertExpectedVersion(project, input.expectedVersion);
+      if (project.scenes.length >= 24) throw new CinematicError('cinematic_scene_limit', 'A Project supports at most 24 Scenes.');
+      const scene = createManualStoryboardScene(project, createPrefixedId);
+      project.scenes.push(scene);
+      project.commandReceipts ||= [];
+      project.commandReceipts.push({ operation: 'create_simple_scene', idempotencyKey, sceneId: scene.id });
+      project.version += 1;
+      return project;
+    });
+  }
+
+  saveManualStoryboard(projectId, sceneId, shotId, input, actorContext) {
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input.expectedVersion);
+      assertEditable(project);
+      const { scene, shot } = requireEditableShot(project, sceneId, shotId, input.expectedShotVersion);
+      const next = normalizeManualStoryboard(input, project, CinematicError);
+      const previousPrompt = extractAuthorDirection(shot.prompt) || shot.visibleMoment || '';
+      const imageChanged = previousPrompt.trim() !== next.prompt.trim()
+        || JSON.stringify(resolveShotCastIds(scene, shot)) !== JSON.stringify(next.castAssignmentIds)
+        || JSON.stringify(resolveShotLookIds(scene, shot)) !== JSON.stringify(next.wardrobeLookIds);
+      if (!imageChanged) next.prompt = shot.prompt;
+      if (Object.entries(next).every(([key, value]) => JSON.stringify(value) === JSON.stringify(shot[key]))) return project;
+      shot.manualStillAuthority = imageChanged || (shot.manualStoryboard === true && shot.manualStillAuthority !== false);
+      Object.assign(shot, next);
+      shot.version += 1;
+      if (imageChanged) {
+        shot.storyboardStatus = 'draft';
+        if (shot.approvedStoryboardSource) markSourceChanged(project, shot, shot.approvedStoryboardSource.sourceFingerprint);
+      }
+      markVideoPacketChanged(project, shot);
+      scene.castAssignmentIds = [...new Set([...scene.castAssignmentIds, ...next.castAssignmentIds])];
+      if (next.castAssignmentIds.length && scene.castMode === 'none') scene.castMode = 'selected';
+      scene.wardrobeLookIds = [...new Set([...(scene.wardrobeLookIds || []), ...next.wardrobeLookIds])];
+      scene.durationMs = scene.shots.reduce((total, item) => total + item.durationMs, 0);
+      if (scene.shots.length === 1) scene.title = next.title;
+      project.version += 1;
+      return project;
+    });
+  }
+
+  updateStoryboardSettings(projectId, sceneId, shotId, input, actorContext) {
+    if (input.storyboardFacialTreatment !== undefined && !['blank', 'white_previs'].includes(input.storyboardFacialTreatment)) throw new CinematicError('cinematic_storyboard_settings_invalid', 'Unknown facial treatment.');
+    if (typeof input.storyboardFaceless !== 'boolean') throw new CinematicError('cinematic_storyboard_settings_invalid', 'Faceless must be a boolean.');
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input.expectedVersion);
+      assertEditable(project);
+      const { shot } = requireEditableShot(project, sceneId, shotId, input.expectedShotVersion);
+      const treatment = input.storyboardFacialTreatment ?? shot.storyboardFacialTreatment ?? 'blank';
+      if ((shot.storyboardFaceless === true) === input.storyboardFaceless && (shot.storyboardFacialTreatment || 'blank') === treatment) return project;
+      // Generation preference only: approved sources and all existing Takes stay authoritative.
+      shot.storyboardFaceless = input.storyboardFaceless;
+      shot.storyboardFacialTreatment = treatment;
+      project.version += 1;
+      return project;
+    });
   }
 
   updateShotDirection(projectId, sceneId, shotId, input, actorContext) {
@@ -1345,6 +1507,15 @@ export class CinematicApplicationService {
 function hasCurrentApprovedStoryPlan(project) {
   const active = (project.storyPlanVersions || []).find(version => version.id === project.activeStoryPlanVersionId);
   return Boolean(active && active.status === 'approved' && active.storySourceVersionId === project.activeStorySourceVersionId);
+}
+
+function requireEditableShot(project, sceneId, shotId, expectedShotVersion) {
+  const located = findShot(project, shotId);
+  if (!located || located.scene.id !== sceneId) throw new CinematicError('cinematic_shot_not_found', 'Storyboard Shot not found.', 404);
+  if (Number(expectedShotVersion) !== Number(located.shot.version || 1)) {
+    throw new CinematicError('cinematic_shot_version_conflict', 'The Shot changed in another session.', 409);
+  }
+  return located;
 }
 
 export class CinematicError extends Error {
@@ -1578,6 +1749,9 @@ function normalizeStoryPlan(input = {}, project, contractVersion = normalizeStor
     return {
       id: sceneId,
       version: Number(existingScene?.version || 1),
+      ...(existingScene?.environmentPrompt !== undefined ? { environmentPrompt: existingScene.environmentPrompt } : {}),
+      ...(existingScene?.approvedEnvironmentSource ? { approvedEnvironmentSource: structuredClone(existingScene.approvedEnvironmentSource) } : {}),
+      ...(existingScene?.environmentReferenceEnabled !== undefined ? { environmentReferenceEnabled: existingScene.environmentReferenceEnabled } : {}),
       orderKey: sceneIndex + 1,
       ...(sceneInput.cinematicOpening !== undefined ? { cinematicOpening: sceneInput.cinematicOpening === true } : {}),
       beatId: bounded(sceneInput.beatId, 100, beats[0]?.id || ''),
@@ -2051,7 +2225,7 @@ function buildCinematicWorkflow(project, scene, shot, generationAttemptId) {
 }
 
 function buildCinematicVideoRequest(input, project, shot, source, videoPacket, providerPrompt = null, referencePlan = null) {
-  const plannedDurationSeconds = Math.max(0.001, Number(shot.durationMs) / 1000);
+  const plannedDurationSeconds = Math.max(0.001, (Number(shot.durationMs) + Number(videoPacket.timing?.leadInMs || 0)) / 1000);
   const durationSeconds = Math.max(1, Number(input.durationSeconds || plannedDurationSeconds));
   const references = referencePlan?.references || [{
     role: 'first_frame',
@@ -2087,6 +2261,11 @@ function buildCinematicVideoRequest(input, project, shot, source, videoPacket, p
     requestFingerprint: input.requestFingerprint || null,
     videoPacketFingerprint: videoPacket.packetFingerprint
   };
+}
+
+function cinematicUsableRange(shot, packet) {
+  const leadInMs = Number(packet.timing?.leadInMs || 0);
+  return { leadInMs, usableDurationMs: Number(shot.durationMs), trimInMs: leadInMs, trimOutMs: leadInMs + Number(shot.durationMs) };
 }
 
 function renderProviderVideoPrompt(compiler, videoPacket, input, referencePlan) {

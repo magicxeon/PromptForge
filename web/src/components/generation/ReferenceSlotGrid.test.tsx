@@ -12,6 +12,16 @@ vi.mock('./GeneratedLookSourceField', () => ({ GeneratedLookSourceField: ({ disa
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 
 describe('Reference display binding', () => {
+  it('reserves capacity for scene and cast references without changing existing slots', () => {
+    const onChange = vi.fn();
+    const { rerender } = render(<MemoryRouter><ReferenceSlotGrid value={{}} supported maxReferences={2}
+      additionalReferenceCount={2} lookSheetSelection onChange={onChange} /></MemoryRouter>);
+    expect(screen.getByRole('button', { name: 'playground.reference.chooseLookSheet' })).toBeDisabled();
+    rerender(<MemoryRouter><ReferenceSlotGrid value={{}} supported maxReferences={2}
+      additionalReferenceCount={1} lookSheetSelection onChange={onChange} /></MemoryRouter>);
+    expect(screen.getByRole('button', { name: 'playground.reference.chooseLookSheet' })).toBeEnabled();
+    expect(onChange).not.toHaveBeenCalled();
+  });
   it('selects a Look into the existing Character slot without removing other references', () => {
     const onChange = vi.fn();
     render(<MemoryRouter><ReferenceSlotGrid value={{ character_reference: '/character.png', style_reference: '/style.png' }}

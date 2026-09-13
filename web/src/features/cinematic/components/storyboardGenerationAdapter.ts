@@ -50,7 +50,7 @@ export function shotVideoReferencePreviews(project: CinematicProject, scene: Cin
     previewUrl: shot.approvedStoryboardSource.imageUrl
   });
   if (mode !== 'storyboard_only') {
-    const selectedIds = new Set(shot.wardrobeLookIds.length ? shot.wardrobeLookIds : scene.wardrobeLookIds);
+    const selectedIds = new Set(shot.manualStoryboard || shot.wardrobeLookIds.length ? shot.wardrobeLookIds : scene.wardrobeLookIds);
     for (const cast of resolveStoryboardShotCast(project, scene, shot)) {
       const looks = cast.looks.filter((value): value is Record<string, unknown> => Boolean(value && typeof value === 'object'))
         .filter(look => selectedIds.has(String(look.id)) && look.locked === true);
@@ -67,7 +67,7 @@ export function shotVideoReferencePreviews(project: CinematicProject, scene: Cin
 }
 
 export function resolveStoryboardShotLooks(assignments: CinematicCastAssignment[], scene: CinematicScene, shot: CinematicShot) {
-  const selectedIds = new Set(shot.wardrobeLookIds.length ? shot.wardrobeLookIds : scene.wardrobeLookIds);
+  const selectedIds = new Set(shot.manualStoryboard || shot.wardrobeLookIds.length ? shot.wardrobeLookIds : scene.wardrobeLookIds);
   return assignments.flatMap(assignment => (assignment.looks || []).flatMap(value => {
     if (!value || typeof value !== 'object') return [];
     const record = value as Record<string, unknown>;

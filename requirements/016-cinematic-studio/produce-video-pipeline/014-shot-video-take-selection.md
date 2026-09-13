@@ -5,6 +5,11 @@ Final evidence and live-UAT boundary: implementation plan 009 and requirement 02
 Owner: Cinematic Produce. Extends 005 review/approval, not a new Generation flow.
 Plan: implementation-plan/009-take-review-and-shot-navigation.md.
 
+Reported regression follow-up (2026-09-13):
+[023](023-shot-take-preview-synchronization.md) owns Shot/Take clicks that do not
+update the center video. It preserves the selection contract below; diagnosis,
+implementation and targeted browser verification remain pending.
+
 ## Before Implementation
 
 CinematicStageContent initializes the observed task/attempt from the latest video.

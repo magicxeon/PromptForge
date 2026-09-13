@@ -937,6 +937,31 @@ test('Storyboard source approval is idempotent and replacement stales only depen
   assert.equal(stored.timelineVersions[0].entries[1].downstreamSourceStatus, undefined);
 });
 
+test('action duration estimate overflow allows Produce context without rewriting the Project', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await service.createProject(setup, alice);
+  const planned = await service.saveStoryPlan(created.id, {
+    expectedVersion: created.version,
+    scenes: [{ id: 'scene_a', title: 'A', shots: [{
+      id: 'shot_a', title: 'A', durationMs: 4000, estimatedActionDurationMs: 5000,
+      visibleMoment: 'The visitor stands at the door.', subjectAction: 'The visitor takes one step.',
+      emotionalTarget: 'hesitant'
+    }] }]
+  }, alice);
+  await service.approveStoryboardSource(created.id, 'shot_a', {
+    expectedVersion: planned.version, expectedShotVersion: 1,
+    jobId: 'job_timing_source', idempotencyKey: 'approve-timing-source'
+  }, alice);
+  const before = await service.getProject(created.id, alice);
+  const context = await service.getProduceShotContext(created.id, 'scene_a', 'shot_a', alice);
+  assert.equal(context.generationEligible, true);
+  assert.equal(context.blockingReason, null);
+  assert.equal(context.videoPacket.findings.find(item => item.code === 'cinematic_video_action_overflow')?.severity, 'warning');
+  assert.deepEqual(context.videoPacket.timing, { plannedDurationMs: 4000, estimatedActionDurationMs: 5000 });
+  assert.deepEqual(await service.getProject(created.id, alice), before);
+});
+
 test('Produce context blocks a Shot without an approved immutable Storyboard source', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));

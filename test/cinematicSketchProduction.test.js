@@ -6,16 +6,17 @@ import { cinematicStoryboardPromptComposer } from '../server/domain/cinematic/Ci
 import { assertFirstFramePolicy, validateTrustedGeneratedImageSource } from '../server/domain/generation/VideoCapabilityRegistry.js';
 import { createSingleCharacterCinematicProject } from './fixtures/cinematic/cinematicProjectFixtures.js';
 
-test('sketch: opening composition works with first frames disabled and no visible cast', async () => {
+for (const style of ['concept_sketch_v1', 'photorealistic_storyboard_v1', 'faceless_previs_v1']) test(`composition: ${style} works with first frames disabled and no visible cast`, async () => {
   const project = createSingleCharacterCinematicProject();
   const scene = project.scenes[0], shot = scene.shots[0];
   shot.castMode = 'none';
-  const source = { ...shot.approvedStoryboardSource, storyboardRenderStyle: 'concept_sketch_v1' };
+  const source = { ...shot.approvedStoryboardSource, storyboardRenderStyle: style };
   const model = { firstFrameEnabled: false, supportsCinematicLookReferences: true, inputModes: ['multimodal_reference'], referenceImageLimit: 3 };
   const service = new CinematicVideoReferencePlanService();
   const plan = await service.prepare({ project, scene, shot, source, mode: 'storyboard_and_looks', model });
   assert.equal(plan.references.length, 1);
-  assert.equal(plan.references[0].purpose, 'sketch_composition');
+  assert.equal(plan.references[0].purpose, style === 'concept_sketch_v1' ? 'sketch_composition' : 'storyboard_composition');
+  assert.equal(plan.storyboardRenderStyle, style);
   assert.equal(plan.references[0].role, 'reference_image');
   assert.doesNotThrow(() => assertFirstFramePolicy(plan, model));
   await assert.rejects(service.prepare({ project, scene, shot, source: { ...source, storyboardRenderStyle: null }, mode: 'storyboard_and_looks', model }), { code: 'video_first_frame_disabled' });
@@ -31,18 +32,18 @@ test('sketch: video prompt keeps drawing composition separate from live action a
   ] };
   const result = compiler.renderForProvider(packet, { providerId: 'modelark', referencePlan });
   assert.match(result.prompt, /photorealistic live-action/);
-  assert.match(result.prompt, /storyboard concept sketch/);
+  assert.match(result.prompt, /Image 1 provides staging only/);
   assert.match(result.prompt, /Image 2.*Lalin/);
   assert.match(result.prompt, /Image 3.*Kin/);
   assert.doesNotMatch(result.prompt, /immutable first frame|Animate the supplied first frame/);
   assert.ok(result.prompt.length <= 4000);
 });
 
-test('sketch: still compiler emits drawing instructions without losing opening position', () => {
+test('photoreal: still compiler preserves the authored pre-action opening position', () => {
   const prompt = cinematicStoryboardPromptComposer.compose({ context: { cinematicContainsPeople: false }, visualPrompt: 'A pot rests on the pavement. No movement has started.' });
-  assert.match(prompt, /monochrome graphite/);
+  assert.match(prompt, /full-color photorealistic scene previs with BLANK FACES/);
   assert.match(prompt, /A pot rests on the pavement/);
-  assert.match(prompt, /before the action advances/);
+  assert.match(prompt, /BEFORE action/);
   assert.doesNotMatch(prompt, /No glossy retouch, plastic skin, illustration/);
 });
 
@@ -54,4 +55,30 @@ test('sketch: only immutable server-derived sketch authority qualifies as compos
   assert.equal(validateTrustedGeneratedImageSource(input, model), true);
   assert.throws(() => validateTrustedGeneratedImageSource({ ...input, referenceAuthority: { ...authority, immutable: false } }, model));
   assert.throws(() => validateTrustedGeneratedImageSource({ ...input, referenceAuthority: { ...authority, purpose: 'generated_look' } }, model));
+});
+
+for (const style of ['photorealistic_storyboard_v1', 'faceless_previs_v1']) test(`${style}: video mapping keeps scene composition separate from Look faces`, () => {
+  const project = createSingleCharacterCinematicProject();
+  const scene = project.scenes[0], shot = scene.shots[0];
+  const source = { ...shot.approvedStoryboardSource, storyboardRenderStyle: style };
+  const compiler = new CinematicVideoPacketCompiler();
+  const packet = compiler.compile({ project, scene, shot, approvedStoryboardSource: source, referenceMode: 'storyboard_and_looks' });
+  assert.equal(packet.storyboardRenderStyle, style);
+  assert.equal(packet.referenceStrategy.mode, 'composition_reference');
+  const result = compiler.renderForProvider(packet, { providerId: 'modelark', referencePlan: {
+    mode: 'storyboard_and_looks', storyboardRenderStyle: source.storyboardRenderStyle, inputMode: 'multimodal_reference', references: [
+      { purpose: 'storyboard_composition' }, { roleName: 'Lalin', lookName: 'Florist' }, { roleName: 'Kin', lookName: 'Visitor' }
+    ]
+  } });
+  assert.match(result.prompt, /Image 1 supplies opening camera.*NOT facial identity/);
+  assert.match(result.prompt, /Image 2: PRIMARY face.*Lalin/);
+  assert.match(result.prompt, /Image 3: PRIMARY face.*Kin/);
+  assert.match(result.prompt, /anatomically complete photographic face from that person's OWN Look Sheet/);
+  assert.match(result.prompt, /Blank faces and faint guide lines indicate head angle only/);
+  assert.match(result.prompt, /BEFORE output time 0:00 \(frame 0\), reconstruct every visible face/);
+  assert.match(result.prompt, /Looks OVERRIDE scene facial appearance/);
+  assert.match(result.prompt, /Preserve head pose and occlusion; no forced frontal faces or features on back-facing\/hidden heads/);
+  assert.match(result.prompt, /No blank initial faces, guide lines, delayed face reveal, morph or fade-in/);
+  assert.doesNotMatch(result.prompt, /immutable first frame|Animate the supplied first frame|Match image 1's composition/);
+  assert.ok(result.prompt.length <= 4000);
 });

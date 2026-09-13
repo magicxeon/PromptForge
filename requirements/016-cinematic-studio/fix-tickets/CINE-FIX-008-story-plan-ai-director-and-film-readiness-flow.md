@@ -1,5 +1,30 @@
 # CINE-FIX-008 Story Plan AI Director And Film Readiness Flow
 
+## Estimated Dialogue Timing Follow-up (2026-09-12)
+
+Scope: Film Readiness approval only. Latest saved Plan has one blocker:
+`film_dialogue_timing_overflow`, a 4000ms Shot with a line starting at 2000ms
+and estimated to last 3000ms. This is an unrendered performance estimate, not
+measured audio. Do not silently delete text, move cues, shorten estimates,
+increase Shot duration or disable all readiness checks to approve it.
+
+Ordered tasks and acceptance:
+
+1. Requirement updated: retain the overflow finding as a warning, including its
+   Shot context and a recommendation to review delivery/overlap before rendering.
+   Existing explicit Approve acknowledges warnings; normal save/approve recomputes
+   readiness, so no live-data migration or automatic approval is needed.
+2. Implementation: only estimated duration overflow is nonblocking. A dialogue
+   start at or beyond the Shot end remains blocking with a distinct
+   `film_dialogue_start_outside_shot` finding. Existing speaker, Cast, source,
+   continuity, duration, ownership and version checks remain unchanged.
+3. Validation deferred at the user's request: no automated tests, builds or paid
+   generation. Review the scoped source diff only. Next manual action is to retry
+   Approve after the running server loads the change; the estimate warning remains.
+
+No new module, API, runtime data path, pricing change or media mutation.
+Implementation status: implemented; runtime/test verification deferred.
+
 **Priority:** P0
 **Status:** Implemented and verified in scope; live provider film qualification pending
 **Reported surface:** Setup Story Source -> Story Plan -> Storyboard
@@ -351,8 +376,10 @@ Plan/Beat/Scene/Shot ID, evidence summary and recovery action.
 Approval remains deterministically authoritative. AI scores cannot approve or
 block by themselves. The server blocks approval on objective conditions such
 as unresolved source conflict, missing links, invalid duration, unauthorized
-Cast/Look, missing visible moment, invalid dialogue speaker, impossible timing
-or broken continuity anchors. Subjective findings remain warnings.
+Cast/Look, missing visible moment, invalid dialogue speaker, dialogue starting
+outside the Shot or broken continuity anchors. Estimated speaking duration that
+extends past the Shot is a review warning, not a hard timing constraint. Subjective
+findings remain warnings.
 
 An approved Plan must be current for the active Story Source and must set
 `activeStoryPlanVersionId`. A Project status of `planned` without an active
