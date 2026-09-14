@@ -41,5 +41,27 @@
     "maxAttempts": 2,
     "backoffBaseMs": 500,
     "maxBackoffMs": 5000
+  },
+  "imageEnhancement": {
+    "policyVersion": "enhance-v1",
+    "maxInputBytes": 26214400,
+    "maxPixels": 16000000,
+    "maxOutputPixels": 64000000,
+    "allowedScales": [2, 4],
+    "defaultScale": 2,
+    "processingTimeoutMs": 30000,
+    "aiEngineEnabled": true,
+    "enableAntiAliasing": true,
+    "bilateralFilterRadius": 9,
+    "unsharpMaskRadius": 2,
+    "unsharpMaskPercent": 150,
+    "unsharpMaskThreshold": 3,
+    "model": {
+      "fileName": "realesrgan-x4plus.onnx",
+      "sha256": "4b6f17e0892095f9c4900a6e031e4e207bc27d1a29f8f635038c6d1d7eb6955a",
+      "downloadUrl": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesrgan-x4plus.onnx",
+      "maxDownloadBytes": 70000000,
+      "downloadTimeoutMs": 60000
+    }
   }
 }

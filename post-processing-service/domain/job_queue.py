@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 
 from domain.faceless_previs import faceless_previs_manager, HTTPException_Like
 from domain.face_landmarks import face_landmarks_manager
+from domain.image_enhancement_manager import image_enhancement_manager
 from domain.telemetry_manager import telemetry_manager
 from domain.resilience_manager import resilience_manager
 
@@ -148,18 +149,17 @@ class JobQueueManager:
             operation = job["operation"]
             options = job.get("options", {})
             input_bytes = base64.b64decode(job["inputBytesBase64"])
-            detector = app_state.detector
-            policy = app_state.config.policy
-
-            if detector.unavailable_reason:
-                raise HTTPException_Like("face_model_unavailable", "The face model is unavailable.", 533)
+            detector = getattr(app_state, "detector", None)
+            policy = getattr(app_state.config, "policy", None)
 
             resilience = getattr(app_state.config, "resilience", None)
             max_attempts = resilience.maxAttempts if resilience else 2
             backoff_base_ms = resilience.backoffBaseMs if resilience else 500
 
             # Enforce job processing timeout and retry with exponential backoff
-            if operation == "image.faceless_previs" or operation == "faceless_previs":
+            if operation in ("image.faceless_previs", "faceless_previs"):
+                if not detector or detector.unavailable_reason:
+                    raise HTTPException_Like("face_model_unavailable", "The face model is unavailable.", 533)
                 expected_faces = options.get("expectedFaces", 1)
                 result, attempts_used = await asyncio.wait_for(
                     resilience_manager.execute_with_retry(
@@ -173,7 +173,9 @@ class JobQueueManager:
                     ),
                     timeout=self.job_timeout_ms / 1000.0
                 )
-            elif operation == "image.face_landmarks" or operation == "face_landmarks":
+            elif operation in ("image.face_landmarks", "face_landmarks"):
+                if not detector or detector.unavailable_reason:
+                    raise HTTPException_Like("face_model_unavailable", "The face model is unavailable.", 533)
                 expected_faces = options.get("expectedFaces")
                 result, attempts_used = await asyncio.wait_for(
                     resilience_manager.execute_with_retry(
@@ -182,6 +184,35 @@ class JobQueueManager:
                         detector=detector,
                         expected_faces=expected_faces,
                         policy=policy,
+                        max_attempts=max_attempts,
+                        backoff_base_ms=backoff_base_ms
+                    ),
+                    timeout=self.job_timeout_ms / 1000.0
+                )
+            elif operation in ("image.upscale", "image_upscale", "upscale", "image.enhance", "image_enhance", "enhance"):
+                enhancement_policy = getattr(app_state.config, "imageEnhancement", None) or policy
+                scale = options.get("scale", 2)
+                sharpen = options.get("sharpen", True)
+                restore_faces = options.get("restoreFaces", False)
+                denoise = options.get("denoise", False)
+                contrast_restoration = options.get("contrastRestoration", True)
+                anti_aliasing = options.get("antiAliasing", True)
+                use_ai_engine = options.get("useAiEngine", True)
+                output_format = options.get("outputFormat", "PNG")
+
+                result, attempts_used = await asyncio.wait_for(
+                    resilience_manager.execute_with_retry(
+                        image_enhancement_manager.process,
+                        bytes_data=input_bytes,
+                        scale=scale,
+                        sharpen=sharpen,
+                        restore_faces=restore_faces,
+                        denoise=denoise,
+                        contrast_restoration=contrast_restoration,
+                        anti_aliasing=anti_aliasing,
+                        use_ai_engine=use_ai_engine,
+                        output_format=output_format,
+                        policy=enhancement_policy,
                         max_attempts=max_attempts,
                         backoff_base_ms=backoff_base_ms
                     ),

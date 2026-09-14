@@ -210,6 +210,9 @@
             "face-landmarks"
           ]
         },
+        "description": "Submits raw image bytes and returns a JSON object containing face landmarks coordinates."
+      },
+      "response": []
     },
     {
       "name": "06. Create Async Job (POST /v1/jobs)",
@@ -326,6 +329,103 @@
           ]
         },
         "description": "Cancels a pending or processing async job."
+      },
+      "response": []
+    },
+    {
+      "name": "10. Image Upscale (POST /v1/image-upscale)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}",
+            "type": "text"
+          },
+          {
+            "key": "x-scale",
+            "value": "2",
+            "type": "text"
+          },
+          {
+            "key": "x-sharpen",
+            "value": "true",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "image/png",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": ""
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/image-upscale",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "image-upscale"
+          ]
+        },
+        "description": "Submits raw image bytes and returns 2x/4x upscaled JSON result with bytesBase64."
+      },
+      "response": []
+    },
+    {
+      "name": "11. Image Enhance (POST /v1/image-enhance)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}",
+            "type": "text"
+          },
+          {
+            "key": "x-scale",
+            "value": "2",
+            "type": "text"
+          },
+          {
+            "key": "x-sharpen",
+            "value": "true",
+            "type": "text"
+          },
+          {
+            "key": "x-denoise",
+            "value": "true",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "image/png",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": ""
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/image-enhance",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "image-enhance"
+          ]
+        },
+        "description": "Submits raw image bytes and returns enhanced JSON result with sharpening, denoise, and bytesBase64."
       },
       "response": []
     }

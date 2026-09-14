@@ -42,6 +42,22 @@ class ResiliencePolicy(BaseModel):
     backoffBaseMs: int = 500
     maxBackoffMs: int = 5000
 
+class ImageEnhancementPolicy(BaseModel):
+    policyVersion: str = "enhance-v1"
+    maxInputBytes: int = 26214400
+    maxPixels: int = 16000000
+    maxOutputPixels: int = 64000000
+    allowedScales: list[int] = [2, 4]
+    defaultScale: int = 2
+    processingTimeoutMs: int = 30000
+    aiEngineEnabled: bool = True
+    enableAntiAliasing: bool = True
+    bilateralFilterRadius: int = 9
+    unsharpMaskRadius: int = 2
+    unsharpMaskPercent: int = 150
+    unsharpMaskThreshold: int = 3
+    model: Optional[ModelPolicy] = None
+
 class FacelessPrevisPolicy(BaseModel):
     policyVersion: str
     maxInputBytes: int
@@ -60,6 +76,7 @@ class PolicyDocument(BaseModel):
     facelessPrevis: FacelessPrevisPolicy
     jobQueue: Optional[JobQueuePolicy] = None
     resilience: Optional[ResiliencePolicy] = None
+    imageEnhancement: Optional[ImageEnhancementPolicy] = None
 
 class RuntimeConfig(BaseModel):
     host: str = "127.0.0.1"
@@ -74,8 +91,9 @@ class ServiceConfig(BaseModel):
     policy: FacelessPrevisPolicy
     jobQueue: JobQueuePolicy
     resilience: ResiliencePolicy
+    imageEnhancement: ImageEnhancementPolicy
 
-def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tuple[FacelessPrevisPolicy, JobQueuePolicy, ResiliencePolicy]:
+def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tuple[FacelessPrevisPolicy, JobQueuePolicy, ResiliencePolicy, ImageEnhancementPolicy]:
     if not policy_path.exists():
         raise FileNotFoundError(f"Post-Processing policy file missing: {policy_path}")
     try:
@@ -86,7 +104,8 @@ def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tupl
             raise ValueError("Post-Processing policy schemaVersion must be 1.")
         job_queue_policy = doc.jobQueue or JobQueuePolicy()
         resilience_policy = doc.resilience or ResiliencePolicy()
-        return doc.facelessPrevis, job_queue_policy, resilience_policy
+        image_enhancement_policy = doc.imageEnhancement or ImageEnhancementPolicy()
+        return doc.facelessPrevis, job_queue_policy, resilience_policy, image_enhancement_policy
     except Exception as e:
         raise ValueError(f"Post-Processing policy is invalid: {str(e)}")
 
@@ -120,7 +139,7 @@ def load_post_processing_config(
     if not internal_token or len(internal_token.encode("utf-8")) < 32:
         raise ValueError("POST_PROCESSING_INTERNAL_TOKEN must contain at least 32 bytes.")
         
-    policy, job_queue_policy, resilience_policy = load_post_processing_policy(policy_path)
+    policy, job_queue_policy, resilience_policy, image_enhancement_policy = load_post_processing_policy(policy_path)
     
     # Priority for model storage: D:\applications\momelo-post-processing\models\ -> local models\
     custom_model_path = merged_env.get("POST_PROCESSING_FACE_MODEL_PATH")
@@ -144,4 +163,10 @@ def load_post_processing_config(
         modelPath=model_path
     )
     
-    return ServiceConfig(runtime=runtime, policy=policy, jobQueue=job_queue_policy, resilience=resilience_policy)
+    return ServiceConfig(
+        runtime=runtime,
+        policy=policy,
+        jobQueue=job_queue_policy,
+        resilience=resilience_policy,
+        imageEnhancement=image_enhancement_policy
+    )

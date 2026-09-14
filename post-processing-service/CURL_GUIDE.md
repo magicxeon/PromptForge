@@ -268,6 +268,57 @@ curl -X DELETE http://127.0.0.1:6501/v1/jobs/job_1789369110_2dbc01ee \
   -H "x-post-processing-token: dev-internal-token-change-in-production-32bytes"
 ```
 
+---
+
+### 3.7 Image Enhancement & Upscaling (`POST /v1/image-upscale`, `POST /v1/image-enhance`)
+
+#### (A) Synchronous REST Upscale (2x / 4x):
+```bash
+curl -X POST http://127.0.0.1:6501/v1/image-upscale \
+  -H "x-post-processing-token: dev-internal-token-change-in-production-32bytes" \
+  -H "x-scale: 2" \
+  -H "x-sharpen: true" \
+  -H "Content-Type: image/png" \
+  --data-binary "@sample.png"
+```
+**Expected Response (200 OK JSON)**:
+```json
+{
+  "originalWidth": 120,
+  "originalHeight": 80,
+  "targetWidth": 240,
+  "targetHeight": 160,
+  "scale": 2,
+  "sharpen": true,
+  "restoreFaces": false,
+  "denoise": false,
+  "contrastRestoration": true,
+  "executionMode": "pil_lanczos_2x",
+  "cudaAccelerated": false,
+  "inputHash": "ac4173b3387160e2...",
+  "outputHash": "f2fa2c0cbcdc8c32...",
+  "policyVersion": "enhance-v1",
+  "mimeType": "image/png",
+  "bytesBase64": "iVBORw0KGgoAAAANSUhEUgAA..."
+}
+```
+
+#### (B) Async Job Upscale Protocol (`POST /v1/jobs`):
+```bash
+curl -X POST http://127.0.0.1:6501/v1/jobs \
+  -H "x-post-processing-token: dev-internal-token-change-in-production-32bytes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "operation": "image.upscale",
+    "inputBase64": "<BASE64_ENCODED_IMAGE>",
+    "options": {
+      "scale": 4,
+      "sharpen": true,
+      "denoise": true
+    }
+  }'
+```
+
 
 ---
 

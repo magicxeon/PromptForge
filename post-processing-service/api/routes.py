@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from domain.faceless_previs import FacelessPrevisManager, faceless_previs_manager, HTTPException_Like
 from domain.face_landmarks import FaceLandmarksManager, face_landmarks_manager
+from domain.image_enhancement_manager import ImageEnhancementManager, image_enhancement_manager
 from domain.telemetry_manager import TelemetryManager, telemetry_manager
 from domain.job_queue import job_queue_manager
 
@@ -27,33 +28,57 @@ def get_capabilities(request: Request, x_post_processing_token: Optional[str] = 
     config = app_state.config
     detector = app_state.detector
     policy = config.policy
+    enhancement_policy = getattr(config, "imageEnhancement", None)
     
     available = detector.unavailable_reason is None
     reason = detector.unavailable_reason
     model_hash = policy.model.sha256 if available else None
     
+    ops = {
+        "faceless_previs": {
+            "available": available,
+            "reason": reason,
+            "policyVersion": policy.policyVersion,
+            "modelHash": model_hash,
+            "maxBytes": policy.maxInputBytes,
+            "maxPixels": policy.maxPixels,
+            "maxFaces": policy.maxFaces
+        },
+        "face_landmarks": {
+            "available": available,
+            "reason": reason,
+            "policyVersion": policy.policyVersion,
+            "modelHash": model_hash,
+            "maxBytes": policy.maxInputBytes,
+            "maxPixels": policy.maxPixels,
+            "maxFaces": policy.maxFaces
+        }
+    }
+
+    if enhancement_policy:
+        ops["image_upscale"] = {
+            "available": True,
+            "reason": None,
+            "policyVersion": enhancement_policy.policyVersion,
+            "maxBytes": enhancement_policy.maxInputBytes,
+            "maxPixels": enhancement_policy.maxPixels,
+            "maxOutputPixels": enhancement_policy.maxOutputPixels,
+            "allowedScales": enhancement_policy.allowedScales,
+            "defaultScale": enhancement_policy.defaultScale
+        }
+        ops["image_enhance"] = {
+            "available": True,
+            "reason": None,
+            "policyVersion": enhancement_policy.policyVersion,
+            "maxBytes": enhancement_policy.maxInputBytes,
+            "maxPixels": enhancement_policy.maxPixels,
+            "maxOutputPixels": enhancement_policy.maxOutputPixels,
+            "allowedScales": enhancement_policy.allowedScales
+        }
+
     return {
         "apiVersion": "1",
-        "operations": {
-            "faceless_previs": {
-                "available": available,
-                "reason": reason,
-                "policyVersion": policy.policyVersion,
-                "modelHash": model_hash,
-                "maxBytes": policy.maxInputBytes,
-                "maxPixels": policy.maxPixels,
-                "maxFaces": policy.maxFaces
-            },
-            "face_landmarks": {
-                "available": available,
-                "reason": reason,
-                "policyVersion": policy.policyVersion,
-                "modelHash": model_hash,
-                "maxBytes": policy.maxInputBytes,
-                "maxPixels": policy.maxPixels,
-                "maxFaces": policy.maxFaces
-            }
-        }
+        "operations": ops
     }
 
 # 3. Telemetry Metrics Endpoint
@@ -121,7 +146,8 @@ async def post_faceless_previs(
 
         duration_ms = (time.time() - start_time) * 1000
         telemetry_manager.record_request_success(duration_ms)
-        return JSONResponse(status_code=200, content=result)
+        clean_result = {k: v for k, v in result.items() if k != "bytes"}
+        return JSONResponse(status_code=200, content=clean_result)
 
     except HTTPException_Like as ex:
         telemetry_manager.record_request_failure()
@@ -205,7 +231,88 @@ async def post_face_landmarks(
             detail={"error": {"code": "faceless_processing_failed", "message": str(e)}}
         )
 
-# 6. Async Job Protocol Endpoints
+# 6. Image Enhancement & Upscaling Endpoints
+@router.post("/v1/image-upscale", response_class=JSONResponse)
+@router.post("/v1/image-enhance", response_class=JSONResponse)
+async def post_image_upscale_or_enhance(
+    request: Request,
+    x_post_processing_token: Optional[str] = Header(None),
+    x_input_sha256: Optional[str] = Header(None),
+    x_scale: Optional[int] = Header(None),
+    x_sharpen: Optional[bool] = Header(None),
+    x_restore_faces: Optional[bool] = Header(None),
+    x_denoise: Optional[bool] = Header(None),
+    x_contrast_restoration: Optional[bool] = Header(None),
+    x_anti_aliasing: Optional[bool] = Header(None),
+    x_use_ai_engine: Optional[bool] = Header(None)
+):
+    verify_internal_token(request, x_post_processing_token)
+    start_time = time.time()
+    telemetry_manager.record_request_start()
+
+    app_state = request.app.state
+    config = app_state.config
+    enhancement_policy = getattr(config, "imageEnhancement", None) or config.policy
+
+    try:
+        bytes_data = await request.body()
+        if len(bytes_data) > enhancement_policy.maxInputBytes:
+            telemetry_manager.record_request_failure()
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail={"error": {"code": "enhancement_input_size_invalid", "message": "Image exceeds the supported size."}}
+            )
+
+        if x_input_sha256:
+            actual_hash = hashlib.sha256(bytes_data).hexdigest()
+            if x_input_sha256 != actual_hash:
+                telemetry_manager.record_request_failure()
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={"error": {"code": "input_hash_mismatch", "message": "Input hash did not match."}}
+                )
+
+        scale = x_scale if x_scale is not None else 2
+        sharpen = x_sharpen if x_sharpen is not None else True
+        restore_faces = x_restore_faces if x_restore_faces is not None else False
+        denoise = x_denoise if x_denoise is not None else False
+        contrast_restoration = x_contrast_restoration if x_contrast_restoration is not None else True
+        anti_aliasing = x_anti_aliasing if x_anti_aliasing is not None else True
+        use_ai_engine = x_use_ai_engine if x_use_ai_engine is not None else True
+
+        result = image_enhancement_manager.process(
+            bytes_data=bytes_data,
+            scale=scale,
+            sharpen=sharpen,
+            restore_faces=restore_faces,
+            denoise=denoise,
+            contrast_restoration=contrast_restoration,
+            anti_aliasing=anti_aliasing,
+            use_ai_engine=use_ai_engine,
+            policy=enhancement_policy
+        )
+
+        duration_ms = (time.time() - start_time) * 1000
+        telemetry_manager.record_request_success(duration_ms)
+        response_content = {k: v for k, v in result.items() if k != "bytes"}
+        return JSONResponse(status_code=200, content=response_content)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        if hasattr(e, "status_code") and hasattr(e, "code"):
+            telemetry_manager.record_request_failure()
+            raise HTTPException(
+                status_code=getattr(e, "status_code", 400),
+                detail={"error": {"code": getattr(e, "code", "processing_failed"), "message": getattr(e, "message", str(e))}}
+            )
+        telemetry_manager.record_request_failure()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"error": {"code": "enhancement_processing_failed", "message": str(e)}}
+        )
+
+# 7. Async Job Protocol Endpoints
 
 @router.post("/v1/jobs", response_class=JSONResponse, status_code=202)
 async def post_create_job(
@@ -224,10 +331,16 @@ async def post_create_job(
         )
 
     operation = body.get("operation")
-    if not operation or operation not in ("image.faceless_previs", "faceless_previs", "image.face_landmarks", "face_landmarks"):
+    ALLOWED_OPERATIONS = (
+        "image.faceless_previs", "faceless_previs",
+        "image.face_landmarks", "face_landmarks",
+        "image.upscale", "image_upscale", "upscale",
+        "image.enhance", "image_enhance", "enhance"
+    )
+    if not operation or operation not in ALLOWED_OPERATIONS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"error": {"code": "invalid_operation", "message": "Operation must be 'image.faceless_previs' or 'image.face_landmarks'."}}
+            detail={"error": {"code": "invalid_operation", "message": f"Operation '{operation}' is not supported."}}
         )
 
     input_b64 = body.get("inputBase64")
@@ -296,7 +409,8 @@ async def get_job_result(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"error": result["error"]}
         )
-    return JSONResponse(status_code=200, content=result)
+    clean_result = {k: v for k, v in result.items() if k != "bytes"}
+    return JSONResponse(status_code=200, content=clean_result)
 
 
 @router.delete("/v1/jobs/{job_id}", response_class=JSONResponse)

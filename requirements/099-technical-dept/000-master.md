@@ -6,6 +6,28 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Tracked File Retirement Audit (2026-09-14)
+
+[Unused-file candidates audit](unused-file-candidates-audit.md) owns the
+read-only inventory and deletion review queue. Scope is Git-tracked files at
+the audit date, with dependencies, generated build/test output, root scratch
+files and the retired Vanilla browser runtime reported separately. The audit
+must verify entry points, active test/script references and migration gates;
+it must not delete files or treat absent static imports as proof of safety.
+Acceptance: reproducible baseline/counts, explicit candidate paths or bounded
+path groups, risk/owner checks and percentages using one stated denominator.
+
+### Module Consolidation Audit (2026-09-14)
+
+[Module consolidation audit](module-consolidation-audit.md) extends the file
+retirement inventory with first-party module ownership, static import evidence,
+duplicated policy/utility logic and protected lazy-route/runtime boundaries.
+It is a review-only plan: no module is merged or removed in this task. Each
+candidate needs a canonical owner, consumers to update, focused parity checks
+and a measured net file-count reduction before an implementation is approved.
+Report source-only and cumulative Git-tracked statistics separately so
+dependency de-tracking is not mistaken for functional simplification.
+
 ### Standalone Post-Processing API Plan: Faceless Previs First (2026-09-14)
 
 [021-post-processing-service](../021-post-processing-service/000-master.md)
