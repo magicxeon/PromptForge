@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from domain.faceless_previs import faceless_previs_manager, HTTPException_Like
 from domain.face_landmarks import face_landmarks_manager
 from domain.telemetry import telemetry_manager
+from domain.resilience import resilience_manager
 
 class JobQueueManager:
     """
@@ -153,28 +154,36 @@ class JobQueueManager:
             if detector.unavailable_reason:
                 raise HTTPException_Like("face_model_unavailable", "The face model is unavailable.", 533)
 
-            # Enforce job processing timeout
+            resilience = getattr(app_state.config, "resilience", None)
+            max_attempts = resilience.maxAttempts if resilience else 2
+            backoff_base_ms = resilience.backoffBaseMs if resilience else 500
+
+            # Enforce job processing timeout and retry with exponential backoff
             if operation == "image.faceless_previs" or operation == "faceless_previs":
                 expected_faces = options.get("expectedFaces", 1)
-                result = await asyncio.wait_for(
-                    asyncio.to_thread(
+                result, attempts_used = await asyncio.wait_for(
+                    resilience_manager.execute_with_retry(
                         faceless_previs_manager.process,
                         bytes_data=input_bytes,
                         detector=detector,
                         expected_faces=expected_faces,
-                        policy=policy
+                        policy=policy,
+                        max_attempts=max_attempts,
+                        backoff_base_ms=backoff_base_ms
                     ),
                     timeout=self.job_timeout_ms / 1000.0
                 )
             elif operation == "image.face_landmarks" or operation == "face_landmarks":
                 expected_faces = options.get("expectedFaces")
-                result = await asyncio.wait_for(
-                    asyncio.to_thread(
+                result, attempts_used = await asyncio.wait_for(
+                    resilience_manager.execute_with_retry(
                         face_landmarks_manager.process,
                         bytes_data=input_bytes,
                         detector=detector,
                         expected_faces=expected_faces,
-                        policy=policy
+                        policy=policy,
+                        max_attempts=max_attempts,
+                        backoff_base_ms=backoff_base_ms
                     ),
                     timeout=self.job_timeout_ms / 1000.0
                 )

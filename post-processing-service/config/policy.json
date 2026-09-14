@@ -36,5 +36,10 @@
     "jobTimeoutMs": 30000,
     "jobTtlSeconds": 86400,
     "persistenceFileName": "jobs.json"
+  },
+  "resilience": {
+    "maxAttempts": 2,
+    "backoffBaseMs": 500,
+    "maxBackoffMs": 5000
   }
 }

@@ -63,11 +63,12 @@ def run_tests():
 
     # 2. POST /v1/jobs (Create Async Job: face_landmarks)
     print("\n[2] Submitting Async Job (image.face_landmarks)...")
+    idem_key = f"test_idempotency_key_{int(time.time())}"
     payload = {
         "operation": "image.face_landmarks",
         "inputBase64": sample_b64,
         "options": {"expectedFaces": 1},
-        "idempotencyKey": "test_idempotency_key_001"
+        "idempotencyKey": idem_key
     }
     status_code, body = http_request(f"{BASE_URL}/v1/jobs", method="POST", payload=payload)
     print(f"    Status {status_code}: {body}")

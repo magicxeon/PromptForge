@@ -37,6 +37,11 @@ class JobQueuePolicy(BaseModel):
     jobTtlSeconds: int = 86400
     persistenceFileName: str = "jobs.json"
 
+class ResiliencePolicy(BaseModel):
+    maxAttempts: int = 2
+    backoffBaseMs: int = 500
+    maxBackoffMs: int = 5000
+
 class FacelessPrevisPolicy(BaseModel):
     policyVersion: str
     maxInputBytes: int
@@ -54,6 +59,7 @@ class PolicyDocument(BaseModel):
     schemaVersion: int
     facelessPrevis: FacelessPrevisPolicy
     jobQueue: Optional[JobQueuePolicy] = None
+    resilience: Optional[ResiliencePolicy] = None
 
 class RuntimeConfig(BaseModel):
     host: str = "127.0.0.1"
@@ -67,8 +73,9 @@ class ServiceConfig(BaseModel):
     runtime: RuntimeConfig
     policy: FacelessPrevisPolicy
     jobQueue: JobQueuePolicy
+    resilience: ResiliencePolicy
 
-def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tuple[FacelessPrevisPolicy, JobQueuePolicy]:
+def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tuple[FacelessPrevisPolicy, JobQueuePolicy, ResiliencePolicy]:
     if not policy_path.exists():
         raise FileNotFoundError(f"Post-Processing policy file missing: {policy_path}")
     try:
@@ -78,7 +85,8 @@ def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tupl
         if doc.schemaVersion != 1:
             raise ValueError("Post-Processing policy schemaVersion must be 1.")
         job_queue_policy = doc.jobQueue or JobQueuePolicy()
-        return doc.facelessPrevis, job_queue_policy
+        resilience_policy = doc.resilience or ResiliencePolicy()
+        return doc.facelessPrevis, job_queue_policy, resilience_policy
     except Exception as e:
         raise ValueError(f"Post-Processing policy is invalid: {str(e)}")
 
@@ -112,7 +120,7 @@ def load_post_processing_config(
     if not internal_token or len(internal_token.encode("utf-8")) < 32:
         raise ValueError("POST_PROCESSING_INTERNAL_TOKEN must contain at least 32 bytes.")
         
-    policy, job_queue_policy = load_post_processing_policy(policy_path)
+    policy, job_queue_policy, resilience_policy = load_post_processing_policy(policy_path)
     
     # Priority for model storage: D:\applications\momelo-post-processing\models\ -> local models\
     custom_model_path = merged_env.get("POST_PROCESSING_FACE_MODEL_PATH")
@@ -136,4 +144,4 @@ def load_post_processing_config(
         modelPath=model_path
     )
     
-    return ServiceConfig(runtime=runtime, policy=policy, jobQueue=job_queue_policy)
+    return ServiceConfig(runtime=runtime, policy=policy, jobQueue=job_queue_policy, resilience=resilience_policy)
