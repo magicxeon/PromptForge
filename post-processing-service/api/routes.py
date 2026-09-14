@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 
 from domain.faceless_previs import FacelessPrevisManager, faceless_previs_manager, HTTPException_Like
 from domain.face_landmarks import FaceLandmarksManager, face_landmarks_manager
-from domain.telemetry import TelemetryManager, telemetry_manager
+from domain.telemetry_manager import TelemetryManager, telemetry_manager
 from domain.job_queue import job_queue_manager
 
 router = APIRouter()

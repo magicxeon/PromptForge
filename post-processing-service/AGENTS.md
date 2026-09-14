@@ -44,7 +44,8 @@ codes with safe messages.
 
 ### Reusable Components & Process Manager Architecture
 - Every media process or domain operation MUST be encapsulated into a reusable component class named after the process followed by `Manager` (`<ProcessName>Manager`).
-  - Example process managers: `FacelessPrevisManager`, `FaceLandmarksManager`, `TelemetryManager`, `ImageEnhancementManager`, `JobQueueManager`.
+  - Example process managers: `FacelessPrevisManager`, `FaceLandmarksManager`, `TelemetryManager`, `ResilienceManager`, `ImageEnhancementManager`, `JobQueueManager`.
+- **Module File & Class Name Alignment**: Module file names under `domain/` MUST match their owning Class name (e.g. `resilience_manager.py` / `resilienceManager.py` for `ResilienceManager`, `telemetry_manager.py` / `telemetryManager.py` for `TelemetryManager`).
 - Each `<ProcessName>Manager` class owns its specific domain responsibility, validation rules, transforms, and execution logic.
 - Routes in `api/` must delegate business processing directly to the corresponding Manager instance.
 - One module should own each policy value; avoid a new directory or abstraction for a single trivial helper. Keep service logs

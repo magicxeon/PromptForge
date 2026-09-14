@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 
 from domain.faceless_previs import faceless_previs_manager, HTTPException_Like
 from domain.face_landmarks import face_landmarks_manager
-from domain.telemetry import telemetry_manager
-from domain.resilience import resilience_manager
+from domain.telemetry_manager import telemetry_manager
+from domain.resilience_manager import resilience_manager
 
 class JobQueueManager:
     """

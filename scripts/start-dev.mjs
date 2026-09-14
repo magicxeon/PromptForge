@@ -7,8 +7,9 @@ import path from 'node:path';
 import net from 'node:net';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
-import { loadPostProcessingConfig } from '../post-processing-service/config/serviceConfig.mjs';
-import { ensureFaceModel } from '../post-processing-service/setupModel.mjs';
+const pythonExecutable = existsSync('D:/applications/momelo-post-processing/venv/Scripts/python.exe')
+  ? 'D:/applications/momelo-post-processing/venv/Scripts/python.exe'
+  : 'python';
 
 const scriptsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDirectory = path.resolve(scriptsDirectory, '..');
@@ -34,9 +35,8 @@ const viteEntry = path.join(
   'vite.js'
 );
 const postProcessingEntry = path.join(
-  rootDirectory, 'post-processing-service', 'api', 'server.mjs'
+  rootDirectory, 'post-processing-service', 'scripts', 'start_service.py'
 );
-const postConfig = loadPostProcessingConfig();
 
 await stopPreviousDevSession();
 
@@ -73,24 +73,25 @@ if (await isApiReady()) {
   await waitForApiStop();
 }
 
-try {
-  if (postConfig.runtime.pilotEnabled) await ensureFaceModel({ config: postConfig });
-} catch (error) {
-  console.warn('Faceless model is unavailable: ' + error.message);
-  console.warn('The Post-Processing API will run with Faceless capability disabled.');
-}
-const postPort = await availablePort(postConfig.runtime.port);
+const postPort = 6501;
 const postEnv = {
   ...process.env,
-  POST_PROCESSING_HOST: postConfig.runtime.host,
+  POST_PROCESSING_HOST: '127.0.0.1',
   POST_PROCESSING_PORT: String(postPort),
-  POST_PROCESSING_PILOT_ENABLED: String(postConfig.runtime.pilotEnabled),
-  POST_PROCESSING_FACE_MODEL_PATH: postConfig.runtime.modelPath,
-  POST_PROCESSING_URL: 'http://' + postConfig.runtime.host + ':' + postPort,
-  POST_PROCESSING_INTERNAL_TOKEN: postConfig.runtime.internalToken || randomBytes(32).toString('hex')
+  POST_PROCESSING_PILOT_ENABLED: 'true',
+  POST_PROCESSING_URL: 'http://127.0.0.1:' + postPort,
+  POST_PROCESSING_INTERNAL_TOKEN: process.env.POST_PROCESSING_INTERNAL_TOKEN || 'dev-internal-token-change-in-production-32bytes'
 };
-console.log('Starting Post-Processing API on ' + postEnv.POST_PROCESSING_URL + '...');
-const postProcess = startNode(postProcessingEntry, [], rootDirectory, postEnv);
+console.log('Starting Post-Processing API (Python FastAPI) on ' + postEnv.POST_PROCESSING_URL + '...');
+const postProcess = spawn(pythonExecutable, [postProcessingEntry], {
+  cwd: path.join(rootDirectory, 'post-processing-service'),
+  env: postEnv,
+  stdio: 'inherit',
+  windowsHide: true
+});
+children.add(postProcess);
+postProcess.once('exit', () => children.delete(postProcess));
+
 if (!await waitForService(postProcess, postPort)) {
   console.error('Post-Processing API did not become ready.');
   stop(1);

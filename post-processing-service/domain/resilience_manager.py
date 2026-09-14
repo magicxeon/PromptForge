@@ -34,7 +34,6 @@ class ResilienceManager:
         last_exception = None
         for attempt in range(1, attempts_limit + 1):
             try:
-                # Execute target function (supports both sync and async functions)
                 if asyncio.iscoroutinefunction(func):
                     result = await func(*args, **kwargs)
                 else:
@@ -43,16 +42,13 @@ class ResilienceManager:
             except Exception as ex:
                 last_exception = ex
                 
-                # Check if exception is retryable (default: retry except for explicit HTTP validation errors 4xx)
                 if is_retryable and not is_retryable(ex):
                     raise ex
                     
                 if hasattr(ex, "status_code") and 400 <= getattr(ex, "status_code") < 500:
-                    # Do not retry client validation errors (400, 413, 422)
                     raise ex
 
                 if attempt < attempts_limit:
-                    # Calculate exponential backoff delay with cap
                     delay_seconds = min(
                         self.max_backoff_ms / 1000.0,
                         (base_ms / 1000.0) * (2 ** (attempt - 1))

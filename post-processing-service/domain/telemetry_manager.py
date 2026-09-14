@@ -33,7 +33,6 @@ class TelemetryManager:
     def get_metrics(self, detector_available: bool) -> Dict[str, Any]:
         uptime_seconds = int(time.time() - self.start_time)
         
-        # Get memory usage in Python
         try:
             import psutil
             process = psutil.Process(os.getpid())
