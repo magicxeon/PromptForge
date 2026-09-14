@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { MediaPipeFaceDetector } from '../adapters/MediaPipeFaceDetector.mjs';
 import { loadPostProcessingConfig } from '../config/serviceConfig.mjs';
 import { createFacelessPrevis } from '../domain/facelessPrevis.mjs';
+import { detectFaceLandmarks } from '../domain/faceLandmarks.mjs';
 
 export async function createPostProcessingServer({
   config = loadPostProcessingConfig(),
@@ -18,30 +19,75 @@ export async function createPostProcessingServer({
   if (pilotEnabled) await detector.initialize();
   else detector.unavailableReason = 'pilot_disabled';
   const policy = config.policy;
+  const startTime = Date.now();
   let pending = 0;
+  let totalRequests = 0;
+  let successfulRequests = 0;
+  let failedRequests = 0;
+  let totalProcessingTimeMs = 0;
+  let maxProcessingTimeMs = 0;
+
   const server = createServer(async (req, res) => {
+    const reqStart = Date.now();
     try {
-      if (req.method === 'GET' && req.url === '/health') {
+      if (req.method === 'GET' && (req.url === '/health' || req.url === '/v1/health')) {
         return json(res, 200, { service: 'post-processing', status: 'running' });
       }
       if (!sameToken(req.headers['x-post-processing-token'], token)) {
         return json(res, 401, { error: { code: 'unauthorized', message: 'Internal service authentication required.' } });
       }
+      totalRequests += 1;
       if (req.method === 'GET' && req.url === '/v1/capabilities') {
+        successfulRequests += 1;
         return json(res, 200, { apiVersion: '1', operations: {
           faceless_previs: { available: !detector.unavailableReason,
+            reason: detector.unavailableReason, policyVersion: policy.policyVersion,
+            modelHash: detector.unavailableReason ? null : policy.model.sha256,
+            maxBytes: policy.maxInputBytes, maxPixels: policy.maxPixels, maxFaces: policy.maxFaces },
+          face_landmarks: { available: !detector.unavailableReason,
             reason: detector.unavailableReason, policyVersion: policy.policyVersion,
             modelHash: detector.unavailableReason ? null : policy.model.sha256,
             maxBytes: policy.maxInputBytes, maxPixels: policy.maxPixels, maxFaces: policy.maxFaces }
         } });
       }
-      if (req.method !== 'POST' || req.url !== '/v1/faceless-previs') {
+      if (req.method === 'GET' && req.url === '/v1/metrics') {
+        successfulRequests += 1;
+        const memory = process.memoryUsage();
+        return json(res, 200, {
+          service: 'post-processing',
+          uptimeSeconds: Math.floor((Date.now() - startTime) / 1000),
+          memoryUsage: {
+            rssBytes: memory.rss,
+            heapTotalBytes: memory.heapTotal,
+            heapUsedBytes: memory.heapUsed,
+            externalBytes: memory.external
+          },
+          requests: {
+            total: totalRequests,
+            successful: successfulRequests,
+            failed: failedRequests,
+            activePending: pending
+          },
+          performance: {
+            avgProcessingTimeMs: successfulRequests > 0 ? Math.round(totalProcessingTimeMs / successfulRequests) : 0,
+            maxProcessingTimeMs
+          },
+          capabilities: {
+            faceless_previs: !detector.unavailableReason,
+            face_landmarks: !detector.unavailableReason
+          }
+        });
+      }
+      if (req.method !== 'POST' || !['/v1/faceless-previs', '/v1/face-landmarks'].includes(req.url)) {
+        failedRequests += 1;
         return json(res, 404, { error: { code: 'not_found', message: 'Route not found.' } });
       }
       if (detector.unavailableReason) {
+        failedRequests += 1;
         return json(res, 503, { error: { code: 'face_model_unavailable', message: 'The face model is unavailable.' } });
       }
       if (pending >= policy.maxConcurrentRequests) {
+        failedRequests += 1;
         return json(res, 429, { error: { code: 'processing_busy', message: 'Try again after current processing finishes.' } });
       }
       pending += 1;
@@ -50,8 +96,29 @@ export async function createPostProcessingServer({
         const bytes = await readBounded(req, policy.maxInputBytes);
         const actualHash = createHash('sha256').update(bytes).digest('hex');
         if (req.headers['x-input-sha256'] !== actualHash) {
+          failedRequests += 1;
           return json(res, 400, { error: { code: 'input_hash_mismatch', message: 'Input hash did not match.' } });
         }
+        if (req.url === '/v1/face-landmarks') {
+          const expectedFacesHeader = req.headers['x-expected-faces'];
+          const expectedFaces = expectedFacesHeader ? Number(expectedFacesHeader) : undefined;
+          const result = await Promise.race([
+            detectFaceLandmarks(bytes, {
+              detector,
+              expectedFaces,
+              policy
+            }),
+            new Promise((_, reject) => {
+              timeout = setTimeout(() => reject(failure('processing_timeout', 'Processing timed out.', 504)), processingTimeoutMs);
+            })
+          ]);
+          const duration = Date.now() - reqStart;
+          successfulRequests += 1;
+          totalProcessingTimeMs += duration;
+          if (duration > maxProcessingTimeMs) maxProcessingTimeMs = duration;
+          return json(res, 200, result);
+        }
+
         const result = await Promise.race([
           createFacelessPrevis(bytes, {
             detector,
@@ -62,21 +129,28 @@ export async function createPostProcessingServer({
             timeout = setTimeout(() => reject(failure('processing_timeout', 'Processing timed out.', 504)), processingTimeoutMs);
           })
         ]);
-        res.writeHead(200, {
-          'content-type': 'image/png',
-          'content-length': result.bytes.length,
-          'cache-control': 'private, no-store',
-          'x-output-sha256': result.outputHash,
-          'x-face-count': String(result.faceCount),
-          'x-mask-policy-version': result.policyVersion,
-          'x-model-sha256': policy.model.sha256
+        const duration = Date.now() - reqStart;
+        successfulRequests += 1;
+        totalProcessingTimeMs += duration;
+        if (duration > maxProcessingTimeMs) maxProcessingTimeMs = duration;
+
+        return json(res, 200, {
+          width: result.width,
+          height: result.height,
+          faceCount: result.faceCount,
+          inputHash: result.inputHash,
+          outputHash: result.outputHash,
+          policyVersion: result.policyVersion,
+          modelHash: policy.model.sha256,
+          mimeType: 'image/png',
+          bytesBase64: result.bytes.toString('base64')
         });
-        return res.end(result.bytes);
       } finally {
         clearTimeout(timeout);
         pending -= 1;
       }
     } catch (error) {
+      failedRequests += 1;
       if (error.code === 'processing_timeout') {
         detector.unavailableReason = 'processing_timeout';
         await detector.close().catch(() => undefined);

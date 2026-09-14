@@ -37,10 +37,12 @@ Generation workflows.
   Core calls it through an authenticated, bounded capability facade.
 
 The first API slice lives under [post-processing-service](../../post-processing-service/README.md).
+The service architecture is specified as a **Python 3.10+ FastAPI + Uvicorn** microservice returning 100% JSON responses.
+To preserve space on Drive C:, all Python runtime components (virtual environment, heavy ML libraries, PyTorch/CUDA packages, and model checkpoints) must reside under **`D:\applications`** (e.g., `D:\applications\momelo-post-processing\`).
 The service structure, scoped agent guidance and configuration contract are
 owned by [009](009-service-structure-and-configuration.md).
 The dev launcher starts it separately. It uses an authenticated Core-to-service
-binary transfer and a bounded synchronous request while the durable async Job
+transfer and a bounded synchronous JSON request while the durable async Job
 contract is still pending. Core imports the derivative through Assets and
 does not auto-approve it. The existing /outputs/ delivery path remains a
 pilot privacy gap; signed owner-scoped delivery is required before production.

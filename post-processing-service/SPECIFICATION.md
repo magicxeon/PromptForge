@@ -137,7 +137,7 @@ The policy file is strictly validated on startup (`validatePolicy`). Any schema 
 ## 5. API Reference & Data Contracts
 
 ### 5.1 Liveness Probe
-- **`GET /health`**
+- **`GET /health`** หรือ **`GET /v1/health`**
   - **Auth**: None
   - **Response** `200 OK`:
     ```json
@@ -177,13 +177,21 @@ The policy file is strictly validated on startup (`validatePolicy`). Any schema 
     - `x-expected-faces`: Integer (`1` to `8`) expected face count.
   - **Body**: Raw image bytes (`image/jpeg`, `image/png`, or `image/webp`).
   - **Response** `200 OK`:
-    - **Content-Type**: `image/png`
-    - **Headers**:
-      - `x-output-sha256`: SHA-256 hash of output PNG.
-      - `x-face-count`: Detected face count matching `x-expected-faces`.
-      - `x-mask-policy-version`: Active mask policy version.
-      - `x-model-sha256`: Active model SHA-256 hash.
-    - **Body**: Raw PNG image bytes containing white-face ellipse masks with guide markings.
+    - **Content-Type**: `application/json; charset=utf-8`
+    - **JSON Body**:
+      ```json
+      {
+        "width": 800,
+        "height": 600,
+        "faceCount": 1,
+        "inputHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "outputHash": "f4c2d89a...",
+        "policyVersion": "white-previs-v1",
+        "modelHash": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+        "mimeType": "image/png",
+        "bytesBase64": "iVBORw0KGgoAAAANSUhEUgAA..."
+      }
+      ```
 
 ---
 

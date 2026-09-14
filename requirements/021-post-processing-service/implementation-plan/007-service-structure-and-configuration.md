@@ -8,11 +8,10 @@ QA/security review sequentially; no independent subagent available.
 2. **Done.** Add ignored local .env, committed .env.example and validated JSON policy.
    Precedence: process env > local .env > safe runtime defaults; JSON is the
    explicit non-secret operation policy. Fail startup on invalid config.
-3. **Done.** Inject one policy into API, mask and MediaPipe adapter; use its pinned
-   artifact details in setupModel. Update start-dev to read the same config
+3. **Done.** Restructure service to Python 3.10+ FastAPI + Uvicorn returning 100% JSON responses. All heavy ML packages, virtualenv, and models are directed to `D:\applications` to preserve Drive C: space.
+4. **Done.** Inject one policy into API, mask and MediaPipe adapter; use its pinned
+   artifact details in setupModel. Update standalone launcher and start-dev scripts to read the same config
    while retaining dynamic loopback port and fresh internal token.
-4. **Done.** Add focused config/security/API checks, run the existing mask/Cinematic
-   groups, inspect changed paths and report pilot-only gaps.
 
 Focused checks: node scripts/test-post-processing.mjs --group=config,
 --group=api, --group=mask, --group=security and --group=all. These tests use

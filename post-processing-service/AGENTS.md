@@ -23,11 +23,12 @@ Cinematic owns Storyboard selection/approval; Credits alone owns billing.
 
 ## Configuration
 
-- .env is ignored local runtime configuration. Commit only .env.example,
+- `.env` is ignored local runtime configuration. Commit only `.env.example`,
   never tokens, customer paths or private media. Process environment wins.
-- config/policy.json is reviewed non-secret operation policy. Validate it at
-  startup. Do not read process.env inside an operation or duplicate policy
+- `config/policy.json` is reviewed non-secret operation policy. Validate it at
+  startup via Pydantic model. Do not read process.env inside an operation or duplicate policy
   constants across API, domain and adapters.
+- **Drive C: Space Preservation**: Python virtual environment (`venv`), PyTorch/CUDA packages, and model checkpoints MUST be placed under **`D:\applications`** (e.g. `D:\applications\momelo-post-processing\`).
 - Model hash, detector behavior or mask appearance changes require a policy
   version bump, focused visual/regression evidence and licensing review.
 - Pilot availability is explicit and defaults off. Keep loopback binding
@@ -36,13 +37,13 @@ Cinematic owns Storyboard selection/approval; Credits alone owns billing.
 
 ## Code Style And Operations
 
-Use ESM .mjs, two-space indentation and named exports. Keep HTTP parsing in
-api/, media behavior in domain/ and browser/model I/O in adapters/. Validate
+Use Python 3.10+ with FastAPI, Uvicorn, Type Hints and Pydantic schemas. All service routes MUST return 100% JSON responses (`Content-Type: application/json; charset=utf-8`). Interactive Swagger UI documentation is available at `/docs`. Keep HTTP parsing in
+`api/`, media behavior in `domain/` and ML model I/O in `adapters/`. Validate
 all boundary data before processing and return stable machine-readable error
 codes with safe messages. One module should own each policy value; avoid a
 new directory or abstraction for a single trivial helper. Keep service logs
-free of media and credentials. Treat /health as process liveness, not model
-readiness; use authenticated /v1/capabilities for executable operations.
+free of media and credentials. Treat `/health` and `/v1/health` as process liveness, not model
+readiness; use authenticated `/v1/capabilities` for executable operations.
 
 ## Adding An Operation
 

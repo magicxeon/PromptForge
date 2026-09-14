@@ -138,6 +138,7 @@ test('[api] health, capability and binary output have stable contracts', async t
   t.after(() => new Promise(resolve => server.close(resolve)));
   const base = 'http://127.0.0.1:' + server.address().port;
   assert.equal((await (await fetch(base + '/health')).json()).status, 'running');
+  assert.equal((await (await fetch(base + '/v1/health')).json()).status, 'running');
   const capabilities = await (await fetch(base + '/v1/capabilities', {
     headers: { 'x-post-processing-token': token }
   })).json();
@@ -153,10 +154,10 @@ test('[api] health, capability and binary output have stable contracts', async t
     body: input
   });
   assert.equal(response.status, 200);
-  const output = Buffer.from(await response.arrayBuffer());
-  assert.equal(response.headers.get('x-output-sha256'),
-    createHash('sha256').update(output).digest('hex'));
-  assert.equal(response.headers.get('x-face-count'), '1');
+  const result = await response.json();
+  const output = Buffer.from(result.bytesBase64, 'base64');
+  assert.equal(result.outputHash, createHash('sha256').update(output).digest('hex'));
+  assert.equal(result.faceCount, 1);
 });
 
 test('[security] service rejects missing token and altered input hash', async t => {
@@ -302,3 +303,41 @@ test('[cinematic] preparation checks Project and Shot versions before processing
       sourceType: 'generation_job', jobId: 'job_1' }, alice);
   assert.equal(calls, 1);
 });
+
+test('[api] face landmarks returns landmark json and valid metadata', async t => {
+  const server = await createPostProcessingServer({ token, detector: fakeDetector(), pilotEnabled: true });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const base = 'http://127.0.0.1:' + server.address().port;
+  const input = await testImage();
+  const response = await fetch(base + '/v1/face-landmarks', {
+    method: 'POST',
+    headers: {
+      'x-post-processing-token': token,
+      'x-input-sha256': createHash('sha256').update(input).digest('hex'),
+      'x-expected-faces': '1'
+    },
+    body: input
+  });
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.faceCount, 1);
+  assert.equal(Array.isArray(result.faces), true);
+  assert.equal(result.faces[0].length, 120);
+});
+
+test('[api] metrics reports operational uptime, memory and request counters', async t => {
+  const server = await createPostProcessingServer({ token, detector: fakeDetector(), pilotEnabled: true });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const base = 'http://127.0.0.1:' + server.address().port;
+  const metrics = await (await fetch(base + '/v1/metrics', {
+    headers: { 'x-post-processing-token': token }
+  })).json();
+  assert.equal(metrics.service, 'post-processing');
+  assert.equal(typeof metrics.uptimeSeconds, 'number');
+  assert.equal(typeof metrics.memoryUsage.heapUsedBytes, 'number');
+  assert.equal(metrics.capabilities.faceless_previs, true);
+  assert.equal(metrics.capabilities.face_landmarks, true);
+});
+

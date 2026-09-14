@@ -1,0 +1,218 @@
+{
+  "info": {
+    "_postman_id": "8f3b2a19-4c22-491a-b620-80123456789a",
+    "name": "ModelPromptForge - Post-Processing Service",
+    "description": "Postman Collection for ModelPromptForge Post-Processing Microservice API.\nAll endpoints return JSON responses.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:6501",
+      "type": "string"
+    },
+    {
+      "key": "internalToken",
+      "value": "dev-internal-token-change-in-production-32bytes",
+      "type": "string"
+    },
+    {
+      "key": "inputSha256",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. Health Check (Public Liveness)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Unauthenticated liveness probe returning JSON process status."
+      },
+      "response": []
+    },
+    {
+      "name": "01b. Health Check (/v1/health)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "health"
+          ]
+        },
+        "description": "Unauthenticated liveness probe returning JSON process status."
+      },
+      "response": []
+    },
+    {
+      "name": "02. Service Capabilities",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/capabilities",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "capabilities"
+          ]
+        },
+        "description": "Authenticated JSON endpoint returning available operations, model hash, and limit bounds."
+      },
+      "response": []
+    },
+    {
+      "name": "03. Telemetry & Operational Metrics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/metrics",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "metrics"
+          ]
+        },
+        "description": "Authenticated operational metrics endpoint returning JSON uptime, memory usage, request counts, and average latency."
+      },
+      "response": []
+    },
+    {
+      "name": "04. Faceless Previs (Mask Transformation - JSON Response)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "console.log('Ensure x-input-sha256 header matches input image SHA-256 hex string.');"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}",
+            "type": "text"
+          },
+          {
+            "key": "x-expected-faces",
+            "value": "1",
+            "type": "text"
+          },
+          {
+            "key": "x-input-sha256",
+            "value": "{{inputSha256}}",
+            "description": "SHA-256 hash of raw input image bytes",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "image/png",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": ""
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/faceless-previs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "faceless-previs"
+          ]
+        },
+        "description": "Submits raw image bytes and returns a JSON object containing output metadata, checksums, and Base64 encoded PNG bytes (bytesBase64)."
+      },
+      "response": []
+    },
+    {
+      "name": "05. Face Landmarks (JSON Coordinate Extraction)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}",
+            "type": "text"
+          },
+          {
+            "key": "x-expected-faces",
+            "value": "1",
+            "type": "text"
+          },
+          {
+            "key": "x-input-sha256",
+            "value": "{{inputSha256}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "image/png",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": ""
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/face-landmarks",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "face-landmarks"
+          ]
+        },
+        "description": "Detects face landmarks on raw image bytes and returns normalized coordinate JSON."
+      },
+      "response": []
+    }
+  ]
+}

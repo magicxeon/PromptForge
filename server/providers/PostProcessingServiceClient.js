@@ -50,22 +50,21 @@ export class PostProcessingServiceClient {
       const message = String(body?.error?.message || 'Faceless processing failed.');
       throw serviceError(code, message, response.status);
     }
-    if (response.headers.get('content-type') !== 'image/png'
-      || Number(response.headers.get('content-length')) > 75 * 1024 * 1024) {
+    const body = await response.json().catch(() => ({}));
+    if (!body?.bytesBase64 || !body?.outputHash) {
       throw serviceError('faceless_output_invalid', 'Faceless output is invalid.', 502);
     }
-    const output = Buffer.from(await response.arrayBuffer());
+    const output = Buffer.from(body.bytesBase64, 'base64');
     if (!output.length || output.length > 75 * 1024 * 1024
-      || crypto.createHash('sha256').update(output).digest('hex')
-        !== response.headers.get('x-output-sha256')) {
+      || crypto.createHash('sha256').update(output).digest('hex') !== body.outputHash) {
       throw serviceError('faceless_output_invalid', 'Faceless output checksum did not match.', 502);
     }
     return {
       bytes: output,
-      outputHash: response.headers.get('x-output-sha256'),
-      faceCount: Number(response.headers.get('x-face-count')),
-      modelHash: response.headers.get('x-model-sha256'),
-      policyVersion: response.headers.get('x-mask-policy-version')
+      outputHash: body.outputHash,
+      faceCount: Number(body.faceCount),
+      modelHash: body.modelHash,
+      policyVersion: body.policyVersion
     };
   }
 }
