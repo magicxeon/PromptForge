@@ -62,6 +62,175 @@ const setup = {
   endingIntent: 'resolved', mode: 'simple'
 };
 
+test('previous approved Take can supply the next Storyboard source without an Image Job', async t => {
+  const frame = { assetId: 'frame_1', assetVersionId: 'frame_1', sourceJobId: null,
+    imageUrl: '/outputs/frame_1.png', thumbnailUrl: '/outputs/frame_1.png', contentHash: 'framehash',
+    sourceFingerprint: 'framefingerprint', sourceKind: 'previous_video_last_frame',
+    sourceProjectId: null, sourceShotId: 'shot_1', sourceAttemptId: 'take_1', sourceVideoAssetId: 'video_1',
+    timestampMs: 3960, approvedAt: '2026-09-13T00:00:00.000Z' };
+  const calls = [];
+  const lastFrameService = {
+    prepare: async input => { calls.push(input); return { ...frame, sourceProjectId: input.projectId }; },
+    resolve: async () => ({ ...frame, sourceProjectId: projectId })
+  };
+  let projectId;
+  const assetRepository = { findByIdForOwner: async (id, owner) => id === 'video_1' && owner === alice.userId
+    ? { id, status: 'active', assetType: 'cinematic_video_output', metadata: {
+      projectId, sceneId: 'scene_1', shotId: 'shot_1', attemptId: 'take_1', technicalProbe: { status: 'passed' }
+    } } : null };
+  const { directory, service } = await fixture({ lastFrameService, assetRepository });
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await service.createProject(setup, alice);
+  projectId = created.id;
+  const planned = await service.saveStoryPlan(created.id, { expectedVersion: created.version,
+    scenes: [{ id: 'scene_1', title: 'Street', castMode: 'none', shots: [
+      { id: 'shot_1', title: 'First', durationMs: 4000, castMode: 'none', subjectAction: 'Open the door' },
+      { id: 'shot_2', title: 'Second', durationMs: 4000, castMode: 'none', subjectAction: 'Step outside' }
+    ] }] }, alice);
+  const unavailable = await service.getStoryboardGenerationContext(created.id, 'scene_1', 'shot_2', alice);
+  assert.equal(unavailable.previousVideoFrame.available, false);
+  assert.equal(unavailable.previousVideoFrame.reason, 'cinematic_previous_video_not_approved');
+  await assert.rejects(service.preparePreviousVideoFrame(created.id, 'scene_1', 'shot_2', {
+    expectedVersion: planned.version, expectedShotVersion: planned.scenes[0].shots[1].version
+  }, alice), { code: 'cinematic_previous_video_not_approved' });
+  assert.equal(calls.length, 0);
+
+  const seeded = await service.repository.mutateForActor(created.id, alice, draft => {
+    const first = draft.scenes[0].shots[0];
+    first.approvedVideoAttemptId = 'take_1';
+    draft.generationAttempts.push({ id: 'take_1', operation: 'cinematic_draft_clip',
+      sceneId: 'scene_1', shotId: 'shot_1', status: 'approved', settlementStatus: 'captured',
+      outputAsset: { id: 'video_1', posterUrl: '/outputs/poster.webp', technicalProbe: { status: 'passed' } } });
+    draft.version += 1;
+    return draft;
+  });
+  const context = await service.getStoryboardGenerationContext(created.id, 'scene_1', 'shot_2', alice);
+  assert.equal(context.previousVideoFrame.available, true);
+  assert.equal(context.previousVideoFrame.approvedTakeId, 'take_1');
+  const prepared = await service.preparePreviousVideoFrame(created.id, 'scene_1', 'shot_2', {
+    expectedVersion: seeded.version, expectedShotVersion: seeded.scenes[0].shots[1].version
+  }, alice);
+  assert.equal(prepared.sourceShotId, 'shot_1');
+  assert.equal(calls[0].videoAssetId, 'video_1');
+  assert.equal((await service.getProject(created.id, alice)).scenes[0].shots[1].approvedStoryboardSource, undefined);
+  const approved = await service.approveStoryboardSource(created.id, 'shot_2', {
+    expectedVersion: seeded.version, expectedShotVersion: seeded.scenes[0].shots[1].version,
+    sourceType: 'previous_video_last_frame', frameAssetId: prepared.assetId, idempotencyKey: 'frame-approval'
+  }, alice);
+  assert.equal(approved.approvedStoryboardSource.sourceKind, 'previous_video_last_frame');
+  assert.equal((await service.getProject(created.id, alice)).generationAttempts.at(-1).generationJobId, null);
+  await assert.rejects(service.approveStoryboardSource(created.id, 'shot_2', {
+    expectedVersion: approved.projectVersion, expectedShotVersion: approved.shotVersion,
+    sourceType: 'previous_video_last_frame', frameAssetId: 'frame_1', idempotencyKey: 'wrong-owner'
+  }, { ...alice, userId: 'usr_bob' }), { statusCode: 404 });
+  const reordered = await service.reorderSceneShots(created.id, 'scene_1', {
+    expectedVersion: (await service.getProject(created.id, alice)).version, shotIds: ['shot_2', 'shot_1']
+  }, alice);
+  assert.equal(reordered.scenes[0].shots[0].approvedStoryboardSource, undefined);
+  assert.equal(reordered.scenes[0].shots[0].storyboardStatus, 'draft');
+});
+
+test('replacing a parent source stales only Storyboard frames derived from its selected Take', async t => {
+  let projectId;
+  const frame = { assetId: 'frame_1', assetVersionId: 'frame_1', sourceJobId: null,
+    imageUrl: '/outputs/frame.png', thumbnailUrl: '/outputs/frame.png', contentHash: 'framehash',
+    sourceFingerprint: 'framefingerprint', sourceKind: 'previous_video_last_frame',
+    sourceShotId: 'shot_1', sourceAttemptId: 'take_1', sourceVideoAssetId: 'video_1',
+    approvedAt: '2026-09-13T00:00:00.000Z' };
+  const assetRepository = { findByIdForOwner: async (id, owner) => id === 'video_1' && owner === alice.userId
+    ? { id, status: 'active', assetType: 'cinematic_video_output', metadata: {
+      projectId, sceneId: 'scene_1', shotId: 'shot_1', attemptId: 'take_1', technicalProbe: { status: 'passed' }
+    } } : null };
+  const { directory, service } = await fixture({ assetRepository,
+    lastFrameService: { resolve: async () => ({ ...frame, sourceProjectId: projectId }) } });
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await service.createProject(setup, alice);
+  projectId = created.id;
+  const planned = await service.saveStoryPlan(created.id, { expectedVersion: created.version,
+    scenes: [{ id: 'scene_1', title: 'Street', castMode: 'none', shots: [
+      { id: 'shot_1', title: 'First', durationMs: 4000, castMode: 'none', subjectAction: 'Open' },
+      { id: 'shot_2', title: 'Second', durationMs: 4000, castMode: 'none', subjectAction: 'Step' },
+      { id: 'shot_3', title: 'Third', durationMs: 4000, castMode: 'none', subjectAction: 'Stop' }
+    ] }] }, alice);
+  const first = await service.approveStoryboardSource(created.id, 'shot_1', {
+    expectedVersion: planned.version, expectedShotVersion: planned.scenes[0].shots[0].version,
+    jobId: 'image_first', idempotencyKey: 'first-image'
+  }, alice);
+  const seeded = await service.repository.mutateForActor(created.id, alice, draft => {
+    const parent = draft.scenes[0].shots[0];
+    parent.approvedVideoAttemptId = 'take_1';
+    parent.approvedVideoSourceFingerprint = parent.approvedStoryboardSource.sourceFingerprint;
+    draft.generationAttempts.push({ id: 'take_1', operation: 'cinematic_draft_clip', sceneId: 'scene_1',
+      shotId: 'shot_1', status: 'approved', settlementStatus: 'captured',
+      outputAsset: { id: 'video_1', technicalProbe: { status: 'passed' } } });
+    draft.version += 1; return draft;
+  });
+  await service.approveStoryboardSource(created.id, 'shot_2', {
+    expectedVersion: seeded.version, expectedShotVersion: seeded.scenes[0].shots[1].version,
+    sourceType: 'previous_video_last_frame', frameAssetId: 'frame_1', idempotencyKey: 'derived-image'
+  }, alice);
+  const before = await service.getProject(created.id, alice);
+  const unrelated = await service.approveStoryboardSource(created.id, 'shot_3', {
+    expectedVersion: before.version, expectedShotVersion: before.scenes[0].shots[2].version,
+    jobId: 'image_unrelated', idempotencyKey: 'unrelated-image'
+  }, alice);
+  const changed = await service.approveStoryboardSource(created.id, 'shot_1', {
+    expectedVersion: unrelated.projectVersion,
+    expectedShotVersion: (await service.getProject(created.id, alice)).scenes[0].shots[0].version,
+    jobId: 'image_new', idempotencyKey: 'new-parent-image'
+  }, alice);
+  const updated = await service.getProject(created.id, alice);
+  assert.equal(updated.scenes[0].shots[0].approvedVideoAttemptId, null);
+  assert.equal(updated.scenes[0].shots[1].approvedStoryboardSource, undefined);
+  assert.equal(updated.scenes[0].shots[1].storyboardStatus, 'draft');
+  assert.equal(updated.scenes[0].shots[2].approvedStoryboardSource.sourceJobId, 'image_unrelated');
+  assert.equal(updated.generationAttempts.find(item => item.sourceKind === 'previous_video_last_frame').status, 'superseded');
+  assert.ok(changed);
+  assert.ok(first);
+});
+
+test('cross-Scene frame reuse requires declared continuing action and explicit approval confirmation', async t => {
+  let projectId;
+  const assetRepository = { findByIdForOwner: async (id, owner) => id === 'video_1' && owner === alice.userId
+    ? { id, status: 'active', assetType: 'cinematic_video_output', metadata: {
+      projectId, sceneId: 'scene_1', shotId: 'shot_1', attemptId: 'take_1', technicalProbe: { status: 'passed' }
+    } } : null };
+  const { directory, service } = await fixture({ assetRepository, lastFrameService: {
+    resolve: async () => ({ assetId: 'frame_1', assetVersionId: 'frame_1', sourceJobId: null,
+      imageUrl: '/outputs/frame.png', thumbnailUrl: '/outputs/frame.png', contentHash: 'hash',
+      sourceFingerprint: 'framefingerprint', sourceKind: 'previous_video_last_frame',
+      sourceProjectId: projectId, sourceShotId: 'shot_1', sourceAttemptId: 'take_1', sourceVideoAssetId: 'video_1',
+      approvedAt: '2026-09-13T00:00:00.000Z' })
+  } });
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await service.createProject(setup, alice);
+  projectId = created.id;
+  const scenes = [
+    { id: 'scene_1', title: 'Outside', castMode: 'none', shots: [{ id: 'shot_1', title: 'Exit', durationMs: 4000, castMode: 'none', subjectAction: 'Walk' }] },
+    { id: 'scene_2', title: 'Street', transitionIntent: 'cut', castMode: 'none', shots: [{ id: 'shot_2', title: 'Follow', durationMs: 4000, castMode: 'none', subjectAction: 'Follow' }] }
+  ];
+  const hardCut = await service.saveStoryPlan(created.id, { expectedVersion: created.version, scenes }, alice);
+  assert.equal((await service.getStoryboardGenerationContext(created.id, 'scene_2', 'shot_2', alice))
+    .previousVideoFrame.reason, 'cinematic_previous_scene_transition_required');
+  scenes[1].transitionIntent = 'continuing_action';
+  const planned = await service.saveStoryPlan(created.id, { expectedVersion: hardCut.version, scenes }, alice);
+  const seeded = await service.repository.mutateForActor(created.id, alice, draft => {
+    draft.scenes[0].shots[0].approvedVideoAttemptId = 'take_1';
+    draft.generationAttempts.push({ id: 'take_1', operation: 'cinematic_draft_clip', sceneId: 'scene_1', shotId: 'shot_1',
+      status: 'approved', settlementStatus: 'captured', outputAsset: { id: 'video_1', technicalProbe: { status: 'passed' } } });
+    draft.version += 1; return draft;
+  });
+  const available = await service.getStoryboardGenerationContext(created.id, 'scene_2', 'shot_2', alice);
+  assert.equal(available.previousVideoFrame.available, true);
+  assert.equal(available.previousVideoFrame.crossScene, true);
+  const input = { expectedVersion: seeded.version, expectedShotVersion: seeded.scenes[1].shots[0].version,
+    sourceType: 'previous_video_last_frame', frameAssetId: 'frame_1', idempotencyKey: 'cross-scene' };
+  await assert.rejects(service.approveStoryboardSource(created.id, 'shot_2', input, alice),
+    { code: 'cinematic_previous_scene_confirmation_required' });
+  const approved = await service.approveStoryboardSource(created.id, 'shot_2', { ...input, crossSceneConfirmed: true }, alice);
+  assert.equal(approved.approvedStoryboardSource.sourceShotId, 'shot_1');
+});
+
 test('opening and multi-line audio round-trip; invalid edited cues and a displaced opening are rejected', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
@@ -1240,6 +1409,8 @@ test('Cinematic video attempt uses the approved Storyboard source and can be app
   const stored = await service.getProject(created.id, alice);
   assert.equal(stored.scenes[0].shots[0].approvedVideoAttemptId, submitted.attemptId);
   assert.equal(stored.generationAttempts.find(item => item.id === submitted.attemptId).outputAsset.publicUrl, outputAsset.publicUrl);
+  assert.equal(stored.generationAttempts.find(item => item.id === submitted.attemptId).downstreamSourceStatus, 'current');
+  assert.equal(stored.generationAttempts.find(item => item.id === submitted.attemptId).downstreamSourceStatus, 'current');
   billingStatus = 'qualification_no_charge';
   const qualificationContext = await service.approveVideoAttempt(
     created.id, 'scene_a', 'shot_a', submitted.attemptId,
@@ -1272,6 +1443,76 @@ test('Cinematic video attempt uses the approved Storyboard source and can be app
     assert.match(takeQuote.renderedPrompt, new RegExp(`Duration: ${seconds}\\.000s`));
   }
   assert.equal((await service.getProject(created.id, alice)).scenes[0].shots[0].durationMs, 4000);
+});
+
+test('duration-only Take override requires explicit matching confirmation and records the decision', async t => {
+  const task = { id: 'videotask_duration_override', status: 'completed', billingStatus: 'captured',
+    durationSeconds: 4, outputAsset: { id: 'asset_duration_override', publicUrl: '/clip.mp4',
+      technicalProbe: { status: 'passed' } } };
+  const { directory, service } = await fixture({
+    providerTaskRepository: { findManyForActor: async () => [task] },
+    videoGenerationService: { getAndPoll: async () => task }
+  });
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await service.createProject(setup, alice);
+  const casted = await service.upsertCastAssignment(created.id, {
+    expectedVersion: created.version, assignmentId: 'cast_video_nara', characterProfileId: 'charprof_nara',
+    characterProfileVersionId: 'charver_nara', displayName: 'Nara', storyRole: 'Nara', storyImportance: 'protagonist'
+  }, alice);
+  const planned = await service.saveStoryPlan(created.id, { expectedVersion: casted.version,
+    scenes: [{ id: 'scene_a', title: 'A', shots: [{ id: 'shot_a', title: 'A', durationMs: 4000,
+      prompt: 'Slow push in.', visibleMoment: 'Nara holds at the doorway.',
+      subjectAction: 'Nara takes one restrained step.', emotionalTarget: 'quietly resolved',
+      castAssignmentIds: ['cast_video_nara'] }] }]
+  }, alice);
+  await service.approveStoryboardSource(created.id, 'shot_a', {
+    expectedVersion: planned.version, expectedShotVersion: 1,
+    jobId: 'job_duration_source', idempotencyKey: 'approve-duration-source'
+  }, alice);
+  const approved = await service.getProject(created.id, alice);
+  const shot = approved.scenes[0].shots[0];
+  const original = await service.getProduceShotContext(created.id, 'scene_a', 'shot_a', alice);
+  const sourceAttempt = approved.generationAttempts.find(item => item.id === shot.approvedStoryboardAttemptId);
+  const withTake = await service.repository.mutateForActor(created.id, alice, draft => {
+    draft.generationAttempts.push({ id: 'take_duration', sceneId: 'scene_a', shotId: 'shot_a',
+      operation: 'cinematic_draft_clip', status: 'provider_queued', generationJobId: task.id,
+      referenceMode: original.referenceMode,
+      sourceFingerprint: shot.approvedStoryboardSource.sourceFingerprint,
+      keyframeContractFingerprint: sourceAttempt.keyframeContractFingerprint,
+      videoPacketFingerprint: original.videoPacket.packetFingerprint,
+      createdAt: new Date(Date.now() + 1000).toISOString(), downstreamSourceStatus: 'packet_changed' });
+    draft.scenes[0].shots[0].durationMs = 8000;
+    draft.scenes[0].shots[0].estimatedActionDurationMs = 4000;
+    draft.scenes[0].shots[0].videoReferenceMode = original.referenceMode;
+    draft.version += 1;
+    return draft;
+  });
+  const context = await service.getProduceShotContext(created.id, 'scene_a', 'shot_a', alice);
+  assert.equal(context.videoAttempts.find(item => item.id === 'take_duration').approvalReason, 'duration_override_available');
+  await assert.rejects(service.approveVideoAttempt(created.id, 'scene_a', 'shot_a', 'take_duration',
+    { expectedVersion: withTake.version }, alice), { code: 'cinematic_video_manual_override_required' });
+  await assert.rejects(service.approveVideoAttempt(created.id, 'scene_a', 'shot_a', 'take_duration',
+    { expectedVersion: withTake.version, manualOverride: { kind: 'planned_duration', submittedDurationMs: 4000, currentDurationMs: 6000 } }, alice),
+    { code: 'cinematic_video_manual_override_required' });
+  await assert.rejects(service.approveVideoAttempt(created.id, 'scene_a', 'shot_a', 'take_duration',
+    { expectedVersion: withTake.version - 1, manualOverride: { kind: 'planned_duration', submittedDurationMs: 4000, currentDurationMs: 8000 } }, alice),
+    { code: 'cinematic_version_conflict' });
+  await assert.rejects(service.approveVideoAttempt(created.id, 'scene_a', 'shot_a', 'take_duration',
+    { expectedVersion: withTake.version - 1, manualOverride: { kind: 'planned_duration', submittedDurationMs: 4000, currentDurationMs: 8000 } }, alice),
+    { code: 'cinematic_version_conflict' });
+  await service.approveVideoAttempt(created.id, 'scene_a', 'shot_a', 'take_duration', {
+    expectedVersion: withTake.version,
+    manualOverride: { kind: 'planned_duration', submittedDurationMs: 4000, currentDurationMs: 8000 }
+  }, alice);
+  const selected = await service.getProject(created.id, alice);
+  assert.equal(selected.scenes[0].shots[0].approvedVideoAttemptId, 'take_duration');
+  const take = selected.generationAttempts.find(item => item.id === 'take_duration');
+  assert.equal(take.downstreamSourceStatus, 'current');
+  assert.equal(take.approvalOverride.approvedByUserId, alice.userId);
+  assert.equal(take.approvalOverride.submittedDurationMs, 4000);
+  assert.equal(take.approvalOverride.currentDurationMs, 8000);
+  const selectedContext = await service.getProduceShotContext(created.id, 'scene_a', 'shot_a', alice);
+  assert.equal(selectedContext.videoAttempts.find(item => item.id === 'take_duration').approvalReason, 'ready');
 });
 
 test('Cinematic video quote rejects stale Storyboard and video-packet lineage before pricing', async t => {

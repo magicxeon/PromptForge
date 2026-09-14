@@ -10,6 +10,8 @@ import { cinematicProjectRepository } from '../../repositories/cinematic/Cinemat
 import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
 import { cinematicStoryboardAssetService } from '../assets/CinematicStoryboardAssetService.js';
+import { cinematicLastFrameService } from '../assets/CinematicLastFrameService.js';
+import { facelessPrevisAssetService } from '../assets/FacelessPrevisAssetService.js';
 import { cinematicWardrobeAuthorityService } from '../assets/CinematicWardrobeAuthorityService.js';
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
 import { characterLookService } from '../character-profiles/CharacterLookService.js';
@@ -33,7 +35,8 @@ import { cinematicFieldManifestService } from './CinematicFieldManifestService.j
 import { cinematicAuthoringStateService, cinematicFieldKey } from './CinematicAuthoringStateService.js';
 import { cinematicSimpleAuthoringService } from './CinematicSimpleAuthoringService.js';
 import { storyboardKeyframeContractCompiler } from './StoryboardKeyframeContractCompiler.js';
-import { cinematicVideoPacketCompiler } from './CinematicVideoPacketCompiler.js';
+import { cinematicVideoPacketCompiler, fingerprintVideoPacketAuthority } from './CinematicVideoPacketCompiler.js';
+import { assessCinematicTake, assessCinematicTakeCompatibility, describeCinematicDurationOverride } from './CinematicTakeEligibility.js';
 import { cinematicTimelineCompiler } from './CinematicTimelineCompiler.js';
 import { deriveStoryboardVideoCompatibility } from './CinematicStoryboardSourceCompatibility.js';
 import { fingerprintVideoReferencePlan } from '../generation/VideoReferencePlan.js';
@@ -49,6 +52,8 @@ export class CinematicApplicationService {
   constructor({
     repository = cinematicProjectRepository,
     storyboardAssetService = cinematicStoryboardAssetService,
+    lastFrameService = cinematicLastFrameService,
+    facelessAssetService = facelessPrevisAssetService,
     wardrobeAuthorityService = cinematicWardrobeAuthorityService,
     characterAuthorizationService = characterUsageService,
     lookService = characterLookService,
@@ -73,6 +78,8 @@ export class CinematicApplicationService {
     this.repository = repository;
     this.seriesService = new CinematicSeriesService({ repository, normalizeSetup });
     this.storyboardAssetService = storyboardAssetService;
+    this.lastFrameService = lastFrameService;
+    this.facelessAssetService = facelessAssetService;
     this.wardrobeAuthorityService = wardrobeAuthorityService;
     this.characterAuthorizationService = characterAuthorizationService;
     this.lookService = lookService;
@@ -519,10 +526,49 @@ export class CinematicApplicationService {
 
   async approveStoryboardSource(projectId, shotId, input, actorContext) {
     const idempotencyKey = normalizeIdempotencyKey(input.idempotencyKey);
-    const approvedAsset = await this.storyboardAssetService.approveGenerationResult(
-      { jobId: input.jobId },
-      actorContext
-    );
+    let approvedAsset;
+    if (input.sourceType === 'faceless_previs') {
+      const project = await this.getProject(projectId, actorContext);
+      const located = findShot(project, shotId);
+      if (!located) throw new CinematicError('cinematic_shot_not_found', 'Storyboard Shot not found.', 404);
+      approvedAsset = await this.facelessAssetService.resolve({
+        assetId: input.assetId, projectId, sceneId: located.scene.id, shotId, actorContext
+      });
+      if (approvedAsset.parentSourceKind === 'previous_video_last_frame') {
+        const eligibility = previousVideoFrameEligibility(project, located.scene, located.shot);
+        if (eligibility.crossScene && input.crossSceneConfirmed !== true) {
+          throw new CinematicError('cinematic_previous_scene_confirmation_required', 'Confirm using a frame from the previous Scene.', 409);
+        }
+        if (!eligibility.available
+          || approvedAsset.parentSourceAttemptId !== eligibility.attempt.id
+          || approvedAsset.parentSourceVideoAssetId !== eligibility.attempt.outputAsset.id
+          || approvedAsset.parentSourceShotId !== eligibility.shot.id) {
+          throw new CinematicError('cinematic_previous_frame_stale', 'The selected previous Take changed.', 409);
+        }
+      }
+    } else if (input.sourceType === 'previous_video_last_frame') {
+      const project = await this.getProject(projectId, actorContext);
+      const located = findShot(project, shotId);
+      if (!located) throw new CinematicError('cinematic_shot_not_found', 'Storyboard Shot not found.', 404);
+      const eligibility = previousVideoFrameEligibility(project, located.scene, located.shot);
+      if (!eligibility.available) throw new CinematicError(eligibility.reason, 'A completed, approved previous Take is required.', 409);
+      if (eligibility.crossScene && input.crossSceneConfirmed !== true) {
+        throw new CinematicError('cinematic_previous_scene_confirmation_required', 'Confirm using a frame from the previous Scene.', 409);
+      }
+      if (!await this.#previousVideoAssetAvailable(projectId, eligibility, actorContext)) {
+        throw new CinematicError('cinematic_previous_video_unavailable', 'The approved previous video is unavailable.', 409);
+      }
+      approvedAsset = await this.lastFrameService.resolve(input.frameAssetId, actorContext);
+      if (approvedAsset.sourceAttemptId !== eligibility.attempt.id
+        || approvedAsset.sourceVideoAssetId !== eligibility.attempt.outputAsset.id
+        || approvedAsset.sourceShotId !== eligibility.shot.id || approvedAsset.sourceProjectId !== projectId) {
+        throw new CinematicError('cinematic_previous_frame_stale', 'The selected previous Take changed. Prepare its final frame again.', 409);
+      }
+    } else {
+      approvedAsset = await this.storyboardAssetService.approveGenerationResult(
+        { jobId: input.jobId }, actorContext
+      );
+    }
     return this.repository.mutateForActor(projectId, actorContext, project => {
       project.commandReceipts ||= [];
       const replay = project.commandReceipts.find(receipt => (
@@ -534,6 +580,30 @@ export class CinematicApplicationService {
       const located = findShot(project, shotId);
       if (!located) throw new CinematicError('cinematic_shot_not_found', 'Storyboard Shot not found.', 404);
       const { scene, shot } = located;
+      if (approvedAsset.sourceKind === 'previous_video_last_frame') {
+        const eligibility = previousVideoFrameEligibility(project, scene, shot);
+        if (eligibility.crossScene && input.crossSceneConfirmed !== true) {
+          throw new CinematicError('cinematic_previous_scene_confirmation_required', 'Confirm using a frame from the previous Scene.', 409);
+        }
+        if (!eligibility.available || approvedAsset.sourceAttemptId !== eligibility.attempt.id
+          || approvedAsset.sourceVideoAssetId !== eligibility.attempt.outputAsset.id
+          || approvedAsset.sourceShotId !== eligibility.shot.id || approvedAsset.sourceProjectId !== projectId) {
+          throw new CinematicError('cinematic_previous_frame_stale', 'The selected previous Take changed. Prepare its final frame again.', 409);
+        }
+      }
+      if (approvedAsset.sourceKind === 'faceless_previs'
+        && approvedAsset.parentSourceKind === 'previous_video_last_frame') {
+        const eligibility = previousVideoFrameEligibility(project, scene, shot);
+        if (eligibility.crossScene && input.crossSceneConfirmed !== true) {
+          throw new CinematicError('cinematic_previous_scene_confirmation_required', 'Confirm using a frame from the previous Scene.', 409);
+        }
+        if (!eligibility.available
+          || approvedAsset.parentSourceAttemptId !== eligibility.attempt.id
+          || approvedAsset.parentSourceVideoAssetId !== eligibility.attempt.outputAsset.id
+          || approvedAsset.parentSourceShotId !== eligibility.shot.id) {
+          throw new CinematicError('cinematic_previous_frame_stale', 'The selected previous Take changed.', 409);
+        }
+      }
       if (Number(input.expectedShotVersion) !== Number(shot.version || 1)) {
         throw new CinematicError('cinematic_shot_version_conflict', 'The Shot changed in another session.', 409, {
           currentShotVersion: shot.version || 1,
@@ -544,10 +614,16 @@ export class CinematicApplicationService {
       let attempt = project.generationAttempts.find(item => (
         item.operation === 'cinematic_storyboard_still'
         && item.shotId === shot.id
-        && item.generationJobId === approvedAsset.sourceJobId
+        && (['previous_video_last_frame', 'faceless_previs'].includes(approvedAsset.sourceKind)
+          ? item.approvedStoryboardAssetVersionId === approvedAsset.assetVersionId
+          : item.generationJobId === approvedAsset.sourceJobId)
       ));
       if (attempt) {
         attempt.outputAssetIds = [approvedAsset.assetId];
+        attempt.sourceKind = approvedAsset.sourceKind || 'generated_image';
+        if (['previous_video_last_frame', 'faceless_previs'].includes(approvedAsset.sourceKind)) {
+          attempt.outputAsset = { imageUrl: approvedAsset.imageUrl, thumbnailUrl: approvedAsset.thumbnailUrl };
+        }
         attempt.approvedStoryboardAssetVersionId = approvedAsset.assetVersionId;
         attempt.sourceFingerprint = approvedAsset.sourceFingerprint;
         attempt.status = 'approved';
@@ -563,8 +639,11 @@ export class CinematicApplicationService {
             item.shotId === shot.id && item.operation === 'cinematic_storyboard_still'
           )).length + 1,
           parentAttemptId: shot.approvedStoryboardAttemptId || null,
-          generationJobId: approvedAsset.sourceJobId,
+          generationJobId: approvedAsset.sourceJobId || null,
+          sourceKind: approvedAsset.sourceKind || 'generated_image',
           outputAssetIds: [approvedAsset.assetId],
+          ...(['previous_video_last_frame', 'faceless_previs'].includes(approvedAsset.sourceKind)
+            ? { outputAsset: { imageUrl: approvedAsset.imageUrl, thumbnailUrl: approvedAsset.thumbnailUrl } } : {}),
           approvedStoryboardAssetVersionId: approvedAsset.assetVersionId,
           sourceFingerprint: approvedAsset.sourceFingerprint,
           status: 'approved',
@@ -610,6 +689,79 @@ export class CinematicApplicationService {
     });
   }
 
+  async preparePreviousVideoFrame(projectId, sceneId, shotId, input, actorContext) {
+    const project = await this.getProject(projectId, actorContext);
+    assertExpectedVersion(project, input.expectedVersion);
+    assertEditable(project);
+    const located = findShot(project, shotId);
+    if (!located || located.scene.id !== sceneId) throw new CinematicError('cinematic_shot_not_found', 'Storyboard Shot not found.', 404);
+    if (Number(input.expectedShotVersion) !== Number(located.shot.version || 1)) {
+      throw new CinematicError('cinematic_shot_version_conflict', 'The Shot changed in another session.', 409);
+    }
+    const eligibility = previousVideoFrameEligibility(project, located.scene, located.shot);
+    if (!eligibility.available) throw new CinematicError(eligibility.reason, 'A completed, approved previous Take is required.', 409);
+    if (!await this.#previousVideoAssetAvailable(projectId, eligibility, actorContext)) {
+      throw new CinematicError('cinematic_previous_video_unavailable', 'The approved previous video is unavailable.', 409);
+    }
+    return this.lastFrameService.prepare({ videoAssetId: eligibility.attempt.outputAsset.id,
+      attempt: eligibility.attempt, projectId, sceneId: eligibility.scene.id,
+      shotId: eligibility.shot.id, actorContext });
+  }
+
+  async getFacelessPrevisCapability(_actorContext) {
+    return this.facelessAssetService.processingClient.capabilities();
+  }
+
+  async prepareFacelessPrevis(projectId, sceneId, shotId, input, actorContext) {
+    const project = await this.getProject(projectId, actorContext);
+    assertExpectedVersion(project, input.expectedVersion);
+    assertEditable(project);
+    const located = findShot(project, shotId);
+    if (!located || located.scene.id !== sceneId) {
+      throw new CinematicError('cinematic_shot_not_found', 'Storyboard Shot not found.', 404);
+    }
+    if (Number(input.expectedShotVersion) !== Number(located.shot.version || 1)) {
+      throw new CinematicError('cinematic_shot_version_conflict', 'The Shot changed in another session.', 409);
+    }
+    if (!Number.isInteger(input.expectedFaces) || input.expectedFaces < 1 || input.expectedFaces > 8) {
+      throw new CinematicError('faceless_expected_faces_invalid', 'Choose a visible face count from 1 to 8.', 400);
+    }
+    let source;
+    if (input.sourceType === 'previous_video_last_frame') {
+      const eligibility = previousVideoFrameEligibility(project, located.scene, located.shot);
+      if (!eligibility.available || !await this.#previousVideoAssetAvailable(projectId, eligibility, actorContext)) {
+        throw new CinematicError('cinematic_previous_video_unavailable', 'An approved previous Take is required.', 409);
+      }
+      source = await this.lastFrameService.resolve(input.frameAssetId, actorContext);
+      if (source.sourceAttemptId !== eligibility.attempt.id
+        || source.sourceVideoAssetId !== eligibility.attempt.outputAsset.id
+        || source.sourceProjectId !== projectId) {
+        throw new CinematicError('cinematic_previous_frame_stale', 'The selected previous Take changed.', 409);
+      }
+    } else if (input.sourceType === 'generation_job') {
+      const attempt = project.generationAttempts.find(item => item.operation === 'cinematic_storyboard_still'
+        && item.shotId === shotId && item.generationJobId === input.jobId);
+      if (!attempt) {
+        throw new CinematicError('faceless_source_unavailable', 'A completed Storyboard image for this Shot is required.', 409);
+      }
+      source = await this.storyboardAssetService.approveGenerationResult({ jobId: input.jobId }, actorContext);
+    } else {
+      throw new CinematicError('faceless_source_type_invalid', 'Choose a Storyboard image or previous Take frame.', 400);
+    }
+    return this.facelessAssetService.prepare({
+      sourceAssetId: source.assetId, projectId, sceneId, shotId,
+      expectedFaces: input.expectedFaces, actorContext
+    });
+  }
+
+  async #previousVideoAssetAvailable(projectId, eligibility, actorContext) {
+    const asset = await this.assetRepository.findByIdForOwner(eligibility.attempt.outputAsset.id, actorContext.userId);
+    return Boolean(asset && asset.status !== 'deleted' && asset.assetType === 'cinematic_video_output'
+      && asset.metadata?.technicalProbe?.status === 'passed'
+      && asset.metadata.projectId === projectId && asset.metadata.sceneId === eligibility.scene.id
+      && asset.metadata.shotId === eligibility.shot.id && asset.metadata.attemptId === eligibility.attempt.id);
+  }
+
   async inspectStoryboardPrompts(projectId, actorContext) {
     const project = await this.getProject(projectId, actorContext);
     const shots = project.scenes.flatMap(scene => scene.shots.map(shot => ({ scene, shot })));
@@ -638,7 +790,47 @@ export class CinematicApplicationService {
     if (!located || (sceneId && located.scene.id !== sceneId)) {
       throw new CinematicError('cinematic_shot_not_found', 'Produce Shot not found.', 404);
     }
-    return buildProduceContext(project, located.scene, located.shot, this.videoPacketCompiler, referenceMode);
+    const context = buildProduceContext(project, located.scene, located.shot, this.videoPacketCompiler, referenceMode);
+    const attempts = (project.generationAttempts || []).filter(attempt => (
+      attempt.shotId === located.shot.id && attempt.operation === 'cinematic_draft_clip'
+    )).slice(-128);
+    const attemptsById = new Map(attempts.map(attempt => [attempt.id, attempt]));
+    const tasks = this.providerTaskRepository.findManyForActor
+      ? await this.providerTaskRepository.findManyForActor(
+        attempts.map(attempt => attempt.generationJobId).filter(Boolean), actorContext
+      ) : [];
+    const tasksById = new Map(tasks.map(task => [task.id, task]));
+    const approvedStoryboardAttempt = project.generationAttempts.find(attempt => (
+      attempt.id === located.shot.approvedStoryboardAttemptId && attempt.operation === 'cinematic_storyboard_still'
+    ));
+    const currentPacket = context.referenceMode === cinematicVideoReferenceMode(located.shot.videoReferenceMode)
+      ? context.videoPacket
+      : this.videoPacketCompiler.compile({ project, scene: located.scene, shot: located.shot,
+        approvedStoryboardSource: located.shot.approvedStoryboardSource, storyboardAttempt: approvedStoryboardAttempt });
+    const referenceChecks = new Map();
+    context.videoAttempts = await Promise.all(context.videoAttempts.map(async row => {
+      const attempt = attemptsById.get(row.id);
+      if (!attempt) return row;
+      const task = tasksById.get(attempt.generationJobId);
+      let approvalReason = assessCinematicTake({ project, scene: located.scene, shot: located.shot,
+        attempt, task, currentPacket, approvedStoryboardAttempt });
+      if (['ready', 'duration_override_available'].includes(approvalReason) && attempt.referenceMode !== 'storyboard_only') {
+        const key = attempt.referenceMode;
+        if (!referenceChecks.has(key)) referenceChecks.set(key, this.videoReferencePlanService.prepare({
+          project, ...located, source: located.shot.approvedStoryboardSource, mode: attempt.referenceMode,
+          model: null, actorContext, reviewExistingTake: true
+        }).then(plan => fingerprintVideoReferencePlan(plan.references, plan.inputMode)).catch(() => null));
+        const currentReferenceFingerprint = await referenceChecks.get(key);
+        if (!currentReferenceFingerprint) approvalReason = 'reference_unavailable';
+        else if (currentReferenceFingerprint !== attempt.referencePlanFingerprint) approvalReason = 'reference_changed';
+      }
+      return { ...row, status: task?.status || (attempt.generationJobId ? 'missing' : row.status),
+        outputAsset: task?.outputAsset || row.outputAsset, approvalReason,
+        ...(approvalReason === 'duration_override_available' ? { durationOverride: describeCinematicDurationOverride({
+          project, shot: located.shot, attempt, currentPacket
+        }) } : {}) };
+    }));
+    return context;
   }
 
   async getSceneEnvironmentContext(projectId, sceneId, actorContext) {
@@ -744,6 +936,12 @@ export class CinematicApplicationService {
       .filter(Boolean);
     const shotIndex = orderedShots.findIndex(item => item.id === shot.id);
     const previousSource = shotIndex > 0 ? orderedShots[shotIndex - 1]?.approvedStoryboardSource || null : null;
+    const previousFrameEligibility = previousVideoFrameEligibility(project, scene, shot);
+    if (previousFrameEligibility.available
+      && !await this.#previousVideoAssetAvailable(project.id, previousFrameEligibility, actorContext)) {
+      previousFrameEligibility.available = false;
+      previousFrameEligibility.reason = 'cinematic_previous_video_unavailable';
+    }
     const multiCast = assignments.length > 1;
     const primary = multiCast ? null : assignments[0] || null;
     const cinematicCastReferences = [];
@@ -830,6 +1028,7 @@ export class CinematicApplicationService {
         shotId: orderedShots[shotIndex - 1].id,
         sourceFingerprint: previousSource.sourceFingerprint
       } : null,
+      previousVideoFrame: previousVideoFramePublicContext(previousFrameEligibility),
       keyframeContract,
       generationEligible,
       blockingReason: !multiCastReady
@@ -1021,6 +1220,7 @@ export class CinematicApplicationService {
         sourceFingerprint: source?.sourceFingerprint || null,
         keyframeContractFingerprint: videoPacket.keyframeContractFingerprint,
         videoPacketFingerprint: videoPacket.packetFingerprint,
+        videoPacketAuthorityFingerprint: fingerprintVideoPacketAuthority(videoPacket),
         promptStrategyId: providerPrompt.strategyId,
         promptStrategyVersion: providerPrompt.strategyVersion,
         renderedPromptFingerprint: providerPrompt.promptFingerprint,
@@ -1143,7 +1343,7 @@ export class CinematicApplicationService {
     if (attempt.referenceMode && attempt.referenceMode !== 'storyboard_only') {
       const referencePlan = await this.videoReferencePlanService.prepare({ project, ...located,
         source: located.shot.approvedStoryboardSource, mode: attempt.referenceMode,
-        model: this.videoCapabilities.resolve(attempt.providerId, attempt.modelId), actorContext });
+        model: null, actorContext, reviewExistingTake: true });
       if (fingerprintVideoReferencePlan(referencePlan.references, referencePlan.inputMode) !== attempt.referencePlanFingerprint) {
         throw new CinematicError('cinematic_video_source_stale', 'The selected Cast sheets changed after this Video Attempt.', 409);
       }
@@ -1171,13 +1371,24 @@ export class CinematicApplicationService {
         approvedStoryboardSource: current.shot.approvedStoryboardSource,
         storyboardAttempt
       });
-      if (target.videoPacketFingerprint !== currentPacket.packetFingerprint
-        || target.downstreamSourceStatus === 'packet_changed') {
+      const compatibility = assessCinematicTakeCompatibility({ project: draft, scene: current.scene, shot: current.shot,
+        attempt: target, currentPacket, approvedStoryboardAttempt: storyboardAttempt });
+      const durationOverride = compatibility === 'duration_override_available'
+        ? describeCinematicDurationOverride({ project: draft, shot: current.shot, attempt: target, currentPacket }) : null;
+      const confirmedOverride = input.manualOverride;
+      if (compatibility !== 'ready' && !(durationOverride
+        && confirmedOverride?.kind === 'planned_duration'
+        && confirmedOverride.submittedDurationMs === durationOverride.submittedDurationMs
+        && confirmedOverride.currentDurationMs === durationOverride.currentDurationMs)) {
         throw new CinematicError(
-          'cinematic_video_packet_stale',
-          'The Shot motion direction changed after this Video Attempt.',
+          durationOverride ? 'cinematic_video_manual_override_required' : 'cinematic_video_packet_stale',
+          durationOverride ? 'Confirm the submitted and current Shot durations before using this Take.'
+            : 'The Shot direction changed after this Video Attempt.',
           409
         );
+      }
+      if (compatibility === 'ready' && confirmedOverride) {
+        throw new CinematicError('cinematic_video_manual_override_not_applicable', 'This Take does not require a duration override.', 400);
       }
       if (task.outputAsset.technicalProbe?.status !== 'passed') {
         throw new CinematicError(
@@ -1194,6 +1405,10 @@ export class CinematicApplicationService {
       }
       target.status = 'approved';
       target.reviewDecision = 'approved';
+      target.downstreamSourceStatus = 'current';
+      if (durationOverride) target.approvalOverride = {
+        ...durationOverride, approvedAt: new Date().toISOString(), approvedByUserId: actorContext.userId
+      };
       target.outputAssetIds = [task.outputAsset.id || task.outputAsset.assetId || task.id];
       target.outputAsset = task.outputAsset;
       target.settlementStatus = task.billingStatus;
@@ -1211,8 +1426,12 @@ export class CinematicApplicationService {
           }
         }
       }
+      const previousApprovedTakeId = current.shot.approvedVideoAttemptId;
       current.shot.approvedVideoAttemptId = target.id;
       current.shot.approvedVideoSourceFingerprint = target.sourceFingerprint;
+      if (previousApprovedTakeId && previousApprovedTakeId !== target.id) {
+        invalidateStoryboardFramesFromTake(draft, previousApprovedTakeId);
+      }
       draft.status = 'review';
       draft.version += 1;
       return buildProduceContext(draft, current.scene, current.shot, this.videoPacketCompiler);
@@ -1450,6 +1669,14 @@ export class CinematicApplicationService {
       const byId = new Map(scene.shots.map(shot => [shot.id, shot]));
       scene.shots = requestedOrder.map((id, index) => ({ ...byId.get(id), orderKey: index + 1 }));
       scene.shotOrder = [...requestedOrder];
+      for (let index = 0; index < scene.shots.length; index += 1) {
+        const candidate = scene.shots[index];
+        const source = candidate.approvedStoryboardSource;
+        if (previousVideoOrigin(source)
+          && previousVideoOrigin(source).shotId !== previousVideoFrameEligibility(project, scene, candidate).shot?.id) {
+          invalidateStoryboardFrameShot(project, candidate);
+        }
+      }
       scene.version = Number(scene.version || 1) + 1;
       scene.durationMs = scene.shots.reduce((total, shot) => total + shot.durationMs, 0);
       project.version += 1;
@@ -2361,6 +2588,7 @@ function asCinematicError(error) {
 }
 
 function markSourceChanged(project, shot, previousFingerprint) {
+  const previousApprovedTakeId = shot.approvedVideoAttemptId;
   for (const attempt of project.generationAttempts || []) {
     if (attempt.shotId === shot.id
       && ['cinematic_motion_preview', 'cinematic_draft_clip', 'cinematic_final_clip'].includes(attempt.operation)
@@ -2372,6 +2600,7 @@ function markSourceChanged(project, shot, previousFingerprint) {
   if (shot.approvedVideoSourceFingerprint === previousFingerprint && previousFingerprint) {
     shot.approvedVideoAttemptId = null;
     shot.approvedVideoSourceFingerprint = null;
+    if (previousApprovedTakeId) invalidateStoryboardFramesFromTake(project, previousApprovedTakeId);
   }
   for (const timeline of project.timelineVersions || []) {
     for (const entry of timeline.entries || []) {
@@ -2384,7 +2613,87 @@ function markSourceChanged(project, shot, previousFingerprint) {
   }
 }
 
+function previousVideoFrameEligibility(project, scene, shot) {
+  const ordered = scene.shotOrder.map(id => scene.shots.find(item => item.id === id)).filter(Boolean);
+  const index = ordered.findIndex(item => item.id === shot.id);
+  let previousScene = scene;
+  let crossScene = false;
+  let previous = index > 0 ? ordered[index - 1] : null;
+  if (!previous) {
+    const sceneIndex = project.scenes.findIndex(item => item.id === scene.id);
+    if (sceneIndex <= 0) return { available: false, reason: 'cinematic_previous_shot_required' };
+    if (String(scene.transitionIntent || '').trim().toLowerCase() !== 'continuing_action') {
+      return { available: false, reason: 'cinematic_previous_scene_transition_required' };
+    }
+    previousScene = project.scenes[sceneIndex - 1];
+    previous = previousScene.shotOrder.map(id => previousScene.shots.find(item => item.id === id)).filter(Boolean).at(-1);
+    crossScene = true;
+    if (!previous) return { available: false, reason: 'cinematic_previous_shot_required' };
+  }
+  if (!previous.approvedVideoAttemptId) return { available: false, reason: 'cinematic_previous_video_not_approved', shot: previous };
+  const attempt = (project.generationAttempts || []).find(item => item.id === previous.approvedVideoAttemptId
+    && item.shotId === previous.id && item.operation === 'cinematic_draft_clip');
+  if (!attempt || attempt.status !== 'approved' || attempt.downstreamSourceStatus === 'source_changed'
+    || attempt.downstreamSourceStatus === 'packet_changed') {
+    return { available: false, reason: 'cinematic_previous_video_stale', shot: previous };
+  }
+  if (!attempt.outputAsset?.id || attempt.outputAsset.technicalProbe?.status !== 'passed'
+    || !['captured', 'qualification_no_charge'].includes(attempt.settlementStatus)) {
+    return { available: false, reason: 'cinematic_previous_video_unavailable', shot: previous };
+  }
+  return { available: true, scene: previousScene, shot: previous, attempt, crossScene };
+}
+
+function previousVideoFramePublicContext(value) {
+  return { available: value.available, reason: value.reason || null,
+    previousShotId: value.shot?.id || null,
+    previousShotTitle: value.shot?.title || null,
+    previousSceneTitle: value.scene?.title || null,
+    crossScene: value.crossScene === true,
+    approvedTakeId: value.attempt?.id || null,
+    posterUrl: value.attempt?.outputAsset?.posterUrl || null };
+}
+
+function invalidateStoryboardFramesFromTake(project, takeId) {
+  for (const scene of project.scenes || []) {
+    for (const shot of scene.shots || []) {
+      const source = shot.approvedStoryboardSource;
+      if (previousVideoOrigin(source)?.attemptId !== takeId) continue;
+      invalidateStoryboardFrameShot(project, shot);
+    }
+  }
+}
+
+function invalidateStoryboardFrameShot(project, shot) {
+  const source = shot.approvedStoryboardSource;
+  if (!previousVideoOrigin(source)) return;
+  markSourceChanged(project, shot, source.sourceFingerprint);
+  shot.approvedStoryboardSource = undefined;
+  shot.approvedStoryboardAttemptId = null;
+  shot.storyboardStatus = 'draft';
+  shot.version = Number(shot.version || 1) + 1;
+  for (const item of project.generationAttempts || []) {
+    if (item.shotId === shot.id && item.operation === 'cinematic_storyboard_still'
+      && item.sourceFingerprint === source.sourceFingerprint && item.status === 'approved') {
+      item.status = 'superseded';
+      item.reviewDecision = 'superseded';
+    }
+  }
+}
+
+function previousVideoOrigin(source) {
+  if (source?.sourceKind === 'previous_video_last_frame') {
+    return { attemptId: source.sourceAttemptId, shotId: source.sourceShotId };
+  }
+  if (source?.sourceKind === 'faceless_previs'
+    && source.parentSourceKind === 'previous_video_last_frame') {
+    return { attemptId: source.parentSourceAttemptId, shotId: source.parentSourceShotId };
+  }
+  return null;
+}
+
 function markVideoPacketChanged(project, shot) {
+  const previousApprovedTakeId = shot.approvedVideoAttemptId;
   for (const attempt of project.generationAttempts || []) {
     if (attempt.shotId === shot.id
       && ['cinematic_motion_preview', 'cinematic_draft_clip', 'cinematic_final_clip'].includes(attempt.operation)) {
@@ -2393,6 +2702,7 @@ function markVideoPacketChanged(project, shot) {
   }
   shot.approvedVideoAttemptId = null;
   shot.approvedVideoSourceFingerprint = null;
+  if (previousApprovedTakeId) invalidateStoryboardFramesFromTake(project, previousApprovedTakeId);
   for (const timeline of project.timelineVersions || []) {
     for (const entry of timeline.entries || []) {
       if (entry.shotId !== shot.id) continue;

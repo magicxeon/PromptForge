@@ -396,7 +396,8 @@ function RowMediaSummary({ project, scene, shot, label }: Pick<RowProps, 'projec
             fallback={isImage ? <ImageIcon aria-hidden="true" /> : <Film aria-hidden="true" />} /></span>
           <span><strong>{t(isImage ? 'cinematic.manual.imageNumber' : 'cinematic.manual.takeNumber', {
             number: (isImage ? stills : takes).indexOf(attempt) + 1
-          })}</strong><small>{String(attempt.modelLabel || attempt.modelId || '')}</small>
+          })}</strong><small>{attempt.sourceKind === 'previous_video_last_frame'
+            ? t('cinematic.storyboard.previousFrame.title') : String(attempt.modelLabel || attempt.modelId || '')}</small>
             <AttemptStatus attempt={attempt} />
             {attempt.id === shot.approvedVideoAttemptId ? <small>{t('cinematic.manual.selectedTake')}</small> : null}
           </span>

@@ -58,6 +58,7 @@ credentials/
 # Ignore rules do not remove files already in the Git index or old commits.
 /server/data/*
 !/server/data/README.md
+/post-processing-service/models/*.task
 
 # Local Prompt Research Lab datasets and generated output
 /lab/**/datasets/source-images/

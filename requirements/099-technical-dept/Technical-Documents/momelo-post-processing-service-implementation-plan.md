@@ -15,6 +15,12 @@
 > Original media and Seedance transport remain unchanged. Workers may report
 > cost/usage; authoritative customer Credit conversion belongs to Momelo's
 > server-side Credits capability, never the browser.
+>
+> Requirement update, 2026-09-14: the canonical
+> [021 Post-Processing Service requirements and implementation plan](../../021-post-processing-service/000-master.md)
+> split this proposal into owned phases. The first local implementation slice
+> is Faceless previs API only; all other operations remain deferred. This
+> proposal remains a technical inventory, not an enabled feature list.
 
 ---
 

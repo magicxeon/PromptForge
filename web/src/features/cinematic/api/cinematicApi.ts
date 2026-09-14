@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import { z } from 'zod';
 import {
   cinematicArchiveResponseSchema,
   cinematicPromptPreflightSchema,
@@ -13,6 +13,7 @@ import {
   cinematicStoryPlanProposalSchema,
   cinematicStoryPlanLiveProgressSchema,
   cinematicSceneDirectionProposalSchema,
+  cinematicApprovedStoryboardSourceSchema,
   cinematicStoryboardGenerationContextSchema,
   cinematicSceneEnvironmentContextSchema,
   cinematicSceneEnvironmentImagesSchema,
@@ -230,11 +231,54 @@ export function generateCinematicSceneDirection(projectId: string, sceneId: stri
 export function approveCinematicStoryboardSource(projectId: string, shotId: string, input: {
   expectedVersion: number;
   expectedShotVersion: number;
-  jobId: string;
+  jobId?: string;
+  sourceType?: 'previous_video_last_frame' | 'faceless_previs';
+  frameAssetId?: string;
+  assetId?: string;
+  crossSceneConfirmed?: boolean;
   idempotencyKey: string;
 }) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/shots/${encodeURIComponent(shotId)}/storyboard-source`, {
     method: 'PUT', body: input, schema: cinematicProduceShotContextSchema
+  });
+}
+
+export function prepareCinematicPreviousVideoFrame(projectId: string, sceneId: string, shotId: string, input: {
+  expectedVersion: number;
+  expectedShotVersion: number;
+}) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/previous-video-frame`, {
+    method: 'POST', body: input, schema: cinematicApprovedStoryboardSourceSchema, cache: 'no-store'
+  });
+}
+
+export function getCinematicFacelessPrevisCapability() {
+  return apiRequest('/api/cinematic/faceless-previs/capabilities', {
+    schema: z.object({
+      available: z.boolean(),
+      reason: z.string().nullable().optional(),
+      policyVersion: z.string().optional(),
+      modelHash: z.string().nullable().optional(),
+      maxBytes: z.number().optional(),
+      maxPixels: z.number().optional(),
+      maxFaces: z.number().optional()
+    }),
+    cache: 'no-store'
+  });
+}
+
+export function prepareCinematicFacelessPrevis(projectId: string, sceneId: string, shotId: string, input: {
+  expectedVersion: number;
+  expectedShotVersion: number;
+  sourceType: 'generation_job' | 'previous_video_last_frame';
+  jobId?: string;
+  frameAssetId?: string;
+  expectedFaces: number;
+}) {
+  const url = cinematicApiPaths.project(projectId) + '/scenes/' + encodeURIComponent(sceneId)
+    + '/shots/' + encodeURIComponent(shotId) + '/faceless-previs';
+  return apiRequest(url, {
+    method: 'POST', body: input, schema: cinematicApprovedStoryboardSourceSchema, cache: 'no-store'
   });
 }
 
@@ -356,9 +400,10 @@ export function createCinematicVideoAttempt(projectId: string, sceneId: string, 
   });
 }
 
-export function approveCinematicVideoAttempt(projectId: string, sceneId: string, shotId: string, attemptId: string, expectedVersion: number) {
+export function approveCinematicVideoAttempt(projectId: string, sceneId: string, shotId: string, attemptId: string, expectedVersion: number,
+  manualOverride?: { kind: 'planned_duration'; submittedDurationMs: number; currentDurationMs: number }) {
   return apiRequest(`${cinematicShotVideoPath(projectId, sceneId, shotId)}/video-attempts/${encodeURIComponent(attemptId)}/approve`, {
-    method: 'POST', body: { expectedVersion }, schema: cinematicProduceShotContextSchema
+    method: 'POST', body: { expectedVersion, ...(manualOverride ? { manualOverride } : {}) }, schema: cinematicProduceShotContextSchema
   });
 }
 

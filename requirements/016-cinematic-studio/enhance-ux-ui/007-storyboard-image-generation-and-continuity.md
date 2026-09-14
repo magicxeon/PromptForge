@@ -54,6 +54,14 @@ endpoint with Project/Shot versions and Job ID. Approval stores the immutable
 Asset version/fingerprint and refreshes the Project. Re-generation leaves the
 current approved source intact until another result is explicitly approved.
 
+Implemented exception owned by `../produce-video-pipeline/006-continuity-last-frame-and-media-validation.md`:
+the creator may explicitly approve an immutable derivative of the preceding
+Shot's selected video Take as the current Storyboard source, **without** an
+Image Job. The same Cinematic source-approval use case must distinguish the
+typed video-frame origin from the existing Image Job origin; neither path may
+replace the other silently. The Image Settings action remains disabled until
+the preceding Shot has a current approved-for-use video Take and valid media.
+
 The Shot modal must expose the current server-compiled Storyboard prompt as a
 read-only preview. `Additional Shot direction` remains the only editable prompt
 input and must be saved before the server recompiles the contract. The preview

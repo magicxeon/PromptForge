@@ -14,6 +14,12 @@ vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string, valu
   key === 'playground.reference.usage' && values ? `${values.active}/${values.max}` : key }) }));
 
 describe('Reference display binding', () => {
+  it('keeps leading source actions visible when the selected image model has no reference capability', () => {
+    render(<MemoryRouter><ReferenceSlotGrid value={{}} supported={false} maxReferences={0}
+      leadingContent={<button>Use approved previous clip</button>} onChange={vi.fn()} /></MemoryRouter>);
+    expect(screen.getByRole('button', { name: 'Use approved previous clip' })).toBeEnabled();
+    expect(screen.getByText('playground.reference.unsupported')).toBeInTheDocument();
+  });
   it('opts into named read-only rows while preserving canonical count, warning metadata and source bindings', () => {
     const onChange = vi.fn();
     const projection = { schemaVersion: 1, policyVersion: '1', planFingerprint: 'f', controlledGroups: [], suppressedSelections: [],

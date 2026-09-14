@@ -115,7 +115,7 @@ try {
           if(location.search.includes('media')) return e('main',{style:{height:'80vh',width:'100%'}},e(VideoMediaPlayer,{videoUrl:selected,title:'Selected Take'}));
           if(location.search.includes('director')) return e(SceneDirectorDialog,{open:true,onOpenChange:noop,scene:p.scenes[0],isFirstScene:true,castAssignments:p.castAssignments,defaultMode:'simple',authoringManifest:${JSON.stringify(cinematicFieldManifestService.getPublicManifest())},onSave:v=>window.saved=v});
           if(location.search.includes('board')) return e('main',{className:'cinematic-page',style:{padding:'16px'}},e(StoryboardSequenceBoard,{sceneTitle:p.scenes[0].title,sceneDurationSeconds:8,selectedShotId:selected,onSelectShot:id=>{setSelected(id);window.selected=id},onMoveShot:()=>{window.moved=true},shots:[{id:'a',title:'Look Sheet opening',sequenceLabel:'Shot 1',durationSeconds:4,framing:'wide',action:'A deliberate turn into the light',status:'ready',videoReferenceMode:'looks_only',imageUrl:'/unused.jpg'},{id:'b',title:'Quiet station',sequenceLabel:'Shot 2',durationSeconds:4,framing:'wide',action:'Rain against glass',status:'ready',videoReferenceMode:'text_only'}]}));
-          return e('main',{className:'cinematic-page',style:{padding:'16px'}},e(CinematicStageContent,{activeStage:'produce',project:p,onOpenStage:noop}));
+          return e('main',{className:'cinematic-page',style:{padding:'16px'}},e(CinematicStageContent,{activeStage:'produce',mode:'advanced',project:p,onOpenStage:noop}));
         }
         ReactDOM.createRoot(document.getElementById('root')).render(e(QueryClientProvider,{client},e(ActorProvider,null,e(FeaturePolicyProvider,null,e(MemoryRouter,null,e(I18nextProvider,{i18n},e(Screen)))))));
       </script></body></html>` });
@@ -255,6 +255,11 @@ try {
       assert.equal(await page.locator('.cinematic-take').count(), 10);
       await page.locator('.cinematic-take').last().click();
       assert.equal(await page.locator('.cinematic-take').last().getAttribute('aria-pressed'), 'true');
+      const referencesPanel = page.locator('.cinematic-produce-references');
+      assert.equal(await referencesPanel.evaluate(element => element.open), false);
+      assert.equal(await page.getByText(labels['cinematic.produce.technicalPrompt'], { exact: true }).count(), 0);
+      assert.equal(await page.getByText(labels['cinematic.produce.shotDirection'], { exact: true }).count(), 1);
+      await referencesPanel.locator('summary').click();
       const frameToggle = page.getByRole('switch', { name: labels['cinematic.produce.references.useFirstFrame'], exact: true });
       assert.equal(await frameToggle.isDisabled(), true);
       assert.equal(await frameToggle.getAttribute('aria-checked'), 'false');

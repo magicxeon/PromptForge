@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Check, Clock3, Pencil, RotateCcw, UsersRound } from 'lucide-react';
+import { Check, Clock3, Film, Pencil, RotateCcw, UsersRound } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import { GenerationExperience } from '../../../components/generation/GenerationE
 import { ReferenceRows, type ReferenceRowSource } from '../../../components/generation/ReferenceSlotGrid';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import { Button } from '../../../components/ui/Button';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { ToggleSwitch } from '../../../components/ui/ToggleSwitch';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
@@ -15,6 +16,7 @@ import type { JobStatus } from '../../generation/schemas/generationSchemas';
 import {
   approveCinematicStoryboardSource,
   getCinematicStoryboardGenerationContext,
+  prepareCinematicPreviousVideoFrame,
   submitCinematicStoryboardBatch,
   updateCinematicShotDirection,
   updateCinematicStoryboardSettings
@@ -98,6 +100,9 @@ export function StoryboardShotDialog({
   const [naturalRealismEnabled, setNaturalRealismEnabled] = useState(true);
   const [savingSettings, setSavingSettings] = useState(false);
   const [environmentBusy, setEnvironmentBusy] = useState(false);
+  const [preparedFrame, setPreparedFrame] = useState<Awaited<ReturnType<typeof prepareCinematicPreviousVideoFrame>> | null>(null);
+  const [frameBusy, setFrameBusy] = useState(false);
+  const [frameError, setFrameError] = useState<string | null>(null);
   useEffect(() => {
     if (open) {
       setEditingShot(initialEditorOpen);
@@ -112,6 +117,8 @@ export function StoryboardShotDialog({
       setError(null);
       setApprovingJobId(null);
       setNaturalRealismEnabled(true);
+      setPreparedFrame(null);
+      setFrameError(null);
     }
   }, [initialDirection, open, project.id, shot.id]);
 
@@ -126,6 +133,51 @@ export function StoryboardShotDialog({
     staleTime: 10_000,
     retry: false
   });
+  const previousFrame = generationContext.data?.previousVideoFrame;
+  const currentPreviousFrame = shot.approvedStoryboardSource?.sourceKind === 'previous_video_last_frame'
+    && shot.approvedStoryboardSource.sourceAttemptId === previousFrame?.approvedTakeId
+    ? shot.approvedStoryboardSource : null;
+  useEffect(() => {
+    if (preparedFrame && preparedFrame.sourceAttemptId !== previousFrame?.approvedTakeId) setPreparedFrame(null);
+  }, [preparedFrame, previousFrame?.approvedTakeId]);
+
+  async function preparePreviousFrame() {
+    setFrameBusy(true);
+    setFrameError(null);
+    try {
+      const frame = await prepareCinematicPreviousVideoFrame(project.id, scene.id, shot.id, {
+        expectedVersion: generationContext.data?.projectVersion || project.version,
+        expectedShotVersion: generationContext.data?.shotVersion || shot.version
+      });
+      setPreparedFrame(frame);
+    } catch (cause) {
+      setFrameError(cause instanceof Error ? cause.message : t('cinematic.status.saveFailed'));
+    } finally {
+      setFrameBusy(false);
+    }
+  }
+
+  async function approvePreviousFrame() {
+    if (!preparedFrame) return;
+    setFrameBusy(true);
+    setFrameError(null);
+    try {
+      await approveCinematicStoryboardSource(project.id, shot.id, {
+        expectedVersion: generationContext.data?.projectVersion || project.version,
+        expectedShotVersion: generationContext.data?.shotVersion || shot.version,
+        sourceType: 'previous_video_last_frame', frameAssetId: preparedFrame.assetId,
+        ...(previousFrame?.crossScene ? { crossSceneConfirmed: true } : {}),
+        idempotencyKey: `storyboard:last-frame:${project.id}:${shot.id}:${preparedFrame.assetId}`
+      });
+      setPreparedFrame(null);
+      onProjectRefresh?.();
+      await generationContext.refetch();
+    } catch (cause) {
+      setFrameError(cause instanceof Error ? cause.message : t('cinematic.status.saveFailed'));
+    } finally {
+      setFrameBusy(false);
+    }
+  }
   const fallbackCharacterProfileContext = primaryCharacter?.characterProfileId ? {
     purpose: 'character_usage',
     characterProfileId: primaryCharacter.characterProfileId,
@@ -348,8 +400,47 @@ export function StoryboardShotDialog({
           characterProfileContext={characterProfileContext}
           cinematicCastReferences={generationContext.data?.cinematicCastReferences}
           cinematicSceneReference={generationContext.data?.cinematicSceneReference}
-          referenceLead={<SceneEnvironmentControl project={project} scene={scene} compact={!embedded} onProjectRefresh={onProjectRefresh}
-            onBusyChange={setEnvironmentBusy} disabled={saving || savingSettings || Boolean(externalBlockedReason)} />}
+          referenceLead={<>
+            <div className="cinematic-previous-frame-wrap">
+            <section className="cinematic-previous-frame" aria-label={t('cinematic.storyboard.previousFrame.title')}>
+              <div className="cinematic-previous-frame__preview">
+                {preparedFrame?.imageUrl ? <AuthenticatedMediaImage src={preparedFrame.imageUrl} alt={t('cinematic.storyboard.previousFrame.preview')} />
+                  : currentPreviousFrame?.imageUrl ? <AuthenticatedMediaImage src={currentPreviousFrame.imageUrl} alt={t('cinematic.storyboard.previousFrame.preview')} />
+                  : previousFrame?.posterUrl ? <AuthenticatedMediaImage src={previousFrame.posterUrl} alt="" />
+                    : <Film aria-hidden="true" />}
+              </div>
+              <div className="cinematic-previous-frame__body">
+                <strong>{t('cinematic.storyboard.previousFrame.title')}</strong>
+                <span>{previousFrame?.available
+                  ? t('cinematic.storyboard.previousFrame.fromShot', { title: previousFrame.previousShotTitle || previousFrame.previousShotId })
+                  : t(`cinematic.storyboard.previousFrame.${previousFrame?.reason || 'loading'}`)}</span>
+                {preparedFrame ? <span className="cinematic-previous-frame__ready">{t('cinematic.storyboard.previousFrame.previewReady')}</span> : null}
+                {preparedFrame?.timestampMs !== undefined ? <span>{t('cinematic.storyboard.previousFrame.atTime', { seconds: (preparedFrame.timestampMs / 1000).toFixed(2) })}</span> : null}
+                {!preparedFrame && currentPreviousFrame ? <span className="cinematic-previous-frame__ready">{t('cinematic.storyboard.previousFrame.inUse')}</span> : null}
+              </div>
+              <div className="cinematic-previous-frame__actions">
+                <Button size="sm" icon={frameBusy && !preparedFrame ? <ProcessingSpinner size={16} /> : <Film aria-hidden="true" />}
+                  disabled={!previousFrame?.available || frameBusy || saving || savingSettings || Boolean(externalBlockedReason)}
+                  onClick={() => void preparePreviousFrame()}>{t('cinematic.storyboard.previousFrame.prepare')}</Button>
+                {preparedFrame ? previousFrame?.crossScene
+                  ? <ConfirmDialog trigger={<Button size="sm" variant="primary" icon={frameBusy ? <ProcessingSpinner size={16} /> : <Check aria-hidden="true" />}
+                    disabled={frameBusy || saving || savingSettings || Boolean(externalBlockedReason)}>{t(shot.approvedStoryboardSource
+                      ? 'cinematic.storyboard.previousFrame.replace' : 'cinematic.storyboard.previousFrame.approve')}</Button>}
+                    title={t('cinematic.storyboard.previousFrame.crossSceneTitle')}
+                    description={t('cinematic.storyboard.previousFrame.crossSceneDescription', { scene: previousFrame.previousSceneTitle || '' })}
+                    confirmLabel={t('cinematic.storyboard.previousFrame.confirmCrossScene')} pending={frameBusy}
+                    onConfirm={() => void approvePreviousFrame()} />
+                  : <Button size="sm" variant="primary" icon={frameBusy ? <ProcessingSpinner size={16} /> : <Check aria-hidden="true" />}
+                    disabled={frameBusy || saving || savingSettings || Boolean(externalBlockedReason)}
+                    onClick={() => void approvePreviousFrame()}>{t(shot.approvedStoryboardSource
+                      ? 'cinematic.storyboard.previousFrame.replace' : 'cinematic.storyboard.previousFrame.approve')}</Button> : null}
+              </div>
+              {frameError ? <p role="alert">{frameError}</p> : null}
+            </section>
+            </div>
+            <SceneEnvironmentControl project={project} scene={scene} compact={!embedded} onProjectRefresh={onProjectRefresh}
+              onBusyChange={setEnvironmentBusy} disabled={saving || savingSettings || Boolean(externalBlockedReason)} />
+          </>}
           cinematicContainsPeople={generationContext.data?.cinematicContainsPeople}
           cinematicFaceless={generationContext.data?.cinematicFaceless === true}
           cinematicFacialTreatment={generationContext.data?.cinematicFacialTreatment}

@@ -29,7 +29,7 @@ function fixture() {
     scene: { castAssignmentIds: ['a', 'b'], wardrobeLookIds: ['look_a', 'look_b'] },
     shot: { castAssignmentIds: ['b', 'a', 'b'], wardrobeLookIds: ['look_a', 'look_b'] },
     source: { assetId: 'board', assetVersionId: 'board', sourceFingerprint: 'board_hash', imageUrl: '/outputs/board.png' },
-    model: { supportsCinematicLookReferences: true, inputModes: ['multimodal_reference'], referenceImageLimit: 9 },
+    model: { supportsCinematicLookReferences: true, inputModes: ['multimodal_reference'], referenceImageLimit: 9, durations: [6] },
     actorContext: { userId: 'owner' }, mode: 'storyboard_and_looks'
   };
   return { input, service, calls };
@@ -49,6 +49,20 @@ test('dynamic references retain Shot order, deduplicate cast and exclude unused 
   assert.doesNotMatch(JSON.stringify(sanitizeVideoReferences(normalized)), /outputs|\/api\//);
   assert.notEqual(fingerprintVideoReferencePlan(normalized, result.inputMode),
     fingerprintVideoReferencePlan([...normalized].reverse(), result.inputMode));
+});
+
+test('existing Take review replays ordered references even when new-generation capability is off', async () => {
+  const { input, service } = fixture();
+  const original = await service.prepare(input);
+  await assert.rejects(service.prepare({ ...input, model: { inputModes: [], supportsCinematicLookReferences: false } }),
+    { code: 'cinematic_video_look_references_unsupported' });
+  const replayed = await service.prepare({ ...input, model: null, reviewExistingTake: true });
+  assert.equal(fingerprintVideoReferencePlan(replayed.references, replayed.inputMode),
+    fingerprintVideoReferencePlan(original.references, original.inputMode));
+  input.project.castAssignments[0].looks[0].characterLookVersionId = 'new_version';
+  const changed = await service.prepare({ ...input, model: null, reviewExistingTake: true });
+  assert.notEqual(fingerprintVideoReferencePlan(changed.references, changed.inputMode),
+    fingerprintVideoReferencePlan(original.references, original.inputMode));
 });
 
 test('Cinematic quote and attempt use the same server-derived reference set and provider prompt', async () => {

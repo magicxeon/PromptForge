@@ -15,6 +15,7 @@ import { StoryboardShotDialog } from './StoryboardShotDialog';
 
 const mocks = vi.hoisted(() => ({
   approveSource: vi.fn(),
+  prepareFrame: vi.fn(),
   estimateGeneration: vi.fn(),
   getContext: vi.fn(),
   submitBatch: vi.fn(),
@@ -32,6 +33,7 @@ vi.mock('../../../components/generation/GenerationExperience', () => ({
     cinematicFaceless,
     initialEnginePreference,
     engineOptions,
+    referenceLead,
     showEmptyResult,
     submitSingleDraft,
     renderWorkspace
@@ -44,6 +46,7 @@ vi.mock('../../../components/generation/GenerationExperience', () => ({
     cinematicFaceless?: boolean;
     initialEnginePreference?: { provider: string; model: string } | null;
     engineOptions?: ReactNode;
+    referenceLead?: ReactNode;
     showEmptyResult?: boolean;
     submitSingleDraft?: (draft: GenerationRequestDraft) => Promise<unknown>;
     renderWorkspace?: (regions: GenerationWorkspaceRegions) => ReactNode;
@@ -56,7 +59,7 @@ vi.mock('../../../components/generation/GenerationExperience', () => ({
         {readOnlyPromptSupplement}
       </section> : null,
       engine: engineOptions,
-      references: null, messages: null, queue: null,
+      references: referenceLead, messages: null, queue: null,
       actions: <button type="button" disabled={Boolean(blockedReason)}
         onClick={() => void submitSingleDraft?.(generationDraft({ cinematicCaptureProfileId, cinematicFaceless }))}>Generate test image</button>
     };
@@ -83,6 +86,7 @@ vi.mock('../../generation/api/generationApi', async importOriginal => ({
 vi.mock('../api/cinematicApi', async importOriginal => ({
   ...await importOriginal<typeof import('../api/cinematicApi')>(),
   approveCinematicStoryboardSource: mocks.approveSource,
+  prepareCinematicPreviousVideoFrame: mocks.prepareFrame,
   getCinematicStoryboardGenerationContext: mocks.getContext,
   submitCinematicStoryboardBatch: mocks.submitBatch,
   updateCinematicShotDirection: mocks.updateDirection,
@@ -92,6 +96,57 @@ vi.mock('../api/cinematicApi', async importOriginal => ({
 const testI18n = i18next.createInstance();
 
 describe('StoryboardShotDialog', () => {
+  it('disables last-frame reuse until the previous Shot has an approved Take', async () => {
+    mocks.getContext.mockResolvedValue({ ...generationContext(), previousVideoFrame: {
+      available: false, reason: 'cinematic_previous_video_not_approved', previousShotId: 'shot_0',
+      previousShotTitle: 'Opening', approvedTakeId: null, posterUrl: null
+    } });
+    renderDialog();
+    expect(await screen.findByRole('button', { name: 'cinematic.storyboard.previousFrame.prepare' })).toBeDisabled();
+    await waitFor(() => expect(screen.getByText('cinematic.storyboard.previousFrame.cinematic_previous_video_not_approved')).toBeVisible());
+    expect(mocks.prepareFrame).not.toHaveBeenCalled();
+  });
+
+  it('previews the previous Take frame before explicit Storyboard approval', async () => {
+    mocks.getContext.mockResolvedValue({ ...generationContext(), previousVideoFrame: {
+      available: true, reason: null, previousShotId: 'shot_0', previousShotTitle: 'Opening',
+      approvedTakeId: 'take_0', posterUrl: null
+    } });
+    mocks.prepareFrame.mockResolvedValue({ assetId: 'frame_1', sourceAttemptId: 'take_0',
+      sourceKind: 'previous_video_last_frame', imageUrl: '/outputs/frame.png' });
+    mocks.approveSource.mockResolvedValue({});
+    renderDialog();
+    const prepare = await screen.findByRole('button', { name: 'cinematic.storyboard.previousFrame.prepare' });
+    await waitFor(() => expect(prepare).toBeEnabled());
+    fireEvent.click(prepare);
+    await waitFor(() => expect(mocks.prepareFrame).toHaveBeenCalledOnce());
+    expect(mocks.approveSource).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole('button', { name: 'cinematic.storyboard.previousFrame.approve' }));
+    await waitFor(() => expect(mocks.approveSource).toHaveBeenCalledWith('cineproj_1', 'shot_1', expect.objectContaining({
+      sourceType: 'previous_video_last_frame', frameAssetId: 'frame_1'
+    })));
+  });
+
+  it('asks for an additional confirmation when the previous Take is in another Scene', async () => {
+    mocks.getContext.mockResolvedValue({ ...generationContext(), previousVideoFrame: {
+      available: true, reason: null, previousShotId: 'shot_0', previousShotTitle: 'Exit',
+      previousSceneTitle: 'Outside', crossScene: true, approvedTakeId: 'take_0', posterUrl: null
+    } });
+    mocks.prepareFrame.mockResolvedValue({ assetId: 'frame_1', sourceAttemptId: 'take_0',
+      sourceKind: 'previous_video_last_frame', imageUrl: '/outputs/frame.png' });
+    mocks.approveSource.mockResolvedValue({});
+    renderDialog();
+    const prepare = await screen.findByRole('button', { name: 'cinematic.storyboard.previousFrame.prepare' });
+    await waitFor(() => expect(prepare).toBeEnabled());
+    fireEvent.click(prepare);
+    fireEvent.click(await screen.findByRole('button', { name: 'cinematic.storyboard.previousFrame.approve' }));
+    expect(mocks.approveSource).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole('button', { name: 'cinematic.storyboard.previousFrame.confirmCrossScene' }));
+    await waitFor(() => expect(mocks.approveSource).toHaveBeenCalledWith('cineproj_1', 'shot_1', expect.objectContaining({
+      crossSceneConfirmed: true
+    })));
+  });
+
   it('opens image settings, preserves unsaved direction and preview across tabs, and keeps Generate visible', async () => {
     renderDialog();
     expect(screen.getByRole('tab', { name: 'cinematic.storyboard.workspace.image' })).toHaveAttribute('aria-selected', 'true');
@@ -153,6 +208,7 @@ describe('StoryboardShotDialog', () => {
     vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
     localStorage.clear();
     mocks.approveSource.mockReset();
+    mocks.prepareFrame.mockReset();
     mocks.estimateGeneration.mockReset();
     mocks.getContext.mockReset();
     mocks.submitBatch.mockReset();

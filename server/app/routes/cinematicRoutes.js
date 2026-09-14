@@ -256,6 +256,26 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.get('/api/cinematic/faceless-previs/capabilities', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.getFacelessPrevisCapability(req.actorContext));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/faceless-previs', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.prepareFacelessPrevis(
+        req.params.projectId, req.params.sceneId, req.params.shotId, req.body || {}, req.actorContext
+      ));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
   app.get('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/storyboard-generation-context', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
@@ -264,6 +284,17 @@ export function registerCinematicRoutes(app, {
         req.params.sceneId,
         req.params.shotId,
         req.actorContext
+      ));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/previous-video-frame', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.preparePreviousVideoFrame(
+        req.params.projectId, req.params.sceneId, req.params.shotId, req.body || {}, req.actorContext
       ));
     } catch (error) {
       sendCinematicError(res, error);

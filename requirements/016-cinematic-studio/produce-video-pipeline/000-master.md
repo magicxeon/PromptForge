@@ -103,7 +103,10 @@ a repository or a Credit ledger directly.
 
 1. The approved Storyboard Asset Version is the default immutable first frame.
    Exception 013 permits looks_only without a Storyboard, while retaining
-   existing images/approvals when disabled. Not yet implemented.
+   existing images/approvals when disabled. Requirement 006 also plans an
+   explicit, approved previous-video last-frame Asset as an alternative
+   Storyboard source for continuing Shots; its isolated implementation does not
+   silently replace an existing image or override model capability policy.
 2. A video attempt cannot be approved when an active source, Shot, packet or
    reference fingerprint is stale. Under 013, disabled Storyboard media
    is not an active source dependency for looks_only.

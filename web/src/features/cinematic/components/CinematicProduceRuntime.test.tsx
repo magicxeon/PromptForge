@@ -19,6 +19,7 @@ const api = vi.hoisted(() => ({
   updateCinematicShotVideoReferences: vi.fn()
 }));
 const generationApi = vi.hoisted(() => ({ getVideoTask: vi.fn() }));
+const authRole = vi.hoisted(() => ({ value: 'user' }));
 
 vi.mock('../../../components/media/AuthenticatedMediaImage', () => ({
   AuthenticatedMediaImage: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />
@@ -32,6 +33,10 @@ vi.mock('../api/cinematicApi', async importOriginal => ({
 vi.mock('../../generation/api/videoGenerationApi', async importOriginal => ({
   ...await importOriginal<typeof import('../../generation/api/videoGenerationApi')>(),
   getVideoTask: generationApi.getVideoTask
+}));
+
+vi.mock('../../../lib/auth/ActorProvider', () => ({
+  useActor: () => ({ actor: { userId: 'usr_demo', role: authRole.value } })
 }));
 
 const i18n = i18next.createInstance();
@@ -248,7 +253,8 @@ describe('Cinematic Produce runtime workspace', () => {
     api.quoteCinematicVideoAttempt.mockImplementation(async () => cinematicVideoQuoteSchema.parse(rawQuote));
     renderRuntime(project);
     await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
-    const references = within(screen.getByRole('region', { name: 'cinematic.produce.references.title' })).getAllByRole('listitem');
+    fireEvent.click(await screen.findByText('cinematic.produce.references.title'));
+    const references = within(document.querySelector('.cinematic-produce-references')!).getAllByRole('listitem');
     expect(references[0]).toHaveTextContent('cinematic.produce.references.storyboard');
     expect(references[1]).toHaveTextContent('cinematic.produce.references.look');
     expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
@@ -324,6 +330,7 @@ describe('Cinematic Produce runtime workspace', () => {
   });
 
   beforeEach(() => {
+    authRole.value = 'user';
     vi.clearAllMocks();
     localStorage.clear();
     generationApi.getVideoTask.mockReset();
@@ -432,6 +439,7 @@ describe('Cinematic Produce runtime workspace', () => {
   });
 
   it('requotes an explicit multi-reference selection and displays the exact mapped provider prompt', async () => {
+    authRole.value = 'admin';
     const catalog = await api.getCinematicVideoCapabilityCatalog();
     catalog.models[0].supportsCinematicLookReferences = true;
     catalog.models[0].inputModes.push('multimodal_reference');
@@ -450,6 +458,7 @@ describe('Cinematic Produce runtime workspace', () => {
     api.createCinematicVideoAttempt.mockResolvedValue({ attemptId: 'attempt-multi', task: { id: 'task-multi', status: 'provider_queued' } });
     generationApi.getVideoTask.mockResolvedValue({ id: 'task-multi', status: 'provider_queued' });
     renderRuntime();
+    fireEvent.click(await screen.findByText('cinematic.produce.references.title'));
     const select = await screen.findByRole('combobox', { name: 'cinematic.produce.references.mode' });
     expect(select).toHaveTextContent('cinematic.produce.references.single');
     fireEvent.keyDown(select, { key: 'Enter' });
@@ -676,6 +685,7 @@ describe('Cinematic Produce runtime workspace', () => {
 
   it('blocks stale quote submission during refresh and shows the actual quote failure', async () => {
     const { queryClient } = renderRuntime();
+    fireEvent.click(await screen.findByText('cinematic.produce.references.title'));
     const button = await screen.findByRole('button', { name: 'cinematic.produce.generate' });
     await waitFor(() => expect(button).toBeEnabled());
     let rejectQuote!: (error: Error) => void;
@@ -742,6 +752,84 @@ describe('Cinematic Produce runtime workspace', () => {
     const video = document.querySelector('video');
     expect(video?.querySelector('source')).toHaveAttribute('src', '/outputs/cinematic/clip.mp4');
     expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
+  it.each(['user', 'admin', 'support'])('limits the compiled prompt to privileged %s roles without hiding Shot direction', async role => {
+    authRole.value = role;
+    renderRuntime();
+    expect(await screen.findByText('cinematic.produce.shotDirection')).toBeInTheDocument();
+    expect(screen.getByLabelText('cinematic.produce.additionalMotionDirection')).toBeInTheDocument();
+    if (role === 'user') expect(screen.queryByText('cinematic.produce.technicalPrompt')).not.toBeInTheDocument();
+    else expect(screen.getByText('cinematic.produce.technicalPrompt')).toBeInTheDocument();
+  });
+
+  it.each(['ready', 'shot_changed'])('shows canonical completed status and %s reason for a historical Take', async reason => {
+    const project = projectFixture();
+    project.generationAttempts = [{ id: 'old-take', sceneId: 'scene-1', shotId: 'shot-1',
+      operation: 'cinematic_draft_clip', generationJobId: 'old-task', status: 'provider_queued',
+      videoPacketFingerprint: 'old-policy-packet' }];
+    api.getCinematicProduceContext.mockResolvedValue({ ...produceContext(), videoAttempts: [{
+      id: 'old-take', status: 'completed', operation: 'cinematic_draft_clip', approvalReason: reason
+    }] });
+    generationApi.getVideoTask.mockResolvedValue({ id: 'old-task', status: 'completed', billingStatus: 'captured',
+      outputAsset: { id: 'old-asset', publicUrl: '/old.mp4', technicalProbe: { status: 'passed' } } });
+    renderRuntime(project);
+    await waitFor(() => expect(document.querySelector('.cinematic-take')).toHaveTextContent('cinematic.takes.status.completed'));
+    expect(document.querySelector('.cinematic-take')).toHaveTextContent(`cinematic.takes.reason.${reason}`);
+    const useButton = screen.queryByRole('button', { name: 'cinematic.takes.use' });
+    if (reason === 'ready') expect(useButton).toBeEnabled();
+    else expect(useButton).not.toBeInTheDocument();
+  });
+
+  it('previews the newest ready older Take and exposes approval before a second task read completes', async () => {
+    const project = projectFixture();
+    project.generationAttempts = [
+      { id: 'ready-old', sceneId: 'scene-1', shotId: 'shot-1', operation: 'cinematic_draft_clip',
+        generationJobId: 'task-old', status: 'provider_queued', outputAsset: { publicUrl: '/ready-old.mp4' } },
+      { id: 'blocked-new', sceneId: 'scene-1', shotId: 'shot-1', operation: 'cinematic_draft_clip',
+        generationJobId: 'task-new', status: 'provider_queued', outputAsset: { publicUrl: '/blocked-new.mp4' } }
+    ] as CinematicProject['generationAttempts'];
+    api.getCinematicProduceContext.mockResolvedValue({ ...produceContext(), videoAttempts: [
+      { id: 'ready-old', status: 'completed', operation: 'cinematic_draft_clip', approvalReason: 'ready' },
+      { id: 'blocked-new', status: 'completed', operation: 'cinematic_draft_clip', approvalReason: 'keyframe_changed' }
+    ] });
+    generationApi.getVideoTask.mockReturnValue(new Promise(() => undefined));
+    api.approveCinematicVideoAttempt.mockResolvedValue(produceContext());
+    renderRuntime(project);
+    await waitFor(() => expect(document.querySelector('video source')).toHaveAttribute('src', '/ready-old.mp4'));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.takes.use' }));
+    await waitFor(() => expect(api.approveCinematicVideoAttempt).toHaveBeenCalledWith(
+      'project-1', 'scene-1', 'shot-1', 'ready-old', 4
+    ));
+    fireEvent.click(within(screen.getByRole('region', { name: 'cinematic.takes.title' })).getAllByRole('button')[0]!);
+    await waitFor(() => expect(document.querySelector('video source')).toHaveAttribute('src', '/blocked-new.mp4'));
+    expect(screen.queryByRole('button', { name: 'cinematic.takes.use' })).not.toBeInTheDocument();
+  });
+
+  it('requires an explicit confirmation before a duration-only Take override', async () => {
+    const project = projectFixture();
+    project.generationAttempts = [{ id: 'duration-take', sceneId: 'scene-1', shotId: 'shot-1',
+      operation: 'cinematic_draft_clip', generationJobId: 'duration-task', status: 'provider_queued',
+      outputAsset: { publicUrl: '/duration.mp4' } }] as CinematicProject['generationAttempts'];
+    api.getCinematicProduceContext.mockResolvedValue({ ...produceContext(), videoAttempts: [{
+      id: 'duration-take', status: 'completed', operation: 'cinematic_draft_clip',
+      approvalReason: 'duration_override_available', durationOverride: {
+        kind: 'planned_duration', submittedDurationMs: 8000, currentDurationMs: 4000,
+        submittedPacketFingerprint: 'old-packet', receiptCreatedAt: '2026-09-12T10:00:00.000Z'
+      }
+    }] });
+    generationApi.getVideoTask.mockReturnValue(new Promise(() => undefined));
+    api.approveCinematicVideoAttempt.mockResolvedValue(produceContext());
+    renderRuntime(project);
+    const trigger = await screen.findByRole('button', { name: 'cinematic.takes.overrideUse' });
+    expect(api.approveCinematicVideoAttempt).not.toHaveBeenCalled();
+    fireEvent.click(trigger);
+    expect(screen.getByText('cinematic.takes.overrideDescription')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.takes.overrideConfirm' }));
+    await waitFor(() => expect(api.approveCinematicVideoAttempt).toHaveBeenCalledWith(
+      'project-1', 'scene-1', 'shot-1', 'duration-take', 4,
+      { kind: 'planned_duration', submittedDurationMs: 8000, currentDurationMs: 4000 }
+    ));
   });
 
   it('keeps the approved keyframe and selected Seedance model after a prior privacy rejection', async () => {

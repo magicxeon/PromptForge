@@ -1,11 +1,14 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { access, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import net from 'node:net';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { loadPostProcessingConfig } from '../post-processing-service/config/serviceConfig.mjs';
+import { ensureFaceModel } from '../post-processing-service/setupModel.mjs';
 
 const scriptsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDirectory = path.resolve(scriptsDirectory, '..');
@@ -30,6 +33,10 @@ const viteEntry = path.join(
   'bin',
   'vite.js'
 );
+const postProcessingEntry = path.join(
+  rootDirectory, 'post-processing-service', 'api', 'server.mjs'
+);
+const postConfig = loadPostProcessingConfig();
 
 await stopPreviousDevSession();
 
@@ -46,7 +53,7 @@ if (process.argv.includes('--stop-existing')) {
   process.exit(0);
 }
 
-await Promise.all([assertFile(nodemonEntry), assertFile(viteEntry)]);
+await Promise.all([assertFile(nodemonEntry), assertFile(viteEntry), assertFile(postProcessingEntry)]);
 await writeRuntimeLock();
 
 process.on('SIGINT', () => stop(0));
@@ -66,8 +73,31 @@ if (await isApiReady()) {
   await waitForApiStop();
 }
 
+try {
+  if (postConfig.runtime.pilotEnabled) await ensureFaceModel({ config: postConfig });
+} catch (error) {
+  console.warn('Faceless model is unavailable: ' + error.message);
+  console.warn('The Post-Processing API will run with Faceless capability disabled.');
+}
+const postPort = await availablePort(postConfig.runtime.port);
+const postEnv = {
+  ...process.env,
+  POST_PROCESSING_HOST: postConfig.runtime.host,
+  POST_PROCESSING_PORT: String(postPort),
+  POST_PROCESSING_PILOT_ENABLED: String(postConfig.runtime.pilotEnabled),
+  POST_PROCESSING_FACE_MODEL_PATH: postConfig.runtime.modelPath,
+  POST_PROCESSING_URL: 'http://' + postConfig.runtime.host + ':' + postPort,
+  POST_PROCESSING_INTERNAL_TOKEN: postConfig.runtime.internalToken || randomBytes(32).toString('hex')
+};
+console.log('Starting Post-Processing API on ' + postEnv.POST_PROCESSING_URL + '...');
+const postProcess = startNode(postProcessingEntry, [], rootDirectory, postEnv);
+if (!await waitForService(postProcess, postPort)) {
+  console.error('Post-Processing API did not become ready.');
+  stop(1);
+}
+
 console.log('Starting ModelPromptForge API on http://localhost:6500...');
-const apiProcess = startNode(nodemonEntry, ['server/server.js'], rootDirectory);
+const apiProcess = startNode(nodemonEntry, ['server/server.js'], rootDirectory, postEnv);
 const ready = await waitForApi(apiProcess);
 if (!ready) {
   console.error('API server did not become ready on port 6500.');
@@ -78,20 +108,47 @@ console.log('Starting React development server on http://localhost:5173...');
 const webProcess = startNode(viteEntry, [], path.join(rootDirectory, 'web'));
 
 const exitCode = await waitForFirstExit(
-  [apiProcess, webProcess].filter(Boolean)
+  [postProcess, apiProcess, webProcess].filter(Boolean)
 );
 stop(exitCode);
 
-function startNode(entry, args, cwd) {
+function startNode(entry, args, cwd, env = process.env) {
   const child = spawn(process.execPath, [entry, ...args], {
     cwd,
-    env: process.env,
+    env,
     stdio: 'inherit',
     windowsHide: true
   });
   children.add(child);
   child.once('exit', () => children.delete(child));
   return child;
+}
+
+async function waitForService(child, port) {
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    if (child.exitCode !== null) return false;
+    try {
+      const response = await fetch('http://127.0.0.1:' + port + '/health', {
+        signal: AbortSignal.timeout(1000)
+      });
+      if (response.ok) return true;
+    } catch { /* Wait for startup. */ }
+    await delay(400);
+  }
+  return false;
+}
+
+async function availablePort(preferred) {
+  const probe = port => new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.once('error', reject);
+    server.listen(port, '127.0.0.1', () => {
+      const chosen = server.address().port;
+      server.close(() => resolve(chosen));
+    });
+  });
+  try { return await probe(preferred); } catch { return probe(0); }
 }
 
 async function waitForApi(apiChild) {

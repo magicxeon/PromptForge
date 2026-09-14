@@ -6,6 +6,60 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Standalone Post-Processing API Plan: Faceless Previs First (2026-09-14)
+
+[021-post-processing-service](../021-post-processing-service/000-master.md)
+is the canonical requirements and ordered implementation-plan folder for the
+separate API proposed in
+[Momelo Post Processing Service](Technical-Documents/momelo-post-processing-service-implementation-plan.md).
+The first implementation slice is **Faceless previs**: a bounded, private,
+non-billable face-landmark and deterministic white-mask derivative for
+Cinematic Storyboard images or a preceding selected Take's extracted last
+frame. The rest of the source proposal (image/video enhancement, audio
+analysis, voice repair/lip-sync, GPU/cloud platform and pricing) is planned
+in separate later phases, not activated by this documentation.
+
+The API-first local pilot now lives under post-processing-service/api,
+post-processing-service/domain, post-processing-service/adapters and
+post-processing-service/config, with service-scoped AGENTS.md, validated
+runtime .env and versioned non-secret JSON policy. It uses a checksum-pinned
+ignored model under post-processing-service/models.
+scripts/start-dev.mjs launches it separately with an ephemeral internal
+token; server/providers/PostProcessingServiceClient.js connects Core over
+loopback. server/domain/assets/FacelessPrevisAssetService.js imports the
+immutable derivative using the existing AssetRepository and outputs path.
+No new durable runtime store exists. Durable Jobs, private media grant,
+model-license evidence and deployment ownership remain open in the 021 plan.
+Existing Core Assets registers
+immutable derivatives, Cinematic owns Storyboard selection/approval,
+Generation owns provider Jobs and Credits alone owns billing. The new
+service may own only internal processing Jobs and temporary media; it must
+not create parallel Generation, Asset, Cinematic or Credit workflows.
+Existing provider Generate Faceless choices and full-face generation remain
+available. The new API is dev-pilot only; production availability defaults off.
+
+### Cinematic Historical Take Eligibility And Produce Disclosure (2026-09-13)
+
+Produce-video-pipeline/024 extends the existing CinematicApplicationService
+review/approval facade. CinematicTakeEligibility and the packet compiler's
+authored-authority fingerprint compare immutable receipt/submission evidence
+with current Shot content while ignoring only prompt/compiler metadata and
+version counters. Existing VideoProviderTaskRepository batch reads supply
+actor-owned terminal status, settlement and media probe without a new poller or
+runtime store. CinematicVideoReferencePlanService reviewExistingTake reconstructs
+ordered historical references without current new-job capability gates; it
+still resolves owner-owned Cast/Look assets and compares the original reference
+fingerprint. New generation continues through unchanged capability checks.
+React Produce merges the reviewed Take status/reason, keeps preview separate
+from approval, collapses Video references and role-gates the raw prompt while
+retaining editable Shot direction. Focused runner: scripts/test-cinematic-video.js
+take-eligibility. No new Credit, provider dispatch or persistence path.
+The 024 follow-up uses the same approval command for an explicit, audited
+duration-only override when an immutable receipt proves all other Shot fields
+unchanged. It does not relax source, Cast/Look, task, settlement or probe gates.
+Produce previews the newest eligible Take when the latest is blocked, but never
+approves it automatically. See 024 for the owner confirmation and support request.
+
 ### Cinematic Pilot Timing And Prompt Preparation (2026-09-13)
 
 Cinematic enhancement-core-engine/050 coordinates delivery, not another runtime
@@ -886,3 +940,14 @@ GenerationExperience exposes opt-in renderWorkspace presentation regions and
 readOnlyPrompt.collapsed; Generation retains all state, quotes, submission and
 polling. Other layout variants retain their defaults. Visual verification lives
 in scripts/verify-storyboard-shot-workspace.mjs, using intercepted fixtures only.
+
+Storyboard previous-video-frame reuse is owned by Cinematic source approval
+and Assets' `CinematicLastFrameService.js`. The current Shot may explicitly
+adopt a checksum-verified immutable PNG derived from the immediately preceding
+approved Take; no Image Job, provider call, or Credit mutation is created.
+The existing `cinematic_storyboard_source` Asset type and Project repository
+store lineage. Storyboard Image Settings uses the shared Generation reference
+region; its leading controls remain visible even while image-model reference
+capability is unavailable. Focused automated groups live in
+`scripts/test-cinematic-video.js`; browser layout fixture is
+`scripts/verify-cinematic-last-frame-layout.mjs`.

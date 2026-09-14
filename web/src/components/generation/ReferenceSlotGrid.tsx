@@ -91,7 +91,10 @@ export function ReferenceSlotGrid({
       scheduleHashTargetScroll(location.hash);
     }
   }, [location.hash]);
-  if (!supported) return <p className="border border-[var(--mpf-border)] p-4 text-sm text-[var(--mpf-text-muted)]">{t('playground.reference.unsupported')}</p>;
+  if (!supported) return <section id="reference-images" className={`reference-slot-grid${compact ? ' reference-slot-grid--compact' : ''}`}>
+    {leadingContent}
+    <p className="border border-[var(--mpf-border)] p-4 text-sm text-[var(--mpf-text-muted)]">{t('playground.reference.unsupported')}</p>
+  </section>;
   return (
     <section
       id="reference-images"

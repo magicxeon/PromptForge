@@ -22,8 +22,15 @@ type Props = {
 
 export function ProduceVideoReferences({ mode, disabled, loading, onChange, references, lastFirstFrameMode = 'storyboard_only', supported = true, firstFrameEnabled = true, sketchAvailable = false }: Props) {
   const { t } = useTranslation('cinematic');
-  return <section className="min-w-0 space-y-3 py-2 text-sm" aria-label={t('cinematic.produce.references.title')}>
-    <strong>{t('cinematic.produce.references.title')}</strong>
+  return <details className="cinematic-produce-references min-w-0 text-sm">
+    <summary className="flex min-h-10 cursor-pointer items-center justify-between gap-2 py-2">
+      <strong>{t('cinematic.produce.references.title')}</strong>
+      <span className="flex items-center gap-2 text-xs text-[var(--mpf-text-muted)]">
+        {loading ? <ProcessingSpinner className="size-4" /> : null}
+        {t('cinematic.produce.references.count', { count: references?.length || 0 })}
+      </span>
+    </summary>
+    <div className="space-y-3 pb-3">
     <div className="flex items-center justify-between gap-3">
       <span>{t(sketchAvailable ? 'cinematic.produce.references.useSketch' : 'cinematic.produce.references.useFirstFrame')}</span>
       <ToggleSwitch label={t(sketchAvailable ? 'cinematic.produce.references.useSketch' : 'cinematic.produce.references.useFirstFrame')} checked={!['looks_only', 'text_only'].includes(mode)}
@@ -52,5 +59,6 @@ export function ProduceVideoReferences({ mode, disabled, loading, onChange, refe
         </li>)}
       </ol>}
     </div>
-  </section>;
+    </div>
+  </details>;
 }

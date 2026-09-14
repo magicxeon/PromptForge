@@ -222,10 +222,22 @@ const cinematicStoryboardVideoCompatibilitySchema = z.object({
 });
 
 export const cinematicApprovedStoryboardSourceSchema = z.object({
+  sourceKind: z.enum(['previous_video_last_frame', 'faceless_previs']).optional(),
+  parentAssetId: z.string().optional(),
+  parentSourceKind: z.string().optional(),
+  parentSourceAttemptId: z.string().nullable().optional(),
+  parentSourceVideoAssetId: z.string().nullable().optional(),
+  parentSourceShotId: z.string().nullable().optional(),
+  expectedFaces: z.number().int().min(1).max(8).optional(),
+  sourceProjectId: z.string().optional(),
+  sourceShotId: z.string().optional(),
+  sourceAttemptId: z.string().optional(),
+  sourceVideoAssetId: z.string().optional(),
+  timestampMs: z.number().int().nonnegative().optional(),
   storyboardRenderStyle: storyboardRenderStyleSchema.nullable().optional(),
   assetId: z.string().min(1),
   assetVersionId: z.string().min(1),
-  sourceJobId: z.string().min(1),
+  sourceJobId: z.string().min(1).nullable(),
   imageUrl: z.string().min(1),
   thumbnailUrl: z.string().min(1),
   contentHash: z.string(),
@@ -340,6 +352,12 @@ export const cinematicSceneEnvironmentImagesSchema = z.object({
 });
 
 export const cinematicStoryboardGenerationContextSchema = z.object({
+  previousVideoFrame: z.object({
+    available: z.boolean(), reason: z.string().nullable(), previousShotId: z.string().nullable(),
+    previousShotTitle: z.string().nullable(), approvedTakeId: z.string().nullable(),
+    previousSceneTitle: z.string().nullable().optional(), crossScene: z.boolean().optional(),
+    posterUrl: z.string().nullable()
+  }).optional(),
   cinematicSceneReference: z.object({ assetId: z.string().min(1), contentHash: z.string().regex(/^[a-f0-9]{64}$/) }).nullable().optional(),
   cinematicFacialTreatment: z.enum(['blank', 'white_previs']).optional(),
   cinematicManualStoryboard: z.boolean().optional(),
@@ -1048,6 +1066,14 @@ export const cinematicProduceShotContextSchema = z.object({
       posterUrl: z.string().nullable().optional()
     }).passthrough().nullable().optional(),
     reviewDecision: z.string().optional(),
+    approvalReason: z.enum(['ready', 'processing', 'task_unavailable', 'task_failed', 'settlement_pending',
+      'media_unavailable', 'probe_failed', 'reference_changed', 'reference_unavailable', 'source_changed', 'keyframe_changed',
+      'shot_changed', 'authority_unverified', 'duration_override_available']).optional(),
+    durationOverride: z.object({
+      kind: z.literal('planned_duration'), submittedDurationMs: z.number().int().positive(),
+      currentDurationMs: z.number().int().positive(), submittedPacketFingerprint: z.string(),
+      receiptCreatedAt: z.string()
+    }).nullable().optional(),
     downstreamSourceStatus: z.enum(['current', 'source_changed', 'source_unavailable', 'packet_changed'])
   })),
   timelineDependencyStatus: z.enum(['current', 'source_changed', 'source_unavailable', 'packet_changed'])

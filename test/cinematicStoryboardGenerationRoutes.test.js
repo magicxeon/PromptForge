@@ -30,6 +30,23 @@ test('Cinematic Storyboard batch accepts the server keyframe fingerprint and pre
   assert.deepEqual(submission.metadata.keyframeContractFingerprints, ['keyframe_route_1']);
 });
 
+test('previous-video-frame endpoint delegates an actor-scoped preview without a Generation submission', async () => {
+  const { previousFrameHandler, cinematicService, generationApplicationService } = routeFixture();
+  const request = requestFixture();
+  request.params.sceneId = 'scene_1';
+  request.params.shotId = 'shot_1';
+  request.body = { expectedVersion: 4, expectedShotVersion: 2 };
+  const response = responseFixture();
+  await previousFrameHandler(request, response);
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.sourceKind, 'previous_video_last_frame');
+  assert.deepEqual(cinematicService.frameCalls[0], {
+    projectId: project.id, sceneId: 'scene_1', shotId: 'shot_1', input: request.body,
+    actor: request.actorContext
+  });
+  assert.equal(generationApplicationService.calls.length, 0);
+});
+
 test('Cinematic Storyboard batch preserves a direct Cast sheet without a Character Profile', async () => {
   const sheet = '/outputs/direct-cast-sheet.png';
   const contextValue = structuredClone(context);
@@ -174,6 +191,11 @@ function routeFixture({ projectValue = project, contextValue = context } = {}) {
   }
   const cinematicService = {
     storyPlanCalls: [],
+    frameCalls: [],
+    async preparePreviousVideoFrame(projectId, sceneId, shotId, input, actor) {
+      this.frameCalls.push({ projectId, sceneId, shotId, input, actor });
+      return { sourceKind: 'previous_video_last_frame', assetId: 'frame_1' };
+    },
     getProject: async () => structuredClone(projectValue),
     getStoryboardGenerationContext: async () => structuredClone(contextValue),
     registerStoryboardBatchAttempts: async () => structuredClone(project),
@@ -227,6 +249,7 @@ function routeFixture({ projectValue = project, contextValue = context } = {}) {
   return {
     handler: handlers.get('post:/api/cinematic/projects/:projectId/storyboard-generation-batches'),
     storyPlanHandler: handlers.get('post:/api/cinematic/projects/:projectId/story-plan/proposals'),
+    previousFrameHandler: handlers.get('post:/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/previous-video-frame'),
     cinematicService,
     generationApplicationService
   };

@@ -430,6 +430,20 @@ function fingerprint(value) {
   return crypto.createHash('sha256').update(JSON.stringify(sortValue(value))).digest('hex');
 }
 
+export function fingerprintVideoPacketAuthority(packet, { omitPlannedDuration = false } = {}) {
+  if (!packet) return null;
+  // Approved keyframe identity is checked separately; prompt-policy wording is not authored Shot state.
+  const authority = { ...packet };
+  if (omitPlannedDuration) {
+    authority.timing = { ...packet.timing };
+    delete authority.timing.plannedDurationMs;
+  }
+  for (const key of ['projectVersion', 'sceneVersion', 'shotVersion', 'keyframeContractFingerprint', 'provenance',
+    'findings', 'packetFingerprint', 'renderedPromptFingerprint',
+    'providerIndependentPrompt', 'prohibitions']) delete authority[key];
+  return fingerprint(authority);
+}
+
 function sortValue(value) {
   if (Array.isArray(value)) return value.map(sortValue);
   if (!value || typeof value !== 'object') return value;
