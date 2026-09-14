@@ -220,10 +220,10 @@ class ImageEnhancementAdapter:
             logger.info(f"[FILTER] Applying Bilateral Filter (radius={r}, sigma=75)")
             bgr_img = cv2.bilateralFilter(bgr_img, d=r, sigmaColor=75, sigmaSpace=75)
 
-        # 4. CLAHE (Contrast Limited Adaptive Histogram Equalization) - Enhances micro-texture contrast & razor-sharp details
+        # 4. CLAHE (Contrast Limited Adaptive Histogram Equalization) - Subtle micro-texture contrast
         lab = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2LAB)
         l_chan, a_chan, b_chan = cv2.split(lab)
-        clahe = cv2.createCLAHE(clipLimit=1.6, tileGridSize=(8, 8))
+        clahe = cv2.createCLAHE(clipLimit=1.2, tileGridSize=(8, 8))
         cl_chan = clahe.apply(l_chan)
         limg = cv2.merge((cl_chan, a_chan, b_chan))
         bgr_img = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
@@ -242,11 +242,11 @@ class ImageEnhancementAdapter:
             rgb_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)
             processed_image = Image.fromarray(rgb_img)
 
-        # 6. Edge-Adaptive Unsharp Masking (USM) (Radius=1 for fine pixel sharpness, zero wide halos)
+        # 6. Edge-Adaptive Unsharp Masking (USM) (Tuned for smooth natural sharpness)
         if sharpen:
             radius = getattr(self.policy, "unsharpMaskRadius", 1)
-            percent = getattr(self.policy, "unsharpMaskPercent", 200)
-            threshold = getattr(self.policy, "unsharpMaskThreshold", 1)
+            percent = getattr(self.policy, "unsharpMaskPercent", 100)
+            threshold = getattr(self.policy, "unsharpMaskThreshold", 2)
             processed_image = processed_image.filter(
                 ImageFilter.UnsharpMask(radius=radius, percent=percent, threshold=threshold)
             )
@@ -254,7 +254,7 @@ class ImageEnhancementAdapter:
         # 7. Contrast Restoration
         if contrast_restoration:
             enhancer = ImageEnhance.Contrast(processed_image)
-            processed_image = enhancer.enhance(1.06)
+            processed_image = enhancer.enhance(1.04)
 
         # Encode output
         output_buffer = io.BytesIO()
@@ -292,10 +292,10 @@ class ImageEnhancementAdapter:
         np_out = (t_out.permute(1, 2, 0).cpu().numpy() * 255.0).astype(np.uint8)
         out_img = Image.fromarray(np_out)
 
-        # If requested scale is 2x and model output is 4x, resize smoothly to target 2x & recover fine detail
+        # If requested scale is 2x and model output is 4x, resize smoothly to target 2x
         target_w, target_h = pil_image.width * scale, pil_image.height * scale
         if out_img.width != target_w or out_img.height != target_h:
             out_img = out_img.resize((target_w, target_h), resample=Image.Resampling.LANCZOS)
-            out_img = out_img.filter(ImageFilter.UnsharpMask(radius=1, percent=140, threshold=0))
+            out_img = out_img.filter(ImageFilter.UnsharpMask(radius=1, percent=60, threshold=1))
 
         return out_img
