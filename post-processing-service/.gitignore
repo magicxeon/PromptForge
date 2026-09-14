@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables & secrets (commit only .env.example)
+.env
+.env.*
+!.env.example
+
+# Heavy ML Model Checkpoints & Artifacts (Stored under D:\applications\momelo-post-processing\models\)
+models/*.pth
+models/*.onnx
+models/*.task
+models/*.tflite
+models/*.pb
+models/*.bin
+models/*.safetensors
+!models/README.md
+!models/.gitkeep
+
+# Logs, Cache & Temporary Test Outputs
+*.log
+.pytest_cache/
+output/
+temp/
+tmp/

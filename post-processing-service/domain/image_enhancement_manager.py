@@ -1,13 +1,14 @@
 import base64
 import hashlib
 import io
+import logging
 from typing import Dict, Any, Optional
 from PIL import Image
 
 from adapters.image_enhancement_adapter import ImageEnhancementAdapter
-
-
 from domain.faceless_previs import HTTPException_Like
+
+logger = logging.getLogger("post_processing.image_enhancement_manager")
 
 
 class ImageEnhancementManager:
@@ -90,12 +91,19 @@ class ImageEnhancementManager:
                 output_format=output_format
             )
         except ValueError as ve:
+            logger.error(f"[ENHANCEMENT_FAILED] Validation/value error: {ve}")
             raise HTTPException_Like("enhancement_processing_failed", str(ve), 400)
         except Exception as e:
+            logger.error(f"[ENHANCEMENT_FAILED] Execution exception: {e}")
             raise HTTPException_Like("enhancement_execution_error", f"Processing error: {str(e)}", 500)
 
         input_hash = hashlib.sha256(bytes_data).hexdigest()
         output_hash = hashlib.sha256(output_bytes).hexdigest()
+
+        logger.info(
+            f"[MANAGER_PROCESSED] InputHash={input_hash[:12]}... -> OutputHash={output_hash[:12]}... "
+            f"({orig_w}x{orig_h} -> {new_w}x{new_h} px)"
+        )
 
         return {
             "bytes": output_bytes,

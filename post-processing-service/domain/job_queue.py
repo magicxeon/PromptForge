@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import json
+import logging
 import os
 import time
 import uuid
@@ -13,6 +14,8 @@ from domain.face_landmarks import face_landmarks_manager
 from domain.image_enhancement_manager import image_enhancement_manager
 from domain.telemetry_manager import telemetry_manager
 from domain.resilience_manager import resilience_manager
+
+logger = logging.getLogger("post_processing.job_queue")
 
 class JobQueueManager:
     """
@@ -80,6 +83,7 @@ class JobQueueManager:
                 existing_job_id = self.idempotency_map[idempotency_key]
                 if existing_job_id in self.jobs:
                     existing = self.jobs[existing_job_id]
+                    logger.info(f"[JOB_DEDUPLICATED] IdempotencyKey='{idempotency_key}' matches existing JobId='{existing_job_id}'")
                     return {
                         "jobId": existing["jobId"],
                         "status": existing["status"],
@@ -114,6 +118,7 @@ class JobQueueManager:
                 self.idempotency_map[idempotency_key] = job_id
                 
             self._save_to_disk()
+            logger.info(f"[JOB_CREATED] JobId='{job_id}', Operation='{operation}', InputSize={len(input_bytes)} bytes")
 
             # Schedule background worker execution
             if app_state:
@@ -236,9 +241,11 @@ class JobQueueManager:
                     self.jobs[job_id]["resultSummary"] = result_summary
                     self.jobs[job_id]["fullResult"] = result
                     self._save_to_disk()
+                    logger.info(f"[JOB_COMPLETED] JobId='{job_id}', Operation='{operation}', Duration={duration_ms:.2f}ms")
 
         except asyncio.TimeoutError:
             telemetry_manager.record_request_failure()
+            logger.error(f"[JOB_FAILED] JobId='{job_id}' timed out after {self.job_timeout_ms}ms")
             async with self._lock:
                 if job_id in self.jobs:
                     self.jobs[job_id]["status"] = "failed"
@@ -249,6 +256,7 @@ class JobQueueManager:
 
         except HTTPException_Like as ex:
             telemetry_manager.record_request_failure()
+            logger.error(f"[JOB_FAILED] JobId='{job_id}' failed: code='{ex.code}', message='{ex.message}'")
             async with self._lock:
                 if job_id in self.jobs:
                     self.jobs[job_id]["status"] = "failed"
@@ -259,6 +267,7 @@ class JobQueueManager:
 
         except Exception as ex:
             telemetry_manager.record_request_failure()
+            logger.error(f"[JOB_FAILED] JobId='{job_id}' unexpected exception: {ex}")
             async with self._lock:
                 if job_id in self.jobs:
                     self.jobs[job_id]["status"] = "failed"

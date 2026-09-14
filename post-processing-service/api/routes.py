@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import logging
 import time
 from typing import Optional
 from fastapi import APIRouter, Request, Header, HTTPException, Response, status
@@ -11,6 +12,7 @@ from domain.image_enhancement_manager import ImageEnhancementManager, image_enha
 from domain.telemetry_manager import TelemetryManager, telemetry_manager
 from domain.job_queue import job_queue_manager
 
+logger = logging.getLogger("post_processing.api")
 router = APIRouter()
 
 # 1. Health Probe Endpoints
@@ -280,6 +282,11 @@ async def post_image_upscale_or_enhance(
         anti_aliasing = x_anti_aliasing if x_anti_aliasing is not None else True
         use_ai_engine = x_use_ai_engine if x_use_ai_engine is not None else True
 
+        logger.info(
+            f"[HTTP_POST {request.url.path}] Request received: body={len(bytes_data)} bytes, "
+            f"scale={scale}x, sharpen={sharpen}, anti_aliasing={anti_aliasing}, use_ai={use_ai_engine}"
+        )
+
         result = image_enhancement_manager.process(
             bytes_data=bytes_data,
             scale=scale,
@@ -294,6 +301,10 @@ async def post_image_upscale_or_enhance(
 
         duration_ms = (time.time() - start_time) * 1000
         telemetry_manager.record_request_success(duration_ms)
+        logger.info(
+            f"[HTTP_200 {request.url.path}] Completed in {duration_ms:.2f}ms: "
+            f"target={result['targetWidth']}x{result['targetHeight']} px, mode={result['executionMode']}"
+        )
         response_content = {k: v for k, v in result.items() if k != "bytes"}
         return JSONResponse(status_code=200, content=response_content)
 

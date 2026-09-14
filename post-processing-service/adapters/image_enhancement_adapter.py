@@ -1,4 +1,5 @@
 import io
+import time
 import logging
 from pathlib import Path
 from typing import Tuple, Dict, Any, Optional
@@ -165,27 +166,42 @@ class ImageEnhancementAdapter:
 
         # Limit check on output dimensions
         if new_w * new_h > self.policy.maxOutputPixels:
+            logger.error(
+                f"[IMAGE_ENHANCE_REJECTED] Target dimensions {new_w}x{new_h}={new_w * new_h} px "
+                f"exceed maxOutputPixels limit of {self.policy.maxOutputPixels} px"
+            )
             raise ValueError(
                 f"Output image dimensions ({new_w}x{new_h}={new_w * new_h} px) "
                 f"exceed policy limit of {self.policy.maxOutputPixels} pixels."
             )
 
+        logger.info(
+            f"[IMAGE_ENHANCE_START] Input: {orig_w}x{orig_h} px ({len(image_bytes)} bytes), "
+            f"Target: {new_w}x{new_h} px ({scale}x), AI_Engine={use_ai_engine}, Sharpen={sharpen}"
+        )
+
         execution_mode = "advanced_cv_lanczos"
         ai_used = False
         processed_image = None
+        t0 = time.time()
 
         # 1. Try Real-ESRGAN Deep Learning AI Super-Resolution if enabled
         if use_ai_engine and getattr(self.policy, "aiEngineEnabled", True) and self.pytorch_model:
             try:
+                logger.info(f"[AI_INFERENCE] Running Real-ESRGAN Super-Resolution on device='{self.device}'...")
+                ai_t0 = time.time()
                 processed_image = self._run_realesrgan_pytorch(image, scale)
+                ai_duration_ms = (time.time() - ai_t0) * 1000.0
                 execution_mode = f"real_esrgan_ai_{scale}x"
                 ai_used = True
+                logger.info(f"[AI_INFERENCE_COMPLETE] Real-ESRGAN finished in {ai_duration_ms:.2f}ms")
             except Exception as e:
-                logger.warning(f"Real-ESRGAN execution fallback: {e}")
+                logger.warning(f"[AI_INFERENCE_FALLBACK] Real-ESRGAN execution fallback: {e}")
                 processed_image = None
 
         # 2. Advanced Computer Vision Fallback Engine (Lanczos Resampling)
         if processed_image is None:
+            logger.info(f"[CV_FALLBACK] Resampling using Lanczos {orig_w}x{orig_h} -> {new_w}x{new_h} px")
             processed_image = image.resize((new_w, new_h), resample=Image.Resampling.LANCZOS)
             execution_mode = f"advanced_cv_lanczos_{scale}x"
 
@@ -201,6 +217,7 @@ class ImageEnhancementAdapter:
         # 3. Edge-Preserving Bilateral Filtering (ONLY for non-AI fallback mode to prevent washing out AI details)
         if not ai_used and (anti_aliasing or getattr(self.policy, "enableAntiAliasing", True)):
             r = getattr(self.policy, "bilateralFilterRadius", 9)
+            logger.info(f"[FILTER] Applying Bilateral Filter (radius={r}, sigma=75)")
             bgr_img = cv2.bilateralFilter(bgr_img, d=r, sigmaColor=75, sigmaSpace=75)
 
         # 4. CLAHE (Contrast Limited Adaptive Histogram Equalization) - Enhances micro-texture contrast & razor-sharp details
@@ -213,6 +230,7 @@ class ImageEnhancementAdapter:
 
         # 5. Denoise Filter
         if denoise:
+            logger.info("[FILTER] Applying Non-Local Means Denoising")
             bgr_img = cv2.fastNlMeansDenoisingColored(bgr_img, None, 3, 3, 7, 21)
 
         # Convert back to PIL Image
@@ -249,6 +267,12 @@ class ImageEnhancementAdapter:
 
         processed_image.save(output_buffer, format=fmt, quality=95)
         output_bytes = output_buffer.getvalue()
+        total_duration_ms = (time.time() - t0) * 1000.0
+
+        logger.info(
+            f"[IMAGE_ENHANCE_COMPLETE] Output: {new_w}x{new_h} px ({len(output_bytes)} bytes), "
+            f"Mode={execution_mode}, AI_Used={ai_used}, Duration={total_duration_ms:.2f}ms"
+        )
 
         return output_bytes, new_w, new_h, execution_mode, ai_used
 
