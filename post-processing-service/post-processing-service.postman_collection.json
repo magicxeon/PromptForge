@@ -210,7 +210,122 @@
             "face-landmarks"
           ]
         },
-        "description": "Detects face landmarks on raw image bytes and returns normalized coordinate JSON."
+    },
+    {
+      "name": "06. Create Async Job (POST /v1/jobs)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}",
+            "type": "text"
+          },
+          {
+            "key": "x-idempotency-key",
+            "value": "idempotency_sample_key_123",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"operation\": \"image.face_landmarks\",\n  \"inputBase64\": \"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==\",\n  \"options\": {\n    \"expectedFaces\": 1\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs"
+          ]
+        },
+        "description": "Creates and queues an async processing job. Returns HTTP 202 Accepted with jobId."
+      },
+      "response": []
+    },
+    {
+      "name": "07. Get Async Job Status (GET /v1/jobs/:jobId)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/job_1789369110_2dbc01ee",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "job_1789369110_2dbc01ee"
+          ]
+        },
+        "description": "Queries status, progress, stage, error, and result summary for an async job."
+      },
+      "response": []
+    },
+    {
+      "name": "08. Get Async Job Result (GET /v1/jobs/:jobId/result)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/job_1789369110_2dbc01ee/result",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "job_1789369110_2dbc01ee",
+            "result"
+          ]
+        },
+        "description": "Fetches complete result payload for a completed async job."
+      },
+      "response": []
+    },
+    {
+      "name": "09. Cancel Async Job (DELETE /v1/jobs/:jobId)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/job_1789369110_2dbc01ee",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "job_1789369110_2dbc01ee"
+          ]
+        },
+        "description": "Cancels a pending or processing async job."
       },
       "response": []
     }

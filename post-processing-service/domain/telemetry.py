@@ -2,7 +2,10 @@ import os
 import time
 from typing import Dict, Any
 
-class TelemetryTracker:
+class TelemetryManager:
+    """
+    Reusable component manager responsible for service telemetry, operational metrics, and memory tracking.
+    """
     def __init__(self):
         self.start_time = time.time()
         self.total_requests = 0
@@ -72,4 +75,5 @@ class TelemetryTracker:
             }
         }
 
-telemetry_tracker = TelemetryTracker()
+telemetry_manager = TelemetryManager()
+telemetry_tracker = telemetry_manager

@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple, Dict, Any
 from pydantic import BaseModel, Field, field_validator
 from dotenv import dotenv_values
 
@@ -31,6 +31,12 @@ class ModelPolicy(BaseModel):
     maxDownloadBytes: int
     downloadTimeoutMs: int
 
+class JobQueuePolicy(BaseModel):
+    maxQueueSize: int = 100
+    jobTimeoutMs: int = 30000
+    jobTtlSeconds: int = 86400
+    persistenceFileName: str = "jobs.json"
+
 class FacelessPrevisPolicy(BaseModel):
     policyVersion: str
     maxInputBytes: int
@@ -47,6 +53,7 @@ class FacelessPrevisPolicy(BaseModel):
 class PolicyDocument(BaseModel):
     schemaVersion: int
     facelessPrevis: FacelessPrevisPolicy
+    jobQueue: Optional[JobQueuePolicy] = None
 
 class RuntimeConfig(BaseModel):
     host: str = "127.0.0.1"
@@ -54,12 +61,14 @@ class RuntimeConfig(BaseModel):
     pilotEnabled: bool = True
     internalToken: str
     modelPath: Path
+    dataDir: Path = D_APPLICATIONS_ROOT / "data"
 
 class ServiceConfig(BaseModel):
     runtime: RuntimeConfig
     policy: FacelessPrevisPolicy
+    jobQueue: JobQueuePolicy
 
-def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> FacelessPrevisPolicy:
+def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tuple[FacelessPrevisPolicy, JobQueuePolicy]:
     if not policy_path.exists():
         raise FileNotFoundError(f"Post-Processing policy file missing: {policy_path}")
     try:
@@ -68,7 +77,8 @@ def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Face
         doc = PolicyDocument(**data)
         if doc.schemaVersion != 1:
             raise ValueError("Post-Processing policy schemaVersion must be 1.")
-        return doc.facelessPrevis
+        job_queue_policy = doc.jobQueue or JobQueuePolicy()
+        return doc.facelessPrevis, job_queue_policy
     except Exception as e:
         raise ValueError(f"Post-Processing policy is invalid: {str(e)}")
 
@@ -102,7 +112,7 @@ def load_post_processing_config(
     if not internal_token or len(internal_token.encode("utf-8")) < 32:
         raise ValueError("POST_PROCESSING_INTERNAL_TOKEN must contain at least 32 bytes.")
         
-    policy = load_post_processing_policy(policy_path)
+    policy, job_queue_policy = load_post_processing_policy(policy_path)
     
     # Priority for model storage: D:\applications\momelo-post-processing\models\ -> local models\
     custom_model_path = merged_env.get("POST_PROCESSING_FACE_MODEL_PATH")
@@ -126,4 +136,4 @@ def load_post_processing_config(
         modelPath=model_path
     )
     
-    return ServiceConfig(runtime=runtime, policy=policy)
+    return ServiceConfig(runtime=runtime, policy=policy, jobQueue=job_queue_policy)

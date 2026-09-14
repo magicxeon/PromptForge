@@ -1,59 +1,174 @@
-# Post-Processing API (Faceless Previs Pilot)
+# Momelo Post-Processing Microservice Specification & Architecture Guide
 
-This is a separate local service process, not an Express route or a second
-Generation pipeline. Core authenticates the actor, verifies the Storyboard
-source Asset and sends its bytes over authenticated loopback HTTP. The service
-has no access to Core repositories and accepts no source URL, filesystem path,
-actor ID or Base64 payload from callers. It runs MediaPipe Face Landmarker in
-a local headless Chromium context with outbound requests blocked. Its only
-operation in this pilot is a deterministic white-face previs PNG. No customer
-Credits are charged.
+เอกสารกำกับสถาปัตยกรรม แผนผังระบบ และคู่มือการระบุตำแหน่งไฟล์ (Diagnostic & File Mapping Guide) สำหรับ **Post-Processing Microservice** (พัฒนาด้วย **Python 3.10+ FastAPI + Uvicorn** รันบน `http://127.0.0.1:6501` คืนค่าข้อมูลในรูปแบบ **JSON Format 100%**)
 
-Use scripts/start-dev.mjs (or scripts/start-dev.bat) to start Core, Web and
-this service together. The launcher creates a fresh internal token, chooses
-port 6501 when free, and downloads a checksum-pinned local model if absent.
-If model download or Chromium setup fails, the service still starts and
-reports faceless_previs unavailable. To install Chromium manually, run
-npx playwright install chromium. The ignored local .env enables the dev pilot;
-without an explicit setting, the operation is disabled. The launcher honors
-the setting rather than forcing it on.
+---
 
-Service layout and configuration:
+## 1. ขอบเขตงานและโรดแมปตาม Requirement (021-PPS Master Scope)
 
-- AGENTS.md defines ownership and extension rules. api/ owns HTTP/auth;
-  domain/ owns masking; adapters/ owns MediaPipe; config/ owns validated
-  runtime and operation policy; models/ holds ignored pinned artifacts.
-- .env.example documents runtime values. The local .env is ignored. Process
-  environment overrides .env. POST_PROCESSING_HOST stays 127.0.0.1 in this
-  pilot; start-dev can reassign the preferred port if it is occupied. The
-  launcher generates a fresh internal token when one is not provided.
-- config/policy.json owns non-secret image/face/concurrency limits, timeout,
-  detector thresholds, mask appearance and pinned model URL/hash. Invalid
-  values fail startup. Change policyVersion and regression evidence when
-  behavior or artifact changes. Environment settings cannot override policy.
+โครงสร้างบริการถูกออกแบบให้รองรับ 6 ระยะหลัก (Phase P0 - P5) ตามข้อกำหนดใน [`requirements/021-post-processing-service/000-master.md`](file:///d:/development/ModelPromptForge/requirements/021-post-processing-service/000-master.md):
 
-Service routes:
+| Phase | ฟีเจอร์ / ความสามารถ | ฮาร์ดแวร์ประมวลผล | สถานะ | ไฟล์ที่รับผิดชอบหลัก (Owning Files) |
+| :--- | :--- | :--- | :--- | :--- |
+| **P0** | **Faceless Previs & Face Landmarks** | CPU Bounded | **Implemented** | [`domain/faceless_previs.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/faceless_previs.py), [`domain/face_landmarks.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/face_landmarks.py), [`adapters/mediapipe_detector.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/mediapipe_detector.py) |
+| **P1** | **Platform Readiness & Async Jobs Protocol** | CPU Bounded | **Implemented** | [`domain/job_queue.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/job_queue.py), [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py), [`config/service_config.py`](file:///d:/development/ModelPromptForge/post-processing-service/config/service_config.py) |
+| **P2** | **Image Enhancement & Upscale** | **GPU Required** (PyTorch / CUDA) | Planned | `domain/image_enhancement.py` (`ImageEnhancementManager`), `adapters/upscale_adapter.py` |
+| **P3** | **Basic Video Processing & Interpolation** | **GPU Required** (PyTorch / FFmpeg CUDA) | Planned | `domain/video_processing.py` (`VideoProcessingManager`), `adapters/video_adapter.py` |
+| **P4** | **Audio Analysis & Speaker Diarization** | CPU / GPU | Planned | `domain/audio_analysis.py` (`AudioAnalysisManager`), `adapters/stt_adapter.py` |
+| **P5** | **Voice Repair & Lip-Sync** | **GPU Required** (PyTorch / Wav2Lip / SyncTalk) | Planned | `domain/lipsync_processing.py` (`LipSyncManager`), `adapters/lipsync_adapter.py` |
 
-- GET /health: loopback readiness, no media or token.
-- GET /v1/capabilities: requires x-post-processing-token.
-- POST /v1/faceless-previs: requires token, raw JPEG/PNG/WebP bytes,
-  x-input-sha256 and x-expected-faces (1-8). Returns PNG bytes with
-  x-output-sha256, x-face-count, x-mask-policy-version and x-model-sha256.
+---
 
-Core routes:
+## 2. ตาราง API Routes, GPU Requirement และไฟล์รับผิดชอบ (Diagnostic Route Map)
 
-- GET /api/cinematic/faceless-previs/capabilities
-- POST /api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/faceless-previs
-  with expectedVersion, expectedShotVersion, expectedFaces and either
-  sourceType=generation_job plus jobId or
-  sourceType=previous_video_last_frame plus frameAssetId.
-- PUT /api/cinematic/projects/:projectId/shots/:shotId/storyboard-source
-  with sourceType=faceless_previs, assetId, expectedVersion,
-  expectedShotVersion and idempotencyKey for explicit approval.
+ตารางด้านล่างนี้ใช้เป็น **Diagnostic Map** เมื่อเกิดข้อผิดพลาด สามารถชี้จุดแก้ไขไปยังไฟล์และคลาสที่รับผิดชอบได้ทันที:
 
-The API slice is synchronous and bounded to 30 seconds; durable async Jobs,
-retry/recovery, full private media delivery, UI controls and production model
-license qualification remain open in requirement 021. A failed mask preserves
-the source and approval. Existing provider-generated Faceless options remain
-unchanged. Masked outputs currently use Core's existing /outputs/ media path;
-do not treat this pilot delivery as a private production media grant.
+```mermaid
+graph TD
+    Client["Client / Core Server"] -->|HTTP Request| Routes["api/routes.py"]
+    
+    subgraph Routes_Layer ["API Route Layer (api/routes.py)"]
+        Routes --> R_Health["GET /health, /v1/health"]
+        Routes --> R_Caps["GET /v1/capabilities"]
+        Routes --> R_Metrics["GET /v1/metrics"]
+        Routes --> R_Previs["POST /v1/faceless-previs"]
+        Routes --> R_Landmarks["POST /v1/face-landmarks"]
+        Routes --> R_Jobs["POST / GET / DELETE /v1/jobs"]
+    end
+    
+    subgraph Domain_Layer ["Domain Manager Layer (domain/)"]
+        R_Previs --> M_Previs["FacelessPrevisManager<br/>(domain/faceless_previs.py)"]
+        R_Landmarks --> M_Landmarks["FaceLandmarksManager<br/>(domain/face_landmarks.py)"]
+        R_Metrics --> M_Telem["TelemetryManager<br/>(domain/telemetry.py)"]
+        R_Jobs --> M_JobQueue["JobQueueManager<br/>(domain/job_queue.py)"]
+    end
+    
+    subgraph Adapter_Layer ["Adapter & ML Layer (adapters/)"]
+        M_Previs --> A_MediaPipe["MediaPipeDetector<br/>(adapters/mediapipe_detector.py)"]
+        M_Landmarks --> A_MediaPipe
+    end
+    
+    subgraph Hardware_Layer ["Hardware Execution"]
+        A_MediaPipe --> CPU["CPU Inference (MediaPipe Task File)"]
+        Future_GPU["Future GPU Operations (P2-P5)"] --> GPU["GPU / CUDA Acceleration (D:\\applications)"]
+    end
+```
+
+### รายละเอียดเจาะลึกแต่ละ Route และไฟล์ที่รับผิดชอบ:
+
+#### 1. Liveness & Health Probes (`GET /health`, `GET /v1/health`)
+- **คำอธิบาย**: ตรวจสอบสถานะว่ากระบวนการ (Process) เปิดทำงานอยู่หรือไม่
+- **ต้องใช้ GPU หรือไม่**: ❌ **ไม่ต้องใช้** (CPU Only)
+- **ไฟล์ที่รับผิดชอบ**: [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py#L14-L18)
+- **จุดตรวจสอบเมื่อเกิดปัญหา**: เช็กว่า Uvicorn Server เปิดรันที่พอร์ต 6501 หรือไม่
+
+#### 2. Service Capabilities (`GET /v1/capabilities`)
+- **คำอธิบาย**: คืนค่ารายการฟีเจอร์ที่พร้อมรัน ขอบเขตจำกัดภาพ และ Model SHA-256 Hash
+- **ต้องใช้ GPU หรือไม่**: ❌ **ไม่ต้องใช้** (CPU Only)
+- **ไฟล์ที่รับผิดชอบ**: [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py#L20-L56) และ [`config/service_config.py`](file:///d:/development/ModelPromptForge/post-processing-service/config/service_config.py#L62-L74)
+- **จุดตรวจสอบเมื่อเกิดปัญหา**: หากคืนค่า `available: false` ให้ตรวจสอบไฟล์โมเดลที่ `D:\applications\momelo-post-processing\models\face_landmarker.task`
+
+#### 3. Telemetry & Metrics (`GET /v1/metrics`)
+- **คำอธิบาย**: ดึงสถิติ Uptime, Latency เฉลี่ย, ปริมาณการใช้งาน Memory (RSS/VMS) และ Request Counts
+- **ต้องใช้ GPU หรือไม่**: ❌ **ไม่ต้องใช้** (CPU Only)
+- **ไฟล์ที่รับผิดชอบ**: [`domain/telemetry.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/telemetry.py#L5-L75) (`TelemetryManager`)
+- **จุดตรวจสอบเมื่อเกิดปัญหา**: ตรวจสอบตัวแปร `telemetry_manager` ในกรณีที่ Latency หรือ Memory สูงผิดปกติ
+
+#### 4. Faceless Previs Masking (`POST /v1/faceless-previs`)
+- **คำอธิบาย**: ประมวลผลสร้างภาพตัวอย่างหน้าขาว (White-Mask Oval Overlay & Guide Crosshair)
+- **ต้องใช้ GPU หรือไม่**: ❌ **ไม่ต้องใช้** (CPU Bounded ในเฟส P0)
+- **ไฟล์ที่รับผิดชอบ**:
+  - Route: [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py#L67-L139)
+  - Logic/Transform: [`domain/faceless_previs.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/faceless_previs.py#L5-L106) (`FacelessPrevisManager`)
+  - ML Face Detection: [`adapters/mediapipe_detector.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/mediapipe_detector.py#L8-L75) (`MediaPipeDetector`)
+- **จุดตรวจสอบเมื่อเกิดปัญหา**:
+  - `413 Entity Too Large`: ภาพเกินขนาดใน [`config/policy.json`](file:///d:/development/ModelPromptForge/post-processing-service/config/policy.json#L5) (`maxInputBytes`)
+  - `422 Mismatch`: จำนวนใบหน้าที่ตรวจพบไม่ตรงกับ `x-expected-faces` (ลองเปลี่ยนภาพหรือปรับความสว่าง)
+
+#### 5. Face Landmarks Detection (`POST /v1/face-landmarks`)
+- **คำอธิบาย**: ตรวจจับและส่งคืนพิกัดโครงหน้าแบบ Normalized Coordinates (JSON format)
+- **ต้องใช้ GPU หรือไม่**: ❌ **ไม่ต้องใช้** (CPU Bounded ในเฟส P0)
+- **ไฟล์ที่รับผิดชอบ**:
+  - Route: [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py#L141-L205)
+  - Logic/Extract: [`domain/face_landmarks.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/face_landmarks.py#L7-L66) (`FaceLandmarksManager`)
+  - ML Detection: [`adapters/mediapipe_detector.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/mediapipe_detector.py) (`MediaPipeDetector`)
+- **จุดตรวจสอบเมื่อเกิดปัญหา**: เช็กพิกัด `faces` ที่ส่งกลับใน JSON Response
+
+#### 6. Async Job Protocol (`POST /v1/jobs`, `GET /v1/jobs/{id}`, `GET /v1/jobs/{id}/result`, `DELETE /v1/jobs/{id}`)
+- **คำอธิบาย**: ระบบจัดคิวงาน Async, ติดตามสถานะ (Progress/Stage), Idempotency และกู้คืนข้อมูลบนดิสก์
+- **ต้องใช้ GPU หรือไม่**: ❌ **ไม่ต้องใช้** (CPU Queue Worker)
+- **ไฟล์ที่รับผิดชอบ**:
+  - Route: [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py#L208-L315)
+  - State Machine & Worker: [`domain/job_queue.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/job_queue.py#L14-L242) (`JobQueueManager`)
+  - Storage Location: `D:\applications\momelo-post-processing\data\jobs.json`
+- **จุดตรวจสอบเมื่อเกิดปัญหา**:
+  - งานค้างที่สถานะ `processing`: ตรวจสอบ `jobTimeoutMs` (30s) ใน [`config/policy.json`](file:///d:/development/ModelPromptForge/post-processing-service/config/policy.json#L35)
+  - งานหายหลังเซิร์ฟเวอร์ดับ: ตรวจสอบการสิทธิ์การเขียนไฟล์ที่ `D:\applications\momelo-post-processing\data\jobs.json`
+
+---
+
+## 3. แผนงานฟีเจอร์ในอนาคต (Planned Operations: P2 - P5)
+
+ฟีเจอร์ที่จะเพิ่มเข้ามาในระยะถัดไป จะปฏิบัติตาม Reusable Component Pattern (`<ProcessName>Manager`) เดียวกัน:
+
+#### Phase P2: Image Enhancement & Upscale
+- **Endpoint (วางแผน)**: `POST /v1/jobs` (operation: `image.upscale`, `image.enhance`)
+- **ต้องใช้ GPU หรือไม่**: ⚡ **จำเป็นต้องใช้ GPU (PyTorch / CUDA)**
+- **ไฟล์เป้าหมายที่จะสร้าง**:
+  - Logic: `domain/image_enhancement.py` (`ImageEnhancementManager`)
+  - Adapter: `adapters/upscale_adapter.py` (Real-ESRGAN / SwinIR Model)
+  - Virtualenv & PyTorch Path: `D:\applications\momelo-post-processing\venv`
+
+#### Phase P3: Video Processing & Frame Interpolation
+- **Endpoint (วางแผน)**: `POST /v1/jobs` (operation: `video.interpolate`, `video.enhance`)
+- **ต้องใช้ GPU หรือไม่**: ⚡ **จำเป็นต้องใช้ GPU (PyTorch CUDA + FFmpeg Hardware Acceleration)**
+- **ไฟล์เป้าหมายที่จะสร้าง**:
+  - Logic: `domain/video_processing.py` (`VideoProcessingManager`)
+  - Adapter: `adapters/video_adapter.py` (RIFE / FILM Interpolation Model)
+
+#### Phase P4: Audio Analysis & Diarization
+- **Endpoint (วางแผน)**: `POST /v1/jobs` (operation: `audio.transcript`, `audio.diarization`)
+- **ต้องใช้ GPU หรือไม่**: ⚖️ **CPU หรือ GPU** (Whisper / PyAnnote Audio Model)
+- **ไฟล์เป้าหมายที่จะสร้าง**:
+  - Logic: `domain/audio_analysis.py` (`AudioAnalysisManager`)
+  - Adapter: `adapters/stt_adapter.py`
+
+#### Phase P5: Voice Repair & Lip-Sync
+- **Endpoint (วางแผน)**: `POST /v1/jobs` (operation: `voice.lipsync`, `voice.repair`)
+- **ต้องใช้ GPU หรือไม่**: ⚡ **จำเป็นต้องใช้ GPU (PyTorch CUDA)**
+- **ไฟล์เป้าหมายที่จะสร้าง**:
+  - Logic: `domain/lipsync_processing.py` (`LipSyncManager`)
+  - Adapter: `adapters/lipsync_adapter.py` (Wav2Lip / SyncTalk Model)
+
+---
+
+## 4. คู่มือการแก้ไขปัญหาและวิเคราะห์ข้อผิดพลาด (Troubleshooting & Diagnostics Guide)
+
+เมื่อระบบเกิดข้อผิดพลาด สามารถดู Error Code ใน JSON Response เพื่อชี้จุดแก้ไขได้ทันที:
+
+| HTTP Status | Error Code | สาเหตุและการแก้ไข (Root Cause & Fix) | ไฟล์และตำแหน่งที่ต้องตรวจสอบ |
+| :--- | :--- | :--- | :--- |
+| `401 Unauthorized` | `unauthorized` | Header `x-post-processing-token` ไม่ถูกต้องหรือไม่ได้แนบมา | [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py#L317-L322) (`verify_internal_token`) |
+| `400 Bad Request` | `input_hash_mismatch` | ค่า `x-input-sha256` ไม่ตรงกับ SHA-256 ของรูปภาพที่ส่ง | [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py#L101-L105) |
+| `400 Bad Request` | `faceless_image_invalid` | ไฟล์รูปภาพเสียหาย ไม่สามารถ Decode เป็น PNG/JPEG/WebP ได้ | [`domain/faceless_previs.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/faceless_previs.py#L31-L35) |
+| `413 Payload Too Large`| `faceless_input_size_invalid`| ไฟล์รูปภาพมีขนาดเกินขีดจำกัด `maxInputBytes` (25 MiB) | [`config/policy.json`](file:///d:/development/ModelPromptForge/post-processing-service/config/policy.json#L5) |
+| `422 Unprocessable` | `faceless_face_count_mismatch`| ไม่พบบุคคลบนภาพ หรือจำนวนใบหน้าที่ตรวจพบไม่ตรงกับ `x-expected-faces` | [`domain/faceless_previs.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/faceless_previs.py#L55-L57) |
+| `503 Service Unavailable`| `face_model_unavailable` | โมเดล ML `face_landmarker.task` ขาดหายไป หรือย้ายที่ | [`config/service_config.py`](file:///d:/development/ModelPromptForge/post-processing-service/config/service_config.py#L117-L129) |
+| `500 Internal Error` | `job_execution_timeout` | การประมวลผล Job ใช้เวลานานเกินกำหนด 30 วินาที | [`domain/job_queue.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/job_queue.py#L155-L162) |
+
+---
+
+## 5. การรันและทดสอบระบบ (Execution & Validation)
+
+### คำสั่งรันเซิร์ฟเวอร์ (Start Microservice)
+```cmd
+post-processing-service\scripts\start-service.bat
+```
+
+### คำสั่งทดสอบระบบอัตโนมัติ (Automated Test Suite)
+```bash
+D:\applications\momelo-post-processing\venv\Scripts\python.exe post-processing-service\scripts\test_async_jobs.py
+```
+
+### Interactive Swagger UI
+เปิดเบราว์เซอร์ไปที่ `http://127.0.0.1:6501/docs` เพื่อทดสอบยิง Request และดู API Schema แบบโต้ตอบได้ทันที

@@ -30,6 +30,10 @@
 | `GET` | `/v1/metrics` | Yes (`token`) | None | `JSON` | ดึงข้อมูล Telemetry & Operations (Uptime, Memory, Latency, Request Counts) |
 | `POST` | `/v1/faceless-previs` | Yes (`token`) | Binary Image | `JSON` | ส่งรูปภาพ binary เพื่อประมวลผล Faceless Previs (คืนค่าเป็น JSON พร้อม `bytesBase64`) |
 | `POST` | `/v1/face-landmarks` | Yes (`token`) | Binary Image | `JSON` | ตรวจจับพิกัดใบหน้าบนรูปภาพ binary (คืนค่าเป็น JSON Coordinates) |
+| `POST` | `/v1/jobs` | Yes (`token`) | `JSON` (`inputBase64`) | `JSON` | สร้างและจัดคิว Async Processing Job (คืนค่า 202 Accepted + `jobId`) |
+| `GET` | `/v1/jobs/{id}` | Yes (`token`) | None | `JSON` | ตรวจสอบสถานะ ความคืบหน้า (Progress/Stage) ของ Async Job |
+| `GET` | `/v1/jobs/{id}/result` | Yes (`token`) | None | `JSON` | ดึงผลลัพธ์ฉบับสมบูรณ์ของ Async Job ที่ประมวลผลเสร็จสิ้นแล้ว |
+| `DELETE` | `/v1/jobs/{id}` | Yes (`token`) | None | `JSON` | ยกเลิก Async Job ที่กำลังรอดำเนินการ (Transition to `cancelled`) |
 
 ---
 
@@ -197,6 +201,73 @@ curl -X POST http://127.0.0.1:6501/v1/face-landmarks \
   ]
 }
 ```
+
+---
+
+### 3.6 Async Job Protocol Endpoints (`POST /v1/jobs`, `GET`, `DELETE`)
+
+#### (A) สร้างและจัดคิว Async Job (`POST /v1/jobs`):
+```bash
+curl -X POST http://127.0.0.1:6501/v1/jobs \
+  -H "x-post-processing-token: dev-internal-token-change-in-production-32bytes" \
+  -H "x-idempotency-key: key_unique_001" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "operation": "image.face_landmarks",
+    "inputBase64": "<BASE64_ENCODED_IMAGE_BYTES>",
+    "options": { "expectedFaces": 1 }
+  }'
+```
+**Expected Response (202 Accepted JSON)**:
+```json
+{
+  "jobId": "job_1789369110_2dbc01ee",
+  "status": "queued",
+  "operation": "image.face_landmarks",
+  "createdAt": "2026-09-14T06:58:30.585910+00:00",
+  "idempotencyKey": "key_unique_001",
+  "isDuplicate": false
+}
+```
+
+#### (B) สอบถามสถานะ Async Job (`GET /v1/jobs/{id}`):
+```bash
+curl -X GET http://127.0.0.1:6501/v1/jobs/job_1789369110_2dbc01ee \
+  -H "x-post-processing-token: dev-internal-token-change-in-production-32bytes"
+```
+**Expected Response (200 OK JSON)**:
+```json
+{
+  "jobId": "job_1789369110_2dbc01ee",
+  "operation": "image.face_landmarks",
+  "status": "completed",
+  "stage": "completed",
+  "progress": 1.0,
+  "createdAt": "2026-09-14T06:58:30.585910+00:00",
+  "updatedAt": "2026-09-14T06:58:30.650000+00:00",
+  "idempotencyKey": "key_unique_001",
+  "resultSummary": {
+    "width": 512,
+    "height": 512,
+    "faceCount": 1,
+    "inputHash": "..."
+  },
+  "error": null
+}
+```
+
+#### (C) ดึงผลลัพธ์ฉบับเต็ม (`GET /v1/jobs/{id}/result`):
+```bash
+curl -X GET http://127.0.0.1:6501/v1/jobs/job_1789369110_2dbc01ee/result \
+  -H "x-post-processing-token: dev-internal-token-change-in-production-32bytes"
+```
+
+#### (D) ยกเลิก Async Job (`DELETE /v1/jobs/{id}`):
+```bash
+curl -X DELETE http://127.0.0.1:6501/v1/jobs/job_1789369110_2dbc01ee \
+  -H "x-post-processing-token: dev-internal-token-change-in-production-32bytes"
+```
+
 
 ---
 

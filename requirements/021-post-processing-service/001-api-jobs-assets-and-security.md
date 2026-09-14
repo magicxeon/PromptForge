@@ -43,6 +43,20 @@ The async endpoints below remain required before full P0 closure.
   intentional revision uses a new idempotency key. Terminal jobs have a
   finite retention/cutoff; interrupted work never polls forever.
 
+### Resilience Architecture (Fallback, Retry, Exponential Backoff, Circuit Breaker)
+
+To ensure fault tolerance and high availability, system resilience is split into a Two-Tier Architecture:
+
+1. **Service-Level (Python `post-processing-service`)**:
+   - **Internal Worker Retry**: Background workers in `JobQueueManager` retry transient errors up to `maxAttempts` (default: 2) using exponential backoff (`backoffBaseMs * 2^(attempt-1)`).
+   - **Safe Fallback**: Operational errors (e.g. face detection mismatch, unsupported format) return sanitized machine-readable error codes (`faceless_face_count_mismatch`) without process termination.
+   - **Idempotency Safeguard**: Requests with duplicate `X-Idempotency-Key` headers return existing job status/result without re-running ML model inference.
+
+2. **Caller-Level (Node.js Core Server / `PostProcessingServiceClient`)**:
+   - **Circuit Breaker**: Trips to `OPEN` state if service fails repeatedly (e.g. 5 consecutive 5xx or connection timeouts), shedding load for 30s before attempting `HALF-OPEN` recovery.
+   - **Exponential Backoff Retry**: Core retries network connection drops (e.g. 3 attempts with 200ms, 400ms, 800ms backoff).
+   - **Workflow & UI Fallback**: If post-processing fails, source assets remain untouched, no Credits are charged, no paid Generation is triggered, and UI presents localized retry options.
+
 ## Media And Data Contract
 
 - P0 uses a private, short-lived Core media grant or equivalent signed

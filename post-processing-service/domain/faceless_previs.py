@@ -5,91 +5,113 @@ import math
 from typing import Dict, Any, List, Tuple
 from PIL import Image, ImageDraw
 
+class FacelessPrevisManager:
+    """
+    Reusable component manager responsible for Faceless Previs white-mask preview rendering.
+    """
+    def __init__(self, policy: Any = None, detector: Any = None):
+        self.policy = policy
+        self.detector = detector
+
+    def process(
+        self,
+        bytes_data: bytes,
+        detector: Any,
+        expected_faces: int,
+        policy: Any
+    ) -> Dict[str, Any]:
+        active_policy = policy or self.policy
+        active_detector = detector or self.detector
+
+        if not isinstance(bytes_data, bytes) or not bytes_data or len(bytes_data) > active_policy.maxInputBytes:
+            raise HTTPException_Like("faceless_input_size_invalid", "Image exceeds the supported size.", 413)
+
+        if not isinstance(expected_faces, int) or expected_faces < 1 or expected_faces > active_policy.maxFaces:
+            raise HTTPException_Like("faceless_expected_faces_invalid", f"Expected visible face count must be 1 to {active_policy.maxFaces}.", 400)
+
+        try:
+            pil_img = Image.open(io.BytesIO(bytes_data))
+            pil_img.verify()
+            pil_img = Image.open(io.BytesIO(bytes_data))
+        except Exception:
+            raise HTTPException_Like("faceless_image_invalid", "Image could not be decoded.", 400)
+
+        fmt = (pil_img.format or "").lower()
+        if fmt not in ("jpeg", "png", "webp") or not pil_img.width or not pil_img.height:
+            raise HTTPException_Like("faceless_image_unsupported", "Use a JPEG, PNG or WebP image within configured bounds.", 400)
+
+        width, height = pil_img.width, pil_img.height
+        if width * height > active_policy.maxPixels:
+            raise HTTPException_Like("faceless_image_unsupported", "Image exceeds maximum allowed pixels.", 400)
+
+        # Convert image to RGBA PNG for compositing
+        rgba_img = pil_img.convert("RGBA")
+
+        # Detect faces
+        try:
+            faces = active_detector.detect(bytes_data)
+        except Exception as e:
+            if hasattr(e, "code"):
+                raise e
+            raise HTTPException_Like("faceless_detection_failed", "Face detection failed. Source image untouched.", 422)
+
+        if not isinstance(faces, list) or len(faces) != expected_faces or any(not valid_face(f) for f in faces):
+            raise HTTPException_Like("faceless_face_count_mismatch", "Not all expected faces were detected. Use another image or Generate options.", 422)
+
+        shapes = [face_shape(f, width, height, active_policy.mask) for f in faces]
+        if any(s["rx"] < active_policy.minFaceRadiusX or s["ry"] < active_policy.minFaceRadiusY for s in shapes):
+            raise HTTPException_Like("faceless_face_too_small", "A visible face is too small to mask reliably.", 422)
+
+        # Overlay rendering
+        overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(overlay)
+
+        fill_rgba = hex_to_rgba(active_policy.mask.fill, 255)
+        stroke_rgba = hex_to_rgba(active_policy.mask.guideStroke, int(active_policy.mask.guideOpacity * 255))
+        stroke_width = max(1, int(active_policy.mask.guideWidth))
+
+        for shape in shapes:
+            cx, cy, rx, ry = shape["cx"], shape["cy"], shape["rx"], shape["ry"]
+            # Draw white ellipse mask
+            draw.ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=fill_rgba)
+            
+            # Draw guide line crosshair
+            guide_y1 = round(cy - ry * active_policy.mask.guideHeightScale)
+            guide_y2 = round(cy + ry * active_policy.mask.guideHeightScale)
+            guide_x = shape["guideX"]
+            draw.line([(guide_x, guide_y1), (guide_x, guide_y2)], fill=stroke_rgba, width=stroke_width)
+
+        # Composite mask overlay onto image
+        final_img = Image.alpha_composite(rgba_img, overlay).convert("RGB")
+        out_buffer = io.BytesIO()
+        final_img.save(out_buffer, format="PNG")
+        output_bytes = out_buffer.getvalue()
+
+        input_hash = hashlib.sha256(bytes_data).hexdigest()
+        output_hash = hashlib.sha256(output_bytes).hexdigest()
+
+        return {
+            "bytes": output_bytes,
+            "bytesBase64": base64.b64encode(output_bytes).decode("ascii"),
+            "width": width,
+            "height": height,
+            "faceCount": len(faces),
+            "inputHash": input_hash,
+            "outputHash": output_hash,
+            "policyVersion": active_policy.policyVersion,
+            "modelHash": active_policy.model.sha256,
+            "mimeType": "image/png"
+        }
+
+faceless_previs_manager = FacelessPrevisManager()
+
 def create_faceless_previs(
     bytes_data: bytes,
     detector: Any,
     expected_faces: int,
     policy: Any
 ) -> Dict[str, Any]:
-    if not isinstance(bytes_data, bytes) or not bytes_data or len(bytes_data) > policy.maxInputBytes:
-        raise HTTPException_Like("faceless_input_size_invalid", "Image exceeds the supported size.", 413)
-
-    if not isinstance(expected_faces, int) or expected_faces < 1 or expected_faces > policy.maxFaces:
-        raise HTTPException_Like("faceless_expected_faces_invalid", f"Expected visible face count must be 1 to {policy.maxFaces}.", 400)
-
-    try:
-        pil_img = Image.open(io.BytesIO(bytes_data))
-        pil_img.verify()
-        pil_img = Image.open(io.BytesIO(bytes_data))
-    except Exception:
-        raise HTTPException_Like("faceless_image_invalid", "Image could not be decoded.", 400)
-
-    fmt = (pil_img.format or "").lower()
-    if fmt not in ("jpeg", "png", "webp") or not pil_img.width or not pil_img.height:
-        raise HTTPException_Like("faceless_image_unsupported", "Use a JPEG, PNG or WebP image within configured bounds.", 400)
-
-    width, height = pil_img.width, pil_img.height
-    if width * height > policy.maxPixels:
-        raise HTTPException_Like("faceless_image_unsupported", "Image exceeds maximum allowed pixels.", 400)
-
-    # Convert image to RGBA PNG for compositing
-    rgba_img = pil_img.convert("RGBA")
-
-    # Detect faces
-    try:
-        faces = detector.detect(bytes_data)
-    except Exception as e:
-        if hasattr(e, "code"):
-            raise e
-        raise HTTPException_Like("faceless_detection_failed", "Face detection failed. Source image untouched.", 422)
-
-    if not isinstance(faces, list) or len(faces) != expected_faces or any(not valid_face(f) for f in faces):
-        raise HTTPException_Like("faceless_face_count_mismatch", "Not all expected faces were detected. Use another image or Generate options.", 422)
-
-    shapes = [face_shape(f, width, height, policy.mask) for f in faces]
-    if any(s["rx"] < policy.minFaceRadiusX or s["ry"] < policy.minFaceRadiusY for s in shapes):
-        raise HTTPException_Like("faceless_face_too_small", "A visible face is too small to mask reliably.", 422)
-
-    # Overlay rendering
-    overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay)
-
-    fill_rgba = hex_to_rgba(policy.mask.fill, 255)
-    stroke_rgba = hex_to_rgba(policy.mask.guideStroke, int(policy.mask.guideOpacity * 255))
-    stroke_width = max(1, int(policy.mask.guideWidth))
-
-    for shape in shapes:
-        cx, cy, rx, ry = shape["cx"], shape["cy"], shape["rx"], shape["ry"]
-        # Draw white ellipse mask
-        draw.ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=fill_rgba)
-        
-        # Draw guide line crosshair
-        guide_y1 = round(cy - ry * policy.mask.guideHeightScale)
-        guide_y2 = round(cy + ry * policy.mask.guideHeightScale)
-        guide_x = shape["guideX"]
-        draw.line([(guide_x, guide_y1), (guide_x, guide_y2)], fill=stroke_rgba, width=stroke_width)
-
-    # Composite mask overlay onto image
-    final_img = Image.alpha_composite(rgba_img, overlay).convert("RGB")
-    out_buffer = io.BytesIO()
-    final_img.save(out_buffer, format="PNG")
-    output_bytes = out_buffer.getvalue()
-
-    input_hash = hashlib.sha256(bytes_data).hexdigest()
-    output_hash = hashlib.sha256(output_bytes).hexdigest()
-
-    return {
-        "bytes": output_bytes,
-        "bytesBase64": base64.b64encode(output_bytes).decode("ascii"),
-        "width": width,
-        "height": height,
-        "faceCount": len(faces),
-        "inputHash": input_hash,
-        "outputHash": output_hash,
-        "policyVersion": policy.policyVersion,
-        "modelHash": policy.model.sha256,
-        "mimeType": "image/png"
-    }
+    return faceless_previs_manager.process(bytes_data, detector, expected_faces, policy)
 
 def valid_face(face: List[Dict[str, float]]) -> bool:
     return isinstance(face, list) and len(face) >= 100 and all(

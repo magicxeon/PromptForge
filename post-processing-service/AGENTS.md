@@ -40,8 +40,14 @@ Cinematic owns Storyboard selection/approval; Credits alone owns billing.
 Use Python 3.10+ with FastAPI, Uvicorn, Type Hints and Pydantic schemas. All service routes MUST return 100% JSON responses (`Content-Type: application/json; charset=utf-8`). Interactive Swagger UI documentation is available at `/docs`. Keep HTTP parsing in
 `api/`, media behavior in `domain/` and ML model I/O in `adapters/`. Validate
 all boundary data before processing and return stable machine-readable error
-codes with safe messages. One module should own each policy value; avoid a
-new directory or abstraction for a single trivial helper. Keep service logs
+codes with safe messages. 
+
+### Reusable Components & Process Manager Architecture
+- Every media process or domain operation MUST be encapsulated into a reusable component class named after the process followed by `Manager` (`<ProcessName>Manager`).
+  - Example process managers: `FacelessPrevisManager`, `FaceLandmarksManager`, `TelemetryManager`, `ImageEnhancementManager`, `JobQueueManager`.
+- Each `<ProcessName>Manager` class owns its specific domain responsibility, validation rules, transforms, and execution logic.
+- Routes in `api/` must delegate business processing directly to the corresponding Manager instance.
+- One module should own each policy value; avoid a new directory or abstraction for a single trivial helper. Keep service logs
 free of media and credentials. Treat `/health` and `/v1/health` as process liveness, not model
 readiness; use authenticated `/v1/capabilities` for executable operations.
 

@@ -30,5 +30,11 @@
       "maxDownloadBytes": 5000000,
       "downloadTimeoutMs": 15000
     }
+  },
+  "jobQueue": {
+    "maxQueueSize": 100,
+    "jobTimeoutMs": 30000,
+    "jobTtlSeconds": 86400,
+    "persistenceFileName": "jobs.json"
   }
 }
