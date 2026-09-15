@@ -34,6 +34,8 @@
 | `GET` | `/v1/jobs/{id}` | Yes (`token`) | None | `JSON` | ตรวจสอบสถานะ ความคืบหน้า (Progress/Stage) ของ Async Job |
 | `GET` | `/v1/jobs/{id}/result` | Yes (`token`) | None | `JSON` | ดึงผลลัพธ์ฉบับสมบูรณ์ของ Async Job ที่ประมวลผลเสร็จสิ้นแล้ว |
 | `DELETE` | `/v1/jobs/{id}` | Yes (`token`) | None | `JSON` | ยกเลิก Async Job ที่กำลังรอดำเนินการ (Transition to `cancelled`) |
+| `GET` | `/tts-playground` | No | None | `HTML` | เปิดหน้าเว็บ Interactive Web Test Playground สำหรับทดลองสังเคราะห์เสียงบนบราวเซอร์ |
+| `POST` | `/v1/expressive-tts` | Yes (`token`) | `JSON` (`text`, `emotion`, etc.) | `JSON` | สังเคราะห์เสียงใส่อารมณ์ (ChatTTS Engine / Formant Audio Synth) พร้อมคืนค่า `bytesBase64` |
 
 ---
 
@@ -355,3 +357,42 @@ curl -X POST http://127.0.0.1:6501/v1/jobs \
 ### ขั้นตอนที่ 5: การดูผลลัพธ์ (JSON Response)
 - ทุก Request จะคืนค่าเป็น **JSON Object** (`Content-Type: application/json; charset=utf-8`)
 - สำหรับ Request `/v1/faceless-previs` ข้อมูลรูปภาพ PNG จะถูกแนบมาในฟิลด์ `bytesBase64`
+
+---
+
+## 4. คำสั่ง cURL สำหรับ Expressive TTS (`POST /v1/expressive-tts`)
+
+```bash
+curl -X POST http://127.0.0.1:6501/v1/expressive-tts \
+  -H "X-Post-Processing-Token: dev-internal-token-change-in-production-32bytes" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "สวัสดีครับ [laughter] ยินดีต้อนรับสู่ระบบสังเคราะห์เสียงใส่อารมณ์ [uv_break] ลองฟังเสียงได้เลยครับ",
+    "voiceSeed": 42,
+    "emotion": "happy",
+    "speed": 1.0,
+    "temperature": 0.3,
+    "outputFormat": "WAV"
+  }'
+```
+
+**Expected Response (200 OK JSON)**:
+```json
+{
+  "bytesBase64": "UklGRiX/AABXQVZFZm10...",
+  "text": "สวัสดีครับ [laughter] ยินดีต้อนรับสู่ระบบสังเคราะห์เสียงใส่อารมณ์...",
+  "voiceSeed": 42,
+  "emotion": "happy",
+  "speed": 1.0,
+  "temperature": 0.3,
+  "sampleRate": 24000,
+  "durationSeconds": 4.84,
+  "aiEngineUsed": false,
+  "executionMode": "expressive_formant_synth",
+  "inputHash": "eee3d4a83edd...",
+  "outputHash": "478dde941b69...",
+  "policyVersion": "tts-v1",
+  "mimeType": "audio/wav"
+}
+```
+

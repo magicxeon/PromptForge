@@ -1,4 +1,10 @@
 import sys
+import io
+
+# Enforce UTF-8 encoding for standard output and error to support Thai Unicode characters on Windows
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 from pathlib import Path
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request

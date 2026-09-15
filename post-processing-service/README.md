@@ -15,7 +15,7 @@
 | **P2** | **Image Enhancement & Upscale** | **GPU Accelerated / PIL Lanczos Fallback** | **Implemented** | [`domain/image_enhancement_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/image_enhancement_manager.py), [`adapters/image_enhancement_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/image_enhancement_adapter.py) |
 | **P3** | **Basic Video Processing & Interpolation** | **GPU Required** (PyTorch / FFmpeg CUDA) | Planned | `domain/video_processing.py` (`VideoProcessingManager`), `adapters/video_adapter.py` |
 | **P4** | **Audio Analysis & Speaker Diarization** | CPU / GPU | Planned | `domain/audio_analysis.py` (`AudioAnalysisManager`), `adapters/stt_adapter.py` |
-| **P5** | **Voice Repair & Lip-Sync** | **GPU Required** (PyTorch / Wav2Lip / SyncTalk) | Planned | `domain/lipsync_processing.py` (`LipSyncManager`), `adapters/lipsync_adapter.py` |
+| **P5** | **Expressive TTS & Voice Synthesis** | **PyTorch CUDA / Formant Audio Engine** | **Implemented** | [`domain/expressive_tts_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/expressive_tts_manager.py), [`adapters/expressive_tts_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/expressive_tts_adapter.py), [`/tts-playground`](http://127.0.0.1:6501/tts-playground) |
 
 ---
 
@@ -105,6 +105,35 @@ graph TD
   - งานค้างที่สถานะ `processing`: ตรวจสอบ `jobTimeoutMs` (30s) ใน [`config/policy.json`](file:///d:/development/ModelPromptForge/post-processing-service/config/policy.json#L35)
   - งานหายหลังเซิร์ฟเวอร์ดับ: ตรวจสอบการสิทธิ์การเขียนไฟล์ที่ `D:\applications\momelo-post-processing\data\jobs.json`
 
+#### 7. Expressive Text-to-Speech & Web Playground (`POST /v1/expressive-tts`, `GET /tts-playground`)
+- **คำอธิบาย**: ระบบสังเคราะห์เสียงใส่อารมณ์ (ChatTTS Engine / Formant Audio Synth) รองรับภาษาไทย แท็กอารมณ์/จังหวะพูด (`[laughter]`, `[uv_break]`), Voice Seed, ความเร็วพูด และ Temperature พร้อมสตรีมไฟล์เสียงกลับมาเล่นบนหน้าเว็บได้ทันที
+- **ต้องใช้ GPU หรือไม่**: ⚖️ **CPU หรือ GPU (PyTorch CUDA)**
+- **ไฟล์ที่รับผิดชอบ**:
+  - Route & UI: [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py) (`post_expressive_tts`, `get_tts_playground`)
+  - Logic & Validation: [`domain/expressive_tts_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/expressive_tts_manager.py) (`ExpressiveTtsManager`)
+  - ML & Audio Adapter: [`adapters/expressive_tts_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/expressive_tts_adapter.py) (`ExpressiveTtsAdapter`)
+  - Policy Config: [`config/policy.json`](file:///d:/development/ModelPromptForge/post-processing-service/config/policy.json#L66-L82) (`expressiveTts`)
+- **วิธีเปิดทดสอบบนบราวเซอร์ (Web Playground)**:
+  1. เริ่มรันบริการด้วย `post-processing-service\scripts\start-service.bat`
+  2. เปิดบราวเซอร์ไปที่: **`http://127.0.0.1:6501/tts-playground`**
+  3. พิมพ์ข้อความภาษาไทย หรือใส่แท็กอารมณ์ เช่น `สวัสดีครับ [laughter] ยินดีต้อนรับครับ [uv_break]`
+  4. เลือกอารมณ์ (`Happy`, `Neutral`, `Sad`, `Excited`), ปรับ Voice Seed (รหัสเสียง) และ Speed
+  5. กดปุ่ม **✨ Generate Expressive Speech** เพื่อฟังเสียงสังเคราะห์บน HTML5 Audio Player สดๆ ได้ทันที
+- **คำสั่ง cURL สำหรับยิง API**:
+  ```bash
+  curl -X POST http://127.0.0.1:6501/v1/expressive-tts \
+    -H "X-Post-Processing-Token: dev-internal-token-change-in-production-32bytes" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "text": "สวัสดีครับ [laughter] ทดสอบการสังเคราะห์เสียงใส่อารมณ์",
+      "voiceSeed": 42,
+      "emotion": "happy",
+      "speed": 1.0,
+      "temperature": 0.3,
+      "outputFormat": "WAV"
+    }'
+  ```
+
 ---
 
 ## 3. แผนงานฟีเจอร์ในอนาคต (Planned Operations: P2 - P5)
@@ -167,7 +196,14 @@ post-processing-service\scripts\start-service.bat
 
 ### คำสั่งทดสอบระบบอัตโนมัติ (Automated Test Suite)
 ```bash
+# 1. ทดสอบระบบจัดคิวงาน Async & Resilience
 D:\applications\momelo-post-processing\venv\Scripts\python.exe post-processing-service\scripts\test_async_jobs.py
+
+# 2. ทดสอบระบบขยายภาพ AI Super-Resolution (Real-ESRGAN) & Anti-Aliasing
+D:\applications\momelo-post-processing\venv\Scripts\python.exe post-processing-service\scripts\test_image_enhancement.py
+
+# 3. ทดสอบระบบสังเคราะห์เสียงใส่อารมณ์ Expressive TTS & Web Playground
+D:\applications\momelo-post-processing\venv\Scripts\python.exe post-processing-service\scripts\test_expressive_tts.py
 ```
 
 ### Interactive Swagger UI

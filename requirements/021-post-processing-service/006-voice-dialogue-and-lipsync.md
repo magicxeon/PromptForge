@@ -17,7 +17,7 @@ All operations use immutable derivatives with segment lineage, text revision, so
 
 ## Safety And Quality
 
-The system must reject missing/revoked consent, cross-actor voice use, unqualified models, disallowed languages and impossible segment timing. Future policies for impersonation, minors and public-figure likeness must be approved before public access. Thai pronunciation and prosody require native-speaker benchmark data; a generic English pass does not qualify Thai output. Test lip-sync on side faces, occlusion, two speakers and short/fast speech. Preserve intelligibility, ambience, sync and spatial continuity; make edits reversible by choosing the original.
+The system must reject missing/revoked consent, cross-actor voice use, unqualified models, disallowed languages and impossible segment timing. Future policies for impersonation, minors and public-figure likeness must be approved before public access. Thai pronunciation and prosody use **Thonburian-TTS (F5-TTS Flow-Matching Architecture)** as the canonical engine for native Thai prosody, tone accuracy, and zero-shot emotion voice cloning. Test lip-sync on side faces, occlusion, two speakers and short/fast speech. Preserve intelligibility, ambience, sync and spatial continuity; make edits reversible by choosing the original.
 
 ## Acceptance
 

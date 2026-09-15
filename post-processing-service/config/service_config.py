@@ -71,12 +71,28 @@ class FacelessPrevisPolicy(BaseModel):
     detector: DetectorPolicy
     model: ModelPolicy
 
+class ExpressiveTtsPolicy(BaseModel):
+    policyVersion: str = "thonburian-tts-v1"
+    engine: str = "thonburian_tts"
+    architecture: str = "f5_tts_flow_matching"
+    modelPath: str = "D:/applications/momelo-post-processing/models/thonburian-tts"
+    maxTextLength: int = 2000
+    processingTimeoutMs: int = 30000
+    defaultSampleRate: int = 24000
+    defaultSpeed: float = 1.0
+    defaultCfgStrength: float = 2.0
+    defaultTemperature: float = 0.3
+    defaultVoiceSeed: int = 42
+    allowedFormats: list[str] = ["WAV", "MP3"]
+    model: Optional[ModelPolicy] = None
+
 class PolicyDocument(BaseModel):
     schemaVersion: int
     facelessPrevis: FacelessPrevisPolicy
     jobQueue: Optional[JobQueuePolicy] = None
     resilience: Optional[ResiliencePolicy] = None
     imageEnhancement: Optional[ImageEnhancementPolicy] = None
+    expressiveTts: Optional[ExpressiveTtsPolicy] = None
 
 class RuntimeConfig(BaseModel):
     host: str = "127.0.0.1"
@@ -92,8 +108,9 @@ class ServiceConfig(BaseModel):
     jobQueue: JobQueuePolicy
     resilience: ResiliencePolicy
     imageEnhancement: ImageEnhancementPolicy
+    expressiveTts: ExpressiveTtsPolicy
 
-def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tuple[FacelessPrevisPolicy, JobQueuePolicy, ResiliencePolicy, ImageEnhancementPolicy]:
+def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tuple[FacelessPrevisPolicy, JobQueuePolicy, ResiliencePolicy, ImageEnhancementPolicy, ExpressiveTtsPolicy]:
     if not policy_path.exists():
         raise FileNotFoundError(f"Post-Processing policy file missing: {policy_path}")
     try:
@@ -105,7 +122,8 @@ def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tupl
         job_queue_policy = doc.jobQueue or JobQueuePolicy()
         resilience_policy = doc.resilience or ResiliencePolicy()
         image_enhancement_policy = doc.imageEnhancement or ImageEnhancementPolicy()
-        return doc.facelessPrevis, job_queue_policy, resilience_policy, image_enhancement_policy
+        expressive_tts_policy = doc.expressiveTts or ExpressiveTtsPolicy()
+        return doc.facelessPrevis, job_queue_policy, resilience_policy, image_enhancement_policy, expressive_tts_policy
     except Exception as e:
         raise ValueError(f"Post-Processing policy is invalid: {str(e)}")
 
@@ -139,7 +157,7 @@ def load_post_processing_config(
     if not internal_token or len(internal_token.encode("utf-8")) < 32:
         raise ValueError("POST_PROCESSING_INTERNAL_TOKEN must contain at least 32 bytes.")
         
-    policy, job_queue_policy, resilience_policy, image_enhancement_policy = load_post_processing_policy(policy_path)
+    policy, job_queue_policy, resilience_policy, image_enhancement_policy, expressive_tts_policy = load_post_processing_policy(policy_path)
     
     # Priority for model storage: D:\applications\momelo-post-processing\models\ -> local models\
     custom_model_path = merged_env.get("POST_PROCESSING_FACE_MODEL_PATH")
@@ -168,5 +186,6 @@ def load_post_processing_config(
         policy=policy,
         jobQueue=job_queue_policy,
         resilience=resilience_policy,
-        imageEnhancement=image_enhancement_policy
+        imageEnhancement=image_enhancement_policy,
+        expressiveTts=expressive_tts_policy
     )

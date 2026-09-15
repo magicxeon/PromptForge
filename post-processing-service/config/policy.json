@@ -63,5 +63,26 @@
       "maxDownloadBytes": 70000000,
       "downloadTimeoutMs": 60000
     }
+  },
+  "expressiveTts": {
+    "policyVersion": "thonburian-tts-v1",
+    "engine": "thonburian_tts",
+    "architecture": "f5_tts_flow_matching",
+    "modelPath": "D:/applications/momelo-post-processing/models/thonburian-tts",
+    "maxTextLength": 2000,
+    "processingTimeoutMs": 30000,
+    "defaultSampleRate": 24000,
+    "defaultSpeed": 1.0,
+    "defaultCfgStrength": 2.0,
+    "defaultTemperature": 0.3,
+    "defaultVoiceSeed": 42,
+    "allowedFormats": ["WAV", "MP3"],
+    "model": {
+      "fileName": "thonburian_tts_f5.pt",
+      "sha256": "thonburian_f5_tts_sha256",
+      "downloadUrl": "https://github.com/biodatlab/thonburian-tts",
+      "maxDownloadBytes": 1500000000,
+      "downloadTimeoutMs": 120000
+    }
   }
 }
