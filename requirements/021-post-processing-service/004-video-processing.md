@@ -1,6 +1,6 @@
 # 021-VID - Video Processing
 
-Status: Planned, deferred P3. Owns source-proposal sections 11, 45, 50 and video portions of 41. It does not replace Cinematic's Take selection, last-frame extraction or Generation's provider submissions.
+Status: Implemented (P3). Owns video frame rate interpolation (/v1/video/interpolate), video spatial denoise/sharpening (/v1/video/enhance), and audio-preserving video container re-encoding. Does not replace Cinematic's Take selection or Generation's provider submissions.
 
 ## Operations
 

@@ -13,9 +13,9 @@
 | **P0** | **Faceless Previs & Face Landmarks** | CPU Bounded | **Implemented** | [`domain/faceless_previs.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/faceless_previs.py), [`domain/face_landmarks.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/face_landmarks.py), [`adapters/mediapipe_detector.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/mediapipe_detector.py) |
 | **P1** | **Platform Readiness & Async Jobs Protocol** | CPU Bounded | **Implemented** | [`domain/job_queue.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/job_queue.py), [`domain/resilience_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/resilience_manager.py), [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py), [`config/service_config.py`](file:///d:/development/ModelPromptForge/post-processing-service/config/service_config.py) |
 | **P2** | **Image Enhancement & Upscale** | **GPU Accelerated / PIL Lanczos Fallback** | **Implemented** | [`domain/image_enhancement_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/image_enhancement_manager.py), [`adapters/image_enhancement_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/image_enhancement_adapter.py) |
-| **P3** | **Basic Video Processing & Interpolation** | **GPU Required** (PyTorch / FFmpeg CUDA) | Planned | `domain/video_processing.py` (`VideoProcessingManager`), `adapters/video_adapter.py` |
-| **P4** | **Audio Analysis & Speaker Diarization** | CPU / GPU | Planned | `domain/audio_analysis.py` (`AudioAnalysisManager`), `adapters/stt_adapter.py` |
-| **P5** | **Expressive TTS & Voice Synthesis** | **PyTorch CUDA / Formant Audio Engine** | **Implemented** | [`domain/expressive_tts_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/expressive_tts_manager.py), [`adapters/expressive_tts_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/expressive_tts_adapter.py), [`/tts-playground`](http://127.0.0.1:6501/tts-playground) |
+| **P3** | **Basic Video Processing & Interpolation** | **GPU Required** (PyTorch / FFmpeg CUDA / OpenCV) | **Implemented** | [`domain/video_processing_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/video_processing_manager.py), [`adapters/video_processing_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/video_processing_adapter.py) |
+| **P4** | **Audio Analysis & Speaker Diarization** | CPU / GPU (Whisper ASR / Signal Diarizer) | **Implemented** *(ยังไม่ได้ทดสอบจริง - Untested / Pending Live Qualification)* | [`domain/audio_analysis_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/audio_analysis_manager.py), [`adapters/audio_analysis_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/audio_analysis_adapter.py) |
+| **P5** | **Expressive TTS & Voice Synthesis** | **PyTorch CUDA / Formant Audio Engine** | **Implemented** *(Thonburian-TTS: Partial - Voice Clone OK, Text-to-Speech Pending)* | [`domain/expressive_tts_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/expressive_tts_manager.py), [`adapters/thonburian_tts_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/thonburian_tts_adapter.py), [`/tts-playground`](http://127.0.0.1:6501/tts-playground) |
 
 ---
 
@@ -105,8 +105,12 @@ graph TD
   - งานค้างที่สถานะ `processing`: ตรวจสอบ `jobTimeoutMs` (30s) ใน [`config/policy.json`](file:///d:/development/ModelPromptForge/post-processing-service/config/policy.json#L35)
   - งานหายหลังเซิร์ฟเวอร์ดับ: ตรวจสอบการสิทธิ์การเขียนไฟล์ที่ `D:\applications\momelo-post-processing\data\jobs.json`
 
-#### 7. Expressive Text-to-Speech & Web Playground (`POST /v1/expressive-tts`, `GET /tts-playground`)
-- **คำอธิบาย**: ระบบสังเคราะห์เสียงใส่อารมณ์ (ChatTTS Engine / Formant Audio Synth) รองรับภาษาไทย แท็กอารมณ์/จังหวะพูด (`[laughter]`, `[uv_break]`), Voice Seed, ความเร็วพูด และ Temperature พร้อมสตรีมไฟล์เสียงกลับมาเล่นบนหน้าเว็บได้ทันที
+#### 7. Expressive Text-to-Speech & Web Playground (`POST /v1/expressive-tts`, `POST /v1/thonburian-tts`, `GET /tts-playground`)
+- **คำอธิบาย**: ระบบสังเคราะห์เสียงใส่อารมณ์ และ Zero-Shot Voice Cloning (Thonburian-TTS / F5-TTS Engine) รองรับภาษาไทย แท็กอารมณ์/จังหวะพูด (`[laughter]`, `[uv_break]`), Voice Seed, ความเร็วพูด และ Temperature พร้อมสตรีมไฟล์เสียงกลับมาเล่นบนหน้าเว็บได้ทันที
+
+> [!WARNING]
+> **สถานะ Thonburian-TTS (F5-TTS Engine)**: Thonburian-TTS ยังไม่สามารถใช้งานได้สมบูรณ์ในปัจจุบัน สามารถทำ Zero-Shot Voice Cloning เลียนแบบน้ำเสียงจากไฟล์เสียงอ้างอิงได้ แต่ยังไม่สามารถสังเคราะห์ออกเสียงคำอ่านภาษาไทยจากข้อความ (Text) ได้อย่างถูกต้องสมบูรณ์
+
 - **ต้องใช้ GPU หรือไม่**: ⚖️ **CPU หรือ GPU (PyTorch CUDA)**
 - **ไฟล์ที่รับผิดชอบ**:
   - Route & UI: [`api/routes.py`](file:///d:/development/ModelPromptForge/post-processing-service/api/routes.py) (`post_expressive_tts`, `get_tts_playground`)
@@ -156,11 +160,14 @@ graph TD
   - Adapter: `adapters/video_adapter.py` (RIFE / FILM Interpolation Model)
 
 #### Phase P4: Audio Analysis & Diarization
-- **Endpoint (วางแผน)**: `POST /v1/jobs` (operation: `audio.transcript`, `audio.diarization`)
-- **ต้องใช้ GPU หรือไม่**: ⚖️ **CPU หรือ GPU** (Whisper / PyAnnote Audio Model)
-- **ไฟล์เป้าหมายที่จะสร้าง**:
-  - Logic: `domain/audio_analysis.py` (`AudioAnalysisManager`)
-  - Adapter: `adapters/stt_adapter.py`
+- **Endpoint**: `POST /v1/audio/transcribe`, `POST /v1/audio/diarize`
+- **ต้องใช้ GPU หรือไม่**: ⚖️ **CPU หรือ GPU** (Whisper ASR / Signal Diarization Model)
+- **ไฟล์ที่รับผิดชอบ**:
+  - Logic: [`domain/audio_analysis_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/audio_analysis_manager.py) (`AudioAnalysisManager`)
+  - Adapter: [`adapters/audio_analysis_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/audio_analysis_adapter.py) (`AudioAnalysisAdapter`)
+
+> [!WARNING]
+> **สถานะ Phase P4 (Audio Analysis & Diarization)**: โมดูลและ API Endpoints สังเคราะห์ถอดความและแยกแยะผู้พูดได้รับการพัฒนาและทดสอบระดับ Unit/Mock API เรียบร้อยแล้ว แต่ **ยังไม่ได้ทดสอบจริง** กับไฟล์เสียงสนทนาการผลิตจริง (Untested / Pending Live Qualification)
 
 #### Phase P5: Voice Repair & Lip-Sync
 - **Endpoint (วางแผน)**: `POST /v1/jobs` (operation: `voice.lipsync`, `voice.repair`)
@@ -202,7 +209,13 @@ D:\applications\momelo-post-processing\venv\Scripts\python.exe post-processing-s
 # 2. ทดสอบระบบขยายภาพ AI Super-Resolution (Real-ESRGAN) & Anti-Aliasing
 D:\applications\momelo-post-processing\venv\Scripts\python.exe post-processing-service\scripts\test_image_enhancement.py
 
-# 3. ทดสอบระบบสังเคราะห์เสียงใส่อารมณ์ Expressive TTS & Web Playground
+# 3. ทดสอบระบบประมวลผลวิดีโอ (Video Frame Interpolation & Enhancement)
+D:\applications\momelo-post-processing\venv\Scripts\python.exe post-processing-service\scripts\test_video_processing.py
+
+# 4. ทดสอบระบบวิเคราะห์เสียง (Audio Transcription & Speaker Diarization)
+D:\applications\momelo-post-processing\venv\Scripts\python.exe post-processing-service\scripts\test_audio_analysis.py
+
+# 5. ทดสอบระบบสังเคราะห์เสียงใส่อารมณ์ Expressive TTS & Web Playground
 D:\applications\momelo-post-processing\venv\Scripts\python.exe post-processing-service\scripts\test_expressive_tts.py
 ```
 

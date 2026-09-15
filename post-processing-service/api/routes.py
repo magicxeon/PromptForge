@@ -12,6 +12,8 @@ from domain.face_landmarks import FaceLandmarksManager, face_landmarks_manager
 from domain.image_enhancement_manager import ImageEnhancementManager, image_enhancement_manager
 from domain.expressive_tts_manager import ExpressiveTtsManager, expressive_tts_manager
 from domain.telemetry_manager import TelemetryManager, telemetry_manager
+from domain.video_processing_manager import VideoProcessingManager, video_processing_manager
+from domain.audio_analysis_manager import AudioAnalysisManager, audio_analysis_manager
 from domain.job_queue import job_queue_manager
 
 logger = logging.getLogger("post_processing.api")
@@ -79,6 +81,34 @@ def get_capabilities(request: Request, x_post_processing_token: Optional[str] = 
             "maxOutputPixels": enhancement_policy.maxOutputPixels,
             "allowedScales": enhancement_policy.allowedScales
         }
+
+    ops["video_interpolate"] = {
+        "available": True,
+        "reason": None,
+        "policyVersion": "video-processing-v1",
+        "maxBytes": 104857600,
+        "allowedTargetFps": [24, 30, 60]
+    }
+    ops["video_enhance"] = {
+        "available": True,
+        "reason": None,
+        "policyVersion": "video-processing-v1",
+        "maxBytes": 104857600
+    }
+    ops["audio_transcribe"] = {
+        "available": True,
+        "reason": None,
+        "policyVersion": "audio-analysis-v1",
+        "maxBytes": 52428800,
+        "defaultLanguage": "th"
+    }
+    ops["audio_diarize"] = {
+        "available": True,
+        "reason": None,
+        "policyVersion": "audio-analysis-v1",
+        "maxBytes": 52428800,
+        "maxSpeakers": 8
+    }
 
     return {
         "apiVersion": "1",
@@ -940,6 +970,193 @@ async def delete_cancel_job(
             detail={"error": {"code": "job_not_found", "message": f"Job '{job_id}' was not found."}}
         )
     return JSONResponse(status_code=200, content=cancel_res)
+
+
+# 11. Video Processing Endpoints (P3)
+@router.post("/v1/video/interpolate", response_class=JSONResponse)
+async def post_video_interpolate(
+    request: Request,
+    x_post_processing_token: Optional[str] = Header(None)
+):
+    verify_internal_token(request, x_post_processing_token)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    import base64
+    video_b64 = body.get("bytesBase64") or body.get("videoBase64")
+    if not video_b64:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "missing_video_payload", "message": "Field 'bytesBase64' is required."}}
+        )
+
+    try:
+        video_bytes = base64.b64decode(video_b64)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "invalid_base64_payload", "message": "Could not decode base64 video payload."}}
+        )
+
+    target_fps = int(body.get("targetFps", 30))
+    codec = body.get("outputCodec", "h264")
+    preserve_audio = bool(body.get("preserveAudio", True))
+
+    try:
+        result = video_processing_manager.process_interpolation(
+            video_bytes=video_bytes,
+            target_fps=target_fps,
+            output_codec=codec,
+            preserve_audio=preserve_audio,
+            policy=request.app.state.config.policy
+        )
+        return JSONResponse(status_code=200, content=result)
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "video_interpolation_invalid", "message": str(ve)}}
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"error": {"code": "video_interpolation_error", "message": str(e)}}
+        )
+
+
+@router.post("/v1/video/enhance", response_class=JSONResponse)
+async def post_video_enhance(
+    request: Request,
+    x_post_processing_token: Optional[str] = Header(None)
+):
+    verify_internal_token(request, x_post_processing_token)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    import base64
+    video_b64 = body.get("bytesBase64") or body.get("videoBase64")
+    if not video_b64:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "missing_video_payload", "message": "Field 'bytesBase64' is required."}}
+        )
+
+    try:
+        video_bytes = base64.b64decode(video_b64)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "invalid_base64_payload", "message": "Could not decode base64 video payload."}}
+        )
+
+    denoise = float(body.get("denoiseLevel", 0.5))
+    sharpen = float(body.get("sharpenLevel", 0.5))
+
+    try:
+        result = video_processing_manager.process_enhancement(
+            video_bytes=video_bytes,
+            denoise_level=denoise,
+            sharpen_level=sharpen,
+            policy=request.app.state.config.policy
+        )
+        return JSONResponse(status_code=200, content=result)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"error": {"code": "video_enhance_error", "message": str(e)}}
+        )
+
+
+# 12. Audio Analysis Endpoints (P4)
+@router.post("/v1/audio/transcribe", response_class=JSONResponse)
+async def post_audio_transcribe(
+    request: Request,
+    x_post_processing_token: Optional[str] = Header(None)
+):
+    verify_internal_token(request, x_post_processing_token)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    import base64
+    audio_b64 = body.get("bytesBase64") or body.get("audioBase64")
+    if not audio_b64:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "missing_audio_payload", "message": "Field 'bytesBase64' is required."}}
+        )
+
+    try:
+        audio_bytes = base64.b64decode(audio_b64)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "invalid_base64_payload", "message": "Could not decode base64 audio payload."}}
+        )
+
+    lang = body.get("language", "th")
+    detect = bool(body.get("detectLanguage", True))
+
+    try:
+        result = audio_analysis_manager.process_transcription(
+            audio_bytes=audio_bytes,
+            language=lang,
+            detect_language=detect,
+            policy=request.app.state.config.policy
+        )
+        return JSONResponse(status_code=200, content=result)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"error": {"code": "audio_transcribe_error", "message": str(e)}}
+        )
+
+
+@router.post("/v1/audio/diarize", response_class=JSONResponse)
+async def post_audio_diarize(
+    request: Request,
+    x_post_processing_token: Optional[str] = Header(None)
+):
+    verify_internal_token(request, x_post_processing_token)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    import base64
+    audio_b64 = body.get("bytesBase64") or body.get("audioBase64")
+    if not audio_b64:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "missing_audio_payload", "message": "Field 'bytesBase64' is required."}}
+        )
+
+    try:
+        audio_bytes = base64.b64decode(audio_b64)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "invalid_base64_payload", "message": "Could not decode base64 audio payload."}}
+        )
+
+    max_spk = int(body.get("maxSpeakers", 4))
+
+    try:
+        result = audio_analysis_manager.process_diarization(
+            audio_bytes=audio_bytes,
+            max_speakers=max_spk,
+            policy=request.app.state.config.policy
+        )
+        return JSONResponse(status_code=200, content=result)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"error": {"code": "audio_diarize_error", "message": str(e)}}
+        )
 
 
 def verify_internal_token(request: Request, token_header: Optional[str]):

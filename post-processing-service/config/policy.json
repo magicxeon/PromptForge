@@ -84,5 +84,25 @@
       "maxDownloadBytes": 1500000000,
       "downloadTimeoutMs": 120000
     }
+  },
+  "videoProcessing": {
+    "policyVersion": "video-processing-v1",
+    "maxInputBytes": 104857600,
+    "maxPixels": 2073600,
+    "maxDurationSeconds": 60,
+    "allowedTargetFps": [24, 30, 60],
+    "defaultTargetFps": 30,
+    "processingTimeoutMs": 60000,
+    "allowedCodecs": ["h264", "hevc", "vp9"],
+    "preserveAudio": true
+  },
+  "audioAnalysis": {
+    "policyVersion": "audio-analysis-v1",
+    "maxInputBytes": 52428800,
+    "maxDurationSeconds": 300,
+    "defaultLanguage": "th",
+    "processingTimeoutMs": 45000,
+    "allowedFormats": ["WAV", "MP3", "FLAC", "OGG"],
+    "maxSpeakers": 8
   }
 }

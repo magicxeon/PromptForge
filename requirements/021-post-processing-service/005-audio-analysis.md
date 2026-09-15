@@ -1,6 +1,6 @@
 # 021-AUD - Audio Analysis And Speaker Mapping
 
-Status: Planned, deferred P4. Owns source-proposal sections 12-14, 42-43 and analysis parts of 45. This is transcription/analysis, not voice generation.
+Status: Implemented (P4). Owns speech-to-text transcription (/v1/audio/transcribe), word timestamps, language detection, and speaker diarization (/v1/audio/diarize). This is transcription/analysis, not voice generation.
 
 ## Analysis Pipeline
 
