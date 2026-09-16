@@ -16,6 +16,7 @@ Inputs reviewed:
 
 - `cinematic-studio-simplified.drawio`
 - `shot-example.md`
+- `period_mini_series_production_workflow.md`
 - current six-stage Cinematic requirement and Simple/Advanced requirements
 - current React Cinematic route, components, schemas and state modules
 - current Cinematic application/domain services, Generation compilers and Asset
@@ -161,6 +162,213 @@ Advanced camera, lighting, blocking, performance, continuity, prohibitions and
 compiled technical prompt remain available through `Details`. They are still
 compiled automatically when hidden.
 
+#### 3.2.1 Automated Shot preparation
+
+Every Shot must pass through one non-billable `Prepare Shot` projection before a
+First Frame or video quote is submitted. This is not another user stage. It runs
+when the Shot is opened or an authoritative input changes and produces one
+reviewable readiness summary.
+
+The preparation order is:
+
+```text
+Shot intent
+  -> Director breakdown
+  -> Continuity entry
+  -> Automatic Character/Look reference plan
+  -> Conditional Expression reference plan
+  -> Environment/prop/period reference plan
+  -> Required First Frame prompt when First Frame mode is selected
+  -> First Frame preflight
+  -> Video execution packet
+  -> Provider/reference/prompt-budget preflight
+```
+
+The Director breakdown must derive or validate:
+
+1. Scene objective and Character objective.
+2. Start emotion, visible emotional change and end emotion.
+3. Start state, ordered action, end state and handoff to the next Shot.
+4. Character blocking, gaze, screen direction and spatial relationship.
+5. Camera intent motivated by the action, not decorative movement.
+6. Dialogue, speaker visibility, voice direction and diegetic audio.
+7. Romance, mystery or other Genre beat only when caused by the Story.
+8. Period, architecture, prop, wardrobe, weather and lighting continuity.
+
+The Shot UI shows the result as concise editable fields. The complete technical
+packet stays in contextual Advanced details.
+
+#### 3.2.2 Automatic Character Look Sheet references
+
+The system must build the Character reference plan automatically from the current
+Shot rather than requiring the user to browse for the same Look Sheet each time.
+
+1. Resolve only Characters visible in the Shot. Do not attach Scene Cast to an
+   environment-only or object-only Shot.
+2. Resolve each visible Character's explicit Shot Look first, then the Scene Look,
+   then the approved Project default Look. Never select by similar filename, face
+   appearance or latest generation alone.
+3. Bind one identity authority per Character and keep Character-to-reference
+   mapping explicit. Never blend or swap two Character Look Sheets.
+4. Inject the Character's authored apparent age, hairstyle, body proportions,
+   wardrobe and recurring accessories from the dossier. If age is missing, request
+   it once at Character level; do not infer a precise age from an image.
+5. Revalidate actor ownership, Asset availability, hash/version and stale status
+   before estimate and again before submission.
+6. Show the automatically attached references as compact chips/thumbnails with
+   Character name, Look name and readiness. The user may replace an ambiguous Look
+   before generation.
+7. If the selected model cannot carry all required references, block the action
+   and offer an eligible model, a First Frame identity-baking workflow or a Shot
+   split. Never silently omit a Character reference.
+
+Reference order must be explicit in the compiled prompt and request manifest:
+
+- **First Frame generation:** Character Look Sheets, approved Scene environment
+  and an eligible continuity composition source are assigned semantic roles.
+  Qualified same-Character Expression references are added only for facially
+  important Shots. The provider adapter may map physical slot order, but it must
+  preserve the manifest and authority priority.
+- **Image-to-video:** Image 1 is the approved/selected First Frame. Image 2 onward
+  are named Character Look Sheets and then optional same-Character Expression
+  references when the provider supports those additional inputs.
+- **Single-image video model:** the First Frame is the only image input and must
+  already contain the approved identities. Look Sheets remain authority evidence
+  used to create/qualify that First Frame; they are not silently sent as unsupported
+  inputs.
+- **Look-only or text-only video:** references follow the selected model contract
+  and the UI states clearly that no First Frame controls composition.
+
+#### 3.2.3 Automatic Expression references
+
+When a Shot depends on readable facial acting, the preparation step should add an
+Expression reference for each affected visible Character. Expression authority is
+separate from identity authority:
+
+- the Character Look Sheet controls identity, apparent age, face proportions,
+  hair, body and wardrobe;
+- the Expression reference controls only the intended facial performance, gaze
+  energy and visible emotional intensity;
+- the current Shot still controls exact head direction, timing, blocking and the
+  start-to-end emotional change.
+
+An Expression reference is recommended automatically when all of these are true:
+
+1. a Character's face is expected to be visible;
+2. the framing can resolve facial detail, normally medium close-up or closer;
+3. the Shot has an authored emotional target, reaction, dialogue beat, romance
+   hold, fear/mystery recognition or other facially legible story change; and
+4. an owner-authorized Expression Asset exists for that same Character, or an
+   approved expression panel can be addressed from that Character's Look package.
+
+Do not consume an Expression slot for a wide establishing Shot, rear view,
+occluded face, environment/object insert or a Shot whose performance is carried by
+body posture. If the provider cannot accept the extra reference, the system should
+prefer baking the expression into the First Frame, or compile it as performance
+direction, before recommending a different model. It must never drop identity
+authority to make room for an Expression reference.
+
+Automatic selection uses the nearest approved semantic match to the Shot's start
+emotion and intensity. It must display the selected Character, expression label,
+source Asset and role before submission. If no confident same-Character match
+exists, show `Expression reference recommended` and let the user choose or proceed
+with text direction; never attach another person's face or infer identity from an
+unbound expression image.
+
+For a still First Frame, the Expression reference targets the single visible
+time-zero emotion. For video, emotional change remains temporal text direction;
+an Expression image may guide the opening or key reaction only where the provider
+supports it. A static expression must not freeze the face for the whole clip.
+
+Expression Assets belong in Project Assets under their Character and reuse the
+existing Reference Processing `expression` purpose. Cinematic Studio needs an
+additive Character-to-Expression binding/read model; it must not copy third-party
+identity, protected performance or unowned media.
+
+#### 3.2.4 Required First Frame prompt
+
+When `Generate First Frame` is selected, a nonempty compiled First Frame prompt is
+mandatory. This requirement does **not** make a First Frame mandatory for every
+Shot; Look-only and text-only video remain available when the selected model and
+Shot contract support them.
+
+The system should generate the initial prompt automatically from structured data,
+then allow a concise user direction to override or supplement it. The compiled
+prompt must describe the authored instant at time zero, before the main action
+develops, and include:
+
+- aspect ratio and photographic/render profile;
+- each visible Character's name label, apparent age, identity/wardrobe authority
+  and starting emotion, plus the assigned Expression reference role when present;
+- exact body/head orientation, gaze, hand/prop contact and screen placement;
+- action-ready pose without presenting the Character as a portrait;
+- Scene geometry, approved environment, time, weather and spatial depth;
+- period, architecture, material and prop constraints from the production bible;
+- motivated light and camera/framing intent;
+- continuity entry state and previous approved result when applicable;
+- exclusions for unauthorized people, props, text, modern items, identity mixing
+  and premature end-state action.
+
+The First Frame preflight must detect missing authority, contradictory start/end
+state, unavailable references, unsupported reference count, prompt limit and stale
+inputs before opening the paid confirmation. Prompt optimization may remove
+duplication and provider-irrelevant prose, but it must not remove identity, age,
+wardrobe, contact, prop, period, camera, light or continuity authority.
+
+Before approval, the review checklist covers identity, apparent age, hair,
+wardrobe, period props, emotional expression, blocking, camera orientation,
+environment, lighting, architecture and screen direction. Approval remains an
+explicit user action.
+
+#### 3.2.5 Automatic video packet and continuity handoff
+
+After a First Frame is selected/approved, or after the user selects a supported
+Look-only/text-only mode, the system compiles the video packet automatically:
+
+1. Convert editable time badges into ordered, non-overlapping action intervals.
+2. Carry the exact start state from the First Frame or selected continuity source.
+3. Include one primary causal action, reactions, camera behavior and an exact end
+   state that can hand off to the next Shot.
+4. Add dialogue only inside a feasible interval. Include speaker, language,
+   approximate age, vocal quality, pitch and emotional delivery.
+5. Apply the production audio policy. The Period Mini Series profile defaults to
+   no music and diegetic sound only; this is configurable and not a global rule for
+   every Cinematic Project.
+6. Apply Series/Project production-bible constraints such as architecture,
+   recurring props, location spatial map, costume, weather and screen direction.
+7. Compile provider-specific wording and compact it within the verified prompt
+   budget without changing the approved event.
+8. Show the actual ordered reference list, duration, provider/model, estimate and
+   actionable warnings before the paid Generate action.
+
+When a Take is selected and approved, its observed result becomes continuity
+truth for downstream preparation. The system should automatically register its
+actual end-state evidence and prepare an extractable last frame for the next Shot.
+It may suggest updated blocking, camera geography and prop state, but it must not
+rewrite the approved next Shot or choose its source without the user applying the
+proposal.
+
+The result review rubric includes story action, emotion, face/identity, apparent
+age, voice/speaker, dialogue timing, unwanted music, architecture, props, spatial
+continuity and final movement. A usable dramatic variation may pass even when it
+is not pixel-identical to the plan; the accepted Take, not the abandoned imagined
+state, then drives the next Shot.
+
+#### 3.2.6 Automation boundary
+
+| May run automatically without Credit consent | Requires explicit user action | Must block and explain |
+|---|---|---|
+| derive Director breakdown and Shot readiness | generate a paid Look Sheet | required visible Character has no authoritative Look |
+| attach approved Character Looks, qualified Expression references and Scene environment | replace an ambiguous Character Look or Expression reference | reference ownership, bytes or fingerprint cannot be verified |
+| inject age, period, prop, architecture and audio policy | submit First Frame or video generation | selected model cannot carry required references |
+| compile/optimize First Frame and video prompts | approve/select a First Frame or Take | prompt remains over provider limit after safe optimization |
+| check dialogue timing and prompt/reference limits | apply AI-proposed structural or continuity changes | timeline, start/end state or dialogue is internally contradictory |
+| detect eligible previous Take/last frame | select previous last frame as current source | required source is stale, failed or unavailable |
+| prepare quote inputs and show estimate | accept the quote and spend Credits | submitted provider/model/references differ from the quote |
+
+No preparation event may dispatch a provider Job, spend Credits, approve an Asset,
+replace a Take or remove an unsupported reference by itself.
+
 ### 3.3 Final workspace
 
 Visible by default:
@@ -180,7 +388,7 @@ existing approved Take and Asset contracts.
 `Project Assets` becomes a right drawer on desktop and a full-height sheet on
 mobile/tablet. It is grouped by semantic role:
 
-- Characters: Look Sheets and descriptions;
+- Characters: Look Sheets, descriptions and approved Expression references;
 - Environments: generated/selected Scene images and descriptions;
 - First Frames: generated, approved and extracted continuity frames;
 - Clips: all Takes with selected/approved/stale/failed state;
@@ -220,20 +428,28 @@ flowchart TD
 
   subgraph PW[Production workspace - N]
     SC --> ENV[Scene Environment - R]
-    SH --> FF[Prepare and Generate First Frame - R]
-    CL --> FF
-    ENV --> FF
+    SH --> PS[Prepare Shot contract - M]
+    CL --> RP[Automatic reference plan - M]
+    EX[Expression Assets when facial acting is required - N] --> RP
+    ENV --> RP
+    PS --> RP
+    RP --> FFP[Required First Frame prompt when selected - M]
+    FFP --> FF[Generate First Frame - R]
     FF --> VF[Approved or selected First Frame - R]
     SH --> VD[Editable Video Timeline - M]
-    VF --> VG[Generate Video - R]
-    VD --> VG
+    VF --> VP[Automatic video packet - R]
+    VD --> VP
+    RP --> VP
+    VP --> VG[Generate Video - R]
     VG --> TK[Video Takes - R]
-    TK --> LF[Use Last Frame in next Shot - R]
-    LF --> FF
+    TK --> CT[Approved result becomes continuity truth - M]
+    CT --> LF[Prepare Last Frame for next Shot - R]
+    LF --> PS
   end
 
   PAD[Persistent Project Assets drawer - N]
   CL -. indexed in .-> PAD
+  EX -. indexed in .-> PAD
   ENV -. indexed in .-> PAD
   VF -. indexed in .-> PAD
   TK -. indexed in .-> PAD
@@ -267,21 +483,21 @@ services behind each paid action.
 | Full Story (`53`) | Story result | Recompose | active Story Source and Story Plan versions | Add a readable synopsis/full-story projection without duplicating source data |
 | Chapter Story (`70`) | Story hierarchy | Clarify/reuse | Series/Season/Chapter workspace | Decide whether Chapter means an episode Project, an Act, or an in-Project chapter |
 | Scene (`74`) | Story and Production hierarchy | Reuse | existing Scene records | Display summary in Story and production controls in Production |
-| Shot (`104`) | Production board | Reuse | existing Shot records/manual storyboard | One Shot work item equals one clip |
+| Shot (`104`) | Production board | Reuse | existing Shot records/manual storyboard | One Shot work item equals one clip; opening the Shot builds a non-billable preparation/readiness projection |
 | Edit / Approve (`77`, `78`, `107`) | Inline hierarchy actions | Recompose | versioned save/approval commands | Use explicit approval only for immutable generation sources; ordinary text uses save/apply |
 | Set Character Look Description (`79`) | Character details | Move | Cast dossier and generated Cast service | AI-prefill; user edits in Character details |
 | Select Character for Story (`94`) | Character readiness cards | Reuse | Character picker and generated Look picker | Auto-suggest role binding, require explicit user selection/confirmation |
 | Generate Character Look Sheet (`91`) | Character action | Reuse | `CharacterLookDialog`, `GeneratedCastDialog`, Generation/Credits | Keep estimate and consent; save result into Project Assets |
-| Character Look Sheet & Description (`130`) | Project Assets / Characters | Recompose | current Cast Assignment and Look records | Add unified asset projection, no copied files |
+| Character Look Sheet & Description (`130`) | Project Assets / Characters | Recompose | current Cast Assignment, Look records and Reference Processing expression purpose | Add unified Look and optional same-Character Expression projection, no copied files |
 | Generate Environment Scene (`115`) | Scene header in Production | Reuse | `SceneEnvironmentControl` and Scene environment service | Compact default state; dialog/details only when editing or generating |
 | Environment Image & Description (`134`) | Project Assets / Environments | Recompose | approved Scene environment and gallery | Index by Scene and allow reuse with existing ownership checks |
-| Prepare First Frame (`138`) | Shot / First Frame | Recompose | reference planner and storyboard prompt compiler | Run preparation/preflight behind one action and show only actionable findings |
+| Prepare First Frame (`138`) | Shot / First Frame | Recompose | Cast/Look resolver, reference planner, production bible and storyboard prompt compiler | Automatically attach authoritative visible-Character Looks, Scene environment and eligible continuity evidence; compile the required First Frame prompt and preflight behind one action |
 | Generate First Frame (`145`) | Shot / First Frame | Reuse | Storyboard generation adapter/dialog and Generation | Embed a compact action; keep full dialog for details |
 | First Frame (`150`) | Shot summary and Project Assets | Reuse | approved Storyboard source and Asset service | Show selected, stale and source status clearly |
 | Generate Scene (`153`) | Shot orchestration | Rename/recompose | current Shot save, prompt compiler and Produce context | Avoid a second action named Generate Scene; Shot preparation should lead to Generate Video |
-| Generate Video (`162`) | Shot / Video | Reuse | `CinematicProduceRuntime`, video packet and Generation facade | Embed compact controls and reuse current quote/submit lifecycle |
+| Generate Video (`162`) | Shot / Video | Reuse | `CinematicProduceRuntime`, video packet and Generation facade | Automatically compile timed action, explicit reference order, audio policy and continuity handoff, then reuse current quote/submit lifecycle |
 | Scene Video (`167`) | Shot Takes and Project Assets / Clips | Rename/recompose | video attempts, `VideoTakeList`, media review | Call these Takes/Clips; retain multiple outputs and selected Take |
-| Use Last Frame from Previous Video (`172`) | Shot / First Frame continuity source | Reuse | `CinematicLastFrameService` and current command | Disable until previous Shot has an eligible approved Take; preserve fallback choices |
+| Use Last Frame from Previous Video (`172`) | Shot / First Frame continuity source | Reuse | `CinematicLastFrameService` and current command | Prepare availability automatically after an eligible approved Take; disable until then and require explicit source selection |
 | Post Processing (`177`) | Final workspace | Reuse/defer | standalone Post Processing API and final assembly | Expose only implemented operations; no implied full suite |
 | Final Video (`174`) | Final outputs | Reuse | timeline/export and clip bundle services | Build from selected current Takes and surface stale blockers |
 | Project Asset (`128`) | Persistent drawer | New read model/UI | aggregate existing Cinematic/Asset/Generation records | Add one bounded actor-owned index; no new durable asset store |
@@ -357,6 +573,7 @@ No `RewampService`, second queue or second Project repository should be added.
 | manual Shot timeline | `CinematicManualStoryboard` | Validate editable time blocks and row changes |
 | Series/Season/Chapter | `CinematicSeriesService` | Organize Mini Series without creating another hierarchy store |
 | Character authority | Cast coverage, generated Cast and Character Look owners | Bind identities and Looks to roles |
+| Expression authority | Reference Processing `expression` purpose plus a new additive Cinematic Character binding | Guide facial performance only; never replace identity, age or wardrobe authority |
 | Scene image | `CinematicSceneEnvironment` | Generate/select reusable environment assets |
 | First Frame | storyboard prompt/keyframe/source compatibility services | Compile, verify and approve a still source |
 | Video | video packet/reference/take eligibility services | Quote, generate, recover and select Takes |
@@ -380,6 +597,8 @@ Recommended cohesive modules, subject to final naming during implementation:
 - `ProductionBoard`: hierarchy, selection and bounded virtualization/pagination.
 - `ShotWorkItem`: one clip row composed from existing First Frame, timeline,
   video and Take owners.
+- `ShotPreparationSummary`: Director breakdown, automatic Look/Expression/
+  environment reference plan, prompt-budget status and the next actionable blocker.
 - `ProjectAssetDrawer`: bounded grouped projection of existing assets.
 - `FinalWorkspace`: selected-Take sequence, Post Processing and export.
 - `CinematicAssistantComposer`: optional plain-language command surface that
@@ -397,6 +616,15 @@ small visual element.
 - Project Asset index/read model with type, owner, Scene/Shot binding, generation
   state, selected/approved state and stale reason;
 - structured AI proposal/patch contract with affected entity IDs and preview;
+- additive Expression Asset binding with Character ID, semantic emotion label,
+  intensity, source Asset/version, ownership evidence and allowed still/video role;
+- a provider-neutral Shot preparation/readiness projection containing Director
+  breakdown, ordered authority references, required First Frame prompt status,
+  video packet status and actionable findings;
+- configurable Production Profile/continuity bible for aspect, period,
+  architecture/materials, recurring props, location map, audio policy and Genre
+  direction. The Period Mini Series profile starts with 9:16 and no-music/
+  diegetic-audio defaults without changing other Project types;
 - downstream impact projection before applying parent edits;
 - workspace section projection for new navigation while preserving old deep links.
 
@@ -418,6 +646,7 @@ The new UI is simpler only if edits remain predictable.
 | title or presentation-only summary | all media and Takes | nothing | regenerate |
 | Genre/Country/period/story brief | historical versions and media | Story Plan and affected descendants | delete prior work |
 | Character Look binding | old Looks and Takes | affected First Frames/videos | replace identity silently |
+| Character Expression binding | old Expression Assets and Takes | affected future First Frames/video packet | replace identity Look or regenerate automatically |
 | Scene environment | old environment and generated media | future/affected First Frames | delete prior source |
 | Shot text/timeline | First Frame if composition authority is unchanged | affected video packet/Takes | approve a new Take |
 | selected First Frame | all attempts | dependent video Takes | submit paid video |
@@ -444,8 +673,10 @@ This order reduces duplicate work and protects currently usable behavior.
    Recompose current Scene environment and Simple Shot rows. Keep existing
    Storyboard/Produce dialogs available as fallbacks.
 5. **Shot work item**
-   Embed compact First Frame, editable timeline, Generate Video and Takes. Extract
-   the current Produce runtime from the stage monolith once, then reuse it.
+   Add the non-billable Prepare Shot projection, automatic Character Look and
+   conditional Expression references, required First Frame prompt, compact First
+   Frame, editable timeline, automatic video packet, Generate Video and Takes.
+   Extract the current Produce runtime from the stage monolith once, then reuse it.
 6. **Project Asset drawer**
    Build a bounded owner-scoped read model over existing records. Do not migrate
    media storage.
@@ -487,6 +718,16 @@ then retire only unreachable presentation code.
     loading and offer a clear retry/recovery action.
 12. The layout is operable at approximately 390, 820 and 1440 pixels without
     clipped controls, nested cards or horizontal overflow.
+13. Opening a Shot automatically resolves every visible Character to one explicit
+    authoritative Look and never attaches Cast that is not visible in the Shot.
+14. A facially important Shot receives a same-Character Expression recommendation
+    when an authorized match exists; identity authority always outranks expression.
+15. First Frame generation cannot reach paid confirmation without a compiled,
+    within-budget time-zero prompt and a visible ordered reference manifest.
+16. Shot preparation never spends Credits, starts a provider Job, approves media
+    or silently removes an unsupported reference.
+17. An approved Take can supply continuity truth and last-frame availability to
+    the next Shot without automatically rewriting or submitting that Shot.
 
 ## 12. Main Risks And Controls
 
@@ -500,6 +741,8 @@ then retire only unreachable presentation code.
 | Existing Advanced users lose controls | Keep Advanced route during migration and add parity tests |
 | Large Project board becomes slow | Bound loaded Chapters/Scenes/Takes; virtualize only after a measured baseline |
 | Recomposition merely moves a monolith | Keep workspace orchestration thin and reuse focused domain components |
+| Expression image changes the Character's identity | Keep Look Sheet as higher authority, require same-Character binding and label Expression as performance-only |
+| Automatic references exceed provider slots | Preflight against the selected model, preserve identity first and block or offer alternatives instead of dropping inputs |
 
 ## 13. Questions For Product Decision
 
@@ -588,6 +831,25 @@ resolved before implementation where marked **blocking**.
     Recommended: Movie uses total production duration; Mini Series uses per-Chapter
     duration plus an episode count/Season plan. This needs explicit pricing and
     workload wording before activation.
+
+19. **Blocking: What sources may become an Expression Asset?**
+    Recommended: an approved expression panel from the same Character Look package,
+    a generated same-Character expression image, or an explicitly uploaded and
+    rights-confirmed same-Character image. Do not use arbitrary web/third-party
+    faces as expression authority.
+
+20. **Should an Expression reference be mandatory for close emotional Shots?**
+    Recommended: no. Make it an automatic recommendation when a qualified Asset
+    exists. Text performance plus an approved First Frame remains valid because
+    provider reference limits vary.
+
+21. **When does a generated result become continuity truth?**
+    Recommended: only after the user selects and approves the Take. Completed but
+    unselected attempts remain alternatives and must not alter downstream Shots.
+
+22. **May the system generate missing Expression Assets automatically?**
+    Recommended: it may prepare the prompt and estimate, but generation remains a
+    separate explicit paid action. Never generate one while merely opening a Shot.
 
 ## 14. Out Of Scope For This Analysis
 
