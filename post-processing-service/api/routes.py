@@ -14,6 +14,7 @@ from domain.expressive_tts_manager import ExpressiveTtsManager, expressive_tts_m
 from domain.telemetry_manager import TelemetryManager, telemetry_manager
 from domain.video_processing_manager import VideoProcessingManager, video_processing_manager
 from domain.audio_analysis_manager import AudioAnalysisManager, audio_analysis_manager
+from domain.audio_transcription_manager import audio_transcription_manager
 from domain.job_queue import job_queue_manager
 
 logger = logging.getLogger("post_processing.api")
@@ -355,6 +356,28 @@ async def post_image_upscale_or_enhance(
             detail={"error": {"code": "enhancement_processing_failed", "message": str(e)}}
         )
 
+# 6.5. Audio Transcription Endpoint
+@router.post("/v1/transcribe", response_class=JSONResponse)
+async def post_audio_transcribe(
+    request: Request,
+    x_post_processing_token: Optional[str] = Header(None)
+):
+    import base64
+    verify_internal_token(request, x_post_processing_token)
+    try:
+        data = await request.json()
+        audio_base64 = data.get("audioBase64")
+        if not audio_base64:
+            raise HTTPException(status_code=400, detail={"error": {"code": "missing_audioBase64", "message": "audioBase64 is required"}})
+        
+        audio_bytes = base64.b64decode(audio_base64)
+        result = audio_transcription_manager.transcribe(audio_bytes=audio_bytes)
+        return JSONResponse(status_code=200, content=result)
+    except Exception as e:
+        logger.error(f"[ASR_API_ERROR] {e}")
+        raise HTTPException(status_code=500, detail={"error": {"code": "transcription_failed", "message": str(e)}})
+
+
 # 7. Thonburian-TTS (F5-TTS Flow Matching) Endpoints & Web Playground
 
 @router.get("/v1/expressive-tts/voices", response_class=JSONResponse)
@@ -493,6 +516,24 @@ def get_tts_playground():
   }
   .voice-card strong { color: #f1f5f9; display: block; margin-bottom: 4px; }
   .voice-card span { color: #94a3b8; font-size: 0.8rem; }
+  
+  /* Error Dialog */
+  .error-modal {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center;
+  }
+  .error-modal-content {
+    background: #1e293b; border: 1px solid #ef4444; border-radius: 12px;
+    padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2);
+    text-align: center;
+  }
+  .error-modal h3 { color: #f87171; margin-top: 0; }
+  .error-modal p { color: #f1f5f9; font-size: 0.95rem; line-height: 1.5; word-break: break-word; }
+  .btn-close-modal {
+    background: #334155; border: none; color: #fff; padding: 10px 20px;
+    border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 16px;
+  }
+  .btn-close-modal:hover { background: #475569; }
 </style>
 </head>
 <body>
@@ -505,39 +546,47 @@ def get_tts_playground():
     <div class="step-header">
       <span class="step-num">1</span>
       <div>
-        <h3 class="step-title">เลือกแหล่งต้นแบบน้ำเสียง (Voice Source Selection)</h3>
-        <p class="step-sub">เลือกใช้เสียงต้นแบบในคลัง หรือ อัปโหลดไฟล์เสียง (.mp3 / .wav) เพื่อทำ Zero-Shot Cloning</p>
+        <h3 class="step-title">เลือกต้นแบบเสียง (Voice Selection)</h3>
+        <p class="step-sub">เลือกว่าจะใช้เสียง Default หรือ โคลนนิ่งเสียงจากไฟล์ของคุณเอง (Zero-Shot Voice Cloning)</p>
       </div>
     </div>
     
     <div class="mode-tabs">
       <div class="tab-btn active" id="tabPreset" onclick="switchVoiceMode('preset')">
-        🎙️ เสียงต้นแบบในคลัง (Preset Profiles)
+        🎙️ เสียงพากย์ Default
       </div>
       <div class="tab-btn" id="tabSample" onclick="switchVoiceMode('sample')">
-        🧬 โคลนนิ่งจากไฟล์เสียง (.mp3 / .wav)
+        🧬 โคลนนิ่งเสียงจากไฟล์ (Upload)
       </div>
     </div>
 
-    <!-- Panel A: Preset Catalog Selection -->
-    <div id="panelPreset">
-      <label for="voiceSelect">เลือกเสียงพากย์ต้นแบบ (6 Profiles):</label>
-      <select id="voiceSelect">
-        <option value="th-TH-Premwadee" selected>🇹🇭 เปรมวดี - หญิงใส นุ่มนวล (นางเอก/หญิงสาว)</option>
-        <option value="th-TH-Niwat">🇹🇭 นิวัฒน์ - ชายทุ้ม หนักแน่น (พระเอก/ชายชาตรี)</option>
-        <option value="th-TH-Narrator">🇹🇭 บรรยายภาพยนตร์ - เสียงสุขุม ทรงพลัง (ตัวอย่างหนัง)</option>
-        <option value="th-TH-Achara">🇹🇭 อัจฉรา - หญิงรุ่นใหญ่ อบอุ่น ทรงอำนาจ (ผู้ใหญ่/ราชินี)</option>
-        <option value="th-TH-Phakphum">🇹🇭 ภาคภูมิ - ชายดุดัน เข้มข้น (ตัวร้าย/ดุเดือด)</option>
-        <option value="th-TH-Kanda">🇹🇭 กานดา - หญิงสดใส ร่าเริง (คอมเมดี้/อนิเมะ)</option>
+    <!-- Panel A: Default Voice -->
+    <div id="panelPreset" class="upload-panel" style="display: block; border-color: var(--card-border);">
+      <p style="margin: 0; color: #cbd5e1; font-weight: bold;">✅ ใช้เสียง Default ในระบบ</p>
+      
+      <label for="presetVoiceSelect" style="margin-top: 12px;">เลือกเสียงต้นแบบ (Preset Voice):</label>
+      <select id="presetVoiceSelect" style="margin-top: 6px;">
+        <option value="default" selected>🇹🇭 แจ็กกี้ ชาน (Jackie Chan)</option>
+        <option value="morgan_freeman">🇺🇸 มอร์แกน ฟรีแมน (Morgan Freeman)</option>
       </select>
+
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 12px; margin-bottom: 0;">ไม่ต้องอัปโหลดไฟล์ และไม่ต้องพิมพ์ Reference Text ระบบจะจัดการให้โดยอัตโนมัติ</p>
     </div>
 
     <!-- Panel B: Upload Custom Reference Audio -->
-    <div id="panelSample" class="upload-panel">
-      <label for="refAudioFile">🎙️ เลือกอัปโหลดไฟล์เสียงอ้างอิง (.mp3 / .wav / .flac / .ogg 3-10 วินาที):</label>
+    <div id="panelSample" class="upload-panel" style="display: none;">
+      <label for="refAudioFile">🎙️ เลือกไฟล์เสียงอ้างอิง (Reference Audio .mp3 / .wav 3-15 วิ):</label>
       <input type="file" id="refAudioFile" accept="audio/*" onchange="previewAudioFile(this)">
       <audio id="refAudioPreview" controls style="display:none; margin-top:12px; width:100%;"></audio>
-      <div id="samplingStatus" class="status-badge badge-none">⚠️ ยังไม่ได้เลือกไฟล์เสียงอ้างอิง</div>
+      
+      <label for="refTextInput" style="margin-top: 16px;">💬 พิมพ์ประโยคที่พูดในไฟล์เสียงด้านบน (Reference Text):</label>
+      <div style="display: flex; gap: 8px; align-items: center; width: 100%;">
+        <input type="text" id="refTextInput" placeholder="เช่น: นี่คือเสียงต้นแบบภาษาไทย สำหรับใช้ในการสังเคราะห์เสียงครับ" style="flex: 1; background: #0f172a; border: 1px solid var(--card-border); color: #fff; padding: 10px; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem;">
+        <button id="btnTranscribe" onclick="autoTranscribe()" class="btn-tag" style="margin: 0; padding: 10px 16px; background: #2563eb; color: #fff; font-weight: bold; border-radius: 8px; display: none; white-space: nowrap;">✨ ถอดความอัตโนมัติ</button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px; margin-bottom: 0;">* บังคับต้องพิมพ์ข้อความให้ตรงกับเสียงเพื่อความแม่นยำในการโคลน</p>
+
+      <div id="samplingStatus" class="status-badge badge-none" style="margin-top: 16px;">⚠️ ยังไม่ได้เลือกไฟล์เสียงอ้างอิง</div>
     </div>
   </div>
 
@@ -552,7 +601,7 @@ def get_tts_playground():
     </div>
 
     <label for="textInput">บทพากย์ภาษาไทย (Movie Dialogue / Script):</label>
-    <textarea id="textInput" placeholder="พิมพ์บทพากย์ภาษาไทย หรือใส่แท็กจังหวะพากย์ เช่น [uv_break]...">สวัสดีครับ นี่คือระบบสังเคราะห์เสียงพากย์ Thonburian-TTS [uv_break] ออกเสียงภาษาไทยเป๊ะ และใส่อารมณ์พากย์หนังได้สมจริงครับ</textarea>
+    <textarea id="textInput" placeholder="พิมพ์บทพากย์ภาษาไทย หรือใส่แท็กจังหวะพากย์ เช่น [uv_break]...">ยินดีที่ได้รู้จักคุณ ผมชื่อแจ็กกี้ มาจากฮ่องกง แสดงหนังหลายเรื่อง</textarea>
     
     <button class="btn-tag" onclick="insertTag('[uv_break]')">+ [uv_break] (เว้นจังหวะหายใจ)</button>
 
@@ -572,9 +621,15 @@ def get_tts_playground():
       </div>
     </div>
 
-    <div>
-      <label>Speed (ความเร็วพูด: <span id="speedVal">1.0</span>x):</label>
-      <input type="range" id="speedRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="document.getElementById('speedVal').innerText = this.value">
+    <div class="grid-2">
+      <div>
+        <label>Speed (ความเร็วพูด: <span id="speedVal">1.0</span>x):</label>
+        <input type="range" id="speedRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="document.getElementById('speedVal').innerText = this.value">
+      </div>
+      <div>
+        <label>ความยาวสูงสุดต่อท่อน (Chunk Length): <span id="chunkVal">100</span> ตัวอักษร</label>
+        <input type="range" id="chunkRange" min="30" max="200" step="5" value="100" oninput="document.getElementById('chunkVal').innerText = this.value">
+      </div>
     </div>
   </div>
 
@@ -595,7 +650,10 @@ def get_tts_playground():
 
     <div class="result-card" id="resultCard">
       <h3 style="margin-top:0; color:#10b981;">✅ สังเคราะห์เสียงพากย์สำเร็จ (Dubbing Complete)</h3>
-      <audio id="audioPlayer" controls></audio>
+      <audio id="audioPlayer" controls style="width: 100%; margin-bottom: 12px;"></audio>
+      <a id="downloadAudioBtn" class="btn-submit" style="display: none; text-decoration: none; text-align: center; background: #3b82f6; width: max-content; padding: 8px 16px; margin: 0 auto; display: block; border-radius: 6px; font-weight: bold; margin-bottom: 12px;" download="thonburian_tts_output.wav">
+        ⬇️ ดาวน์โหลดไฟล์เสียง (Download .wav)
+      </a>
       <div class="meta-info" id="metaInfo"></div>
     </div>
   </div>
@@ -631,6 +689,15 @@ def get_tts_playground():
   </div>
 </div>
 
+<!-- Error Modal -->
+<div id="errorModal" class="error-modal">
+  <div class="error-modal-content">
+    <h3>⚠️ เกิดข้อผิดพลาด</h3>
+    <p id="errorModalMessage"></p>
+    <button class="btn-close-modal" onclick="document.getElementById('errorModal').style.display='none'">ปิด (Close)</button>
+  </div>
+</div>
+
 <script>
 let currentVoiceMode = 'preset'; // 'preset' or 'sample'
 let refAudioBase64Data = null;
@@ -638,16 +705,18 @@ let uploadedFileName = '';
 
 function switchVoiceMode(mode) {
   currentVoiceMode = mode;
-  document.getElementById('tabPreset').classList.toggle('active', mode === 'preset');
-  document.getElementById('tabSample').classList.toggle('active', mode === 'sample');
-  document.getElementById('panelPreset').style.display = mode === 'preset' ? 'block' : 'none';
-  document.getElementById('panelSample').style.display = mode === 'sample' ? 'block' : 'none';
+  
+  document.getElementById('tabPreset').className = (mode === 'preset') ? 'tab-btn active' : 'tab-btn';
+  document.getElementById('tabSample').className = (mode === 'sample') ? 'tab-btn active' : 'tab-btn';
+  
+  document.getElementById('panelPreset').style.display = (mode === 'preset') ? 'block' : 'none';
+  document.getElementById('panelSample').style.display = (mode === 'sample') ? 'block' : 'none';
   
   const btnText = document.getElementById('btnText');
   if (mode === 'preset') {
-    btnText.innerText = '🎬 เริ่มสังเคราะห์ด้วยเสียงต้นแบบ (Preset Voice)';
+    btnText.innerText = '🎬 เริ่มสังเคราะห์เสียงพากย์ภาพยนตร์ (Default Voice)';
   } else {
-    btnText.innerText = '🧬 เริ่มโคลนนิ่งและสังเคราะห์จากไฟล์ตัวอย่าง (Zero-Shot Voice Cloning)';
+    btnText.innerText = '🧬 เริ่มโคลนนิ่งและสังเคราะห์เสียง (Voice Cloning)';
   }
 }
 
@@ -665,6 +734,7 @@ function previewAudioFile(input) {
       const badge = document.getElementById('samplingStatus');
       badge.className = 'status-badge badge-active';
       badge.innerText = '✅ พร้อมใช้งาน Zero-Shot Voice Cloning จากไฟล์: ' + uploadedFileName + ' (' + (file.size/1024).toFixed(1) + ' KB)';
+      document.getElementById('btnTranscribe').style.display = 'block';
       console.log('[TTS_UI] Reference audio file loaded:', file.name);
     };
     reader.readAsDataURL(file);
@@ -687,18 +757,57 @@ function insertTag(tag) {
   ta.focus();
 }
 
+function showErrorDialog(message) {
+  document.getElementById('errorModalMessage').innerText = message;
+  document.getElementById('errorModal').style.display = 'flex';
+}
+
+async function autoTranscribe() {
+  if (!refAudioBase64Data) {
+    showErrorDialog('กรุณาอัปโหลดไฟล์เสียงก่อน');
+    return;
+  }
+  const btn = document.getElementById('btnTranscribe');
+  const originalText = btn.innerText;
+  btn.innerText = '⏳ กำลังถอดความ...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/v1/transcribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Post-Processing-Token': 'dev-internal-token-change-in-production-32bytes'
+      },
+      body: JSON.stringify({ audioBase64: refAudioBase64Data })
+    });
+    const data = await res.json();
+    if (res.ok && data.text) {
+      document.getElementById('refTextInput').value = data.text;
+    } else {
+      showErrorDialog('ถอดความล้มเหลว: ' + JSON.stringify(data));
+    }
+  } catch (err) {
+    showErrorDialog('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message);
+  } finally {
+    btn.innerText = originalText;
+    btn.disabled = false;
+  }
+}
+
 async function generateAudio() {
   const text = document.getElementById('textInput').value;
   const emotion = document.getElementById('emotionSelect').value;
   const cfgStrength = parseFloat(document.getElementById('cfgRange').value);
   const speed = parseFloat(document.getElementById('speedRange').value);
+  const chunkLength = parseInt(document.getElementById('chunkRange').value, 10);
 
   const btn = document.getElementById('btnGenerate');
   const spinner = document.getElementById('loadingSpinner');
   const btnText = document.getElementById('btnText');
   const resultCard = document.getElementById('resultCard');
 
-  if (!text.trim()) { alert('กรุณากรอกข้อความบทพากย์'); return; }
+  if (!text.trim()) { showErrorDialog('กรุณากรอกข้อความบทพากย์'); return; }
 
   const correlationId = 'corr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
   const payload = {
@@ -706,23 +815,30 @@ async function generateAudio() {
     emotion: emotion,
     cfgStrength: cfgStrength,
     speed: speed,
+    chunkLength: chunkLength,
     outputFormat: 'WAV',
     correlationId: correlationId
   };
 
-  if (currentVoiceMode === 'preset') {
-    payload.voice = document.getElementById('voiceSelect').value;
-    console.log('[TTS_UI] Sending Preset Dubbing Request:', payload.voice, correlationId);
-  } else if (currentVoiceMode === 'sample') {
+  if (currentVoiceMode === 'sample') {
+    const refTextVal = document.getElementById('refTextInput').value;
     if (!refAudioBase64Data) {
-      alert('⚠️ กรุณาอัปโหลดไฟล์เสียงอ้างอิง (.wav / .mp3) ก่อนกดสร้างเสียง');
+      showErrorDialog('⚠️ กรุณาอัปโหลดไฟล์เสียงอ้างอิง (.wav / .mp3) ก่อนกดสร้างเสียงในโหมด Voice Cloning');
+      return;
+    }
+    if (!refTextVal || refTextVal.trim() === "") {
+      showErrorDialog('⚠️ กรุณาพิมพ์ Reference Text (ประโยคที่พูดในไฟล์เสียง) ก่อนกดสร้างเสียงในโหมด Voice Cloning');
       return;
     }
     payload.refAudioBase64 = refAudioBase64Data;
-    console.log('[TTS_UI] Sending Zero-Shot Voice Cloning Request with file:', uploadedFileName, correlationId);
+    payload.refText = refTextVal;
+    console.log('[TTS_UI] Sending Zero-Shot Voice Cloning Request:', correlationId);
+  } else {
+    payload.voice = document.getElementById('presetVoiceSelect').value;
+    console.log('[TTS_UI] Sending Default Voice Request:', payload.voice, correlationId);
   }
 
-  btn.disabled = true; spinner.style.display = 'inline-block'; btnText.innerText = 'กำลังประมวลผล Thonburian-TTS Dubbing...';
+  btn.disabled = true; spinner.style.display = 'inline-block'; btnText.innerText = 'กำลังประมวลผล Thonburian-TTS (รองรับข้อความยาว)...';
   resultCard.style.display = 'none';
 
   try {
@@ -740,6 +856,12 @@ async function generateAudio() {
       const audioPlayer = document.getElementById('audioPlayer');
       audioPlayer.src = `data:${data.mimeType};base64,${data.bytesBase64}`;
       audioPlayer.play();
+
+      const downloadBtn = document.getElementById('downloadAudioBtn');
+      if (downloadBtn) {
+        downloadBtn.href = audioPlayer.src;
+        downloadBtn.style.display = 'block';
+      }
 
       document.getElementById('metaInfo').innerHTML = `
         <strong>Correlation ID:</strong> <code style="color:#a78bfa; font-size:0.9rem">${data.correlationId || correlationId}</code><br>
@@ -801,11 +923,18 @@ async def post_expressive_tts(
     voice = body.get("voice", None)
     ref_audio_b64 = body.get("refAudioBase64", None)
     ref_text = body.get("refText", None)
-    cfg_strength = body.get("cfgStrength", 2.0)
+    cfg_strength = float(body.get("cfgStrength", 2.0))
     emotion = body.get("emotion", "neutral")
-    speed = body.get("speed", 1.0)
-    temperature = body.get("temperature", 0.3)
+    speed = float(body.get("speed", 1.0))
+    temperature = float(body.get("temperature", 0.3))
     output_format = body.get("outputFormat", "WAV")
+    
+    chunk_length = body.get("chunkLength")
+    if chunk_length is not None:
+        try:
+            chunk_length = int(chunk_length)
+        except ValueError:
+            chunk_length = None
 
     header_corr_id = request.headers.get("X-Correlation-ID") or request.headers.get("x-correlation-id")
     correlation_id = header_corr_id or body.get("correlationId") or f"corr_{int(time.time()*1000)}_{uuid.uuid4().hex[:6]}"
@@ -827,7 +956,8 @@ async def post_expressive_tts(
             temperature=temperature,
             output_format=output_format,
             correlation_id=correlation_id,
-            policy=tts_policy
+            policy=tts_policy,
+            chunk_length=chunk_length
         )
 
         duration_ms = (time.time() - start_time) * 1000

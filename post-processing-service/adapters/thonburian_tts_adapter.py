@@ -1,14 +1,25 @@
 import io
 import os
 import re
-import time
+import sys
 import uuid
+import time
+import base64
 import logging
 import tempfile
+from pathlib import Path
+from typing import Dict, Any, Optional, Tuple
+from concurrent.futures import ThreadPoolExecutor
+
 import numpy as np
 import soundfile as sf
-from pathlib import Path
-from typing import Tuple, Dict, Any, Optional
+
+# Ensure UTF-8 stdout encoding on Windows to prevent f5_tts print() charmap encoding crashes
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 # Set HuggingFace offline mode to ensure 100% local model loading without network requests
 os.environ["HF_HUB_OFFLINE"] = "1"
@@ -74,11 +85,20 @@ THONBURIAN_VOICE_CATALOG = [
 
 _SHARED_F5_ENGINE = None
 
+
 class ThonburianTtsAdapter:
     """
-    Adapter responsible for executing Thonburian-TTS PyTorch DiT 335M Flow-Matching Diffusion
-    for Zero-Shot Voice Cloning. 100% Pure PyTorch F5-TTS Engine.
+    Adapter for ThonburianTTS — a Thai-language fine-tune of F5-TTS (DiT 335M Flow-Matching).
+    Loads the fine-tuned checkpoint and Thai-complete vocabulary from biodatlab/ThonburianTTS.
+
+    Required files (run scripts/download_thonburian_model.py once to populate):
+      D:/applications/momelo-post-processing/models/thonburian-tts/model_last_prune.safetensors
+      D:/applications/momelo-post-processing/models/thonburian-tts/mega_vocab_ipa.txt
     """
+
+    # Paths to the ThonburianTTS FINAL fine-tuned checkpoint (megaF5 character-based) and vocabulary
+    THAI_CKPT_FILE = THONBURIAN_MODEL_DIR / "mega_f5_last.safetensors"
+    THAI_VOCAB_FILE = THONBURIAN_MODEL_DIR / "mega_vocab.txt"
 
     def __init__(self, policy: Any):
         self.policy = policy
@@ -87,7 +107,7 @@ class ThonburianTtsAdapter:
         self._initialize_engine()
 
     def _initialize_engine(self):
-        """Initializes the PyTorch F5-TTS Flow-Matching DiT pipeline."""
+        """Initializes the PyTorch F5-TTS engine with Thai fine-tuned weights and Thai vocab."""
         global _SHARED_F5_ENGINE
         self.f5_available = False
         self.torch_device = "cpu"
@@ -95,7 +115,7 @@ class ThonburianTtsAdapter:
         import torch
         import torchaudio
 
-        # Patch torchaudio.load to use soundfile backend on Windows avoiding broken torchcodec
+        # Patch torchaudio.load to use soundfile backend on Windows (avoids broken torchcodec DLL)
         def _soundfile_load(uri, frame_offset=0, num_frames=-1, normalize=True, channels_first=True, format=None, buffer_size=4096, backend=None):
             data, sr = sf.read(uri, dtype="float32")
             if data.ndim == 1:
@@ -112,8 +132,30 @@ class ThonburianTtsAdapter:
         self.torch_device = "cuda" if self.cuda_available else "cpu"
 
         if _SHARED_F5_ENGINE is None:
+            # Validate that the Thai fine-tuned model files are present
+            missing = []
+            if not self.THAI_CKPT_FILE.exists():
+                missing.append(str(self.THAI_CKPT_FILE))
+            if not self.THAI_VOCAB_FILE.exists():
+                missing.append(str(self.THAI_VOCAB_FILE))
+            if missing:
+                raise FileNotFoundError(
+                    f"ThonburianTTS Thai model files not found:\n"
+                    + "\n".join(f"  - {p}" for p in missing)
+                    + "\n\nRun the download script first:\n"
+                    + "  python scripts/download_thonburian_model.py"
+                )
+
             from f5_tts.api import F5TTS
+            logger.info(
+                f"[THONBURIAN_INIT] Loading Thai fine-tuned model:\n"
+                f"  Checkpoint : {self.THAI_CKPT_FILE}\n"
+                f"  Vocabulary : {self.THAI_VOCAB_FILE}"
+            )
             _SHARED_F5_ENGINE = F5TTS(
+                model="F5TTS_v1_Base",
+                ckpt_file=str(self.THAI_CKPT_FILE),
+                vocab_file=str(self.THAI_VOCAB_FILE),
                 device=self.torch_device,
                 hf_cache_dir=r"C:\Users\punya\.cache\huggingface\hub"
             )
@@ -121,8 +163,8 @@ class ThonburianTtsAdapter:
         self.f5_engine = _SHARED_F5_ENGINE
         self.f5_available = True
         logger.info(
-            f"[THONBURIAN_INIT] PyTorch version={torch.__version__}, Device={self.torch_device}, "
-            f"Native F5-TTS 335M DiT Flow-Matching READY (100% Pure F5-TTS Engine)."
+            f"[THONBURIAN_INIT] PyTorch={torch.__version__}, Device={self.torch_device}, "
+            f"ThonburianTTS Thai F5-TTS READY (biodatlab/ThonburianTTS megaIPA)."
         )
 
     def synthesize(
@@ -136,12 +178,12 @@ class ThonburianTtsAdapter:
         emotion: str = "neutral",
         voice_seed: int = 42,
         output_format: str = "WAV",
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
+        chunk_length: Optional[int] = None
     ) -> Tuple[bytes, int, float, str, bool, bool, Optional[str]]:
         """
-        Synthesizes text into audio speech using 100% Pure PyTorch F5-TTS Flow Matching.
-        Returns:
-            (audio_bytes, sample_rate, duration_seconds, execution_mode, ai_used, fallback_used, fallback_reason)
+        Synthesizes raw text into audio speech by chunking long text and 
+        processing chunks concurrently via ThreadPoolExecutor.
         """
         if not text or not text.strip():
             raise ValueError("Input text cannot be empty.")
@@ -156,59 +198,152 @@ class ThonburianTtsAdapter:
 
         logger.info(
             f"[THONBURIAN_TTS_START] [CorrelationID: {corr_id}] TextLen={len(text)} chars, Voice='{voice or 'auto'}', "
-            f"HasRefAudio={bool(ref_audio_bytes)}, CfgStrength={cfg_strength}, Speed={speed}, Emotion='{emotion}'"
+            f"HasRefAudio={bool(ref_audio_bytes)}, CfgStrength={cfg_strength}, Speed={speed}, Emotion='{emotion}', ChunkLen={chunk_length}"
         )
 
-        processed_text = self._preprocess_text(text, emotion)
+        # Prepare reference audio WAV file ONCE for all chunks
+        tmp_ref_path = None
+        if ref_audio_bytes and len(ref_audio_bytes) > 0:
+            audio_buf = io.BytesIO(ref_audio_bytes)
+            audio_samples, sample_sr = sf.read(audio_buf, dtype="float32")
+            if audio_samples.ndim > 1:
+                audio_samples = audio_samples.mean(axis=1)  # stereo to mono
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                sf.write(tmp.name, audio_samples, sample_sr, format="WAV")
+                tmp_ref_path = tmp.name
+        else:
+            # Handle preset voices
+            if voice == "morgan_freeman":
+                # F5-TTS requires .wav on Windows if ffmpeg is not installed natively (fixes WinError 2)
+                tmp_ref_path = "D:/development/ModelPromptForge/post-processing-service/ref_samples/morgan-freeman.wav"
+                default_ref_text = "Denzel and I were in a Joseph Papp production of Coriolanus. I was the lead"
+            else:
+                # Default (Jackie Chan)
+                tmp_ref_path = "D:/development/ModelPromptForge/post-processing-service/ref_samples/sampling-test4.wav"
+                default_ref_text = "ฉินหลงคุยกับโจวซิงฉือก็บอก 'พี่ ไปประเทศไหน พี่ก็สู้กันธรรมดา แต่มาเมืองไทยพี่ต้องฟัด ไปที่ไหน เอ็งก็เป็นคนธรรมดา แต่มาเมืองไทยเอ็งเป็นแค่คนเล็ก"
 
-        # Execute 100% Pure PyTorch F5-TTS Flow Matching (NO FALLBACKS)
-        audio_bytes, sample_rate, duration = self._run_thonburian_flow_matching(
-            text=processed_text,
-            voice=voice,
-            ref_audio_bytes=ref_audio_bytes,
-            ref_text=ref_text,
-            cfg_strength=cfg_strength,
-            speed=speed,
-            emotion=emotion,
-            voice_seed=voice_seed,
-            sample_rate=sample_rate,
-            corr_id=corr_id
-        )
-        execution_mode = f"thonburian_f5_dit_335m_{self.torch_device}"
+            if not os.path.exists(tmp_ref_path):
+                from importlib.resources import files
+                tmp_ref_path = str(files("f5_tts").joinpath("infer/examples/basic/basic_ref_en.wav"))
+                default_ref_text = "Some sample reference text for voice cloning."
+
+        final_ref_text = (ref_text and ref_text.strip()) or default_ref_text
+
+        # ---------------- CHUNKING LOGIC ----------------
+        # Use PyThaiNLP to tokenize into valid Thai words so we don't cut words in half
+        try:
+            from pythainlp.tokenize import word_tokenize
+            raw_chunks = word_tokenize(text.strip(), engine="newmm")
+        except ImportError:
+            raw_chunks = re.split(r'([\n\s]+|[,.!?]+)', text.strip())
+
+        chunks = []
+        current_chunk = ""
+        
+        # Determine max chunk length from param, env, or default 100
+        env_chunk = os.getenv("TTS_CHUNK_LENGTH", "100")
+        try:
+            default_chunk = int(env_chunk)
+        except ValueError:
+            default_chunk = 100
+            
+        max_chunk_length = chunk_length if chunk_length is not None else default_chunk
+        logger.info(f"[THONBURIAN_TTS_CHUNKS] Using max_chunk_length={max_chunk_length}")
+
+        for part in raw_chunks:
+            if not part:
+                continue
+            if len(current_chunk) + len(part) <= max_chunk_length:
+                current_chunk += part
+            else:
+                if current_chunk.strip():
+                    chunks.append(current_chunk.strip())
+                current_chunk = part
+        if current_chunk.strip():
+            chunks.append(current_chunk.strip())
+
+        if not chunks:
+            chunks = [text.strip()]
+
+        logger.info(f"[THONBURIAN_TTS_CHUNKS] [CorrelationID: {corr_id}] Split text into {len(chunks)} chunks.")
+
+        try:
+            # Execute chunks in parallel using ThreadPoolExecutor
+            # (F5-TTS is thread-safe on inference if memory allows. Using max_workers=3)
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                futures = []
+                for i, chunk_text in enumerate(chunks):
+                    # Append Emotion to text if not neutral
+                    final_gen_text = chunk_text
+                    if emotion and emotion.lower() != "neutral":
+                        # Apply emotion tag to all chunks to maintain tone consistency
+                        final_gen_text = f"({emotion.capitalize()}) {chunk_text}"
+                    
+                    futures.append(
+                        executor.submit(
+                            self._run_thonburian_flow_matching,
+                            final_gen_text,
+                            tmp_ref_path,
+                            final_ref_text,
+                            cfg_strength,
+                            speed,
+                            voice_seed,
+                            corr_id
+                        )
+                    )
+                
+                results = [f.result() for f in futures]
+            
+            # Combine all generated numpy arrays with a short silence gap between chunks
+            audio_arrays = [r[0] for r in results]
+            sample_rates = [r[1] for r in results]
+            final_sr = sample_rates[0] if sample_rates else sample_rate
+            
+            silence_gap = np.zeros(int(final_sr * 0.25), dtype=np.float32)  # 250ms silence
+            
+            combined_arrays = []
+            for i, arr in enumerate(audio_arrays):
+                combined_arrays.append(arr)
+                if i < len(audio_arrays) - 1:
+                    combined_arrays.append(silence_gap)
+            
+            combined_audio = np.concatenate(combined_arrays, axis=0) if combined_arrays else np.array([], dtype=np.float32)
+            
+            # Convert combined numpy array to WAV bytes
+            wav_io = io.BytesIO()
+            sf.write(wav_io, combined_audio, final_sr, format="WAV")
+            audio_bytes = wav_io.getvalue()
+            duration = max(0.5, round(len(combined_audio) / float(final_sr), 2))
+
+        finally:
+            if ref_audio_bytes and tmp_ref_path and os.path.exists(tmp_ref_path):
+                try:
+                    os.remove(tmp_ref_path)
+                except Exception:
+                    pass
+
+        execution_mode = f"thonburian_f5_dit_335m_{self.torch_device}_chunked"
 
         total_ms = (time.time() - t0) * 1000.0
         logger.info(
-            f"[THONBURIAN_TTS_COMPLETE] [CorrelationID: {corr_id}] Generated={len(audio_bytes)} bytes, SampleRate={sample_rate}Hz, "
+            f"[THONBURIAN_TTS_COMPLETE] [CorrelationID: {corr_id}] Generated={len(audio_bytes)} bytes, SampleRate={final_sr}Hz, "
             f"Duration={duration:.2f}s, Mode={execution_mode}, Latency={total_ms:.2f}ms"
         )
 
-        return audio_bytes, sample_rate, duration, execution_mode, True, False, None
-
-    def _preprocess_text(self, text: str, emotion: str) -> str:
-        """Parses emotion markers and cleans text."""
-        txt = text
-        if "[laughter]" in txt.lower():
-            txt = re.sub(r"\[laughter\]", " ฮ่าฮ่า ", txt, flags=re.IGNORECASE)
-        if "[uv_break]" in txt.lower():
-            txt = re.sub(r"\[uv_break\]", " ... ", txt, flags=re.IGNORECASE)
-
-        return txt.strip()
+        return audio_bytes, final_sr, duration, execution_mode, True, False, None
 
     def _run_thonburian_flow_matching(
         self,
-        text: str,
-        voice: Optional[str],
-        ref_audio_bytes: Optional[bytes],
-        ref_text: Optional[str],
+        gen_text: str,
+        tmp_ref_path: str,
+        ref_text: str,
         cfg_strength: float,
         speed: float,
-        emotion: str,
         voice_seed: int,
-        sample_rate: int,
-        corr_id: str = "corr_default"
-    ) -> Tuple[bytes, int, float]:
+        corr_id: str
+    ) -> Tuple[np.ndarray, int]:
         """
-        Executes 100% Pure PyTorch F5-TTS Flow-Matching inference.
+        Executes canonical F5TTS.infer() for a single text chunk and returns the raw numpy array.
         """
         if self.f5_engine is None:
             from f5_tts.api import F5TTS
@@ -217,151 +352,19 @@ class ThonburianTtsAdapter:
                 hf_cache_dir=r"C:\Users\punya\.cache\huggingface\hub"
             )
 
-        # Prepare reference audio WAV file
-        tmp_ref_path = None
-        if ref_audio_bytes and len(ref_audio_bytes) > 0:
-            audio_buf = io.BytesIO(ref_audio_bytes)
-            audio_samples, sample_sr = sf.read(audio_buf, dtype="float32")
-            if audio_samples.ndim > 1:
-                audio_samples = audio_samples.mean(axis=1) # stereo to mono
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-                sf.write(tmp.name, audio_samples, sample_sr, format="WAV")
-                tmp_ref_path = tmp.name
-        else:
-            # Use default native Thai reference voice sample if no reference audio uploaded
-            from importlib.resources import files
-            tmp_ref_path = str(files("f5_tts").joinpath("infer/examples/basic/basic_ref_en.wav"))
-
-        # Transliterate Thai text to Natural English ASCII phonetics for F5-TTS vocabulary compatibility
-        THAI_PHONETIC_DICT = {
-            "สวัสดี": "Sa-wat-dee",
-            "ครับ": "krap",
-            "ค่ะ": "kha",
-            "คะ": "kha",
-            "ขอ": "khor",
-            "ต้อนรับ": "ton-rap",
-            "เข้าสู่": "khao-soo",
-            "ระบบ": "ra-bob",
-            "สังเคราะห์": "sang-kraw",
-            "เสียง": "seang",
-            "ทดสอบ": "thod-sop",
-            "โคลนนิ่ง": "clone-ning",
-            "โคลน": "clone",
-            "นิ่ง": "ning",
-            "ภาพยนตร์": "pap-par-yon",
-            "ภาพยนตร์ไทย": "pap-par-yon-Thai",
-            "พากย์": "phak",
-            "สร้าง": "sang",
-            "ด้วย": "duay",
-            "สถาปัตยกรรม": "sa-tha-pat-ta-ya-kam",
-            "วิศวกรรม": "wit-sa-wa-kam",
-            "วิทยาศาสตร์": "wit-tha-ya-sat",
-            "พูด": "poot",
-            "ฟัง": "fung",
-            "อ่าน": "arn",
-            "เขียน": "kean",
-            "ภาษา": "par-sar",
-            "ไทย": "Thai",
-            "วันนี้": "wan-nee",
-            "ยินดี": "yin-dee",
-            "ขอบคุณ": "khob-khun",
-            "ทีมงาน": "team-ngan",
-            "เรา": "rao",
-            "จะ": "cha",
-            "การ": "kan",
-            "แบบ": "baep",
-            "ให้": "hai",
-            "ได้": "dai",
-            "ไป": "pai",
-            "มา": "mar",
-            "มี": "mee",
-            "ไม่": "mai",
-            "ใช้": "chai",
-            "งาน": "ngan",
-            "เพื่อ": "pheua",
-            "ความ": "khwam",
-            "สมจริง": "som-ching",
-            "คุณ": "khun",
-            "เป็น": "pen",
-            "และ": "lae",
-            "ของ": "khong",
-            "กับ": "kap",
-            "ใน": "nai",
-            "ที่": "thee",
-            "นี้": "nee",
-            "นั้น": "nan",
-            "คือ": "khue",
-            "อะไร": "a-rai",
-            "อย่าง": "yang",
-            "มาก": "mak",
-            "ดี": "dee"
-        }
-
-        def clean_romanized(r: str) -> str:
-            r = re.sub(r"[^\x00-\x7F]+", "", r)
-            r = re.sub(r"([bcdfghjklmnpqrstvwxyz])\1+", r"\1", r)
-            r = re.sub(r"uai$", "uay", r)
-            return r.strip()
-
-        def _to_roman_phonetic(t_str: str) -> str:
-            try:
-                from pythainlp.transliterate import romanize
-                from pythainlp.tokenize import word_tokenize
-                words = word_tokenize(t_str)
-                out_words = []
-                for w in words:
-                    if not w.strip():
-                        out_words.append(" ")
-                        continue
-                    if w in THAI_PHONETIC_DICT:
-                        out_words.append(THAI_PHONETIC_DICT[w])
-                        continue
-                    if any("\u0e00" <= c <= "\u0e7f" for c in w):
-                        r = romanize(w, engine="royin")
-                        r_clean = clean_romanized(r)
-                        out_words.append(r_clean if r_clean else w)
-                    else:
-                        out_words.append(w)
-                res = re.sub(r"\s+", " ", " ".join(out_words)).strip()
-                return res if res else t_str
-            except Exception as e:
-                logger.warning(f"[THONBURIAN_TRANSLIT_WARNING] Failed to transliterate '{t_str}': {e}")
-                return t_str
-
-        gen_text_f5 = _to_roman_phonetic(text)
-        if ref_text and ref_text.strip():
-            ref_text_f5 = _to_roman_phonetic(ref_text)
-        else:
-            ref_text_f5 = "Sawatdee krap, voice reference clip."
-
         logger.info(
-            f"[THONBURIAN_F5_INFER] [CorrelationID: {corr_id}] "
-            f"Executing F5-TTS infer: RefFile='{tmp_ref_path}', GenText='{gen_text_f5}', RefText='{ref_text_f5}'..."
+            f"[THONBURIAN_F5_INFER_CHUNK] [CorrelationID: {corr_id}] "
+            f"Executing F5TTS.infer chunk: GenText='{gen_text}', CfgStrength={cfg_strength}"
         )
 
-        try:
-            wav_out, sr_out, _ = self.f5_engine.infer(
-                ref_file=tmp_ref_path,
-                ref_text=ref_text_f5,
-                gen_text=gen_text_f5,
-                cfg_strength=cfg_strength,
-                speed=speed,
-                show_info=lambda *a, **kw: None
-            )
+        wav_out, sr_out, _ = self.f5_engine.infer(
+            ref_file=tmp_ref_path,
+            ref_text=ref_text,
+            gen_text=gen_text,
+            cfg_strength=cfg_strength,
+            speed=speed,
+            seed=voice_seed,
+            show_info=lambda *a, **kw: None
+        )
+        return wav_out, sr_out
 
-            wav_io = io.BytesIO()
-            sf.write(wav_io, wav_out, sr_out, format="WAV")
-            audio_bytes = wav_io.getvalue()
-            duration = max(0.5, round(len(audio_bytes) / (sr_out * 2.0), 2))
-
-            logger.info(
-                f"[THONBURIAN_F5_SUCCESS] [CorrelationID: {corr_id}] "
-                f"Generated {len(audio_bytes)} bytes, SampleRate={sr_out}Hz, Duration={duration}s"
-            )
-            return audio_bytes, sr_out, duration
-        finally:
-            if ref_audio_bytes and tmp_ref_path and os.path.exists(tmp_ref_path):
-                try:
-                    os.remove(tmp_ref_path)
-                except Exception:
-                    pass

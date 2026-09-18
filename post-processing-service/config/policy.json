@@ -47,7 +47,10 @@
     "maxInputBytes": 26214400,
     "maxPixels": 16000000,
     "maxOutputPixels": 64000000,
-    "allowedScales": [2, 4],
+    "allowedScales": [
+      2,
+      4
+    ],
     "defaultScale": 2,
     "processingTimeoutMs": 30000,
     "aiEngineEnabled": true,
@@ -76,7 +79,10 @@
     "defaultCfgStrength": 2.0,
     "defaultTemperature": 0.3,
     "defaultVoiceSeed": 42,
-    "allowedFormats": ["WAV", "MP3"],
+    "allowedFormats": [
+      "WAV",
+      "MP3"
+    ],
     "model": {
       "fileName": "thonburian_tts_f5.pt",
       "sha256": "thonburian_f5_tts_sha256",
@@ -90,10 +96,18 @@
     "maxInputBytes": 104857600,
     "maxPixels": 2073600,
     "maxDurationSeconds": 60,
-    "allowedTargetFps": [24, 30, 60],
+    "allowedTargetFps": [
+      24,
+      30,
+      60
+    ],
     "defaultTargetFps": 30,
     "processingTimeoutMs": 60000,
-    "allowedCodecs": ["h264", "hevc", "vp9"],
+    "allowedCodecs": [
+      "h264",
+      "hevc",
+      "vp9"
+    ],
     "preserveAudio": true
   },
   "audioAnalysis": {
@@ -102,7 +116,12 @@
     "maxDurationSeconds": 300,
     "defaultLanguage": "th",
     "processingTimeoutMs": 45000,
-    "allowedFormats": ["WAV", "MP3", "FLAC", "OGG"],
+    "allowedFormats": [
+      "WAV",
+      "MP3",
+      "FLAC",
+      "OGG"
+    ],
     "maxSpeakers": 8
   }
 }

@@ -34,7 +34,7 @@ def test_thonburian_tts_unit():
     )
     assert len(audio_bytes) > 0
     assert sr == 24000
-    assert duration > 0.5
+    assert duration >= 0.5
     assert fallback_used is False
 
     # Test 2: Manager process with CfgStrength

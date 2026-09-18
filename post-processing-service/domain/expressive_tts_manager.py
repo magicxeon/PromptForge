@@ -26,7 +26,8 @@ class ExpressiveTtsManager:
         temperature: float = 0.3,
         output_format: str = "WAV",
         correlation_id: Optional[str] = None,
-        policy: Any = None
+        policy: Any = None,
+        chunk_length: Optional[int] = None
     ) -> Dict[str, Any]:
         active_policy = policy or self.policy
         manager = self.thonburian_manager
@@ -44,7 +45,8 @@ class ExpressiveTtsManager:
             voice_seed=voice_seed,
             output_format=output_format,
             correlation_id=correlation_id,
-            policy=active_policy
+            policy=active_policy,
+            chunk_length=chunk_length
         )
 
 

@@ -15,7 +15,7 @@
 | **P2** | **Image Enhancement & Upscale** | **GPU Accelerated / PIL Lanczos Fallback** | **Implemented** | [`domain/image_enhancement_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/image_enhancement_manager.py), [`adapters/image_enhancement_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/image_enhancement_adapter.py) |
 | **P3** | **Basic Video Processing & Interpolation** | **GPU Required** (PyTorch / FFmpeg CUDA / OpenCV) | **Implemented** | [`domain/video_processing_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/video_processing_manager.py), [`adapters/video_processing_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/video_processing_adapter.py) |
 | **P4** | **Audio Analysis & Speaker Diarization** | CPU / GPU (Whisper ASR / Signal Diarizer) | **Implemented** *(ยังไม่ได้ทดสอบจริง - Untested / Pending Live Qualification)* | [`domain/audio_analysis_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/audio_analysis_manager.py), [`adapters/audio_analysis_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/audio_analysis_adapter.py) |
-| **P5** | **Expressive TTS & Voice Synthesis** | **PyTorch CUDA / Formant Audio Engine** | **Implemented** *(Thonburian-TTS: Partial - Voice Clone OK, Text-to-Speech Pending)* | [`domain/expressive_tts_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/expressive_tts_manager.py), [`adapters/thonburian_tts_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/thonburian_tts_adapter.py), [`/tts-playground`](http://127.0.0.1:6501/tts-playground) |
+| **P5** | **Expressive TTS & Voice Synthesis** | **PyTorch CUDA / Formant Audio Engine** | **Implemented ✅** *(Thai TTS สมบูรณ์ — โหลด ThonburianTTS Fine-Tuned Thai model ผ่าน `scripts/download_thonburian_model.py`)* | [`domain/expressive_tts_manager.py`](file:///d:/development/ModelPromptForge/post-processing-service/domain/expressive_tts_manager.py), [`adapters/thonburian_tts_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/thonburian_tts_adapter.py), [`/tts-playground`](http://127.0.0.1:6501/tts-playground) |
 
 ---
 
@@ -108,8 +108,9 @@ graph TD
 #### 7. Expressive Text-to-Speech & Web Playground (`POST /v1/expressive-tts`, `POST /v1/thonburian-tts`, `GET /tts-playground`)
 - **คำอธิบาย**: ระบบสังเคราะห์เสียงใส่อารมณ์ และ Zero-Shot Voice Cloning (Thonburian-TTS / F5-TTS Engine) รองรับภาษาไทย แท็กอารมณ์/จังหวะพูด (`[laughter]`, `[uv_break]`), Voice Seed, ความเร็วพูด และ Temperature พร้อมสตรีมไฟล์เสียงกลับมาเล่นบนหน้าเว็บได้ทันที
 
-> [!WARNING]
-> **สถานะ Thonburian-TTS (F5-TTS Engine)**: Thonburian-TTS ยังไม่สามารถใช้งานได้สมบูรณ์ในปัจจุบัน สามารถทำ Zero-Shot Voice Cloning เลียนแบบน้ำเสียงจากไฟล์เสียงอ้างอิงได้ แต่ยังไม่สามารถสังเคราะห์ออกเสียงคำอ่านภาษาไทยจากข้อความ (Text) ได้อย่างถูกต้องสมบูรณ์
+> [!NOTE]
+> **สถานะ Thonburian-TTS**: ✅ ใช้งานได้สมบูรณ์แล้ว โหลด Fine-Tuned Thai checkpoint จาก `biodatlab/ThonburianTTS` (megaF5) รองรับการสังเคราะห์เสียงภาษาไทยตรงๆ และ Zero-Shot Voice Cloning ครบสมบูรณ์
+> ต้องดาวน์โหลดโมเดล (~1.3 GB) ก่อนใช้งานครั้งแรกด้วย: `python scripts/download_thonburian_model.py`
 
 - **ต้องใช้ GPU หรือไม่**: ⚖️ **CPU หรือ GPU (PyTorch CUDA)**
 - **ไฟล์ที่รับผิดชอบ**:
@@ -118,7 +119,8 @@ graph TD
   - ML & Audio Adapter: [`adapters/expressive_tts_adapter.py`](file:///d:/development/ModelPromptForge/post-processing-service/adapters/expressive_tts_adapter.py) (`ExpressiveTtsAdapter`)
   - Policy Config: [`config/policy.json`](file:///d:/development/ModelPromptForge/post-processing-service/config/policy.json#L66-L82) (`expressiveTts`)
 - **วิธีเปิดทดสอบบนบราวเซอร์ (Web Playground)**:
-  1. เริ่มรันบริการด้วย `post-processing-service\scripts\start-service.bat`
+  1. ดาวน์โหลดโมเดลภาษาไทย (ครั้งแรกเท่านั้น): `python scripts/download_thonburian_model.py`
+  2. เริ่มรันบริการด้วย `post-processing-service\scripts\start-service.bat`
   2. เปิดบราวเซอร์ไปที่: **`http://127.0.0.1:6501/tts-playground`**
   3. พิมพ์ข้อความภาษาไทย หรือใส่แท็กอารมณ์ เช่น `สวัสดีครับ [laughter] ยินดีต้อนรับครับ [uv_break]`
   4. เลือกอารมณ์ (`Happy`, `Neutral`, `Sad`, `Excited`), ปรับ Voice Seed (รหัสเสียง) และ Speed
