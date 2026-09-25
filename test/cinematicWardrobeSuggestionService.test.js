@@ -1,6 +1,56 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { CinematicWardrobeSuggestionService } from '../server/domain/generation/CinematicWardrobeSuggestionService.js';
+import { getCinematicWardrobeSuggestionPolicy } from '../server/config/cinematic-wardrobe-suggestion-policy.js';
+import { cinematicTextModelDefaults } from '../server/config/cinematicStoryConfiguration.js';
+
+test('wardrobe model inherits canonical Cinematic configuration when overrides are missing or blank', () => {
+  for (const env of [{}, { CINEMATIC_WARDROBE_SUGGESTION_MODEL: ' ', CINEMATIC_STORY_ENHANCEMENT_MODEL: '\t' }]) {
+    assert.equal(getCinematicWardrobeSuggestionPolicy(env).model, cinematicTextModelDefaults.enhancement.model);
+  }
+  assert.equal(getCinematicWardrobeSuggestionPolicy({
+    CINEMATIC_WARDROBE_SUGGESTION_MODEL: ' ', CINEMATIC_STORY_ENHANCEMENT_MODEL: ' configured-story-model '
+  }).model, 'configured-story-model');
+});
+
+test('wardrobe explicit model override preserves enablement and independent generation budgets', () => {
+  const policy = getCinematicWardrobeSuggestionPolicy({
+    OPENAI_API_KEY: 'fixture-key', ENABLE_CINEMATIC_WARDROBE_SUGGESTION: 'true',
+    CINEMATIC_WARDROBE_SUGGESTION_MODEL: ' selected-look-text-model ',
+    CINEMATIC_STORY_ENHANCEMENT_MODEL: 'story-model',
+    CINEMATIC_WARDROBE_SUGGESTION_REASONING: 'medium',
+    CINEMATIC_WARDROBE_SUGGESTION_MAX_OUTPUT_TOKENS: '2400',
+    CINEMATIC_WARDROBE_SUGGESTION_TIMEOUT_MS: '75000'
+  });
+  assert.equal(policy.model, 'selected-look-text-model');
+  assert.equal(policy.provider, 'openai');
+  assert.equal(policy.enabled, true);
+  assert.equal(policy.reasoningEffort, 'medium');
+  assert.equal(policy.maxOutputTokens, 2400);
+  assert.equal(policy.timeoutMs, 75000);
+  assert.equal(getCinematicWardrobeSuggestionPolicy({ OPENAI_API_KEY: 'fixture-key' }).enabled, false);
+  assert.equal(getCinematicWardrobeSuggestionPolicy({ ENABLE_CINEMATIC_WARDROBE_SUGGESTION: 'true' }).enabled, false);
+});
+
+test('wardrobe provider receives inherited model once and access rejection is not retried', async () => {
+  const policy = getCinematicWardrobeSuggestionPolicy({
+    OPENAI_API_KEY: 'fixture-key', ENABLE_CINEMATIC_WARDROBE_SUGGESTION: 'true'
+  });
+  let calls = 0;
+  const denied = new Error('Fixture model access denied');
+  const service = new CinematicWardrobeSuggestionService({
+    policyLoader: () => policy,
+    availabilityPolicy: { assertAvailable: input => assert.equal(input.modelId, policy.model) },
+    recipeLoader: () => ({ enabled: true }),
+    providerFactory: () => ({ suggestCinematicWardrobe: async input => {
+      calls += 1;
+      assert.equal(input.model, cinematicTextModelDefaults.enhancement.model);
+      throw denied;
+    } })
+  });
+  await assert.rejects(() => service.suggest({}), error => error === denied);
+  assert.equal(calls, 1);
+});
 
 test('wardrobe suggestion uses the global recipe and returns bounded qualification output', async () => {
   let request;

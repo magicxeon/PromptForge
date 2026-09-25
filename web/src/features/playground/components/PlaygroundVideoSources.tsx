@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ImagePlus, Images, UserRound, X } from 'lucide-react';
+import { AlertCircle, ImagePlus, Images, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
@@ -31,6 +31,9 @@ export function PlaygroundVideoSources({
   frameRole,
   frameName,
   onFrameNameChange,
+  invalidFrame = false,
+  invalidLook = false,
+  invalidCharacter = false,
 }: {
   value: VideoReferenceSelection;
   onChange: (patch: Partial<VideoReferenceSelection>) => void;
@@ -42,6 +45,9 @@ export function PlaygroundVideoSources({
   frameRole?: 'first_frame' | 'reference_image';
   frameName?: string;
   onFrameNameChange?: (name: string) => void;
+  invalidFrame?: boolean;
+  invalidLook?: boolean;
+  invalidCharacter?: boolean;
 }) {
   const { t } = useTranslation('playground');
   const { actor } = useActor();
@@ -147,7 +153,8 @@ export function PlaygroundVideoSources({
   return (
     <div className="playground-video-references">
       {withLook && !lookOnly ? (
-        <div className="playground-video-references__character">
+        <div className={`playground-video-references__character${invalidCharacter ? ' is-provider-rejected' : ''}`}
+          aria-invalid={invalidCharacter || undefined}>
           {value.character ? (
             <>
               <div className="playground-video-references__portrait">
@@ -175,6 +182,10 @@ export function PlaygroundVideoSources({
               onClick={removeCharacter}
             />
           ) : null}
+          {invalidCharacter ? <p className="playground-video-references__provider-issue" role="alert">
+            <AlertCircle aria-hidden="true" />
+            {t('playground.video.references.providerRejectedInline')}
+          </p> : null}
         </div>
       ) : null}
       <div className="playground-video-references__slots">
@@ -191,8 +202,10 @@ export function PlaygroundVideoSources({
                 : 'playground.video.references.frame'
               : 'playground.video.references.look',
           );
+          const invalid = slot === 'frame' ? invalidFrame : invalidLook;
           return (
-            <section className="playground-video-references__slot" key={slot}>
+            <section className={`playground-video-references__slot${invalid ? ' is-provider-rejected' : ''}`}
+              aria-invalid={invalid || undefined} key={slot}>
               <header>
                 <strong>{title}</strong>
                 <small>
@@ -218,6 +231,10 @@ export function PlaygroundVideoSources({
                   <ImagePlus aria-hidden="true" />
                 )}
               </div>
+              {invalid ? <p className="playground-video-references__provider-issue" role="alert">
+                <AlertCircle aria-hidden="true" />
+                {t('playground.video.references.providerRejectedInline')}
+              </p> : null}
               {slot === 'frame' && image && onFrameNameChange ? <label>
                 {t('playground.video.references.imageName', { number: characterNumber })}
                 <input maxLength={80} value={frameName || ''} onChange={event => onFrameNameChange(event.target.value)} />

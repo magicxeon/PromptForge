@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "rpp-2026-08-v6",
+  "policyVersion": "rpp-2026-09-v7",
   "defaultFallbackMode": "safe_deterministic",
   "defaultReferenceOrder": [
     "character_reference",
@@ -13,6 +13,19 @@
     "product_reference",
     "environment_reference"
   ],
+  "surfaceReferenceOrders": {
+    "cinematic/scene": [
+      "environment_reference",
+      "character_reference",
+      "face_reference",
+      "outfit_front",
+      "outfit_back",
+      "template_baseline",
+      "style_reference",
+      "pose_reference",
+      "product_reference"
+    ]
+  },
   "domainPriorities": {
     "identity": ["face_reference", "character_reference", "template_baseline", "attributes"],
     "body": ["character_reference", "template_baseline", "attributes"],

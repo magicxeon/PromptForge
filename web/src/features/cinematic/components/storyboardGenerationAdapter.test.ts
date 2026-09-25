@@ -4,7 +4,9 @@ import {
   previousApprovedStoryboardSource,
   readStoryboardAuthorDirection,
   resolveStoryboardShotCast,
-  resolveStoryboardShotLooks
+  resolveStoryboardShotLooks,
+  readCharacterLookBindings,
+  selectedCharacterLook
 } from './storyboardGenerationAdapter';
 
 describe('storyboard generation adapter', () => {
@@ -78,5 +80,17 @@ describe('storyboard generation adapter', () => {
   it('has no prior source for the first Shot and only the previous approved source for the second', () => {
     expect(previousApprovedStoryboardSource(scene, 'shot_1')).toBeNull();
     expect(previousApprovedStoryboardSource(scene, 'shot_2')?.sourceFingerprint).toBe('fp_1');
+  });
+
+  it('shows actual pinned Look provenance rather than treating a portrait as a Look', () => {
+    const person = { ...project.castAssignments[0]!, identityReady: true, characterProfileId: 'profile', portraitUrl: '/portrait.png',
+      looks: [{ id: 'look_arrival', name: 'Arrival', mode: 'character_look', locked: true,
+        characterLookId: 'look', characterLookVersionId: 'version-1', characterLookProvenance: { kind: 'user_uploaded' } }] };
+    expect(readCharacterLookBindings(person)[0]).toMatchObject({ ready: true, source: 'uploaded', versionId: 'version-1',
+      previewUrl: '/api/character-profiles/profile/looks/look/versions/version-1/media/sheet' });
+    expect(selectedCharacterLook(person, scene, { ...scene.shots[0]!, wardrobeLookIds: [] })).toMatchObject({ scope: 'scene', look: { id: 'look_arrival' } });
+    expect(selectedCharacterLook(person, scene, scene.shots[0]!)).toMatchObject({ scope: 'shot', look: { id: 'look_arrival' } });
+    expect(selectedCharacterLook({ ...person, looks: [] }, scene).look).toBeNull();
+    expect(selectedCharacterLook(person, scene, { ...scene.shots[0]!, wardrobeLookIds: [], manualStoryboard: true }).look).toBeNull();
   });
 });

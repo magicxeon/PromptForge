@@ -10,7 +10,6 @@ import { GenerationStageState } from '../../../components/generation/GenerationS
 import { ContextualOperationDock } from './ContextualOperationDock';
 import { DialogHeader } from './ProjectCostSummary';
 import { isSimpleSceneReady } from './sceneDirectorSimpleContract';
-import { CinematicAuthoringModeHeader } from './authoring/CinematicAuthoringModeHeader';
 import { CinematicReadinessSummary } from './authoring/CinematicReadinessSummary';
 import { SceneCastLookSelector, readAssignmentLooks } from './authoring/SceneCastLookSelector';
 import { isCinematicFieldVisible } from './authoring/cinematicFieldProjection';
@@ -395,7 +394,7 @@ export function formatFacetLabel(value?: string | null) {
 
 export function SceneDirectorDialog({
   open, onOpenChange, scene, castAssignments = [], authoringManifest, onSave, onGenerate, generating = false,
-  defaultMode = 'simple', onModeChange, isFirstScene = false
+  defaultMode = 'simple', isFirstScene = false
 }: OpenDialogProps & {
   scene?: CinematicScene | null;
   castAssignments?: CinematicCastAssignment[];
@@ -535,15 +534,6 @@ export function SceneDirectorDialog({
             <input type="checkbox" checked={displayScene.cinematicOpening === true} onChange={event => setDraft(current => current ? { ...current, cinematicOpening: event.target.checked } : current)} />
             <span>{t('cinematic.opening.label')}</span>
           </label> : null}
-          <CinematicAuthoringModeHeader
-            mode={authoringMode}
-            label={t('cinematic.director.modeLabel')}
-            helpText={t(authoringMode === 'simple' ? 'cinematic.director.simpleModeHint' : 'cinematic.director.advancedModeHint')}
-            onChange={nextMode => {
-              setAuthoringMode(nextMode);
-              onModeChange?.(nextMode);
-            }}
-          />
           <div className="cinematic-director-grid">
             <label><span>{t('cinematic.director.sceneTitle')}</span><input value={displayScene.title} onChange={event => update('title', event.target.value)} /></label>
             <label><span>{t('cinematic.director.location')}</span><input value={displayScene.location} onChange={event => update('location', event.target.value)} /></label>

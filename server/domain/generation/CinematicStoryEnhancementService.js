@@ -1,5 +1,10 @@
 import crypto from 'node:crypto';
-import { normalizeStoryIntent, storyAuthoringConfiguration, storyCountryStyleGuidance } from '../../config/cinematicStoryConfiguration.js';
+import {
+  normalizeStoryIntent,
+  storyAuthoringConfiguration,
+  storyCountryStyleGuidance,
+  storyPeriodGuidance
+} from '../../config/cinematicStoryConfiguration.js';
 import { getCinematicStoryEnhancementPolicy } from '../../config/cinematic-story-enhancement-policy.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
@@ -65,6 +70,7 @@ function normalizeInput(input) {
     durationSeconds: Number(input.durationSeconds || 30),
     ...normalizeStoryIntent(input),
     storyCountryStyleGuidance: storyCountryStyleGuidance(input),
+    storyPeriodGuidance: storyPeriodGuidance(input),
     endingIntent: String(input.endingIntent || 'resolved'),
     castPlanningMode: String(input.castPlanningMode || 'ai-recommended')
   };

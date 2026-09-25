@@ -1,0 +1,33 @@
+{
+  "id": "character-look-sheet",
+  "version": 4,
+  "enabled": true,
+  "output": { "aspectRatio": "9:16", "outputCount": 1 },
+  "cropManifest": {
+    "layoutVersion": "character-look-sheet-portrait-v2",
+    "regions": {
+      "front": { "x": 0.05, "y": 0.04, "width": 0.5, "height": 0.64 },
+      "side": { "x": 0.6, "y": 0.04, "width": 0.35, "height": 0.3 },
+      "back": { "x": 0.6, "y": 0.38, "width": 0.35, "height": 0.3 },
+      "face": { "x": 0.05, "y": 0.73, "width": 0.36, "height": 0.23 }
+    }
+  },
+  "accessoryRegion": { "x": 0.46, "y": 0.73, "width": 0.49, "height": 0.23 },
+  "instructions": [
+    "Create one premium editorial Character Look Sheet in vertical 9:16, containing exactly one character and one unchanged outfit. This is a clean production wardrobe reference, not a fashion advertisement or a scene.",
+    "Use an asymmetric, precisely aligned layout: a dominant front full-body view on the left, with smaller full-body side and back views stacked on the right. The side view faces viewer-right. The side and back figures have matching scale; the front figure is deliberately larger. Preserve natural body proportions rather than stretching figures to fill their regions.",
+    "The lower band contains a neutral canonical head-and-shoulders face portrait on the left and a separate accessory detail area on the right. Keep the same identity, apparent age, proportions, hairstyle, skin tone and garment construction in every view. Keep the face large, sharp and unobstructed, with the full head and hair visible.",
+    "Respect each assigned region with breathing room: show the complete head, hands, hem and footwear within every full-body view. Keep figures separate; no overlap, clipping or repeated poses. Use a neutral relaxed stance with hands slightly clear of the torso, not an exaggerated A-pose or T-pose.",
+    "Art direction: one seamless white to very light cool-gray studio background, consistent soft studio illumination, restrained contact shadows, generous outer margins and clean gutters. Align the figure baselines within their own regions. Use negative space to separate sections, without heavy borders, panel boxes, dark blocks, decorative graphics or scenery.",
+    "ACCESSORY DETAILS, ONLY IF PRESENT: In the lower-right area, arrange isolated product-detail views of accessories explicitly specified in the target wardrobe or visibly authorized by the wardrobe references, such as the actual bag, watch or jewelry. Reproduce their exact design, color and material; show each item only once in this detail area, spaced apart without overlap. Keep the same accessories correctly worn or carried in the full-body views. Do not remove them from the outfit just because a detail view is shown. If there are no authorized accessories, leave this area clean and empty; do not invent filler, extra shoes, jewelry, bags or props.",
+    "Treat the supplied target wardrobe contract as authoritative: preserve every named garment, silhouette, color, material, closure, layer, footwear item and accessory consistently across all views.",
+    "The Character identity reference controls identity and body proportions only. Never copy a casting uniform, neutral fitting basics, plain T-shirt and shorts, underwear-like clothing or incidental source accessories unless the target wardrobe contract explicitly requests them.",
+    "Do not add text, titles, labels, measurements, logos, watermark, expression grids, extra identities, additional human views, beauty retouching or decorative props. The repeated views must all depict the same person."
+  ],
+  "generationStyles": {
+    "realistic": "Rendering style: realistic. Use photorealistic surfaces, natural skin texture and physically plausible fabric detail.",
+    "semi_realistic": "Rendering style: semi-realistic. Use gently simplified surface detail and softly illustrated shading while retaining natural anatomy and recognizable facial features.",
+    "illustration": "Rendering style: illustration. Use deliberate drawn contours, simplified surface texture and illustrated color shading while retaining recognizable facial features and authored body proportions."
+  },
+  "styleAuthority": "The selected rendering style controls visual treatment across every view, face portrait and accessory detail, including when the source references or wardrobe descriptions use a different visual treatment. It does not change identity, apparent age, skin tone, body proportions or the target outfit."
+}

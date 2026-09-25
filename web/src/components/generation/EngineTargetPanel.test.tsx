@@ -34,6 +34,16 @@ function renderPanel(provider = 'meta-muse', comparison = false, requiredReferen
 }
 
 describe('qualified image engine exposure', () => {
+  it('shows fixed portrait dimensions even while persisted engine selection is square', () => {
+    render(<EngineTargetPanel catalog={catalog}
+      value={{ provider: 'existing', model: 'existing-image', aspectRatio: '1:1', resolution: null, outputCount: 1 }}
+      fixedAspectRatio="9:16" comparison={false} comparisonSlots={[]}
+      onChange={vi.fn()} onSlotsChange={vi.fn()} onComparisonChange={vi.fn()} />);
+    expect(screen.getByLabelText('playground.engine.width')).toHaveValue('768');
+    expect(screen.getByLabelText('playground.engine.height')).toHaveValue('1365');
+    expect(screen.getByRole('button', { name: '9:16 Mobile' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: '1:1 Square' })).not.toBeInTheDocument();
+  });
   it('adapts document ratios when switching providers instead of disabling eligible engines', () => {
     const onChange = vi.fn();
     const dynamic = structuredClone(catalog);

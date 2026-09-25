@@ -40,7 +40,7 @@ async function fixture(t, balance = 100) {
   const repository = new PromptEnhancementRepository(path.join(directory, 'enhancements.json'));
   let calls = 0;
   const refiner = {
-    getLookSheetPolicy: () => ({ enabled: true, provider: 'openai', model: 'gpt-5.6-luna', maxOutputTokens: 1800, reasoningEffort: 'low' }),
+    getLookSheetPolicy: () => ({ enabled: true, provider: 'openai', model: 'gpt-6-sol', maxOutputTokens: 1800, reasoningEffort: 'low' }),
     enhanceLookSheet: async prepared => {
       calls++;
       assert.ok((await credits.getAccount('alice')).reservedCredits > 0, 'reserve precedes dispatch');
@@ -52,10 +52,12 @@ async function fixture(t, balance = 100) {
 }
 
 test('pricing: fixed-service fee uses rate/FX/buffer/margin and whole Credits, not image rounding', () => {
-  const result = calculateTextEnhancementPrice(policy, { provider: 'openai', model: 'gpt-5.6-luna', inputTokenBudget: 1000, maxOutputTokens: 500 });
-  assert.equal(result.totalCredits, 2); assert.equal(result.providerCostUsd, 0.0008);
+  const result = calculateTextEnhancementPrice(policy, { provider: 'openai', model: 'gpt-6-sol', inputTokenBudget: 1000, maxOutputTokens: 500 });
+  assert.equal(result.totalCredits, 10); assert.equal(result.providerCostUsd, 0.007);
+  assert.equal(result.providerRate.modelId, 'gpt-6-sol');
+  assert.throws(() => calculateTextEnhancementPrice(policy, { provider: 'openai', model: 'gpt-5.6-luna', inputTokenBudget: 1000, maxOutputTokens: 500 }), { code: 'credit_pricing_unavailable' });
   for (const patch of [{ model: 'unknown' }, { inputTokenBudget: Infinity }, { maxOutputTokens: 1801 }, { inputTokenBudget: 40001 }]) {
-    assert.throws(() => calculateTextEnhancementPrice(policy, { provider: 'openai', model: 'gpt-5.6-luna', inputTokenBudget: 1000, maxOutputTokens: 500, ...patch }), { code: 'credit_pricing_unavailable' });
+    assert.throws(() => calculateTextEnhancementPrice(policy, { provider: 'openai', model: 'gpt-6-sol', inputTokenBudget: 1000, maxOutputTokens: 500, ...patch }), { code: 'credit_pricing_unavailable' });
   }
   assert.throws(() => calculateTextEnhancementPrice({ ...policy, textEnhancement: null }, {}));
   assert.throws(() => calculateTextEnhancementPrice({ ...policy, textEnhancement: { ...policy.textEnhancement, reviewBy: '2020-01-02' } }, {}));
@@ -151,7 +153,7 @@ test('provider: text request is structured, non-stored, tool-free and bounded; i
     return { ok: true, json: async () => ({ status, id: 'fixture', output_text: JSON.stringify({ sourceFingerprint: 'source', refinedPrompt: 'result' }) }) };
   } });
   await provider.enhanceLookSheet({ input: { field: 'MIRA' }, instructions: 'fixture', schema: { type: 'object' },
-    model: 'gpt-5.6-luna', maxOutputTokens: 1800, reasoningEffort: 'low', timeoutMs: 1000 });
+    model: 'gpt-6-sol', maxOutputTokens: 1800, reasoningEffort: 'low', timeoutMs: 1000 });
   assert.equal(requests[0].store, false); assert.equal(requests[0].max_output_tokens, 1800);
   assert.equal(requests[0].tools, undefined); assert.equal(requests[0].text.format.strict, true);
   status = 'incomplete';

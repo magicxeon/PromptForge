@@ -35,7 +35,8 @@ class ThonburianTtsManager:
         output_format: str = "WAV",
         correlation_id: Optional[str] = None,
         policy: Any = None,
-        chunk_length: Optional[int] = None
+        chunk_length: Optional[int] = None,
+        model_id: str = "thonburian"
     ) -> Dict[str, Any]:
         """
         Process the text and reference inputs via the ThonburianTTS model adapter.
@@ -80,7 +81,8 @@ class ThonburianTtsManager:
                 voice_seed=voice_seed,
                 output_format=output_format,
                 correlation_id=correlation_id,
-                chunk_length=chunk_length
+                chunk_length=chunk_length,
+                model_id=model_id
             )
         except ValueError as ve:
             raise HTTPException_Like("tts_validation_failed", str(ve), 400)

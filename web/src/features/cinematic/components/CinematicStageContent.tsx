@@ -22,7 +22,6 @@ import {
 import { CharacterLookDialog, type CharacterLookDialogMode } from '../../profiles/components/CharacterLookDialog';
 import { GeneratedCastDialog } from './GeneratedCastDialog';
 import type { TrustedVideoSource } from '../../generation/api/trustedVideoSources';
-import { CinematicControlLevel } from './CinematicControlLevel';
 import { applySceneDirectionFieldProposals } from './authoring/sceneDirectionProposal';
 import { ContextualOperationDock } from './ContextualOperationDock';
 import { StoryboardSequenceBoard, type StoryboardShotSummary } from './StoryboardSequenceBoard';
@@ -76,7 +75,7 @@ type Props = {
   onProjectChanged?: (project: CinematicProject) => void;
   onAddCastCharacter?: (input: {
     assignmentId: string;
-    sourceType?: 'character' | 'generated_sheet';
+    sourceType?: 'character' | 'generated_sheet' | 'dossier';
     generationId?: string;
     sheetConfirmed?: boolean;
     characterProfileId?: string | null;
@@ -127,7 +126,6 @@ export function currentSceneCastAssignments(project?: CinematicProject) {
 }
 
 export function CinematicStageContent({ activeStage, mode = 'simple', onModeChange, onDirtyChange, onPrevious, onNext, project, authoringManifest, onProjectChanged, onAddCastCharacter, onRemoveCastCharacter, onProjectRefresh, onOpenStage }: Props) {
-  const { t } = useTranslation('cinematic');
   const [manualDirty, setManualDirty] = useState(false);
   useEffect(() => { onDirtyChange?.(manualDirty); }, [manualDirty, onDirtyChange]);
   useEffect(() => {
@@ -137,14 +135,13 @@ export function CinematicStageContent({ activeStage, mode = 'simple', onModeChan
     return () => window.removeEventListener('beforeunload', beforeUnload);
   }, [manualDirty]);
   useEffect(() => () => onDirtyChange?.(false), [onDirtyChange]);
-  const castBlocked = activeStage === 'cast' && hasIncompleteRequiredCast(project);
+  const castBlocked = activeStage === 'cast' && !authoringManifest?.rewamp?.enabled && hasIncompleteRequiredCast(project);
   const storyPlanBlockReason = activeStage === 'story-plan' && mode !== 'simple' ? storyPlanStageBlockReason(project) : null;
   return <div className="cinematic-stage-content" data-testid={`cinematic-stage-${activeStage}`}>
     {project?.scenes.length && ['story-plan', 'storyboard'].includes(activeStage)
       ? <PromptPreflightSummary projectId={project.id} version={project.version} /> : null}
-    {activeStage === 'cast' && <CastStage mode={mode} onModeChange={onModeChange} project={project} onProjectChanged={onProjectChanged} onAddCastCharacter={onAddCastCharacter} onRemoveCastCharacter={onRemoveCastCharacter} />}
+    {activeStage === 'cast' && <CastStage mode={mode} project={project} onProjectChanged={onProjectChanged} onAddCastCharacter={onAddCastCharacter} onRemoveCastCharacter={onRemoveCastCharacter} />}
     {mode === 'simple' && project && ['story-plan', 'storyboard', 'produce'].includes(activeStage) ? <>
-      <CinematicControlLevel mode={mode} disabled={manualDirty} label={t('cinematic.mode.control')} helpText={manualDirty ? t('cinematic.manual.saveBeforeLeave') : ''} onChange={value => onModeChange?.(value)} />
       <SimpleStoryboardWorkspace project={project} onDirtyChange={setManualDirty} onProjectChanged={saved => onProjectChanged?.(saved)} onProjectRefresh={onProjectRefresh}
         renderImage={(scene, shot, blockedReason) => <StoryboardShotDialog key={shot.id} open embedded onOpenChange={() => undefined}
           project={project} scene={scene} shot={shot} blockedReason={blockedReason}
@@ -167,7 +164,7 @@ function StageHeading({ stage, action, showPrototypeBadge = true }: { stage: Cin
   return <header className={`cinematic-stage-heading${action ? ' cinematic-stage-heading--with-control' : ''}`}><div><p>{t(`cinematic.stage.${stage}.eyebrow`)}</p><h2>{t(`cinematic.stage.${stage}.title`)}</h2>{stage === 'cast' ? <small>{t('cinematic.stage.cast.description')}</small> : null}</div>{action || (showPrototypeBadge && !['cast', 'story-plan'].includes(stage) ? <span className="cinematic-prototype-badge">{t('cinematic.prototype.badge')}</span> : null)}</header>;
 }
 
-function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCharacter, onRemoveCastCharacter }: { mode: 'simple' | 'advanced'; onModeChange?: (mode: 'simple' | 'advanced') => void; project?: CinematicProject; onProjectChanged?: (project: CinematicProject) => void; onAddCastCharacter?: Props['onAddCastCharacter']; onRemoveCastCharacter?: Props['onRemoveCastCharacter'] }) {
+function CastStage({ mode, project, onProjectChanged, onAddCastCharacter, onRemoveCastCharacter }: { mode: 'simple' | 'advanced'; project?: CinematicProject; onProjectChanged?: (project: CinematicProject) => void; onAddCastCharacter?: Props['onAddCastCharacter']; onRemoveCastCharacter?: Props['onRemoveCastCharacter'] }) {
   const { t } = useTranslation('cinematic');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [sheetPickerOpen, setSheetPickerOpen] = useState(false);
@@ -404,7 +401,7 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
     const bindToProject = (targetProject: CinematicProject) => upsertCinematicWardrobeLook(
       targetProject.id,
       assignmentId,
-      `cinelook_${look.id}`,
+      `cinelook_${look.id}_${look.approvedVersionId}`,
       {
         expectedVersion: targetProject.version,
         name: look.name,
@@ -463,10 +460,7 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
     }
   }
   return <>
-    <StageHeading
-      stage="cast"
-      action={<CinematicControlLevel mode={mode} label={t('cinematic.mode.control')} helpText={t(`cinematic.mode.${mode}Hint`)} onChange={item => onModeChange?.(item)} />}
-    />
+    <StageHeading stage="cast" />
     {roleSlots.length ? <section className="cinematic-role-readiness" aria-labelledby="cinematic-role-readiness-title">
       <header>
         <div><h3 id="cinematic-role-readiness-title">{planningSource}</h3><p>{t('cinematic.cast.rolePlanSummary', { count: roleSlots.length, source: t(`cinematic.castPlanningMode.${project?.setup?.castPlanningMode || 'manual'}`) })}</p></div>
@@ -1104,7 +1098,7 @@ function ProduceStage({ project, onEditStoryboard, onProjectRefresh, onEditStory
   </>;
 }
 
-function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, onEditStory, mode, sceneId, shotId, embedded = false, blockedReason }: {
+export function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, onEditStory, mode, sceneId, shotId, embedded = false, blockedReason }: {
   mode: 'simple' | 'advanced'; project: CinematicProject; onEditStoryboard?: () => void; onProjectRefresh?: () => void;
   onEditStory?: () => void; sceneId?: string; shotId?: string; embedded?: boolean; blockedReason?: string | null;
 }) {
@@ -1345,7 +1339,7 @@ function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, 
     : videoReferences.pending ? t('cinematic.save.saving')
     : !referenceModeSupported ? t('cinematic.produce.references.unsupported')
     : !source && !['looks_only', 'text_only'].includes(referenceMode || '') ? t('cinematic.produce.sourceRequired')
-    : !produceContext.data?.generationEligible ? produceContext.data?.blockingReason || t('cinematic.produce.sourceNotReady')
+    : !produceContext.data?.generationEligible ? t(`cinematic.shotWorkspace.renderBlock.${produceContext.data?.blockingReason}`, { defaultValue: produceContext.data?.blockingReason || t('cinematic.produce.sourceNotReady') })
     : !prompt.trim() ? t('cinematic.produce.promptMissing')
     : quote.isFetching ? t('cinematic.produce.preparingQuote')
     : quote.error ? quote.error.message

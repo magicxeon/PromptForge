@@ -5,6 +5,10 @@
 **Architecture:** Modular monolith first, replaceable solution modules  
 **Updated:** 2026-09-07
 
+Cinematic writing pricing is recorded in
+[Phase2-22](Phase2-22-cinematic-writing-pricing.md) as a trial proposal only.
+It does not enable charging or supersede production ledger/authentication gates.
+
 **Immediate requirement priority:** Admin Finance cost/rate visibility and
 versioned pricing, through [its master](admin-finance/000-master.md). A read-only
 inventory/reporting slice can precede DB/Auth; production financial publication

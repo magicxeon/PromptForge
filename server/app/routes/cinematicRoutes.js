@@ -113,6 +113,158 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.post('/api/cinematic/projects/:projectId/full-story/proposals', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.proposeFullStory(req.params.projectId, req.body || {}, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/full-story/revisions', async (req, res) => {
+    try { res.status(201).json(await cinematicService.saveFullStoryRevision(req.params.projectId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/full-story/confirm', async (req, res) => {
+    try { res.json(await cinematicService.confirmFullStoryRevision(req.params.projectId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/full-story/chapters', async (req, res) => {
+    try { res.status(201).json(await cinematicService.generateFullStoryChapters(req.params.projectId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/chapter-proposals', async (req, res) => {
+    try { res.status(201).json(await cinematicService.proposeChapters(req.params.projectId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/chapter-proposals/:proposalId/apply', async (req, res) => {
+    try { res.json(await cinematicService.applyChapterProposal(req.params.projectId, req.params.proposalId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/chapter-proposals/:proposalId/discard', async (req, res) => {
+    try { res.json(await cinematicService.discardChapterProposal(req.params.projectId, req.params.proposalId, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scene-proposals', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.status(201).json(await cinematicService.proposeScenes(req.params.projectId, req.body || {}, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scene-proposals/:proposalId/apply', async (req, res) => {
+    try { res.json(await cinematicService.applySceneProposal(req.params.projectId, req.params.proposalId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scene-proposals/:proposalId/discard', async (req, res) => {
+    try { res.json(await cinematicService.discardSceneProposal(req.params.projectId, req.params.proposalId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/manual-scenes', async (req, res) => {
+    try { res.status(201).json(await cinematicService.createManualScene(req.params.projectId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.patch('/api/cinematic/projects/:projectId/scenes/:sceneId', async (req, res) => {
+    try { res.json(await cinematicService.updateSceneOutline(req.params.projectId, req.params.sceneId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.patch('/api/cinematic/projects/:projectId/scenes/:sceneId/looks', async (req, res) => {
+    try {
+      res.json(await cinematicService.updateSceneLooks(req.params.projectId, req.params.sceneId, req.body || {}, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/shot-proposals', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.status(201).json(await cinematicService.proposeShots(req.params.projectId, req.params.sceneId, req.body || {}, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/shot-proposals/:proposalId/apply', async (req, res) => {
+    try { res.json(await cinematicService.applyShotProposal(req.params.projectId, req.params.sceneId, req.params.proposalId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/shot-proposals/:proposalId/discard', async (req, res) => {
+    try { res.json(await cinematicService.discardShotProposal(req.params.projectId, req.params.sceneId, req.params.proposalId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/manual-shots', async (req, res) => {
+    try { res.status(201).json(await cinematicService.createManualShot(req.params.projectId, req.params.sceneId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.patch('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/document', async (req, res) => {
+    try { res.json(await cinematicService.updateShotDocument(req.params.projectId, req.params.sceneId, req.params.shotId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.get('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/writer-preparation', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.prepareShotWriter(req.params.projectId, req.params.sceneId, req.params.shotId, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/chapter-revisions/:revisionId/restore', async (req, res) => {
+    try { res.json(await cinematicService.restoreSeriesChapter(req.params.projectId, req.params.revisionId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.patch('/api/cinematic/projects/:projectId/shared-characters/:assignmentId/voice', async (req, res) => {
+    try { res.json(await cinematicService.updateSharedVoice(req.params.projectId, req.params.assignmentId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.put('/api/cinematic/projects/:projectId/shared-characters/:assignmentId', async (req, res) => {
+    try {
+      res.json(await cinematicService.upsertSharedCharacterDossier(req.params.projectId, {
+        ...(req.body || {}), assignmentId: req.params.assignmentId === 'new' ? '' : req.params.assignmentId
+      }, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.put('/api/cinematic/projects/:projectId/chapter-characters', async (req, res) => {
+    try { res.json(await cinematicService.setChapterCharacters(req.params.projectId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/shared-characters/:assignmentId/detach', async (req, res) => {
+    try { res.json(await cinematicService.detachSharedCharacter(req.params.projectId, req.params.assignmentId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.delete('/api/cinematic/projects/:projectId/shared-characters/:assignmentId', async (req, res) => {
+    try { res.json(await cinematicService.removeSharedCharacter(req.params.projectId, req.params.assignmentId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/shared-characters/:assignmentId/detach', async (req, res) => {
+    try { res.json(await cinematicService.detachSharedCharacter(req.params.projectId, req.params.assignmentId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.delete('/api/cinematic/projects/:projectId/shared-characters/:assignmentId', async (req, res) => {
+    try { res.json(await cinematicService.removeSharedCharacter(req.params.projectId, req.params.assignmentId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.patch('/api/cinematic/projects/:projectId/chapter', async (req, res) => {
+    try { res.json(await cinematicService.updateSeriesChapter(req.params.projectId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
   app.post('/api/cinematic/projects/:projectId/cast/:assignmentId/wardrobe-suggestion', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
@@ -310,6 +462,14 @@ export function registerCinematicRoutes(app, {
   app.patch('/api/cinematic/projects/:projectId/scenes/:sceneId/environment', async (req, res) => {
     try {
       res.json(await cinematicService.saveSceneEnvironment(req.params.projectId, req.params.sceneId, req.body || {}, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/environment/proposals', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.proposeSceneEnvironment(
+        req.params.projectId, req.params.sceneId, req.body || {}, req.actorContext
+      ));
     } catch (error) { sendCinematicError(res, error); }
   });
   app.get('/api/cinematic/projects/:projectId/scenes/:sceneId/environment/images', async (req, res) => {

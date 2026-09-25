@@ -16,6 +16,7 @@ import {
   ModelArkSeedanceProvider,
   buildModelArkSeedancePayload,
   normalizeModelArkSeedanceTask,
+  parseModelArkReferenceIssue,
   parseEnvironmentBoolean,
   resolveModelArkApiKey
 } from '../server/providers/ModelArkSeedanceProvider.js';
@@ -181,7 +182,7 @@ test('Seedance preserves privacy rejection evidence without inferring an authori
     fetchImpl: async () => jsonResponse({
       error: {
         code: 'InputImageSensitiveContentDetected.PrivacyInformation',
-        message: "The request failed because the input image 'content[1]' may contain real person. Request id: provider-failed-123"
+        message: "The request failed because the input image 'content[2]' may contain real person. Request id: provider-failed-123"
       }
     }, 400)
   });
@@ -190,12 +191,29 @@ test('Seedance preserves privacy rejection evidence without inferring an authori
     modelId: 'dreamina-seedance-2-0-mini-260615',
     prompt: 'A restrained camera move.', aspectRatio: '9:16',
     resolution: '720p', durationSeconds: 6, audioMode: 'none',
-    referenceImage: 'data:image/png;base64,YWJj'
+    referenceImages: [
+      { url: 'data:image/png;base64,YWJj', role: 'reference_image' },
+      { url: 'data:image/png;base64,ZGVm', role: 'reference_image' }
+    ]
   }), error => error.code === 'video_provider_input_image_rejected'
     && error.providerCode === 'InputImageSensitiveContentDetected.PrivacyInformation'
     && error.providerRequestId === 'provider-failed-123'
+    && error.referenceIssue?.contentIndex === 2
+    && error.referenceIssue?.referenceIndex === 1
+    && error.referenceIssue?.reason === 'possible_real_person'
     && error.retryable === false
     && error.providerBillableState === 'not_billable');
+});
+
+test('Seedance ignores malformed or non-image provider content indexes', () => {
+  const input = {
+    providerCode: 'InputImageSensitiveContentDetected.PrivacyInformation',
+    message: "The input image 'content[0]' may contain real person.",
+    contentTypes: ['text', 'image_url'], referenceCount: 1
+  };
+  assert.equal(parseModelArkReferenceIssue(input), null);
+  assert.equal(parseModelArkReferenceIssue({ ...input,
+    message: "The input image 'content[2]' may contain real person." }), null);
 });
 
 test('Seedance 2.5 sends a GCS signed first-frame URL unchanged without logging its signature', async () => {

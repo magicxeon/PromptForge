@@ -51,6 +51,22 @@ test('normalizeProbePayload rejects corrupt or zero-duration media', () => {
   );
 });
 
+test('VideoMediaProbeService readiness fails fast when FFprobe is unavailable', async () => {
+  const calls = [];
+  const service = new VideoMediaProbeService({
+    ffprobePath: 'missing-ffprobe',
+    runProcess: async (binary, args) => {
+      calls.push([binary, args]);
+      throw Object.assign(new Error('missing'), { code: 'ENOENT' });
+    }
+  });
+  await assert.rejects(service.assertAvailable(), error => (
+    error.code === 'video_probe_ffprobe_unavailable'
+    && error.retryable === false
+  ));
+  assert.deepEqual(calls, [['missing-ffprobe', ['-version']]]);
+});
+
 function probeFixture() {
   return {
     format: { format_name: 'mov,mp4,m4a,3gp,3g2,mj2', duration: '4.004', size: '1200000', start_time: '0.000000' },

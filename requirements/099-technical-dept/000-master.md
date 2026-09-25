@@ -6,6 +6,76 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Cinematic Rewamp Planning (2026-09-19)
+
+[Cinematic Rewamp master](../016-cinematic-studio/Rewamp/000-master.md) owns the
+planned Story/Production/Final experience and its P00-P08 task/verification gates.
+The confirmed product hierarchy is Project -> optional Season -> Chapter -> Scene
+-> Shot. The plan extends current Series grouping into the user-facing Project
+root while retaining existing Chapter production-unit IDs, media and receipts.
+CinematicApplicationService and CinematicProjectRepository remain canonical; no
+new Generation, Credits, Reference Processing or Asset storage owner is proposed.
+Runtime configuration/navigation and hierarchy/dossier foundations are partially
+implemented; 007 records their evidence. Replacement authoring screens, migration
+and cleanup remain planned. Rewamp/002 documents configuration under
+server/config/cinematic and compatibility; Rewamp/008 owns measured cleanup gates.
+Original Draw.io, workflow text and examples remain preserved inputs.
+
+Rewamp/009 owns one-mode Shot document authoring. Rewamp/010 owns the full Cinematic
+authoring redesign from project entry to Render handoff. New authoring presentation
+stays under web/src/features/cinematic; shared EngineTargetPanel,
+VideoEngineTargetPanel, GenerationResultSurface, GenerationQueueStatus and Job Center,
+plus current Cinematic ProduceMediaReview, VideoTakeList and ProduceShotQueue, retain
+their existing presentation and capability owners. Render/Finish may be extracted
+from CinematicStageContent without redesign or a parallel generation controller.
+No new runtime storage or Generation/Credit ownership is introduced by this design.
+
+The first Rewamp Shot-authoring slice now adds `CinematicShotAuthoring.js` behind
+the existing CinematicApplicationService. It persists bounded per-Scene Shot
+proposals in the existing Project record, preserves stable Shot IDs and historical
+production evidence on Apply, and exposes one versioned `shotDocument` writer.
+`CinematicFullStoryService` and the configured OpenAI text provider create only
+reviewable provider-independent Shot documents. They do not dispatch media,
+reserve Credits or create a second repository/runtime path. The implemented
+`CinematicShotDocumentCompiler` now projects OPENING and timed action into the
+existing still/video compilers. Document-to-dialogue speaker binding, a separately
+editable Video Prompt and the writer's existing-Render handoff are implemented in
+the scoped Shot workspace slice. Rewamp/009 section 13 and tasks/008
+reconcile the 2026-09-25 Cast/voice/exchange/Video Prompt workspace: reuse shared
+Cast dossiers through CinematicSeriesService, existing reference authority and
+dialogue timing. The existing Shot record now holds speaker bindings and an optional
+source-fingerprinted Video Prompt override. CinematicShotDocumentCompiler owns the
+readable projection; CinematicVideoPacketCompiler owns final provider rendering.
+CinematicSeriesService owns voice-only shared dossier edits. The isolated browser
+check is scripts/verify-cinematic-shot-workspace.mjs; no new runtime storage path,
+Character owner, Generation pipeline or Credit workflow is introduced.
+Rewamp/004 section 8 owns the subsequent Character Look -> Scene -> Shot reference
+slice. CinematicCharacterLooks reuses the existing Profile Look upload/generation/
+review dialog and Character query contract. CinematicSceneLooks reuses
+SceneCastLookSelector and the versioned Cinematic Scene binding endpoint. Shared
+Character projection remains behind CinematicSeriesService; root approved-Look
+bindings are immutable and Scene/Shot selections pin them. Reference provenance is
+projected by the existing storyboard adapter and video reference plan, not a new
+compiler. CharacterLookService selects configured look-sheet.v3 creative presets
+for new versions, keeping legacy v2 pending generations compatible. No new runtime
+storage directory or provider dispatch owner is introduced.
+Rewamp/004 section 9 adds a version-pinned portrait Look recipe v4 under the same
+Character Profiles owner. New generated Look versions persist their recipe version;
+the recipe owns output ratio and crop regions. New plan requests, including those
+for existing drafts, use the current portrait recipe. Existing v2/v3 pending results
+keep their original recipe validation and square crop manifests on adoption. No new media workflow or data
+directory is introduced.
+Shot proposal authoring uses the existing Cinematic text-provider router for one
+configured Gemini fallback on transient OpenAI transport/timeout/rate/server
+failure. Both adapters share the same strict Shot schema; invalid input, auth or
+structured-output failures do not fall back, and no provider call is retried.
+
+Rewamp/tasks/000-task-index.md decomposes the existing plan into page-owned delivery
+packets. These files are requirements/execution records only. They do not introduce
+new runtime capability folders. Shared route/API/schema/config edits are integrated
+through the foundation packet; protected Produce/Finish extraction has one owner
+in the Render integration packet.
+
 ### Tracked File Retirement Audit (2026-09-14)
 
 [Unused-file candidates audit](unused-file-candidates-audit.md) owns the
@@ -130,6 +200,14 @@ scripts/test-video-recovery.mjs owns recovery/activity/ui and explicit all check
 This JSON runtime coalesces in-process provider/copy work; distributed execution
 remains a database/worker migration concern, not a new lock service here.
 
+The 2026-09-22 recovery follow-up adds one Generation-owned, server-lifetime
+monitor around the same `resumeRecoverable` facade. It performs bounded sweeps
+independently of browser sessions and introduces no second Queue or Task store.
+Assets exposes cached `ffprobe`/`ffmpeg` readiness through the existing Video
+media persistence owner; Video quote/submission preflight fails before Credits or
+provider dispatch when required local tools are unavailable. Existing persisted
+cutoffs and settlement ownership remain unchanged.
+
 ### Scene Environment And White Previs (2026-09-13)
 
 Cinematic enhancement-core-engine/042-045 owns White Previs settings, derived
@@ -182,6 +260,14 @@ live in the Cinematic feature; actor/project Query ownership refetches on change
 and has no polling. Bounded workspace read: 24 Seasons and 120 Chapter summaries.
 Validation owners: scripts/test-cinematic-series.mjs and verify-cinematic-series.mjs.
 Shared live Series Bible/AI season planning and season movie assembly remain future.
+
+Rewamp/011 extends this owner with `CinematicChapterAuthoring.js`, an internal pure
+helper for bounded Chapter revisions and persisted Chapter proposals. The existing
+Series repository transaction remains the only writer for atomic proposal Apply and
+shared Character linkage. Project Characters are canonical on the Story Project;
+Chapter records retain stable `chapterCharacterIds`, while application reads project
+the selected canonical assignments for compatibility with current production views.
+No new runtime file, provider dispatcher, media store or Credit owner is introduced.
 
 ### Cinematic Pilot Authoring, Takes And Clip ZIP (2026-09-12)
 

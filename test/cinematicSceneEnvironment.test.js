@@ -18,12 +18,13 @@ const actor = { userId: 'scene_owner', username: 'alice', role: 'user' };
 const source = { ...createSingleCharacterCinematicProject().scenes[0].shots[0].approvedStoryboardSource,
   assetId: 'asset_environment', contentHash: 'a'.repeat(64), sourceJobId: 'job_environment' };
 
-async function fixture(t) {
+async function fixture(t, overrides = {}) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'cinematic-environment-'));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const repository = new CinematicProjectRepository({ projectsFile: path.join(directory, 'projects.json') });
   let approvals = 0;
   const service = new CinematicApplicationService({ repository, videoGenerationService: { getStoredTaskSummaries: async () => [] },
+    ...overrides,
     storyboardAssetService: {
       approveGenerationResult: async ({ jobId }) => { approvals++; return { ...structuredClone(source), sourceJobId: jobId }; },
       resolveSceneReference: async value => normalizeCinematicSceneReference(value),
@@ -33,6 +34,41 @@ async function fixture(t) {
   const project = await service.createSimpleScene(created.id, { expectedVersion: created.version, idempotencyKey: 'scene-create' }, actor);
   return { service, repository, project, approvals: () => approvals };
 }
+
+test('Scene description proposal uses current story context without mutating the Project', async t => {
+  let received = null;
+  const fullStoryService = { proposeSceneEnvironment: async input => {
+    received = input;
+    return { proposalId: 'cineenvironment_test', environmentPrompt: 'Empty wet pavement outside a flower shop.',
+      warnings: [], provenance: { provider: 'fixture', model: 'fixture', responseId: null }, billingStatus: 'qualification_no_charge' };
+  } };
+  const { service, project } = await fixture(t, { fullStoryService });
+  const scene = project.scenes[0];
+  const before = await service.getProject(project.id, actor);
+  const proposal = await service.proposeSceneEnvironment(project.id, scene.id, {
+    expectedVersion: before.version, expectedSceneVersion: scene.version, currentDirection: 'Keep the curb visible.'
+  }, actor);
+  assert.equal(proposal.environmentPrompt, 'Empty wet pavement outside a flower shop.');
+  assert.equal(received.scene.id, scene.id);
+  assert.equal(received.currentDirection, 'Keep the curb visible.');
+  assert.deepEqual(await service.getProject(project.id, actor), before);
+  const handlers = new Map();
+  registerCinematicRoutes(Object.fromEntries(['get', 'post', 'patch', 'put', 'delete']
+    .map(method => [method, (route, handler) => handlers.set(`${method}:${route}`, handler)])), {
+    cinematicService: service, generationApplicationService: {}
+  });
+  const response = { statusCode: 200, set() { return this; }, status(code) { this.statusCode = code; return this; },
+    json(value) { this.body = value; return this; } };
+  await handlers.get('post:/api/cinematic/projects/:projectId/scenes/:sceneId/environment/proposals')({
+    params: { projectId: project.id, sceneId: scene.id },
+    body: { expectedVersion: before.version, expectedSceneVersion: scene.version }, actorContext: actor
+  }, response);
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.environmentPrompt, 'Empty wet pavement outside a flower shop.');
+  await assert.rejects(service.proposeSceneEnvironment(project.id, scene.id, {
+    expectedVersion: before.version, expectedSceneVersion: scene.version + 1
+  }, actor), { code: 'cinematic_scene_version_conflict' });
+});
 
 test('Scene image context/save/approve preserve all Shot media and feed only future still references', async t => {
   const { service, repository, project } = await fixture(t);

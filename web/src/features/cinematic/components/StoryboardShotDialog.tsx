@@ -43,6 +43,7 @@ import {
   resolveStoryboardShotLooks
 } from './storyboardGenerationAdapter';
 import { shotVideoReferencePreviews } from './storyboardGenerationAdapter';
+import { readCharacterLookBindings } from './storyboardGenerationAdapter';
 import { StoryboardVideoCompatibilityNotice } from './StoryboardVideoCompatibilityNotice';
 import { ProduceVideoReferences } from './produce/ProduceVideoReferences';
 import { DialogueSoundSummary } from './authoring/DialogueSoundSummary';
@@ -64,6 +65,7 @@ type Props = {
   resumeJobId?: string | null;
   onProjectRefresh?: () => void;
   onEditStory?: () => void;
+  onEditDocument?: () => void;
   initialEditorOpen?: boolean;
   embedded?: boolean;
   blockedReason?: string | null;
@@ -78,6 +80,7 @@ export function StoryboardShotDialog({
   resumeJobId = null,
   onProjectRefresh,
   onEditStory,
+  onEditDocument,
   initialEditorOpen = false,
   embedded = false,
   blockedReason: externalBlockedReason = null
@@ -194,6 +197,7 @@ export function StoryboardShotDialog({
   const referenceRows: ReferenceRowSource[] = (generationContext.data?.cinematicCastReferences || []).map((binding, index) => {
     const cast = project.castAssignments.find(item => item.id === binding.castAssignmentId);
     const look = generationContext.data?.looks.find(item => item.assignmentId === binding.castAssignmentId);
+    const selectedBinding = cast ? readCharacterLookBindings(cast).find(item => item.id === look?.lookId) : null;
     const sheet = cast?.generatedSheet;
     const preview = binding.sourceType === 'generated_sheet'
       ? sheet && sheet.generationId === binding.generationId && sheet.contentHash === binding.contentHash ? sheet.previewUrl : null
@@ -201,12 +205,25 @@ export function StoryboardShotDialog({
         ? `/api/character-profiles/${encodeURIComponent(binding.characterProfileId)}/looks/${encodeURIComponent(binding.characterLookId)}/versions/${encodeURIComponent(binding.characterLookVersionId)}/media/sheet`
         : null;
     return { slotId: `cinematic_cast_${index}`, name: binding.displayName,
-      description: [cast?.storyRole, look?.name].filter(Boolean).join(' / '),
+      description: [look?.name, selectedBinding ? t(`cinematic.lookReferences.source.${selectedBinding.source}`) : null,
+        t(shot.manualStoryboard || shot.wardrobeLookIds.length ? 'cinematic.lookReferences.scope.shot' : 'cinematic.lookReferences.scope.scene'),
+        t('cinematic.lookReferences.identityPurpose')].filter(Boolean).join(' / '),
       sources: preview ? [{ src: preview, fit: 'contain' }] : [] };
   });
   const continuityShot = scene.shots.find(item => item.id === generationContext.data?.continuitySource?.shotId);
-  const referenceLabels = continuityShot && references.style_reference
-    ? { style_reference: t('cinematic.storyboard.referencePrevious', { title: continuityShot.title }) } : undefined;
+  const referenceLabels: Partial<Record<GenerationReferenceRole, string>> = continuityShot && references.style_reference
+    ? { style_reference: t('cinematic.storyboard.referencePrevious', { title: continuityShot.title }) } : {};
+  const contextCast = generationContext.data?.cast || [];
+  if (contextCast.length === 1) {
+    const person = project.castAssignments.find(item => item.id === contextCast[0]!.assignmentId);
+    const look = generationContext.data?.looks.find(item => item.assignmentId === person?.id);
+    const binding = person ? readCharacterLookBindings(person).find(item => item.id === look?.lookId) : null;
+    const label = [contextCast[0]!.displayName, look?.name,
+      binding ? t(`cinematic.lookReferences.source.${binding.source}`) : null].filter(Boolean).join(' / ');
+    for (const role of ['face_reference', 'character_reference', 'outfit_front', 'outfit_back'] as const) {
+      if (references[role]) referenceLabels[role] = label;
+    }
+  }
   const keyframePrompt = generationContext.data?.keyframeContract.providerIndependentPrompt || '';
   const directionDirty = direction.trim() !== savedDirection.trim();
   const blockedReason = externalBlockedReason || (savingSettings || environmentBusy ? t('cinematic.save.saving') : null) || (generationContext.isPending
@@ -325,7 +342,8 @@ export function StoryboardShotDialog({
               {videoReferences.error ? <p role="alert">{videoReferences.error.message}</p> : null}
             </>}
             shotDetails={<>
-              {editingShot ? <StoryboardShotEditor key={shot.id}
+              {onEditDocument ? <div className="cinematic-authoring-document-preview"><p>{shot.shotDocument || shot.prompt}</p><Button icon={<Pencil />} onClick={onEditDocument}>{t('cinematic.storyboard.editShot')}</Button></div> : null}
+              {editingShot && !onEditDocument ? <StoryboardShotEditor key={shot.id}
                 project={{ ...project, version: generationContext.data?.projectVersion || project.version }}
                 scene={scene} shot={{ ...shot, version: generationContext.data?.shotVersion || shot.version }}
                 initialPrompt={direction} onClose={() => setEditingShot(false)} onSaved={() => {
@@ -335,7 +353,7 @@ export function StoryboardShotDialog({
                 }} /> : null}
             </>}
             videoDetails={<>
-              <DialogueSoundSummary shot={shot} cast={project.castAssignments} onEdit={onEditStory ? () => { onOpenChange(false); onEditStory(); } : undefined} />
+              <DialogueSoundSummary shot={shot} cast={project.castAssignments} onEdit={onEditDocument || (onEditStory ? () => { onOpenChange(false); onEditStory(); } : undefined)} />
               <ProduceVideoReferences sketchAvailable={videoReferences.sketchAvailable} firstFrameEnabled={videoReferences.firstFrameEnabled} mode={videoReferences.mode} lastFirstFrameMode={videoReferences.lastFirstFrameMode}
                 onChange={videoReferences.changeMode} disabled={saving || approvingJobId !== null || videoReferences.pending}
                 loading={videoReferences.pending} references={shotVideoReferencePreviews(project, scene, shot, videoReferences.mode)} />
@@ -346,12 +364,12 @@ export function StoryboardShotDialog({
           initialPrompt={keyframePrompt}
           prompt={keyframePrompt}
           showPromptEditor={false}
-          readOnlyPrompt={keyframePrompt ? {
+          readOnlyPrompt={!onEditDocument && keyframePrompt ? {
             label: t('cinematic.storyboard.compiledPrompt'),
             description: t('cinematic.storyboard.compiledPromptDescription'),
             collapsed: true
           } : null}
-          readOnlyPromptSupplement={embedded ? null : <div className="cinematic-storyboard-shot-dialog__direction">
+          readOnlyPromptSupplement={embedded || onEditDocument ? null : <div className="cinematic-storyboard-shot-dialog__direction">
             <label htmlFor={`cinematic-shot-direction-${shot.id}`}>
               {t('cinematic.storyboard.shotDirection')}
             </label>
@@ -488,7 +506,7 @@ export function StoryboardShotDialog({
             {selectedLooks.length ? <span>{selectedLooks.map(look => look.name).join(', ')}</span> : null}
             {previousSource ? <span>{t('cinematic.storyboard.previousFrameAttached')}</span> : null}
             <Button size="sm" icon={<Pencil />} disabled={editingShot || saving || approvingJobId !== null}
-              onClick={() => { setWorkspaceTab('shot'); setEditingShot(true); }}>{t('cinematic.storyboard.editShot')}</Button>
+              onClick={() => { if (onEditDocument) onEditDocument(); else { setWorkspaceTab('shot'); setEditingShot(true); } }}>{t('cinematic.storyboard.editShot')}</Button>
           </div>
         </div>
         <div className="cinematic-storyboard-shot-dialog__generation">{generation}</div>

@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { validateGenerationPrompt } from './GenerationPromptBudget.js';
+import { promptMaximumCharacters, validateGenerationPrompt } from './GenerationPromptBudget.js';
 
 import { isStoryboardCompositionReference } from '../cinematic/CinematicStoryboardRenderStyle.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
@@ -106,10 +106,13 @@ export class VideoGenerationApplicationService {
   }
 
   getCatalog(workflowContext = null) {
-    return this.capabilityRegistry.getPublicCatalog({
-      includeTesting: this.testingEnabled,
-      workflow: resolveVideoProviderWorkflow(workflowContext)
-    });
+    return {
+      ...this.capabilityRegistry.getPublicCatalog({
+        includeTesting: this.testingEnabled,
+        workflow: resolveVideoProviderWorkflow(workflowContext)
+      }),
+      promptMaximumCharacters: promptMaximumCharacters('playground_video')
+    };
   }
 
   async listTrustedSources(actorContext, query = {}) {
@@ -413,7 +416,10 @@ export class VideoGenerationApplicationService {
     const { request, resolved, durationReconciliation } = this.#prepareRequest(playgroundPlan?.input || input, workflow);
     if (playgroundPlan) request.prompt = appendLookLegend(request.prompt, request.references);
     request.promptBudget = validateGenerationPrompt(request.prompt, {
-      providerId: request.providerId, modelId: request.modelId, operation: 'video'
+      providerId: request.providerId, modelId: request.modelId, operation: 'video',
+      applicationMaximumCharacters: workflow.capability === 'playground_video'
+        ? promptMaximumCharacters('playground_video')
+        : undefined
     });
     if (playgroundPlan && request.referenceImageCount > 1 && resolved.supportsOrderedImageReferences !== true) {
       throw videoError('video_multiple_references_unsupported', 'This model adapter does not support multiple image references.');

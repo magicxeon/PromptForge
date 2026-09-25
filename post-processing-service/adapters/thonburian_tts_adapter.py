@@ -83,32 +83,44 @@ THONBURIAN_VOICE_CATALOG = [
     }
 ]
 
+# Keep a single loaded instance of F5-TTS in memory
 _SHARED_F5_ENGINE = None
+_CURRENT_MODEL_ID = None
+
+BASE_MODEL_DIR = Path("D:/applications/momelo-post-processing/models")
+
+MODEL_CONFIGS = {
+    "thonburian": {
+        "ckpt": BASE_MODEL_DIR / "thonburian-tts/mega_f5_last.safetensors",
+        "vocab": BASE_MODEL_DIR / "thonburian-tts/mega_vocab.txt"
+    },
+    "f5_tts_thai_v1": {
+        "ckpt": BASE_MODEL_DIR / "f5-tts-thai-v1/model_1000000.pt",
+        "vocab": BASE_MODEL_DIR / "f5-tts-thai-v1/vocab.txt"
+    },
+    "f5_tts_thai_v2": {
+        "ckpt": BASE_MODEL_DIR / "f5-tts-thai-v2/model_350000.pt",
+        "vocab": BASE_MODEL_DIR / "f5-tts-thai-v2/vocab.txt"
+    }
+}
 
 
 class ThonburianTtsAdapter:
     """
-    Adapter for ThonburianTTS — a Thai-language fine-tune of F5-TTS (DiT 335M Flow-Matching).
-    Loads the fine-tuned checkpoint and Thai-complete vocabulary from biodatlab/ThonburianTTS.
-
-    Required files (run scripts/download_thonburian_model.py once to populate):
-      D:/applications/momelo-post-processing/models/thonburian-tts/model_last_prune.safetensors
-      D:/applications/momelo-post-processing/models/thonburian-tts/mega_vocab_ipa.txt
+    Adapter for F5-TTS Flow Matching models (ThonburianTTS, VIZINTZOR V1 & V2).
     """
-
-    # Paths to the ThonburianTTS FINAL fine-tuned checkpoint (megaF5 character-based) and vocabulary
-    THAI_CKPT_FILE = THONBURIAN_MODEL_DIR / "mega_f5_last.safetensors"
-    THAI_VOCAB_FILE = THONBURIAN_MODEL_DIR / "mega_vocab.txt"
 
     def __init__(self, policy: Any):
         self.policy = policy
-        self.model_dir = Path(getattr(policy, "modelPath", str(THONBURIAN_MODEL_DIR)))
+        self.model_dir = BASE_MODEL_DIR
         self.model_dir.mkdir(parents=True, exist_ok=True)
-        self._initialize_engine()
+        # We don't initialize on boot anymore; we lazy-load upon request to save VRAM
 
-    def _initialize_engine(self):
-        """Initializes the PyTorch F5-TTS engine with Thai fine-tuned weights and Thai vocab."""
+    def _initialize_engine(self, model_id: str = "thonburian"):
+        """Initializes or swaps the PyTorch F5-TTS engine with the requested model weights."""
         global _SHARED_F5_ENGINE
+        global _CURRENT_MODEL_ID
+        
         self.f5_available = False
         self.torch_device = "cpu"
 
@@ -130,17 +142,30 @@ class ThonburianTtsAdapter:
 
         self.cuda_available = torch.cuda.is_available()
         self.torch_device = "cuda" if self.cuda_available else "cpu"
+        
+        if model_id not in MODEL_CONFIGS:
+            model_id = "thonburian"
+
+        if _SHARED_F5_ENGINE is not None and _CURRENT_MODEL_ID != model_id:
+            logger.info(f"[THONBURIAN_SWAP] Unloading model '{_CURRENT_MODEL_ID}' from VRAM...")
+            del _SHARED_F5_ENGINE
+            _SHARED_F5_ENGINE = None
+            gc.collect()
+            if self.cuda_available:
+                torch.cuda.empty_cache()
 
         if _SHARED_F5_ENGINE is None:
-            # Validate that the Thai fine-tuned model files are present
+            ckpt_path = MODEL_CONFIGS[model_id]["ckpt"]
+            vocab_path = MODEL_CONFIGS[model_id]["vocab"]
+            
             missing = []
-            if not self.THAI_CKPT_FILE.exists():
-                missing.append(str(self.THAI_CKPT_FILE))
-            if not self.THAI_VOCAB_FILE.exists():
-                missing.append(str(self.THAI_VOCAB_FILE))
+            if not ckpt_path.exists():
+                missing.append(str(ckpt_path))
+            if not vocab_path.exists():
+                missing.append(str(vocab_path))
             if missing:
                 raise FileNotFoundError(
-                    f"ThonburianTTS Thai model files not found:\n"
+                    f"F5-TTS model files for '{model_id}' not found:\n"
                     + "\n".join(f"  - {p}" for p in missing)
                     + "\n\nRun the download script first:\n"
                     + "  python scripts/download_thonburian_model.py"
@@ -148,23 +173,24 @@ class ThonburianTtsAdapter:
 
             from f5_tts.api import F5TTS
             logger.info(
-                f"[THONBURIAN_INIT] Loading Thai fine-tuned model:\n"
-                f"  Checkpoint : {self.THAI_CKPT_FILE}\n"
-                f"  Vocabulary : {self.THAI_VOCAB_FILE}"
+                f"[THONBURIAN_INIT] Loading Thai fine-tuned model ({model_id}):\n"
+                f"  Checkpoint : {ckpt_path}\n"
+                f"  Vocabulary : {vocab_path}"
             )
             _SHARED_F5_ENGINE = F5TTS(
                 model="F5TTS_v1_Base",
-                ckpt_file=str(self.THAI_CKPT_FILE),
-                vocab_file=str(self.THAI_VOCAB_FILE),
+                ckpt_file=str(ckpt_path),
+                vocab_file=str(vocab_path),
                 device=self.torch_device,
                 hf_cache_dir=r"C:\Users\punya\.cache\huggingface\hub"
             )
+            _CURRENT_MODEL_ID = model_id
 
         self.f5_engine = _SHARED_F5_ENGINE
         self.f5_available = True
         logger.info(
-            f"[THONBURIAN_INIT] PyTorch={torch.__version__}, Device={self.torch_device}, "
-            f"ThonburianTTS Thai F5-TTS READY (biodatlab/ThonburianTTS megaIPA)."
+            f"[THONBURIAN_READY] PyTorch={torch.__version__}, Device={self.torch_device}, "
+            f"F5-TTS Engine READY (Model: {_CURRENT_MODEL_ID})."
         )
 
     def synthesize(
@@ -179,7 +205,8 @@ class ThonburianTtsAdapter:
         voice_seed: int = 42,
         output_format: str = "WAV",
         correlation_id: Optional[str] = None,
-        chunk_length: Optional[int] = None
+        chunk_length: Optional[int] = None,
+        model_id: str = "thonburian"
     ) -> Tuple[bytes, int, float, str, bool, bool, Optional[str]]:
         """
         Synthesizes raw text into audio speech by chunking long text and 
@@ -187,6 +214,9 @@ class ThonburianTtsAdapter:
         """
         if not text or not text.strip():
             raise ValueError("Input text cannot be empty.")
+            
+        # Lazy load engine
+        self._initialize_engine(model_id)
 
         max_len = getattr(self.policy, "maxTextLength", 2000)
         if len(text) > max_len:

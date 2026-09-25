@@ -1,7 +1,9 @@
 import { loadPromptRecipe } from '../config/prompt-recipes/loadPromptRecipe.js';
 import { storyAuthoringConfiguration } from '../config/cinematicStoryConfiguration.js';
 import {
+  CINEMATIC_SCENE_ENVIRONMENT_SCHEMA,
   CINEMATIC_SCENE_DIRECTION_SCHEMA,
+  CINEMATIC_SCENE_SHOTS_SCHEMA,
   CINEMATIC_STORY_PLAN_SCHEMA
 } from './cinematicTextSchemas.js';
 
@@ -72,6 +74,98 @@ const CINEMATIC_STORY_SCHEMA = Object.freeze({
   }
 });
 
+const CINEMATIC_FULL_STORY_SCHEMA = Object.freeze({
+  type: 'object',
+  additionalProperties: false,
+  required: ['fullStory', 'characters', 'warnings'],
+  properties: {
+    fullStory: { type: 'string' },
+    characters: {
+      type: 'array',
+      maxItems: 24,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['existingCharacterId', 'displayName', 'storyRole', 'storyImportance', 'objective', 'motivation', 'pressure', 'personalityTraits', 'emotionalBaseline', 'dialogueStyle', 'performanceDirection'],
+        properties: {
+          existingCharacterId: { type: ['string', 'null'] },
+          displayName: { type: 'string' },
+          storyRole: { type: 'string' },
+          storyImportance: { type: 'string', enum: ['protagonist', 'supporting'] },
+          objective: { type: 'string' },
+          motivation: { type: 'string' },
+          pressure: { type: 'string' },
+          personalityTraits: { type: 'array', maxItems: 6, items: { type: 'string' } },
+          emotionalBaseline: { type: 'string' },
+          dialogueStyle: { type: 'string' },
+          performanceDirection: { type: 'string' }
+        }
+      }
+    },
+    warnings: { type: 'array', maxItems: 8, items: { type: 'string' } }
+  }
+});
+
+const CINEMATIC_CHAPTERS_SCHEMA = Object.freeze({
+  type: 'object',
+  additionalProperties: false,
+  required: ['chapters', 'warnings'],
+  properties: {
+    chapters: {
+      type: 'array',
+      minItems: 1,
+      maxItems: 24,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['title', 'story'],
+        properties: { title: { type: 'string' }, story: { type: 'string' } }
+      }
+    },
+    warnings: { type: 'array', maxItems: 8, items: { type: 'string' } }
+  }
+});
+
+const CINEMATIC_CHAPTER_SCENES_SCHEMA = Object.freeze({
+  type: 'object',
+  additionalProperties: false,
+  required: ['scenes', 'warnings'],
+  properties: {
+    scenes: {
+      type: 'array',
+      minItems: 1,
+      maxItems: 24,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: [
+          'title', 'synopsis', 'purpose', 'objective', 'location', 'time', 'weather',
+          'environment', 'entryState', 'exitState', 'emotionalStart', 'emotionalEnd',
+          'transitionIntent', 'targetDurationSeconds', 'dialogueTargetPercent', 'characterIds'
+        ],
+        properties: {
+          title: { type: 'string' },
+          synopsis: { type: 'string' },
+          purpose: { type: 'string', enum: ['dialogue', 'action', 'montage', 'establishing', 'atmosphere', 'transition', 'dramatic'] },
+          objective: { type: 'string' },
+          location: { type: 'string' },
+          time: { type: 'string' },
+          weather: { type: 'string' },
+          environment: { type: 'string' },
+          entryState: { type: 'string' },
+          exitState: { type: 'string' },
+          emotionalStart: { type: 'string' },
+          emotionalEnd: { type: 'string' },
+          transitionIntent: { type: 'string' },
+          targetDurationSeconds: { type: 'integer', minimum: 5, maximum: 120 },
+          dialogueTargetPercent: { type: 'integer', minimum: 0, maximum: 100 },
+          characterIds: { type: 'array', maxItems: 24, items: { type: 'string' } }
+        }
+      }
+    },
+    warnings: { type: 'array', maxItems: 8, items: { type: 'string' } }
+  }
+});
 
 const CINEMATIC_WARDROBE_SCHEMA = Object.freeze({
   type: 'object',
@@ -207,6 +301,98 @@ export class OpenAITextProvider {
     return { ...result, responseId: payload?.id || null, usage: payload?.usage || null };
   }
 
+  async generateCinematicFullStory({ context, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model,
+      instructions: loadPromptRecipe('cinematic/full-story.v1.json').instruction,
+      input: context,
+      reasoningEffort,
+      schemaName: 'momelo_cinematic_full_story',
+      schema: CINEMATIC_FULL_STORY_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'cinematic_full_story'
+    });
+    return { ...parseJsonOutput(payload, 'cinematic_full_story'), responseId: payload?.id || null, usage: payload?.usage || null };
+  }
+
+  async generateCinematicChapters({ context, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model,
+      instructions: loadPromptRecipe('cinematic/full-story-chapters.v1.json').instruction,
+      input: context,
+      reasoningEffort,
+      schemaName: 'momelo_cinematic_full_story_chapters',
+      schema: CINEMATIC_CHAPTERS_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'cinematic_full_story_chapters'
+    });
+    return { ...parseJsonOutput(payload, 'cinematic_full_story_chapters'), responseId: payload?.id || null, usage: payload?.usage || null };
+  }
+
+  async extractCinematicStoryCharacters({ context, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model, input: context, reasoningEffort, maxOutputTokens, timeoutMs,
+      instructions: loadPromptRecipe('cinematic/full-story-characters.v1.json').instruction,
+      schemaName: 'momelo_cinematic_story_characters',
+      schema: {
+        type: 'object', additionalProperties: false, required: ['characters', 'warnings'],
+        properties: {
+          characters: CINEMATIC_FULL_STORY_SCHEMA.properties.characters,
+          warnings: CINEMATIC_FULL_STORY_SCHEMA.properties.warnings
+        }
+      },
+      errorPrefix: 'cinematic_full_story_characters'
+    });
+    return { ...parseJsonOutput(payload, 'cinematic_full_story_characters'), responseId: payload?.id || null };
+  }
+
+  async generateCinematicChapterScenes({ context, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model,
+      instructions: loadPromptRecipe('cinematic/chapter-scenes.v1.json').instruction,
+      input: context,
+      reasoningEffort,
+      schemaName: 'momelo_cinematic_chapter_scenes',
+      schema: CINEMATIC_CHAPTER_SCENES_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'cinematic_chapter_scenes'
+    });
+    return { ...parseJsonOutput(payload, 'cinematic_chapter_scenes'), responseId: payload?.id || null, usage: payload?.usage || null };
+  }
+
+  async generateCinematicSceneShots({ context, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model,
+      instructions: loadPromptRecipe('cinematic/scene-shots.v1.json').instruction,
+      input: context,
+      reasoningEffort,
+      schemaName: 'momelo_cinematic_scene_shots',
+      schema: CINEMATIC_SCENE_SHOTS_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'cinematic_scene_shots'
+    });
+    return { ...parseJsonOutput(payload, 'cinematic_scene_shots'), responseId: payload?.id || null, usage: payload?.usage || null };
+  }
+
+  async generateCinematicSceneEnvironment({ context, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model,
+      instructions: loadPromptRecipe('cinematic/scene-environment.v1.json').instruction,
+      input: context,
+      reasoningEffort,
+      schemaName: 'momelo_cinematic_scene_environment',
+      schema: CINEMATIC_SCENE_ENVIRONMENT_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'cinematic_scene_environment'
+    });
+    return { ...parseJsonOutput(payload, 'cinematic_scene_environment'), responseId: payload?.id || null, usage: payload?.usage || null };
+  }
+
   async suggestCinematicWardrobe({ context, recipe, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
     const payload = await this.requestStructured({
       model,
@@ -304,12 +490,19 @@ export class OpenAITextProvider {
       return payload;
     } catch (error) {
       if (error?.name === 'AbortError') {
-        throw createProviderError(`${errorPrefix}_timeout`, `${humanizeErrorPrefix(errorPrefix)} timed out.`);
+        throw createProviderError(
+          `${errorPrefix}_timeout`,
+          `${humanizeErrorPrefix(errorPrefix)} timed out.`,
+          504,
+          { timeoutMs }
+        );
       }
-      if (error?.code) throw error;
+      if (error?.isProviderError) throw error;
       throw createProviderError(
         `${errorPrefix}_transport_error`,
-        error?.message || `${humanizeErrorPrefix(errorPrefix)} failed.`
+        `${humanizeErrorPrefix(errorPrefix)} could not connect to the configured provider.`,
+        503,
+        transportErrorDetails(error)
       );
     } finally {
       clearTimeout(timeout);
@@ -334,27 +527,55 @@ function parseStructuredOutput(payload) {
 }
 
 function parseJsonOutput(payload, errorPrefix) {
+  if (payload?.status === 'incomplete') {
+    const reason = String(payload?.incomplete_details?.reason || 'unknown').trim() || 'unknown';
+    throw createProviderError(
+      `${errorPrefix}_incomplete_response`,
+      reason === 'max_output_tokens'
+        ? `${humanizeErrorPrefix(errorPrefix)} reached its output limit before completing the structured result.`
+        : `${humanizeErrorPrefix(errorPrefix)} did not complete its structured result.`,
+      502,
+      { reason, responseId: payload?.id || null }
+    );
+  }
   const raw = typeof payload?.output_text === 'string'
     ? payload.output_text
-    : payload?.output
-      ?.flatMap(item => Array.isArray(item?.content) ? item.content : [])
-      .find(item => item?.type === 'output_text')?.text;
+    : (payload?.output || [])
+      .flatMap(item => Array.isArray(item?.content) ? item.content : [])
+      .filter(item => item?.type === 'output_text' && typeof item.text === 'string')
+      .map(item => item.text)
+      .join('');
   if (!raw) {
-    throw createProviderError(`${errorPrefix}_empty_response`, `${humanizeErrorPrefix(errorPrefix)} returned no structured output.`);
+    throw createProviderError(`${errorPrefix}_empty_response`, `${humanizeErrorPrefix(errorPrefix)} returned no structured output.`, 502);
   }
   try {
-    return JSON.parse(raw);
+    return JSON.parse(normalizeStructuredJsonEnvelope(raw));
   } catch {
-    throw createProviderError(`${errorPrefix}_invalid_response`, `${humanizeErrorPrefix(errorPrefix)} returned invalid JSON.`);
+    throw createProviderError(`${errorPrefix}_invalid_response`, `${humanizeErrorPrefix(errorPrefix)} returned invalid JSON.`, 502);
   }
+}
+
+function normalizeStructuredJsonEnvelope(value) {
+  const normalized = String(value || '').trim();
+  const fenced = normalized.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  return fenced ? fenced[1].trim() : normalized;
 }
 
 function humanizeErrorPrefix(value) {
   return String(value || '').replaceAll('_', ' ').replace(/^./, character => character.toUpperCase());
 }
 
-function createProviderError(code, message) {
+function transportErrorDetails(error) {
+  const code = String(error?.cause?.code || error?.cause?.name || error?.name || 'transport_failure')
+    .trim().slice(0, 80);
+  return { reason: code || 'transport_failure' };
+}
+
+function createProviderError(code, message, statusCode, details) {
   const error = new Error(message);
   error.code = code;
+  error.isProviderError = true;
+  if (statusCode) error.statusCode = statusCode;
+  if (details) error.details = details;
   return error;
 }

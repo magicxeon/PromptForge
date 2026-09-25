@@ -4,7 +4,7 @@ const policy = JSON.parse(fs.readFileSync(new URL('../../config/generation-promp
 
 // This is a final-text validator, not another prompt compiler or AI workflow.
 export function inspectGenerationPrompt(prompt, { providerId = '', modelId = '', operation = 'image',
-  originalCharacters, recommendedCharacters } = {}, configuration = policy) {
+  originalCharacters, recommendedCharacters, applicationMaximumCharacters } = {}, configuration = policy) {
   const characters = Array.from(String(prompt || '')).length;
   const limit = configuration.providerLimits[`${providerId}/${modelId}/${operation}`];
   const recommendation = recommendedCharacters || configuration.recommendedCharacters[operation];
@@ -16,7 +16,11 @@ export function inspectGenerationPrompt(prompt, { providerId = '', modelId = '',
     policyVersion: configuration.version, unit: configuration.countUnit, characters,
     originalCharacters: original, recommendedCharacters: recommendation,
     hardLimit, hardLimitSource: hardLimit ? limit.source : null,
-    status: characters > configuration.requestSafetyCharacters || (hardLimit !== null && characters > hardLimit)
+    applicationMaximumCharacters: Number.isInteger(applicationMaximumCharacters) && applicationMaximumCharacters > 0
+      ? applicationMaximumCharacters : null,
+    status: characters > configuration.requestSafetyCharacters
+      || (Number.isInteger(applicationMaximumCharacters) && applicationMaximumCharacters > 0 && characters > applicationMaximumCharacters)
+      || (hardLimit !== null && characters > hardLimit)
       ? 'over_limit' : characters > recommendation ? 'above_recommendation' : characters < original ? 'optimized' : 'within_budget',
     scope: hardLimit === null ? 'provider_limit_unknown' : 'provider_verified',
     requestSafetyCharacters: configuration.requestSafetyCharacters
@@ -28,9 +32,16 @@ export function validateGenerationPrompt(prompt, options) {
   if (budget.status === 'over_limit') {
     throw Object.assign(new Error(budget.hardLimit !== null && budget.characters > budget.hardLimit
       ? 'The final prompt exceeds the verified model limit.'
-      : 'The final prompt exceeds the application request size bound.'), {
+      : budget.applicationMaximumCharacters !== null && budget.characters > budget.applicationMaximumCharacters
+        ? `The final prompt exceeds the ${budget.applicationMaximumCharacters}-character application limit.`
+        : 'The final prompt exceeds the application request size bound.'), {
       code: 'generation_prompt_too_long', statusCode: 400, details: budget
     });
   }
   return budget;
+}
+
+export function promptMaximumCharacters(surface, configuration = policy) {
+  const value = configuration.surfaceMaximumCharacters?.[surface];
+  return Number.isInteger(value) && value > 0 ? value : configuration.requestSafetyCharacters;
 }

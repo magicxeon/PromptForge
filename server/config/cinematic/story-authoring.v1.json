@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "version": 3,
+  "version": 4,
   "openingDirection": {
     "version": 2,
     "guidance": "Direct the marked first Scene as a visual cinematic opening understandable without reading text or hearing specific words. Follow supplied country style, primary genre, audience feeling and pacing. Choose a story-motivated hook: a revealing gesture or interrupted routine for romance/drama; an unexplained discrepancy for mystery/thriller; an established ordinary space disturbed for horror; a readable goal and obstacle for action/adventure; expectation and visual reversal for comedy. Adapt other genres to the premise; these are options, not mandatory events. Specify time-zero composition, motivated light, playable action, reaction, timing and transition. Anchor reactions to visible events, never to a quoted phrase. No readable text in any language, titles, subtitles, captions, logos or explanatory signs/screens. Preserve runtime, plot, approved Cast, shot count and locked dialogue in its separate audio fields. No extra people or automatic aerial/slow-motion montage. A no-person opening is valid. Return a reviewable proposal."
@@ -15,6 +15,16 @@
       { "id": "china", "flag": "cn", "guidance": "Chinese drama inspiration: interwoven personal goals and obligations, clear relationship stakes, visual motifs and emotional reversals. Do not invent a historical setting or period costume." },
       { "id": "europe", "flag": "eu", "guidance": "European auteur-drama inspiration: character ambiguity, observational situations, purposeful visual storytelling and space for interpretation. Respect the explicitly selected ending; Europe is a broad inspiration, not one uniform culture." },
       { "id": "united-states", "flag": "us", "guidance": "American mainstream narrative inspiration: a clear character goal, causal escalation, distinct turning points and a readable payoff. Adapt to the requested genre and emotional arc rather than forcing spectacle." }
+    ]
+  },
+  "periods": {
+    "default": "contemporary",
+    "options": [
+      { "id": "contemporary", "guidance": "Use a contemporary setting unless the brief explicitly establishes another period." },
+      { "id": "recent-past", "guidance": "Use a recognizable late-20th or early-21st century setting with period-appropriate technology, wardrobe and production design." },
+      { "id": "historical", "guidance": "Use the historical period stated by the creator and keep technology, wardrobe, architecture and social behavior consistent with it." },
+      { "id": "near-future", "guidance": "Use a plausible near-future setting grounded in the supplied story; avoid unexplained spectacle or generic science-fiction decoration." },
+      { "id": "timeless", "guidance": "Avoid conspicuous date markers while keeping the physical world coherent and believable." }
     ]
   },
   "limits": {

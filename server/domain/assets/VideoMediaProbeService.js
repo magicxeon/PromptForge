@@ -56,6 +56,22 @@ export class VideoMediaProbeService {
     }
     return normalizeProbePayload(payload, sourceStat.size);
   }
+
+  async assertAvailable() {
+    try {
+      await this.runProcess(this.ffprobePath, ['-version'], {
+        timeout: Math.min(this.timeoutMs, 5_000),
+        windowsHide: true,
+        maxBuffer: 256 * 1024
+      });
+    } catch (error) {
+      if (error?.code === 'ENOENT') {
+        throw probeError('video_probe_ffprobe_unavailable', 'FFprobe is required before Video generation can start.');
+      }
+      throw probeError('video_probe_readiness_failed', 'FFprobe readiness could not be verified.');
+    }
+    return true;
+  }
 }
 
 export function normalizeProbePayload(payload, sizeBytes = null) {

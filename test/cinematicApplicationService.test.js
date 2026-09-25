@@ -62,6 +62,60 @@ const setup = {
   endingIntent: 'resolved', mode: 'simple'
 };
 
+test('Shot document enables First Frame context and keeps stale production evidence after revision', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await service.createProject(setup, alice);
+  const sceneResult = await service.createManualScene(created.id, {
+    expectedVersion: created.version, idempotencyKey: 'manual-scene-document'
+  }, alice);
+  const shotResult = await service.createManualShot(created.id, sceneResult.scene.id, {
+    expectedVersion: sceneResult.project.version, idempotencyKey: 'manual-shot-document'
+  }, alice);
+  const firstDocument = `SHOT DURATION\n4 seconds\n\nSCENE\nAn empty workshop at night.\n\nOPENING\nA loose curtain hangs still beside the open window.\n\nCAMERA\nLocked medium-wide frame.\n\nPERFORMANCE AND TIMELINE\n0.0-4.0s: Wind moves the curtain once.\n\nAUDIO\nNight ambience.`;
+  const saved = await service.updateShotDocument(created.id, sceneResult.scene.id, shotResult.shot.id, {
+    expectedVersion: shotResult.project.version, expectedShotVersion: shotResult.shot.version,
+    title: 'Curtain in the wind', durationMs: 4000, shotDocument: firstDocument, source: 'manual'
+  }, alice);
+  const context = await service.getStoryboardGenerationContext(created.id, sceneResult.scene.id, shotResult.shot.id, alice);
+  assert.equal(context.generationEligible, true);
+  assert.equal(context.blockingReason, null);
+  assert.match(context.keyframeContract.providerIndependentPrompt, /loose curtain hangs still/i);
+  assert.doesNotMatch(context.keyframeContract.providerIndependentPrompt, /Wind moves the curtain once/i);
+
+  const seeded = await service.repository.mutateForActor(created.id, alice, project => {
+    const shot = project.scenes[0].shots[0];
+    shot.approvedStoryboardSource = { assetId: 'ast_frame', assetVersionId: 'astver_frame',
+      imageUrl: '/outputs/frame.png', thumbnailUrl: '/outputs/frame.webp', sourceFingerprint: 'source_frame' };
+    shot.storyboardStatus = 'approved';
+    shot.approvedVideoAttemptId = 'take_document';
+    shot.approvedVideoSourceFingerprint = 'source_frame';
+    project.generationAttempts.push({ id: 'take_document', shotId: shot.id, operation: 'cinematic_draft_clip',
+      status: 'approved', sourceFingerprint: 'source_frame', downstreamSourceStatus: 'current' });
+    project.version += 1;
+    return project;
+  });
+  const renamed = await service.updateShotDocument(created.id, sceneResult.scene.id, shotResult.shot.id, {
+    expectedVersion: seeded.version, expectedShotVersion: seeded.scenes[0].shots[0].version,
+    title: 'Curtain by the window', durationMs: 4000, shotDocument: firstDocument, source: 'manual'
+  }, alice);
+  const renamedShot = renamed.project.scenes[0].shots[0];
+  assert.equal(renamedShot.storyboardStatus, 'approved');
+  assert.equal(renamedShot.approvedVideoAttemptId, 'take_document');
+  assert.equal(renamed.project.generationAttempts.find(item => item.id === 'take_document').downstreamSourceStatus, 'current');
+
+  const revisedDocument = firstDocument.replace('hangs still', 'is tied beside the frame');
+  const revised = await service.updateShotDocument(created.id, sceneResult.scene.id, shotResult.shot.id, {
+    expectedVersion: renamed.project.version, expectedShotVersion: renamedShot.version,
+    title: 'Curtain in the wind', durationMs: 4000, shotDocument: revisedDocument, source: 'manual'
+  }, alice);
+  const revisedShot = revised.project.scenes[0].shots[0];
+  assert.equal(revisedShot.storyboardStatus, 'draft');
+  assert.equal(revisedShot.approvedStoryboardSource.assetId, 'ast_frame');
+  assert.equal(revisedShot.approvedVideoAttemptId, null);
+  assert.equal(revised.project.generationAttempts.find(item => item.id === 'take_document').downstreamSourceStatus, 'packet_changed');
+});
+
 test('previous approved Take can supply the next Storyboard source without an Image Job', async t => {
   const frame = { assetId: 'frame_1', assetVersionId: 'frame_1', sourceJobId: null,
     imageUrl: '/outputs/frame_1.png', thumbnailUrl: '/outputs/frame_1.png', contentHash: 'framehash',
@@ -609,7 +663,7 @@ test('Wardrobe Looks remain owned by a Cast Assignment and preserve authority sn
 test('Cinematic Cast binds an immutable approved Character Look version', async t => {
   const lookService = {
     resolveApprovedVersion: async () => ({
-      look: { id: 'charlook_arrival', name: 'Arrival Look' },
+      look: { id: 'charlook_arrival', name: 'Arrival Look', sourceCharacterProfileVersionId: 'charver_a' },
       version: {
         id: 'charlookver_arrival_1',
         provenance: { kind: 'system_generated', generationResultId: 'job_look' },
@@ -925,7 +979,7 @@ test('Story Plan generation and v2 approval require an approved multi-view Look 
   const storyPlanService = { generatePlan: async () => ({ proposalId: 'proposal_ready' }) };
   const lookService = {
     resolveApprovedVersion: async () => ({
-      look: { id: 'charlook_station', name: 'Station Look' },
+      look: { id: 'charlook_station', name: 'Station Look', sourceCharacterProfileVersionId: 'charver_a' },
       version: {
         id: 'charlookver_station_1',
         approvedViewAssets: {

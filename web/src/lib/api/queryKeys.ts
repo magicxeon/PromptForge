@@ -12,6 +12,9 @@ export const queryKeys = {
   generationJob: (actorId: string, jobId: string | null) =>
     ['generation-job', actorId, jobId] as const,
   generationJobCenter: (actorId: string) => ['generation-job-center', actorId] as const,
+  cinematicProjects: (actorId: string) => ['cinematic-projects', actorId] as const,
+  cinematicProject: (actorId: string, projectId: string) =>
+    ['cinematic-project', actorId, projectId] as const,
   comparison: (actorId: string, comparisonId: string | null) =>
     ['comparison', actorId, comparisonId] as const,
   comparisons: (actorId: string) => ['comparisons', actorId] as const,

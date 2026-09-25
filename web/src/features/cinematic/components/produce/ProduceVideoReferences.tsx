@@ -17,7 +17,9 @@ type Props = {
   firstFrameEnabled?: boolean;
   sketchAvailable?: boolean;
   references?: Array<{ imageNumber: number; assetId: string | null; purpose: string;
-    roleName: string | null; lookName: string | null; previewUrl: string }>;
+    roleName: string | null; lookName: string | null; previewUrl: string;
+    characterName?: string | null; referenceSource?: 'uploaded' | 'generated' | 'library' | null;
+    selectionScope?: 'scene' | 'shot' | null }>;
 };
 
 export function ProduceVideoReferences({ mode, disabled, loading, onChange, references, lastFirstFrameMode = 'storyboard_only', supported = true, firstFrameEnabled = true, sketchAvailable = false }: Props) {
@@ -54,7 +56,8 @@ export function ProduceVideoReferences({ mode, disabled, loading, onChange, refe
           </div>
           <div className="min-w-0 break-words text-xs">
             <strong>{t('cinematic.produce.references.image', { number: reference.imageNumber })}: {t(['storyboard_opening', 'sketch_composition', 'storyboard_composition'].includes(reference.purpose) ? 'cinematic.produce.references.storyboard' : 'cinematic.produce.references.look')}</strong>
-            {reference.roleName ? <p>{reference.roleName} / {reference.lookName}</p> : null}
+            {reference.characterName || reference.roleName ? <p>{reference.characterName || reference.roleName} / {reference.lookName}</p> : null}
+            {reference.referenceSource ? <small>{t(`cinematic.lookReferences.source.${reference.referenceSource}`)}{reference.selectionScope ? ` / ${t(`cinematic.lookReferences.scope.${reference.selectionScope}`)}` : ''}</small> : null}
           </div>
         </li>)}
       </ol>}

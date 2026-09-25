@@ -15,5 +15,5 @@ echo Starting Re-build the package
 call npm run build:web
 if errorlevel 1 exit /b %errorlevel%
 
-node scripts\start-dev.mjs
+node scripts\start-dev.mjs --skip-post-processing
 exit /b %errorlevel%

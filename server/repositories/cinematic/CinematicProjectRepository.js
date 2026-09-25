@@ -24,16 +24,20 @@ export class CinematicProjectRepository {
     const actor = assertActorContext(actorContext);
     const normalizedQuery = normalizeListQuery(query, { defaultLimit: 12, maxLimit: 50 });
     const data = await this.#read();
-    const records = data.projects.filter(project => (
+    const projects = data.projects.filter(project => (
       project.ownerUserId === actor.userId && project.status !== 'archived'
     ));
+    const records = toProjectLibraryRecords(
+      projects,
+      (data.series || []).filter(series => series.ownerUserId === actor.userId)
+    );
     const page = paginateRepositoryRecords(
       records,
       normalizedQuery,
       JSON.stringify({ ownerUserId: actor.userId, sort: normalizedQuery.sort }),
       this.cursorSecret
     );
-    return createPage(page.items.map(toProjectSummary), page);
+    return createPage(page.items.map(record => record.summary), page);
   }
 
   async findForActor(projectId, actorContext) {
@@ -141,6 +145,10 @@ export function normalizeLegacyProject(project) {
     for (const shot of scene.shots || []) {
       if (shot.approvedStoryboardSource === null) delete shot.approvedStoryboardSource;
       if (shot.approvedStoryboardAttemptId === null) delete shot.approvedStoryboardAttemptId;
+      if (!shot.shotDocument && (shot.prompt || shot.purpose)) {
+        shot.source ||= 'legacy';
+        shot.shotDocumentVersion ||= 1;
+      }
     }
   }
   return project;
@@ -163,6 +171,102 @@ export function toProjectSummary(project) {
     updatedAt: project.updatedAt,
     ...(project.seriesMembership ? { seriesMembership: structuredClone(project.seriesMembership) } : {})
   };
+}
+
+export function toProjectLibraryRecords(projects, series) {
+  const seriesById = new Map(series.map(item => [item.id, item]));
+  const grouped = new Map();
+  const standalone = [];
+
+  for (const project of projects) {
+    const seriesId = project.seriesMembership?.seriesId;
+    if (!seriesId || !seriesById.has(seriesId)) {
+      standalone.push(toProjectLibraryRecord([project], null));
+      continue;
+    }
+    const chapters = grouped.get(seriesId) || [];
+    chapters.push(project);
+    grouped.set(seriesId, chapters);
+  }
+
+  const groupedRecords = [...grouped.entries()].map(([seriesId, chapters]) => (
+    toProjectLibraryRecord(chapters, seriesById.get(seriesId))
+  ));
+  return [...standalone, ...groupedRecords];
+}
+
+function toProjectLibraryRecord(chapters, series) {
+  const ordered = [...chapters].sort((left, right) => (
+    (Date.parse(right.updatedAt || '') || 0) - (Date.parse(left.updatedAt || '') || 0)
+  ));
+  const resumeProject = ordered[0];
+  const briefProject = [...chapters].sort((left, right) => (
+    (left.seriesMembership?.chapterNumber || Number.MAX_SAFE_INTEGER)
+      - (right.seriesMembership?.chapterNumber || Number.MAX_SAFE_INTEGER)
+    || (Date.parse(left.createdAt || '') || 0) - (Date.parse(right.createdAt || '') || 0)
+  ))[0] || resumeProject;
+  const productionProjectId = series?.id || resumeProject.id;
+  const progress = clipProgress(chapters);
+  const summary = {
+    ...toProjectSummary(briefProject),
+    productionProjectId,
+    chapterId: resumeProject.id,
+    productionUnitId: resumeProject.id,
+    chapterTitle: resumeProject.title,
+    chapterCount: chapters.length,
+    title: series?.title || resumeProject.title,
+    thumbnailUrl: safeProjectThumbnail(chapters),
+    progress,
+    resumeContext: {
+      productionProjectId,
+      chapterId: resumeProject.id,
+      productionUnitId: resumeProject.id,
+      stage: resumeProject.activeStage
+    }
+  };
+  const updatedAt = ordered.reduce((latest, chapter) => (
+    Date.parse(chapter.updatedAt || '') > Date.parse(latest || '') ? chapter.updatedAt : latest
+  ), series?.updatedAt || resumeProject.updatedAt);
+  summary.updatedAt = updatedAt;
+  return {
+    id: productionProjectId,
+    createdAt: series?.createdAt || resumeProject.createdAt,
+    updatedAt,
+    summary
+  };
+}
+
+function clipProgress(projects) {
+  let approvedClipCount = 0;
+  let totalClipCount = 0;
+  for (const project of projects) {
+    const attempts = new Map((project.generationAttempts || []).map(item => [item.id, item]));
+    for (const scene of project.scenes || []) {
+      for (const shot of scene.shots || []) {
+        totalClipCount += 1;
+        const attempt = attempts.get(shot.approvedVideoAttemptId);
+        if (attempt && attempt.reviewDecision === 'approved'
+          && ['approved', 'completed'].includes(attempt.status)
+          && attempt.downstreamSourceStatus !== 'source_changed') {
+          approvedClipCount += 1;
+        }
+      }
+    }
+  }
+  return { approvedClipCount, totalClipCount };
+}
+
+function safeProjectThumbnail(projects) {
+  for (const project of projects) {
+    for (const scene of project.scenes || []) {
+      for (const shot of scene.shots || []) {
+        const candidate = shot.approvedStoryboardSource?.thumbnailUrl
+          || shot.approvedStoryboardSource?.imageUrl;
+        if (typeof candidate === 'string' && /^\/(?:api|outputs)\//.test(candidate)) return candidate;
+      }
+    }
+  }
+  return null;
 }
 
 function toOperationalSummary(project) {

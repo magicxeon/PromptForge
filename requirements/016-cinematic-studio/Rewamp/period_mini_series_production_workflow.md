@@ -1,11 +1,31 @@
 # Period Mini Series — Production Workflow Reference
 
-> **Status:** Working canon for this project  
-> **Primary video workflow:** Director Agent → First Frame → Veo 3.1 → Confirm → Continue  
+> **Status:** Period production profile; current product requirements are in [000-master.md](000-master.md).
+>
+> **Primary video workflow:** Director -> optional First Frame/composition + Looks, or Looks only -> selected supported video model -> Confirm -> Continue. Momelo focuses on Seedance; Veo notes below are provider examples.
 > **Format:** Vertical 9:16  
 > **Default audio policy:** No music / diegetic sound only unless intentionally specified
 
 ---
+
+## Reconciliation (2026-09-19)
+
+Project -> optional Season -> Chapter -> Scene -> Shot is the product hierarchy.
+Text dossiers precede Full Story; final Looks follow its confirmation. A First
+Frame is recommended, not globally mandatory. Literal provider first-frame input
+differs from a composition reference. Main visible Characters retain Look authority;
+background Looks are optional. Selected/approved Takes establish continuity.
+
+The preserved `.txt` input is consolidated into active requirements without deleting
+the original: story/Chapter authoring, text dossiers, revision history and planning
+are owned by 003; Looks/Expressions/Environment/Props by 004; direct video, references,
+Chapter downloads and available post-processing by 005; UX by 006. Its five-history
+suggestion is superseded by configurable ten previous Full Story revisions. Its
+"video without Shot" wording means "video without First Frame".
+
+Dialogue-driven Scenes default to at least 60% spoken time, with purpose exemptions
+and user override. Exact architecture, ages and prop examples in this profile apply
+to that authored period story, not every Momelo Project or nationality.
 
 ## 1. Core Production Principle
 
@@ -13,7 +33,7 @@ Do not direct an image. **Direct an event.**
 
 Every shot must be designed as a continuous story action:
 
-**Story → Director Breakdown → Blocking → Emotional State → First Frame → Veo Prompt → Generate → Confirm → Next Shot**
+**Story -> Director Breakdown -> Blocking -> Emotional State -> optional First Frame -> Video Prompt -> Generate -> Confirm -> Next Shot**
 
 A shot should not exist only because it looks beautiful. It must move the story, emotion, relationship, mystery, or action forward.
 
@@ -107,7 +127,7 @@ Use an explicit image order in every prompt.
 
 **Image 1 = FIRST FRAME**
 
-- Literal starting frame of the video
+- Opening composition; literal starting frame only in a supported first-frame mode
 - Controls starting composition
 - Controls character position
 - Controls camera angle
@@ -129,7 +149,8 @@ Never leave the model to guess which image is the First Frame.
 
 ## 6. First Frame Workflow
 
-The First Frame is created **before** the Veo video prompt.
+When selected, the First Frame is prepared before final video submission. Direct
+video skips this image step and uses the selected model's Look reference contract.
 
 ### First Frame must be:
 
@@ -165,9 +186,9 @@ Example:
 
 ---
 
-## 7. Confirm First Frame Before Video Generation
+## 7. Confirm The Selected First Frame When Used
 
-Before generating video, verify:
+When a First Frame is used, verify:
 
 - correct character face
 - correct apparent age
@@ -182,13 +203,16 @@ Before generating video, verify:
 - architecture
 - screen direction
 
-Only after the First Frame passes do we create the Veo prompt.
+This image review applies only to the First Frame path. Look-only video compiles
+without a still-approval gate. Faceless/white previs uses its own Look references
+for final video identity; the still is not expected to contain finished faces.
 
 ---
 
 ## 8. Continuity Truth Rule
 
-Once a generated shot is usable, the **actual generated result becomes continuity truth**.
+Once the user selects and approves a usable Take, the **actual generated result
+becomes continuity truth**. Other completed alternatives do not change downstream Shots.
 
 If the result differs slightly from the original director plan but still works dramatically:
 
@@ -551,24 +575,27 @@ Define:
 
 Before image generation, state exactly which Look Sheets / environment references are required.
 
-### STEP 4 — User provides references
+### STEP 4 — Resolve Project references; user reviews
 
-Do not invent recurring character faces.
+Attach explicit approved Looks automatically. Ask for selection only if missing or
+ambiguous. Optional Expression, Environment views and Hero Props follow requirement
+004. Do not invent recurring main-character faces.
 
-### STEP 5 — Generate First Frame
+### STEP 5 — Optionally Generate First Frame
 
 9:16, action-ready, reference-driven.
 
-### STEP 6 — Confirm First Frame
+### STEP 6 — Confirm First Frame When Selected
 
 Check visual and story continuity.
 
-### STEP 7 — Write Veo Prompt
+### STEP 7 — Compile Selected Model Video Prompt
 
 Explicit reference order:
 
-- Image 1 = First Frame
-- Image 2 = Character Look Sheet (when supported by the selected workflow)
+- Image 1 = selected First Frame/composition when present
+- Next images = named Character Look Sheets, then optional Expression/Environment
+- In direct mode, omit composition and number actual references contiguously
 
 Include:
 
@@ -623,7 +650,7 @@ https://www.finearts.go.th/
 **Director first.  
 Emotion always.  
 Look Sheet before First Frame.  
-First Frame before Veo.  
+First Frame recommended; direct video remains available when supported.
 Image order must be explicit.  
 Age in every shot.  
 Main mansion = all wood.  

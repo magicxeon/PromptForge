@@ -8,21 +8,28 @@ import {
   type CinematicSetupDraft
 } from '../schemas/cinematicSchemas';
 
-export const CINEMATIC_DRAFT_SCHEMA_VERSION = 3;
+export const CINEMATIC_DRAFT_SCHEMA_VERSION = 4;
 
 export function createCinematicSetupDraft(now = new Date()): CinematicSetupDraft {
   return {
     clientDraftId: `cinedraft_${now.getTime().toString(36)}`,
     projectName: '',
-    format: 'short-film',
+    format: 'mini-series',
+    aspectRatio: '9:16',
     platform: 'tiktok',
-    durationSeconds: 30,
+    durationSeconds: 60,
+    seasonEnabled: false,
+    seasonCount: 1,
+    chapterCount: 1,
+    chaptersPerSeason: [1],
     storyBrief: '',
     creativeDirection: '',
     genre: 'drama',
+    genres: ['drama'],
     audienceFeeling: 'moved',
     pacing: 'balanced',
     storyCountryStyle: 'none',
+    storyPeriod: 'contemporary',
     endingIntent: 'resolved',
     mode: 'simple',
     castPlanningMode: 'ai-recommended',

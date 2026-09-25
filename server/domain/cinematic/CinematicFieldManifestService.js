@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { storyAuthoringConfiguration } from '../../config/cinematicStoryConfiguration.js';
+import { getPublicCinematicRewampConfiguration } from '../../config/cinematicRewampConfiguration.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -50,6 +51,7 @@ export class CinematicFieldManifestService {
       fingerprint: this.fingerprint,
       fields: this.manifest.fields,
       storyAuthoring: storyAuthoringConfiguration,
+      rewamp: getPublicCinematicRewampConfiguration(),
       readiness: this.readinessPolicy.stages
     });
   }

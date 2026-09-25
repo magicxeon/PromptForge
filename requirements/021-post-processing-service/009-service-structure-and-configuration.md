@@ -21,6 +21,10 @@ Add a service-scoped AGENTS.md that explains placement, dependency direction, ex
 - The dev launcher and direct service entry must use the same config loader.
   The launcher may mint a fresh token and choose a free loopback port, but
   cannot silently bypass an explicit disabled pilot setting.
+- The default Windows `scripts/start-dev.bat` workflow does not auto-start the
+  Post-Processing pilot while the capability is parked. It must pass the
+  launcher's explicit skip option, leave the Core client unconfigured, and
+  preserve direct launcher/service activation for future local work.
 - Policy/model changes require version updates and focused regression evidence.
   No editable configuration may turn an unqualified model into a production
   capability or override Core actor/Asset/Credit ownership.

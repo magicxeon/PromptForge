@@ -162,7 +162,7 @@ export class ModelArkSeedanceProvider {
       providerStatus: firstString(payload?.status, payload?.data?.status)
     });
     if (!response.ok) {
-      const error = normalizeModelArkHttpError(response.status, payload, operation);
+      const error = normalizeModelArkHttpError(response.status, payload, operation, init.body);
       error.providerCode = safeDiagnosticIdentifier(firstString(payload?.error?.code, payload?.code));
       error.providerRequestId = safeDiagnosticIdentifier(extractProviderRequestId(response, payload));
       throw error;
@@ -356,17 +356,23 @@ function normalizeModelArkStatus(value, { defaultStatus = null } = {}) {
 
 function normalizeTerminalProviderError(response, providerStatus) {
   const message = firstString(response?.error?.message, response?.message, response?.error_message) || `ModelArk video task ${providerStatus}.`;
+  const providerCode = firstString(response?.error?.code, response?.code);
+  const referenceIssue = parseModelArkReferenceIssue({
+    providerCode,
+    message
+  });
   return {
-    code: firstString(response?.error?.code, response?.code) || `video_provider_${providerStatus}`,
-    providerCode: safeDiagnosticIdentifier(firstString(response?.error?.code, response?.code)),
+    code: referenceIssue ? 'video_provider_input_image_rejected' : providerCode || `video_provider_${providerStatus}`,
+    providerCode: safeDiagnosticIdentifier(providerCode),
     providerRequestId: safeDiagnosticIdentifier(extractProviderRequestId(null, response)),
     category: 'provider',
     retryable: /internal|unavailable|timeout|rate|overload/i.test(message),
-    providerBillableState: 'unknown'
+    providerBillableState: 'unknown',
+    ...(referenceIssue ? { referenceIssue } : {})
   };
 }
 
-function normalizeModelArkHttpError(status, payload, operation) {
+function normalizeModelArkHttpError(status, payload, operation, requestBody) {
   const message = firstString(payload?.error?.message, payload?.message) || `ModelArk video ${operation} request failed.`;
   const providerCode = firstString(payload?.error?.code, payload?.code) || '';
   const code = /InputImageSensitiveContentDetected\.PrivacyInformation|may contain real person/i.test(`${providerCode} ${message}`)
@@ -382,12 +388,41 @@ function normalizeModelArkHttpError(status, payload, operation) {
     && status >= 400
     && status < 500
     && ![408, 409, 429].includes(status);
-  return providerError(
+  const error = providerError(
     code,
     message,
     status === 408 || status === 429 || status >= 500,
     knownSubmitRejection ? 'not_billable' : 'unknown'
   );
+  const contentTypes = requestContentTypes(requestBody);
+  const referenceIssue = parseModelArkReferenceIssue({
+    providerCode,
+    message,
+    contentTypes,
+    referenceCount: contentTypes.filter(type => type === 'image_url').length
+  });
+  if (referenceIssue) error.referenceIssue = referenceIssue;
+  return error;
+}
+
+export function parseModelArkReferenceIssue({ providerCode, message, contentTypes, referenceCount } = {}) {
+  if (!/InputImageSensitiveContentDetected\.PrivacyInformation|may contain real person/i.test(`${providerCode || ''} ${message || ''}`)) return null;
+  const match = String(message || '').match(/content\s*\[\s*(\d+)\s*\]/i);
+  const contentIndex = Number(match?.[1]);
+  if (!Number.isInteger(contentIndex) || contentIndex < 1) return null;
+  if (Array.isArray(contentTypes) && contentTypes[contentIndex] !== 'image_url') return null;
+  if (Number.isInteger(referenceCount) && contentIndex > referenceCount) return null;
+  return { contentIndex, referenceIndex: contentIndex - 1, reason: 'possible_real_person' };
+}
+
+function requestContentTypes(body) {
+  if (typeof body !== 'string' || !body) return [];
+  try {
+    const content = JSON.parse(body)?.content;
+    return Array.isArray(content) ? content.map(item => firstString(item?.type)) : [];
+  } catch {
+    return [];
+  }
 }
 
 function safeDiagnosticIdentifier(value) {

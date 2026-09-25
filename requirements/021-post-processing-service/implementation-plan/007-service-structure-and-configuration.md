@@ -12,6 +12,10 @@ QA/security review sequentially; no independent subagent available.
 4. **Done.** Inject one policy into API, mask and MediaPipe adapter; use its pinned
    artifact details in setupModel. Update standalone launcher and start-dev scripts to read the same config
    while retaining dynamic loopback port and fresh internal token.
+5. **Done.** Park automatic activation in the Windows development workflow:
+   `scripts/start-dev.bat` passes `--skip-post-processing`; the shared launcher
+   skips the Python dependency check/process and starts Core without a service
+   token. Direct `node scripts/start-dev.mjs` activation remains available.
 
 Focused checks: node scripts/test-post-processing.mjs --group=config,
 --group=api, --group=mask, --group=security and --group=all. These tests use

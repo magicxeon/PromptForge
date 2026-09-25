@@ -13,7 +13,19 @@ import { trustedGeneratedSourceService } from '../generation/TrustedGeneratedSou
 
 const GARMENT_ROLES = new Set(['full_look', 'upper', 'lower', 'outerwear', 'footwear', 'accessory']);
 const SOURCE_MODES = new Set(['character_default', 'uploaded', 'uploaded_character_sheet', 'ai_suggestion']);
-const LOOK_SHEET_RECIPE = loadPromptRecipe('character-looks/look-sheet.v2.json');
+const LEGACY_LOOK_SHEET_RECIPE = loadPromptRecipe('character-looks/look-sheet.v2.json');
+const SQUARE_LOOK_SHEET_RECIPE = loadPromptRecipe('character-looks/look-sheet.v3.json');
+const LOOK_SHEET_RECIPE = loadPromptRecipe('character-looks/look-sheet.v4.json');
+const GENERATION_STYLES = ['realistic', 'semi_realistic', 'illustration'];
+if (GENERATION_STYLES.some(style => typeof LOOK_SHEET_RECIPE.generationStyles?.[style] !== 'string'
+  || !LOOK_SHEET_RECIPE.generationStyles[style].trim()) || !LOOK_SHEET_RECIPE.styleAuthority?.trim()) {
+  throw new Error('Character Look generation style configuration is invalid.');
+}
+normalizeCropManifest(LOOK_SHEET_RECIPE.cropManifest);
+normalizeCropRegion(LOOK_SHEET_RECIPE.accessoryRegion, 'accessories');
+if (LOOK_SHEET_RECIPE.output?.aspectRatio !== '9:16' || LOOK_SHEET_RECIPE.output?.outputCount !== 1) {
+  throw new Error('Character Look portrait output configuration is invalid.');
+}
 const LOOK_SHEET_GENERATION_ENABLED = process.env.CHARACTER_LOOK_SHEET_GENERATION_ENABLED === undefined
   ? process.env.NODE_ENV !== 'production'
   : String(process.env.CHARACTER_LOOK_SHEET_GENERATION_ENABLED).toLowerCase() === 'true';
@@ -65,6 +77,7 @@ export class CharacterLookService {
     );
     const garmentAuthorities = normalizeGarmentAuthorities(input.garmentAuthorities);
     const sourceMode = normalizeSourceMode(input.sourceMode);
+    const generationStyle = normalizeGenerationStyle(input.generationStyle);
     const sourceSheetAssetId = sourceMode === 'uploaded_character_sheet'
       ? String(input.sourceSheetAssetId || '').trim()
       : '';
@@ -93,6 +106,8 @@ export class CharacterLookService {
       description: bounded(input.description, 1200, ''),
       tags: normalizeTags(input.tags),
       sourceMode,
+      ...(sourceMode !== 'uploaded_character_sheet'
+        ? { generationStyle, generationRecipeVersion: LOOK_SHEET_RECIPE.version } : {}),
       garmentAuthorities,
       sourceSheetAssetId: sourceSheetAssetId || null,
       authoritySnapshot: authority.assets,
@@ -174,7 +189,8 @@ export class CharacterLookService {
     }
     const look = await this.#assertOwnedLook(characterProfileId, lookId, actorContext);
     const version = look.versions.find(item => item.id === versionId);
-    if (!version || look.activeVersionId !== version.id || version.status !== 'source_ready') {
+    if (!version || look.activeVersionId !== version.id || version.status !== 'source_ready'
+      || ['uploaded_character_sheet', 'generated_character_sheet'].includes(version.sourceMode)) {
       throw new RepositoryContractError(
         'character_look_source_not_ready',
         'The active source-ready Character Look version is required.',
@@ -195,19 +211,27 @@ export class CharacterLookService {
       );
     }
     const wardrobeContract = compileWardrobeContract(look);
+    const generationStyle = normalizeGenerationStyle(version.generationStyle);
+    const recipe = LOOK_SHEET_RECIPE;
     const prompt = [
-      LOOK_SHEET_RECIPE.instruction,
+      recipe.instruction,
+      recipe.cropManifest ? `Layout bounds as percentages of the entire canvas (left, top, width, height): ${Object.entries({
+        ...recipe.cropManifest.regions, accessories: recipe.accessoryRegion
+      }).map(([role, region]) => `${role}: ${['x', 'y', 'width', 'height'].map(key => Math.round(region[key] * 100)).join(', ')}%`).join('; ')}. These bounds are layout instructions only; never print coordinates on the sheet.` : '',
       `Look name: ${bounded(look.name, 100, 'Untitled Look')}.`,
       look.description ? `Wardrobe direction: ${bounded(look.description, 1200, '')}.` : '',
       wardrobeContract,
-      'Output the requested wardrobe-locked Character Look Sheet, not a neutral identity turnaround. Do not simplify, omit, or replace the target outfit.'
+      'Output the requested wardrobe-locked Character Look Sheet, not a neutral identity turnaround. Do not simplify, omit, or replace the target outfit.',
+      recipe.generationStyles?.[generationStyle],
+      recipe.styleAuthority
     ].filter(Boolean).join(' ');
     return {
       operation: 'character_look_sheet',
+      generationStyle,
       recipe: {
-        id: LOOK_SHEET_RECIPE.id,
-        version: LOOK_SHEET_RECIPE.version,
-        fingerprint: LOOK_SHEET_RECIPE.fingerprint
+        id: recipe.id,
+        version: recipe.version,
+        fingerprint: recipe.fingerprint
       },
       prompt,
       references: wardrobeReferences,
@@ -221,12 +245,13 @@ export class CharacterLookService {
         characterType: authorization.characterType,
         outfitBehavior: 'replaceable'
       },
-      output: { aspectRatio: '1:1', outputCount: 1 },
+      output: structuredClone(recipe.output || { aspectRatio: '1:1', outputCount: 1 }),
       source: {
         characterProfileId,
         characterProfileVersionId: authorization.identityPack.characterProfileVersionId,
         lookId: look.id,
-        lookVersionId: version.id
+        lookVersionId: version.id,
+        generationStyle
       }
     };
   }
@@ -254,6 +279,9 @@ export class CharacterLookService {
     const resultContext = result.characterProfileContext || {};
     const resultSource = result.sceneTemplateSnapshot?.characterLookSource || {};
     const resultRecipe = result.sceneTemplateSnapshot?.promptRecipeSnapshot || {};
+    const generationStyle = normalizeGenerationStyle(version.generationStyle);
+    const recipe = resultRecipe.version === LOOK_SHEET_RECIPE.version
+      ? LOOK_SHEET_RECIPE : generationRecipe(version);
     if (resultContext.characterProfileId !== characterProfileId
       || resultContext.characterProfileVersionId !== look.sourceCharacterProfileVersionId
       || resultContext.sourceId !== look.id
@@ -261,9 +289,10 @@ export class CharacterLookService {
       || resultSource.characterProfileVersionId !== look.sourceCharacterProfileVersionId
       || resultSource.lookId !== look.id
       || resultSource.lookVersionId !== version.id
-      || resultRecipe.id !== LOOK_SHEET_RECIPE.id
-      || resultRecipe.version !== LOOK_SHEET_RECIPE.version
-      || resultRecipe.fingerprint !== LOOK_SHEET_RECIPE.fingerprint) {
+      || (resultSource.generationStyle ?? 'realistic') !== generationStyle
+      || resultRecipe.id !== recipe.id
+      || resultRecipe.version !== recipe.version
+      || resultRecipe.fingerprint !== recipe.fingerprint) {
       throw new RepositoryContractError(
         'character_look_generation_context_mismatch',
         'The generated Look Sheet does not belong to this Character Look version.',
@@ -295,9 +324,10 @@ export class CharacterLookService {
           characterProfileVersionId: look.sourceCharacterProfileVersionId,
           characterLookId: look.id,
           characterLookVersionId: version.id,
-          recipeId: LOOK_SHEET_RECIPE.id,
-          recipeVersion: LOOK_SHEET_RECIPE.version,
-          recipeFingerprint: LOOK_SHEET_RECIPE.fingerprint
+          generationStyle,
+          recipeId: recipe.id,
+          recipeVersion: recipe.version,
+          recipeFingerprint: recipe.fingerprint
         }
       }, actor);
     }
@@ -307,22 +337,24 @@ export class CharacterLookService {
     }, actor);
     const contentHash = authority.assets[0]?.contentHash || null;
     const recordedAt = new Date().toISOString();
+    const sheetManifest = recipe.cropManifest || GENERATED_SHEET_MANIFEST;
     const approvedViewAssets = Object.fromEntries(['front', 'side', 'back'].map(role => [
       role,
-      { assetId: asset.id, contentHash, cropRegion: GENERATED_SHEET_MANIFEST.regions[role] }
+      { assetId: asset.id, contentHash, cropRegion: sheetManifest.regions[role] }
     ]));
     return toProjection(await this.repository.attachReview(look.id, version.id, {
       approvedViewAssets,
       approvedSheetAsset: { assetId: asset.id, contentHash },
-      cropManifest: GENERATED_SHEET_MANIFEST,
+      cropManifest: sheetManifest,
       generationLineage: {
         source: 'generation_result',
         generationResultId: result.id,
         provider: result.provider || null,
         model: result.submodel || result.model || null,
-        recipeId: LOOK_SHEET_RECIPE.id,
-        recipeVersion: LOOK_SHEET_RECIPE.version,
-        recipeFingerprint: LOOK_SHEET_RECIPE.fingerprint
+        generationStyle,
+        recipeId: recipe.id,
+        recipeVersion: recipe.version,
+        recipeFingerprint: recipe.fingerprint
       },
       provenance: {
         kind: 'system_generated',
@@ -331,9 +363,9 @@ export class CharacterLookService {
         sourceAssetIds: [asset.id],
         generationResultId: result.id,
         generationJobId: result.id,
-        recipeId: LOOK_SHEET_RECIPE.id,
-        recipeVersion: LOOK_SHEET_RECIPE.version,
-        recipeFingerprint: LOOK_SHEET_RECIPE.fingerprint,
+        recipeId: recipe.id,
+        recipeVersion: recipe.version,
+        recipeFingerprint: recipe.fingerprint,
         provider: result.provider || null,
         model: result.submodel || result.model || null,
         recordedAt
@@ -656,6 +688,19 @@ function bounded(value, maximum, fallback) {
   return normalized ? normalized.slice(0, maximum) : fallback;
 }
 
+function normalizeGenerationStyle(value = 'realistic') {
+  if (!GENERATION_STYLES.includes(value)) {
+    throw new RepositoryContractError('character_look_generation_style_invalid', 'Unknown Character Look generation style.', 400);
+  }
+  return value;
+}
+
+function generationRecipe(version) {
+  // Unpinned records retain their original recipe so pending jobs remain adoptable.
+  if (version.generationRecipeVersion === LOOK_SHEET_RECIPE.version) return LOOK_SHEET_RECIPE;
+  return version.generationStyle === undefined ? LEGACY_LOOK_SHEET_RECIPE : SQUARE_LOOK_SHEET_RECIPE;
+}
+
 function resolveWardrobeReferences(authorities = {}) {
   const ordered = ['full_look', 'upper', 'lower', 'outerwear', 'footwear', 'accessory'];
   const entries = ordered.map(role => authorities?.[role]).filter(Boolean);
@@ -728,6 +773,7 @@ function projectVersion(record, version) {
   };
   return {
     ...version,
+    generationStyle: version.generationStyle ?? 'realistic',
     provenance,
     identityAssurance,
     rightsDeclaration: version.rightsDeclaration || null,

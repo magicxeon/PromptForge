@@ -37,12 +37,10 @@ describe('CinematicSetupForm', () => {
     expect(screen.getByRole('button', { name: 'cinematic.actions.continueToCast' })).toBeEnabled();
   });
 
-  it('keeps authoring mode in the page header and delegates the canonical draft update', () => {
-    const onUpdate = vi.fn();
-    renderForm({}, { onUpdate });
-    const mode = screen.getByLabelText('cinematic.setup.authoringMode');
-    fireEvent.click(within(mode).getByRole('button', { name: 'cinematic.mode.advanced' }));
-    expect(onUpdate).toHaveBeenCalledWith('mode', 'advanced');
+  it('uses one authoring mode without exposing the legacy control-level selector', () => {
+    renderForm();
+    expect(screen.queryByLabelText('cinematic.setup.authoringMode')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'cinematic.mode.advanced' })).not.toBeInTheDocument();
   });
 
   it('keeps Setup actions in the normal document flow', () => {

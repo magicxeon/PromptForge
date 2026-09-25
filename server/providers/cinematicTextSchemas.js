@@ -258,3 +258,39 @@ export const CINEMATIC_SCENE_DIRECTION_SCHEMA = Object.freeze({
     warnings: { type: 'array', maxItems: 12, items: { type: 'string' } }
   }
 });
+
+export const CINEMATIC_SCENE_SHOTS_SCHEMA = Object.freeze({
+  type: 'object',
+  additionalProperties: false,
+  required: ['shots', 'warnings'],
+  properties: {
+    shots: {
+      type: 'array',
+      minItems: 1,
+      maxItems: 24,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['title', 'purpose', 'durationMs', 'shotDocument', 'characterIds'],
+        properties: {
+          title: { type: 'string' },
+          purpose: { type: 'string' },
+          durationMs: { type: 'integer', minimum: 500, maximum: 20000 },
+          shotDocument: { type: 'string' },
+          characterIds: { type: 'array', maxItems: 24, items: { type: 'string' } }
+        }
+      }
+    },
+    warnings: { type: 'array', maxItems: 8, items: { type: 'string' } }
+  }
+});
+
+export const CINEMATIC_SCENE_ENVIRONMENT_SCHEMA = Object.freeze({
+  type: 'object',
+  additionalProperties: false,
+  required: ['environmentPrompt', 'warnings'],
+  properties: {
+    environmentPrompt: { type: 'string' },
+    warnings: { type: 'array', maxItems: 8, items: { type: 'string' } }
+  }
+});

@@ -1,5 +1,6 @@
 import { apiRequest } from '../../../lib/api/apiClient';
 import { getOwnCreatorProfileLocator } from '../../../lib/auth/creatorProfileLocator';
+import type { CharacterLookGenerationStyle } from '../schemas/profileSchemas';
 import {
   characterDetailSchema,
   characterDeletionSchema,
@@ -107,6 +108,7 @@ export function createCharacterLookDraft(characterProfileId: string, input: {
   name: string;
   description?: string;
   sourceMode: 'character_default' | 'uploaded' | 'uploaded_character_sheet' | 'ai_suggestion';
+  generationStyle?: CharacterLookGenerationStyle;
   garmentAuthorities?: Record<string, Record<string, string>>;
   sourceSheetAssetId?: string | null;
   suggestionSnapshot?: Record<string, unknown> | null;

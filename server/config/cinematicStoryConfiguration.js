@@ -16,14 +16,10 @@ export function validateStoryAuthoring(value) {
     }
   }
   const styles = value.countryStyles;
-  if (!styles || !Array.isArray(styles.options) || !styles.options.length || styles.options.length > 30
-    || new Set(styles.options.map(option => option.id)).size !== styles.options.length
-    || !styles.options.some(option => option.id === styles.default)
-    || styles.options.some(option => !/^[a-z][a-z0-9-]{0,39}$/.test(option.id)
-      || (option.flag !== null && !/^[a-z]{2}$/.test(option.flag))
-      || typeof option.guidance !== 'string' || !option.guidance.trim() || option.guidance.length > 1200)) {
+  if (!validGuidanceOptions(styles, { flags: true })) {
     throw new TypeError('Invalid story country styles.');
   }
+  if (!validGuidanceOptions(value.periods)) throw new TypeError('Invalid story periods.');
   return structuredClone(value);
 }
 
@@ -36,7 +32,11 @@ export function validateCinematicTextModelDefaults(value) {
     if (!policy || !/^[a-z0-9][a-z0-9._-]{0,119}$/i.test(policy.model || '')
       || !['none', 'minimal', 'low', 'medium', 'high', 'xhigh'].includes(policy.reasoningEffort)
       || !Number.isInteger(policy.maxOutputTokens) || policy.maxOutputTokens < 1 || policy.maxOutputTokens > 32000) throw new TypeError('Invalid Cinematic text model.');
-    for (const field of key === 'enhancement' ? ['timeoutMs'] : ['generationTimeoutMs', 'repairTimeoutMs']) {
+    if (key === 'enhancement' && (!/^[a-z0-9][a-z0-9._-]{0,119}$/i.test(policy.fallbackModel || '')
+      || !['low', 'medium', 'high'].includes(policy.fallbackReasoningEffort))) {
+      throw new TypeError('Invalid Cinematic text fallback model.');
+    }
+    for (const field of key === 'enhancement' ? ['timeoutMs', 'longFormTimeoutMs'] : ['generationTimeoutMs', 'repairTimeoutMs']) {
       if (!Number.isInteger(policy[field]) || policy[field] < 1000 || policy[field] > 300000) throw new TypeError('Invalid Cinematic text timeout.');
     }
   }
@@ -50,7 +50,11 @@ export function normalizeStoryIntent(input = {}, configuration = storyAuthoringC
   if (!configuration.countryStyles.options.some(option => option.id === style)) {
     throw Object.assign(new Error('Select a configured story country style.'), { code: 'cinematic_story_intent_invalid', statusCode: 400 });
   }
-  const result = { storyCountryStyle: style };
+  const period = input.storyPeriod ?? configuration.periods.default;
+  if (!configuration.periods.options.some(option => option.id === period)) {
+    throw Object.assign(new Error('Select a configured story period.'), { code: 'cinematic_story_intent_invalid', statusCode: 400 });
+  }
+  const result = { storyCountryStyle: style, storyPeriod: period };
   for (const [key, scalar] of [['genres', 'genre'], ['audienceFeelings', 'audienceFeeling'], ['pacingTraits', 'pacing']]) {
     const rule = configuration.choices[key];
     const selected = input[key] === undefined
@@ -69,4 +73,18 @@ export function normalizeStoryIntent(input = {}, configuration = storyAuthoringC
 export function storyCountryStyleGuidance(input = {}) {
   const { storyCountryStyle } = normalizeStoryIntent(input);
   return storyAuthoringConfiguration.countryStyles.options.find(option => option.id === storyCountryStyle).guidance;
+}
+
+export function storyPeriodGuidance(input = {}) {
+  const { storyPeriod } = normalizeStoryIntent(input);
+  return storyAuthoringConfiguration.periods.options.find(option => option.id === storyPeriod).guidance;
+}
+
+function validGuidanceOptions(value, { flags = false } = {}) {
+  return value && Array.isArray(value.options) && value.options.length > 0 && value.options.length <= 30
+    && new Set(value.options.map(option => option.id)).size === value.options.length
+    && value.options.some(option => option.id === value.default)
+    && value.options.every(option => /^[a-z][a-z0-9-]{0,39}$/.test(option.id)
+      && (!flags || option.flag === null || /^[a-z]{2}$/.test(option.flag))
+      && typeof option.guidance === 'string' && option.guidance.trim() && option.guidance.length <= 1200);
 }

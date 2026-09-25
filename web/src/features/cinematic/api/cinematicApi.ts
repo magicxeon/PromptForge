@@ -4,11 +4,12 @@ import {
   cinematicPromptPreflightSchema,
   cinematicProjectSchema,
   cinematicProjectListResponseSchema,
-  cinematicProjectSummarySchema,
+  cinematicProjectLibrarySummarySchema,
   cinematicProduceShotContextSchema,
   cinematicVideoAttemptResponseSchema,
   cinematicVideoQuoteSchema,
   cinematicStoryEnhancementSchema,
+  cinematicFullStoryProposalSchema,
   cinematicWardrobeSuggestionSchema,
   cinematicStoryPlanProposalSchema,
   cinematicStoryPlanLiveProgressSchema,
@@ -16,13 +17,20 @@ import {
   cinematicApprovedStoryboardSourceSchema,
   cinematicStoryboardGenerationContextSchema,
   cinematicSceneEnvironmentContextSchema,
+  cinematicSceneEnvironmentProposalSchema,
   cinematicSceneEnvironmentImagesSchema,
   cinematicStoryboardBatchResponseSchema,
   cinematicAuthoringManifestSchema,
   cinematicDataLineageSchema
 } from '../schemas/cinematicSchemas';
+import { cinematicChapterProposalMutationSchema } from '../schemas/cinematicSeriesSchemas';
 import { apiRequest, apiRequestWithProgress } from '../../../lib/api/apiClient';
-import type { CinematicSetupDraft, CinematicStoryPlanLiveProgress } from '../schemas/cinematicSchemas';
+import type {
+  CinematicSetupDraft,
+  CinematicFullStoryProposal,
+  CinematicStoryEnhancement,
+  CinematicStoryPlanLiveProgress
+} from '../schemas/cinematicSchemas';
 import type { CinematicStage } from '../cinematicStages';
 import { videoCapabilityCatalogSchema } from '../../generation/schemas/videoGenerationSchemas';
 import {
@@ -40,8 +48,12 @@ export const cinematicApiSchemas = {
   projectList: cinematicProjectListResponseSchema
 } as const;
 
-export type CinematicProjectSummary = z.infer<typeof cinematicProjectSummarySchema>;
+export type CinematicProjectSummary = z.infer<typeof cinematicProjectLibrarySummarySchema>;
 export type CinematicProjectListResponse = z.infer<typeof cinematicProjectListResponseSchema>;
+export type CinematicStoryPreparationContext = Pick<
+  CinematicStoryEnhancement,
+  'enhancementId' | 'provenance' | 'billingStatus'
+>;
 
 export function listCinematicProjects() {
   return apiRequest(cinematicApiPaths.projects, { schema: cinematicProjectListResponseSchema });
@@ -80,10 +92,15 @@ export function getCinematicDataLineage(projectId: string, scope: { sceneId?: st
   });
 }
 
-export function createCinematicProject(draft: CinematicSetupDraft) {
+export function createCinematicProject(
+  draft: CinematicSetupDraft,
+  creationIntent: 'draft' | 'prepare-story' = 'draft',
+  storyPreparation?: CinematicStoryPreparationContext,
+  storyImport?: { fileName: string; content: string }
+) {
   return apiRequest(cinematicApiPaths.projects, {
     method: 'POST',
-    body: draft,
+    body: { ...draft, creationIntent, ...(storyPreparation ? { storyPreparation } : {}), ...(storyImport ? { storyImport } : {}) },
     schema: cinematicProjectSchema
   });
 }
@@ -104,6 +121,38 @@ export function enhanceCinematicStory(draft: CinematicSetupDraft, purpose: 'stor
   });
 }
 
+export function proposeCinematicFullStory(projectId: string, expectedVersion: number, revisionInstruction: string, purpose?: 'characters') {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/proposals`, {
+    method: 'POST', body: { expectedVersion, revisionInstruction, ...(purpose ? { purpose } : {}) }, schema: cinematicFullStoryProposalSchema
+  });
+}
+
+export function saveCinematicFullStoryRevision(projectId: string, input: {
+  expectedVersion: number;
+  content: string;
+  source: 'manual' | 'ai' | 'restore';
+  revisionInstruction?: string;
+  provenance?: { provider: string; model: string; responseId: string | null } | null;
+  characters?: CinematicFullStoryProposal['characters'];
+  importFileName?: string;
+}) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/revisions`, {
+    method: 'POST', body: input, schema: cinematicProjectSchema
+  });
+}
+
+export function confirmCinematicFullStoryRevision(projectId: string, expectedVersion: number, revisionId: string) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/confirm`, {
+    method: 'POST', body: { expectedVersion, revisionId }, schema: cinematicProjectSchema
+  });
+}
+
+export function generateCinematicFullStoryChapters(projectId: string, expectedVersion: number) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/chapters`, {
+    method: 'POST', body: { expectedVersion }, schema: cinematicChapterProposalMutationSchema
+  });
+}
+
 export function suggestCinematicWardrobe(projectId: string, assignmentId: string) {
   return apiRequest(
     `${cinematicApiPaths.project(projectId)}/cast/${encodeURIComponent(assignmentId)}/wardrobe-suggestion`,
@@ -121,7 +170,7 @@ export function updateCinematicStage(projectId: string, stage: CinematicStage, e
 
 export function upsertCinematicCast(projectId: string, assignmentId: string, input: {
   expectedVersion: number;
-  sourceType?: 'character' | 'generated_sheet';
+  sourceType?: 'character' | 'generated_sheet' | 'dossier';
   generationId?: string;
   sheetConfirmed?: boolean;
   characterProfileId?: string | null;
@@ -340,6 +389,13 @@ export function saveCinematicSceneEnvironment(projectId: string, sceneId: string
   expectedVersion: number; expectedSceneVersion: number; environmentPrompt?: string; referenceEnabled?: boolean;
 }) {
   return apiRequest(cinematicEnvironmentPath(projectId, sceneId), { method: 'PATCH', body: input, schema: cinematicProjectSchema });
+}
+export function proposeCinematicSceneEnvironment(projectId: string, sceneId: string, input: {
+  expectedVersion: number; expectedSceneVersion: number; currentDirection?: string;
+}) {
+  return apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/proposals`, {
+    method: 'POST', body: input, schema: cinematicSceneEnvironmentProposalSchema
+  });
 }
 export function listCinematicSceneEnvironmentImages(projectId: string, sceneId: string, cursor: string | null = null) {
   const query = new URLSearchParams({ limit: '12', ...(cursor ? { cursor } : {}) });

@@ -3,16 +3,18 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
 import type { VideoModelCapability } from '../../generation/schemas/videoGenerationSchemas';
+import type { VideoReferenceIssue } from '../../generation/schemas/videoGenerationSchemas';
 import { PlaygroundVideoSources } from './PlaygroundVideoSources';
 import { TrustedVideoSources } from './TrustedVideoSources';
 import { VideoImageReferenceSources } from './VideoImageReferenceSources';
 import { selectedLooks, selectedTrustedLooks, type VideoReferenceSelection } from './videoReferenceSelection';
 
-export function VideoLookSheetSources({ value, model, onChange, onBusy }: {
+export function VideoLookSheetSources({ value, model, onChange, onBusy, referenceIssue }: {
   value: VideoReferenceSelection;
   model: VideoModelCapability | null;
   onChange: (patch: Partial<VideoReferenceSelection>) => void;
   onBusy: (busy: boolean) => void;
+  referenceIssue?: VideoReferenceIssue | null;
 }) {
   const { t } = useTranslation('playground');
   const [adding, setAdding] = useState(false);
@@ -43,18 +45,29 @@ export function VideoLookSheetSources({ value, model, onChange, onBusy }: {
       setAdding(false);
     } else onChange(patch);
   }
-  if (value.operation === 'image_to_video') return <VideoImageReferenceSources value={value} model={model} onChange={onChange} onBusy={onBusy} />;
+  if (value.operation === 'image_to_video') return <VideoImageReferenceSources value={value} model={model} onChange={onChange} onBusy={onBusy}
+    referenceIssue={referenceIssue} />;
   return <div className="video-look-sheet-list">
-    {Array.from({ length: rows }, (_, index) => <fieldset disabled={busy} key={index} className={index ? 'video-look-sheet-list__additional' : undefined}>
+    {Array.from({ length: rows }, (_, index) => {
+      const frameIndex = frameCount ? 0 : -1;
+      const lookIndex = frameCount + index;
+      const characterIndex = frameCount;
+      return <fieldset disabled={busy} key={index} className={index ? 'video-look-sheet-list__additional' : undefined}>
       {trusted ? <TrustedVideoSources withLook={withLook} frame={value.trustedFrame || null}
         look={trustedLooks[index] || null} lookOnly={index > 0 || model?.firstFrameEnabled === false} characterNumber={index + 1}
+        invalidFrame={index === 0 && referenceIssue?.referenceIndex === frameIndex}
+        invalidLook={referenceIssue?.referenceIndex === lookIndex}
         excludedIds={trustedLooks.filter((_, i) => i !== index).map(item => item.id)}
         onChange={patch => change(index, patch)} />
         : <PlaygroundVideoSources value={{ ...value, lookSheet: looks[index] || null }}
           lookOnly={index > 0 || model?.firstFrameEnabled === false} characterNumber={index + 1}
+          invalidFrame={index === 0 && referenceIssue?.referenceIndex === frameIndex}
+          invalidLook={Boolean(looks[index]) && referenceIssue?.referenceIndex === lookIndex}
+          invalidCharacter={index === 0 && Boolean(value.character) && !looks.length
+            && referenceIssue?.referenceIndex === characterIndex}
           excludedUrls={looks.filter((_, i) => i !== index).map(item => item.url)}
           onBusy={reportBusy} onChange={patch => change(index, patch)} />}
-    </fieldset>)}
+    </fieldset>})}
     {withLook && model?.supportsOrderedImageReferences ? <div className="playground-video-references__actions">
       <Button icon={adding ? <X /> : <Plus />} disabled={busy || (!adding && (count === 0 || count + frameCount >= limit || Boolean(value.character)))}
         onClick={() => setAdding(current => !current)}>

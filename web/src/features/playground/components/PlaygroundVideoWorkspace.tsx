@@ -61,6 +61,7 @@ type VideoDraft = {
   trustedFrame: TrustedVideoSource | null;
   trustedLook: TrustedVideoSource | null;
   activeTaskId: string | null;
+  dismissedReferenceIssueTaskId?: string | null;
   recentExpanded: boolean;
 };
 
@@ -79,6 +80,7 @@ const EMPTY_DRAFT: VideoDraft = {
   trustedFrame: null,
   trustedLook: null,
   activeTaskId: null,
+  dismissedReferenceIssueTaskId: null,
   recentExpanded: true
 };
 
@@ -169,7 +171,7 @@ function PlaygroundVideoSession() {
     onSuccess: submitted => {
       submissionKeyRef.current = null;
       setTaskId(submitted.id);
-      setDraft(current => ({ ...current, activeTaskId: submitted.id }));
+      setDraft(current => ({ ...current, activeTaskId: submitted.id, dismissedReferenceIssueTaskId: null }));
       void queryClient.invalidateQueries({ queryKey: ['credits'] });
       void queryClient.invalidateQueries({ queryKey: ['video-tasks', actor?.userId] });
       void queryClient.invalidateQueries({ queryKey: queryKeys.generationJobCenter(actor?.userId || 'loading') });
@@ -207,6 +209,12 @@ function PlaygroundVideoSession() {
   }, [selectedModel]);
 
   const activeTask = task.data || submit.data;
+  const referenceIssue = activeTask?.id !== draft.dismissedReferenceIssueTaskId
+    && activeTask?.providerError?.code === 'video_provider_input_image_rejected'
+    && activeTask.providerError.referenceIssue
+    && activeTask.providerError.referenceIssue.referenceIndex < referencePlan.references.length
+    ? activeTask.providerError.referenceIssue
+    : null;
   const viewerItems = useMemo(() => {
     const byId = new Map<string, VideoTask>();
     for (const item of recent.data?.items || []) byId.set(item.id, item);
@@ -240,6 +248,8 @@ function PlaygroundVideoSession() {
   const loading = submit.isPending || Boolean(activeTask && !TERMINAL.has(activeTask.status));
   const providerErrorMessage = activeTask?.providerError?.code === 'ModelNotOpen'
     ? t('playground.video.providerError.modelNotOpen')
+    : referenceIssue?.reason === 'possible_real_person'
+      ? t('playground.video.providerError.possibleRealPerson', { number: referenceIssue.referenceIndex + 1 })
     : activeTask?.providerError?.providerCode || activeTask?.providerError?.code || null;
   const errorMessage = submit.error?.message
     || task.error?.message
@@ -341,7 +351,7 @@ function PlaygroundVideoSession() {
         primaryLabel={t('playground.video.promptTitle')}
         primaryDescription={t('playground.video.promptDescription')}
         primaryPlaceholder={t('playground.video.promptPlaceholder')}
-        primaryMaxLength={4000}
+        primaryMaxLength={capabilities.data?.promptMaximumCharacters ?? 8000}
         showNegative={false}
         inputId="playground-video-prompt"
         primaryFooter={(
@@ -363,7 +373,11 @@ function PlaygroundVideoSession() {
               </div>
             </fieldset>
             {draft.operation !== 'text_to_video' ? <VideoLookSheetSources key={`${draft.operation}:${draft.providerModelKey}`}
-              model={selectedModel} value={draft} onChange={patch => setDraft(current => ({ ...current, ...patch }))} onBusy={setUploading} /> : null}
+              model={selectedModel} value={draft} referenceIssue={referenceIssue}
+              onChange={patch => {
+                setDraft(current => ({ ...current, ...patch,
+                  ...(activeTask?.id && referenceIssue ? { dismissedReferenceIssueTaskId: activeTask.id } : {}) }));
+              }} onBusy={setUploading} /> : null}
             <div className="playground-video-reference-summary">
               {t('playground.video.references.summary', { mode: referencePlan.inputMode, count: referencePlan.references.length })}
               {referencePlan.references.map((reference, index) => <div key={`${reference.purpose}:${index}`}>

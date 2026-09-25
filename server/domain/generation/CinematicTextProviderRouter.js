@@ -33,6 +33,10 @@ export class CinematicTextProviderRouter {
     return this.execute('generateCinematicSceneDirection', args);
   }
 
+  generateCinematicSceneShots(args) {
+    return this.execute('generateCinematicSceneShots', args);
+  }
+
   async execute(method, args) {
     const workflow = workflowForMethod(method);
     if (this.fallbackActive) return this.executeFallback(method, args, this.fallbackReason, null, workflow);
@@ -86,6 +90,12 @@ export class CinematicTextProviderRouter {
     } catch (error) {
       error.fallbackAttempted = true;
       error.primaryFailureCode = safeCode(primaryError?.code);
+      error.details = {
+        ...(error.details && typeof error.details === 'object' ? error.details : {}),
+        fallbackAttempted: true,
+        primaryFailureCode: safeCode(primaryError?.code),
+        fallbackFailureCode: safeCode(error?.code)
+      };
       throw error;
     }
   }
@@ -126,6 +136,7 @@ function fallbackReason(error) {
 }
 
 function workflowForMethod(method) {
+  if (method === 'generateCinematicSceneShots') return 'ai.story_enhancement';
   return method === 'generateCinematicSceneDirection'
     ? 'ai.scene_direction'
     : 'ai.story_plan';

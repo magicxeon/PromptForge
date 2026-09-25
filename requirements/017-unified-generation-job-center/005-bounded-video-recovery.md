@@ -292,3 +292,75 @@ one explicit recheck, cooldown, retained media/draft and reduced motion.
 Final artifacts: C:/Users/punya/AppData/Local/Temp/mpf-cinematic-pilot-otHtQA.
 This closes the isolated responsive recovery-control defect above. Full live
 AppShell/provider UAT remains separate. No live mutation or restart.
+
+## 2026-09-22 Session-Independent Recovery Follow-Up
+
+### Incident
+
+`videotask_0309ca0296972a8b6bb6` reached provider success and persisted an
+owner-scoped MP4, but remained `media_retry_pending` because `ffprobe` was not
+available. Browser polling ended with the development session, while startup
+recovery ran only once. The durable Task and output remained intact, but Credit
+settlement could not close and the UI continued to treat the Task as active.
+
+### Required Behavior
+
+1. Core shall run the existing bounded `resumeRecoverable` use case on a
+   configurable server-owned interval after startup. Closing or refreshing a
+   browser must not pause provider status checks, media persistence, cutoff, or
+   settlement while the server process remains available.
+2. Only one sweep may run at a time. The existing repository batch bound,
+   per-Task flight coalescing, retry backoff, deadline and error budgets remain
+   authoritative. A sweep never submits a replacement provider Task.
+3. Before Quote, Credit reservation, or provider submission, Video preflight
+   shall verify that the configured `ffprobe` and `ffmpeg` executables are
+   callable. Missing local media prerequisites fail with stable non-billable
+   errors and no provider side effect.
+4. Provider waiting remains governed by the persisted provider-stage deadline.
+   Media repair remains governed by the persisted media-stage deadline. At a
+   cutoff the Task becomes `reconciliation_required`, stops automatic loading,
+   retains all provider/output/usage/reservation evidence, and is not silently
+   captured or refunded.
+5. Recovery of an already persisted provider success must reuse that Task and
+   Asset. It must not download or generate a second output. Completion settles
+   the existing reservation idempotently through Credits.
+6. Runtime configuration owns the sweep interval and executable paths. Invalid
+   intervals fall back to a bounded default; secrets, prompts, provider URLs and
+   media bytes are never logged.
+
+### Ordered Implementation
+
+1. Add cached Assets media-tool readiness checks and call them from the existing
+   Video provider preflight before pricing or dispatch.
+2. Add a focused Generation recovery monitor that invokes only
+   `VideoGenerationApplicationService.resumeRecoverable`; bootstrap and stop it
+   from the server lifecycle without introducing another repository or Queue.
+3. Add fake-timer/coalescing and missing-tool tests, then run the existing
+   `scripts/test-video-recovery.mjs recovery` group.
+4. Repair the incident Task from its retained immutable file and measured media
+   evidence, then invoke the canonical Credit settlement path. Record no manual
+   balance mutation and no new provider request.
+
+### Acceptance
+
+- A Task completes after the browser closes when the server remains running.
+- A long-running Task is checked according to backoff and becomes review-required
+  at its existing cutoff instead of loading forever.
+- Missing `ffprobe` or `ffmpeg` blocks a new Quote before Credits/provider work.
+- The incident Task is `completed`, its existing reservation is `captured`, and
+  its provider Task ID and output Asset ID remain unchanged.
+
+### Implementation Evidence
+
+- `VideoRecoveryMonitor` runs the existing bounded recovery facade every 15
+  seconds by default, prevents overlapping sweeps and is stopped with the server.
+- Video preflight verifies configured FFprobe and FFmpeg executables before the
+  adapter, Credit reservation or provider submission. Tool checks are cached for
+  30 seconds to avoid adding process cost to every request.
+- Focused recovery validation passed 45 media/recovery tests and 5 lifecycle
+  tests, including monitor coalescing, readiness failures and existing cutoff
+  behavior.
+- `videotask_0309ca0296972a8b6bb6` was resumed through the canonical poll and
+  settlement path without a new provider submission. It is now `completed` and
+  reservation `rsv_1790071194443_jb03h1j` is `captured`; provider Task
+  `cgt-20260922175956-v3os1` and Asset `ast_1790071803664_wry2xti6` were reused.

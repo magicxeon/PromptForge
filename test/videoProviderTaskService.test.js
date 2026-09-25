@@ -51,6 +51,25 @@ async function fixture(script) {
   return { directory, repository, service: new VideoProviderTaskService({ repository, adapter, mediaPersister }), cleanedOutputs };
 }
 
+test('Video preflight verifies local media tools before adapter or provider work', async () => {
+  let adapterPreflights = 0;
+  const service = new VideoProviderTaskService({
+    capabilityRegistry: { validateRequest: () => ({ providerId: 'modelark', modelId: 'seedance' }) },
+    adapter: { async preflight() { adapterPreflights += 1; } },
+    mediaPersister: {
+      async assertReady() {
+        throw Object.assign(new Error('FFprobe missing'), {
+          code: 'video_probe_ffprobe_unavailable', category: 'media', retryable: false
+        });
+      }
+    }
+  });
+  await assert.rejects(service.preflightTask(request, { allowTesting: true }), {
+    code: 'video_probe_ffprobe_unavailable'
+  });
+  assert.equal(adapterPreflights, 0);
+});
+
 test('research video task is idempotent, survives repository restart and completes after durable media', async t => {
   const { directory, repository, service } = await fixture([
     { providerStatus: 'provider_processing' },
@@ -253,7 +272,8 @@ test('rejected URL submission keeps safe support IDs and never resubmits or stor
     throw Object.assign(new Error('private URL must not persist'), {
       code: 'video_provider_input_image_rejected', category: 'provider', retryable: false,
       providerCode: 'InputImageSensitiveContentDetected.PrivacyInformation',
-      providerRequestId: 'provider-request-123', providerBillableState: 'not_billable'
+      providerRequestId: 'provider-request-123', providerBillableState: 'not_billable',
+      referenceIssue: { contentIndex: 2, referenceIndex: 1, reason: 'possible_real_person' }
     });
   };
   const input = { ...request, referenceImage: 'https://storage.example/image?signature=SECRET',
@@ -265,6 +285,8 @@ test('rejected URL submission keeps safe support IDs and never resubmits or stor
   assert.equal(result.status, 'failed');
   assert.equal(result.providerError.providerRequestId, 'provider-request-123');
   assert.equal(result.providerError.providerCode, 'InputImageSensitiveContentDetected.PrivacyInformation');
+  assert.deepEqual(result.providerError.referenceIssue,
+    { contentIndex: 2, referenceIndex: 1, reason: 'possible_real_person' });
   assert.deepEqual(result.submittedRequest.referenceTransport, { mode: 'gcs_url', fallbackCode: null });
   assert.doesNotMatch(JSON.stringify(result), /SECRET|private URL must not persist/);
 });

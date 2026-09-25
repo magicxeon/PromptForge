@@ -41,7 +41,11 @@ export class ReferencePolicyRegistry {
     return [...(this.policy.domainPriorities[domain] || [])];
   }
 
-  getReferenceOrder(providerId, modelId) {
+  getReferenceOrder(providerId, modelId, context = {}) {
+    const surfaceKey = [context.generationSurface, context.generationMode].filter(Boolean).join('/');
+    if (surfaceKey && this.policy.surfaceReferenceOrders?.[surfaceKey]) {
+      return [...this.policy.surfaceReferenceOrders[surfaceKey]];
+    }
     const exact = `${providerId}/${modelId}`;
     const providerWildcard = `${providerId}/*`;
     const override = this.policy.providerOverrides[exact]
@@ -124,6 +128,13 @@ function validatePolicy(policy, knownProcessorIds) {
     if (!REFERENCE_ROLES.includes(role)) {
       invalid(`defaultReferenceOrder uses unknown role ${role}.`);
     }
+  }
+  for (const [surface, order] of Object.entries(policy.surfaceReferenceOrders || {})) {
+    if (!/^[a-z0-9_-]+\/[a-z0-9_-]+$/i.test(surface) || !Array.isArray(order)
+      || order.length !== policy.defaultReferenceOrder.length || new Set(order).size !== order.length) {
+      invalid(`Surface reference order ${surface} is invalid.`);
+    }
+    for (const role of order) if (!REFERENCE_ROLES.includes(role)) invalid(`Surface reference order ${surface} uses unknown role ${role}.`);
   }
   for (const role of REFERENCE_ROLES) {
     const config = policy.roles?.[role];

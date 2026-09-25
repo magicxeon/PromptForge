@@ -19,6 +19,7 @@ const runtimeLockPath = path.join(
 );
 const children = new Set();
 let stopping = false;
+const skipPostProcessing = process.argv.includes('--skip-post-processing');
 
 const nodemonEntry = path.join(
   rootDirectory,
@@ -53,7 +54,9 @@ if (process.argv.includes('--stop-existing')) {
   process.exit(0);
 }
 
-await Promise.all([assertFile(nodemonEntry), assertFile(viteEntry), assertFile(postProcessingEntry)]);
+const requiredEntries = [nodemonEntry, viteEntry];
+if (!skipPostProcessing) requiredEntries.push(postProcessingEntry);
+await Promise.all(requiredEntries.map(assertFile));
 await writeRuntimeLock();
 
 process.on('SIGINT', () => stop(0));
@@ -73,32 +76,43 @@ if (await isApiReady()) {
   await waitForApiStop();
 }
 
-const postPort = 6501;
-const postEnv = {
+let postProcess = null;
+let apiEnv = {
   ...process.env,
-  POST_PROCESSING_HOST: '127.0.0.1',
-  POST_PROCESSING_PORT: String(postPort),
-  POST_PROCESSING_PILOT_ENABLED: 'true',
-  POST_PROCESSING_URL: 'http://127.0.0.1:' + postPort,
-  POST_PROCESSING_INTERNAL_TOKEN: process.env.POST_PROCESSING_INTERNAL_TOKEN || 'dev-internal-token-change-in-production-32bytes'
+  POST_PROCESSING_PILOT_ENABLED: 'false',
+  POST_PROCESSING_INTERNAL_TOKEN: ''
 };
-console.log('Starting Post-Processing API (Python FastAPI) on ' + postEnv.POST_PROCESSING_URL + '...');
-const postProcess = spawn(pythonExecutable, [postProcessingEntry], {
-  cwd: path.join(rootDirectory, 'post-processing-service'),
-  env: postEnv,
-  stdio: 'inherit',
-  windowsHide: true
-});
-children.add(postProcess);
-postProcess.once('exit', () => children.delete(postProcess));
 
-if (!await waitForService(postProcess, postPort)) {
-  console.error('Post-Processing API did not become ready.');
-  stop(1);
+if (skipPostProcessing) {
+  console.log('Post-Processing API is parked for this development session.');
+} else {
+  const postPort = 6501;
+  apiEnv = {
+    ...process.env,
+    POST_PROCESSING_HOST: '127.0.0.1',
+    POST_PROCESSING_PORT: String(postPort),
+    POST_PROCESSING_PILOT_ENABLED: 'true',
+    POST_PROCESSING_URL: 'http://127.0.0.1:' + postPort,
+    POST_PROCESSING_INTERNAL_TOKEN: process.env.POST_PROCESSING_INTERNAL_TOKEN || 'dev-internal-token-change-in-production-32bytes'
+  };
+  console.log('Starting Post-Processing API (Python FastAPI) on ' + apiEnv.POST_PROCESSING_URL + '...');
+  postProcess = spawn(pythonExecutable, [postProcessingEntry], {
+    cwd: path.join(rootDirectory, 'post-processing-service'),
+    env: apiEnv,
+    stdio: 'inherit',
+    windowsHide: true
+  });
+  children.add(postProcess);
+  postProcess.once('exit', () => children.delete(postProcess));
+
+  if (!await waitForService(postProcess, postPort)) {
+    console.error('Post-Processing API did not become ready.');
+    stop(1);
+  }
 }
 
 console.log('Starting ModelPromptForge API on http://localhost:6500...');
-const apiProcess = startNode(nodemonEntry, ['server/server.js'], rootDirectory, postEnv);
+const apiProcess = startNode(nodemonEntry, ['server/server.js'], rootDirectory, apiEnv);
 const ready = await waitForApi(apiProcess);
 if (!ready) {
   console.error('API server did not become ready on port 6500.');

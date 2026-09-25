@@ -797,3 +797,77 @@ Public enablement remains blocked until:
 - Credit reserve/capture/refund/reconciliation evidence passes;
 - image Playground regression, authorization and privacy gates pass;
 - manual generated-video quality evidence confirms usable output.
+
+## 2026-09-22 Playground Video Prompt Capacity
+
+- The Video prompt editor accepts at most 8,000 text characters. The visible
+  counter and native textarea limit must use the same value.
+- The Video capability response publishes this application limit so React does
+  not maintain a separate provider table.
+- Generation validates the same 8,000-character Playground boundary before
+  pricing or provider preflight. Cinematic compiled-prompt policies and verified
+  provider-specific limits remain unchanged.
+- Empty prompts remain invalid. A prompt over 8,000 characters returns a stable
+  validation error and creates no estimate, reservation, Task, or provider call.
+- Existing actor-scoped Video drafts are retained; text already above the new
+  boundary remains visible for editing but cannot be quoted or submitted.
+
+### Implementation Evidence
+
+- `VideoGenerationApplicationService.getCatalog` publishes the configured
+  `promptMaximumCharacters`; Playground passes that value to the shared prompt
+  editor and server quote/submission validation uses the same configured bound.
+- Focused server validation covers 8,000 accepted and 8,001 rejected before
+  pricing. Focused React validation asserts the textarea receives `maxlength=8000`.
+
+## 2026-09-23 Seedance Reference Rejection Guidance
+
+### User Problem
+
+ModelArk may reject one Seedance input with a message such as `content[2] may
+contain real person`. The provider index describes the submitted payload, where
+`content[0]` is the text prompt and image entries begin at `content[1]`. Showing
+the raw provider code does not tell the user which visible reference must change.
+
+### Required Behavior
+
+1. The ModelArk Seedance adapter shall parse an indexed input-image rejection
+   into a bounded structured `referenceIssue`; raw provider messages must not be
+   persisted or returned to the browser.
+2. `content[n]` maps to zero-based reference index `n - 1`. The mapping is valid
+   only when the indexed payload entry is an image and falls inside the submitted
+   reference list; otherwise no slot is identified.
+3. Video Task persistence and the public Task schema may expose only the bounded
+   provider content index, reference index and a stable reason code. Existing
+   provider code/request ID diagnostics remain available.
+4. Playground Video shall replace the raw error code with localized guidance
+   naming the visible image number and reason. For the privacy-information error,
+   explain that Seedance detected a possible real person and ask the user to
+   replace or remove that image before retrying.
+5. The matching reference control shall receive a semantic danger border, an
+   icon/text explanation and `aria-invalid`. Color must not be the only signal.
+   The mapping follows the exact ordered reference plan sent for that Task.
+6. Changing any reference clears the old visual marker. A provider rejection
+   never removes a reference automatically, changes the selected model, or starts
+   another generation.
+7. Image Playground, successful Video states, Credit settlement and provider
+   submission behavior remain unchanged.
+
+### Focused Verification
+
+- Provider test: `content[2]` becomes reference index `1`, while malformed or
+  text-only indexes do not identify a reference.
+- Task test: the structured issue survives sanitized failure persistence.
+- React tests: localized failure guidance is shown, reference image 2 is marked
+  invalid, and editing references clears the stale marker.
+
+### Implementation Evidence
+
+- The Seedance adapter maps validated provider `content[n]` positions to a
+  bounded Task `referenceIssue`; Task sanitization retains no raw provider text.
+- Playground maps the issue through the submitted reference order, presents
+  localized Thai/English guidance and marks only the matching source with a
+  danger border, icon, inline explanation and `aria-invalid`.
+- Focused validation passed 29 provider/Task tests and 14 Playground source and
+  workspace tests. TypeScript typecheck, locale JSON parsing and scoped diff
+  checks also passed. Live paid-provider submission was not repeated.

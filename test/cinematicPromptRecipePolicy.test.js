@@ -2,6 +2,34 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { loadPromptRecipe } from '../server/config/prompt-recipes/loadPromptRecipe.js';
 
+test('Chapter Scene recipe loads through the canonical recipe contract', () => {
+  const recipe = loadPromptRecipe('cinematic/chapter-scenes.v1.json');
+  assert.equal(recipe.id, 'cinematic-chapter-scenes');
+  assert.equal(recipe.version, 1);
+  assert.match(recipe.instruction, /Scene outlines only/i);
+  assert.match(recipe.instruction, /continuous location and time/i);
+});
+
+test('Scene Shot recipe produces provider-independent timeline documents', () => {
+  const recipe = loadPromptRecipe('cinematic/scene-shots.v1.json');
+  assert.equal(recipe.id, 'cinematic-scene-shots');
+  assert.equal(recipe.version, 2);
+  assert.match(recipe.instruction, /one readable provider-independent shotDocument/i);
+  assert.match(recipe.instruction, /OPENING must describe only the visible state at time zero/i);
+  assert.match(recipe.instruction, /Do not write provider names/i);
+  assert.match(recipe.instruction, /exact authored dialogue/i);
+});
+
+test('Scene Environment recipe creates an unoccupied production-design image prompt', () => {
+  const recipe = loadPromptRecipe('cinematic/scene-environment.v1.json');
+  assert.equal(recipe.id, 'cinematic-scene-environment-proposal');
+  assert.equal(recipe.version, 1);
+  assert.match(recipe.instruction, /Project, Chapter, selected Scene, adjacent Scene and Shot context/i);
+  assert.match(recipe.instruction, /unoccupied master environment plate/i);
+  assert.match(recipe.instruction, /Do not include people/i);
+  assert.match(recipe.instruction, /clear English/i);
+});
+
 test('directed recipes preserve ordered intent, no-person coverage, art direction and time-zero motion separation', () => {
   for (const path of ['cinematic/story-plan.v8.json', 'cinematic/scene-direction.v7.json']) {
     const recipe = loadPromptRecipe(path);

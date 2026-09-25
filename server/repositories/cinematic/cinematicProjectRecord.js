@@ -6,6 +6,7 @@ export function createCinematicProjectRecord(input, actor) {
   const now = new Date().toISOString();
   const id = createPrefixedId('cineproj');
   const storySourceId = createPrefixedId('cinesrc');
+  const { storyPreparation = null, initialFullStory = null, ...setup } = input;
   const project = normalizeCinematicAuthoringEnvelope({
     id,
     projectId: id,
@@ -16,21 +17,33 @@ export function createCinematicProjectRecord(input, actor) {
     title: input.title,
     format: 'short-film',
     platformTargets: [input.platform],
-    aspectRatio: '9:16',
+    aspectRatio: input.aspectRatio || '9:16',
     durationTargetMs: input.durationSeconds * 1000,
-    activeStage: 'setup',
+    activeStage: initialFullStory ? 'cast' : 'setup',
     status: 'draft',
-    setup: structuredClone(input),
+    setup: structuredClone(setup),
     storySourceVersions: [{
       id: storySourceId,
       version: 1,
       storyBrief: input.storyBrief,
       creativeDirection: input.creativeDirection,
       status: 'applied',
-      source: 'manual',
+      source: storyPreparation ? 'ai-enhancement' : 'manual',
+      ...(storyPreparation ? { operationContext: structuredClone(storyPreparation) } : {}),
       createdAt: now
     }],
     activeStorySourceVersionId: storySourceId,
+    fullStoryVersions: initialFullStory ? [structuredClone(initialFullStory)] : [],
+    activeFullStoryVersionId: initialFullStory?.id || null,
+    confirmedFullStoryVersionId: null,
+    chapterTitle: '',
+    chapterStory: '',
+    chapterVersions: [],
+    activeChapterVersionId: null,
+    chapterProposals: [],
+    chapterCharacterIds: [],
+    sceneProposals: [],
+    shotProposals: [],
     castAssignments: [],
     storyPlanVersions: [],
     scenes: [],
@@ -66,5 +79,16 @@ export function normalizeCinematicAuthoringEnvelope(project, { newRecord = false
     || Array.isArray(project.authoringState.fieldStates)) {
     project.authoringState.fieldStates = {};
   }
+  if (!Array.isArray(project.fullStoryVersions)) project.fullStoryVersions = [];
+  if (typeof project.activeFullStoryVersionId !== 'string') project.activeFullStoryVersionId = null;
+  if (typeof project.confirmedFullStoryVersionId !== 'string') project.confirmedFullStoryVersionId = null;
+  if (typeof project.chapterTitle !== 'string') project.chapterTitle = '';
+  if (typeof project.chapterStory !== 'string') project.chapterStory = '';
+  if (!Array.isArray(project.chapterVersions)) project.chapterVersions = [];
+  if (typeof project.activeChapterVersionId !== 'string') project.activeChapterVersionId = null;
+  if (!Array.isArray(project.chapterProposals)) project.chapterProposals = [];
+  if (!Array.isArray(project.chapterCharacterIds)) project.chapterCharacterIds = [];
+  if (!Array.isArray(project.sceneProposals)) project.sceneProposals = [];
+  if (!Array.isArray(project.shotProposals)) project.shotProposals = [];
   return project;
 }

@@ -94,6 +94,10 @@ try {
       if (url.pathname.includes('/share-status')) return route.fulfill({ json: { shared: false } });
       if (url.pathname === '/api/fixture-media' || url.pathname.startsWith('/api/fixtures/')) return route.fulfill({ body: photo, contentType: 'image/jpeg' });
       if (url.pathname === `/api/cinematic/projects/${project.id}`) return route.fulfill({ json: project });
+      if (url.pathname === `/api/cinematic/projects/${project.id}/prompt-preflight`) return route.fulfill({ json: {
+        projectId: project.id, projectVersion: project.version, hasMore: false, items: [] } });
+      if (url.pathname === '/api/generation/prompt-preview') return route.fulfill({ json: {
+        compiledPrompt: request.postDataJSON()?.prompt || 'Scene environment fixture prompt' } });
       const scene = project.scenes.find(value => url.pathname.includes(`/scenes/${value.id}/`));
       const shot = scene?.shots.find(value => url.pathname.includes(`/shots/${value.id}/`));
       if (scene && url.pathname.endsWith('/environment')) return route.fulfill({ json: request.method() === 'PATCH'
@@ -165,7 +169,14 @@ try {
         assert.equal(project.scenes[0].approvedEnvironmentSource.sourceJobId, 'job_environment_old');
         assert.ok(await images.nth(1).locator('img').evaluate(image => image.complete && image.naturalWidth > 0));
         assert.ok(await dialog.evaluate(element => element.scrollWidth <= element.clientWidth + 1));
+        if (width >= 960) assert.ok(await dialog.evaluate(element => {
+          const model = element.querySelectorAll('.engine-target-panel__model-grid select')[1]?.getBoundingClientRect();
+          const review = element.querySelector('.cinematic-environment-stage--review')?.getBoundingClientRect();
+          return Boolean(model && review && model.right <= review.left);
+        }), `Engine model overlaps review ${locale}/${width}`);
         await dialog.screenshot({ path: path.join(output, `${locale}-${width}-gallery.png`) });
+        await dialog.locator('.cinematic-environment-dialog__body').evaluate(element => { element.scrollTop = 0; });
+        await dialog.screenshot({ path: path.join(output, `${locale}-${width}-gallery-top.png`) });
         await dialog.locator('.cinematic-dialog__footer button').click();
         const toggle = control.getByRole('switch', { name: t('cinematic.environment.enabled') });
         await toggle.click();

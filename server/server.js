@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const { createApp } = await import('./app/createApp.js');
+const { VideoRecoveryMonitor } = await import('./domain/generation/VideoRecoveryMonitor.js');
 
 const PORT = process.env.PORT || 6500;
 const app = createApp();
@@ -39,6 +40,14 @@ app.listen(PORT, () => {
     console.error('[Comparison] Failed to initialize storage:', err);
   });
 
+  let videoRecoveryMonitor = null;
+  const startVideoRecoveryMonitor = () => {
+    if (videoRecoveryMonitor || !videoGenerationApplicationService?.resumeRecoverable) return;
+    videoRecoveryMonitor = new VideoRecoveryMonitor({
+      recover: () => videoGenerationApplicationService.resumeRecoverable()
+    });
+    videoRecoveryMonitor.start();
+  };
   Promise.resolve(startupCreditReconciliation)
     .then(() => videoGenerationApplicationService?.resumeRecoverable?.())
     .then(results => {
@@ -53,5 +62,10 @@ app.listen(PORT, () => {
     })
     .catch(err => {
       console.warn('[VideoRecovery] Startup recovery failed:', err.message);
-    });
+    })
+    .finally(startVideoRecoveryMonitor);
+
+  const stopVideoRecovery = () => videoRecoveryMonitor?.stop();
+  process.once('SIGINT', stopVideoRecovery);
+  process.once('SIGTERM', stopVideoRecovery);
 });

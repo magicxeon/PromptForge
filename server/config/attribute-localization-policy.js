@@ -1,4 +1,6 @@
-const DEFAULT_MODEL = 'gpt-5.6-luna';
+import { openAITextModels } from './openaiTextModels.js';
+
+const DEFAULT_MODEL = openAITextModels.active;
 
 export function getAttributeLocalizationPolicy(env = process.env) {
   const apiKey = normalizeApiKey(env.OPENAI_API_KEY);

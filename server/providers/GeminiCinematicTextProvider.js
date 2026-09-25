@@ -1,5 +1,7 @@
+import { loadPromptRecipe } from '../config/prompt-recipes/loadPromptRecipe.js';
 import {
   CINEMATIC_SCENE_DIRECTION_SCHEMA,
+  CINEMATIC_SCENE_SHOTS_SCHEMA,
   CINEMATIC_STORY_PLAN_SCHEMA
 } from './cinematicTextSchemas.js';
 
@@ -42,6 +44,21 @@ export class GeminiCinematicTextProvider {
       maxOutputTokens,
       timeoutMs,
       errorPrefix: 'cinematic_scene_direction'
+    });
+  }
+
+  async generateCinematicSceneShots({
+    context, recipe, model, reasoningEffort, maxOutputTokens, timeoutMs
+  }) {
+    return this.requestStructured({
+      model,
+      instructions: recipe?.instruction || loadPromptRecipe('cinematic/scene-shots.v1.json').instruction,
+      input: context,
+      reasoningEffort,
+      schema: CINEMATIC_SCENE_SHOTS_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'cinematic_scene_shots'
     });
   }
 
@@ -119,10 +136,12 @@ export class GeminiCinematicTextProvider {
       if (error?.name === 'AbortError') {
         throw createProviderError(`${errorPrefix}_timeout`, `${humanizeErrorPrefix(errorPrefix)} timed out.`);
       }
-      if (error?.code) throw error;
+      if (error?.isProviderError) throw error;
       throw createProviderError(
         `${errorPrefix}_transport_error`,
-        error?.message || `${humanizeErrorPrefix(errorPrefix)} failed.`
+        `${humanizeErrorPrefix(errorPrefix)} could not connect to the configured fallback provider.`,
+        503,
+        transportErrorDetails(error)
       );
     } finally {
       clearTimeout(timeout);
@@ -149,8 +168,17 @@ function humanizeErrorPrefix(value) {
   return String(value || '').replaceAll('_', ' ').replace(/^./, character => character.toUpperCase());
 }
 
-function createProviderError(code, message) {
+function transportErrorDetails(error) {
+  const code = String(error?.cause?.code || error?.cause?.name || error?.name || 'transport_failure')
+    .trim().slice(0, 80);
+  return { reason: code || 'transport_failure' };
+}
+
+function createProviderError(code, message, statusCode, details) {
   const error = new Error(message);
   error.code = code;
+  error.isProviderError = true;
+  if (statusCode) error.statusCode = statusCode;
+  if (details) error.details = details;
   return error;
 }

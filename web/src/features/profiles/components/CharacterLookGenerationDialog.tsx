@@ -84,6 +84,10 @@ export function CharacterLookGenerationDialog({
               <dt>{t('cinematic.lookDraft.name')}</dt>
               <dd>{lookName}</dd>
             </div>
+            <div>
+              <dt>{t('cinematic.lookDraft.generationStyle')}</dt>
+              <dd>{t(`cinematic.lookDraft.generationStyles.${plan.generationStyle || 'realistic'}`)}</dd>
+            </div>
           </dl>
           <small>{t('cinematic.lookDraft.recipeVersion', { version: plan.recipe.version })}</small>
         </div>

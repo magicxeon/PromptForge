@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
-  recovery: ['test/videoTaskRecovery.test.js', 'test/videoProviderTaskService.test.js', 'test/videoGenerationRoutes.test.js'],
+  recovery: ['test/videoTaskRecovery.test.js', 'test/videoRecoveryMonitor.test.js', 'test/videoProviderTaskService.test.js',
+    'test/videoGenerationRoutes.test.js', 'test/videoMediaProbeService.test.js', 'test/videoPosterService.test.js',
+    'test/cinematicVideoAssetService.test.js'],
   activity: ['test/generationJobCenter.test.js'],
   ui: ['src/features/generation/job-center'],
   produce: ['src/features/cinematic/components/CinematicProduceRuntime.test.tsx']

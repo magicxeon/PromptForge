@@ -27,8 +27,16 @@ class ExpressiveTtsManager:
         output_format: str = "WAV",
         correlation_id: Optional[str] = None,
         policy: Any = None,
-        chunk_length: Optional[int] = None
-    ) -> Dict[str, Any]:
+        chunk_length: Optional[int] = None,
+        model_id: str = "thonburian"
+    ) -> dict:
+        """
+        Orchestrates the Expressive TTS pipeline.
+        Currently delegates directly to ThonburianTTS for Thai generation.
+        """
+        if not text or not text.strip():
+            raise ValueError("Input text cannot be empty.")
+
         active_policy = policy or self.policy
         manager = self.thonburian_manager
         if not manager or manager.policy != active_policy:
@@ -45,8 +53,9 @@ class ExpressiveTtsManager:
             voice_seed=voice_seed,
             output_format=output_format,
             correlation_id=correlation_id,
-            policy=active_policy,
-            chunk_length=chunk_length
+            policy=policy,
+            chunk_length=chunk_length,
+            model_id=model_id
         )
 
 

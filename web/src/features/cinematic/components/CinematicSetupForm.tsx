@@ -5,15 +5,16 @@ import { Button } from '../../../components/ui/Button';
 import { ThemeSelect } from '../../../components/ui/ThemeSelect';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
+import { cinematicChapterDurationValues } from '../schemas/cinematicSchemas';
 import type { CinematicSetupDraft, CinematicStoryAuthoring } from '../schemas/cinematicSchemas';
 import { StoryIntentChoices } from './StoryIntentChoices';
-import { CinematicControlLevel } from './CinematicControlLevel';
 import type { CinematicSaveState } from './CinematicWorkspaceHeader';
 
 type RoleSlot = CinematicSetupDraft['storyRoleSlots'][number];
 
 export function CinematicSetupForm({
   storyAuthoring,
+  chapterDurationsSeconds = [...cinematicChapterDurationValues],
   draft,
   saveState,
   saveError,
@@ -30,6 +31,7 @@ export function CinematicSetupForm({
   onContinue
 }: {
   storyAuthoring?: CinematicStoryAuthoring;
+  chapterDurationsSeconds?: Array<CinematicSetupDraft['durationSeconds']>;
   draft: CinematicSetupDraft;
   saveState: CinematicSaveState;
   saveError?: Error | null;
@@ -57,7 +59,6 @@ export function CinematicSetupForm({
   if (draft.mode === 'simple') return <form className="cinematic-setup-form cinematic-simple-setup" onSubmit={event => event.preventDefault()}>
     <header className="cinematic-setup-heading">
       <div><p>{t('cinematic.setup.eyebrow')}</p><h2>{t('cinematic.setup.title')}</h2></div>
-      <CinematicControlLevel disabled={pending} mode={draft.mode} label={t('cinematic.setup.authoringMode')} helpText={t('cinematic.setup.modeHelp')} onChange={mode => onUpdate('mode', mode)} />
     </header>
     <fieldset disabled={pending} className="cinematic-simple-fields">
       <Field label={t('cinematic.setup.storyBrief')} required>
@@ -65,7 +66,7 @@ export function CinematicSetupForm({
       </Field>
       <div className="cinematic-simple-output">
         <Field label={t('cinematic.setup.duration')}><ThemeSelect value={String(draft.durationSeconds)} ariaLabel={t('cinematic.setup.duration')}
-          options={[20, 30, 45, 60].map(value => ({ value: String(value), label: `${value} ${t('cinematic.units.seconds')}` }))}
+          options={chapterDurationsSeconds.map(value => ({ value: String(value), label: `${value} ${t('cinematic.units.seconds')}` }))}
           onValueChange={value => onUpdate('durationSeconds', Number(value) as CinematicSetupDraft['durationSeconds'])} /></Field>
         <SelectField label={t('cinematic.setup.platform')} value={draft.platform} values={['tiktok', 'youtube-shorts', 'reels', 'multi-platform']} onChange={value => onUpdate('platform', value as CinematicSetupDraft['platform'])} translationPrefix="cinematic.platform" />
       </div>
@@ -105,12 +106,6 @@ export function CinematicSetupForm({
           <h2>{t('cinematic.setup.title')}</h2>
           <span>{t('cinematic.setup.description')}</span>
         </div>
-        <CinematicControlLevel
-          mode={draft.mode}
-          label={t('cinematic.setup.authoringMode')}
-          helpText={t('cinematic.setup.modeHelp')}
-          onChange={mode => onUpdate('mode', mode)}
-        />
       </header>
 
       <div className="cinematic-setup-content">
@@ -126,7 +121,7 @@ export function CinematicSetupForm({
             <SelectField label={t('cinematic.setup.platform')} value={draft.platform} values={['tiktok', 'youtube-shorts', 'reels', 'multi-platform']} onChange={value => onUpdate('platform', value as CinematicSetupDraft['platform'])} translationPrefix="cinematic.platform" />
             <Field label={t('cinematic.setup.duration')}>
               <select value={draft.durationSeconds} onChange={event => onUpdate('durationSeconds', Number(event.target.value) as CinematicSetupDraft['durationSeconds'])}>
-                {[20, 30, 45, 60].map(value => <option key={value} value={value}>{value} {t('cinematic.units.seconds')}</option>)}
+                {chapterDurationsSeconds.map(value => <option key={value} value={value}>{value} {t('cinematic.units.seconds')}</option>)}
               </select>
             </Field>
           </div>

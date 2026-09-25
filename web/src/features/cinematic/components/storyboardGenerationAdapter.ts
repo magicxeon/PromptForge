@@ -12,6 +12,38 @@ export type StoryboardLook = {
   accessorySummary: string;
 };
 
+export type CharacterLookBinding = {
+  id: string; name: string; versionId: string | null; previewUrl: string | null;
+  source: 'uploaded' | 'generated' | 'library'; ready: boolean;
+};
+
+// Selection metadata only; preparation revalidates authority and media on the server.
+export function readCharacterLookBindings(assignment: CinematicCastAssignment): CharacterLookBinding[] {
+  return (assignment.looks || []).flatMap(value => {
+    if (!value || typeof value !== 'object') return [];
+    const look = value as Record<string, unknown>;
+    if (typeof look.id !== 'string') return [];
+    const generated = assignment.sourceType === 'generated_sheet' && look.mode === 'generated_sheet';
+    const profileLook = look.mode === 'character_look' && typeof look.characterLookId === 'string'
+      && typeof look.characterLookVersionId === 'string' && Boolean(assignment.characterProfileId);
+    const provenance = look.characterLookProvenance as { kind?: string } | null;
+    const previewUrl = generated ? assignment.generatedSheet?.previewUrl || null : profileLook
+      ? `/api/character-profiles/${encodeURIComponent(assignment.characterProfileId!)}/looks/${encodeURIComponent(String(look.characterLookId))}/versions/${encodeURIComponent(String(look.characterLookVersionId))}/media/sheet` : null;
+    return [{ id: look.id, name: String(look.name || assignment.displayName),
+      versionId: typeof look.characterLookVersionId === 'string' ? look.characterLookVersionId : null,
+      previewUrl, ready: assignment.identityReady && look.locked === true && Boolean(previewUrl),
+      source: generated || ['system_generated', 'generated_import'].includes(provenance?.kind || '') ? 'generated'
+        : provenance?.kind === 'user_uploaded' ? 'uploaded' : 'library' }];
+  });
+}
+
+export function selectedCharacterLook(assignment: CinematicCastAssignment, scene: CinematicScene, shot?: CinematicShot) {
+  const overridden = Boolean(shot && (shot.manualStoryboard || shot.wardrobeLookIds.length));
+  const ids = overridden ? shot!.wardrobeLookIds : scene.wardrobeLookIds;
+  const matches = readCharacterLookBindings(assignment).filter(look => ids.includes(look.id));
+  return { look: matches.length === 1 ? matches[0] : null, scope: overridden ? 'shot' as const : 'scene' as const, ambiguous: matches.length > 1 };
+}
+
 const STORYBOARD_STILL_CONTRACT = 'STORYBOARD STILL CONTRACT';
 
 function authoredShotPrompt(value: string) {

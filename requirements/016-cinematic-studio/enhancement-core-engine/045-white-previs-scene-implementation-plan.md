@@ -1,5 +1,28 @@
 # Implementation Plan
 
+## Follow-Up: Refresh Project Scene Images After Render (2026-09-24)
+
+Scope: Scene environment gallery refresh only. The generated image remains a
+candidate until the user selects it; existing approval, generation and Credit
+workflows are unchanged.
+
+1. Use one actor/Project/Scene gallery query identity. Fetch fresh results when
+   the dialog opens, after a Scene image attempt is registered, and when its
+   Generation Job completes. Refresh the owning Project query so the latest
+   attempt and optimistic version are available without leaving the page.
+2. Keep the current image, prior candidates, manual Refresh, selection action,
+   loading/error states and pagination. Closing the dialog while a Job runs must
+   not leave a fresh reopen showing a cached empty gallery.
+3. Verify two focused UI paths: completed render adds a selectable candidate in
+   the open dialog; a later reopen also finds the completed image. Do not call a
+   paid provider or approve a result in automated validation.
+
+Status: implemented. The Scene gallery query refreshes on open, after attempt
+registration and after Job completion; the Project query is invalidated at the
+same submission/completion boundaries. Focused SceneEnvironmentControl tests
+pass (9/9), and the web TypeScript app check passes. Live provider rendering
+was not run.
+
 ## Follow-Up: Shot 3 And Scene Gallery (2026-09-13)
 
 Scope: final video prompt presentation, Scene image preview/selection/toggle,

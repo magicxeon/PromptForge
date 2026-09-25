@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "cinematic-workflow-policy-v1",
+  "version": 6,
+  "workspace": {
+    "default": "story",
+    "ids": ["story", "production", "final"],
+    "legacyStageMap": {
+      "setup": "story",
+      "cast": "story",
+      "story-plan": "story",
+      "storyboard": "production",
+      "produce": "production",
+      "finish": "final"
+    }
+  },
+  "projectCreation": {
+    "formats": ["short-film", "mini-series"],
+    "defaultFormat": "mini-series",
+    "aspectRatios": ["9:16", "16:9", "1:1"],
+    "defaultAspectRatio": "9:16",
+    "chapterDurationsSeconds": [20, 30, 45, 60, 90, 120],
+    "defaultSeasonEnabled": false,
+    "defaultSeasonCount": 1,
+    "defaultChapterCount": 1,
+    "maximumSeasonCount": 8,
+    "maximumChapterCount": 24
+  },
+  "storyImport": {
+    "extensions": [".md", ".txt"],
+    "maximumBytes": 262144,
+    "fullStoryThresholdCharacters": 600
+  },
+  "authoring": {
+    "defaultChapterCount": 1,
+    "defaultChapterDurationSeconds": 60,
+    "storyRevisionHistoryLimit": 10,
+    "fullStoryMaximumCharacters": 50000,
+    "fullStoryInstructionMaximumCharacters": 2000,
+    "generatedChapterMaximum": 24,
+    "generatedSceneMaximum": 24,
+    "sceneProposalHistoryLimit": 10,
+    "generatedShotMaximumPerScene": 20,
+    "shotProposalHistoryLimit": 10,
+    "shotDocumentMaximumCharacters": 12000,
+    "videoPromptMaximumCharacters": 12000,
+    "storyPlanningRequiresFinalLooks": false,
+    "recommendFirstFrame": true,
+    "defaultAudioEnabled": true
+  },
+  "dialogue": {
+    "defaultTargetRatio": 0.6,
+    "exemptScenePurposes": ["action", "montage", "establishing", "atmosphere"]
+  },
+  "bounds": {
+    "chapterPageSize": 24,
+    "assetPageSize": 12,
+    "assetPageSizeMaximum": 24,
+    "takePageSize": 20,
+    "retainedAssetPages": 5
+  }
+}

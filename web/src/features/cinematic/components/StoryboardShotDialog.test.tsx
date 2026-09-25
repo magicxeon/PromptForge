@@ -96,6 +96,21 @@ vi.mock('../api/cinematicApi', async importOriginal => ({
 const testI18n = i18next.createInstance();
 
 describe('StoryboardShotDialog', () => {
+  it('returns document Shots to their writer without exposing a second editor or submitting stale image direction', async () => {
+    const project = projectFixture();
+    project.scenes[0]!.shots[0]!.shotDocument = 'OPENING\nThe character waits at the door.';
+    const edit = vi.fn();
+    renderDialog(project, { onEditDocument: edit, blockedReason: 'Document preparation pending' });
+    await waitFor(() => expect(mocks.getContext).toHaveBeenCalled());
+    openTab('shot');
+    expect(screen.getByText(/The character waits at the door/)).toBeVisible();
+    expect(screen.queryByLabelText('cinematic.storyboard.shotDirection')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Generate test image' })).toBeDisabled();
+    fireEvent.click(screen.getAllByRole('button', { name: 'cinematic.storyboard.editShot' })[0]!);
+    expect(edit).toHaveBeenCalledOnce();
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+  });
+
   it('disables last-frame reuse until the previous Shot has an approved Take', async () => {
     mocks.getContext.mockResolvedValue({ ...generationContext(), previousVideoFrame: {
       available: false, reason: 'cinematic_previous_video_not_approved', previousShotId: 'shot_0',

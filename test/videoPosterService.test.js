@@ -47,3 +47,14 @@ test('VideoPosterService reports an unavailable FFmpeg executable with a stable 
     error => error.code === 'video_poster_ffmpeg_unavailable'
   );
 });
+
+test('VideoPosterService readiness fails before generation when FFmpeg is unavailable', async () => {
+  const service = new VideoPosterService({
+    ffmpegPath: 'missing-ffmpeg',
+    runProcess: async () => { throw Object.assign(new Error('missing'), { code: 'ENOENT' }); }
+  });
+  await assert.rejects(service.assertAvailable(), error => (
+    error.code === 'video_poster_ffmpeg_unavailable'
+    && error.retryable === false
+  ));
+});

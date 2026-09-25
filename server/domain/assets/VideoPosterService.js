@@ -79,6 +79,22 @@ export class VideoPosterService {
       await fs.rm(temporaryPoster, { force: true }).catch(() => undefined);
     }
   }
+
+  async assertAvailable() {
+    try {
+      await this.runProcess(this.ffmpegPath, ['-version'], {
+        timeout: Math.min(this.timeoutMs, 5_000),
+        windowsHide: true,
+        maxBuffer: 256 * 1024
+      });
+    } catch (error) {
+      if (error?.code === 'ENOENT') {
+        throw posterError('video_poster_ffmpeg_unavailable', 'FFmpeg is required before Video generation can start.', false);
+      }
+      throw posterError('video_poster_readiness_failed', 'FFmpeg readiness could not be verified.', false);
+    }
+    return true;
+  }
 }
 
 function representativeTimestamp(durationSeconds) {
@@ -87,8 +103,8 @@ function representativeTimestamp(durationSeconds) {
   return Math.max(0.25, Math.min(duration * 0.15, Math.max(0.25, duration - 0.1))).toFixed(3);
 }
 
-function posterError(code, message) {
-  return Object.assign(new Error(message), { code, category: 'media', retryable: true });
+function posterError(code, message, retryable = true) {
+  return Object.assign(new Error(message), { code, category: 'media', retryable });
 }
 
 export const videoPosterService = new VideoPosterService();

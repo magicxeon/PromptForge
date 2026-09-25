@@ -5,9 +5,13 @@ import { getCinematicStoryEnhancementPolicy } from '../server/config/cinematic-s
 import { getCinematicStoryPlanPolicy } from '../server/config/cinematic-story-plan-policy.js';
 import { cinematicFieldManifestService } from '../server/domain/cinematic/CinematicFieldManifestService.js';
 
-test('JSON policy defaults to Terra and preserves explicit environment override', () => {
-  assert.equal(getCinematicStoryEnhancementPolicy({}).model, 'gpt-5.6-terra');
-  assert.equal(getCinematicStoryPlanPolicy({}).model, 'gpt-5.6-terra');
+test('JSON policy defaults to Sol and preserves explicit environment override', () => {
+  assert.equal(getCinematicStoryEnhancementPolicy({}).model, 'gpt-6-sol');
+  assert.equal(getCinematicStoryEnhancementPolicy({}).maxOutputTokens, 8000);
+  assert.equal(getCinematicStoryEnhancementPolicy({}).longFormTimeoutMs, 120000);
+  assert.equal(getCinematicStoryEnhancementPolicy({ GEMINI_API_KEY: 'gemini-key' }).fallback.enabled, true);
+  assert.equal(getCinematicStoryEnhancementPolicy({ GEMINI_API_KEY: 'gemini-key' }).fallback.model, 'gemini-3.8-flash');
+  assert.equal(getCinematicStoryPlanPolicy({}).model, 'gpt-6-sol');
   assert.equal(getCinematicStoryEnhancementPolicy({ CINEMATIC_STORY_ENHANCEMENT_MODEL: 'custom' }).model, 'custom');
   assert.deepEqual(cinematicFieldManifestService.getPublicManifest().storyAuthoring, storyAuthoringConfiguration);
   assert.equal('apiKey' in cinematicFieldManifestService.getPublicManifest().storyAuthoring, false);
@@ -39,5 +43,17 @@ test('country style defaults safely for legacy projects and accepts only configu
   assert.throws(() => normalizeStoryIntent({ storyCountryStyle: 'unknown' }), { code: 'cinematic_story_intent_invalid' });
   const invalid = structuredClone(storyAuthoringConfiguration);
   invalid.countryStyles.options[1].flag = '../private';
+  assert.throws(() => validateStoryAuthoring(invalid));
+});
+
+test('story period defaults safely and rejects unknown or malformed presets', () => {
+  assert.equal(normalizeStoryIntent({}).storyPeriod, 'contemporary');
+  for (const option of storyAuthoringConfiguration.periods.options) {
+    assert.equal(normalizeStoryIntent({ storyPeriod: option.id }).storyPeriod, option.id);
+    assert.ok(option.guidance.length > 20);
+  }
+  assert.throws(() => normalizeStoryIntent({ storyPeriod: 'unknown' }), { code: 'cinematic_story_intent_invalid' });
+  const invalid = structuredClone(storyAuthoringConfiguration);
+  invalid.periods.options[0].guidance = '';
   assert.throws(() => validateStoryAuthoring(invalid));
 });

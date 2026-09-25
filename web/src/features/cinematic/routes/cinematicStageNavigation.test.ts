@@ -2,9 +2,18 @@ import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../../../lib/api/apiError';
 import type { CinematicProject } from '../schemas/cinematicSchemas';
 import { cinematicStages, simpleCinematicStages, visibleCinematicStage } from '../cinematicStages';
-import { updateCinematicStageWithRecovery } from './cinematicStageNavigation';
+import { resolveProjectAuthoringOwnerId, updateCinematicStageWithRecovery } from './cinematicStageNavigation';
 
 describe('cinematic Stage navigation', () => {
+  it('routes legacy child setup and Full Story entry back to the whole-story owner', () => {
+    const child = {
+      id: 'chapter_2',
+      chapterOrigin: { projectId: 'chapter_1', projectVersion: 4, copiedCast: true }
+    } as CinematicProject;
+    expect(resolveProjectAuthoringOwnerId(child, 'setup')).toBe('chapter_1');
+    expect(resolveProjectAuthoringOwnerId(child, 'cast')).toBe('chapter_1');
+    expect(resolveProjectAuthoringOwnerId(child, 'storyboard')).toBe('chapter_2');
+  });
   it('keeps the approved Simple four-stage order separate from all six Advanced stages', () => {
     expect(simpleCinematicStages).toEqual(['setup', 'cast', 'storyboard', 'finish']);
     expect(cinematicStages).toEqual(['setup', 'cast', 'story-plan', 'storyboard', 'produce', 'finish']);

@@ -8,6 +8,13 @@ type StageNavigationDependencies = {
   saveStage?: (projectId: string, stage: CinematicStage, expectedVersion: number) => Promise<CinematicProject>;
 };
 
+export function resolveProjectAuthoringOwnerId(project: CinematicProject, requestedStage?: string) {
+  const projectLevelStage = !requestedStage || requestedStage === 'setup' || requestedStage === 'cast';
+  return projectLevelStage && project.chapterOrigin?.projectId
+    ? project.chapterOrigin.projectId
+    : project.id;
+}
+
 export async function updateCinematicStageWithRecovery(
   projectId: string,
   stage: CinematicStage,

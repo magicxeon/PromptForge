@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { resolveShotCastIds, resolveShotLookIds } from './CinematicCastCoverage.js';
 import { cinematicKeyframeConfigurationService } from './CinematicKeyframeConfigurationService.js';
+import { compileCinematicShotDocument } from './CinematicShotDocumentCompiler.js';
 
 const SECTION_LABELS = Object.freeze({
   keyframeMoment: 'KEYFRAME MOMENT',
@@ -22,6 +23,8 @@ export class StoryboardKeyframeContractCompiler {
     if (!project?.id || !scene?.id || !shot?.id) {
       throw new TypeError('Project, Scene and Shot are required to compile a Storyboard keyframe.');
     }
+    const documentPreparation = compileCinematicShotDocument(shot, scene);
+    if (documentPreparation) shot = documentPreparation.preparedShot;
     const manualStill = shot.manualStoryboard === true && shot.manualStillAuthority !== false;
     if (manualStill) {
       // Manual still authority is independent of the separately authored video timeline.
@@ -323,7 +326,7 @@ function compileFindings({ scene, shot, cast, looks, emotionalTarget, shotPositi
   for (const field of (shot.manualStoryboard ? ['visibleMoment'] : ['visibleMoment', 'subjectAction'])) {
     if (!compactText(shot[field])) findings.push(finding('blocking', 'missing_shot_authority', `shot.${field}`));
   }
-  if (!shot.manualStoryboard && !emotionalTarget) findings.push(finding('blocking', 'missing_shot_authority', 'shot.emotionalTarget'));
+  if (!shot.manualStoryboard && !shot.shotDocumentAuthority && !emotionalTarget) findings.push(finding('blocking', 'missing_shot_authority', 'shot.emotionalTarget'));
   const selectedCastIds = new Set(resolveShotCastIds(scene, shot));
   if (cast.length !== selectedCastIds.size) findings.push(finding('blocking', 'cast_authority_missing', 'shot.castAssignmentIds'));
   if (cast.some(item => item.identityReady !== true)) findings.push(finding('blocking', 'character_identity_not_ready', 'cast.characterProfileVersionId'));

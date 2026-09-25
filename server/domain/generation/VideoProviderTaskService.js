@@ -91,6 +91,7 @@ export class VideoProviderTaskService {
 
   async preflightTask(request, { allowResearch = false, allowTesting = false } = {}) {
     const model = this.capabilityRegistry.validateRequest(request, { allowResearch, allowTesting });
+    await this.mediaPersister?.assertReady?.();
     const adapter = this.#resolveAdapter(model.providerId, model.modelId);
     await adapter.preflight?.(request);
     return model;
@@ -412,12 +413,23 @@ function boundedIdentifier(value) {
 }
 
 function sanitizeError(error, fallbackCode) {
+  const referenceIssue = sanitizeReferenceIssue(error?.referenceIssue);
   return {
     code: error?.code || fallbackCode, category: error?.category || 'internal',
     retryable: Boolean(error?.retryable), providerBillableState: error?.providerBillableState || 'unknown',
     ...(boundedIdentifier(error?.providerCode) ? { providerCode: boundedIdentifier(error.providerCode) } : {}),
-    ...(boundedIdentifier(error?.providerRequestId) ? { providerRequestId: boundedIdentifier(error.providerRequestId) } : {})
+    ...(boundedIdentifier(error?.providerRequestId) ? { providerRequestId: boundedIdentifier(error.providerRequestId) } : {}),
+    ...(referenceIssue ? { referenceIssue } : {})
   };
+}
+
+function sanitizeReferenceIssue(value) {
+  const contentIndex = Number(value?.contentIndex);
+  const referenceIndex = Number(value?.referenceIndex);
+  if (!Number.isInteger(contentIndex) || contentIndex < 1 || contentIndex > 12
+    || !Number.isInteger(referenceIndex) || referenceIndex !== contentIndex - 1
+    || value?.reason !== 'possible_real_person') return null;
+  return { contentIndex, referenceIndex, reason: value.reason };
 }
 
 function normalizeIdempotencyKey(value) {

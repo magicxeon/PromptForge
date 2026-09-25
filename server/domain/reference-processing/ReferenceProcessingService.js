@@ -101,7 +101,7 @@ export class ReferenceProcessingService {
     });
     const orderedBeforeDispatchRules = orderAndDedupe(
       processedReferences,
-      this.policyRegistry.getReferenceOrder(providerId, modelId)
+      this.policyRegistry.getReferenceOrder(providerId, modelId, context)
     );
     const dispatch = applyDispatchRules(
       orderedBeforeDispatchRules,

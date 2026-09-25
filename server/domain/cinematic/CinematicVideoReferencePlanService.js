@@ -64,7 +64,8 @@ export class CinematicVideoReferencePlanService {
           assetId: sheet.assetId, assetVersionId: sheet.assetId,
           sourceFingerprint: sheet.sourceFingerprint, referenceImageUrl: sheet.previewUrl,
           contentHash: sheet.contentHash, castAssignmentId, trustedGenerationId: sheet.generationId,
-          characterName: assignment.displayName, roleName: label, lookName: assignment.displayName, previewUrl: sheet.previewUrl });
+          characterName: assignment.displayName, roleName: label, lookName: assignment.displayName, previewUrl: sheet.previewUrl,
+          referenceSource: 'generated', selectionScope: shot.manualStoryboard || shot.wardrobeLookIds?.length ? 'shot' : 'scene' });
         continue;
       }
       if (matches.length !== 1 || matches[0].locked !== true || matches[0].mode !== 'character_look'
@@ -75,6 +76,10 @@ export class CinematicVideoReferencePlanService {
       const resolved = await this.lookService.resolveApprovedSheetReference(
         assignment.characterProfileId, look.characterLookId, look.characterLookVersionId, actorContext
       );
+      if (!assignment.characterProfileVersionId || !resolved.characterProfileVersionId
+        || resolved.characterProfileVersionId !== assignment.characterProfileVersionId) {
+        throw referenceError('cinematic_look_identity_version_mismatch', 'Select a Look approved for the current Character identity version.');
+      }
       references.push({
         role: 'reference_image', purpose: 'character_look',
         assetId: resolved.asset.id, assetVersionId: resolved.asset.id,
@@ -83,7 +88,10 @@ export class CinematicVideoReferencePlanService {
         characterProfileId: assignment.characterProfileId,
         characterLookId: look.characterLookId, characterLookVersionId: look.characterLookVersionId,
         ...(resolved.trustedGenerationId ? { trustedGenerationId: resolved.trustedGenerationId } : {}),
-        roleName: label, lookName: look.name || '', previewUrl: resolved.previewUrl
+        roleName: label, characterName: assignment.displayName, lookName: look.name || '', previewUrl: resolved.previewUrl,
+        referenceSource: look.characterLookProvenance?.kind === 'user_uploaded' ? 'uploaded'
+          : ['system_generated', 'generated_import'].includes(look.characterLookProvenance?.kind) ? 'generated' : 'library',
+        selectionScope: shot.manualStoryboard || shot.wardrobeLookIds?.length ? 'shot' : 'scene'
       });
     }
     return { mode, inputMode: 'multimodal_reference', references, ...(compositionPurpose ? { storyboardRenderStyle: source.storyboardRenderStyle } : {}) };

@@ -1,4 +1,6 @@
-const DEFAULT_MODEL = 'gpt-5.6-luna';
+import { openAITextModels } from './openaiTextModels.js';
+
+const DEFAULT_MODEL = openAITextModels.active;
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_OUTPUT_TOKENS = 1_800;
 const DEFAULT_AUDIT_MAX_FILES = 500;

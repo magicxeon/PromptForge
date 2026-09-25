@@ -18,7 +18,7 @@ const api = vi.hoisted(() => ({
 }));
 
 vi.mock('../../../components/generation/GenerationExperience', () => ({
-  GenerationExperience: (props: { initialPrompt?: string; additionalDirection?: string; referenceRoles?: string[]; sceneTemplateSnapshot?: Record<string, unknown>; fixedOutputCount?: number; allowPromptRefinement?: boolean; layoutVariant?: string; showRecentGenerations?: boolean; onCompleted?: (jobId: string) => void; renderResultActions?: (job: { id: string; status: string; result: { imageUrl: string } }) => ReactNode }) => <section aria-label="shared-generation-experience" data-prompt={props.initialPrompt} data-additional-direction={props.additionalDirection} data-reference-roles={props.referenceRoles?.join(',')} data-has-additional-snapshot={String(Boolean(props.sceneTemplateSnapshot?.additionalDirectionSnapshot))} data-fixed-output-count={props.fixedOutputCount} data-prompt-refinement={String(props.allowPromptRefinement)} data-layout-variant={props.layoutVariant} data-show-recent={String(props.showRecentGenerations)}>
+  GenerationExperience: (props: { initialPrompt?: string; additionalDirection?: string; referenceRoles?: string[]; sceneTemplateSnapshot?: Record<string, unknown>; fixedOutputCount?: number; fixedAspectRatio?: string; allowPromptRefinement?: boolean; layoutVariant?: string; showRecentGenerations?: boolean; onCompleted?: (jobId: string) => void; renderResultActions?: (job: { id: string; status: string; result: { imageUrl: string } }) => ReactNode }) => <section aria-label="shared-generation-experience" data-prompt={props.initialPrompt} data-additional-direction={props.additionalDirection} data-reference-roles={props.referenceRoles?.join(',')} data-has-additional-snapshot={String(Boolean(props.sceneTemplateSnapshot?.additionalDirectionSnapshot))} data-fixed-output-count={props.fixedOutputCount} data-fixed-aspect-ratio={props.fixedAspectRatio} data-prompt-refinement={String(props.allowPromptRefinement)} data-layout-variant={props.layoutVariant} data-show-recent={String(props.showRecentGenerations)}>
     <button type="button" onClick={() => props.onCompleted?.('job_look_sheet')}>complete-look-generation</button>
     {props.renderResultActions?.({ id: 'job_look_sheet', status: 'completed', result: { imageUrl: '/outputs/look.png' } })}
   </section>
@@ -46,6 +46,7 @@ const testI18n = i18next.createInstance();
 
 describe('CharacterLookDialog', () => {
   beforeAll(async () => {
+    Element.prototype.scrollIntoView = vi.fn();
     await testI18n.use(initReactI18next).init({
       lng: 'en', resources: { en: { cinematic: {} } }, keySeparator: false,
       returnNull: false, interpolation: { escapeValue: false }
@@ -73,7 +74,7 @@ describe('CharacterLookDialog', () => {
         purpose: 'character_usage', characterProfileId: 'char_1',
         characterProfileVersionId: 'charver_1', sourceId: 'look_1'
       },
-      output: { aspectRatio: '1:1', outputCount: 1 },
+      output: { aspectRatio: '9:16', outputCount: 1 },
       source: {
         characterProfileId: 'char_1', characterProfileVersionId: 'charver_1',
         lookId: 'look_1', lookVersionId: 'lookver_1'
@@ -94,6 +95,56 @@ describe('CharacterLookDialog', () => {
     expect(api.create).not.toHaveBeenCalled();
     expect(api.plan).not.toHaveBeenCalled();
     expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it.each(['realistic', 'semi_realistic', 'illustration'])('saves %s on a new AI Look using the shared style menu', async generationStyle => {
+    renderDialog(<CharacterLookDialog open initialMode="ai" onOpenChange={vi.fn()}
+      characterProfileId="char_1" characterProfileVersionId="charver_1" onSaved={vi.fn()} />);
+    const menu = screen.getByRole('combobox', { name: /generationStyle$/ });
+    expect(menu).toHaveTextContent(/generationStyles.realistic/);
+    fireEvent.keyDown(menu, { key: 'ArrowDown' });
+    const option = await screen.findByRole('option', { name: `cinematic.lookDraft.generationStyles.${generationStyle}` });
+    fireEvent.keyDown(option, { key: 'Enter' });
+    expect(menu).toHaveTextContent(`cinematic.lookDraft.generationStyles.${generationStyle}`);
+    const [name, direction] = screen.getAllByRole('textbox');
+    fireEvent.change(name!, { target: { value: 'New Look' } });
+    fireEvent.change(direction!, { target: { value: 'A navy coat.' } });
+    fireEvent.click(screen.getByRole('button', { name: /saveAsDraft/ }));
+    await waitFor(() => expect(api.create).toHaveBeenCalledWith('char_1', expect.objectContaining({
+      sourceMode: 'ai_suggestion', generationStyle
+    })));
+    expect(api.plan).not.toHaveBeenCalled();
+    expect(api.upload).not.toHaveBeenCalled();
+    expect(api.approve).not.toHaveBeenCalled();
+  });
+
+  it('opens the sheet upload directly on opt-in and resets to it on reopening', () => {
+    const props = { onOpenChange: vi.fn(), characterProfileId: 'char_1', characterProfileVersionId: 'charver_1', onSaved: vi.fn() };
+    const view = renderDialog(<CharacterLookDialog open initialUploadKind="sheet" {...props} />);
+    expect(screen.getByRole('radio', { name: /completeSheet/ })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('checkbox')).toBeDisabled();
+    expect(screen.queryByRole('combobox', { name: /generationStyle/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('radio', { name: /uploadWardrobe/ }));
+    expect(screen.getByRole('combobox', { name: /generationStyle/ })).toBeVisible();
+    view.rerender(<I18nextProvider i18n={testI18n}><CharacterLookDialog open={false} initialUploadKind="sheet" {...props} /></I18nextProvider>);
+    view.rerender(<I18nextProvider i18n={testI18n}><CharacterLookDialog open initialUploadKind="sheet" {...props} /></I18nextProvider>);
+    expect(screen.getByRole('radio', { name: /completeSheet/ })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.queryByRole('combobox', { name: /generationStyle/ })).not.toBeInTheDocument();
+  });
+
+  it('shows the pinned plan style in Generation without offering mutation of the existing Look', async () => {
+    const draft = sourceReadyLook();
+    draft.versions[0]!.generationStyle = 'illustration';
+    const plan = await api.plan();
+    api.plan.mockClear().mockResolvedValue({ ...plan, generationStyle: 'illustration',
+      source: { ...plan.source, generationStyle: 'illustration' }, prompt: 'Rendering style: illustration.' });
+    renderDialog(<CharacterLookDialog open lookToPrepare={draft} onOpenChange={vi.fn()}
+      characterProfileId="char_1" characterProfileVersionId="charver_1" onSaved={vi.fn()} />);
+    expect(screen.queryByRole('combobox', { name: /generationStyle/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /openAiGeneration/ }));
+    expect(await screen.findByText('cinematic.lookDraft.generationStyles.illustration')).toBeVisible();
+    expect(screen.getByLabelText('shared-generation-experience')).toHaveAttribute('data-prompt', 'Rendering style: illustration.');
+    expect(api.create).not.toHaveBeenCalled();
   });
 
   it('approves one owned Character Look Sheet without starting Generation', async () => {
@@ -132,6 +183,7 @@ describe('CharacterLookDialog', () => {
       sourceMode: 'uploaded_character_sheet',
       sourceSheetAssetId: 'asset_sheet'
     }));
+    expect(api.create.mock.calls[0]![1]).not.toHaveProperty('generationStyle');
     expect(api.review).toHaveBeenCalledWith('char_1', 'look_1', 'lookver_1', expect.objectContaining({
       sheetAssetId: 'asset_sheet',
       rightsDeclarationAccepted: true,
@@ -180,6 +232,7 @@ describe('CharacterLookDialog', () => {
 
     await waitFor(() => expect(api.create).toHaveBeenCalledWith('char_1', expect.objectContaining({
       sourceMode: 'uploaded',
+      generationStyle: 'realistic',
       garmentAuthorities: { full_look: { front: 'asset_full' } }
     })));
     expect(api.review).not.toHaveBeenCalled();
@@ -244,6 +297,7 @@ describe('CharacterLookDialog', () => {
     expect(generation).toHaveAttribute('data-reference-roles', '');
     expect(generation).toHaveAttribute('data-has-additional-snapshot', 'false');
     expect(generation).toHaveAttribute('data-fixed-output-count', '1');
+    expect(generation).toHaveAttribute('data-fixed-aspect-ratio', '9:16');
     expect(generation).toHaveAttribute('data-prompt-refinement', 'false');
     expect(generation).toHaveAttribute('data-layout-variant', 'playground');
     expect(generation).toHaveAttribute('data-show-recent', 'false');
@@ -271,6 +325,22 @@ describe('CharacterLookDialog', () => {
     fireEvent.click(approveButton);
     await waitFor(() => expect(api.approve).toHaveBeenCalledWith('char_1', draft.id, draft.activeVersionId));
     expect(onSaved).toHaveBeenCalledWith(expect.objectContaining({ lifecycleStatus: 'approved' }));
+  });
+
+  it('refreshes a cached square plan when resuming Generation for the same Look', async () => {
+    const latest = await api.plan();
+    api.plan.mockClear().mockResolvedValueOnce({ ...latest, output: { aspectRatio: '1:1', outputCount: 1 } }).mockResolvedValue(latest);
+    const draft = sourceReadyLook();
+    renderDialog(<CharacterLookDialog open lookToPrepare={draft} onOpenChange={vi.fn()}
+      characterProfileId="char_1" characterProfileVersionId="charver_1" onSaved={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /openAiGeneration/i }));
+    expect(await screen.findByLabelText('shared-generation-experience')).toHaveAttribute('data-fixed-aspect-ratio', '1:1');
+    fireEvent.click(screen.getByRole('button', { name: /backToPreparation/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /resumeGeneration/i }));
+    await waitFor(() => expect(screen.getByLabelText('shared-generation-experience')).toHaveAttribute('data-fixed-aspect-ratio', '9:16'));
+    expect(api.plan).toHaveBeenCalledTimes(2);
+    expect(api.create).not.toHaveBeenCalled();
+    expect(api.reviewGenerated).not.toHaveBeenCalled();
   });
 
   it('surfaces the completed candidate action without requiring the image viewer', async () => {

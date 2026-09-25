@@ -4,6 +4,7 @@ import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
+import { ThemeSelect } from '../../../components/ui/ThemeSelect';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import { composeGenerationReferences, uploadGenerationReference } from '../../generation/api/generationApi';
 import {
@@ -13,7 +14,7 @@ import {
   reviewGeneratedCharacterLookVersion,
   reviewCharacterLookVersion
 } from '../api/profileApi';
-import type { CharacterLook, CharacterLookGenerationPlan } from '../schemas/profileSchemas';
+import { characterLookGenerationStyleSchema, type CharacterLook, type CharacterLookGenerationPlan, type CharacterLookGenerationStyle } from '../schemas/profileSchemas';
 import { CharacterLookGenerationDialog } from './CharacterLookGenerationDialog';
 import { ApiError } from '../../../lib/api/apiError';
 
@@ -44,6 +45,7 @@ type Props = {
   characterProfileVersionId: string;
   characterDisplayName?: string;
   initialMode?: CharacterLookDialogMode;
+  initialUploadKind?: 'garment' | 'sheet';
   lookToPrepare?: CharacterLook | null;
   requestAiSuggestion?: () => Promise<CharacterLookSuggestion>;
   onSaved: (look: CharacterLook) => void;
@@ -66,13 +68,15 @@ export function CharacterLookDialog({
   characterProfileVersionId,
   characterDisplayName,
   initialMode = 'upload',
+  initialUploadKind = 'garment',
   lookToPrepare = null,
   requestAiSuggestion,
   onSaved
 }: Props) {
   const { t } = useTranslation('cinematic');
   const [mode, setMode] = useState<CharacterLookDialogMode>(initialMode);
-  const [uploadKind, setUploadKind] = useState<'garment' | 'sheet'>('garment');
+  const [uploadKind, setUploadKind] = useState<'garment' | 'sheet'>(initialUploadKind);
+  const [generationStyle, setGenerationStyle] = useState<CharacterLookGenerationStyle>('realistic');
   const [garmentSourceMode, setGarmentSourceMode] = useState<'full_look' | 'separate'>('full_look');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -123,7 +127,8 @@ export function CharacterLookDialog({
   useEffect(() => {
     if (!open) return;
     setMode(lookToPrepare ? 'upload' : initialMode);
-    setUploadKind('garment');
+    setUploadKind(initialUploadKind);
+    setGenerationStyle('realistic');
     setGarmentSourceMode('full_look');
     setName(lookToPrepare?.name || '');
     setDescription(lookToPrepare?.description || '');
@@ -141,7 +146,7 @@ export function CharacterLookDialog({
     setSourcePreviewReady(false);
     setReviewMediaReady(false);
     setUseCompleteSheetUpload(false);
-  }, [initialMode, lookToPrepare, open, characterProfileId, characterProfileVersionId]);
+  }, [initialMode, initialUploadKind, lookToPrepare, open, characterProfileId, characterProfileVersionId]);
 
   const canSave = Boolean(
     preparationLook
@@ -180,10 +185,6 @@ export function CharacterLookDialog({
 
   async function openAiGeneration() {
     if (!preparationLook || generationPlanLoading) return;
-    if (generationPlan) {
-      setDialogView('generation');
-      return;
-    }
     setGenerationPlanLoading(true);
     setError(null);
     try {
@@ -267,6 +268,7 @@ export function CharacterLookDialog({
           name: name.trim(),
           description: description.trim(),
           sourceMode: 'ai_suggestion',
+          generationStyle,
           suggestionSnapshot: suggestion ? structuredClone(suggestion) as unknown as Record<string, unknown> : null,
           idempotencyKey
         });
@@ -294,6 +296,7 @@ export function CharacterLookDialog({
           name: name.trim(),
           description: description.trim() || undefined,
           sourceMode: 'uploaded',
+          generationStyle,
           garmentAuthorities,
           idempotencyKey
         });
@@ -312,6 +315,7 @@ export function CharacterLookDialog({
         name: name.trim(),
         description: description.trim() || undefined,
         sourceMode: uploadKind === 'sheet' ? 'uploaded_character_sheet' : 'uploaded',
+        ...(uploadKind === 'garment' ? { generationStyle } : {}),
         ...(uploadKind === 'sheet'
           ? { sourceSheetAssetId: source.referenceId }
           : { garmentAuthorities: { full_look: { front: source.referenceId } } }),
@@ -456,6 +460,18 @@ export function CharacterLookDialog({
             </> : <><label className="character-look-upload is-sheet"><ImageIcon aria-hidden="true" /><span>{t('cinematic.lookDraft.sheetFile')}</span><input type="file" accept="image/*" onChange={event => setSourceFile(event.target.files?.[0] || null)} required /><small>{sourceFile?.name || t('cinematic.lookDraft.frontRequired')}</small>{previewUrl ? <img src={previewUrl} alt={t('cinematic.lookDraft.previewAlt')} onLoad={() => setSourcePreviewReady(true)} onError={() => { setSourcePreviewReady(false); setError(t('cinematic.lookDraft.previewFailed')); }} /> : null}</label>{sourcePreviewReady ? <p className="character-look-identity-warning">{t('cinematic.lookDraft.uploadIdentityWarning')}</p> : null}<label className="character-look-rights-row is-terminal"><input type="checkbox" checked={rightsAccepted} disabled={!sourcePreviewReady} onChange={event => setRightsAccepted(event.target.checked)} /><span>{t('cinematic.lookDraft.sheetRights')}</span></label></>}
             <p className="character-look-draft-form__notice">{t(uploadKind === 'sheet' ? 'cinematic.lookDraft.sheetNotice' : 'cinematic.lookDraft.notice')}</p>
           </>}
+          {!preparationLook && (mode === 'ai' || uploadKind === 'garment') ? <div>
+            <span>{t('cinematic.lookDraft.generationStyle')}</span>
+            <ThemeSelect
+              ariaLabel={t('cinematic.lookDraft.generationStyle')}
+              value={generationStyle}
+              disabled={saving}
+              options={characterLookGenerationStyleSchema.options.map(value => ({
+                value, label: t(`cinematic.lookDraft.generationStyles.${value}`)
+              }))}
+              onValueChange={value => setGenerationStyle(characterLookGenerationStyleSchema.parse(value))}
+            />
+          </div> : null}
           {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
           <footer className="character-look-dialog__footer">
             <Button type="button" onClick={closeFlow}>{t('cinematic.actions.cancel')}</Button>

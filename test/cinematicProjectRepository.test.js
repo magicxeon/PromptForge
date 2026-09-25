@@ -100,3 +100,54 @@ test('CinematicProjectRepository normalizes null Storyboard source pointers from
   assert.equal(Object.hasOwn(persisted.projects[0].scenes[0].shots[0], 'approvedStoryboardSource'), false);
   assert.equal(Object.hasOwn(persisted.projects[0].scenes[0].shots[0], 'approvedStoryboardAttemptId'), false);
 });
+
+test('CinematicProjectRepository groups Chapters into one resumable Project summary with real clip progress', async t => {
+  const { directory, repository } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const base = {
+    ownerUserId: alice.userId, ownerUsername: alice.username, schemaVersion: 1, version: 1,
+    format: 'short-film', durationTargetMs: 60_000, status: 'producing',
+    setup: {}, storyPlanVersions: [], generationAttempts: [], timelineVersions: [],
+    commandReceipts: [], castAssignments: [], createdAt: '2026-09-18T00:00:00.000Z', archivedAt: null
+  };
+  await fs.writeFile(repository.projectsFile, JSON.stringify({
+    schemaVersion: 1,
+    series: [{
+      id: 'series_rain', ownerUserId: alice.userId, title: 'Rain Stories', version: 1,
+      seasons: [{ id: 'season_1', number: 1, title: '' }],
+      createdAt: '2026-09-18T00:00:00.000Z', updatedAt: '2026-09-19T02:00:00.000Z'
+    }],
+    projects: [
+      {
+        ...base, id: 'chapter_1', projectId: 'chapter_1', title: 'First rain', activeStage: 'produce',
+        updatedAt: '2026-09-19T01:00:00.000Z',
+        seriesMembership: { seriesId: 'series_rain', seasonId: 'season_1', chapterNumber: 1 },
+        scenes: [{ id: 'scene_1', shots: [{ id: 'shot_1', approvedVideoAttemptId: 'take_1', approvedStoryboardSource: {
+          thumbnailUrl: '/outputs/thumbnails/rain.webp'
+        } }] }],
+        generationAttempts: [{
+          id: 'take_1', reviewDecision: 'approved', status: 'approved', downstreamSourceStatus: 'current'
+        }]
+      },
+      {
+        ...base, id: 'chapter_2', projectId: 'chapter_2', title: 'Second rain', activeStage: 'storyboard',
+        updatedAt: '2026-09-19T03:00:00.000Z',
+        seriesMembership: { seriesId: 'series_rain', seasonId: 'season_1', chapterNumber: 2 },
+        scenes: [{ id: 'scene_2', shots: [{ id: 'shot_2' }] }]
+      }
+    ]
+  }), 'utf8');
+
+  const page = await repository.listForActor(alice);
+  assert.equal(page.items.length, 1);
+  assert.deepEqual(page.items[0].progress, { approvedClipCount: 1, totalClipCount: 2 });
+  assert.equal(page.items[0].productionProjectId, 'series_rain');
+  assert.equal(page.items[0].projectId, 'chapter_1');
+  assert.equal(page.items[0].title, 'Rain Stories');
+  assert.equal(page.items[0].chapterTitle, 'Second rain');
+  assert.deepEqual(page.items[0].resumeContext, {
+    productionProjectId: 'series_rain', chapterId: 'chapter_2',
+    productionUnitId: 'chapter_2', stage: 'storyboard'
+  });
+  assert.equal(page.items[0].thumbnailUrl, '/outputs/thumbnails/rain.webp');
+});

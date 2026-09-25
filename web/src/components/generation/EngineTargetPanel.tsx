@@ -77,7 +77,7 @@ export function EngineTargetPanel({
   const ratios = fixedAspectRatio ? [fixedAspectRatio] : availableRatios;
   const resolutions = model?.capabilities.resolutions || [];
   const selectionRatio = fixedAspectRatio || (adaptAspectRatio ? null : value.aspectRatio);
-  const dimensions = dimensionsForRatio(value.aspectRatio);
+  const dimensions = dimensionsForRatio(fixedAspectRatio || value.aspectRatio);
   const selectedModelUnavailableReason = imageModelUnavailableReason(
     model,
     requiredReferenceCount,
@@ -143,7 +143,7 @@ export function EngineTargetPanel({
         ) : null}
         <div className="engine-target-panel__output-grid">
           {model?.capabilities.dimensionControl !== 'aspect_ratio_only'
-            && value.aspectRatio !== 'auto'
+            && (fixedAspectRatio || value.aspectRatio) !== 'auto'
             && !comparisonUsesAspectOnlyDimensions ? <>
             <Field label={t('playground.engine.width')}><input readOnly value={dimensions.width} /></Field>
             <Field label={t('playground.engine.height')}><input readOnly value={dimensions.height} /></Field>
@@ -154,9 +154,9 @@ export function EngineTargetPanel({
               {ratios.map(ratio => (
                 <Button
                   key={ratio}
-                  className={value.aspectRatio === ratio ? 'is-selected' : ''}
+                  className={(fixedAspectRatio || value.aspectRatio) === ratio ? 'is-selected' : ''}
                   size="sm"
-                  variant={value.aspectRatio === ratio ? 'primary' : 'secondary'}
+                  variant={(fixedAspectRatio || value.aspectRatio) === ratio ? 'primary' : 'secondary'}
                   disabled={Boolean(fixedAspectRatio)}
                   onClick={() => onChange({ ...value, aspectRatio: ratio })}
                 >

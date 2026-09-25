@@ -178,3 +178,23 @@ function passingProbe(overrides = {}) {
     ...overrides
   };
 }
+
+test('CinematicVideoAssetService caches successful media-tool readiness checks', async () => {
+  let probeChecks = 0;
+  let posterChecks = 0;
+  let now = 1_000;
+  const service = new CinematicVideoAssetService({
+    probeService: { async assertAvailable() { probeChecks += 1; } },
+    posterService: { async assertAvailable() { posterChecks += 1; } },
+    readinessTtlMs: 30_000,
+    clock: () => now
+  });
+  await service.assertReady();
+  await service.assertReady();
+  assert.equal(probeChecks, 1);
+  assert.equal(posterChecks, 1);
+  now += 30_000;
+  await service.assertReady();
+  assert.equal(probeChecks, 2);
+  assert.equal(posterChecks, 2);
+});

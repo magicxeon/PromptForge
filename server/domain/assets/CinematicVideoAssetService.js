@@ -17,7 +17,9 @@ export class CinematicVideoAssetService {
     probeService = videoMediaProbeService,
     outputsDirectory = OUTPUTS_DIR,
     fetchImpl = globalThis.fetch,
-    maxBytes = DEFAULT_MAX_BYTES
+    maxBytes = DEFAULT_MAX_BYTES,
+    readinessTtlMs = 30_000,
+    clock = Date.now
   } = {}) {
     this.assetRepository = assetRepository;
     this.posterService = posterService;
@@ -25,6 +27,22 @@ export class CinematicVideoAssetService {
     this.outputsDirectory = outputsDirectory;
     this.fetchImpl = fetchImpl;
     this.maxBytes = maxBytes;
+    this.readinessTtlMs = readinessTtlMs;
+    this.clock = clock;
+    this.readiness = null;
+  }
+
+  async assertReady() {
+    const now = this.clock();
+    if (this.readiness && now - this.readiness.checkedAt < this.readinessTtlMs) {
+      return this.readiness.promise;
+    }
+    const promise = Promise.all([
+      this.probeService.assertAvailable?.(),
+      this.posterService.assertAvailable?.()
+    ]).then(() => true);
+    this.readiness = { checkedAt: now, promise };
+    return promise;
   }
 
   async persistVideoOutput({ task, output }) {

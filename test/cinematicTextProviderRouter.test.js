@@ -123,3 +123,67 @@ test('Cinematic text router skips a runtime-disabled primary and uses only an en
   assert.equal(result.executionProvider, 'gemini');
   assert.equal(result.fallbackReason, 'primary_disabled_by_admin');
 });
+
+test('Cinematic text router falls back once for Scene-to-Shot transport failure', async () => {
+  let primaryCalls = 0;
+  let fallbackCalls = 0;
+  const router = new CinematicTextProviderRouter(policy(), {
+    primaryProviderFactory: () => ({
+      generateCinematicSceneShots: async () => {
+        primaryCalls += 1;
+        throw Object.assign(new Error('Provider connection unavailable.'), {
+          code: 'cinematic_scene_shots_transport_error', statusCode: 503
+        });
+      }
+    }),
+    fallbackProviderFactory: () => ({
+      generateCinematicSceneShots: async args => {
+        fallbackCalls += 1;
+        assert.equal(args.model, 'gemini-3.8-flash');
+        return { shots: [{ title: 'Opening' }], warnings: [], responseId: 'gemini-shot-response' };
+      }
+    })
+  });
+
+  const result = await router.generateCinematicSceneShots({ model: 'gpt-5.6-terra' });
+  assert.equal(primaryCalls, 1);
+  assert.equal(fallbackCalls, 1);
+  assert.equal(result.executionProvider, 'gemini');
+  assert.equal(result.executionModel, 'gemini-3.8-flash');
+  assert.equal(result.fallbackUsed, true);
+  assert.equal(result.fallbackReason, 'primary_transport_failure');
+});
+
+test('Cinematic text router exposes bounded dual-transport failure metadata', async () => {
+  const router = new CinematicTextProviderRouter(policy(), {
+    primaryProviderFactory: () => ({
+      generateCinematicSceneShots: async () => {
+        throw Object.assign(new Error('Primary unavailable.'), {
+          code: 'cinematic_scene_shots_transport_error', statusCode: 503
+        });
+      }
+    }),
+    fallbackProviderFactory: () => ({
+      generateCinematicSceneShots: async () => {
+        throw Object.assign(new Error('Fallback unavailable.'), {
+          code: 'cinematic_scene_shots_transport_error', statusCode: 503,
+          details: { reason: 'ECONNRESET' }
+        });
+      }
+    })
+  });
+
+  await assert.rejects(
+    router.generateCinematicSceneShots({ model: 'gpt-5.6-terra' }),
+    error => {
+      assert.deepEqual(error.details, {
+        reason: 'ECONNRESET',
+        fallbackAttempted: true,
+        primaryFailureCode: 'cinematic_scene_shots_transport_error',
+        fallbackFailureCode: 'cinematic_scene_shots_transport_error'
+      });
+      assert.doesNotMatch(JSON.stringify(error.details), /Primary unavailable|Fallback unavailable/);
+      return true;
+    }
+  );
+});

@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Images, X } from 'lucide-react';
+import { AlertCircle, ChevronLeft, ChevronRight, Images, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
@@ -23,6 +23,8 @@ export function TrustedVideoSources({
   characterNumber = 1,
   excludedIds = [],
   frameLabel,
+  invalidFrame = false,
+  invalidLook = false,
 }: {
   withLook: boolean;
   frame: TrustedVideoSource | null;
@@ -31,6 +33,8 @@ export function TrustedVideoSources({
   characterNumber?: number;
   excludedIds?: string[];
   frameLabel?: string;
+  invalidFrame?: boolean;
+  invalidLook?: boolean;
   onChange: (patch: {
     trustedFrame?: TrustedVideoSource | null;
     trustedLook?: NamedTrustedVideoSource | null;
@@ -91,8 +95,10 @@ export function TrustedVideoSources({
                 ? 'playground.video.references.scene'
                 : 'playground.video.references.frame',
           );
+          const invalid = key === 'frame' ? invalidFrame : invalidLook;
           return (
-            <section className="playground-video-references__slot" key={key}>
+            <section className={`playground-video-references__slot${invalid ? ' is-provider-rejected' : ''}`}
+              aria-invalid={invalid || undefined} key={key}>
               <header>
                 <strong>{title}</strong>
               </header>
@@ -106,6 +112,10 @@ export function TrustedVideoSources({
                   <Images aria-hidden="true" />
                 )}
               </div>
+              {invalid ? <p className="playground-video-references__provider-issue" role="alert">
+                <AlertCircle aria-hidden="true" />
+                {t('playground.video.references.providerRejectedInline')}
+              </p> : null}
               {selected ? frameLabel ? pickerDetails(selected) : details(selected) : null}
               {key === 'look' && look ? <label>
                 {t('playground.video.references.characterName', { number: characterNumber })}

@@ -20,6 +20,82 @@ async function fixture(t) {
   return { repository, service, project, projectsFile };
 }
 
+test('new Mini Series creates its Production Project root and Chapter 1 atomically', async t => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cinematic-new-series-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const projectsFile = path.join(root, 'projects.json');
+  const repository = new CinematicProjectRepository({ projectsFile });
+  const service = new CinematicApplicationService({ repository });
+  const chapter = await service.createProject({
+    ...setup,
+    title: 'Rain Letters',
+    format: 'mini-series',
+    aspectRatio: '16:9',
+    durationSeconds: 120,
+    storyPeriod: 'recent-past',
+    storyBrief: '',
+    creationIntent: 'draft'
+  }, actor);
+  const workspace = await service.getSeriesWorkspace(chapter.id, actor);
+  const stored = JSON.parse(await fs.readFile(projectsFile, 'utf8'));
+
+  assert.equal(workspace.productionProject.format, 'mini-series');
+  assert.equal(workspace.productionProject.chapterCount, 1);
+  assert.equal(workspace.productionProject.chapterWorkStarted, false);
+  assert.equal(workspace.chapters[0].productionUnitId, chapter.id);
+  assert.equal(workspace.chapters[0].storyBrief, '');
+  assert.equal(chapter.aspectRatio, '16:9');
+  assert.equal(chapter.durationTargetMs, 120_000);
+  assert.equal(chapter.setup.storyPeriod, 'recent-past');
+  assert.equal(chapter.setup.storyBrief, '');
+  assert.equal(stored.projects.length, 1);
+  assert.equal(stored.series.length, 1);
+  assert.equal(stored.projects[0].seriesMembership.seriesId, stored.series[0].id);
+});
+
+test('Prepare Story persists bounded AI operation context on the initial Story Source', async t => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cinematic-prepared-story-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const repository = new CinematicProjectRepository({ projectsFile: path.join(root, 'projects.json') });
+  const service = new CinematicApplicationService({ repository });
+  const project = await service.createProject({
+    ...setup,
+    creationIntent: 'prepare-story',
+    storyPreparation: {
+      enhancementId: 'cineenh_new_project',
+      provenance: { provider: 'openai', model: 'gpt-test', responseId: 'response-1' },
+      billingStatus: 'qualification_no_charge'
+    }
+  }, actor);
+
+  assert.equal(project.setup.storyPreparation, undefined);
+  assert.equal(project.storySourceVersions[0].source, 'ai-enhancement');
+  assert.deepEqual(project.storySourceVersions[0].operationContext, {
+    enhancementId: 'cineenh_new_project',
+    provenance: { provider: 'openai', model: 'gpt-test', responseId: 'response-1' },
+    billingStatus: 'qualification_no_charge'
+  });
+});
+
+test('invalid Prepare Story context is rejected before Project storage', async t => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cinematic-invalid-prepared-story-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const projectsFile = path.join(root, 'projects.json');
+  const repository = new CinematicProjectRepository({ projectsFile });
+  const service = new CinematicApplicationService({ repository });
+
+  assert.throws(() => service.createProject({
+    ...setup,
+    creationIntent: 'prepare-story',
+    storyPreparation: {
+      enhancementId: '',
+      provenance: { provider: 'openai', model: 'gpt-test', responseId: null },
+      billingStatus: 'qualification_no_charge'
+    }
+  }, actor), { code: 'cinematic_story_preparation_invalid' });
+  await assert.rejects(fs.access(projectsFile));
+});
+
 test('standalone remains unchanged; explicit Series membership preserves story, scenes, attempts and URLs', async t => {
   const { service, repository, project, projectsFile } = await fixture(t);
   await repository.mutateForActor(project.id, actor, draft => {
@@ -27,7 +103,12 @@ test('standalone remains unchanged; explicit Series membership preserves story, 
     draft.generationAttempts = [{ id: 'take', status: 'approved', outputAsset: { publicUrl: '/original.mp4' } }];
   });
   const before = await service.getProject(project.id, actor);
-  assert.deepEqual(await service.getSeriesWorkspace(project.id, actor), { series: null, chapters: [] });
+  const standalone = await service.getSeriesWorkspace(project.id, actor);
+  assert.equal(standalone.series, null);
+  assert.equal(standalone.productionProject.id, project.id);
+  assert.equal(standalone.productionProject.seasonsEnabled, false);
+  assert.equal(standalone.chapters[0].chapterId, project.id);
+  assert.equal(standalone.chapters[0].productionUnitId, project.id);
   assert.equal(JSON.parse(await fs.readFile(projectsFile, 'utf8')).series, undefined);
   const attached = await service.createSeries(project.id, { title: 'Station Stories', expectedProjectVersion: 1 }, actor);
   assert.equal(attached.project.id, project.id);
@@ -36,6 +117,8 @@ test('standalone remains unchanged; explicit Series membership preserves story, 
   assert.deepEqual(attached.project.generationAttempts, before.generationAttempts);
   assert.equal(attached.project.seriesMembership.chapterNumber, 1);
   assert.equal(attached.workspace.series.seasons[0].number, 1);
+  assert.equal(attached.workspace.productionProject.id, attached.workspace.series.id);
+  assert.equal(attached.workspace.chapters[0].productionProjectId, attached.workspace.series.id);
   await assert.rejects(service.createSeries(project.id, { title: 'Duplicate', expectedProjectVersion: 2 }, actor), { code: 'cinematic_series_already_assigned' });
 });
 
@@ -52,7 +135,9 @@ test('Seasons and Chapters persist independently with pinned Cast snapshot and n
     sourceProjectId: project.id, expectedVersion: 1, expectedProjectVersion: 2, copyCast: true }, actor);
   assert.equal(chapter.project.seriesMembership.chapterNumber, 2);
   assert.equal(chapter.project.setup.creativeDirection, setup.creativeDirection);
-  assert.equal(chapter.project.setup.storyBrief, 'Nara reads a second letter.');
+  assert.equal(chapter.project.setup.storyBrief, setup.storyBrief);
+  assert.equal(chapter.project.chapterTitle, 'Another letter');
+  assert.equal(chapter.project.chapterStory, 'Nara reads a second letter.');
   for (const field of ['scenes', 'generationAttempts', 'timelineVersions', 'storyPlanVersions']) assert.deepEqual(chapter.project[field], []);
   assert.equal(chapter.project.castAssignments[0].characterProfileVersionId, 'version1');
   assert.notEqual(chapter.project.castAssignments[0].id, 'cast-old');
@@ -69,6 +154,47 @@ test('Seasons and Chapters persist independently with pinned Cast snapshot and n
   assert.equal(reloaded.series.seasons[1].title, 'Winter');
   assert.equal(reloaded.chapters[0].projectId, project.id);
   assert.equal(JSON.stringify(reloaded).includes('trustedGenerationId'), false);
+});
+
+test('an empty Chapter can be added for manual writing without inheriting generated work', async t => {
+  const { service, project } = await fixture(t);
+  const attached = await service.createSeries(project.id, { title: 'Series', expectedProjectVersion: 1 }, actor);
+  const result = await service.addSeriesChapter(attached.workspace.series.id, {
+    seasonId: attached.workspace.series.seasons[0].id,
+    title: 'Blank page',
+    storyBrief: '',
+    sourceProjectId: project.id,
+    expectedVersion: 1,
+    expectedProjectVersion: 2,
+    copyCast: false
+  }, actor);
+  assert.equal(result.project.setup.storyBrief, setup.storyBrief);
+  assert.equal(result.project.chapterTitle, 'Blank page');
+  assert.equal(result.project.chapterStory, '');
+  assert.equal(result.workspace.chapters.find(item => item.projectId === result.project.id).storyBrief, '');
+  for (const field of ['scenes', 'generationAttempts', 'timelineVersions', 'storyPlanVersions']) {
+    assert.deepEqual(result.project[field], []);
+  }
+});
+
+test('manual Chapter updates stay separate from the Project Brief and return the canonical workspace', async t => {
+  const { service, project } = await fixture(t);
+  const result = await service.updateSeriesChapter(project.id, {
+    expectedProjectVersion: project.version,
+    title: 'The second platform',
+    story: 'Nara chooses whether to open the letter.'
+  }, actor);
+  assert.equal(result.project.setup.storyBrief, setup.storyBrief);
+  assert.equal(result.project.chapterTitle, 'The second platform');
+  assert.equal(result.project.chapterStory, 'Nara chooses whether to open the letter.');
+  assert.equal(result.workspace.productionProject.chapterWorkStarted, true);
+  assert.equal(result.workspace.chapters[0].title, 'The second platform');
+  assert.equal(result.workspace.chapters[0].storyBrief, 'Nara chooses whether to open the letter.');
+  await assert.rejects(service.updateSeriesChapter(project.id, {
+    expectedProjectVersion: project.version,
+    title: 'Stale',
+    story: ''
+  }, actor), { code: 'cinematic_version_conflict' });
 });
 
 test('version conflicts, ownership and invalid input leave no partial or duplicate Series writes', async t => {
@@ -105,6 +231,12 @@ test('Series routes bind actor context, return private summaries and preserve HT
   assert.equal(created.body.workspace.series.ownerUserId, 'alice');
   assert.equal((await invoke('get', '/api/cinematic/projects/:projectId/series', { actorContext: other })).statusCode, 404);
   assert.equal((await invoke('patch', '/api/cinematic/series/:seriesId', { params: { seriesId: created.body.workspace.series.id }, body: { title: 'Changed', expectedVersion: 999 } })).statusCode, 409);
+  const chapter = await invoke('patch', '/api/cinematic/projects/:projectId/chapter', {
+    body: { expectedProjectVersion: 2, title: 'Opening', story: 'A manual Chapter.' }
+  });
+  assert.equal(chapter.statusCode, 200);
+  assert.equal(chapter.body.project.chapterStory, 'A manual Chapter.');
+  assert.equal(chapter.body.project.setup.storyBrief, setup.storyBrief);
   const read = await invoke('get', '/api/cinematic/projects/:projectId/series');
   assert.equal(read.statusCode, 200);
   assert.match(read.headers['Cache-Control'], /private, no-store/);

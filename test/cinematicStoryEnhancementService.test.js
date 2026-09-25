@@ -9,6 +9,8 @@ test('Cinematic story enhancement is qualification-gated and never invents Credi
       enhanceCinematicStory: async ({ story }) => {
         assert.equal(story.storyCountryStyle, 'japan');
         assert.match(story.storyCountryStyleGuidance, /Japanese observational/);
+        assert.equal(story.storyPeriod, 'recent-past');
+        assert.match(story.storyPeriodGuidance, /late-20th/);
         return ({
         enhancedStoryBrief: 'A concise enhanced story.', creativeDirection: 'Natural visual tension.',
         premise: 'A meeting', conflict: 'Time', emotionalArc: 'Fear to hope', ending: 'Resolution',
@@ -22,7 +24,7 @@ test('Cinematic story enhancement is qualification-gated and never invents Credi
       }); }
     })
   });
-  const result = await service.enhance({ storyBrief: 'A person waits at a station.', storyCountryStyle: 'japan' });
+  const result = await service.enhance({ storyBrief: 'A person waits at a station.', storyCountryStyle: 'japan', storyPeriod: 'recent-past' });
   assert.equal(result.billingStatus, 'qualification_no_charge');
   assert.equal(result.provenance.model, 'test-model');
   assert.equal(result.recommendedRoles.length, 1);

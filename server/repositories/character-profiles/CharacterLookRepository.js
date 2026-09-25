@@ -151,6 +151,8 @@ function createVersion(input, actor, now) {
     id: createPrefixedId('charlookver'),
     versionNumber: input.versionNumber,
     sourceMode: input.sourceMode,
+    ...(input.generationStyle !== undefined ? { generationStyle: input.generationStyle } : {}),
+    ...(input.generationRecipeVersion !== undefined ? { generationRecipeVersion: input.generationRecipeVersion } : {}),
     garmentAuthorities: structuredClone(input.garmentAuthorities || {}),
     sourceSheetAssetId: input.sourceSheetAssetId || null,
     authoritySnapshot: structuredClone(input.authoritySnapshot || []),

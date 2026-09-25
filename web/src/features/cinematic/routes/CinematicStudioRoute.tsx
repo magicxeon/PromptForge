@@ -1,20 +1,21 @@
-import { Clapperboard, Plus } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button } from '../../../components/ui/Button';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { Surface } from '../../../components/ui/Surface';
 import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { useFeaturePolicy } from '../../../lib/permissions/FeaturePolicyProvider';
+import { queryKeys } from '../../../lib/api/queryKeys';
 import { CinematicStageRail } from '../components/CinematicStageRail';
+import { CinematicWorkspaceNavigation } from '../components/CinematicWorkspaceNavigation';
 import { cinematicStages, simpleCinematicStages, visibleCinematicStage } from '../cinematicStages';
-import { CinematicStageContent } from '../components/CinematicStageContent';
+import { CinematicStageContent, CinematicProduceRuntime } from '../components/CinematicStageContent';
+import { Button } from '../../../components/ui/Button';
+import { ArrowLeft } from 'lucide-react';
 import { CinematicWorkspaceHeader } from '../components/CinematicWorkspaceHeader';
-import { CinematicSetupForm } from '../components/CinematicSetupForm';
 import { SeriesWorkspaceControls } from '../components/SeriesWorkspaceControls';
 import { ProjectCostSummary } from '../components/ProjectCostSummary';
 import { StoryEnhanceDialog } from '../components/CinematicDialogs';
@@ -32,7 +33,6 @@ import {
 } from '../state/cinematicDraftStorage';
 import {
   createCinematicProject,
-  enhanceCinematicStory,
   getCinematicAuthoringManifest,
   getCinematicProject,
   listCinematicProjects,
@@ -41,15 +41,26 @@ import {
   upsertCinematicCast,
   removeCinematicCast
 } from '../api/cinematicApi';
+import { saveCinematicFullStoryRevision } from '../api/cinematicApi';
+import type { StoryFile } from '../components/CinematicStoryFileImport';
+import type { CinematicStoryPreparationContext } from '../api/cinematicApi';
 import type { CinematicProject } from '../schemas/cinematicSchemas';
-import { updateCinematicStageWithRecovery } from './cinematicStageNavigation';
+import { resolveProjectAuthoringOwnerId, updateCinematicStageWithRecovery } from './cinematicStageNavigation';
+import { CinematicProjectLibrary } from '../components/CinematicProjectLibrary';
+import { CinematicNewProjectComposer } from '../components/CinematicNewProjectComposer';
+import { CinematicFullStoryWriter } from '../components/CinematicFullStoryWriter';
+import { CinematicChapterWriter } from '../components/CinematicChapterWriter';
+import { CinematicSceneOverview } from '../components/CinematicSceneOverview';
+import { CinematicShotWriter } from '../components/CinematicShotWriter';
+import { SceneEnvironmentControl } from '../components/SceneEnvironmentControl';
+import { StoryboardShotDialog } from '../components/StoryboardShotDialog';
 
 export function CinematicStudioRoute() {
   const { t } = useTranslation('cinematic');
   const { actor } = useActor();
   const { isEnabled, isLoading } = useFeaturePolicy();
   const location = useLocation();
-  const { projectId, stage } = useParams();
+  const { projectId, stage, shotId } = useParams();
 
   if (isLoading) {
     return <Surface fill centerContent><p>{t('cinematic.status.loading')}</p></Surface>;
@@ -66,7 +77,7 @@ export function CinematicStudioRoute() {
   const isNew = location.pathname === routePaths.createCinematicNew;
   if (!isNew && !projectId) return <CinematicProjectList actorId={actor.userId} />;
   if (projectId) {
-    return <ExistingCinematicWorkspace actorId={actor.userId} projectId={projectId} requestedStage={stage} />;
+    return <ExistingCinematicWorkspace actorId={actor.userId} projectId={projectId} requestedStage={stage} shotId={shotId} />;
   }
 
   return (
@@ -79,44 +90,27 @@ export function CinematicStudioRoute() {
 }
 
 function CinematicProjectList({ actorId }: { actorId: string }) {
-  const { t } = useTranslation('cinematic');
   const projects = useQuery({
-    queryKey: ['cinematic-projects', actorId],
-    queryFn: listCinematicProjects
+    queryKey: queryKeys.cinematicProjects(actorId),
+    queryFn: listCinematicProjects,
+    staleTime: 20_000,
+    gcTime: 60_000,
+    retry: false
   });
   return (
-    <main className="grid gap-4" data-testid="cinematic-project-list">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="m-0 text-xs font-semibold text-[var(--theme-primary)]">{t('cinematic.eyebrow')}</p>
-          <h1 className="m-0 text-2xl">{t('cinematic.title')}</h1>
-        </div>
-        <Link to={routePaths.createCinematicNew} className="no-underline">
-          <Button variant="primary" icon={<Plus className="size-4" />}>{t('cinematic.actions.newProject')}</Button>
-        </Link>
-      </header>
-      {projects.isPending ? <Surface className="min-h-64 p-6" centerContent><p>{t('cinematic.status.loading')}</p></Surface> : null}
-      {projects.isError ? <StatusNotice tone="error" title={t('cinematic.status.loadFailed')}>{projects.error.message}</StatusNotice> : null}
-      {projects.data?.items.length === 0 ? <Surface className="min-h-64 p-6" centerContent>
-          <Clapperboard className="size-10 text-[var(--theme-text-muted)]" aria-hidden="true" />
-          <strong>{t('cinematic.empty.title')}</strong>
-          <p className="m-0 max-w-md text-center text-sm text-[var(--theme-text-muted)]">{t('cinematic.empty.description')}</p>
-        </Surface> : null}
-      {projects.data?.items.length ? <div className="cinematic-project-grid">
-        {projects.data.items.map(project => <Link key={project.projectId} to={routeBuilders.cinematicProject(project.projectId, project.activeStage)} className="cinematic-project-card">
-          <Clapperboard aria-hidden="true" />
-          <div><strong title={project.title}>{project.title}</strong><span>{t(`cinematic.stages.${project.activeStage}`)}</span></div>
-          <small>{project.seriesMembership ? <span>{t('cinematic.series.chapterNumber', { number: project.seriesMembership.chapterNumber })} / </span> : null}{project.durationSeconds}s</small>
-        </Link>)}
-      </div> : null}
-    </main>
+    <CinematicProjectLibrary
+      projects={projects.data?.items || []}
+      loading={projects.isPending}
+      error={projects.isError}
+      onRetry={() => void projects.refetch()}
+    />
   );
 }
 
-function ExistingCinematicWorkspace({ actorId, projectId, requestedStage }: { actorId: string; projectId: string; requestedStage?: string }) {
+function ExistingCinematicWorkspace({ actorId, projectId, requestedStage, shotId }: { actorId: string; projectId: string; requestedStage?: string; shotId?: string }) {
   const { t } = useTranslation('cinematic');
   const project = useQuery({
-    queryKey: ['cinematic-project', actorId, projectId],
+    queryKey: queryKeys.cinematicProject(actorId, projectId),
     queryFn: () => getCinematicProject(projectId)
   });
   const authoringManifest = useQuery({
@@ -126,19 +120,25 @@ function ExistingCinematicWorkspace({ actorId, projectId, requestedStage }: { ac
   });
   if (project.isPending) return <Surface fill centerContent><p>{t('cinematic.status.loading')}</p></Surface>;
   if (project.isError) return <StatusNotice tone="error" title={t('cinematic.status.loadFailed')}>{project.error.message}</StatusNotice>;
-  return <CinematicWorkspace key={`${actorId}:${projectId}`} actorId={actorId} project={project.data} authoringManifest={authoringManifest.data} requestedStage={requestedStage} />;
+  const authoringOwnerId = shotId ? projectId : resolveProjectAuthoringOwnerId(project.data, requestedStage);
+  if (authoringOwnerId !== projectId) {
+    return <Navigate replace to={routeBuilders.cinematicProject(authoringOwnerId, requestedStage === 'cast' ? 'cast' : 'setup')} />;
+  }
+  return <CinematicWorkspace key={`${actorId}:${projectId}`} actorId={actorId} project={project.data} authoringManifest={authoringManifest.data} requestedStage={requestedStage} shotId={shotId} />;
 }
 
 function CinematicWorkspace({
   actorId,
   requestedStage,
   project,
-  authoringManifest
+  authoringManifest,
+  shotId
 }: {
   actorId: string;
   requestedStage?: string;
   project?: CinematicProject;
   authoringManifest?: CinematicAuthoringManifest;
+  shotId?: string;
 }) {
   const { t } = useTranslation('cinematic');
   const navigate = useNavigate();
@@ -154,8 +154,9 @@ function CinematicWorkspace({
   const [enhanceOpen, setEnhanceOpen] = useState(false);
   const [seriesBusy, setSeriesBusy] = useState(false);
   const [manualDirty, setManualDirty] = useState(false);
-  const [simplePreparing, setSimplePreparing] = useState(false);
-  const simplePreparingRef = useRef(false);
+  const [firstFrameShotId, setFirstFrameShotId] = useState<string | null>(null);
+  const writerLocation = useLocation();
+  const prepareAfterEnhanceRef = useRef(false);
   const [enhancePurpose, setEnhancePurpose] = useState<'story' | 'roles'>('story');
   const projectVersionRef = useRef(project?.version ?? 0);
   const mutationChainRef = useRef<Promise<void>>(Promise.resolve());
@@ -164,12 +165,18 @@ function CinematicWorkspace({
   const activeStage = visibleCinematicStage(requestedStageResult.success ? requestedStageResult.data : draft.activeStage, draft.mode);
 
   const createProject = useMutation({
-    mutationFn: createCinematicProject,
+    mutationFn: ({ draft: input, creationIntent, storyPreparation, storyImport }: {
+      draft: CinematicSetupDraft;
+      creationIntent: 'draft' | 'prepare-story';
+      storyPreparation?: CinematicStoryPreparationContext;
+      storyImport?: StoryFile;
+    }) => createCinematicProject(input, creationIntent, storyPreparation, storyImport),
     onSuccess: created => {
       if (getActiveActorId() !== actorId) return;
       removeCinematicSetupDraft(actorId);
-      queryClient.invalidateQueries({ queryKey: ['cinematic-projects', actorId] });
-      navigate(routeBuilders.cinematicProject(created.id, 'cast'));
+      queryClient.invalidateQueries({ queryKey: queryKeys.cinematicProjects(actorId) });
+      queryClient.setQueryData(queryKeys.cinematicProject(actorId, created.id), created);
+      navigate(routeBuilders.cinematicProject(created.id, created.activeFullStoryVersionId ? 'cast' : 'setup'));
     }
   });
 
@@ -186,7 +193,7 @@ function CinematicWorkspace({
 
   useEffect(() => {
     if (project) projectVersionRef.current = Math.max(projectVersionRef.current, project.version);
-  }, [project?.version]);
+  }, [project]);
 
   useEffect(() => {
     if (project) return;
@@ -227,7 +234,7 @@ function CinematicWorkspace({
         );
         projectVersionRef.current = saved.version;
         lastSavedSetupRef.current = serialized;
-        queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+        queryClient.setQueryData(queryKeys.cinematicProject(actorId, project.id), saved);
         removeCinematicSetupRecoveryDraft(actorId, project.id);
         setSaveError(null);
         setSaveState('saved');
@@ -250,53 +257,51 @@ function CinematicWorkspace({
     setDraft(current => ({ ...current, [key]: value, updatedAt: new Date().toISOString() }));
   }
 
-  function changeCastPlanningMode(mode: CinematicSetupDraft['castPlanningMode']) {
-    const roles = mode === 'solo'
-      ? [createRoleSlot('lead', t('cinematic.cast.lead'))]
-      : mode === 'duo'
-        ? [createRoleSlot('lead', t('cinematic.cast.lead')), createRoleSlot('second', t('cinematic.setup.secondCharacter'))]
-        : mode === 'manual' ? (draft.storyRoleSlots.length ? draft.storyRoleSlots : [createRoleSlot('manual-1', t('cinematic.cast.lead'))]) : [];
-    setDraft(current => ({ ...current, castPlanningMode: mode, storyRoleSlots: roles, updatedAt: new Date().toISOString() }));
-    if (mode === 'ai-recommended' && draft.storyBrief.trim()) {
-      setEnhancePurpose('roles');
-      setEnhanceOpen(true);
+  function draftWithDisplayTitle(value: CinematicSetupDraft) {
+    return value.projectName.trim()
+      ? value
+      : { ...value, projectName: t('cinematic.newProject.untitled'), updatedAt: new Date().toISOString() };
+  }
+
+  function createManualDraft() {
+    if (createProject.isPending) return;
+    const prepared = draftWithDisplayTitle(draft);
+    setDraft(prepared);
+    writeCinematicSetupDraft(actorId, prepared);
+    createProject.mutate({ draft: prepared, creationIntent: 'draft' });
+  }
+
+  function prepareStory() {
+    if (!draft.storyBrief.trim() || createProject.isPending) return;
+    prepareAfterEnhanceRef.current = true;
+    setEnhancePurpose('story');
+    setEnhanceOpen(true);
+  }
+
+  function changeEnhanceOpen(open: boolean) {
+    setEnhanceOpen(open);
+    if (!open) prepareAfterEnhanceRef.current = false;
+  }
+
+  function applyEnhancement(enhancement: Parameters<typeof applyStoryEnhancement>[1]) {
+    const prepared = applyStoryEnhancement(draft, enhancement, enhancePurpose);
+    const shouldCreate = !project && prepareAfterEnhanceRef.current && enhancePurpose === 'story';
+    prepareAfterEnhanceRef.current = false;
+    setDraft(prepared);
+    if (shouldCreate) {
+      const titled = draftWithDisplayTitle(prepared);
+      setDraft(titled);
+      writeCinematicSetupDraft(actorId, titled);
+      createProject.mutate({
+        draft: titled,
+        creationIntent: 'prepare-story',
+        storyPreparation: {
+          enhancementId: enhancement.enhancementId,
+          provenance: enhancement.provenance,
+          billingStatus: enhancement.billingStatus
+        }
+      });
     }
-  }
-
-  function setManualRoleCount(count: number) {
-    const boundedCount = Math.max(1, Math.min(4, count));
-    setDraft(current => {
-      const roles = current.storyRoleSlots.slice(0, boundedCount);
-      while (roles.length < boundedCount) {
-        const number = roles.length + 1;
-        roles.push(createRoleSlot(`manual-${number}`, number === 1 ? t('cinematic.cast.lead') : `${t('cinematic.setup.role')} ${number}`));
-      }
-      return { ...current, castPlanningMode: 'manual', storyRoleSlots: roles, updatedAt: new Date().toISOString() };
-    });
-  }
-
-  function addRoleSlot() {
-    setDraft(current => ({
-      ...current,
-      storyRoleSlots: [...current.storyRoleSlots, createRoleSlot(`custom-${current.storyRoleSlots.length + 1}`, `${t('cinematic.setup.role')} ${current.storyRoleSlots.length + 1}`)],
-      updatedAt: new Date().toISOString()
-    }));
-  }
-
-  function updateRoleSlot(index: number, patch: Partial<CinematicSetupDraft['storyRoleSlots'][number]>) {
-    setDraft(current => ({
-      ...current,
-      storyRoleSlots: current.storyRoleSlots.map((role, roleIndex) => roleIndex === index ? { ...role, ...patch } : role),
-      updatedAt: new Date().toISOString()
-    }));
-  }
-
-  function removeRoleSlot(index: number) {
-    setDraft(current => ({
-      ...current,
-      storyRoleSlots: current.storyRoleSlots.filter((_, roleIndex) => roleIndex !== index),
-      updatedAt: new Date().toISOString()
-    }));
   }
 
   async function setActiveStage(nextStage: CinematicSetupDraft['activeStage']) {
@@ -317,7 +322,7 @@ function CinematicWorkspace({
         return updateCinematicStageWithRecovery(project.id, nextStage, projectVersionRef.current);
       });
       projectVersionRef.current = saved.version;
-      queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+      queryClient.setQueryData(queryKeys.cinematicProject(actorId, project.id), saved);
       setDraft(current => ({ ...current, activeStage: nextStage, updatedAt: saved.updatedAt }));
       setSaveState('saved');
       navigate(routeBuilders.cinematicProject(project.id, nextStage));
@@ -332,42 +337,6 @@ function CinematicWorkspace({
     const currentIndex = stages.indexOf(activeStage);
     const nextStage = stages[currentIndex + offset];
     if (nextStage) void setActiveStage(nextStage);
-  }
-
-  async function continueFromSetup() {
-    if (simplePreparingRef.current || createProject.isPending) return;
-    if (draft.mode !== 'simple') {
-      if (project) void setActiveStage('cast');
-      else createProject.mutate(draft);
-      return;
-    }
-    simplePreparingRef.current = true;
-    setSimplePreparing(true);
-    setSaveError(null);
-    try {
-      let prepared = { ...draft, projectName: draft.projectName.trim() || Array.from(draft.storyBrief.trim()).slice(0, 80).join('') };
-      if (!prepared.storyRoleSlots.length) {
-        const result = await enhanceCinematicStory(prepared, 'roles');
-        if (getActiveActorId() !== actorId) return;
-        if (!result.recommendedRoles.length) throw new Error(t('cinematic.setup.rolePlanRequired'));
-        prepared = applyStoryEnhancement(prepared, result, 'roles');
-      }
-      if (getActiveActorId() !== actorId) return;
-      setDraft(prepared);
-      if (project) {
-        const saved = await enqueueProjectMutation(() => updateCinematicSetup(project.id, prepared, projectVersionRef.current));
-        if (getActiveActorId() !== actorId) return;
-        projectVersionRef.current = saved.version;
-        lastSavedSetupRef.current = serializeSetup(prepared);
-        queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
-        await setActiveStage('cast');
-      } else await createProject.mutateAsync(prepared);
-    } catch (reason) {
-      setSaveError(reason instanceof Error ? reason : new Error(t('cinematic.enhance.failed')));
-    } finally {
-      simplePreparingRef.current = false;
-      setSimplePreparing(false);
-    }
   }
 
   async function saveDraftNow() {
@@ -389,7 +358,7 @@ function CinematicWorkspace({
           const saved = await enqueueProjectMutation(() => updateCinematicSetup(project.id, draft, projectVersionRef.current));
           projectVersionRef.current = saved.version;
           lastSavedSetupRef.current = serialized;
-          queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+          queryClient.setQueryData(queryKeys.cinematicProject(actorId, project.id), saved);
           removeCinematicSetupRecoveryDraft(actorId, project.id);
         }
       }
@@ -406,16 +375,192 @@ function CinematicWorkspace({
     return enqueueProjectMutation(async () => {
       const serialized = serializeSetup(draft);
       if (serialized === lastSavedSetupRef.current) return {
-        ...(queryClient.getQueryData<CinematicProject>(['cinematic-project', actorId, project.id]) || project), version: projectVersionRef.current
+        ...(queryClient.getQueryData<CinematicProject>(queryKeys.cinematicProject(actorId, project.id)) || project), version: projectVersionRef.current
       };
       const saved = await updateCinematicSetup(project.id, draft, projectVersionRef.current);
       projectVersionRef.current = saved.version;
       lastSavedSetupRef.current = serialized;
-      queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+      queryClient.setQueryData(queryKeys.cinematicProject(actorId, project.id), saved);
       removeCinematicSetupRecoveryDraft(actorId, project.id);
       setSaveState('saved'); setSaveError(null);
       return saved;
     });
+  }
+
+  async function importFullStory(file: StoryFile) {
+    if (!online || createProject.isPending || seriesBusy) return;
+    if (!project) {
+      const prepared = draftWithDisplayTitle({ ...draft, projectName: draft.projectName.trim() || file.fileName.replace(/\.(md|txt)$/i, '').slice(0, 120) });
+      await createProject.mutateAsync({ draft: prepared, creationIntent: 'draft', storyImport: file });
+      return;
+    }
+    setSeriesBusy(true);
+    try {
+      await prepareSeriesChange();
+      const saved = await enqueueProjectMutation(() => saveCinematicFullStoryRevision(project.id, {
+        expectedVersion: projectVersionRef.current, content: file.content, source: 'manual', importFileName: file.fileName
+      }));
+      if (getActiveActorId() !== actorId) return;
+      projectVersionRef.current = saved.version;
+      queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved);
+      setDraft(current => ({ ...current, activeStage: 'cast' }));
+      navigate(routeBuilders.cinematicProject(saved.id, 'cast'));
+    } finally { setSeriesBusy(false); }
+  }
+
+  if (!project) {
+    return (
+      <>
+        <CinematicNewProjectComposer
+          draft={draft}
+          storyAuthoring={resolvedManifest?.storyAuthoring}
+          creationPolicy={resolvedManifest?.rewamp?.workflow.projectCreation}
+          saveState={saveState}
+          saveError={saveError || (createProject.isError ? createProject.error : null)}
+          pending={createProject.isPending}
+          online={online}
+          onUpdate={update}
+          onCreateDraft={createManualDraft}
+          onPrepareStory={prepareStory}
+          importPolicy={resolvedManifest?.rewamp?.workflow.storyImport}
+          maximumStoryCharacters={resolvedManifest?.rewamp?.workflow.authoring.fullStoryMaximumCharacters}
+          onImportFullStory={importFullStory}
+        />
+        <StoryEnhanceDialog
+          open={enhanceOpen}
+          onOpenChange={changeEnhanceOpen}
+          draft={draft}
+          purpose="story"
+          onApply={applyEnhancement}
+        />
+      </>
+    );
+  }
+
+  if (shotId && project) {
+    const scene = project.scenes.find(item => item.shots.some(shot => shot.id === shotId));
+    const shot = scene?.shots.find(item => item.id === shotId);
+    if (scene && shot && new URLSearchParams(writerLocation.search).get('render') === 'video') {
+      const returnToWriter = () => navigate(routeBuilders.cinematicShot(project.id, shotId));
+      return <main className="cinematic-shot-writer">
+        <Button icon={<ArrowLeft />} onClick={returnToWriter}>{t('cinematic.shotWorkspace.backToShot')}</Button>
+        <CinematicProduceRuntime key={shotId} project={project} sceneId={scene.id} shotId={shotId} mode="simple"
+          onEditStory={returnToWriter} onEditStoryboard={() => { returnToWriter(); setFirstFrameShotId(shotId); }}
+          onProjectRefresh={() => { void queryClient.invalidateQueries({ queryKey: queryKeys.cinematicProject(actorId, project.id) }); }} />
+      </main>;
+    }
+    const attempt = [...project.generationAttempts].reverse().filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+      .find(item => item.operation === 'cinematic_storyboard_still' && item.shotId === shotId);
+    return <><CinematicShotWriter
+      actorId={actorId}
+      project={project}
+      shotId={shotId}
+      online={online}
+      maximumDocumentCharacters={resolvedManifest?.rewamp?.workflow.authoring.shotDocumentMaximumCharacters}
+      onBackToScenes={() => navigate(`${routeBuilders.cinematicProject(project.id, 'scenes')}?scene=${encodeURIComponent(scene?.id || '')}`)}
+      onOpenFirstFrame={() => setFirstFrameShotId(shotId)}
+      onOpenVideo={() => navigate(`${routeBuilders.cinematicShot(project.id, shotId)}?render=video`)}
+      onOpenCharacters={() => navigate(routeBuilders.cinematicProject(project.id, 'cast'))}
+      onOpenShot={nextShotId => navigate(routeBuilders.cinematicShot(project.id, nextShotId))}
+      onProjectChanged={saved => {
+        projectVersionRef.current = saved.version;
+        queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved);
+      }}
+    />{firstFrameShotId === shotId && scene && shot ? <StoryboardShotDialog
+      key={`${project.id}:${shotId}`} open project={project} scene={scene} shot={shot}
+      onOpenChange={open => {
+        if (!open) {
+          setFirstFrameShotId(null);
+          requestAnimationFrame(() => document.getElementById('cinematic-shot-first-frame')?.focus());
+        }
+      }}
+      onEditDocument={() => {
+        setFirstFrameShotId(null);
+        requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>('.cinematic-shot-writer__editor textarea')?.focus());
+      }}
+      resumeJobId={typeof attempt?.generationJobId === 'string' ? attempt.generationJobId : null}
+      onProjectRefresh={() => { void queryClient.invalidateQueries({ queryKey: queryKeys.cinematicProject(actorId, project.id) }); }}
+    /> : null}</>;
+  }
+
+  if (requestedStage === 'chapters') {
+    const fullStoryOwnerId = project.chapterOrigin?.projectId || project.id;
+    return (
+      <CinematicChapterWriter
+        actorId={actorId}
+        project={project}
+        online={online}
+        onBackToFullStory={() => navigate(routeBuilders.cinematicProject(fullStoryOwnerId, 'cast'))}
+        onOpenSetup={storyProjectId => navigate(routeBuilders.cinematicProject(storyProjectId, 'setup'))}
+        onNavigateChapter={projectId => navigate(routeBuilders.cinematicProject(projectId, 'chapters'))}
+        onOpenScenes={() => navigate(routeBuilders.cinematicProject(project.id, 'scenes'))}
+        onProjectChanged={saved => {
+          projectVersionRef.current = saved.version;
+          queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved);
+        }}
+      />
+    );
+  }
+
+  if (requestedStage === 'scenes') {
+    return (
+      <CinematicSceneOverview
+        actorId={actorId}
+        project={project}
+        online={online}
+        initialSceneId={new URLSearchParams(writerLocation.search).get('scene') || undefined}
+        renderEnvironment={(scene, disabled) => <SceneEnvironmentControl key={scene.id} project={project} scene={scene} compact disabled={disabled}
+          onProjectRefresh={() => { void queryClient.invalidateQueries({ queryKey: queryKeys.cinematicProject(actorId, project.id) }); }} />}
+        onBackToChapter={() => navigate(routeBuilders.cinematicProject(project.id, 'chapters'))}
+        onOpenShot={shotId => navigate(routeBuilders.cinematicShot(project.id, shotId))}
+        onProjectChanged={saved => {
+          projectVersionRef.current = saved.version;
+          queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved);
+        }}
+      />
+    );
+  }
+
+  if (activeStage === 'setup') {
+    return (
+      <CinematicNewProjectComposer
+        variant="edit"
+        draft={draft}
+        storyAuthoring={resolvedManifest?.storyAuthoring}
+        creationPolicy={resolvedManifest?.rewamp?.workflow.projectCreation}
+        saveState={saveState}
+        saveError={saveError}
+        pending={seriesBusy}
+        online={online}
+        onUpdate={update}
+        onCreateDraft={() => undefined}
+        onPrepareStory={() => undefined}
+        importPolicy={resolvedManifest?.rewamp?.workflow.storyImport}
+        maximumStoryCharacters={resolvedManifest?.rewamp?.workflow.authoring.fullStoryMaximumCharacters}
+        onImportFullStory={importFullStory}
+        onSave={() => void saveDraftNow()}
+        onContinueFullStory={() => void (async () => {
+          await saveDraftNow();
+          await setActiveStage('cast');
+        })()}
+      />
+    );
+  }
+
+  if (activeStage === 'cast') {
+    return (
+      <CinematicFullStoryWriter
+        actorId={actorId}
+        project={project}
+        online={online}
+        onBackToBrief={() => void setActiveStage('setup')}
+        onOpenChapters={() => navigate(routeBuilders.cinematicProject(project.id, 'chapters'))}
+        onProjectChanged={saved => {
+          projectVersionRef.current = saved.version;
+          queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved);
+        }}
+      />
+    );
   }
 
   return (
@@ -424,33 +569,17 @@ function CinematicWorkspace({
         projectTitle={draft.projectName || t('cinematic.setup.untitled')}
         saveState={saveState}
       />
-      {project ? <SeriesWorkspaceControls actorId={actorId} project={project} isSetup={activeStage === 'setup'}
+      {project ? <SeriesWorkspaceControls actorId={actorId} project={project} isSetup={false}
+        rewampEnabled={resolvedManifest?.rewamp?.enabled}
         onPrepare={prepareSeriesChange} onBusyChange={setSeriesBusy}
-        onProjectChanged={saved => { projectVersionRef.current = saved.version; queryClient.setQueryData(['cinematic-project', actorId, saved.id], saved); }}
+        onProjectChanged={saved => { projectVersionRef.current = saved.version; queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved); }}
         onNavigate={(id, nextStage) => navigate(routeBuilders.cinematicProject(id, cinematicStageSchema.parse(nextStage)))} /> : null}
       <Surface className={`cinematic-workspace-surface p-4${activeStage === 'produce' ? ' cinematic-workspace-surface--produce' : ''}`}>
-        <CinematicStageRail mode={draft.mode} activeStage={activeStage} onStageChange={manualDirty ? undefined : setActiveStage} />
+        {resolvedManifest?.rewamp?.enabled
+          ? <CinematicWorkspaceNavigation mode={draft.mode} activeStage={activeStage} onStageChange={manualDirty ? undefined : setActiveStage} />
+          : <CinematicStageRail mode={draft.mode} activeStage={activeStage} onStageChange={manualDirty ? undefined : setActiveStage} />}
         <div className="cinematic-workspace-layout" inert={seriesBusy || undefined}>
           <div className="min-w-0">
-          {activeStage === 'setup' ? (
-          <CinematicSetupForm
-            storyAuthoring={resolvedManifest?.storyAuthoring}
-            draft={draft}
-            saveState={saveState}
-            saveError={saveError || (createProject.isError ? createProject.error : null)}
-            pending={createProject.isPending || simplePreparing}
-            onUpdate={update}
-            onPlanningModeChange={changeCastPlanningMode}
-            onAddRole={addRoleSlot}
-            onUpdateRole={updateRoleSlot}
-            onRemoveRole={removeRoleSlot}
-            onEnhance={() => { setEnhancePurpose('story'); setEnhanceOpen(true); }}
-            onAnalyzeRoles={() => { setEnhancePurpose('roles'); setEnhanceOpen(true); }}
-            onManualRoleCountChange={setManualRoleCount}
-            onSave={() => void saveDraftNow()}
-            onContinue={continueFromSetup}
-          />
-          ) : (
             <CinematicStageContent
               activeStage={activeStage}
               mode={draft.mode}
@@ -463,7 +592,7 @@ function CinematicWorkspace({
               onOpenStage={stage => void setActiveStage(stage)}
               onProjectChanged={saved => {
                 projectVersionRef.current = saved.version;
-                queryClient.setQueryData(['cinematic-project', actorId, saved.id], saved);
+                queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved);
               }}
               onAddCastCharacter={input => enqueueProjectMutation(async () => {
                 if (!project) throw new Error(t('cinematic.status.saveFailed'));
@@ -484,44 +613,27 @@ function CinematicWorkspace({
                   performanceDirection: input.performanceDirection
                 });
                 projectVersionRef.current = saved.version;
-                queryClient.setQueryData(['cinematic-project', actorId, saved.id], saved);
+                queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved);
                 return saved;
               })}
               onRemoveCastCharacter={assignmentId => enqueueProjectMutation(async () => {
                 if (!project) throw new Error(t('cinematic.status.saveFailed'));
                 const saved = await removeCinematicCast(project.id, assignmentId, projectVersionRef.current);
                 projectVersionRef.current = saved.version;
-                queryClient.setQueryData(['cinematic-project', actorId, saved.id], saved);
+                queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved);
                 return saved;
               })}
               onProjectRefresh={() => {
-                if (project) void queryClient.invalidateQueries({ queryKey: ['cinematic-project', actorId, project.id] });
+                if (project) void queryClient.invalidateQueries({ queryKey: queryKeys.cinematicProject(actorId, project.id) });
               }}
             />
-          )}
           </div>
         </div>
         <ProjectCostSummary />
       </Surface>
-      <StoryEnhanceDialog open={enhanceOpen} onOpenChange={setEnhanceOpen} draft={draft} purpose={enhancePurpose} onApply={enhancement => {
-        setDraft(current => applyStoryEnhancement(current, enhancement, enhancePurpose));
-      }} />
+      <StoryEnhanceDialog open={enhanceOpen} onOpenChange={changeEnhanceOpen} draft={draft} purpose={enhancePurpose} onApply={applyEnhancement} />
     </main>
   );
-}
-
-function createRoleSlot(suffix: string, label: string): CinematicSetupDraft['storyRoleSlots'][number] {
-  return {
-    id: `role_${suffix}_${Date.now().toString(36)}`,
-    label,
-    importance: 'required',
-    storyFunction: '',
-    relationshipHint: '',
-    objective: '',
-    emotionalArc: '',
-    personalityTraits: [],
-    performanceDirection: ''
-  };
 }
 
 function projectToDraft(project: CinematicProject): CinematicSetupDraft {
@@ -529,8 +641,14 @@ function projectToDraft(project: CinematicProject): CinematicSetupDraft {
   return {
     ...fallback,
     projectName: project.title,
+    format: project.setup.format,
+    aspectRatio: project.setup.aspectRatio || project.aspectRatio as CinematicSetupDraft['aspectRatio'],
     platform: project.setup.platform,
     durationSeconds: project.setup.durationSeconds,
+    seasonEnabled: project.setup.seasonEnabled,
+    seasonCount: project.setup.seasonCount,
+    chapterCount: project.setup.chapterCount,
+    chaptersPerSeason: project.setup.chaptersPerSeason,
     storyBrief: project.setup.storyBrief,
     creativeDirection: project.setup.creativeDirection,
     genre: project.setup.genre,
@@ -540,6 +658,7 @@ function projectToDraft(project: CinematicProject): CinematicSetupDraft {
     audienceFeelings: project.setup.audienceFeelings,
     pacingTraits: project.setup.pacingTraits,
     storyCountryStyle: project.setup.storyCountryStyle ?? 'none',
+    storyPeriod: project.setup.storyPeriod ?? 'contemporary',
     endingIntent: project.setup.endingIntent,
     mode: project.setup.mode,
     castPlanningMode: project.setup.castPlanningMode,
@@ -561,8 +680,14 @@ function resolveInitialDraft(actorId: string, project?: CinematicProject) {
 function serializeSetup(draft: CinematicSetupDraft) {
   return JSON.stringify({
     projectName: draft.projectName,
+    format: draft.format,
+    aspectRatio: draft.aspectRatio,
     platform: draft.platform,
     durationSeconds: draft.durationSeconds,
+    seasonEnabled: draft.seasonEnabled,
+    seasonCount: draft.seasonCount,
+    chapterCount: draft.chapterCount,
+    chaptersPerSeason: draft.chaptersPerSeason,
     storyBrief: draft.storyBrief,
     creativeDirection: draft.creativeDirection,
     genre: draft.genre,
@@ -572,6 +697,7 @@ function serializeSetup(draft: CinematicSetupDraft) {
     audienceFeelings: draft.audienceFeelings,
     pacingTraits: draft.pacingTraits,
     storyCountryStyle: draft.storyCountryStyle ?? 'none',
+    storyPeriod: draft.storyPeriod,
     endingIntent: draft.endingIntent,
     mode: draft.mode,
     castPlanningMode: draft.castPlanningMode,

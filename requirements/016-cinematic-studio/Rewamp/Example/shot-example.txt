@@ -1,0 +1,121 @@
+Use the attached character references to preserve the exact identity, face, hairstyle, costume, jewelry, body proportions, and appearance of both characters.
+
+Reference order:
+Image 1 = female character reference.
+Image 2 = male character reference.
+Image 3 = first frame / scene reference.
+
+Create a photorealistic live-action Thai period drama shot.
+Vertical 9:16.
+
+SHOT DURATION: 6 seconds.
+
+SCENE:
+Nighttime on the same traditional Ayutthaya-era wooden corridor.
+
+The tall male character stands on the LEFT side of the frame.
+The young female character stands on the RIGHT side of the frame.
+
+They have just recovered from the previous moment and are now standing face-to-face.
+
+Keep the exact left-right positions throughout the shot.
+
+Warm dim lantern light illuminates both characters.
+The background remains dark with soft lantern bokeh.
+Wet wooden floor reflects small amounts of warm light.
+
+CAMERA:
+Medium two-shot.
+Eye-level.
+Both characters visible.
+Natural shallow depth of field.
+Camera remains mostly still.
+
+PERFORMANCE AND TIMELINE:
+
+[0.0–1.5 sec]
+Both characters have just returned to a normal standing position.
+
+The woman looks up at the man.
+She is still slightly breathless from the previous moment.
+
+The man looks down at her quietly.
+
+Neither speaks yet.
+
+[1.5–2.5 sec]
+The woman studies his face with curiosity and slight uncertainty.
+
+She takes a small breath before speaking.
+
+The man remains silent and watches her.
+
+[2.5–5.0 sec]
+The woman asks him naturally:
+
+[Thai young adult female voice, age 23, clearly feminine, soft, sweet, gentle, clear, slightly cautious, quietly curious]
+
+"ท่าน...เป็นใครหรือเจ้าคะ?"
+
+Her delivery is polite and genuinely curious.
+A very brief natural hesitation after "ท่าน..."
+
+Only the woman speaks.
+
+The man does not speak and does not move his lips.
+
+[5.0–6.0 sec]
+After asking the question, the woman continues looking up at him, waiting for his answer.
+
+The man holds her gaze silently.
+
+End on their eye contact.
+
+FACIAL PERFORMANCE:
+
+Female character:
+slightly cautious,
+curious,
+soft uncertainty,
+natural blinking,
+subtle breathing.
+
+Male character:
+calm,
+reserved,
+slightly stern,
+observing her quietly.
+
+AUDIO:
+No music.
+No background score.
+
+Only:
+female dialogue,
+quiet nighttime insects,
+subtle wooden-house ambience,
+faint water-drop sounds.
+
+LIP SYNC:
+Only the female character speaks.
+
+Accurate natural Thai lip synchronization for:
+
+"ท่าน...เป็นใครหรือเจ้าคะ?"
+
+NEGATIVE:
+no dialogue from the male character,
+no overlapping voices,
+no position swap,
+no exaggerated acting,
+no exaggerated facial expressions,
+no extra people,
+no subtitles,
+no captions,
+no narration,
+no camera orbit,
+no dramatic zoom,
+no modern objects,
+no costume changes,
+no hairstyle changes,
+no identity drift.

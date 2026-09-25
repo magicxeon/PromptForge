@@ -27,6 +27,11 @@
 .playground-video-references__portrait img { width: 100%; height: 100%; }
 .playground-video-references__slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .playground-video-references__slot { min-width: 0; padding: 12px; border: 1px solid var(--mpf-border); border-radius: 8px; }
+.playground-video-references__slot.is-provider-rejected,
+.playground-video-references__character.is-provider-rejected { border-color: var(--theme-danger); box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-danger) 24%, transparent); background: color-mix(in srgb, var(--theme-danger) 7%, transparent); }
+.playground-video-references__character.is-provider-rejected { padding: 10px; border: 1px solid var(--theme-danger); border-radius: 8px; }
+.playground-video-references .playground-video-references__provider-issue { display: flex; flex: 1 0 100%; align-items: flex-start; gap: 6px; color: var(--theme-danger); font-size: 12px; line-height: 1.45; }
+.playground-video-references__provider-issue svg { width: 16px; height: 16px; flex: 0 0 16px; margin-top: 1px; }
 .playground-video-references__slot header { display: grid; grid-template-columns: minmax(0, 1fr) 40px; gap: 4px 8px; margin-bottom: 8px; }
 .playground-video-references__slot header strong, .playground-video-references__slot header small { grid-column: 1; }
 .playground-video-references__slot header .playground-video-references__remove { grid-column: 2; grid-row: 1 / 3; align-self: center; }

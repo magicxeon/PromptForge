@@ -5,6 +5,7 @@ import {
 } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils/cn';
+import { ProcessingSpinner } from './ProcessingSpinner';
 
 const buttonVariants = cva(
   'inline-flex min-h-10 items-center justify-center gap-2 rounded-[var(--mpf-radius-sm)] border px-4 py-2 text-[0.75rem] font-semibold transition disabled:cursor-not-allowed disabled:opacity-45',
@@ -34,19 +35,23 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>
   & VariantProps<typeof buttonVariants>
   & {
     icon?: ReactNode;
+    loading?: boolean;
   };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { className, variant, size, icon, children, ...props },
+  { className, variant, size, icon, loading = false, disabled, children, ...props },
   ref
 ) {
   return (
     <button
       ref={ref}
-      className={cn(buttonVariants({ variant, size }), className)}
+      className={cn(buttonVariants({ variant, size }), loading && 'disabled:opacity-100', className)}
+      aria-busy={loading || undefined}
+      data-loading={loading || undefined}
+      disabled={disabled || loading}
       {...props}
     >
-      {icon}
+      {loading ? <ProcessingSpinner className="size-4" /> : icon}
       {children}
     </button>
   );

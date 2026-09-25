@@ -37,6 +37,7 @@ export const videoCapabilityCatalogSchema = z.object({
   schemaVersion: z.number(),
   catalogVersion: z.string(),
   mediaType: z.literal('video'),
+  promptMaximumCharacters: z.number().int().positive().default(8000),
   models: z.array(videoModelCapabilitySchema),
   comparison: z.object({
     enabled: z.boolean(),
@@ -165,7 +166,12 @@ export const videoTaskSchema = z.object({
   providerError: z.object({
     code: z.string().optional(),
     providerCode: z.string().max(200).nullable().optional(),
-    providerRequestId: z.string().max(200).nullable().optional()
+    providerRequestId: z.string().max(200).nullable().optional(),
+    referenceIssue: z.object({
+      contentIndex: z.number().int().min(1).max(12),
+      referenceIndex: z.number().int().min(0).max(11),
+      reason: z.literal('possible_real_person')
+    }).nullable().optional()
   }).passthrough().nullable().optional(),
   outputAsset: z.object({
     id: z.string().optional(),
@@ -197,6 +203,7 @@ export const videoTaskSchema = z.object({
 }).passthrough();
 
 export type VideoTask = z.infer<typeof videoTaskSchema>;
+export type VideoReferenceIssue = NonNullable<NonNullable<VideoTask['providerError']>['referenceIssue']>;
 
 export const recentVideoTasksSchema = z.object({
   items: z.array(videoTaskSchema).default([]),

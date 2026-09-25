@@ -13,13 +13,14 @@ import { SeriesManagerDialog } from './SeriesManagerDialog';
 
 type Props = {
   actorId: string; project: CinematicProject; isSetup: boolean;
+  rewampEnabled?: boolean;
   onPrepare: () => Promise<CinematicProject>;
   onProjectChanged: (project: CinematicProject) => void;
   onNavigate: (projectId: string, stage: string) => void;
   onBusyChange: (busy: boolean) => void;
 };
 
-export function SeriesWorkspaceControls({ actorId, project, isSetup, onPrepare, onProjectChanged, onNavigate, onBusyChange }: Props) {
+export function SeriesWorkspaceControls({ actorId, project, isSetup, rewampEnabled = false, onPrepare, onProjectChanged, onNavigate, onBusyChange }: Props) {
   const { t } = useTranslation('cinematic');
   const client = useQueryClient();
   const [open, setOpen] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState('');
@@ -27,7 +28,7 @@ export function SeriesWorkspaceControls({ actorId, project, isSetup, onPrepare, 
   const busyRef = useRef(false);
   const queryKey = ['cinematic-series', actorId, project.id];
   const workspace = useQuery({ queryKey, queryFn: () => getCinematicSeriesWorkspace(project.id),
-    enabled: Boolean(project.seriesMembership) || open, staleTime: 0, gcTime: 60_000, retry: false });
+    enabled: Boolean(project.seriesMembership) || open || rewampEnabled, staleTime: 20_000, gcTime: 60_000, retry: false });
   const series = workspace.data?.series;
   const selectedSeason = series?.seasons.some(item => item.id === season) ? season : project.seriesMembership?.seasonId || series?.seasons[0]?.id || '';
   const chapters = workspace.data?.chapters.filter(item => item.seriesMembership?.seasonId === selectedSeason) || [];
@@ -60,14 +61,15 @@ export function SeriesWorkspaceControls({ actorId, project, isSetup, onPrepare, 
       setOpen(false);
     });
   }
-  if (!isSetup && !project.seriesMembership) return null;
-  return <section className="cinematic-series-bar" aria-label={t('cinematic.series.section')}>
-    <div className="cinematic-series-heading"><Layers3 aria-hidden="true" /><div><small>{t('cinematic.series.section')}</small><strong>{series?.title || t(project.seriesMembership ? 'cinematic.series.loading' : 'cinematic.series.standalone')}</strong></div></div>
+  if (!isSetup && !project.seriesMembership && !rewampEnabled) return null;
+  const contextTitle = series?.title || workspace.data?.productionProject?.title || project.title;
+  return <section className="cinematic-series-bar" aria-label={t(rewampEnabled ? 'cinematic.project.section' : 'cinematic.series.section')}>
+    <div className="cinematic-series-heading"><Layers3 aria-hidden="true" /><div><small>{t(rewampEnabled ? 'cinematic.project.section' : 'cinematic.series.section')}</small><strong>{contextTitle || t(project.seriesMembership ? 'cinematic.series.loading' : 'cinematic.series.standalone')}</strong></div></div>
     {series ? <>
       <label><span>{t('cinematic.series.season')}</span><ThemeSelect value={selectedSeason} options={series.seasons.map(item => ({ value: item.id, label: `${t('cinematic.series.seasonNumber', { number: item.number })}${item.title ? `: ${item.title}` : ''}` }))} ariaLabel={t('cinematic.series.season')} onValueChange={setSeason} disabled={busy} /></label>
       <label><span>{t('cinematic.series.chapter')}</span><ThemeSelect value={currentChapter?.projectId || ''} options={[{ value: '', label: t(chapters.length ? 'cinematic.series.chooseChapter' : 'cinematic.series.emptySeason'), disabled: true }, ...chapters.map(item => ({ value: item.projectId, label: `${t('cinematic.series.chapterNumber', { number: item.seriesMembership?.chapterNumber })}: ${item.title}` }))]} ariaLabel={t('cinematic.series.chapter')} disabled={busy || !chapters.length} onValueChange={id => { const chapter = chapters.find(item => item.projectId === id); if (chapter && id !== project.id) void execute(async () => { await onPrepare(); if (getActiveActorId() === actorId) onNavigate(id, chapter.activeStage); }); }} /></label>
     </> : null}
-    {isSetup || series ? <Button size="sm" icon={busy || workspace.isFetching ? <ProcessingSpinner className="size-4" /> : series ? <Settings2 /> : <Plus />} disabled={busy || workspace.isFetching} onClick={() => { setError(''); setOpen(true); }}>{t(series ? 'cinematic.series.manage' : 'cinematic.series.create')}</Button> : null}
+    {isSetup || series || rewampEnabled ? <Button size="sm" icon={busy || workspace.isFetching ? <ProcessingSpinner className="size-4" /> : series ? <Settings2 /> : <Plus />} disabled={busy || workspace.isFetching} onClick={() => { setError(''); setOpen(true); }}>{t(series ? 'cinematic.series.manage' : rewampEnabled ? 'cinematic.project.organize' : 'cinematic.series.create')}</Button> : null}
     {workspace.isError ? <div className="cinematic-series-feedback"><span role="alert">{t('cinematic.series.failed')}</span><Button size="sm" icon={<RefreshCw />} onClick={() => void workspace.refetch()}>{t('cinematic.series.retry')}</Button></div> : null}
     {error && !open ? <p className="cinematic-series-feedback cinematic-series-error" role="alert">{error}</p> : null}
     {open && workspace.data ? <SeriesManagerDialog key={`${project.id}:manager`} workspace={workspace.data} sourceTitle={project.title} seasonId={selectedSeason} busy={busy} error={error} onClose={() => setOpen(false)} onSubmit={command => void submit(command)} /> : null}

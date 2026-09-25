@@ -1,3 +1,5 @@
+import { cinematicTextModelDefaults } from './cinematicStoryConfiguration.js';
+
 function readBoolean(value) {
   return ['1', 'true', 'yes', 'on'].includes(String(value || '').trim().toLowerCase());
 }
@@ -12,7 +14,9 @@ export function getCinematicWardrobeSuggestionPolicy(env = process.env) {
     enabled: requestedEnabled && Boolean(apiKey),
     apiKey,
     provider: 'openai',
-    model: String(env.CINEMATIC_WARDROBE_SUGGESTION_MODEL || env.CINEMATIC_STORY_ENHANCEMENT_MODEL || 'gpt-5-mini').trim(),
+    model: String(env.CINEMATIC_WARDROBE_SUGGESTION_MODEL || '').trim()
+      || String(env.CINEMATIC_STORY_ENHANCEMENT_MODEL || '').trim()
+      || cinematicTextModelDefaults.enhancement.model,
     reasoningEffort: String(env.CINEMATIC_WARDROBE_SUGGESTION_REASONING || 'low').trim(),
     maxOutputTokens: Math.max(700, Number(env.CINEMATIC_WARDROBE_SUGGESTION_MAX_OUTPUT_TOKENS || 1800)),
     timeoutMs: Math.max(10_000, Number(env.CINEMATIC_WARDROBE_SUGGESTION_TIMEOUT_MS || 60_000))

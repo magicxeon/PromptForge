@@ -18,8 +18,8 @@ vi.mock('../../../lib/auth/ActorProvider', () => ({
 }));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, values?: { id?: string }) =>
-      values?.id ? `${key}: ${values.id}` : key,
+    t: (key: string, values?: { id?: string; number?: number }) =>
+      values?.id ? `${key}: ${values.id}` : values?.number ? `${key}: ${values.number}` : key,
   }),
 }));
 vi.mock('../../generation/api/videoGenerationApi', () => ({
@@ -34,10 +34,12 @@ vi.mock('../../../components/generation/PromptEditor', () => ({
     value: string;
     onChange: (value: string) => void;
     primaryFooter: ReactNode;
+    primaryMaxLength: number;
   }) => (
     <>
       <textarea
         aria-label="Prompt"
+        maxLength={p.primaryMaxLength}
         value={p.value}
         onChange={(e) => p.onChange(e.target.value)}
       />
@@ -61,8 +63,9 @@ vi.mock('../../../components/generation/VideoEngineTargetPanel', () => ({
   ),
 }));
 vi.mock('./PlaygroundVideoSources', () => ({
-  PlaygroundVideoSources: (p: { onChange: (value: unknown) => void }) => (
+  PlaygroundVideoSources: (p: { onChange: (value: unknown) => void; invalidFrame?: boolean }) => (
     <button
+      data-invalid-frame={String(Boolean(p.invalidFrame))}
       onClick={() =>
         p.onChange({
           referenceImageUrl: '/outputs/frame.png',
@@ -151,6 +154,16 @@ async function ready(operation = 'character_to_video') {
 }
 
 describe('Playground video execution controls', () => {
+  it('uses the server-owned 8000-character Video prompt limit', async () => {
+    mocks.catalog.mockResolvedValue({
+      models: [model],
+      comparison: { enabled: false },
+      promptMaximumCharacters: 8000,
+    });
+    mount();
+    const prompt = await screen.findByLabelText('Prompt');
+    expect(prompt).toHaveAttribute('maxlength', '8000');
+  });
   it('refreshes an expired quote without submitting a paid request', async () => {
     mocks.quote.mockResolvedValue({
       estimate: { estimateId: 'expired', estimatedCredits: 1, expiresAt: '2000-01-01' },
@@ -209,16 +222,20 @@ describe('Playground video execution controls', () => {
       id: 'failed-task',
       status: 'failed',
       providerError: {
-        providerCode: 'PrivacyInformation',
+        code: 'video_provider_input_image_rejected',
+        providerCode: 'InputImageSensitiveContentDetected.PrivacyInformation',
         providerRequestId: 'request-123',
+        referenceIssue: { contentIndex: 1, referenceIndex: 0, reason: 'possible_real_person' },
       },
     });
     mocks.task.mockResolvedValue({
       id: 'failed-task',
       status: 'failed',
       providerError: {
-        providerCode: 'PrivacyInformation',
+        code: 'video_provider_input_image_rejected',
+        providerCode: 'InputImageSensitiveContentDetected.PrivacyInformation',
         providerRequestId: 'request-123',
+        referenceIssue: { contentIndex: 1, referenceIndex: 0, reason: 'possible_real_person' },
       },
     });
     mount();
@@ -235,6 +252,11 @@ describe('Playground video execution controls', () => {
       },
     ]);
     expect(await screen.findByText(/request-123/)).toBeVisible();
+    expect(screen.getByText('playground.video.providerError.possibleRealPerson: 1')).toBeVisible();
+    const source = screen.getByRole('button', { name: 'Attach' });
+    expect(source).toHaveAttribute('data-invalid-frame', 'true');
+    fireEvent.click(source);
+    await waitFor(() => expect(source).toHaveAttribute('data-invalid-frame', 'false'));
   });
 
   it('presents provider processing as a bounded friendly task status', async () => {

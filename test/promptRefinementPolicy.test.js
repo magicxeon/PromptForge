@@ -4,6 +4,22 @@ import {
   getPromptRefinementPolicy,
   getPublicPromptRefinementPolicy
 } from '../server/config/prompt-refinement-policy.js';
+import { getAttributeLocalizationPolicy } from '../server/config/attribute-localization-policy.js';
+import { getCinematicStoryEnhancementPolicy } from '../server/config/cinematic-story-enhancement-policy.js';
+import { getCinematicStoryPlanPolicy } from '../server/config/cinematic-story-plan-policy.js';
+import { getCinematicWardrobeSuggestionPolicy } from '../server/config/cinematic-wardrobe-suggestion-policy.js';
+import { openAITextModels } from '../server/config/openaiTextModels.js';
+
+test('OpenAI text defaults agree on Sol while Luna stays unselected', () => {
+  assert.equal(openAITextModels.active, 'gpt-6-sol');
+  assert.equal(openAITextModels.standby, 'gpt-6-luna');
+  assert.equal(getPromptRefinementPolicy({}).model, openAITextModels.active);
+  assert.equal(getAttributeLocalizationPolicy({}).model, openAITextModels.active);
+  assert.equal(getCinematicStoryEnhancementPolicy({}).model, openAITextModels.active);
+  assert.equal(getCinematicStoryPlanPolicy({}).model, openAITextModels.active);
+  assert.equal(getCinematicWardrobeSuggestionPolicy({}).model, openAITextModels.active);
+  assert.equal(getPromptRefinementPolicy({ PROMPT_REFINEMENT_MODEL: openAITextModels.standby }).model, openAITextModels.standby);
+});
 
 test('prompt refinement requires both rollout enablement and a configured API key', () => {
   assert.equal(getPromptRefinementPolicy({
@@ -20,7 +36,7 @@ test('prompt refinement requires both rollout enablement and a configured API ke
   }), {
     enabled: true,
     provider: 'openai',
-    model: 'gpt-5.6-luna'
+    model: 'gpt-6-sol'
   });
 });
 

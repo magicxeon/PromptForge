@@ -22,22 +22,120 @@ const groups = {
     'test/cinematicTimelineCompiler.test.js', 'test/cinematicDataLineageService.test.js'
   ]
 };
+const legacyFullGroups = Object.keys(groups);
+groups['rewamp-config'] = [
+  'test/cinematicRewampConfiguration.test.js',
+  'test/cinematicDirectedOpeningConfiguration.test.js'
+];
+groups['rewamp-hierarchy'] = ['test/cinematicSeries.test.js', 'test/cinematicProjectRepository.test.js'];
+groups['rewamp-story'] = ['test/cinematicProvisionalDossier.test.js', 'test/cinematicStoryEnhancementService.test.js', 'test/cinematicStoryPlanService.test.js', 'test/cinematicSimpleAuthoringService.test.js'];
+groups['rewamp-revisions'] = ['test/cinematicRewampConfiguration.test.js', 'test/cinematicProjectRepository.test.js'];
+groups['rewamp-assets'] = ['test/cinematicSceneEnvironment.test.js', 'test/cinematicVideoReferencePlan.test.js', 'test/referenceAssetService.test.js'];
+groups['rewamp-preparation'] = [...new Set([...groups['prompt-budget'], ...groups.references, 'test/cinematicDialogueTiming.test.js'])];
+groups['rewamp-production'] = [...new Set([...groups['take-eligibility'], ...groups['take-duration'], 'test/cinematicPreviousTakes.test.js'])];
+groups['rewamp-final'] = ['test/cinematicTimelineCompiler.test.js', 'test/videoClipBundleService.test.js'];
+groups['rewamp-migration'] = ['test/cinematicSeries.test.js', 'test/cinematicProjectRepository.test.js'];
+groups['rewamp-projects'] = ['test/cinematicProjectRepository.test.js'];
+groups['rewamp-new-project'] = [
+  'test/cinematicRewampConfiguration.test.js',
+  'test/cinematicDirectedOpeningConfiguration.test.js',
+  'test/cinematicStoryEnhancementService.test.js',
+  'test/cinematicSeries.test.js'
+];
+groups['rewamp-story-ui'] = ['test/cinematicSeries.test.js'];
+groups['rewamp-full-story'] = ['test/cinematicFullStory.test.js', 'test/cinematicFullStoryService.test.js'];
+groups['rewamp-story-import'] = ['test/cinematicStoryImport.test.js'];
+groups['rewamp-chapters'] = ['test/cinematicSeries.test.js', 'test/cinematicFullStory.test.js'];
+groups['rewamp-chapter-revisions'] = ['test/cinematicFullStory.test.js'];
+groups['rewamp-chapter-proposals'] = ['test/cinematicFullStory.test.js'];
+groups['rewamp-shared-characters'] = ['test/cinematicFullStory.test.js'];
+groups['rewamp-scenes'] = ['test/cinematicSceneAuthoring.test.js', 'test/cinematicFullStory.test.js', 'test/cinematicFullStoryService.test.js'];
+groups['rewamp-shots'] = ['test/cinematicShotAuthoring.test.js', 'test/cinematicFullStory.test.js', 'test/cinematicFullStoryService.test.js'];
+groups['rewamp-writer'] = ['test/cinematicShotAuthoring.test.js', 'test/cinematicShotDocumentCompiler.test.js', 'test/cinematicFullStory.test.js'];
+groups['rewamp-look-references'] = ['test/cinematicLookReferences.test.js', 'test/cinematicVideoReferencePlan.test.js', 'test/characterLookService.test.js'];
+groups['rewamp-story-look-layout'] = ['test/cinematicWardrobeSuggestionService.test.js'];
+groups['rewamp-look-template'] = ['test/characterLookService.test.js'];
+groups['rewamp-visuals'] = [
+  'test/cinematicSceneEnvironment.test.js',
+  'test/cinematicFullStoryService.test.js',
+  'test/cinematicShotDocumentCompiler.test.js',
+  'test/cinematicApplicationService.test.js',
+  'test/cinematicVideoPacketCompiler.test.js',
+  'test/referenceProcessingService.test.js',
+  'test/cinematicPromptRecipePolicy.test.js'
+];
+const rewampGroups = ['rewamp-scene-layout-revision', 'rewamp-cast-chapter-target', 'rewamp-story-import', 'rewamp-config', 'rewamp-hierarchy', 'rewamp-story', 'rewamp-revisions', 'rewamp-assets',
+  'rewamp-preparation', 'rewamp-production', 'rewamp-final', 'rewamp-migration', 'rewamp-projects', 'rewamp-new-project', 'rewamp-story-ui', 'rewamp-full-story', 'rewamp-chapters',
+  'rewamp-chapter-revisions', 'rewamp-chapter-proposals', 'rewamp-shared-characters', 'rewamp-scenes', 'rewamp-shots', 'rewamp-visuals', 'rewamp-writer', 'rewamp-look-references', 'rewamp-story-look-layout', 'rewamp-look-template'];
 const suite = process.argv[2] || 'help';
 if (suite === 'help' || suite === '--help') {
-  console.log('Usage: node scripts/test-cinematic-video.js <last-frame|last-frame-ui|timing|timing-ui|take-duration|take-eligibility|prompt-budget|preview-selection|pilot|references|payload|flow|ui|full>');
+  console.log('Usage: node scripts/test-cinematic-video.js <last-frame|last-frame-ui|timing|timing-ui|take-duration|take-eligibility|prompt-budget|preview-selection|pilot|references|payload|flow|ui|full|rewamp-config|rewamp-hierarchy|rewamp-story|rewamp-revisions|rewamp-assets|rewamp-preparation|rewamp-production|rewamp-final|rewamp-migration|rewamp-projects|rewamp-new-project|rewamp-story-ui|rewamp-full-story|rewamp-chapters|rewamp-chapter-revisions|rewamp-chapter-proposals|rewamp-shared-characters|rewamp-scenes|rewamp-shots|rewamp-ui|rewamp-all>');
   console.log('last-frame / last-frame-ui: owned video derivative, Storyboard approval, disabled and preview controls');
+  console.log('rewamp-story-import: Setup file import and Full Story Character extraction');
+  console.log('rewamp-cast-chapter-target: Character disclosure and Chapter target visibility (two UI files only)');
+  console.log('rewamp-scene-layout-revision: Scene Cast layout and required Chapter revision instruction');
+  console.log('rewamp-visuals: Scene Environment and Shot First Frame authoring UI only');
+  console.log('rewamp-writer: Shot Cast/dialogue, editable Video Prompt, persistence and focused writer UI');
+  console.log('rewamp-look-references: Character Looks, Scene bindings, reference provenance and style presets');
+  console.log('rewamp-story-look-layout: wardrobe text model configuration and Full Story/Character presentation');
+  console.log('rewamp-look-template: portrait Look template, pinned recipes/crops and legacy result adoption');
   console.log('timing / timing-ui: advisory action estimate and Generate button regressions only');
   console.log('payload: adapter payload and catalog; flow: source, storage, Credits and task lifecycle');
   console.log('references: dynamic Cast/Look authority and configured video prompt');
   console.log('ui: Produce controls/status/preview; full: all groups plus adjacent regressions');
   console.log('Mocked tests only. No live provider calls, build or browser sweep.');
-} else if (!['last-frame', 'last-frame-ui', 'timing', 'timing-ui', 'take-duration', 'take-eligibility', 'prompt-budget', 'preview-selection', 'pilot', 'references', 'payload', 'flow', 'ui', 'full'].includes(suite) || process.argv.length > 3) {
+} else if (!['last-frame', 'last-frame-ui', 'timing', 'timing-ui', 'take-duration', 'take-eligibility', 'prompt-budget', 'preview-selection', 'pilot', 'references', 'payload', 'flow', 'ui', 'full', ...rewampGroups, 'rewamp-ui', 'rewamp-all'].includes(suite) || process.argv.length > 3) {
   console.error('Unknown suite. Use --help.');
   process.exitCode = 2;
 } else {
   const startedAt = performance.now();
-  const files = suite === 'full' ? [...new Set(Object.values(groups).flat())] : groups[suite];
+  const files = suite === 'full' ? [...new Set(legacyFullGroups.flatMap(group => groups[group]))]
+    : suite === 'rewamp-all' ? [...new Set(rewampGroups.flatMap(group => groups[group] || []))]
+      : groups[suite];
   if (files) run('backend', ['--test', ...(suite === 'timing' ? ['--test-name-pattern=action duration estimate|without an approved immutable Storyboard source|stale Shot authority'] : []), ...files], root);
+  if (!process.exitCode && suite === 'rewamp-scene-layout-revision') {
+    run('revision-validation', ['--test', '--test-name-pattern=Chapter revision requires|Full Story stays separate', 'test/cinematicFullStory.test.js'], root);
+  }
+  if (!process.exitCode && ['rewamp-scene-layout-revision', 'rewamp-all'].includes(suite)) {
+    run('scene-layout-revision-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicSceneLooks.test.tsx',
+      'src/features/cinematic/components/CinematicChapterWriter.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && ['rewamp-cast-chapter-target', 'rewamp-all'].includes(suite)) {
+    run('cast-chapter-target-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicFullStoryWriter.test.tsx',
+      'src/features/cinematic/components/CinematicChapterWriter.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && ['rewamp-story-import', 'rewamp-all'].includes(suite)) {
+    run('story-import-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicStoryFileImport.test.tsx',
+      'src/features/cinematic/components/CinematicNewProjectComposer.test.tsx',
+      'src/features/cinematic/components/CinematicFullStoryWriter.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'rewamp-look-template') {
+    run('look-template-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/profiles/components/CharacterLookDialog.test.tsx',
+      'src/components/generation/EngineTargetPanel.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'rewamp-story-look-layout') {
+    run('story-look-layout-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicFullStoryWriter.test.tsx',
+      'src/features/cinematic/components/CinematicCharacterLooks.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'rewamp-writer') {
+    run('ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicShotWriter.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && ['rewamp-look-references', 'rewamp-all'].includes(suite)) {
+    run('look-references-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicCharacterLooks.test.tsx',
+      'src/features/cinematic/components/CinematicSceneLooks.test.tsx',
+      'src/features/cinematic/components/CinematicSceneOverview.test.tsx',
+      'src/features/cinematic/components/CinematicShotWriter.test.tsx',
+      'src/features/cinematic/components/storyboardGenerationAdapter.test.ts',
+      'src/features/cinematic/components/StoryboardShotDialog.test.tsx',
+      'src/features/profiles/components/CharacterLookDialog.test.tsx'], path.join(root, 'web'));
+  }
   if (!process.exitCode && suite === 'last-frame-ui') {
     run('ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
       'src/features/cinematic/components/StoryboardShotDialog.test.tsx',
@@ -62,6 +160,69 @@ if (suite === 'help' || suite === '--help') {
       'src/features/cinematic/components/storyboardGenerationAdapter.test.ts',
       'src/features/cinematic/components/produce/produceReadModel.test.ts',
       'src/features/cinematic/schemas/cinematicCoreContracts.test.ts'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && ['rewamp-ui', 'rewamp-all'].includes(suite)) {
+    run('rewamp-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicWorkspaceNavigation.test.tsx',
+      'src/features/cinematic/components/CinematicProjectLibrary.test.tsx',
+      'src/features/cinematic/components/CinematicNewProjectComposer.test.tsx',
+      'src/features/cinematic/components/CinematicSetupForm.test.tsx',
+      'src/features/cinematic/components/CinematicFullStoryWriter.test.tsx',
+      'src/features/cinematic/components/CinematicChapterWriter.test.tsx',
+      'src/features/cinematic/schemas/cinematicRewampContracts.test.ts',
+      'src/features/cinematic/components/CinematicProduceRuntime.test.tsx',
+      'src/features/cinematic/components/StoryIntentChoices.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'rewamp-projects') {
+    run('rewamp-projects-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicProjectLibrary.test.tsx',
+      'src/features/cinematic/schemas/cinematicRewampContracts.test.ts'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'rewamp-new-project') {
+    run('rewamp-new-project-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicNewProjectComposer.test.tsx',
+      'src/features/cinematic/components/CinematicSetupForm.test.tsx',
+      'src/features/cinematic/schemas/cinematicRewampContracts.test.ts'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'rewamp-story-ui') {
+    run('rewamp-story-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicStoryWriter.test.tsx',
+      'src/features/cinematic/schemas/cinematicRewampContracts.test.ts'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'rewamp-full-story') {
+    run('rewamp-full-story-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicFullStoryWriter.test.tsx',
+      'src/features/cinematic/components/CinematicNewProjectComposer.test.tsx',
+      'src/features/cinematic/components/CinematicProjectLibrary.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'rewamp-chapters') {
+    run('rewamp-chapters-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/components/ui/Button.test.tsx',
+      'src/features/cinematic/components/CinematicFullStoryWriter.test.tsx',
+      'src/features/cinematic/components/CinematicChapterWriter.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'rewamp-scenes') {
+    run('rewamp-scenes-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicChapterWriter.test.tsx',
+      'src/features/cinematic/components/CinematicSceneOverview.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && ['rewamp-visuals', 'rewamp-all'].includes(suite)) {
+    run('rewamp-visuals-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicSceneOverview.test.tsx',
+      'src/features/cinematic/components/SceneEnvironmentControl.test.tsx',
+      'src/features/cinematic/components/CinematicShotWriter.test.tsx',
+      'src/features/cinematic/components/StoryboardShotDialog.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && suite === 'rewamp-shots') {
+    run('rewamp-shots-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicSceneOverview.test.tsx',
+      'src/features/cinematic/components/CinematicShotWriter.test.tsx'], path.join(root, 'web'));
+  }
+  if (!process.exitCode && ['rewamp-chapter-revisions', 'rewamp-chapter-proposals', 'rewamp-shared-characters'].includes(suite)) {
+    run(`${suite}-ui`, [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicFullStoryWriter.test.tsx',
+      'src/features/cinematic/components/CinematicChapterWriter.test.tsx',
+      'src/features/cinematic/schemas/cinematicRewampContracts.test.ts'], path.join(root, 'web'));
   }
   console.log(`[cinematic-video:${suite}] ${process.exitCode ? 'FAILED' : 'PASSED'} in ${((performance.now() - startedAt) / 1000).toFixed(1)}s`);
 }

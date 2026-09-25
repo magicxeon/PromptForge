@@ -7,6 +7,7 @@ import {
 import { cinematicVideoPacketConfigurationService } from './CinematicVideoPacketConfigurationService.js';
 import { cinematicVideoReferenceMode } from './CinematicVideoReferencePlanService.js';
 import { normalizeStoryboardRenderStyle } from './CinematicStoryboardRenderStyle.js';
+import { compileCinematicShotDocument, shotPromptSourceFingerprint } from './CinematicShotDocumentCompiler.js';
 
 const LEGACY_SECTION_LABELS = Object.freeze({
   startAuthority: 'APPROVED START FRAME',
@@ -33,10 +34,17 @@ export class CinematicVideoPacketCompiler {
     if (!project?.id || !scene?.id || !shot?.id) {
       throw new TypeError('Project, Scene and Shot are required to compile a Cinematic video packet.');
     }
+    const overrideStale = Boolean(shot.videoPromptOverride
+      && shot.videoPromptOverride.sourceFingerprint !== shotPromptSourceFingerprint(project, scene, shot));
+    const documentPreparation = compileCinematicShotDocument(shot, scene, project.castAssignments);
+    if (documentPreparation) shot = documentPreparation.preparedShot;
     const policy = this.configurationService.getPolicy();
     const promptStrategy = this.configurationService.getPromptStrategy();
     const manualStoryboard = shot.manualStoryboard === true;
-    const timeline = manualStoryboard ? normalizeTimeline(shot.videoActionTimeline) : null;
+    const documentTimeline = documentPreparation?.timeline || [];
+    const timeline = manualStoryboard ? normalizeTimeline(shot.videoActionTimeline)
+      : documentPreparation ? normalizeTimeline(documentTimeline) : null;
+    const authoredTimeline = manualStoryboard || Boolean(documentPreparation);
     const mode = cinematicVideoReferenceMode(referenceMode);
     const textOnly = mode === 'text_only';
     const looksOnly = ['looks_only', 'text_only'].includes(mode);
@@ -58,6 +66,12 @@ export class CinematicVideoPacketCompiler {
       : null;
     const keyframeContract = matchingKeyframeContract || keyframeCandidates[0];
     const findings = [];
+    if (overrideStale) findings.push(finding('blocking', 'cinematic_video_prompt_review_required', 'shot.videoPromptOverride'));
+    if (!shot.videoPromptOverride) {
+      for (const item of documentPreparation?.dialogue.findings || []) {
+        findings.push({ ...finding('blocking', item.code, 'shot.shotDocument'), line: item.line, speaker: item.speaker });
+      }
+    }
     if (looksOnly) {
       // Manual events replace legacy direction requirements, never source authority checks.
       findings.push(...keyframeContract.findings.filter(item => item.severity === 'blocking'
@@ -77,10 +91,11 @@ export class CinematicVideoPacketCompiler {
     if (!approvedContractFingerprint && source) {
       findings.push(finding('warning', 'cinematic_video_legacy_keyframe_authority', 'shot.approvedStoryboardAttemptId'));
     }
-    if (manualStoryboard && !timeline.length) {
-      findings.push(finding('blocking', 'cinematic_video_timeline_required', 'shot.videoActionTimeline'));
+    if (authoredTimeline && !timeline.length) {
+      findings.push(finding('blocking', 'cinematic_video_timeline_required',
+        manualStoryboard ? 'shot.videoActionTimeline' : 'shot.shotDocument'));
     }
-    if (!manualStoryboard && !compact(shot.subjectAction)) {
+    if (!authoredTimeline && !compact(shot.subjectAction)) {
       findings.push(finding('blocking', 'cinematic_video_action_required', 'shot.subjectAction'));
     }
     if (!manualStoryboard && Number(shot.estimatedActionDurationMs || 0) > Number(shot.durationMs || 0)) {
@@ -88,6 +103,8 @@ export class CinematicVideoPacketCompiler {
     }
 
     const packet = {
+      ...(documentPreparation ? { documentDirection: true } : {}),
+      ...(shot.videoPromptOverride ? { creatorDirectionOverride: shot.videoPromptOverride.text } : {}),
       ...(compositionReference ? { storyboardRenderStyle: source.storyboardRenderStyle } : {}),
       ...(looksOnly ? { referenceMode: mode, composition: keyframeContract.composition } : {}),
       contractVersion: policy.contractVersion,
@@ -103,7 +120,7 @@ export class CinematicVideoPacketCompiler {
       timing: {
         ...(leadInMs ? { leadInMs } : {}),
         plannedDurationMs: Number(shot.durationMs || 0),
-        estimatedActionDurationMs: Number((manualStoryboard ? shot.durationMs : shot.estimatedActionDurationMs || shot.durationMs) || 0)
+        estimatedActionDurationMs: Number((authoredTimeline ? shot.durationMs : shot.estimatedActionDurationMs || shot.durationMs) || 0)
       },
       referenceStrategy: {
         mode: looksOnly ? mode : compositionReference ? 'composition_reference' : source ? 'first_frame' : 'unavailable',
@@ -117,11 +134,11 @@ export class CinematicVideoPacketCompiler {
         looks: keyframeContract.lookAuthority
       },
       motion: {
-        ...(manualStoryboard ? { timeline } : {}),
+        ...(authoredTimeline ? { timeline } : {}),
         visibleStart: manualStoryboard ? '' : compact(shot.visibleMoment),
-        primaryAction: manualStoryboard ? '' : compact(shot.subjectAction),
-        additionalDirection: manualStoryboard ? '' : compact(shot.additionalMotionDirection),
-        visibleEnd: manualStoryboard ? '' : compact(shot.continuityExit),
+        primaryAction: authoredTimeline ? '' : compact(shot.subjectAction),
+        additionalDirection: authoredTimeline ? '' : compact(shot.additionalMotionDirection),
+        visibleEnd: authoredTimeline ? '' : compact(shot.continuityExit),
         cameraMovement: compact(shot.cameraMovement),
         blocking: compact(shot.blocking),
         screenDirection: ''
@@ -152,9 +169,9 @@ export class CinematicVideoPacketCompiler {
         dialogueCues: normalizeDialogueCues(shot.dialogueCues, shot.audioDirectionVersion === 1 ? project.castAssignments : []),
         audioCues: normalizeAudioCues(shot.audioCues)
       },
-      authorDirection: manualStoryboard ? '' : keyframeContract.authorDirection,
+      authorDirection: authoredTimeline ? '' : keyframeContract.authorDirection,
       prohibitions: unique(policy.globalProhibitions.map(value => template(value, {
-        actionScope: policy.actionScopes?.[manualStoryboard ? 'manualTimeline' : 'singleAction']
+        actionScope: policy.actionScopes?.[authoredTimeline ? 'manualTimeline' : 'singleAction']
       }))),
       provenance: {
         policyId: policy.id,
@@ -250,7 +267,7 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
   const sections = {
     startAuthority: sentences([
       phrase('startFrame', 'Begin from the approved Storyboard image as the immutable first frame.'),
-      packet.motion.visibleStart,
+      packet.creatorDirectionOverride ? '' : packet.motion.visibleStart,
       packet.referenceStrategy.mode === 'first_frame'
         ? phrase('preserveStartFrame', 'Preserve every visible identity, garment, prop, spatial relation and light source from that frame.')
         : ''
@@ -274,7 +291,7 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
     ]),
     camera: sentences([
       ...(looksOnly ? [packet.composition?.framing, packet.composition?.cameraAngle, packet.composition?.lensIntent] : []),
-      ...(manualTimeline ? [phrase('manualCamera', 'Preserve opening framing unless the timeline directs a camera move.')] : [
+      ...(manualTimeline ? [packet.documentDirection && packet.motion.cameraMovement || phrase('manualCamera', 'Preserve opening framing unless the timeline directs a camera move.')] : [
         packet.motion.cameraMovement || phrase('stableCamera', 'Keep the camera restrained and stable.'),
         phrase('cameraImperfection', 'Use subtle natural handheld or optical imperfection only when compatible with the authored camera direction.')
       ])
@@ -293,7 +310,7 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
       packet.environment.propContinuity && compact(packet.environment.propContinuity) !== compact(packet.continuity.entry)
         ? phrase('propContinuity', 'Prop continuity: {value}.', { value: packet.environment.propContinuity }) : ''
     ]),
-    continuity: manualTimeline ? '' : sentences([
+    continuity: manualTimeline && !packet.documentDirection ? '' : sentences([
       looksOnly && packet.continuity.entry && compact(packet.continuity.entry) !== compact(packet.motion.visibleStart)
         ? `Entry state: ${packet.continuity.entry}.` : '',
       packet.motion.visibleEnd ? phrase('endState', 'End state: {value}.', { value: packet.motion.visibleEnd }) : '',
@@ -304,7 +321,10 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
     ]),
     audio: sentences([
       packet.audio.intent,
-      ...packet.audio.dialogueCues.map(cue => phrase('dialogueCue', '{speaker}: {text} at {startOffsetMs}ms.', { ...cue, startOffsetMs: cue.startOffsetMs + leadInMs })),
+      ...packet.audio.dialogueCues.map(cue => phrase('dialogueCue', '{speaker}: {text} at {startOffsetMs}ms.', {
+        ...cue, speaker: packet.audio.directionVersion === 1 && !cue.speakerVisible ? `${cue.speaker} (off-screen voice)` : cue.speaker,
+        startOffsetMs: cue.startOffsetMs + leadInMs
+      })),
       ...(packet.audio.directionVersion === 1 ? packet.audio.dialogueCues.filter(cue => cue.delivery).map(cue => `${cue.speaker} delivery: ${cue.delivery}.`) : []),
       ...packet.audio.audioCues.map(cue => phrase('audioCue', '{kind}: {description} at {startOffsetMs}ms.', { ...cue, startOffsetMs: cue.startOffsetMs + leadInMs }))
     ]),
@@ -312,6 +332,14 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
     authorDirection: manualTimeline ? '' : packet.authorDirection
   };
   const omittedSections = new Set(strategy?.omitSections || []);
+  if (packet.creatorDirectionOverride) {
+    for (const section of ['temporalAction', 'camera', 'performance', 'environment', 'continuity', 'audio']) sections[section] = '';
+    sections.temporalAction = phrase('manualDuration', 'Clip duration: {seconds}s. No automatic extra events.', {
+      seconds: ((packet.timing.plannedDurationMs + leadInMs) / 1000).toFixed(3)
+    });
+    sections.authorDirection = packet.creatorDirectionOverride;
+    omittedSections.delete('authorDirection');
+  }
   if (leadInMs) {
     sections.temporalAction = `${template(policy.whitePrevisLeadInInstruction, { start: timelineClock(leadInMs), duration: (packet.timing.plannedDurationMs / 1000).toFixed(3) })} ${sections.temporalAction}`;
   }
@@ -320,12 +348,12 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
     const lookReferences = textOnly ? [] : (referencePlan?.references || []).slice(looksOnly ? 0 : 1);
     const hasLooks = !textOnly && (referencePlan ? lookReferences.length
       : packet.authority.characters.length && packet.authority.looks.length);
-    sections.startAuthority = sentences([referenceMode.startAuthority, packet.motion.visibleStart,
+    sections.startAuthority = sentences([referenceMode.startAuthority, packet.creatorDirectionOverride ? '' : packet.motion.visibleStart,
       ...lookReferences.map((reference, index) => template(referenceMode.characterMapping, {
         imageNumber: index + (looksOnly ? 1 : 2), roleName: reference.roleName, lookName: reference.lookName
       })), hasLooks ? policy.lookFacialIdentityInstruction : '', referenceMode.prohibitions]);
   }
-  const promptSuffix = manualTimeline ? policy.phrasing?.manualPromptSuffix : strategy?.promptSuffix;
+  const promptSuffix = packet.creatorDirectionOverride ? '' : manualTimeline ? policy.phrasing?.manualPromptSuffix : strategy?.promptSuffix;
   const promptParts = [
     ...(compact(referenceMode?.promptPrefix || strategy?.promptPrefix) ? [compact(referenceMode?.promptPrefix || strategy.promptPrefix)] : []),
     ...policy.promptSectionOrder.flatMap(section => {

@@ -88,6 +88,35 @@ test('processing service enforces a provider that supports no references', async
   );
 });
 
+test('Cinematic Scene stills order Environment before Character Looks', async () => {
+  const service = new ReferenceProcessingService({
+    policyRegistry,
+    processorRegistry: {
+      async process(input) {
+        return { sourceAssetId: `ast_${input.slotId}`, derivativeAssetId: null,
+          imageUrl: input.value, contentFingerprint: input.slotId, processorIds: ['image_probe'],
+          processorVersions: { image_probe: '1.0.0' }, fallback: false };
+      }
+    }
+  });
+  const context = {
+    generationSurface: 'cinematic', generationMode: 'scene', imageReferences: {}, selections: {},
+    cinematicSceneReference: { assetId: 'scene_asset', contentHash: 'a'.repeat(64), referenceValue: '/scene.jpg' },
+    cinematicCastReferences: [
+      { castAssignmentId: 'cast_mira', displayName: 'Mira', referenceValue: '/mira.jpg', contentHash: 'b'.repeat(64) },
+      { castAssignmentId: 'cast_kin', displayName: 'Kin', referenceValue: '/kin.jpg', contentHash: 'c'.repeat(64) }
+    ]
+  };
+  const result = await service.processContext(context, {
+    actorContext: { userId: 'usr_test', username: 'test' }, providerId: 'gemini', modelId: 'model',
+    modelConfig: { capabilities: { maxReferenceImages: 3 } }
+  });
+  assert.deepEqual(result.providerPlan.orderedReferences.map(reference => reference.slots[0]), [
+    'cinematic_environment', 'cinematic_cast_0', 'cinematic_cast_1'
+  ]);
+  assert.deepEqual(context.referenceRoleManifest.map(reference => reference.index), [1, 2, 3]);
+});
+
 test('Fashion compiles an ordered Template, Character and Outfit authority brief', async () => {
   const service = new ReferenceProcessingService({
     policyRegistry,

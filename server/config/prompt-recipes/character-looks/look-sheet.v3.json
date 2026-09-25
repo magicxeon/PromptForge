@@ -1,0 +1,20 @@
+{
+  "id": "character-look-sheet",
+  "version": 3,
+  "enabled": true,
+  "instructions": [
+    "Create one compact Character Look Sheet containing exactly one character and one unchanged outfit.",
+    "Show three clearly separated full-body views in one row: neutral front view, exact side view facing viewer-right, and complete back view, all at the same scale.",
+    "Include one neutral canonical face crop below the three views while preserving the same identity, apparent age, proportions, hairstyle, skin tone and garment construction in every view.",
+    "Use a neutral relaxed A-pose, even studio illumination, a plain light background and generous margins around every complete figure.",
+    "Treat the supplied target wardrobe contract as authoritative: preserve every named garment, silhouette, color, material, closure, layer, footwear item and accessory consistently across all views.",
+    "The Character identity reference controls identity and body proportions only. Never copy a casting uniform, neutral fitting basics, plain T-shirt and shorts, underwear-like clothing or any incidental source outfit unless the target wardrobe contract explicitly requests it.",
+    "Do not add text, labels, measurements, logos, watermark, props, scenery, expression grids, duplicate people, beauty retouching or a T-pose."
+  ],
+  "generationStyles": {
+    "realistic": "Rendering style: realistic. Use photorealistic surfaces, natural skin texture and physically plausible fabric detail.",
+    "semi_realistic": "Rendering style: semi-realistic. Use gently simplified surface detail and softly illustrated shading while retaining natural anatomy and recognizable facial features.",
+    "illustration": "Rendering style: illustration. Use deliberate drawn contours, simplified surface texture and illustrated color shading while retaining recognizable facial features and authored body proportions."
+  },
+  "styleAuthority": "The selected rendering style controls visual treatment across every view and the face crop, including when the source references or wardrobe descriptions use a different visual treatment. It does not change identity, apparent age, skin tone, body proportions or the target outfit."
+}

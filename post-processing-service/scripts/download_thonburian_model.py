@@ -21,22 +21,56 @@ import urllib.request
 from pathlib import Path
 
 # ── Destination ────────────────────────────────────────────────────────────────
-MODEL_DIR = Path("D:/applications/momelo-post-processing/models/thonburian-tts")
+MODEL_DIR = Path("D:/applications/momelo-post-processing/models")
+THONBURIAN_DIR = MODEL_DIR / "thonburian-tts"
+VIZINTZOR_V1_DIR = MODEL_DIR / "f5-tts-thai-v1"
+VIZINTZOR_V2_DIR = MODEL_DIR / "f5-tts-thai-v2"
 
 # ── Files to download from HuggingFace ─────────────────────────────────────────
-HF_BASE_URL = "https://huggingface.co/biodatlab/ThonburianTTS/resolve/main"
 FILES = [
     {
         "name": "mega_vocab.txt",
-        "url": f"{HF_BASE_URL}/megaF5/mega_vocab.txt",
-        "min_bytes": 10_000,        # sanity check: at least 10 KB
+        "url": "https://huggingface.co/biodatlab/ThonburianTTS/resolve/main/megaF5/mega_vocab.txt",
+        "min_bytes": 10_000,
         "required": True,
+        "dest_dir": THONBURIAN_DIR,
     },
     {
         "name": "mega_f5_last.safetensors",
-        "url": f"{HF_BASE_URL}/megaF5/mega_f5_last.safetensors",
-        "min_bytes": 500_000_000,   # sanity check: at least 500 MB
+        "url": "https://huggingface.co/biodatlab/ThonburianTTS/resolve/main/megaF5/mega_f5_last.safetensors",
+        "min_bytes": 500_000_000,
         "required": True,
+        "dest_dir": THONBURIAN_DIR,
+    },
+    # VIZINTZOR/F5-TTS-THAI (V1)
+    {
+        "name": "vocab.txt",
+        "url": "https://huggingface.co/VIZINTZOR/F5-TTS-THAI/resolve/main/vocab.txt",
+        "min_bytes": 10_000,
+        "required": True,
+        "dest_dir": VIZINTZOR_V1_DIR,
+    },
+    {
+        "name": "model_1000000.pt",
+        "url": "https://huggingface.co/VIZINTZOR/F5-TTS-THAI/resolve/main/model_1000000.pt",
+        "min_bytes": 500_000_000,
+        "required": True,
+        "dest_dir": VIZINTZOR_V1_DIR,
+    },
+    # VIZINTZOR/F5-TTS-TH-V2 (V2)
+    {
+        "name": "vocab.txt",
+        "url": "https://huggingface.co/VIZINTZOR/F5-TTS-TH-V2/resolve/main/vocab.txt",
+        "min_bytes": 10_000,
+        "required": True,
+        "dest_dir": VIZINTZOR_V2_DIR,
+    },
+    {
+        "name": "model_350000.pt",
+        "url": "https://huggingface.co/VIZINTZOR/F5-TTS-TH-V2/resolve/main/model_350000.pt",
+        "min_bytes": 500_000_000,
+        "required": True,
+        "dest_dir": VIZINTZOR_V2_DIR,
     },
 ]
 
@@ -121,17 +155,17 @@ def _download_file(url: str, dest: Path, min_bytes: int) -> bool:
 
 def main():
     print("=" * 60)
-    print("  ThonburianTTS Thai Fine-Tuned Model Downloader")
-    print("  Source: biodatlab/ThonburianTTS (megaF5 & megaIPA)")
+    print("  ThonburianTTS & VIZINTZOR F5-TTS Models Downloader")
     print("=" * 60)
     print()
 
-    MODEL_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"Destination: {MODEL_DIR}\n")
+    THONBURIAN_DIR.mkdir(parents=True, exist_ok=True)
+    VIZINTZOR_V1_DIR.mkdir(parents=True, exist_ok=True)
+    VIZINTZOR_V2_DIR.mkdir(parents=True, exist_ok=True)
 
     success_all = True
     for file_info in FILES:
-        dest = MODEL_DIR / file_info["name"]
+        dest = file_info["dest_dir"] / file_info["name"]
         ok = _download_file(file_info["url"], dest, file_info["min_bytes"])
         if not ok and file_info["required"]:
             success_all = False
@@ -140,10 +174,7 @@ def main():
     print("=" * 60)
     if success_all:
         print("  All files downloaded successfully!")
-        print()
         print("  Next step: restart post-processing-service and test TTS.")
-        print(f"  Vocab : {MODEL_DIR / 'vocab.txt'}")
-        print(f"  Model : {MODEL_DIR / 'model_1250000.safetensors'}")
     else:
         print("  One or more files failed to download.")
         print("  Check your internet connection and retry.")

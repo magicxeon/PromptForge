@@ -10,7 +10,7 @@ const enabled = {
 test('Cinematic Story Plan policy provides separate bounded stage timeout defaults', () => {
   const policy = getCinematicStoryPlanPolicy(enabled);
 
-  assert.equal(policy.model, 'gpt-5.6-terra');
+  assert.equal(policy.model, 'gpt-6-sol');
   assert.equal(policy.reasoningEffort, 'medium');
   assert.equal(policy.fallback.model, 'gemini-3.8-flash');
   assert.equal(policy.fallback.enabled, false);

@@ -140,9 +140,13 @@ const characterLookRightsDeclarationSchema = z.object({
   policyVersion: z.string()
 });
 
+export const characterLookGenerationStyleSchema = z.enum(['realistic', 'semi_realistic', 'illustration']);
+export type CharacterLookGenerationStyle = z.infer<typeof characterLookGenerationStyleSchema>;
+
 export const characterLookVersionSchema = z.object({
   id: z.string(),
   versionNumber: z.number(),
+  generationStyle: characterLookGenerationStyleSchema.optional(),
   sourceMode: z.enum(['character_default', 'uploaded', 'uploaded_character_sheet', 'generated_character_sheet', 'ai_suggestion']),
   sourceSheetAssetId: z.string().nullable().optional(),
   garmentAuthorities: z.record(z.string(), z.record(z.string(), z.string())).default({}),
@@ -200,6 +204,7 @@ export type CharacterLook = z.infer<typeof characterLookSchema>;
 
 export const characterLookGenerationPlanSchema = z.object({
   operation: z.literal('character_look_sheet'),
+  generationStyle: characterLookGenerationStyleSchema.default('realistic'),
   recipe: z.object({
     id: z.string(),
     version: z.number().int().positive(),
@@ -219,7 +224,8 @@ export const characterLookGenerationPlanSchema = z.object({
     characterProfileId: z.string(),
     characterProfileVersionId: z.string(),
     lookId: z.string(),
-    lookVersionId: z.string()
+    lookVersionId: z.string(),
+    generationStyle: characterLookGenerationStyleSchema.default('realistic')
   })
 });
 export type CharacterLookGenerationPlan = z.infer<typeof characterLookGenerationPlanSchema>;

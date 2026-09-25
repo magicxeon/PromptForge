@@ -17,12 +17,13 @@ function fixture() {
   const service = new CinematicVideoReferencePlanService({ lookService: {
     async resolveApprovedSheetReference(profile, look, version, actor) {
       calls.push({ profile, look, version, actor });
-      return { asset: { id: `asset_${profile}`, publicUrl: `/outputs/${profile}.png`, contentHash: `hash_${profile}` },
+      return { characterProfileVersionId: `charver_${profile.replace(/^charprof_/, '')}_v1`,
+        asset: { id: `asset_${profile}`, publicUrl: `/outputs/${profile}.png`, contentHash: `hash_${profile}` },
         sourceFingerprint: `fingerprint_${version}`, previewUrl: `/api/looks/${version}` };
     }
   } });
   const input = {
-    project: { castAssignments: ['a', 'b', 'unused'].map(id => ({ id, characterProfileId: id,
+    project: { castAssignments: ['a', 'b', 'unused'].map(id => ({ id, characterProfileId: id, characterProfileVersionId: `charver_${id}_v1`,
       active: true, identityReady: true, storyRole: `role ${id}`, looks: [{ id: `look_${id}`,
         mode: 'character_look', locked: true, name: `Costume ${id}`,
         characterLookId: `look_${id}`, characterLookVersionId: `version_${id}` }] })) },
@@ -37,11 +38,21 @@ function fixture() {
 
 test('dynamic references retain Shot order, deduplicate cast and exclude unused assignments', async () => {
   const { input, service, calls } = fixture();
+  input.project.castAssignments[1].displayName = 'Kin';
+  input.project.castAssignments[1].looks[0].characterLookProvenance = { kind: 'user_uploaded' };
+  input.project.castAssignments[1].displayName = 'Kin';
+  input.project.castAssignments[1].looks[0].characterLookProvenance = { kind: 'user_uploaded' };
   const result = await service.prepare(input);
   assert.equal(result.inputMode, 'multimodal_reference');
   assert.deepEqual(result.references.map(item => item.assetId), ['board', 'asset_b', 'asset_a']);
   assert.deepEqual(result.references.map(item => item.role), Array(3).fill('reference_image'));
   assert.deepEqual(result.references.slice(1).map(item => item.roleName), ['role b', 'role a']);
+  assert.equal(result.references[1].characterName, 'Kin');
+  assert.equal(result.references[1].referenceSource, 'uploaded');
+  assert.equal(result.references[1].selectionScope, 'shot');
+  assert.equal(result.references[1].characterName, 'Kin');
+  assert.equal(result.references[1].referenceSource, 'uploaded');
+  assert.equal(result.references[1].selectionScope, 'shot');
   assert.deepEqual(calls.map(item => item.version), ['version_b', 'version_a']);
   assert.ok(calls.every(item => item.actor === input.actorContext));
   const normalized = normalizeVideoReferences(result);

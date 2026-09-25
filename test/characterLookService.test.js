@@ -5,6 +5,8 @@ import path from 'node:path';
 import test from 'node:test';
 import { CharacterLookRepository } from '../server/repositories/character-profiles/CharacterLookRepository.js';
 import { CharacterLookService } from '../server/domain/character-profiles/CharacterLookService.js';
+import { compileGenerationContext } from '../server/domain/generation/generationRequestService.js';
+import { loadPromptRecipe } from '../server/config/prompt-recipes/loadPromptRecipe.js';
 
 const alice = { userId: 'usr_alice', username: 'user_alice', role: 'user' };
 const bob = { userId: 'usr_bob', username: 'user_bob', role: 'user' };
@@ -335,7 +337,7 @@ test('AI wardrobe direction is stored as a non-approved proposal without Assets'
   const plan = await service.getGenerationPlan(
     'charprof_a', created.id, created.activeVersionId, alice
   );
-  assert.equal(plan.recipe.version, 2);
+  assert.equal(plan.recipe.version, 4);
   assert.match(plan.prompt, /Required target outfit:/);
   assert.match(plan.prompt, /cream ribbed knit top/i);
   assert.match(plan.prompt, /navy rain coat/i);
@@ -362,7 +364,7 @@ test('Character Look generation plan pins the source version, global recipe and 
   assert.equal(plan.operation, 'character_look_sheet');
   assert.equal(plan.source.lookVersionId, created.activeVersionId);
   assert.equal(plan.recipe.id, 'character-look-sheet');
-  assert.equal(plan.recipe.version, 2);
+  assert.equal(plan.recipe.version, 4);
   assert.equal(plan.recipe.fingerprint.length, 16);
   assert.deepEqual(plan.references, {
     outfit_front: 'ast_outfit_front',
@@ -370,6 +372,239 @@ test('Character Look generation plan pins the source version, global recipe and 
   });
   assert.equal(plan.characterProfileContext.sourceId, created.id);
   assert.match(plan.prompt, /practical navy coat/i);
+});
+
+test('creative Look presets persist independently and compile without conflicting style text', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const original = await service.createDraft('charprof_a', {
+    characterProfileVersionId: 'charver_a', name: 'Original',
+    sourceMode: 'uploaded', garmentAuthorities: { full_look: { front: 'ast_outfit' } }
+  }, alice);
+  const reviewed = await service.attachReview('charprof_a', original.id, original.activeVersionId, {
+    viewAssetIds: { front: 'ast_front', side: 'ast_side', back: 'ast_back' }
+  }, alice);
+  await service.approve('charprof_a', reviewed.id, reviewed.activeVersionId, alice);
+  const originalRecord = await service.repository.findForOwner(original.id, alice);
+  for (const generationStyle of ['realistic', 'semi_realistic', 'illustration']) {
+    const draft = await service.createDraft('charprof_a', {
+      characterProfileVersionId: 'charver_a', name: generationStyle,
+      sourceMode: 'uploaded', garmentAuthorities: { full_look: { front: 'ast_outfit' } },
+      generationStyle, idempotencyKey: `style:${generationStyle}`
+    }, alice);
+    const plan = await service.getGenerationPlan('charprof_a', draft.id, draft.activeVersionId, alice);
+    assert.notEqual(draft.id, original.id);
+    assert.notEqual(draft.activeVersionId, original.activeVersionId);
+    assert.equal(draft.versions[0].generationStyle, generationStyle);
+    assert.equal((await service.repository.findForOwner(draft.id, alice)).versions[0].generationStyle, generationStyle);
+    assert.equal(plan.generationStyle, generationStyle);
+    assert.equal(plan.source.generationStyle, generationStyle);
+    assert.equal(plan.recipe.version, 4);
+    assert.equal(plan.references.outfit_front, 'ast_outfit');
+    assert.equal(plan.source.characterProfileVersionId, original.sourceCharacterProfileVersionId);
+    assert.match(plan.prompt, /same identity, apparent age, proportions/);
+    assert.match(plan.prompt, /Rendering style:/);
+    const { compiledPrompt, context } = compileGenerationContext({
+      mode: 'character-sheet', generationMode: 'character-sheet', generationSurface: 'cinematic',
+      characterType: 'styled_character',
+      aspectRatio: plan.output.aspectRatio,
+      sceneBuilder: { authoringMode: 'manual', manualPromptText: plan.prompt },
+      sceneTemplateSnapshot: { promptRecipeSnapshot: plan.recipe, characterLookSource: plan.source },
+      characterProfileContext: plan.characterProfileContext
+    }, alice);
+    assert.ok(compiledPrompt.includes(plan.prompt));
+    assert.equal(context.sceneTemplateSnapshot.characterLookSource.generationStyle, generationStyle);
+    assert.equal(context.outputCount, 1);
+    assert.equal(context.aspectRatio, '9:16');
+    assert.equal(context.promptRefinement.enabled, false);
+    if (generationStyle === 'realistic') assert.match(plan.prompt, /photorealistic/);
+    else assert.doesNotMatch(compiledPrompt, /photorealis|photograph/i);
+    assert.doesNotMatch(plan.prompt, /5%|five.percent|moderation/i);
+    const replay = await service.createDraft('charprof_a', {
+      characterProfileVersionId: 'charver_a', name: 'Changed request',
+      sourceMode: 'ai_suggestion', description: 'Different wardrobe.',
+      generationStyle: 'illustration', idempotencyKey: `style:${generationStyle}`
+    }, alice);
+    assert.equal(replay.id, draft.id);
+    assert.equal(replay.versions[0].generationStyle, generationStyle);
+    await assert.rejects(service.getGenerationPlan('charprof_a', draft.id, draft.activeVersionId, bob),
+      error => error.code === 'character_look_not_found');
+  }
+  assert.deepEqual(await service.repository.findForOwner(original.id, alice), originalRecord);
+});
+
+test('Look generation rejects invalid presets and leaves complete uploaded sheets untouched', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  for (const generationStyle of ['unknown', '', null, {}, 'REALISTIC']) {
+    await assert.rejects(service.createDraft('charprof_a', {
+      characterProfileVersionId: 'charver_a', name: 'Invalid',
+      sourceMode: 'ai_suggestion', description: 'A navy coat.', generationStyle
+    }, alice), error => error.code === 'character_look_generation_style_invalid' && error.statusCode === 400);
+  }
+  assert.deepEqual(await service.repository.readAll(), []);
+  const uploaded = await service.createDraft('charprof_a', {
+    characterProfileVersionId: 'charver_a', name: 'Uploaded',
+    sourceMode: 'uploaded_character_sheet', sourceSheetAssetId: 'ast_sheet', generationStyle: 'illustration'
+  }, alice);
+  const record = await service.repository.findForOwner(uploaded.id, alice);
+  assert.equal(record.versions[0].sourceSheetAssetId, 'ast_sheet');
+  assert.equal(record.versions[0].generationStyle, undefined);
+  await assert.rejects(service.getGenerationPlan('charprof_a', uploaded.id, uploaded.activeVersionId, alice),
+    error => error.code === 'character_look_source_not_ready');
+  assert.deepEqual(await service.repository.findForOwner(uploaded.id, alice), record);
+});
+
+test('legacy source-ready Looks get portrait plans without changing sources or blocking old candidates', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const legacy = await service.repository.createDraft({
+    characterProfileId: 'charprof_a', sourceCharacterProfileVersionId: 'charver_a',
+    name: 'Legacy', sourceMode: 'ai_suggestion', description: 'A navy coat.'
+  }, alice);
+  const before = await service.repository.findForOwner(legacy.id, alice);
+  const plan = await service.getGenerationPlan('charprof_a', legacy.id, legacy.activeVersionId, alice);
+  assert.equal(plan.recipe.version, 4);
+  assert.equal(plan.output.aspectRatio, '9:16');
+  assert.equal(plan.generationStyle, 'realistic');
+  assert.match(plan.prompt, /vertical 9:16/);
+  assert.equal((await service.list('charprof_a', { characterProfileVersionId: 'charver_a' }, alice)).items[0].versions[0].generationStyle, 'realistic');
+  assert.deepEqual(await service.repository.findForOwner(legacy.id, alice), before);
+  const { generationStyle: omitted, ...legacySource } = plan.source;
+  service.generationResultRepository.findByIdForOwner = async () => ({
+    id: 'legacy_job', mode: 'character-sheet', imageUrl: '/outputs/legacy.png',
+    characterProfileContext: plan.characterProfileContext,
+    sceneTemplateSnapshot: { characterLookSource: legacySource, promptRecipeSnapshot: loadPromptRecipe('character-looks/look-sheet.v2.json') }
+  });
+  const reviewed = await service.attachGeneratedReview('charprof_a', legacy.id, legacy.activeVersionId,
+    { generationResultId: 'legacy_job' }, alice);
+  assert.equal(reviewed.versions[0].provenance.recipeVersion, 2);
+  assert.equal(reviewed.versions[0].generationStyle, 'realistic');
+});
+
+test('portrait Look template pins layout and adopts matching crops without inventing accessories', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const recipe = loadPromptRecipe('character-looks/look-sheet.v4.json');
+  const draft = await service.createDraft('charprof_a', {
+    characterProfileVersionId: 'charver_a', name: 'Portrait look',
+    sourceMode: 'ai_suggestion', description: 'Navy coat with no accessories.',
+    suggestionSnapshot: { garments: { outerwear: 'navy coat', accessories: [] } }
+  }, alice);
+  const stored = await service.repository.findForOwner(draft.id, alice);
+  assert.equal(stored.versions[0].generationRecipeVersion, 4);
+  const plan = await service.getGenerationPlan('charprof_a', draft.id, draft.activeVersionId, alice);
+  assert.deepEqual(plan.output, { aspectRatio: '9:16', outputCount: 1 });
+  assert.match(plan.prompt, /dominant front full-body view on the left/);
+  assert.match(plan.prompt, /lower band.*face portrait.*accessory detail/i);
+  assert.match(plan.prompt, /If there are no authorized accessories, leave this area clean and empty/);
+  assert.match(plan.prompt, /never print coordinates/);
+  assert.match(plan.prompt, /front: 5, 4, 50, 64%/);
+  const regions = [...Object.values(recipe.cropManifest.regions), recipe.accessoryRegion];
+  for (const [index, region] of regions.entries()) {
+    assert.ok(region.x >= 0 && region.y >= 0 && region.width > 0 && region.height > 0);
+    assert.ok(region.x + region.width <= 1 && region.y + region.height <= 1);
+    for (const other of regions.slice(index + 1)) {
+      assert.ok(region.x + region.width <= other.x || other.x + other.width <= region.x
+        || region.y + region.height <= other.y || other.y + other.height <= region.y, 'regions must not overlap');
+    }
+  }
+  service.generationResultRepository.findByIdForOwner = async () => ({
+    id: 'portrait_job', mode: 'character-sheet', imageUrl: '/outputs/portrait.png',
+    characterProfileContext: plan.characterProfileContext,
+    sceneTemplateSnapshot: { characterLookSource: plan.source, promptRecipeSnapshot: plan.recipe }
+  });
+  const reviewed = await service.attachGeneratedReview('charprof_a', draft.id, draft.activeVersionId,
+    { generationResultId: 'portrait_job' }, alice);
+  const version = reviewed.versions[0];
+  assert.deepEqual(version.cropManifest, recipe.cropManifest);
+  for (const role of ['front', 'side', 'back']) {
+    assert.deepEqual(version.approvedViewAssets[role].cropRegion, recipe.cropManifest.regions[role]);
+  }
+  assert.equal(reviewed.approvedVersionId, null);
+});
+
+test('existing styled square Looks get portrait plans and preserve v3 pending-result crop layout', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const legacy = await service.repository.createDraft({
+    characterProfileId: 'charprof_a', sourceCharacterProfileVersionId: 'charver_a',
+    name: 'Existing square look', sourceMode: 'ai_suggestion', description: 'Navy coat.',
+    generationStyle: 'semi_realistic'
+  }, alice);
+  const plan = await service.getGenerationPlan('charprof_a', legacy.id, legacy.activeVersionId, alice);
+  assert.equal(plan.recipe.version, 4);
+  assert.equal(plan.output.aspectRatio, '9:16');
+  assert.match(plan.prompt, /dominant front full-body view/);
+  service.generationResultRepository.findByIdForOwner = async () => ({
+    id: 'square_job', mode: 'character-sheet', imageUrl: '/outputs/square.png',
+    characterProfileContext: plan.characterProfileContext,
+    sceneTemplateSnapshot: { characterLookSource: plan.source, promptRecipeSnapshot: loadPromptRecipe('character-looks/look-sheet.v3.json') }
+  });
+  const reviewed = await service.attachGeneratedReview('charprof_a', legacy.id, legacy.activeVersionId,
+    { generationResultId: 'square_job' }, alice);
+  assert.equal(reviewed.versions[0].cropManifest.layoutVersion, 'character-look-sheet-v1');
+  assert.deepEqual(reviewed.versions[0].approvedViewAssets.front.cropRegion,
+    { x: 0.02, y: 0.02, width: 0.3, height: 0.62 });
+});
+
+test('old drafts adopt new portrait candidates but new drafts cannot adopt legacy or modified recipes', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const input = { characterProfileVersionId: 'charver_a', name: 'Reusable Look',
+    sourceMode: 'ai_suggestion', description: 'A navy coat.', generationStyle: 'realistic' };
+  const old = await service.repository.createDraft({ ...input,
+    characterProfileId: 'charprof_a', sourceCharacterProfileVersionId: 'charver_a' }, alice);
+  const current = await service.createDraft('charprof_a', input, alice);
+  for (const draft of [old, current]) {
+    const plan = await service.getGenerationPlan('charprof_a', draft.id, draft.activeVersionId, alice);
+    const result = { id: `job_${draft.id}`, mode: 'character-sheet', imageUrl: '/outputs/portrait.png',
+      characterProfileContext: plan.characterProfileContext,
+      sceneTemplateSnapshot: { characterLookSource: plan.source, promptRecipeSnapshot: { ...plan.recipe, fingerprint: 'wrong' } } };
+    service.generationResultRepository.findByIdForOwner = async () => result;
+    await assert.rejects(service.attachGeneratedReview('charprof_a', draft.id, draft.activeVersionId,
+      { generationResultId: result.id }, alice), error => error.code === 'character_look_generation_context_mismatch');
+    if (draft.id === current.id) {
+      result.sceneTemplateSnapshot.promptRecipeSnapshot = loadPromptRecipe('character-looks/look-sheet.v3.json');
+      await assert.rejects(service.attachGeneratedReview('charprof_a', draft.id, draft.activeVersionId,
+        { generationResultId: result.id }, alice), error => error.code === 'character_look_generation_context_mismatch');
+    }
+    result.sceneTemplateSnapshot.promptRecipeSnapshot = plan.recipe;
+    const reviewed = await service.attachGeneratedReview('charprof_a', draft.id, draft.activeVersionId,
+      { generationResultId: result.id }, alice);
+    assert.equal(reviewed.versions[0].cropManifest.layoutVersion, 'character-look-sheet-portrait-v2');
+    assert.equal(reviewed.versions[0].generationLineage.recipeVersion, 4);
+  }
+});
+
+test('stylized Look adoption rejects missing or changed preset lineage and preserves explicit approval', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const draft = await service.createDraft('charprof_a', {
+    characterProfileVersionId: 'charver_a', name: 'Illustrated',
+    sourceMode: 'ai_suggestion', description: 'A navy coat.', generationStyle: 'illustration'
+  }, alice);
+  const plan = await service.getGenerationPlan('charprof_a', draft.id, draft.activeVersionId, alice);
+  const result = {
+    id: 'illustrated_job', mode: 'character-sheet', imageUrl: '/outputs/illustrated.png',
+    characterProfileContext: plan.characterProfileContext,
+    sceneTemplateSnapshot: { characterLookSource: { ...plan.source }, promptRecipeSnapshot: plan.recipe }
+  };
+  service.generationResultRepository.findByIdForOwner = async () => result;
+  for (const generationStyle of [undefined, 'realistic', 'semi_realistic']) {
+    result.sceneTemplateSnapshot.characterLookSource.generationStyle = generationStyle;
+    await assert.rejects(service.attachGeneratedReview('charprof_a', draft.id, draft.activeVersionId,
+      { generationResultId: result.id }, alice), error => error.code === 'character_look_generation_context_mismatch');
+  }
+  result.sceneTemplateSnapshot.characterLookSource.generationStyle = 'illustration';
+  const reviewed = await service.attachGeneratedReview('charprof_a', draft.id, draft.activeVersionId,
+    { generationResultId: result.id }, alice);
+  assert.equal(reviewed.lifecycleStatus, 'review');
+  assert.equal(reviewed.approvedVersionId, null);
+  assert.equal(reviewed.versions[0].generationStyle, 'illustration');
+  assert.equal(reviewed.versions[0].generationLineage.generationStyle, 'illustration');
+  const approved = await service.approve('charprof_a', draft.id, draft.activeVersionId, alice);
+  assert.equal(approved.versions[0].generationStyle, 'illustration');
 });
 
 test('Character Look generation keeps a long recipe prompt in the main prompt contract', async t => {
@@ -428,7 +663,7 @@ test('generated Character Look Sheet adoption revalidates lineage and remains in
         sceneTemplateSnapshot: {
           promptRecipeSnapshot: {
             id: 'character-look-sheet',
-            version: 2,
+            version: createdAsset?.recipeVersion,
             fingerprint: createdAsset?.recipeFingerprint
           },
           characterLookSource: {
@@ -459,6 +694,7 @@ test('generated Character Look Sheet adoption revalidates lineage and remains in
   createdAsset = {
     lookId: created.id,
     lookVersionId: 'lookver_stale',
+    recipeVersion: generationPlan.recipe.version,
     recipeFingerprint: generationPlan.recipe.fingerprint
   };
   await assert.rejects(

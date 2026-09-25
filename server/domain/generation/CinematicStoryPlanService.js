@@ -1,6 +1,11 @@
 import crypto from 'node:crypto';
 import { getCinematicStoryPlanPolicy } from '../../config/cinematic-story-plan-policy.js';
-import { normalizeStoryIntent, storyCountryStyleGuidance, storyAuthoringConfiguration } from '../../config/cinematicStoryConfiguration.js';
+import {
+  normalizeStoryIntent,
+  storyCountryStyleGuidance,
+  storyAuthoringConfiguration,
+  storyPeriodGuidance
+} from '../../config/cinematicStoryConfiguration.js';
 import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
 import { CinematicTextProviderRouter } from './CinematicTextProviderRouter.js';
@@ -512,6 +517,7 @@ function buildProjectContext(project, { preflight, mode }) {
       targetDurationSeconds: project.durationTargetMs / 1000,
       ...normalizeStoryIntent(project.setup),
       storyCountryStyleGuidance: storyCountryStyleGuidance(project.setup),
+      storyPeriodGuidance: storyPeriodGuidance(project.setup),
       endingIntent: project.setup?.endingIntent,
       storyBrief: storyText,
       creativeDirection,

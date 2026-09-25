@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "cinematic-production-assets-v1",
+  "version": 1,
+  "expressionSheet": {
+    "columns": 3,
+    "rows": 4,
+    "slots": [
+      { "id": "neutral", "column": 0, "row": 0 },
+      { "id": "smile", "column": 1, "row": 0 },
+      { "id": "shy", "column": 2, "row": 0 },
+      { "id": "playful", "column": 0, "row": 1 },
+      { "id": "serious", "column": 1, "row": 1 },
+      { "id": "concerned", "column": 2, "row": 1 },
+      { "id": "surprised", "column": 0, "row": 2 },
+      { "id": "afraid", "column": 1, "row": 2 },
+      { "id": "sad", "column": 2, "row": 2 },
+      { "id": "teary", "column": 0, "row": 3 },
+      { "id": "angry", "column": 1, "row": 3 },
+      { "id": "vulnerable", "column": 2, "row": 3 }
+    ]
+  },
+  "environmentViews": {
+    "default": "master-establishing",
+    "ids": ["master-establishing", "primary-action", "reverse", "detail"]
+  },
+  "referencePriority": [
+    "composition",
+    "character-look",
+    "hero-prop",
+    "expression",
+    "environment"
+  ]
+}

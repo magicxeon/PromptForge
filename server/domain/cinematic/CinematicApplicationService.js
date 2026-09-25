@@ -4,6 +4,7 @@ import { createManualStoryboardScene, normalizeManualStoryboard } from './Cinema
 import { normalizeStoryboardRenderStyle } from './CinematicStoryboardRenderStyle.js';
 import { sceneEnvironmentContext, normalizeCinematicSceneReference } from './CinematicSceneEnvironment.js';
 import { normalizeStoryIntent, storyAuthoringConfiguration } from '../../config/cinematicStoryConfiguration.js';
+import { cinematicWorkflowPolicy, resolveCinematicRewampExposure } from '../../config/cinematicRewampConfiguration.js';
 import { normalizeCastMode, resolveShotCastIds, resolveShotLookIds } from './CinematicCastCoverage.js';
 import { extractAuthorDirection } from './StoryboardKeyframeContractCompiler.js';
 import { cinematicProjectRepository } from '../../repositories/cinematic/CinematicProjectRepository.js';
@@ -21,6 +22,8 @@ import { videoCapabilityRegistry } from '../generation/VideoCapabilityRegistry.j
 import { eligibleDurations } from '../generation/VideoDurationReconciliation.js';
 import { videoGenerationApplicationService } from '../generation/VideoGenerationApplicationService.js';
 import { cinematicStoryEnhancementService } from '../generation/CinematicStoryEnhancementService.js';
+import { cinematicFullStoryService } from '../generation/CinematicFullStoryService.js';
+import { normalizeStoryImport, createImportedFullStoryRevision } from './CinematicStoryImport.js';
 import { cinematicWardrobeSuggestionService } from '../generation/CinematicWardrobeSuggestionService.js';
 import { cinematicStoryPlanService } from '../generation/CinematicStoryPlanService.js';
 import {
@@ -30,6 +33,7 @@ import {
   filmReadinessNotEvaluated
 } from './StoryPlanFilmReadiness.js';
 import { normalizeDialogueReview } from './CinematicDialogueTiming.js';
+import { compileCinematicShotDocument, shotPromptSourceFingerprint } from './CinematicShotDocumentCompiler.js';
 import { cinematicDataLineageService } from './CinematicDataLineageService.js';
 import { cinematicFieldManifestService } from './CinematicFieldManifestService.js';
 import { cinematicAuthoringStateService, cinematicFieldKey } from './CinematicAuthoringStateService.js';
@@ -44,9 +48,27 @@ import { CinematicVideoReferencePlanService, cinematicVideoReferenceMode } from 
 import { cinematicGeneratedCastService } from './CinematicGeneratedCastService.js';
 import { videoClipBundleService } from '../assets/VideoClipBundleService.js';
 import { CinematicSeriesService } from './CinematicSeriesService.js';
+import { pendingChapterProposal } from './CinematicChapterAuthoring.js';
+import {
+  applySceneProposal as applySceneAuthoringProposal,
+  createManualSceneOutline,
+  createSceneProposal,
+  discardSceneProposal as discardSceneAuthoringProposal,
+  ensureSceneAuthoring,
+  updateSceneOutline as updateSceneAuthoringOutline
+} from './CinematicSceneAuthoring.js';
+import {
+  applyShotProposal as applyShotAuthoringProposal,
+  createManualShot as createManualAuthoringShot,
+  createShotProposal,
+  discardShotProposal as discardShotAuthoringProposal,
+  ensureShotAuthoring,
+  resolveShotDocument,
+  updateShotDocument as updateShotAuthoringDocument
+} from './CinematicShotAuthoring.js';
 
 const STAGES = ['setup', 'cast', 'story-plan', 'storyboard', 'produce', 'finish'];
-const DURATIONS = new Set([20, 30, 45, 60]);
+const DURATIONS = new Set(cinematicWorkflowPolicy.projectCreation.chapterDurationsSeconds);
 
 export class CinematicApplicationService {
   constructor({
@@ -63,6 +85,7 @@ export class CinematicApplicationService {
     videoCapabilities = videoCapabilityRegistry,
     videoGenerationService = videoGenerationApplicationService,
     storyEnhancementService = cinematicStoryEnhancementService,
+    fullStoryService = cinematicFullStoryService,
     wardrobeSuggestionService = cinematicWardrobeSuggestionService,
     storyPlanService = cinematicStoryPlanService,
     assetRepository = assetRepo,
@@ -76,7 +99,8 @@ export class CinematicApplicationService {
     timelineCompiler = cinematicTimelineCompiler
   } = {}) {
     this.repository = repository;
-    this.seriesService = new CinematicSeriesService({ repository, normalizeSetup });
+    this.seriesService = new CinematicSeriesService({ repository, normalizeSetup,
+      invalidateCastSources: invalidateReplacedCastSources });
     this.storyboardAssetService = storyboardAssetService;
     this.lastFrameService = lastFrameService;
     this.facelessAssetService = facelessAssetService;
@@ -90,6 +114,7 @@ export class CinematicApplicationService {
     this.videoCapabilities = videoCapabilities;
     this.videoGenerationService = videoGenerationService;
     this.storyEnhancementService = storyEnhancementService;
+    this.fullStoryService = fullStoryService;
     this.wardrobeSuggestionService = wardrobeSuggestionService;
     this.storyPlanService = storyPlanService;
     this.assetRepository = assetRepository;
@@ -118,6 +143,73 @@ export class CinematicApplicationService {
     const result = await this.seriesService.addChapter(seriesId, input, actor);
     return { ...result, project: await this.getProject(result.project.id, actor) };
   }
+  async updateSeriesChapter(projectId, input, actor) {
+    const result = await this.seriesService.updateChapter(projectId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor) };
+  }
+  async restoreSeriesChapter(projectId, revisionId, input, actor) {
+    const result = await this.seriesService.restoreChapter(projectId, revisionId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor) };
+  }
+  async applyChapterProposal(projectId, proposalId, input, actor) {
+    const result = await this.seriesService.applyChapterProposal(projectId, proposalId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor) };
+  }
+  async discardChapterProposal(projectId, proposalId, actor) {
+    const result = await this.seriesService.discardChapterProposal(projectId, proposalId, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor) };
+  }
+  async upsertSharedCharacterDossier(projectId, input, actor) {
+    const sourceType = input?.sourceType === 'character' ? 'character' : 'dossier';
+    const authorizedCharacter = sourceType === 'character'
+      ? await this.characterAuthorizationService.validateGenerationContext({
+        purpose: 'character_usage',
+        characterProfileId: input.characterProfileId,
+        characterProfileVersionId: input.characterProfileVersionId,
+        useCase: 'cinematic',
+        sourceType: 'cinematic_project',
+        sourceId: projectId
+      }, actor)
+      : null;
+    const result = await this.seriesService.upsertSharedDossier(projectId, {
+      ...input,
+      sourceType,
+      authorizedCharacter
+    }, actor);
+    return {
+      ...result,
+      project: await this.getProject(result.project.id, actor),
+      storyProject: await this.getProject(result.storyProject.id, actor)
+    };
+  }
+  async updateSharedVoice(projectId, assignmentId, input, actor) {
+    const result = await this.seriesService.updateSharedVoice(projectId, assignmentId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor), storyProject: await this.getProject(result.storyProject.id, actor) };
+  }
+  async setChapterCharacters(projectId, input, actor) {
+    const result = await this.seriesService.setChapterCharacters(projectId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor) };
+  }
+
+  async detachSharedCharacter(projectId, assignmentId, input, actor) {
+    const result = await this.seriesService.detachSharedCharacter(projectId, assignmentId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor), storyProject: await this.getProject(result.storyProject.id, actor) };
+  }
+
+  async removeSharedCharacter(projectId, assignmentId, input, actor) {
+    const result = await this.seriesService.removeSharedCharacter(projectId, assignmentId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor), storyProject: await this.getProject(result.storyProject.id, actor) };
+  }
+
+  async detachSharedCharacter(projectId, assignmentId, input, actor) {
+    const result = await this.seriesService.detachSharedCharacter(projectId, assignmentId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor), storyProject: await this.getProject(result.storyProject.id, actor) };
+  }
+
+  async removeSharedCharacter(projectId, assignmentId, input, actor) {
+    const result = await this.seriesService.removeSharedCharacter(projectId, assignmentId, input, actor);
+    return { ...result, project: await this.getProject(result.project.id, actor), storyProject: await this.getProject(result.storyProject.id, actor) };
+  }
 
   getVideoCapabilities() {
     return this.videoGenerationService.getCatalog({ capability: 'cinematic' });
@@ -135,6 +227,13 @@ export class CinematicApplicationService {
   async getProject(projectId, actorContext) {
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    const sharedCharacters = project.seriesMembership
+      && project.chapterOrigin?.projectId
+      && project.chapterOrigin.projectId !== project.id
+      && project.chapterCharacterIds?.length
+      ? await this.seriesService.getChapterCharacterProjection(projectId, actorContext)
+      : null;
+    if (sharedCharacters) project.castAssignments = sharedCharacters;
     const summaries = this.videoGenerationService.getStoredTaskSummaries
       ? await this.videoGenerationService.getStoredTaskSummaries(
         project.generationAttempts.map(item => item.generationJobId).filter(id => id?.startsWith('videotask_')), actorContext) : [];
@@ -148,12 +247,497 @@ export class CinematicApplicationService {
   }
 
   createProject(input, actorContext) {
-    return this.repository.create(normalizeSetup(input), actorContext);
+    const imported = input?.storyImport == null ? null : normalizeStoryImport(input.storyImport);
+    const setup = normalizeSetup(input, { allowEmptyStory: Boolean(imported) || input?.creationIntent === 'draft' });
+    if (imported) setup.initialFullStory = createImportedFullStoryRevision(imported);
+    return this.seriesService.createProductionProject(setup, actorContext);
   }
 
   enhanceStory(input, actorContext) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     return this.storyEnhancementService.enhance(input);
+  }
+
+  async proposeFullStory(projectId, input, actorContext) {
+    if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    const project = await this.repository.findForActor(projectId, actorContext);
+    if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    assertExpectedVersion(project, input?.expectedVersion);
+    const active = project.fullStoryVersions.find(item => item.id === project.activeFullStoryVersionId) || null;
+    const propose = input?.purpose === 'characters'
+      ? this.fullStoryService.proposeCharacters.bind(this.fullStoryService)
+      : this.fullStoryService.propose.bind(this.fullStoryService);
+    return propose({
+      projectTitle: project.title,
+      storyBrief: project.setup?.storyBrief,
+      currentFullStory: active?.content || '',
+      revisionInstruction: input?.revisionInstruction,
+      format: project.setup?.format,
+      targetDurationSeconds: project.setup?.durationSeconds,
+      storySettings: normalizeStoryIntent(project.setup || {}),
+      existingCharacters: (project.castAssignments || []).filter(item => item.active !== false).map(item => ({
+        id: item.id,
+        displayName: item.displayName,
+        storyRole: item.storyRole,
+        objective: item.objective,
+        personalityTraits: item.personalityTraits
+      }))
+    });
+  }
+
+  saveFullStoryRevision(projectId, input, actorContext) {
+    const imported = input?.importFileName == null ? null : normalizeStoryImport({ fileName: input.importFileName, content: input.content });
+    const content = normalizeFullStoryText(imported?.content ?? input?.content);
+    const instruction = normalizeFullStoryInstruction(input?.revisionInstruction);
+    const source = !imported && ['manual', 'ai', 'restore'].includes(input?.source) ? input.source : 'manual';
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      const current = project.fullStoryVersions.find(item => item.id === project.activeFullStoryVersionId) || null;
+      if (current?.content === content && !Array.isArray(input?.characters)) return project;
+      const now = new Date().toISOString();
+      for (const revision of project.fullStoryVersions) {
+        if (revision.status === 'active') revision.status = 'superseded';
+      }
+      const revision = {
+        id: createPrefixedId('cinefull'),
+        version: Math.max(0, ...project.fullStoryVersions.map(item => Number(item.version) || 0)) + 1,
+        parentRevisionId: current?.id || null,
+        content,
+        source,
+        ...(imported ? { importFileName: imported.fileName } : current?.content === content && current.importFileName ? { importFileName: current.importFileName } : {}),
+        revisionInstruction: instruction,
+        status: 'active',
+        provenance: input?.provenance && typeof input.provenance === 'object' ? structuredClone(input.provenance) : null,
+        characterIds: [],
+        createdAt: now
+      };
+      if (Array.isArray(input?.characters)) {
+        const activeIds = new Set((project.castAssignments || []).filter(item => item.active !== false).map(item => item.id));
+        for (const character of input.characters.slice(0, 24)) {
+          const existingId = activeIds.has(String(character?.existingCharacterId || '')) ? String(character.existingCharacterId) : null;
+          let assignment = existingId ? project.castAssignments.find(item => item.id === existingId) : null;
+          const id = assignment?.id || createPrefixedId('cinecast');
+          const dossier = {
+            id,
+            sourceType: assignment?.sourceType || 'dossier',
+            generatedSheet: assignment?.generatedSheet || null,
+            characterProfileId: assignment?.characterProfileId || null,
+            characterProfileVersionId: assignment?.characterProfileVersionId || null,
+            portraitUrl: assignment?.portraitUrl || null,
+            displayName: String(character?.displayName || '').trim().slice(0, 120),
+            storyRole: String(character?.storyRole || '').trim().slice(0, 240) || 'Supporting',
+            storyRoleSlotId: assignment?.storyRoleSlotId || createPrefixedId('cinerole'),
+            storyImportance: character?.storyImportance === 'protagonist' ? 'protagonist' : 'supporting',
+            objective: String(character?.objective || '').trim().slice(0, 1000),
+            motivation: String(character?.motivation || '').trim().slice(0, 1000),
+            pressure: String(character?.pressure || '').trim().slice(0, 1000),
+            personalityTraits: (Array.isArray(character?.personalityTraits) ? character.personalityTraits : []).slice(0, 6).map(value => String(value).trim().slice(0, 120)).filter(Boolean),
+            emotionalBaseline: String(character?.emotionalBaseline || '').trim().slice(0, 500),
+            dialogueStyle: String(character?.dialogueStyle || '').trim().slice(0, 500),
+            performanceDirection: String(character?.performanceDirection || '').trim().slice(0, 1000),
+            identityReady: assignment?.identityReady || false,
+            identityReadinessSnapshot: assignment?.identityReadinessSnapshot || null,
+            reuseAuthorization: assignment?.reuseAuthorization || null,
+            apparentAgeRange: assignment?.apparentAgeRange || null,
+            looks: assignment?.looks || [],
+            active: true,
+            updatedAt: now
+          };
+          if (!dossier.displayName) continue;
+          if (assignment) Object.assign(assignment, dossier);
+          else project.castAssignments.push(dossier);
+          activeIds.add(id);
+          revision.characterIds.push(id);
+        }
+      }
+      project.fullStoryVersions.push(revision);
+      project.activeFullStoryVersionId = revision.id;
+      rotateFullStoryHistory(project);
+      project.activeStage = 'cast';
+      project.version += 1;
+      return project;
+    });
+  }
+
+  confirmFullStoryRevision(projectId, input, actorContext) {
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      const revision = project.fullStoryVersions.find(item => item.id === input?.revisionId);
+      if (!revision || revision.id !== project.activeFullStoryVersionId) {
+        throw new CinematicError('cinematic_full_story_revision_stale', 'Confirm the current Full Story revision.', 409);
+      }
+      for (const item of project.fullStoryVersions) {
+        if (item.status === 'confirmed') item.status = 'superseded';
+      }
+      revision.status = 'confirmed';
+      project.confirmedFullStoryVersionId = revision.id;
+      project.activeStage = 'cast';
+      project.version += 1;
+      return project;
+    });
+  }
+
+  async generateFullStoryChapters(projectId, input, actorContext) {
+    return this.proposeChapters(projectId, { ...input, scope: 'all' }, actorContext);
+  }
+
+  async proposeChapters(projectId, input, actorContext) {
+    if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    const project = await this.repository.findForActor(projectId, actorContext);
+    if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    assertExpectedVersion(project, input?.expectedVersion);
+    const sourceProjectId = project.chapterOrigin?.projectId || project.id;
+    if (input?.scope === 'selected' && (typeof input.instruction !== 'string' || !input.instruction.trim() || input.instruction.length > 2000)) {
+      throw new CinematicError('cinematic_chapter_instruction_required', 'Describe the requested Chapter revision in at most 2000 characters.', 400);
+    }
+    const source = sourceProjectId === project.id
+      ? project
+      : await this.repository.findForActor(sourceProjectId, actorContext);
+    if (!source) throw new CinematicError('cinematic_project_not_found', 'Full Story Project not found.', 404);
+    const confirmed = source.fullStoryVersions.find(item => item.id === source.confirmedFullStoryVersionId);
+    if (!confirmed) throw new CinematicError('cinematic_full_story_confirmation_required', 'Confirm Full Story before generating Chapters.', 409);
+    if (pendingChapterProposal(source)) {
+      throw new CinematicError(
+        'cinematic_chapter_proposal_pending',
+        'Review or discard the pending Chapter proposal before generating another one.',
+        409
+      );
+    }
+    const workspace = await this.seriesService.getWorkspace(projectId, actorContext);
+    const scope = input?.scope === 'selected' ? 'selected' : 'all';
+    const characterContext = (source.castAssignments || []).filter(item => item.active !== false).slice(0, 24).map(item => ({
+      id: item.id,
+      name: item.displayName || '',
+      role: item.storyRole || '',
+      dossier: [item.objective, item.motivation, item.pressure, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
+    }));
+    const chapterPlan = scope === 'selected'
+      ? [{ seasonNumber: 1, chapterNumber: project.seriesMembership?.chapterNumber || 1 }]
+      : plannedChapterSequence(source.setup);
+    const proposal = await this.fullStoryService.proposeChapters({
+      fullStory: confirmed.content,
+      format: source.setup?.format,
+      targetDurationSeconds: source.setup?.durationSeconds,
+      maxChapters: scope === 'selected' ? 1 : chapterPlan.length,
+      chapterPlan,
+      scope,
+      instruction: input?.instruction,
+      currentChapter: scope === 'selected' ? {
+        projectId: project.id,
+        title: String(input?.draftTitle ?? project.chapterTitle ?? ''),
+        story: String(input?.draftStory ?? project.chapterStory ?? '')
+      } : null,
+      existingChapters: workspace.chapters.map(item => ({
+        projectId: item.projectId,
+        order: item.order,
+        title: item.title,
+        story: item.storyBrief
+      })),
+      characters: characterContext
+    });
+    const proposalInput = {
+      expectedTargetVersion: project.version,
+      expectedSourceVersion: source.version,
+      confirmedRevisionId: confirmed.id,
+      scope,
+      instruction: input?.instruction,
+      proposal: {
+        ...proposal,
+        chapters: proposal.chapters.map((chapter, index) => ({ ...chapter, ...chapterPlan[index] }))
+      }
+    };
+    if (scope === 'all' && !workspace.productionProject.chapterWorkStarted) {
+      return this.seriesService.commitInitialChapterProposal(projectId, proposalInput, actorContext);
+    }
+    return this.seriesService.saveChapterProposal(projectId, proposalInput, actorContext);
+  }
+
+  async proposeScenes(projectId, input, actorContext) {
+    if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    const project = await this.repository.findForActor(projectId, actorContext);
+    if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    assertExpectedVersion(project, input?.expectedVersion);
+    assertEditable(project);
+    ensureSceneAuthoring(project);
+    const revision = (project.chapterVersions || []).find(item => item.id === project.activeChapterVersionId);
+    if (!revision || !String(revision.story || project.chapterStory || '').trim()) {
+      throw new CinematicError('cinematic_chapter_revision_required', 'Save Chapter prose before generating Scenes.', 409);
+    }
+    const allowedCharacterIds = new Set(project.chapterCharacterIds || []);
+    const characters = (project.castAssignments || []).filter(item => (
+      item.active !== false && (!allowedCharacterIds.size || allowedCharacterIds.has(item.id))
+    )).slice(0, 24).map(item => ({
+      id: item.id,
+      name: item.displayName || '',
+      role: item.storyRole || '',
+      dossier: [item.objective, item.motivation, item.pressure, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
+    }));
+    const generated = await this.fullStoryService.proposeScenes({
+      projectTitle: project.title,
+      chapterTitle: revision.title || project.chapterTitle,
+      chapterStory: revision.story || project.chapterStory,
+      targetDurationSeconds: Math.max(5, Math.round(project.durationTargetMs / 1000)),
+      storySettings: normalizeStoryIntent(project.setup || {}),
+      characters,
+      currentScenes: project.scenes,
+      maximumScenes: cinematicWorkflowPolicy.authoring.generatedSceneMaximum
+    });
+    return this.repository.mutateForActor(projectId, actorContext, current => {
+      assertExpectedVersion(current, input?.expectedVersion);
+      assertEditable(current);
+      ensureSceneAuthoring(current);
+      if (current.activeChapterVersionId !== revision.id) {
+        throw new CinematicError('cinematic_chapter_revision_stale', 'The Chapter changed while Scenes were being prepared.', 409);
+      }
+      const proposal = createSceneProposal({
+        providerProposalId: generated.proposalId,
+        sourceChapterRevisionId: revision.id,
+        baseProjectVersion: current.version,
+        scenes: generated.scenes,
+        warnings: generated.warnings,
+        provenance: generated.provenance,
+        allowedCharacterIds: characters.map(item => item.id),
+        maximumScenes: cinematicWorkflowPolicy.authoring.generatedSceneMaximum
+      });
+      current.sceneProposals.push(proposal);
+      current.sceneProposals = current.sceneProposals.slice(-cinematicWorkflowPolicy.authoring.sceneProposalHistoryLimit);
+      current.version += 1;
+      return { project: current, proposal };
+    });
+  }
+
+  applySceneProposal(projectId, proposalId, input, actorContext) {
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      const proposal = applySceneAuthoringProposal(project, proposalId);
+      project.version += 1;
+      return { project, proposal };
+    });
+  }
+
+  discardSceneProposal(projectId, proposalId, input, actorContext) {
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      const proposal = discardSceneAuthoringProposal(project, proposalId);
+      project.version += 1;
+      return { project, proposal };
+    });
+  }
+
+  createManualScene(projectId, input, actorContext) {
+    const idempotencyKey = normalizeIdempotencyKey(input?.idempotencyKey);
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      ensureSceneAuthoring(project);
+      const receipt = (project.commandReceipts || []).find(item => (
+        item.operation === 'create_manual_scene_outline' && item.idempotencyKey === idempotencyKey
+      ));
+      if (receipt) return { project, scene: project.scenes.find(item => item.id === receipt.sceneId) || null };
+      const scene = createManualSceneOutline(project);
+      project.commandReceipts ||= [];
+      project.commandReceipts.push({ operation: 'create_manual_scene_outline', idempotencyKey, sceneId: scene.id });
+      project.version += 1;
+      return { project, scene };
+    });
+  }
+
+  updateSceneOutline(projectId, sceneId, input, actorContext) {
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      const scene = updateSceneAuthoringOutline(project, sceneId, input);
+      project.version += 1;
+      return { project, scene };
+    });
+  }
+
+  async proposeShots(projectId, sceneId, input, actorContext) {
+    if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    const project = await this.getProject(projectId, actorContext);
+    if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    assertExpectedVersion(project, input?.expectedVersion);
+    assertEditable(project);
+    ensureShotAuthoring(project);
+    const scene = project.scenes.find(item => item.id === sceneId);
+    if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+    if (scene.sourceChapterRevisionId && scene.sourceChapterRevisionId !== project.activeChapterVersionId) {
+      throw new CinematicError('cinematic_scene_source_changed', 'The Chapter changed after this Scene was prepared. Review the Scene before generating Shots.', 409);
+    }
+    const targetShot = input.targetShotId ? scene.shots.find(item => item.id === input.targetShotId) : null;
+    if (input.targetShotId && !targetShot) throw new CinematicError('cinematic_shot_not_found', 'Shot not found.', 404);
+    if (targetShot && (typeof input.instruction !== 'string' || !input.instruction.trim() || input.instruction.length > 2000)) {
+      throw new CinematicError('cinematic_shot_instruction_required', 'Describe the requested Shot revision in at most 2000 characters.', 400);
+    }
+    const pending = [...project.shotProposals].reverse().find(item => item.sceneId === sceneId && item.status === 'pending_review');
+    if (pending) throw new CinematicError('cinematic_shot_proposal_pending', 'Review or discard the pending Shot proposal before generating another.', 409);
+    const orderedScenes = [...project.scenes].sort((left, right) => Number(left.orderKey) - Number(right.orderKey));
+    const sceneIndex = orderedScenes.findIndex(item => item.id === sceneId);
+    const characterIds = new Set(targetShot
+      ? [...resolveShotCastIds(scene, targetShot), ...(targetShot.speakerBindings || []).map(item => item.castAssignmentId)]
+      : scene.castAssignmentIds || []);
+    const characters = (project.castAssignments || []).filter(item => (
+      item.active !== false && scene.castMode !== 'none' && characterIds.has(item.id)
+    )).slice(0, 24).map(item => ({
+      id: item.id,
+      name: item.displayName || '',
+      role: item.storyRole || '',
+      dialogueStyle: item.dialogueStyle || '',
+      dossier: [item.objective, item.motivation, item.pressure, item.performanceDirection, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
+    }));
+    const revision = (project.chapterVersions || []).find(item => item.id === project.activeChapterVersionId);
+    const generated = await this.fullStoryService.proposeShots({
+      projectTitle: project.title,
+      aspectRatio: project.aspectRatio,
+      chapterTitle: revision?.title || project.chapterTitle,
+      chapterStory: revision?.story || project.chapterStory,
+      scene,
+      previousScene: orderedScenes[sceneIndex - 1] || null,
+      nextScene: orderedScenes[sceneIndex + 1] || null,
+      characters,
+      currentShots: targetShot ? [targetShot] : scene.shots,
+      revisionInstruction: targetShot ? input.instruction : '',
+      maximumShots: targetShot ? 1 : cinematicWorkflowPolicy.authoring.generatedShotMaximumPerScene
+    });
+    return this.repository.mutateForActor(projectId, actorContext, current => {
+      assertExpectedVersion(current, input?.expectedVersion);
+      assertEditable(current);
+      ensureShotAuthoring(current);
+      const currentScene = current.scenes.find(item => item.id === sceneId);
+      if (!currentScene || Number(currentScene.version || 1) !== Number(scene.version || 1)
+        || current.activeChapterVersionId !== project.activeChapterVersionId) {
+        throw new CinematicError('cinematic_scene_version_conflict', 'The Scene changed while Shots were being prepared.', 409);
+      }
+      const proposal = createShotProposal({
+        providerProposalId: generated.proposalId,
+        sceneId,
+        ...(targetShot ? { targetShotId: targetShot.id, sourceShotVersion: targetShot.version } : {}),
+        sourceSceneVersion: currentScene.version,
+        sourceChapterRevisionId: currentScene.sourceChapterRevisionId || current.activeChapterVersionId || null,
+        baseProjectVersion: current.version,
+        shots: generated.shots,
+        warnings: generated.warnings,
+        provenance: generated.provenance,
+        allowedCharacterIds: characters.map(item => item.id),
+        maximumShots: cinematicWorkflowPolicy.authoring.generatedShotMaximumPerScene
+      });
+      current.shotProposals.push(proposal);
+      current.shotProposals = current.shotProposals.slice(-cinematicWorkflowPolicy.authoring.shotProposalHistoryLimit);
+      current.version += 1;
+      return { project: current, proposal };
+    });
+  }
+
+  applyShotProposal(projectId, sceneId, proposalId, input, actorContext) {
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      const oldShot = project.scenes.find(item => item.id === sceneId)?.shots.find(item =>
+        item.id === project.shotProposals?.find(proposal => proposal.id === proposalId)?.targetShotId);
+      const previousFingerprint = oldShot ? this.keyframeContractCompiler.compile({ project,
+        scene: project.scenes.find(item => item.id === sceneId), shot: oldShot }).sourceFingerprint : null;
+      const result = applyShotAuthoringProposal(project, sceneId, proposalId);
+      if (result.proposal.targetShotId) {
+        const shot = result.scene.shots.find(item => item.id === result.proposal.targetShotId);
+        markVideoPacketChanged(project, shot);
+        if (shot.approvedStoryboardSource && previousFingerprint !== this.keyframeContractCompiler.compile({ project, scene: result.scene, shot }).sourceFingerprint) {
+          shot.storyboardStatus = 'draft';
+          markSourceChanged(project, shot, shot.approvedStoryboardSource.sourceFingerprint);
+        }
+      }
+      project.version += 1;
+      return { project, ...result };
+    });
+  }
+
+  discardShotProposal(projectId, sceneId, proposalId, input, actorContext) {
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      const proposal = discardShotAuthoringProposal(project, sceneId, proposalId);
+      project.version += 1;
+      return { project, proposal };
+    });
+  }
+
+  createManualShot(projectId, sceneId, input, actorContext) {
+    const idempotencyKey = normalizeIdempotencyKey(input?.idempotencyKey);
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      ensureShotAuthoring(project);
+      const receipt = (project.commandReceipts || []).find(item => (
+        item.operation === 'create_manual_shot_document' && item.idempotencyKey === idempotencyKey
+      ));
+      if (receipt) {
+        const scene = project.scenes.find(item => item.id === receipt.sceneId) || null;
+        return { project, scene, shot: scene?.shots.find(item => item.id === receipt.shotId) || null };
+      }
+      const result = createManualAuthoringShot(project, sceneId, {
+        maximumShots: cinematicWorkflowPolicy.authoring.generatedShotMaximumPerScene
+      });
+      project.commandReceipts ||= [];
+      project.commandReceipts.push({ operation: 'create_manual_shot_document', idempotencyKey, sceneId, shotId: result.shot.id });
+      project.version += 1;
+      return { project, ...result };
+    });
+  }
+
+  async prepareShotWriter(projectId, sceneId, shotId, actorContext) {
+    const project = await this.getProject(projectId, actorContext);
+    const located = findShot(project, shotId);
+    if (!located || located.scene.id !== sceneId) throw new CinematicError('cinematic_shot_not_found', 'Shot not found.', 404);
+    const { scene, shot } = located;
+    const shotDocument = resolveShotDocument(shot, scene, project.castAssignments);
+    const prepared = compileCinematicShotDocument({ ...shot, manualStoryboard: false, shotDocument }, scene, project.castAssignments);
+    const sourceFingerprint = shotPromptSourceFingerprint(project, scene, shot);
+    return { shotDocument, sourceFingerprint, generatedPrompt: prepared.creatorPrompt,
+      overrideStale: Boolean(shot.videoPromptOverride && shot.videoPromptOverride.sourceFingerprint !== sourceFingerprint),
+      dialogue: prepared.dialogue, timing: prepared.timing,
+      maximumPromptCharacters: cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters };
+  }
+
+  async updateShotDocument(projectId, sceneId, shotId, input, actorContext) {
+    const workspace = await this.getProject(projectId, actorContext);
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      project.castAssignments = workspace.castAssignments;
+      const located = findShot(project, shotId);
+      if (!located || located.scene.id !== sceneId) {
+        throw new CinematicError('cinematic_shot_not_found', 'Shot not found.', 404);
+      }
+      const previousDocument = String(located.shot.shotDocument || '');
+      const previousDurationMs = Number(located.shot.durationMs || 0);
+      const previousSource = located.shot.approvedStoryboardSource || null;
+      const previousPromptFingerprint = shotPromptSourceFingerprint(project, located.scene, located.shot);
+      const previousOverride = JSON.stringify(located.shot.videoPromptOverride || null);
+      if (input.videoPromptOverride && input.videoPromptOverride.sourceFingerprint !== previousPromptFingerprint) {
+        throw new CinematicError('cinematic_video_prompt_source_changed', 'The Shot source changed. Refresh and review your Video Prompt.', 409);
+      }
+      const previousKeyframeFingerprint = this.keyframeContractCompiler.compile({
+        project, scene: located.scene, shot: located.shot
+      }).sourceFingerprint;
+      const result = updateShotAuthoringDocument(project, sceneId, shotId, input);
+      const nextKeyframeFingerprint = this.keyframeContractCompiler.compile({
+        project, scene: result.scene, shot: result.shot
+      }).sourceFingerprint;
+      const mediaAuthorityChanged = previousDocument !== String(result.shot.shotDocument || '')
+        || previousDurationMs !== Number(result.shot.durationMs || 0);
+      if (previousSource && previousKeyframeFingerprint !== nextKeyframeFingerprint) {
+        result.shot.storyboardStatus = 'draft';
+        markSourceChanged(project, result.shot, previousSource.sourceFingerprint);
+      }
+      if (mediaAuthorityChanged || previousPromptFingerprint !== shotPromptSourceFingerprint(project, result.scene, result.shot)
+        || previousOverride !== JSON.stringify(result.shot.videoPromptOverride || null)) markVideoPacketChanged(project, result.shot);
+      project.status = 'planned';
+      project.version += 1;
+      return { project, ...result };
+    });
   }
 
   async suggestWardrobe(projectId, assignmentId, actorContext) {
@@ -180,6 +764,7 @@ export class CinematicApplicationService {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    ensureProvisionalDossiers(project);
     assertStoryPlanInputReady(project);
     return this.storyPlanService.generatePlan(project, {
       mode: input?.mode,
@@ -193,6 +778,7 @@ export class CinematicApplicationService {
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
     assertExpectedVersion(project, input?.expectedVersion);
+    ensureProvisionalDossiers(project);
     assertStoryPlanInputReady(project);
     return this.storyPlanService.generateScene(project, sceneId, {
       direction: input?.direction,
@@ -203,7 +789,7 @@ export class CinematicApplicationService {
   }
 
   updateSetup(projectId, input, actorContext) {
-    const patch = normalizeSetup(input);
+    const patch = normalizeSetup(input, { allowEmptyStory: true });
     return this.repository.mutateForActor(projectId, actorContext, project => {
       assertExpectedVersion(project, input.expectedVersion);
       assertEditable(project);
@@ -212,6 +798,7 @@ export class CinematicApplicationService {
         || JSON.stringify(normalizeStoryIntent(project.setup)) !== JSON.stringify(normalizeStoryIntent(patch));
       project.title = patch.title;
       project.platformTargets = [patch.platform];
+      project.aspectRatio = patch.aspectRatio;
       project.durationTargetMs = patch.durationSeconds * 1000;
       project.setup = patch;
       if (storyChanged) {
@@ -262,7 +849,9 @@ export class CinematicApplicationService {
 
   async upsertCastAssignment(projectId, input, actorContext) {
     const sourceType = input.sourceType || 'character';
-    if (!['character', 'generated_sheet'].includes(sourceType) || (sourceType === 'character' && input.generationId)) {
+    if (!['character', 'generated_sheet', 'dossier'].includes(sourceType)
+      || (sourceType === 'character' && input.generationId)
+      || (sourceType === 'dossier' && (!provisionalDossiersEnabled() || !String(input.storyRoleSlotId || '').trim()))) {
       throw new CinematicError('cinematic_cast_source_invalid', 'Choose one Cast source.');
     }
     if (sourceType === 'character' && Array.isArray(input.looks) && input.looks.some(look => look?.mode === 'generated_sheet')) {
@@ -276,7 +865,7 @@ export class CinematicApplicationService {
       generatedSheet = await this.generatedCastService.prepare(input, actorContext,
         project.castAssignments.find(item => item.id === input.assignmentId));
     }
-    const authorizedCharacter = generatedSheet ? null : await this.characterAuthorizationService.validateGenerationContext({
+    const authorizedCharacter = sourceType !== 'character' ? null : await this.characterAuthorizationService.validateGenerationContext({
       purpose: 'character_usage',
       characterProfileId: input.characterProfileId,
       characterProfileVersionId: input.characterProfileVersionId,
@@ -287,8 +876,13 @@ export class CinematicApplicationService {
     return this.repository.mutateForActor(projectId, actorContext, project => {
       assertExpectedVersion(project, input.expectedVersion);
       assertEditable(project);
-      const normalized = normalizeCast(input, authorizedCharacter, generatedSheet);
+      const normalized = normalizeCast(input, authorizedCharacter, generatedSheet, sourceType);
       let index = project.castAssignments.findIndex(item => item.id === normalized.id);
+      if (index < 0 && normalized.storyRoleSlotId) {
+        index = project.castAssignments.findIndex(item => item.sourceType === 'dossier'
+          && item.storyRoleSlotId === normalized.storyRoleSlotId);
+        if (index >= 0) normalized.id = project.castAssignments[index].id;
+      }
       if (index < 0) {
         index = project.castAssignments.findIndex(item => (
           item.active !== false && castSourceKey(item) === castSourceKey(normalized)
@@ -375,35 +969,51 @@ export class CinematicApplicationService {
     if (ownerProject.castAssignments.find(item => item.id === assignmentId)?.sourceType === 'generated_sheet') {
       throw new CinematicError('cinematic_generated_cast_look_locked', 'Replace the Cast sheet to change this Look.', 409);
     }
-    let resolvedCharacterLook = null;
-    let authority;
-    if (input.mode === 'character_look') {
-      const project = await this.repository.findForActor(projectId, actorContext);
-      const assignment = project?.castAssignments.find(item => item.id === assignmentId && item.active !== false);
-      if (!assignment) throw new CinematicError('cinematic_cast_assignment_not_found', 'Cast Assignment not found.', 404);
-      resolvedCharacterLook = await this.lookService.resolveApprovedVersion(
-        assignment.characterProfileId,
-        String(input.characterLookId || '').trim(),
-        String(input.characterLookVersionId || '').trim(),
-        actorContext
-      );
-      const approvedAssets = Object.values(resolvedCharacterLook.version.approvedViewAssets || {});
-      const uniqueApprovedAssets = [...new Map(
-        approvedAssets.map(item => [item.assetId, item])
-      ).values()];
-      authority = {
-        mode: 'character_look',
-        assets: uniqueApprovedAssets.map(item => ({ id: item.assetId, contentHash: item.contentHash || null }))
-      };
-    } else {
-      authority = await this.wardrobeAuthorityService.authorizeLook(input, actorContext);
-    }
-    return this.repository.mutateForActor(projectId, actorContext, project => {
+    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, async (project, storyProject, projects) => {
       assertExpectedVersion(project, input.expectedVersion);
       assertEditable(project);
       const assignment = project.castAssignments.find(item => item.id === assignmentId && item.active !== false);
       if (!assignment) throw new CinematicError('cinematic_cast_assignment_not_found', 'Cast Assignment not found.', 404);
+      if (storyProject.id !== project.id && project.chapterCharacterIds?.includes(assignmentId)) {
+        throw new CinematicError('cinematic_shared_character_root_required', 'Bind shared Character Looks on the Story Project.', 409,
+          { storyProjectId: storyProject.id });
+      }
+      if (assignment.sourceType === 'generated_sheet') {
+        throw new CinematicError('cinematic_generated_cast_look_locked', 'Replace the Cast sheet to change this Look.', 409);
+      }
+      let resolvedCharacterLook = null;
+      let authority;
+      if (input.mode === 'character_look') {
+        resolvedCharacterLook = await this.lookService.resolveApprovedVersion(
+          assignment.characterProfileId,
+          String(input.characterLookId || '').trim(),
+          String(input.characterLookVersionId || '').trim(),
+          actorContext
+        );
+        assertCharacterLookIdentityVersion(assignment, resolvedCharacterLook.look.sourceCharacterProfileVersionId);
+        const approvedAssets = Object.values(resolvedCharacterLook.version.approvedViewAssets || {});
+        const uniqueApprovedAssets = [...new Map(
+          approvedAssets.map(item => [item.assetId, item])
+        ).values()];
+        authority = {
+          mode: 'character_look',
+          assets: uniqueApprovedAssets.map(item => ({ id: item.assetId, contentHash: item.contentHash || null }))
+        };
+      } else {
+        authority = await this.wardrobeAuthorityService.authorizeLook(input, actorContext);
+      }
       const lookId = String(input.lookId || '').trim() || createPrefixedId('cinelook');
+      if (project.castAssignments.some(item => item.id !== assignmentId && item.looks?.some(look => look.id === lookId))) {
+        throw new CinematicError('cinematic_wardrobe_look_invalid', 'This Look binding belongs to another Character.', 409);
+      }
+      const existing = assignment.looks.find(item => item.id === lookId);
+      if (existing?.mode === 'character_look') {
+        if (authority.mode !== existing.mode || resolvedCharacterLook?.look.id !== existing.characterLookId
+          || resolvedCharacterLook?.version.id !== existing.characterLookVersionId) {
+          throw new CinematicError('cinematic_wardrobe_look_pinned', 'Use a new binding ID for a different approved Look version.', 409);
+        }
+        return project;
+      }
       const sceneIds = normalizeStringList(input.sceneIds, 24);
       if (sceneIds.some(sceneId => !project.scenes.some(scene => scene.id === sceneId))) {
         throw new CinematicError('cinematic_wardrobe_scene_invalid', 'Wardrobe Look references an unknown Scene.');
@@ -440,12 +1050,81 @@ export class CinematicApplicationService {
           shot.version = Number(shot.version || 1) + 1;
           if (previousSource) markSourceChanged(project, shot, previousSource.sourceFingerprint);
           markVideoPacketChanged(project, shot);
-          markVideoPacketChanged(project, shot);
         }
       }
       assignment.updatedAt = new Date().toISOString();
       project.version += 1;
+      for (const chapter of projects) {
+        if (chapter.id === project.id || chapter.chapterOrigin?.projectId !== project.id
+          || chapter.seriesMembership?.seriesId !== project.seriesMembership?.seriesId
+          || !chapter.chapterCharacterIds?.includes(assignmentId)) continue;
+        chapter.version += 1;
+        chapter.updatedAt = assignment.updatedAt;
+      }
       return project;
+    });
+  }
+
+  updateSceneLooks(projectId, sceneId, input, actorContext) {
+    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, async project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      const scene = project.scenes.find(item => item.id === sceneId);
+      if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+      if (!Number.isInteger(input.expectedSceneVersion) || input.expectedSceneVersion !== Number(scene.version || 1)) {
+        throw new CinematicError('cinematic_scene_version_conflict', 'The Scene changed. Refresh before saving.', 409);
+      }
+      const ids = input.wardrobeLookIds;
+      if (!Array.isArray(ids) || ids.length > 12 || ids.some(id => typeof id !== 'string' || !id.trim() || id.length > 240)
+        || new Set(ids).size !== ids.length) {
+        throw new CinematicError('cinematic_scene_looks_invalid', 'Provide up to twelve distinct Look binding IDs.');
+      }
+      const visible = new Set(scene.castMode === 'none' ? [] : scene.castAssignmentIds || []);
+      const selectedCharacters = new Set();
+      for (const id of ids) {
+        const assignment = project.castAssignments.find(item => item.active !== false && item.looks?.some(look => look.id === id));
+        const look = assignment?.looks.find(item => item.id === id);
+        if (!assignment || !visible.has(assignment.id) || selectedCharacters.has(assignment.id)) {
+          throw new CinematicError('cinematic_scene_look_invalid', 'Select one Look per visible Scene Character.', 409);
+        }
+        if (assignment.sourceType === 'generated_sheet') {
+          if (look.locked !== true || look.mode !== 'generated_sheet') {
+            throw new CinematicError('cinematic_scene_look_unapproved', 'Select the confirmed Cast sheet.', 409);
+          }
+          const sheet = await this.generatedCastService.resolve(assignment, actorContext);
+          if (look.trustedGenerationId !== sheet.generationId || look.contentHash !== sheet.contentHash
+            || look.assetIds?.length !== 1 || look.assetIds[0] !== sheet.assetId) {
+            throw new CinematicError('cinematic_generated_cast_unavailable', 'Select the confirmed Cast sheet again.', 409);
+          }
+        } else {
+          if (look.locked !== true || look.mode !== 'character_look' || !assignment.characterProfileId
+            || !look.characterLookId || !look.characterLookVersionId) {
+            throw new CinematicError('cinematic_scene_look_unapproved', 'Select an approved Character Look.', 409);
+          }
+          const resolved = await this.lookService.resolveApprovedVersion(assignment.characterProfileId, look.characterLookId, look.characterLookVersionId, actorContext);
+          assertCharacterLookIdentityVersion(assignment, resolved.look.sourceCharacterProfileVersionId);
+        }
+        selectedCharacters.add(assignment.id);
+      }
+      if (JSON.stringify(scene.wardrobeLookIds || []) === JSON.stringify(ids)) return { project, scene };
+      const effectiveLooks = shot => {
+        const cast = new Set(resolveShotCastIds(scene, shot));
+        const visibleLooks = new Set(project.castAssignments.filter(item => cast.has(item.id))
+          .flatMap(item => (item.looks || []).map(look => look.id)));
+        return resolveShotLookIds(scene, shot).filter(id => visibleLooks.has(id)).sort();
+      };
+      const previous = new Map(scene.shots.map(shot => [shot.id, effectiveLooks(shot)]));
+      scene.wardrobeLookIds = [...ids];
+      for (const shot of scene.shots) {
+        if (JSON.stringify(previous.get(shot.id)) === JSON.stringify(effectiveLooks(shot))) continue;
+        if (shot.approvedStoryboardSource) markSourceChanged(project, shot, shot.approvedStoryboardSource.sourceFingerprint);
+        markVideoPacketChanged(project, shot);
+        shot.storyboardStatus = 'draft';
+        shot.version = Number(shot.version || 1) + 1;
+      }
+      scene.version = Number(scene.version || 1) + 1;
+      project.version += 1;
+      return { project, scene };
     });
   }
 
@@ -453,6 +1132,7 @@ export class CinematicApplicationService {
     return this.repository.mutateForActor(projectId, actorContext, project => {
       assertExpectedVersion(project, input.expectedVersion);
       assertEditable(project);
+      ensureProvisionalDossiers(project);
       const contractVersion = normalizeStoryPlanContractVersion(input.contractVersion);
       const simpleCompletion = input.authoringMode === 'simple'
         ? this.simpleAuthoringService.completeStoryPlanInput(input)
@@ -569,7 +1249,7 @@ export class CinematicApplicationService {
         { jobId: input.jobId }, actorContext
       );
     }
-    return this.repository.mutateForActor(projectId, actorContext, project => {
+    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, project => {
       project.commandReceipts ||= [];
       const replay = project.commandReceipts.find(receipt => (
         receipt.idempotencyKey === idempotencyKey && receipt.operation === 'approve_storyboard_source'
@@ -840,6 +1520,33 @@ export class CinematicApplicationService {
     return sceneEnvironmentContext(project, scene);
   }
 
+  async proposeSceneEnvironment(projectId, sceneId, input, actorContext) {
+    if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    const project = await this.repository.findForActor(projectId, actorContext);
+    if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    assertExpectedVersion(project, input?.expectedVersion);
+    const sceneIndex = project.scenes.findIndex(item => item.id === sceneId);
+    const scene = project.scenes[sceneIndex];
+    if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+    if (Number(input?.expectedSceneVersion) !== Number(scene.version || 1)) {
+      throw new CinematicError('cinematic_scene_version_conflict', 'The Scene changed. Refresh before generating its description.', 409);
+    }
+    const activeFullStory = project.fullStoryVersions?.find(item => item.id === project.activeFullStoryVersionId) || null;
+    return this.fullStoryService.proposeSceneEnvironment({
+      projectTitle: project.title,
+      aspectRatio: project.aspectRatio,
+      storyBrief: project.setup?.storyBrief,
+      fullStory: activeFullStory?.content || '',
+      storySettings: normalizeStoryIntent(project.setup || {}),
+      chapterTitle: project.chapterTitle,
+      chapterStory: project.chapterStory,
+      scene,
+      previousScene: project.scenes[sceneIndex - 1] || null,
+      nextScene: project.scenes[sceneIndex + 1] || null,
+      currentDirection: input?.currentDirection
+    });
+  }
+
   async listSceneEnvironmentImages(projectId, sceneId, actorContext, query = {}) {
     const project = await this.getProject(projectId, actorContext);
     if (!project.scenes.some(scene => scene.id === sceneId)) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
@@ -925,6 +1632,14 @@ export class CinematicApplicationService {
     const selectedLooks = assignments.flatMap(assignment => (assignment.looks || [])
       .filter(look => selectedLookIds.has(look.id))
       .map(look => ({ ...look, assignmentId: assignment.id })));
+    for (const look of selectedLooks) {
+      if (look.mode !== 'character_look') continue;
+      const assignment = assignments.find(item => item.id === look.assignmentId);
+      const resolved = await this.lookService.resolveApprovedVersion(
+        assignment.characterProfileId, look.characterLookId, look.characterLookVersionId, actorContext);
+      assertCharacterLookIdentityVersion(assignment, resolved.look.sourceCharacterProfileVersionId);
+    }
+    const looksComplete = assignments.every(assignment => selectedLooks.filter(look => look.assignmentId === assignment.id).length === 1);
     const assetIds = [...new Set(selectedLooks.flatMap(look => look.assetIds || []))].slice(0, assignments.length > 1 ? 12 : 2);
     const wardrobeUrls = [];
     for (const assetId of assetIds) {
@@ -956,6 +1671,7 @@ export class CinematicApplicationService {
         } else if (looks[0].mode === 'character_look' && looks[0].characterLookId && looks[0].characterLookVersionId) {
           const look = looks[0];
           const resolved = await this.lookService.resolveApprovedSheetReference(assignment.characterProfileId, look.characterLookId, look.characterLookVersionId, actorContext);
+          assertCharacterLookIdentityVersion(assignment, resolved.characterProfileVersionId);
           cinematicCastReferences.push({ ...base, sourceType: 'character_look', characterProfileId: assignment.characterProfileId,
             characterLookId: look.characterLookId, characterLookVersionId: look.characterLookVersionId, contentHash: resolved.asset.contentHash });
         }
@@ -980,7 +1696,7 @@ export class CinematicApplicationService {
     const multiCastReady = !multiCast || cinematicCastReferences.length === assignments.length;
     const castComplete = assignments.length === castIds.length
       && castIds.every(id => scene.castAssignmentIds.includes(id));
-    const generationEligible = multiCastReady && castComplete
+    const generationEligible = multiCastReady && castComplete && looksComplete
       && assignments.every(assignment => assignment.identityReady === true)
       && selectedLooks.every(look => look.locked === true)
       && !missingLookReference
@@ -1035,7 +1751,7 @@ export class CinematicApplicationService {
         ? 'cinematic_storyboard_multi_character_unqualified'
         : !castComplete || assignments.some(assignment => assignment.identityReady !== true)
           ? 'cinematic_storyboard_character_not_ready'
-          : selectedLooks.some(look => look.locked !== true)
+          : !looksComplete || selectedLooks.some(look => look.locked !== true)
             ? 'cinematic_storyboard_look_not_ready'
             : missingLookReference
               ? 'cinematic_storyboard_look_asset_unavailable'
@@ -1150,6 +1866,8 @@ export class CinematicApplicationService {
           imageNumber: index + 1, assetId: reference.assetId,
           purpose: reference.purpose || 'storyboard_opening',
           roleName: reference.roleName || null, lookName: reference.lookName || null,
+          ...Object.fromEntries(['characterName', 'referenceSource', 'selectionScope', 'characterLookVersionId']
+            .filter(key => reference[key] != null).map(key => [key, reference[key]])),
           previewUrl: reference.previewUrl || source?.imageUrl || null
         })),
         projectId: project.id,
@@ -1348,7 +2066,7 @@ export class CinematicApplicationService {
         throw new CinematicError('cinematic_video_source_stale', 'The selected Cast sheets changed after this Video Attempt.', 409);
       }
     }
-    return this.repository.mutateForActor(projectId, actorContext, draft => {
+    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, draft => {
       assertExpectedVersion(draft, input.expectedVersion);
       const current = findShot(draft, shotId);
       const target = draft.generationAttempts.find(item => item.id === attemptId && item.shotId === shotId);
@@ -1788,28 +2506,131 @@ export class CinematicError extends Error {
   }
 }
 
-function normalizeSetup(input = {}) {
+function normalizeFullStoryText(value) {
+  const content = String(value || '').trim();
+  if (!content || content.length > cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters) {
+    throw new CinematicError(
+      'cinematic_full_story_invalid',
+      `Full Story is required and must not exceed ${cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters} characters.`
+    );
+  }
+  return content;
+}
+
+function normalizeFullStoryInstruction(value) {
+  const instruction = String(value || '').trim();
+  if (instruction.length > cinematicWorkflowPolicy.authoring.fullStoryInstructionMaximumCharacters) {
+    throw new CinematicError('cinematic_full_story_instruction_invalid', 'Full Story revision instruction is too long.');
+  }
+  return instruction;
+}
+
+function rotateFullStoryHistory(project) {
+  const keepPrevious = cinematicWorkflowPolicy.authoring.storyRevisionHistoryLimit;
+  const activeId = project.activeFullStoryVersionId;
+  const confirmedId = project.confirmedFullStoryVersionId;
+  const previous = project.fullStoryVersions
+    .filter(item => item.id !== activeId)
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  const retainedPrevious = [];
+  if (confirmedId && previous.some(item => item.id === confirmedId)) retainedPrevious.push(confirmedId);
+  for (const item of previous) {
+    if (retainedPrevious.length >= keepPrevious) break;
+    if (!retainedPrevious.includes(item.id)) retainedPrevious.push(item.id);
+  }
+  const retained = new Set([activeId, ...retainedPrevious].filter(Boolean));
+  project.fullStoryVersions = project.fullStoryVersions.filter(item => retained.has(item.id));
+}
+
+function plannedChapterSequence(setup = {}) {
+  const maximum = cinematicWorkflowPolicy.projectCreation.maximumChapterCount;
+  if (setup.format !== 'mini-series') return [{ seasonNumber: 1, chapterNumber: 1 }];
+  const perSeason = setup.seasonEnabled
+    ? (Array.isArray(setup.chaptersPerSeason) ? setup.chaptersPerSeason : [setup.chapterCount || 1])
+    : [setup.chapterCount || 1];
+  const result = [];
+  for (const [seasonIndex, countValue] of perSeason.entries()) {
+    const count = Math.max(1, Number(countValue) || 1);
+    for (let chapterIndex = 0; chapterIndex < count && result.length < maximum; chapterIndex += 1) {
+      result.push({ seasonNumber: seasonIndex + 1, chapterNumber: chapterIndex + 1 });
+    }
+  }
+  return result.length ? result : [{ seasonNumber: 1, chapterNumber: 1 }];
+}
+
+function normalizeSetup(input = {}, { allowEmptyStory = false } = {}) {
   const title = String(input.title ?? input.projectName ?? '').trim();
   const storyBrief = String(input.storyBrief ?? '').trim();
   const creativeDirection = String(input.creativeDirection ?? '').trim();
   const durationSeconds = Number(input.durationSeconds);
+  const seasonEnabled = input.format === 'mini-series' && input.seasonEnabled === true;
+  const maximumSeasonCount = cinematicWorkflowPolicy.projectCreation.maximumSeasonCount;
+  const maximumChapterCount = cinematicWorkflowPolicy.projectCreation.maximumChapterCount;
+  const seasonCount = seasonEnabled ? Math.max(1, Math.min(maximumSeasonCount, Number(input.seasonCount) || 1)) : 1;
+  const requestedPerSeason = Array.isArray(input.chaptersPerSeason) ? input.chaptersPerSeason : [];
+  const chaptersPerSeason = Array.from({ length: seasonCount }, (_, index) => Math.max(1, Math.min(
+    maximumChapterCount,
+    Number(requestedPerSeason[index]) || (index === 0 ? Number(input.chapterCount) || 1 : 1)
+  )));
+  const chapterCount = input.format === 'short-film' ? 1 : seasonEnabled
+    ? chaptersPerSeason.reduce((sum, value) => sum + value, 0)
+    : Math.max(1, Math.min(maximumChapterCount, Number(input.chapterCount) || 1));
+  if (chapterCount > maximumChapterCount) throw new CinematicError('cinematic_chapter_target_invalid', `A Project supports at most ${maximumChapterCount} planned Chapters.`);
   if (!title || title.length > 120) throw new CinematicError('cinematic_title_invalid', 'Project title is required and must not exceed 120 characters.');
-  if (!storyBrief || storyBrief.length > storyAuthoringConfiguration.limits.storyBrief) throw new CinematicError('cinematic_story_brief_invalid', `Story brief is required and must not exceed ${storyAuthoringConfiguration.limits.storyBrief} characters.`);
+  if ((!allowEmptyStory && !storyBrief) || storyBrief.length > storyAuthoringConfiguration.limits.storyBrief) throw new CinematicError('cinematic_story_brief_invalid', `Story brief is required and must not exceed ${storyAuthoringConfiguration.limits.storyBrief} characters.`);
   if (creativeDirection.length > storyAuthoringConfiguration.limits.creativeDirection) throw new CinematicError('cinematic_creative_direction_invalid', `Creative direction must not exceed ${storyAuthoringConfiguration.limits.creativeDirection} characters.`);
-  if (!DURATIONS.has(durationSeconds)) throw new CinematicError('cinematic_duration_invalid', 'Duration must be 20, 30, 45 or 60 seconds.');
+  if (!DURATIONS.has(durationSeconds)) {
+    throw new CinematicError(
+      'cinematic_duration_invalid',
+      `Chapter duration must be one of: ${[...DURATIONS].join(', ')} seconds.`
+    );
+  }
   const castPlanningMode = pick(input.castPlanningMode, ['ai-recommended', 'solo', 'duo', 'manual'], 'ai-recommended');
+  const storyPreparation = input.creationIntent === 'prepare-story' && input.storyPreparation
+    ? normalizeStoryPreparation(input.storyPreparation)
+    : null;
   return {
     title,
-    format: 'short-film',
+    format: pick(input.format, ['short-film', 'mini-series'], 'short-film'),
+    aspectRatio: pick(input.aspectRatio, ['9:16', '16:9', '1:1'], '9:16'),
     platform: pick(input.platform, ['tiktok', 'youtube-shorts', 'reels', 'multi-platform'], 'tiktok'),
     durationSeconds,
+    seasonEnabled,
+    seasonCount,
+    chapterCount,
+    chaptersPerSeason: seasonEnabled ? chaptersPerSeason : [chapterCount],
     storyBrief,
     creativeDirection,
     ...normalizeStoryIntent(input),
     endingIntent: pick(input.endingIntent, ['resolved', 'hopeful', 'twist', 'cliffhanger'], 'resolved'),
     mode: pick(input.mode, ['simple', 'advanced'], 'simple'),
     castPlanningMode,
-    storyRoleSlots: normalizeStoryRoleSlots(input.storyRoleSlots, castPlanningMode)
+    storyRoleSlots: normalizeStoryRoleSlots(input.storyRoleSlots, castPlanningMode),
+    ...(storyPreparation ? { storyPreparation } : {})
+  };
+}
+
+function normalizeStoryPreparation(value) {
+  const enhancementId = String(value?.enhancementId || '').trim();
+  const provider = String(value?.provenance?.provider || '').trim();
+  const model = String(value?.provenance?.model || '').trim();
+  const responseId = value?.provenance?.responseId === null
+    ? null
+    : String(value?.provenance?.responseId || '').trim();
+  if (!enhancementId || enhancementId.length > 160
+    || !provider || provider.length > 120
+    || !model || model.length > 160
+    || (responseId !== null && (!responseId || responseId.length > 240))
+    || value?.billingStatus !== 'qualification_no_charge') {
+    throw new CinematicError(
+      'cinematic_story_preparation_invalid',
+      'Story preparation context is invalid.'
+    );
+  }
+  return {
+    enhancementId,
+    provenance: { provider, model, responseId },
+    billingStatus: 'qualification_no_charge'
   };
 }
 
@@ -1854,7 +2675,10 @@ function preserveOmittedCastFields(normalized, existing, input) {
 
 function castSourceKey(assignment) {
   return assignment.sourceType === 'generated_sheet'
-    ? `generated:${assignment.generatedSheet?.generationId}` : `character:${assignment.characterProfileId}`;
+    ? `generated:${assignment.generatedSheet?.generationId}`
+    : assignment.sourceType === 'dossier'
+      ? `dossier:${assignment.storyRoleSlotId || assignment.id}`
+      : `character:${assignment.characterProfileId}`;
 }
 
 function generatedCastLooks(id, sheet, name) {
@@ -1864,16 +2688,17 @@ function generatedCastLooks(id, sheet, name) {
     coverage: 'multi_view', locked: true, approved: true, assurance: 'user_confirmed' }];
 }
 
-function normalizeCast(input = {}, authorizedCharacter = null, generatedSheet = null) {
-  const characterProfileId = generatedSheet ? null : String(input.characterProfileId || '').trim();
-  const characterProfileVersionId = generatedSheet ? null : String(input.characterProfileVersionId || '').trim();
-  if (!generatedSheet && (!characterProfileId || !characterProfileVersionId)) {
+function normalizeCast(input = {}, authorizedCharacter = null, generatedSheet = null, sourceType = input.sourceType || 'character') {
+  const dossier = sourceType === 'dossier';
+  const characterProfileId = generatedSheet || dossier ? null : String(input.characterProfileId || '').trim();
+  const characterProfileVersionId = generatedSheet || dossier ? null : String(input.characterProfileVersionId || '').trim();
+  if (!generatedSheet && !dossier && (!characterProfileId || !characterProfileVersionId)) {
     throw new CinematicError('cinematic_character_version_required', 'A pinned Character Profile Version is required.');
   }
   const id = String(input.assignmentId || '').trim() || `cinecast_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
   return {
     id,
-    sourceType: generatedSheet ? 'generated_sheet' : 'character',
+    sourceType: generatedSheet ? 'generated_sheet' : dossier ? 'dossier' : 'character',
     generatedSheet,
     characterProfileId,
     characterProfileVersionId,
@@ -1891,7 +2716,7 @@ function normalizeCast(input = {}, authorizedCharacter = null, generatedSheet = 
     emotionalBaseline: String(input.emotionalBaseline || '').trim(),
     dialogueStyle: String(input.dialogueStyle || '').trim(),
     performanceDirection: String(input.performanceDirection || '').trim(),
-    identityReady: Boolean(generatedSheet) || authorizedCharacter?.identityPack?.status === 'identity_pack_ready',
+    identityReady: Boolean(generatedSheet) || (!dossier && authorizedCharacter?.identityPack?.status === 'identity_pack_ready'),
     apparentAgeRange: input.apparentAgeRange || null,
     identityReadinessSnapshot: authorizedCharacter?.identityPack ? {
       status: authorizedCharacter.identityPack.status,
@@ -2266,6 +3091,47 @@ function normalizeDirectorFindings(value) {
   })).filter(item => item.summary);
 }
 
+function provisionalDossiersEnabled() {
+  return resolveCinematicRewampExposure()
+    && cinematicWorkflowPolicy.authoring.storyPlanningRequiresFinalLooks === false;
+}
+
+function ensureProvisionalDossiers(project) {
+  if (!provisionalDossiersEnabled()) return project;
+  const assignments = project.castAssignments || (project.castAssignments = []);
+  for (const role of project.setup?.storyRoleSlots || []) {
+    if (assignments.some(item => item.active !== false && item.storyRoleSlotId === role.id)) continue;
+    assignments.push({
+      id: `cinedossier_${crypto.createHash('sha256').update(String(role.id)).digest('hex').slice(0, 16)}`,
+      sourceType: 'dossier',
+      generatedSheet: null,
+      characterProfileId: null,
+      characterProfileVersionId: null,
+      portraitUrl: null,
+      displayName: String(role.label || '').trim() || 'Character',
+      storyRole: String(role.storyFunction || role.label || '').trim() || 'Supporting',
+      storyRoleSlotId: role.id,
+      storyImportance: role.importance === 'required' ? 'protagonist' : 'supporting',
+      objective: String(role.objective || '').trim(),
+      motivation: '',
+      pressure: '',
+      personalityTraits: normalizeStringList(role.personalityTraits, 6),
+      emotionalBaseline: '',
+      dialogueStyle: '',
+      performanceDirection: String(role.performanceDirection || '').trim(),
+      identityReady: false,
+      apparentAgeRange: null,
+      identityReadinessSnapshot: null,
+      reuseAuthorization: null,
+      looks: [],
+      active: true,
+      provisional: true,
+      updatedAt: new Date().toISOString()
+    });
+  }
+  return project;
+}
+
 function assertStoryPlanInputReady(project) {
   if (!project.activeStorySourceVersionId || !String(project.setup?.storyBrief || '').trim()) {
     throw new CinematicError('cinematic_story_source_required', 'Complete the Story source before generating a Story Plan.', 409);
@@ -2286,6 +3152,7 @@ function assertStoryPlanInputReady(project) {
   const assignmentsByRole = new Map((project.castAssignments || [])
     .filter(item => item.active !== false && item.storyRoleSlotId)
     .map(item => [item.storyRoleSlotId, item]));
+  if (provisionalDossiersEnabled()) return;
   const unreadyRoleIds = required.filter(role => {
     const assignment = assignmentsByRole.get(role.id);
     return assignment?.identityReady !== true || !(assignment.looks || []).some(isProductionReadyLook);
@@ -2710,6 +3577,13 @@ function markVideoPacketChanged(project, shot) {
       timeline.status = 'stale';
       timeline.exportEligible = false;
     }
+  }
+}
+
+function assertCharacterLookIdentityVersion(assignment, sourceCharacterProfileVersionId) {
+  if (!assignment.characterProfileVersionId || !sourceCharacterProfileVersionId
+    || sourceCharacterProfileVersionId !== assignment.characterProfileVersionId) {
+    throw new CinematicError('cinematic_look_identity_version_mismatch', 'Select a Look approved for the current Character identity version.', 409);
   }
 }
 

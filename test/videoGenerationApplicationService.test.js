@@ -230,6 +230,24 @@ test('video quote rejects an empty prompt before pricing', async () => {
   );
 });
 
+test('Playground video rejects prompts above 8000 characters before pricing', async () => {
+  let estimates = 0;
+  const service = createService({
+    creditService: {
+      async estimateVideo() { estimates += 1; return { estimateId: 'prompt_limit', estimatedCredits: 1 }; },
+      async getAccount() { return { availableCredits: 100 }; }
+    }
+  });
+  await assert.rejects(
+    service.quote({ ...input, prompt: 'x'.repeat(8001) }, actor),
+    error => error.code === 'generation_prompt_too_long'
+      && error.details?.applicationMaximumCharacters === 8000
+  );
+  assert.equal(estimates, 0);
+  await service.quote({ ...input, prompt: 'x'.repeat(8000) }, actor);
+  assert.equal(estimates, 1);
+});
+
 test('Seedance generated-source policy blocks an unproven Character frame before pricing', async () => {
   let estimates = 0;
   const service = new VideoGenerationApplicationService({

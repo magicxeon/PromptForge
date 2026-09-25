@@ -67,3 +67,38 @@ test('Gemini Cinematic text provider exposes stable HTTP failure metadata', asyn
       && error.requestId === 'gemini_req_429'
   );
 });
+
+test('Gemini Cinematic text provider uses the shared Shot schema and recipe', async () => {
+  let request = null;
+  const provider = new GeminiCinematicTextProvider('gemini-key', {
+    endpoint: 'https://example.test/interactions',
+    fetchImpl: async (_url, options) => {
+      request = JSON.parse(options.body);
+      return {
+        ok: true,
+        headers: { get: () => 'gemini_shots_1' },
+        json: async () => ({
+          id: 'interaction_shots_1',
+          output_text: JSON.stringify({
+            shots: [{
+              title: 'Opening', purpose: 'Establish the encounter', durationMs: 4000,
+              shotDocument: 'SHOT DURATION\n4 seconds', characterIds: ['lalin']
+            }],
+            warnings: []
+          })
+        })
+      };
+    }
+  });
+
+  const result = await provider.generateCinematicSceneShots({
+    context: { scene: { title: 'Rain' } },
+    model: 'gemini-3.8-flash', reasoningEffort: 'low', maxOutputTokens: 8000, timeoutMs: 1000
+  });
+
+  assert.match(request.system_instruction, /Shot/i);
+  assert.deepEqual(request.response_format.schema.required, ['shots', 'warnings']);
+  assert.equal(request.response_format.schema.properties.shots.items.properties.durationMs.maximum, 20000);
+  assert.equal(result.shots[0].durationMs, 4000);
+  assert.equal(result.responseId, 'interaction_shots_1');
+});
