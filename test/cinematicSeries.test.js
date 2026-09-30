@@ -53,6 +53,72 @@ test('new Mini Series creates its Production Project root and Chapter 1 atomical
   assert.equal(stored.projects[0].seriesMembership.seriesId, stored.series[0].id);
 });
 
+test('Project rename saves modern root and Series atomically and survives library reload', async t => {
+  const { service, repository, projectsFile } = await fixture(t);
+  let root = await service.createProject({ ...setup, format: 'mini-series', title: 'Original name' }, actor);
+  root = await repository.mutateForActor(root.id, actor, p => {
+    p.chapterTitle = 'Keep Chapter title';
+    p.chapterStory = 'Keep Chapter prose';
+    p.generationAttempts = [{ id: 'take-kept' }];
+    return p;
+  });
+  const before = await service.getSeriesWorkspace(root.id, actor);
+  const input = { ...root.setup, title: undefined, projectName: 'Renamed story', expectedVersion: root.version };
+  const saved = await service.updateSetup(root.id, input, actor);
+  const after = await service.getSeriesWorkspace(root.id, actor);
+  assert.equal(saved.title, 'Renamed story');
+  assert.equal(after.series.title, saved.title);
+  assert.equal(after.series.version, before.series.version + 1);
+  assert.equal(after.productionProject.title, saved.title);
+  assert.equal(saved.chapterTitle, 'Keep Chapter title');
+  assert.equal(saved.chapterStory, 'Keep Chapter prose');
+  assert.deepEqual(saved.generationAttempts, root.generationAttempts);
+  assert.deepEqual(saved.storySourceVersions, root.storySourceVersions);
+  const fresh = new CinematicProjectRepository({ projectsFile });
+  assert.equal((await fresh.listForActor(actor)).items.find(item => item.projectId === root.id).title, saved.title);
+  await assert.rejects(service.updateSetup(root.id, { ...input, projectName: 'Stale overwrite' }, actor), { code: 'cinematic_version_conflict' });
+  await assert.rejects(service.updateSetup(root.id, { ...input, expectedVersion: saved.version }, other), { code: 'cinematic_project_not_found' });
+  assert.equal((await service.getSeriesWorkspace(root.id, actor)).series.title, 'Renamed story');
+});
+
+test('Project rename projects previously saved modern names without rewriting stored legacy Series', async t => {
+  const { service, repository } = await fixture(t);
+  let root = await service.createProject({ ...setup, format: 'mini-series', title: 'Imported filename' }, actor);
+  root = await repository.mutateForActor(root.id, actor, p => { p.title = 'Already saved name'; p.setup.title = p.title; return p; });
+  const result = await service.getSeriesWorkspace(root.id, actor);
+  assert.equal(result.series.title, 'Imported filename');
+  assert.equal(result.productionProject.title, 'Already saved name');
+  assert.equal((await repository.listForActor(actor)).items.find(item => item.projectId === root.id).title, 'Already saved name');
+  assert.equal((await repository.readSeriesWorkspaceForActor(actor)).series.find(item => item.id === root.seriesMembership.seriesId).title, 'Imported filename');
+});
+
+test('Project rename keeps child and Season names isolated and supports explicit Series rename', async t => {
+  const { service, repository } = await fixture(t);
+  let root = await service.createProject({ ...setup, format: 'mini-series', title: 'Main story' }, actor);
+  let workspace = await service.getSeriesWorkspace(root.id, actor);
+  const added = await service.addSeriesChapter(workspace.series.id, { title: 'Second Chapter', copyCast: false,
+    sourceProjectId: root.id, expectedProjectVersion: root.version, expectedVersion: workspace.series.version, seasonId: workspace.series.seasons[0].id }, actor);
+  const child = added.project;
+  await service.updateSetup(child.id, { ...child.setup, title: 'Child-only metadata', expectedVersion: child.version }, actor);
+  workspace = await service.getSeriesWorkspace(root.id, actor);
+  assert.equal(workspace.series.title, 'Main story');
+  workspace = await service.updateSeries(workspace.series.id, { title: 'Season name', seasonId: workspace.series.seasons[0].id, expectedVersion: workspace.series.version }, actor);
+  assert.equal((await repository.findForActor(root.id, actor)).title, 'Main story');
+  workspace = await service.updateSeries(workspace.series.id, { title: 'Series rename', expectedVersion: workspace.series.version }, actor);
+  root = await repository.findForActor(root.id, actor);
+  assert.equal(root.title, 'Series rename');
+  assert.equal(root.setup.title, 'Series rename');
+  assert.equal(workspace.productionProject.title, 'Series rename');
+  assert.equal((await repository.findForActor(child.id, actor)).chapterTitle, 'Second Chapter');
+});
+
+test('Project rename preserves standalone behavior', async t => {
+  const { service, repository, project } = await fixture(t);
+  const saved = await service.updateSetup(project.id, { ...project.setup, title: 'Standalone renamed', expectedVersion: project.version }, actor);
+  assert.equal((await repository.listForActor(actor)).items[0].title, saved.title);
+  assert.equal((await service.getSeriesWorkspace(project.id, actor)).series, null);
+});
+
 test('Prepare Story persists bounded AI operation context on the initial Story Source', async t => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cinematic-prepared-story-'));
   t.after(() => fs.rm(root, { recursive: true, force: true }));

@@ -152,10 +152,19 @@ function rotateChapterHistory(project, historyLimit) {
 
 function normalizeProvenance(value) {
   if (!value || typeof value !== 'object') return null;
+  const usage = value.usage;
+  const validUsage = usage && ['inputTokens', 'outputTokens', 'cachedInputTokens', 'reasoningTokens']
+    .every(key => Number.isInteger(usage[key]) && usage[key] >= 0)
+    && usage.cachedInputTokens <= usage.inputTokens && usage.reasoningTokens <= usage.outputTokens;
   return {
     provider: bounded(value.provider, 80),
     model: bounded(value.model, 120),
-    responseId: nullableId(value.responseId)
+    responseId: nullableId(value.responseId),
+    ...(Object.hasOwn(value, 'usage') ? { usage: validUsage ? {
+      inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+      cachedInputTokens: usage.cachedInputTokens, reasoningTokens: usage.reasoningTokens
+    } : null } : {}),
+    ...(typeof value.recordedAt === 'string' && Number.isFinite(Date.parse(value.recordedAt)) ? { recordedAt: value.recordedAt } : {})
   };
 }
 

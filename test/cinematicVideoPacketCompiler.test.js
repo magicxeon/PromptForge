@@ -48,6 +48,25 @@ test('video packet does not import future Scene consequences into the current Sh
   assert.ok(prompt.includes(shot.continuityExit));
 });
 
+test('Project video direction appears once, survives prompt compaction and changes source fingerprints', () => {
+  const project = createSingleCharacterCinematicProject();
+  const scene = project.scenes[0], shot = scene.shots[0];
+  shot.videoReferenceMode = 'looks_only';
+  const config = new CinematicVideoPacketConfigurationService();
+  const policy = config.getPolicy();
+  policy.looksOnlyMode.maximumPromptCharacters = 100;
+  const compiler = new CinematicVideoPacketCompiler({ configurationService: {
+    getPolicy: () => policy, getPromptStrategy: id => config.getPromptStrategy(id)
+  } });
+  const original = compiler.compile({ project, scene, shot });
+  project.setup.videoDirection = 'No music. Rain ambience only.';
+  const updated = compiler.compile({ project, scene, shot });
+  const prompt = compiler.renderForProvider(updated, { providerId: 'modelark' }).prompt;
+  assert.equal(prompt.split('No music. Rain ambience only.').length - 1, 1);
+  assert.match(prompt, /unless this Shot explicitly overrides/);
+  assert.notEqual(updated.packetFingerprint, original.packetFingerprint);
+});
+
 test('prompt budget removes overhead without dropping mappings or repeated dialogue', () => {
   const project = createSingleCharacterCinematicProject();
   const scene = project.scenes[0];

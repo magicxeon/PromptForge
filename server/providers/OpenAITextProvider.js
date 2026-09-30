@@ -331,6 +331,22 @@ export class OpenAITextProvider {
     return { ...parseJsonOutput(payload, 'cinematic_full_story_chapters'), responseId: payload?.id || null, usage: payload?.usage || null };
   }
 
+  async generateCinematicChapterOutline({ context, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model, input: context, reasoningEffort, maxOutputTokens, timeoutMs,
+      instructions: loadPromptRecipe('cinematic/chapter-outline.v1.json').instruction,
+      schemaName: 'momelo_cinematic_chapter_outline',
+      schema: { type: 'object', additionalProperties: false, required: ['rationale', 'chapters', 'warnings'], properties: {
+        rationale: { type: 'string' }, warnings: { type: 'array', items: { type: 'string' } },
+        chapters: { type: 'array', items: { type: 'object', additionalProperties: false,
+          required: ['title', 'synopsis', 'seasonNumber'], properties: {
+            title: { type: 'string' }, synopsis: { type: 'string' }, seasonNumber: { type: 'integer' }
+          } } }
+      } }, errorPrefix: 'cinematic_chapter_outline'
+    });
+    return { ...parseJsonOutput(payload, 'cinematic_chapter_outline'), responseId: payload?.id || null, usage: payload?.usage || null };
+  }
+
   async extractCinematicStoryCharacters({ context, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
     const payload = await this.requestStructured({
       model, input: context, reasoningEffort, maxOutputTokens, timeoutMs,

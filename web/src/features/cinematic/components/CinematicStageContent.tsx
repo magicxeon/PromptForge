@@ -3,7 +3,10 @@ import {
   Images, Link2, Play, Plus, RotateCcw, Shirt, Sparkles, Trash2, Upload, UserRound, WandSparkles
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { timelineRecoverySchema, useCinematicTextRecovery } from '../state/useCinematicTextRecovery';
+import { CinematicRecoveryNotice } from './CinematicRecoveryNotice';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCreditConfirmation } from '../../../components/generation/useCreditConfirmation';
 import { PromptBudgetStatus } from '../../../components/generation/PromptBudgetStatus';
 import { PromptPreflightSummary } from './PromptPreflightSummary';
 import { useTranslation } from 'react-i18next';
@@ -1098,9 +1101,11 @@ function ProduceStage({ project, onEditStoryboard, onProjectRefresh, onEditStory
   </>;
 }
 
-export function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, onEditStory, mode, sceneId, shotId, embedded = false, blockedReason }: {
+export function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh, onEditStory, mode, sceneId, shotId, embedded = false, blockedReason, previewAttemptId, onSelectionChange }: {
   mode: 'simple' | 'advanced'; project: CinematicProject; onEditStoryboard?: () => void; onProjectRefresh?: () => void;
   onEditStory?: () => void; sceneId?: string; shotId?: string; embedded?: boolean; blockedReason?: string | null;
+  previewAttemptId?: string;
+  onSelectionChange?: (sceneId: string, shotId: string, attemptId?: string) => void;
 }) {
   const { t } = useTranslation('cinematic');
   const queryClient = useQueryClient();
@@ -1197,6 +1202,13 @@ export function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRe
     setSelectedSceneId(sceneId || project.scenes[0]?.id || '');
     setSelectedShot(shotId || project.scenes.find(scene => scene.id === sceneId)?.shots[0]?.id || project.scenes[0]?.shots[0]?.id || '');
   }, [actorId, project.id, sceneId, shotId]);
+  useEffect(() => {
+    if (!previewAttemptId || !shotId) return;
+    const valid = project.generationAttempts.some(item => item && typeof item === 'object'
+      && 'id' in item && item.id === previewAttemptId && 'shotId' in item && item.shotId === shotId
+      && 'operation' in item && item.operation === 'cinematic_draft_clip');
+    if (valid) setPreviewSelection({ shotId, actorId, id: previewAttemptId });
+  }, [actorId, project.id, project.generationAttempts, shotId, previewAttemptId]);
   useEffect(() => {
     const shotId = selectedShotRecord?.id || '';
     setMotionDirectionState(current => {
@@ -1429,6 +1441,12 @@ export function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRe
   const selectShot = (sceneId: string, shotId: string) => {
     setSelectedSceneId(sceneId);
     setSelectedShot(shotId);
+    onSelectionChange?.(sceneId, shotId);
+  };
+  const selectPreview = (id: string) => {
+    if (!selectedScene || !selectedShotRecord) return;
+    setPreviewSelection({ shotId: selectedShotRecord.id, actorId, id });
+    onSelectionChange?.(selectedScene.id, selectedShotRecord.id, id);
   };
   const changeModel = (nextModelKey: string) => {
     const nextModel = models.find(model => `${model.providerId}:${model.modelId}` === nextModelKey);
@@ -1441,7 +1459,26 @@ export function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRe
   const providerRecoveryDescription = quoteRequiresPortraitAsset ? t('cinematic.produce.modelAuthorizationDescription')
     : t('cinematic.produce.portraitAuthorizationDescription');
   const providerRecoveryHint = t('cinematic.produce.portraitAuthorizationNoRetry');
+  const creditConsent = useCreditConfirmation({ actorId,
+    requestKey: JSON.stringify([project.id, project.version, selectedShot, quoteInput, quote.data?.estimate.estimateId, quote.data?.requestFingerprint]),
+    estimatedCredits: quote.data?.estimate.billingStatus === 'qualification_no_charge' ? 0 : quote.data?.estimate.estimatedCredits,
+    description: [selectedShotRecord?.title, selectedModel?.displayName, `${durationSeconds}s`].filter(Boolean).join(' / '),
+    ready: !generateBlockedReason });
+  const consentSubmission = useRef(false);
+  async function requestVideoGeneration() {
+    if (generateBlockedReason || !quote.data || !quoteInput || consentSubmission.current) return;
+    consentSubmission.current = true;
+    try {
+      if (!await creditConsent.request() || !creditConsent.isCurrent()) return;
+      if (quote.data.estimate.expiresAt && Date.parse(quote.data.estimate.expiresAt) <= Date.now()) { void quote.refetch(); return; }
+      await submit.mutateAsync({ ...operationScope, input: { ...quoteInput,
+        estimateId: quote.data.estimate.estimateId, requestFingerprint: quote.data.requestFingerprint,
+        idempotencyKey: `cinematic:${project.id}:${selectedShotRecord!.id}:${crypto.randomUUID()}` } });
+    } catch { /* The existing mutation error surface owns submission failures. */ }
+    finally { consentSubmission.current = false; }
+  }
   return <>
+    {creditConsent.dialog}
     {!embedded ? <><StageHeading stage="produce" showPrototypeBadge={false} />
     <ProduceReadinessHeader readiness={readiness} onRecoverStoryboard={onEditStoryboard} onReviewSequence={() => setRoughSequenceOpen(true)} /></> : null}
     <div className={embedded ? 'cinematic-inline-video' : 'cinematic-produce-workspace'}>
@@ -1507,10 +1544,10 @@ export function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRe
                 submittedDurationMs: durationOverride.submittedDurationMs, currentDurationMs: durationOverride.currentDurationMs } })} /> : null}</header>
           {viewedId && currentTakeReview?.approvalReason && currentTakeReview.approvalReason !== 'ready' ? <p role="status" className="text-sm text-[var(--mpf-text-muted)]">{t(`cinematic.takes.reason.${currentTakeReview.approvalReason}`)}</p> : null}
           {historicalTask.error ? <p role="alert">{historicalTask.error.message}</p> : null}
-          <VideoTakeList key={`${actorId}:${selectedShot}`} attempts={attemptHistory} previewId={viewedId} approvedId={selectedShotRecord?.approvedVideoAttemptId} onPreview={id => setPreviewSelection({ shotId: selectedShotRecord!.id, actorId, id })} />
+          <VideoTakeList key={`${actorId}:${selectedShot}`} attempts={attemptHistory} previewId={viewedId} approvedId={selectedShotRecord?.approvedVideoAttemptId} onPreview={selectPreview} />
           {previousPlanTakes.length ? <details className="cinematic-produce-prompt">
             <summary>{t('cinematic.takes.previousPlan')} ({previousPlanTakes.length})</summary>
-            <VideoTakeList attempts={previousPlanTakes} previewId={viewedId} onPreview={id => setPreviewSelection({ shotId: selectedShotRecord!.id, actorId, id })} />
+            <VideoTakeList attempts={previousPlanTakes} previewId={viewedId} onPreview={selectPreview} />
           </details> : null}
           {viewingPreviousPlan ? <p role="status">{t('cinematic.takes.previousPlanPreview')}</p> : null}
           {!embedded ? <ClipBundleDownload projectId={project.id} version={project.version} /> : null}
@@ -1554,10 +1591,7 @@ export function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRe
               ? <p role="status">{t('cinematic.produce.durationAdvice')}</p> : null}
             {quote.data?.estimate.billingStatus === 'qualification_no_charge' ? <p className="cinematic-produce-render-panel__qualification">{t('cinematic.produce.qualificationNoCharge')}</p> : null}
             {!['looks_only', 'text_only'].includes(referenceMode || '') ? <p className={`cinematic-produce-render-panel__source${source && !sourceNeedsCompatibleSeedream ? ' is-ready' : ''}`}>{sourceNeedsCompatibleSeedream ? t('cinematic.produce.seedreamSourceRequired') : source ? t('cinematic.produce.sourceReady') : t('cinematic.produce.sourceRequired')}</p> : null}</>}
-          footer={<div className="cinematic-produce-render-panel__footer"><Button className="w-full" variant="primary" icon={<Film aria-hidden="true" />} aria-describedby="cinematic-video-generate-reason" disabled={Boolean(generateBlockedReason)} onClick={() => submit.mutate({ ...operationScope, input: {
-            ...quoteInput!, estimateId: quote.data!.estimate.estimateId, requestFingerprint: quote.data!.requestFingerprint,
-            idempotencyKey: `cinematic:${project.id}:${selectedShotRecord!.id}:${crypto.randomUUID()}`
-          } })}>{isRunning ? t('cinematic.produce.generating') : t('cinematic.produce.generate')}</Button><p id="cinematic-video-generate-reason" aria-live="polite">{generateBlockedReason || t('cinematic.produce.lockedEstimate')}</p></div>}
+          footer={<div className="cinematic-produce-render-panel__footer"><Button className="w-full" variant="primary" icon={<Film aria-hidden="true" />} aria-describedby="cinematic-video-generate-reason" disabled={Boolean(generateBlockedReason) || creditConsent.awaitingConfirmation} onClick={() => void requestVideoGeneration()}>{isRunning ? t('cinematic.produce.generating') : t('cinematic.produce.generate')}</Button><p id="cinematic-video-generate-reason" aria-live="polite">{generateBlockedReason || t('cinematic.produce.lockedEstimate')}</p></div>}
           onModelChange={changeModel}
           onAspectRatioChange={() => undefined}
           onResolutionChange={setResolution}
@@ -1955,15 +1989,18 @@ type FinishTimelineDraftEntry = {
 
 function FinishStage({ project, onProjectChanged }: { project?: CinematicProject; onProjectChanged?: (project: CinematicProject) => void }) {
   const { t } = useTranslation('cinematic');
+  const actorId = getActiveActorId() || '';
   const [saveState, setSaveState] = useState<'idle' | 'saving'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
   const projectShots = project?.scenes.flatMap(scene => scene.shots) || [];
   const visibleShots = project ? projectShots : shots.map((id, index) => ({ id, durationMs: index === 3 ? 5000 : 3500 }));
   const [selectedShotId, setSelectedShotId] = useState(projectShots[0]?.id || '');
-  const [timelineDraft, setTimelineDraft] = useState<FinishTimelineDraftEntry[]>(() => createFinishTimelineDraft(project));
+  const recovery = useCinematicTextRecovery({ actorId, projectId: project?.id || '', documentId: 'timeline',
+    revision: project?.activeTimelineVersionId || '', schema: timelineRecoverySchema,
+    serverValue: { entries: createFinishTimelineDraft(project) } });
+  const timelineDraft = recovery.value.entries;
   useEffect(() => {
     const currentShots = project?.scenes.flatMap(scene => scene.shots) || [];
-    setTimelineDraft(createFinishTimelineDraft(project));
     setSelectedShotId(current => currentShots.some(shot => shot.id === current) ? current : currentShots[0]?.id || '');
   }, [project]);
   const selectedEntry = timelineDraft.find(entry => entry.shotId === selectedShotId) || timelineDraft[0];
@@ -1972,10 +2009,13 @@ function FinishStage({ project, onProjectChanged }: { project?: CinematicProject
   ), 0);
   function updateSelectedEntry(patch: Partial<FinishTimelineDraftEntry>) {
     if (!selectedEntry) return;
-    setTimelineDraft(current => current.map(entry => entry.shotId === selectedEntry.shotId ? { ...entry, ...patch } : entry));
+    recovery.setValue(current => ({ entries: current.entries.map(entry => entry.shotId === selectedEntry.shotId ? { ...entry, ...patch } : entry) }));
   }
   async function saveTimeline() {
-    if (!project || !projectShots.length || timelineDraft.length !== projectShots.length) return;
+    if (!project || !projectShots.length || recovery.pending || saveState === 'saving') return;
+    if (timelineDraft.length !== projectShots.length || timelineDraft.some(entry => !projectShots.some(shot => shot.id === entry.shotId))) {
+      setSaveError(t('cinematic.chapterFinal.projectChanged')); return;
+    }
     setSaveState('saving');
     setSaveError(null);
     try {
@@ -1983,6 +2023,8 @@ function FinishStage({ project, onProjectChanged }: { project?: CinematicProject
         expectedVersion: project.version,
         entries: timelineDraft
       });
+      if (getActiveActorId() !== actorId) return;
+      recovery.markSaved({ entries: timelineDraft }, { entries: createFinishTimelineDraft(saved) }, saved.activeTimelineVersionId || '');
       onProjectChanged?.(saved);
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : t('cinematic.status.saveFailed'));
@@ -1992,7 +2034,8 @@ function FinishStage({ project, onProjectChanged }: { project?: CinematicProject
   }
   return <>
     <StageHeading stage="finish" />
-    <div className="cinematic-finish-layout">
+    <CinematicRecoveryNotice key={`${actorId}:${project?.id}:${project?.activeTimelineVersionId}`} recovery={recovery} disabled={saveState === 'saving'} />
+    <div className="cinematic-finish-layout" inert={recovery.pending ? true : undefined}>
       <section className="cinematic-finish-monitor"><div className="cinematic-monitor cinematic-monitor--large"><Play aria-hidden="true" /><span>{(assembledDurationMs / 1000).toFixed(1)}s / {((project?.durationTargetMs || 30000) / 1000).toFixed(1)}s</span></div></section>
       <section className="cinematic-timeline-panel"><SectionHeading title={t('cinematic.finish.timeline')} hint={t('cinematic.finish.timelineHint')} action={<Button size="sm" disabled={!project || !projectShots.length || saveState === 'saving'} onClick={() => void saveTimeline()}>{t('cinematic.story.savePlan')}</Button>} /><div className="cinematic-timeline">{visibleShots.map(shot => <button type="button" className={selectedShotId === shot.id ? 'is-active' : ''} key={shot.id} onClick={() => setSelectedShotId(shot.id)}><span>{shot.id}</span><small>{(shot.durationMs / 1000).toFixed(1)}s</small></button>)}</div>{selectedEntry ? <div className="cinematic-trim-controls"><label><span>{t('cinematic.finish.trimIn')}</span><input type="number" min="0" step="0.1" value={selectedEntry.trimInMs / 1000} onChange={event => updateSelectedEntry({ trimInMs: Math.max(0, Math.round(Number(event.target.value) * 1000)) })} /></label><label><span>{t('cinematic.finish.trimOut')}</span><input type="number" min="0.1" step="0.1" value={selectedEntry.trimOutMs / 1000} onChange={event => updateSelectedEntry({ trimOutMs: Math.max(1, Math.round(Number(event.target.value) * 1000)) })} /></label><label><span>{t('cinematic.finish.transition')}</span><select value={selectedEntry.transition} onChange={event => updateSelectedEntry({ transition: event.target.value as FinishTimelineDraftEntry['transition'], transitionDurationMs: event.target.value === 'cut' ? 0 : Math.max(1, selectedEntry.transitionDurationMs || 500) })}><option value="cut">{t('cinematic.finish.straightCut')}</option><option value="dissolve">{t('cinematic.finish.dissolve')}</option><option value="fade">{t('cinematic.finish.fade')}</option></select></label></div> : null}{saveError ? <p role="alert">{saveError}</p> : null}</section>
       <aside className="cinematic-shot-operations"><ContextualOperationDock title={t('cinematic.finish.operationTitle')} description={t('cinematic.finish.operationDescription')} operation={t('cinematic.finish.export')} actionLabel={t('cinematic.finish.export')} notice={t('cinematic.finish.qualificationOnly')} /><Button variant="primary" disabled>{t('cinematic.finish.complete')}</Button><Button disabled>{t('cinematic.finish.continueSeries')}</Button></aside>

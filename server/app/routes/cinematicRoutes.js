@@ -48,6 +48,12 @@ export function registerCinematicRoutes(app, {
     try { res.set('Cache-Control', 'private, no-store').json(await cinematicService.getSeriesWorkspace(req.params.projectId, req.actorContext)); }
     catch (error) { sendCinematicError(res, error); }
   });
+  for (const [path, method] of [['chapter-order', 'reorderChapters'], ['scene-order', 'reorderScenes']]) {
+    app.patch(`/api/cinematic/projects/:projectId/${path}`, async (req, res) => {
+      try { res.set('Cache-Control', 'private, no-store').json(await cinematicService[method](req.params.projectId, req.body || {}, req.actorContext)); }
+      catch (error) { sendCinematicError(res, error); }
+    });
+  }
   app.post('/api/cinematic/projects/:projectId/series', async (req, res) => {
     try { res.set('Cache-Control', 'private, no-store').status(201).json(await cinematicService.createSeries(req.params.projectId, req.body || {}, req.actorContext)); }
     catch (error) { sendCinematicError(res, error); }
@@ -135,6 +141,15 @@ export function registerCinematicRoutes(app, {
     catch (error) { sendCinematicError(res, error); }
   });
 
+  for (const [path, method] of [['estimate', 'estimateChapterPlanning'], ['proposals', 'proposeChapterOutline'], ['approve', 'approveChapterOutline']]) {
+    app.post(`/api/cinematic/projects/:projectId/chapter-outline/${path}`, async (req, res) => {
+      try {
+        res.set('Cache-Control', 'private, no-store');
+        res.json(await cinematicService[method](req.params.projectId, req.body || {}, req.actorContext));
+      } catch (error) { sendCinematicError(res, error); }
+    });
+  }
+
   app.post('/api/cinematic/projects/:projectId/chapter-proposals', async (req, res) => {
     try { res.status(201).json(await cinematicService.proposeChapters(req.params.projectId, req.body || {}, req.actorContext)); }
     catch (error) { sendCinematicError(res, error); }
@@ -214,6 +229,13 @@ export function registerCinematicRoutes(app, {
     try {
       res.set('Cache-Control', 'private, no-store');
       res.json(await cinematicService.prepareShotWriter(req.params.projectId, req.params.sceneId, req.params.shotId, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/writer-export', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.exportShotWriter(req.params.projectId, req.params.sceneId, req.params.shotId, req.body || {}, req.actorContext));
     } catch (error) { sendCinematicError(res, error); }
   });
 

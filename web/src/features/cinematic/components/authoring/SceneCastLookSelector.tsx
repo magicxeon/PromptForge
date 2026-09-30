@@ -32,7 +32,7 @@ export function SceneCastLookSelector({
         return <article key={assignment.id} className={selected ? 'is-selected' : ''}>
           <label className="cinematic-director-cast__character">
             {!lookSelectionOnly ? <input type="checkbox" checked={selected} disabled={disabled} onChange={event => onToggleAssignment(assignment.id, event.target.checked)} /> : null}
-            <span className="cinematic-director-cast__portrait" aria-hidden="true">
+            <span className={`cinematic-director-cast__portrait${selectedBinding?.previewUrl || assignment.generatedSheet?.previewUrl ? ' is-sheet' : ''}`} aria-hidden="true">
               <AuthenticatedMediaImage src={selectedBinding?.previewUrl || assignment.generatedSheet?.previewUrl || assignment.portraitUrl || undefined}
                 alt="" fallback={<UserRound />} />
             </span>

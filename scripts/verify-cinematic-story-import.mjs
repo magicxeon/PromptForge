@@ -7,7 +7,9 @@ import { createServer } from 'vite';
 import { chromium } from 'playwright';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const castTarget = process.argv.includes('--cast-target');
+const chapterOutline = process.argv.includes('--chapter-outline');
+const importSource = process.argv.includes('--import-source');
+const castTarget = process.argv.includes('--cast-target') || chapterOutline;
 const sceneCast = process.argv.includes('--scene-cast');
 const output = await fs.mkdtemp(path.join(os.tmpdir(), 'mpf-story-import-ui-'));
 const readJson = async name => JSON.parse(await fs.readFile(path.join(root, name), 'utf8'));
@@ -42,6 +44,7 @@ function Demo() {
   const [draft, setDraft] = React.useState(createCinematicSetupDraft());
   const [project, setProject] = React.useState(null);
   const [chapter, setChapter] = React.useState(false);
+  const [showSetup, setShowSetup] = React.useState(false);
   const noop = () => {};
   if (${sceneCast}) {
     const cast = [{ id: 'one', displayName: 'แม่หญิงรัตนา', storyRole: 'นางเอก ผู้เริ่มต้นชีวิตใหม่และต้องดูแลครอบครัว', portraitUrl: null, looks: [] },
@@ -52,16 +55,23 @@ function Demo() {
   }
   if (project && chapter) return React.createElement(CinematicChapterWriter, { actorId: 'fixture', project, online: true,
     onBackToFullStory: () => setChapter(false), onOpenSetup: noop, onNavigateChapter: noop, onOpenScenes: noop, onProjectChanged: setProject });
-  if (project) return React.createElement(CinematicFullStoryWriter, { actorId: 'fixture', project, online: true,
-    onBackToBrief: () => setProject(null), onOpenChapters: () => setChapter(true), onProjectChanged: setProject });
+  if (project && !showSetup) return React.createElement(CinematicFullStoryWriter, { actorId: 'fixture', project, online: true,
+    onBackToBrief: () => ${importSource ? 'setShowSetup(true)' : 'setProject(null)'}, onOpenChapters: () => setChapter(true), onProjectChanged: setProject });
   return React.createElement(CinematicNewProjectComposer, { draft, storyAuthoring, creationPolicy: workflow.projectCreation,
+    variant: project ? 'edit' : 'create', importedFullStory: project?.fullStoryVersions[0], onContinueFullStory: () => setShowSetup(false), onSave: noop,
     importPolicy: workflow.storyImport, maximumStoryCharacters: workflow.authoring.fullStoryMaximumCharacters,
     saveState: 'saved', pending: false, online: true, onCreateDraft: noop, onPrepareStory: noop,
-    onUpdate: (key, value) => setDraft(current => ({ ...current, [key]: value })),
+    onUpdate: (key, value) => setDraft(current => ({ ...current, [key]: value,
+      ...(key === 'storyBrief' && current.storyBriefImport ? { storyBriefImport: { ...current.storyBriefImport, edited: true } } : {}) })),
     onImportFullStory: async file => setProject({ id: 'fixture', version: 1, title: file.fileName, setup: { ...draft, chapterCount: 8 },
-      fullStoryVersions: [{ id: 'revision-1', version: 1, content: file.content, source: 'manual', status: 'active', createdAt: '2026-09-25T00:00:00Z' }],
+      fullStoryVersions: [{ id: 'revision-1', version: 1, content: file.content, importFileName: file.fileName, source: 'manual', status: 'active', createdAt: '2026-09-25T00:00:00Z' }],
       activeFullStoryVersionId: 'revision-1', confirmedFullStoryVersionId: ${castTarget ? "'revision-1'" : 'null'},
-      castAssignments: ${castTarget ? JSON.stringify(['Mina', 'Kin'].map((name, i) => ({ id: `cast-${i}`, active: true, sourceType: 'dossier', displayName: name, storyRole: 'Main character', dialogueStyle: '', identityReady: false }))) : '[]'}, scenes: [] }) });
+      castAssignments: ${castTarget ? JSON.stringify(['Mina', 'Kin'].map((name, i) => ({ id: `cast-${i}`, active: true, sourceType: 'dossier', displayName: name, storyRole: 'Main character', dialogueStyle: '', identityReady: false }))) : '[]'}, scenes: [], chapterProposals: [],
+      chapterOutline: ${chapterOutline ? JSON.stringify({ id: 'outline', sourceRevisionId: 'revision-1', sourceKey: 'fixture', status: 'proposed',
+        settings: { format: 'mini-series', durationSeconds: 60, seasonEnabled: false, seasonCount: 1 },
+        chapters: [{ title: 'Homecoming / การกลับบ้าน', synopsis: 'มินากลับมาเปิดร้านดอกไม้ เธอต้องตัดสินใจว่าจะเริ่มต้นใหม่อย่างไร', seasonNumber: 1 },
+          { title: 'A difficult promise', synopsis: 'Old friends reunite as a long-kept secret changes their plans.', seasonNumber: 1 }],
+        rationale: 'Two dramatic turns preserve the beginning and ending.', warnings: [], createdAt: '2026-09-26T00:00:00Z' }) : 'null'} }) });
 }
 createRoot(document.getElementById('root')).render(React.createElement(QueryClientProvider, { client: new QueryClient({ defaultOptions: { queries: { retry: false } } }) },
   React.createElement(MemoryRouter, null, React.createElement(I18nextProvider, { i18n }, React.createElement(Demo)))));
@@ -80,6 +90,7 @@ try {
   await server.listen();
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
+  if (chapterOutline) await page.addInitScript(() => localStorage.setItem('mpf_active_mock_user_id', 'fixture'));
   const errors = [];
   page.on('pageerror', error => { errors.push(error.message); console.error(error.message); });
   await page.route('**/assets/cinematic/flags/*.svg', route => route.fulfill({
@@ -87,8 +98,12 @@ try {
   }));
   await page.route('**/api/**', route => {
     if (!new URL(route.request().url()).pathname.startsWith('/api/')) return route.continue();
-    if (route.request().method() !== 'GET') throw new Error('Isolated preview attempted an API mutation');
     const pathname = new URL(route.request().url()).pathname;
+    if (chapterOutline && pathname === '/api/cinematic/projects/fixture/chapter-outline/estimate') return route.fulfill({ json: {
+      projectVersion: 1, billingStatus: 'qualification_no_charge', estimates: Object.fromEntries(['chapter_outline', 'chapters'].map(operation => [operation, {
+        operation, model: 'fixture', credits: 165, retailThb: 16.5, chargeCredits: 0, policyVersion: 'fixture',
+        costBasis: 'advisory_byte_estimate', exceedsValueTarget: false }])) } });
+    if (route.request().method() !== 'GET') throw new Error('Isolated preview attempted an API mutation');
     if (pathname === '/api/me') return route.fulfill({ json: { userId: 'fixture', username: 'fixture', role: 'user', displayName: 'Fixture' } });
     if (pathname === '/api/mock-users') return route.fulfill({ json: { enabled: false, users: [] } });
     if (pathname === '/api/fixture-missing-portrait') return route.fulfill({ status: 404, body: '' });
@@ -116,18 +131,69 @@ try {
       continue;
     }
     await page.getByTestId('cinematic-new-project').waitFor();
+    if (importSource) {
+      await page.locator('input[type=file]').setInputFiles({ name: 'brief-' + 'long-name-'.repeat(8) + '.md', mimeType: 'text/markdown', buffer: Buffer.from('An imported story idea.') });
+      await page.getByRole('button', { name: catalogs[locale]['cinematic.storyImport.apply.draft'] }).click();
+      const brief = page.locator('.cinematic-new-project__brief-field');
+      await page.locator('.cinematic-story-import__source').waitFor();
+      assert.equal(await brief.isVisible(), false);
+      await page.getByRole('button', { name: catalogs[locale]['cinematic.storyImport.editBrief'] }).click();
+      assert.equal(await brief.locator('textarea').inputValue(), 'An imported story idea.');
+      await brief.locator('textarea').fill('An edited imported idea.');
+      await page.getByText(catalogs[locale]['cinematic.storyImport.sourceEdited'], { exact: true }).waitFor();
+      await page.getByRole('button', { name: catalogs[locale]['cinematic.storyImport.hideBrief'] }).click();
+      assert.ok(await page.locator('body').evaluate(element => element.scrollWidth <= element.clientWidth + 1), `${locale}/${width} source overflow`);
+      await page.screenshot({ path: path.join(output, `${locale}-${width}-brief-source.png`), fullPage: true });
+    }
     const content = locale === 'th' ? 'มินากลับบ้านและเปิดร้านดอกไม้ เธอได้พบเพื่อนเก่าที่มาช่วยดูแลร้าน\n'.repeat(30) : 'Mina returns home and opens her flower shop. An old friend helps her.\n'.repeat(30);
     await page.locator('input[type=file]').setInputFiles({ name: locale === 'th' ? 'เรื่องราวของมินา.md' : 'Mina-story.md', mimeType: 'text/markdown', buffer: Buffer.from(content) });
     await page.getByRole('textbox', { name: catalogs[locale]['cinematic.storyImport.preview'] }).waitFor();
     await page.evaluate(() => document.fonts.ready);
     assert.ok(await page.locator('body').evaluate(element => element.scrollWidth <= element.clientWidth + 1), `${locale}/${width} import overflow`);
     await page.screenshot({ path: path.join(output, `${locale}-${width}-preview.png`), fullPage: true });
-    await page.getByRole('button', { name: catalogs[locale]['cinematic.storyImport.apply.full-story'] }).click();
+    await page.getByRole('button', { name: catalogs[locale][`cinematic.storyImport.${importSource ? 'replace' : 'apply'}.full-story`] }).click();
     await page.getByTestId('cinematic-full-story').waitFor();
     assert.equal(await page.locator('.cinematic-full-story__document > textarea').inputValue(), content.trim());
     await page.getByRole('button', { name: catalogs[locale]['cinematic.storyImport.extractCharacters'] }).waitFor();
     assert.ok(await page.locator('body').evaluate(element => element.scrollWidth <= element.clientWidth + 1), `${locale}/${width} writer overflow`);
     await page.screenshot({ path: path.join(output, `${locale}-${width}-story.png`), fullPage: true });
+    if (importSource) {
+      await page.getByRole('button', { name: catalogs[locale]['cinematic.fullStory.backToBrief'], exact: true }).click();
+      await page.getByRole('button', { name: catalogs[locale]['cinematic.storyImport.editFullStory'] }).waitFor();
+      assert.equal(await page.locator('.cinematic-new-project__brief-field').isVisible(), false);
+      assert.ok(await page.locator('body').evaluate(element => element.scrollWidth <= element.clientWidth + 1), `${locale}/${width} Full Story source overflow`);
+      await page.screenshot({ path: path.join(output, `${locale}-${width}-full-source.png`), fullPage: true });
+      await page.getByRole('button', { name: catalogs[locale]['cinematic.storyImport.editFullStory'] }).click();
+      assert.equal(await page.locator('.cinematic-full-story__document > textarea').inputValue(), content.trim());
+      continue;
+    }
+    if (chapterOutline) {
+      const outline = page.locator('.cinematic-chapter-outline');
+      await outline.scrollIntoViewIfNeeded();
+      await page.getByRole('button', { name: catalogs[locale]['cinematic.chapterOutline.estimate'] }).click();
+      await page.locator('.cinematic-chapter-outline__estimate').waitFor();
+      const prices = outline.locator('.cinematic-chapter-outline__price');
+      assert.deepEqual(await prices.allTextContents(), Array(2).fill(locale === 'th' ? '165 เครดิต' : '165 Credits'));
+      for (const price of await prices.all()) {
+        assert.ok(await price.evaluate(element => {
+          const probe = document.createElement('span');
+          probe.style.color = 'var(--theme-warning)'; element.append(probe);
+          const matches = getComputedStyle(element).color === getComputedStyle(probe).color;
+          probe.remove(); return matches;
+        }), `${locale}/${width} Credit amount uses yellow theme token`);
+      }
+      await outline.getByRole('button', { name: catalogs[locale]['cinematic.chapterOutline.add'] }).click();
+      assert.equal(await outline.getByRole('button', { name: catalogs[locale]['cinematic.chapterOutline.approve'] }).isEnabled(), false);
+      await outline.getByRole('button', { name: catalogs[locale]['cinematic.chapterOutline.reset'] }).click();
+      for (const field of await outline.locator('input,textarea').all()) {
+        const bounds = await field.boundingBox();
+        assert.ok(bounds.width >= 180 && bounds.x + bounds.width <= width, `${locale}/${width} outline field sizing`);
+      }
+      assert.ok(await page.locator('body').evaluate(element => element.scrollWidth <= element.clientWidth + 1), `${locale}/${width} outline overflow`);
+      await outline.screenshot({ path: path.join(output, `${locale}-${width}-outline.png`) });
+      await page.screenshot({ path: path.join(output, `${locale}-${width}-outline-page.png`), fullPage: true });
+      continue;
+    }
     if (castTarget) {
       await page.getByRole('button', { name: catalogs[locale]['cinematic.characters.collapse'] }).click();
       assert.equal(await page.locator('.cinematic-shared-characters__body').isVisible(), false);
@@ -143,7 +209,7 @@ try {
     }
   }
   assert.deepEqual(errors, []);
-  console.log(`PASS ${sceneCast ? 'Scene Cast layout' : castTarget ? 'Cast disclosure and Chapter targets' : 'story import and Full Story'}, TH/EN 390/820/1440. Screenshots: ${output}`);
+  console.log(`PASS ${chapterOutline ? 'Chapter outline' : sceneCast ? 'Scene Cast layout' : castTarget ? 'Cast disclosure and Chapter targets' : 'story import and Full Story'}, TH/EN 390/820/1440. Screenshots: ${output}`);
 } finally {
   await browser?.close();
   await server.close();

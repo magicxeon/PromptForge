@@ -173,7 +173,7 @@ export function CinematicSharedCharactersPanel({ actorId, project, storyProjectI
             <li key={character.id} aria-label={character.displayName}>
               <div className="cinematic-shared-characters__entry">
                 <button className="cinematic-shared-characters__identity" type="button" disabled={!chapterMode || Boolean(busy)} aria-pressed={selected} onClick={() => void toggleCharacter(character.id)}>
-                  <span className="cinematic-shared-characters__portrait">
+                  <span className={`cinematic-shared-characters__portrait${character.generatedSheet?.previewUrl ? ' is-sheet' : ''}`}>
                     {preview ? <img src={preview} alt="" /> : <UserRound aria-hidden="true" />}
                   </span>
                   <span>

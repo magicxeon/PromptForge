@@ -8,6 +8,7 @@ import { ErrorState, LoadingState } from '../ui/AsyncState';
 import { Surface } from '../ui/Surface';
 import { StatusNotice } from '../ui/StatusNotice';
 import { PromptEditor } from './PromptEditor';
+import { useCreditConfirmation } from './useCreditConfirmation';
 import { PromptBudgetStatus } from './PromptBudgetStatus';
 import { PromptComposerAssist } from './PromptComposerAssist';
 import { ReferenceSlotGrid, type ReferenceDisplayPreviews } from './ReferenceSlotGrid';
@@ -25,7 +26,7 @@ import {
 import { GenerationResultSurface } from './GenerationResultSurface';
 import {
   estimateComparison,
-  estimateAndSubmitGeneration,
+  submitGeneration,
   estimateGeneration,
   getProviderCatalog,
   previewCompiledPrompt,
@@ -174,7 +175,7 @@ type GenerationExperienceProps = {
   referencesReadOnly?: boolean;
   showEmptyResult?: boolean;
   resumeJobId?: string | null;
-  submitSingleDraft?: (draft: GenerationRequestDraft) => Promise<{
+  submitSingleDraft?: (draft: GenerationRequestDraft, quote: Awaited<ReturnType<typeof estimateGeneration>>) => Promise<{
     jobId: string;
     groupId?: string | null;
     status: string;
@@ -588,7 +589,7 @@ export function GenerationExperience({
   const enhancement = useLookSheetRender({ draft, pricedDraft: debouncedDraft, valid: canEstimate && !blockedReason, control: lookSheetEnhancement });
   const pricedDraft = debouncedDraft ? { ...debouncedDraft,
     lookSheetEnhancementId: enhancement.enabled ? enhancement.readyId : debouncedDraft.lookSheetEnhancementId } : null;
-  const estimateKey = pricedDraft ? createEstimateKey(pricedDraft) : null;
+  const estimateKey = pricedDraft;
   const singleEstimate = useQuery({
     queryKey: ['generation-estimate', actor?.userId || 'loading', estimateKey],
     queryFn: () => estimateGeneration(pricedDraft as GenerationRequestDraft),
@@ -640,13 +641,11 @@ export function GenerationExperience({
   });
 
   const submitSingle = useMutation({
-    // Lock pricing from the exact draft being submitted. The displayed query
-    // may still represent the previous debounced selection for a few frames.
-    mutationFn: () => enhancement.enabled
-      ? enhancement.submit(draft, singleEstimate.data?.estimate.estimatedCredits)
+    mutationFn: ({ source, quote }: { source: GenerationRequestDraft; quote: Awaited<ReturnType<typeof estimateGeneration>> }) => enhancement.enabled
+      ? enhancement.submit(source, quote.estimate.estimatedCredits)
       : submitSingleDraft
-      ? submitSingleDraft(draft)
-      : estimateAndSubmitGeneration(draft),
+      ? submitSingleDraft(source, quote)
+      : submitGeneration(source, quote.estimate.estimateId),
     onMutate: () => {
       setJobId(null);
       setGenerationGroupId(null);
@@ -680,10 +679,8 @@ export function GenerationExperience({
     }
   });
   const submitCompare = useMutation({
-    mutationFn: async () => {
-      const estimate = comparisonEstimate.data || await estimateComparison(draft, comparisonSlots);
-      return submitComparison(draft, comparisonSlots, estimate);
-    },
+    mutationFn: ({ source, slots, quote }: { source: GenerationRequestDraft; slots: ComparisonSlotInput[];
+      quote: Awaited<ReturnType<typeof estimateComparison>> }) => submitComparison(source, slots, quote),
     onMutate: () => {
       setJobId(null);
       setGenerationGroupId(null);
@@ -813,6 +810,29 @@ export function GenerationExperience({
     void queryClient.invalidateQueries({ queryKey: queryKeys.generationJobCenter(actorId) });
   }, [actorId, comparisonSetId, derivedComparisonStatus, queryClient]);
 
+  const imageEstimate = singleEstimate.data?.estimate.estimatedCredits;
+  const estimate = comparison ? comparisonEstimate.data?.estimatedTotalCredit
+    : imageEstimate === undefined || (enhancement.enabled && enhancement.fee === undefined)
+      ? undefined : imageEstimate + (enhancement.enabled ? enhancement.fee || 0 : 0);
+  const quoteReady = Boolean(actor && canEstimate && !blockedReason && !modelAvailabilityReason
+    && JSON.stringify(draft) === JSON.stringify(debouncedDraft)
+    && (comparison ? comparisonEstimate.isSuccess && !comparisonEstimate.isFetching
+      : singleEstimate.isSuccess && !singleEstimate.isFetching)
+    && (!enhancement.enabled || !enhancement.blocked)
+    && estimate !== undefined && Number.isFinite(estimate) && estimate >= 0);
+  const consent = useCreditConfirmation({
+    actorId,
+    requestKey: JSON.stringify([draft, comparison, comparisonSlots, persistenceScope,
+      comparison ? comparisonEstimate.data : singleEstimate.data?.estimate,
+      enhancement.enabled, enhancement.quoteKey]),
+    estimatedCredits: estimate,
+    description: comparison
+      ? `${t('playground.action.generateComparison')} - ${comparisonSlots.map(slot => `${slot.provider} / ${slot.model}`).join(', ')}`
+      : `${t('playground.action.generateImages', { count: draft.outputCount })} - ${draft.provider} / ${draft.submodel}`,
+    ready: quoteReady
+  });
+  const consentBusy = useRef(false);
+
   if (catalog.isLoading) return <LoadingState label={t('playground.engine.loading')} />;
   if (catalog.isError || !catalog.data) return <ErrorState title={t('playground.engine.unavailable')} description={catalog.error?.message} onRetry={() => void catalog.refetch()} />;
   const model = selectedCatalogModel;
@@ -821,10 +841,6 @@ export function GenerationExperience({
     ? t('lookSheet.auto.priceRequired') : null) || (modelAvailabilityReason
     ? t(`playground.engine.unavailable.${modelAvailabilityReason}`)
     : null);
-  const imageEstimate = singleEstimate.data?.estimate.estimatedCredits;
-  const estimate = comparison ? comparisonEstimate.data?.estimatedTotalCredit
-    : imageEstimate === undefined || (enhancement.enabled && enhancement.fee === undefined)
-      ? undefined : imageEstimate + (enhancement.enabled ? enhancement.fee || 0 : 0);
   const availableCredits = comparison
     ? creditAccount.data?.account.availableCredits
     : singleEstimate.data?.account.availableCredits
@@ -1067,24 +1083,32 @@ export function GenerationExperience({
       model: selectedCatalogModel || null
     })}
   </>) : null;
-  const submitGenerationRequest = () => {
-    if (pending || effectiveBlockedReason) return;
+  const submitGenerationRequest = async () => {
+    if (pending || effectiveBlockedReason || !quoteReady || consentBusy.current) return;
     if (estimate !== undefined && !canAfford) {
       setCreditDialogOpen(true);
       return;
     }
-    if (layoutVariant === 'studio') {
-      setResultFocusSequence(current => current + 1);
-    } else {
-      window.requestAnimationFrame(() => {
-        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+    consentBusy.current = true;
+    try {
+      if (!await consent.request() || !consent.isCurrent()) return;
+      if (layoutVariant === 'studio') {
+        setResultFocusSequence(current => current + 1);
+      } else {
+        window.requestAnimationFrame(() => {
+          resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+      if (comparison) {
+        await submitCompare.mutateAsync({ source: draft, slots: comparisonSlots, quote: comparisonEstimate.data! });
+        return;
+      }
+      await submitSingle.mutateAsync({ source: draft, quote: singleEstimate.data! });
+    } catch {
+      // Mutation errors are rendered by the existing status region.
+    } finally {
+      consentBusy.current = false;
     }
-    if (comparison) {
-      submitCompare.mutate();
-      return;
-    }
-    submitSingle.mutate();
   };
   const usesStudioCommandPresentation = layoutVariant === 'studio'
     || layoutVariant === 'playground';
@@ -1098,7 +1122,7 @@ export function GenerationExperience({
         className="studio-generate-button btn-neon-yellow-glow"
         size="lg"
         icon={<Sparkles className="size-5" />}
-        disabled={!prompt.trim() || pending || Boolean(effectiveBlockedReason)}
+        disabled={!prompt.trim() || pending || consent.awaitingConfirmation || !quoteReady || Boolean(effectiveBlockedReason)}
         onClick={submitGenerationRequest}
       >
         <span>{pending
@@ -1133,7 +1157,7 @@ export function GenerationExperience({
             variant="primary"
             size="lg"
             icon={<Sparkles className="size-5" />}
-            disabled={!prompt.trim() || pending || Boolean(effectiveBlockedReason)}
+            disabled={!prompt.trim() || pending || consent.awaitingConfirmation || !quoteReady || Boolean(effectiveBlockedReason)}
             onClick={submitGenerationRequest}
           >
             {pending
@@ -1149,6 +1173,7 @@ export function GenerationExperience({
   );
   const messages = (
     <>
+      {consent.dialog}
       <CreditExhaustedDialog
         open={creditDialogOpen}
         requiredCredits={estimate}
@@ -1278,37 +1303,6 @@ function localizedLabel(
 ) {
   if (typeof value === 'string') return value;
   return value?.[language] || value?.en || Object.values(value || {})[0] || '';
-}
-
-function createEstimateKey(draft: GenerationRequestDraft) {
-  return {
-    provider: draft.provider,
-    submodel: draft.submodel,
-    prompt: draft.prompt,
-    negativePrompt: draft.negativePrompt,
-    additionalDirection: draft.additionalDirection,
-    aspectRatio: draft.aspectRatio,
-    imageResolution: draft.imageResolution,
-    outputCount: draft.outputCount,
-    generationMode: draft.generationMode,
-    authoringMode: draft.authoringMode,
-    characterType: draft.characterType,
-    lookSheetDefinition: draft.lookSheetDefinition,
-    lookSheetEnhancementId: draft.lookSheetEnhancementId,
-    templateUseSessionId: draft.templateUseSessionId,
-    templateReplacements: draft.templateReplacements,
-    references: Object.entries(draft.references || {})
-      .filter(([, value]) => Boolean(value))
-      .map(([role, value]) => [role, value || ''] as const)
-      .sort(([left], [right]) => left.localeCompare(right)),
-    referenceScopes: draft.referenceScopes || {},
-    cinematicCastReferences: draft.cinematicCastReferences,
-    cinematicSceneReference: draft.cinematicSceneReference,
-    cinematicContainsPeople: draft.cinematicContainsPeople,
-    cinematicFaceless: draft.cinematicFaceless,
-    cinematicFacialTreatment: draft.cinematicFacialTreatment,
-    cinematicManualStoryboard: draft.cinematicManualStoryboard
-  };
 }
 
 function asRecord(value: unknown): Record<string, unknown> {

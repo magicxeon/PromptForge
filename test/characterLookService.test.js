@@ -337,7 +337,7 @@ test('AI wardrobe direction is stored as a non-approved proposal without Assets'
   const plan = await service.getGenerationPlan(
     'charprof_a', created.id, created.activeVersionId, alice
   );
-  assert.equal(plan.recipe.version, 4);
+  assert.equal(plan.recipe.version, 5);
   assert.match(plan.prompt, /Required target outfit:/);
   assert.match(plan.prompt, /cream ribbed knit top/i);
   assert.match(plan.prompt, /navy rain coat/i);
@@ -364,7 +364,7 @@ test('Character Look generation plan pins the source version, global recipe and 
   assert.equal(plan.operation, 'character_look_sheet');
   assert.equal(plan.source.lookVersionId, created.activeVersionId);
   assert.equal(plan.recipe.id, 'character-look-sheet');
-  assert.equal(plan.recipe.version, 4);
+  assert.equal(plan.recipe.version, 5);
   assert.equal(plan.recipe.fingerprint.length, 16);
   assert.deepEqual(plan.references, {
     outfit_front: 'ast_outfit_front',
@@ -399,10 +399,10 @@ test('creative Look presets persist independently and compile without conflictin
     assert.equal((await service.repository.findForOwner(draft.id, alice)).versions[0].generationStyle, generationStyle);
     assert.equal(plan.generationStyle, generationStyle);
     assert.equal(plan.source.generationStyle, generationStyle);
-    assert.equal(plan.recipe.version, 4);
+    assert.equal(plan.recipe.version, 5);
     assert.equal(plan.references.outfit_front, 'ast_outfit');
     assert.equal(plan.source.characterProfileVersionId, original.sourceCharacterProfileVersionId);
-    assert.match(plan.prompt, /same identity, apparent age, proportions/);
+    assert.match(plan.prompt, /identity, age, body proportions/);
     assert.match(plan.prompt, /Rendering style:/);
     const { compiledPrompt, context } = compileGenerationContext({
       mode: 'character-sheet', generationMode: 'character-sheet', generationSurface: 'cinematic',
@@ -464,7 +464,7 @@ test('legacy source-ready Looks get portrait plans without changing sources or b
   }, alice);
   const before = await service.repository.findForOwner(legacy.id, alice);
   const plan = await service.getGenerationPlan('charprof_a', legacy.id, legacy.activeVersionId, alice);
-  assert.equal(plan.recipe.version, 4);
+  assert.equal(plan.recipe.version, 5);
   assert.equal(plan.output.aspectRatio, '9:16');
   assert.equal(plan.generationStyle, 'realistic');
   assert.match(plan.prompt, /vertical 9:16/);
@@ -485,21 +485,21 @@ test('legacy source-ready Looks get portrait plans without changing sources or b
 test('portrait Look template pins layout and adopts matching crops without inventing accessories', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
-  const recipe = loadPromptRecipe('character-looks/look-sheet.v4.json');
+  const recipe = loadPromptRecipe('character-looks/look-sheet.v5.json');
   const draft = await service.createDraft('charprof_a', {
     characterProfileVersionId: 'charver_a', name: 'Portrait look',
     sourceMode: 'ai_suggestion', description: 'Navy coat with no accessories.',
     suggestionSnapshot: { garments: { outerwear: 'navy coat', accessories: [] } }
   }, alice);
   const stored = await service.repository.findForOwner(draft.id, alice);
-  assert.equal(stored.versions[0].generationRecipeVersion, 4);
+  assert.equal(stored.versions[0].generationRecipeVersion, 5);
   const plan = await service.getGenerationPlan('charprof_a', draft.id, draft.activeVersionId, alice);
   assert.deepEqual(plan.output, { aspectRatio: '9:16', outputCount: 1 });
-  assert.match(plan.prompt, /dominant front full-body view on the left/);
-  assert.match(plan.prompt, /lower band.*face portrait.*accessory detail/i);
-  assert.match(plan.prompt, /If there are no authorized accessories, leave this area clean and empty/);
+  assert.match(plan.prompt, /three equal-width full-body columns/);
+  assert.match(plan.prompt, /CLOSE-UP FACE, HAIRSTYLE DETAIL, COSTUME DETAIL/);
+  assert.match(plan.prompt, /If absent leave the accessory region empty/);
   assert.match(plan.prompt, /never print coordinates/);
-  assert.match(plan.prompt, /front: 5, 4, 50, 64%/);
+  assert.match(plan.prompt, /front: 3, 8, 30, 52%/);
   const regions = [...Object.values(recipe.cropManifest.regions), recipe.accessoryRegion];
   for (const [index, region] of regions.entries()) {
     assert.ok(region.x >= 0 && region.y >= 0 && region.width > 0 && region.height > 0);
@@ -518,10 +518,29 @@ test('portrait Look template pins layout and adopts matching crops without inven
     { generationResultId: 'portrait_job' }, alice);
   const version = reviewed.versions[0];
   assert.deepEqual(version.cropManifest, recipe.cropManifest);
-  for (const role of ['front', 'side', 'back']) {
+  for (const role of ['front', 'side', 'three_quarter']) {
     assert.deepEqual(version.approvedViewAssets[role].cropRegion, recipe.cropManifest.regions[role]);
   }
   assert.equal(reviewed.approvedVersionId, null);
+  assert.equal(version.approvedViewAssets.back, undefined);
+  const approved = await service.approve('charprof_a', draft.id, draft.activeVersionId, alice);
+  assert.equal(approved.lifecycleStatus, 'approved');
+});
+
+test('pending v4 portrait results keep their original back and face crop regions', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const old = await service.repository.createDraft({ characterProfileId: 'charprof_a', sourceCharacterProfileVersionId: 'charver_a',
+    name: 'Prior portrait', sourceMode: 'ai_suggestion', description: 'A navy coat.', generationStyle: 'realistic', generationRecipeVersion: 4 }, alice);
+  const plan = await service.getGenerationPlan('charprof_a', old.id, old.activeVersionId, alice);
+  const recipe = loadPromptRecipe('character-looks/look-sheet.v4.json');
+  service.generationResultRepository.findByIdForOwner = async () => ({ id: 'pending-v4', mode: 'character-sheet', imageUrl: '/outputs/portrait.png',
+    characterProfileContext: plan.characterProfileContext,
+    sceneTemplateSnapshot: { characterLookSource: plan.source, promptRecipeSnapshot: recipe } });
+  const reviewed = await service.attachGeneratedReview('charprof_a', old.id, old.activeVersionId, { generationResultId: 'pending-v4' }, alice);
+  assert.deepEqual(reviewed.versions[0].cropManifest, recipe.cropManifest);
+  assert.deepEqual(reviewed.versions[0].approvedViewAssets.back.cropRegion, recipe.cropManifest.regions.back);
+  assert.equal(reviewed.versions[0].approvedViewAssets.three_quarter, undefined);
 });
 
 test('existing styled square Looks get portrait plans and preserve v3 pending-result crop layout', async t => {
@@ -533,9 +552,9 @@ test('existing styled square Looks get portrait plans and preserve v3 pending-re
     generationStyle: 'semi_realistic'
   }, alice);
   const plan = await service.getGenerationPlan('charprof_a', legacy.id, legacy.activeVersionId, alice);
-  assert.equal(plan.recipe.version, 4);
+  assert.equal(plan.recipe.version, 5);
   assert.equal(plan.output.aspectRatio, '9:16');
-  assert.match(plan.prompt, /dominant front full-body view/);
+  assert.match(plan.prompt, /three equal-width full-body columns/);
   service.generationResultRepository.findByIdForOwner = async () => ({
     id: 'square_job', mode: 'character-sheet', imageUrl: '/outputs/square.png',
     characterProfileContext: plan.characterProfileContext,
@@ -572,8 +591,8 @@ test('old drafts adopt new portrait candidates but new drafts cannot adopt legac
     result.sceneTemplateSnapshot.promptRecipeSnapshot = plan.recipe;
     const reviewed = await service.attachGeneratedReview('charprof_a', draft.id, draft.activeVersionId,
       { generationResultId: result.id }, alice);
-    assert.equal(reviewed.versions[0].cropManifest.layoutVersion, 'character-look-sheet-portrait-v2');
-    assert.equal(reviewed.versions[0].generationLineage.recipeVersion, 4);
+    assert.equal(reviewed.versions[0].cropManifest.layoutVersion, 'character-look-sheet-editorial-v3');
+    assert.equal(reviewed.versions[0].generationLineage.recipeVersion, 5);
   }
 });
 

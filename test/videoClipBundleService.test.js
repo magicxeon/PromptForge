@@ -61,6 +61,11 @@ test('clip ZIP checks ownership, bounds and immutable bytes; streams safe names 
   await assert.rejects(service.prepare(items, { userId: 'alice' }), { code: 'cinematic_clip_bundle_unavailable' });
   asset.status = 'active'; asset.metadata.contentHash = 'changed';
   await assert.rejects(service.prepare(items, { userId: 'alice' }), { code: 'cinematic_clip_bundle_unavailable' });
+  const partial = await service.prepare(items, { userId: 'alice' }, { allowUnavailable: true });
+  assert.equal(partial.files.length, 0);
+  assert.equal(partial.sizeBytes, 0);
+  assert.equal(partial.missing[0].reason, 'source_unavailable');
+  assert.doesNotMatch(JSON.stringify(partial), /storageKey|filePath|changed/);
 });
 
 test('bundle chooses pinned Take, reports gaps, checks project version and requires explicit partial consent', async () => {
@@ -89,4 +94,23 @@ test('bundle chooses pinned Take, reports gaps, checks project version and requi
   service.clipBundleService.stream = () => { streamed = true; };
   await service.downloadClipBundle('project', { expectedVersion: 3, allowPartial: true }, actor, {});
   assert.equal(streamed, true);
+});
+
+test('bundle follows reordered scenes, includes unlisted Shots and explains stale selections', async () => {
+  const service = new CinematicApplicationService({ clipBundleService: {
+    prepare: async items => ({ sizeBytes: 0, files: items.map(item => ({ ...item, sizeBytes: 0, name: 'test.webm' })) })
+  } });
+  service.getProject = async () => ({ id: 'p', version: 1, scenes: [
+    { id: 'later', orderKey: 2, shots: [{ id: 'c', approvedVideoAttemptId: 'tc' }] },
+    { id: 'first', orderKey: 1, shotOrder: ['b', 'gone', 'b'], shots: [{ id: 'a', orderKey: 1 }, { id: 'b', orderKey: 2, approvedVideoAttemptId: 'tb' }] }
+  ], generationAttempts: [
+    { id: 'tb', shotId: 'b', operation: 'cinematic_draft_clip', status: 'approved', downstreamSourceStatus: 'packet_changed', outputAsset: { id: 'ab' } },
+    { id: 'tc', shotId: 'c', operation: 'cinematic_draft_clip', status: 'approved', outputAsset: { id: 'ac' } }
+  ] });
+  const { manifest } = await service.prepareClipBundle('p', {}, { userId: 'owner' });
+  assert.deepEqual(manifest.missing.map(row => [row.shotId, row.sceneNumber, row.shotNumber, row.reason]), [
+    ['b', 1, 1, 'source_changed'], ['a', 1, 2, 'no_selection']
+  ]);
+  assert.equal(manifest.clips[0].sceneNumber, 2);
+  assert.equal(manifest.clips[0].attemptId, 'tc');
 });

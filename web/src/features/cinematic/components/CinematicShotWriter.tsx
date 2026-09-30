@@ -1,5 +1,5 @@
 import { ArrowLeft, ChevronLeft, ChevronRight, Clock3, Copy, FileText, ImagePlus, Images, MapPin, Play, RotateCcw, Save, Users, MessageSquarePlus, Sparkles, Check, X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
@@ -10,6 +10,10 @@ import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { applyCinematicShotProposal, discardCinematicShotProposal, prepareCinematicShotWriter, proposeCinematicShots, updateCinematicShotDocument } from '../api/cinematicSeriesApi';
 import type { CinematicProject, CinematicScene, CinematicShot } from '../schemas/cinematicSchemas';
 import { selectedCharacterLook } from './storyboardGenerationAdapter';
+import { CinematicPortableShot } from './CinematicPortableShot';
+import { cinematicTextEquals, shotRecoverySchema, useCinematicTextRecovery } from '../state/useCinematicTextRecovery';
+import { CinematicRecoveryNotice } from './CinematicRecoveryNotice';
+import { ShotProductionReadiness } from './authoring/ShotProductionReadiness';
 
 type Props = {
   actorId: string;
@@ -23,9 +27,10 @@ type Props = {
   onOpenFirstFrame?: () => void;
   onOpenVideo?: () => void;
   onOpenCharacters?: () => void;
+  onOpenFinal?: () => void;
 };
 
-export function CinematicShotWriter({ actorId, project, shotId, online, maximumDocumentCharacters = 12000, onBackToScenes, onOpenShot, onProjectChanged, onOpenFirstFrame, onOpenVideo, onOpenCharacters }: Props) {
+export function CinematicShotWriter({ actorId, project, shotId, online, maximumDocumentCharacters = 12000, onBackToScenes, onOpenShot, onProjectChanged, onOpenFirstFrame, onOpenVideo, onOpenCharacters, onOpenFinal }: Props) {
   const { t } = useTranslation('cinematic');
   const orderedScenes = useMemo(() => [...project.scenes].sort((a, b) => a.orderKey - b.orderKey), [project.scenes]);
   const entries = useMemo(() => orderedScenes.flatMap(scene => [...scene.shots].sort((a, b) => a.orderKey - b.orderKey).map(shot => ({ scene, shot }))), [orderedScenes]);
@@ -36,20 +41,27 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
     queryFn: () => prepareCinematicShotWriter(project.id, active!.scene.id, shotId),
     enabled: online && Boolean(active), retry: false, staleTime: 30_000
   });
-  const [draft, setDraft] = useState(() => shotDraft(active?.shot, active?.scene, project));
+  const serverDraft = shotDraft(active?.shot, active?.scene, project);
+  if (!active?.shot.shotDocument && preparation.data) serverDraft.shotDocument = preparation.data.shotDocument;
+  const recovery = useCinematicTextRecovery({ actorId, projectId: project.id, documentId: `shot:${shotId}`,
+    revision: String(active?.shot.version || ''), schema: shotRecoverySchema,
+    serverValue: { ...serverDraft, promptDraft: active?.shot.videoPromptOverride?.text ?? null, promptTouched: false, instruction: '' } });
+  const { promptDraft, promptTouched, instruction, ...draft } = recovery.value;
+  const setDraft = (action: SetStateAction<typeof serverDraft>) => recovery.setValue(value => ({
+    ...value, ...(typeof action === 'function' ? action(value) : action)
+  }));
+  const setPromptDraft = (promptDraft: string | null) => recovery.setValue(value => ({ ...value, promptDraft }));
+  const setPromptTouched = (promptTouched: boolean) => recovery.setValue(value => ({ ...value, promptTouched }));
+  const setInstruction = (instruction: string) => recovery.setValue(value => ({ ...value, instruction }));
   const [promptOpen, setPromptOpen] = useState(false);
-  const [promptDraft, setPromptDraft] = useState<string | null>(active?.shot.videoPromptOverride?.text ?? null);
-  const [promptTouched, setPromptTouched] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [instruction, setInstruction] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const busyRef = useRef(false);
 
   useEffect(() => {
-    setDraft(shotDraft(active?.shot, active?.scene, project)); setError('');
-    setPromptDraft(active?.shot.videoPromptOverride?.text ?? null); setPromptTouched(false); setCopied(false);
-  }, [active?.shot.id, active?.shot.version, actorId]);
+    setError(''); setCopied(false);
+  }, [active?.shot.id, active?.shot.version, actorId, project.id]);
   useEffect(() => {
     if (!active?.shot.shotDocument && preparation.data) setDraft(value => value.shotDocument ? value : ({ ...value, shotDocument: preparation.data.shotDocument }));
   }, [preparation.data, active?.shot.shotDocument]);
@@ -61,7 +73,7 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
   const { scene, shot } = active;
   const saved = shotDraft(shot, scene, project);
   if (!shot.shotDocument && preparation.data) saved.shotDocument = preparation.data.shotDocument;
-  const sourceDirty = JSON.stringify(draft) !== JSON.stringify(saved);
+  const sourceDirty = !cinematicTextEquals(draft, saved);
   const dirty = sourceDirty || promptTouched;
   const cast = (project.castAssignments || []).filter(item => item.active !== false && scene.castMode !== 'none' && scene.castAssignmentIds.includes(item.id));
   const promptText = promptDraft ?? preparation.data?.generatedPrompt ?? '';
@@ -89,6 +101,10 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
         } } : {}),
         source: shot.source || 'legacy'
       });
+      const savedScene = result.project.scenes.find(item => item.id === scene.id);
+      const savedShot = savedScene?.shots.find(item => item.id === shot.id);
+      if (savedShot) recovery.markSaved({ ...draft, promptDraft, promptTouched },
+        { ...shotDraft(savedShot, savedScene, result.project), promptDraft: savedShot.videoPromptOverride?.text ?? null, promptTouched: false, instruction: '' }, String(savedShot.version));
       if (getActiveActorId() === actorId) onProjectChanged(result.project);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t('cinematic.shotWriter.saveFailed'));
@@ -128,11 +144,13 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
     <header className="cinematic-shot-writer__header">
       <button type="button" className="cinematic-story-writer__back" disabled={dirty || busy} onClick={onBackToScenes}><ArrowLeft aria-hidden="true" />{t('cinematic.shotWriter.backToScenes')}</button>
       <div><span>{t('cinematic.shotWriter.eyebrow')}</span><h1>{project.chapterTitle || project.title}</h1><p>{scene.title} · {t('cinematic.shotWriter.position', { current: activeIndex + 1, total: entries.length })}</p></div>
+      {onOpenFinal ? <Button size="sm" icon={<Play />} disabled={dirty || busy || recovery.pending} onClick={onOpenFinal}>{t('cinematic.chapterFinal.title')}</Button> : null}
     </header>
 
     {error ? <StatusNotice tone="error" title={t('cinematic.shotWriter.saveFailed')}>{error}</StatusNotice> : null}
+    <CinematicRecoveryNotice key={`${actorId}:${project.id}:${shotId}:${shot.version}`} recovery={recovery} disabled={busy} />
 
-    <div className="cinematic-shot-writer__layout">
+    <div className="cinematic-shot-writer__layout" inert={recovery.pending ? true : undefined}>
       <aside className="cinematic-shot-writer__navigator" aria-label={t('cinematic.shotWriter.navigator')}>
         {orderedScenes.map((sceneItem, sceneIndex) => <section key={sceneItem.id}>
           <header><span>{String(sceneIndex + 1).padStart(2, '0')}</span><strong>{sceneItem.title}</strong></header>
@@ -159,7 +177,7 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
                 <label className="cinematic-shot-workspace__person"><input type="checkbox" checked={Boolean(binding)} disabled={busy} onChange={event => setDraft(value => ({ ...value, speakerBindings: event.target.checked
                   ? [...value.speakerBindings, { castAssignmentId: person.id, alias: person.displayName, visible: true }]
                   : value.speakerBindings.filter(item => item.castAssignmentId !== person.id) }))} />
-                  {preview ? <AuthenticatedMediaImage src={preview} alt={person.displayName} /> : <Users aria-hidden="true" />}<span><strong>{person.displayName}</strong><small>{t(reference.look?.ready ? 'cinematic.characters.lookReady' : 'cinematic.shotWorkspace.lookMissing')}</small></span></label>
+                  <span className={`cinematic-shot-workspace__portrait${reference.look?.previewUrl || person.generatedSheet?.previewUrl ? ' is-sheet' : ''}`}><AuthenticatedMediaImage src={preview} alt={person.displayName} fallback={<Users aria-hidden="true" />} /></span><span><strong>{person.displayName}</strong><small>{t(reference.look?.ready ? 'cinematic.characters.lookReady' : 'cinematic.shotWorkspace.lookMissing')}</small></span></label>
                 <div className="cinematic-shot-workspace__look">
                   <strong>{reference.look?.name || t(reference.ambiguous ? 'cinematic.lookReferences.ambiguous' : 'cinematic.lookReferences.empty')}</strong>
                   {reference.look ? <small>{t(`cinematic.lookReferences.source.${reference.look.source}`)} · {t(`cinematic.lookReferences.scope.${reference.scope}`)}</small> : null}
@@ -202,6 +220,7 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
           <span role="status">{busy ? <><ProcessingSpinner />{t('cinematic.shotWriter.saving')}</> : dirty ? t('cinematic.shotWriter.unsaved') : t('cinematic.shotWriter.saved')}</span>
           <Button variant="primary" icon={<Save />} loading={busy} disabled={!online || busy || legacyLoading || !dirty || !draft.title.trim() || !draft.shotDocument.trim() || (promptTouched && promptDraft !== null && (!promptDraft.trim() || !preparation.data))} onClick={save}>{t('cinematic.shotWriter.save')}</Button>
         </footer>
+        <ShotProductionReadiness project={project} scene={scene} shot={shot} dirty={dirty} promptStale={preparation.data?.overrideStale} dialogueIssues={preparation.data?.dialogue.findings.length} timingIssues={preparation.data?.timing.findings.length} />
         <div className="cinematic-authoring-visuals">
           <section aria-label={t('cinematic.visuals.firstFrame')}>
             <header><Images aria-hidden="true" /><h3>{t('cinematic.visuals.firstFrame')}</h3><small>{t('cinematic.visuals.optional')}</small></header>
@@ -219,6 +238,7 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
           <details open={promptOpen} onToggle={event => setPromptOpen(event.currentTarget.open)}>
             <summary>{t('cinematic.shotWorkspace.videoPrompt')}</summary>
             {promptOpen ? <div className="cinematic-shot-workspace__prompt">
+              {preparation.data?.projectVideoDirection ? <div className="cinematic-shot-workspace__inherited"><strong>{t('cinematic.videoDirection.inherited')}</strong><p>{preparation.data.projectVideoDirection}</p></div> : null}
               <p role="status">{t(sourceDirty ? 'cinematic.shotWorkspace.saveSource' : preparation.data?.overrideStale ? 'cinematic.shotWorkspace.stale' : promptDraft !== null ? 'cinematic.shotWorkspace.custom' : 'cinematic.shotWorkspace.generated')}</p>
               <textarea aria-label={t('cinematic.shotWorkspace.videoPrompt')} rows={12} value={promptText} maxLength={preparation.data?.maximumPromptCharacters} disabled={busy || sourceDirty || !preparation.data} onChange={event => { setPromptDraft(event.target.value); setPromptTouched(true); }} />
               <div className="cinematic-shot-workspace__actions">
@@ -230,6 +250,8 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
             </div> : null}
           </details>
           <Button variant="primary" icon={<Play />} disabled={!online || dirty || busy || !onOpenVideo || !preparation.data || preparation.data.overrideStale || (!shot.videoPromptOverride && Boolean(preparation.data.dialogue.findings.length))} onClick={onOpenVideo}>{t('cinematic.shotWorkspace.openVideo')}</Button>
+          <CinematicPortableShot key={`${actorId}:${project.id}:${shot.id}:${project.version}`} actorId={actorId} projectId={project.id}
+            sceneId={scene.id} shotId={shot.id} version={project.version} disabled={!online || dirty || busy} />
         </section>
       </section>
     </div>

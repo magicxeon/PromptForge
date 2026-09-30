@@ -12,6 +12,22 @@ function setup() {
 function upload(file: File) { fireEvent.change(screen.getByLabelText('cinematic.storyImport.upload'), { target: { files: [file] } }); }
 
 describe('Cinematic story file import', () => {
+  it('requires explicit replacement and preserves the preview after failure; cancel never applies', async () => {
+    const onImport = vi.fn().mockRejectedValue(new Error('Save failed'));
+    render(<CinematicStoryFileImport policy={policy} briefLimit={600} maximumCharacters={50000} disabled={false} replacing onImport={onImport} />);
+    expect(screen.getByRole('button', { name: 'cinematic.storyImport.replaceFile' })).toBeEnabled();
+    upload(new File(['New brief'], 'replacement.md'));
+    await screen.findByRole('textbox', { name: 'cinematic.storyImport.preview' });
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyImport.cancel' }));
+    expect(onImport).not.toHaveBeenCalled();
+    upload(new File(['New brief'], 'replacement.md'));
+    await screen.findByRole('textbox', { name: 'cinematic.storyImport.preview' });
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyImport.replace.draft' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Save failed');
+    expect(screen.getByRole('textbox', { name: 'cinematic.storyImport.preview' })).toHaveValue('New brief');
+    expect(onImport).toHaveBeenCalledTimes(1);
+  });
+
   it('previews a short file without applying it until confirmed, and allows Full Story override', async () => {
     const onImport = setup();
     upload(new File(['# A short complete story'], 'story.md', { type: 'text/markdown' }));

@@ -23,6 +23,29 @@ disposable. Code retirement has explicit checkpoints in Part 08.
 
 ## 2. Reading And Ownership Map
 
+2026-09-27 confirmation addendum:
+[016 Writer tools and Generation confirmation](016-generation-confirmation-and-writer-tools.md)
+owns native-textarea preservation, Full Story tool tabs, regeneration confirmations
+and shared Credit consent with actor-profile opt-out. Contains ordered tasks and
+focused validation commands; does not alter billing or settlement.
+
+2026-09-27 flow-hardening addendum:
+[015 Cinematic flow hardening](015-cinematic-flow-hardening.md) implements bounded
+draft recovery, Writer/Render selection continuity, advisory readiness, partial
+reference export and Chapter Final review. Its [task/evidence packet](tasks/015-cinematic-flow-hardening.md)
+owns focused checks and integrated UAT. Earlier Planned labels are historical;
+they are not evidence that these shipped slices need a second implementation.
+Live provider quality and full migration/release closure remain separate.
+
+2026-09-26 authoring addendum:
+[014 Authoring continuity and portable production](014-authoring-continuity-and-portable-production.md)
+owns the requested Chapter/Scene reordering, continuity-context refinement,
+Project video direction, external Shot handoff, portrait consistency, editorial
+Look Sheet and scoped reading UX. Core implementation and focused checks are recorded
+in its task packet; empty-instruction revision affects only the selected Chapter.
+Remaining visual/model qualification is explicit. It does not reopen Advanced mode
+or authorize a redesign of Engine, Render and Queue.
+
 | Document | Owns | Implementation parts |
 |---|---|---|
 | [001 Structure and Draw.io mapping](001-cinematic-studio-rewamp-structure-and-drawio-mapping.md) | Existing inventory and original diagram mapping, with reconciled decisions | All |
@@ -43,7 +66,8 @@ then 001 inventory, then the Period profile and original examples. Documents own
 different rules; do not implement duplicate policies from overlapping prose.
 011 is the latest scoped authority for Full Story, Chapter revisions/regeneration
 and shared Character panels. It permits optional Looks during writing and extends
-revision retention to individual Chapters. Its implementation remains Planned.
+revision retention to individual Chapters. Current delivery evidence is in the
+screen task packets; the original plan is not a runtime status inventory.
 010 supersedes earlier layout proposals that recompose the existing Render, Engine
 or Queue. 009 still owns the single Shot document and one-mode authoring contract.
 Both original Period files remain in place. The `.txt` is preserved source input,

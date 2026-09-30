@@ -48,7 +48,7 @@ vi.mock('../../../components/generation/GenerationExperience', () => ({
     engineOptions?: ReactNode;
     referenceLead?: ReactNode;
     showEmptyResult?: boolean;
-    submitSingleDraft?: (draft: GenerationRequestDraft) => Promise<unknown>;
+    submitSingleDraft?: ComponentProps<typeof import('../../../components/generation/GenerationExperience').GenerationExperience>['submitSingleDraft'];
     renderWorkspace?: (regions: GenerationWorkspaceRegions) => ReactNode;
   }) => {
     const regions = {
@@ -61,7 +61,11 @@ vi.mock('../../../components/generation/GenerationExperience', () => ({
       engine: engineOptions,
       references: referenceLead, messages: null, queue: null,
       actions: <button type="button" disabled={Boolean(blockedReason)}
-        onClick={() => void submitSingleDraft?.(generationDraft({ cinematicCaptureProfileId, cinematicFaceless }))}>Generate test image</button>
+        onClick={async () => {
+          const draft = generationDraft({ cinematicCaptureProfileId, cinematicFaceless });
+          const approvedQuote = await mocks.estimateGeneration(draft);
+          await submitSingleDraft?.(draft, approvedQuote);
+        }}>Generate test image</button>
     };
     return <section
     data-testid="generation-experience"

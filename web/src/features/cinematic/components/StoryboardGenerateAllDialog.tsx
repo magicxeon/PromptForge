@@ -2,7 +2,9 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, Film, Images, Sparkles } from 'lucide-react';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCreditConfirmation } from '../../../components/generation/useCreditConfirmation';
+import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { useTranslation } from 'react-i18next';
 import {
   EngineTargetPanel,
@@ -212,7 +214,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
       engine.model,
       engine.resolution,
       naturalRealismEnabled,
-      eligible.map(candidate => `${candidate.shot.id}:${candidate.shot.version}`).join('|')
+      eligible
     ],
     queryFn: () => Promise.all(eligible.map(async candidate => ({
       candidate,
@@ -232,7 +234,36 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
     && availableCredits >= totalCredits;
   const sceneCount = new Set(eligible.map(candidate => candidate.scene.id)).size;
   const submit = useMutation({
-    mutationFn: () => submitCinematicStoryboardBatch(project.id, {
+    mutationFn: (snapshot: { projectId: string; actorId: string; engine: EngineValue;
+      input: Parameters<typeof submitCinematicStoryboardBatch>[1] }) => submitCinematicStoryboardBatch(snapshot.projectId, snapshot.input),
+    onSuccess: (result, snapshot) => {
+      if (getActiveActorId() !== snapshot.actorId) return;
+      if (result.acceptedCount > 0) {
+        writeStoryboardEnginePreference(snapshot.actorId, {
+          provider: snapshot.engine.provider,
+          model: snapshot.engine.model
+        });
+      }
+      onProjectRefresh?.();
+      void queryClient.invalidateQueries({ queryKey: queryKeys.generationJobCenter(snapshot.actorId) });
+    }
+  });
+  const ready = Boolean(open && actor?.userId && quotes.isSuccess && quotes.data?.length
+    && canAfford && !contexts.isFetching && !quotes.isFetching && !contexts.error
+    && totalCredits !== undefined && Number.isFinite(totalCredits) && totalCredits >= 0);
+  const consent = useCreditConfirmation({
+    actorId: actor?.userId || '',
+    requestKey: JSON.stringify([project.id, project.version, includeApproved, engine, naturalRealismEnabled,
+      eligible, quotes.data?.map(item => item.quote.estimate), idempotencyKey]),
+    estimatedCredits: totalCredits,
+    description: `${t('cinematic.storyboard.batch.title')} - ${eligible.length} ${t('cinematic.storyboard.batch.shots')} - ${engine.provider} / ${engine.model}`,
+    ready
+  });
+  const submitting = useRef(false);
+  async function requestSubmit() {
+    if (!ready || submitting.current || submit.isPending || submit.data) return;
+    submitting.current = true;
+    const snapshot = { projectId: project.id, actorId: actor!.userId, engine, input: {
       expectedVersion: project.version,
       idempotencyKey,
       operations: (quotes.data || []).map(({ candidate, quote }) => ({
@@ -244,22 +275,16 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
         estimateId: quote.estimate.estimateId,
         draft: candidate.draft
       }))
-    }),
-    onSuccess: result => {
-      if (actor?.userId && result.acceptedCount > 0) {
-        writeStoryboardEnginePreference(actor.userId, {
-          provider: engine.provider,
-          model: engine.model
-        });
-      }
-      onProjectRefresh?.();
-      if (actor?.userId) {
-        void queryClient.invalidateQueries({
-          queryKey: queryKeys.generationJobCenter(actor.userId)
-        });
-      }
+    } };
+    try {
+      if (!await consent.request() || !consent.isCurrent()) return;
+      await submit.mutateAsync(snapshot);
+    } catch {
+      // Submission errors remain visible in the existing batch status region.
+    } finally {
+      submitting.current = false;
     }
-  });
+  }
 
   return <Dialog.Root open={open} onOpenChange={onOpenChange}>
     <Dialog.Portal>
@@ -269,6 +294,7 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
           title={t('cinematic.storyboard.batch.title')}
           description={t('cinematic.storyboard.batch.description')}
         />
+        {consent.dialog}
         <div className="cinematic-storyboard-batch-dialog__summary">
           <span><Film aria-hidden="true" /><strong>{sceneCount}</strong>{t('cinematic.storyboard.batch.scenes')}</span>
           <span><Images aria-hidden="true" /><strong>{eligible.length}</strong>{t('cinematic.storyboard.batch.shots')}</span>
@@ -346,9 +372,8 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
           <Button
             variant="primary"
             icon={<Sparkles aria-hidden="true" />}
-            disabled={!quotes.data?.length || !canAfford || contexts.isFetching || quotes.isFetching
-              || Boolean(contexts.error || quotes.error) || submit.isPending || Boolean(submit.data)}
-            onClick={() => submit.mutate()}
+            disabled={!ready || consent.awaitingConfirmation || submit.isPending || Boolean(submit.data)}
+            onClick={() => void requestSubmit()}
           >
             {submit.isPending
               ? t('cinematic.storyboard.batch.submitting')

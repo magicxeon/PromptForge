@@ -11,6 +11,7 @@ import {
 import { StoryboardGenerateAllDialog } from './StoryboardGenerateAllDialog';
 
 const mocks = vi.hoisted(() => ({
+  actorId: 'usr_alice', skipConsent: true,
   getProviderCatalog: vi.fn(),
   estimateGeneration: vi.fn(),
   getContext: vi.fn(),
@@ -18,8 +19,12 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../../../lib/auth/ActorProvider', () => ({
-  useActor: () => ({ actor: { userId: 'usr_alice', username: 'alice', role: 'user' } })
+  useActor: () => ({ actor: { userId: mocks.actorId, username: 'alice', role: 'user' } })
 }));
+vi.mock('../../../lib/auth/actorStore', () => ({ getActiveActorId: () => mocks.actorId }));
+vi.mock('../../../lib/auth/userPreferences', () => ({ useUserPreferences: () => ({
+  isSuccess: true, isFetching: false, data: { confirmCreditUsage: !mocks.skipConsent }, save: vi.fn()
+}) }));
 
 vi.mock('../../generation/api/generationApi', async importOriginal => ({
   ...await importOriginal<typeof import('../../generation/api/generationApi')>(),
@@ -47,6 +52,7 @@ describe('StoryboardGenerateAllDialog', () => {
   });
 
   beforeEach(() => {
+    mocks.actorId = 'usr_alice'; mocks.skipConsent = true;
     localStorage.clear();
     mocks.getProviderCatalog.mockReset();
     mocks.estimateGeneration.mockReset();
@@ -141,6 +147,86 @@ describe('StoryboardGenerateAllDialog', () => {
         error: null
       }]
     });
+  });
+
+  function setupConsent() {
+    mocks.skipConsent = false;
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const project = projectFixture();
+    const ui = (open = true, value = project) => <QueryClientProvider client={client}><I18nextProvider i18n={testI18n}>
+      <StoryboardGenerateAllDialog open={open} onOpenChange={vi.fn()} project={value} />
+    </I18nextProvider></QueryClientProvider>;
+    const view = render(ui());
+    return { client, change: (open = true, value = project) => view.rerender(ui(open, value)) };
+  }
+  async function requestConsent() {
+    const generate = screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' });
+    await waitFor(() => expect(generate).toBeEnabled());
+    fireEvent.click(generate);
+    await screen.findByRole('alertdialog');
+  }
+  it('real shared consent cancels without spending and confirms the reviewed quote once', async () => {
+    setupConsent(); await requestConsent();
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'ui.action.cancel' }));
+    expect(screen.getByRole('checkbox', { name: 'cinematic.storyboard.batch.includeApproved' })).not.toBeChecked();
+    await requestConsent();
+    const approve = screen.getByRole('button', { name: 'ui.creditConsent.confirm' });
+    fireEvent.click(approve); fireEvent.click(approve);
+    await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
+    expect(mocks.submitBatch.mock.calls[0]![1].operations[0].estimateId).toBe('estimate_storyboard');
+    expect(mocks.estimateGeneration).toHaveBeenCalledTimes(1);
+  });
+  it.each(['actor', 'project', 'close'])('invalidates batch consent on %s changes', async change => {
+    const view = setupConsent(); await requestConsent();
+    if (change === 'actor') mocks.actorId = 'usr_bob';
+    view.change(change !== 'close', change === 'project' ? { ...projectFixture(), version: 4 } : projectFixture());
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+  });
+  it('invalidates consent when a fresh quote changes price, then requires new confirmation', async () => {
+    const view = setupConsent(); await requestConsent();
+    mocks.estimateGeneration.mockResolvedValue({ estimate: { estimateId: 'new-price', estimatedCredits: 20, expiresAt: Date.now() + 60_000 },
+      account: { availableCredits: 100, canAfford: true } });
+    await view.client.invalidateQueries({ queryKey: ['cinematic-storyboard-batch-quotes'] });
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+    await requestConsent(); fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
+    expect(mocks.submitBatch.mock.calls[0]![1].operations[0].estimateId).toBe('new-price');
+  });
+  it('invalidates consent when the selected regeneration scope changes', async () => {
+    setupConsent();
+    const scope = screen.getByRole('checkbox', { name: 'cinematic.storyboard.batch.includeApproved' });
+    await requestConsent();
+    fireEvent.click(scope);
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+    await screen.findByText('24 cinematic.cost.credits');
+    await requestConsent(); fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
+    expect(mocks.submitBatch.mock.calls[0]![1].operations).toHaveLength(2);
+  });
+  it('opt-out never bypasses scope selection or unavailable estimates', async () => {
+    setupConsent(); mocks.skipConsent = true;
+    await screen.findByText('12 cinematic.cost.credits');
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+    mocks.estimateGeneration.mockRejectedValue(new Error('No price'));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'cinematic.storyboard.batch.includeApproved' }));
+    await screen.findByText('No price');
+    expect(screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' })).toBeDisabled();
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+  });
+  it('zero-credit batch skips only spending consent, not the selection modal', async () => {
+    mocks.estimateGeneration.mockResolvedValue({ estimate: { estimateId: 'free', estimatedCredits: 0, expiresAt: Date.now() + 60_000 },
+      account: { availableCredits: 100, canAfford: true } });
+    setupConsent();
+    const generate = screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' });
+    await waitFor(() => expect(generate).toBeEnabled());
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+    fireEvent.click(generate); fireEvent.click(generate);
+    await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
   it('quotes eligible Shots once and submits one server-owned batch command', async () => {

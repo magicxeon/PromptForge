@@ -29,11 +29,12 @@ export async function readStoryFile(file: File, policy: StoryImportPolicy, maxim
   return { fileName: file.name, content };
 }
 
-export function CinematicStoryFileImport({ policy, briefLimit, maximumCharacters, disabled, onImport }: {
+export function CinematicStoryFileImport({ policy, briefLimit, maximumCharacters, disabled, replacing = false, onImport }: {
   policy?: StoryImportPolicy;
   briefLimit: number;
   maximumCharacters: number;
   disabled: boolean;
+  replacing?: boolean;
   onImport: (file: StoryFile, destination: 'draft' | 'full-story') => Promise<void>;
 }) {
   const { t } = useTranslation('cinematic');
@@ -73,7 +74,7 @@ export function CinematicStoryFileImport({ policy, briefLimit, maximumCharacters
       <input ref={input} type="file" accept=".md,.txt" hidden aria-label={t('cinematic.storyImport.upload')}
         disabled={disabled || busy || !policy} onChange={event => { void selectFile(event.target.files?.[0]); event.target.value = ''; }} />
       <Button type="button" icon={busy ? <ProcessingSpinner className="size-4" /> : <Upload />} disabled={disabled || busy || !policy}
-        onClick={() => input.current?.click()}>{t('cinematic.storyImport.upload')}</Button>
+        onClick={() => input.current?.click()}>{t(replacing ? 'cinematic.storyImport.replaceFile' : 'cinematic.storyImport.upload')}</Button>
     </div>
     {error ? <p role="alert" className="cinematic-story-import__error">{error}</p> : null}
     {applied ? <p role="status">{t('cinematic.storyImport.applied')}</p> : null}
@@ -92,7 +93,7 @@ export function CinematicStoryFileImport({ policy, briefLimit, maximumCharacters
       <textarea rows={5} readOnly value={file.content} aria-label={t('cinematic.storyImport.preview')} />
       <footer><span>{t(`cinematic.storyImport.${destination}Hint`)}</span>
         <Button type="button" variant="primary" icon={busy ? <ProcessingSpinner className="size-4" /> : <Upload />}
-          disabled={busy || disabled} onClick={() => void apply()}>{t(`cinematic.storyImport.apply.${destination}`)}</Button>
+          disabled={busy || disabled} onClick={() => void apply()}>{t(`cinematic.storyImport.${replacing ? 'replace' : 'apply'}.${destination}`)}</Button>
       </footer>
     </div> : null}
   </section>;

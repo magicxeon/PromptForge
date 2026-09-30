@@ -50,7 +50,9 @@ export const cinematicSetupDraftSchema = z.object({
   chapterCount: z.number().int().min(1).max(24).default(1),
   chaptersPerSeason: z.array(z.number().int().min(1).max(24)).min(1).max(8).default([1]),
   storyBrief: z.string().max(10000),
+  storyBriefImport: z.object({ fileName: z.string().min(1).max(255), edited: z.boolean() }).nullable().optional(),
   creativeDirection: z.string().max(10000),
+  videoDirection: z.string().max(4000).optional(),
   genre: z.string().min(1).max(40),
   audienceFeeling: z.string().min(1).max(40),
   pacing: z.string().min(1).max(40),
@@ -94,6 +96,7 @@ export const cinematicFullStoryRevisionSchema = z.object({
   content: z.string().min(1).max(50000),
   source: z.enum(['manual', 'ai', 'restore']),
   importFileName: z.string().max(255).optional(),
+  importEdited: z.boolean().optional(),
   revisionInstruction: z.string().max(2000),
   status: z.enum(['active', 'confirmed', 'superseded']),
   provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
@@ -1059,6 +1062,7 @@ const cinematicRewampSchema = z.object({
       defaultChapterDurationSeconds: z.number().int().positive(),
       storyRevisionHistoryLimit: z.number().int().min(1).max(100),
       fullStoryMaximumCharacters: z.number().int().positive().optional(),
+      projectVideoDirectionMaximumCharacters: z.number().int().positive().optional(),
       fullStoryInstructionMaximumCharacters: z.number().int().positive().optional(),
       generatedChapterMaximum: z.number().int().positive().optional(),
       generatedSceneMaximum: z.number().int().min(1).max(24),
@@ -1170,6 +1174,29 @@ export const cinematicDataLineageSchema = z.object({
   }))
 });
 
+export const cinematicChapterOutlineRowSchema = z.object({
+  title: z.string().min(1).max(120), synopsis: z.string().min(1).max(2000),
+  seasonNumber: z.number().int().min(1).max(8), chapterNumber: z.number().int().positive().optional()
+});
+export const cinematicChapterOutlineSchema = z.object({
+  id: z.string(), sourceRevisionId: z.string(), sourceKey: z.string(),
+  settings: z.object({ format: z.string(), durationSeconds: z.number(), seasonEnabled: z.boolean(), seasonCount: z.number() }),
+  limits: z.object({ maximumChapters: z.number().int().positive().max(24), synopsisMaximumCharacters: z.number().int().positive().max(2000) }).optional(),
+  status: z.enum(['proposed', 'approved']), chapters: z.array(cinematicChapterOutlineRowSchema).min(1).max(24),
+  rationale: z.string(), warnings: z.array(z.string()), createdAt: z.string(), approvedAt: z.string().optional()
+});
+const cinematicWritingEstimateSchema = z.object({
+  operation: z.enum(['chapter_outline', 'chapters']), model: z.string(), credits: z.number().positive(),
+  retailThb: z.number().positive(), chargeCredits: z.literal(0), costBasis: z.literal('advisory_byte_estimate'),
+  policyVersion: z.string(), exceedsValueTarget: z.boolean()
+});
+export const cinematicChapterPlanningEstimateSchema = z.object({
+  projectVersion: z.number(), billingStatus: z.literal('qualification_no_charge'),
+  estimates: z.object({ chapter_outline: cinematicWritingEstimateSchema.nullable(), chapters: cinematicWritingEstimateSchema.nullable() })
+});
+export type CinematicChapterOutlineRow = z.infer<typeof cinematicChapterOutlineRowSchema>;
+export type CinematicChapterPlanningEstimate = z.infer<typeof cinematicChapterPlanningEstimateSchema>;
+
 export const cinematicProjectSchema = z.object({
   seriesMembership: cinematicSeriesMembershipSchema.optional(),
   chapterOrigin: z.object({ projectId: z.string(), projectVersion: z.number().int().positive(), copiedCast: z.boolean() }).optional(),
@@ -1202,7 +1229,9 @@ export const cinematicProjectSchema = z.object({
     chapterCount: cinematicSetupDraftSchema.shape.chapterCount,
     chaptersPerSeason: cinematicSetupDraftSchema.shape.chaptersPerSeason,
     storyBrief: z.string(),
+    storyBriefImport: cinematicSetupDraftSchema.shape.storyBriefImport,
     creativeDirection: z.string(),
+    videoDirection: z.string().max(4000).optional(),
     genre: cinematicSetupDraftSchema.shape.genre,
     audienceFeeling: cinematicSetupDraftSchema.shape.audienceFeeling,
     pacing: cinematicSetupDraftSchema.shape.pacing,
@@ -1226,6 +1255,7 @@ export const cinematicProjectSchema = z.object({
   chapterVersions: z.array(cinematicChapterRevisionSchema).default([]),
   activeChapterVersionId: z.string().nullable().default(null),
   chapterProposals: z.array(cinematicChapterProposalSchema).default([]),
+  chapterOutline: cinematicChapterOutlineSchema.nullable().optional(),
   chapterCharacterIds: z.array(z.string()).default([]),
   sceneProposals: z.array(cinematicSceneProposalSchema).default([]),
   shotProposals: z.array(cinematicShotProposalSchema).default([]),
@@ -1378,6 +1408,15 @@ export const cinematicProduceShotContextSchema = z.object({
     downstreamSourceStatus: z.enum(['current', 'source_changed', 'source_unavailable', 'packet_changed'])
   })),
   timelineDependencyStatus: z.enum(['current', 'source_changed', 'source_unavailable', 'packet_changed'])
+});
+
+export const cinematicClipBundleSchema = z.object({
+  projectId: z.string(), projectVersion: z.number().int(), sizeBytes: z.number().nonnegative(),
+  missing: z.array(z.object({ sceneNumber: z.number(), shotNumber: z.number(), shotId: z.string(), sceneId: z.string().optional(),
+    reason: z.enum(['no_selection', 'not_ready', 'source_changed', 'source_unavailable']).default('no_selection') })),
+  clips: z.array(z.object({ name: z.string(), sizeBytes: z.number(), assetId: z.string(), shotId: z.string(), attemptId: z.string(),
+    usableRange: z.object({ leadInMs: z.number().nonnegative(), usableDurationMs: z.number().positive(), trimInMs: z.number().nonnegative(), trimOutMs: z.number().positive() }).optional(),
+    renderDurationMs: z.number().nullable().optional() }))
 });
 
 export const cinematicVideoQuoteSchema = videoQuoteSchema.extend({

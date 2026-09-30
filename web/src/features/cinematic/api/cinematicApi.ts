@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   cinematicArchiveResponseSchema,
+  cinematicClipBundleSchema,
   cinematicPromptPreflightSchema,
   cinematicProjectSchema,
   cinematicProjectListResponseSchema,
@@ -10,6 +11,7 @@ import {
   cinematicVideoQuoteSchema,
   cinematicStoryEnhancementSchema,
   cinematicFullStoryProposalSchema,
+  cinematicChapterPlanningEstimateSchema,
   cinematicWardrobeSuggestionSchema,
   cinematicStoryPlanProposalSchema,
   cinematicStoryPlanLiveProgressSchema,
@@ -28,6 +30,7 @@ import { apiRequest, apiRequestWithProgress } from '../../../lib/api/apiClient';
 import type {
   CinematicSetupDraft,
   CinematicFullStoryProposal,
+  CinematicChapterOutlineRow,
   CinematicStoryEnhancement,
   CinematicStoryPlanLiveProgress
 } from '../schemas/cinematicSchemas';
@@ -57,6 +60,10 @@ export type CinematicStoryPreparationContext = Pick<
 
 export function listCinematicProjects() {
   return apiRequest(cinematicApiPaths.projects, { schema: cinematicProjectListResponseSchema });
+}
+
+export function getCinematicClipBundleManifest(projectId: string, signal?: AbortSignal) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/clip-bundle`, { schema: cinematicClipBundleSchema, signal });
 }
 
 export function getCinematicVideoCapabilityCatalog() {
@@ -144,6 +151,26 @@ export function saveCinematicFullStoryRevision(projectId: string, input: {
 export function confirmCinematicFullStoryRevision(projectId: string, expectedVersion: number, revisionId: string) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/confirm`, {
     method: 'POST', body: { expectedVersion, revisionId }, schema: cinematicProjectSchema
+  });
+}
+
+export function estimateCinematicChapterPlanning(projectId: string, expectedVersion: number) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/chapter-outline/estimate`, {
+    method: 'POST', body: { expectedVersion }, schema: cinematicChapterPlanningEstimateSchema
+  });
+}
+
+export function proposeCinematicChapterOutline(projectId: string, expectedVersion: number) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/chapter-outline/proposals`, {
+    method: 'POST', body: { expectedVersion }, schema: cinematicProjectSchema
+  });
+}
+
+export function reviewCinematicChapterOutline(projectId: string, input: {
+  expectedVersion: number; outlineId: string; action: 'approve' | 'discard'; chapters?: CinematicChapterOutlineRow[];
+}) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/chapter-outline/approve`, {
+    method: 'POST', body: input, schema: cinematicProjectSchema
   });
 }
 

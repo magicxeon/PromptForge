@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "cinematic-workflow-policy-v1",
-  "version": 6,
+  "version": 7,
   "workspace": {
     "default": "story",
     "ids": ["story", "production", "final"],
@@ -32,12 +32,17 @@
     "fullStoryThresholdCharacters": 600
   },
   "authoring": {
+    "continuityExcerptCharacters": 2400,
+    "continuityHistoryDepth": 3,
+    "projectVideoDirectionMaximumCharacters": 2000,
     "defaultChapterCount": 1,
     "defaultChapterDurationSeconds": 60,
     "storyRevisionHistoryLimit": 10,
     "fullStoryMaximumCharacters": 50000,
     "fullStoryInstructionMaximumCharacters": 2000,
     "generatedChapterMaximum": 24,
+    "chapterOutlineMaximumOutputTokens": 4000,
+    "chapterOutlineSynopsisMaximumCharacters": 800,
     "generatedSceneMaximum": 24,
     "sceneProposalHistoryLimit": 10,
     "generatedShotMaximumPerScene": 20,

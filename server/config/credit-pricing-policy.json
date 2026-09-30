@@ -12,6 +12,17 @@
   "creditsPerThbAssumption": 10,
   "creditRoundingIncrement": 5,
   "estimateTtlSeconds": 900,
+  "cinematicWritingPreview": {
+    "version": "writing-preview-2026-09-26-v1",
+    "enabled": true,
+    "inputBytesPerToken": 2.5,
+    "inputOverheadTokens": 1500,
+    "maximumInputTokens": 272000,
+    "operations": {
+      "chapter_outline": { "floorCredits": 30, "valueReviewCredits": 100 },
+      "chapters": { "floorCredits": 100, "valueReviewCredits": 250 }
+    }
+  },
   "textEnhancement": {
     "version": "momelo-look-sheet-text-sol-2026-09-25-v1",
     "enabled": true,

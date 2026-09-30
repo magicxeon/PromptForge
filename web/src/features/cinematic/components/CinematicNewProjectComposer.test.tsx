@@ -71,6 +71,49 @@ function renderComposer(overrides: Partial<Parameters<typeof CinematicNewProject
 }
 
 describe('CinematicNewProjectComposer', () => {
+  it('keeps manual Project Video Direction separate from story direction with a configured bound', () => {
+    const props = renderComposer({ maximumVideoDirectionCharacters: 900 });
+    const field = screen.getByLabelText('cinematic.videoDirection.title');
+    expect(field).toHaveAttribute('maxlength', '900');
+    fireEvent.change(field, { target: { value: 'No music. Rain ambience only.' } });
+    expect(props.onUpdate).toHaveBeenCalledWith('videoDirection', 'No music. Rain ambience only.');
+    expect(props.onPrepareStory).not.toHaveBeenCalled();
+  });
+  it('collapses an imported brief and opens the existing editor without losing content or sibling actions', () => {
+    const draft = { ...createCinematicSetupDraft(), storyBrief: 'A saved imported idea.',
+      storyBriefImport: { fileName: 'my-story.md', edited: true } };
+    const props = renderComposer({ draft });
+    expect(screen.getByText('my-story.md')).toBeVisible();
+    expect(screen.getByText('cinematic.storyImport.sourceEdited')).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: /cinematic.newProject.storyIdea/ })).not.toBeInTheDocument();
+    const edit = screen.getByRole('button', { name: 'cinematic.storyImport.editBrief' });
+    expect(edit).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(edit);
+    const field = screen.getByRole('textbox', { name: /cinematic.newProject.storyIdea/ });
+    expect(field).toHaveValue(draft.storyBrief);
+    fireEvent.change(field, { target: { value: 'Edited idea' } });
+    expect(props.onUpdate).toHaveBeenCalledWith('storyBrief', 'Edited idea');
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyImport.hideBrief' }));
+    expect(field).not.toBeVisible();
+    expect(screen.getByRole('button', { name: 'cinematic.newProject.createDraft' })).toBeEnabled();
+  });
+
+  it('opens imported Full Story in the writer instead of copying long prose into the brief', () => {
+    const onContinueFullStory = vi.fn();
+    renderComposer({ variant: 'edit', importedFullStory: { importFileName: 'novel.txt', importEdited: true }, onContinueFullStory });
+    expect(screen.getByText('novel.txt')).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: /cinematic.newProject.storyIdea/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyImport.editFullStory' }));
+    expect(onContinueFullStory).toHaveBeenCalledOnce();
+  });
+
+  it('keeps imported content visible but disables Full Story navigation while offline', () => {
+    renderComposer({ importedFullStory: { importFileName: 'novel.md' }, online: false, onContinueFullStory: vi.fn() });
+    expect(screen.getByText('novel.md')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'cinematic.storyImport.editFullStory' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'cinematic.storyImport.editBrief' })).toBeEnabled();
+  });
+
   it('keeps the shortest manual path available without a story brief', () => {
     const props = renderComposer();
     expect(screen.getByRole('heading', { name: 'cinematic.newProject.title' })).toBeVisible();

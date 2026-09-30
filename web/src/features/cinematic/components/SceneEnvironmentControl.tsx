@@ -10,7 +10,7 @@ import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { ToggleSwitch } from '../../../components/ui/ToggleSwitch';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { queryKeys } from '../../../lib/api/queryKeys';
-import { estimateGeneration, type GenerationRequestDraft } from '../../generation/api/generationApi';
+import type { estimateGeneration, GenerationRequestDraft } from '../../generation/api/generationApi';
 import { approveCinematicSceneEnvironment, getCinematicSceneEnvironment, listCinematicSceneEnvironmentImages, proposeCinematicSceneEnvironment, saveCinematicSceneEnvironment, submitCinematicStoryboardBatch } from '../api/cinematicApi';
 import type { CinematicProject, CinematicScene } from '../schemas/cinematicSchemas';
 import { DialogHeader } from './ProjectCostSummary';
@@ -151,10 +151,9 @@ function SceneEnvironmentDialog({ project, scene, onProjectRefresh, onClose }: P
       setProposing(false); setBusy(false);
     }
   }
-  async function submit(draft: GenerationRequestDraft) {
+  async function submit(draft: GenerationRequestDraft, quote: Awaited<ReturnType<typeof estimateGeneration>>) {
     const context = query.data;
     if (!context || dirty || busy) throw new Error(t('cinematic.environment.saveFirst'));
-    const quote = await estimateGeneration(draft);
     const result = await submitCinematicStoryboardBatch(project.id, { expectedVersion: context.projectVersion,
       idempotencyKey: requestKey.current, operations: [{ operationId: `environment:${scene.id}`, purpose: 'scene_environment',
         sceneId: scene.id, expectedSceneVersion: context.sceneVersion, promptFingerprint: context.promptFingerprint,

@@ -1,6 +1,12 @@
 # Cinematic Writing Credit Pricing Proposal
 
-Status: proposal only, 2026-09-26. NOT a published rate card or authorization to
+2026-09-26 execution addendum: user authorized incremental implementation.
+[Rewamp/013](../016-cinematic-studio/Rewamp/013-chapter-outline-and-writing-economics.md)
+implements advisory outline/Chapter cost-plus-margin estimates and limited returned
+usage evidence first. Charging, financial settlement and whole-pipeline failure
+telemetry remain deferred. The trial tariffs below are not published prices.
+
+Status: advisory outline/Chapter preview implemented; charging deferred, 2026-09-26. NOT a published rate card or authorization to
 enable charging. Owner: Credits pricing and Cinematic authoring. Commercial
 Financial Integrity review applies; reuse Phase2-07/08/10/15 for ledger, quotes,
 durable jobs and refunds. Financial implementation remains deferred.
@@ -57,6 +63,49 @@ consistently propagated/persisted for all operations, including Character extrac
 Collect 30-50 representative operations, including failures, before approving rates.
 Record usage/model/outcome/latency/cost snapshots, not private story text in logs.
 
+## Costed Scenario And Value Decision
+
+Illustrative Standard-rate scenario, not measured usage or a published tariff.
+Input/output tokens below include assumed billable reasoning in output once.
+All THB costs include FX35 and a 15% buffer. Retail targets use 70% gross margin,
+10 Credits/THB and round upward to five Credits; stage context can vary materially.
+
+| Deliverable | Input / output tokens per call | Buffered cost THB | Cost-based Credits |
+| --- | ---: | ---: | ---: |
+| Brief | 2,000 / 1,000 | 0.56 | 20 |
+| Full Story including dossiers | 4,000 / 8,000 | 3.54 | 120 |
+| Reviewed Chapter outline | 20,000 / 4,000 | 3.22 | 110 |
+| Chapter prose batch | 20,000 / 8,000 | 4.83 | 165 |
+| Scene plan for one Chapter | 12,000 / 3,000 | 2.17 | 75 |
+| Shots/dialogue for one Scene | 8,000 / 4,000 | 2.25 | 80 |
+
+Writing through Chapters with one outline: 415 Credits / THB41.50, buffered cost
+THB12.16, gross contribution THB29.34 before unqualified expenses. Adding six
+Scene-planning calls and eighteen Shot/dialogue calls gives 2,305 Credits /
+THB230.50, buffered cost THB65.77 and gross contribution THB164.73. These are
+bounded short-form production assumptions, not a full-length novel promise.
+
+The earlier 1,590-Credit example is a value hypothesis, not proof of 70% margin:
+under this larger cost scenario it would leave about 58.6% gross margin instead.
+Do not silently force all requests into the earlier experimental ranges.
+
+User value to validate is an editable organized story with shared Characters,
+reviewable Chapters and a path to production, not an opaque token charge. Avoid
+charging twice for dossiers bundled with Full Story. Manual work and review stay
+free; quote the agreed batch before starting rather than charging per surprise
+Chapter/Shot invented by the model. A failed/unusable result is not a paid success.
+
+Potential small-pilot package hypotheses: THB49 for a bounded writing bundle or
+THB249 for the explicitly scoped writing/Scene/Shot planning bundle above, with
+media and revisions separate. NOT implemented as SKUs or guaranteed prices.
+First verify real p50/p95 costs, then measure purchase conversion, usable-result
+acceptance, time saved, retry/support demand and repeat purchases. Compare a clear
+bundle against transparent per-action quotes with the same scope; retain no raw
+story text in commercial analytics. Do not promise unlimited revisions.
+
+Current runtime preview covers only outline and Chapter prose. The other rows
+remain planning assumptions until per-operation usage and failure evidence exists.
+
 ## Consent And Financial Invariants
 
 - Server owns immutable expiring quote: actor/project/source versions, scope,
@@ -92,5 +141,6 @@ Record usage/model/outcome/latency/cost snapshots, not private story text in log
    Credit packs and bounded trial allowance; unlimited/subscription plans deferred.
    Rollback disables new quotes without losing receipts or reconciliation.
 
-Recording this document does not change rates, provider dispatch, balances or
-billing status. A separate instruction is required to implement charging.
+The implementation addendum enables advisory estimates and explicit outline
+generation only. Published rates, balances and billing status remain unchanged.
+Charging requires completion and review of the deferred financial gates above.

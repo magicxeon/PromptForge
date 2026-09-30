@@ -36,6 +36,35 @@ function fixture() {
   return { input, service, calls };
 }
 
+test('portable references reuse owned Look resolution and actual numbering without provider qualification', async () => {
+  const { input, service, calls } = fixture();
+  delete input.model;
+  const framed = await service.prepare({ ...input, portable: true });
+  assert.deepEqual(framed.references.map(item => item.assetId), ['board', 'asset_b', 'asset_a']);
+  const direct = await service.prepare({ ...input, mode: 'looks_only', portable: true });
+  assert.deepEqual(direct.references.map(item => item.assetId), ['asset_b', 'asset_a']);
+  assert.ok(calls.every(item => item.actor.userId === 'owner'));
+  input.project.castAssignments[0].identityReady = false;
+  const partial = await service.prepare({ ...input, portable: true });
+  assert.deepEqual(partial.references.map(item => item.assetId), ['board', 'asset_b']);
+  assert.deepEqual(partial.issues, [{ slot: 3, name: 'role a', castAssignmentId: 'a', code: 'look_unavailable' }]);
+});
+
+test('partial export sanitizes failed reference resolution without relaxing generation', async () => {
+  const { input, service } = fixture();
+  const resolve = service.lookService.resolveApprovedSheetReference;
+  service.lookService.resolveApprovedSheetReference = async (...args) => {
+    if (args[0] === 'b') throw Object.assign(new Error('Private /outputs/secret.png'), { statusCode: 403 });
+    return resolve(...args);
+  };
+  const packet = await service.prepare({ ...input, source: null, portable: true });
+  assert.deepEqual(packet.references.map(item => item.assetId), ['asset_a']);
+  assert.deepEqual(packet.issues.map(item => item.slot), [1, 2]);
+  assert.doesNotMatch(JSON.stringify(packet.issues), /secret|outputs|Private/);
+  await assert.rejects(service.prepare(input), { statusCode: 403 });
+  await assert.rejects(service.prepare({ ...input, source: null }), { code: 'cinematic_storyboard_source_required' });
+});
+
 test('dynamic references retain Shot order, deduplicate cast and exclude unused assignments', async () => {
   const { input, service, calls } = fixture();
   input.project.castAssignments[1].displayName = 'Kin';

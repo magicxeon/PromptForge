@@ -4,6 +4,9 @@ import { getCinematicStoryEnhancementPolicy } from '../../config/cinematic-story
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 import { CinematicTextProviderRouter } from './CinematicTextProviderRouter.js';
+import { creditPricingPolicyService } from '../credits/CreditPricingPolicyService.js';
+import { normalizeWritingUsage } from '../credits/CinematicWritingPricing.js';
+import { normalizeChapterOutlineRows } from '../cinematic/CinematicChapterOutline.js';
 
 const createOpenAIProvider = policy => new OpenAITextProvider(policy.apiKey);
 const createShotProvider = policy => new CinematicTextProviderRouter(policy);
@@ -13,14 +16,15 @@ export class CinematicFullStoryService {
     policyLoader = getCinematicStoryEnhancementPolicy,
     providerFactory = createOpenAIProvider,
     shotProviderFactory = null,
-    availabilityPolicy = providerAvailabilityPolicyService
+    availabilityPolicy = providerAvailabilityPolicyService,
+    pricingService = creditPricingPolicyService
   } = {}) {
     Object.assign(this, {
       policyLoader,
       providerFactory,
       shotProviderFactory: shotProviderFactory
         || (providerFactory === createOpenAIProvider ? createShotProvider : providerFactory),
-      availabilityPolicy
+      availabilityPolicy, pricingService
     });
   }
 
@@ -91,6 +95,7 @@ export class CinematicFullStoryService {
         instruction: boundedText(input.instruction, cinematicWorkflowPolicy.authoring.fullStoryInstructionMaximumCharacters),
         currentChapter: normalizeChapterContext(input.currentChapter),
         existingChapters: normalizeChapterList(input.existingChapters, 24),
+        continuity: input.continuity || null,
         characters: normalizeCharacterList(input.characters, 24)
       },
       model: policy.model,
@@ -111,8 +116,43 @@ export class CinematicFullStoryService {
       proposalId: `cinechapters_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`,
       chapters,
       warnings: boundedList(result?.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null },
+      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
+        usage: normalizeWritingUsage(result?.usage), recordedAt: new Date().toISOString() },
       billingStatus: 'qualification_no_charge'
+    };
+  }
+
+  async estimateChapterPlanning(input = {}) {
+    let policy;
+    try { policy = this.#policy(); }
+    catch { return { estimates: { chapter_outline: null, chapters: null }, billingStatus: 'qualification_no_charge' }; }
+    const inputBytes = Buffer.byteLength(JSON.stringify(input), 'utf8');
+    const estimates = {};
+    for (const operation of ['chapter_outline', 'chapters']) {
+      try {
+        const result = await this.pricingService.estimateWritingPreview({ model: policy.model, operation, inputBytes,
+          maxOutputTokens: operation === 'chapter_outline' ? cinematicWorkflowPolicy.authoring.chapterOutlineMaximumOutputTokens : policy.maxOutputTokens });
+        estimates[operation] = result?.publicEstimate || null;
+      } catch { estimates[operation] = null; }
+    }
+    return { estimates, billingStatus: 'qualification_no_charge' };
+  }
+
+  async proposeChapterOutline(input = {}) {
+    const policy = this.#policy();
+    const started = Date.now();
+    const result = await this.providerFactory(policy).generateCinematicChapterOutline({
+      context: { ...input, maximumChapters: Math.min(cinematicWorkflowPolicy.authoring.generatedChapterMaximum,
+        cinematicWorkflowPolicy.projectCreation.maximumChapterCount),
+        synopsisMaximumCharacters: cinematicWorkflowPolicy.authoring.chapterOutlineSynopsisMaximumCharacters },
+      model: policy.model, reasoningEffort: policy.reasoningEffort,
+      maxOutputTokens: cinematicWorkflowPolicy.authoring.chapterOutlineMaximumOutputTokens,
+      timeoutMs: policy.longFormTimeoutMs || policy.timeoutMs
+    });
+    return { chapters: normalizeChapterOutlineRows(result?.chapters, input.settings),
+      rationale: boundedText(result?.rationale, 1000), warnings: boundedList(result?.warnings, 8, 500),
+      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
+        usage: normalizeWritingUsage(result?.usage), durationMs: Date.now() - started, recordedAt: new Date().toISOString() }
     };
   }
 
@@ -137,6 +177,7 @@ export class CinematicFullStoryService {
         },
         characters: normalizeCharacterList(input.characters, 24),
         currentScenes: normalizeSceneList(input.currentScenes, maximumScenes),
+        continuity: input.continuity || null,
         maximumScenes
       },
       model: policy.model,
@@ -174,6 +215,7 @@ export class CinematicFullStoryService {
         },
         characters: normalizeCharacterList(input.characters, 24),
         currentShots: normalizeShotList(input.currentShots, maximumShots),
+        continuity: input.continuity || null,
         revisionInstruction: boundedText(input.revisionInstruction, cinematicWorkflowPolicy.authoring.fullStoryInstructionMaximumCharacters),
         maximumShots
       },
@@ -410,7 +452,8 @@ function normalizeChapterPlan(value, maximum) {
   return (Array.isArray(value) ? value : []).slice(0, maximum).map((item, index) => ({
     order: index + 1,
     seasonNumber: Math.max(1, Number(item?.seasonNumber) || 1),
-    chapterNumber: Math.max(1, Number(item?.chapterNumber) || index + 1)
+    chapterNumber: Math.max(1, Number(item?.chapterNumber) || index + 1),
+    ...(item?.synopsis ? { title: boundedText(item.title, 120), synopsis: boundedText(item.synopsis, cinematicWorkflowPolicy.authoring.chapterOutlineSynopsisMaximumCharacters) } : {})
   }));
 }
 function boundedList(value, maximum, length) {

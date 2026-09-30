@@ -2,6 +2,7 @@ import { ArrowLeft, Check, Clapperboard, Clock3, FileText, ListVideo, MapPin, Pl
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
@@ -18,6 +19,10 @@ import {
 } from '../api/cinematicSeriesApi';
 import type { CinematicProject, CinematicSceneProposal, CinematicShotProposal } from '../schemas/cinematicSchemas';
 import { CinematicSceneLooks } from './CinematicSceneLooks';
+import { ArrowUp, ArrowDown } from 'lucide-react';
+import { reorderCinematicScenes } from '../api/cinematicSeriesApi';
+import { sceneRecoverySchema, useCinematicTextRecovery } from '../state/useCinematicTextRecovery';
+import { CinematicRecoveryNotice } from './CinematicRecoveryNotice';
 
 type Scene = CinematicProject['scenes'][number];
 type Purpose = 'dialogue' | 'action' | 'montage' | 'establishing' | 'atmosphere' | 'transition' | 'dramatic';
@@ -28,6 +33,7 @@ type Props = {
   online: boolean;
   onBackToChapter: () => void;
   onOpenShot: (shotId: string) => void;
+  onOpenFinal?: () => void;
   onProjectChanged: (project: CinematicProject) => void;
   renderEnvironment?: (scene: Scene, disabled: boolean) => ReactNode;
   initialSceneId?: string;
@@ -35,7 +41,7 @@ type Props = {
 
 const PURPOSES = ['dramatic', 'dialogue', 'action', 'montage', 'establishing', 'atmosphere', 'transition'] as const;
 
-export function CinematicSceneOverview({ actorId, project, online, onBackToChapter, onOpenShot, onProjectChanged, renderEnvironment, initialSceneId }: Props) {
+export function CinematicSceneOverview({ actorId, project, online, onBackToChapter, onOpenShot, onOpenFinal, onProjectChanged, renderEnvironment, initialSceneId }: Props) {
   const { t } = useTranslation('cinematic');
   const orderedScenes = useMemo(() => [...project.scenes].sort((a, b) => a.orderKey - b.orderKey), [project.scenes]);
   const persistedProposal = useMemo(() => [...(project.sceneProposals || [])].reverse().find(item => item.status === 'pending_review') || null, [project.sceneProposals]);
@@ -44,20 +50,23 @@ export function CinematicSceneOverview({ actorId, project, online, onBackToChapt
   const persistedShotProposal = useMemo(() => [...(project.shotProposals || [])].reverse().find(item => (
     item.sceneId === selected?.id && item.status === 'pending_review'
   )) || null, [project.shotProposals, selected?.id]);
-  const [draft, setDraft] = useState(() => sceneDraft(selected));
+  const recovery = useCinematicTextRecovery({ actorId, projectId: project.id, documentId: `scene:${selected?.id || ''}`,
+    revision: String(selected?.version || ''), serverValue: sceneDraft(selected), schema: sceneRecoverySchema });
+  const { value: draft, setValue: setDraft } = recovery;
+  const canLeave = () => recovery.canLeave(() => window.confirm(t('cinematic.recovery.leaveConfirm')));
   const [proposal, setProposal] = useState<CinematicSceneProposal | null>(persistedProposal);
   const [proposalVersion, setProposalVersion] = useState(project.version);
   const [shotProposal, setShotProposal] = useState<CinematicShotProposal | null>(persistedShotProposal);
   const [shotProposalVersion, setShotProposalVersion] = useState(project.version);
   const [busy, setBusy] = useState<'save' | 'generate' | 'apply' | 'discard' | 'manual' | 'shot-generate' | 'shot-apply' | 'shot-discard' | 'shot-manual' | null>(null);
   const [error, setError] = useState('');
+  const [orderChanged, setOrderChanged] = useState(false);
   const [looksPending, setLooksPending] = useState(false);
   const busyRef = useRef(false);
 
   useEffect(() => {
     if (!selectedId && orderedScenes[0]) setSelectedId(orderedScenes[0].id);
   }, [orderedScenes, selectedId]);
-  useEffect(() => { setDraft(sceneDraft(selected)); }, [selected]);
   useEffect(() => {
     if (!proposal && persistedProposal) { setProposal(persistedProposal); setProposalVersion(project.version); }
   }, [persistedProposal, project.version, proposal]);
@@ -84,6 +93,7 @@ export function CinematicSceneOverview({ actorId, project, online, onBackToChapt
   }
 
   function generate() {
+    if (!online || dirty || looksPending || proposal || persistedProposal || getActiveActorId() !== actorId) return;
     void run('generate', async () => {
       if (looksPending) return;
       const result = await proposeCinematicScenes(project.id, project.version);
@@ -93,7 +103,7 @@ export function CinematicSceneOverview({ actorId, project, online, onBackToChapt
   }
 
   function apply() {
-    if (!proposal || looksPending) return;
+    if (!proposal || looksPending || !canLeave()) return;
     void run('apply', async () => {
       const result = await applyCinematicSceneProposal(project.id, proposal.id, proposalVersion);
       if (getActiveActorId() !== actorId) return;
@@ -111,6 +121,7 @@ export function CinematicSceneOverview({ actorId, project, online, onBackToChapt
   }
 
   function addManual() {
+    if (!canLeave()) return;
     void run('manual', async () => {
       const result = await createCinematicManualScene(project.id, project.version, globalThis.crypto.randomUUID());
       if (getActiveActorId() !== actorId) return;
@@ -130,13 +141,15 @@ export function CinematicSceneOverview({ actorId, project, online, onBackToChapt
         dialogueTargetPercent: Math.max(0, Math.min(100, draft.dialogueTargetPercent)),
         characterIds: selected.castAssignmentIds
       });
+      const savedScene = result.project.scenes.find(item => item.id === selected.id);
+      if (savedScene) recovery.markSaved(draft, sceneDraft(savedScene), String(savedScene.version));
       if (getActiveActorId() !== actorId) return;
       onProjectChanged(result.project);
     });
   }
 
   function generateShots() {
-    if (!selected) return;
+    if (!selected || !online || dirty || looksPending || shotProposal || getActiveActorId() !== actorId) return;
     void run('shot-generate', async () => {
       const result = await proposeCinematicShots(project.id, selected.id, project.version);
       if (getActiveActorId() !== actorId) return;
@@ -179,28 +192,58 @@ export function CinematicSceneOverview({ actorId, project, online, onBackToChapt
     });
   }
 
+  function moveScene(direction: number) {
+    if (!selected || looksPending) return;
+    if (dirty) { setError(t('cinematic.order.saveFirst')); return; }
+    const ids = orderedScenes.map(item => item.id);
+    const index = ids.indexOf(selected.id);
+    if (!ids[index + direction]) return;
+    [ids[index], ids[index + direction]] = [ids[index + direction]!, ids[index]!];
+    void run('save', async () => {
+      const result = await reorderCinematicScenes(project.id, project.version, ids);
+      if (getActiveActorId() === actorId) { setOrderChanged(true); onProjectChanged(result.project); }
+    });
+  }
+
+  const confirmationKey = JSON.stringify([actorId, project.id, project.version, selected?.id, selected?.version, draft, online, looksPending]);
+  const sceneGenerateButton = <Button size="sm" icon={<RefreshCw />} loading={busy === 'generate'} disabled={!online || Boolean(busy) || dirty || looksPending || Boolean(proposal) || !project.activeChapterVersionId} onClick={project.scenes.length ? undefined : generate}>{project.scenes.length ? t('cinematic.scenes.regenerate') : t('cinematic.scenes.generate')}</Button>;
+  const shotGenerateButton = <Button size="sm" icon={<Sparkles />} loading={busy === 'shot-generate'} disabled={!online || Boolean(busy) || dirty || looksPending || Boolean(shotProposal) || !(selected?.synopsis || selected?.objective || selected?.storyChange)} onClick={selected?.shots.length ? undefined : generateShots}>{selected?.shots.length ? t('cinematic.scenes.regenerateShots') : t('cinematic.scenes.generateShots')}</Button>;
+
   return (
     <main className="cinematic-scene-overview" data-testid="cinematic-scene-overview" inert={busy ? true : undefined}>
       <header className="cinematic-scene-overview__header">
         <button type="button" className="cinematic-story-writer__back" disabled={looksPending} onClick={onBackToChapter}><ArrowLeft aria-hidden="true" />{t('cinematic.scenes.backToChapter')}</button>
         <div><span>{t('cinematic.scenes.eyebrow')}</span><h1>{project.chapterTitle || project.title}</h1><p>{t('cinematic.scenes.summary', { scenes: project.scenes.length, shots: shotCount })}</p></div>
         <div className="cinematic-scene-overview__header-actions">
-          <Button size="sm" icon={<RefreshCw />} loading={busy === 'generate'} disabled={!online || Boolean(busy) || dirty || looksPending || !project.activeChapterVersionId} onClick={generate}>{project.scenes.length ? t('cinematic.scenes.regenerate') : t('cinematic.scenes.generate')}</Button>
+          {onOpenFinal ? <Button size="sm" icon={<ListVideo />} disabled={Boolean(busy) || looksPending || recovery.pending} onClick={onOpenFinal}>{t('cinematic.chapterFinal.title')}</Button> : null}
+          {project.scenes.length ? <ConfirmDialog key={`scenes:${confirmationKey}:${proposal?.id || ''}`} trigger={sceneGenerateButton}
+            title={t('cinematic.regeneration.scenesTitle')} description={t('cinematic.regeneration.scenesDescription')}
+            confirmLabel={t('cinematic.regeneration.confirm')} pending={Boolean(busy)} onConfirm={generate} /> : sceneGenerateButton}
           <Button size="sm" icon={<Plus />} loading={busy === 'manual'} disabled={!online || Boolean(busy) || looksPending} onClick={addManual}>{t('cinematic.scenes.add')}</Button>
         </div>
       </header>
 
       {error ? <StatusNotice tone="error" title={t('cinematic.scenes.operationFailed')}>{error}</StatusNotice> : null}
+      <CinematicRecoveryNotice key={`${actorId}:${project.id}:${selected?.id}:${selected?.version}`} recovery={recovery} disabled={Boolean(busy) || looksPending} />
+      {orderChanged ? <p role="status">{t('cinematic.order.review')}</p> : null}
       {proposal ? <SceneProposalReview proposal={proposal} stale={proposalStale} busy={busy || (looksPending ? 'save' : null)} onDiscard={discard} onApply={apply} /> : null}
 
-      <div className="cinematic-scene-overview__layout">
+      <div className="cinematic-scene-overview__layout" inert={recovery.pending ? true : undefined}>
         <aside className="cinematic-scene-overview__navigator" inert={looksPending ? true : undefined} aria-label={t('cinematic.scenes.list')}>
           <header><div><Clapperboard aria-hidden="true" /><strong>{t('cinematic.scenes.list')}</strong></div><span>{orderedScenes.length}</span></header>
-          {orderedScenes.length ? <ol>{orderedScenes.map((scene, index) => <li key={scene.id}><button type="button" className={scene.id === selected?.id ? 'is-active' : ''} aria-current={scene.id === selected?.id ? 'page' : undefined} onClick={() => setSelectedId(scene.id)}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{scene.title || t('cinematic.scenes.untitled')}</strong><small><MapPin aria-hidden="true" />{[scene.location, scene.time].filter(Boolean).join(' · ') || t('cinematic.scenes.locationPending')}</small><small><Clock3 aria-hidden="true" />{t('cinematic.scenes.duration', { seconds: Math.round(scene.durationMs / 1000) })}<i>·</i><ListVideo aria-hidden="true" />{scene.shots.length ? t('cinematic.scenes.shotCount', { count: scene.shots.length }) : t('cinematic.scenes.shotsNotPlanned')}</small></div></button></li>)}</ol> : <div className="cinematic-scene-overview__empty"><FileText aria-hidden="true" /><strong>{t('cinematic.scenes.emptyTitle')}</strong><p>{t('cinematic.scenes.emptyDescription')}</p></div>}
+          {orderedScenes.length ? <ol>{orderedScenes.map((scene, index) => <li key={scene.id}><button type="button" className={scene.id === selected?.id ? 'is-active' : ''} aria-current={scene.id === selected?.id ? 'page' : undefined} onClick={() => { if (scene.id !== selected?.id && canLeave()) setSelectedId(scene.id); }}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{scene.title || t('cinematic.scenes.untitled')}</strong><small><MapPin aria-hidden="true" />{[scene.location, scene.time].filter(Boolean).join(' · ') || t('cinematic.scenes.locationPending')}</small><small><Clock3 aria-hidden="true" />{t('cinematic.scenes.duration', { seconds: Math.round(scene.durationMs / 1000) })}<i>·</i><ListVideo aria-hidden="true" />{scene.shots.length ? t('cinematic.scenes.shotCount', { count: scene.shots.length }) : t('cinematic.scenes.shotsNotPlanned')}</small></div></button></li>)}</ol> : <div className="cinematic-scene-overview__empty"><FileText aria-hidden="true" /><strong>{t('cinematic.scenes.emptyTitle')}</strong><p>{t('cinematic.scenes.emptyDescription')}</p></div>}
         </aside>
 
         <section className="cinematic-scene-overview__document">
           {selected ? <>
+            <div className="cinematic-order-actions">
+              {([-1, 1] as const).map(direction => <Button key={direction} size="icon" variant="ghost"
+                icon={direction < 0 ? <ArrowUp /> : <ArrowDown />}
+                title={t(direction < 0 ? 'cinematic.order.earlier' : 'cinematic.order.later')}
+                aria-label={`${t(direction < 0 ? 'cinematic.order.earlier' : 'cinematic.order.later')} ${selected.title}`}
+                disabled={!online || Boolean(busy) || looksPending || !orderedScenes[orderedScenes.findIndex(item => item.id === selected.id) + direction]}
+                onClick={() => moveScene(direction)} />)}
+            </div>
             <div className="cinematic-scene-overview__document-heading"><div><span>{t('cinematic.scenes.sceneNumber', { number: selected.orderKey })}</span><h2>{selected.title || t('cinematic.scenes.untitled')}</h2></div><span className={`cinematic-scene-overview__status is-${selected.planningStatus || 'ready'}`}>{t(`cinematic.scenes.status.${selected.planningStatus || 'ready'}`)}</span></div>
             <label><span>{t('cinematic.scenes.title')}</span><input value={draft.title} maxLength={120} onChange={event => setDraft(value => ({ ...value, title: event.target.value }))} /></label>
             <label><span>{t('cinematic.scenes.synopsis')}</span><textarea rows={8} maxLength={4000} value={draft.synopsis} onChange={event => setDraft(value => ({ ...value, synopsis: event.target.value }))} /></label>
@@ -223,7 +266,9 @@ export function CinematicSceneOverview({ actorId, project, online, onBackToChapt
               <header>
                 <div><ListVideo aria-hidden="true" /><h3>{t('cinematic.scenes.shots')}</h3><span>{selected.shots.length}</span></div>
                 <div className="cinematic-scene-overview__shot-actions">
-                  <Button size="sm" icon={<Sparkles />} loading={busy === 'shot-generate'} disabled={!online || Boolean(busy) || dirty || looksPending || Boolean(shotProposal) || !(selected.synopsis || selected.objective || selected.storyChange)} onClick={generateShots}>{selected.shots.length ? t('cinematic.scenes.regenerateShots') : t('cinematic.scenes.generateShots')}</Button>
+                  {selected.shots.length ? <ConfirmDialog key={`shots:${confirmationKey}:${shotProposal?.id || ''}`} trigger={shotGenerateButton}
+                    title={t('cinematic.regeneration.shotsTitle')} description={t('cinematic.regeneration.shotsDescription')}
+                    confirmLabel={t('cinematic.regeneration.confirm')} pending={Boolean(busy)} onConfirm={generateShots} /> : shotGenerateButton}
                   <Button size="sm" icon={<Plus />} loading={busy === 'shot-manual'} disabled={!online || Boolean(busy) || looksPending || Boolean(shotProposal)} onClick={addManualShot}>{t('cinematic.scenes.addShot')}</Button>
                 </div>
               </header>

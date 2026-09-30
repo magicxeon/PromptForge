@@ -1,4 +1,13 @@
 {
+  "ui.creditConsent.settingsFailed": "Could not load or save your preference. Please try again.",
+  "ui.creditConsent.title": "Confirm generation",
+  "ui.creditConsent.amount": "{credits} Credits",
+  "ui.creditConsent.skip": "Do not ask again before using Credits",
+  "ui.creditConsent.confirm": "Confirm and generate",
+  "ui.creditConsent.saveFailed": "Could not save your preference. Retry, or uncheck this option to confirm only this request.",
+  "ui.creditConsent.settings": "Credit confirmation",
+  "ui.creditConsent.settingsDescription": "Saved to your account. Regeneration and replacement confirmations remain enabled.",
+  "ui.creditConsent.ask": "Ask before generating with Credits",
   "ui.promptBudget.checking": "Checking prompt",
   "ui.promptBudget.within_budget": "Prompt: {count} characters",
   "ui.promptBudget.optimized": "Optimized prompt: {count} characters",

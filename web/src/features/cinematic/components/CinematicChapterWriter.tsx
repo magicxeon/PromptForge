@@ -3,13 +3,18 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { getCinematicProject } from '../api/cinematicApi';
+import { reorderCinematicChapters } from '../api/cinematicSeriesApi';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 import { applyCinematicChapterProposal, applyCinematicSceneProposal, createCinematicManualScene, discardCinematicChapterProposal, discardCinematicSceneProposal, getCinematicSeriesWorkspace, mutateCinematicSeries, proposeCinematicChapters, proposeCinematicScenes, restoreCinematicChapterRevision, updateCinematicChapter } from '../api/cinematicSeriesApi';
 import type { CinematicChapterProposal, CinematicChapterRevision, CinematicProject, CinematicSceneProposal } from '../schemas/cinematicSchemas';
 import { CinematicSharedCharactersPanel } from './CinematicSharedCharactersPanel';
+import { chapterRecoverySchema, useCinematicTextRecovery } from '../state/useCinematicTextRecovery';
+import { CinematicRecoveryNotice } from './CinematicRecoveryNotice';
 
 type Props = {
   actorId: string;
@@ -46,8 +51,12 @@ export function CinematicChapterWriter({
   const currentChapter = chapters.find(chapter => chapter.projectId === project.id);
   const initialTitle = project.chapterTitle || currentChapter?.title || t('cinematic.chapterWriter.defaultTitle', { number: project.seriesMembership?.chapterNumber || 1 });
   const initialStory = project.chapterStory || currentChapter?.storyBrief || '';
-  const [title, setTitle] = useState(initialTitle);
-  const [story, setStory] = useState(initialStory);
+  const recovery = useCinematicTextRecovery({ actorId, projectId: project.id, documentId: 'chapter',
+    revision: project.activeChapterVersionId || '', serverValue: { title: initialTitle, story: initialStory, instruction: '' }, schema: chapterRecoverySchema });
+  const { title, story, instruction } = recovery.value;
+  const setTitle = (title: string) => recovery.setValue(value => ({ ...value, title }));
+  const setStory = (story: string) => recovery.setValue(value => ({ ...value, story }));
+  const setInstruction = (instruction: string) => recovery.setValue(value => ({ ...value, instruction }));
   const storyProjectId = workspace.data?.productionProject.storyProjectId || project.chapterOrigin?.projectId || project.id;
   const storyProject = useQuery({
     queryKey: ['cinematic-project', actorId, storyProjectId],
@@ -56,7 +65,6 @@ export function CinematicChapterWriter({
     staleTime: 20_000,
     retry: false
   });
-  const [instruction, setInstruction] = useState('');
   const [panel, setPanel] = useState<'assist' | 'characters' | 'history'>('assist');
   const pendingChapterProposal = useMemo(() => [...(storyProject.data?.chapterProposals || [])].reverse().find(item => item.status === 'pending_review') || null, [storyProject.data?.chapterProposals]);
   const [proposal, setProposal] = useState<CinematicChapterProposal | null>(pendingChapterProposal);
@@ -65,22 +73,18 @@ export function CinematicChapterWriter({
   const [sceneProposalVersion, setSceneProposalVersion] = useState(project.version);
   const [busy, setBusy] = useState<'save' | 'add' | 'switch' | 'selected-ai' | 'all-ai' | 'apply' | 'discard' | 'restore' | 'scenes-ai' | 'scene-apply' | 'scene-discard' | 'scene-manual' | null>(null);
   const [error, setError] = useState('');
+  const [orderChanged, setOrderChanged] = useState(false);
   const busyRef = useRef(false);
-  const editedRef = useRef(false);
-  const loadedProjectRef = useRef(project.id);
+  const loadedProjectRef = useRef(`${actorId}:${project.id}`);
   const closedChapterProposalIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (loadedProjectRef.current !== project.id) {
-      loadedProjectRef.current = project.id;
-      editedRef.current = false;
+    if (loadedProjectRef.current !== `${actorId}:${project.id}`) {
+      loadedProjectRef.current = `${actorId}:${project.id}`;
       setProposal(null);
       setSceneProposal(null);
     }
-    if (editedRef.current) return;
-    setTitle(project.chapterTitle || currentChapter?.title || t('cinematic.chapterWriter.defaultTitle', { number: project.seriesMembership?.chapterNumber || 1 }));
-    setStory(project.chapterStory || currentChapter?.storyBrief || '');
-  }, [currentChapter?.storyBrief, currentChapter?.title, project.chapterStory, project.chapterTitle, project.id, project.seriesMembership?.chapterNumber, t]);
+  }, [actorId, project.id]);
 
   useEffect(() => {
     if (!proposal && pendingChapterProposal && pendingChapterProposal.id !== closedChapterProposalIdRef.current) {
@@ -99,7 +103,7 @@ export function CinematicChapterWriter({
   const dirty = title.trim() !== initialTitle.trim() || story.trim() !== initialStory.trim();
   const hasPendingChapterProposal = Boolean(proposal || pendingChapterProposal);
   const sceneProposalStale = Boolean(sceneProposal && sceneProposal.sourceChapterRevisionId !== project.activeChapterVersionId);
-  const orderedChapters = useMemo(() => [...chapters].sort((a, b) => a.order - b.order), [chapters]);
+  const orderedChapters = chapters;
   const revisions = useMemo(() => [...(project.chapterVersions || [])].sort((a, b) => b.version - a.version), [project.chapterVersions]);
 
   async function run<T>(kind: NonNullable<typeof busy>, operation: () => Promise<T>) {
@@ -120,10 +124,10 @@ export function CinematicChapterWriter({
   async function saveCurrent(forceRevision = false) {
     if (!dirty && !forceRevision) return project;
     const result = await updateCinematicChapter(project.id, project.version, title, story);
+    recovery.markSaved({ title, story }, { title: result.project.chapterTitle || title, story: result.project.chapterStory ?? story, instruction: '' }, result.project.activeChapterVersionId || '');
     if (getActiveActorId() !== actorId) return project;
     queryClient.setQueryData(queryKey, result.workspace);
     queryClient.setQueryData(['cinematic-project', actorId, result.project.id], result.project);
-    editedRef.current = false;
     onProjectChanged(result.project);
     return result.project;
   }
@@ -165,7 +169,7 @@ export function CinematicChapterWriter({
   }
 
   function generate(scope: 'all' | 'selected') {
-    if (!online || busyRef.current || (scope === 'selected' && !instruction.trim())) return;
+    if (!online || busyRef.current || getActiveActorId() !== actorId) return;
     if (hasPendingChapterProposal) {
       setPanel('assist');
       return;
@@ -175,9 +179,11 @@ export function CinematicChapterWriter({
         expectedVersion: project.version,
         scope,
         instruction,
+        ...(scope === 'selected' && !instruction.trim() ? { intent: 'continuity' as const } : {}),
         ...(scope === 'selected' ? { draftTitle: title, draftStory: story } : {})
       });
       closedChapterProposalIdRef.current = null;
+      if (getActiveActorId() !== actorId) return;
       setProposal(result.proposal);
       setPanel('assist');
       queryClient.setQueryData(queryKey, result.workspace);
@@ -192,12 +198,40 @@ export function CinematicChapterWriter({
     void run('apply', async () => {
       const result = await applyCinematicChapterProposal(project.id, proposal.id);
       closedChapterProposalIdRef.current = proposal.id;
-      setProposal(null); setInstruction(''); editedRef.current = false;
+      setProposal(null); setInstruction('');
       queryClient.setQueryData(queryKey, result.workspace);
       queryClient.setQueryData(['cinematic-project', actorId, result.project.id], result.project);
       void queryClient.invalidateQueries({ queryKey: ['cinematic-project', actorId, storyProjectId] });
       onProjectChanged(result.project);
     });
+  }
+
+  function moveChapter(id: string, direction: number) {
+    const selected = chapters.find(item => item.projectId === id);
+    const series = workspace.data?.series;
+    if (!selected?.seasonId || !series) return;
+    const siblings = chapters.filter(item => item.seasonId === selected.seasonId);
+    const index = siblings.findIndex(item => item.projectId === id);
+    if (!siblings[index + direction]) return;
+    void run('save', async () => {
+      const saved = await saveCurrent();
+      const ids = siblings.map(item => item.projectId);
+      [ids[index], ids[index + direction]] = [ids[index + direction]!, ids[index]!];
+      const result = await reorderCinematicChapters(project.id, { expectedProjectVersion: saved.version,
+        expectedVersion: series.version, seasonId: selected.seasonId!, chapterIds: ids });
+      if (getActiveActorId() !== actorId) return;
+      queryClient.setQueryData(queryKey, result.workspace);
+      queryClient.setQueryData(['cinematic-project', actorId, result.project.id], result.project);
+      void queryClient.invalidateQueries({ queryKey: ['cinematic-series', actorId] });
+      setOrderChanged(true);
+      onProjectChanged(result.project);
+    });
+  }
+
+  function canMoveChapter(id: string, direction: number) {
+    const selected = chapters.find(item => item.projectId === id);
+    const siblings = chapters.filter(item => item.seasonId === selected?.seasonId);
+    return Boolean(selected?.seasonId && siblings[siblings.findIndex(item => item.projectId === id) + direction]);
   }
 
   function discardProposal() {
@@ -215,7 +249,6 @@ export function CinematicChapterWriter({
   function restore(revision: CinematicChapterRevision) {
     void run('restore', async () => {
       const result = await restoreCinematicChapterRevision(project.id, revision.id, project.version);
-      editedRef.current = false;
       queryClient.setQueryData(queryKey, result.workspace);
       onProjectChanged(result.project);
     });
@@ -287,9 +320,17 @@ export function CinematicChapterWriter({
           <p>{t(hasPendingChapterProposal ? 'cinematic.chapterWriter.reviewPendingDescription' : 'cinematic.chapterWriter.regenerateAllDescription')}</p>
         </div>
         <div className="cinematic-chapter-writer__header-actions">
-          <Button size="sm" icon={hasPendingChapterProposal ? <FileText /> : <RefreshCw />} loading={busy === 'all-ai'} disabled={!online || Boolean(busy) || !storyProject.data?.confirmedFullStoryVersionId} title={t(hasPendingChapterProposal ? 'cinematic.chapterWriter.reviewPendingDescription' : 'cinematic.chapterWriter.regenerateAllDescription')} onClick={() => hasPendingChapterProposal ? setPanel('assist') : generate('all')}>
-            {t(hasPendingChapterProposal ? 'cinematic.chapterWriter.reviewPendingProposal' : 'cinematic.chapterWriter.regenerateAll')}
-          </Button>
+          {hasPendingChapterProposal ? <Button size="sm" icon={<FileText />} disabled={!online || Boolean(busy) || !storyProject.data?.confirmedFullStoryVersionId} title={t('cinematic.chapterWriter.reviewPendingDescription')} onClick={() => setPanel('assist')}>
+            {t('cinematic.chapterWriter.reviewPendingProposal')}
+          </Button> : <ConfirmDialog
+            key={JSON.stringify([actorId, project.id, project.version, storyProject.data?.version, workspace.data?.series?.version, title, story, instruction, online])}
+            title={t('cinematic.regeneration.chaptersTitle')}
+            description={t('cinematic.regeneration.chaptersDescription')}
+            confirmLabel={t('cinematic.regeneration.confirm')}
+            pending={!online || Boolean(busy)} onConfirm={() => generate('all')}
+            trigger={<Button size="sm" icon={<RefreshCw />} loading={busy === 'all-ai'} disabled={!online || Boolean(busy) || !storyProject.data?.confirmedFullStoryVersionId} title={t('cinematic.chapterWriter.regenerateAllDescription')}>
+              {t('cinematic.chapterWriter.regenerateAll')}
+            </Button>} />}
           <span className="cinematic-story-writer__save-state" role="status">
             {busy ? <ProcessingSpinner /> : <Save aria-hidden="true" />}
             {t(busy ? 'cinematic.chapterWriter.saving' : dirty ? 'cinematic.chapterWriter.unsaved' : 'cinematic.chapterWriter.saved')}
@@ -303,11 +344,13 @@ export function CinematicChapterWriter({
           onClick={() => onOpenSetup(storyProjectId)}>{t('cinematic.chapterPlan.editSetup')}</Button> : null}
       </div> : null}
       {error ? <StatusNotice tone="error" title={t('cinematic.chapterWriter.operationFailed')}>{error}</StatusNotice> : null}
+      <CinematicRecoveryNotice key={`${actorId}:${project.id}:${project.activeChapterVersionId}`} recovery={recovery} disabled={Boolean(busy)} />
+      {orderChanged ? <p role="status">{t('cinematic.order.review')}</p> : null}
       {!storyProject.isLoading && !storyProject.data?.confirmedFullStoryVersionId ? (
         <StatusNotice tone="warning" title={t('cinematic.chapterWriter.confirmationRequired')}>{t('cinematic.chapterWriter.confirmationRequiredDescription')}</StatusNotice>
       ) : null}
 
-      <div className="cinematic-story-writer__layout cinematic-chapter-writer__layout" inert={busy ? true : undefined}>
+      <div className="cinematic-story-writer__layout cinematic-chapter-writer__layout" inert={busy || recovery.pending ? true : undefined}>
         <aside className="cinematic-story-writer__outline" aria-label={t('cinematic.chapterWriter.chapters')}>
           <details className="cinematic-story-writer__outline-section cinematic-story-writer__chapters" open>
             <summary>
@@ -331,6 +374,14 @@ export function CinematicChapterWriter({
                         <small data-scene-status={chapter.scenePlanningStatus}>{t(`cinematic.chapterWriter.sceneStatus.${chapter.scenePlanningStatus}`)}</small>
                       ) : null}
                     </button>
+                    <div className="cinematic-order-actions">
+                      {([-1, 1] as const).map(direction => <Button key={direction} size="icon" variant="ghost"
+                        icon={direction < 0 ? <ArrowUp /> : <ArrowDown />}
+                        title={t(direction < 0 ? 'cinematic.order.earlier' : 'cinematic.order.later')}
+                        aria-label={`${t(direction < 0 ? 'cinematic.order.earlier' : 'cinematic.order.later')} ${chapter.title}`}
+                        disabled={!online || Boolean(busy) || !canMoveChapter(chapter.projectId, direction)}
+                        onClick={() => moveChapter(chapter.projectId, direction)} />)}
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -346,11 +397,11 @@ export function CinematicChapterWriter({
         <section className="cinematic-story-writer__document">
           <label className="cinematic-story-writer__title-field">
             <span>{t('cinematic.chapterWriter.title')}</span>
-            <input aria-label={t('cinematic.chapterWriter.title')} value={title} maxLength={120} onChange={event => { editedRef.current = true; setTitle(event.target.value); }} />
+            <input aria-label={t('cinematic.chapterWriter.title')} value={title} maxLength={120} onChange={event => setTitle(event.target.value)} />
           </label>
           <label className="cinematic-story-writer__prose-field">
             <span>{t('cinematic.chapterWriter.story')}</span>
-            <textarea aria-label={t('cinematic.chapterWriter.story')} value={story} maxLength={50000} placeholder={t('cinematic.chapterWriter.storyPlaceholder')} onChange={event => { editedRef.current = true; setStory(event.target.value); }} />
+            <textarea aria-label={t('cinematic.chapterWriter.story')} value={story} maxLength={50000} placeholder={t('cinematic.chapterWriter.storyPlaceholder')} onChange={event => setStory(event.target.value)} />
             <small>{t('cinematic.chapterWriter.characterCount', { count: Array.from(story).length, limit: 50000 })}</small>
           </label>
           {!story.trim() ? (
@@ -395,7 +446,8 @@ export function CinematicChapterWriter({
           {panel === 'assist' ? (
             <div className="cinematic-writer-panel">
               <label><span>{t('cinematic.chapterWriter.instruction')}</span><textarea rows={6} maxLength={2000} value={instruction} placeholder={t('cinematic.chapterWriter.instructionPlaceholder')} onChange={event => setInstruction(event.target.value)} /></label>
-              <Button variant="primary" icon={<Sparkles />} loading={busy === 'selected-ai'} disabled={!online || Boolean(busy) || !instruction.trim() || !storyProject.data?.confirmedFullStoryVersionId} onClick={() => generate('selected')}>{t('cinematic.chapterWriter.reviseWithAi')}</Button>
+              {!instruction.trim() ? <p>{t('cinematic.continuity.chapterHint')}</p> : null}
+              <Button variant="primary" icon={<Sparkles />} loading={busy === 'selected-ai'} disabled={!online || Boolean(busy) || !storyProject.data?.confirmedFullStoryVersionId} onClick={() => generate('selected')}>{t(instruction.trim() ? 'cinematic.chapterWriter.reviseWithAi' : 'cinematic.continuity.improve')}</Button>
               {proposal ? (
                 <section className="cinematic-chapter-writer__proposal">
                   <header><strong>{t(proposal.scope === 'all' ? 'cinematic.chapterWriter.allProposal' : 'cinematic.chapterWriter.selectedProposal')}</strong><small>{t('cinematic.chapterWriter.proposalCount', { count: proposal.chapters.length })}</small></header>

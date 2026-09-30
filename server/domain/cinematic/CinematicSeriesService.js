@@ -12,6 +12,7 @@ import {
   restoreChapterRevision
 } from './CinematicChapterAuthoring.js';
 import { scenePlanningProjection } from './CinematicSceneAuthoring.js';
+import { assertSiblingOrder, continuitySourceKey } from './CinematicAuthoringContinuity.js';
 
 export class CinematicSeriesService {
   constructor({ repository, normalizeSetup, invalidateCastSources }) {
@@ -49,15 +50,64 @@ export class CinematicSeriesService {
       : workspace(data, null, project);
   }
 
-  async getChapterCharacterProjection(projectId, actor) {
+  reorderChapters(projectId, input, actor) {
+    return this.repository.mutateSeriesWorkspaceForActor(actor, data => {
+      const project = findProject(data, projectId);
+      assertVersion(project, input.expectedProjectVersion);
+      const series = findSeries(data, project.seriesMembership?.seriesId);
+      assertVersion(series, input.expectedVersion);
+      const siblings = orderedChapterProjects(data, series, project)
+        .filter(item => item.seriesMembership.seasonId === input.seasonId);
+      if (!siblings.length) fail('cinematic_order_invalid', 'Season has no Chapters.', 400);
+      assertSiblingOrder(input.chapterIds, siblings);
+      const root = findStoryProject(data, project);
+      if (siblings.every((item, index) => item.id === input.chapterIds[index])) return { project, workspace: workspace(data, series, project) };
+      const now = new Date().toISOString();
+      for (const item of siblings) {
+        item.seriesMembership.chapterNumber = input.chapterIds.indexOf(item.id) + 1;
+        item.version += 1; item.updatedAt = now;
+      }
+      // Anchor the story root independently of production order, including legacy series.
+      series.storyProjectId = root.id;
+      touch(series);
+      return { project, workspace: workspace(data, series, project) };
+    });
+  }
+
+  mutateProjectSetup(projectId, actor, operation) {
+    return this.repository.mutateSeriesWorkspaceForActor(actor, async data => {
+      const project = normalizeLegacyProject(findProject(data, projectId));
+      const previousTitle = project.title;
+      const previousDirection = project.setup?.videoDirection || '';
+      const result = await operation(project);
+      project.updatedAt = new Date().toISOString();
+      if (project.seriesMembership && findStoryProject(data, project).id === project.id) {
+        const series = findSeries(data, project.seriesMembership.seriesId);
+        if (series.title !== project.title && (previousTitle !== project.title || project.setup?.format === 'mini-series')) {
+          series.title = project.title;
+          touch(series);
+        }
+      }
+      if (previousDirection !== (project.setup?.videoDirection || '')) {
+        if (findStoryProject(data, project).id !== project.id) fail('cinematic_video_direction_root_required', 'Edit video direction on the Full Story Project.', 409);
+        for (const child of data.projects.filter(item => item.id !== project.id && item.status !== 'archived'
+          && item.seriesMembership?.seriesId && item.seriesMembership.seriesId === project.seriesMembership?.seriesId)) {
+          child.version += 1; child.updatedAt = project.updatedAt;
+        }
+      }
+      return result === undefined ? project : result;
+    });
+  }
+
+  async getChapterContextProjection(projectId, actor) {
     const data = await this.repository.readSeriesWorkspaceForActor(actor);
     const target = findProject(data, projectId);
     const source = findStoryProject(data, target);
-    if (source.id === target.id) return null;
     const selected = new Set(target.chapterCharacterIds || []);
-    return (source.castAssignments || [])
+    const castAssignments = source.id === target.id || !selected.size ? null : (source.castAssignments || [])
       .filter(item => item.active !== false && selected.has(item.id))
       .map(item => structuredClone(item));
+    return { castAssignments, videoDirection: String(source.setup?.videoDirection || '') };
   }
 
   async mutateWithCharacterProjection(projectId, actor, operation) {
@@ -67,13 +117,15 @@ export class CinematicSeriesService {
         if (project.seriesMembership || project.chapterOrigin) {
           fail('cinematic_version_conflict', 'The Project workspace changed. Refresh and try again.', 409);
         }
-        return operation(project, project, [project]);
+        return operation(project, project, [project], [{ ...project, projectId: project.id }]);
       });
     }
     return this.repository.mutateSeriesWorkspaceForActor(actor, async data => {
       const project = normalizeLegacyProject(findProject(data, projectId));
       const storyProject = findStoryProject(data, project);
       const localCast = project.castAssignments;
+      const localDirection = project.videoDirection;
+      project.videoDirection = String(storyProject.setup?.videoDirection || '');
       const shared = storyProject.id !== project.id && project.chapterCharacterIds?.length;
       if (shared) {
         const selected = new Set(project.chapterCharacterIds);
@@ -81,12 +133,15 @@ export class CinematicSeriesService {
           .filter(item => item.active !== false && selected.has(item.id)).map(item => structuredClone(item));
       }
       try {
-        const result = await operation(project, storyProject, data.projects);
+        const series = project.seriesMembership ? findSeries(data, project.seriesMembership.seriesId) : null;
+        const result = await operation(project, storyProject, data.projects, workspace(data, series, project).chapters);
         project.updatedAt = new Date().toISOString();
         return structuredClone(result);
       } finally {
         // Projection is transaction-local; the story Character remains the only writer.
         if (shared) project.castAssignments = localCast;
+        if (localDirection === undefined) delete project.videoDirection;
+        else project.videoDirection = localDirection;
       }
     });
   }
@@ -114,7 +169,17 @@ export class CinematicSeriesService {
       const series = findSeries(data, seriesId);
       assertVersion(series, input.expectedVersion);
       if (input.seasonId) findSeason(series, input.seasonId).title = title;
-      else series.title = title;
+      else {
+        series.title = title;
+        const member = data.projects.find(project => project.status !== 'archived' && project.seriesMembership?.seriesId === series.id);
+        const root = member && findStoryProject(data, member);
+        if (root?.setup?.format === 'mini-series' && root.title !== title) {
+          root.title = title;
+          root.setup.title = title;
+          root.version += 1;
+          root.updatedAt = new Date().toISOString();
+        }
+      }
       touch(series);
       return workspace(data, series);
     });
@@ -221,6 +286,9 @@ export class CinematicSeriesService {
       }
       const series = source.seriesMembership ? findSeries(data, source.seriesMembership.seriesId) : null;
       const existing = orderedChapterProjects(data, series, source);
+      if (input.continuitySourceKey && input.continuitySourceKey !== continuitySourceKey(existing)) {
+        fail('cinematic_chapter_proposal_stale', 'Chapter context changed while generating. Try again.', 409);
+      }
       const scope = input.scope === 'selected' ? 'selected' : 'all';
       if (!series && scope === 'all' && chapters.length !== 1) {
         fail('cinematic_movie_chapter_count_invalid', 'A Movie uses one Chapter.', 409);
@@ -645,7 +713,7 @@ function workspace(data, series, currentProject = null) {
       productionProjectId,
       storyProjectId: storyProject.id,
       version: series?.version || rootProject.version,
-      title: series?.title || rootProject.title,
+      title: storyProject.setup?.format === 'mini-series' ? storyProject.title : series?.title || rootProject.title,
       format: series ? 'mini-series' : rootProject.format || 'short-film',
       seasonsEnabled: Boolean(series),
       chapterCount: ordered.length,
@@ -677,6 +745,9 @@ function orderedChapterProjects(data, series, source) {
 }
 
 function findStoryProject(data, project) {
+  const rootId = data.series.find(item => item.id === project.seriesMembership?.seriesId)?.storyProjectId;
+  const pinnedRoot = data.projects.find(item => item.id === rootId && item.status !== 'archived');
+  if (pinnedRoot) return pinnedRoot;
   if (project.chapterOrigin?.projectId) {
     const origin = data.projects.find(item => item.id === project.chapterOrigin.projectId && item.status !== 'archived');
     if (origin) return origin;

@@ -87,6 +87,8 @@ export function normalizeCinematicAuthoringEnvelope(project, { newRecord = false
   if (!Array.isArray(project.chapterVersions)) project.chapterVersions = [];
   if (typeof project.activeChapterVersionId !== 'string') project.activeChapterVersionId = null;
   if (!Array.isArray(project.chapterProposals)) project.chapterProposals = [];
+  if (!project.chapterOutline || typeof project.chapterOutline !== 'object') project.chapterOutline = null;
+  if (!Array.isArray(project.chapterOutlineHistory)) project.chapterOutlineHistory = [];
   if (!Array.isArray(project.chapterCharacterIds)) project.chapterCharacterIds = [];
   if (!Array.isArray(project.sceneProposals)) project.sceneProposals = [];
   if (!Array.isArray(project.shotProposals)) project.shotProposals = [];

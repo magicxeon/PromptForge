@@ -1,7 +1,17 @@
 import { z } from 'zod';
 
+export const cinematicPortableShotSchema = z.object({
+  warnings: z.array(z.enum(['prompt_changed', 'frame_changed', 'reference_numbers_changed'])).default([]),
+  copyReady: z.boolean().default(true),
+  issues: z.array(z.object({ slot: z.number().int().positive(), name: z.string(), castAssignmentId: z.string().optional(),
+    code: z.enum(['first_frame_unavailable', 'look_unavailable']) })).max(25).default([]),
+  prompt: z.string(), references: z.array(z.object({ number: z.number().int().positive(), name: z.string(),
+    purpose: z.string(), source: z.string(), imageUrl: z.string().min(1) })).max(25)
+});
+
 export const cinematicShotWriterPreparationSchema = z.object({
   shotDocument: z.string(), sourceFingerprint: z.string(), generatedPrompt: z.string(),
+  projectVideoDirection: z.string().optional(),
   overrideStale: z.boolean(), maximumPromptCharacters: z.number().int().positive(),
   dialogue: z.object({
     cues: z.array(z.object({ speakerCastAssignmentId: z.string(), offscreenVoiceRole: z.string(), text: z.string(),
@@ -13,6 +23,7 @@ export const cinematicShotWriterPreparationSchema = z.object({
 import { cinematicChapterProposalSchema, cinematicProjectSchema, cinematicProjectSummarySchema, cinematicSceneProposalSchema, cinematicSceneSchema, cinematicShotProposalSchema, cinematicShotSchema } from './cinematicSchemas';
 
 export const cinematicSeriesSchema = z.object({
+  storyProjectId: z.string().optional(),
   id: z.string().min(1), ownerUserId: z.string().min(1), title: z.string().min(1), version: z.number().int().positive(),
   seasons: z.array(z.object({ id: z.string().min(1), number: z.number().int().positive(), title: z.string() })).max(24),
   createdAt: z.string().datetime(), updatedAt: z.string().datetime()

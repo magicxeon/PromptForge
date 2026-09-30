@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { projectVideoDirection } from './CinematicProjectVideoDirection.js';
 import { resolveShotCastIds } from './CinematicCastCoverage.js';
 import { estimateDialogueSpeech, assessDialogueShot } from './CinematicDialogueTiming.js';
 
@@ -81,6 +82,7 @@ export function compileCinematicShotDocument(shot, scene = {}, cast = []) {
 export function shotPromptSourceFingerprint(project, scene, shot) {
   const ids = new Set([...(shot.speakerBindings || []).map(item => item.castAssignmentId), ...resolveShotCastIds(scene, shot)]);
   return crypto.createHash('sha256').update(JSON.stringify(stableValue({
+    ...(projectVideoDirection(project) ? { projectVideoDirection: projectVideoDirection(project) } : {}),
     document: shot.shotDocument || '', durationMs: shot.durationMs,
     bindings: shot.speakerBindings || resolveShotCastIds(scene, shot).map(id => ({
       castAssignmentId: id, alias: (project.castAssignments || []).find(item => item.id === id)?.displayName || id, visible: true

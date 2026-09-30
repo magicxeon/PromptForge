@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { projectVideoDirection, withProjectVideoDirection } from './CinematicProjectVideoDirection.js';
 import { validateGenerationPrompt } from '../generation/GenerationPromptBudget.js';
 import {
   matchesStoryboardKeyframeFingerprint,
@@ -103,6 +104,7 @@ export class CinematicVideoPacketCompiler {
     }
 
     const packet = {
+      ...(projectVideoDirection(project) ? { projectVideoDirection: projectVideoDirection(project) } : {}),
       ...(documentPreparation ? { documentDirection: true } : {}),
       ...(shot.videoPromptOverride ? { creatorDirectionOverride: shot.videoPromptOverride.text } : {}),
       ...(compositionReference ? { storyboardRenderStyle: source.storyboardRenderStyle } : {}),
@@ -363,9 +365,9 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
     }),
     ...(compact(promptSuffix) ? [compact(promptSuffix)] : [])
   ];
-  const prompt = [
+  const prompt = withProjectVideoDirection([
     `CINEMATIC VIDEO EXECUTION PACKET ${packet.contractVersion}`, ...promptParts
-  ].join('\n\n');
+  ].join('\n\n'), packet.projectVideoDirection);
   const maximum = referenceMode?.maximumPromptCharacters || policy.maximumPromptCharacters;
   if (prompt.length <= maximum) return prompt;
   const compositionAuthority = referencePlan?.mode === 'storyboard_and_looks'
@@ -394,6 +396,7 @@ function renderPrompt(packet, policy, strategy = null, referencePlan = null) {
     ].filter(Boolean).join('\n');
   }
   // This legacy budget is a recommendation, not a verified provider API limit.
+  optimized = withProjectVideoDirection(optimized, packet.projectVideoDirection);
   validateGenerationPrompt(optimized, { operation: 'video', recommendedCharacters: maximum });
   return optimized;
 }

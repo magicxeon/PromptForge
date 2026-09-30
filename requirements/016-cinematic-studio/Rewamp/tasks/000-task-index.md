@@ -7,6 +7,10 @@ applied sequentially. Updated: 2026-09-21.
 
 ## 1. How To Use This Folder
 
+[016 confirmation tasks GC01-GC05](../016-generation-confirmation-and-writer-tools.md)
+cover Identity preferences, shared Generation consent, regeneration guards and
+Full Story tool tabs. Use its focused groups instead of the complete suite.
+
 Work one screen at a time, deliver a usable slice, record feedback in its packet,
 and revise that screen before moving on as directed. There is no requirement to
 finish every backend phase before a screen can be inspected with isolated fixtures.
@@ -25,6 +29,19 @@ Rules and UX remain owned by [000](../000-master.md),
 boundaries, task status, local review notes and evidence; it does not fork requirements.
 
 ## 2. Work Packets And Suggested Order
+
+[015 Flow hardening and integrated UAT](015-cinematic-flow-hardening.md) records
+FH01-FH07 and extends packets 008-011/014. Bounded recovery, Render round trips,
+readiness advice, partial portable export and Chapter Final are implemented with
+focused checks. Read its results/remaining-UAT section before running a pilot.
+These follow-ups do not change the original RW task count.
+
+[014 Continuity, ordering and portable Shots](014-authoring-continuity-and-portable-production.md)
+decomposes [requirement 014](../014-authoring-continuity-and-portable-production.md)
+into AC01-AC14. Core authoring/order/media changes are implemented with focused
+automated and responsive browser evidence; see the packet for remaining UAT and
+deferred refinements. Empty revision is confirmed Chapter-only. These
+14 follow-up tasks are separate from the historical RW task counts below.
 
 [012 Story file import](../012-story-file-import.md) owns the Setup `.md`/`.txt`
 import slice, destination preview and Full Story character extraction. Its four
@@ -162,6 +179,12 @@ instruction may redirect the next page or refine a completed page; preserve its
 already working sibling behavior. Record future scope separately from a local fix.
 
 ## 7. Planning Validation
+
+The 2026-09-26 increment is tracked by
+[013 Chapter Outline and Writing Economics](../013-chapter-outline-and-writing-economics.md).
+It adds five ordered tasks for Credits-owned advisory economics, reviewable Chapter
+planning, scoped Full Story UI and focused validation. Charging and a whole-pipeline
+usage ledger remain deferred; existing page packets retain ownership.
 
 The Character Look -> Scene -> Shot delivery is owned by
 [004 section 8](../004-production-assets-and-reference-planning.md#8-character-look-to-sceneshot-delivery-2026-09-25)

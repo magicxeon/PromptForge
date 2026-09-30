@@ -71,8 +71,53 @@ async function fixture(t, serviceOverrides = {}) {
   };
   const service = new CinematicApplicationService({ repository, fullStoryService, ...serviceOverrides });
   const project = await service.createProject(setup, actor);
-  return { service, project };
+  return { service, project, repository };
 }
+
+test('Authoring continuity revises only the selected Chapter and preserves its Season and production', async t => {
+  const { service, project, repository } = await fixture(t);
+  const saved = await service.saveFullStoryRevision(project.id, { expectedVersion: project.version, content: 'A complete story of a storm and a promise.', source: 'manual' }, actor);
+  const confirmed = await service.confirmFullStoryRevision(project.id, { expectedVersion: saved.version, revisionId: saved.activeFullStoryVersionId }, actor);
+  const generated = await service.generateFullStoryChapters(project.id, { expectedVersion: confirmed.version }, actor);
+  const childId = generated.workspace.chapters[1].projectId;
+  const child = await repository.mutateForActor(childId, actor, current => {
+    current.scenes = [{ id: 'preserved-scene', orderKey: 1, version: 1, shots: [] }];
+    return current;
+  });
+  let captured;
+  service.fullStoryService.proposeChapters = async input => {
+    captured = input;
+    return { proposalId: 'continuity-proposal', chapters: [{ title: 'The Promise', story: 'After the storm they meet again.' }], warnings: [] };
+  };
+  const proposed = await service.proposeChapters(childId, { expectedVersion: child.version, scope: 'selected', intent: 'continuity', instruction: '  ' }, actor);
+  assert.equal(proposed.proposal.status, 'pending_review');
+  assert.equal(captured.scope, 'selected');
+  assert.equal(captured.maxChapters, 1);
+  assert.match(captured.instruction, /Chapter only/);
+  assert.match(captured.continuity.previous.excerpt, /flowerpot falls/);
+  const applied = await service.applyChapterProposal(childId, proposed.proposal.id, { expectedVersion: proposed.project.version }, actor);
+  assert.equal(applied.project.chapterStory, 'After the storm they meet again.');
+  assert.equal(applied.project.seriesMembership.seasonId, child.seriesMembership.seasonId);
+  assert.deepEqual(applied.project.scenes, child.scenes);
+  assert.equal((await service.getProject(project.id, actor)).chapterStory, 'The flowerpot falls during the storm.');
+});
+
+test('Chapter ordering preserves story ownership, assets and rejects invalid or stale sibling permutations', async t => {
+  const { service, project, repository } = await fixture(t);
+  const saved = await service.saveFullStoryRevision(project.id, { expectedVersion: project.version, content: 'A complete story.', source: 'manual' }, actor);
+  const confirmed = await service.confirmFullStoryRevision(project.id, { expectedVersion: saved.version, revisionId: saved.activeFullStoryVersionId }, actor);
+  const generated = await service.generateFullStoryChapters(project.id, { expectedVersion: confirmed.version }, actor);
+  const childId = generated.workspace.chapters[1].projectId;
+  await repository.mutateForActor(childId, actor, current => { current.seriesMembership.seasonId = generated.project.seriesMembership.seasonId; current.seriesMembership.chapterNumber = 2; });
+  const before = await service.getSeriesWorkspace(project.id, actor);
+  const input = { expectedProjectVersion: generated.project.version, expectedVersion: before.series.version, seasonId: generated.project.seriesMembership.seasonId, chapterIds: [childId, project.id] };
+  await assert.rejects(service.reorderChapters(project.id, { ...input, chapterIds: [childId, childId] }, actor), { code: 'cinematic_order_invalid' });
+  const result = await service.reorderChapters(project.id, input, actor);
+  assert.deepEqual(result.workspace.chapters.map(item => item.projectId), [childId, project.id]);
+  assert.equal(result.workspace.productionProject.storyProjectId, project.id);
+  assert.equal(result.project.fullStoryVersions[0].content, 'A complete story.');
+  await assert.rejects(service.reorderChapters(project.id, input, actor), { code: 'cinematic_version_conflict' });
+});
 
 test('Chapter revision requires an instruction before provider dispatch', async t => {
   let calls = 0;
@@ -83,6 +128,80 @@ test('Chapter revision requires an instruction before provider dispatch', async 
   }
   assert.equal(calls, 0);
   assert.equal((await service.getProject(project.id, actor)).version, project.version);
+});
+
+test('Scene ordering preserves all Shot media and portable handoff stays read-only', async t => {
+  const { service, project } = await fixture(t);
+  const first = await service.createManualScene(project.id, { expectedVersion: project.version, idempotencyKey: 'order-scene-1' }, actor);
+  const shotResult = await service.createManualShot(project.id, first.scene.id, { expectedVersion: first.project.version, idempotencyKey: 'order-shot' }, actor);
+  const second = await service.createManualScene(project.id, { expectedVersion: shotResult.project.version, idempotencyKey: 'order-scene-2' }, actor);
+  const input = { expectedVersion: second.project.version, sceneIds: [second.scene.id, first.scene.id] };
+  await assert.rejects(service.reorderScenes(project.id, { ...input, sceneIds: [second.scene.id, 'foreign'] }, actor), { code: 'cinematic_order_invalid' });
+  const moved = await service.reorderScenes(project.id, input, actor);
+  assert.deepEqual(moved.project.scenes.map(item => item.id), input.sceneIds);
+  assert.deepEqual(moved.project.scenes[1].shots, shotResult.project.scenes[0].shots);
+  const exported = await service.exportShotWriter(project.id, first.scene.id, shotResult.shot.id, { expectedVersion: moved.project.version }, actor);
+  assert.deepEqual(exported.references, []);
+  assert.doesNotMatch(exported.prompt, /@Image|CINEMATIC VIDEO EXECUTION PACKET/);
+  assert.equal((await service.getProject(project.id, actor)).version, moved.project.version);
+  await assert.rejects(service.exportShotWriter(project.id, first.scene.id, shotResult.shot.id, { expectedVersion: moved.project.version }, { ...actor, userId: 'other' }), { code: 'cinematic_project_not_found' });
+});
+
+test('partial portable packets renumber available references and refuse inconsistent authored image numbers', async t => {
+  const { service, project, repository } = await fixture(t);
+  const scene = await service.createManualScene(project.id, { expectedVersion: project.version, idempotencyKey: 'partial-scene' }, actor);
+  const shot = await service.createManualShot(project.id, scene.scene.id, { expectedVersion: scene.project.version, idempotencyKey: 'partial-shot' }, actor);
+  service.videoReferencePlanService = { prepare: async () => ({ references: [
+    { characterName: 'Kin', purpose: 'character_look', referenceSource: 'uploaded', referenceImageUrl: '/owned/kin.png' }
+  ], issues: [{ slot: 1, name: 'First Frame', code: 'first_frame_unavailable' }] }) };
+  const packet = await service.exportShotWriter(project.id, scene.scene.id, shot.shot.id, { expectedVersion: shot.project.version }, actor);
+  assert.equal(packet.references[0].number, 1);
+  assert.match(packet.prompt, /@Image 1 = Kin/);
+  assert.equal(packet.copyReady, true);
+  for (const text of ['@Image 2 defines Kin.', 'Reference image 2 defines Kin.', 'Image #2 defines Kin.', 'ภาพที่ 2 คือคิน', 'ภาพอ้างอิงที่ ๒ คือคิน']) {
+    await repository.mutateForActor(project.id, actor, current => {
+      current.scenes[0].shots[0].videoPromptOverride = { text, sourceFingerprint: 'old' };
+      return current;
+    });
+    const unsafe = await service.exportShotWriter(project.id, scene.scene.id, shot.shot.id, { expectedVersion: shot.project.version }, actor);
+    assert.equal(unsafe.prompt, '');
+    assert.equal(unsafe.copyReady, false);
+    assert.equal(unsafe.references[0].imageUrl, '/owned/kin.png');
+    assert.ok(unsafe.warnings.includes('reference_numbers_changed'));
+  }
+});
+
+test('Project video direction is root-owned, inherited after edits, and preserved by legacy Setup saves', async t => {
+  const { service, project } = await fixture(t);
+  const saved = await service.saveFullStoryRevision(project.id, { expectedVersion: project.version, content: 'A complete story.', source: 'manual' }, actor);
+  const confirmed = await service.confirmFullStoryRevision(project.id, { expectedVersion: saved.version, revisionId: saved.activeFullStoryVersionId }, actor);
+  const generated = await service.generateFullStoryChapters(project.id, { expectedVersion: confirmed.version }, actor);
+  const childId = generated.workspace.chapters[1].projectId;
+  const updated = await service.updateSetup(project.id, { ...generated.project.setup, expectedVersion: generated.project.version, videoDirection: 'No music.' }, actor);
+  const child = await service.getProject(childId, actor);
+  assert.equal(child.videoDirection, 'No music.');
+  await assert.rejects(service.updateSetup(childId, { ...child.setup, expectedVersion: child.version, videoDirection: 'Different direction.' }, actor), { code: 'cinematic_video_direction_root_required' });
+  const legacyInput = { ...updated.setup, expectedVersion: updated.version }; delete legacyInput.videoDirection;
+  assert.equal((await service.updateSetup(project.id, legacyInput, actor)).setup.videoDirection, 'No music.');
+});
+
+test('Scene and Shot proposals reject stale continuity after order or neighbor changes', async t => {
+  const { service, project, repository } = await fixture(t);
+  const saved = await service.saveFullStoryRevision(project.id, { expectedVersion: project.version, content: 'A complete story.', source: 'manual' }, actor);
+  const confirmed = await service.confirmFullStoryRevision(project.id, { expectedVersion: saved.version, revisionId: saved.activeFullStoryVersionId }, actor);
+  const generated = await service.generateFullStoryChapters(project.id, { expectedVersion: confirmed.version }, actor);
+  const first = await service.createManualScene(project.id, { expectedVersion: generated.project.version, idempotencyKey: 'stale-scene-1' }, actor);
+  const second = await service.createManualScene(project.id, { expectedVersion: first.project.version, idempotencyKey: 'stale-scene-2' }, actor);
+  const proposal = await service.proposeScenes(project.id, { expectedVersion: second.project.version }, actor);
+  const moved = await service.reorderScenes(project.id, { expectedVersion: proposal.project.version, sceneIds: [second.scene.id, first.scene.id] }, actor);
+  await assert.rejects(service.applySceneProposal(project.id, proposal.proposal.id, { expectedVersion: moved.project.version }, actor), { code: 'cinematic_scene_proposal_stale' });
+  const shots = await service.proposeShots(project.id, first.scene.id, { expectedVersion: moved.project.version }, actor);
+  const changed = await repository.mutateForActor(project.id, actor, current => {
+    current.scenes.find(item => item.id === second.scene.id).version += 1;
+    current.version += 1;
+    return current;
+  });
+  await assert.rejects(service.applyShotProposal(project.id, first.scene.id, shots.proposal.id, { expectedVersion: changed.version }, actor), { code: 'cinematic_shot_proposal_stale' });
 });
 
 test('Full Story stays separate from Project Brief and generates Chapters only after confirmation', async t => {

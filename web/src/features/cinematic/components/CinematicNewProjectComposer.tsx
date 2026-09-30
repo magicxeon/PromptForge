@@ -4,8 +4,10 @@ import {
   ChevronDown,
   CloudOff,
   FilePlus2,
+  FileText,
   Film,
   Layers3,
+  Pencil,
   RectangleHorizontal,
   RectangleVertical,
   Save,
@@ -60,7 +62,9 @@ type Props = {
   onContinueFullStory?: () => void;
   importPolicy?: StoryImportPolicy;
   maximumStoryCharacters?: number;
+  maximumVideoDirectionCharacters?: number;
   onImportFullStory?: (file: StoryFile) => Promise<void>;
+  importedFullStory?: { importFileName?: string; importEdited?: boolean };
 };
 
 const FALLBACK_FORMATS: CreationPolicy['formats'] = ['short-film', 'mini-series'];
@@ -83,7 +87,9 @@ export function CinematicNewProjectComposer({
   onContinueFullStory,
   importPolicy,
   maximumStoryCharacters = 50000,
-  onImportFullStory
+  maximumVideoDirectionCharacters = 2000,
+  onImportFullStory,
+  importedFullStory
 }: Props) {
   const { t } = useTranslation('cinematic');
   const formats = creationPolicy?.formats || FALLBACK_FORMATS;
@@ -96,6 +102,11 @@ export function CinematicNewProjectComposer({
   };
   const storyLimit = storyAuthoring?.limits.storyBrief || 600;
   const [essentialsOpen, setEssentialsOpen] = useState(true);
+  const [briefOpen, setBriefOpen] = useState(false);
+  const fullStorySource = importedFullStory?.importFileName;
+  const source = fullStorySource
+    ? { fileName: fullStorySource, edited: importedFullStory.importEdited, destination: 'full-story' as const }
+    : draft.storyBriefImport ? { ...draft.storyBriefImport, destination: 'draft' as const } : null;
   const selectedGenres = draft.genres || [draft.genre];
   const editing = variant === 'edit';
   const durationLabel = (seconds: number) => {
@@ -135,17 +146,37 @@ export function CinematicNewProjectComposer({
             />
           </label>
 
-          {onImportFullStory ? <CinematicStoryFileImport policy={importPolicy} briefLimit={storyLimit}
+          {source ? <section className="cinematic-story-import__source" aria-label={t('cinematic.storyImport.source')}>
+            <FileText aria-hidden="true" />
+            <div className="cinematic-story-import__source-info">
+              <small>{t(source.edited ? 'cinematic.storyImport.sourceEdited' : 'cinematic.storyImport.source')}</small>
+              <strong>{source.fileName}</strong>
+              <span>{t(`cinematic.storyImport.${source.destination}`)}</span>
+            </div>
+            <div className="cinematic-story-import__source-actions">
+              {fullStorySource ? <Button type="button" icon={<Pencil />} disabled={pending || !online || !onContinueFullStory}
+                onClick={onContinueFullStory}>{t('cinematic.storyImport.editFullStory')}</Button> : null}
+              <Button type="button" icon={briefOpen ? <ChevronDown /> : <Pencil />} disabled={pending}
+                aria-expanded={briefOpen} aria-controls="cinematic-imported-brief"
+                onClick={() => setBriefOpen(open => !open)}>
+                {t(briefOpen ? 'cinematic.storyImport.hideBrief' : 'cinematic.storyImport.editBrief')}
+              </Button>
+            </div>
+          </section> : null}
+
+          {onImportFullStory ? <CinematicStoryFileImport policy={importPolicy} briefLimit={storyLimit} replacing={Boolean(source)}
             maximumCharacters={maximumStoryCharacters} disabled={pending || !online}
             onImport={async (file, destination) => {
               if (destination === 'full-story') await onImportFullStory(file);
               else {
                 onUpdate('storyBrief', file.content);
+                onUpdate('storyBriefImport', { fileName: file.fileName, edited: false });
+                setBriefOpen(false);
                 if (!draft.projectName.trim()) onUpdate('projectName', file.fileName.replace(/\.(md|txt)$/i, '').slice(0, 120));
               }
             }} /> : null}
 
-          <label className="cinematic-new-project__brief-field">
+          <label id="cinematic-imported-brief" className="cinematic-new-project__brief-field" hidden={Boolean(source) && !briefOpen}>
             <span>{t('cinematic.newProject.storyIdea')}</span>
             <textarea
               rows={10}
@@ -367,6 +398,13 @@ export function CinematicNewProjectComposer({
                   onChange={event => onUpdate('creativeDirection', event.target.value)}
                   placeholder={t('cinematic.setup.creativeDirectionPlaceholder')}
                 />
+              </label>
+              <label className="cinematic-new-project__direction">
+                <span>{t('cinematic.videoDirection.title')}</span>
+                <textarea aria-label={t('cinematic.videoDirection.title')} rows={4} maxLength={maximumVideoDirectionCharacters} value={draft.videoDirection || ''}
+                  onChange={event => onUpdate('videoDirection', event.target.value)}
+                  placeholder={t('cinematic.videoDirection.placeholder')} />
+                <small>{t('cinematic.videoDirection.hint')}</small>
               </label>
             </div>
           </details>

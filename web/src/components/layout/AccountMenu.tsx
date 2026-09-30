@@ -1,8 +1,11 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { ChevronDown, Coins, Settings, ShieldCheck, UserRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { AccountPreferencesDialog } from './AccountPreferencesDialog';
 
 type AccountMenuProps = {
+  actorId?: string;
   displayName: string;
   initials: string;
   profilePath: string | undefined;
@@ -17,6 +20,7 @@ type AccountMenuProps = {
 };
 
 export function AccountMenu({
+  actorId,
   displayName,
   initials,
   profilePath,
@@ -29,8 +33,10 @@ export function AccountMenu({
   settingsLabel = 'Settings',
   adminLabel = 'Admin'
 }: AccountMenuProps) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  useEffect(() => setSettingsOpen(false), [actorId]);
   return (
-    <DropdownMenu.Root>
+    <><DropdownMenu.Root>
       <DropdownMenu.Trigger
         type="button"
         className="global-header__profile-trigger"
@@ -74,7 +80,7 @@ export function AccountMenu({
               <span>{creditsLabel}</span>
             </Link>
           </DropdownMenu.Item>
-          <DropdownMenu.Item className="global-header__profile-menu-item is-disabled" disabled>
+          <DropdownMenu.Item className={`global-header__profile-menu-item${actorId ? '' : ' is-disabled'}`} disabled={!actorId} onSelect={() => setSettingsOpen(true)}>
             <Settings aria-hidden="true" />
             <span>{settingsLabel}</span>
           </DropdownMenu.Item>
@@ -89,5 +95,6 @@ export function AccountMenu({
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
+    {settingsOpen && actorId ? <AccountPreferencesDialog key={actorId} actorId={actorId} onClose={() => setSettingsOpen(false)} /> : null}</>
   );
 }

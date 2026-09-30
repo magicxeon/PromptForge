@@ -6,6 +6,74 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Generation Consent And Identity Preferences (Rewamp 016, 2026-09-27)
+
+`server/domain/identity/UserPreferenceService.js` owns self-only GET/PATCH
+`/api/me/preferences` through identityRoutes and MockUserRepository. The existing
+`resolveDataFile('mockUsers')` store (`server/data/identity/mockUsers.json`) gains
+an additive `preferences.confirmCreditUsage` boolean, default true. No new store,
+backfill, provider path or financial mutation. Strict patches cannot change actor,
+roles or another user's preferences.
+
+`web/src/lib/auth/userPreferences.ts` owns the actor-scoped preference query:
+60-second stale time, five-minute inactive GC, no polling. PATCH cancels older
+reads before replacing cache; stale/error reads cannot authorize skipping consent.
+`web/src/components/generation/useCreditConfirmation.tsx` owns presentation and
+exact request/actor/estimate consent, used by GenerationExperience and both video
+workspaces. Identity owns preference persistence; Generation retains submission,
+quote validation and settlement. AccountPreferencesDialog restores confirmation
+through AccountMenu; character profiles are not account preference storage.
+
+See `requirements/016-cinematic-studio/Rewamp/016-generation-confirmation-and-writer-tools.md`.
+
+### Cinematic Flow Hardening (Rewamp 015, 2026-09-27)
+
+`web/src/features/cinematic/state/useCinematicTextRecovery.ts` owns bounded,
+actor/Project/document-scoped writer and timeline browser recovery through the
+existing actor storage facade. `CinematicRecoveryNotice.tsx` owns explicit recovery
+and stale-baseline consent. No server autosave, media cache or new polling owner.
+The client storage key is `mpf.react.draft:cinematic-text-recovery:<actorId>`;
+schema 1, at most 12 documents, 600,000 serialized characters, seven-day retention.
+No Base64/media; saving/discarding clears only the matching submitted document.
+
+`components/authoring/ShotProductionReadiness.tsx` is a read-only advisory projection
+of existing Shot/source state. Submission validation stays in Generation/Cinematic.
+`components/CinematicChapterFinal.tsx` composes selected-Take review, current
+Scene/Shot order and existing Assets clip bundle. The old timeline remains an
+explicit `?editor=timeline` view. Shared clip-bundle DTO and read contract belong
+to `cinematicSchemas.ts`/`cinematicApi.ts`, not a local dialog schema.
+The manifest query is actor/Project/version-scoped, GC 60 seconds, no interval,
+no focus/reconnect retry; approval/version changes invalidate its key.
+
+Portable partial-reference resolution stays behind
+`CinematicApplicationService.exportShotWriter` and `CinematicVideoReferencePlanService`.
+Per-slot errors are sanitized; available authorized images retain contiguous
+numbers. Ambiguous manual image numbering disables prompt copying, not valid-image
+downloads. Normal generation still fails closed. `VideoClipBundleService` permits
+unavailable items only through an explicit read-plan option; downloads still check
+version, ownership, hashes and partial consent. No runtime data path, provider,
+Credit, repository owner or public visibility policy changes. No files moved.
+Verification and limits: `Rewamp/tasks/015-cinematic-flow-hardening.md`.
+
+Rewamp/014 extends CinematicSeriesService with atomic Chapter ordering, stable
+Series.storyProjectId and a shared Character/video-direction projection. Scene
+ordering remains behind CinematicApplicationService. CinematicAuthoringContinuity
+is a bounded internal context/fingerprint helper; CinematicProjectVideoDirection
+adds root-owned defaults to the existing video compiler without a second pipeline.
+Read-only writer-export uses the existing video reference authority service and
+the existing Shot document compiler. CinematicPortableShot owns only copy/download
+presentation and authenticated media retrieval, not asset publication or dispatch.
+No runtime directory, provider client, wallet flow or polling cache is added.
+Character Profiles now owns look-sheet.v5 editorial 9:16 with explicit three_quarter
+crop semantics. Its repository accepts that versioned review set; v2/v3/v4 recipes
+and stored crop manifests remain supported for historical/pending images.
+
+Rewamp/013 adds reviewable Chapter outline snapshots within existing Cinematic
+Project records. CinematicApplicationService remains the mutation boundary;
+CinematicChapterOutline is an internal validator/context helper. Advisory writing
+economics stays behind CreditPricingPolicyService and CinematicWritingPricing;
+no wallet mutation, parallel queue or runtime directory is added.
+
 ### Cinematic Rewamp Planning (2026-09-19)
 
 [Cinematic Rewamp master](../016-cinematic-studio/Rewamp/000-master.md) owns the

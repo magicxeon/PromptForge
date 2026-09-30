@@ -7,7 +7,7 @@ import type { CinematicProject } from '../schemas/cinematicSchemas';
 import { cinematicVideoQuoteSchema } from '../schemas/cinematicSchemas';
 import { ApiError } from '../../../lib/api/apiError';
 import { persistActiveActorId } from '../../../lib/auth/actorStore';
-import { CinematicStageContent } from './CinematicStageContent';
+import { CinematicStageContent, CinematicProduceRuntime } from './CinematicStageContent';
 
 const api = vi.hoisted(() => ({
   getCinematicProduceContext: vi.fn(),
@@ -16,10 +16,13 @@ const api = vi.hoisted(() => ({
   createCinematicVideoAttempt: vi.fn(),
   approveCinematicVideoAttempt: vi.fn(),
   updateCinematicShotMotionDirection: vi.fn(),
+  saveCinematicTimeline: vi.fn(),
   updateCinematicShotVideoReferences: vi.fn()
 }));
 const generationApi = vi.hoisted(() => ({ getVideoTask: vi.fn() }));
 const authRole = vi.hoisted(() => ({ value: 'user' }));
+const creditPreference = vi.hoisted(() => ({ ask: false, save: vi.fn() }));
+vi.mock('../../../lib/auth/userPreferences', () => ({ useUserPreferences: () => ({ isSuccess: true, isFetching: false, data: { confirmCreditUsage: creditPreference.ask }, save: creditPreference.save }) }));
 
 vi.mock('../../../components/media/AuthenticatedMediaImage', () => ({
   AuthenticatedMediaImage: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />
@@ -42,6 +45,73 @@ vi.mock('../../../lib/auth/ActorProvider', () => ({
 const i18n = i18next.createInstance();
 
 describe('Cinematic Produce runtime workspace', () => {
+  it('requires Credit consent before dispatch and keeps cancel free of side effects', async () => {
+    creditPreference.ask = true;
+    renderRuntime();
+    const generate = await screen.findByRole('button', { name: 'cinematic.produce.generate' });
+    await waitFor(() => expect(generate).toBeEnabled());
+    fireEvent.click(generate);
+    expect(await screen.findByRole('alertdialog')).toBeVisible();
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'ui.action.cancel' }));
+    await waitFor(() => expect(generate).toBeEnabled());
+    fireEvent.click(generate);
+    fireEvent.click(await screen.findByRole('button', { name: 'ui.creditConsent.confirm' }));
+    await waitFor(() => expect(api.createCinematicVideoAttempt).toHaveBeenCalledTimes(1));
+  });
+  it('preserves unsaved timeline trims across refresh and explicit browser recovery', async () => {
+    persistActiveActorId('usr_demo');
+    const project = { ...projectFixture(), timelineVersions: [] };
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const element = (value: CinematicProject) => <QueryClientProvider client={client}><I18nextProvider i18n={i18n}>
+      <CinematicStageContent activeStage="finish" project={value} onPrevious={vi.fn()} onNext={vi.fn()} />
+    </I18nextProvider></QueryClientProvider>;
+    const view = render(element(project));
+    fireEvent.change(screen.getByLabelText('cinematic.finish.trimIn'), { target: { value: '0.5' } });
+    view.rerender(element({ ...project, version: 5 }));
+    expect(screen.getByLabelText('cinematic.finish.trimIn')).toHaveValue(0.5);
+    view.unmount();
+    render(element({ ...project, version: 5 }));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.recovery.restore' }));
+    expect(screen.getByLabelText('cinematic.finish.trimIn')).toHaveValue(0.5);
+    api.saveCinematicTimeline.mockResolvedValue({ ...project, version: 6, activeTimelineVersionId: 'timeline-new', timelineVersions: [
+      { id: 'timeline-new', entries: [{ shotId: 'shot-1', trimInMs: 500, trimOutMs: 4000, transition: 'cut', transitionDurationMs: 0 }] }
+    ] });
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.story.savePlan' }));
+    await waitFor(() => expect(api.saveCinematicTimeline).toHaveBeenCalledWith('project-1', {
+      expectedVersion: 5, entries: [{ shotId: 'shot-1', trimInMs: 500, trimOutMs: 4000, transition: 'cut', transitionDurationMs: 0 }]
+    }));
+  });
+
+  it('does not restore a storyboard attempt as a video preview from the URL', async () => {
+    const project = projectFixture();
+    project.generationAttempts = [{ id: 'still', shotId: 'shot-1', operation: 'cinematic_storyboard_still', status: 'completed', generationJobId: 'image-job' }];
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><I18nextProvider i18n={i18n}>
+      <CinematicProduceRuntime project={project} mode="simple" sceneId="scene-1" shotId="shot-1" previewAttemptId="still" />
+    </I18nextProvider></QueryClientProvider>);
+    await waitFor(() => expect(api.getCinematicProduceContext).toHaveBeenCalled());
+    expect(generationApi.getVideoTask).not.toHaveBeenCalled();
+  });
+
+  it('restores a URL-selected Take for the correct Shot and reports navigation without approving', async () => {
+    const project = projectFixture();
+    project.generationAttempts = [
+      { id: 'old-take', shotId: 'shot-1', operation: 'cinematic_draft_clip', status: 'completed', generationJobId: 'old-task' },
+      { id: 'new-take', shotId: 'shot-1', operation: 'cinematic_draft_clip', status: 'completed', generationJobId: 'new-task' }
+    ];
+    generationApi.getVideoTask.mockImplementation(async id => ({ id, status: 'completed', outputAsset: { publicUrl: `/${id}.mp4` } }));
+    project.scenes[0]!.shots.push({ ...project.scenes[0]!.shots[0]!, id: 'shot-2', title: 'Second' });
+    const selected = vi.fn();
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><I18nextProvider i18n={i18n}>
+      <CinematicProduceRuntime project={project} mode="simple" sceneId="scene-1" shotId="shot-1" previewAttemptId="old-take" onSelectionChange={selected} />
+    </I18nextProvider></QueryClientProvider>);
+    await waitFor(() => expect(document.querySelector('video source')).toHaveAttribute('src', '/old-task.mp4'));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.selectShot shot-2' }));
+    expect(selected).toHaveBeenCalledWith('scene-1', 'shot-2');
+    expect(api.approveCinematicVideoAttempt).not.toHaveBeenCalled();
+    expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
+  });
+
   it.each(['shot', 'scene'])('keeps a late submission bound to its original %s and actor cache', async target => {
     const response = { attemptId: 'late-attempt', task: { id: 'late-task', status: 'provider_processing' } };
     const pending = deferred<typeof response>();
@@ -330,6 +400,7 @@ describe('Cinematic Produce runtime workspace', () => {
   });
 
   beforeEach(() => {
+    creditPreference.ask = false;
     authRole.value = 'user';
     vi.clearAllMocks();
     localStorage.clear();

@@ -22,7 +22,7 @@ import {
   updateCinematicStoryboardSettings
 } from '../api/cinematicApi';
 import {
-  estimateGeneration,
+  type estimateGeneration,
   type GenerationReferenceRole,
   type GenerationRequestDraft
 } from '../../generation/api/generationApi';
@@ -274,10 +274,9 @@ export function StoryboardShotDialog({
     }
   }
 
-  async function submitStoryboardDraft(draft: GenerationRequestDraft) {
+  async function submitStoryboardDraft(draft: GenerationRequestDraft, quote: Awaited<ReturnType<typeof estimateGeneration>>) {
     const context = generationContext.data;
     if (!context) throw new Error(t('cinematic.storyboard.loadingAuthority'));
-    const quote = await estimateGeneration(draft);
     const result = await submitCinematicStoryboardBatch(project.id, {
       expectedVersion: context.projectVersion,
       idempotencyKey: generationRequestId,

@@ -1,4 +1,13 @@
 {
+  "ui.creditConsent.settingsFailed": "โหลดหรือบันทึกการตั้งค่าไม่สำเร็จ กรุณาลองอีกครั้ง",
+  "ui.creditConsent.title": "ยืนยันการสร้างผลงาน",
+  "ui.creditConsent.amount": "{credits} เครดิต",
+  "ui.creditConsent.skip": "ไม่ต้องถามอีกก่อนใช้เครดิต",
+  "ui.creditConsent.confirm": "ยืนยันและสร้างผลงาน",
+  "ui.creditConsent.saveFailed": "บันทึกการตั้งค่าไม่สำเร็จ ลองอีกครั้ง หรือเอาเครื่องหมายออกเพื่อยืนยันเฉพาะครั้งนี้",
+  "ui.creditConsent.settings": "การยืนยันใช้เครดิต",
+  "ui.creditConsent.settingsDescription": "บันทึกไว้ในบัญชีของคุณ การยืนยันสร้างใหม่หรือแทนที่ข้อมูลยังคงเปิดอยู่",
+  "ui.creditConsent.ask": "ถามก่อนสร้างผลงานที่ใช้เครดิต",
   "ui.promptBudget.checking": "กำลังตรวจ Prompt",
   "ui.promptBudget.within_budget": "Prompt: {count} ตัวอักษร",
   "ui.promptBudget.optimized": "ย่อ Prompt แล้ว: {count} ตัวอักษร",

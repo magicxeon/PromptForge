@@ -1,0 +1,33 @@
+{
+  "id": "character-look-sheet",
+  "version": 5,
+  "enabled": true,
+  "output": { "aspectRatio": "9:16", "outputCount": 1 },
+  "cropManifest": {
+    "layoutVersion": "character-look-sheet-editorial-v3",
+    "regions": {
+      "front": { "x": 0.03, "y": 0.08, "width": 0.30, "height": 0.52 },
+      "three_quarter": { "x": 0.35, "y": 0.08, "width": 0.30, "height": 0.52 },
+      "side": { "x": 0.67, "y": 0.08, "width": 0.30, "height": 0.52 },
+      "face": { "x": 0.03, "y": 0.64, "width": 0.30, "height": 0.20 },
+      "hair": { "x": 0.35, "y": 0.64, "width": 0.30, "height": 0.20 },
+      "costume": { "x": 0.67, "y": 0.64, "width": 0.30, "height": 0.20 }
+    }
+  },
+  "accessoryRegion": { "x": 0.74, "y": 0.88, "width": 0.23, "height": 0.09 },
+  "instructions": [
+    "Create one professional editorial CHARACTER LOOK SHEET in vertical 9:16. Exactly one character, one unchanged approved outfit, one coherent reference board. Use restrained typography, neutral pale studio background, narrow consistent gutters and generous outer margins. No scenery, heavy borders or decorative filler.",
+    "Reserve the top 6 percent for a small CHARACTER LOOK SHEET title. The primary row contains three equal-width full-body columns: FRONT VIEW, 3/4 VIEW, PROFILE / SIDE VIEW. Every view has the same figure scale and baseline. Keep the complete head, hair, hands, hem and footwear inside its bounds. The three-quarter view is a genuine 45-degree front view, never a back view; the side view faces viewer-right.",
+    "The second row contains three aligned detail panels: CLOSE-UP FACE, HAIRSTYLE DETAIL, COSTUME DETAIL. Face portrait is neutral, unobstructed and large enough for identity matching; hair detail shows the actual authored hairstyle; costume detail shows actual garment construction. Labels sit in gutters outside image regions, not over the subject.",
+    "Use the bottom band for up to three tightly cropped actual fabric, weave, seam or closure details on the left and isolated ACCESSORY DETAIL on the right. Show only accessories explicitly specified or authorized by wardrobe references. If absent leave the accessory region empty, without invented jewelry, flowers, bags, props or additional footwear.",
+    "Preserve the target wardrobe contract exactly: garments, layering, silhouette, material, color, closures, footwear and accessories. All main views show correctly worn accessories; close-up details do not replace worn items. Keep identity, age, body proportions, skin tone and hairstyle consistent across every view.",
+    "Identity references control identity and body proportions, not incidental source clothing. Never copy a casting uniform, neutral basics or source accessories unless explicitly required by the target wardrobe.",
+    "Lighting is consistent soft studio light with subtle grounded contact shadows and legible material detail. Natural relaxed stance, no exaggerated posing. No clipping, stretched bodies, repeated identical poses, duplicate identities or blended faces. No fake logos, watermarks, invented measurements, decorative quotations or expression grid. Small headings may identify panels but must not compete with the character."
+  ],
+  "generationStyles": {
+    "realistic": "Rendering style: realistic, photorealistic natural skin and physically plausible fabric detail.",
+    "semi_realistic": "Rendering style: semi-realistic, gently simplified detail and softly illustrated shading with natural anatomy and recognizable facial features.",
+    "illustration": "Rendering style: illustration, deliberate contours and illustrated shading with recognizable facial features and authored proportions."
+  },
+  "styleAuthority": "The selected rendering style applies consistently to every view and detail. It does not change identity, age, skin tone, body proportions or the target outfit."
+}

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, ArrowDown, CheckCircle2, Film, Maximize2, Sparkles } from 'lucide-react';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
+import { useCreditConfirmation } from '../../../components/generation/useCreditConfirmation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -245,6 +246,11 @@ function PlaygroundVideoSession() {
     canAfford: quote.data?.account.canAfford === true
   });
   const generationReady = readiness.ready;
+  const creditConsent = useCreditConfirmation({ actorId: actor?.userId || '',
+    requestKey: JSON.stringify([generationInput, quote.data?.estimate.estimateId, quote.data?.requestFingerprint]),
+    estimatedCredits: quote.data?.estimate.billingStatus === 'qualification_no_charge' ? 0 : quote.data?.estimate.estimatedCredits,
+    description: [selectedModel?.displayName, `${draft.durationSeconds}s`, draft.resolution].filter(Boolean).join(' / '),
+    ready: generationReady });
   const loading = submit.isPending || Boolean(activeTask && !TERMINAL.has(activeTask.status));
   const providerErrorMessage = activeTask?.providerError?.code === 'ModelNotOpen'
     ? t('playground.video.providerError.modelNotOpen')
@@ -444,11 +450,13 @@ function PlaygroundVideoSession() {
         className="studio-generate-button btn-neon-yellow-glow"
         size="lg"
         icon={<Sparkles className="size-5" />}
-        disabled={!generationReady}
-        onClick={() => {
+        disabled={!generationReady || creditConsent.awaitingConfirmation}
+        onClick={async () => {
           if (!generationReady || !generationInput || !quote.data || submittingRef.current) return;
           if (new Date(quote.data.estimate.expiresAt).getTime() <= Date.now()) { void quote.refetch(); return; }
           submittingRef.current = true;
+          if (!await creditConsent.request() || !creditConsent.isCurrent()) { submittingRef.current = false; return; }
+          if (new Date(quote.data.estimate.expiresAt).getTime() <= Date.now()) { submittingRef.current = false; void quote.refetch(); return; }
           const signature = JSON.stringify(generationInput);
           if (submissionKeyRef.current?.signature !== signature) submissionKeyRef.current = { signature, key: `playground-video:${crypto.randomUUID()}` };
           submit.mutate({ ...generationInput, estimateId: quote.data.estimate.estimateId,
@@ -469,6 +477,7 @@ function PlaygroundVideoSession() {
 
   return (
     <>
+      {creditConsent.dialog}
       <PlaygroundGenerationWorkspace
         prompt={directionRegion}
         result={resultRegion}

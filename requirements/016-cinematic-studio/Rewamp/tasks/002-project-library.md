@@ -34,6 +34,48 @@ appears. Do not run the full provider suite for library styling.
 
 ## Feedback And Evidence
 
+### Project Rename Consistency Follow-up
+
+Status: implemented and focused checks passed. Primary: Backend Platform Architect; QA review sequentially
+by the same agent (no independent reviewer). Skill: verify-release-regressions.
+Owner: CinematicApplicationService.updateSetup and CinematicSeriesService inside
+the existing Cinematic capability; repository projections and actor-scoped React
+queries remain canonical. No UI redesign, new storage or provider calls.
+
+Observed causes: Setup updates Project.title while grouped library/workspace reads
+Series.title; Setup success updates only the detail query, leaving the library's
+20-second fresh cache intact. Modern Mini Series root is the whole-story Project,
+not the most recently edited Chapter. Preserve legacy grouped standalone titles.
+
+Ordered fix and acceptance:
+1. Save Setup and its root Series display title atomically, retaining expected
+   version/actor checks. Series rename also keeps the modern root name in sync.
+   Child/Season renames must not rename the root; Chapter titles, story, media and
+   IDs remain unchanged. Modern root title is authoritative in list/workspace
+   projections so previously saved names display correctly without a data migration.
+2. Centralize Setup-success detail publication and invalidate only this actor's
+   project list/Series queries for autosave, explicit Save and save-before-navigation.
+   No new polling/cache or cross-actor writes.
+3. Add focused rename regressions: fresh repository reload, modern/legacy series,
+   standalone, child/Season isolation, stale version rollback, actor rejection and
+   fresh-cache return to the library. Register a small selectable runner group;
+   no full suite, live mutations, AI requests or generated build artifacts.
+
+Evidence: `node scripts/test-cinematic-video.js rewamp-project-rename` passed
+5 backend and 3 route/cache tests. Direct TypeScript no-emit check and
+`git diff --check` passed. Existing grouped legacy thumbnail/progress/resume
+behavior remains covered. No layout/CSS change; responsive browser screenshots
+were not repeated for this data-only fix, and live-project behavior awaits UAT.
+
+Files: `CinematicApplicationService.js` delegates Setup persistence to the existing
+`CinematicSeriesService.js` using one actor-scoped workspace transaction;
+`CinematicProjectRepository.js` and Series workspace project the modern root's
+`setup.format`/title (top-level `format` remains the legacy production-unit field).
+`CinematicStudioRoute.tsx` shares Setup-success query publication across save paths.
+Regression cases extend `test/cinematicSeries.test.js`, with a new owning route test
+at `web/src/features/cinematic/routes/CinematicStudioRoute.test.tsx` and the existing
+selectable runner. No new runtime data field/path or production data rewrite.
+
 ### 2026-09-19 - First implementation review
 
 - Review URL: `http://localhost:5173/create/cinematic`.

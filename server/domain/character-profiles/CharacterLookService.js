@@ -15,7 +15,8 @@ const GARMENT_ROLES = new Set(['full_look', 'upper', 'lower', 'outerwear', 'foot
 const SOURCE_MODES = new Set(['character_default', 'uploaded', 'uploaded_character_sheet', 'ai_suggestion']);
 const LEGACY_LOOK_SHEET_RECIPE = loadPromptRecipe('character-looks/look-sheet.v2.json');
 const SQUARE_LOOK_SHEET_RECIPE = loadPromptRecipe('character-looks/look-sheet.v3.json');
-const LOOK_SHEET_RECIPE = loadPromptRecipe('character-looks/look-sheet.v4.json');
+const PORTRAIT_LOOK_SHEET_RECIPE = loadPromptRecipe('character-looks/look-sheet.v4.json');
+const LOOK_SHEET_RECIPE = loadPromptRecipe('character-looks/look-sheet.v5.json');
 const GENERATION_STYLES = ['realistic', 'semi_realistic', 'illustration'];
 if (GENERATION_STYLES.some(style => typeof LOOK_SHEET_RECIPE.generationStyles?.[style] !== 'string'
   || !LOOK_SHEET_RECIPE.generationStyles[style].trim()) || !LOOK_SHEET_RECIPE.styleAuthority?.trim()) {
@@ -125,7 +126,7 @@ export class CharacterLookService {
     const look = await this.#assertOwnedLook(characterProfileId, lookId, actor);
     const sheetReview = normalizeSheetReview(input);
     const viewAssetIds = sheetReview
-      ? { front: sheetReview.assetId, side: sheetReview.assetId, back: sheetReview.assetId }
+      ? Object.fromEntries(sheetViewRoles(sheetReview.cropManifest).map(role => [role, sheetReview.assetId]))
       : normalizeViewAssetIds(input.viewAssetIds);
     const authority = await this.wardrobeAuthorityService.authorizeLook({
       mode: 'uploaded', assetIds: Object.values(viewAssetIds)
@@ -281,7 +282,8 @@ export class CharacterLookService {
     const resultRecipe = result.sceneTemplateSnapshot?.promptRecipeSnapshot || {};
     const generationStyle = normalizeGenerationStyle(version.generationStyle);
     const recipe = resultRecipe.version === LOOK_SHEET_RECIPE.version
-      ? LOOK_SHEET_RECIPE : generationRecipe(version);
+      ? LOOK_SHEET_RECIPE : resultRecipe.version === PORTRAIT_LOOK_SHEET_RECIPE.version && version.generationRecipeVersion !== LOOK_SHEET_RECIPE.version
+        ? PORTRAIT_LOOK_SHEET_RECIPE : generationRecipe(version);
     if (resultContext.characterProfileId !== characterProfileId
       || resultContext.characterProfileVersionId !== look.sourceCharacterProfileVersionId
       || resultContext.sourceId !== look.id
@@ -338,7 +340,7 @@ export class CharacterLookService {
     const contentHash = authority.assets[0]?.contentHash || null;
     const recordedAt = new Date().toISOString();
     const sheetManifest = recipe.cropManifest || GENERATED_SHEET_MANIFEST;
-    const approvedViewAssets = Object.fromEntries(['front', 'side', 'back'].map(role => [
+    const approvedViewAssets = Object.fromEntries(sheetViewRoles(sheetManifest).map(role => [
       role,
       { assetId: asset.id, contentHash, cropRegion: sheetManifest.regions[role] }
     ]));
@@ -604,12 +606,19 @@ function normalizeSheetReview(input) {
 function normalizeCropManifest(input) {
   const source = input && typeof input === 'object' ? input : {};
   const layoutVersion = String(source.layoutVersion || 'character-look-sheet-v1').trim().slice(0, 80);
-  const regions = Object.fromEntries(['front', 'side', 'back'].map(role => [
+  const regions = Object.fromEntries(sheetViewRoles(source).map(role => [
     role,
     normalizeCropRegion(source.regions?.[role], role)
   ]));
-  if (source.regions?.face) regions.face = normalizeCropRegion(source.regions.face, 'face');
+  for (const role of ['face', 'hair', 'costume']) {
+    if (source.regions?.[role]) regions[role] = normalizeCropRegion(source.regions[role], role);
+  }
   return { layoutVersion, regions };
+}
+
+function sheetViewRoles(manifest) {
+  return manifest?.layoutVersion === 'character-look-sheet-editorial-v3'
+    ? ['front', 'three_quarter', 'side'] : ['front', 'side', 'back'];
 }
 
 function normalizeCropRegion(value, role) {
@@ -698,6 +707,7 @@ function normalizeGenerationStyle(value = 'realistic') {
 function generationRecipe(version) {
   // Unpinned records retain their original recipe so pending jobs remain adoptable.
   if (version.generationRecipeVersion === LOOK_SHEET_RECIPE.version) return LOOK_SHEET_RECIPE;
+  if (version.generationRecipeVersion === PORTRAIT_LOOK_SHEET_RECIPE.version) return PORTRAIT_LOOK_SHEET_RECIPE;
   return version.generationStyle === undefined ? LEGACY_LOOK_SHEET_RECIPE : SQUARE_LOOK_SHEET_RECIPE;
 }
 

@@ -17,39 +17,44 @@ export class CinematicVideoReferencePlanService {
     Object.assign(this, { lookService, generatedCastService });
   }
 
-  async prepare({ project, scene, shot, source, mode, model, actorContext, reviewExistingTake = false }) {
+  async prepare({ project, scene, shot, source, mode, model, actorContext, reviewExistingTake = false, portable = false }) {
     // Review reconstructs an already-submitted source; model flags still gate every new submission.
     mode = cinematicVideoReferenceMode(mode);
     if (mode === 'text_only') {
       if (resolveShotCastIds(scene, shot).length) throw referenceError('cinematic_video_text_only_cast', 'Use Look Sheets for a Shot with Cast.');
-      if (!reviewExistingTake && !model?.inputModes?.includes('text_to_video')) throw referenceError('cinematic_video_text_only_unsupported', 'Choose a model that supports text-to-video.');
+      if (!portable && !reviewExistingTake && !model?.inputModes?.includes('text_to_video')) throw referenceError('cinematic_video_text_only_unsupported', 'Choose a model that supports text-to-video.');
       return { mode, inputMode: 'text_to_video', references: [] };
     }
     const compositionPurpose = mode === 'storyboard_and_looks' && storyboardCompositionPurpose(source?.storyboardRenderStyle);
-    if (!reviewExistingTake && usesFirstFrame(mode) && !compositionPurpose) assertFirstFramePolicy({ inputMode: 'image_to_video' }, model);
+    if (!portable && !reviewExistingTake && usesFirstFrame(mode) && !compositionPurpose) assertFirstFramePolicy({ inputMode: 'image_to_video' }, model);
     const multiple = mode !== 'storyboard_only';
-    if (mode !== 'looks_only' && !source?.sourceFingerprint) {
+    const issues = [];
+    const missingFrame = usesFirstFrame(mode) && (!source?.sourceFingerprint || (portable && !source?.imageUrl));
+    if (missingFrame && !portable) {
       throw referenceError('cinematic_storyboard_source_required', 'Approve a Storyboard source before using First Frame.');
     }
-    const references = mode === 'looks_only' ? [] : [{
+    if (missingFrame) issues.push({ slot: 1, name: 'First Frame', code: 'first_frame_unavailable' });
+    const references = mode === 'looks_only' || missingFrame ? [] : [{
       role: multiple ? 'reference_image' : 'first_frame',
       assetId: source.assetId || null, assetVersionId: source.assetVersionId,
       sourceFingerprint: source.sourceFingerprint, referenceImageUrl: source.imageUrl,
       ...(multiple ? { purpose: compositionPurpose || 'storyboard_opening' } : {})
     }];
-    if (!multiple) return { mode, inputMode: 'image_to_video', references };
-    if (!reviewExistingTake && (!model?.supportsCinematicLookReferences || !model.inputModes?.includes('multimodal_reference'))) {
+    if (!multiple) return { mode, inputMode: 'image_to_video', references, ...(portable ? { issues } : {}) };
+    if (!portable && !reviewExistingTake && (!model?.supportsCinematicLookReferences || !model.inputModes?.includes('multimodal_reference'))) {
       throw referenceError('cinematic_video_look_references_unsupported', 'This model does not support the Storyboard and Look reference mode.');
     }
     const castIds = resolveShotCastIds(scene, shot);
     if (!castIds.length && !compositionPurpose) throw referenceError('cinematic_video_reference_cast_missing', 'This Shot has no selected Character for a Look Sheet reference.');
     const referenceCount = castIds.length + references.length;
-    const referenceLimit = reviewExistingTake ? 12 : model.referenceImageLimit;
+    const referenceLimit = portable ? 25 : reviewExistingTake ? 12 : model.referenceImageLimit;
     if (referenceCount > referenceLimit) throw referenceError('cinematic_video_reference_limit', `This Shot needs ${referenceCount} images; the selected model allows ${referenceLimit}.`);
     const selectedLooks = new Set(resolveShotLookIds(scene, shot));
     const sceneCastIds = new Set(scene.castAssignmentIds || []);
-    for (const castAssignmentId of castIds) {
+    for (const [castIndex, castAssignmentId] of castIds.entries()) {
       const assignment = project.castAssignments.find(item => item.id === castAssignmentId && item.active !== false);
+      const referenceStart = references.length;
+      try {
       if (!assignment || !sceneCastIds.has(castAssignmentId) || assignment.identityReady !== true) {
         throw referenceError('cinematic_video_reference_cast_unavailable', 'A selected Character is unavailable or not ready.');
       }
@@ -66,6 +71,7 @@ export class CinematicVideoReferencePlanService {
           contentHash: sheet.contentHash, castAssignmentId, trustedGenerationId: sheet.generationId,
           characterName: assignment.displayName, roleName: label, lookName: assignment.displayName, previewUrl: sheet.previewUrl,
           referenceSource: 'generated', selectionScope: shot.manualStoryboard || shot.wardrobeLookIds?.length ? 'shot' : 'scene' });
+        if (portable && !sheet.previewUrl) throw referenceError('cinematic_video_reference_unavailable', 'Reference image is unavailable.');
         continue;
       }
       if (matches.length !== 1 || matches[0].locked !== true || matches[0].mode !== 'character_look'
@@ -93,8 +99,17 @@ export class CinematicVideoReferencePlanService {
           : ['system_generated', 'generated_import'].includes(look.characterLookProvenance?.kind) ? 'generated' : 'library',
         selectionScope: shot.manualStoryboard || shot.wardrobeLookIds?.length ? 'shot' : 'scene'
       });
+      if (portable && !references.at(-1)?.referenceImageUrl) throw referenceError('cinematic_video_reference_unavailable', 'Reference image is unavailable.');
+      } catch (error) {
+        if (!portable) throw error;
+        references.splice(referenceStart);
+        // Export reports only owned slot metadata, never a resolver's private error/URL.
+        issues.push({ slot: castIndex + (usesFirstFrame(mode) ? 2 : 1),
+          name: assignment?.displayName || assignment?.storyRole || castAssignmentId,
+          castAssignmentId, code: 'look_unavailable' });
+      }
     }
-    return { mode, inputMode: 'multimodal_reference', references, ...(compositionPurpose ? { storyboardRenderStyle: source.storyboardRenderStyle } : {}) };
+    return { mode, inputMode: 'multimodal_reference', references, ...(portable ? { issues } : {}), ...(compositionPurpose ? { storyboardRenderStyle: source.storyboardRenderStyle } : {}) };
   }
 }
 

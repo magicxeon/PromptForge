@@ -88,8 +88,8 @@ export class CharacterLookRepository {
   async approve(lookId, versionId, actorContext) {
     return this.#mutateOwned(lookId, actorContext, record => {
       const version = record.versions.find(item => item.id === versionId);
-      if (!version || version.status !== 'review' || !hasCompleteViews(version.approvedViewAssets)) {
-        throw new RepositoryContractError('character_look_review_required', 'A complete front, side and back review set is required.', 409);
+      if (!version || version.status !== 'review' || !hasCompleteViews(version.approvedViewAssets, version.cropManifest)) {
+        throw new RepositoryContractError('character_look_review_required', 'A complete review set for this Look Sheet template is required.', 409);
       }
       const now = new Date().toISOString();
       for (const item of record.versions) {
@@ -172,8 +172,9 @@ function createVersion(input, actor, now) {
   };
 }
 
-function hasCompleteViews(assets) {
-  return Boolean(assets?.front?.assetId && assets?.side?.assetId && assets?.back?.assetId);
+function hasCompleteViews(assets, manifest) {
+  const third = manifest?.layoutVersion === 'character-look-sheet-editorial-v3' ? 'three_quarter' : 'back';
+  return Boolean(assets?.front?.assetId && assets?.side?.assetId && assets?.[third]?.assetId);
 }
 
 export const characterLookRepository = new CharacterLookRepository();

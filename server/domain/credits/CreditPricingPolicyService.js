@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
 import { resolveBytePlusImagePricing } from './BytePlusImagePricing.js';
 import { resolveImage25MeasuredPrice } from './OpenAIImage25Pricing.js';
+import { estimateCinematicWriting } from './CinematicWritingPricing.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -82,6 +83,10 @@ export class CreditPricingPolicyService {
 
   async getPolicyVersion() {
     return (await this.loadPolicy()).policyVersion;
+  }
+
+  async estimateWritingPreview(input, now = Date.now()) {
+    return estimateCinematicWriting(await this.loadPolicy(), input, now);
   }
 
   calculateMinimumRetailFloorFromPolicy(providerCostUsd, policy) {

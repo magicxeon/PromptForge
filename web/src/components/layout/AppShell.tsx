@@ -245,6 +245,7 @@ function GlobalHeader({
         </Link>
         <div className="global-header__account">
           <AccountMenu
+            actorId={actor?.userId}
             displayName={actor?.displayName || '...'}
             initials={actor ? initials : ''}
             profilePath={profileHandle ? '/me' : undefined}

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PlaygroundVideoExperience } from './PlaygroundVideoWorkspace';
@@ -12,7 +12,10 @@ const mocks = vi.hoisted(() => ({
   task: vi.fn(),
   recent: vi.fn(),
   actor: 'alice',
+  ask: false,
 }));
+vi.mock('../../../lib/auth/actorStore', () => ({ getActiveActorId: () => mocks.actor }));
+vi.mock('../../../lib/auth/userPreferences', () => ({ useUserPreferences: () => ({ isSuccess: true, isFetching: false, data: { confirmCreditUsage: mocks.ask }, save: vi.fn() }) }));
 vi.mock('../../../lib/auth/ActorProvider', () => ({
   useActor: () => ({ actor: { userId: mocks.actor } }),
 }));
@@ -104,6 +107,7 @@ const model = videoModelCapabilitySchema.parse({
   audioModes: ['none'],
 });
 beforeEach(() => {
+  mocks.ask = false;
   vi.clearAllMocks();
   localStorage.clear();
   mocks.actor = 'alice';
@@ -154,6 +158,17 @@ async function ready(operation = 'character_to_video') {
 }
 
 describe('Playground video execution controls', () => {
+  it('asks before spending and sends the confirmed quote only after consent', async () => {
+    mocks.ask = true; mount(); await ready();
+    fireEvent.click(screen.getByRole('button', { name: /playground.video.generate/ }));
+    expect(await screen.findByRole('alertdialog')).toBeVisible();
+    expect(mocks.submit).not.toHaveBeenCalled();
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'ui.action.cancel' })); });
+    fireEvent.click(screen.getByRole('button', { name: /playground.video.generate/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'ui.creditConsent.confirm' }));
+    await waitFor(() => expect(mocks.submit).toHaveBeenCalledTimes(1));
+    expect(mocks.submit.mock.calls[0]?.[0]).toMatchObject({ estimateId: 'quote', requestFingerprint: 'quote-fingerprint' });
+  });
   it('uses the server-owned 8000-character Video prompt limit', async () => {
     mocks.catalog.mockResolvedValue({
       models: [model],

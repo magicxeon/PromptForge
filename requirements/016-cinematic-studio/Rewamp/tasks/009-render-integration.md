@@ -23,9 +23,9 @@ Do not clone the qualification-only CinematicEngineTargetPanel.
 |---|---|---|---|
 | RW08.01 | Extract protected Render/Finish hosts only where needed and update consumers once. | Baseline screenshots/actions match; no extra controller, polling or submit path | Planned |
 | RW08.02 | Wire image Render entry and return for optional First Frame, previous last frame and facial treatment. | Original context restored; absent prior video explains disabled extraction; original asset retained on failure | Partial: Shot First Frame entry delivered under 013; full legacy-source/return parity remains |
-| RW08.03 | Wire video Render context to the saved document, actual references and composition ON/OFF. | OFF has no hidden source or image-approval gate; source/version/quote match; entry never submits | Planned |
-| RW08.04 | Restore writer/Shot/Take selection on return, reload and concurrent completion; reuse existing recovery and queues. | Correct preview changes; old Takes retained; completion belongs to submitted Shot; terminal cutoff | Planned |
-| RW08.05 | Verify protected UI and new round-trip interactions; apply integration-only feedback. | R04-R06/R09, V01-V06; three widths; no surprise credits or automatic retry | Planned |
+| RW08.03 | Wire video Render context to the saved document, actual references and composition ON/OFF. | OFF has no hidden source or image-approval gate; source/version/quote match; entry never submits | Implemented via existing runtime; focused evidence in task 015 |
+| RW08.04 | Restore writer/Shot/Take selection on return, reload and concurrent completion; reuse existing recovery and queues. | Correct preview changes; old Takes retained; completion belongs to submitted Shot; terminal cutoff | Implemented: URL Shot/Take context, recovery and late-response tests; live interruption UAT remains |
+| RW08.05 | Verify protected UI and new round-trip interactions; apply integration-only feedback. | R04-R06/R09, V01-V06; three widths; no surprise credits or automatic retry | Focused checks passed; full live protected-surface UAT remains |
 
 ## First Review And Closure
 
@@ -33,7 +33,7 @@ Show writer -> image Render -> writer and writer -> video Render -> writer using
 mocked completed/failed tasks, then switch Shot while another task is pending.
 No provider generation is needed for this UI review. Existing qualified paid behavior
 is exercised only in a separately authorized pilot.
-Planned group: `rewamp-render-integration`. Relevant existing groups include
+Actual focused group: `rewamp-flow-media` (task 015). Relevant existing groups include
 `preview-selection`, `last-frame`, `take-eligibility` and `rewamp-production`; use
 the smallest affected selection. UI comparison must include Engine and both queues.
 Lifecycle/financial boundary changes trigger their required reviewers and skills.

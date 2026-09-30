@@ -30,7 +30,27 @@ function renderWriter(props: React.ComponentProps<typeof CinematicShotWriter>) {
 }
 
 describe('CinematicShotWriter', () => {
-  beforeEach(() => { api.update.mockReset(); api.prepare.mockReset(); api.prepare.mockResolvedValue(prepared); });
+  beforeEach(() => { localStorage.clear(); api.update.mockReset(); api.prepare.mockReset(); api.prepare.mockResolvedValue(prepared); });
+
+  it('recovers custom Video Prompt text explicitly and preserves it through server refresh', async () => {
+    const props = { actorId: 'actor-1', project, shotId: 'shot-1', online: true, onBackToScenes: vi.fn(), onOpenShot: vi.fn(), onProjectChanged: vi.fn() };
+    const first = renderWriter(props);
+    fireEvent.click(screen.getByText('cinematic.shotWorkspace.videoPrompt'));
+    const editor = await screen.findByRole('textbox', { name: 'cinematic.shotWorkspace.videoPrompt' });
+    await waitFor(() => expect(editor).toHaveValue(prepared.generatedPrompt));
+    fireEvent.change(editor, { target: { value: 'Unfinished prompt' } });
+    first.unmount();
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const view = render(<QueryClientProvider client={client}><CinematicShotWriter {...props} /></QueryClientProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.recovery.restore' }));
+    const changed = { ...project, version: 8, scenes: [{ ...scene, shots: [{ ...shot, version: 2, shotDocument: 'Server direction' }] }] } as unknown as CinematicProject;
+    view.rerender(<QueryClientProvider client={client}><CinematicShotWriter {...props} project={changed} /></QueryClientProvider>);
+    fireEvent.click(screen.getByText('cinematic.shotWorkspace.videoPrompt'));
+    expect(await screen.findByRole('textbox', { name: 'cinematic.shotWorkspace.videoPrompt' })).toHaveValue('Unfinished prompt');
+    expect(screen.getByLabelText('cinematic.shotWriter.direction')).toHaveValue(shot.shotDocument);
+    expect(screen.getByRole('button', { name: 'cinematic.shotWriter.backToScenes' })).toBeDisabled();
+    expect(api.update).not.toHaveBeenCalled();
+  });
 
   it('edits and saves one canonical Shot document', async () => {
     const saved = { ...project, version: 8, scenes: [{ ...scene, version: 3, shots: [{ ...shot, version: 2, shotDocument: 'CUSTOM NOTE' }] }] } as unknown as CinematicProject;

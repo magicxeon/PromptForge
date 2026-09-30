@@ -206,6 +206,9 @@ function toProjectLibraryRecord(chapters, series) {
     || (Date.parse(left.createdAt || '') || 0) - (Date.parse(right.createdAt || '') || 0)
   ))[0] || resumeProject;
   const productionProjectId = series?.id || resumeProject.id;
+  const storyProject = chapters.find(project => project.id === series?.storyProjectId)
+    || chapters.find(project => project.setup?.format === 'mini-series' && !project.chapterOrigin)
+    || briefProject;
   const progress = clipProgress(chapters);
   const summary = {
     ...toProjectSummary(briefProject),
@@ -214,7 +217,7 @@ function toProjectLibraryRecord(chapters, series) {
     productionUnitId: resumeProject.id,
     chapterTitle: resumeProject.title,
     chapterCount: chapters.length,
-    title: series?.title || resumeProject.title,
+    title: storyProject.setup?.format === 'mini-series' ? storyProject.title : series?.title || resumeProject.title,
     thumbnailUrl: safeProjectThumbnail(chapters),
     progress,
     resumeContext: {

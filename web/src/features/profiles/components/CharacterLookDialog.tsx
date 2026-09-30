@@ -408,7 +408,7 @@ export function CharacterLookDialog({
                   renderResolved={resolvedSrc => <div className="character-look-review__sheet">
                     <img src={resolvedSrc} alt={t('cinematic.lookDraft.reviewPreviewAlt', { name: preparationLook.name })} onLoad={() => setReviewMediaReady(true)} onError={() => { setReviewMediaReady(false); setError(t('cinematic.lookDraft.reviewMediaFailed')); }} />
                     {preparationVersion.cropManifest?.regions ? <div className="character-look-review__crops" aria-label={t('cinematic.lookDraft.cropPreviews')}>
-                      {Object.entries(preparationVersion.cropManifest.regions).filter(([role]) => ['front', 'side', 'back', 'face'].includes(role)).map(([role, region]) => <figure key={role}><div><img src={resolvedSrc} alt="" style={{ width: `${100 / region.width}%`, height: `${100 / region.height}%`, maxHeight: 'none', transform: `translate(${-region.x * 100}%, ${-region.y * 100}%)` }} /></div><figcaption>{t(`cinematic.lookDraft.crop.${role}`)}</figcaption></figure>)}
+                      {Object.entries(preparationVersion.cropManifest.regions).filter(([role]) => ['front', 'three_quarter', 'side', 'back', 'face', 'hair', 'costume'].includes(role)).map(([role, region]) => <figure key={role}><div><img src={resolvedSrc} alt="" style={{ width: `${100 / region.width}%`, height: `${100 / region.height}%`, maxHeight: 'none', transform: `translate(${-region.x * 100}%, ${-region.y * 100}%)` }} /></div><figcaption>{t(`cinematic.lookDraft.crop.${role}`)}</figcaption></figure>)}
                     </div> : null}
                   </div>}
                 />

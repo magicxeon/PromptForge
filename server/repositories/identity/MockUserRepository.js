@@ -26,6 +26,19 @@ export class MockUserRepository {
     return all.find(u => u.username === username) || null;
   }
 
+  async updatePreferences(userId, { confirmCreditUsage }) {
+    if (typeof confirmCreditUsage !== 'boolean') throw new TypeError('confirmCreditUsage must be a boolean.');
+    return mutateJsonFile(this.usersFile, [], users => {
+      if (!Array.isArray(users)) throw new TypeError('Mock users data must be an array.');
+      const user = users.find(item => item.id === userId);
+      if (!user) return null;
+      const preferences = user.preferences && typeof user.preferences === 'object'
+        && !Array.isArray(user.preferences) ? user.preferences : {};
+      user.preferences = { ...preferences, confirmCreditUsage };
+      return structuredClone(user);
+    });
+  }
+
   async updateStatus(userId, { status, expectedStatus, idempotencyKey }) {
     return mutateJsonFile(this.usersFile, [], users => {
       if (!Array.isArray(users)) throw new TypeError('Mock users data must be an array.');

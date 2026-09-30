@@ -1,6 +1,6 @@
 # 011 - Integration, Cutover And Cleanup
 
-Screen: cross-screen. Status: Planned.
+Screen: cross-screen. Status: Partial; task 015 implements bounded flow hardening.
 Parent tasks: T07.1, T07.2, T07.3, T07.4, T07.5, T08.1, T08.2, T08.3, T08.4, T08.5.
 Sources: [008 verification](../008-verification-migration-and-cleanup.md),
 [010 acceptance](../010-complete-authoring-screen-redesign.md), [task index](000-task-index.md).
@@ -38,6 +38,9 @@ do not block useful local page fixes while waiting for provider-quality evidence
 
 ## Feedback And Evidence
 
-No implementation yet. Record aggregate command/result, migration fixture manifest,
-UX acceptance coverage, observed capacity/performance gaps, pilot status and measured
-retired source modules. Update 000/007 only for behavior actually verified.
+Task 015 records focused recovery/round-trip/export/Final checks and responsive
+fixtures, plus an explicit task-only aggregate. Full `rewamp-all`, migration
+rehearsal and live pilot have NOT been run for that slice. The duplicate local
+clip-bundle schema/read request was consolidated into the existing Cinematic
+API/schema owner. Zero source files deleted or moved; no project-size reduction
+claim. Protected legacy/timeline readers remain active consumers, not trash.

@@ -1,7 +1,13 @@
 import { apiRequest } from '../../../lib/api/apiClient';
 import { cinematicChapterProposalMutationSchema, cinematicManualSceneMutationSchema, cinematicManualShotMutationSchema, cinematicSceneProposalMutationSchema, cinematicSeriesMutationSchema, cinematicSeriesWorkspaceSchema, cinematicSharedCharacterMutationSchema, cinematicShotDocumentMutationSchema, cinematicShotProposalMutationSchema } from '../schemas/cinematicSeriesSchemas';
 import type { SeriesCommand } from '../schemas/cinematicSeriesSchemas';
-import { cinematicShotWriterPreparationSchema } from '../schemas/cinematicSeriesSchemas';
+import { cinematicShotWriterPreparationSchema, cinematicPortableShotSchema } from '../schemas/cinematicSeriesSchemas';
+
+export function exportCinematicShotWriter(projectId: string, sceneId: string, shotId: string, expectedVersion: number) {
+  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/writer-export`, {
+    method: 'POST', body: { expectedVersion }, schema: cinematicPortableShotSchema
+  });
+}
 
 export function getCinematicSeriesWorkspace(projectId: string) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/series`, { schema: cinematicSeriesWorkspaceSchema, cache: 'no-store' });
@@ -24,7 +30,7 @@ export function updateCinematicChapter(projectId: string, expectedProjectVersion
 }
 
 export function proposeCinematicChapters(projectId: string, input: {
-  expectedVersion: number; scope: 'all' | 'selected'; instruction?: string; draftTitle?: string; draftStory?: string;
+  expectedVersion: number; scope: 'all' | 'selected'; intent?: 'continuity'; instruction?: string; draftTitle?: string; draftStory?: string;
 }) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/chapter-proposals`, {
     method: 'POST', body: input, schema: cinematicChapterProposalMutationSchema
@@ -34,6 +40,18 @@ export function proposeCinematicChapters(projectId: string, input: {
 export function applyCinematicChapterProposal(projectId: string, proposalId: string) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/chapter-proposals/${encodeURIComponent(proposalId)}/apply`, {
     method: 'POST', body: {}, schema: cinematicChapterProposalMutationSchema
+  });
+}
+
+export function reorderCinematicChapters(projectId: string, input: { expectedProjectVersion: number; expectedVersion: number; seasonId: string; chapterIds: string[] }) {
+  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/chapter-order`, {
+    method: 'PATCH', body: input, schema: cinematicSeriesMutationSchema
+  });
+}
+
+export function reorderCinematicScenes(projectId: string, expectedVersion: number, sceneIds: string[]) {
+  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scene-order`, {
+    method: 'PATCH', body: { expectedVersion, sceneIds }, schema: cinematicManualSceneMutationSchema
   });
 }
 

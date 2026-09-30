@@ -8,12 +8,7 @@ import { apiRequest } from '../../../../lib/api/apiClient';
 import { getActiveActorId } from '../../../../lib/auth/actorStore';
 import { Button } from '../../../../components/ui/Button';
 import { ProcessingSpinner } from '../../../../components/ui/ProcessingSpinner';
-
-const bundleSchema = z.object({
-  projectId: z.string(), projectVersion: z.number().int(), sizeBytes: z.number().nonnegative(),
-  missing: z.array(z.object({ sceneNumber: z.number(), shotNumber: z.number(), shotId: z.string() })),
-  clips: z.array(z.object({ name: z.string(), sizeBytes: z.number(), assetId: z.string(), shotId: z.string(), attemptId: z.string() }))
-});
+import { getCinematicClipBundleManifest } from '../../api/cinematicApi';
 
 export function ClipBundleDownload({ projectId, version }: { projectId: string; version: number }) {
   const { t } = useTranslation('cinematic');
@@ -23,7 +18,8 @@ export function ClipBundleDownload({ projectId, version }: { projectId: string; 
   const controller = useRef<AbortController | null>(null);
   const path = `/api/cinematic/projects/${encodeURIComponent(projectId)}/clip-bundle`;
   const manifest = useQuery({ queryKey: ['cinematic-clip-bundle', actorId, projectId, version],
-    queryFn: ({ signal }) => apiRequest(path, { schema: bundleSchema, signal }), enabled: open, retry: false, staleTime: 0, gcTime: 60_000 });
+    queryFn: ({ signal }) => getCinematicClipBundleManifest(projectId, signal), enabled: open, retry: false, staleTime: 0, gcTime: 60_000,
+    refetchOnWindowFocus: false, refetchOnReconnect: false });
   useEffect(() => () => controller.current?.abort(), [actorId, projectId]);
   function changeOpen(next: boolean) {
     if (!next) controller.current?.abort();

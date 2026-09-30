@@ -46,6 +46,41 @@ test('import rejects unsupported, binary, empty and oversized input before savin
   assert.deepEqual(normalizeStoryImport({ fileName: 'story.txt', content: '\uFEFFStart\r\nEnd\n' }), { fileName: 'story.txt', content: 'Start\nEnd' });
 });
 
+test('brief import origin survives persistence and legacy edits without changing Full Story or cast', async t => {
+  const { service, repository } = await fixture(t);
+  const project = await service.createProject({ ...setup, storyBrief: 'An imported idea.',
+    storyBriefImport: { fileName: 'brief.md', edited: false },
+    storyImport: { fileName: 'novel.md', content: 'Complete novel.' } }, actor);
+  const saved = await service.updateSetup(project.id, { ...project.setup, expectedVersion: project.version,
+    storyBrief: 'Edited idea.', storyBriefImport: undefined }, actor);
+  const loaded = await repository.findForActor(project.id, actor);
+  assert.deepEqual(loaded.setup.storyBriefImport, { fileName: 'brief.md', edited: true });
+  assert.deepEqual(loaded.fullStoryVersions, project.fullStoryVersions);
+  assert.deepEqual(loaded.castAssignments, project.castAssignments);
+  const cleared = await service.updateSetup(project.id, { ...saved.setup, expectedVersion: saved.version, storyBrief: '' }, actor);
+  assert.equal(cleared.setup.storyBriefImport.edited, true);
+  assert.throws(() => service.updateSetup(project.id, { ...cleared.setup, storyBriefImport: { fileName: '../secret.txt' } }, actor),
+    { code: 'cinematic_story_import_type_invalid' });
+});
+
+test('manual and AI revisions retain edited file origin; replacement and restore preserve correct origin', async t => {
+  const { service } = await fixture(t);
+  let project = await service.createProject({ ...setup, storyImport: { fileName: 'original.md', content: 'Original.' } }, actor);
+  const original = project.fullStoryVersions[0];
+  for (const source of ['manual', 'ai']) {
+    project = await service.saveFullStoryRevision(project.id, { expectedVersion: project.version, content: source + ' edited.', source }, actor);
+    const revision = project.fullStoryVersions.at(-1);
+    assert.equal(revision.importFileName, 'original.md');
+    assert.equal(revision.importEdited, true);
+  }
+  project = await service.saveFullStoryRevision(project.id, { expectedVersion: project.version, content: 'ai edited.', importFileName: 'replacement.txt' }, actor);
+  assert.equal(project.fullStoryVersions.at(-1).importFileName, 'replacement.txt');
+  assert.equal(project.fullStoryVersions.at(-1).importEdited, false);
+  project = await service.saveFullStoryRevision(project.id, { expectedVersion: project.version, content: original.content, source: 'restore' }, actor);
+  assert.equal(project.fullStoryVersions.at(-1).importFileName, original.importFileName);
+  assert.equal(project.fullStoryVersions.at(-1).importEdited, false);
+});
+
 test('existing import preserves revision history and rejects stale or foreign writes', async t => {
   const { service } = await fixture(t);
   const project = await service.createProject({ ...setup, storyImport: { fileName: 'first.md', content: 'Original story.' } }, actor);

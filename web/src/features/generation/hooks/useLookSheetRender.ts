@@ -75,7 +75,7 @@ export function useLookSheetRender({ draft, pricedDraft, valid, control }: {
       }
       const before = await estimateGeneration({ ...source, lookSheetEnhancementId: readyId });
       assertCurrent();
-      if (before.estimate.estimatedCredits > displayedImageCredits) throw fail('priceChanged');
+      if (before.estimate.estimatedCredits !== displayedImageCredits) throw fail('priceChanged');
       const textFee = readyId ? 0 : activeQuote?.credits;
       if (textFee === undefined || before.account.availableCredits < before.estimate.estimatedCredits + textFee) throw fail('insufficient');
       let artifactId = readyId;
@@ -97,7 +97,7 @@ export function useLookSheetRender({ draft, pricedDraft, valid, control }: {
       const enhanced = { ...source, lookSheetEnhancementId: artifactId };
       const estimate = await estimateGeneration(enhanced);
       assertCurrent();
-      if (estimate.estimate.estimatedCredits > displayedImageCredits) throw fail('priceChanged');
+      if (estimate.estimate.estimatedCredits !== displayedImageCredits) throw fail('priceChanged');
       if (!estimate.account.canAfford) throw fail('insufficient');
       const request = { requestId: `gen_${crypto.randomUUID()}`, estimateId: estimate.estimate.estimateId };
       selected = { id: artifactId!, requestKey: key, imageRequest: request };
@@ -124,7 +124,9 @@ export function useLookSheetRender({ draft, pricedDraft, valid, control }: {
       }
     }
   }
-  return { enabled, fee, readyId, blocked, stage, record, error: error || saved.error || price.error,
+  return { enabled, fee, readyId, blocked, stage, record,
+    quoteKey: JSON.stringify([activeQuote?.id, activeQuote?.credits, activeQuote?.expiresAt, readyId]),
+    error: error || saved.error || price.error,
     stale: Boolean(record && record.id === rejectedId),
     invalidate: () => setRejectedId(record?.id || null),
     pricing: price.isFetching, refreshing: saved.isFetching, submit,

@@ -29,12 +29,17 @@ export function validateCinematicWorkflowPolicy(value) {
     invalid('Invalid Cinematic Project creation policy.');
   }
   const authoring = value.authoring;
+  if (!integerBetween(authoring?.continuityExcerptCharacters, 200, 6000)
+    || !integerBetween(authoring?.continuityHistoryDepth, 1, 8)
+    || !integerBetween(authoring?.projectVideoDirectionMaximumCharacters, 100, 4000)) invalid('Invalid Cinematic continuity policy.');
   if (!integerBetween(authoring?.defaultChapterCount, 1, 120)
     || !integerBetween(authoring?.defaultChapterDurationSeconds, 1, 86400)
     || !integerBetween(authoring?.storyRevisionHistoryLimit, 1, 100)
     || !integerBetween(authoring?.fullStoryMaximumCharacters, 1000, 100000)
     || !integerBetween(authoring?.fullStoryInstructionMaximumCharacters, 100, 10000)
     || !integerBetween(authoring?.generatedChapterMaximum, 1, 120)
+    || !integerBetween(authoring?.chapterOutlineMaximumOutputTokens, 1000, 8000)
+    || !integerBetween(authoring?.chapterOutlineSynopsisMaximumCharacters, 100, 2000)
     || !integerBetween(authoring?.generatedSceneMaximum, 1, 24)
     || !integerBetween(authoring?.sceneProposalHistoryLimit, 1, 50)
     || !integerBetween(authoring?.generatedShotMaximumPerScene, 1, 24)

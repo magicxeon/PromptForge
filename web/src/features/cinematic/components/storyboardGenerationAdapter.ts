@@ -62,11 +62,15 @@ export function readStoryboardAuthorDirection(value: string) {
   return match?.[1]?.trim() || '';
 }
 
-export function resolveStoryboardShotCast(project: CinematicProject, scene: CinematicScene, shot: CinematicShot) {
+export function resolveStoryboardShotCastIds(scene: CinematicScene, shot: CinematicShot) {
   const ids = shot.castMode === 'none' || scene.castMode === 'none' ? []
     : shot.castMode === 'inherit' ? scene.castAssignmentIds
     : shot.castMode === 'selected' || shot.castAssignmentIds.length ? shot.castAssignmentIds : scene.castAssignmentIds;
-  return [...new Set(ids)].flatMap(id => {
+  return [...new Set(ids)];
+}
+
+export function resolveStoryboardShotCast(project: CinematicProject, scene: CinematicScene, shot: CinematicShot) {
+  return resolveStoryboardShotCastIds(scene, shot).flatMap(id => {
     const assignment = project.castAssignments.find(item => item.id === id && item.active !== false);
     return assignment ? [assignment] : [];
   });

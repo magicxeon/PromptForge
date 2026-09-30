@@ -12,6 +12,56 @@ Draft Apply replaces the visible brief after explicit confirmation and follows t
 
 The Full Story writer adds a scoped Generate Characters From Story action for saved text. It requests only dossiers, keeps the story byte-for-byte after input normalization, reuses known Character IDs, and applies through the existing revision/cast path. A failure leaves the imported story available for retry. Confirm then Generate Chapters works without generating another Full Story first. Existing Cast and Look references are preserved.
 
+## Imported source disclosure follow-up
+
+Status: implemented; focused automated and isolated visual checks passed. Primary: UX/UI Product Designer; Backend and
+QA checks are sequential, not independent agents. Skill: review-product-ux.
+Scope is only the Setup import/source/Story Idea area and its saved provenance.
+Format, Genres, Story Settings, navigation and existing production remain intact.
+
+1. Persist optional `setup.storyBriefImport` (filename, edited flag) alongside the
+   existing brief, including actor-scoped new-project drafts. Preserve Full Story
+   filename through manual/AI revisions with an edited flag; replacement resets
+   that flag. Metadata is descriptive, never authorization or a filesystem path.
+2. For an imported source, show filename, destination and edited state instead of
+   the initially expanded Story Idea textarea. Edit Brief expands the same editor;
+   Edit Full Story opens the canonical writer. A separate brief remains accessible.
+   Non-imported projects keep the existing editor. Do not infer filenames from titles.
+3. Reuse Upload/Preview/Apply for Replace File. Preview must name the destination
+   and offer explicit Replace/Cancel. Cancel, invalid input and failed saves retain
+   the original work. Full Story replacement creates a revision, not a reset.
+4. No provider calls or automatic regeneration. Preserve cast, Chapters, Scenes,
+   Shots and media. Reuse existing expectedVersion/actor checks and storage paths.
+5. Focused domain/import/composer checks, TypeScript and isolated responsive
+   browser checks at 390/820/1440px, TH/EN. No aggregate tests or paid UAT.
+
+Legacy brief imports did not retain filenames and cannot be labelled retroactively
+without evidence. Existing Full Story revisions with filenames are supported.
+Only filename/edited metadata is added; no duplicate story or raw file is stored.
+
+All five tasks above are implemented and checked. Full Story is the primary source
+summary when both it and a separately imported brief exist; Edit Brief still opens
+the retained brief. Revisions created before filename lineage was retained may
+lack origin metadata; do not guess it or rewrite live records to fill it.
+
+Evidence for this follow-up:
+- `node scripts/test-cinematic-video.js rewamp-story-import`: 8 domain + 31 UI/route
+  tests passed. Includes origin persistence/re-entry, edited metadata, replacement
+  with identical prose, restore, cancelled/failed import, hidden editor, offline
+  navigation, neighboring writer actions and actor-scoped cache behavior.
+- `node scripts/verify-cinematic-story-import.mjs --import-source`: TH/EN at
+  390/820/1440px passed; long filenames wrap, Brief expansion/edit/collapse and
+  Full Story return/navigation preserve text. No page errors or horizontal overflow.
+  Representative desktop and mobile screenshots were visually inspected.
+- TypeScript app check with `--noEmit --incremental false --pretty false` and
+  `git diff --check` passed. No aggregate tests, provider calls or live edits.
+- Existing owners changed: Composer/import UI, Studio route serialization and
+  tests, cinematic schemas, StoryImport/ApplicationService, TH/EN catalogs,
+  cinematic CSS, existing focused test/visual runners and this requirement.
+  No new files, moved modules, storage roots, caches or polling loops.
+- Remaining UAT: real running API end-to-end save/reopen; non-default themes have
+  token-based styling but were not visually rechecked in this scoped run.
+
 ## Limits and ownership
 
 - `server/config/cinematic/workflow-policy.v1.json` owns allowed extensions, 256 KiB file limit and the 600-character recommendation threshold. Existing brief and Full Story limits remain authoritative (600 and 50,000 currently).
