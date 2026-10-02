@@ -186,6 +186,7 @@ function SceneEnvironmentDialog({ project, scene, onProjectRefresh, onClose }: P
             value={direction ?? query.data?.environmentPrompt ?? ''} disabled={busy || query.isPending}
             onChange={event => setDirection(event.target.value)} />
           <small>{t('cinematic.environment.proposalHint')}</small>
+          <small>{t('cinematic.writingBilling.imageSeparate')}</small>
         </div>
         <Button icon={busy ? <ProcessingSpinner /> : <Save />} disabled={busy || !dirty || !query.data}
           onClick={() => void mutate(async () => {

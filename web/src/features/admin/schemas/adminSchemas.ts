@@ -104,13 +104,34 @@ export const adminSupportCasesSchema = z.object({
   hasMore: z.boolean().default(false), totalApprox: z.number().optional()
 });
 
+export const profitMarkupPercentByMediaSchema = z.object({
+  text: z.number().min(0).max(1000), image: z.number().min(0).max(1000), video: z.number().min(0).max(1000)
+}).strict();
+
+export const adminPricingRevisionSchema = z.object({
+  id: z.string(), scope: z.literal('pricing'), status: z.string(), version: z.number().int().positive(),
+  createdAt: z.string(), createdByUserId: z.string(),
+  values: z.object({
+    profitMarkupPercentByMedia: profitMarkupPercentByMediaSchema,
+    baseActiveRevisionId: z.string().nullable(), commandId: z.string(), reason: z.string()
+  }),
+  publishedAt: z.string().nullable().optional()
+}).passthrough();
+
 export const adminConfigurationStateSchema = z.object({
+  activePricing: z.object({
+    pricingPolicyVersion: z.string(), profitMarkupPercentByMedia: profitMarkupPercentByMediaSchema.nullable(),
+    revisionId: z.string().nullable()
+  }).optional(),
   activeRevisionIds: z.record(z.string(), z.string()),
   revisions: z.array(z.object({
     id: z.string(), scope: z.string(), status: z.string(), createdAt: z.string(),
     createdByUserId: z.string(), validation: z.record(z.string(), z.unknown())
   }).passthrough())
 });
+
+export type AdminConfigurationState = z.infer<typeof adminConfigurationStateSchema>;
+export type AdminPricingRevision = z.infer<typeof adminPricingRevisionSchema>;
 
 export const adminProviderHealthSchema = z.object({
   checkedAt: z.string(), schemaVersion: z.union([z.string(), z.number()]).nullable(),

@@ -18,6 +18,13 @@ import {
 } from '../server/domain/generation/VideoCapabilityRegistry.js';
 import { ProviderAvailabilityPolicyService } from '../server/domain/admin-configuration/ProviderAvailabilityPolicyService.js';
 
+function historicalPocRegistry(options) {
+  const registry = new VideoCapabilityRegistry(options);
+  registry.catalog = structuredClone(registry.load());
+  for (const model of registry.catalog.models) delete model.paidUsageActivation;
+  return registry;
+}
+
 test('video catalog and validation honor a workflow-specific runtime disable', () => {
   const availabilityPolicy = new ProviderAvailabilityPolicyService({
     initialState: {
@@ -44,7 +51,11 @@ test('video catalog and validation honor a workflow-specific runtime disable', (
 });
 
 test('paid video catalog exposes no unqualified research models', () => {
-  assert.deepEqual(videoCapabilityRegistry.getPublicCatalog().models, []);
+  const paidModels = videoCapabilityRegistry.getPublicCatalog().models;
+  assert.deepEqual(paidModels.map(model => model.modelId), ['dreamina-seedance-2-5-260628']);
+  assert.equal(paidModels[0].qualificationStatus, 'qualified');
+  assert.deepEqual(paidModels[0].inputModes, ['multimodal_reference']);
+  assert.deepEqual(paidModels[0].aspectRatios, ['9:16']);
   const researchModels = videoCapabilityRegistry.getPublicCatalog({ includeResearch: true }).models;
   assert.equal(researchModels.length, 11);
   const omni = researchModels.find(model => model.modelId === 'gemini-omni-1.1-flash');
@@ -66,7 +77,8 @@ test('paid video catalog exposes no unqualified research models', () => {
   assert.equal(testingOmni.testingRoutingEnabled, true);
   assert.equal(testingOmni.pricingStatus, 'research_only');
   assert.ok(testingModels.filter(model => model.providerId === 'modelark')
-    .every(model => model.operations.includes('text_to_video') && model.paidRoutingEnabled === false));
+    .every(model => model.operations.includes('text_to_video')
+      && model.paidRoutingEnabled === (model.modelId === 'dreamina-seedance-2-5-260628')));
 });
 
 test('Preview Omni model ID resolves to the GA catalog model for historical compatibility', () => {
@@ -74,7 +86,8 @@ test('Preview Omni model ID resolves to the GA catalog model for historical comp
   assert.equal(model.modelId, 'gemini-omni-1.1-flash');
 });
 
-test('Seedance internal routing accepts Prompt only and blocks unqualified private-reference operations', () => {
+test('historical Seedance internal routing accepts Prompt only and blocks unqualified private-reference operations', () => {
+  const videoCapabilityRegistry = historicalPocRegistry({ runtimeEnvironment: 'development', developmentPocEnabled: false });
   const request = {
     providerId: 'modelark', modelId: 'dreamina-seedance-2-5-260628',
     operation: 'text_to_video', aspectRatio: '9:16', resolution: '720p',
@@ -88,11 +101,13 @@ test('Seedance internal routing accepts Prompt only and blocks unqualified priva
 });
 
 test('development POC exposes unverified Seedance first-frame modes without changing production', () => {
-  const development = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
-    runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1
+  // This strict-source contract must not depend on the current open-source policy.
+  const sourcePolicy = { allowAnyProvider: false, policyVersion: 'strict-source-fixture-v1' };
+  const development = historicalPocRegistry({ seedanceFirstFrameEnabled: true,
+    runtimeEnvironment: 'development', developmentPocEnabled: true, developmentPocCredits: 1, sourcePolicy
   });
   const production = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true,
-    runtimeEnvironment: 'production', developmentPocEnabled: true, developmentPocCredits: 1
+    runtimeEnvironment: 'production', developmentPocEnabled: true, developmentPocCredits: 1, sourcePolicy
   });
   const request = {
     providerId: 'modelark', modelId: 'dreamina-seedance-2-5-260628',

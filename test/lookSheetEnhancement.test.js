@@ -51,9 +51,12 @@ async function fixture(t, balance = 100) {
   return { credits, repository, accountRepository, refiner, service: new LookSheetEnhancementService({ credits, repository, refiner }), calls: () => calls };
 }
 
-test('pricing: fixed-service fee uses rate/FX/buffer/margin and whole Credits, not image rounding', () => {
+test('pricing: fixed-service fee uses category markup and whole Credits, not image rounding', () => {
   const result = calculateTextEnhancementPrice(policy, { provider: 'openai', model: 'gpt-6-sol', inputTokenBudget: 1000, maxOutputTokens: 500 });
-  assert.equal(result.totalCredits, 10); assert.equal(result.providerCostUsd, 0.007);
+  assert.equal(result.totalCredits, 4); assert.equal(result.providerCostUsd, 0.007);
+  assert.equal(result.profitMarkupPercent, 30);
+  const legacy = { ...policy }; delete legacy.profitMarkupPercentByMedia;
+  assert.equal(calculateTextEnhancementPrice(legacy, { provider: 'openai', model: 'gpt-6-sol', inputTokenBudget: 1000, maxOutputTokens: 500 }).totalCredits, 10);
   assert.equal(result.providerRate.modelId, 'gpt-6-sol');
   assert.throws(() => calculateTextEnhancementPrice(policy, { provider: 'openai', model: 'gpt-5.6-luna', inputTokenBudget: 1000, maxOutputTokens: 500 }), { code: 'credit_pricing_unavailable' });
   for (const patch of [{ model: 'unknown' }, { inputTokenBudget: Infinity }, { maxOutputTokens: 1801 }, { inputTokenBudget: 40001 }]) {

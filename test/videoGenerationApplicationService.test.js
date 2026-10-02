@@ -20,7 +20,7 @@ for (const style of ['concept_sketch_v1', 'photorealistic_storyboard_v1', 'facel
     capabilityRegistry: new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: false, runtimeEnvironment: 'development', developmentPocEnabled: true }),
     assetRepository: { findByIdForOwner: async (id, owner) => id === asset.id && owner === actor.userId ? asset : null },
     creditService: { async estimateVideo() { estimates++; return { estimateId: 'sketch_quote', estimatedCredits: 1 }; }, async getAccount() { return { availableCredits: 10 }; },
-      async validateAndReserveForRequest() { reserved++; return { estimate: { estimateId: 'sketch_quote', estimatedCredits: 1 }, reservation: { reservationId: 'sketch_reservation' }, billingStatus: 'reserved' }; } },
+      async validateAndReserveForRequest() { reserved++; return { estimate: { estimateId: 'sketch_quote', estimatedCredits: 1 }, reservation: { reservationId: 'sketch_reservation', status: 'reserved' }, billingStatus: 'reserved' }; } },
     taskRepository: repositoryStub(new Map()), providerTaskService: { async preflightTask() {}, async submitTask(value) { dispatched = value; return { id: value.id, ownerUserId: actor.userId, status: 'provider_queued' }; } },
     trustedSourceService: { async describeOwnedImage() { throw new Error('Sketch must not resolve a trusted original'); } },
     storyboardAssetContentVerifier: async candidate => ({ contentHash: candidate.metadata.contentHash }),
@@ -131,7 +131,7 @@ for (const looksOnly of [false, true]) for (const imported of [false, true, 'dir
       async estimateVideo(value) { estimated = value.request; return { estimateId: 'multi_quote', estimatedCredits: 1 }; },
       async getAccount() { return { availableCredits: 100 }; },
       async validateAndReserveForRequest(value) { reserved = value.generationRequest; calls.push('reserve');
-        return { estimate: { estimateId: 'multi_quote', estimatedCredits: 1 }, reservation: { reservationId: 'multi_reservation' }, billingStatus: 'reserved' }; }
+        return { estimate: { estimateId: 'multi_quote', estimatedCredits: 1 }, reservation: { reservationId: 'multi_reservation', status: 'reserved' }, billingStatus: 'reserved' }; }
     },
     taskRepository: repositoryStub(new Map()),
     providerTaskService: { async preflightTask(value) {
@@ -393,7 +393,7 @@ test('Cinematic Seedance 2.5 dispatches the approved Pro frame URL without Asset
         calls.push('reserve');
         return {
           estimate: { estimateId: 'vest_seedance_submit', estimatedCredits: 1 },
-          reservation: { reservationId: 'rsv_seedance_submit' },
+          reservation: { reservationId: 'rsv_seedance_submit', status: 'reserved' },
           billingStatus: 'reserved'
         };
       }
@@ -521,7 +521,7 @@ test('video submit reserves the exact quote before provider dispatch', async () 
         calls.push(['reserve', value]);
         return {
           estimate: { estimateId: 'vest_1', estimatedCredits: 80 },
-          reservation: { reservationId: 'rsv_1' }
+          reservation: { reservationId: 'rsv_1', status: 'reserved' }
         };
       },
       async refundForJob() { throw new Error('refund should not run'); }
@@ -615,7 +615,7 @@ test('development POC marker and Credit value remain bound through reservation a
         reservedRequest = value.generationRequest;
         return {
           estimate: { estimateId: 'vest_poc', estimatedCredits: 1 },
-          reservation: { reservationId: 'rsv_poc' }
+          reservation: { reservationId: 'rsv_poc', status: 'reserved' }
         };
       }
     },
@@ -651,7 +651,7 @@ test('cinematic workflow context preserves quote-submit parity and durable linea
       async getAccount() { return { availableCredits: 100 }; },
       async validateAndReserveForRequest(value) {
         calls.push(['reserve', value]);
-        return { estimate: { estimateId: 'vest_cine', estimatedCredits: 40 }, reservation: { reservationId: 'rsv_cine' } };
+        return { estimate: { estimateId: 'vest_cine', estimatedCredits: 40 }, reservation: { reservationId: 'rsv_cine', status: 'reserved' } };
       }
     },
     providerTaskService: {

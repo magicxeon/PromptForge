@@ -447,6 +447,7 @@ export function CinematicFullStoryWriter({
                 />
               </label>
             ) : null}
+            <p className="cinematic-writing-free text-sm font-medium text-[var(--theme-success)]">{t('cinematic.writingBilling.free')}</p>
             <Button
               variant="primary"
               icon={<Sparkles />}

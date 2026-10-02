@@ -5,6 +5,8 @@ import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
 import { resolveBytePlusImagePricing } from './BytePlusImagePricing.js';
 import { resolveImage25MeasuredPrice } from './OpenAIImage25Pricing.js';
 import { estimateCinematicWriting } from './CinematicWritingPricing.js';
+import { pricingConfigurationService } from '../admin-configuration/PricingConfigurationService.js';
+import { validateProfitMarkup, calculateCostPlusCredits } from './CostPlusPricing.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,10 +38,12 @@ function requireFinitePositive(value, name) {
 }
 
 export class CreditPricingPolicyService {
-  constructor({ policyPath = DEFAULT_POLICY_PATH, policyData = null, environment = process.env } = {}) {
+  constructor({ policyPath = DEFAULT_POLICY_PATH, policyData = null, environment = process.env,
+    pricingConfiguration = policyData ? null : pricingConfigurationService } = {}) {
     this.policyPath = policyPath;
     this.policy = policyData;
     this.environment = environment;
+    this.pricingConfiguration = pricingConfiguration;
   }
 
   validatePolicy(policy) {
@@ -61,17 +65,33 @@ export class CreditPricingPolicyService {
     if (Number(policy.targetGrossMarginRate) >= 1) {
       throw new Error('Credit pricing policy targetGrossMarginRate must be less than 1.');
     }
+    if (policy.profitMarkupPercentByMedia) validateProfitMarkup(policy.profitMarkupPercentByMedia);
+    if (policy.videoActualUsage) {
+      const video = policy.videoActualUsage;
+      if (typeof video.enabled !== 'boolean' || !video.version
+        || !Number.isFinite(video.reservationCostMultiplier) || video.reservationCostMultiplier < 1
+        || video.reservationCostMultiplier > 2 || (video.enabled && !policy.profitMarkupPercentByMedia)) {
+        throw new TypeError('Video actual-usage policy is invalid.');
+      }
+    }
 
     return policy;
   }
 
   async loadPolicy() {
-    if (this.policy) return this.validatePolicy(this.policy);
-
     try {
-      const content = await fs.readFile(this.policyPath, 'utf8');
-      this.policy = this.validatePolicy(JSON.parse(content));
-      return this.policy;
+      if (!this.policy) {
+        const content = await fs.readFile(this.policyPath, 'utf8');
+        this.policy = this.validatePolicy(JSON.parse(content));
+      }
+      const base = this.validatePolicy(this.policy);
+      const active = await this.pricingConfiguration?.getActivePricing();
+      return active ? this.validatePolicy({ ...structuredClone(base),
+        profitMarkupPercentByMedia: structuredClone(active.values.profitMarkupPercentByMedia),
+        policyVersion: `${base.policyVersion}:pricing:${active.id}`,
+        pricingRevisionId: active.id,
+        effectiveAt: active.publishedAt
+      }) : structuredClone(base);
     } catch (err) {
       throw createCreditError(
         CREDIT_ERROR_CODES.PRICING_UNAVAILABLE,
@@ -101,6 +121,10 @@ export class CreditPricingPolicyService {
 
   async calculateMinimumRetailFloor(providerCostUsd) {
     return this.calculateMinimumRetailFloorFromPolicy(providerCostUsd, await this.loadPolicy());
+  }
+
+  async calculateCostPlusRetail(providerCostUsd, mediaType) {
+    return calculateCostPlusCredits(providerCostUsd, await this.loadPolicy(), mediaType);
   }
 
   async findModelPricing(providerId, modelId) {
@@ -185,12 +209,16 @@ export class CreditPricingPolicyService {
       measuredPricing = resolveImage25MeasuredPrice(modelRecord, {
         resolution: normalizedResolution, aspectRatio, quality: normalizedQuality,
         referenceCount: Number(referenceCount), outputCount: Number(outputCount)
-      }, cost => this.calculateMinimumRetailFloorFromPolicy(cost, policy));
+      }, cost => policy.profitMarkupPercentByMedia
+        ? calculateCostPlusCredits(cost, policy, 'image')
+        : this.calculateMinimumRetailFloorFromPolicy(cost, policy));
       baseOutputCredits = measuredPricing.baseOutputCredits;
       providerCost = { ...measuredPricing.providerCost, retailAssumptions: {
         pricingFxThbPerUsd: policy.pricingFxThbPerUsd,
         operatingSafetyBufferRate: policy.operatingSafetyBufferRate,
-        targetGrossMarginRate: policy.targetGrossMarginRate,
+        ...(policy.profitMarkupPercentByMedia
+          ? { profitMarkupPercent: policy.profitMarkupPercentByMedia.image, pricingMethod: 'cost_plus_markup' }
+          : { targetGrossMarginRate: policy.targetGrossMarginRate, pricingMethod: 'legacy_gross_margin' }),
         creditsPerThbAssumption: policy.creditsPerThbAssumption,
         creditRoundingIncrement: policy.creditRoundingIncrement
       } };

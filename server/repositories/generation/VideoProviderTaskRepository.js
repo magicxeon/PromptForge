@@ -20,7 +20,12 @@ export class VideoProviderTaskRepository {
     return mutateJsonFile(this.tasksFile, FALLBACK, data => {
       assertStore(data);
       const replay = data.tasks.find(task => task.ownerUserId === input.ownerUserId && task.idempotencyKey === input.idempotencyKey);
-      if (replay) return structuredClone(replay);
+      if (replay) {
+        if (replay.submittedFingerprint && input.submittedFingerprint && replay.submittedFingerprint !== input.submittedFingerprint) {
+          throw Object.assign(new Error('Video submission command conflicts with its original request.'), { code: 'video_idempotency_conflict', statusCode: 409 });
+        }
+        return structuredClone(replay);
+      }
       const now = new Date().toISOString();
       const task = {
         id: input.id || createPrefixedId('videotask'),
@@ -138,6 +143,15 @@ export class VideoProviderTaskRepository {
       this.cursorSecret
     );
     return createPage(page.items, page);
+  }
+
+  claimDispatch(taskId, recovery) {
+    return this.update(taskId, draft => {
+      if (draft.status !== 'accepted' || draft.providerTaskId) return { claimed: false, task: structuredClone(draft) };
+      draft.status = 'provider_submitting';
+      draft.recovery = recovery;
+      return { claimed: true, task: structuredClone(draft) };
+    });
   }
 
   update(taskId, operation) {

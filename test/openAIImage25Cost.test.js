@@ -9,8 +9,11 @@ import { CreditAccountRepository } from '../server/repositories/credits/CreditAc
 import { calculateImageTokenCost } from '../server/domain/credits/OpenAIImage25Pricing.js';
 import { buildFinanceInventory } from '../server/domain/finance/FinanceInventoryService.js';
 
-const pricing = new CreditPricingPolicyService();
-const policy = await pricing.loadPolicy();
+const policy = await new CreditPricingPolicyService().loadPolicy();
+// These historical-price tests deliberately retain the pre-activation policy.
+delete policy.profitMarkupPercentByMedia;
+delete policy.videoActualUsage;
+const pricing = new CreditPricingPolicyService({ policyData: policy });
 const models = policy.models.filter(model => model.measuredUsagePricing);
 const request = { userId: 'owner', requestedProviderId: 'openai', requestedModelId: 'gpt-image-2.5-sunburst',
   resolution: '1K', aspectRatio: '6:8', quality: null, referenceCount: 2, outputCount: 1, generationMode: 'scene' };

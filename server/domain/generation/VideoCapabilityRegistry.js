@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 import { TRUSTED_GENERATED_SOURCE_POLICY } from '../../config/trustedGeneratedSources.js';
 import { generatedReferencePolicy, assertGeneratedReferenceAllowed } from '../../config/generatedReferencePolicy.js';
+import { resolveVideoPaidActivation, assertVideoPaidActivationRequest } from '../../config/videoPaidActivation.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_PATH = path.resolve(__dirname, '../../config/cinematic-video-models.json');
@@ -81,7 +82,7 @@ export class VideoCapabilityRegistry {
         ? `${catalog.catalogVersion}-development-poc`
         : catalog.catalogVersion,
       runtimeControlVersion: this.availabilityPolicy.getVersion(),
-      models: catalog.models.filter(model => (
+      models: catalog.models.map(model => this.#effectiveModel(model)).filter(model => (
         (includeResearch
           || model.paidRoutingEnabled === true
           || (includeTesting && model.testingRoutingEnabled === true))
@@ -90,7 +91,7 @@ export class VideoCapabilityRegistry {
           modelId: model.modelId,
           workflow
         }).enabled
-      )).map(model => toPublicModel(this.#effectiveModel(model)))
+      )).map(model => toPublicModel(model))
     };
   }
 
@@ -98,7 +99,7 @@ export class VideoCapabilityRegistry {
     return {
       schemaVersion: this.load().schemaVersion,
       catalogVersion: this.load().catalogVersion,
-      models: this.load().models.map(model => ({
+      models: this.load().models.map(model => this.#effectiveModel(model)).map(model => ({
         providerId: model.providerId,
         modelId: model.modelId,
         displayName: model.displayName,
@@ -144,6 +145,10 @@ export class VideoCapabilityRegistry {
     if (!model.resolutions.includes(input.resolution)) throw unsupported('resolution', input.resolution);
     if (!model.durations.includes(Number(input.durationSeconds))) throw unsupported('durationSeconds', input.durationSeconds);
     if (!model.audioModes.includes(input.audioMode)) throw unsupported('audioMode', input.audioMode);
+    if (!allowResearch && !allowTesting && model.paidUsageActivation) {
+      try { assertVideoPaidActivationRequest(model, { ...input, ...selection }); }
+      catch { throw new VideoCapabilityError('video_model_not_qualified', 'This request is outside the measured paid profile.', 409); }
+    }
     const referenceCount = Number(input.referenceImageCount || 0);
     if (referenceCount > model.referenceImageLimit) throw unsupported('referenceImageCount', referenceCount);
     validateReferenceCount(selection.inputMode, referenceCount);
@@ -175,7 +180,7 @@ export class VideoCapabilityRegistry {
   }
 
   #effectiveModel(model) {
-    const copy = structuredClone(model);
+    const copy = resolveVideoPaidActivation(structuredClone(model), this.runtimeEnvironment);
     copy.allowAnySourceProvider = this.sourcePolicy.allowAnyProvider;
     if (copy.providerId === 'modelark' && copy.modelId.includes('seedance')) {
       copy.firstFrameEnabled = this.seedanceFirstFrameEnabled;
@@ -184,6 +189,9 @@ export class VideoCapabilityRegistry {
     if (copy.trustedGeneratedImageSource?.compatibilityId === 'modelark-seedance-2') {
       copy.playgroundReferencePolicy = structuredClone(TRUSTED_GENERATED_SOURCE_POLICY);
       if (this.sourcePolicy.allowAnyProvider) copy.playgroundReferencePolicy.version = this.sourcePolicy.policyVersion;
+    }
+    if (copy.paidUsageActivationVersion) {
+      copy.referenceConstraints ||= structuredClone(DEVELOPMENT_POC_REFERENCE_CONSTRAINTS);
     }
     if (!this.developmentPocEnabled
       || copy.providerId !== 'modelark'
@@ -196,13 +204,15 @@ export class VideoCapabilityRegistry {
     copy.operations = [...new Set([...(copy.operations || []), 'image_to_video'])];
     copy.inputModes = [...new Set([...getInputModes(copy), 'image_to_video'])];
     if (copy.developmentPocLookReferences === true) {
-      copy.inputModes.push('multimodal_reference');
+      copy.inputModes = [...new Set([...copy.inputModes, 'multimodal_reference'])];
       copy.supportsCinematicLookReferences = true;
     }
     copy.referenceConstraints ||= structuredClone(DEVELOPMENT_POC_REFERENCE_CONSTRAINTS);
-    copy.developmentPocUnverified = true;
-    copy.developmentPocCredits = this.developmentPocCredits;
-    copy.developmentPocWarningCode = DEVELOPMENT_POC_WARNING_CODE;
+    if (!copy.paidUsageActivationVersion) {
+      copy.developmentPocUnverified = true;
+      copy.developmentPocCredits = this.developmentPocCredits;
+      copy.developmentPocWarningCode = DEVELOPMENT_POC_WARNING_CODE;
+    }
     return copy;
   }
 }
@@ -301,10 +311,16 @@ function unsupported(field, value) {
 function toPublicModel(model) {
   const { ratesByResolutionUsd, ratesByResolutionUsdPerMillionTokens, ratesByAudioUsdPerMillionTokens, ratesByInputModeUsdPerMillionTokens,
     ratesByResolutionAndInputModeUsdPerMillionTokens, providerDiscounts, minimumInputVideoTokens, ...safe } = model;
+  const profile = model.paidUsageActivationVersion ? {
+    inputModes: ['multimodal_reference'], aspectRatios: ['9:16'], resolutions: ['480p', '720p'],
+    durations: [...new Set(model.paidUsageActivation.measuredCases.map(row => row.durationSeconds))],
+    referenceImageLimit: 3
+  } : {};
   return {
     ...safe,
     commercialOperations: getCommercialOperations(model),
-    inputModes: getInputModes(model)
+    inputModes: getInputModes(model),
+    ...profile
   };
 }
 

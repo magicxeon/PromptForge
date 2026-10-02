@@ -335,6 +335,7 @@
   "playground.reference.role.product_reference": "Product",
   "playground.reference.role.environment_reference": "Environment",
   "playground.promptRefinement.label": "AI Prompt Refine",
+  "playground.promptRefinement.free": "Free · prompt refinement",
   "playground.promptRefinement.description": "Polish the final prompt before generation while keeping your selections locked.",
   "playground.video.imageSource": "Starting image",
   "playground.video.characterSource": "Selected Character",

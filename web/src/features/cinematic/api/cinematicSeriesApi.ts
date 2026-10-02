@@ -1,4 +1,5 @@
 import { apiRequest } from '../../../lib/api/apiClient';
+import { withCinematicWritingQuote } from './cinematicWritingBilling';
 import { cinematicChapterProposalMutationSchema, cinematicManualSceneMutationSchema, cinematicManualShotMutationSchema, cinematicSceneProposalMutationSchema, cinematicSeriesMutationSchema, cinematicSeriesWorkspaceSchema, cinematicSharedCharacterMutationSchema, cinematicShotDocumentMutationSchema, cinematicShotProposalMutationSchema } from '../schemas/cinematicSeriesSchemas';
 import type { SeriesCommand } from '../schemas/cinematicSeriesSchemas';
 import { cinematicShotWriterPreparationSchema, cinematicPortableShotSchema } from '../schemas/cinematicSeriesSchemas';
@@ -32,9 +33,10 @@ export function updateCinematicChapter(projectId: string, expectedProjectVersion
 export function proposeCinematicChapters(projectId: string, input: {
   expectedVersion: number; scope: 'all' | 'selected'; intent?: 'continuity'; instruction?: string; draftTitle?: string; draftStory?: string;
 }) {
-  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/chapter-proposals`, {
-    method: 'POST', body: input, schema: cinematicChapterProposalMutationSchema
-  });
+  return withCinematicWritingQuote({ projectId, operation: 'chapters', input, mandatory: input.scope === 'all', resultSchema: cinematicChapterProposalMutationSchema }, body =>
+    apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/chapter-proposals`, {
+      method: 'POST', body, schema: cinematicChapterProposalMutationSchema
+    }));
 }
 
 export function applyCinematicChapterProposal(projectId: string, proposalId: string) {
@@ -62,9 +64,10 @@ export function discardCinematicChapterProposal(projectId: string, proposalId: s
 }
 
 export function proposeCinematicScenes(projectId: string, expectedVersion: number) {
-  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scene-proposals`, {
-    method: 'POST', body: { expectedVersion }, schema: cinematicSceneProposalMutationSchema
-  });
+  return withCinematicWritingQuote({ projectId, operation: 'scenes', input: { expectedVersion }, mandatory: true, resultSchema: cinematicSceneProposalMutationSchema }, body =>
+    apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scene-proposals`, {
+      method: 'POST', body, schema: cinematicSceneProposalMutationSchema
+    }));
 }
 
 export function applyCinematicSceneProposal(projectId: string, proposalId: string, expectedVersion: number) {
@@ -119,9 +122,11 @@ export function updateCinematicSceneLooks(projectId: string, sceneId: string, in
 }
 
 export function proposeCinematicShots(projectId: string, sceneId: string, expectedVersion: number, revision?: { targetShotId: string; instruction: string }) {
-  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`, {
-    method: 'POST', body: { expectedVersion, ...revision }, schema: cinematicShotProposalMutationSchema
-  });
+  return withCinematicWritingQuote({ projectId, operation: 'shots', sceneId,
+    input: { expectedVersion, ...revision }, mandatory: !revision, resultSchema: cinematicShotProposalMutationSchema }, body =>
+    apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`, {
+      method: 'POST', body, schema: cinematicShotProposalMutationSchema
+    }));
 }
 
 export function applyCinematicShotProposal(projectId: string, sceneId: string, proposalId: string, expectedVersion: number) {

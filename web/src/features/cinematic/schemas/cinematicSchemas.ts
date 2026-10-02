@@ -90,7 +90,8 @@ export const cinematicStoryEnhancementSchema = z.object({
   recommendedRoles: z.array(cinematicStoryRoleSlotSchema).max(4),
   warnings: z.array(z.string()),
   provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
-  billingStatus: z.literal('qualification_no_charge')
+  billingStatus: z.enum(['qualification_no_charge', 'paid', 'settlement_pending']),
+  writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional()
 });
 
 export type CinematicStoryEnhancement = z.infer<typeof cinematicStoryEnhancementSchema>;
@@ -128,7 +129,8 @@ export const cinematicFullStoryProposalSchema = z.object({
   })).max(24).default([]),
   warnings: z.array(z.string()).max(8),
   provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
-  billingStatus: z.literal('qualification_no_charge')
+  billingStatus: z.enum(['qualification_no_charge', 'free', 'paid', 'settlement_pending']),
+  writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional()
 });
 
 export type CinematicFullStoryRevision = z.infer<typeof cinematicFullStoryRevisionSchema>;
@@ -257,7 +259,8 @@ export const cinematicWardrobeSuggestionSchema = z.object({
     provider: z.string(), model: z.string(), responseId: z.string().nullable(),
     recipeId: z.string(), recipeVersion: z.number().int(), recipeFingerprint: z.string()
   }),
-  billingStatus: z.literal('qualification_no_charge')
+  billingStatus: z.enum(['qualification_no_charge', 'paid', 'settlement_pending']),
+  writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional()
 });
 
 export type CinematicWardrobeSuggestion = z.infer<typeof cinematicWardrobeSuggestionSchema>;
@@ -537,7 +540,8 @@ export const cinematicSceneEnvironmentProposalSchema = z.object({
   environmentPrompt: z.string().min(1).max(2500),
   warnings: z.array(z.string().max(500)).max(8),
   provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
-  billingStatus: z.literal('qualification_no_charge')
+  billingStatus: z.enum(['qualification_no_charge', 'paid', 'settlement_pending']),
+  writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional()
 });
 
 export const cinematicSceneEnvironmentImagesSchema = z.object({
@@ -966,7 +970,8 @@ export const cinematicStoryPlanProposalSchema = z.object({
   scriptPreview: z.array(cinematicFilmScriptEntrySchema).optional(),
   workflow: cinematicStoryPlanWorkflowSchema.optional(),
   provenance: cinematicAiProvenanceSchema.nullable(),
-  billingStatus: z.literal('qualification_no_charge')
+  billingStatus: z.enum(['qualification_no_charge', 'paid', 'settlement_pending', 'free']),
+  writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional()
 });
 
 export const cinematicSceneDirectionProposalSchema = z.object({
@@ -997,7 +1002,8 @@ export const cinematicSceneDirectionProposalSchema = z.object({
   }).optional(),
   warnings: z.array(z.string()),
   provenance: cinematicAiProvenanceSchema,
-  billingStatus: z.literal('qualification_no_charge')
+  billingStatus: z.enum(['qualification_no_charge', 'paid', 'settlement_pending', 'free']),
+  writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional()
 });
 
 const cinematicAuthoringAuthoritySchema = z.enum(['user', 'ai', 'inherited', 'default', 'legacy_inferred']);
@@ -1193,7 +1199,7 @@ export const cinematicChapterOutlineSchema = z.object({
 });
 const cinematicWritingEstimateSchema = z.object({
   operation: z.enum(['chapter_outline', 'chapters']), model: z.string(), credits: z.number().positive(),
-  retailThb: z.number().positive(), chargeCredits: z.literal(0), costBasis: z.literal('advisory_byte_estimate'),
+  retailThb: z.number().positive(), chargeCredits: z.number().int().nonnegative(), costBasis: z.enum(['advisory_byte_estimate', 'service_price_preview']),
   policyVersion: z.string(), exceedsValueTarget: z.boolean()
 });
 export const cinematicChapterPlanningEstimateSchema = z.object({
@@ -1204,6 +1210,8 @@ export type CinematicChapterOutlineRow = z.infer<typeof cinematicChapterOutlineR
 export type CinematicChapterPlanningEstimate = z.infer<typeof cinematicChapterPlanningEstimateSchema>;
 
 export const cinematicProjectSchema = z.object({
+  billingStatus: z.enum(['paid', 'settlement_pending', 'free']).optional(),
+  writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional(),
   seriesMembership: cinematicSeriesMembershipSchema.optional(),
   chapterOrigin: z.object({ projectId: z.string(), projectVersion: z.number().int().positive(), copiedCast: z.boolean() }).optional(),
   id: z.string().min(1),

@@ -1,6 +1,6 @@
 import { apiRequest } from '../../../lib/api/apiClient';
 import {
-  adminMutationSchema,
+  adminMutationSchema, adminPricingRevisionSchema,
   adminOverviewSchema,
   adminOperationsSchema,
   adminPageSchema,
@@ -133,6 +133,23 @@ export function updateSupportCase(caseId: string, input: { expectedVersion: numb
 
 export function createAdminConfigurationDraft(input: { scope: string; values: Record<string, unknown> }) {
   return apiRequest('/api/admin/configuration/revisions', { method: 'POST', body: input, schema: adminMutationSchema });
+}
+
+export function createAdminPricingDraft(values: {
+  profitMarkupPercentByMedia: { text: number; image: number; video: number };
+  baseActiveRevisionId: string | null; commandId: string; reason: string;
+}) {
+  return apiRequest('/api/admin/configuration/revisions', {
+    method: 'POST', body: { scope: 'pricing', values }, schema: adminPricingRevisionSchema
+  });
+}
+
+export function publishAdminPricingRevision(revisionId: string, command: {
+  expectedVersion: number; baseActiveRevisionId: string | null; commandId: string; reason: string;
+}) {
+  return apiRequest(`/api/admin/configuration/revisions/${encodeURIComponent(revisionId)}/publications`, {
+    method: 'POST', body: command, schema: adminPricingRevisionSchema
+  });
 }
 
 export function getAdminProviderHealth() {

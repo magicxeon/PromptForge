@@ -51,34 +51,26 @@ function renderWriter(inputProject = project) {
 }
 
 describe('CinematicChapterWriter', () => {
-  it('confirms all-Chapter regeneration, cancels without dispatch and dispatches once', async () => {
+  it('forwards all-Chapter regeneration to the quoted API once and blocks duplicates', async () => {
     api.proposeChapters.mockImplementation(() => new Promise(() => {}));
     renderWriter({ ...project, confirmedFullStoryVersionId: 'confirmed-story' });
     const trigger = screen.getByRole('button', { name: 'cinematic.chapterWriter.regenerateAll' });
     fireEvent.click(trigger);
-    expect(screen.getByRole('alertdialog')).toHaveTextContent('cinematic.regeneration.chaptersDescription');
-    expect(api.proposeChapters).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'ui.action.cancel' }));
-    expect(api.proposeChapters).not.toHaveBeenCalled();
+    expect(screen.getAllByText('cinematic.writingBilling.reviewPrice')[0]).toBeVisible();
+    expect(trigger).toBeDisabled();
     fireEvent.click(trigger);
-    fireEvent.keyDown(screen.getByRole('alertdialog'), { key: 'Escape' });
-    await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
-    expect(api.proposeChapters).not.toHaveBeenCalled();
-    fireEvent.click(trigger);
-    const confirm = screen.getByRole('button', { name: 'cinematic.regeneration.confirm' });
-    fireEvent.click(confirm);
-    fireEvent.click(confirm);
     expect(api.proposeChapters).toHaveBeenCalledOnce();
     expect(api.proposeChapters).toHaveBeenCalledWith('chapter-1', expect.objectContaining({ scope: 'all', expectedVersion: 4 }));
   });
 
-  it('invalidates Chapter consent when the instruction changes', () => {
+  it('forwards the current instruction without a second unpriced confirmation', () => {
+    api.proposeChapters.mockImplementation(() => new Promise(() => {}));
     renderWriter({ ...project, confirmedFullStoryVersionId: 'confirmed-story' });
     const instruction = screen.getByRole('textbox', { name: 'cinematic.chapterWriter.instruction' });
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.chapterWriter.regenerateAll' }));
     fireEvent.change(instruction, { target: { value: 'New direction' } });
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.chapterWriter.regenerateAll' }));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-    expect(api.proposeChapters).not.toHaveBeenCalled();
+    expect(api.proposeChapters).toHaveBeenCalledWith('chapter-1', expect.objectContaining({ instruction: 'New direction', scope: 'all' }));
   });
   beforeEach(() => {
     localStorage.clear();
@@ -193,7 +185,6 @@ describe('CinematicChapterWriter', () => {
     api.proposeScenes.mockResolvedValue({ project: { ...project, version: 5, sceneProposals: [proposal] }, proposal });
     const props = renderWriter();
     fireEvent.click(await screen.findByRole('button', { name: 'cinematic.chapterWriter.generateScenes' }));
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
     await waitFor(() => expect(api.proposeScenes).toHaveBeenCalledWith('chapter-1', 4));
     expect(await screen.findByText('Station')).toBeVisible();
     expect(props.onOpenScenes).not.toHaveBeenCalled();

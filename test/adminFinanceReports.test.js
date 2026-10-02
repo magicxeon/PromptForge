@@ -24,6 +24,21 @@ test('periods use Bangkok calendar boundaries and never equate Credits to cash/c
   for (const row of result.periods) for (const key of ['cashReceived', 'supplierPayments', 'usageCost', 'profit', 'closingBalance']) assert.equal(row[key], null);
 });
 
+test('unused video reservation releases appear once in returned Credits, not captures or cash', () => {
+  const date = '2026-02-01T00:00:00.000Z';
+  const released = event('release', date, 10, 'release');
+  const entries = [event('reserve', date, 100, 'reserve'),
+    event('capture', date, 90), released, released, event('refund', date, 20, 'refund')];
+  const result = buildFinanceReport({ available: true, entries }, { year: 2026, month: 2 }, now);
+  assert.equal(result.totals.capturedCredits, 90);
+  assert.equal(result.totals.returnedCredits, 30);
+  assert.equal(result.periods[1].returnedCredits, 30);
+  assert.equal(result.totals.eventCount, 4);
+  for (const key of ['cashReceived', 'usageCost', 'profit']) assert.equal(result.periods[1][key], null);
+  assert.equal(buildFinanceReport({ available: true, entries },
+    { year: 2026, providerId: 'other' }, now).totals.returnedCredits, 0);
+});
+
 test('duplicates, invalid evidence, missing sources and future snapshots are not silently trusted', () => {
   const a = event('a', '2026-01-01T00:00:00.000Z');
   assert.equal(buildFinanceReport({ available: true, entries: [a, a] }, {}, now).totals.capturedCredits, 15);

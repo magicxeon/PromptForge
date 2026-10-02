@@ -63,8 +63,8 @@ test('Scene description proposal uses current story context without mutating the
     params: { projectId: project.id, sceneId: scene.id },
     body: { expectedVersion: before.version, expectedSceneVersion: scene.version }, actorContext: actor
   }, response);
-  assert.equal(response.statusCode, 200);
-  assert.equal(response.body.environmentPrompt, 'Empty wet pavement outside a flower shop.');
+  assert.equal(response.statusCode, 409);
+  assert.equal(response.body.error.code, 'cinematic_writing_quote_required');
   await assert.rejects(service.proposeSceneEnvironment(project.id, scene.id, {
     expectedVersion: before.version, expectedSceneVersion: scene.version + 1
   }, actor), { code: 'cinematic_scene_version_conflict' });

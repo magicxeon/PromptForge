@@ -51,7 +51,14 @@ export class CinematicStoryPlanService {
     this.visualQualityService = visualQualityService;
   }
 
-  async generatePlan(project, { mode = 'generate', sourceResolution = null, onProgress = null } = {}) {
+  getBillingBudget(policy = this.policyLoader()) {
+    const recipe = this.storyRecipeLoader();
+    const maximumRepairRounds = maximumStoryPlanRepairRounds(recipe);
+    return { maxOutputTokens: policy.maxOutputTokens * (1 + maximumRepairRounds),
+      maximumRepairRounds, recipeFingerprint: recipe.fingerprint };
+  }
+
+  async generatePlan(project, { mode = 'generate', sourceResolution = null, onProgress = null, allowProviderFallback = true } = {}) {
     const progress = createStoryPlanProgressReporter(onProgress);
     progress.processing('source_preflight');
     const normalizedMode = mode === 'review_current' ? 'review_current' : 'generate';
@@ -80,7 +87,7 @@ export class CinematicStoryPlanService {
         billingStatus: 'qualification_no_charge'
       };
     }
-    const policy = assertEnabled(this.policyLoader());
+    const policy = executionPolicy(this.policyLoader(), allowProviderFallback);
     const recipe = assertRecipe(this.storyRecipeLoader());
     const dialogueTiming = recipe.limits?.dialogueTimingReview === true;
     const context = buildProjectContext(project, { preflight, mode: normalizedMode });
@@ -122,7 +129,7 @@ export class CinematicStoryPlanService {
     let visualQuality = initialVisualQuality;
     const repairRounds = [];
     const acceptedChanges = [];
-    const maximumRepairRounds = Math.min(dialogueTimingMaximumRepairRounds, Math.max(0, Number(recipe.limits?.maximumVisualRepairRounds ?? 2)));
+    const maximumRepairRounds = maximumStoryPlanRepairRounds(recipe);
     const needsRepair = () => visualQuality.repairableCount > 0 || (dialogueAssessment?.repairableCount || 0) > 0;
     if (needsRepair() && maximumRepairRounds > 0) {
       progress.processing('visual_repair');
@@ -258,7 +265,7 @@ export class CinematicStoryPlanService {
 
   async generateScene(project, sceneId, options = {}) {
     const request = typeof options === 'string' ? { direction: options } : (options || {});
-    const policy = assertEnabled(this.policyLoader());
+    const policy = executionPolicy(this.policyLoader(), options.allowProviderFallback !== false);
     const recipe = assertRecipe(this.sceneRecipeLoader());
     const dialogueTiming = recipe.limits?.dialogueTimingReview === true;
     const sceneIndex = project.scenes.findIndex(item => item.id === sceneId);
@@ -1159,6 +1166,17 @@ function provenance(result, policy, recipe) {
     recipeVersion: recipe.version,
     recipeFingerprint: recipe.fingerprint
   };
+}
+
+function maximumStoryPlanRepairRounds(recipe) {
+  const configured = Number(recipe.limits?.maximumVisualRepairRounds ?? 2);
+  if (!Number.isSafeInteger(configured) || configured < 0) throw new TypeError('Invalid Story Plan repair allowance.');
+  return Math.min(dialogueTimingMaximumRepairRounds, configured);
+}
+
+function executionPolicy(policy, allowProviderFallback) {
+  const enabled = assertEnabled(policy);
+  return allowProviderFallback ? enabled : { ...enabled, fallback: { ...enabled.fallback, enabled: false } };
 }
 
 function assertEnabled(policy) {

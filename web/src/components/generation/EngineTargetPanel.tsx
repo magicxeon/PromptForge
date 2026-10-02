@@ -215,6 +215,7 @@ export function EngineTargetPanel({
           <div className="engine-prompt-refinement__copy">
             <strong>{t('playground.promptRefinement.label')}</strong>
             <span>{t('playground.promptRefinement.description')}</span>
+            <small className="engine-prompt-refinement__free font-medium text-[var(--theme-success)]">{t('playground.promptRefinement.free')}</small>
           </div>
           <button
             type="button"

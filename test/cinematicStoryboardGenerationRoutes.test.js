@@ -154,21 +154,35 @@ test('Cinematic Story Plan proposal route preserves unified workflow evidence', 
   const { storyPlanHandler, cinematicService } = routeFixture();
   const response = responseFixture();
   const request = requestFixture();
-  request.body = { mode: 'generate', sourceResolution: null };
+  request.body = { mode: 'generate', sourceResolution: null, writingQuoteId: 'fixture_quote' };
 
   await storyPlanHandler(request, response);
 
   assert.equal(response.statusCode, 200);
   assert.equal(response.body.workflow.contractVersion, 'cinematic-story-plan-workflow-v1');
   assert.equal(response.body.workflow.stages.at(-1).id, 'storyboard_readiness');
-  assert.deepEqual(cinematicService.storyPlanCalls[0].input, request.body);
+  assert.deepEqual(cinematicService.storyPlanCalls[0].input, { mode: 'generate', sourceResolution: null });
+});
+
+test('Cinematic Story Plan SSE refuses unquoted work before opening a stream', async () => {
+  const { storyPlanHandler, cinematicService } = routeFixture();
+  const response = responseFixture();
+  response.write = () => { throw new Error('Unconsented stream opened'); };
+  const request = requestFixture();
+  request.body = { mode: 'generate' };
+  request.headers = { accept: 'text/event-stream' };
+  request.get = () => 'text/event-stream';
+  await storyPlanHandler(request, response);
+  assert.equal(response.statusCode, 409);
+  assert.equal(response.body.error.code, 'cinematic_writing_quote_required');
+  assert.equal(cinematicService.storyPlanCalls.length, 0);
 });
 
 test('Cinematic Story Plan proposal route streams real progress and the same final proposal', async () => {
   const { storyPlanHandler, cinematicService } = routeFixture();
   const response = streamResponseFixture();
   const request = requestFixture();
-  request.body = { mode: 'generate', sourceResolution: null };
+  request.body = { mode: 'generate', sourceResolution: null, writingQuoteId: 'fixture_quote' };
   request.headers = { accept: 'text/event-stream' };
   request.get = name => request.headers[String(name).toLowerCase()] || '';
 
@@ -199,6 +213,12 @@ function routeFixture({ projectValue = project, contextValue = context } = {}) {
     getProject: async () => structuredClone(projectValue),
     getStoryboardGenerationContext: async () => structuredClone(contextValue),
     registerStoryboardBatchAttempts: async () => structuredClone(project),
+    async executeWriting(projectId, payload, actor, options) {
+      assert.equal(payload.operation, 'story_plan');
+      const { writingQuoteId, ...input } = payload.input;
+      assert.equal(writingQuoteId, 'fixture_quote');
+      return this.generateStoryPlan(projectId, input, actor, options);
+    },
     async generateStoryPlan(projectId, input, actorContext, operation = {}) {
       this.storyPlanCalls.push({ projectId, input, actorContext });
       operation.onProgress?.({

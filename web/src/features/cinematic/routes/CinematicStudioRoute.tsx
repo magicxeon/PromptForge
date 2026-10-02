@@ -57,6 +57,7 @@ import { SceneEnvironmentControl } from '../components/SceneEnvironmentControl';
 import { StoryboardShotDialog } from '../components/StoryboardShotDialog';
 import { CinematicProjectNavigation } from '../components/CinematicProjectNavigation';
 import { CinematicCharactersWorkspace } from '../components/CinematicCharactersWorkspace';
+import { CinematicWritingBillingConsent } from '../components/CinematicWritingBillingConsent';
 
 export function CinematicStudioRoute() {
   const { t } = useTranslation('cinematic');
@@ -80,15 +81,21 @@ export function CinematicStudioRoute() {
   const isNew = location.pathname === routePaths.createCinematicNew;
   if (!isNew && !projectId) return <CinematicProjectList actorId={actor.userId} />;
   if (projectId) {
-    return <ExistingCinematicWorkspace actorId={actor.userId} projectId={projectId} requestedStage={stage} shotId={shotId} />;
+    return <>
+      <CinematicWritingBillingConsent key={`${actor.userId}:${location.key}`} actorId={actor.userId} scopeKey={location.key} />
+      <ExistingCinematicWorkspace actorId={actor.userId} projectId={projectId} requestedStage={stage} shotId={shotId} />
+    </>;
   }
 
   return (
+    <>
+    <CinematicWritingBillingConsent key={`${actor.userId}:${location.key}`} actorId={actor.userId} scopeKey={location.key} />
     <CinematicWorkspace
       key={`${actor.userId}:new`}
       actorId={actor.userId}
       requestedStage={stage}
     />
+    </>
   );
 }
 

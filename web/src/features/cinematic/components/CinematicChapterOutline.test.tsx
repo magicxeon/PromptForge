@@ -59,24 +59,23 @@ describe('Chapter outline review', () => {
     expect(screen.getByRole('button', { name: label('discard') })).toBeEnabled();
     expect(chapterOutlineNeedsReview({ ...project, chapterOutline: { ...project.chapterOutline!, status: 'approved' }, setup: { ...project.setup, chapterCount: 2 } })).toBe(true);
   });
-  it('shows unavailable rather than zero estimates and rejects charge quotes at the boundary', async () => {
+  it('shows unavailable rather than zero estimates and accepts service-price previews', async () => {
     const response = { projectVersion: 4, billingStatus: 'qualification_no_charge', estimates: { chapters: null, chapter_outline: null } };
     expect(cinematicChapterPlanningEstimateSchema.safeParse(response).success).toBe(true);
     api.estimate.mockResolvedValue(response); show();
     fireEvent.click(screen.getByRole('button', { name: label('estimate') }));
     await waitFor(() => expect(screen.getAllByText(label('unavailable'))).toHaveLength(2));
-    expect(screen.getByText(label('free'))).toBeVisible();
+    expect(screen.getByText('cinematic.writingBilling.paidWriting')).toBeVisible();
     expect(cinematicChapterPlanningEstimateSchema.safeParse({ ...response, estimates: { ...response.estimates,
       chapters: { operation: 'chapters', model: 'model', credits: 165, retailThb: 16.5, chargeCredits: 165,
-        costBasis: 'advisory_byte_estimate', policyVersion: 'policy', exceedsValueTarget: false } } }).success).toBe(false);
+        costBasis: 'service_price_preview', policyVersion: 'policy', exceedsValueTarget: false } } }).success).toBe(true);
   });
   it('ignores delayed results after switching actors', async () => {
     let finish!: (value: CinematicProject) => void;
     api.propose.mockReturnValue(new Promise(resolve => { finish = resolve; }));
     const props = show({ ...project, chapterOutline: null });
     fireEvent.click(screen.getByRole('button', { name: label('generate') }));
-    expect(api.propose).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
+    expect(api.propose).toHaveBeenCalledOnce();
     api.actor = 'different-user'; finish(project);
     await waitFor(() => expect(screen.getByRole('button', { name: label('generate') })).not.toHaveAttribute('aria-busy'));
     expect(props.changed).not.toHaveBeenCalled();

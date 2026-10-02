@@ -1,5 +1,19 @@
+import { calculateCostPlusCredits } from './CostPlusPricing.js';
+
 // Advisory economics only. These values are never accepted as a charge quote.
 export function estimateCinematicWriting(policy, { model, operation, inputBytes, maxOutputTokens }, now = Date.now()) {
+  if (policy.cinematicWritingBilling?.enabled) {
+    let quote;
+    try { quote = quoteCinematicWriting(policy, { model, operation, inputBytes, maxOutputTokens }, now); }
+    catch { return null; }
+    const bufferedCostThb = quote.providerCostUsd * quote.pricingFxThbPerUsd * (1 + quote.operatingSafetyBufferRate);
+    const retailThb = quote.totalCredits / quote.creditsPerThbAssumption;
+    return { publicEstimate: { operation, model, credits: quote.totalCredits, retailThb, chargeCredits: quote.totalCredits,
+      costBasis: 'service_price_preview', policyVersion: quote.billingPolicyVersion,
+      exceedsValueTarget: quote.totalCredits > (policy.cinematicWritingPreview?.operations?.[operation]?.valueReviewCredits ?? Infinity) },
+      inputTokens: quote.inputTokenEstimate, maxOutputTokens, providerCostUsd: quote.providerCostUsd, bufferedCostThb,
+      grossContributionThb: retailThb - bufferedCostThb, assumedGrossMargin: (retailThb - bufferedCostThb) / retailThb };
+  }
   const preview = policy.cinematicWritingPreview;
   const rate = policy.textEnhancement;
   const rule = preview?.operations?.[operation];
@@ -40,4 +54,44 @@ export function normalizeWritingUsage(usage) {
     || !Number.isInteger(reasoning) || reasoning < 0 || reasoning > usage.output_tokens) return null;
   return { inputTokens: usage.input_tokens, outputTokens: usage.output_tokens,
     cachedInputTokens: cached, reasoningTokens: reasoning };
+}
+
+export function quoteCinematicWriting(policy, { model, operation, inputBytes, maxOutputTokens }, now = Date.now()) {
+  const billing = policy.cinematicWritingBilling;
+  const rate = policy.textEnhancement;
+  const floor = billing?.operations?.[operation]?.floorCredits;
+  const markup = policy.profitMarkupPercentByMedia?.text;
+  const positive = value => Number.isFinite(value) && value > 0;
+  if (!billing?.enabled || !billing.version || !rate?.enabled || rate.modelId !== model
+    || !(Date.parse(rate.effectiveAt) <= now && now < Date.parse(rate.reviewBy))
+    || ![billing.inputBytesPerToken, billing.maximumInputBytes, billing.quoteTtlSeconds,
+      rate.inputUsdPerMillion, rate.outputUsdPerMillion, floor, maxOutputTokens,
+      policy.pricingFxThbPerUsd, policy.creditsPerThbAssumption, policy.creditRoundingIncrement].every(positive)
+    || !Number.isSafeInteger(inputBytes) || inputBytes < 0 || inputBytes > billing.maximumInputBytes
+    || !Number.isSafeInteger(maxOutputTokens) || !Number.isFinite(billing.inputOverheadTokens)
+    || billing.inputOverheadTokens < 0 || !Number.isFinite(markup) || markup < 0 || markup > 1000
+    || !Number.isFinite(policy.operatingSafetyBufferRate) || policy.operatingSafetyBufferRate < 0) {
+    throw Object.assign(new Error('Writing pricing is unavailable for this operation or model.'),
+      { code: 'cinematic_writing_pricing_unavailable', statusCode: 503 });
+  }
+  const inputTokenEstimate = Math.ceil(inputBytes / billing.inputBytesPerToken) + billing.inputOverheadTokens;
+  const providerCostUsd = (inputTokenEstimate * rate.inputUsdPerMillion + maxOutputTokens * rate.outputUsdPerMillion) / 1e6;
+  const bufferedCostThb = providerCostUsd * policy.pricingFxThbPerUsd * (1 + policy.operatingSafetyBufferRate);
+  const increment = policy.creditRoundingIncrement;
+  const totalCredits = Math.max(Math.ceil(floor / increment) * increment,
+    calculateCostPlusCredits(providerCostUsd, policy, 'text'));
+  if (!Number.isSafeInteger(totalCredits) || totalCredits <= 0) throw new Error('Invalid writing Credit total.');
+  return {
+    operation, providerId: rate.providerId, modelId: model, totalCredits,
+    billingMode: 'fixed_service_quote', costBasis: 'bounded_context_output_allowance',
+    pricingPolicyVersion: policy.policyVersion, billingPolicyVersion: billing.version,
+    providerRate: { version: rate.version, effectiveAt: rate.effectiveAt, reviewBy: rate.reviewBy,
+      inputUsdPerMillion: rate.inputUsdPerMillion, outputUsdPerMillion: rate.outputUsdPerMillion,
+      cachedInputUsdPerMillion: rate.cachedInputUsdPerMillion },
+    inputTokenEstimate, maxOutputTokens, providerCostUsd, profitMarkupPercent: markup,
+    pricingFxThbPerUsd: policy.pricingFxThbPerUsd, operatingSafetyBufferRate: policy.operatingSafetyBufferRate,
+    creditsPerThbAssumption: policy.creditsPerThbAssumption, roundingIncrement: increment,
+    createdAt: new Date(now).toISOString(), expiresAt: new Date(Math.min(Date.parse(rate.reviewBy),
+      now + Math.min(900, billing.quoteTtlSeconds) * 1000)).toISOString()
+  };
 }

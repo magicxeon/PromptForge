@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "mock-2026-09-09-image25-estimated-v2",
-  "effectiveAt": "2026-09-09T00:00:00.000Z",
+  "policyVersion": "ai-credit-activation-2026-10-02-v1",
+  "effectiveAt": "2026-10-02T00:00:00.000Z",
   "providerPriceSourceDate": "2026-07-24",
   "referenceFxThbPerUsd": 33.7594,
   "pricingFxThbPerUsd": 35.0,
@@ -12,6 +12,32 @@
   "creditsPerThbAssumption": 10,
   "creditRoundingIncrement": 5,
   "estimateTtlSeconds": 900,
+  "profitMarkupPercentByMedia": { "text": 30, "image": 30, "video": 30 },
+  "videoActualUsage": {
+    "enabled": true,
+    "version": "video-actual-2026-10-02-v1",
+    "reservationCostMultiplier": 1.1
+  },
+  "cinematicWritingBilling": {
+    "enabled": true,
+    "version": "cinematic-paid-2026-10-02-v1",
+    "inputBytesPerToken": 2.5,
+    "inputOverheadTokens": 1500,
+    "maximumInputBytes": 524288,
+    "quoteTtlSeconds": 900,
+    "operations": {
+      "brief": { "floorCredits": 20 },
+      "story_plan": { "floorCredits": 100 },
+      "scene_direction": { "floorCredits": 40 },
+      "characters": { "floorCredits": 40 },
+      "chapter_outline": { "floorCredits": 30 },
+      "chapters": { "floorCredits": 100 },
+      "scenes": { "floorCredits": 40 },
+      "shots": { "floorCredits": 40 },
+      "environment": { "floorCredits": 10 },
+      "wardrobe": { "floorCredits": 10 }
+    }
+  },
   "cinematicWritingPreview": {
     "version": "writing-preview-2026-09-26-v1",
     "enabled": true,
@@ -24,14 +50,15 @@
     }
   },
   "textEnhancement": {
-    "version": "momelo-look-sheet-text-sol-2026-09-25-v1",
+    "version": "momelo-look-sheet-text-sol-2026-10-02-v2",
     "enabled": true,
     "billingMode": "fixed_service_fee",
     "roundingIncrement": 1,
     "providerId": "openai",
     "modelId": "gpt-6-sol",
     "effectiveAt": "2026-09-08T00:00:00Z",
-    "reviewBy": "2026-10-08T00:00:00Z",
+    "providerPriceSourceDate": "2026-10-02",
+    "reviewBy": "2026-11-01T00:00:00Z",
     "inputUsdPerMillion": 2.00,
     "outputUsdPerMillion": 10.00,
     "cachedInputUsdPerMillion": 0.20,
@@ -354,7 +381,7 @@
         "imageOutput": 30,
         "source": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst"
       },
-      "notes": "Measured baseline: 55 Credits text-only; 70 with 1-2 references at 768x1024 auto. Other supported settings use provisional pixel/quality/reference estimates, not official token predictions. Fixed quote; actual usage cost recorded separately."
+      "notes": "Historical retail baseline: 55 Credits text-only; 70 with 1-2 references. New measured-cost quotes use the active image category markup (default 30%), not this catalog hint. Other supported settings use provisional pixel/quality/reference estimates, not official token predictions. Accepted quote stays fixed; actual usage cost recorded separately."
     },
     {
       "providerId": "openai",
@@ -392,7 +419,7 @@
         "imageOutput": 30,
         "source": "https://developers.openai.com/api/docs/models/gpt-image-2.5-flare"
       },
-      "notes": "Measured baseline: 55 Credits text-only; 75 with 1-2 references at 768x1024 auto. Other supported settings use provisional pixel/quality/reference estimates, not official token predictions. Fixed quote; actual usage cost recorded separately."
+      "notes": "Historical retail baseline: 55 Credits text-only; 75 with 1-2 references. New measured-cost quotes use the active image category markup (default 30%), not this catalog hint. Other supported settings use provisional pixel/quality/reference estimates, not official token predictions. Accepted quote stays fixed; actual usage cost recorded separately."
     },
     {
       "providerId": "openai",

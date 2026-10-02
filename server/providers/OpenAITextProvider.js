@@ -361,7 +361,7 @@ export class OpenAITextProvider {
       },
       errorPrefix: 'cinematic_full_story_characters'
     });
-    return { ...parseJsonOutput(payload, 'cinematic_full_story_characters'), responseId: payload?.id || null };
+    return { ...parseJsonOutput(payload, 'cinematic_full_story_characters'), responseId: payload?.id || null, usage: payload?.usage || null };
   }
 
   async generateCinematicChapterScenes({ context, model, reasoningEffort, maxOutputTokens, timeoutMs }) {

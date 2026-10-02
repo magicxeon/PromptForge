@@ -119,11 +119,31 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.post('/api/cinematic/writing/quotes', async (req, res) => {
+    try { res.set('Cache-Control', 'private, no-store').json(await cinematicService.quoteBriefWriting(req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+  app.get('/api/cinematic/writing/operations/:operationId', async (req, res) => {
+    try { res.set('Cache-Control', 'private, no-store').json(await cinematicService.getBriefWritingOperation(req.params.operationId, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
   app.post('/api/cinematic/projects/:projectId/full-story/proposals', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
-      res.json(await cinematicService.proposeFullStory(req.params.projectId, req.body || {}, req.actorContext));
+      res.json(await (req.body?.purpose === 'characters'
+        ? cinematicService.executeWriting(req.params.projectId, { operation: 'characters', input: req.body || {} }, req.actorContext)
+        : cinematicService.proposeFullStory(req.params.projectId, req.body || {}, req.actorContext)));
     } catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/writing/quotes', async (req, res) => {
+    try { res.set('Cache-Control', 'private, no-store').json(await cinematicService.quoteWriting(req.params.projectId, req.body || {}, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+  app.get('/api/cinematic/projects/:projectId/writing/operations/:operationId', async (req, res) => {
+    try { res.set('Cache-Control', 'private, no-store').json(await cinematicService.getWritingOperation(req.params.projectId, req.params.operationId, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
   });
 
   app.post('/api/cinematic/projects/:projectId/full-story/revisions', async (req, res) => {
@@ -137,7 +157,7 @@ export function registerCinematicRoutes(app, {
   });
 
   app.post('/api/cinematic/projects/:projectId/full-story/chapters', async (req, res) => {
-    try { res.status(201).json(await cinematicService.generateFullStoryChapters(req.params.projectId, req.body || {}, req.actorContext)); }
+    try { res.status(201).json(await cinematicService.executeWriting(req.params.projectId, { operation: 'chapters', input: { ...req.body, scope: 'all' } }, req.actorContext)); }
     catch (error) { sendCinematicError(res, error); }
   });
 
@@ -145,13 +165,15 @@ export function registerCinematicRoutes(app, {
     app.post(`/api/cinematic/projects/:projectId/chapter-outline/${path}`, async (req, res) => {
       try {
         res.set('Cache-Control', 'private, no-store');
-        res.json(await cinematicService[method](req.params.projectId, req.body || {}, req.actorContext));
+        res.json(await (path === 'proposals'
+          ? cinematicService.executeWriting(req.params.projectId, { operation: 'chapter_outline', input: req.body || {} }, req.actorContext)
+          : cinematicService[method](req.params.projectId, req.body || {}, req.actorContext)));
       } catch (error) { sendCinematicError(res, error); }
     });
   }
 
   app.post('/api/cinematic/projects/:projectId/chapter-proposals', async (req, res) => {
-    try { res.status(201).json(await cinematicService.proposeChapters(req.params.projectId, req.body || {}, req.actorContext)); }
+    try { res.status(201).json(await cinematicService.executeWriting(req.params.projectId, { operation: 'chapters', input: req.body || {} }, req.actorContext)); }
     catch (error) { sendCinematicError(res, error); }
   });
 
@@ -168,7 +190,7 @@ export function registerCinematicRoutes(app, {
   app.post('/api/cinematic/projects/:projectId/scene-proposals', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
-      res.status(201).json(await cinematicService.proposeScenes(req.params.projectId, req.body || {}, req.actorContext));
+      res.status(201).json(await cinematicService.executeWriting(req.params.projectId, { operation: 'scenes', input: req.body || {} }, req.actorContext));
     } catch (error) { sendCinematicError(res, error); }
   });
 
@@ -201,7 +223,7 @@ export function registerCinematicRoutes(app, {
   app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/shot-proposals', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
-      res.status(201).json(await cinematicService.proposeShots(req.params.projectId, req.params.sceneId, req.body || {}, req.actorContext));
+      res.status(201).json(await cinematicService.executeWriting(req.params.projectId, { operation: 'shots', sceneId: req.params.sceneId, input: req.body || {} }, req.actorContext));
     } catch (error) { sendCinematicError(res, error); }
   });
 
@@ -290,11 +312,8 @@ export function registerCinematicRoutes(app, {
   app.post('/api/cinematic/projects/:projectId/cast/:assignmentId/wardrobe-suggestion', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
-      res.json(await cinematicService.suggestWardrobe(
-        req.params.projectId,
-        req.params.assignmentId,
-        req.actorContext
-      ));
+      res.json(await cinematicService.executeWriting(req.params.projectId,
+        { operation: 'wardrobe', assignmentId: req.params.assignmentId, input: req.body || {} }, req.actorContext));
     } catch (error) {
       sendCinematicError(res, error);
     }
@@ -401,16 +420,15 @@ export function registerCinematicRoutes(app, {
   });
 
   app.post('/api/cinematic/projects/:projectId/story-plan/proposals', async (req, res) => {
+    if (!req.body?.writingQuoteId) return sendCinematicError(res,
+      new CinematicError('cinematic_writing_quote_required', 'Confirm a current writing Credit quote before requesting AI.', 409));
     if (acceptsEventStream(req) && typeof res.write === 'function') {
       return streamStoryPlanProposal({ req, res, cinematicService });
     }
     try {
       res.set('Cache-Control', 'private, no-store');
-      res.json(await cinematicService.generateStoryPlan(
-        req.params.projectId,
-        req.body || {},
-        req.actorContext
-      ));
+      res.json(await cinematicService.executeWriting(req.params.projectId,
+        { operation: 'story_plan', input: req.body || {} }, req.actorContext));
     } catch (error) {
       sendCinematicError(res, error);
     }
@@ -419,12 +437,8 @@ export function registerCinematicRoutes(app, {
   app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/direction-proposals', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
-      res.json(await cinematicService.generateSceneDirection(
-        req.params.projectId,
-        req.params.sceneId,
-        req.body || {},
-        req.actorContext
-      ));
+      res.json(await cinematicService.executeWriting(req.params.projectId,
+        { operation: 'scene_direction', sceneId: req.params.sceneId, input: req.body || {} }, req.actorContext));
     } catch (error) {
       sendCinematicError(res, error);
     }
@@ -502,9 +516,8 @@ export function registerCinematicRoutes(app, {
   app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/environment/proposals', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
-      res.json(await cinematicService.proposeSceneEnvironment(
-        req.params.projectId, req.params.sceneId, req.body || {}, req.actorContext
-      ));
+      res.json(await cinematicService.executeWriting(req.params.projectId,
+        { operation: 'environment', sceneId: req.params.sceneId, input: req.body || {} }, req.actorContext));
     } catch (error) { sendCinematicError(res, error); }
   });
   app.get('/api/cinematic/projects/:projectId/scenes/:sceneId/environment/images', async (req, res) => {
@@ -778,9 +791,9 @@ async function streamStoryPlanProposal({ req, res, cinematicService }) {
   }, 15_000);
   heartbeat.unref?.();
   try {
-    const proposal = await cinematicService.generateStoryPlan(
+    const proposal = await cinematicService.executeWriting(
       req.params.projectId,
-      req.body || {},
+      { operation: 'story_plan', input: req.body || {} },
       req.actorContext,
       { onProgress: progress => writeEvent('progress', progress) }
     );

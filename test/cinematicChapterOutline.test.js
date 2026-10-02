@@ -108,6 +108,10 @@ test('advisory pricing includes margin, rounds up, distinguishes unknown rates a
   const policy = JSON.parse(await fs.readFile(new URL('../server/config/credit-pricing-policy.json', import.meta.url), 'utf8'));
   const input = { operation: 'chapters', model: 'gpt-6-sol', inputBytes: 46250, maxOutputTokens: 8000 };
   const now = Date.parse('2026-09-26');
+  const paidPreview = estimateCinematicWriting(policy, input, now);
+  assert.equal(paidPreview.publicEstimate.chargeCredits, paidPreview.publicEstimate.credits);
+  assert.equal(paidPreview.publicEstimate.costBasis, 'service_price_preview');
+  policy.cinematicWritingBilling = { ...policy.cinematicWritingBilling, enabled: false };
   const price = estimateCinematicWriting(policy, input, now);
   assert.equal(price.inputTokens, 20000);
   assert.equal(price.providerCostUsd, 0.12);

@@ -115,7 +115,8 @@ test('pricing: measured tariff pins real rate evidence and does not masquerade a
       const quote = await pricing.calculateEstimate({
         userId: 'owner', requestedProviderId: 'openai', requestedModelId: id, referenceCount, outputCount, aspectRatio: '6:8'
       });
-      assert.equal(quote.estimatedCredits, (referenceCount ? id.endsWith('sunburst') ? 70 : 75 : 55) * outputCount);
+      assert.equal(quote.estimatedCredits, (referenceCount ? 30 : 25) * outputCount);
+      assert.equal(quote.breakdown.retailAssumptions.profitMarkupPercent, 30);
       assert.equal(quote.breakdown.testingOnly, undefined);
       assert.equal(quote.breakdown.costBasis, 'measured_usage_baseline');
       assert.equal(quote.estimateConfidence, 'provisional');
@@ -138,10 +139,10 @@ test('pricing: production estimates unmeasured parameters without falling back t
   for (const NODE_ENV of ['production', 'staging']) for (const id of ids) {
     const pricing = new CreditPricingPolicyService({ environment: { NODE_ENV } });
     const estimated = await pricing.calculateEstimate({ userId: 'owner', requestedProviderId: 'openai', requestedModelId: id, aspectRatio: '1:1' });
-    assert.ok(estimated.estimatedCredits > 55);
+    assert.ok(estimated.estimatedCredits > 25);
     assert.equal(estimated.breakdown.costBasis, 'provisional_usage_estimate');
     const measured = await pricing.calculateEstimate({ userId: 'owner', requestedProviderId: 'openai', requestedModelId: id, aspectRatio: '3:4' });
-    assert.equal(measured.estimatedCredits, 55);
+    assert.equal(measured.estimatedCredits, 25);
   }
 });
 

@@ -23,6 +23,7 @@ import { eligibleDurations } from '../generation/VideoDurationReconciliation.js'
 import { videoGenerationApplicationService } from '../generation/VideoGenerationApplicationService.js';
 import { cinematicStoryEnhancementService } from '../generation/CinematicStoryEnhancementService.js';
 import { cinematicFullStoryService } from '../generation/CinematicFullStoryService.js';
+import { cinematicWritingOperationService } from '../generation/CinematicWritingOperationService.js';
 import { normalizeStoryImport, createImportedFullStoryRevision, normalizeBriefImport } from './CinematicStoryImport.js';
 import { assertSiblingOrder, buildAuthoringContinuity, continuitySourceKey, shotContinuityItems } from './CinematicAuthoringContinuity.js';
 import { projectVideoDirection, withProjectVideoDirection } from './CinematicProjectVideoDirection.js';
@@ -76,6 +77,7 @@ const DURATIONS = new Set(cinematicWorkflowPolicy.projectCreation.chapterDuratio
 export class CinematicApplicationService {
   constructor({
     repository = cinematicProjectRepository,
+    seriesService = null,
     storyboardAssetService = cinematicStoryboardAssetService,
     lastFrameService = cinematicLastFrameService,
     facelessAssetService = facelessPrevisAssetService,
@@ -89,6 +91,7 @@ export class CinematicApplicationService {
     videoGenerationService = videoGenerationApplicationService,
     storyEnhancementService = cinematicStoryEnhancementService,
     fullStoryService = cinematicFullStoryService,
+    writingOperationService = cinematicWritingOperationService,
     wardrobeSuggestionService = cinematicWardrobeSuggestionService,
     storyPlanService = cinematicStoryPlanService,
     assetRepository = assetRepo,
@@ -102,7 +105,7 @@ export class CinematicApplicationService {
     timelineCompiler = cinematicTimelineCompiler
   } = {}) {
     this.repository = repository;
-    this.seriesService = new CinematicSeriesService({ repository, normalizeSetup,
+    this.seriesService = seriesService || new CinematicSeriesService({ repository, normalizeSetup,
       invalidateCastSources: invalidateReplacedCastSources });
     this.storyboardAssetService = storyboardAssetService;
     this.lastFrameService = lastFrameService;
@@ -118,6 +121,7 @@ export class CinematicApplicationService {
     this.videoGenerationService = videoGenerationService;
     this.storyEnhancementService = storyEnhancementService;
     this.fullStoryService = fullStoryService;
+    this.writingOperationService = writingOperationService;
     this.wardrobeSuggestionService = wardrobeSuggestionService;
     this.storyPlanService = storyPlanService;
     this.assetRepository = assetRepository;
@@ -133,6 +137,93 @@ export class CinematicApplicationService {
 
   listProjects(actorContext, query) {
     return this.repository.listForActor(actorContext, query);
+  }
+
+  async writingSource(projectId, { operation, input = {}, sceneId, assignmentId }, actor) {
+    if (!actor?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    const project = await this.repository.findForActor(projectId, actor);
+    if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    if (!['wardrobe', 'story_plan'].includes(operation) || input.expectedVersion !== undefined) assertExpectedVersion(project, input.expectedVersion);
+    const scene = sceneId ? project.scenes?.find(item => item.id === sceneId) : null;
+    if (sceneId && !scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+    const assignment = assignmentId ? project.castAssignments?.find(item => item.id === assignmentId && item.active !== false) : null;
+    if (assignmentId && !assignment) throw new CinematicError('cinematic_cast_assignment_not_found', 'Cast Assignment not found.', 404);
+    if (['shots', 'environment', 'scene_direction'].includes(operation) && !scene) throw new CinematicError('cinematic_scene_not_found', 'Select a Scene first.', 400);
+    if (operation === 'wardrobe' && !assignment) throw new CinematicError('cinematic_cast_assignment_not_found', 'Select a Character first.', 400);
+    const workspace = await this.seriesService.getWorkspace(projectId, actor);
+    const rootId = workspace.productionProject.storyProjectId;
+    const root = rootId === project.id ? project : await this.repository.findForActor(rootId, actor);
+    if (!root) throw new CinematicError('cinematic_project_not_found', 'Full Story Project not found.', 404);
+    const story = root.fullStoryVersions?.find(item => item.id === root.confirmedFullStoryVersionId)
+      || root.fullStoryVersions?.find(item => item.id === root.activeFullStoryVersionId);
+    const policy = operation === 'wardrobe' ? this.wardrobeSuggestionService.policyLoader()
+      : ['story_plan', 'scene_direction'].includes(operation) ? this.storyPlanService.policyLoader() : this.fullStoryService.policyLoader();
+    const repairBudget = operation === 'story_plan' ? this.storyPlanService.getBillingBudget?.(policy) : null;
+    const maxOutputTokens = repairBudget?.maxOutputTokens ?? (operation === 'chapter_outline'
+      ? cinematicWorkflowPolicy.authoring.chapterOutlineMaximumOutputTokens
+      : operation === 'environment' ? Math.min(policy.maxOutputTokens, 2500) : policy.maxOutputTokens);
+    const continuity = ['chapters', 'scenes', 'shots'].includes(operation)
+      ? workspace.chapters.map(item => ({
+        projectId: item.projectId, version: item.version, activeChapterVersionId: item.activeChapterVersionId,
+        seasonId: item.seasonId, order: item.order, title: item.title, story: item.storyBrief
+      })) : [];
+    return { model: policy.model, maxOutputTokens, source: {
+      projectId, projectVersion: project.version, rootId, rootVersion: root.version,
+      title: project.title, settings: project.setup, fullStory: story?.content || '',
+      chapterStory: project.chapterStory || '', chapterRevisionId: project.activeChapterVersionId,
+      characters: (project.castAssignments || []).filter(item => item.active !== false).slice(0, 24)
+        .map(item => ({ id: item.id, name: item.displayName, role: item.storyRole,
+          objective: item.objective, traits: item.personalityTraits, voice: item.voice })),
+      scenes: scene ? [scene] : (project.scenes || []).map(item => ({ id: item.id, title: item.title,
+        setting: item.setting, synopsis: item.synopsis, objective: item.objective })),
+      assignment, continuity, repairBudget, provider: policy.provider, model: policy.model, maxOutputTokens
+    } };
+  }
+
+  async quoteWriting(projectId, payload, actor) {
+    const allowed = ['full_story', 'characters', 'chapter_outline', 'chapters', 'scenes', 'shots', 'environment', 'wardrobe', 'story_plan', 'scene_direction'];
+    if (!allowed.includes(payload?.operation) || !payload.input || typeof payload.input !== 'object' || Array.isArray(payload.input)) {
+      throw new CinematicError('cinematic_writing_operation_invalid', 'Select a supported writing operation and input.', 400);
+    }
+    const request = writingRequest(payload);
+    const prepared = await this.writingSource(projectId, request, actor);
+    if (payload.operation === 'full_story') return { id: null, operation: 'full_story', credits: 0, billingStatus: 'free',
+      expiresAt: null, status: 'free' };
+    return this.writingOperationService.quote({ userId: actor.userId, projectId, operation: payload.operation,
+      request, ...prepared });
+  }
+
+  async executeWriting(projectId, payload, actor, { onProgress = null } = {}) {
+    const request = writingRequest(payload);
+    const { operation, input, sceneId, assignmentId } = request;
+    const run = ({ beforeDispatch } = {}) => {
+      switch (operation) {
+        case 'characters': return this.proposeFullStory(projectId, { ...input, purpose: 'characters' }, actor, { beforeDispatch });
+        case 'chapter_outline': return this.proposeChapterOutline(projectId, input, actor, { beforeDispatch });
+        case 'chapters': return this.proposeChapters(projectId, input, actor, { beforeDispatch });
+        case 'scenes': return this.proposeScenes(projectId, input, actor, { beforeDispatch });
+        case 'shots': return this.proposeShots(projectId, sceneId, input, actor, { beforeDispatch });
+        case 'environment': return this.proposeSceneEnvironment(projectId, sceneId, input, actor, { beforeDispatch });
+        case 'wardrobe': return this.suggestWardrobe(projectId, assignmentId, actor, { beforeDispatch });
+        case 'story_plan': return this.generateStoryPlan(projectId, input, actor, { onProgress, beforeDispatch });
+        case 'scene_direction': return this.generateSceneDirection(projectId, sceneId, input, actor, { beforeDispatch });
+        default: throw new CinematicError('cinematic_writing_operation_invalid', 'Unsupported writing operation.', 400);
+      }
+    };
+    return this.writingOperationService.execute({ userId: actor?.userId, projectId, operation,
+      id: payload.input?.writingQuoteId, request, loadSource: async () => (await this.writingSource(projectId, request, actor)).source, run });
+  }
+
+  async getWritingOperation(projectId, operationId, actor) {
+    if (!actor?.userId || !await this.repository.findForActor(projectId, actor)) {
+      throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    }
+    return this.writingOperationService.read(operationId, actor.userId, projectId);
+  }
+
+  getBriefWritingOperation(operationId, actor) {
+    if (!actor?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    return this.writingOperationService.read(operationId, actor.userId, null);
   }
 
   getSeriesWorkspace(projectId, actor) { return this.seriesService.getWorkspace(projectId, actor); }
@@ -253,12 +344,30 @@ export class CinematicApplicationService {
     return this.seriesService.createProductionProject(setup, actorContext);
   }
 
-  enhanceStory(input, actorContext) {
+  briefWritingSource(input, actorContext) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
-    return this.storyEnhancementService.enhance(input);
+    const policy = this.storyEnhancementService.policyLoader();
+    return { model: policy.model, maxOutputTokens: policy.maxOutputTokens,
+      source: { model: policy.model, maxOutputTokens: policy.maxOutputTokens, provider: policy.provider } };
   }
 
-  async proposeFullStory(projectId, input, actorContext) {
+  quoteBriefWriting(payload, actor) {
+    if (payload?.operation !== 'brief' || !payload.input || typeof payload.input !== 'object' || Array.isArray(payload.input)) {
+      throw new CinematicError('cinematic_writing_operation_invalid', 'Select the Brief writing operation.', 400);
+    }
+    const request = writingRequest(payload);
+    return this.writingOperationService.quote({ userId: actor?.userId, projectId: null, operation: 'brief', request,
+      ...this.briefWritingSource(request.input, actor) });
+  }
+
+  enhanceStory(input, actorContext) {
+    const request = writingRequest({ operation: 'brief', input });
+    return this.writingOperationService.execute({ userId: actorContext?.userId, projectId: null, operation: 'brief',
+      id: input?.writingQuoteId, request, loadSource: async () => this.briefWritingSource(request.input, actorContext).source,
+      run: () => this.storyEnhancementService.enhance(request.input) });
+  }
+
+  async proposeFullStory(projectId, input, actorContext, { beforeDispatch } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
@@ -267,6 +376,7 @@ export class CinematicApplicationService {
     const propose = input?.purpose === 'characters'
       ? this.fullStoryService.proposeCharacters.bind(this.fullStoryService)
       : this.fullStoryService.propose.bind(this.fullStoryService);
+    await beforeDispatch?.();
     return propose({
       projectTitle: project.title,
       storyBrief: project.setup?.storyBrief,
@@ -413,8 +523,9 @@ export class CinematicApplicationService {
     return { ...(await this.fullStoryService.estimateChapterPlanning(context)), projectVersion: project.version };
   }
 
-  async proposeChapterOutline(projectId, input, actorContext) {
+  async proposeChapterOutline(projectId, input, actorContext, { beforeDispatch } = {}) {
     const { project, context } = await this.chapterPlanningContext(projectId, input, actorContext);
+    await beforeDispatch?.();
     const proposed = await this.fullStoryService.proposeChapterOutline(context);
     const chapters = normalizeChapterOutlineRows(proposed.chapters, project.setup);
     return this.repository.mutateForActor(projectId, actorContext, current => {
@@ -457,7 +568,7 @@ export class CinematicApplicationService {
     });
   }
 
-  async proposeChapters(projectId, input, actorContext) {
+  async proposeChapters(projectId, input, actorContext, { beforeDispatch } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
@@ -493,6 +604,7 @@ export class CinematicApplicationService {
     const chapterPlan = scope === 'selected'
       ? [{ seasonNumber: workspace.series?.seasons.find(item => item.id === project.seriesMembership?.seasonId)?.number || 1, chapterNumber: project.seriesMembership?.chapterNumber || 1 }]
       : approvedChapterOutline(source) || plannedChapterSequence(source.setup);
+    await beforeDispatch?.();
     const proposal = await this.fullStoryService.proposeChapters({
       fullStory: confirmed.content,
       format: source.setup?.format,
@@ -533,7 +645,7 @@ export class CinematicApplicationService {
     return this.seriesService.saveChapterProposal(projectId, proposalInput, actorContext);
   }
 
-  async proposeScenes(projectId, input, actorContext) {
+  async proposeScenes(projectId, input, actorContext, { beforeDispatch } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
@@ -554,6 +666,7 @@ export class CinematicApplicationService {
       dossier: [item.objective, item.motivation, item.pressure, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
     }));
     const continuity = buildAuthoringContinuity((await this.seriesService.getWorkspace(projectId, actorContext)).chapters, projectId);
+    await beforeDispatch?.();
     const generated = await this.fullStoryService.proposeScenes({
       continuity,
       projectTitle: project.title,
@@ -664,7 +777,7 @@ export class CinematicApplicationService {
     });
   }
 
-  async proposeShots(projectId, sceneId, input, actorContext) {
+  async proposeShots(projectId, sceneId, input, actorContext, { beforeDispatch } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.getProject(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
@@ -698,6 +811,7 @@ export class CinematicApplicationService {
       dossier: [item.objective, item.motivation, item.pressure, item.performanceDirection, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
     }));
     const revision = (project.chapterVersions || []).find(item => item.id === project.activeChapterVersionId);
+    await beforeDispatch?.();
     const generated = await this.fullStoryService.proposeShots({
       projectTitle: project.title,
       aspectRatio: project.aspectRatio,
@@ -895,12 +1009,13 @@ export class CinematicApplicationService {
     });
   }
 
-  async suggestWardrobe(projectId, assignmentId, actorContext) {
+  async suggestWardrobe(projectId, assignmentId, actorContext, { beforeDispatch } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
     const assignment = project.castAssignments.find(item => item.id === assignmentId && item.active !== false);
     if (!assignment) throw new CinematicError('cinematic_cast_assignment_not_found', 'Cast Assignment not found.', 404);
+    await beforeDispatch?.();
     return this.wardrobeSuggestionService.suggest({
       project: {
         title: project.title,
@@ -915,31 +1030,35 @@ export class CinematicApplicationService {
     });
   }
 
-  async generateStoryPlan(projectId, input, actorContext, { onProgress = null } = {}) {
+  async generateStoryPlan(projectId, input, actorContext, { onProgress = null, beforeDispatch } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
     ensureProvisionalDossiers(project);
     assertStoryPlanInputReady(project);
+    await beforeDispatch?.();
     return this.storyPlanService.generatePlan(project, {
       mode: input?.mode,
       sourceResolution: input?.sourceResolution,
-      onProgress
+      onProgress,
+      allowProviderFallback: !beforeDispatch
     });
   }
 
-  async generateSceneDirection(projectId, sceneId, input, actorContext) {
+  async generateSceneDirection(projectId, sceneId, input, actorContext, { beforeDispatch } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
     assertExpectedVersion(project, input?.expectedVersion);
     ensureProvisionalDossiers(project);
     assertStoryPlanInputReady(project);
+    await beforeDispatch?.();
     return this.storyPlanService.generateScene(project, sceneId, {
       direction: input?.direction,
       sceneDraft: input?.sceneDraft,
       requestedFieldPaths: input?.requestedFieldPaths,
-      lockedFieldPaths: input?.lockedFieldPaths
+      lockedFieldPaths: input?.lockedFieldPaths,
+      allowProviderFallback: !beforeDispatch
     });
   }
 
@@ -1721,7 +1840,7 @@ export class CinematicApplicationService {
     return sceneEnvironmentContext(project, scene);
   }
 
-  async proposeSceneEnvironment(projectId, sceneId, input, actorContext) {
+  async proposeSceneEnvironment(projectId, sceneId, input, actorContext, { beforeDispatch } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
@@ -1733,6 +1852,7 @@ export class CinematicApplicationService {
       throw new CinematicError('cinematic_scene_version_conflict', 'The Scene changed. Refresh before generating its description.', 409);
     }
     const activeFullStory = project.fullStoryVersions?.find(item => item.id === project.activeFullStoryVersionId) || null;
+    await beforeDispatch?.();
     return this.fullStoryService.proposeSceneEnvironment({
       projectTitle: project.title,
       aspectRatio: project.aspectRatio,
@@ -2689,6 +2809,12 @@ export class CinematicApplicationService {
       return { success: true, projectId };
     });
   }
+}
+
+function writingRequest(payload) {
+  const { writingQuoteId: _quoteId, ...input } = payload.input || {};
+  return { operation: payload.operation, input,
+    sceneId: payload.sceneId || null, assignmentId: payload.assignmentId || null };
 }
 
 function hasCurrentApprovedStoryPlan(project) {

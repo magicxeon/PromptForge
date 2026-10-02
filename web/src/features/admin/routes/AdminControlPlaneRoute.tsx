@@ -10,6 +10,7 @@ import { createAdminConfigurationDraft, createSupportCase, getAdminCapabilities,
 import { AdminStatusBadge } from '../components/AdminStatusBadge';
 import { AdminPagination } from '../components/AdminPagination';
 import { AdminWorkspaceLayout } from '../components/AdminWorkspaceLayout';
+import { AdminPricingConfiguration } from '../components/AdminPricingConfiguration';
 
 type Tab = 'readiness' | 'support' | 'content' | 'trace' | 'configuration';
 
@@ -87,8 +88,15 @@ function TraceSearch() {
 
 function Configuration() {
   const { t } = useTranslation('admin'); const queryClient = useQueryClient();
+  const { actor } = useActor();
+  const [scope, setScope] = useState('providers');
   const [parseError, setParseError] = useState<string | null>(null);
-  const state = useQuery({ queryKey: ['admin', 'configuration'], queryFn: getAdminConfigurationRevisions });
+  const queryKey = ['admin', 'configuration', actor?.userId];
+  const state = useQuery({ queryKey, queryFn: getAdminConfigurationRevisions });
+  const capabilities = useQuery({ queryKey: ['admin', 'capabilities', actor?.userId], queryFn: getAdminCapabilities });
+  const canEdit = actor?.role === 'admin' && capabilities.data?.environment !== 'production'
+    && capabilities.data?.capabilities.runtimeConfigurationDrafts?.enabled === true;
+  const canPublish = canEdit && capabilities.data?.capabilities.runtimeConfigurationPublish?.enabled === true;
   const create = useMutation({ mutationFn: createAdminConfigurationDraft, onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['admin', 'configuration'] }) });
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); const form = new FormData(event.currentTarget);
@@ -100,7 +108,22 @@ function Configuration() {
       setParseError(t('admin.control.invalidJson'));
     }
   }
-  return <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]"><div className="grid gap-4"><Surface className="flex gap-3 border-amber-300/40 p-4"><LockKeyhole className="size-5 text-amber-300" /><div><strong>{t('admin.control.configurationGate')}</strong><p className="mb-0 mt-1 text-sm text-[var(--mpf-text-muted)]">{t('admin.control.configurationGateDescription')}</p></div></Surface><RecordList items={state.data?.revisions || []} loading={state.isLoading} /></div><Surface className="h-fit p-4"><h2 className="mt-0 text-lg">{t('admin.control.newDraft')}</h2><form className="grid gap-3" onSubmit={submit}><select name="scope" className="h-11 border border-[var(--mpf-border)] bg-[var(--mpf-surface)] px-3"><option value="providers">providers</option><option value="pricing">pricing</option><option value="video_pricing">video_pricing</option><option value="qualification">qualification</option><option value="feature_exposure">feature_exposure</option></select><textarea name="values" defaultValue="{}" className="min-h-48 border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-3 font-mono text-xs" /><Button type="submit" variant="primary" disabled={create.isPending}>{t('admin.control.saveDraft')}</Button>{parseError ? <small className="text-red-300">{parseError}</small> : null}{create.isError ? <small className="text-red-300">{create.error.message}</small> : null}</form></Surface></div>;
+  const refresh = () => { void queryClient.invalidateQueries({ queryKey }); void capabilities.refetch(); };
+  return <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <div className="grid min-w-0 content-start gap-4">
+      {scope !== 'pricing' ? <Surface className="flex gap-3 border-amber-300/40 p-4"><LockKeyhole className="size-5 text-amber-300" /><div><strong>{t('admin.control.configurationGate')}</strong><p className="mb-0 mt-1 text-sm text-[var(--mpf-text-muted)]">{t('admin.control.configurationGateDescription')}</p></div></Surface> : null}
+      {state.isError ? <><ErrorState title={t('admin.control.loadFailed')} description={state.error.message} /><Button onClick={refresh}>{t('finance.refresh')}</Button></> : <RecordList items={state.data?.revisions || []} loading={state.isLoading} />}
+    </div>
+    <Surface className="grid h-fit min-w-0 gap-4 p-4">
+      <label className="grid gap-1 text-sm">{t('admin.pricing.scope')}
+        <select aria-label={t('admin.pricing.scope')} value={scope} onChange={event => { setScope(event.target.value); setParseError(null); }} className="h-11 min-w-0 border border-[var(--mpf-border)] bg-[var(--mpf-surface)] px-3"><option value="providers">providers</option><option value="pricing">{t('admin.pricing.title')}</option><option value="video_pricing">video_pricing</option><option value="qualification">qualification</option><option value="feature_exposure">feature_exposure</option></select>
+      </label>
+      {scope === 'pricing' ? state.data && !state.isError
+        ? <AdminPricingConfiguration key={actor?.userId} state={state.data} canEdit={canEdit} canPublish={canPublish} onRefresh={refresh} />
+        : state.isError ? <ErrorState title={t('admin.control.loadFailed')} /> : <LoadingState label={t('admin.control.loading')} />
+        : <><h2 className="m-0 text-lg">{t('admin.control.newDraft')}</h2><form className="grid gap-3" onSubmit={submit}><input type="hidden" name="scope" value={scope} /><textarea name="values" defaultValue="{}" className="min-h-48 border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-3 font-mono text-xs" /><Button type="submit" variant="primary" disabled={create.isPending}>{t('admin.control.saveDraft')}</Button>{parseError ? <small className="text-red-300">{parseError}</small> : null}{create.isError ? <small className="text-red-300">{create.error.message}</small> : null}</form></>}
+    </Surface>
+  </div>;
 }
 
 function RecordList({ items, loading = false }: { items: Record<string, unknown>[]; loading?: boolean }) {

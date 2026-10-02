@@ -1,6 +1,59 @@
 # Seedance 2.5 Usage-Based Credit Activation
 
-Status: requirements recorded; implementation and activation deferred by the
+## 2026-10-02 Authorized Supersession
+
+[Phase2-23 AI Credit Activation](../../019-implementation-commercial-feature-plan/Phase2-23-ai-credit-activation.md)
+supersedes the parked decision and Section 4's fixed-quote/no-usage-adjustment rule
+for NEW qualified paid video quotes. Initial markup is 30% on buffered provider
+cost, not gross margin. Reserve the quoted maximum; capture actual eligible usage
+and release the unused hold atomically. Missing/invalid usage and usage above the
+consent cap remain reconciliation-required without an extra debit or free fallback.
+Historical fixed/POC reservations keep full capture under their original metadata.
+
+The backend slice and user-authorized scoped Seedance 2.5 development/test
+activation are implemented. The catalog-owned `paidUsageActivation` overlay resolves
+this one model to priced, paid-routing-enabled and qualified only for the recorded
+portrait 24fps, online, single-output, still-image `multimodal_reference` cases below.
+The old POC switch is not required; its one-Credit tariff is not used for NEW paid
+quotes. Production and other models remain unqualified. Omni remains blocked because
+its approximate second rate omits billable modalities. Provider discounts require
+explicit account eligibility evidence. No video-input, 1080p, source-authority or
+first-frame gate is relaxed. Unmeasured combinations fail closed, not free.
+
+Current sanitized local evidence: 66 Seedance 2.5 attempts, 32 completed/captured,
+32 failed/refunded, two reserved/reconciliation-required. All completed attempts
+have returned tokens and passed probes; portrait 480p/720p samples match
+`floor(width * height * frameCount / 1024)` and `frameCount = seconds * 24 + 1`.
+The estimator is versioned only for that measured model/portrait/24fps profile;
+other research combinations retain the dimensional preview but cannot become NEW
+paid quotes through this scoped activation.
+The earlier 20-sample evidence below is historical, not the latest coverage count.
+
+| Resolution | Seconds | Audio | Still reference counts | Completed samples | Tokens |
+|---|---:|---|---|---:|---:|
+| 480p | 4 | generated | 3 | 11 | 38,830 |
+| 480p | 6 | generated | 3 | 1 | 58,045 |
+| 480p | 6 | none | 3 | 1 | 58,045 |
+| 480p | 8 | generated | 3 | 2 | 77,260 |
+| 720p | 4 | generated | 3 | 1 | 87,300 |
+| 720p | 6 | generated | 1, 2, 3 | 5 | 130,500 |
+| 720p | 6 | none | 2 | 2 | 130,500 |
+| 720p | 8 | generated | 3 | 2 | 173,700 |
+| 720p | 30 | generated | 2, 3 | 7 | 648,900 |
+
+Rate source of truth remains the configured September BytePlus card: 10.7 USD/M
+without input video for 480p/720p, source date 2026-09-04. On 2026-10-02 the user
+accepted that reconciled configured value for scoped activation; no fresh account
+verification is claimed. Quotes pin the rate/source/date and activation version with
+`rateEvidenceBasis: configured_rate_user_authorized_provisional`. Returned token
+usage is actual; its USD valuation remains provisional, not finalized invoice cost.
+FX, operating buffer, markup and rounding come from the pinned Credits policy.
+
+Delivery/evidence and remaining gates: [006 implementation plan](006-seedance-25-credit-implementation-plan.md).
+
+## Historical 2026-09-13 Baseline (Superseded Above)
+
+Historical status: requirements recorded; implementation and activation deferred by the
 user on 2026-09-13. No runtime configuration, price, billing or code change is
 authorized by this documentation task.
 

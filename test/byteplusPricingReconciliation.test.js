@@ -9,7 +9,10 @@ import { VideoCapabilityRegistry } from '../server/domain/generation/VideoCapabi
 import { buildFinanceInventory } from '../server/domain/finance/FinanceInventoryService.js';
 
 const read = name => JSON.parse(fs.readFileSync(new URL(`../server/config/${name}`, import.meta.url), 'utf8'));
-const policy = read('credit-pricing-policy.json');
+// These dated reconciliation cases preserve the pre-activation quote contract.
+const policy = { ...read('credit-pricing-policy.json'),
+  policyVersion: 'mock-2026-09-09-image25-estimated-v2',
+  videoActualUsage: undefined, profitMarkupPercentByMedia: undefined };
 const catalog = read('cinematic-video-models.json');
 const pro = policy.models.find(item => item.modelId === 'dola-seedream-5-0-pro-260628');
 const video = suffix => catalog.models.find(item => item.modelId === suffix);

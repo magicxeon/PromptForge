@@ -9,6 +9,7 @@ import { queueManager } from '../domain/generation/QueueManager.js';
 import { creditManager } from '../domain/credits/CreditManager.js';
 import { creditApplicationService } from '../domain/credits/CreditApplicationService.js';
 import { lookSheetEnhancementService } from '../domain/generation/LookSheetEnhancementService.js';
+import { cinematicWritingOperationService } from '../domain/generation/CinematicWritingOperationService.js';
 import { ComparisonOrchestrator } from '../domain/comparisons/ComparisonOrchestrator.js';
 import { historyRepository } from '../repositories/generation/HistoryRepository.js';
 import { communityShareService } from '../domain/community/CommunityShareService.js';
@@ -138,9 +139,11 @@ export function createApp() {
   const adminInvestigationService = new AdminInvestigationService({ providerRegistry });
   const providerControlService = new ProviderControlApplicationService({ imageRegistry: providerRegistry });
 
-  const startupCreditReconciliation = lookSheetEnhancementService.recover().then(() =>
+  const startupCreditReconciliation = lookSheetEnhancementService.recover()
+    .then(() => cinematicWritingOperationService.recover()).then(() =>
     creditApplicationService.reconcileStartupOrphanReservations({
       shouldPreserveReservation: reservation => reservation.metadata?.kind === 'look_sheet_enhancement'
+        || reservation.metadata?.kind === 'cinematic_text'
         || videoGenerationApplicationService.hasDurableTaskForReservation(reservation)
     }));
 

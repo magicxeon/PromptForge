@@ -103,12 +103,12 @@ export function CinematicChapterOutline({ actorId, project, disabled, onProjectC
     <header><h2 id="chapter-outline-title" tabIndex={-1}>{key('title')}</h2>
       <span role="status">{key(stale ? 'stale' : dirty ? 'unsaved' : plan?.status || 'empty')}</span></header>
     <div className="cinematic-chapter-outline__actions">
-      <CinematicWritingConsent key={JSON.stringify([actorId, project.id, project.version, locked, dirty])} title={key(plan ? 'regenerate' : 'generate')}
+      <CinematicWritingConsent key={JSON.stringify([actorId, project.id, project.version, dirty])} title={key(plan ? 'regenerate' : 'generate')}
         scope={t('cinematic.bulk.outlineScope', { name: project.title })} pending={locked || dirty} onConfirm={() => void run('plan')}
         trigger={<Button icon={<Sparkles />} loading={busy === 'plan'} disabled={locked || dirty}>{key(plan ? 'regenerate' : 'generate')}</Button>} />
       <Button icon={<Calculator />} loading={busy === 'estimate'} disabled={locked || dirty} onClick={() => void run('estimate')}>{key('estimate')}</Button>
     </div>
-    <p className="cinematic-chapter-outline__note">{key('free')}</p>
+    <p className="cinematic-chapter-outline__note">{t('cinematic.writingBilling.paidWriting')}</p>
     {estimate?.projectVersion === project.version ? <div className="cinematic-chapter-outline__estimate" role="status">
       <dl>{(['chapter_outline', 'chapters'] as const).map(operation => {
         const value = estimate.estimates[operation];

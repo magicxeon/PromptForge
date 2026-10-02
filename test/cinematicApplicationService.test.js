@@ -613,11 +613,16 @@ test('Setup persists bounded story role slots separately from Cast bindings', as
   assert.deepEqual(project.castAssignments, []);
 });
 
-test('Story enhancement delegates through the Generation text boundary', async t => {
+test('Story enhancement delegates through billing and the Generation text boundary', async t => {
   const storyEnhancementService = { enhance: async input => ({ enhancementId: 'cineenh_1', enhancedStoryBrief: `${input.storyBrief} Enhanced` }) };
-  const { directory, service } = await fixture({ storyEnhancementService });
+  const writingOperationService = { execute: async input => {
+    assert.equal(input.id, 'writing_fixture');
+    assert.equal(input.operation, 'brief');
+    return input.run();
+  } };
+  const { directory, service } = await fixture({ storyEnhancementService, writingOperationService });
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
-  const result = await service.enhanceStory(setup, alice);
+  const result = await service.enhanceStory({ ...setup, writingQuoteId: 'writing_fixture' }, alice);
   assert.equal(result.enhancementId, 'cineenh_1');
   assert.match(result.enhancedStoryBrief, /Enhanced$/);
 });

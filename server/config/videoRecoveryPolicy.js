@@ -5,11 +5,17 @@ function boundedInterval(value, fallback = 15_000) {
     : fallback;
 }
 
+function boundedSubmissionConcurrency(value) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 1 && parsed <= 256 ? parsed : 32;
+}
+
 // Operational review budgets, not provider failure or billing deadlines.
 export const videoRecoveryPolicy = Object.freeze({
   version: 'video-recovery-v1',
   batchSize: 24,
   maxConcurrent: 4,
+  maxConcurrentSubmissions: boundedSubmissionConcurrency(process.env.VIDEO_SUBMISSION_MAX_CONCURRENT),
   sweepIntervalMs: boundedInterval(process.env.VIDEO_RECOVERY_SWEEP_INTERVAL_MS),
   explicitMaxChecks: 3,
   explicitCooldownMs: 60_000,

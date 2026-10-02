@@ -451,6 +451,7 @@ export function CinematicChapterWriter({
               <label><span>{t('cinematic.chapterWriter.instruction')}</span><textarea rows={6} maxLength={2000} value={instruction} placeholder={t('cinematic.chapterWriter.instructionPlaceholder')} onChange={event => setInstruction(event.target.value)} /></label>
               {!instruction.trim() ? <p>{t('cinematic.continuity.chapterHint')}</p> : null}
               <Button variant="primary" icon={<Sparkles />} loading={busy === 'selected-ai'} disabled={!online || Boolean(busy) || !storyProject.data?.confirmedFullStoryVersionId} onClick={() => generate('selected')}>{t(instruction.trim() ? 'cinematic.chapterWriter.reviseWithAi' : 'cinematic.continuity.improve')}</Button>
+              <small className="text-[var(--theme-text-muted)]">{t('cinematic.writingBilling.reviewPrice')}</small>
               {proposal ? (
                 <section className="cinematic-chapter-writer__proposal">
                   <header><strong>{t(proposal.scope === 'all' ? 'cinematic.chapterWriter.allProposal' : 'cinematic.chapterWriter.selectedProposal')}</strong><small>{t('cinematic.chapterWriter.proposalCount', { count: proposal.chapters.length })}</small></header>

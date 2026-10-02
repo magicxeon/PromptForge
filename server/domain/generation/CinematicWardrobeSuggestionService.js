@@ -2,6 +2,7 @@ import { getCinematicWardrobeSuggestionPolicy } from '../../config/cinematic-war
 import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
+import { normalizeWritingUsage } from '../credits/CinematicWritingPricing.js';
 
 export class CinematicWardrobeSuggestionService {
   constructor({
@@ -98,6 +99,7 @@ function normalizeResult(result, policy, recipe) {
       provider: policy.provider,
       model: policy.model,
       responseId: result.responseId || null,
+      usage: normalizeWritingUsage(result?.usage),
       recipeId: recipe.id,
       recipeVersion: recipe.version,
       recipeFingerprint: recipe.fingerprint

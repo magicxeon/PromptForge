@@ -22,6 +22,21 @@ const project = {
   scenes: []
 };
 
+test('paid Story Plan budget includes configured repairs and excludes unpriced fallback', async () => {
+  const policy = { enabled: true, requestedEnabled: true, provider: 'openai', model: 'fixture',
+    maxOutputTokens: 1000, fallback: { enabled: true, model: 'unpriced-fallback' } };
+  const recipe = { id: 'fixture', enabled: true, fingerprint: 'recipe1', limits: { maximumVisualRepairRounds: 2 } };
+  let seenPolicy;
+  const planner = new CinematicStoryPlanService({ policyLoader: () => policy, storyRecipeLoader: () => recipe,
+    providerFactory: received => { seenPolicy = received; return { generateCinematicStoryPlan: async () => { throw new Error('fixture stop'); } }; } });
+  assert.deepEqual(planner.getBillingBudget(policy), { maxOutputTokens: 3000, maximumRepairRounds: 2, recipeFingerprint: 'recipe1' });
+  await assert.rejects(planner.generatePlan(project, { allowProviderFallback: false }), /fixture stop/);
+  assert.equal(seenPolicy.fallback.enabled, false);
+  assert.equal(policy.fallback.enabled, true);
+  await assert.rejects(planner.generatePlan(project), /fixture stop/);
+  assert.equal(seenPolicy.fallback.enabled, true);
+});
+
 function service(provider, options = {}) {
   const recipe = id => ({
     id, version: 1, enabled: true, instruction: 'test', fingerprint: 'abc123',

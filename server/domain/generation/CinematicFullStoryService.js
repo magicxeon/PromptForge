@@ -45,8 +45,9 @@ export class CinematicFullStoryService {
       fullStory,
       characters: normalizeGeneratedCharacters(result?.characters, context.existingCharacters),
       warnings: boundedList(result?.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null },
-      billingStatus: 'qualification_no_charge'
+      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
+        usage: normalizeWritingUsage(result?.usage) },
+      billingStatus: 'free'
     };
   }
 
@@ -69,7 +70,8 @@ export class CinematicFullStoryService {
       fullStory,
       characters: normalizeGeneratedCharacters(result.characters, existingCharacters),
       warnings: boundedList(result.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result.responseId || null },
+      provenance: { provider: policy.provider, model: policy.model, responseId: result.responseId || null,
+        usage: normalizeWritingUsage(result?.usage) },
       billingStatus: 'qualification_no_charge'
     };
   }
@@ -191,7 +193,8 @@ export class CinematicFullStoryService {
       proposalId: `cinescenes_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`,
       scenes,
       warnings: boundedList(result?.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null },
+      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
+        usage: normalizeWritingUsage(result?.usage) },
       billingStatus: 'qualification_no_charge'
     };
   }
@@ -235,7 +238,8 @@ export class CinematicFullStoryService {
         model: result?.executionModel || policy.model,
         responseId: result?.responseId || null,
         fallbackUsed: Boolean(result?.fallbackUsed),
-        fallbackReason: result?.fallbackReason || null
+        fallbackReason: result?.fallbackReason || null,
+        usage: normalizeWritingUsage(result?.usage)
       },
       billingStatus: 'qualification_no_charge'
     };
@@ -286,7 +290,8 @@ export class CinematicFullStoryService {
       proposalId: `cineenvironment_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`,
       environmentPrompt,
       warnings: boundedList(result?.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null },
+      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
+        usage: normalizeWritingUsage(result?.usage) },
       billingStatus: 'qualification_no_charge'
     };
   }

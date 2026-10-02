@@ -1,5 +1,10 @@
 # Cinematic Writing Credit Pricing Proposal
 
+2026-10-02: [Phase2-23](Phase2-23-ai-credit-activation.md) supersedes charging
+deferral and the hypothetical Full Story tariff below. Full Story with Characters
+is free for now; separately requested Characters/Chapter/planning AI is paid.
+Historical examples below remain research, not the active rate card.
+
 2026-09-26 execution addendum: user authorized incremental implementation.
 [Rewamp/013](../016-cinematic-studio/Rewamp/013-chapter-outline-and-writing-economics.md)
 implements advisory outline/Chapter cost-plus-margin estimates and limited returned

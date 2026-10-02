@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { creditPricingPolicyService } from './CreditPricingPolicyService.js';
 import { creditAccountRepo } from '../../repositories/credits/CreditAccountRepository.js';
 import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
-import { calculateVideoPricingPreview } from './VideoPricingCalculator.js';
+import { calculateVideoPricingPreview, createVideoSettlementSnapshot, calculateVideoUsageSettlement } from './VideoPricingCalculator.js';
 import { calculateImageTokenCost } from './OpenAIImage25Pricing.js';
 
 export class CreditReservationService {
@@ -35,11 +35,22 @@ export class CreditReservationService {
     }
     const policy = await this.pricingPolicyService.loadPolicy();
     const now = new Date();
-    const preview = calculateVideoPricingPreview(model, request, policy, { now });
-    const developmentPocCredits = getDevelopmentPocCredits({ model, generationMode });
-    const qualificationNoCharge = developmentPocCredits === null
+    let preview, videoSettlement;
+    try {
+      if (policy.videoActualUsage && policy.videoActualUsage.enabled !== true) throw new TypeError('New video quotes are disabled.');
+      if (Number(request.outputCount ?? 1) !== 1) throw new TypeError('Video quotes require one output.');
+      preview = calculateVideoPricingPreview(model, request, policy, { now });
+      videoSettlement = policy.videoActualUsage?.enabled === true
+        ? createVideoSettlementSnapshot(model, request, policy, preview) : null;
+    } catch {
+      throw createCreditError(CREDIT_ERROR_CODES.PRICING_UNAVAILABLE,
+        'Qualified video pricing and complete rate evidence are required.', 409);
+    }
+    const developmentPocCredits = videoSettlement ? null : getDevelopmentPocCredits({ model, generationMode });
+    const qualificationNoCharge = !videoSettlement && developmentPocCredits === null
       && isNoChargeVideoQualification({ model, generationMode });
-    const customerCredits = developmentPocCredits ?? (qualificationNoCharge ? 0 : preview.estimatedCredits);
+    const customerCredits = videoSettlement?.maximumCredits
+      ?? developmentPocCredits ?? (qualificationNoCharge ? 0 : preview.estimatedCredits);
     const estimate = {
       estimateId: `vest_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
       userId,
@@ -64,7 +75,8 @@ export class CreditReservationService {
         referenceCount: Number(request.referenceImageCount || 0),
         referencePlanFingerprint: request.referencePlanFingerprint || null,
         developmentPocUnverified: model.developmentPocUnverified === true,
-        developmentPocCredits,
+        developmentPocCredits: videoSettlement && model.developmentPocUnverified === true
+          ? model.developmentPocCredits : developmentPocCredits,
         outputCount: 1,
         generationMode: String(generationMode || 'playground_video')
       },
@@ -80,13 +92,15 @@ export class CreditReservationService {
         providerPriceSource: model.providerPriceSource || null,
         providerPriceSourceDate: model.providerPriceSourceDate || null,
         providerEstimatedCredits: preview.estimatedCredits,
+        estimatorVersion: preview.estimatorVersion,
+        ...(videoSettlement ? { videoSettlement } : {}),
         generationCredits: customerCredits,
         totalCredits: customerCredits,
         ...(developmentPocCredits === null ? {} : { developmentPocCredits })
       },
       estimatedCredits: customerCredits,
       billingStatus: qualificationNoCharge ? 'qualification_no_charge' : 'estimated',
-      chargeMode: developmentPocCredits !== null
+      chargeMode: videoSettlement ? 'actual_usage' : developmentPocCredits !== null
         ? 'development_poc_credit'
         : qualificationNoCharge ? 'qualification_no_charge' : 'user_credits',
       estimateConfidence: 'locked',
@@ -239,9 +253,28 @@ export class CreditReservationService {
   }
 
   async captureForJob({ userId, reservationId, jobId, usage = null, metadata = {} }) {
+    let amountCredits;
     if (typeof this.accountRepo.getReservationForOwner === 'function') {
       const reservation = await this.accountRepo.getReservationForOwner({ userId, reservationId, jobId });
       if (!reservation) throw createCreditError(CREDIT_ERROR_CODES.RESERVATION_NOT_FOUND, 'Reservation not found for capture.', 404);
+      const snapshot = reservation.pricingSnapshot?.breakdown?.videoSettlement;
+      if (snapshot !== undefined) {
+        // A durable capture replay never recalculates against changed/missing usage.
+        if (reservation.status === 'captured') return this.accountRepo.captureReservation({
+          userId, reservationId, jobId, idempotencyKey: `capture:${reservationId || jobId}`
+        });
+        let evidence;
+        try {
+          evidence = calculateVideoUsageSettlement(usage ?? metadata.providerUsage, snapshot);
+        } catch {
+          throw createCreditError('video_usage_reconciliation_required', 'Valid video usage is required for settlement.', 409);
+        }
+        if (evidence.capExceeded || evidence.actualCredits > reservation.amountCredits) {
+          throw createCreditError('video_usage_exceeds_consent', 'Video usage exceeds the accepted Credit cap.', 409, { providerCostEvidence: evidence });
+        }
+        amountCredits = evidence.actualCredits;
+        metadata = { ...metadata, providerCostEvidence: evidence };
+      }
       const rates = reservation.pricingSnapshot?.breakdown?.tokenRates;
       if (rates) metadata = { ...metadata, providerCostEvidence: calculateImageTokenCost(usage, rates)
         || { costBasis: 'unavailable', providerCostUsd: null, providerRateVersion: rates.version } };
@@ -251,6 +284,7 @@ export class CreditReservationService {
       reservationId,
       jobId,
       idempotencyKey: `capture:${reservationId || jobId}`,
+      ...(amountCredits === undefined ? {} : { amountCredits }),
       metadata
     });
   }

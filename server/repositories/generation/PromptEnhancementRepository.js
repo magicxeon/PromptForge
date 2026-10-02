@@ -7,8 +7,9 @@ export class PromptEnhancementRepository {
   async get(id, userId) {
     return (await readJsonFile(this.filePath, empty)).records.find(item => item.id === id && item.userId === userId) || null;
   }
-  async listUnsettled() {
-    return (await readJsonFile(this.filePath, empty)).records.filter(item => !['quoted', 'succeeded', 'failed'].includes(item.status));
+  async listUnsettled(kind = 'look_sheet_enhancement') {
+    return (await readJsonFile(this.filePath, empty)).records.filter(item => (item.kind || 'look_sheet_enhancement') === kind
+      && !['quoted', 'succeeded', 'failed'].includes(item.status));
   }
   mutate(fn) {
     return mutateJsonFile(this.filePath, empty, data => {
@@ -16,7 +17,7 @@ export class PromptEnhancementRepository {
       data.records = data.records.filter(item => item.status !== 'quoted' || Date.parse(item.quote.expiresAt) > now);
       for (const item of data.records) {
         if (Date.parse(item.artifactExpiresAt) < now && ['succeeded', 'failed'].includes(item.status)) {
-          delete item.prompt; delete item.snapshot; delete item.originalPrompt;
+          delete item.prompt; delete item.snapshot; delete item.originalPrompt; delete item.result;
         }
       }
       return fn(data.records);

@@ -3,10 +3,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import i18n from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AdminControlPlaneRoute } from './AdminControlPlaneRoute';
 
-const mocks = vi.hoisted(() => ({ capabilities: vi.fn(), providerHealth: vi.fn(), creditReconciliation: vi.fn(), content: vi.fn() }));
+const mocks = vi.hoisted(() => ({ capabilities: vi.fn(), providerHealth: vi.fn(), creditReconciliation: vi.fn(), content: vi.fn(),
+  configuration: vi.fn(), actor: { userId: 'usr_admin', role: 'admin' } }));
 vi.mock('../api/adminApi', async importOriginal => {
   const original = await importOriginal<typeof import('../api/adminApi')>();
   return {
@@ -14,10 +15,11 @@ vi.mock('../api/adminApi', async importOriginal => {
     getAdminCapabilities: mocks.capabilities,
     getAdminProviderHealth: mocks.providerHealth,
     getAdminCreditReconciliation: mocks.creditReconciliation,
-    listAdminContent: mocks.content
+    listAdminContent: mocks.content,
+    getAdminConfigurationRevisions: mocks.configuration
   };
 });
-vi.mock('../../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: { userId: 'usr_admin', role: 'admin' } }) }));
+vi.mock('../../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: mocks.actor }) }));
 
 const testI18n = i18n.createInstance();
 
@@ -25,6 +27,7 @@ describe('AdminControlPlaneRoute', () => {
   beforeAll(async () => {
     await testI18n.use(initReactI18next).init({ lng: 'en', resources: { en: { admin: {} } }, ns: ['admin'] });
   });
+  beforeEach(() => { vi.clearAllMocks(); mocks.actor.role = 'admin'; });
 
   it('shows active safe capabilities and disabled production commands without rendering command controls', async () => {
     mocks.capabilities.mockResolvedValue({
@@ -56,5 +59,25 @@ describe('AdminControlPlaneRoute', () => {
     fireEvent.click(screen.getByRole('button', { name: 'admin.pagination.next' }));
     await waitFor(() => expect(screen.getByText('post_second')).toBeVisible());
     expect(mocks.content).toHaveBeenLastCalledWith(expect.objectContaining({ cursor: 'next_page' }));
+  });
+
+  it('replaces only the Pricing JSON editor and preserves generic sibling scopes', async () => {
+    mocks.configuration.mockResolvedValue({ activeRevisionIds: {}, revisions: [], activePricing: {
+      pricingPolicyVersion: 'policy-v1', revisionId: null, profitMarkupPercentByMedia: { text: 30, image: 30, video: 30 }
+    } });
+    mocks.capabilities.mockResolvedValue({ environment: 'development', capabilities: {
+      runtimeConfigurationDrafts: { enabled: true }, runtimeConfigurationPublish: { enabled: false }
+    } });
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={client}><I18nextProvider i18n={testI18n}><MemoryRouter><AdminControlPlaneRoute /></MemoryRouter></I18nextProvider></QueryClientProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'admin.control.tab.configuration' }));
+    const scope = await screen.findByLabelText('admin.pricing.scope');
+    fireEvent.change(scope, { target: { value: 'pricing' } });
+    expect(await screen.findAllByRole('spinbutton')).toHaveLength(3);
+    expect(screen.queryByDisplayValue('{}')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'admin.pricing.publish' })).toBeDisabled();
+    fireEvent.change(scope, { target: { value: 'providers' } });
+    expect(screen.getByDisplayValue('{}')).toBeVisible();
+    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
   });
 });

@@ -3,6 +3,7 @@ import { creditLedgerRepo } from '../../repositories/credits/CreditLedgerReposit
 import { creditAdjustmentService } from './CreditAdjustmentService.js';
 import { creditReservationService } from './CreditReservationService.js';
 import { calculateTextEnhancementPrice } from './TextEnhancementPricing.js';
+import { quoteCinematicWriting } from './CinematicWritingPricing.js';
 
 export class CreditApplicationService {
   constructor({
@@ -31,6 +32,25 @@ export class CreditApplicationService {
 
   async quoteTextEnhancement(inputs) {
     return calculateTextEnhancementPrice(await this.pricingPolicyService.loadPolicy(), inputs);
+  }
+
+  async quoteWriting(inputs) {
+    return quoteCinematicWriting(await this.pricingPolicyService.loadPolicy(), inputs);
+  }
+
+  reserveWriting({ userId, operationId, quote }) {
+    return this.accountRepository.reserveCredits({
+      userId, amountCredits: quote.totalCredits, estimateId: operationId, requestId: operationId,
+      jobId: null, pricingSnapshot: structuredClone(quote),
+      metadata: { kind: 'cinematic_text', operation: quote.operation, operationId, expiresAt: quote.expiresAt,
+        idempotencyKey: `reserve:${userId}:${operationId}` }
+    });
+  }
+
+  async findWritingReservation(userId, operationId) {
+    const data = await this.accountRepository.readRaw();
+    return (data.reservations || []).find(item => item.userId === userId
+      && item.metadata?.kind === 'cinematic_text' && item.metadata.operationId === operationId) || null;
   }
 
   reserveTextEnhancement({ userId, operationId, quote }) {

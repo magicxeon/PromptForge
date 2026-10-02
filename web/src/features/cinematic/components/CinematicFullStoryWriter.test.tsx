@@ -219,8 +219,7 @@ describe('CinematicFullStoryWriter', () => {
     expect(screen.getByRole('button', { name: 'cinematic.fullStory.reviseWithAi' })).toBeEnabled();
     await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.fullStory.generateChapters' })).toBeEnabled());
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.fullStory.generateChapters' }));
-    expect(api.chapters).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
+    expect(api.chapters).toHaveBeenCalledOnce();
     await waitFor(() => expect(api.chapters).toHaveBeenCalledWith('project-1', 3));
     expect(props.onProjectChanged).toHaveBeenCalled();
     expect(props.onOpenChapters).not.toHaveBeenCalled();
@@ -323,8 +322,7 @@ describe('CinematicFullStoryWriter', () => {
     const props = renderWriter(project);
     await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.fullStory.generateChapters' })).toBeEnabled());
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.fullStory.generateChapters' }));
-    expect(api.chapters).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
+    expect(api.chapters).toHaveBeenCalledOnce();
     await waitFor(() => expect(screen.getByText('Existing Chapters or production work must be reviewed before regeneration.')).toBeVisible());
     expect(props.onOpenChapters).not.toHaveBeenCalled();
   });

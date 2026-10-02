@@ -459,13 +459,14 @@ describe('CharacterLookDialog', () => {
     );
   });
 
-  it('requests a project-aware AI suggestion and persists its recipe provenance', async () => {
+  it.each(['qualification_no_charge', 'paid', 'settlement_pending'] as const)('requests a project-aware AI suggestion and preserves its billing/provenance (%s)', async billingStatus => {
     const suggestion = {
       lookName: 'AI station look', wardrobeDirection: 'A practical navy coat.',
       garments: { upper: 'knit', lower: 'trousers', outerwear: 'coat', footwear: 'boots', accessories: [] },
       palette: ['navy'], materials: ['wool'], sceneScope: 'film_wide' as const, recommendedSceneIds: [],
       rationale: 'Supports continuity.', movementConstraints: [], continuityNotes: [], warnings: [],
-      provenance: { recipeId: 'wardrobe', recipeVersion: 1 }, billingStatus: 'qualification_no_charge' as const
+      provenance: { recipeId: 'wardrobe', recipeVersion: 1 }, billingStatus,
+      ...(billingStatus !== 'qualification_no_charge' ? { writingOperationId: 'cw_wardrobe', chargedCredits: 40 } : {})
     };
     renderDialog(<CharacterLookDialog open initialMode="ai" onOpenChange={vi.fn()} characterProfileId="char_1" characterProfileVersionId="charver_1" requestAiSuggestion={vi.fn().mockResolvedValue(suggestion)} onSaved={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: /generateSuggestion/i }));

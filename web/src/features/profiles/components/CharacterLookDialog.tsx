@@ -33,7 +33,9 @@ export type CharacterLookSuggestion = {
   continuityNotes: string[];
   warnings: string[];
   provenance: Record<string, unknown>;
-  billingStatus: 'qualification_no_charge';
+  billingStatus: 'qualification_no_charge' | 'paid' | 'settlement_pending';
+  writingOperationId?: string;
+  chargedCredits?: number;
 };
 
 type GarmentRole = 'upper' | 'lower' | 'outerwear' | 'footwear' | 'accessory';

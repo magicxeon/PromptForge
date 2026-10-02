@@ -250,8 +250,9 @@ export class CreditAccountRepository {
         capturedAt: null,
         refundedAt: null,
         terminalReason: null,
-        ...(metadata.kind === 'look_sheet_enhancement'
-          ? { metadata: { kind: metadata.kind, operationId: metadata.operationId } } : {})
+        ...(['look_sheet_enhancement', 'cinematic_text'].includes(metadata.kind)
+          ? { metadata: { kind: metadata.kind, operationId: metadata.operationId,
+            ...(metadata.kind === 'cinematic_text' ? { operation: metadata.operation } : {}) } } : {})
       };
       data.reservations.push(reservation);
 
@@ -447,7 +448,7 @@ export class CreditAccountRepository {
     });
   }
 
-  async captureReservation({ userId, reservationId, jobId = null, idempotencyKey = null, metadata = {} }) {
+  async captureReservation({ userId, reservationId, jobId = null, idempotencyKey = null, metadata = {}, amountCredits = undefined }) {
     const key = idempotencyKey || `capture:${reservationId || jobId}`;
     const now = new Date().toISOString();
 
@@ -458,6 +459,12 @@ export class CreditAccountRepository {
       if (existingLedger) {
         const account = (data.accounts || []).find(a => a.userId === userId);
         const reservation = (data.reservations || []).find(r => r.reservationId === (reservationId || existingLedger.reservationId));
+        if (!reservation || reservation.userId !== userId || existingLedger.userId !== userId
+          || existingLedger.reservationId !== reservation.reservationId || existingLedger.operationType !== 'capture'
+          || (jobId && reservation.jobId && jobId !== reservation.jobId)
+          || (amountCredits !== undefined && amountCredits !== existingLedger.amountCredits)) {
+          throw createCreditError(CREDIT_ERROR_CODES.OPERATION_ALREADY_SETTLED, 'Capture replay conflicts with the original settlement.', 409);
+        }
         return { account: structuredClone(account), reservation: structuredClone(reservation), ledgerEntry: structuredClone(existingLedger) };
       }
 
@@ -472,8 +479,14 @@ export class CreditAccountRepository {
       if (reservation.userId !== userId) {
         throw createCreditError(CREDIT_ERROR_CODES.RESERVATION_NOT_FOUND, 'Reservation does not belong to this user.', 403);
       }
+      if (jobId && reservation.jobId && jobId !== reservation.jobId) {
+        throw createCreditError(CREDIT_ERROR_CODES.RESERVATION_NOT_FOUND, 'Reservation does not belong to this job.', 403);
+      }
 
       if (reservation.status === 'captured') {
+        if (amountCredits !== undefined && amountCredits !== (reservation.capturedCredits ?? reservation.amountCredits)) {
+          throw createCreditError(CREDIT_ERROR_CODES.OPERATION_ALREADY_SETTLED, 'Capture amount conflicts with the original settlement.', 409);
+        }
         const account = (data.accounts || []).find(a => a.userId === reservation.userId);
         return { account: structuredClone(account), reservation: structuredClone(reservation), duplicate: true };
       }
@@ -487,16 +500,24 @@ export class CreditAccountRepository {
         throw createCreditError(CREDIT_ERROR_CODES.ACCOUNT_NOT_FOUND, 'Credit account not found.', 404);
       }
 
-      const amount = reservation.amountCredits;
-      if (account.reservedCredits < amount) {
+      const heldAmount = reservation.amountCredits;
+      const amount = amountCredits === undefined ? heldAmount : amountCredits;
+      if (!Number.isSafeInteger(amount) || amount <= 0 || amount > heldAmount) {
+        throw createCreditError(CREDIT_ERROR_CODES.OPERATION_ALREADY_SETTLED, 'Capture amount is outside the reservation.', 409);
+      }
+      const releasedAmount = heldAmount - amount;
+      if (account.reservedCredits < heldAmount) {
         throw createCreditError(CREDIT_ERROR_CODES.OPERATION_ALREADY_SETTLED, 'Reserved credit balance is inconsistent.', 409);
       }
-      account.reservedCredits -= amount;
+      account.reservedCredits -= heldAmount;
+      account.availableCredits += releasedAmount;
       account.lifetimeCapturedCredits = (account.lifetimeCapturedCredits || 0) + amount;
       account.updatedAt = now;
 
       reservation.status = 'captured';
       reservation.capturedAt = now;
+      reservation.capturedCredits = amount;
+      reservation.releasedCredits = releasedAmount;
       reservation.updatedAt = now;
       if (jobId) reservation.jobId = jobId;
 
@@ -508,8 +529,8 @@ export class CreditAccountRepository {
         amountCredits: amount,
         availableDelta: 0,
         reservedDelta: -amount,
-        availableAfter: account.availableCredits,
-        reservedAfter: account.reservedCredits,
+        availableAfter: account.availableCredits - releasedAmount,
+        reservedAfter: account.reservedCredits + releasedAmount,
         reservationId: reservation.reservationId,
         estimateId: reservation.estimateId,
         relatedJobId: jobId || reservation.jobId,
@@ -524,6 +545,15 @@ export class CreditAccountRepository {
         metadata
       };
       data.ledgerEntries.push(ledgerEntry);
+      if (releasedAmount > 0) data.ledgerEntries.push({
+        ...ledgerEntry,
+        ledgerEntryId: `clg_release_${reservation.reservationId}`,
+        operationType: 'release', amountCredits: releasedAmount,
+        availableDelta: releasedAmount, reservedDelta: -releasedAmount,
+        availableAfter: account.availableCredits, reservedAfter: account.reservedCredits,
+        idempotencyKey: `release:${reservation.reservationId}`,
+        reasonCode: 'unused_reservation_released'
+      });
 
       return {
         account: structuredClone(account),

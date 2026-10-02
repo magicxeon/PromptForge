@@ -732,6 +732,7 @@ function workspace(data, series, currentProject = null) {
     series,
     chapters: ordered.map((project, index) => ({
       ...toProjectSummary(normalizeLegacyProject(structuredClone(project))),
+      version: project.version,
       productionProjectId,
       chapterId: project.id,
       productionUnitId: project.id,

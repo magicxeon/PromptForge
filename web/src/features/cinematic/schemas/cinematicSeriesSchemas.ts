@@ -52,11 +52,14 @@ export const cinematicSeriesWorkspaceSchema = z.object({
   series: cinematicSeriesSchema.nullable(),
   chapters: z.array(cinematicChapterSummarySchema).max(120)
 });
-export const cinematicSeriesMutationSchema = z.object({ project: cinematicProjectSchema, workspace: cinematicSeriesWorkspaceSchema });
+export const cinematicSeriesMutationSchema = z.object({ project: cinematicProjectSchema, workspace: cinematicSeriesWorkspaceSchema,
+  billingStatus: z.enum(['paid', 'settlement_pending', 'free']).optional(), writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional() });
 export const cinematicChapterProposalMutationSchema = cinematicSeriesMutationSchema.extend({ proposal: cinematicChapterProposalSchema });
-export const cinematicSceneProposalMutationSchema = z.object({ project: cinematicProjectSchema, proposal: cinematicSceneProposalSchema });
+export const cinematicSceneProposalMutationSchema = z.object({ project: cinematicProjectSchema, proposal: cinematicSceneProposalSchema,
+  billingStatus: z.enum(['paid', 'settlement_pending', 'free']).optional(), writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional() });
 export const cinematicManualSceneMutationSchema = z.object({ project: cinematicProjectSchema, scene: cinematicSceneSchema.nullable() });
 export const cinematicShotProposalMutationSchema = z.object({
+  billingStatus: z.enum(['paid', 'settlement_pending', 'free']).optional(), writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional(),
   project: cinematicProjectSchema,
   proposal: cinematicShotProposalSchema,
   scene: cinematicSceneSchema.optional()

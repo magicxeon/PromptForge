@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "catalogVersion": "cinematic-video-2026-09-08-pricing-v12",
+  "catalogVersion": "cinematic-video-2026-10-02-scoped-paid-v13",
   "models": [
     {
       "providerId": "gemini", "modelId": "veo-3.1-lite-generate-preview", "displayName": "Veo 3.1 Lite",
@@ -159,7 +159,25 @@
         "1080p": { "without_video": 11.7, "with_video": 7.0 }
       },
       "providerRateVersion": "byteplus-seedance-2026-09-04", "pricingStatus": "research_only",
-      "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true
+      "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true,
+      "paidUsageActivation": {
+        "enabled": true, "version": "seedance25-measured-paid-2026-10-02-v1",
+        "runtimeEnvironments": ["development", "test"],
+        "rateEvidenceBasis": "configured_rate_user_authorized_provisional",
+        "evidenceRequirement": "requirements/020-generation-providers/video/005-seedance-25-usage-based-credit-activation.md",
+        "attemptCount": 66, "completedUsageSampleCount": 32,
+        "measuredCases": [
+          { "resolution": "480p", "durationSeconds": 4, "audioMode": "generated", "referenceCounts": [3], "completionTokens": 38830, "sampleCount": 11 },
+          { "resolution": "480p", "durationSeconds": 6, "audioMode": "generated", "referenceCounts": [3], "completionTokens": 58045, "sampleCount": 1 },
+          { "resolution": "480p", "durationSeconds": 6, "audioMode": "none", "referenceCounts": [3], "completionTokens": 58045, "sampleCount": 1 },
+          { "resolution": "480p", "durationSeconds": 8, "audioMode": "generated", "referenceCounts": [3], "completionTokens": 77260, "sampleCount": 2 },
+          { "resolution": "720p", "durationSeconds": 4, "audioMode": "generated", "referenceCounts": [3], "completionTokens": 87300, "sampleCount": 1 },
+          { "resolution": "720p", "durationSeconds": 6, "audioMode": "generated", "referenceCounts": [1, 2, 3], "completionTokens": 130500, "sampleCount": 5 },
+          { "resolution": "720p", "durationSeconds": 6, "audioMode": "none", "referenceCounts": [2], "completionTokens": 130500, "sampleCount": 2 },
+          { "resolution": "720p", "durationSeconds": 8, "audioMode": "generated", "referenceCounts": [3], "completionTokens": 173700, "sampleCount": 2 },
+          { "resolution": "720p", "durationSeconds": 30, "audioMode": "generated", "referenceCounts": [2, 3], "completionTokens": 648900, "sampleCount": 7 }
+        ]
+      }
     }
   ]
 }

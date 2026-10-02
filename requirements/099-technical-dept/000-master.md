@@ -6,6 +6,59 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### AI Credit Activation (Commercial Phase2-23, 2026-10-02)
+
+`CreditApplicationService.quoteWriting/reserveWriting` owns text Credit quotes
+and reservations. `CinematicApplicationService.quoteWriting/executeWriting`
+owns actor/source parity and delegates existing authoring use cases. Generation's
+`CinematicWritingOperationService` owns durable receipts, idempotent delivery,
+settlement retry and interrupted-dispatch reconciliation. It extends the existing
+`PromptEnhancementRepository` with the `cinematic_text` kind; Look Sheet recovery
+is isolated by kind. No new runtime file or wallet is introduced. Startup recovery
+preserves these reservations instead of generic orphan refunds. Receipt results
+expire after seven days; the existing 5,000-record repository cap still applies.
+
+API routes expose server-priced writing quotes and actor-owned operation recovery.
+Full Story generation remains free; separately requested authoring AI requires
+consented quotes. Video usage settlement and category profit policy remain owned
+by the existing Credits and Video Generation facades. Accepted quotes and prior
+POC history are not repriced. See Commercial Phase2-23 and its task packet.
+
+`PricingConfigurationService` under `server/domain/admin-configuration/` owns
+the published pricing read facade. `pricingDraftValidation.js` validates the
+three category markup values before audited Admin publication. Credits reads
+that facade; it does not mutate Admin repositories. Runtime publication reuses
+the existing Admin configuration revision store, not a second pricing file.
+`server/config/credit-pricing-policy.json` owns default rates/floors/markup;
+`CostPlusPricing.js` owns shared arithmetic. `server/config/videoPaidActivation.js`
+owns the development/test measured-profile activation boundary; the base video
+catalog remains the qualification evidence owner.
+
+Measured OpenAI image and paid Look Sheet text quotes reuse `CostPlusPricing`
+with the matching published category markup; static image tariffs and accepted
+snapshots remain unchanged. `CinematicStoryPlanService` exposes its configured
+repair allowance for billing and disables unpriced provider fallback only for
+paid authoring calls, retaining existing direct-helper behavior.
+Finance's existing read-only `FinanceReportService` includes unused-reservation
+release events in returned-Credit totals. It does not create cash/profit evidence
+or mutate another capability's ledger.
+Video's application facade coalesces active submissions by task store, actor and
+idempotency key, matching request/quote/workflow fingerprints. The promise-only
+map is bounded by `videoRecoveryPolicy.maxConcurrentSubmissions` (environment
+`VIDEO_SUBMISSION_MAX_CONCURRENT`, default32, range1-256), rejects overload before
+reservation and clears on submission/refund completion, never TTL eviction.
+This is single-process protection, not a distributed queue/lock. Definite local
+preflight rejection can refund only when no durable dispatch task exists;
+ambiguous/unreadable states preserve the hold and terminal reservations cannot
+dispatch again.
+
+`cinematicWritingBilling.ts` uses server-priced quotes and the registered consent
+UI, not a browser wallet. `state/cinematicWritingRecovery.ts` keeps an actor-scoped
+bounded index (64 IDs/fingerprints, no prompt/results) using shared persistence.
+Generation receipts reuse `DATA_FILES.promptEnhancements`. Offline test groups
+belong to `scripts/test-ai-credit-activation.mjs`; responsive intercepted fixtures
+belong to the Cinematic consent and Admin pricing verification scripts.
+
 ### Project Characters And Bulk Consent (Rewamp 017, 2026-10-01)
 
 `CinematicProjectNavigation.tsx` owns route-backed Story/Characters controls;

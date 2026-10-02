@@ -114,7 +114,7 @@ export function buildFinanceReport(
       period,
       status: future ? 'future' : available ? 'available' : 'incomplete',
       capturedCredits: sum(['capture', 'capture_legacy']),
-      returnedCredits: sum(['refund', 'refund_legacy']),
+      returnedCredits: sum(['refund', 'refund_legacy', 'release']),
       eventCount: events.length,
       cashReceived: null,
       supplierPayments: null,

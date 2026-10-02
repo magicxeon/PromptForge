@@ -1,4 +1,5 @@
 import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
+import { calculateCostPlusCredits } from './CostPlusPricing.js';
 
 export function calculateTextEnhancementPrice(policy, { provider, model, inputTokenBudget, maxOutputTokens }, now = Date.now()) {
   const rate = policy.textEnhancement;
@@ -19,7 +20,10 @@ export function calculateTextEnhancementPrice(policy, { provider, model, inputTo
     / (1 - policy.targetGrossMarginRate) * policy.creditsPerThbAssumption;
   return {
     providerId: provider, modelId: model,
-    totalCredits: Math.max(1, Math.ceil(retail / rate.roundingIncrement) * rate.roundingIncrement),
+    totalCredits: policy.profitMarkupPercentByMedia
+      ? calculateCostPlusCredits(providerCostUsd, { ...policy, creditRoundingIncrement: rate.roundingIncrement }, 'text')
+      : Math.max(1, Math.ceil(retail / rate.roundingIncrement) * rate.roundingIncrement),
+    ...(policy.profitMarkupPercentByMedia ? { profitMarkupPercent: policy.profitMarkupPercentByMedia.text } : {}),
     providerCostUsd, costBasis: 'estimated_upper_budget', billingMode: 'fixed_service_fee',
     providerRate: structuredClone(rate), pricingPolicyVersion: policy.policyVersion,
     inputTokenBudget, maxOutputTokens,

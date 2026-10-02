@@ -51,7 +51,7 @@ export function CinematicCharactersWorkspace({ actorId, project }: { actorId: st
   }
   return <main className="cinematic-cast-workspace" data-testid="cinematic-characters-workspace">
     <header><div><span>{t('cinematic.characters.eyebrow')}</span><h1>{source?.title || project.title}</h1></div>
-      <CinematicWritingConsent key={JSON.stringify([actorId, source?.id, source?.version, busy, online])} title={t('cinematic.storyImport.extractCharacters')}
+      <CinematicWritingConsent key={JSON.stringify([actorId, source?.id, source?.version, online])} title={t('cinematic.storyImport.extractCharacters')}
         scope={t('cinematic.bulk.charactersScope', { name: source?.title || project.title })} pending={!revision || busy || !online || story.isError || workspace.isError || workspace.isPending}
         onConfirm={() => void extract()} trigger={<Button icon={<Sparkles />} loading={busy} disabled={!revision || busy || !online || story.isError || workspace.isError || workspace.isPending}>{t('cinematic.storyImport.extractCharacters')}</Button>} />
     </header>

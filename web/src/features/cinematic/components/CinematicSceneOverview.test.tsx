@@ -36,36 +36,24 @@ const project = {
 } as unknown as CinematicProject;
 
 describe('CinematicSceneOverview', () => {
-  it.each(['scenes', 'shots'] as const)('confirms existing %s only, with cancel and Escape dispatching nothing', async (scope) => {
+  it.each(['scenes', 'shots'] as const)('forwards existing %s to the quoted API only once', async (scope) => {
     const value = { ...project, scenes: [{ ...scene, shots: [{ id: 'shot-1', title: 'Existing shot', orderKey: 1, durationMs: 4000 }] }] } as unknown as CinematicProject;
     const request = scope === 'scenes' ? api.propose : api.proposeShots;
     request.mockImplementation(() => new Promise(() => {}));
     render(<CinematicSceneOverview actorId="actor-1" project={value} online onBackToChapter={vi.fn()} onOpenShot={vi.fn()} onProjectChanged={vi.fn()} />);
     const trigger = screen.getByRole('button', { name: scope === 'scenes' ? 'cinematic.scenes.regenerate' : 'cinematic.scenes.regenerateShots' });
     fireEvent.click(trigger);
-    expect(screen.getByRole('alertdialog')).toHaveTextContent(`cinematic.regeneration.${scope}Description`);
-    expect(request).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'ui.action.cancel' }));
-    expect(request).not.toHaveBeenCalled();
+    expect(trigger).toBeDisabled();
     fireEvent.click(trigger);
-    fireEvent.keyDown(screen.getByRole('alertdialog'), { key: 'Escape' });
-    await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
-    expect(request).not.toHaveBeenCalled();
-    fireEvent.click(trigger);
-    const confirm = screen.getByRole('button', { name: 'cinematic.regeneration.confirm' });
-    fireEvent.click(confirm);
-    fireEvent.click(confirm);
     expect(request).toHaveBeenCalledOnce();
     expect(scope === 'scenes' ? api.proposeShots : api.propose).not.toHaveBeenCalled();
   });
 
-  it.each(['actor', 'version', 'scene'] as const)('invalidates open consent on a changed %s', (change) => {
+  it.each(['actor', 'version', 'scene'] as const)('does not dispatch when only the %s scope changes', (change) => {
     const second = { ...scene, id: 'scene-2', orderKey: 2, title: 'Second scene' };
     const props = { actorId: 'actor-1', project: { ...project, scenes: [scene, second] } as unknown as CinematicProject, online: true, onBackToChapter: vi.fn(), onOpenShot: vi.fn(), onProjectChanged: vi.fn() };
     const view = render(<CinematicSceneOverview {...props} />);
     const select = screen.getByRole('button', { name: /Second scene/ });
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.scenes.regenerate' }));
-    expect(screen.getByRole('alertdialog')).toBeVisible();
     if (change === 'scene') fireEvent.click(select);
     else view.rerender(<CinematicSceneOverview {...props} actorId={change === 'actor' ? 'actor-2' : props.actorId} project={change === 'version' ? { ...props.project, version: 6 } : props.project} />);
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -75,13 +63,11 @@ describe('CinematicSceneOverview', () => {
   beforeEach(() => { localStorage.clear(); for (const mock of Object.values(api)) mock.mockReset(); });
   afterEach(() => vi.restoreAllMocks());
 
-  it('confirms first-time Scene bulk generation with unbilled Credits before dispatch', () => {
+  it('forwards first-time Scene bulk generation to the priced API', () => {
     api.propose.mockImplementation(() => new Promise(() => {}));
     render(<CinematicSceneOverview actorId="actor-1" project={{ ...project, scenes: [] }} online onBackToChapter={vi.fn()} onOpenShot={vi.fn()} onProjectChanged={vi.fn()} />);
     fireEvent.click(screen.getAllByRole('button', { name: 'cinematic.scenes.generate' })[0]!);
-    expect(screen.getByRole('alertdialog')).toHaveTextContent('cinematic.bulk.unbilled');
-    expect(api.propose).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
+    expect(screen.getAllByText('cinematic.writingBilling.reviewPrice')).not.toHaveLength(0);
     expect(api.propose).toHaveBeenCalledWith('chapter-1', 5);
   });
 
@@ -211,7 +197,6 @@ describe('CinematicSceneOverview', () => {
     api.proposeShots.mockResolvedValue({ project: { ...project, version: 6, shotProposals: [shotProposal] }, proposal: shotProposal });
     render(<CinematicSceneOverview actorId="actor-1" project={project} online onBackToChapter={vi.fn()} onOpenShot={vi.fn()} onProjectChanged={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.scenes.generateShots' }));
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
     await waitFor(() => expect(api.proposeShots).toHaveBeenCalledWith('chapter-1', 'scene-1', 5));
     expect(screen.getByText('Reach down')).toBeVisible();
     expect(screen.getByText('cinematic.scenes.shotImpactNew')).toBeVisible();

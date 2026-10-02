@@ -8,6 +8,7 @@ import {
 import { getCinematicStoryEnhancementPolicy } from '../../config/cinematic-story-enhancement-policy.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
+import { normalizeWritingUsage } from '../credits/CinematicWritingPricing.js';
 
 export class CinematicStoryEnhancementService {
   constructor({
@@ -106,7 +107,8 @@ function normalizeResult(result, policy, story) {
     candidateScenes: (result.candidateScenes || []).slice(0, 5).map(value => String(value).trim()).filter(Boolean),
     recommendedRoles,
     warnings: (result.warnings || []).slice(0, 8).map(value => String(value).trim()).filter(Boolean),
-    provenance: { provider: policy.provider, model: policy.model, responseId: result.responseId || null },
+    provenance: { provider: policy.provider, model: policy.model, responseId: result.responseId || null,
+      usage: normalizeWritingUsage(result?.usage) },
     billingStatus: 'qualification_no_charge'
   };
 }

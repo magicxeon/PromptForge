@@ -28,6 +28,7 @@ import {
 } from '../schemas/cinematicSchemas';
 import { cinematicChapterProposalMutationSchema } from '../schemas/cinematicSeriesSchemas';
 import { apiRequest, apiRequestWithProgress } from '../../../lib/api/apiClient';
+import { withCinematicWritingQuote } from './cinematicWritingBilling';
 import type {
   CinematicSetupDraft,
   CinematicFullStoryProposal,
@@ -134,17 +135,18 @@ export function updateCinematicSetup(projectId: string, draft: CinematicSetupDra
 }
 
 export function enhanceCinematicStory(draft: CinematicSetupDraft, purpose: 'story' | 'roles' = 'story') {
-  return apiRequest('/api/cinematic/story-enhancements', {
-    method: 'POST',
-    body: { ...draft, purpose },
-    schema: cinematicStoryEnhancementSchema
-  });
+  return withCinematicWritingQuote({ projectId: null, operation: 'brief', input: { ...draft, purpose }, resultSchema: cinematicStoryEnhancementSchema }, body =>
+    apiRequest('/api/cinematic/story-enhancements', {
+      method: 'POST', body, schema: cinematicStoryEnhancementSchema
+    }));
 }
 
 export function proposeCinematicFullStory(projectId: string, expectedVersion: number, revisionInstruction: string, purpose?: 'characters') {
-  return apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/proposals`, {
-    method: 'POST', body: { expectedVersion, revisionInstruction, ...(purpose ? { purpose } : {}) }, schema: cinematicFullStoryProposalSchema
-  });
+  return withCinematicWritingQuote({ projectId, operation: purpose === 'characters' ? 'characters' : 'full_story', resultSchema: cinematicFullStoryProposalSchema,
+    input: { expectedVersion, revisionInstruction, ...(purpose ? { purpose } : {}) } }, body =>
+    apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/proposals`, {
+      method: 'POST', body, schema: cinematicFullStoryProposalSchema
+    }));
 }
 
 export function saveCinematicFullStoryRevision(projectId: string, input: {
@@ -174,9 +176,10 @@ export function estimateCinematicChapterPlanning(projectId: string, expectedVers
 }
 
 export function proposeCinematicChapterOutline(projectId: string, expectedVersion: number) {
-  return apiRequest(`${cinematicApiPaths.project(projectId)}/chapter-outline/proposals`, {
-    method: 'POST', body: { expectedVersion }, schema: cinematicProjectSchema
-  });
+  return withCinematicWritingQuote({ projectId, operation: 'chapter_outline', input: { expectedVersion }, mandatory: true, resultSchema: cinematicProjectSchema }, body =>
+    apiRequest(`${cinematicApiPaths.project(projectId)}/chapter-outline/proposals`, {
+      method: 'POST', body, schema: cinematicProjectSchema
+    }));
 }
 
 export function reviewCinematicChapterOutline(projectId: string, input: {
@@ -188,16 +191,16 @@ export function reviewCinematicChapterOutline(projectId: string, input: {
 }
 
 export function generateCinematicFullStoryChapters(projectId: string, expectedVersion: number) {
-  return apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/chapters`, {
-    method: 'POST', body: { expectedVersion }, schema: cinematicChapterProposalMutationSchema
-  });
+  return withCinematicWritingQuote({ projectId, operation: 'chapters', input: { expectedVersion, scope: 'all' }, mandatory: true, resultSchema: cinematicChapterProposalMutationSchema }, body =>
+    apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/chapters`, {
+      method: 'POST', body, schema: cinematicChapterProposalMutationSchema
+    }));
 }
 
 export function suggestCinematicWardrobe(projectId: string, assignmentId: string) {
-  return apiRequest(
-    `${cinematicApiPaths.project(projectId)}/cast/${encodeURIComponent(assignmentId)}/wardrobe-suggestion`,
-    { method: 'POST', schema: cinematicWardrobeSuggestionSchema }
-  );
+  return withCinematicWritingQuote({ projectId, operation: 'wardrobe', assignmentId, input: {}, resultSchema: cinematicWardrobeSuggestionSchema }, body =>
+    apiRequest(`${cinematicApiPaths.project(projectId)}/cast/${encodeURIComponent(assignmentId)}/wardrobe-suggestion`,
+      { method: 'POST', body, schema: cinematicWardrobeSuggestionSchema }));
 }
 
 export function updateCinematicStage(projectId: string, stage: CinematicStage, expectedVersion: number) {
@@ -291,17 +294,17 @@ export function generateCinematicStoryPlan(projectId: string, input: {
   mode?: 'generate' | 'review_current';
   sourceResolution?: 'story_brief' | 'creative_direction' | null;
 } = {}, onProgress?: (progress: CinematicStoryPlanLiveProgress) => void) {
-  if (onProgress) {
-    return apiRequestWithProgress(`${cinematicApiPaths.project(projectId)}/story-plan/proposals`, {
-      method: 'POST', body: input,
+  return withCinematicWritingQuote({ projectId, operation: 'story_plan', input, mandatory: true, resultSchema: cinematicStoryPlanProposalSchema }, body => {
+    if (onProgress) return apiRequestWithProgress(`${cinematicApiPaths.project(projectId)}/story-plan/proposals`, {
+      method: 'POST', body,
       schema: cinematicStoryPlanProposalSchema,
       progressSchema: cinematicStoryPlanLiveProgressSchema,
       onProgress,
       cache: 'no-store'
     });
-  }
-  return apiRequest(`${cinematicApiPaths.project(projectId)}/story-plan/proposals`, {
-    method: 'POST', body: input, schema: cinematicStoryPlanProposalSchema, cache: 'no-store'
+    return apiRequest(`${cinematicApiPaths.project(projectId)}/story-plan/proposals`, {
+      method: 'POST', body, schema: cinematicStoryPlanProposalSchema, cache: 'no-store'
+    });
   });
 }
 
@@ -312,9 +315,10 @@ export function generateCinematicSceneDirection(projectId: string, sceneId: stri
   requestedFieldPaths?: string[];
   lockedFieldPaths?: string[];
 }) {
-  return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/direction-proposals`, {
-    method: 'POST', body: input, schema: cinematicSceneDirectionProposalSchema, cache: 'no-store'
-  });
+  return withCinematicWritingQuote({ projectId, operation: 'scene_direction', sceneId, input, resultSchema: cinematicSceneDirectionProposalSchema }, body =>
+    apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/direction-proposals`, {
+      method: 'POST', body, schema: cinematicSceneDirectionProposalSchema, cache: 'no-store'
+    }));
 }
 
 export function approveCinematicStoryboardSource(projectId: string, shotId: string, input: {
@@ -433,9 +437,10 @@ export function saveCinematicSceneEnvironment(projectId: string, sceneId: string
 export function proposeCinematicSceneEnvironment(projectId: string, sceneId: string, input: {
   expectedVersion: number; expectedSceneVersion: number; currentDirection?: string;
 }) {
-  return apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/proposals`, {
-    method: 'POST', body: input, schema: cinematicSceneEnvironmentProposalSchema
-  });
+  return withCinematicWritingQuote({ projectId, operation: 'environment', sceneId, input, resultSchema: cinematicSceneEnvironmentProposalSchema }, body =>
+    apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/proposals`, {
+      method: 'POST', body, schema: cinematicSceneEnvironmentProposalSchema
+    }));
 }
 export function listCinematicSceneEnvironmentImages(projectId: string, sceneId: string, cursor: string | null = null) {
   const query = new URLSearchParams({ limit: '12', ...(cursor ? { cursor } : {}) });

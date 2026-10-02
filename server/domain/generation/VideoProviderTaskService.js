@@ -29,9 +29,22 @@ export class VideoProviderTaskService {
   }
 
   async submitTask(request, actorContext, { allowResearch = false, allowTesting = false } = {}) {
-    const model = this.capabilityRegistry.validateRequest(request, { allowResearch, allowTesting });
-    const adapter = this.#resolveAdapter(model.providerId, model.modelId);
-    await adapter.preflight?.(request);
+    let model;
+    let adapter;
+    try {
+      model = this.capabilityRegistry.validateRequest(request, { allowResearch, allowTesting });
+      adapter = this.#resolveAdapter(model.providerId, model.modelId);
+      await adapter.preflight?.(request);
+    } catch (error) {
+      // Only this local stage proves that neither task acceptance nor dispatch was attempted.
+      throw Object.assign(new Error(error?.message || 'Video submission preflight failed.', { cause: error }), {
+        ...sanitizeError(error, 'video_provider_preflight_failed'),
+        statusCode: error?.statusCode || 503,
+        ...(error?.details ? { details: error.details } : {}),
+        providerDispatchState: 'not_started',
+        providerBillableState: error?.providerBillableState || 'not_billable'
+      });
+    }
     const submittedFingerprint = fingerprintRequest(request);
     const accepted = await this.repository.createAccepted({
       id: request.id,
@@ -57,13 +70,20 @@ export class VideoProviderTaskService {
       developmentPocCredits: request.developmentPocCredits || null,
       developmentPocWarningCode: request.developmentPocWarningCode || null,
       billingStatus: request.billingStatus || (request.reservationId ? 'reserved' : null),
+      chargeMode: request.chargeMode || null,
       acceptedAt: new Date().toISOString()
     });
     if (accepted.providerTaskId || accepted.status !== 'accepted') return accepted;
-    await this.repository.update(accepted.id, draft => {
-      draft.status = 'provider_submitting';
-      draft.recovery = recoveryState(draft, this.clock(), this.recoveryPolicy);
-    });
+    const recovery = recoveryState(accepted, this.clock(), this.recoveryPolicy);
+    const claim = typeof this.repository.claimDispatch === 'function'
+      ? await this.repository.claimDispatch(accepted.id, recovery)
+      : await this.repository.update(accepted.id, draft => {
+        if (draft.status !== 'accepted' || draft.providerTaskId) return { claimed: false, task: structuredClone(draft) };
+        draft.status = 'provider_submitting';
+        draft.recovery = recovery;
+        return { claimed: true, task: structuredClone(draft) };
+      });
+    if (!claim.claimed) return claim.task;
     try {
       const response = await adapter.submit({ ...request, submittedFingerprint });
       return this.repository.update(accepted.id, draft => {

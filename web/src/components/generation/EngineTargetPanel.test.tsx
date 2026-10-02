@@ -34,6 +34,20 @@ function renderPanel(provider = 'meta-muse', comparison = false, requiredReferen
 }
 
 describe('qualified image engine exposure', () => {
+  it('labels legacy prompt refinement free while preserving its switch and engine controls', () => {
+    const onPromptRefinementChange = vi.fn();
+    const props = { catalog,
+      value: { provider: 'existing', model: 'existing-image', aspectRatio: '1:1', resolution: null, outputCount: 1 },
+      comparison: false, comparisonSlots: [], onChange: vi.fn(), onSlotsChange: vi.fn(), onComparisonChange: vi.fn(),
+      promptRefinementAvailable: true, promptRefinementEnabled: false, onPromptRefinementChange };
+    const view = render(<EngineTargetPanel {...props} />);
+    expect(screen.getByText('playground.promptRefinement.free')).toHaveClass('text-[var(--theme-success)]');
+    fireEvent.click(screen.getByRole('switch', { name: 'playground.promptRefinement.label' }));
+    expect(onPromptRefinementChange).toHaveBeenCalledWith(true);
+    expect(screen.getByLabelText('playground.engine.provider')).toBeEnabled();
+    view.rerender(<EngineTargetPanel {...props} promptRefinementAvailable={false} />);
+    expect(screen.queryByText('playground.promptRefinement.free')).not.toBeInTheDocument();
+  });
   it('shows fixed portrait dimensions even while persisted engine selection is square', () => {
     render(<EngineTargetPanel catalog={catalog}
       value={{ provider: 'existing', model: 'existing-image', aspectRatio: '1:1', resolution: null, outputCount: 1 }}

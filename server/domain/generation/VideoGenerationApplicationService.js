@@ -40,9 +40,15 @@ import { PlaygroundVideoReferenceService } from './PlaygroundVideoReferenceServi
 import { trustedGeneratedSourceService, generatedCastSourceFingerprint } from './TrustedGeneratedSourceService.js';
 import { assertGeneratedReferenceAllowed } from '../../config/generatedReferencePolicy.js';
 import { loadVideoReferenceAssetContent } from '../assets/VideoReferenceAssetContent.js';
+import { videoRecoveryPolicy } from '../../config/videoRecoveryPolicy.js';
 
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 const settlementFlights = new Map();
+// Generation owns these single-process flights, keyed by task store + actor + idempotency key.
+// VIDEO_SUBMISSION_MAX_CONCURRENT bounds new flights (default 32); matching fingerprints coalesce.
+// Release only when dispatch/refund settles, never by timeout while side effects remain active.
+const submissionFlights = new Map();
+let activeSubmissionCount = 0;
 
 export class VideoGenerationApplicationService {
   constructor({
@@ -63,7 +69,8 @@ export class VideoGenerationApplicationService {
     trustedSourceService = trustedGeneratedSourceService,
     providerTaskService = null,
     testingEnabled = process.env.NODE_ENV !== 'production'
-      && process.env.VIDEO_PLAYGROUND_TESTING_ENABLED !== 'false'
+      && process.env.VIDEO_PLAYGROUND_TESTING_ENABLED !== 'false',
+    maxConcurrentSubmissions = videoRecoveryPolicy.maxConcurrentSubmissions
   } = {}) {
     this.capabilityRegistry = capabilityRegistry;
     this.creditService = creditService;
@@ -82,6 +89,9 @@ export class VideoGenerationApplicationService {
       characterService, referenceResolver, firstFrameTransport, contentLoader: playgroundReferenceContentLoader,
       historyRepository: playgroundHistoryRepository });
     this.testingEnabled = testingEnabled;
+    this.maxConcurrentSubmissions = Number.isInteger(maxConcurrentSubmissions)
+      && maxConcurrentSubmissions >= 1 && maxConcurrentSubmissions <= 256
+      ? maxConcurrentSubmissions : videoRecoveryPolicy.maxConcurrentSubmissions;
     if (providerTaskService) {
       this.providerTaskService = providerTaskService;
     } else {
@@ -152,6 +162,37 @@ export class VideoGenerationApplicationService {
       throw videoError('video_quote_request_changed', 'Video request changed after the quote was prepared.', 409);
     }
     const idempotencyKey = normalizeIdempotencyKey(input.idempotencyKey);
+    const scope = this.taskRepository.tasksFile || this.taskRepository;
+    const key = JSON.stringify([actorContext.userId, idempotencyKey]);
+    const fingerprint = JSON.stringify([request.requestFingerprint, input.estimateId || null,
+      workflow, this.testingEnabled]);
+    let flights = submissionFlights.get(scope);
+    const existing = flights?.get(key);
+    if (existing) {
+      if (existing.fingerprint !== fingerprint) {
+        throw videoError('video_idempotency_conflict', 'Video idempotency key is already submitting a different request.', 409);
+      }
+      return existing.promise;
+    }
+    if (activeSubmissionCount >= this.maxConcurrentSubmissions) {
+      throw videoError('video_submission_capacity_exceeded', 'Video submission capacity is busy. Try again shortly.', 429);
+    }
+    if (!flights) {
+      flights = new Map();
+      submissionFlights.set(scope, flights);
+    }
+    activeSubmissionCount++;
+    const promise = this.#submitPrepared(input, actorContext, workflow, request, model, playgroundPlan,
+      idempotencyKey).finally(() => {
+      activeSubmissionCount--;
+      flights.delete(key);
+      if (!flights.size) submissionFlights.delete(scope);
+    });
+    flights.set(key, { fingerprint, promise });
+    return promise;
+  }
+
+  async #submitPrepared(input, actorContext, workflow, request, model, playgroundPlan, idempotencyKey) {
     const replay = await this.taskRepository.findByIdempotencyKey(actorContext.userId, idempotencyKey);
     if (replay) return replay;
     const source = await this.#validateSource(request, actorContext, { resolveMedia: true, workflow, model, playgroundPlan });
@@ -188,30 +229,55 @@ export class VideoGenerationApplicationService {
       generationRequest,
       metadata: { jobId: taskId, requestId, capability: workflow.capability }
     });
-    const submitted = await this.providerTaskService.submitTask({
-      ...request,
-      id: taskId,
-      idempotencyKey,
-      prompt: request.prompt,
-      referenceImage: source.referenceImage,
-      lastFrameImage: source.lastFrameImage,
-      referenceImages: source.referenceImages,
-      providerReferenceRegistrations: source.providerReferenceRegistrations,
-      referenceTransport: source.referenceTransport || null,
-      referenceTransports: source.referenceTransports || [],
-      characterAttributions: source.characterAttributions,
-      requestFingerprint: request.requestFingerprint,
-      pricingFingerprint: financialAuthorization.estimate.estimateId,
-      reservationId: financialAuthorization.reservation?.reservationId || null,
-      qualificationAuthorizationId: financialAuthorization.authorization?.authorizationId || null,
-      billingStatus: financialAuthorization.billingStatus || (financialAuthorization.reservation ? 'reserved' : null),
-      estimateId: financialAuthorization.estimate.estimateId,
-      correlationId: taskId,
-      projectId: workflow.projectId,
-      sceneId: workflow.sceneId,
-      shotId: workflow.shotId,
-      generationAttemptId: workflow.generationAttemptId || taskId
-    }, actorContext, { allowTesting: this.testingEnabled });
+    if (financialAuthorization.reservation
+      && financialAuthorization.reservation.status !== 'reserved') {
+      throw videoError('video_credit_reservation_already_settled', 'This video reservation is already settled. Submit a new request.', 409);
+    }
+    let submitted;
+    try {
+      submitted = await this.providerTaskService.submitTask({
+        ...request,
+        id: taskId,
+        idempotencyKey,
+        prompt: request.prompt,
+        referenceImage: source.referenceImage,
+        lastFrameImage: source.lastFrameImage,
+        referenceImages: source.referenceImages,
+        providerReferenceRegistrations: source.providerReferenceRegistrations,
+        referenceTransport: source.referenceTransport || null,
+        referenceTransports: source.referenceTransports || [],
+        characterAttributions: source.characterAttributions,
+        requestFingerprint: request.requestFingerprint,
+        pricingFingerprint: financialAuthorization.estimate.estimateId,
+        reservationId: financialAuthorization.reservation?.reservationId || null,
+        qualificationAuthorizationId: financialAuthorization.authorization?.authorizationId || null,
+        billingStatus: financialAuthorization.billingStatus || (financialAuthorization.reservation ? 'reserved' : null),
+        chargeMode: financialAuthorization.estimate.chargeMode || null,
+        estimateId: financialAuthorization.estimate.estimateId,
+        correlationId: taskId,
+        projectId: workflow.projectId,
+        sceneId: workflow.sceneId,
+        shotId: workflow.shotId,
+        generationAttemptId: workflow.generationAttemptId || taskId
+      }, actorContext, { allowTesting: this.testingEnabled });
+    } catch (error) {
+      if (error?.providerDispatchState === 'not_started'
+        && error.providerBillableState === 'not_billable'
+        && financialAuthorization.reservation?.reservationId) {
+        // A durable task (or an unreadable store) may own an active dispatch claim.
+        const existingTask = await this.taskRepository.findByIdempotencyKey(actorContext.userId, idempotencyKey)
+          .catch(() => true);
+        if (!existingTask) {
+          await this.creditService.refundForJob({
+            userId: actorContext.userId,
+            reservationId: financialAuthorization.reservation.reservationId,
+            jobId: taskId,
+            reasonCode: 'video_provider_submit_failed'
+          });
+        }
+      }
+      throw error;
+    }
     if (playgroundPlan?.trusted || request.references.some(row => row.trustedGenerationId)) await this.trustedSources.recordRejection({ ...submitted,
       submittedRequest: { references: request.references } }, actorContext).catch(() => {
       console.warn('[Video] Trusted-source rejection evidence could not be saved');
@@ -299,13 +365,30 @@ export class VideoGenerationApplicationService {
       throw videoError('video_task_owner_missing', 'Video task owner is unavailable for settlement.', 409);
     }
     if (task.status === 'completed' && task.billingStatus === 'reserved') {
-      await this.creditService.captureForJob({
-        userId,
-        reservationId: task.reservationId,
-        jobId: task.id,
-        metadata: { providerUsage: task.providerUsage, mediaType: 'video' }
+      let captured;
+      try {
+        captured = await this.creditService.captureForJob({
+          userId,
+          reservationId: task.reservationId,
+          jobId: task.id,
+          usage: task.providerUsage,
+          metadata: { providerUsage: task.providerUsage, mediaType: 'video' }
+        });
+      } catch (error) {
+        if (!['video_usage_reconciliation_required', 'video_usage_exceeds_consent'].includes(error?.code)) throw error;
+        return this.taskRepository.update(task.id, draft => {
+          draft.status = 'reconciliation_required';
+          draft.providerError = { code: error.code, category: 'credits', retryable: false, providerBillableState: 'billable' };
+          if (error.details?.providerCostEvidence) draft.settlementEvidence = error.details.providerCostEvidence;
+        });
+      }
+      task = await this.taskRepository.update(task.id, draft => {
+        draft.billingStatus = 'captured';
+        if (captured?.reservation) {
+          draft.capturedCredits = captured.reservation.capturedCredits ?? captured.reservation.amountCredits;
+          draft.releasedCredits = captured.reservation.releasedCredits ?? 0;
+        }
       });
-      task = await this.taskRepository.update(task.id, draft => { draft.billingStatus = 'captured'; });
     } else if (task.status === 'completed' && task.billingStatus === 'refunded') {
       task = await this.taskRepository.update(task.id, draft => {
         draft.status = 'reconciliation_required';
@@ -759,6 +842,9 @@ function toPublicTask(task) {
     providerError: task.providerError || null,
     billingStatus: task.billingStatus || null,
     estimatedCredits: task.estimatedCredits || null,
+    capturedCredits: task.capturedCredits ?? null,
+    releasedCredits: task.releasedCredits ?? null,
+    chargeMode: task.chargeMode || null,
     developmentPocUnverified: task.developmentPocUnverified === true,
     developmentPocCredits: task.developmentPocCredits || null,
     developmentPocWarningCode: task.developmentPocWarningCode || null,
