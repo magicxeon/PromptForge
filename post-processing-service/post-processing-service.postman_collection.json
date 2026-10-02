@@ -20,6 +20,46 @@
       "key": "inputSha256",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "sourceMediaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "referenceMediaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "voiceProfileId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "dialogueJobId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "consentRecordId",
+      "value": "poc-owned-recording",
+      "type": "string"
+    },
+    {
+      "key": "previewMediaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "repairIdempotencyKey",
+      "value": "repair-example-001",
+      "type": "string"
+    },
+    {
+      "key": "conversionIdempotencyKey",
+      "value": "convert-example-001",
+      "type": "string"
     }
   ],
   "item": [
@@ -426,6 +466,289 @@
           ]
         },
         "description": "Submits raw image bytes and returns enhanced JSON result with sharpening, denoise, and bytesBase64."
+      },
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Upload source MP4",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "video/mp4"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": ""
+          }
+        },
+        "url": "{{baseUrl}}/v1/media",
+        "description": "Choose a mono-dialogue MP4 as the binary body. Copy mediaId to sourceMediaId."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) pm.collectionVariables.set('sourceMediaId', pm.response.json().mediaId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Upload reference WAV",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "audio/wav"
+          }
+        ],
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": ""
+          }
+        },
+        "url": "{{baseUrl}}/v1/media",
+        "description": "Choose a clean mono reference WAV. Copy mediaId to referenceMediaId."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) pm.collectionVariables.set('referenceMediaId', pm.response.json().mediaId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Enroll voice reference",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"referenceMediaId\":\"{{referenceMediaId}}\",\"startMs\":0,\"endMs\":5000,\"referenceTranscript\":\"ข้อความที่ตรงกับเสียงอ้างอิง\",\"consentRecordId\":\"{{consentRecordId}}\"}"
+        },
+        "url": "{{baseUrl}}/v1/voice-profiles"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) pm.collectionVariables.set('voiceProfileId', pm.response.json().voiceProfileId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Repair speech",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{repairIdempotencyKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"operation\":\"audio.dialogue_repair\",\"options\":{\"sourceMediaId\":\"{{sourceMediaId}}\",\"voiceProfileId\":\"{{voiceProfileId}}\",\"consentRecordId\":\"{{consentRecordId}}\",\"startMs\":1200,\"endMs\":2800,\"replacementText\":\"แบบเดียวกัน\"}}"
+        },
+        "url": "{{baseUrl}}/v1/jobs",
+        "description": "Change the idempotency key for a new intentional attempt. The selected interval must fit the source."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 202) pm.collectionVariables.set('dialogueJobId', pm.response.json().jobId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Convert character voice",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}"
+          },
+          {
+            "key": "X-Idempotency-Key",
+            "value": "{{conversionIdempotencyKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"operation\":\"audio.voice_conversion\",\"options\":{\"sourceMediaId\":\"{{sourceMediaId}}\",\"voiceProfileId\":\"{{voiceProfileId}}\",\"consentRecordId\":\"{{consentRecordId}}\",\"segments\":[{\"startMs\":1200,\"endMs\":2800}]}}"
+        },
+        "url": "{{baseUrl}}/v1/jobs",
+        "description": "Run only after optional OpenVoice V2 setup. Use the accepted repair output mediaId as sourceMediaId when correcting words first."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 202) pm.collectionVariables.set('dialogueJobId', pm.response.json().jobId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Poll job",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/v1/jobs/{{dialogueJobId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Result and preview IDs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/v1/jobs/{{dialogueJobId}}/result"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) pm.collectionVariables.set('previewMediaId', pm.response.json().previewMediaId || pm.response.json().audioMediaId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Download preview JSON",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/v1/media/{{previewMediaId}}",
+        "description": "Set previewMediaId from job result. Save JSON response and decode with scripts/decode-dialogue-media.ps1."
+      },
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Adopt result",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/v1/jobs/{{dialogueJobId}}/adoption"
+      },
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Export adopted result",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-post-processing-token",
+            "value": "{{internalToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/v1/jobs/{{dialogueJobId}}/export"
+      },
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Cancel pending job",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "x-post-processing-token", "value": "{{internalToken}}" }],
+        "url": "{{baseUrl}}/v1/jobs/{{dialogueJobId}}",
+        "description": "Run only on a queued or processing job that you intend to stop."
+      },
+      "response": []
+    },
+    {
+      "name": "Dialogue POC - Revoke voice profile",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "x-post-processing-token", "value": "{{internalToken}}" }],
+        "url": "{{baseUrl}}/v1/voice-profiles/{{voiceProfileId}}",
+        "description": "Run only when the reference must be revoked. Adoption/export will then be rejected."
       },
       "response": []
     }

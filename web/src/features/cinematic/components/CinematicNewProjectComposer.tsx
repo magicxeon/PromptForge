@@ -16,7 +16,7 @@ import {
   Square
 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { routePaths } from '../../../app/routeRegistry/routes';
@@ -92,6 +92,7 @@ export function CinematicNewProjectComposer({
   importedFullStory
 }: Props) {
   const { t } = useTranslation('cinematic');
+  const choiceId = useId();
   const formats = creationPolicy?.formats || FALLBACK_FORMATS;
   const aspectRatios = creationPolicy?.aspectRatios || FALLBACK_ASPECT_RATIOS;
   const chapterDurations = creationPolicy?.chapterDurationsSeconds || FALLBACK_CHAPTER_DURATIONS;
@@ -135,58 +136,60 @@ export function CinematicNewProjectComposer({
         </div>
 
         <fieldset disabled={pending}>
-          <label className="cinematic-new-project__title-field">
-            <span>{t('cinematic.newProject.projectTitle')}</span>
-            <input
-              autoFocus
-              maxLength={120}
-              value={draft.projectName}
-              onChange={event => onUpdate('projectName', event.target.value)}
-              placeholder={t('cinematic.newProject.untitled')}
-            />
-          </label>
+          <section className="cinematic-new-project__authoring" aria-label={t('cinematic.newProject.storyIdea')}>
+            <label className="cinematic-new-project__title-field">
+              <span><FileText aria-hidden="true" />{t('cinematic.newProject.projectTitle')}</span>
+              <input
+                autoFocus
+                maxLength={120}
+                value={draft.projectName}
+                onChange={event => onUpdate('projectName', event.target.value)}
+                placeholder={t('cinematic.newProject.untitled')}
+              />
+            </label>
 
-          {source ? <section className="cinematic-story-import__source" aria-label={t('cinematic.storyImport.source')}>
-            <FileText aria-hidden="true" />
-            <div className="cinematic-story-import__source-info">
-              <small>{t(source.edited ? 'cinematic.storyImport.sourceEdited' : 'cinematic.storyImport.source')}</small>
-              <strong>{source.fileName}</strong>
-              <span>{t(`cinematic.storyImport.${source.destination}`)}</span>
-            </div>
-            <div className="cinematic-story-import__source-actions">
-              {fullStorySource ? <Button type="button" icon={<Pencil />} disabled={pending || !online || !onContinueFullStory}
-                onClick={onContinueFullStory}>{t('cinematic.storyImport.editFullStory')}</Button> : null}
-              <Button type="button" icon={briefOpen ? <ChevronDown /> : <Pencil />} disabled={pending}
-                aria-expanded={briefOpen} aria-controls="cinematic-imported-brief"
-                onClick={() => setBriefOpen(open => !open)}>
-                {t(briefOpen ? 'cinematic.storyImport.hideBrief' : 'cinematic.storyImport.editBrief')}
-              </Button>
-            </div>
-          </section> : null}
+            {source ? <section className="cinematic-story-import__source" aria-label={t('cinematic.storyImport.source')}>
+              <FileText aria-hidden="true" />
+              <div className="cinematic-story-import__source-info">
+                <small>{t(source.edited ? 'cinematic.storyImport.sourceEdited' : 'cinematic.storyImport.source')}</small>
+                <strong>{source.fileName}</strong>
+                <span>{t(`cinematic.storyImport.${source.destination}`)}</span>
+              </div>
+              <div className="cinematic-story-import__source-actions">
+                {fullStorySource ? <Button type="button" icon={<Pencil />} disabled={pending || !online || !onContinueFullStory}
+                  onClick={onContinueFullStory}>{t('cinematic.storyImport.editFullStory')}</Button> : null}
+                <Button type="button" icon={briefOpen ? <ChevronDown /> : <Pencil />} disabled={pending}
+                  aria-expanded={briefOpen} aria-controls="cinematic-imported-brief"
+                  onClick={() => setBriefOpen(open => !open)}>
+                  {t(briefOpen ? 'cinematic.storyImport.hideBrief' : 'cinematic.storyImport.editBrief')}
+                </Button>
+              </div>
+            </section> : null}
 
-          {onImportFullStory ? <CinematicStoryFileImport policy={importPolicy} briefLimit={storyLimit} replacing={Boolean(source)}
-            maximumCharacters={maximumStoryCharacters} disabled={pending || !online}
-            onImport={async (file, destination) => {
-              if (destination === 'full-story') await onImportFullStory(file);
-              else {
-                onUpdate('storyBrief', file.content);
-                onUpdate('storyBriefImport', { fileName: file.fileName, edited: false });
-                setBriefOpen(false);
-                if (!draft.projectName.trim()) onUpdate('projectName', file.fileName.replace(/\.(md|txt)$/i, '').slice(0, 120));
-              }
-            }} /> : null}
+            {onImportFullStory ? <CinematicStoryFileImport policy={importPolicy} briefLimit={storyLimit} replacing={Boolean(source)}
+              maximumCharacters={maximumStoryCharacters} disabled={pending || !online}
+              onImport={async (file, destination) => {
+                if (destination === 'full-story') await onImportFullStory(file);
+                else {
+                  onUpdate('storyBrief', file.content);
+                  onUpdate('storyBriefImport', { fileName: file.fileName, edited: false });
+                  setBriefOpen(false);
+                  if (!draft.projectName.trim()) onUpdate('projectName', file.fileName.replace(/\.(md|txt)$/i, '').slice(0, 120));
+                }
+              }} /> : null}
 
-          <label id="cinematic-imported-brief" className="cinematic-new-project__brief-field" hidden={Boolean(source) && !briefOpen}>
-            <span>{t('cinematic.newProject.storyIdea')}</span>
-            <textarea
-              rows={10}
-              maxLength={storyLimit}
-              value={draft.storyBrief}
-              onChange={event => onUpdate('storyBrief', event.target.value)}
-              placeholder={t('cinematic.newProject.storyPlaceholder')}
-            />
-            <small>{t('cinematic.newProject.storyCount', { count: draft.storyBrief.length, limit: storyLimit })}</small>
-          </label>
+            <label id="cinematic-imported-brief" className="cinematic-new-project__brief-field" hidden={Boolean(source) && !briefOpen}>
+              <span><Pencil aria-hidden="true" />{t('cinematic.newProject.storyIdea')}</span>
+              <textarea
+                rows={10}
+                maxLength={storyLimit}
+                value={draft.storyBrief}
+                onChange={event => onUpdate('storyBrief', event.target.value)}
+                placeholder={t('cinematic.newProject.storyPlaceholder')}
+              />
+              <small>{t('cinematic.newProject.storyCount', { count: draft.storyBrief.length, limit: storyLimit })}</small>
+            </label>
+          </section>
 
           <details
             className="cinematic-new-project__section cinematic-new-project__essentials"
@@ -207,37 +210,32 @@ export function CinematicNewProjectComposer({
             </summary>
             <section className="cinematic-new-project__quick-settings" aria-label={t('cinematic.newProject.quickSettings')}>
               <ChoiceGroup label={t('cinematic.newProject.format')}>
-                <div className="cinematic-new-project__segments">
+                <div className="cinematic-new-project__option-grid" role="group" aria-label={t('cinematic.newProject.format')}>
                   {formats.map(format => (
-                    <button
-                      key={format}
-                      type="button"
-                      aria-pressed={draft.format === format}
-                      className={draft.format === format ? 'is-selected' : ''}
-                      onClick={() => onUpdate('format', format)}
-                    >
-                      {format === 'mini-series' ? <Layers3 aria-hidden="true" /> : <Film aria-hidden="true" />}
-                      {t(`cinematic.newProject.format.${format}`)}
-                    </button>
+                    <label key={format} className="cinematic-new-project__option">
+                      <input type="radio" name={`${choiceId}-format`} value={format}
+                        checked={draft.format === format} onChange={() => onUpdate('format', format)} />
+                      <span>
+                        {format === 'mini-series' ? <Layers3 aria-hidden="true" /> : <Film aria-hidden="true" />}
+                        {t(`cinematic.newProject.format.${format}`)}
+                      </span>
+                    </label>
                   ))}
                 </div>
               </ChoiceGroup>
 
               <ChoiceGroup label={t('cinematic.newProject.orientation')}>
-                <div className="cinematic-new-project__segments cinematic-new-project__segments--orientation">
+                <div className="cinematic-new-project__option-grid cinematic-new-project__option-grid--orientation" role="group" aria-label={t('cinematic.newProject.orientation')}>
                   {aspectRatios.map(aspectRatio => (
-                    <button
-                      key={aspectRatio}
-                      type="button"
-                      aria-label={t(`cinematic.newProject.orientation.${aspectRatio}`)}
-                      title={t(`cinematic.newProject.orientation.${aspectRatio}`)}
-                      aria-pressed={draft.aspectRatio === aspectRatio}
-                      className={draft.aspectRatio === aspectRatio ? 'is-selected' : ''}
-                      onClick={() => onUpdate('aspectRatio', aspectRatio)}
-                    >
-                      {aspectRatio === '9:16' ? <RectangleVertical aria-hidden="true" /> : aspectRatio === '16:9' ? <RectangleHorizontal aria-hidden="true" /> : <Square aria-hidden="true" />}
-                      <span>{aspectRatio}</span>
-                    </button>
+                    <label key={aspectRatio} className="cinematic-new-project__option" title={t(`cinematic.newProject.orientation.${aspectRatio}`)}>
+                      <input type="radio" name={`${choiceId}-orientation`} value={aspectRatio}
+                        aria-label={t(`cinematic.newProject.orientation.${aspectRatio}`)}
+                        checked={draft.aspectRatio === aspectRatio} onChange={() => onUpdate('aspectRatio', aspectRatio)} />
+                      <span>
+                        {aspectRatio === '9:16' ? <RectangleVertical aria-hidden="true" /> : aspectRatio === '16:9' ? <RectangleHorizontal aria-hidden="true" /> : <Square aria-hidden="true" />}
+                        <span>{aspectRatio}</span>
+                      </span>
+                    </label>
                   ))}
                 </div>
               </ChoiceGroup>

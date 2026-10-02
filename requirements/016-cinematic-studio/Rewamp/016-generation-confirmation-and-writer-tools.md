@@ -1,5 +1,13 @@
 # 016 - Writer Tools And Generation Confirmation
 
+2026-10-01 implemented supersession: [017](017-project-characters-and-bulk-consent.md)
+requires confirmation for every initial/regenerated Bulk AI action regardless of
+profile opt-out, with actual authoritative total Credits and scope. Single-action
+preferences stay unchanged. It also replaces writer right-panel Character settings
+with a dedicated Characters route; AI Assist and other tools are preserved. The
+implementation evidence below describes the earlier shipped behavior. See 017 and
+its task packet for the new implementation, focused checks and live UAT limits.
+
 Status: implementation approved, 2026-09-27. Owner: Cinematic authoring;
 shared credit consent belongs to Generation UI and account preferences to Identity.
 Primary role: Product Requirement Architect. UX, Backend, Commercial/security and

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { cinematicLookRemovalImpactSchema } from '../schemas/cinematicSchemas';
 import {
   cinematicArchiveResponseSchema,
   cinematicClipBundleSchema,
@@ -45,6 +46,18 @@ export const cinematicApiPaths = {
   projects: '/api/cinematic/projects',
   project: (projectId: string) => `/api/cinematic/projects/${encodeURIComponent(projectId)}`
 } as const;
+
+export function getCinematicLookRemovalImpact(projectId: string, characterId: string, lookId: string) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/cast/${encodeURIComponent(characterId)}/looks/${encodeURIComponent(lookId)}/removal-impact`,
+    { schema: cinematicLookRemovalImpactSchema, cache: 'no-store' });
+}
+
+export function removeCinematicWardrobeLook(projectId: string, characterId: string, lookId: string, input: {
+  expectedVersion: number; impactFingerprint: string;
+}) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/cast/${encodeURIComponent(characterId)}/looks/${encodeURIComponent(lookId)}`,
+    { method: 'DELETE', body: input, schema: cinematicProjectSchema });
+}
 
 export const cinematicApiSchemas = {
   project: cinematicProjectSchema,

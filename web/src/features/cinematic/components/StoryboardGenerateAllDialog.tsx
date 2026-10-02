@@ -228,6 +228,16 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
     (total, item) => total + item.quote.estimate.estimatedCredits,
     0
   );
+  const [quoteTime, setQuoteTime] = useState(Date.now);
+  const refreshQuotes = quotes.refetch;
+  const quoteExpiry = quotes.data?.length ? Math.min(...quotes.data.map(item => quoteDeadline(item.quote.estimate.expiresAt))) : 0;
+  const quotesCurrent = Number.isFinite(quoteExpiry) && quoteExpiry > Math.max(quoteTime, Date.now());
+  useEffect(() => {
+    if (!open || !Number.isFinite(quoteExpiry) || quoteExpiry <= Date.now()) return;
+    // One timer per quote snapshot, not a second Job polling loop.
+    const timer = window.setTimeout(() => { setQuoteTime(Date.now()); void refreshQuotes(); }, quoteExpiry - Date.now());
+    return () => window.clearTimeout(timer);
+  }, [open, quoteExpiry, refreshQuotes]);
   const availableCredits = quotes.data?.[0]?.quote.account.availableCredits;
   const canAfford = totalCredits !== undefined
     && availableCredits !== undefined
@@ -248,10 +258,11 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
       void queryClient.invalidateQueries({ queryKey: queryKeys.generationJobCenter(snapshot.actorId) });
     }
   });
-  const ready = Boolean(open && actor?.userId && quotes.isSuccess && quotes.data?.length
+  const ready = Boolean(open && actor?.userId && quotes.isSuccess && quotesCurrent && quotes.data?.length
     && canAfford && !contexts.isFetching && !quotes.isFetching && !contexts.error
     && totalCredits !== undefined && Number.isFinite(totalCredits) && totalCredits >= 0);
   const consent = useCreditConfirmation({
+    mandatory: true,
     actorId: actor?.userId || '',
     requestKey: JSON.stringify([project.id, project.version, includeApproved, engine, naturalRealismEnabled,
       eligible, quotes.data?.map(item => item.quote.estimate), idempotencyKey]),
@@ -278,6 +289,9 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
     } };
     try {
       if (!await consent.request() || !consent.isCurrent()) return;
+      if (snapshot.input.operations.some(operation => !quotes.data?.some(item => item.quote.estimate.estimateId === operation.estimateId && quoteDeadline(item.quote.estimate.expiresAt) > Date.now()))) {
+        await quotes.refetch(); return;
+      }
       await submit.mutateAsync(snapshot);
     } catch {
       // Submission errors remain visible in the existing batch status region.
@@ -343,6 +357,10 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
         </div> : null}
         {contexts.error || quotes.error ? <StatusNotice tone="error" title={t('cinematic.storyboard.batch.quoteFailed')}>
           {(contexts.error || quotes.error)?.message}
+          <Button onClick={() => void (contexts.error ? contexts.refetch() : quotes.refetch())}>{t('cinematic.lookReferences.refresh')}</Button>
+        </StatusNotice> : null}
+        {quotes.isSuccess && !quotesCurrent && !quotes.isFetching ? <StatusNotice tone="warning" title={t('cinematic.storyboard.batch.quoteExpired')}>
+          <Button onClick={() => void quotes.refetch()}>{t('cinematic.lookReferences.refresh')}</Button>
         </StatusNotice> : null}
         {blocked.length ? <section className="cinematic-storyboard-batch-dialog__blocked">
           <strong>{t('cinematic.storyboard.batch.blocked', { count: blocked.length })}</strong>
@@ -387,4 +405,8 @@ export function StoryboardGenerateAllDialog({ open, onOpenChange, project, onPro
 
 function createBatchKey(projectId: string) {
   return `cinematic-storyboard:${projectId}:${Date.now()}:${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function quoteDeadline(value: string | number) {
+  return typeof value === 'number' ? value : Date.parse(value);
 }

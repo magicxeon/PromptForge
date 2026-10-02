@@ -30,6 +30,18 @@ boundaries, task status, local review notes and evidence; it does not fork requi
 
 ## 2. Work Packets And Suggested Order
 
+[018 Brief/navigation visual refresh](../018-project-brief-and-navigation-visual-refresh.md)
+contains BV01-BV04, UX review, scoped implementation and focused browser/component
+checks. It extends task 003 and packet 017 without resetting their completed scope.
+
+[017 Project Characters and bulk consent](017-project-characters-and-bulk-consent.md)
+adds PC01-PC09 for Look unlink/import, mandatory bulk confirmations, Chapter Outline
+navigation, separate Story/Characters pages with 75/25 tab buttons, and First Frame
+beside the Shot direction/timeline editor. PC01-PC09 are implemented with focused
+automated/browser evidence; live/provider UAT remains separate. The reported First Frame selection issue
+is user-resolved and is not another implementation task. These follow-ups do not
+change historical RW task counts.
+
 [015 Flow hardening and integrated UAT](015-cinematic-flow-hardening.md) records
 FH01-FH07 and extends packets 008-011/014. Bounded recovery, Render round trips,
 readiness advice, partial portable export and Chapter Final are implemented with

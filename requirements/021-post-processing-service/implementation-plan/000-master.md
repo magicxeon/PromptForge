@@ -4,6 +4,13 @@ Status: Faceless API-first local pilot in progress, 2026-09-14. Later phases rem
 
 ## Dependency Order And Delivery Gates
 
+2026-09-30: [008 Dialogue API POC](008-dialogue-api-poc.md) breaks the local
+Postman-only work into shared infrastructure, repair first, then conversion.
+The user subsequently authorized both local API paths; code is present but
+runtime/model qualification remains open. Manual interval
+selection and isolated speech allow a local experiment without full P4 UX or
+mixed-audio separation; production P1/P4/P5 gates below remain in force.
+
 | Order | Plan | Dependency | Exit gate |
 |---|---|---|---|
 | P0 | [001 Faceless previs first](001-faceless-previs-first.md) | Existing Assets last-frame and Cinematic Storyboard contracts | Private, bounded, non-billable facemask derivative; existing Generate modes unaffected |

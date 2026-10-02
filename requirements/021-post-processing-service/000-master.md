@@ -8,6 +8,19 @@
 
 ## 1. Outcome And Delivery Boundary
 
+### 2026-09-30 Dialogue API POC Decision
+
+The local code slice now includes [010 Dialogue repair](010-dialogue-repair-api-poc.md)
+and [011 Voice conversion](011-character-voice-conversion-api-poc.md) by the
+2026-09-30 implementation instruction. Both use the existing separate API
+through Postman, isolated dialogue, manual interval selection and private test
+media. Music/ambience separation, application UI, automatic diarization and
+lip-sync are explicitly deferred. This is a scoped local POC exception to full
+P4/P5 sequencing, not approval to skip voice rights, privacy or model-license
+checks, expose production processing or charge Credits. Runtime and human
+listening qualification remain open; code presence is not release approval.
+See [shared POC plan](implementation-plan/008-dialogue-api-poc.md).
+
 Provide a separate, versioned Post-Processing API for owner-authorized media
 derivatives after Generation. Deliver **Faceless previs first** for Cinematic
 Storyboard stills and the approved preceding Take's extracted last frame.
@@ -82,6 +95,8 @@ No later phase is implicitly enabled by completing an earlier phase.
 | [007](007-model-registry-quality-and-licensing.md) | Model adapters, registry, licenses, benchmarks, quality | Minimal face-model gate in P0 |
 | [008](008-usage-pricing-and-operations.md) | Cost, Credits boundary, workers, observability and release | Minimal telemetry in P0; full P1 |
 | [009](009-service-structure-and-configuration.md) | Service layout, agent rules and validated configuration | P0 API pilot |
+| [010](010-dialogue-repair-api-poc.md) | Isolated-dialogue repair via Postman; shared local media/job contract | Local API implemented; runtime and listening gates open |
+| [011](011-character-voice-conversion-api-poc.md) | Selected-interval speech-to-speech conversion and expiring voice references | Optional adapter/API implemented; model and quality gates open |
 
 ## 5. Source-Proposal Coverage
 

@@ -9,6 +9,7 @@ import { CinematicSharedCharactersPanel } from './CinematicSharedCharactersPanel
 const api = vi.hoisted(() => ({
   propose: vi.fn(), save: vi.fn(), confirm: vi.fn(), chapters: vi.fn(), apply: vi.fn(), discard: vi.fn(), workspace: vi.fn(), chapterCharacters: vi.fn(), voice: vi.fn()
 }));
+vi.mock('../../../components/media/AuthenticatedMediaImage', () => ({ AuthenticatedMediaImage: ({ src }: { src?: string }) => <img src={src} alt="" /> }));
 
 vi.mock('../api/cinematicApi', () => ({
   proposeCinematicFullStory: (...args: unknown[]) => api.propose(...args),
@@ -39,41 +40,36 @@ const baseProject = {
 } as unknown as CinematicProject;
 
 function renderWriter(project = baseProject) {
-  const props = { actorId: 'actor-1', project, online: true, onBackToBrief: vi.fn(), onOpenChapters: vi.fn(), onProjectChanged: vi.fn() };
+  const props = { actorId: 'actor-1', project, online: true, onBackToBrief: vi.fn(), onOpenChapters: vi.fn(), onOpenCharacters: vi.fn(), onProjectChanged: vi.fn() };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><CinematicFullStoryWriter {...props} /></QueryClientProvider>);
   return props;
 }
 
+function renderCast(project = baseProject) {
+  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><CinematicSharedCharactersPanel actorId="actor-1" project={project} storyProjectId={project.id} online onProjectChanged={vi.fn()} /></QueryClientProvider>);
+}
+
 describe('CinematicFullStoryWriter', () => {
-  it('keeps both tools mounted with drafts and leaves History and Build Chapters outside tabs', () => {
-    const revision = { id: 'full-1', version: 1, content: 'Confirmed story', createdAt: '2026-09-26T00:00:00Z' };
-    renderWriter({ ...baseProject, fullStoryVersions: [revision], activeFullStoryVersionId: revision.id, confirmedFullStoryVersionId: revision.id } as unknown as CinematicProject);
-    const instruction = screen.getByRole('textbox', { name: 'cinematic.fullStory.instruction' });
-    fireEvent.change(instruction, { target: { value: 'Keep this instruction' } });
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'cinematic.chapterWriter.characters' }), { button: 0, ctrlKey: false });
-    expect(instruction).toBeInTheDocument();
-    expect(instruction).not.toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.characters.add' }));
-    const name = screen.getByRole('textbox', { name: 'cinematic.characters.name' });
-    fireEvent.change(name, { target: { value: 'Mina' } });
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'cinematic.chapterWriter.assist' }), { button: 0, ctrlKey: false });
-    expect(screen.getByRole('textbox', { name: 'cinematic.fullStory.instruction' })).toBe(instruction);
-    expect(instruction).toHaveValue('Keep this instruction');
-    expect(name).toBeInTheDocument();
-    expect(name).not.toBeVisible();
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'cinematic.chapterWriter.characters' }), { button: 0, ctrlKey: false });
-    expect(screen.getByRole('textbox', { name: 'cinematic.characters.name' })).toBe(name);
-    expect(name).toHaveValue('Mina');
-    expect(screen.getByText('cinematic.fullStory.history').closest('[role="tabpanel"]')).toBeNull();
-    expect(screen.getByText('cinematic.fullStory.generateChaptersTitle').closest('[role="tabpanel"]')).toBeNull();
-    expect(screen.getByRole('textbox', { name: 'cinematic.fullStory.documentTitle' }).tagName).toBe('TEXTAREA');
-    expect(api.propose).not.toHaveBeenCalled();
-  });
   beforeEach(() => {
     localStorage.clear();
     for (const mock of Object.values(api)) mock.mockReset();
     api.workspace.mockResolvedValue({ series: null, productionProject: null, chapters: [] });
+  });
+  it('keeps Assistant, History and Build Chapters while Character management navigates out', () => {
+    const revision = { id: 'full-1', version: 1, content: 'Confirmed story', createdAt: '2026-09-26T00:00:00Z' };
+    const props = renderWriter({ ...baseProject, fullStoryVersions: [revision], activeFullStoryVersionId: revision.id, confirmedFullStoryVersionId: revision.id } as unknown as CinematicProject);
+    const instruction = screen.getByRole('textbox', { name: 'cinematic.fullStory.instruction' });
+    fireEvent.change(instruction, { target: { value: 'Keep this instruction' } });
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.shotWorkspace.manageCast' }));
+    expect(props.onOpenCharacters).toHaveBeenCalledOnce();
+    expect(instruction).toHaveValue('Keep this instruction');
+    expect(screen.queryByRole('tab', { name: 'cinematic.chapterWriter.characters' })).not.toBeInTheDocument();
+    expect(screen.queryByText('cinematic.characters.title')).not.toBeInTheDocument();
+    expect(screen.getByText('cinematic.fullStory.history')).toBeVisible();
+    expect(screen.getByText('cinematic.fullStory.generateChaptersTitle')).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'cinematic.fullStory.documentTitle' }).tagName).toBe('TEXTAREA');
+    expect(api.propose).not.toHaveBeenCalled();
   });
 
   it('recovers Full Story text after a failed save and never overwrites a changed server revision automatically', async () => {
@@ -94,8 +90,7 @@ describe('CinematicFullStoryWriter', () => {
   });
 
   it('collapses Characters without losing an unfinished form and Add expands it again', async () => {
-    renderWriter();
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'cinematic.chapterWriter.characters' }), { button: 0, ctrlKey: false });
+    renderCast();
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.characters.add' }));
     const name = screen.getByRole('textbox', { name: 'cinematic.characters.name' });
     fireEvent.change(name, { target: { value: 'Mina' } });
@@ -142,8 +137,7 @@ describe('CinematicFullStoryWriter', () => {
     expect(screen.getByRole('textbox', { name: 'cinematic.fullStory.documentTitle' })).toBeEnabled();
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.fullStory.chapterModeManual' }));
     expect(screen.getByRole('button', { name: 'cinematic.fullStory.buildManually' })).toBeEnabled();
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'cinematic.chapterWriter.characters' }), { button: 0, ctrlKey: false });
-    expect(screen.getByRole('button', { name: 'cinematic.characters.add' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'cinematic.shotWorkspace.manageCast' })).toBeEnabled();
     expect(api.chapters).not.toHaveBeenCalled();
   });
 
@@ -163,24 +157,13 @@ describe('CinematicFullStoryWriter', () => {
     expect(screen.getByRole('button', { name: 'cinematic.fullStory.saveRevision' })).toBeEnabled();
   });
 
-  it('extracts Characters from an imported story without requesting a rewrite', async () => {
-    const revision = { id: 'import-1', version: 1, parentRevisionId: null, content: '# My story\nMina returns home.',
-      source: 'manual', importFileName: 'story.md', status: 'active', provenance: null, createdAt: '2026-09-25T00:00:00Z' };
-    const project = { ...baseProject, fullStoryVersions: [revision], activeFullStoryVersionId: revision.id } as unknown as CinematicProject;
-    const characters = [{ existingCharacterId: null, displayName: 'Mina', storyRole: 'Lead' }];
-    api.propose.mockResolvedValue({ fullStory: revision.content, characters, provenance: { provider: 'test', model: 'text', responseId: null } });
-    api.save.mockResolvedValue({ ...project, version: 2 });
-    const props = renderWriter(project);
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'cinematic.chapterWriter.characters' }), { button: 0, ctrlKey: false });
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyImport.extractCharacters' }));
-    await waitFor(() => expect(api.propose).toHaveBeenCalledWith('project-1', 1, '', 'characters'));
-    await waitFor(() => expect(api.save).toHaveBeenCalledWith('project-1', expect.objectContaining({
-      content: revision.content, source: 'manual', characters
-    })));
-    expect(props.onProjectChanged).toHaveBeenCalledOnce();
+  it('preserves imported Full Story while Character actions belong to the separate workspace', () => {
+    const revision = { id: 'import-1', version: 1, content: '# My story\nMina returns home.', createdAt: '2026-09-25T00:00:00Z' };
+    const props = renderWriter({ ...baseProject, fullStoryVersions: [revision], activeFullStoryVersionId: revision.id } as unknown as CinematicProject);
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.shotWorkspace.manageCast' }));
+    expect(props.onOpenCharacters).toHaveBeenCalledOnce();
     expect(screen.getByRole('textbox', { name: 'cinematic.fullStory.documentTitle' })).toHaveValue(revision.content);
-    fireEvent.change(screen.getByRole('textbox', { name: 'cinematic.fullStory.documentTitle' }), { target: { value: 'Unsaved edit' } });
-    expect(screen.getByRole('button', { name: 'cinematic.storyImport.extractCharacters' })).toBeDisabled();
+    expect(api.propose).not.toHaveBeenCalled();
   });
 
   it('keeps Full Story Character text separate from the Chapter selection control', async () => {
@@ -192,7 +175,7 @@ describe('CinematicFullStoryWriter', () => {
       }]
     } as unknown as CinematicProject;
 
-    renderWriter(project);
+    renderCast(project);
 
     expect(await screen.findByText('หญิงเล็ก (เล็ก)')).toHaveAttribute('title', 'หญิงเล็ก (เล็ก)');
     expect(screen.getByText('นางเอกสาวโรงงานผู้มุ่งมั่นสร้างชีวิตใหม่')).toHaveAttribute(
@@ -236,6 +219,8 @@ describe('CinematicFullStoryWriter', () => {
     expect(screen.getByRole('button', { name: 'cinematic.fullStory.reviseWithAi' })).toBeEnabled();
     await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.fullStory.generateChapters' })).toBeEnabled());
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.fullStory.generateChapters' }));
+    expect(api.chapters).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
     await waitFor(() => expect(api.chapters).toHaveBeenCalledWith('project-1', 3));
     expect(props.onProjectChanged).toHaveBeenCalled();
     expect(props.onOpenChapters).not.toHaveBeenCalled();
@@ -280,8 +265,7 @@ describe('CinematicFullStoryWriter', () => {
       id: `cast-${index}`, active: true, sourceType: 'dossier', displayName,
       storyRole: 'Supporting role', dialogueStyle: '', identityReady: false
     }));
-    renderWriter({ ...baseProject, castAssignments: characters } as unknown as CinematicProject);
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'cinematic.chapterWriter.characters' }), { button: 0, ctrlKey: false });
+    renderCast({ ...baseProject, castAssignments: characters } as unknown as CinematicProject);
     const lalin = within(screen.getByRole('listitem', { name: 'Lalin' }));
     const niran = within(screen.getByRole('listitem', { name: 'Niran' }));
     for (const [item, name] of [[lalin, 'Lalin'], [niran, 'Niran']] as const) {
@@ -339,6 +323,8 @@ describe('CinematicFullStoryWriter', () => {
     const props = renderWriter(project);
     await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.fullStory.generateChapters' })).toBeEnabled());
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.fullStory.generateChapters' }));
+    expect(api.chapters).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
     await waitFor(() => expect(screen.getByText('Existing Chapters or production work must be reviewed before regeneration.')).toBeVisible());
     expect(props.onOpenChapters).not.toHaveBeenCalled();
   });

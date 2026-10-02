@@ -28,6 +28,17 @@ const confirmationUiGroups = {
   'rewamp-confirmation-authoring': ['features/cinematic/components/CinematicFullStoryWriter.test.tsx', 'features/cinematic/components/CinematicChapterWriter.test.tsx', 'features/cinematic/components/CinematicSceneOverview.test.tsx'],
   'rewamp-confirmation-media': ['components/generation/GenerationExperience.test.tsx', 'features/cinematic/components/CinematicProduceRuntime.test.tsx', 'features/playground/components/PlaygroundVideoWorkspace.test.tsx', 'features/cinematic/components/StoryboardShotDialog.test.tsx', 'features/cinematic/components/StoryboardGenerateAllDialog.test.tsx', 'features/generation/api/generationApi.test.ts']
 };
+const cast017UiGroups = {
+  'rewamp-cast-navigation': ['features/cinematic/components/CinematicProjectNavigation.test.tsx',
+    'features/cinematic/routes/CinematicStudioRoute.test.tsx', 'features/cinematic/components/CinematicFullStoryWriter.test.tsx'],
+  'rewamp-cast-assets': ['features/cinematic/components/CinematicCharacterLooks.test.tsx', 'features/cinematic/components/CinematicMomeloLookImport.test.tsx'],
+  'rewamp-bulk-consent': ['components/generation/useCreditConfirmation.test.tsx', 'features/cinematic/components/StoryboardGenerateAllDialog.test.tsx',
+    'features/cinematic/components/CinematicChapterOutline.test.tsx', 'features/cinematic/components/CinematicFullStoryWriter.test.tsx',
+    'features/cinematic/components/CinematicChapterWriter.test.tsx', 'features/cinematic/components/CinematicSceneOverview.test.tsx'],
+  'rewamp-shot-frame-layout': ['features/cinematic/components/CinematicShotWriter.test.tsx']
+};
+groups['rewamp-cast-assets'] = ['test/cinematicLookReferences.test.js', 'test/characterLookService.test.js'];
+groups['rewamp-cast-017'] = groups['rewamp-cast-assets'];
 groups['rewamp-confirmation-profile'] = ['test/userPreferences.test.js'];
 groups['rewamp-confirmation-016'] = groups['rewamp-confirmation-profile'];
 
@@ -97,10 +108,13 @@ const suite = process.argv[2] || 'help';
 rewampGroups.push('rewamp-authoring-order', 'rewamp-authoring-media', 'rewamp-authoring-014');
 rewampGroups.push(...Object.keys(flowUiGroups), 'rewamp-flow-015');
 rewampGroups.push(...Object.keys(confirmationUiGroups), 'rewamp-confirmation-016');
+rewampGroups.push(...Object.keys(cast017UiGroups), 'rewamp-cast-017');
+rewampGroups.push('rewamp-brief-018');
 if (suite === 'help' || suite === '--help') {
   console.log('Usage: node scripts/test-cinematic-video.js <last-frame|last-frame-ui|timing|timing-ui|take-duration|take-eligibility|prompt-budget|preview-selection|pilot|references|payload|flow|ui|full|rewamp-config|rewamp-hierarchy|rewamp-story|rewamp-revisions|rewamp-assets|rewamp-preparation|rewamp-production|rewamp-final|rewamp-migration|rewamp-projects|rewamp-new-project|rewamp-story-ui|rewamp-full-story|rewamp-chapters|rewamp-chapter-revisions|rewamp-chapter-proposals|rewamp-shared-characters|rewamp-scenes|rewamp-shots|rewamp-ui|rewamp-all>');
   console.log('last-frame / last-frame-ui: owned video derivative, Storyboard approval, disabled and preview controls');
   console.log('rewamp-story-import: Setup file import and Full Story Character extraction');
+  console.log('rewamp-brief-018: Brief radio controls, import and Story/Characters navigation (UI only)');
   console.log('rewamp-cast-chapter-target: Character disclosure and Chapter target visibility (two UI files only)');
   console.log('rewamp-scene-layout-revision: Scene Cast layout and required Chapter revision instruction');
   console.log('rewamp-chapter-outline: outline proposal/approval, advisory economics and focused Full Story UI');
@@ -116,6 +130,7 @@ if (suite === 'help' || suite === '--help') {
   console.log('ui: Produce controls/status/preview; full: all groups plus adjacent regressions');
   console.log('Mocked tests only. No live provider calls, build or browser sweep.');
   console.log('rewamp-confirmation-profile / rewamp-confirmation-authoring / rewamp-confirmation-media: task-016 slices; rewamp-confirmation-016: explicit aggregate');
+  console.log('rewamp-cast-navigation / rewamp-cast-assets / rewamp-bulk-consent / rewamp-shot-frame-layout: task-017 slices; rewamp-cast-017: explicit deduplicated task-only aggregate');
   console.log('rewamp-authoring-order / rewamp-authoring-media: focused task-014 slices; rewamp-authoring-014: explicit task-only aggregate');
   console.log('rewamp-flow-recovery / rewamp-flow-media / rewamp-flow-final: focused task-015 slices; rewamp-flow-015: explicit task-only aggregate');
 } else if (!['last-frame', 'last-frame-ui', 'timing', 'timing-ui', 'take-duration', 'take-eligibility', 'prompt-budget', 'preview-selection', 'pilot', 'references', 'payload', 'flow', 'ui', 'full', ...rewampGroups, 'rewamp-ui', 'rewamp-all'].includes(suite) || process.argv.length > 3) {
@@ -129,6 +144,19 @@ if (suite === 'help' || suite === '--help') {
   const nameFilter = suite === 'rewamp-project-rename' ? ['--test-name-pattern=Project rename|groups Chapters']
     : suite === 'timing' ? ['--test-name-pattern=action duration estimate|without an approved immutable Storyboard source|stale Shot authority'] : [];
   if (files?.length) run('backend', ['--test', ...nameFilter, ...new Set(files)], root);
+  if (!process.exitCode && ['rewamp-brief-018', 'rewamp-all'].includes(suite)) {
+    run('brief-018-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      'src/features/cinematic/components/CinematicNewProjectComposer.test.tsx',
+      'src/features/cinematic/components/CinematicProjectNavigation.test.tsx',
+      'src/features/cinematic/routes/CinematicStudioRoute.test.tsx',
+      'src/features/cinematic/components/CinematicStoryFileImport.test.tsx'], path.join(root, 'web'));
+  }
+  const cast017UiFiles = ['rewamp-cast-017', 'rewamp-all'].includes(suite)
+    ? [...new Set(Object.values(cast017UiGroups).flat())] : cast017UiGroups[suite];
+  if (!process.exitCode && cast017UiFiles?.length) {
+    run('cast-017-ui', [path.join(root, 'node_modules/vitest/vitest.mjs'), 'run', '--configLoader', 'runner',
+      ...cast017UiFiles.map(file => `src/${file}`)], path.join(root, 'web'));
+  }
   const confirmationUiFiles = ['rewamp-confirmation-016', 'rewamp-all'].includes(suite)
     ? [...new Set(Object.values(confirmationUiGroups).flat())] : confirmationUiGroups[suite];
   if (!process.exitCode && confirmationUiFiles?.length) {

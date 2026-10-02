@@ -8,6 +8,15 @@ A Voice Asset requires documented, revocable consent from the voice owner and ev
 
 ## Workflows
 
+2026-09-30 scoped refinement: [010](010-dialogue-repair-api-poc.md) and
+[011](011-character-voice-conversion-api-poc.md) specify separate Postman-only local
+POCs, repair first. Manual selection replaces mandatory transcript/diarization;
+music/ambience handling and lip-sync are out of that POC, not removed from the
+later production goals below. Speech-to-speech conversion must be qualified
+separately from reference-conditioned TTS. Current API presence does not establish
+end-to-end readiness. Local API code now exists, while model inference, Thai
+listening and production consent/release gates remain unverified.
+
 - Replace Voice: user selects exact dialogue segments, target approved Voice Asset and language; source ambient/sound effects remain preserved. Present a preview and require explicit adoption.
 - Repair Dialogue: user selects a damaged/mispronounced portion, supplies corrected text and target voice; preserve the rest of the clip and handle boundaries with crossfades.
 - Timing: expose natural, match-original and fit-segment policies with explicit tolerance. Never silently speed up a line until it sounds unnatural; report an overlong line and let the user extend/rewrite/choose another take.
@@ -17,7 +26,7 @@ All operations use immutable derivatives with segment lineage, text revision, so
 
 ## Safety And Quality
 
-The system must reject missing/revoked consent, cross-actor voice use, unqualified models, disallowed languages and impossible segment timing. Future policies for impersonation, minors and public-figure likeness must be approved before public access. Thai pronunciation and prosody use **Thonburian-TTS (F5-TTS Flow-Matching Architecture)** as the canonical engine for native Thai prosody, tone accuracy, and zero-shot emotion voice cloning. Test lip-sync on side faces, occlusion, two speakers and short/fast speech. Preserve intelligibility, ambience, sync and spatial continuity; make edits reversible by choosing the original.
+The system must reject missing/revoked consent, cross-actor voice use, unqualified models, disallowed languages and impossible segment timing. Future policies for impersonation, minors and public-figure likeness must be approved before public access. **Thonburian-TTS (F5-TTS)** is the existing synthesis integration to evaluate for Thai repair, not a guarantee of pronunciation, identity, emotion or commercial rights. Voice conversion needs a separately qualified speech-to-speech adapter. Test optional later lip-sync on side faces, occlusion, two speakers and short/fast speech. Preserve intelligibility and sync; production ambience/spatial-continuity goals remain distinct from the isolated-dialogue POC. Make edits reversible by choosing the original.
 
 ## Acceptance
 

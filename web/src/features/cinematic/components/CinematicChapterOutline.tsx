@@ -1,7 +1,8 @@
 import { ArrowDown, ArrowUp, Calculator, Check, Plus, RotateCcw, Sparkles, Trash2, X } from 'lucide-react';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
+import { CinematicWritingConsent } from './CinematicWritingConsent';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { estimateCinematicChapterPlanning, proposeCinematicChapterOutline, reviewCinematicChapterOutline } from '../api/cinematicApi';
 import type { CinematicChapterOutlineRow, CinematicChapterPlanningEstimate, CinematicProject } from '../schemas/cinematicSchemas';
@@ -28,9 +29,10 @@ type Props = {
   actorId: string; project: CinematicProject; disabled: boolean;
   onProjectChanged: (project: CinematicProject) => void;
   onPendingChange: (pending: boolean) => void;
+  sectionRef?: Ref<HTMLElement>;
 };
 
-export function CinematicChapterOutline({ actorId, project, disabled, onProjectChanged, onPendingChange }: Props) {
+export function CinematicChapterOutline({ actorId, project, disabled, onProjectChanged, onPendingChange, sectionRef }: Props) {
   const { t } = useTranslation('cinematic');
   const plan = project.chapterOutline;
   const [rows, setRows] = useState<CinematicChapterOutlineRow[]>(plan?.chapters || []);
@@ -97,12 +99,13 @@ export function CinematicChapterOutline({ actorId, project, disabled, onProjectC
   const iconButton = (name: string, icon: ReactNode, action: () => void, unavailable = false) =>
     <Button type="button" size="icon" icon={icon} aria-label={key(name)} title={key(name)} disabled={locked || unavailable} onClick={action} />;
 
-  return <section id="cinematic-chapter-outline" className="cinematic-chapter-outline" aria-labelledby="chapter-outline-title">
-    <header><h2 id="chapter-outline-title">{key('title')}</h2>
+  return <section ref={sectionRef} id="cinematic-chapter-outline" className="cinematic-chapter-outline" aria-labelledby="chapter-outline-title">
+    <header><h2 id="chapter-outline-title" tabIndex={-1}>{key('title')}</h2>
       <span role="status">{key(stale ? 'stale' : dirty ? 'unsaved' : plan?.status || 'empty')}</span></header>
     <div className="cinematic-chapter-outline__actions">
-      <Button icon={<Sparkles />} loading={busy === 'plan'} disabled={locked || dirty} onClick={() => void run('plan')}>
-        {key(plan ? 'regenerate' : 'generate')}</Button>
+      <CinematicWritingConsent key={JSON.stringify([actorId, project.id, project.version, locked, dirty])} title={key(plan ? 'regenerate' : 'generate')}
+        scope={t('cinematic.bulk.outlineScope', { name: project.title })} pending={locked || dirty} onConfirm={() => void run('plan')}
+        trigger={<Button icon={<Sparkles />} loading={busy === 'plan'} disabled={locked || dirty}>{key(plan ? 'regenerate' : 'generate')}</Button>} />
       <Button icon={<Calculator />} loading={busy === 'estimate'} disabled={locked || dirty} onClick={() => void run('estimate')}>{key('estimate')}</Button>
     </div>
     <p className="cinematic-chapter-outline__note">{key('free')}</p>

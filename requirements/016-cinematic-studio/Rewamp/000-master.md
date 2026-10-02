@@ -23,6 +23,26 @@ disposable. Code retirement has explicit checkpoints in Part 08.
 
 ## 2. Reading And Ownership Map
 
+[018 Project Brief and navigation visual refresh](018-project-brief-and-navigation-visual-refresh.md)
+owns the scoped Story/Characters navigation, Brief authoring surface and readable
+Format/Orientation choices. Existing routes, settings and generation contracts stay unchanged.
+Its latest BV05 replaces the earlier 75/25 tabs with a compact Project Header and
+one Characters / Back to story link. References to the old ratio below are historical.
+
+2026-10-01 implementation addendum:
+[017 Project Characters and bulk consent](017-project-characters-and-bulk-consent.md)
+records the confirmed Look unlink/import, mandatory bulk Credit confirmation,
+Chapter Outline navigation and separate Story/Characters destinations. Its
+[task packet](tasks/017-project-characters-and-bulk-consent.md) contains PC01-PC09,
+including the added First Frame preview beside Shot direction and timeline (B6).
+It supersedes embedded right-panel Character settings and bulk consent opt-out,
+not single-operation preferences or protected Engine/Render/Queue behavior.
+Story/Characters buttons are 75/25 in width; their pages are separate. The reported
+First Frame Look-selection issue is user-resolved, not pending implementation.
+Implementation and focused deterministic/browser checks are delivered. Task 017
+records source ownership, selectable test groups, review evidence and remaining
+live/provider UAT; no paid generation or live Project mutation was performed.
+
 2026-09-27 confirmation addendum:
 [016 Writer tools and Generation confirmation](016-generation-confirmation-and-writer-tools.md)
 owns native-textarea preservation, Full Story tool tabs, regeneration confirmations
@@ -107,7 +127,10 @@ Character, Shot, media, Takes or audit retention.
 
 ## 4. Design Defaults Adopted For Planning
 
-- Three workspaces: Story, Production, Final; Project Assets accessible throughout.
+- Project navigation now uses separate Story / Characters destinations per 017.
+  Story retains authoring, Production and Final entry paths; Project Assets and
+  existing Engine/Render/Queue behavior remain available. The old three-workspace
+  proposal does not override the new top-level separation.
 - Redesign Project entry, brief, Story/Chapter/dossier, assets, Scene and Shot writing.
   Open protected existing Render from the active Shot and restore its context on return.
 - Shot authoring uses one writer-first timeline document; no contextual expert form

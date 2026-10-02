@@ -3,6 +3,8 @@ import hmac
 import logging
 import time
 import uuid
+import importlib.util
+from pathlib import Path
 from typing import Optional
 from fastapi import APIRouter, Request, Header, HTTPException, Response, status
 from fastapi.responses import JSONResponse, HTMLResponse
@@ -16,6 +18,7 @@ from domain.video_processing_manager import VideoProcessingManager, video_proces
 from domain.audio_analysis_manager import AudioAnalysisManager, audio_analysis_manager
 from domain.audio_transcription_manager import audio_transcription_manager
 from domain.job_queue import job_queue_manager
+from adapters.openvoice_conversion_adapter import OpenVoiceConversionAdapter
 
 logger = logging.getLogger("post_processing.api")
 router = APIRouter()
@@ -110,6 +113,20 @@ def get_capabilities(request: Request, x_post_processing_token: Optional[str] = 
         "maxBytes": 52428800,
         "maxSpeakers": 8
     }
+
+    dialogue = config.dialoguePoc
+    tts_ready = (importlib.util.find_spec("f5_tts") is not None
+                 and (Path(config.expressiveTts.modelPath) / "mega_f5_last.safetensors").is_file()
+                 and (Path(config.expressiveTts.modelPath) / "mega_vocab.txt").is_file())
+    converter_ready = OpenVoiceConversionAdapter(dialogue).ready()
+    ops["audio.dialogue_repair"] = {"available": dialogue.enabled and tts_ready,
+        "reason": None if dialogue.enabled and tts_ready else "pilot_disabled" if not dialogue.enabled else "thai_tts_unavailable",
+        "policyVersion": "dialogue-poc-v1", "maxBytes": dialogue.maxInputBytes,
+        "qualified": False}
+    ops["audio.voice_conversion"] = {"available": dialogue.enabled and converter_ready,
+        "reason": None if dialogue.enabled and converter_ready else "pilot_disabled" if not dialogue.enabled else "openvoice_unavailable",
+        "policyVersion": "dialogue-poc-v1", "maxBytes": dialogue.maxInputBytes,
+        "qualified": False}
 
     return {
         "apiVersion": "1",
@@ -420,6 +437,9 @@ async def post_expressive_tts(
             detail={"error": {"code": "invalid_json", "message": "Request body must be valid JSON."}}
         )
 
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail={"error": {"code": "invalid_json", "message": "Request body must be a JSON object."}})
+
     text = body.get("text")
     if not text or not isinstance(text, str):
         telemetry_manager.record_request_failure()
@@ -515,7 +535,17 @@ async def post_create_job(
             detail={"error": {"code": "invalid_json", "message": "Request body must be valid JSON."}}
         )
 
+    if not isinstance(body, dict):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": {"code": "invalid_json", "message": "Request body must be a JSON object."}}
+        )
     operation = body.get("operation")
+    if operation in ("audio.dialogue_repair", "audio.voice_conversion"):
+        from api.dialogue_routes import create_dialogue_job
+        result = await create_dialogue_job(request, body, x_post_processing_token,
+                                           x_idempotency_key or body.get("idempotencyKey"), x_trace_id or body.get("traceId"))
+        return JSONResponse(status_code=202, content=result)
     ALLOWED_OPERATIONS = (
         "image.faceless_previs", "faceless_previs",
         "image.face_landmarks", "face_landmarks",

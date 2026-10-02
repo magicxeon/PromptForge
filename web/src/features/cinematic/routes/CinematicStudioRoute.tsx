@@ -55,6 +55,8 @@ import { CinematicShotWriter } from '../components/CinematicShotWriter';
 import { CinematicChapterFinal } from '../components/CinematicChapterFinal';
 import { SceneEnvironmentControl } from '../components/SceneEnvironmentControl';
 import { StoryboardShotDialog } from '../components/StoryboardShotDialog';
+import { CinematicProjectNavigation } from '../components/CinematicProjectNavigation';
+import { CinematicCharactersWorkspace } from '../components/CinematicCharactersWorkspace';
 
 export function CinematicStudioRoute() {
   const { t } = useTranslation('cinematic');
@@ -125,7 +127,10 @@ function ExistingCinematicWorkspace({ actorId, projectId, requestedStage, shotId
   if (authoringOwnerId !== projectId) {
     return <Navigate replace to={routeBuilders.cinematicProject(authoringOwnerId, requestedStage === 'cast' ? 'cast' : 'setup')} />;
   }
-  return <CinematicWorkspace key={`${actorId}:${projectId}`} actorId={actorId} project={project.data} authoringManifest={authoringManifest.data} requestedStage={requestedStage} shotId={shotId} />;
+  return <CinematicProjectNavigation actorId={actorId} project={project.data}>
+    {requestedStage === 'characters' ? <CinematicCharactersWorkspace key={`${actorId}:${projectId}`} actorId={actorId} project={project.data} />
+      : <CinematicWorkspace key={`${actorId}:${projectId}`} actorId={actorId} project={project.data} authoringManifest={authoringManifest.data} requestedStage={requestedStage} shotId={shotId} />}
+  </CinematicProjectNavigation>;
 }
 
 function CinematicWorkspace({
@@ -480,7 +485,7 @@ function CinematicWorkspace({
       onBackToScenes={() => navigate(`${routeBuilders.cinematicProject(project.id, 'scenes')}?scene=${encodeURIComponent(scene?.id || '')}`)}
       onOpenFirstFrame={() => setFirstFrameShotId(shotId)}
       onOpenVideo={() => navigate(`${routeBuilders.cinematicShot(project.id, shotId)}?render=video${takeSearch ? `&${takeSearch}` : ''}`)}
-      onOpenCharacters={() => navigate(routeBuilders.cinematicProject(project.id, 'cast'))}
+      onOpenCharacters={() => navigate(routeBuilders.cinematicCharacters(project.id), { state: { cinematicStoryReturn: { actorId, projectId: project.id, path: `${writerLocation.pathname}${writerLocation.search}` } } })}
       onOpenFinal={() => navigate(routeBuilders.cinematicProject(project.id, 'finish'))}
       onOpenShot={nextShotId => navigate(routeBuilders.cinematicShot(project.id, nextShotId))}
       onProjectChanged={saved => {
@@ -515,6 +520,7 @@ function CinematicWorkspace({
         onOpenSetup={storyProjectId => navigate(routeBuilders.cinematicProject(storyProjectId, 'setup'))}
         onNavigateChapter={projectId => navigate(routeBuilders.cinematicProject(projectId, 'chapters'))}
         onOpenScenes={() => navigate(routeBuilders.cinematicProject(project.id, 'scenes'))}
+        onOpenCharacters={() => navigate(routeBuilders.cinematicCharacters(project.id), { state: { cinematicStoryReturn: { actorId, projectId: project.id, path: `${writerLocation.pathname}${writerLocation.search}` } } })}
         onProjectChanged={saved => {
           projectVersionRef.current = saved.version;
           queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved);
@@ -586,6 +592,7 @@ function CinematicWorkspace({
         online={online}
         onBackToBrief={() => void setActiveStage('setup')}
         onOpenChapters={() => navigate(routeBuilders.cinematicProject(project.id, 'chapters'))}
+        onOpenCharacters={() => navigate(routeBuilders.cinematicCharacters(project.id), { state: { cinematicStoryReturn: { actorId, projectId: project.id, path: `${writerLocation.pathname}${writerLocation.search}` } } })}
         onProjectChanged={saved => {
           projectVersionRef.current = saved.version;
           queryClient.setQueryData(queryKeys.cinematicProject(actorId, saved.id), saved);

@@ -4,9 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CinematicCharacterLooks } from './CinematicCharacterLooks';
 import type { CinematicCastAssignment, CinematicProject } from '../schemas/cinematicSchemas';
 
-const api = vi.hoisted(() => ({ list: vi.fn(), bind: vi.fn(), get: vi.fn(), actor: 'actor-1' }));
+const api = vi.hoisted(() => ({ list: vi.fn(), bind: vi.fn(), get: vi.fn(), impact: vi.fn(), remove: vi.fn(), actor: 'actor-1' }));
 vi.mock('../../profiles/api/profileApi', () => ({ listCharacterLooks: (...args: unknown[]) => api.list(...args) }));
-vi.mock('../api/cinematicApi', () => ({ upsertCinematicWardrobeLook: (...args: unknown[]) => api.bind(...args), getCinematicProject: (...args: unknown[]) => api.get(...args) }));
+vi.mock('../api/cinematicApi', () => ({ upsertCinematicWardrobeLook: (...args: unknown[]) => api.bind(...args), getCinematicProject: (...args: unknown[]) => api.get(...args),
+  getCinematicLookRemovalImpact: (...args: unknown[]) => api.impact(...args), removeCinematicWardrobeLook: (...args: unknown[]) => api.remove(...args) }));
+vi.mock('./CinematicMomeloLookImport', () => ({ CinematicMomeloLookImport: ({ upload, onClose }: { upload: boolean; onClose: () => void }) => <div role="dialog">{upload ? 'verified-upload' : 'momelo-library'}<button onClick={onClose}>Close import</button></div> }));
 vi.mock('../../../lib/auth/actorStore', () => ({ getActiveActorId: () => api.actor }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock('../../../components/media/AuthenticatedMediaImage', () => ({ AuthenticatedMediaImage: ({ src }: { src?: string }) => <img src={src} alt="" /> }));
@@ -23,7 +25,39 @@ function mount(person = character, project = root, onProjectChanged = vi.fn()) {
 async function expand() { fireEvent.click(screen.getByText('cinematic.lookReferences.title')); await screen.findByText('cinematic.lookReferences.upload'); }
 
 describe('Character Look preparation', () => {
-  beforeEach(() => { vi.clearAllMocks(); api.actor = 'actor-1'; api.list.mockResolvedValue({ items: [approved] }); api.bind.mockResolvedValue({ ...root, version: 5 }); });
+  beforeEach(() => { vi.clearAllMocks(); api.actor = 'actor-1'; api.list.mockResolvedValue({ items: [approved] }); api.bind.mockResolvedValue({ ...root, version: 5 });
+    api.impact.mockResolvedValue({ projectId: 'root', projectVersion: 4, fingerprint: 'impact', items: [{ projectId: 'root', title: 'Story', sceneIds: ['scene'], shotIds: ['shot'] }] });
+    api.remove.mockResolvedValue({ ...root, version: 5 }); });
+  it('cancels Look unlink without mutation then removes only the reviewed binding', async () => {
+    const { onProjectChanged } = mount({ ...character, looks: [{ id: 'binding', mode: 'character_look', name: 'Wardrobe', locked: true, characterLookId: 'look-1', characterLookVersionId: 'look-v1' }] });
+    await expand();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.momeloLook.removeFor' }));
+    const modal = await screen.findByRole('alertdialog');
+    await waitFor(() => expect(within(modal).getByRole('button', { name: 'cinematic.momeloLook.removeTitle' })).toBeEnabled());
+    fireEvent.click(within(modal).getByRole('button', { name: 'ui.action.cancel' }));
+    expect(api.remove).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.momeloLook.removeFor' }));
+    const confirmation = await screen.findByRole('alertdialog');
+    await waitFor(() => expect(within(confirmation).getByRole('button', { name: 'cinematic.momeloLook.removeTitle' })).toBeEnabled());
+    let finish!: (value: CinematicProject) => void;
+    api.remove.mockReturnValueOnce(new Promise<CinematicProject>(resolve => { finish = resolve; }));
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'cinematic.momeloLook.removeTitle' }));
+    await waitFor(() => expect(within(confirmation).getByRole('button', { name: 'ui.action.cancel' })).toBeDisabled());
+    expect(within(confirmation).getByRole('status')).toHaveTextContent('cinematic.characters.loading');
+    finish({ ...root, version: 5 });
+    await waitFor(() => expect(api.remove).toHaveBeenCalledWith('root', 'cast-1', 'binding', { expectedVersion: 4, impactFingerprint: 'impact' }));
+    await waitFor(() => expect(onProjectChanged).toHaveBeenCalledWith(expect.objectContaining({ version: 5 })));
+    expect(api.bind).not.toHaveBeenCalled();
+  });
+  it('keeps unlink confirmation disabled when impact cannot be checked', async () => {
+    api.impact.mockRejectedValue(new Error('Unavailable impact'));
+    mount({ ...character, looks: [{ id: 'binding', mode: 'uploaded', name: 'Wardrobe', locked: false }] }); await expand();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.momeloLook.removeFor' }));
+    const modal = await screen.findByRole('alertdialog');
+    await waitFor(() => expect(within(modal).getByRole('alert')).toBeVisible());
+    expect(within(modal).getByRole('button', { name: 'cinematic.momeloLook.removeTitle' })).toBeDisabled();
+    expect(api.remove).not.toHaveBeenCalled();
+  });
   it('reuses the complete-sheet upload and generated Look dialog without dispatching generation', async () => {
     mount(); await expand();
     const tools = within(screen.getByRole('group', { name: 'cinematic.lookReferences.title' }));
@@ -32,8 +66,8 @@ describe('Character Look preparation', () => {
     expect(tools.getByRole('button', { name: 'cinematic.lookReferences.refresh' })).toBeInTheDocument();
     expect(screen.getAllByText('cinematic.lookReferences.empty')).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.lookReferences.upload' }));
-    expect(screen.getByRole('dialog')).toHaveTextContent('upload:sheet');
-    fireEvent.click(screen.getByText('Save draft fixture'));
+    expect(screen.getByRole('dialog')).toHaveTextContent('verified-upload');
+    fireEvent.click(screen.getByText('Close import'));
     expect(api.bind).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.lookReferences.generate' }));
     expect(screen.getByRole('dialog')).toHaveTextContent('ai:sheet');

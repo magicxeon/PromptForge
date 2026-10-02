@@ -5,13 +5,13 @@ import { Button } from '../ui/Button';
 import { useUserPreferences } from '../../lib/auth/userPreferences';
 import { getActiveActorId } from '../../lib/auth/actorStore';
 
-type Options = { actorId: string; requestKey: string; estimatedCredits?: number; description: string; ready?: boolean };
+type Options = { actorId: string; requestKey: string; estimatedCredits?: number; description: string; ready?: boolean; mandatory?: boolean };
 type Request = { key: string; credits: number; description: string; resolve: (confirmed: boolean) => void; trigger: HTMLElement | null };
 
-export function useCreditConfirmation({ actorId, requestKey, estimatedCredits, description, ready = true }: Options) {
+export function useCreditConfirmation({ actorId, requestKey, estimatedCredits, description, ready = true, mandatory = false }: Options) {
   const { t } = useTranslation('react-ui');
   const preferences = useUserPreferences(actorId);
-  const scope = JSON.stringify([actorId, requestKey, estimatedCredits, ready]);
+  const scope = JSON.stringify([actorId, requestKey, estimatedCredits, ready, mandatory]);
   const latest = useRef(scope);
   latest.current = scope;
   const pending = useRef<Request | null>(null);
@@ -39,7 +39,7 @@ export function useCreditConfirmation({ actorId, requestKey, estimatedCredits, d
   function request(): Promise<boolean> {
     if (pending.current || !actorId || getActiveActorId() !== actorId || !ready
       || estimatedCredits === undefined || !Number.isFinite(estimatedCredits) || estimatedCredits < 0) return Promise.resolve(false);
-    if (estimatedCredits === 0 || (preferences.isSuccess && !preferences.isFetching && preferences.data?.confirmCreditUsage === false)) return Promise.resolve(true);
+    if (!mandatory && (estimatedCredits === 0 || (preferences.isSuccess && !preferences.isFetching && preferences.data?.confirmCreditUsage === false))) return Promise.resolve(true);
     setSkip(false); setError(false);
     return new Promise(resolve => {
       const next = { key: scope, credits: estimatedCredits, description, resolve,
@@ -54,7 +54,7 @@ export function useCreditConfirmation({ actorId, requestKey, estimatedCredits, d
     if (latest.current !== current.key || getActiveActorId() !== actorId) { finish(false); return; }
     savingRef.current = true; setSaving(true); setError(false);
     try {
-      if (skip) await preferences.save(false);
+      if (skip && !mandatory) await preferences.save(false);
       if (pending.current === current) finish(latest.current === current.key && getActiveActorId() === actorId);
     } catch {
       if (mounted.current && pending.current === current) setError(true);
@@ -71,7 +71,7 @@ export function useCreditConfirmation({ actorId, requestKey, estimatedCredits, d
         <AlertDialog.Title className="m-0 text-lg">{t('ui.creditConsent.title')}</AlertDialog.Title>
         <AlertDialog.Description className="my-3 break-words text-sm text-[var(--mpf-text-muted)]">{offer?.description}</AlertDialog.Description>
         <p className="my-4 text-lg font-semibold text-[var(--theme-warning)]">{t('ui.creditConsent.amount', { credits: offer?.credits ?? 0 })}</p>
-        <label className="flex items-start gap-2 text-sm"><input type="checkbox" className="mt-1 shrink-0" checked={skip} disabled={saving} onChange={event => setSkip(event.target.checked)} />{t('ui.creditConsent.skip')}</label>
+        {!mandatory ? <label className="flex items-start gap-2 text-sm"><input type="checkbox" className="mt-1 shrink-0" checked={skip} disabled={saving} onChange={event => setSkip(event.target.checked)} />{t('ui.creditConsent.skip')}</label> : null}
         {error ? <p role="alert" className="mt-3 text-sm text-[var(--theme-warning)]">{t('ui.creditConsent.saveFailed')}</p> : null}
         <div className="mt-5 flex flex-wrap justify-end gap-2">
           <AlertDialog.Cancel asChild><Button variant="ghost" disabled={saving} onClick={() => finish(false)}>{t('ui.action.cancel')}</Button></AlertDialog.Cancel>

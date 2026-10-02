@@ -109,6 +109,11 @@ export function registerCharacterProfileRoutes(app, {
     }
   });
 
+  app.post('/api/character-profiles/:id/looks/import-momelo', async (req, res) => {
+    try { return res.status(201).json(await lookService.importMomeloSheet(req.params.id, req.body, req.actorContext)); }
+    catch (error) { return sendError(res, error); }
+  });
+
   app.post('/api/character-profiles/:id/looks/import-generated', async (req, res) => {
     return res.status(410).json({ error: { message: 'Choose Generated Look Sheet in Cinematic Cast instead.',
       code: 'character_generated_import_retired' } });

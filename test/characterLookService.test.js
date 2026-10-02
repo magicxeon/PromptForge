@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import crypto from 'node:crypto';
 import { CharacterLookRepository } from '../server/repositories/character-profiles/CharacterLookRepository.js';
 import { CharacterLookService } from '../server/domain/character-profiles/CharacterLookService.js';
 import { compileGenerationContext } from '../server/domain/generation/generationRequestService.js';
@@ -48,6 +49,35 @@ async function fixture() {
     })
   };
 }
+
+test('Momelo import requires categorized owned generation and exact uploaded original before Review', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const bytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jPqkAAAAASUVORK5CYII=', 'base64');
+  await fs.writeFile(path.join(directory, 'original.png'), bytes);
+  const hash = crypto.createHash('sha256').update(bytes).digest('hex');
+  service.outputsDirectory = directory;
+  service.assetRepository.findByIdForOwner = async (id, owner) => id === 'upload' && owner === alice.userId
+    ? { id, storageKey: 'original.png', ownerUserId: owner } : null;
+  const calls = [];
+  service.trustedSources = { describeOwnedImage: async (id, actor, options) => {
+    calls.push({ id, actor, options });
+    assert.equal(options.requireLookSheet, true);
+    if (id !== 'sheet' || actor.userId !== alice.userId) throw Object.assign(new Error('Unauthorized sheet'), { code: 'source_denied' });
+    return { id, contentHash: hash, providerId: 'fixture', modelId: 'fixture' };
+  } };
+  service.wardrobeAuthorityService.importGeneratedSheet = async () => ({ id: 'original-asset' });
+  const input = { name: 'Work Look', characterProfileVersionId: 'identity', generationResultId: 'sheet', identityAndViewsConfirmed: true, uploadedAssetId: 'upload' };
+  await assert.rejects(service.importMomeloSheet('profile', { ...input, uploadedAssetId: 'foreign' }, alice), error => error.code === 'character_look_origin_mismatch');
+  await assert.rejects(service.importMomeloSheet('profile', { ...input, generationResultId: 'scene' }, alice), error => error.code === 'source_denied');
+  const imported = await service.importMomeloSheet('profile', input, alice);
+  assert.equal(imported.approvedVersionId, null);
+  assert.equal(imported.versions[0].status, 'review');
+  assert.equal(imported.sourceCharacterProfileVersionId, 'identity');
+  assert.equal((await service.importMomeloSheet('profile', input, alice)).id, imported.id);
+  assert.equal(await fs.readFile(path.join(directory, 'original.png')).then(value => value.equals(bytes)), true);
+  assert.ok(calls.every(item => item.options.requireLookSheet));
+});
 
 test('Character Look drafts pin Character identity and owned garment authority', async t => {
   const { directory, service } = await fixture();

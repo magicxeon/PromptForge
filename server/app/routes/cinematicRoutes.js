@@ -379,6 +379,19 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.get('/api/cinematic/projects/:projectId/cast/:assignmentId/looks/:lookId/removal-impact', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.getWardrobeLookRemovalImpact(req.params.projectId, req.params.assignmentId, req.params.lookId, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
+  app.delete('/api/cinematic/projects/:projectId/cast/:assignmentId/looks/:lookId', async (req, res) => {
+    try {
+      res.json(await cinematicService.removeWardrobeLook(req.params.projectId, req.params.assignmentId, req.params.lookId, req.body, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
   app.put('/api/cinematic/projects/:projectId/story-plan', async (req, res) => {
     try {
       res.json(await cinematicService.saveStoryPlan(req.params.projectId, req.body, req.actorContext));

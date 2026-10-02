@@ -1124,6 +1124,47 @@ export class CinematicApplicationService {
     });
   }
 
+  async getWardrobeLookRemovalImpact(projectId, assignmentId, lookId, actorContext) {
+    const context = await this.seriesService.readCharacterWorkspace(projectId, actorContext);
+    assertRootLookBinding(context.project, context.storyProject, assignmentId, lookId);
+    return wardrobeLookRemovalImpact(context.projects, context.project, lookId);
+  }
+
+  removeWardrobeLook(projectId, assignmentId, lookId, input, actorContext) {
+    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext,
+      (project, root, _projects, _chapters, related = [project]) => {
+        assertExpectedVersion(project, input?.expectedVersion);
+        assertEditable(project);
+        const assignment = assertRootLookBinding(project, root, assignmentId, lookId);
+        const impact = wardrobeLookRemovalImpact(related, project, lookId);
+        if (typeof input?.impactFingerprint !== 'string' || input.impactFingerprint !== impact.fingerprint) {
+          throw new CinematicError('cinematic_look_removal_changed', 'Look usage changed. Review the impact again.', 409);
+        }
+        assignment.looks = assignment.looks.filter(item => item.id !== lookId);
+        assignment.updatedAt = new Date().toISOString();
+        for (const member of related) {
+          let changed = member.id === project.id || member.chapterCharacterIds?.includes(assignmentId);
+          for (const scene of member.scenes || []) {
+            const affected = scene.shots.filter(shot => resolveShotLookIds(scene, shot).includes(lookId));
+            const selected = scene.wardrobeLookIds?.includes(lookId);
+            scene.wardrobeLookIds = (scene.wardrobeLookIds || []).filter(id => id !== lookId);
+            for (const shot of affected) {
+              if (shot.approvedStoryboardSource) markSourceChanged(member, shot, shot.approvedStoryboardSource.sourceFingerprint);
+              markVideoPacketChanged(member, shot);
+              shot.wardrobeLookIds = (shot.wardrobeLookIds || []).filter(id => id !== lookId);
+              shot.approvedStoryboardSource = undefined;
+              shot.approvedStoryboardAttemptId = null;
+              shot.storyboardStatus = 'draft';
+              shot.version = Number(shot.version || 1) + 1;
+            }
+            if (selected || affected.length) { scene.version = Number(scene.version || 1) + 1; changed = true; }
+          }
+          if (changed) { member.version += 1; member.updatedAt = assignment.updatedAt; }
+        }
+        return project;
+      });
+  }
+
   async upsertWardrobeLook(projectId, assignmentId, input, actorContext) {
     const ownerProject = await this.getProject(projectId, actorContext);
     if (ownerProject.castAssignments.find(item => item.id === assignmentId)?.sourceType === 'generated_sheet') {
@@ -3626,6 +3667,24 @@ function asCinematicError(error) {
     error?.statusCode || 400,
     error?.details
   );
+}
+
+function assertRootLookBinding(project, root, assignmentId, lookId) {
+  if (root.id !== project.id) throw new CinematicError('cinematic_shared_character_root_required', 'Manage shared Looks on the Story Project.', 409);
+  const assignment = project.castAssignments.find(item => item.id === assignmentId && item.active !== false);
+  if (!assignment?.looks?.some(item => item.id === lookId)) throw new CinematicError('cinematic_wardrobe_look_not_found', 'Project Look binding not found.', 404);
+  return assignment;
+}
+
+function wardrobeLookRemovalImpact(projects, project, lookId) {
+  const items = projects.map(member => ({
+    projectId: member.id, title: member.title, version: member.version,
+    sceneIds: (member.scenes || []).filter(scene => scene.wardrobeLookIds?.includes(lookId)).map(scene => scene.id),
+    shotIds: (member.scenes || []).flatMap(scene => scene.shots.filter(shot => resolveShotLookIds(scene, shot).includes(lookId)).map(shot => shot.id))
+  })).sort((a, b) => a.projectId.localeCompare(b.projectId));
+  return { projectId: project.id, projectVersion: project.version,
+    fingerprint: crypto.createHash('sha256').update(JSON.stringify([project.id, lookId, items])).digest('hex'),
+    items: items.filter(item => item.sceneIds.length || item.shotIds.length) };
 }
 
 function markSourceChanged(project, shot, previousFingerprint) {

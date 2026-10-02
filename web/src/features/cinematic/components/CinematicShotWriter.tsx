@@ -6,7 +6,9 @@ import { Button } from '../../../components/ui/Button';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
+import { GenerationImageViewer } from '../../../components/media/GenerationImageViewer';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
+import { isActiveJobStatus, isCompletedJobStatus, isFailedJobStatus } from '../../../lib/api/jobLifecycle';
 import { applyCinematicShotProposal, discardCinematicShotProposal, prepareCinematicShotWriter, proposeCinematicShots, updateCinematicShotDocument } from '../api/cinematicSeriesApi';
 import type { CinematicProject, CinematicScene, CinematicShot } from '../schemas/cinematicSchemas';
 import { selectedCharacterLook } from './storyboardGenerationAdapter';
@@ -57,10 +59,12 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [frameViewerOpen, setFrameViewerOpen] = useState(false);
   const busyRef = useRef(false);
 
   useEffect(() => {
     setError(''); setCopied(false);
+    setFrameViewerOpen(false);
   }, [active?.shot.id, active?.shot.version, actorId, project.id]);
   useEffect(() => {
     if (!active?.shot.shotDocument && preparation.data) setDraft(value => value.shotDocument ? value : ({ ...value, shotDocument: preparation.data.shotDocument }));
@@ -84,6 +88,10 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
   const next = entries[activeIndex + 1]?.shot;
   const environment = scene.approvedEnvironmentSource;
   const firstFrame = shot.approvedStoryboardSource;
+  const frameAttempt = (project.generationAttempts || []).filter((item): item is { id: string; shotId: string; operation: string; status: string; createdAt?: string } =>
+    Boolean(item && typeof item === 'object' && 'id' in item && typeof item.id === 'string' && 'shotId' in item && 'operation' in item && 'status' in item && typeof item.status === 'string'))
+    .filter(item => item.shotId === shot.id && item.operation === 'cinematic_storyboard_still')
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))[0];
 
   async function save() {
     if (busyRef.current || !draft.title.trim() || !draft.shotDocument.trim() || legacyLoading) return;
@@ -198,7 +206,26 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
           <label><span>{t('cinematic.shotWriter.title')}</span><input value={draft.title} maxLength={120} onChange={event => setDraft(value => ({ ...value, title: event.target.value }))} /></label>
           <label><span>{t('cinematic.shotWriter.duration')}</span><input type="number" min="0.5" max="20" step="0.5" value={draft.durationSeconds} onChange={event => setDraft(value => ({ ...value, durationSeconds: Number(event.target.value) }))} /></label>
         </div>
-        <label className="cinematic-shot-writer__editor"><span><FileText aria-hidden="true" />{t('cinematic.shotWriter.direction')}</span><textarea aria-label={t('cinematic.shotWriter.direction')} readOnly={busy || legacyLoading} spellCheck value={draft.shotDocument} maxLength={maximumDocumentCharacters} onChange={event => setDraft(value => ({ ...value, shotDocument: event.target.value }))} /></label>
+        <div className="cinematic-shot-writer__frame-script">
+          <section className="cinematic-shot-writer__frame" aria-label={t('cinematic.visuals.firstFrame')}>
+            <header><Images aria-hidden="true" /><h3>{t('cinematic.visuals.firstFrame')}</h3><small>{t('cinematic.visuals.optional')}</small></header>
+            <div className="cinematic-authoring-visuals__preview">
+              {firstFrame ? <button type="button" onClick={() => setFrameViewerOpen(true)} aria-label={t('cinematic.projectTabs.inspectFrame')}>
+                <AuthenticatedMediaImage key={`${shot.id}:${firstFrame.imageUrl}`} src={firstFrame.thumbnailUrl || firstFrame.imageUrl} alt={shot.title}
+                  fallback={<span role="alert">{t('cinematic.lookReferences.unavailable')}</span>} />
+              </button> : <div><ImagePlus aria-hidden="true" /><span>{t('cinematic.visuals.noFirstFrame')}</span></div>}
+            </div>
+            <p role="status">{firstFrame ? t(shot.storyboardStatus === 'draft' ? 'cinematic.visuals.reviewFrame' : 'cinematic.visuals.frameSelected') : t('cinematic.visuals.openingMoment')}</p>
+            {sourceDirty && firstFrame ? <p role="status">{t('cinematic.projectTabs.frameStale')}</p> : null}
+            {frameAttempt && isActiveJobStatus(frameAttempt.status) ? <p role="status"><ProcessingSpinner />{t('cinematic.projectTabs.framePending')}</p> : null}
+            {frameAttempt && isCompletedJobStatus(frameAttempt.status) && frameAttempt.id !== shot.approvedStoryboardAttemptId ? <p role="status">{t('cinematic.visuals.reviewFrame')}</p> : null}
+            {frameAttempt && isFailedJobStatus(frameAttempt.status) ? <p role="alert">{t('cinematic.projectTabs.frameFailed')}</p> : null}
+            <Button id="cinematic-shot-first-frame" size="sm" variant="primary" icon={<ImagePlus />} disabled={!online || dirty || busy || !onOpenFirstFrame} onClick={onOpenFirstFrame}>
+              {t(shot.shotDocument?.trim() || firstFrame ? 'cinematic.visuals.openFrameTools' : 'cinematic.visuals.generateFrame')}
+            </Button>
+          </section>
+          <label className="cinematic-shot-writer__editor"><span><FileText aria-hidden="true" />{t('cinematic.shotWriter.direction')}</span><textarea aria-label={t('cinematic.shotWriter.direction')} readOnly={busy || legacyLoading} spellCheck value={draft.shotDocument} maxLength={maximumDocumentCharacters} onChange={event => setDraft(value => ({ ...value, shotDocument: event.target.value }))} /></label>
+        </div>
         {preparation.isPending && online ? <p role="status"><ProcessingSpinner />{t('cinematic.shotWorkspace.preparing')}</p> : null}
         {preparation.isError ? <StatusNotice tone="error" title={t('cinematic.shotWriter.saveFailed')}><Button size="sm" icon={<RotateCcw />} onClick={() => void preparation.refetch()}>{t('cinematic.shotWorkspace.refresh')}</Button></StatusNotice> : null}
         {!sourceDirty && preparation.data?.dialogue.findings.map((item, index) => <p role="alert" key={index}>{t('cinematic.shotWorkspace.unresolved', { name: item.speaker, line: item.line })}</p>)}
@@ -221,19 +248,6 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
           <Button variant="primary" icon={<Save />} loading={busy} disabled={!online || busy || legacyLoading || !dirty || !draft.title.trim() || !draft.shotDocument.trim() || (promptTouched && promptDraft !== null && (!promptDraft.trim() || !preparation.data))} onClick={save}>{t('cinematic.shotWriter.save')}</Button>
         </footer>
         <ShotProductionReadiness project={project} scene={scene} shot={shot} dirty={dirty} promptStale={preparation.data?.overrideStale} dialogueIssues={preparation.data?.dialogue.findings.length} timingIssues={preparation.data?.timing.findings.length} />
-        <div className="cinematic-authoring-visuals">
-          <section aria-label={t('cinematic.visuals.firstFrame')}>
-            <header><Images aria-hidden="true" /><h3>{t('cinematic.visuals.firstFrame')}</h3><small>{t('cinematic.visuals.optional')}</small></header>
-            <div className="cinematic-authoring-visuals__preview">
-              {firstFrame ? <AuthenticatedMediaImage src={firstFrame.thumbnailUrl || firstFrame.imageUrl} alt={shot.title} />
-                : <div><ImagePlus aria-hidden="true" /><span>{t('cinematic.visuals.noFirstFrame')}</span></div>}
-            </div>
-            <p>{firstFrame ? t(shot.storyboardStatus === 'draft' ? 'cinematic.visuals.reviewFrame' : 'cinematic.visuals.frameSelected') : t('cinematic.visuals.openingMoment')}</p>
-            <Button id="cinematic-shot-first-frame" size="sm" variant="primary" icon={<ImagePlus />} disabled={!online || dirty || busy || !onOpenFirstFrame} onClick={onOpenFirstFrame}>
-              {t(shot.shotDocument?.trim() || firstFrame ? 'cinematic.visuals.openFrameTools' : 'cinematic.visuals.generateFrame')}
-            </Button>
-          </section>
-        </div>
         <section className="cinematic-shot-workspace__section">
           <details open={promptOpen} onToggle={event => setPromptOpen(event.currentTarget.open)}>
             <summary>{t('cinematic.shotWorkspace.videoPrompt')}</summary>
@@ -255,6 +269,9 @@ export function CinematicShotWriter({ actorId, project, shotId, online, maximumD
         </section>
       </section>
     </div>
+    {firstFrame && frameViewerOpen ? <GenerationImageViewer open activeId={firstFrame.assetId} canRevealPrompt={false}
+      items={[{ id: firstFrame.assetId, imageUrl: firstFrame.imageUrl, title: shot.title }]}
+      onOpenChange={setFrameViewerOpen} onActiveIdChange={() => undefined} /> : null}
   </main>;
 }
 

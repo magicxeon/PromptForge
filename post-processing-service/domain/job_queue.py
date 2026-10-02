@@ -5,6 +5,8 @@ import logging
 import os
 import time
 import uuid
+import hashlib
+import sys
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone
@@ -38,6 +40,8 @@ class JobQueueManager:
         self.jobs: Dict[str, Dict[str, Any]] = {}
         self.idempotency_map: Dict[str, str] = {}
         self._lock = asyncio.Lock()
+        self._audio_semaphore = asyncio.Semaphore(1)
+        self._audio_processes = {}
         
         # Load persisted jobs on initialization
         self._load_from_disk()
@@ -50,11 +54,17 @@ class JobQueueManager:
                 data = json.load(f)
                 self.jobs = data.get("jobs", {})
                 self.idempotency_map = data.get("idempotencyMap", {})
+                for item in self.jobs.values():
+                    if item.get("operation", "").startswith("audio.") and item.get("status") not in ("completed", "failed", "cancelled", "expired"):
+                        item["status"] = "failed"
+                        item["stage"] = "failed"
+                        item["error"] = {"code": "job_interrupted", "message": "Service restarted before the job finished."}
+                self._save_to_disk()
         except Exception:
             self.jobs = {}
             self.idempotency_map = {}
 
-    def _save_to_disk(self):
+    def _save_to_disk(self, strict=False):
         try:
             temp_file = self.persistence_file.with_suffix(".tmp")
             data = {
@@ -66,7 +76,8 @@ class JobQueueManager:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             temp_file.replace(self.persistence_file)
         except Exception:
-            pass
+            if strict:
+                raise
 
     async def create_job(
         self,
@@ -77,12 +88,28 @@ class JobQueueManager:
         trace_id: Optional[str] = None,
         app_state: Any = None
     ) -> Dict[str, Any]:
+        is_audio = operation in ("audio.dialogue_repair", "audio.voice_conversion")
+        fingerprint = hashlib.sha256(json.dumps([operation, options], sort_keys=True, ensure_ascii=False).encode()).hexdigest() if is_audio else None
+        if is_audio and not idempotency_key:
+            raise HTTPException_Like("idempotency_required", "X-Idempotency-Key is required.", 400)
         async with self._lock:
+            if is_audio:
+                cutoff = time.time() - app_state.config.dialoguePoc.retentionSeconds
+                for old_id, old_job in list(self.jobs.items()):
+                    try:
+                        old_time = datetime.fromisoformat(old_job["createdAt"]).timestamp()
+                    except (ValueError, KeyError):
+                        continue
+                    if old_job.get("operation", "").startswith("audio.") and old_job.get("status") in ("completed", "failed", "cancelled", "expired") and old_time < cutoff:
+                        del self.jobs[old_id]
+                self.idempotency_map = {key: value for key, value in self.idempotency_map.items() if value in self.jobs}
             # Check idempotency deduplication
             if idempotency_key and idempotency_key in self.idempotency_map:
                 existing_job_id = self.idempotency_map[idempotency_key]
                 if existing_job_id in self.jobs:
                     existing = self.jobs[existing_job_id]
+                    if is_audio and existing.get("payloadFingerprint") != fingerprint:
+                        raise HTTPException_Like("idempotency_conflict", "This key belongs to a different request.", 409)
                     logger.info(f"[JOB_DEDUPLICATED] IdempotencyKey='{idempotency_key}' matches existing JobId='{existing_job_id}'")
                     return {
                         "jobId": existing["jobId"],
@@ -93,6 +120,8 @@ class JobQueueManager:
                         "isDuplicate": True
                     }
 
+            if is_audio and sum(item.get("status") in ("queued", "processing") and item.get("operation", "").startswith("audio.") for item in self.jobs.values()) >= app_state.config.dialoguePoc.maxQueuedJobs:
+                raise HTTPException_Like("processing_busy", "Dialogue POC queue is full.", 429)
             job_id = f"job_{int(time.time())}_{uuid.uuid4().hex[:8]}"
             now_iso = datetime.now(timezone.utc).isoformat()
 
@@ -107,6 +136,7 @@ class JobQueueManager:
                 "idempotencyKey": idempotency_key,
                 "traceId": trace_id,
                 "options": options,
+                "payloadFingerprint": fingerprint,
                 "inputBytesBase64": base64.b64encode(input_bytes).decode("ascii"),
                 "resultSummary": None,
                 "fullResult": None,
@@ -117,7 +147,13 @@ class JobQueueManager:
             if idempotency_key:
                 self.idempotency_map[idempotency_key] = job_id
                 
-            self._save_to_disk()
+            try:
+                self._save_to_disk(strict=is_audio)
+            except OSError:
+                self.jobs.pop(job_id, None)
+                if idempotency_key:
+                    self.idempotency_map.pop(idempotency_key, None)
+                raise HTTPException_Like("job_persistence_unavailable", "Job could not be stored.", 503)
             logger.info(f"[JOB_CREATED] JobId='{job_id}', Operation='{operation}', InputSize={len(input_bytes)} bytes")
 
             # Schedule background worker execution
@@ -134,6 +170,9 @@ class JobQueueManager:
             }
 
     async def _process_job_async(self, job_id: str, app_state: Any):
+        if self.jobs.get(job_id, {}).get("operation", "").startswith("audio."):
+            await self._process_audio_job(job_id, app_state)
+            return
         async with self._lock:
             if job_id not in self.jobs or self.jobs[job_id]["status"] == "cancelled":
                 return
@@ -295,6 +334,80 @@ class JobQueueManager:
                 "error": job.get("error")
             }
 
+    async def audio_media_in_use(self, media_id, manager):
+        async with self._lock:
+            for job in self.jobs.values():
+                if job.get("operation") not in ("audio.dialogue_repair", "audio.voice_conversion") or job.get("status") not in ("queued", "processing"):
+                    continue
+                options = job.get("options", {})
+                if options.get("sourceMediaId") == media_id:
+                    return True
+                try:
+                    profile = manager.read_profile(options.get("voiceProfileId", ""))
+                except HTTPException_Like:
+                    continue
+                if profile["referenceMediaId"] == media_id:
+                    return True
+            return False
+
+    async def adopt_audio_job(self, job_id, manager):
+        async with self._lock:
+            job = self.jobs.get(job_id)
+            if not job or job.get("operation") not in ("audio.dialogue_repair", "audio.voice_conversion"):
+                raise HTTPException_Like("job_not_found", "Dialogue job not found.", 404)
+            if job["status"] != "completed":
+                raise HTTPException_Like("job_not_completed", "Only completed jobs can be adopted.", 409)
+            manager.read_media(job["fullResult"].get("previewMediaId") or job["fullResult"]["audioMediaId"])
+            manager.read_profile(job["options"]["voiceProfileId"])
+            was_adopted = job.get("adopted", False)
+            job["adopted"] = True
+            try:
+                self._save_to_disk(strict=True)
+            except OSError:
+                job["adopted"] = was_adopted
+                raise HTTPException_Like("job_persistence_unavailable", "Adoption could not be stored.", 503)
+            return {"jobId": job_id, "adopted": True, "previewMediaId": job["fullResult"].get("previewMediaId")}
+
+    async def export_audio_job(self, job_id, manager):
+        async with self._lock:
+            job = self.jobs.get(job_id)
+            if not job or job.get("operation") not in ("audio.dialogue_repair", "audio.voice_conversion") or not job.get("adopted"):
+                raise HTTPException_Like("job_not_adopted", "Adopt a completed result before export.", 409)
+            manager.read_profile(job["options"]["voiceProfileId"])
+            if job.get("exportedMediaId"):
+                record, _ = manager.read_media(job["exportedMediaId"])
+                return record, False
+            result = job["fullResult"]
+            preview_id = result.get("previewMediaId") or result["audioMediaId"]
+            record, path = manager.read_media(preview_id)
+            exported = manager.store_media(path.read_bytes(), record["mimeType"], result["sourceMediaId"])
+            job["exportedMediaId"] = exported["mediaId"]
+            try:
+                self._save_to_disk(strict=True)
+            except OSError:
+                job.pop("exportedMediaId", None)
+                manager.delete("media", exported["mediaId"])
+                raise HTTPException_Like("job_persistence_unavailable", "Export could not be stored.", 503)
+            return exported, True
+
+    async def prune_expired_audio_jobs(self, retention_seconds):
+        async with self._lock:
+            cutoff = time.time() - retention_seconds
+            removed = False
+            for job_id, job in list(self.jobs.items()):
+                try:
+                    created = datetime.fromisoformat(job["createdAt"]).timestamp()
+                except (ValueError, KeyError):
+                    continue
+                if (job.get("operation", "").startswith("audio.")
+                        and job.get("status") in ("completed", "failed", "cancelled", "expired")
+                        and created < cutoff):
+                    del self.jobs[job_id]
+                    removed = True
+            if removed:
+                self.idempotency_map = {key: value for key, value in self.idempotency_map.items() if value in self.jobs}
+                self._save_to_disk()
+
     async def get_job_result(self, job_id: str) -> Optional[Dict[str, Any]]:
         async with self._lock:
             job = self.jobs.get(job_id)
@@ -320,6 +433,12 @@ class JobQueueManager:
                     "message": f"Job is already in terminal state '{job['status']}'."
                 }
             job["status"] = "cancelled"
+            process = self._audio_processes.get(job_id)
+            if process and process.returncode is None:
+                try:
+                    process.kill()
+                except ProcessLookupError:
+                    pass
             job["stage"] = "cancelled"
             job["updatedAt"] = datetime.now(timezone.utc).isoformat()
             self._save_to_disk()
@@ -328,5 +447,68 @@ class JobQueueManager:
                 "status": "cancelled",
                 "message": "Job has been cancelled."
             }
+
+    async def _process_audio_job(self, job_id, app_state):
+        policy = app_state.config.dialoguePoc
+        acquired = False
+        process = None
+        try:
+            await asyncio.wait_for(self._audio_semaphore.acquire(), timeout=policy.jobTimeoutSeconds)
+            acquired = True
+            async with self._lock:
+                job = self.jobs[job_id]
+                if job["status"] == "cancelled":
+                    return
+                job["status"] = "processing"
+                job["stage"] = "processing"
+                self._save_to_disk()
+                command = {"operation": job["operation"], "options": job["options"]}
+            process = await asyncio.create_subprocess_exec(sys.executable, "-m", "domain.dialogue_worker",
+                stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.DEVNULL,
+                cwd=str(Path(__file__).resolve().parent.parent))
+            self._audio_processes[job_id] = process
+            if self.jobs.get(job_id, {}).get("status") == "cancelled":
+                process.kill()
+                await process.wait()
+                return
+            output, _ = await asyncio.wait_for(process.communicate(json.dumps(command, ensure_ascii=False).encode()),
+                                                timeout=policy.jobTimeoutSeconds)
+            outcome = json.loads(output)
+            if process.returncode != 0 or not isinstance(outcome, dict):
+                raise ValueError("Invalid worker result")
+            from domain.dialogue_poc_manager import DialoguePocManager
+            manager = DialoguePocManager(policy)
+            try:
+                manager.read_profile(command["options"]["voiceProfileId"])
+            except HTTPException_Like:
+                outcome = {"error": {"code": "voice_consent_unavailable", "message": "Voice profile was revoked or expired."}}
+            async with self._lock:
+                job = self.jobs.get(job_id)
+                if job and job["status"] != "cancelled":
+                    job["status"] = "failed" if "error" in outcome else "completed"
+                    job["stage"] = job["status"]
+                    job["progress"] = 1.0 if job["status"] == "completed" else 0.0
+                    job["resultSummary"] = outcome.get("result")
+                    job["fullResult"] = outcome.get("result")
+                    job["error"] = outcome.get("error")
+                    job["updatedAt"] = datetime.now(timezone.utc).isoformat()
+                    self._save_to_disk()
+        except Exception as exc:
+            if process and process.returncode is None:
+                process.kill()
+                await process.wait()
+            async with self._lock:
+                job = self.jobs.get(job_id)
+                if job and job["status"] != "cancelled":
+                    job["status"] = "failed"
+                    job["stage"] = "failed"
+                    job["error"] = {"code": "job_execution_timeout" if isinstance(exc, asyncio.TimeoutError) else "audio_processing_failed",
+                                    "message": "Dialogue processing did not complete."}
+                    self._save_to_disk()
+        finally:
+            self._audio_processes.pop(job_id, None)
+            if acquired:
+                self._audio_semaphore.release()
 
 job_queue_manager = JobQueueManager()

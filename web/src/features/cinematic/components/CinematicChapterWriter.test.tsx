@@ -193,6 +193,7 @@ describe('CinematicChapterWriter', () => {
     api.proposeScenes.mockResolvedValue({ project: { ...project, version: 5, sceneProposals: [proposal] }, proposal });
     const props = renderWriter();
     fireEvent.click(await screen.findByRole('button', { name: 'cinematic.chapterWriter.generateScenes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
     await waitFor(() => expect(api.proposeScenes).toHaveBeenCalledWith('chapter-1', 4));
     expect(await screen.findByText('Station')).toBeVisible();
     expect(props.onOpenScenes).not.toHaveBeenCalled();

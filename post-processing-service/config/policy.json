@@ -110,6 +110,22 @@
     ],
     "preserveAudio": true
   },
+  "dialoguePoc": {
+    "enabled": true,
+    "maxInputBytes": 67108864,
+    "maxSourceSeconds": 60,
+    "maxEditSeconds": 20,
+    "maxTextLength": 1000,
+    "maxQueuedJobs": 10,
+    "jobTimeoutSeconds": 300,
+    "retentionSeconds": 86400,
+    "maxStretchRatio": 1.1,
+    "fadeMs": 20,
+    "ffmpegPath": "ffmpeg",
+    "ffprobePath": "ffprobe",
+    "scratchRoot": "D:/applications/momelo-post-processing/data/dialogue-poc",
+    "openVoiceCheckpoint": "D:/development/temp/momelo-models/openvoice/checkpoints_v2/converter"
+  },
   "audioAnalysis": {
     "policyVersion": "audio-analysis-v1",
     "maxInputBytes": 52428800,

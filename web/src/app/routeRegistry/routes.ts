@@ -38,6 +38,7 @@ export const routeBuilders = {
     `/create/cinematic/${encodeURIComponent(projectId)}/${encodeURIComponent(stage)}`,
   cinematicShot: (projectId: string, shotId: string) =>
     `/create/cinematic/${encodeURIComponent(projectId)}/shot/${encodeURIComponent(shotId)}`,
+  cinematicCharacters: (projectId: string) => `/create/cinematic/${encodeURIComponent(projectId)}/characters`,
   adminUser: (userId: string) => `/admin/users/${encodeURIComponent(userId)}`
 } as const;
 

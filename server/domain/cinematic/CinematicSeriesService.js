@@ -50,6 +50,14 @@ export class CinematicSeriesService {
       : workspace(data, null, project);
   }
 
+  async readCharacterWorkspace(projectId, actor) {
+    const data = await this.repository.readSeriesWorkspaceForActor(actor);
+    const project = findProject(data, projectId);
+    const storyProject = findStoryProject(data, project);
+    return { project, storyProject, projects: data.projects.filter(item =>
+      item.status !== 'archived' && findStoryProject(data, item).id === storyProject.id) };
+  }
+
   reorderChapters(projectId, input, actor) {
     return this.repository.mutateSeriesWorkspaceForActor(actor, data => {
       const project = findProject(data, projectId);
@@ -134,7 +142,9 @@ export class CinematicSeriesService {
       }
       try {
         const series = project.seriesMembership ? findSeries(data, project.seriesMembership.seriesId) : null;
-        const result = await operation(project, storyProject, data.projects, workspace(data, series, project).chapters);
+        const relatedProjects = data.projects.filter(item => item.status !== 'archived'
+          && findStoryProject(data, item).id === storyProject.id);
+        const result = await operation(project, storyProject, data.projects, workspace(data, series, project).chapters, relatedProjects);
         project.updatedAt = new Date().toISOString();
         return structuredClone(result);
       } finally {

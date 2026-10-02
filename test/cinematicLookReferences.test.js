@@ -98,6 +98,30 @@ async function fixture(t) {
   return { service, repository, root, child, sibling, records, authorityCalls, compiled, bind, select };
 }
 
+test('project Look removal clears affected inherited selections but keeps original library and historical Takes', async t => {
+  const f = await fixture(t);
+  await f.bind('arrival'); await f.bind('evening'); await f.select(['binding_arrival']);
+  const before = await f.service.getProject(f.child.id, alice);
+  const impact = await f.service.getWardrobeLookRemovalImpact(f.root.id, 'cast_a', 'binding_arrival', alice);
+  assert.ok(impact.items.some(item => item.projectId === f.child.id && item.shotIds.includes('inherit')));
+  await assert.rejects(f.service.removeWardrobeLook(f.root.id, 'cast_a', 'binding_arrival',
+    { expectedVersion: impact.projectVersion, impactFingerprint: 'old' }, alice), error => error.code === 'cinematic_look_removal_changed');
+  await assert.rejects(f.service.getWardrobeLookRemovalImpact(f.root.id, 'cast_a', 'binding_arrival', bob));
+  await assert.rejects(f.service.getWardrobeLookRemovalImpact(f.child.id, 'cast_a', 'binding_arrival', alice),
+    error => error.code === 'cinematic_shared_character_root_required');
+  await f.service.removeWardrobeLook(f.root.id, 'cast_a', 'binding_arrival',
+    { expectedVersion: impact.projectVersion, impactFingerprint: impact.fingerprint }, alice);
+  const after = await f.service.getProject(f.child.id, alice);
+  assert.deepEqual(after.castAssignments[0].looks.map(item => item.id), ['binding_evening']);
+  assert.deepEqual(after.scenes[0].wardrobeLookIds, []);
+  assert.deepEqual(after.scenes[0].shots.find(item => item.id === 'override').wardrobeLookIds, []);
+  assert.equal(after.scenes[0].shots.find(item => item.id === 'inherit').approvedStoryboardSource, undefined);
+  assert.equal(after.scenes[0].shots.find(item => item.id === 'empty').approvedStoryboardSource.assetId, 'asset_empty');
+  assert.deepEqual(after.generationAttempts.map(item => item.outputAsset), before.generationAttempts.map(item => item.outputAsset));
+  assert.deepEqual(after.commandReceipts, before.commandReceipts);
+  assert.equal(f.records.find(item => item.id === 'arrival').versions[0].status, 'approved');
+});
+
 test('root binding persists canonically across Chapters without rewriting pinned selections or media', async t => {
   const f = await fixture(t);
   await f.bind('arrival');
@@ -121,6 +145,30 @@ test('root binding persists canonically across Chapters without rewriting pinned
   assert.equal(after.version, before.version + 1);
   await assert.rejects(f.bind('evening', 'cast_a', { lookId: 'binding_arrival' }), { code: 'cinematic_wardrobe_look_pinned' });
   await assert.rejects(f.select(['binding_evening'], { expectedVersion: before.version }), { code: 'cinematic_version_conflict' });
+});
+
+test('Look unlink rejects changed Chapter impact and leaves another Project binding untouched', async t => {
+  const f = await fixture(t);
+  await f.bind('arrival'); await f.select(['binding_arrival']);
+  const separate = await f.service.createProject({ ...setup, title: 'Separate story' }, alice);
+  const child = await f.service.getProject(f.child.id, alice);
+  await f.repository.mutateSeriesWorkspaceForActor(alice, data => {
+    const target = data.projects.find(item => item.id === separate.id);
+    target.castAssignments = structuredClone(child.castAssignments);
+    target.scenes = structuredClone(child.scenes);
+    return target;
+  });
+  const isolatedBefore = await f.service.getProject(separate.id, alice);
+  const old = await f.service.getWardrobeLookRemovalImpact(f.root.id, 'cast_a', 'binding_arrival', alice);
+  await f.repository.mutateSeriesWorkspaceForActor(alice, data => {
+    const target = data.projects.find(item => item.id === f.child.id); target.version += 1; return target;
+  });
+  await assert.rejects(f.service.removeWardrobeLook(f.root.id, 'cast_a', 'binding_arrival',
+    { expectedVersion: old.projectVersion, impactFingerprint: old.fingerprint }, alice), error => error.code === 'cinematic_look_removal_changed');
+  const current = await f.service.getWardrobeLookRemovalImpact(f.root.id, 'cast_a', 'binding_arrival', alice);
+  await f.service.removeWardrobeLook(f.root.id, 'cast_a', 'binding_arrival',
+    { expectedVersion: current.projectVersion, impactFingerprint: current.fingerprint }, alice);
+  assert.deepEqual(await f.service.getProject(separate.id, alice), isolatedBefore);
 });
 
 test('Scene selects canonical Looks, clears independently and preserves explicit Shots and historical media', async t => {

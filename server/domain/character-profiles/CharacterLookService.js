@@ -382,7 +382,11 @@ export class CharacterLookService {
     }, actor));
   }
 
-  async importGeneratedSheet(characterProfileId, input = {}, actorContext) {
+  async importMomeloSheet(characterProfileId, input = {}, actorContext) {
+    return this.importGeneratedSheet(characterProfileId, input, actorContext, { requireLookSheet: true });
+  }
+
+  async importGeneratedSheet(characterProfileId, input = {}, actorContext, { requireLookSheet = false } = {}) {
     const actor = assertActorContext(actorContext);
     const name = String(input.name || '').trim().slice(0, 100);
     const generationId = String(input.generationResultId || '').trim();
@@ -391,7 +395,15 @@ export class CharacterLookService {
         'Choose a generated sheet and confirm the Character identity and front, side and back views.', 400);
     }
     const authorization = await this.#authorizeCharacter(characterProfileId, input.characterProfileVersionId, actor);
-    const source = await this.trustedSources.describeOwnedImage(generationId, actor);
+    const source = await this.trustedSources.describeOwnedImage(generationId, actor, { requireLookSheet });
+    if (input.uploadedAssetId) {
+      if (!requireLookSheet) throw new RepositoryContractError('character_look_origin_invalid', 'Use the verified Momelo import workflow.', 400);
+      const uploaded = await this.assetRepository.findByIdForOwner(String(input.uploadedAssetId), actor.userId);
+      const content = uploaded && await loadVideoReferenceAssetContent(uploaded, { outputsDirectory: this.outputsDirectory });
+      if (!content || content.contentHash !== source.contentHash) {
+        throw new RepositoryContractError('character_look_origin_mismatch', 'The uploaded file does not match the selected original Momelo Look Sheet. Select the original from the library instead.', 409);
+      }
+    }
     const asset = await this.wardrobeAuthorityService.importGeneratedSheet(source, actor);
     const characterProfileVersionId = authorization.identityPack.characterProfileVersionId;
     const look = await this.repository.createDraft({

@@ -86,6 +86,23 @@ class ExpressiveTtsPolicy(BaseModel):
     allowedFormats: list[str] = ["WAV", "MP3"]
     model: Optional[ModelPolicy] = None
 
+class DialoguePocPolicy(BaseModel):
+    enabled: bool = False
+    maxInputBytes: int = Field(default=67108864, ge=1024, le=134217728)
+    maxSourceSeconds: int = Field(default=60, ge=1, le=600)
+    maxEditSeconds: int = Field(default=20, ge=1, le=60)
+    maxTextLength: int = Field(default=1000, ge=1, le=4000)
+    maxQueuedJobs: int = Field(default=10, ge=1, le=100)
+    jobTimeoutSeconds: int = Field(default=300, ge=10, le=1800)
+    retentionSeconds: int = Field(default=86400, ge=60, le=604800)
+    maxStretchRatio: float = Field(default=1.1, ge=1.0, le=2.0)
+    fadeMs: int = Field(default=20, ge=0, le=100)
+    ffmpegPath: str = "ffmpeg"
+    ffprobePath: str = "ffprobe"
+    scratchRoot: str = "D:/applications/momelo-post-processing/data/dialogue-poc"
+    openVoiceCheckpoint: str = "D:/development/temp/momelo-models/openvoice/checkpoints_v2/converter"
+    thaiTtsModelPath: str = "D:/applications/momelo-post-processing/models/thonburian-tts"
+
 class PolicyDocument(BaseModel):
     schemaVersion: int
     facelessPrevis: FacelessPrevisPolicy
@@ -93,6 +110,7 @@ class PolicyDocument(BaseModel):
     resilience: Optional[ResiliencePolicy] = None
     imageEnhancement: Optional[ImageEnhancementPolicy] = None
     expressiveTts: Optional[ExpressiveTtsPolicy] = None
+    dialoguePoc: Optional[DialoguePocPolicy] = None
 
 class RuntimeConfig(BaseModel):
     host: str = "127.0.0.1"
@@ -109,6 +127,7 @@ class ServiceConfig(BaseModel):
     resilience: ResiliencePolicy
     imageEnhancement: ImageEnhancementPolicy
     expressiveTts: ExpressiveTtsPolicy
+    dialoguePoc: DialoguePocPolicy
 
 def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tuple[FacelessPrevisPolicy, JobQueuePolicy, ResiliencePolicy, ImageEnhancementPolicy, ExpressiveTtsPolicy]:
     if not policy_path.exists():
@@ -158,6 +177,15 @@ def load_post_processing_config(
         raise ValueError("POST_PROCESSING_INTERNAL_TOKEN must contain at least 32 bytes.")
         
     policy, job_queue_policy, resilience_policy, image_enhancement_policy, expressive_tts_policy = load_post_processing_policy(policy_path)
+    expressive_tts_policy.modelPath = merged_env.get("POST_PROCESSING_THAI_MODEL_PATH", expressive_tts_policy.modelPath)
+    with open(policy_path, "r", encoding="utf-8") as dialogue_file:
+        dialogue_policy = DialoguePocPolicy.model_validate(json.load(dialogue_file).get("dialoguePoc", {}))
+    dialogue_policy.enabled = dialogue_policy.enabled and str(merged_env.get("POST_PROCESSING_DIALOGUE_POC_ENABLED", "false")).lower() in ("true", "1", "yes")
+    dialogue_policy.ffmpegPath = merged_env.get("POST_PROCESSING_FFMPEG_PATH", dialogue_policy.ffmpegPath)
+    dialogue_policy.ffprobePath = merged_env.get("POST_PROCESSING_FFPROBE_PATH", dialogue_policy.ffprobePath)
+    dialogue_policy.scratchRoot = merged_env.get("POST_PROCESSING_DIALOGUE_DATA_ROOT", dialogue_policy.scratchRoot)
+    dialogue_policy.openVoiceCheckpoint = merged_env.get("POST_PROCESSING_OPENVOICE_CHECKPOINT", dialogue_policy.openVoiceCheckpoint)
+    dialogue_policy.thaiTtsModelPath = expressive_tts_policy.modelPath
     
     # Priority for model storage: D:\applications\momelo-post-processing\models\ -> local models\
     custom_model_path = merged_env.get("POST_PROCESSING_FACE_MODEL_PATH")
@@ -187,5 +215,6 @@ def load_post_processing_config(
         jobQueue=job_queue_policy,
         resilience=resilience_policy,
         imageEnhancement=image_enhancement_policy,
-        expressiveTts=expressive_tts_policy
+        expressiveTts=expressive_tts_policy,
+        dialoguePoc=dialogue_policy
     )

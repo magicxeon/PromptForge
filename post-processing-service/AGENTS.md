@@ -28,7 +28,11 @@ Cinematic owns Storyboard selection/approval; Credits alone owns billing.
 - `config/policy.json` is reviewed non-secret operation policy. Validate it at
   startup via Pydantic model. Do not read process.env inside an operation or duplicate policy
   constants across API, domain and adapters.
-- **Drive C: Space Preservation**: Python virtual environment (`venv`), PyTorch/CUDA packages, and model checkpoints MUST be placed under **`D:\applications`** (e.g. `D:\applications\momelo-post-processing\`).
+- **Drive C: Space Preservation**: Keep the Python virtual environment under
+  `D:\applications\momelo-post-processing\`. For the opt-in dialogue POC,
+  newly downloaded checkpoints and Hugging Face/Torch/pip caches belong under
+  `D:\development\temp\momelo-models` as specified in 010/011; existing model
+  installations under `D:\applications` may be reused without moving them.
 - Model hash, detector behavior or mask appearance changes require a policy
   version bump, focused visual/regression evidence and licensing review.
 - Pilot availability is explicit and defaults off. Keep loopback binding

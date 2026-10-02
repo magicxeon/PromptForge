@@ -2,7 +2,7 @@ import { ArrowLeft, Check, Clapperboard, Clock3, FileText, ListVideo, MapPin, Pl
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
-import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
+import { CinematicWritingConsent } from './CinematicWritingConsent';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
@@ -206,8 +206,8 @@ export function CinematicSceneOverview({ actorId, project, online, onBackToChapt
   }
 
   const confirmationKey = JSON.stringify([actorId, project.id, project.version, selected?.id, selected?.version, draft, online, looksPending]);
-  const sceneGenerateButton = <Button size="sm" icon={<RefreshCw />} loading={busy === 'generate'} disabled={!online || Boolean(busy) || dirty || looksPending || Boolean(proposal) || !project.activeChapterVersionId} onClick={project.scenes.length ? undefined : generate}>{project.scenes.length ? t('cinematic.scenes.regenerate') : t('cinematic.scenes.generate')}</Button>;
-  const shotGenerateButton = <Button size="sm" icon={<Sparkles />} loading={busy === 'shot-generate'} disabled={!online || Boolean(busy) || dirty || looksPending || Boolean(shotProposal) || !(selected?.synopsis || selected?.objective || selected?.storyChange)} onClick={selected?.shots.length ? undefined : generateShots}>{selected?.shots.length ? t('cinematic.scenes.regenerateShots') : t('cinematic.scenes.generateShots')}</Button>;
+  const sceneGenerateButton = <Button size="sm" icon={<RefreshCw />} loading={busy === 'generate'} disabled={!online || Boolean(busy) || dirty || looksPending || Boolean(proposal) || !project.activeChapterVersionId}>{project.scenes.length ? t('cinematic.scenes.regenerate') : t('cinematic.scenes.generate')}</Button>;
+  const shotGenerateButton = <Button size="sm" icon={<Sparkles />} loading={busy === 'shot-generate'} disabled={!online || Boolean(busy) || dirty || looksPending || Boolean(shotProposal) || !(selected?.synopsis || selected?.objective || selected?.storyChange)}>{selected?.shots.length ? t('cinematic.scenes.regenerateShots') : t('cinematic.scenes.generateShots')}</Button>;
 
   return (
     <main className="cinematic-scene-overview" data-testid="cinematic-scene-overview" inert={busy ? true : undefined}>
@@ -216,9 +216,9 @@ export function CinematicSceneOverview({ actorId, project, online, onBackToChapt
         <div><span>{t('cinematic.scenes.eyebrow')}</span><h1>{project.chapterTitle || project.title}</h1><p>{t('cinematic.scenes.summary', { scenes: project.scenes.length, shots: shotCount })}</p></div>
         <div className="cinematic-scene-overview__header-actions">
           {onOpenFinal ? <Button size="sm" icon={<ListVideo />} disabled={Boolean(busy) || looksPending || recovery.pending} onClick={onOpenFinal}>{t('cinematic.chapterFinal.title')}</Button> : null}
-          {project.scenes.length ? <ConfirmDialog key={`scenes:${confirmationKey}:${proposal?.id || ''}`} trigger={sceneGenerateButton}
-            title={t('cinematic.regeneration.scenesTitle')} description={t('cinematic.regeneration.scenesDescription')}
-            confirmLabel={t('cinematic.regeneration.confirm')} pending={Boolean(busy)} onConfirm={generate} /> : sceneGenerateButton}
+          <CinematicWritingConsent key={`scenes:${confirmationKey}:${proposal?.id || ''}`} trigger={sceneGenerateButton}
+            title={t(project.scenes.length ? 'cinematic.regeneration.scenesTitle' : 'cinematic.scenes.generate')} description={t('cinematic.regeneration.scenesDescription')}
+            scope={t('cinematic.bulk.scenesScope', { name: project.chapterTitle || project.title })} pending={!online || Boolean(busy) || dirty || looksPending || Boolean(proposal)} onConfirm={generate} />
           <Button size="sm" icon={<Plus />} loading={busy === 'manual'} disabled={!online || Boolean(busy) || looksPending} onClick={addManual}>{t('cinematic.scenes.add')}</Button>
         </div>
       </header>
@@ -266,16 +266,20 @@ export function CinematicSceneOverview({ actorId, project, online, onBackToChapt
               <header>
                 <div><ListVideo aria-hidden="true" /><h3>{t('cinematic.scenes.shots')}</h3><span>{selected.shots.length}</span></div>
                 <div className="cinematic-scene-overview__shot-actions">
-                  {selected.shots.length ? <ConfirmDialog key={`shots:${confirmationKey}:${shotProposal?.id || ''}`} trigger={shotGenerateButton}
-                    title={t('cinematic.regeneration.shotsTitle')} description={t('cinematic.regeneration.shotsDescription')}
-                    confirmLabel={t('cinematic.regeneration.confirm')} pending={Boolean(busy)} onConfirm={generateShots} /> : shotGenerateButton}
+                  <CinematicWritingConsent key={`shots:${confirmationKey}:${shotProposal?.id || ''}`} trigger={shotGenerateButton}
+                    title={t(selected.shots.length ? 'cinematic.regeneration.shotsTitle' : 'cinematic.scenes.generateShots')} description={t('cinematic.regeneration.shotsDescription')}
+                    scope={t('cinematic.bulk.shotsScope', { name: selected.title })} pending={!online || Boolean(busy) || dirty || looksPending || Boolean(shotProposal)} onConfirm={generateShots} />
                   <Button size="sm" icon={<Plus />} loading={busy === 'shot-manual'} disabled={!online || Boolean(busy) || looksPending || Boolean(shotProposal)} onClick={addManualShot}>{t('cinematic.scenes.addShot')}</Button>
                 </div>
               </header>
               {shotProposal ? <ShotProposalReview proposal={shotProposal} stale={shotProposalStale} busy={busy} onDiscard={discardShots} onApply={applyShots} /> : null}
               {selected.shots.length ? <ol>{[...selected.shots].sort((a, b) => a.orderKey - b.orderKey).map((shot, index) => <li key={shot.id}><button type="button" onClick={() => onOpenShot(shot.id)}><span>{String(index + 1).padStart(2, '0')}</span><div><strong>{shot.title || t('cinematic.scenes.untitledShot')}</strong><small>{t('cinematic.scenes.duration', { seconds: Math.round(shot.durationMs / 1000) })} · {t(`cinematic.shotWriter.status.${shot.shotPlanningStatus || 'ready'}`)}</small></div></button></li>)}</ol> : <p>{t('cinematic.scenes.shotsEmpty')}</p>}
             </section>
-          </> : <div className="cinematic-scene-overview__document-empty"><Sparkles aria-hidden="true" /><h2>{t('cinematic.scenes.emptyDocumentTitle')}</h2><p>{t('cinematic.scenes.emptyDocumentDescription')}</p><div><Button variant="primary" icon={<Sparkles />} loading={busy === 'generate'} disabled={!online || Boolean(busy) || !project.activeChapterVersionId} onClick={generate}>{t('cinematic.scenes.generate')}</Button><Button icon={<Plus />} loading={busy === 'manual'} disabled={!online || Boolean(busy)} onClick={addManual}>{t('cinematic.scenes.add')}</Button></div></div>}
+          </> : <div className="cinematic-scene-overview__document-empty"><Sparkles aria-hidden="true" /><h2>{t('cinematic.scenes.emptyDocumentTitle')}</h2><p>{t('cinematic.scenes.emptyDocumentDescription')}</p><div>
+            <CinematicWritingConsent key={`empty:${confirmationKey}`} title={t('cinematic.scenes.generate')} scope={t('cinematic.bulk.scenesScope', { name: project.chapterTitle || project.title })}
+              pending={!online || Boolean(busy) || !project.activeChapterVersionId} onConfirm={generate}
+              trigger={<Button variant="primary" icon={<Sparkles />} loading={busy === 'generate'} disabled={!online || Boolean(busy) || !project.activeChapterVersionId}>{t('cinematic.scenes.generate')}</Button>} />
+            <Button icon={<Plus />} loading={busy === 'manual'} disabled={!online || Boolean(busy)} onClick={addManual}>{t('cinematic.scenes.add')}</Button></div></div>}
         </section>
       </div>
     </main>

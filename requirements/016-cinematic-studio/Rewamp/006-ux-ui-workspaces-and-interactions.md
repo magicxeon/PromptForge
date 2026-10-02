@@ -1,5 +1,12 @@
 # 006 - UX/UI Workspaces And Interactions
 
+2026-10-01 supersession: [017](017-project-characters-and-bulk-consent.md) now owns
+the planned Project-level Story / Characters route destinations. Their buttons
+use 75/25 widths, not a split content layout. Remove Character settings from writer
+right panels; contextual Scene/Shot selectors remain. Earlier three-workspace and
+embedded Character-management proposals below are historical where they conflict.
+Engine, Render and Queue interiors remain protected. Implementation is pending.
+
 Status: design specification, not implemented UI. Review lens: UX/UI Product
 Designer applied sequentially; see [master](000-master.md) for review scope.
 Uses the existing Momelo visual language, tokens and inspected brand references

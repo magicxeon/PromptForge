@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
-import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
+import { CinematicWritingConsent } from './CinematicWritingConsent';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
@@ -12,7 +12,6 @@ import { reorderCinematicChapters } from '../api/cinematicSeriesApi';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import { applyCinematicChapterProposal, applyCinematicSceneProposal, createCinematicManualScene, discardCinematicChapterProposal, discardCinematicSceneProposal, getCinematicSeriesWorkspace, mutateCinematicSeries, proposeCinematicChapters, proposeCinematicScenes, restoreCinematicChapterRevision, updateCinematicChapter } from '../api/cinematicSeriesApi';
 import type { CinematicChapterProposal, CinematicChapterRevision, CinematicProject, CinematicSceneProposal } from '../schemas/cinematicSchemas';
-import { CinematicSharedCharactersPanel } from './CinematicSharedCharactersPanel';
 import { chapterRecoverySchema, useCinematicTextRecovery } from '../state/useCinematicTextRecovery';
 import { CinematicRecoveryNotice } from './CinematicRecoveryNotice';
 
@@ -24,6 +23,7 @@ type Props = {
   onOpenSetup?: (storyProjectId: string) => void;
   onNavigateChapter: (projectId: string) => void;
   onOpenScenes: () => void;
+  onOpenCharacters?: () => void;
   onProjectChanged: (project: CinematicProject) => void;
 };
 
@@ -35,6 +35,7 @@ export function CinematicChapterWriter({
   onOpenSetup,
   onNavigateChapter,
   onOpenScenes,
+  onOpenCharacters,
   onProjectChanged
 }: Props) {
   const { t, i18n } = useTranslation('cinematic');
@@ -65,7 +66,7 @@ export function CinematicChapterWriter({
     staleTime: 20_000,
     retry: false
   });
-  const [panel, setPanel] = useState<'assist' | 'characters' | 'history'>('assist');
+  const [panel, setPanel] = useState<'assist' | 'history'>('assist');
   const pendingChapterProposal = useMemo(() => [...(storyProject.data?.chapterProposals || [])].reverse().find(item => item.status === 'pending_review') || null, [storyProject.data?.chapterProposals]);
   const [proposal, setProposal] = useState<CinematicChapterProposal | null>(pendingChapterProposal);
   const pendingSceneProposal = useMemo(() => [...(project.sceneProposals || [])].reverse().find(item => item.status === 'pending_review') || null, [project.sceneProposals]);
@@ -322,11 +323,11 @@ export function CinematicChapterWriter({
         <div className="cinematic-chapter-writer__header-actions">
           {hasPendingChapterProposal ? <Button size="sm" icon={<FileText />} disabled={!online || Boolean(busy) || !storyProject.data?.confirmedFullStoryVersionId} title={t('cinematic.chapterWriter.reviewPendingDescription')} onClick={() => setPanel('assist')}>
             {t('cinematic.chapterWriter.reviewPendingProposal')}
-          </Button> : <ConfirmDialog
+          </Button> : <CinematicWritingConsent
             key={JSON.stringify([actorId, project.id, project.version, storyProject.data?.version, workspace.data?.series?.version, title, story, instruction, online])}
             title={t('cinematic.regeneration.chaptersTitle')}
             description={t('cinematic.regeneration.chaptersDescription')}
-            confirmLabel={t('cinematic.regeneration.confirm')}
+            scope={t('cinematic.bulk.scope', { name: storyProject.data?.title || project.title, count: storyProject.data?.chapterOutline?.chapters.length || storyProject.data?.setup.chapterCount || 1 })}
             pending={!online || Boolean(busy)} onConfirm={() => generate('all')}
             trigger={<Button size="sm" icon={<RefreshCw />} loading={busy === 'all-ai'} disabled={!online || Boolean(busy) || !storyProject.data?.confirmedFullStoryVersionId} title={t('cinematic.chapterWriter.regenerateAllDescription')}>
               {t('cinematic.chapterWriter.regenerateAll')}
@@ -430,7 +431,10 @@ export function CinematicChapterWriter({
               </div>
             ) : (
               <div className="cinematic-chapter-writer__scene-actions">
-                {project.scenes.length ? <Button variant="primary" icon={<Clapperboard />} disabled={Boolean(busy)} onClick={onOpenScenes}>{t('cinematic.chapterWriter.openScenes')}</Button> : <Button variant="primary" icon={<Sparkles />} loading={busy === 'scenes-ai'} disabled={!online || Boolean(busy) || !story.trim()} onClick={generateScenes}>{t('cinematic.chapterWriter.generateScenes')}</Button>}
+                {project.scenes.length ? <Button variant="primary" icon={<Clapperboard />} disabled={Boolean(busy)} onClick={onOpenScenes}>{t('cinematic.chapterWriter.openScenes')}</Button> : <CinematicWritingConsent
+                  key={JSON.stringify([actorId, project.id, project.version, story, online])} title={t('cinematic.chapterWriter.generateScenes')}
+                  scope={t('cinematic.bulk.scenesScope', { name: title })} pending={!online || Boolean(busy) || !story.trim()} onConfirm={generateScenes}
+                  trigger={<Button variant="primary" icon={<Sparkles />} loading={busy === 'scenes-ai'} disabled={!online || Boolean(busy) || !story.trim()}>{t('cinematic.chapterWriter.generateScenes')}</Button>} />}
                 <Button icon={<Plus />} loading={busy === 'scene-manual'} disabled={!online || Boolean(busy) || !title.trim()} onClick={addManualScene}>{t('cinematic.chapterWriter.addSceneManually')}</Button>
               </div>
             )}
@@ -440,7 +444,6 @@ export function CinematicChapterWriter({
         <aside className="cinematic-chapter-writer__tools">
           <div className="cinematic-writer-panel-tabs" role="tablist" aria-label={t('cinematic.chapterWriter.tools')}>
             <button type="button" role="tab" aria-selected={panel === 'assist'} onClick={() => setPanel('assist')}><Sparkles aria-hidden="true" />{t('cinematic.chapterWriter.assist')}</button>
-            <button type="button" role="tab" aria-selected={panel === 'characters'} onClick={() => setPanel('characters')}><Users aria-hidden="true" />{t('cinematic.chapterWriter.characters')}</button>
             <button type="button" role="tab" aria-selected={panel === 'history'} onClick={() => setPanel('history')}><History aria-hidden="true" />{t('cinematic.chapterWriter.history')}</button>
           </div>
           {panel === 'assist' ? (
@@ -457,7 +460,7 @@ export function CinematicChapterWriter({
               ) : null}
             </div>
           ) : null}
-          {panel === 'characters' ? <CinematicSharedCharactersPanel actorId={actorId} project={project} storyProjectId={storyProjectId} chapterMode online={online} onProjectChanged={onProjectChanged} /> : null}
+          {onOpenCharacters ? <Button size="sm" icon={<Users />} onClick={onOpenCharacters}>{t('cinematic.shotWorkspace.manageCast')}</Button> : null}
           {panel === 'history' ? (
             <div className="cinematic-chapter-writer__history">
               <header><strong>{t('cinematic.chapterWriter.revisionHistory')}</strong><small>{t('cinematic.chapterWriter.revisionCount', { count: revisions.length })}</small></header>

@@ -75,6 +75,8 @@ describe('Chapter outline review', () => {
     api.propose.mockReturnValue(new Promise(resolve => { finish = resolve; }));
     const props = show({ ...project, chapterOutline: null });
     fireEvent.click(screen.getByRole('button', { name: label('generate') }));
+    expect(api.propose).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
     api.actor = 'different-user'; finish(project);
     await waitFor(() => expect(screen.getByRole('button', { name: label('generate') })).not.toHaveAttribute('aria-busy'));
     expect(props.changed).not.toHaveBeenCalled();

@@ -396,3 +396,92 @@ curl -X POST http://127.0.0.1:6501/v1/expressive-tts \
 }
 ```
 
+## Dialogue audio POC (Postman, local only)
+
+This section describes the two opt-in speech operations. Existing image and TTS
+endpoints above are unchanged. Run `scripts/start-dialogue-poc.bat` with a working
+Python environment (`VENV_DIR` may override its default), FFmpeg and FFprobe on
+`PATH`. It binds to `127.0.0.1:6501`. If the port is occupied, set
+`POST_PROCESSING_PORT` before launch. `GET /v1/capabilities` reports separate
+readiness for `audio.dialogue_repair` and `audio.voice_conversion`.
+
+If startup prints `Unable to create process`, the existing venv launcher cannot
+find its original Python installation. This is different from a missing package:
+do not reinstall the already-installed packages. Point `VENV_DIR` to another
+working venv, or explicitly repair the existing Python 3.10 venv with a known
+working base interpreter of the **same minor version**:
+
+```bat
+set "POST_PROCESSING_BASE_PYTHON=D:\path\to\Python310\python.exe"
+post-processing-service\scripts\start-dialogue-poc.bat --repair-venv
+post-processing-service\scripts\start-dialogue-poc.bat
+```
+
+Normal startup never modifies the venv. The repair command preserves its
+site-packages and verifies that the launcher works afterward. If a package
+import itself fails, the batch prints Python's specific error so the operator
+can fix that dependency separately.
+
+The first requires a Thai F5-TTS checkpoint plus `f5-tts`; the second requires
+OpenVoice V2. Existing installed Thai weights can be reused. Optional explicit
+setup commands download all **new** model files/caches below
+`D:\development\temp\momelo-models` (nothing is downloaded on service start):
+
+```bat
+post-processing-service\scripts\start-dialogue-poc.bat --setup-thai
+post-processing-service\scripts\start-dialogue-poc.bat --setup-openvoice
+```
+
+Review the model licenses and use only operator-owned or authorized speech.
+Keep `POST_PROCESSING_INTERNAL_TOKEN` private. This is a single-operator,
+loopback-only POC, not a customer API. Uploaded media and profile metadata are
+private scratch under `POST_PROCESSING_DIALOGUE_DATA_ROOT` and expire after 24h.
+No mixed music/ambience, overlapping speakers, word alignment, lip-sync editing,
+or automatic Thai-pronunciation verification is promised.
+
+Import `post-processing-service.postman_collection.json`. Its Dialogue POC
+requests use raw binary upload, **not multipart**. Set the local file in each
+request, then run in this order (do not run the whole collection):
+
+1. Upload source MP4 (or WAV/MP3) to `POST /v1/media` with the matching
+   `Content-Type`. Upload a clean reference WAV separately, or reuse the source
+   media ID. Each response has a media ID, SHA-256, duration and expiry.
+2. `POST /v1/voice-profiles` with `referenceMediaId`, `startMs`, `endMs` (3-20s),
+   `consentRecordId`, and a transcript matching the reference audio for repair.
+   The consent ID identifies the operator's separate rights record; this API
+   does not prove voice rights by itself.
+3. `POST /v1/jobs` with a fresh `X-Idempotency-Key` and one of these payloads:
+
+```json
+{"operation":"audio.dialogue_repair","options":{"sourceMediaId":"media_...","voiceProfileId":"voice_...","consentRecordId":"poc_consent_001","startMs":1200,"endMs":2800,"replacementText":"แบบเดียวกัน"}}
+```
+
+```json
+{"operation":"audio.voice_conversion","options":{"sourceMediaId":"media_...","voiceProfileId":"voice_...","consentRecordId":"poc_consent_001","segments":[{"startMs":1200,"endMs":2800}]}}
+```
+
+4. Poll `GET /v1/jobs/{jobId}` until completed/failed/cancelled, then call
+   `GET /v1/jobs/{jobId}/result`. It returns `audioMediaId` and, for video
+   sources, `previewMediaId`, timing evidence and hashes. A new attempt needs a
+   **new** idempotency key; the same key with changed inputs returns 409.
+5. `GET /v1/media/{previewMediaId}` returns authenticated JSON with
+   `bytesBase64`. Save that JSON response locally and decode it with:
+
+```powershell
+powershell -NoProfile -File post-processing-service\scripts\decode-dialogue-media.ps1 -JsonPath D:\development\temp\preview.json -OutputPath D:\development\temp\preview.mp4
+```
+
+6. Listen to the before/after outside Postman and check words, voice, seams,
+   timing and lips. Only then call `POST /v1/jobs/{jobId}/adoption`, followed by
+   `POST /v1/jobs/{jobId}/export`. Export makes a separate media artifact and
+   does not overwrite the source. Download/decode that new ID the same way.
+   `DELETE /v1/jobs/{jobId}` cancels a nonterminal job. Deleting a voice profile
+   revokes later adoption/export. `DELETE /v1/media/{id}` removes private media.
+
+Audio outside the chosen sample interval is copied exactly in the lossless WAV
+editing master. MP4 export re-encodes audio as AAC and copies video where possible;
+its audio outside-range bytes are not bit-identical. Speech that cannot fit the
+interval within the configured stretch bound fails with `audio_timing_unfit` so
+the operator can widen the interval or retry. The API cannot confirm that the
+original clip is dialogue-only or that the new voice is perceptually correct.
+

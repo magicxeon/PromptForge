@@ -22,8 +22,10 @@ if (process.argv.includes('--isolated')) {
   origin = `http://127.0.0.1:${vite.httpServer.address().port}`;
 }
 const lookReview = process.argv.includes('--looks');
+const headerReview = process.argv.includes('--project-header');
+const castReview = process.argv.includes('--cast-017') || headerReview;
 const writerConfirmationReview = process.argv.includes('--writer-confirmation');
-const storyLayoutReview = process.argv.includes('--story-layout') || writerConfirmationReview;
+const storyLayoutReview = process.argv.includes('--story-layout') || writerConfirmationReview || castReview;
 const lookRatioReview = process.argv.includes('--look-ratio');
 const flowReview = process.argv.includes('--flow');
 const authoringReview = process.argv.includes('--authoring') || flowReview;
@@ -111,7 +113,7 @@ const errors = [];
     const catalogs = { cinematic: JSON.parse(await fs.readFile(`client/i18n/locales/${locale}/cinematic.json`, 'utf8')),
       'react-ui': JSON.parse(await fs.readFile(`client/i18n/locales/${locale}/react-ui.json`, 'utf8')),
       playground: JSON.parse(await fs.readFile(`client/i18n/locales/${locale}/playground.json`, 'utf8')) };
-    const context = await browser.newContext({ serviceWorkers: 'block' });
+    const context = await browser.newContext({ serviceWorkers: 'block', ...(castReview ? { reducedMotion: 'reduce' } : {}) });
     await context.addInitScript(id => localStorage.setItem('mpf_active_mock_user_id', id), actor.userId);
     await context.route('**/*', async route => {
       const request = route.request(), url = new URL(request.url());
@@ -137,6 +139,10 @@ const errors = [];
         const {CinematicShotWriter}=await import('/src/features/cinematic/components/CinematicShotWriter.tsx');
         const {CinematicSceneLooks}=await import('/src/features/cinematic/components/CinematicSceneLooks.tsx');
         const {CinematicSharedCharactersPanel}=await import('/src/features/cinematic/components/CinematicSharedCharactersPanel.tsx');
+        const {CinematicCharactersWorkspace}=await import('/src/features/cinematic/components/CinematicCharactersWorkspace.tsx');
+        const {CinematicProjectNavigation}=await import('/src/features/cinematic/components/CinematicProjectNavigation.tsx');
+        const {FeaturePolicyProvider}=await import('/src/lib/permissions/FeaturePolicyProvider.tsx');
+        const {MemoryRouter,useLocation}=await import('/node_modules/.vite/deps/react-router-dom.js${version}');
         const {CinematicFullStoryWriter}=await import('/src/features/cinematic/components/CinematicFullStoryWriter.tsx');
         const {CinematicChapterWriter}=await import('/src/features/cinematic/components/CinematicChapterWriter.tsx');
         const {CinematicSceneOverview}=await import('/src/features/cinematic/components/CinematicSceneOverview.tsx');
@@ -149,7 +155,11 @@ const errors = [];
           description:'Rain Letters / '+i18n.t('cinematic.scenes.shots',{ns:'cinematic'})+' 01 / Fixture Provider / Fixture Video Model / 1080p / 8s'});
           return e('main',{style:{padding:24}},consent.dialog,e('button',{onClick:async()=>{if(await consent.request()&&consent.isCurrent())window.fixtureCreditDispatch=(window.fixtureCreditDispatch||0)+1;}},'Open fixture credit consent'));}
         function App(){const[p,setProject]=React.useState(${JSON.stringify(project)});const view=new URL(location.href).searchParams.get('view');
+        const current=useLocation();
+        window.fixtureRefreshImage=()=>setProject(value=>({...value,version:value.version+1,scenes:value.scenes.map(scene=>({...scene,shots:scene.shots.map(shot=>({...shot,version:shot.version+1,approvedStoryboardSource:{...shot.approvedStoryboardSource,imageUrl:'/api/fixture-media?refreshed',thumbnailUrl:'/api/fixture-media?refreshed'}}))}))}));
         const common={actorId:'${actor.userId}',project:p,online:true,onProjectChanged:setProject};
+        if(${castReview}){const content=current.pathname.endsWith('/characters')?e(CinematicCharactersWorkspace,common):view==='shot'?e(CinematicShotWriter,{...common,shotId:'${shot.id}',onBackToScenes:()=>{},onOpenShot:()=>{},onOpenFirstFrame:()=>{},onOpenVideo:()=>{}}):e(CinematicFullStoryWriter,{...common,onBackToBrief:()=>{},onOpenChapters:()=>{}});
+          return e('div',{style:{maxWidth:1440,padding:20,margin:'auto'}},e(CinematicProjectNavigation,{actorId:common.actorId,project:p},content));}
         if(view==='credit')return e(CreditFixture);
         if(view==='chapter')return e(CinematicChapterWriter,{...common,onBackToFullStory:()=>{},onNavigateChapter:()=>{},onOpenScenes:()=>{}});
         if(view==='scenes')return e(CinematicSceneOverview,{...common,onBackToChapter:()=>{},onOpenShot:()=>{}});
@@ -162,9 +172,13 @@ const errors = [];
         if(view==='characters')return e('div',{style:{maxWidth:620,padding:20,margin:'auto'}},e(CinematicSharedCharactersPanel,{...common,storyProjectId:p.id}));
         if(view==='scene')return e('div',{style:{maxWidth:900,padding:20,margin:'auto'}},e(CinematicSceneLooks,{...common,scene:p.scenes[0],disabled:false}));
         return e(CinematicShotWriter,{...common,shotId:'${shot.id}',onBackToScenes:()=>{},onOpenShot:()=>{},onOpenFirstFrame:()=>{},onOpenCharacters:()=>{},onOpenFinal:()=>{},onOpenVideo:()=>{window.openedVideo=true;}});}
-        ReactDOM.createRoot(document.getElementById('root')).render(e(QueryClientProvider,{client},e(ActorProvider,null,e(I18nextProvider,{i18n},e(App)))));
+        const initialPath='/create/cinematic/${project.id}/'+(new URL(location.href).searchParams.get('view')==='shot'?'shot/${shot.id}':'cast');
+        ReactDOM.createRoot(document.getElementById('root')).render(e(QueryClientProvider,{client},e(ActorProvider,null,e(I18nextProvider,{i18n},e(FeaturePolicyProvider,null,e(MemoryRouter,{initialEntries:[initialPath]},e(App)))))));
         </script></body></html>` });
       if (url.pathname === '/api/me') return route.fulfill({ json: actor });
+      if (castReview && url.pathname === '/api/community/features') return route.fulfill({ json: { community: {}, development: {}, routing: {}, generation: { lookSheetDocumentEnabled: true } } });
+      if (castReview && url.pathname === '/api/generation/video/trusted-sources') return route.fulfill({ json: { items: [{ id: 'fixture-sheet', previewUrl: '/api/fixture-media', modelId: 'Fixture', generationMode: 'character-sheet', generatedAt: null, expiresAt: null, eligible: true, reason: null, policyVersion: 'fixture', category: 'look-sheet' }], hasMore: false } });
+      if (castReview && url.pathname.endsWith('/removal-impact')) return route.fulfill({ json: { projectId: project.id, projectVersion: project.version, fingerprint: 'fixture', items: [{ projectId: project.id, title: project.title, version: project.version, sceneIds: [scene.id], shotIds: [shot.id] }] } });
       if (writerConfirmationReview && url.pathname === '/api/me/preferences') return route.fulfill({ json: { confirmCreditUsage: true } });
       if (url.pathname === '/api/mock-users') return route.fulfill({ json: { enabled: false, users: [] } });
       if (url.pathname === '/api/fixture-media') return route.fulfill({ body: photo, contentType: 'image/jpeg' });
@@ -187,6 +201,95 @@ const errors = [];
     const page = await context.newPage();
     page.on('pageerror', error => errors.push(error.message));
     const t = key => catalogs.cinematic[key];
+    if (castReview) {
+      for (const width of [390, 820, 1440]) for (const theme of ['default', 'fashion', 'creative']) {
+        await page.setViewportSize({ width, height: 950 });
+        await page.goto(`${origin}/__shot-workspace?view=story`);
+        await page.getByTestId('cinematic-full-story').waitFor();
+        await page.evaluate(() => document.fonts.ready);
+        await page.locator('html').evaluate((element, value) => element.dataset.theme = value, theme);
+        const workspaceSwitch = page.locator('.cinematic-project-header__switch');
+        assert.equal(await workspaceSwitch.count(), 1);
+        assert.equal(await page.locator('.cinematic-full-story__side-rail .cinematic-shared-characters').count(), 0);
+        await page.getByRole('button', { name: t('cinematic.chapterOutline.title'), exact: true }).click();
+        assert.ok(await page.locator('#chapter-outline-title').evaluate(element => element === document.activeElement && element.getBoundingClientRect().top >= 0 && element.getBoundingClientRect().bottom <= innerHeight));
+        const storyEditor = page.getByRole('textbox', { name: t('cinematic.fullStory.documentTitle'), exact: true });
+        const draft = `${await storyEditor.inputValue()}\nUnfinished story note`;
+        await storyEditor.fill(draft);
+        await workspaceSwitch.click();
+        await page.getByTestId('cinematic-characters-workspace').waitFor();
+        if (headerReview) {
+          assert.equal(await workspaceSwitch.textContent(), t('cinematic.projectTabs.backToStory'));
+          assert.ok(await page.locator('body').evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+          await page.screenshot({ path: path.join(output, `${locale}-${width}-${theme}-characters-header.png`), fullPage: true });
+          await workspaceSwitch.click();
+          await storyEditor.waitFor();
+          await page.getByRole('button', { name: t('cinematic.recovery.restore'), exact: true }).click();
+          assert.equal(await storyEditor.inputValue(), draft);
+          assert.ok(await page.locator('body').evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+          await page.screenshot({ path: path.join(output, `${locale}-${width}-${theme}-story-header.png`), fullPage: true });
+          await page.evaluate(() => localStorage.clear());
+          continue;
+        }
+        await page.locator('.cinematic-cast-list > button').first().click();
+        await page.getByText(t('cinematic.lookReferences.title'), { exact: true }).click();
+        const toolSizes = await page.locator('.cinematic-character-looks__tools button').evaluateAll(elements => elements.map(element => {
+          const b = element.getBoundingClientRect(); return { width: b.width, height: b.height, overflow: element.scrollWidth > element.clientWidth + 1 };
+        }));
+        assert.ok(toolSizes.every(size => size.width >= 40 && size.height <= 70 && !size.overflow), `${locale}/${width}: Look tools compressed`);
+        await page.getByRole('button', { name: t('cinematic.momeloLook.select'), exact: true }).click();
+        await page.locator('.cinematic-momelo-look-grid img').waitFor();
+        const modal = page.getByRole('dialog');
+        assert.ok(await modal.evaluate(element => { const b=element.getBoundingClientRect(); return element.contains(document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2)); }), 'Look dialog covered by overlay');
+        await page.locator('.cinematic-momelo-look-grid button').first().click();
+        await modal.getByRole('checkbox').check();
+        assert.ok(await modal.getByRole('button', { name: t('cinematic.momeloLook.review'), exact: true }).isEnabled());
+        assert.ok(await modal.evaluate(element => { const b=element.getBoundingClientRect(); return b.left>=0 && b.top>=0 && b.right<=innerWidth && b.bottom<=innerHeight && element.scrollWidth<=element.clientWidth+1; }));
+        await page.screenshot({ path: path.join(output, `pc017-import-${locale}-${width}-${theme}.png`), fullPage: true });
+        await page.keyboard.press('Escape');
+        assert.equal(await modal.count(), 0);
+        if (width < 700) { await page.getByRole('button', { name: t('cinematic.projectTabs.castList'), exact: true }).click(); assert.ok(await page.locator('.cinematic-cast-list').isVisible()); }
+        await page.screenshot({ path: path.join(output, `pc017-cast-${locale}-${width}-${theme}.png`), fullPage: true });
+        await page.locator('.cinematic-cast-list > button').nth(1).click();
+        await page.getByText(t('cinematic.lookReferences.title'), { exact: true }).click();
+        const removeLook = page.locator('.cinematic-look-reference-list button');
+        await removeLook.click();
+        const unlink = page.getByRole('alertdialog');
+        await unlink.waitFor();
+        assert.ok(await unlink.evaluate(element => { const b=element.getBoundingClientRect(); return b.top >= 0 && b.bottom <= innerHeight && element.scrollWidth <= element.clientWidth + 1 && element.contains(document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2)); }));
+        await page.screenshot({ path: path.join(output, `pc017-unlink-${locale}-${width}-${theme}.png`), fullPage: true });
+        await page.keyboard.press('Escape');
+        assert.equal(await unlink.count(), 0);
+        await page.waitForFunction(() => document.activeElement === document.querySelector('.cinematic-look-reference-list button'));
+        await workspaceSwitch.click();
+        await page.getByRole('button', { name: t('cinematic.recovery.restore'), exact: true }).click();
+        assert.equal(await page.getByRole('textbox', { name: t('cinematic.fullStory.documentTitle'), exact: true }).inputValue(), draft);
+        await page.evaluate(() => localStorage.clear());
+        await page.goto(`${origin}/__shot-workspace?view=shot`);
+        await page.getByTestId('cinematic-shot-writer').waitFor();
+        await page.locator('html').evaluate((element, value) => element.dataset.theme = value, theme);
+        const editor = page.getByRole('textbox', { name: t('cinematic.shotWriter.direction'), exact: true });
+        await editor.fill('Draft direction survives frame update');
+        await page.evaluate(() => window.fixtureRefreshImage());
+        assert.equal(await editor.inputValue(), 'Draft direction survives frame update');
+        const frame = page.locator('.cinematic-shot-writer__frame');
+        const frameBox = await frame.boundingBox(), editorBox = await editor.boundingBox();
+        assert.ok(width >= 1100 ? frameBox.x > editorBox.x + editorBox.width : frameBox.y < editorBox.y, 'paired frame position');
+        assert.equal(await frame.count(), 1);
+        await frame.locator('img').waitFor();
+        await page.waitForFunction(() => [...document.querySelectorAll('.cinematic-shot-writer__frame img')].every(image => image.complete && image.naturalWidth > 0));
+        assert.equal(await frame.locator('img').evaluate(image => getComputedStyle(image).objectFit === 'contain'), true);
+        assert.ok(await page.locator('body').evaluate(element => element.scrollWidth <= element.clientWidth + 1), `${locale}/${width}/${theme}: overflow`);
+        await page.screenshot({ path: path.join(output, `pc017-shot-${locale}-${width}-${theme}.png`), fullPage: true });
+        await frame.getByRole('button', { name: t('cinematic.projectTabs.inspectFrame'), exact: true }).click();
+        await page.getByRole('dialog').waitFor();
+        await page.keyboard.press('Escape');
+        assert.equal(await page.getByRole('dialog').count(), 0);
+        assert.equal(await editor.inputValue(), 'Draft direction survives frame update');
+        await page.evaluate(() => localStorage.clear());
+      }
+      await context.close(); continue;
+    }
     if (writerConfirmationReview) {
       const assertLayout = async (label, locator) => {
         assert.ok(await page.locator('body').evaluate(element => element.scrollWidth <= element.clientWidth + 1), `${label}: page overflow`);
@@ -496,7 +599,7 @@ const errors = [];
     await context.close();
   }
   assert.deepEqual(errors, []);
-  console.log(`PASS ${writerConfirmationReview ? 'GC04 writer tabs and regeneration consent (three themes, fixture dispatch only)' : flowReview ? 'Shot recovery, portable export and Chapter Final (three themes)' : lookRatioReview ? 'Fixed portrait engine with stored square selection' : storyLayoutReview ? 'Full Story chapter placement and six-Character layout (three themes)' : lookReview ? 'Character/Scene/Shot Look references and style dialog' : 'Shot workspace and custom prompt save/reload'} TH/EN at ${flowReview ? '390/720/820/1440' : '390/820/1440'}. Screenshots: ${output}`);
+  console.log(`PASS ${headerReview ? 'Compact Project Header, Story/Characters round trip and draft recovery (three themes)' : castReview ? 'PC017 Story/Cast navigation, source picker, draft recovery and paired First Frame (three themes)' : writerConfirmationReview ? 'GC04 writer tabs and regeneration consent (three themes, fixture dispatch only)' : flowReview ? 'Shot recovery, portable export and Chapter Final (three themes)' : lookRatioReview ? 'Fixed portrait engine with stored square selection' : storyLayoutReview ? 'Full Story chapter placement and six-Character layout (three themes)' : lookReview ? 'Character/Scene/Shot Look references and style dialog' : 'Shot workspace and custom prompt save/reload'} TH/EN at ${flowReview ? '390/720/820/1440' : '390/820/1440'}. Screenshots: ${output}`);
 } catch (error) {
   if (browser && output) for (const context of browser.contexts()) for (const page of context.pages()) {
     await page.screenshot({ path: path.join(output, 'failure.png'), fullPage: true }).catch(() => {});

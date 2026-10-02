@@ -1,9 +1,12 @@
-import { Check, ChevronDown, Image, Library, Mic, Plus, Save, Trash2, Unlink, UserRound } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, Image, Library, Mic, Plus, Save, Trash2, Unlink, UserRound } from 'lucide-react';
 import { useId, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
+import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
+import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import { getCinematicProject } from '../api/cinematicApi';
 import { detachCinematicSharedCharacter, removeCinematicSharedCharacter, setCinematicChapterCharacters, upsertCinematicSharedCharacter } from '../api/cinematicSeriesApi';
 import { updateCinematicSharedVoice } from '../api/cinematicSeriesApi';
@@ -21,9 +24,12 @@ type Props = {
   online: boolean;
   onProjectChanged: (project: CinematicProject) => void;
   storyAction?: ReactNode;
+  workspace?: boolean;
+  initialCharacterId?: string;
+  onSelectCharacter?: (characterId: string) => void;
 };
 
-export function CinematicSharedCharactersPanel({ actorId, project, storyProjectId, chapterMode = false, online, onProjectChanged, storyAction }: Props) {
+export function CinematicSharedCharactersPanel({ actorId, project, storyProjectId, chapterMode = false, online, onProjectChanged, storyAction, workspace = false, initialCharacterId, onSelectCharacter }: Props) {
   const { t } = useTranslation('cinematic');
   const queryClient = useQueryClient();
   const storyProject = useQuery({
@@ -40,10 +46,13 @@ export function CinematicSharedCharactersPanel({ actorId, project, storyProjectI
   const [role, setRole] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [selectedId, setSelectedId] = useState(initialCharacterId || '');
+  const [showDetail, setShowDetail] = useState(Boolean(initialCharacterId));
   const [voiceDrafts, setVoiceDrafts] = useState<Record<string, string>>({});
   const [libraryTargetId, setLibraryTargetId] = useState<string | null | undefined>(undefined);
   const characters = (storyProject.data?.castAssignments || []).filter(item => item.active !== false);
   const linked = new Set(project.chapterCharacterIds || []);
+  const selectedCharacter = characters.find(item => item.id === selectedId) || characters[0];
 
   async function saveVoice(characterId: string) {
     if (!storyProject.data || busy || !online) return;
@@ -124,8 +133,7 @@ export function CinematicSharedCharactersPanel({ actorId, project, storyProjectI
   }
 
   async function updateCharacterSource(characterId: string, action: 'detach' | 'remove') {
-    if (!storyProject.data || busy) return;
-    if (action === 'remove' && !window.confirm(t('cinematic.characters.removeConfirm'))) return;
+    if (!storyProject.data || busy || !online) return;
     setBusy(`${action}:${characterId}`); setError('');
     try {
       const operation = action === 'detach' ? detachCinematicSharedCharacter : removeCinematicSharedCharacter;
@@ -138,18 +146,18 @@ export function CinematicSharedCharactersPanel({ actorId, project, storyProjectI
   }
 
   return (
-    <section className="cinematic-shared-characters" aria-label={t('cinematic.characters.title')}>
+    <section className={`cinematic-shared-characters${workspace ? ' is-workspace' : ''}${showDetail ? ' is-detail' : ''}`} aria-label={t('cinematic.characters.title')}>
       <header>
         <div><span>{t('cinematic.characters.eyebrow')}</span><h3>{t('cinematic.characters.title')}</h3></div>
         <div className="cinematic-shared-characters__header-actions">
         <Button size="sm" variant="ghost" icon={<Plus />} disabled={!online || Boolean(busy)} onClick={() => { setExpanded(true); setAdding(value => expanded ? !value : true); }}>
           {t('cinematic.characters.add')}
         </Button>
-        <Button type="button" size="icon" variant="ghost" icon={<ChevronDown className={expanded ? 'is-expanded' : ''} />}
+        {!workspace ? <Button type="button" size="icon" variant="ghost" icon={<ChevronDown className={expanded ? 'is-expanded' : ''} />}
           aria-expanded={expanded} aria-controls={contentId}
           aria-label={t(expanded ? 'cinematic.characters.collapse' : 'cinematic.characters.expand')}
           title={t(expanded ? 'cinematic.characters.collapse' : 'cinematic.characters.expand')}
-          onClick={() => setExpanded(value => !value)} />
+          onClick={() => setExpanded(value => !value)} /> : null}
         </div>
       </header>
       {error ? <StatusNotice tone="error" title={t('cinematic.characters.operationFailed')}>{error}</StatusNotice> : null}
@@ -163,10 +171,23 @@ export function CinematicSharedCharactersPanel({ actorId, project, storyProjectI
           <Button size="sm" icon={<Library />} disabled={Boolean(busy)} onClick={() => setLibraryTargetId(null)}>{t('cinematic.characters.chooseFromLibrary')}</Button>
         </div>
       ) : null}
-      {storyProject.isLoading ? <p role="status">{t('cinematic.characters.loading')}</p> : null}
+      {storyProject.isLoading ? <p role="status"><ProcessingSpinner />{t('cinematic.characters.loading')}</p> : null}
+      {storyProject.isError ? <StatusNotice tone="error" title={t('cinematic.characters.operationFailed')}>
+        <Button onClick={() => void storyProject.refetch()}>{t('cinematic.lookReferences.refresh')}</Button>
+      </StatusNotice> : null}
       {!storyProject.isLoading && !characters.length ? <p className="cinematic-shared-characters__empty">{t('cinematic.characters.empty')}</p> : null}
+      <div className={workspace ? 'cinematic-cast-layout' : undefined}>
+      {workspace && characters.length ? <nav className="cinematic-cast-list" aria-label={t('cinematic.characters.title')}>
+        {characters.map(character => <button key={character.id} type="button" aria-current={character.id === selectedCharacter?.id ? 'true' : undefined}
+          disabled={Boolean(busy)} onClick={() => { setSelectedId(character.id); setShowDetail(true); onSelectCharacter?.(character.id); }}>
+          <span className="cinematic-shared-characters__portrait"><AuthenticatedMediaImage src={character.portraitUrl || character.generatedSheet?.previewUrl || undefined} alt="" fallback={<UserRound aria-hidden="true" />} /></span>
+          <span><strong>{character.displayName}</strong><small>{character.storyRole || t('cinematic.characters.supporting')}</small></span>
+        </button>)}
+      </nav> : null}
+      <div className={workspace ? 'cinematic-cast-detail' : undefined}>
+      {workspace ? <Button className="cinematic-cast-back" size="sm" icon={<ArrowLeft />} onClick={() => setShowDetail(false)}>{t('cinematic.projectTabs.castList')}</Button> : null}
       <ul>
-        {characters.map(character => {
+        {(workspace ? characters.filter(item => item.id === selectedCharacter?.id) : characters).map(character => {
           const selected = !chapterMode || linked.has(character.id);
           const preview = character.generatedSheet?.previewUrl || character.portraitUrl || null;
           return (
@@ -174,7 +195,7 @@ export function CinematicSharedCharactersPanel({ actorId, project, storyProjectI
               <div className="cinematic-shared-characters__entry">
                 <button className="cinematic-shared-characters__identity" type="button" disabled={!chapterMode || Boolean(busy)} aria-pressed={selected} onClick={() => void toggleCharacter(character.id)}>
                   <span className={`cinematic-shared-characters__portrait${character.generatedSheet?.previewUrl ? ' is-sheet' : ''}`}>
-                    {preview ? <img src={preview} alt="" /> : <UserRound aria-hidden="true" />}
+                    <AuthenticatedMediaImage src={preview || undefined} alt="" fallback={<UserRound aria-hidden="true" />} />
                   </span>
                   <span>
                     <strong title={character.displayName}>{character.displayName}</strong>
@@ -185,8 +206,14 @@ export function CinematicSharedCharactersPanel({ actorId, project, storyProjectI
                 </button>
                 <div className="cinematic-shared-characters__actions">
                   <Button className="cinematic-shared-characters__action" type="button" size="icon" variant="ghost" icon={<Library />} aria-label={t('cinematic.characters.changeFor', { name: character.displayName })} title={t('cinematic.characters.changeFor', { name: character.displayName })} disabled={Boolean(busy)} onClick={() => setLibraryTargetId(character.id)} />
-                  {character.sourceType !== 'dossier' ? <Button className="cinematic-shared-characters__action" type="button" size="icon" variant="ghost" icon={<Unlink />} aria-label={t('cinematic.characters.detachFor', { name: character.displayName })} title={t('cinematic.characters.detachFor', { name: character.displayName })} disabled={Boolean(busy)} onClick={() => void updateCharacterSource(character.id, 'detach')} /> : null}
-                  <Button className="cinematic-shared-characters__action" type="button" size="icon" variant="ghost" icon={<Trash2 />} aria-label={t('cinematic.characters.removeFor', { name: character.displayName })} title={t('cinematic.characters.removeFor', { name: character.displayName })} disabled={Boolean(busy)} onClick={() => void updateCharacterSource(character.id, 'remove')} />
+                  {character.sourceType !== 'dossier' ? <ConfirmDialog title={t('cinematic.characters.detachFor', { name: character.displayName })}
+                    description={t('cinematic.projectTabs.detachDescription')} confirmLabel={t('cinematic.characters.detachFor', { name: character.displayName })}
+                    pending={!online || Boolean(busy)} onConfirm={() => void updateCharacterSource(character.id, 'detach')}
+                    trigger={<Button className="cinematic-shared-characters__action" type="button" size="icon" variant="ghost" icon={<Unlink />} aria-label={t('cinematic.characters.detachFor', { name: character.displayName })} title={t('cinematic.characters.detachFor', { name: character.displayName })} disabled={!online || Boolean(busy)} />} /> : null}
+                  <ConfirmDialog title={t('cinematic.characters.removeFor', { name: character.displayName })} description={t('cinematic.characters.removeConfirm')}
+                    confirmLabel={t('cinematic.characters.removeFor', { name: character.displayName })} destructive pending={!online || Boolean(busy)}
+                    onConfirm={() => void updateCharacterSource(character.id, 'remove')}
+                    trigger={<Button className="cinematic-shared-characters__action" type="button" size="icon" variant="ghost" icon={<Trash2 />} aria-label={t('cinematic.characters.removeFor', { name: character.displayName })} title={t('cinematic.characters.removeFor', { name: character.displayName })} disabled={!online || Boolean(busy)} />} />
                 </div>
               </div>
               {storyProject.data ? <CinematicCharacterLooks actorId={actorId} project={project} storyProject={storyProject.data} character={character}
@@ -200,6 +227,8 @@ export function CinematicSharedCharactersPanel({ actorId, project, storyProjectI
           );
         })}
       </ul>
+      </div>
+      </div>
       </div>
       {libraryTargetId !== undefined ? <CharacterLibraryPicker
         open

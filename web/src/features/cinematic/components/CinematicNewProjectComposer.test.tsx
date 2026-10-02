@@ -137,13 +137,26 @@ describe('CinematicNewProjectComposer', () => {
   it('updates format and orientation and enables explicit story preparation', () => {
     const draft = { ...createCinematicSetupDraft(), storyBrief: 'A florist meets a stranger during a storm.' };
     const props = renderComposer({ draft });
-    expect(screen.getByRole('button', { name: 'cinematic.newProject.format.mini-series' })).toHaveAttribute('aria-pressed', 'true');
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.newProject.format.short-film' }));
-    fireEvent.click(screen.getByRole('button', { name: 'cinematic.newProject.orientation.16:9' }));
+    expect(screen.getByRole('radio', { name: 'cinematic.newProject.format.mini-series' })).toBeChecked();
+    fireEvent.click(screen.getByRole('radio', { name: 'cinematic.newProject.format.short-film' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'cinematic.newProject.orientation.16:9' }));
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.newProject.prepareStory' }));
     expect(props.onUpdate).toHaveBeenCalledWith('format', 'short-film');
     expect(props.onUpdate).toHaveBeenCalledWith('aspectRatio', '16:9');
     expect(props.onPrepareStory).toHaveBeenCalledOnce();
+  });
+
+  it('keeps format and orientation groups distinct and disables all choices while pending', () => {
+    renderComposer({ pending: true });
+    const format = screen.getByRole('group', { name: 'cinematic.newProject.format' });
+    const orientation = screen.getByRole('group', { name: 'cinematic.newProject.orientation' });
+    const formats = within(format).getAllByRole('radio');
+    const ratios = within(orientation).getAllByRole('radio');
+    expect(formats).toHaveLength(2);
+    expect(ratios).toHaveLength(3);
+    expect(formats[0]?.getAttribute('name')).not.toBe(ratios[0]?.getAttribute('name'));
+    [...formats, ...ratios].forEach(input => expect(input).toBeDisabled());
+    expect(screen.getByRole('button', { name: 'cinematic.newProject.createDraft' })).toBeDisabled();
   });
 
   it('adds ordered Genres without replacing the Primary and offers a two-minute Chapter', () => {

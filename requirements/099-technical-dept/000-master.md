@@ -6,6 +6,34 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Project Characters And Bulk Consent (Rewamp 017, 2026-10-01)
+
+`CinematicProjectNavigation.tsx` owns route-backed Story/Characters controls;
+`CinematicCharactersWorkspace.tsx` composes the existing root-owned Cast, Look
+and voice contracts. `/characters` is additive; `/cast` still opens Full Story.
+Selected Character uses the route search parameter; Story return context is
+actor/Project-scoped router state. Existing writer recovery remains authoritative.
+`CinematicMomeloLookImport.tsx` uses the existing trusted-source facade and Profile
+Review, not a new asset library, verifier or generation pipeline.
+
+`CinematicApplicationService.getWardrobeLookRemovalImpact/removeWardrobeLook`
+owns root-only binding removal and atomic invalidation across related active
+Chapters via `CinematicSeriesService.readCharacterWorkspace` and its existing
+mutation boundary. Version plus usage fingerprint protects reviewed destructive
+scope. Original library files/Looks, receipts and historical output assets remain.
+`CharacterLookService.importMomeloSheet` owns the strict categorized original
+import through the existing trusted-source/wardrobe authority facades. Optional
+uploaded bytes must match the owned original hash. Import is not approval.
+
+Shared `useCreditConfirmation` adds opt-in mandatory consent for bulk, without
+changing single-operation preferences. `CinematicWritingConsent.tsx` composes
+unbilled proposal confirmation. Storyboard batch estimates retain Generation's
+quote and settlement owners; one expiry timer is bounded to the open quote
+snapshot and cleared on close/change/unmount. No Job polling loop is added.
+Shot First Frame presentation reuses selected source, authenticated media/viewer
+and current Project updates. No runtime paths, repository or provider dispatch
+owners change. Focused evidence: `Rewamp/tasks/017-project-characters-and-bulk-consent.md`.
+
 ### Generation Consent And Identity Preferences (Rewamp 016, 2026-09-27)
 
 `server/domain/identity/UserPreferenceService.js` owns self-only GET/PATCH
@@ -190,6 +218,17 @@ loopback. server/domain/assets/FacelessPrevisAssetService.js imports the
 immutable derivative using the existing AssetRepository and outputs path.
 No new durable runtime store exists. Durable Jobs, private media grant,
 model-license evidence and deployment ownership remain open in the 021 plan.
+The later local-only dialogue POC adds an opt-in private scratch store for
+expiring media/voice profiles under the standalone service data directory and
+extends its existing JobQueueManager for audio operations. Its API lives in
+post-processing-service/api/dialogue_routes.py; deterministic editing is in
+adapters/dialogue_audio_adapter.py, optional OpenVoice conversion in
+adapters/openvoice_conversion_adapter.py, and isolated inference in
+domain/dialogue_worker.py. New model downloads/caches are directed to
+`D:/development/temp/momelo-models` by the dedicated batch/setup scripts.
+This is not a Core Asset/Credit integration and does not change the Faceless
+previs pilot ownership above. Runtime and model quality qualification remain
+open in the 021 dialogue plan.
 Existing Core Assets registers
 immutable derivatives, Cinematic owns Storyboard selection/approval,
 Generation owns provider Jobs and Credits alone owns billing. The new

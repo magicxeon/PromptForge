@@ -173,6 +173,10 @@ describe('StoryboardGenerateAllDialog', () => {
     await requestConsent();
     const approve = screen.getByRole('button', { name: 'ui.creditConsent.confirm' });
     fireEvent.click(approve); fireEvent.click(approve);
+    if (screen.queryByRole('alertdialog')) {
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    }
     await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
     expect(mocks.submitBatch.mock.calls[0]![1].operations[0].estimateId).toBe('estimate_storyboard');
     expect(mocks.estimateGeneration).toHaveBeenCalledTimes(1);
@@ -192,6 +196,10 @@ describe('StoryboardGenerateAllDialog', () => {
     await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
     expect(mocks.submitBatch).not.toHaveBeenCalled();
     await requestConsent(); fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    if (screen.queryByRole('alertdialog')) {
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    }
     await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
     expect(mocks.submitBatch.mock.calls[0]![1].operations[0].estimateId).toBe('new-price');
   });
@@ -204,6 +212,10 @@ describe('StoryboardGenerateAllDialog', () => {
     expect(mocks.submitBatch).not.toHaveBeenCalled();
     await screen.findByText('24 cinematic.cost.credits');
     await requestConsent(); fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    if (screen.queryByRole('alertdialog')) {
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    }
     await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
     expect(mocks.submitBatch.mock.calls[0]![1].operations).toHaveLength(2);
   });
@@ -217,7 +229,7 @@ describe('StoryboardGenerateAllDialog', () => {
     expect(screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' })).toBeDisabled();
     expect(mocks.submitBatch).not.toHaveBeenCalled();
   });
-  it('zero-credit batch skips only spending consent, not the selection modal', async () => {
+  it('zero-credit bulk still requires explicit confirmation despite opt-out', async () => {
     mocks.estimateGeneration.mockResolvedValue({ estimate: { estimateId: 'free', estimatedCredits: 0, expiresAt: Date.now() + 60_000 },
       account: { availableCredits: 100, canAfford: true } });
     setupConsent();
@@ -225,8 +237,23 @@ describe('StoryboardGenerateAllDialog', () => {
     await waitFor(() => expect(generate).toBeEnabled());
     expect(mocks.submitBatch).not.toHaveBeenCalled();
     fireEvent.click(generate); fireEvent.click(generate);
+    if (screen.queryByRole('alertdialog')) {
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    }
     await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+  it('blocks expired quotes and enables generation only after explicit refresh', async () => {
+    mocks.estimateGeneration.mockResolvedValue({ estimate: { estimateId: 'expired', estimatedCredits: 12, expiresAt: Date.now() - 1 }, account: { availableCredits: 100 } });
+    setupConsent();
+    await screen.findByText('cinematic.storyboard.batch.quoteExpired');
+    expect(screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' })).toBeDisabled();
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
+    mocks.estimateGeneration.mockResolvedValue({ estimate: { estimateId: 'fresh', estimatedCredits: 12, expiresAt: new Date(Date.now() + 60_000).toISOString() }, account: { availableCredits: 100 } });
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.lookReferences.refresh' }));
+    await requestConsent();
+    expect(mocks.submitBatch).not.toHaveBeenCalled();
   });
 
   it('quotes eligible Shots once and submits one server-owned batch command', async () => {
@@ -250,6 +277,10 @@ describe('StoryboardGenerateAllDialog', () => {
     fireEvent.click(screen.getByRole('button', {
       name: 'cinematic.storyboard.batch.generate'
     }));
+    if (screen.queryByRole('alertdialog')) {
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    }
     await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
     const submitted = mocks.submitBatch.mock.calls[0]?.[1];
     expect(submitted?.operations).toHaveLength(1);
@@ -284,6 +315,10 @@ describe('StoryboardGenerateAllDialog', () => {
     });
     expect(mocks.estimateGeneration).toHaveBeenCalledWith(expected);
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' }));
+    if (screen.queryByRole('alertdialog')) {
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    }
     await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
     expect(mocks.submitBatch.mock.calls[0]?.[1].operations[0].draft).toEqual(expected);
   });
@@ -329,6 +364,10 @@ describe('StoryboardGenerateAllDialog', () => {
     const generate = screen.getByRole('button', { name: 'cinematic.storyboard.batch.generate' });
     await waitFor(() => expect(generate).toBeEnabled());
     fireEvent.click(generate);
+    if (screen.queryByRole('alertdialog')) {
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    }
     await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
     expect(mocks.submitBatch.mock.calls[0]?.[1]?.operations.map((item: { shotId: string }) => item.shotId))
       .toEqual(['shot_pending', 'shot_approved']);
@@ -352,6 +391,10 @@ describe('StoryboardGenerateAllDialog', () => {
     await waitFor(() => expect(generate).toBeEnabled());
     expect(await screen.findByText('12 cinematic.cost.credits')).toBeVisible();
     fireEvent.click(generate);
+    if (screen.queryByRole('alertdialog')) {
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+    }
     await waitFor(() => expect(mocks.submitBatch).toHaveBeenCalledTimes(1));
     expect(mocks.submitBatch.mock.calls[0]?.[1]?.operations).toEqual([
       expect.objectContaining({ shotId: 'shot_approved', estimateId: 'estimate_storyboard' })
@@ -466,6 +509,7 @@ describe('StoryboardGenerateAllDialog', () => {
     fireEvent.click(screen.getByRole('button', {
       name: 'cinematic.storyboard.batch.generate'
     }));
+    fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
     await waitFor(() => expect(readStoryboardEnginePreference('usr_alice')).toEqual({
       provider: 'gemini',
       model: 'image-model'

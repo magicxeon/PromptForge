@@ -23,6 +23,14 @@ export function deleteCharacter(characterId: string, confirmation: string) {
   });
 }
 
+export function importMomeloCharacterLook(characterId: string, input: {
+  characterProfileVersionId: string; generationResultId: string; name: string;
+  identityAndViewsConfirmed: boolean; uploadedAssetId?: string;
+}) {
+  return apiRequest(`/api/character-profiles/${encodeURIComponent(characterId)}/looks/import-momelo`,
+    { method: 'POST', body: input, schema: characterLookSchema });
+}
+
 export function getMyCreatorProfile() {
   return getOwnCreatorProfileLocator();
 }

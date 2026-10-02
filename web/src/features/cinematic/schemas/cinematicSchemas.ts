@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export const cinematicLookRemovalImpactSchema = z.object({
+  projectId: z.string(), projectVersion: z.number(), fingerprint: z.string(),
+  items: z.array(z.object({ projectId: z.string(), title: z.string(), version: z.number(),
+    sceneIds: z.array(z.string()), shotIds: z.array(z.string()) }))
+});
+
 export const storyboardRenderStyleSchema = z.enum(['concept_sketch_v1', 'photorealistic_storyboard_v1', 'faceless_previs_v1', 'white_previs_v1']);
 export const isStoryboardCompositionStyle = (value: unknown) => storyboardRenderStyleSchema.safeParse(value).success;
 import { cinematicCastReferenceSchema, promptBudgetSchema } from '../../generation/schemas/generationSchemas';

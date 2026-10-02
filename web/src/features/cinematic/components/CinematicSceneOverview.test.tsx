@@ -75,11 +75,13 @@ describe('CinematicSceneOverview', () => {
   beforeEach(() => { localStorage.clear(); for (const mock of Object.values(api)) mock.mockReset(); });
   afterEach(() => vi.restoreAllMocks());
 
-  it('keeps first-time Scene generation immediate without confirmation', () => {
+  it('confirms first-time Scene bulk generation with unbilled Credits before dispatch', () => {
     api.propose.mockImplementation(() => new Promise(() => {}));
     render(<CinematicSceneOverview actorId="actor-1" project={{ ...project, scenes: [] }} online onBackToChapter={vi.fn()} onOpenShot={vi.fn()} onProjectChanged={vi.fn()} />);
     fireEvent.click(screen.getAllByRole('button', { name: 'cinematic.scenes.generate' })[0]!);
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('cinematic.bulk.unbilled');
+    expect(api.propose).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
     expect(api.propose).toHaveBeenCalledWith('chapter-1', 5);
   });
 
@@ -209,6 +211,7 @@ describe('CinematicSceneOverview', () => {
     api.proposeShots.mockResolvedValue({ project: { ...project, version: 6, shotProposals: [shotProposal] }, proposal: shotProposal });
     render(<CinematicSceneOverview actorId="actor-1" project={project} online onBackToChapter={vi.fn()} onOpenShot={vi.fn()} onProjectChanged={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'cinematic.scenes.generateShots' }));
+    fireEvent.click(screen.getByRole('button', { name: 'cinematic.regeneration.confirm' }));
     await waitFor(() => expect(api.proposeShots).toHaveBeenCalledWith('chapter-1', 'scene-1', 5));
     expect(screen.getByText('Reach down')).toBeVisible();
     expect(screen.getByText('cinematic.scenes.shotImpactNew')).toBeVisible();

@@ -4,6 +4,10 @@ Status: Planned. Depends on P4 transcript review and explicit rights/commercial/
 
 ## Tasks In Order
 
+For the newer isolated-dialogue Postman POC, follow [008](008-dialogue-api-poc.md):
+repair first, conversion second, no lip-sync/music/ambience or application UI.
+The production sequence below remains future work and is not the POC task order.
+
 1. Approve voice-owner consent text, verification, permitted scope, revocation/deletion and anti-impersonation policy; model rights and regional storage must be documented before any enrollment.
 2. Implement private, auditable Voice Asset enrollment and server-side consent recheck on submission, retry and sharing; prove actor isolation and revocation.
 3. Qualify Thai and other declared language synthesis with native listening fixtures. Add segment-level Replace Voice with reviewed transcript and immutable audio derivative; preserve ambience and unaffected speech.

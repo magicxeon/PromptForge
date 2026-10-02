@@ -11,10 +11,9 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import * as Tabs from '@radix-ui/react-tabs';
 import { Button } from "../../../components/ui/Button";
 import { StatusNotice } from "../../../components/ui/StatusNotice";
 import {
@@ -35,10 +34,10 @@ import type {
   CinematicProject,
 } from "../schemas/cinematicSchemas";
 import type { CinematicSeriesWorkspace } from "../schemas/cinematicSeriesSchemas";
-import { CinematicSharedCharactersPanel } from "./CinematicSharedCharactersPanel";
 import { CinematicChapterOutline, chapterOutlineNeedsReview } from "./CinematicChapterOutline";
 import { fullStoryRecoverySchema, useCinematicTextRecovery } from '../state/useCinematicTextRecovery';
 import { CinematicRecoveryNotice } from './CinematicRecoveryNotice';
+import { CinematicWritingConsent } from './CinematicWritingConsent';
 
 type Props = {
   actorId: string;
@@ -46,6 +45,7 @@ type Props = {
   online: boolean;
   onBackToBrief: () => void;
   onOpenChapters: () => void;
+  onOpenCharacters?: () => void;
   onProjectChanged: (project: CinematicProject) => void;
 };
 
@@ -55,6 +55,7 @@ export function CinematicFullStoryWriter({
   online,
   onBackToBrief,
   onOpenChapters,
+  onOpenCharacters,
   onProjectChanged,
 }: Props) {
   const { t, i18n } = useTranslation("cinematic");
@@ -101,13 +102,11 @@ export function CinematicFullStoryWriter({
     | "apply-chapters"
     | "discard-chapters"
     | "restore"
-    | "characters"
     | null
   >(null);
   const [error, setError] = useState("");
-  const [characterResult, setCharacterResult] = useState("");
-  const [panel, setPanel] = useState('assist');
   const [outlinePending, setOutlinePending] = useState(false);
+  const outlineRef = useRef<HTMLElement>(null);
   const outlineReviewRequired = chapterOutlineNeedsReview(project);
   const pendingSavedChapterProposal = (project.chapterProposals || []).find(item => item.status === 'pending_review');
 
@@ -237,27 +236,6 @@ export function CinematicFullStoryWriter({
       );
       queryClient.setQueryData(seriesQueryKey, result.workspace);
       if (result.proposal.status === "applied") onOpenChapters();
-    });
-  }
-
-  function extractCharacters() {
-    if (!activeRevision || dirty || proposal || !online) return;
-    setCharacterResult("");
-    void run("characters", async () => {
-      const extracted = await proposeCinematicFullStory(project.id, project.version, "", "characters");
-      if (!extracted.characters.length) {
-        setCharacterResult(t("cinematic.storyImport.noCharacters"));
-        return;
-      }
-      const saved = await saveCinematicFullStoryRevision(project.id, {
-        expectedVersion: project.version,
-        content: activeRevision.content,
-        source: "manual",
-        characters: extracted.characters,
-        provenance: extracted.provenance,
-      });
-      onProjectChanged(saved);
-      setCharacterResult(t("cinematic.storyImport.charactersReady", { count: extracted.characters.length }));
     });
   }
 
@@ -433,17 +411,11 @@ export function CinematicFullStoryWriter({
             <CinematicChapterOutline key={`${actorId}:${project.id}`} actorId={actorId} project={project}
               disabled={!online || Boolean(busy) || dirty || Boolean(proposal) || Boolean(chapterProposal)
                 || (project.chapterProposals || []).some(item => item.status === 'pending_review')}
-              onProjectChanged={onProjectChanged} onPendingChange={setOutlinePending} />
+              onProjectChanged={onProjectChanged} onPendingChange={setOutlinePending} sectionRef={outlineRef} />
           ) : null}
         </section>
 
         <aside className="cinematic-full-story__side-rail">
-          <Tabs.Root value={panel} onValueChange={setPanel} style={{ display: 'grid', minWidth: 0, gap: 14 }}>
-            <Tabs.List className="cinematic-writer-panel-tabs" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }} aria-label={t('cinematic.chapterWriter.tools')}>
-              <Tabs.Trigger value="assist" title={t('cinematic.chapterWriter.assist')}><Sparkles aria-hidden="true" />{t('cinematic.chapterWriter.assist')}</Tabs.Trigger>
-              <Tabs.Trigger value="characters" title={t('cinematic.chapterWriter.characters')}><Users aria-hidden="true" />{t('cinematic.chapterWriter.characters')}</Tabs.Trigger>
-            </Tabs.List>
-            <Tabs.Content value="assist" forceMount hidden={panel !== 'assist'}>
           <section className="cinematic-full-story__assistant">
             <div>
               <Sparkles aria-hidden="true" />
@@ -505,24 +477,8 @@ export function CinematicFullStoryWriter({
               </div>
             ) : null}
           </section>
-            </Tabs.Content>
-            <Tabs.Content value="characters" forceMount hidden={panel !== 'characters'}>
-          <CinematicSharedCharactersPanel
-            actorId={actorId}
-            project={project}
-            storyProjectId={project.id}
-            online={online}
-            onProjectChanged={onProjectChanged}
-            storyAction={activeRevision ? <>
-              <Button type="button" icon={<Sparkles />} loading={busy === "characters"}
-                disabled={!online || Boolean(busy) || outlinePending || dirty || Boolean(proposal)}
-                title={dirty ? t("cinematic.storyImport.saveBeforeCharacters") : undefined}
-                onClick={extractCharacters}>{t("cinematic.storyImport.extractCharacters")}</Button>
-              {characterResult ? <p role="status">{characterResult}</p> : null}
-            </> : undefined}
-          />
-            </Tabs.Content>
-          </Tabs.Root>
+          {onOpenCharacters ? <Button size="sm" icon={<Users />} onClick={onOpenCharacters}>
+            {t('cinematic.shotWorkspace.manageCast')}</Button> : null}
           {confirmedCurrent ? (
             <section className="cinematic-full-story__chapters-action">
               <div>
@@ -541,7 +497,11 @@ export function CinematicFullStoryWriter({
                 <Button size="sm" icon={<Settings2 />} disabled={Boolean(busy) || dirty || Boolean(proposal) || outlinePending}
                   onClick={onBackToBrief}>{t("cinematic.chapterPlan.editSetup")}</Button>
               </div>
-              <Button size="sm" icon={<BookOpenText />} onClick={() => document.getElementById('cinematic-chapter-outline')?.scrollIntoView({ block: 'start' })}>
+              <Button size="sm" icon={<BookOpenText />} disabled={Boolean(project.chapterOrigin?.projectId && project.chapterOrigin.projectId !== project.id)} onClick={() => {
+                const heading = outlineRef.current?.querySelector<HTMLElement>('h2');
+                heading?.focus({ preventScroll: true });
+                heading?.scrollIntoView({ block: 'start', behavior: 'instant' });
+              }}>
                 {t('cinematic.chapterOutline.title')}</Button>
               {pendingSavedChapterProposal ? <Button size="sm" icon={<BookOpenText />} onClick={() => setChapterProposal(pendingSavedChapterProposal)}>
                 {t('cinematic.chapterOutline.reviewPending')}</Button> : null}
@@ -586,17 +546,18 @@ export function CinematicFullStoryWriter({
                     </button>
                   </div>
                   {chapterBuildMode === "generate" ? (
-                    <Button
+                    <CinematicWritingConsent key={JSON.stringify([actorId, project.id, project.version, chapterBuildMode, online, dirty, proposal?.proposalId])}
+                      title={t('cinematic.fullStory.generateChapters')} scope={t('cinematic.bulk.scope', { name: project.title, count: project.chapterOutline?.chapters.length || project.setup.chapterCount || 1 })}
+                      pending={!online || Boolean(busy) || dirty || outlinePending || outlineReviewRequired} onConfirm={generateChapters} trigger={<Button
                       variant="primary"
                       icon={<Split />}
                       loading={busy === "chapters" || chapterStatusLoading}
                       disabled={
                         !online || Boolean(busy) || chapterStatusLoading || dirty || Boolean(proposal) || outlinePending || outlineReviewRequired || Boolean(pendingSavedChapterProposal)
                       }
-                      onClick={generateChapters}
                     >
                       {t("cinematic.fullStory.generateChapters")}
-                    </Button>
+                    </Button>} />
                   ) : (
                     <Button
                       variant="primary"

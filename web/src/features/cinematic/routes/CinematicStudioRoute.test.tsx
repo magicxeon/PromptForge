@@ -28,7 +28,8 @@ vi.mock('../components/CinematicStageContent', () => ({ CinematicStageContent: (
     <div><span>Render {shotId}:{previewAttemptId}</span><button onClick={() => onSelectionChange('scene', 'shot-2', 'take-2')}>Choose second Take</button></div> }));
 vi.mock('../components/CinematicDialogs', () => ({ StoryEnhanceDialog: () => null }));
 vi.mock('../components/SeriesWorkspaceControls', () => ({ SeriesWorkspaceControls: () => null }));
-vi.mock('../components/CinematicFullStoryWriter', () => ({ CinematicFullStoryWriter: () => null }));
+vi.mock('../components/CinematicFullStoryWriter', () => ({ CinematicFullStoryWriter: () => <span>Legacy Full Story</span> }));
+vi.mock('../components/CinematicCharactersWorkspace', () => ({ CinematicCharactersWorkspace: ({ project }: { project: CinematicProject }) => <span>Characters {project.id}</span> }));
 vi.mock('../components/CinematicChapterWriter', () => ({ CinematicChapterWriter: () => null }));
 vi.mock('../components/CinematicSceneOverview', () => ({ CinematicSceneOverview: () => null }));
 vi.mock('../components/CinematicShotWriter', () => ({ CinematicShotWriter: ({ shotId, onOpenVideo, onOpenFinal }: { shotId: string; onOpenVideo: () => void; onOpenFinal: () => void }) =>
@@ -60,6 +61,28 @@ function fixture(imported = false) {
 
 describe('Cinematic Setup name cache', () => {
   beforeEach(() => { localStorage.clear(); api.actor = 'writer'; api.get.mockReset(); api.list.mockReset(); api.save.mockReset(); });
+  it.each(['root', 'chapter'])('opens the Characters destination without losing %s Project context', async id => {
+    const draft = createCinematicSetupDraft();
+    api.get.mockResolvedValue({ id, version: 1, title: 'Story', updatedAt: draft.updatedAt, aspectRatio: draft.aspectRatio,
+      setup: draft, activeStage: 'setup', scenes: [], castAssignments: [], fullStoryVersions: [],
+      ...(id === 'chapter' ? { chapterOrigin: { projectId: 'root' } } : {}) });
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter initialEntries={[`/create/cinematic/${id}/characters`]}><Routes>
+      <Route path="/create/cinematic/:projectId/:stage" element={<CinematicStudioRoute />} />
+    </Routes></MemoryRouter></QueryClientProvider>);
+    expect(await screen.findByText(`Characters ${id}`)).toBeVisible();
+    expect(screen.queryByText('Legacy Full Story')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'cinematic.projectTabs.backToStory' })).toHaveAttribute('href', `/create/cinematic/${id}/${id === 'chapter' ? 'chapters' : 'cast'}`);
+  });
+  it('keeps existing cast links on Full Story, not the new Characters page', async () => {
+    const draft = createCinematicSetupDraft();
+    api.get.mockResolvedValue({ id: 'root', version: 1, title: 'Story', updatedAt: draft.updatedAt, aspectRatio: draft.aspectRatio,
+      setup: draft, activeStage: 'cast', scenes: [], castAssignments: [], fullStoryVersions: [] });
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter initialEntries={['/create/cinematic/root/cast']}><Routes>
+      <Route path="/create/cinematic/:projectId/:stage" element={<CinematicStudioRoute />} />
+    </Routes></MemoryRouter></QueryClientProvider>);
+    expect(await screen.findByText('Legacy Full Story')).toBeVisible();
+    expect(screen.queryByText('Characters root')).not.toBeInTheDocument();
+  });
   it('returns to the selected Render Shot/Take and links Final to the exact Shot', async () => {
     const draft = createCinematicSetupDraft();
     api.get.mockResolvedValue({ id: 'root', version: 1, title: 'Story', updatedAt: draft.updatedAt, aspectRatio: draft.aspectRatio, setup: { ...draft, title: 'Story' }, activeStage: 'setup',

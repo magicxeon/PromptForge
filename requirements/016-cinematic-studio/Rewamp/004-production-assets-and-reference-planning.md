@@ -1,5 +1,12 @@
 # 004 - Production Assets And Reference Planning
 
+2026-10-01 implemented extension: [017](017-project-characters-and-bulk-consent.md)
+owns project-only Look unlink confirmation, verified Momelo-generated sheet upload/
+library selection and the dedicated Characters destination. Original media and
+historical records are retained. Existing approval and reference authority rules
+below remain. Scoped implementation/verification and live UAT limits are recorded
+in task 017; library originals are not deleted by project unlink.
+
 ## 2026-09-26 Scene Cast Layout Correction
 
 Status: implemented; focused verification passed. Primary: Product Requirement Architect; UX/QA review is

@@ -1,5 +1,11 @@
 # 005 - Shot Production And Final
 
+2026-10-01 implemented UI extension: [017 section 7](017-project-characters-and-bulk-consent.md)
+places the current Shot First Frame preview beside the direction/timeline editor,
+stacked adjacently on narrow screens. Existing First Frame generation, source
+approval and optional/direct-video contracts below remain unchanged. See PC08/PC09
+in the 017 task packet for focused checks and remaining live UAT.
+
 Status: planned. Owner: Cinematic orchestration; dependencies: 002-004.
 UX: [006](006-ux-ui-workspaces-and-interactions.md). Verification: [008](008-verification-migration-and-cleanup.md).
 Single authoring mode and Shot document: [009](009-single-mode-writer-shot-authoring.md).

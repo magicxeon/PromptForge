@@ -3,17 +3,18 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest';
 import { useCreditConfirmation } from './useCreditConfirmation';
 import { AccountPreferencesDialog } from '../layout/AccountPreferencesDialog';
-import { userPreferencesKey } from '../../lib/auth/userPreferences';
+import { userPreferencesKey, useUserPreferences } from '../../lib/auth/userPreferences';
 
 const api = vi.hoisted(() => ({ actor: 'alice', ask: true, request: vi.fn(), submit: vi.fn() }));
 vi.mock('../../lib/auth/actorStore', () => ({ getActiveActorId: () => api.actor }));
 vi.mock('../../lib/api/apiClient', () => ({ apiRequest: (...args: unknown[]) => api.request(...args) }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string, args?: { credits?: number }) => args?.credits !== undefined ? `${key} ${args.credits}` : key }) }));
 
-function Harness({ amount = 12, requestKey = 'quote-1', actor = 'alice', ready = true }: { amount?: number; requestKey?: string; actor?: string; ready?: boolean }) {
+function Harness({ amount = 12, requestKey = 'quote-1', actor = 'alice', ready = true, mandatory = false }: { amount?: number; requestKey?: string; actor?: string; ready?: boolean; mandatory?: boolean }) {
+  const preferences = useUserPreferences(actor);
   const consent = useCreditConfirmation({ actorId: actor, requestKey, estimatedCredits: amount,
-    description: 'Model / Shot 1', ready });
-  return <>{consent.dialog}<button onClick={async () => { if (await consent.request() && consent.isCurrent()) api.submit(); }}>Generate</button></>;
+    description: 'Model / Shot 1', ready, mandatory });
+  return <>{consent.dialog}<button data-preference-ready={preferences.isSuccess && !preferences.isFetching} onClick={async () => { if (await consent.request() && consent.isCurrent()) api.submit(); }}>Generate</button></>;
 }
 function setup(props = {}) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -30,6 +31,19 @@ beforeEach(() => {
     if (options.method === 'PATCH') api.ask = options.body.confirmCreditUsage;
     return { confirmCreditUsage: api.ask };
   });
+});
+
+it.each([0, 12])('always confirms a mandatory bulk amount %s despite saved opt-out', async amount => {
+  api.ask = false;
+  setup({ amount, mandatory: true }); generate();
+  expect(await screen.findByRole('alertdialog')).toHaveTextContent(`ui.creditConsent.amount ${amount}`);
+  expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+  expect(api.submit).not.toHaveBeenCalled(); confirm();
+  await waitFor(() => expect(api.submit).toHaveBeenCalledTimes(1));
+  generate(); expect(await screen.findByRole('alertdialog')).toBeVisible();
+  fireEvent.click(screen.getByRole('button', { name: 'ui.action.cancel' }));
+  expect(api.submit).toHaveBeenCalledTimes(1);
+  expect(api.request.mock.calls.filter(([, options]) => options.method === 'PATCH')).toHaveLength(0);
 });
 
 it('shows exact Credits, cancels without dispatch and confirms only once', async () => {
@@ -53,7 +67,7 @@ it('persists opt-out only with confirmation and reads it on a new session', asyn
   expect(api.request).toHaveBeenCalledWith('/api/me/preferences', expect.objectContaining({ method: 'PATCH', body: { confirmCreditUsage: false } }));
   view.unmount(); setup();
   await waitFor(() => expect(api.request.mock.calls.filter(([, options]) => !options.method)).toHaveLength(2));
-  await act(async () => { await Promise.resolve(); });
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Generate' })).toHaveAttribute('data-preference-ready', 'true'));
   generate();
   await waitFor(() => expect(api.submit).toHaveBeenCalledTimes(2));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();

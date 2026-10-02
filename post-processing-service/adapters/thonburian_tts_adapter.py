@@ -155,8 +155,13 @@ class ThonburianTtsAdapter:
                 torch.cuda.empty_cache()
 
         if _SHARED_F5_ENGINE is None:
-            ckpt_path = MODEL_CONFIGS[model_id]["ckpt"]
-            vocab_path = MODEL_CONFIGS[model_id]["vocab"]
+            if model_id == "thonburian":
+                model_dir = Path(getattr(self.policy, "modelPath", THONBURIAN_MODEL_DIR))
+                ckpt_path = model_dir / "mega_f5_last.safetensors"
+                vocab_path = model_dir / "mega_vocab.txt"
+            else:
+                ckpt_path = MODEL_CONFIGS[model_id]["ckpt"]
+                vocab_path = MODEL_CONFIGS[model_id]["vocab"]
             
             missing = []
             if not ckpt_path.exists():
@@ -182,7 +187,7 @@ class ThonburianTtsAdapter:
                 ckpt_file=str(ckpt_path),
                 vocab_file=str(vocab_path),
                 device=self.torch_device,
-                hf_cache_dir=r"C:\Users\punya\.cache\huggingface\hub"
+                hf_cache_dir=os.getenv("HF_HOME", r"C:\Users\punya\.cache\huggingface")
             )
             _CURRENT_MODEL_ID = model_id
 
@@ -379,12 +384,12 @@ class ThonburianTtsAdapter:
             from f5_tts.api import F5TTS
             self.f5_engine = F5TTS(
                 device=self.torch_device,
-                hf_cache_dir=r"C:\Users\punya\.cache\huggingface\hub"
+                hf_cache_dir=os.getenv("HF_HOME", r"C:\Users\punya\.cache\huggingface")
             )
 
         logger.info(
             f"[THONBURIAN_F5_INFER_CHUNK] [CorrelationID: {corr_id}] "
-            f"Executing F5TTS.infer chunk: GenText='{gen_text}', CfgStrength={cfg_strength}"
+            f"Executing F5TTS.infer chunk: GenTextLength={len(gen_text)}, CfgStrength={cfg_strength}"
         )
 
         wav_out, sr_out, _ = self.f5_engine.infer(
