@@ -33,6 +33,16 @@ export function PromptEditor({
   inputId?: string;
 }) {
   const { t } = useTranslation('playground');
+  const negativePanel = <section className="playground-prompt-editor__panel">
+    <div className="playground-prompt-editor__heading">
+      <label htmlFor="generation-negative-prompt">{t('playground.negative.label')}</label>
+    </div>
+    <p className="playground-prompt-editor__description">{t('playground.negative.description')}</p>
+    <textarea id="generation-negative-prompt" value={negativeValue} maxLength={2000}
+      onChange={event => onNegativeChange(event.target.value)}
+      placeholder={t('playground.negative.placeholder')} className="playground-prompt-editor__negative" />
+    <div className="playground-prompt-editor__count">{negativeValue.length} / 2000</div>
+  </section>;
   if (variant === 'playground') {
     return (
       <div id="generation-prompt" className="playground-prompt-editor">
@@ -55,23 +65,9 @@ export function PromptEditor({
           <div className="playground-prompt-editor__count">{value.length} / {primaryMaxLength}</div>
           {primaryFooter}
         </section>
-        {showNegative ? <section className="playground-prompt-editor__panel">
-          <div className="playground-prompt-editor__heading">
-            <label htmlFor="generation-negative-prompt">{t('playground.negative.label')}</label>
-          </div>
-          <p className="playground-prompt-editor__description">
-            {t('playground.negative.description')}
-          </p>
-          <textarea
-            id="generation-negative-prompt"
-            value={negativeValue}
-            maxLength={2000}
-            onChange={event => onNegativeChange(event.target.value)}
-            placeholder={t('playground.negative.placeholder')}
-            className="playground-prompt-editor__negative"
-          />
-          <div className="playground-prompt-editor__count">{negativeValue.length} / 2000</div>
-        </section> : null}
+        {showNegative ? compact ? <details className="playground-prompt-editor__negative-disclosure">
+          <summary>{t('playground.negative.label')}</summary>{negativePanel}
+        </details> : negativePanel : null}
       </div>
     );
   }

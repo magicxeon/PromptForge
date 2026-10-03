@@ -335,8 +335,9 @@ describe('StoryboardGenerateAllDialog', () => {
       </I18nextProvider>
     </QueryClientProvider>);
     expect(await screen.findByText('12 cinematic.cost.credits')).toBeVisible();
-    expect(screen.queryByRole('option', { name: 'Meta Muse' })).not.toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Gemini' })).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByRole('button', { name: 'playground.engine.model' }), { key: 'Enter' });
+    expect(screen.queryByRole('menuitemradio', { name: /Meta Muse/ })).not.toBeInTheDocument();
+    expect(await screen.findByRole('menuitemradio', { name: /Image Model.*Gemini/ })).toBeInTheDocument();
   });
 
   it('requotes approved Shots only after opt-in and retains their source on submission', async () => {

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowUp, Coins, Copy, Sparkles } from 'lucide-react';
+import { ArrowUp, Coins, Copy, Eye, Images, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLookSheetRender, type LookSheetEnhancementControl, type LookSheetRenderState } from '../../features/generation/hooks/useLookSheetRender';
@@ -12,6 +12,9 @@ import { useCreditConfirmation } from './useCreditConfirmation';
 import { PromptBudgetStatus } from './PromptBudgetStatus';
 import { PromptComposerAssist } from './PromptComposerAssist';
 import { ReferenceSlotGrid, type ReferenceDisplayPreviews } from './ReferenceSlotGrid';
+import { GenerationReferenceDisclosure } from './GenerationReferenceDisclosure';
+import { DisplayMediaImage } from '../media/DisplayMediaImage';
+import { AuthenticatedMediaImage } from '../media/AuthenticatedMediaImage';
 import {
   EngineTargetPanel,
   type EngineValue
@@ -53,7 +56,7 @@ import type { JobStatus, ProviderModel } from '../../features/generation/schemas
 import type { ReferenceAuthorityProjection } from '../../features/generation/schemas/generationSchemas';
 import { StudioRecentGenerations } from '../../features/studio/components/StudioRecentGenerations';
 import { StudioGenerationWorkspace } from './StudioGenerationWorkspace';
-import { PlaygroundGenerationWorkspace } from './PlaygroundGenerationWorkspace';
+import { PlaygroundGenerationWorkspace, type PlaygroundRenderAttempt } from './PlaygroundGenerationWorkspace';
 import { GenerationReferenceActions } from './GenerationReferenceActions';
 import type { StudioCustomColors } from '../../features/studio/attributes/customColorModel';
 import { PlaygroundRecentGenerations } from '../../features/playground/components/PlaygroundRecentGenerations';
@@ -72,7 +75,7 @@ import {
 import { CreditExhaustedDialog } from '../../features/credits/components/CreditExhaustedDialog';
 import { queryKeys } from '../../lib/api/queryKeys';
 import { pollingPolicy } from '../../lib/api/pollingPolicy';
-import { isTerminalJobStatus } from '../../lib/api/jobLifecycle';
+import { isActiveJobStatus, isTerminalJobStatus } from '../../lib/api/jobLifecycle';
 import { ApiError } from '../../lib/api/apiError';
 import { useFeaturePolicy } from '../../lib/permissions/FeaturePolicyProvider';
 import {
@@ -255,6 +258,7 @@ export function GenerationExperience({
   const { t, i18n } = useTranslation('playground');
   const { t: tUi } = useTranslation('react-ui');
   const promptRef = useRef<HTMLElement | null>(null);
+  const toolsRef = useRef<HTMLElement | null>(null);
   const resultRef = useRef<HTMLElement | null>(null);
   const initialPromptRef = useRef(initialPrompt);
   const initialReferencesRef = useRef(initialReferences);
@@ -284,6 +288,7 @@ export function GenerationExperience({
   const [jobId, setJobId] = useState<string | null>(null);
   const [generationGroupId, setGenerationGroupId] = useState<string | null>(null);
   const [comparisonSetId, setComparisonSetId] = useState<string | null>(null);
+  const [submittedRenderAttempt, setSubmittedRenderAttempt] = useState<PlaygroundRenderAttempt | null>(null);
   const [routePointerActorId, setRoutePointerActorId] = useState<string | null>(null);
   const [resultFocusSequence, setResultFocusSequence] = useState(0);
   const [debouncedDraft, setDebouncedDraft] = useState<GenerationRequestDraft | null>(null);
@@ -331,6 +336,7 @@ export function GenerationExperience({
     setJobId(resumeJobId || pointer?.jobId || null);
     setGenerationGroupId(pointer?.generationGroupId || null);
     setComparisonSetId(pointer?.comparisonSetId || null);
+    setSubmittedRenderAttempt(null);
     setRoutePointerActorId(actor?.userId || null);
     setComparison(false);
     setComparisonSlots([]);
@@ -647,12 +653,15 @@ export function GenerationExperience({
       ? submitSingleDraft(source, quote)
       : submitGeneration(source, quote.estimate.estimateId),
     onMutate: () => {
+      setSubmittedRenderAttempt(current => ({ sequence: (current?.sequence || 0) + 1, pending: true, renderKey: null }));
       setJobId(null);
       setGenerationGroupId(null);
       setComparisonSetId(null);
       setComparisonJobBindings([]);
     },
     onSuccess: response => {
+      setSubmittedRenderAttempt(current => current && ({ ...current, pending: false,
+        renderKey: response.groupId ? `group:${response.groupId}` : `image:${response.jobId}` }));
       setComparisonSetId(null);
       setJobId(response.groupId ? null : response.jobId);
       setGenerationGroupId(response.groupId || null);
@@ -668,6 +677,7 @@ export function GenerationExperience({
       });
     },
     onError: error => {
+      setSubmittedRenderAttempt(current => current && ({ ...current, pending: false, renderKey: null }));
       emitTelemetry('generation_transition', {
         actorId: actor?.userId,
         mode: generationMode,
@@ -682,12 +692,15 @@ export function GenerationExperience({
     mutationFn: ({ source, slots, quote }: { source: GenerationRequestDraft; slots: ComparisonSlotInput[];
       quote: Awaited<ReturnType<typeof estimateComparison>> }) => submitComparison(source, slots, quote),
     onMutate: () => {
+      setSubmittedRenderAttempt(current => ({ sequence: (current?.sequence || 0) + 1, pending: true, renderKey: null }));
       setJobId(null);
       setGenerationGroupId(null);
       setComparisonSetId(null);
       setComparisonJobBindings([]);
     },
     onSuccess: response => {
+      setSubmittedRenderAttempt(current => current && ({ ...current, pending: false,
+        renderKey: `comparison:${response.setId}:${response.runId}` }));
       setJobId(null);
       setComparisonSetId(response.setId);
       setComparisonJobBindings(response.jobs);
@@ -703,6 +716,7 @@ export function GenerationExperience({
       });
     },
     onError: error => {
+      setSubmittedRenderAttempt(current => current && ({ ...current, pending: false, renderKey: null }));
       emitTelemetry('generation_transition', {
         actorId: actor?.userId,
         mode: generationMode,
@@ -895,8 +909,37 @@ export function GenerationExperience({
     </>
   );
 
+  const isGuidedPlaygroundComposer = layoutVariant === 'playground' && surface === 'playground'
+    && Boolean(lookSheetDefinition && studioBuilder) && !renderWorkspace;
+  const isPlaygroundComposer = isGuidedPlaygroundComposer || (layoutVariant === 'playground' && surface === 'playground'
+    && showPromptEditor && !readOnlyPrompt && !lookSheetDefinition && !renderWorkspace);
+  const hasRenderActivity = Boolean(jobId || generationGroupId || comparisonSetId || pending || submitError);
+  const activeRenderKey = comparisonSetId
+    ? comparisonRun && isActiveJobStatus(derivedComparisonStatus)
+      ? `comparison:${comparisonSetId}:${comparisonRun.id}` : null
+    : generationGroupId
+      ? generationGroup.data && isActiveJobStatus(generationGroup.data.status)
+        ? `group:${generationGroupId}` : null
+      : jobId && isActiveJobStatus(job.data?.status) ? `image:${jobId}` : null;
+  const completedResultKey = comparisonSetId
+    ? derivedComparisonStatus === 'completed' && comparisonRun?.slots.length
+      && comparisonRun.slots.every(slot => slot.status === 'completed' && Boolean(slot.result?.imageUrl || slot.result?.videoUrl))
+      ? `comparison:${comparisonSetId}:${comparisonRun.id}` : null
+    : generationGroupId
+      ? generationGroup.data?.status === 'completed' && generationGroup.data.children.length
+        && generationGroup.data.children.every(child => child.status === 'completed' && Boolean(child.result?.imageUrl))
+        ? `group:${generationGroupId}` : null
+      : jobId && job.data?.status === 'completed' && job.data.result?.imageUrl ? `image:${jobId}` : null;
+  const navigateRegion = (region: HTMLElement | null) => {
+    region?.focus({ preventScroll: true });
+    region?.scrollIntoView({ behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  };
   const resultRegion = (
-    <div ref={node => { resultRef.current = node; }}>
+    <div ref={node => { resultRef.current = node; }} tabIndex={isPlaygroundComposer ? -1 : undefined}>
+      {isPlaygroundComposer ? <Button variant="ghost" icon={<ArrowUp className="size-4" />}
+        onClick={() => navigateRegion(toolsRef.current)}>
+        {t('playground.options.returnToSettings')}
+      </Button> : null}
       {enhancement.stage !== 'idle' ? <p role="status">{t(`lookSheet.auto.${enhancement.stage}`)}</p> : null}
       <GenerationResultSurface
         job={job.data}
@@ -906,7 +949,7 @@ export function GenerationExperience({
         onGoToPrompt={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
         renderActions={effectiveResultActions}
         showEmpty={showEmptyResult || layoutVariant === 'studio' || layoutVariant === 'playground'}
-        showGoToPrompt={layoutVariant !== 'studio' && !renderWorkspace}
+        showGoToPrompt={layoutVariant !== 'studio' && !renderWorkspace && !isPlaygroundComposer}
         comparisonActive={comparison}
         canRevealPrompt={actor?.role === 'admin'
           || (surface === 'studio'
@@ -970,6 +1013,7 @@ export function GenerationExperience({
           onChange={setPrompt}
           onNegativeChange={setNegativePrompt}
           variant={layoutVariant === 'playground' ? 'playground' : 'default'}
+          compact={isPlaygroundComposer}
         />
       ) : readOnlyPrompt ? (
         <Surface className="studio-prompt-preview">
@@ -1015,7 +1059,7 @@ export function GenerationExperience({
       ) : null}
     </div>
   ) : null;
-  const referencesRegion = (
+  const referenceEditor = (
     <ReferenceSlotGrid
       value={references}
       displayPreviews={referenceDisplayPreviews}
@@ -1038,6 +1082,37 @@ export function GenerationExperience({
       readOnly={referencesReadOnly}
     />
   );
+  const selectedReferences = Object.entries(references)
+    .filter((entry): entry is [GenerationReferenceRole, string] => Boolean(entry[1]));
+  const referenceLabels: Record<GenerationReferenceRole, string> = {
+    face_reference: 'playground.reference.face', character_reference: 'playground.reference.character',
+    style_reference: 'playground.reference.style', pose_reference: 'playground.reference.pose',
+    outfit_front: 'playground.reference.outfitFront', outfit_back: 'playground.reference.outfitBack'
+  };
+  const referencesRegion = isPlaygroundComposer ? <GenerationReferenceDisclosure
+    count={requiredReferenceCount} limit={model?.capabilities.maxReferenceImages || 0}
+    label={isGuidedPlaygroundComposer && referencesReadOnly ? t('playground.options.references') : undefined}
+    targetId="reference-images"
+    problem={referencePreview.error?.message}
+    summary={selectedReferences.length ? <>
+      <ul className="generation-reference-disclosure__previews">
+        {selectedReferences.slice(0, 2).map(([role, reference]) => {
+          const preview = referenceDisplayPreviews?.[role];
+          const display = preview?.reference === reference ? preview : null;
+          const fallback = <Images aria-hidden="true" />;
+          return <li key={role}>
+            <span className="generation-reference-disclosure__thumbnail">
+              {display?.sources.length ? <DisplayMediaImage sources={display.sources} alt="" fallback={fallback} />
+                : <AuthenticatedMediaImage src={reference} alt="" fallback={fallback} />}
+            </span>
+            <span><strong>{t(referenceLabels[role])}</strong>{display?.label ? <small>{display.label}</small> : null}</span>
+          </li>;
+        })}
+      </ul>
+      {selectedReferences.length > 2 ? <small className="generation-reference-disclosure__more">{t('playground.options.moreReferences', { count: selectedReferences.length - 2 })}</small> : null}
+    </> : null}>
+    {referenceEditor}
+  </GenerationReferenceDisclosure> : referenceEditor;
   const engineRegion = showEngine ? (<>
     <EngineTargetPanel
       catalog={catalog.data}
@@ -1053,6 +1128,7 @@ export function GenerationExperience({
       promptRefinementAvailable={promptRefinementAvailable}
       promptRefinementEnabled={promptRefinementEnabled}
       presentation={enginePresentation}
+      inlineModelAction={isPlaygroundComposer}
       fixedAspectRatio={fixedAspectRatio}
       adaptAspectRatio={Boolean(lookSheetDefinition)}
       requiredReferenceCount={requiredReferenceCount}
@@ -1118,6 +1194,7 @@ export function GenerationExperience({
         pending={compiledPromptPreview.isFetching} error={compiledPromptPreview.error?.message} /> : null}
       {enhancement.enabled && imageEstimate !== undefined && enhancement.fee !== undefined
         ? <p className="mb-3 text-sm" role="status">{t('lookSheet.auto.breakdown', { image: imageEstimate, enhancement: enhancement.fee, total: estimate })}</p> : null}
+      <div className={isPlaygroundComposer ? 'playground-generate-controls' : undefined}>
       <Button
         className="studio-generate-button btn-neon-yellow-glow"
         size="lg"
@@ -1142,6 +1219,11 @@ export function GenerationExperience({
                 : t('playground.estimate.pending')}
         </small>
       </Button>
+      {isPlaygroundComposer ? <Button variant="ghost" size="icon" title={t('playground.options.viewResult')}
+        disabled={!hasRenderActivity}
+        aria-label={t('playground.options.viewResult')} icon={<Eye className="size-5" />}
+        onClick={() => navigateRegion(resultRef.current)} /> : null}
+      </div>
     </Surface>
   ) : (
     <Surface className="generation-command-bar sticky bottom-3 z-30 flex flex-wrap items-center justify-between gap-4 border-cyan-400/35 bg-[#0e1320f2] p-4 shadow-[var(--mpf-shadow-raised)] backdrop-blur">
@@ -1268,15 +1350,28 @@ export function GenerationExperience({
   if (layoutVariant === 'playground') {
     return (
       <PlaygroundGenerationWorkspace
+        key={`${actorId}:${routePointerFeature}`}
+        composer={isPlaygroundComposer}
+        completedResultKey={completedResultKey}
+        activeRenderKey={activeRenderKey}
+        submittedRenderAttempt={submittedRenderAttempt}
+        renderBusy={pending}
+        showResult={hasRenderActivity}
+        modelSummary={`${localizedLabel(model?.displayName, i18n.resolvedLanguage) || engine.model} · ${engine.aspectRatio}`}
+        toolsRef={toolsRef}
+        builder={isGuidedPlaygroundComposer ? <fieldset disabled={pending} className="m-0 min-w-0 border-0 p-0">
+          {typeof studioBuilder === 'function' ? studioBuilder(draft, enhancement) : studioBuilder}
+        </fieldset> : undefined}
+        builderTitle={studioBuilderTitle}
         prompt={promptRegion}
         result={resultRegion}
         queue={queueStatusRegion}
-        recent={showRecentGenerations ? <PlaygroundRecentGenerations /> : null}
-        engine={engineRegion}
+        recent={showRecentGenerations ? (isGuidedPlaygroundComposer ? <StudioRecentGenerations limit={12} /> : <PlaygroundRecentGenerations />) : null}
+        engine={isGuidedPlaygroundComposer ? <fieldset disabled={pending} className="m-0 min-w-0 border-0 p-0">{engineRegion}</fieldset> : engineRegion}
         references={referencesRegion}
         actions={actionRegion}
         messages={messages}
-        showRenderPromptHeading={Boolean(promptRegion && prompt.trim())}
+        showRenderPromptHeading={!isPlaygroundComposer && Boolean(promptRegion && prompt.trim())}
         recentExpanded={recentExpanded}
         onRecentExpandedChange={onRecentExpandedChange}
         comparisonActive={comparison}

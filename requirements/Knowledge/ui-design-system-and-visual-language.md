@@ -50,6 +50,14 @@ behavior is owned by
 - Brand/action gradients are reserved for primary action or selected emphasis.
 - Success, warning, danger, and focus colors use their semantic tokens.
 
+Generation settings use Momelo's static yellow render signature: one outer border
+and restrained glow, owned by shared `generation-options.css` and the dedicated
+`--theme-render-accent` token. The token adapts for Pearl/Neon/Electric without
+changing global action or warning colors. Shared engine shells/composer frames and
+standalone engine panels inherit it; nested panels remain unframed. Output media,
+Queue, forms and navigation do not inherit this treatment. A frame is not a
+processing/warning state; focus/error indicators and localized status remain.
+
 Available resolved themes:
 
 ```text

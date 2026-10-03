@@ -1,8 +1,20 @@
 import type { ComparisonSlotInput } from '../../features/generation/api/generationApi';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
 import { imageModelUnavailableReason } from '../../features/generation/modelAvailability';
+import type { GenerationModelOption } from './GenerationModelPicker';
 
 export { imageModelUnavailableReason } from '../../features/generation/modelAvailability';
+
+export function imageModelPickerOptions(catalog: ProviderCatalog, referenceCount: number,
+  aspectRatio: string | null, language: string, unavailableLabel: (reason: string) => string): GenerationModelOption[] {
+  const label = (value: string | Record<string, string>) => typeof value === 'string'
+    ? value : value[language.split('-')[0]!] || value.en || value.th || Object.values(value)[0] || '';
+  return catalog.providers.flatMap(provider => provider.models.map(model => {
+    const reason = imageModelUnavailableReason(model, referenceCount, aspectRatio);
+    return { providerId: provider.id, modelId: model.id, providerLabel: label(provider.displayName),
+      modelLabel: label(model.displayName), disabledReason: reason ? unavailableLabel(reason) : null };
+  }));
+}
 
 export function supportedImageRatio(ratios: string[], preferred = '6:8') {
   if (ratios.includes(preferred)) return preferred;

@@ -106,12 +106,10 @@ export function PlaygroundRoute() {
 
   return (
     <main>
-      <header className="mb-5 border-b border-[var(--mpf-border)] pb-5">
-        <span className="flex items-center gap-2 text-xs font-bold uppercase text-cyan-300"><FlaskConical className="size-4" />{t('shell.navigation.items.playground', { ns: 'shell' })}</span>
-        <h1 className="mb-1 mt-2 text-3xl">{t('playground.unified.title', { ns: 'playground' })}</h1>
-        <p className="m-0 text-sm text-[var(--mpf-text-muted)]">{t('playground.unified.description', { ns: 'playground' })}</p>
+      <header className="playground-entry-header">
+        <h1><FlaskConical aria-hidden="true" />{t('playground.unified.title', { ns: 'playground' })}</h1>
         {videoEnabled ? (
-          <div className="mt-4 inline-flex gap-1 rounded-[var(--mpf-radius-sm)] border border-[var(--theme-border)] bg-[var(--theme-bg-raised)] p-1" role="group" aria-label={t('playground.mediaMode.label', { ns: 'playground' })}>
+          <div className="playground-entry-header__modes inline-flex gap-1 rounded-[var(--mpf-radius-sm)] border border-[var(--theme-border)] bg-[var(--theme-bg-raised)] p-1" role="group" aria-label={t('playground.mediaMode.label', { ns: 'playground' })}>
             <Button
               size="sm"
               variant={mediaMode === 'image' ? 'primary' : 'ghost'}
@@ -152,7 +150,7 @@ export function PlaygroundRoute() {
           {t(value === 'general' ? 'lookSheet.generalImage' : 'lookSheet.title', { ns: 'playground' })}
         </Button>)}
       </div> : null}
-      {mediaMode === 'video' ? <PlaygroundVideoExperience /> : lookSheetEnabled && searchParams.get('imageMode') === 'look-sheet' ? <CharacterLookSheetExperience surface="playground" /> : <GenerationExperience
+      {mediaMode === 'video' ? <PlaygroundVideoExperience /> : lookSheetEnabled && searchParams.get('imageMode') === 'look-sheet' ? <CharacterLookSheetExperience surface="playground" recentExpanded={recentExpanded} onRecentExpandedChange={setRecentExpanded} /> : <GenerationExperience
         initialComparisonActive={initialComparisonActive}
         surface="playground"
         generationMode="playground"

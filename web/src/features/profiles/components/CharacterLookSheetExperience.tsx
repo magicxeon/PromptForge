@@ -18,12 +18,19 @@ import { LookSheetEnhancementPanel } from './LookSheetEnhancementPanel';
 import type { EnhancementSelection } from '../../generation/hooks/useLookSheetRender';
 import '../../../styles/character-look-sheet-form.css';
 
-export function CharacterLookSheetExperience({ surface }: { surface: 'studio' | 'playground' }) {
+type LookSheetExperienceProps = {
+  surface: 'studio' | 'playground';
+  recentExpanded?: boolean;
+  onRecentExpandedChange?: (expanded: boolean) => void;
+};
+
+export function CharacterLookSheetExperience({ surface, recentExpanded, onRecentExpandedChange }: LookSheetExperienceProps) {
   const { actor } = useActor();
-  return <LookSheetEditor key={`${actor?.userId}:${surface}`} surface={surface} actorId={actor?.userId} />;
+  return <LookSheetEditor key={`${actor?.userId}:${surface}`} surface={surface} actorId={actor?.userId}
+    recentExpanded={recentExpanded} onRecentExpandedChange={onRecentExpandedChange} />;
 }
 
-function LookSheetEditor({ surface, actorId }: { surface: 'studio' | 'playground'; actorId?: string }) {
+function LookSheetEditor({ surface, actorId, recentExpanded, onRecentExpandedChange }: LookSheetExperienceProps & { actorId?: string }) {
   const { t } = useTranslation('playground');
   const feature = `look-sheet-${surface}`;
   const preset = useQuery({ queryKey: ['look-sheet-preset'], queryFn: () => apiRequest('/api/generation/look-sheet-preset', { schema: lookSheetPresetSchema }), staleTime: Infinity, retry: false });
@@ -78,7 +85,8 @@ function LookSheetEditor({ surface, actorId }: { surface: 'studio' | 'playground
 
   if (!preset.data) return <p role="status">{t(preset.isError ? 'lookSheet.loadError' : 'lookSheet.loading')}</p>;
   const references = selection ? { character_reference: selection.handoff.characterReferenceUrl } : {};
-  return <div className="look-sheet-experience"><GenerationExperience surface={surface} generationMode="character-sheet" layoutVariant="studio"
+  return <div className="look-sheet-experience"><GenerationExperience surface={surface} generationMode="character-sheet" layoutVariant={surface === 'playground' ? 'playground' : 'studio'}
+    recentExpanded={recentExpanded} onRecentExpandedChange={onRecentExpandedChange}
     persistenceScope={`document-sheet-${surface}`} fixedOutputCount={1}
     allowComparison={false} allowPromptRefinement={false} showPromptEditor={false}
     readOnlyPrompt={valid ? { label: t('lookSheet.promptPreview') } : null}

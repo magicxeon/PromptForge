@@ -1572,6 +1572,7 @@ export function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRe
           comparisonActive={false}
           quoteLoading={produceContext.isLoading || quote.isFetching}
           estimatedCredits={quote.data?.estimate.estimatedCredits}
+          maximumCreditEstimate={quote.data?.estimate.chargeMode === 'actual_usage'}
           canAfford={quote.data?.account.canAfford}
           quoteError={visibleQuoteError}
           compact

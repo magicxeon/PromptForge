@@ -23,6 +23,16 @@ disposable. Code retirement has explicit checkpoints in Part 08.
 
 ## 2. Reading And Ownership Map
 
+2026-10-02 shared selector addendum:
+[Shared Generation Options UX](../../009-migration-to-react/021-generation-options-ux.md)
+maps Cinematic Produce, Shot Video, Environment, First Frame, Look Sheet and bulk
+selectors to shared presentation variants. It supersedes exact Engine UI
+preservation only for the controls and relocations named in that inventory.
+Render/results, Take actions, Queue, reference authority and commercial behavior
+remain protected. Shared selectors are implemented with focused checks passed;
+actual Cinematic parent-screen UAT remains explicit in its inventory/evidence.
+This does not reset historical task completion or authorize unrelated screen changes.
+
 [018 Project Brief and navigation visual refresh](018-project-brief-and-navigation-visual-refresh.md)
 owns the scoped Story/Characters navigation, Brief authoring surface and readable
 Format/Orientation choices. Existing routes, settings and generation contracts stay unchanged.

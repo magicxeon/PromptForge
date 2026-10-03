@@ -1,0 +1,152 @@
+.generation-options-panel {
+  container-type: inline-size;
+  min-width: 0;
+}
+.generation-options-panel .engine-target-panel__heading {
+  min-width: 0;
+  padding: 8px 0;
+  border-radius: 0;
+  background: transparent;
+}
+.generation-options-panel .engine-target-panel__title { min-width: 0; }
+.generation-options-panel .engine-target-panel__title h2 { font-size: 14px; line-height: 1.5; }
+.generation-options-panel .engine-target-panel__title p { font-size: 12px; line-height: 1.5; }
+.generation-options-panel .studio-step-badge { flex-shrink: 0; white-space: nowrap; }
+.generation-options-panel .engine-comparison-toggle { white-space: normal; }
+.generation-options-panel .engine-target-panel__controls {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.generation-options-panel.engine-target-panel--compact {
+  padding: 12px;
+  border-color: var(--theme-border);
+  background: var(--theme-surface);
+  box-shadow: none;
+  border-radius: 8px;
+}
+.generation-options-panel .engine-target-panel__model-grid {
+  grid-template-columns: minmax(0, 1fr);
+  margin-bottom: 12px;
+}
+.generation-options-panel .engine-target-panel__output-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+  gap: 10px;
+  align-items: start;
+}
+.generation-option-field, .generation-model-picker { min-width: 0; display: grid; gap: 5px; }
+.generation-model-picker__heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; min-width: 0; }
+.generation-option-label { font-size: 12px; line-height: 1.5; color: var(--theme-text); }
+.generation-model-picker__trigger, .generation-option-field__control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--theme-text-muted);
+  border-radius: 6px;
+  background: var(--theme-input);
+  color: var(--theme-text);
+}
+.generation-model-picker__trigger { width: 100%; padding: 8px 12px; text-align: left; cursor: pointer; }
+.generation-model-picker__trigger > svg, .generation-option-field__control > svg {
+  width: 16px; height: 16px; flex: 0 0 16px; color: var(--theme-text-muted);
+}
+.generation-model-picker__trigger > svg:last-child { margin-left: auto; }
+.generation-model-picker__value { display: grid; min-width: 0; }
+.generation-model-picker__value strong, .generation-model-picker__item strong {
+  font-size: 13px; font-weight: 600; overflow-wrap: anywhere; line-height: 1.5;
+}
+.generation-model-picker__value small, .generation-model-picker__item small {
+  display: block; font-size: 12px; color: var(--theme-text-muted); overflow-wrap: anywhere;
+}
+.generation-option-field__control { position: relative; padding-left: 10px; }
+.generation-options-panel .generation-option-field__control select {
+  min-width: 0; width: 100%; min-height: 44px; padding: 8px 8px 8px 0;
+  border: 0; border-radius: 6px; background: transparent; color: var(--theme-text);
+  font: inherit; font-size: 13px;
+}
+.generation-option-field__control select:disabled { opacity: 1; cursor: default; }
+.generation-option-field__control > .generation-option-field__lock { margin-right: 8px; }
+.generation-option-field small { font-size: 12px; color: var(--theme-text-muted); }
+.generation-model-picker__trigger:focus-visible, .generation-option-field__control:focus-within,
+.generation-options-more > summary:focus-visible, .generation-audio-switch:focus-visible {
+  outline: 2px solid var(--theme-focus); outline-offset: 2px;
+}
+.generation-model-picker__menu {
+  z-index: 200;
+  width: min(420px, calc(100vw - 24px));
+  max-height: min(480px, var(--radix-dropdown-menu-content-available-height));
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid var(--theme-text-muted);
+  border-radius: 8px;
+  background: var(--theme-surface);
+  color: var(--theme-text);
+  box-shadow: 0 12px 32px var(--theme-shadow);
+}
+.generation-model-picker__search { display: flex; align-items: center; gap: 8px; padding: 6px; }
+.generation-model-picker__search svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.generation-model-picker__search input {
+  width: 100%; min-width: 0; min-height: 44px; padding: 8px;
+  border: 1px solid var(--theme-text-muted); border-radius: 6px;
+  background: var(--theme-input); color: var(--theme-text); font-size: 13px;
+}
+.generation-model-picker__search input::placeholder { color: var(--theme-text-muted); }
+.generation-model-picker__search input:focus-visible { outline: 2px solid var(--theme-focus); }
+.generation-model-picker__item {
+  position: relative; min-height: 44px; padding: 8px 8px 8px 30px;
+  border-radius: 6px; cursor: pointer; outline: none;
+}
+.generation-model-picker__item[data-highlighted] { background: var(--theme-hover); outline: 2px solid var(--theme-focus); outline-offset: -2px; }
+.generation-model-picker__item[data-state="checked"] { background: var(--theme-selected); }
+.generation-model-picker__item[data-state="checked"] small,
+.generation-model-picker__item[data-highlighted] small { color: var(--theme-text); }
+.generation-model-picker__item[data-disabled] { cursor: not-allowed; }
+.generation-model-picker__check { position: absolute; left: 8px; top: 12px; }
+.generation-model-picker__check svg { width: 16px; height: 16px; color: var(--theme-text); }
+.generation-option-warning, .generation-model-picker__reason { color: var(--theme-warning); font-size: 12px; }
+.generation-model-picker__empty { padding: 12px; font-size: 13px; }
+.generation-options-more { margin-top: 12px; min-width: 0; }
+.generation-options-more > summary {
+  display: flex; align-items: center; gap: 8px; min-height: 44px;
+  width: fit-content; color: var(--theme-text); font-size: 13px; cursor: pointer;
+}
+.generation-options-more > summary svg { width: 16px; height: 16px; }
+.generation-options-more__body { display: grid; gap: 12px; margin-top: 8px; }
+.generation-output-details { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; font-size: 12px; }
+.generation-output-details div { display: flex; gap: 8px; }
+.generation-output-details dt { color: var(--theme-text-muted); }
+.generation-output-details dd { margin: 0; color: var(--theme-text); }
+.generation-audio-switch { justify-content: space-between; padding: 0 10px; cursor: pointer; }
+.generation-audio-switch[aria-checked="true"] { border-color: var(--theme-text); }
+.generation-options-panel .engine-target-panel__video-quote { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; font-size: 13px; }
+.generation-options-panel .engine-target-panel__video-quote strong { color: var(--theme-warning); display: inline-flex; align-items: center; gap: 6px; }
+.generation-options-panel .engine-target-panel__video-quote small { flex-basis: 100%; }
+.generation-options-panel .engine-comparison-toggle { max-width: 100%; min-height: 40px; }
+.generation-options-panel .engine-output-count__stepper { grid-template-columns: 44px minmax(32px, 1fr) 44px; }
+.generation-options-panel .engine-output-count__stepper button,
+.generation-options-panel .engine-output-count__stepper output { min-height: 44px; height: 44px; }
+@container (max-width: 330px) {
+  .generation-options-panel .engine-target-panel__heading { flex-wrap: wrap; }
+  .generation-options-panel .engine-target-panel__output-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 440px) {
+  .generation-options-panel .engine-target-panel__output-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Workspace owners keep sizing/scrolling; this is the shared render signature. */
+.generation-render-frame.generation-render-frame,
+.engine-target-panel.engine-target-panel {
+  border: 1px solid var(--theme-render-accent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--theme-render-accent) 3%, var(--theme-surface));
+  box-shadow: 0 0 20px color-mix(in srgb, var(--theme-render-accent) 12%, transparent),
+    inset 0 0 12px color-mix(in srgb, var(--theme-render-accent) 3%, transparent);
+}
+.generation-render-frame .engine-target-panel.engine-target-panel,
+.engine-target-panel .engine-target-panel.engine-target-panel {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}

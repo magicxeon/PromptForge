@@ -1,10 +1,11 @@
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
-import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ComparisonSlotInput } from '../../features/generation/api/generationApi';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
 import { Button } from '../ui/Button';
 import { imageModelUnavailableReason } from '../../features/generation/modelAvailability';
+import { GenerationModelPicker } from '../generation/GenerationModelPicker';
+import { imageModelPickerOptions } from '../generation/engineTargetPanelHelpers';
 
 export type ComparisonSlotEstimate = {
   id: string;
@@ -30,7 +31,7 @@ export function ComparisonConfigurator({
   aspectRatio?: string | null;
   onChange: (slots: ComparisonSlotInput[]) => void;
 }) {
-  const { t } = useTranslation('playground');
+  const { t, i18n } = useTranslation('playground');
   const estimatedTotal = estimates?.length === slots.length
     ? estimates.reduce((total, estimate) => total + estimate.estimatedCredit, 0)
     : undefined;
@@ -113,43 +114,10 @@ export function ComparisonConfigurator({
               </div>
 
               <div className="comparison-slot-card__fields">
-                <Field label={t('playground.engine.provider')}>
-                  <select
-                    value={slot.provider}
-                    onChange={event => {
-                      const nextProvider = catalog.providers.find(
-                        item => item.id === event.target.value
-                      );
-                      const nextModel = firstAvailableModel(nextProvider);
-                      patch(index, {
-                        provider: event.target.value,
-                        model: nextModel?.id || ''
-                      });
-                    }}
-                  >
-                    {catalog.providers.map(item => (
-                      <option key={item.id} value={item.id} disabled={item.models.every(model => (
-                        Boolean(imageModelUnavailableReason(model, requiredReferenceCount, aspectRatio))
-                      ))}>
-                        {localized(item.displayName)}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label={t('playground.engine.model')}>
-                  <select
-                    value={slot.model}
-                    onChange={event => patch(index, { model: event.target.value })}
-                  >
-                    {provider?.models.map(item => (
-                      <option key={item.id} value={item.id} disabled={Boolean(
-                        imageModelUnavailableReason(item, requiredReferenceCount, aspectRatio)
-                      )}>
-                        {localized(item.displayName)}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
+                <GenerationModelPicker providerId={slot.provider} modelId={slot.model}
+                  options={imageModelPickerOptions(catalog, requiredReferenceCount, aspectRatio, i18n?.language || 'en',
+                    reason => t(`playground.engine.unavailable.${reason}`))}
+                  onChange={({ providerId, modelId }) => patch(index, { provider: providerId, model: modelId })} />
               </div>
 
               <footer className="comparison-slot-card__meta">
@@ -213,21 +181,6 @@ export function ComparisonConfigurator({
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <label className="comparison-slot-card__field">
-      <span>{label}</span>
-      {children}
-    </label>
-  );
-}
-
 function createSlotId() {
   return `slot_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
-
-function localized(value: string | Record<string, string>) {
-  return typeof value === 'string'
-    ? value
-    : value.en || value.th || Object.values(value)[0] || '';
 }

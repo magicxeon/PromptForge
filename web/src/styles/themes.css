@@ -23,6 +23,7 @@
   --theme-on-action: #ffffff;
   --theme-success: #18794e;
   --theme-warning: #9a6508;
+  --theme-render-accent: #9a6b00;
   --theme-danger: #b4233c;
   --theme-info: #246b9b;
   --theme-focus: #168c89;
@@ -58,6 +59,7 @@
   --theme-on-action: #1a0a03;
   --theme-success: #63d69a;
   --theme-warning: #ffb13b;
+  --theme-render-accent: #f0bb48;
   --theme-danger: #ff4965;
   --theme-info: #e78599;
   --theme-focus: #ff7889;

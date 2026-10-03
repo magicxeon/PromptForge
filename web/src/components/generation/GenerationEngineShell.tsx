@@ -9,7 +9,7 @@ export function GenerationEngineShell({
 }: GenerationEngineShellProps) {
   return (
     <section
-      className={cn('studio-step-card studio-step-card--generation', className)}
+      className={cn('studio-step-card studio-step-card--generation generation-render-frame', className)}
       {...props}
     />
   );

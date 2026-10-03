@@ -6,6 +6,53 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Shared Generation Selector UX (2026-10-02)
+
+GEN-UX-021 R5 replaces the narrow Playground composer with an expandable full-width
+authoring surface. `PlaygroundGenerationWorkspace.tsx` owns transient disclosure,
+editing/IME deferral and one-shot collapse from caller-provided successful-media
+keys. Image/group/Comparison and Video callers retain authoritative task state;
+no new polling, cache, persistence, Credit or provider path. Writing sits left,
+yellow render settings right, output/Queue/Recent below. Studio/dialogs are unchanged.
+
+GEN-UX-021 R6 keeps that ownership: entry/tab disclosure starts expanded and
+caller-provided active/submitted render identity distinguishes new completion from
+restored history. Container-aware Comparison layout and corner gradient are scoped
+to Playground render settings in `playground.css`; no business-state migration.
+
+GEN-UX-021 R3 extends Playground's compact header/composer to guided Character
+Look Sheets while preserving Profile form, identity, draft and review ownership.
+Shared render-signature styling belongs to `generation-options.css` through the
+existing `GenerationEngineShell`, `EngineTargetPanelFrame` and Playground workspace
+frame. One ancestor frame suppresses nested framing. No new runtime data owner.
+
+[GEN-UX-021](../009-migration-to-react/021-generation-options-ux.md) is a
+shared image/video selector implementation. Existing presentation
+owners are `web/src/components/generation/EngineTargetPanel.tsx`,
+`VideoEngineTargetPanel.tsx` and `web/src/components/comparisons/ComparisonConfigurator.tsx`.
+Feature callers retain orchestration, drafts, references and actions; Generation
+and Credits retain their public workflows. `GenerationModelPicker.tsx` and
+`GenerationOptionSelect.tsx` live under `web/src/components/generation/` and own
+controlled presentation only. Theme/container styling belongs to
+`web/src/styles/generation-options.css`. Playground opts into composer placement
+through the existing workspace; guided forms/settings remain feature-owned.
+No new runtime data path, cache, provider catalog or billing service is introduced.
+The linked packet owns the 17-context inventory, 13 delivered tasks and explicit
+remaining parent-route UAT. The existing reference runner owns selectable checks;
+`scripts/verify-generation-options-layout.mjs` owns isolated browser fixtures.
+The client Video schema now accepts the server's existing `actual_usage` mode,
+without changing the Credit lifecycle. Focused checks passed; full paid UAT is not claimed.
+
+GEN-UX-021 R2 is implemented and fixture-verified: Playground Image/Video use a left engine/reference/prompt/action panel and a
+right output/actions/Queue/Recent region. Existing option controls and other
+feature placements remain authoritative. GO-T14-T18 extend the existing
+workspace/CSS ownership. `GenerationReferenceDisclosure.tsx` under the shared
+Generation components owns collapsible presentation only, not reference processing.
+No new runtime data path, cache or persistence owner is introduced.
+The existing `PlaygroundRoute.tsx` owns the compact editable-workspace entry header;
+guided headers remain unchanged. Image36/maximum-reference Video18 actual-route
+cases and focused tests passed. No backend restart or paid generation was used.
+
 ### AI Credit Activation (Commercial Phase2-23, 2026-10-02)
 
 `CreditApplicationService.quoteWriting/reserveWriting` owns text Credit quotes

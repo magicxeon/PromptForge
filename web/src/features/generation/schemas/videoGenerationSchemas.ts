@@ -67,7 +67,7 @@ export const videoQuoteSchema = z.object({
     estimatedCredits: z.number().nonnegative(),
     expiresAt: z.string(),
     billingStatus: z.enum(['estimated', 'qualification_no_charge']).optional(),
-    chargeMode: z.enum(['user_credits', 'qualification_no_charge', 'development_poc_credit']).optional(),
+    chargeMode: z.enum(['user_credits', 'qualification_no_charge', 'development_poc_credit', 'actual_usage']).optional(),
     breakdown: z.record(z.string(), z.unknown()).default({})
   }).passthrough(),
   account: z.object({

@@ -654,7 +654,8 @@ describe('Cinematic Produce runtime workspace', () => {
     expect(api.createCinematicVideoAttempt).not.toHaveBeenCalled();
     expect(onOpenStage).not.toHaveBeenCalled();
     api.quoteCinematicVideoAttempt.mockResolvedValue(goodQuote);
-    fireEvent.change(screen.getByRole('combobox', { name: 'playground.engine.model' }), { target: { value: 'modelark:compatible-seedance' } });
+    fireEvent.keyDown(screen.getByRole('button', { name: 'playground.engine.model' }), { key: 'Enter' });
+    fireEvent.click(await screen.findByRole('menuitemradio', { name: /Compatible Seedance/i }));
     await waitFor(() => expect(screen.getByRole('button', { name: 'cinematic.produce.generate' })).toBeEnabled());
     expect(screen.queryByText('cinematic.produce.modelAuthorizationTitle')).not.toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'cinematic.produce.approvedKeyframe' })).toHaveAttribute('src', '/source-1.jpg');

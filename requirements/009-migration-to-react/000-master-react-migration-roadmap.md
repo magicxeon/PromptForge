@@ -5,6 +5,22 @@
 **Target:** React + TypeScript + Vite SPA, backed by the existing server contracts  
 **Strategy:** New frontend application in the same repository with route-by-route cutover
 
+## Generation Selector Refresh (2026-10-02)
+
+[021 Shared Generation Options UX](021-generation-options-ux.md) owns the implemented
+cross-screen model/output selector refresh based on `_temp/simple-UI.mp4`.
+Its inventory, ordered tasks and acceptance checks cover image/video consumers.
+Shared selectors/composer and focused checks are delivered; the evidence report
+keeps actual parent-route manual UAT and paid qualification explicitly open.
+R2 now revises Playground placement to left creation tools and right output;
+GO-T14-T18 are implemented with new focused component and actual-route fixture
+evidence. R1 historical checks remain separate; real-provider/manual UAT is not claimed.
+Existing Generation, Credits, references and feature workflows remain authoritative.
+
+R3 adds guided Playground Look Sheet alignment and a shared theme-aware yellow
+render signature. GO-T19-T22 and the same packet own focused validation and gaps;
+Studio/other feature placements and all financial/provider workflows are retained.
+
 ## 1. Business Outcome
 
 ModelPromptForge must move to a frontend platform that can support Community,
@@ -243,6 +259,7 @@ generation control, engagement action or profile section.
 | 013 | Guided generation prompt parity | Correct Face, Character Sheet and Scene compiler-mode contracts |
 | 018 | Multi-output generation and result grid | One-to-four normal outputs with exact Credits, grouped Queue state and shared Studio/Playground display |
 | 019 | Generation workflow Skill | Conditional cross-layer guardrails without presentation-task overhead |
+| 021 | [Shared Generation Options UX](021-generation-options-ux.md) | Shared selectors implemented; focused checks passed; parent-route UAT open |
 
 Steps 001-004 are mandatory foundation gates. Feature steps may overlap only
 when they consume released foundation APIs and do not edit the same legacy

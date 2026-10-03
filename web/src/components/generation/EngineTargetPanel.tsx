@@ -1,20 +1,14 @@
-import { Columns3, Minus, Plus, Sparkles } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { Columns3, Images, Maximize, Minus, Monitor, Plus, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
 import type { ComparisonSlotInput } from '../../features/generation/api/generationApi';
 import { ComparisonConfigurator } from '../comparisons/ComparisonConfigurator';
 import { EngineTargetPanelFrame } from './EngineTargetPanelFrame';
-import { imageModelUnavailableReason, supportedImageRatio } from './engineTargetPanelHelpers';
-
-const ratioLabels: Record<string, string> = {
-  '6:8': '6:8 Portrait',
-  '1:1': '1:1 Square',
-  '9:16': '9:16 Mobile',
-  '16:9': '16:9 Wide',
-  '4:5': '4:5 Social'
-};
+import { imageModelUnavailableReason, imageModelPickerOptions, supportedImageRatio } from './engineTargetPanelHelpers';
+import { GenerationModelPicker } from './GenerationModelPicker';
+import { GenerationOptionSelect } from './GenerationOptionSelect';
 
 export type EngineValue = {
   provider: string;
@@ -38,6 +32,7 @@ export function EngineTargetPanel({
   promptRefinementAvailable = false,
   promptRefinementEnabled = false,
   presentation = 'default',
+  inlineModelAction = false,
   fixedAspectRatio = null,
   adaptAspectRatio = false,
   requiredReferenceCount = 0,
@@ -60,6 +55,7 @@ export function EngineTargetPanel({
   promptRefinementAvailable?: boolean;
   promptRefinementEnabled?: boolean;
   presentation?: 'default' | 'compact';
+  inlineModelAction?: boolean;
   fixedAspectRatio?: string | null;
   adaptAspectRatio?: boolean;
   requiredReferenceCount?: number;
@@ -69,7 +65,15 @@ export function EngineTargetPanel({
   onSlotsChange: (slots: ComparisonSlotInput[]) => void;
   onPromptRefinementChange?: (enabled: boolean) => void;
 }) {
-  const { t } = useTranslation('playground');
+  const { t, i18n } = useTranslation('playground');
+  const [selectionNotice, setSelectionNotice] = useState('');
+  const comparisonButtonRef = useRef<HTMLButtonElement>(null);
+  const restoreComparisonFocus = useRef(false);
+  useLayoutEffect(() => {
+    if (!restoreComparisonFocus.current) return;
+    comparisonButtonRef.current?.focus({ preventScroll: true });
+    restoreComparisonFocus.current = false;
+  }, [comparison]);
   const { t: tUi } = useTranslation('react-ui');
   const provider = catalog.providers.find(item => item.id === value.provider) || catalog.providers[0];
   const model = provider?.models.find(item => item.id === value.model) || provider?.models[0];
@@ -87,31 +91,36 @@ export function EngineTargetPanel({
     catalog.providers.find(item => item.id === slot.provider)?.models
       .find(item => item.id === slot.model)?.capabilities.dimensionControl === 'aspect_ratio_only'
   ));
+  const showDimensions = model?.capabilities.dimensionControl !== 'aspect_ratio_only'
+    && (fixedAspectRatio || value.aspectRatio) !== 'auto' && !comparisonUsesAspectOnlyDimensions;
 
-  function setProvider(providerId: string) {
-    const next = catalog.providers.find(item => item.id === providerId);
-    const preferred = next?.models.find(item => item.id === next.defaultModel);
-    const nextModel = [preferred, ...(next?.models || [])].find(candidate => (
-      candidate && !imageModelUnavailableReason(
-        candidate,
-        requiredReferenceCount,
-        selectionRatio
-      )
-    )) || preferred || next?.models[0];
-    onChange({
-      ...value,
-      provider: providerId,
-      model: nextModel?.id || '',
+  function selectModel({ providerId, modelId }: { providerId: string; modelId: string }) {
+    const nextModel = catalog.providers.find(item => item.id === providerId)?.models.find(item => item.id === modelId);
+    if (!nextModel || imageModelUnavailableReason(nextModel, requiredReferenceCount, selectionRatio)) return;
+    const next = { ...value, provider: providerId, model: modelId,
       aspectRatio: adaptAspectRatio && !fixedAspectRatio
-        ? supportedImageRatio(nextModel?.capabilities.aspectRatios || [], value.aspectRatio) : value.aspectRatio,
-      resolution: nextModel?.capabilities.resolutions?.[0] || nextModel?.defaults?.resolution || null
-    });
+        ? supportedImageRatio(nextModel.capabilities.aspectRatios || [], value.aspectRatio) : value.aspectRatio,
+      resolution: value.resolution && nextModel.capabilities.resolutions?.includes(value.resolution)
+        ? value.resolution : nextModel.capabilities.resolutions?.[0] || nextModel.defaults?.resolution || null };
+    const fields = [next.aspectRatio !== value.aspectRatio ? t('playground.engine.aspect') : '',
+      next.resolution !== value.resolution ? t('playground.engine.resolution') : ''].filter(Boolean);
+    setSelectionNotice(fields.length ? t('playground.options.selectionChanged', { fields: fields.join(', ') }) : '');
+    onChange(next);
   }
+
+  const comparisonAction = allowComparison ? <Button ref={comparisonButtonRef}
+    className={`engine-comparison-toggle btn-compare-models${comparison ? ' active is-active' : ''}`}
+    variant="secondary" icon={<Columns3 className="size-4" />} aria-pressed={comparison}
+    onClick={event => {
+      // The inline action changes parent when Comparison replaces the model picker.
+      restoreComparisonFocus.current = inlineModelAction && document.activeElement === event.currentTarget;
+      onComparisonChange(!comparison);
+    }}>{t('playground.action.compare')}{comparison ? ` ${comparisonSlots.length}/4` : ''}</Button> : null;
 
   return (
     <EngineTargetPanelFrame
       studioLayout={studioLayout}
-      className={presentation === 'compact' ? 'engine-target-panel--compact' : undefined}
+      className={`generation-options-panel${presentation === 'compact' ? ' engine-target-panel--compact' : ''}`}
       title={t('playground.section.engine')}
       description={t('playground.engine.help')}
       badge={studioLayout ? (
@@ -119,82 +128,45 @@ export function EngineTargetPanel({
           {tUi('ui.studio.stepLabel')} 2
         </span>
       ) : null}
-      action={allowComparison ? <Button className={`engine-comparison-toggle btn-compare-models${comparison ? ' active is-active' : ''}`} variant="secondary" icon={<Columns3 className="size-4" />} onClick={() => onComparisonChange(!comparison)}>{t('playground.action.compare')}{comparison ? ` ${comparisonSlots.length}/4` : ''}</Button> : null}
+      action={!inlineModelAction || comparison ? comparisonAction : null}
     >
       <div className="engine-target-panel__controls">
-        {!comparison ? (
-          <div className="engine-target-panel__model-grid">
-            <Field label={t('playground.engine.provider')}><select aria-label={t('playground.engine.provider')} value={value.provider} onChange={event => setProvider(event.target.value)}>{catalog.providers.map(item => <option key={item.id} value={item.id} disabled={item.models.every(candidate => Boolean(imageModelUnavailableReason(candidate, requiredReferenceCount, selectionRatio)))}>{localized(item.displayName)}</option>)}</select></Field>
-            <Field label={t('playground.engine.model')}><select aria-label={t('playground.engine.model')} value={value.model} onChange={event => {
-              const next = provider?.models.find(item => item.id === event.target.value);
-              onChange({ ...value, model: event.target.value,
-                aspectRatio: adaptAspectRatio && !fixedAspectRatio ? supportedImageRatio(next?.capabilities.aspectRatios || [], value.aspectRatio) : value.aspectRatio,
-                resolution: next?.capabilities.resolutions?.[0] || next?.defaults?.resolution || null });
-            }}>{provider?.models.map(item => <option key={item.id} value={item.id} disabled={Boolean(imageModelUnavailableReason(item, requiredReferenceCount, selectionRatio))}>{localized(item.displayName)}</option>)}</select>
-              {selectedModelUnavailableReason ? <small className="engine-target-panel__model-meta is-warning">{t(`playground.engine.unavailable.${selectedModelUnavailableReason}`)}</small> : null}
-              {!selectedModelUnavailableReason && model?.testingRoutingEnabled && !model.paidRoutingEnabled
-                ? <small className="engine-target-panel__model-meta is-warning">{t('playground.engine.internalTesting')}</small> : null}
-              {/* <small className="engine-target-panel__model-meta">
-                {model?.capabilities.maxReferenceImages || 0} {t('playground.comparison.referencesShort')}
-              </small> */}
-            </Field>
-            {resolutions.length ? <Field label={t('playground.engine.resolution')}><select value={value.resolution || ''} onChange={event => onChange({ ...value, resolution: event.target.value || null })}>{resolutions.map(item => <option key={item} value={item}>{item.toUpperCase()}</option>)}</select></Field> : null}
-          </div>
-        ) : null}
+        {!comparison ? <div className="engine-target-panel__model-grid">
+          <GenerationModelPicker providerId={value.provider} modelId={value.model}
+            labelAction={inlineModelAction ? comparisonAction : null}
+            options={imageModelPickerOptions(catalog, requiredReferenceCount, selectionRatio, i18n?.language || 'en',
+              reason => t(`playground.engine.unavailable.${reason}`))}
+            onChange={selectModel} />
+          {!selectedModelUnavailableReason && model?.testingRoutingEnabled && !model.paidRoutingEnabled
+            ? <small className="generation-option-warning">{t('playground.engine.internalTesting')}</small> : null}
+        </div> : null}
+        {selectionNotice && !comparison ? <p className="generation-option-warning" role="status">{selectionNotice}</p> : null}
         <div className="engine-target-panel__output-grid">
-          {model?.capabilities.dimensionControl !== 'aspect_ratio_only'
-            && (fixedAspectRatio || value.aspectRatio) !== 'auto'
-            && !comparisonUsesAspectOnlyDimensions ? <>
-            <Field label={t('playground.engine.width')}><input readOnly value={dimensions.width} /></Field>
-            <Field label={t('playground.engine.height')}><input readOnly value={dimensions.height} /></Field>
-          </> : null}
-          <div className="engine-target-panel__aspect">
-            <span>{t('playground.engine.aspect')}</span>
-            <div>
-              {ratios.map(ratio => (
-                <Button
-                  key={ratio}
-                  className={(fixedAspectRatio || value.aspectRatio) === ratio ? 'is-selected' : ''}
-                  size="sm"
-                  variant={(fixedAspectRatio || value.aspectRatio) === ratio ? 'primary' : 'secondary'}
-                  disabled={Boolean(fixedAspectRatio)}
-                  onClick={() => onChange({ ...value, aspectRatio: ratio })}
-                >
-                  {ratioLabels[ratio] || ratio}
-                </Button>
-              ))}
+          <GenerationOptionSelect label={t('playground.engine.aspect')} icon={Maximize}
+            value={fixedAspectRatio || value.aspectRatio} locked={Boolean(fixedAspectRatio)}
+            options={ratios.map(ratio => ({ value: ratio, label: ratio }))}
+            onChange={aspectRatio => onChange({ ...value, aspectRatio })} />
+          {!comparison && resolutions.length ? <GenerationOptionSelect label={t('playground.engine.resolution')}
+            icon={Monitor} value={value.resolution || ''} options={resolutions.map(resolution => ({
+              value: resolution, label: resolution.toUpperCase()
+            }))} onChange={resolution => onChange({ ...value, resolution: resolution || null })} /> : null}
+          {!comparison && allowMultiOutput ? <div className="engine-output-count generation-option-field">
+            <span className="generation-option-label"><Images className="inline size-4" aria-hidden="true" /> {t('playground.engine.images')}</span>
+            <div className="engine-output-count__stepper">
+              <Button type="button" size="icon" variant="secondary"
+                title={t('playground.engine.decreaseImages')} aria-label={t('playground.engine.decreaseImages')}
+                disabled={value.outputCount <= 1} icon={<Minus className="size-4" />}
+                onClick={() => onChange({ ...value, outputCount: Math.max(1, value.outputCount - 1) })} />
+              <output aria-live="polite" aria-label={t('playground.engine.images')}>{value.outputCount}</output>
+              <Button type="button" size="icon" variant="secondary"
+                title={t('playground.engine.increaseImages')} aria-label={t('playground.engine.increaseImages')}
+                disabled={value.outputCount >= 4} icon={<Plus className="size-4" />}
+                onClick={() => onChange({ ...value, outputCount: Math.min(4, value.outputCount + 1) })} />
             </div>
-          </div>
-          {!comparison && allowMultiOutput ? (
-            <div className="engine-output-count">
-              <span>{t('playground.engine.images')}</span>
-              <div className="engine-output-count__stepper">
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="secondary"
-                  title={t('playground.engine.decreaseImages')}
-                  aria-label={t('playground.engine.decreaseImages')}
-                  disabled={value.outputCount <= 1}
-                  icon={<Minus className="size-4" />}
-                  onClick={() => onChange({ ...value, outputCount: Math.max(1, value.outputCount - 1) })}
-                />
-                <output aria-live="polite" aria-label={t('playground.engine.images')}>
-                  {value.outputCount}
-                </output>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="secondary"
-                  title={t('playground.engine.increaseImages')}
-                  aria-label={t('playground.engine.increaseImages')}
-                  disabled={value.outputCount >= 4}
-                  icon={<Plus className="size-4" />}
-                  onClick={() => onChange({ ...value, outputCount: Math.min(4, value.outputCount + 1) })}
-                />
-              </div>
-            </div>
-          ) : null}
+          </div> : null}
+          {!comparison && !allowMultiOutput ? <GenerationOptionSelect label={t('playground.engine.images')}
+            icon={Images} locked value={String(value.outputCount)} options={[{ value: String(value.outputCount), label: String(value.outputCount) }]}
+            onChange={() => {}} /> : null}
         </div>
       </div>
       {comparison ? (
@@ -209,34 +181,39 @@ export function EngineTargetPanel({
           onChange={onSlotsChange}
         />
       ) : null}
-      {promptRefinementAvailable ? (
-        <div className="engine-prompt-refinement">
-          <Sparkles className="engine-prompt-refinement__icon" aria-hidden="true" />
-          <div className="engine-prompt-refinement__copy">
-            <strong>{t('playground.promptRefinement.label')}</strong>
-            <span>{t('playground.promptRefinement.description')}</span>
-            <small className="engine-prompt-refinement__free font-medium text-[var(--theme-success)]">{t('playground.promptRefinement.free')}</small>
-          </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={promptRefinementEnabled}
-            aria-label={t('playground.promptRefinement.label')}
-            className="engine-prompt-refinement__switch"
-            onClick={() => onPromptRefinementChange(!promptRefinementEnabled)}
-          >
-            <span />
-          </button>
+      {showDimensions || promptRefinementAvailable || extraControls ? <details className="generation-options-more">
+        <summary><SlidersHorizontal aria-hidden="true" />{t('playground.options.more')}
+          {promptRefinementAvailable ? <small className="engine-prompt-refinement__free font-medium text-[var(--theme-success)]">{t('playground.promptRefinement.free')}</small> : null}
+        </summary>
+        <div className="generation-options-more__body">
+          {showDimensions ? <dl className="generation-output-details">
+            <div><dt>{t('playground.engine.width')}</dt><dd><output aria-label={t('playground.engine.width')}>{dimensions.width} px</output></dd></div>
+            <div><dt>{t('playground.engine.height')}</dt><dd><output aria-label={t('playground.engine.height')}>{dimensions.height} px</output></dd></div>
+          </dl> : null}
+          {promptRefinementAvailable ? (
+            <div className="engine-prompt-refinement">
+              <Sparkles className="engine-prompt-refinement__icon" aria-hidden="true" />
+              <div className="engine-prompt-refinement__copy">
+                <strong>{t('playground.promptRefinement.label')}</strong>
+                <span>{t('playground.promptRefinement.description')}</span>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={promptRefinementEnabled}
+                aria-label={t('playground.promptRefinement.label')}
+                className="engine-prompt-refinement__switch"
+                onClick={() => onPromptRefinementChange(!promptRefinementEnabled)}
+              >
+                <span />
+              </button>
+            </div>
+          ) : null}
+          {extraControls}
         </div>
-      ) : null}
-      {extraControls}
+      </details> : null}
     </EngineTargetPanelFrame>
   );
-}
-
-
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]"><span>{label}</span>{children}</label>;
 }
 
 function dimensionsForRatio(ratio: string) {
@@ -256,8 +233,4 @@ function dimensionsForRatio(ratio: string) {
       : { width: 768, height: Math.round(768 * height / width) };
   }
   return { width: 1024, height: 1024 };
-}
-
-function localized(value: string | Record<string, string>) {
-  return typeof value === 'string' ? value : value.en || value.th || Object.values(value)[0] || '';
 }

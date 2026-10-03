@@ -1,41 +1,48 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ComponentProps } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { GenerationExperience } from './GenerationExperience';
+import { generationRoutePointerFeature, writeGenerationRoutePointer } from '../../features/generation/job-center/generationRoutePointer';
 
 const mocks = vi.hoisted(() => ({ actor: { userId: 'owner' }, skip: false,
   estimate: vi.fn(), submit: vi.fn(), compareEstimate: vi.fn(), compare: vi.fn(),
+  job: vi.fn(), group: vi.fn(), comparison: vi.fn(), catalog: vi.fn(),
   enhanceQuote: vi.fn(), enhance: vi.fn(), readEnhance: vi.fn() }));
 vi.mock('../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: mocks.actor }) }));
 vi.mock('../../lib/auth/actorStore', () => ({ getActiveActorId: () => mocks.actor.userId }));
 vi.mock('../../lib/auth/userPreferences', () => ({ useUserPreferences: () => ({ isSuccess: true, isFetching: false, data: { confirmCreditUsage: !mocks.skip }, save: vi.fn() }) }));
 vi.mock('../../lib/permissions/FeaturePolicyProvider', () => ({ useFeaturePolicy: () => ({ isEnabled: () => false }) }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en' } }) }));
-vi.mock('../../features/generation/hooks/useGenerationJob', () => ({ useGenerationJob: () => ({}) }));
-vi.mock('../../features/generation/hooks/useGenerationGroup', () => ({ useGenerationGroup: () => ({}) }));
-vi.mock('../../features/comparisons/api/comparisonApi', () => ({ getComparison: async () => ({ runs: [] }), updateComparison: vi.fn() }));
+vi.mock('../../features/comparisons/api/comparisonApi', () => ({ getComparison: mocks.comparison, updateComparison: vi.fn() }));
 vi.mock('../../features/credits/api/creditApi', () => ({ getCreditAccount: async () => ({ account: { availableCredits: 100 } }), grantMockCredits: vi.fn() }));
 vi.mock('../../features/generation/api/lookSheetEnhancementApi', () => ({
   quoteLookSheetEnhancement: mocks.enhanceQuote, executeLookSheetEnhancement: mocks.enhance, readLookSheetEnhancement: mocks.readEnhance
 }));
 vi.mock('../../features/generation/api/generationApi', async original => ({ ...await original<object>(),
   estimateGeneration: mocks.estimate, submitGeneration: mocks.submit,
+  getJobStatus: mocks.job, getGenerationGroupStatus: mocks.group,
   estimateComparison: mocks.compareEstimate, submitComparison: mocks.compare,
   previewCompiledPrompt: async () => ({}),
-  getProviderCatalog: async () => ({ defaultProvider: 'fixture', providers: [{ id: 'fixture', name: 'Fixture', defaultModel: 'one',
-    models: ['one', 'two'].map(id => ({ id, name: id, capabilities: { aspectRatios: ['6:8'], resolutions: ['1K'], maxReferenceImages: 10 } })) }] })
+  getProviderCatalog: mocks.catalog
 }));
 
+const providerCatalog = { defaultProvider: 'fixture', providers: [{ id: 'fixture', name: 'Fixture', displayName: 'Fixture', defaultModel: 'one',
+  models: ['one', 'two'].map(id => ({ id, name: id, displayName: id, capabilities: { aspectRatios: ['6:8'], resolutions: ['1K'], maxReferenceImages: 10 } })) }] };
 const quote = (credits = 10) => ({ estimate: { estimateId: `price-${credits}`, estimatedCredits: credits, expiresAt: '2099-01-01' }, account: { availableCredits: 100, canAfford: true } });
 const textQuote = { id: 'text-price', status: 'quoted', credits: 4, expiresAt: '2099-01-01', artifactExpiresAt: '2099-01-01' };
 beforeEach(() => {
   vi.clearAllMocks(); localStorage.clear(); sessionStorage.clear(); mocks.actor = { userId: 'owner' }; mocks.skip = false;
   Element.prototype.scrollIntoView = vi.fn();
   mocks.estimate.mockReset().mockResolvedValue(quote());
-  mocks.submit.mockResolvedValue({ jobId: 'job', status: 'queued' });
+  mocks.submit.mockReset().mockResolvedValue({ jobId: 'job', status: 'queued' });
   mocks.compareEstimate.mockResolvedValue({ estimatedTotalCredit: 20, estimateToken: 'comparison-price', slots: [] });
-  mocks.compare.mockResolvedValue({ setId: 'set', jobs: [] });
+  mocks.compare.mockResolvedValue({ setId: 'set', runId: 'run', status: 'queued', jobs: [] });
+  mocks.job.mockReset().mockResolvedValue({ id: 'job', status: 'queued' });
+  mocks.group.mockReset().mockResolvedValue({ id: 'group', status: 'queued', children: [] });
+  mocks.comparison.mockReset().mockResolvedValue({ runs: [] });
+  mocks.catalog.mockReset().mockResolvedValue(providerCatalog);
   mocks.enhanceQuote.mockResolvedValue(textQuote);
   mocks.enhance.mockResolvedValue({ ...textQuote, status: 'succeeded' });
 });
@@ -155,4 +162,186 @@ it.each([9, 10, 11])('binds the post-enhancement image price %s to the confirmed
     await screen.findByText('lookSheet.auto.priceChanged');
     expect(mocks.submit).not.toHaveBeenCalled();
   }
+});
+
+it('renders the guided Playground builder and read-only prompt, preserving pending field locks and consent', async () => {
+  mocks.submit.mockImplementation(() => new Promise(() => {}));
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  const { container } = render(<MemoryRouter><QueryClientProvider client={client}>
+    <GenerationExperience surface="playground" generationMode="character-sheet" layoutVariant="playground"
+      initialPrompt="Approved character direction" showRecentGenerations={false} allowComparison={false}
+      showPromptEditor={false} readOnlyPrompt={{ label: 'Compiled Look Sheet prompt' }}
+      lookSheetDefinition={{ schemaVersion: 1, name: 'Kin', ageYears: 25, appearance: 'Dark hair', situation: 'Office', outfit: 'Suit', personality: 'Quiet' }}
+      studioBuilderTitle="Character definition" studioBuilder={<input aria-label="Character draft" defaultValue="Kin" />} />
+  </QueryClientProvider></MemoryRouter>);
+  const draft = await screen.findByRole('textbox', { name: 'Character draft' });
+  expect(draft).toBeEnabled();
+  expect(draft.closest('.playground-workspace__builder')).toHaveAttribute('open');
+  expect(screen.getByRole('textbox', { name: 'Compiled Look Sheet prompt' })).toHaveAttribute('readonly');
+  expect(container.querySelector('.studio-configurator-panel')).toBeNull();
+  const generateButton = screen.getByRole('button', { name: /^playground\.action\.generate/ });
+  await waitFor(() => expect(generateButton).toBeEnabled());
+  fireEvent.click(generateButton);
+  expect(mocks.submit).not.toHaveBeenCalled();
+  confirm();
+  await waitFor(() => expect(mocks.submit).toHaveBeenCalledTimes(1));
+  expect(draft).toBeDisabled();
+  expect(container.querySelector('.engine-target-panel')?.closest('fieldset')).toBeDisabled();
+  expect(generateButton).toBeDisabled();
+  client.clear();
+});
+
+it('returns to guided settings even when an incomplete Look Sheet has no compiled prompt', async () => {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const { container } = render(<MemoryRouter><QueryClientProvider client={client}>
+    <GenerationExperience surface="playground" generationMode="character-sheet" layoutVariant="playground"
+      initialPrompt="" showRecentGenerations={false} allowComparison={false} showPromptEditor={false}
+      blockedReason="Incomplete definition" lookSheetDefinition={{ schemaVersion: 1, name: '', ageYears: null, appearance: '', situation: '', outfit: '', personality: '' }}
+      studioBuilderTitle="Character definition" studioBuilder={<input aria-label="Character draft" defaultValue="" />} />
+  </QueryClientProvider></MemoryRouter>);
+  await screen.findByRole('textbox', { name: 'Character draft' });
+  expect(container.querySelector('.studio-prompt-preview')).toBeNull();
+  expect(container.querySelector('.playground-workspace__result')).not.toBeVisible();
+  const toggle = container.querySelector<HTMLButtonElement>('.playground-workspace__setup-toggle')!;
+  fireEvent.click(toggle);
+  expect(screen.queryByRole('textbox', { name: 'Character draft' })).not.toBeInTheDocument();
+  fireEvent.click(toggle);
+  expect(screen.getByRole('textbox', { name: 'Character draft' })).toHaveValue('');
+  client.clear();
+});
+
+type RenderKind = 'image' | 'look-sheet' | 'group' | 'comparison';
+function lifecycleFixture(kind: RenderKind, status = 'completed', media = true) {
+  const result = media ? { imageUrl: '/outputs/lifecycle.png' } : null;
+  const slots = ['one', 'two'].map(id => ({ id, jobId: id, status, result, provider: 'fixture', model: id }));
+  const data = kind === 'comparison'
+    ? { id: 'set', name: 'Lifecycle comparison', runs: [{ id: 'run', status, createdAt: 1, slots }] }
+    : kind === 'group'
+      ? { id: 'group', status, requestedOutputCount: 2, completedCount: status === 'completed' ? 2 : 0,
+        failedCount: status === 'failed' ? 2 : 0, children: slots }
+      : { id: 'job', status, result };
+  return {
+    data,
+    read: kind === 'comparison' ? mocks.comparison : kind === 'group' ? mocks.group : mocks.job,
+    queryKey: kind === 'comparison' ? ['comparison', 'owner', 'set']
+      : kind === 'group' ? ['generation-group', 'owner', 'group'] : ['generation-job', 'owner', 'job'],
+    pointer: { jobId: kind === 'image' || kind === 'look-sheet' ? 'job' : null,
+      generationGroupId: kind === 'group' ? 'group' : null, comparisonSetId: kind === 'comparison' ? 'set' : null }
+  };
+}
+
+function mountLifecycle(kind: RenderKind) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+  const element = (visible = true) => <MemoryRouter><QueryClientProvider client={client}>
+    {visible ? <GenerationExperience surface="playground" generationMode={kind === 'look-sheet' ? 'character-sheet' : 'playground'}
+      layoutVariant="playground" initialPrompt="Lifecycle direction" showRecentGenerations={false}
+      initialComparisonActive={kind === 'comparison'}
+      {...(kind === 'look-sheet' ? { showPromptEditor: false, readOnlyPrompt: { label: 'Compiled prompt' },
+        lookSheetDefinition: { schemaVersion: 1 as const, name: 'Kin', ageYears: 25, appearance: 'Dark hair', situation: 'Office', outfit: 'Suit', personality: 'Quiet' },
+        studioBuilder: <input aria-label="Character draft" defaultValue="Kin" /> } : {})} /> : <div>Other tab</div>}
+  </QueryClientProvider></MemoryRouter>;
+  const view = render(element());
+  return { ...view, client, tab: (visible: boolean) => view.rerender(element(visible)) };
+}
+
+function lifecycleToggle() {
+  return screen.getByRole('button', { name: /playground.setup.title/ });
+}
+
+it.each<RenderKind>(['image', 'look-sheet', 'group', 'comparison'])('keeps async restored %s expanded despite initial pending hydration and tab return', async kind => {
+  const fixture = lifecycleFixture(kind);
+  let resolve!: (value: typeof fixture.data) => void;
+  fixture.read.mockReturnValueOnce(new Promise(done => { resolve = done; })).mockResolvedValue(fixture.data);
+  writeGenerationRoutePointer('owner', generationRoutePointerFeature('playground', kind === 'look-sheet' ? 'character-sheet' : 'playground'), fixture.pointer);
+  const view = mountLifecycle(kind);
+  await waitFor(() => expect(fixture.read).toHaveBeenCalled());
+  await screen.findByRole('button', { name: /playground.setup.title/ });
+  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  expect(view.container.querySelector('.studio-generate-button')).toBeDisabled();
+  await act(async () => resolve(fixture.data));
+  await waitFor(() => expect(view.client.getQueryData(fixture.queryKey)).toEqual(fixture.data));
+  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  fireEvent.click(lifecycleToggle());
+  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'false');
+  view.tab(false);
+  view.tab(true);
+  await screen.findByRole('button', { name: /playground.setup.title/ });
+  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  expect(view.client.getQueryData(fixture.queryKey)).toEqual(fixture.data);
+  expect(mocks.submit).not.toHaveBeenCalled();
+  expect(mocks.compare).not.toHaveBeenCalled();
+  view.unmount(); view.client.clear();
+});
+
+it.each<RenderKind>(['image', 'look-sheet', 'group', 'comparison'])('collapses a newly submitted %s whose first query is already completed, once only', async kind => {
+  mocks.skip = true;
+  const fixture = lifecycleFixture(kind);
+  let resolve!: (value: typeof fixture.data) => void;
+  fixture.read.mockReturnValueOnce(new Promise(done => { resolve = done; })).mockResolvedValue(fixture.data);
+  if (kind === 'group') mocks.submit.mockResolvedValue({ jobId: 'one', groupId: 'group', status: 'queued' });
+  const view = mountLifecycle(kind);
+  const generateButton = await screen.findByRole('button', { name: /^playground.action.generate/ });
+  await waitFor(() => expect(generateButton).toBeEnabled());
+  fireEvent.click(generateButton);
+  await waitFor(() => expect(fixture.read).toHaveBeenCalled());
+  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  await act(async () => resolve(fixture.data));
+  await waitFor(() => expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'false'));
+  fireEvent.click(lifecycleToggle());
+  await act(async () => { await view.client.refetchQueries({ queryKey: fixture.queryKey }); });
+  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  expect(kind === 'comparison' ? mocks.compare : mocks.submit).toHaveBeenCalledTimes(1);
+  view.unmount(); view.client.clear();
+});
+
+it.each<RenderKind>(['image', 'group', 'comparison'])('collapses an actually observed active restored %s only when it succeeds with media', async kind => {
+  const fixture = lifecycleFixture(kind, 'queued');
+  fixture.read.mockResolvedValue(fixture.data);
+  writeGenerationRoutePointer('owner', generationRoutePointerFeature('playground', 'playground'), fixture.pointer);
+  const view = mountLifecycle(kind);
+  await waitFor(() => expect(view.client.getQueryData(fixture.queryKey)).toEqual(fixture.data));
+  await screen.findByRole('button', { name: /playground.setup.title/ });
+  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  await act(async () => { view.client.setQueryData(fixture.queryKey, lifecycleFixture(kind).data); });
+  await waitFor(() => expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'false'));
+  view.unmount(); view.client.clear();
+});
+
+it('keeps manually reopened setup expanded when first-time Compare loading remounts the workspace', async () => {
+  mocks.skip = true;
+  mocks.job.mockResolvedValue(lifecycleFixture('image').data);
+  const view = mountLifecycle('image');
+  const generateButton = await screen.findByRole('button', { name: /^playground.action.generate/ });
+  await waitFor(() => expect(generateButton).toBeEnabled());
+  fireEvent.click(generateButton);
+  await waitFor(() => expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'false'));
+  const oldToggle = lifecycleToggle();
+  fireEvent.click(oldToggle);
+  let resolve!: (value: typeof providerCatalog) => void;
+  mocks.catalog.mockReturnValueOnce(new Promise(done => { resolve = done; }));
+  fireEvent.click(screen.getByRole('button', { name: /^playground.action.compare/ }));
+  await screen.findByText('playground.engine.loading');
+  expect(oldToggle).not.toBeInTheDocument();
+  await act(async () => resolve(providerCatalog));
+  const newToggle = await screen.findByRole('button', { name: /playground.setup.title/ });
+  expect(newToggle).not.toBe(oldToggle);
+  expect(newToggle).toHaveAttribute('aria-expanded', 'true');
+  await waitFor(() => expect(screen.getByRole('button', { name: /^playground.action.generateComparison/ })).toBeEnabled());
+  expect(newToggle).toHaveAttribute('aria-expanded', 'true');
+  expect(mocks.submit).toHaveBeenCalledTimes(1);
+  expect(mocks.compare).not.toHaveBeenCalled();
+  view.unmount(); view.client.clear();
+});
+
+it.each(['failed', 'cancelled', 'partially_completed', 'missing-media'])('keeps newly submitted image setup expanded for %s', async status => {
+  mocks.skip = true;
+  mocks.job.mockResolvedValue(lifecycleFixture('image', status === 'missing-media' ? 'completed' : status, false).data);
+  const view = mountLifecycle('image');
+  const generateButton = await screen.findByRole('button', { name: /^playground.action.generate/ });
+  await waitFor(() => expect(generateButton).toBeEnabled());
+  fireEvent.click(generateButton);
+  await waitFor(() => expect(mocks.job).toHaveBeenCalled());
+  await waitFor(() => expect(generateButton).toBeEnabled());
+  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  view.unmount(); view.client.clear();
 });

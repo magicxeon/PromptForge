@@ -8,7 +8,8 @@ describe('GenerationEngineShell', () => {
 
     expect(screen.getByRole('region', { name: 'Video engine' })).toHaveClass(
       'studio-step-card',
-      'studio-step-card--generation'
+      'studio-step-card--generation',
+      'generation-render-frame'
     );
   });
 });

@@ -27,6 +27,7 @@
 @import "./cinematic.css";
 @import "./toast.css";
 @import "./dialogs.css";
+@import "./generation-options.css";
 
 * {
   box-sizing: border-box;

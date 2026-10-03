@@ -30,6 +30,13 @@ boundaries, task status, local review notes and evidence; it does not fork requi
 
 ## 2. Work Packets And Suggested Order
 
+[Shared Generation Options UX tasks](../../../009-migration-to-react/generation-options-ux/002-implementation-plan.md)
+record 13 cross-feature delivery tasks with a live screen inventory and focused checks.
+They cover generation selectors only and are not included in historical RW counts.
+Shared implementation and focused checks are delivered; actual parent-screen UAT
+remains open. Each Cinematic slice preserves its writer, references, results,
+approvals and queue behavior.
+
 [018 Brief/navigation visual refresh](../018-project-brief-and-navigation-visual-refresh.md)
 contains BV01-BV04, UX review, scoped implementation and focused browser/component
 checks. It extends task 003 and packet 017 without resetting their completed scope.
@@ -127,8 +134,10 @@ to mirror each documentation packet, or merge unrelated components to reduce cou
 ## 4. Non-Negotiable Shared Scope
 
 - One authoring mode and one Shot document, with no per-attribute Shot forms.
-- Engine & Target Output, Render/results, Take actions, Shot Queue, Generation Queue
-  and Job Center keep their existing UI/behavior per 010.
+- Engine & Target Output retains its workflow; its selector presentation may change
+  only within [GEN-UX-021](../../../009-migration-to-react/021-generation-options-ux.md).
+  Render/results, Take actions, Shot Queue, Generation Queue and Job Center keep
+  their existing UI/behavior per 010.
 - Keep existing Generation, References, Assets and Credits entry points. UI mocks
   must never dispatch real provider calls or mutate live project data.
 - User work, older Takes, media, IDs and immutable receipts survive replacement.
