@@ -1,0 +1,227 @@
+{
+  "version": 1,
+  "requirement": "requirements/015-professional-agent-orchestration/008-coordinated-requirement-delivery.md",
+  "tasks": [
+    {
+      "id": "O01",
+      "title": "Requirements and handoff contract",
+      "complexity": "simple",
+      "reason": "Bounded requirement writing checkpoint; no runtime contract yet.",
+      "owner": "product-requirement-architect",
+      "ownerAgentId": "main-implementation-thread",
+      "capabilities": [
+        "agent-orchestration"
+      ],
+      "risks": [],
+      "dependsOn": [],
+      "writeScope": [
+        "requirements/015-professional-agent-orchestration/008-coordinated-requirement-delivery.md",
+        "requirements/015-professional-agent-orchestration/009-task-contract-and-handoff.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Requirement and handoff contract written"
+      ],
+      "reviewers": [],
+      "evidence": [
+        {
+          "check": "Requirement and handoff contract written",
+          "result": "passed",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        }
+      ],
+      "reviews": [],
+      "handoff": "Requirement scope, dependencies and acceptance recorded before implementation."
+    },
+    {
+      "id": "O02",
+      "title": "Reconcile active paths and artifact inventory",
+      "complexity": "complex",
+      "reason": "Shared developer workflow requires integration and independent acceptance.",
+      "owner": "product-requirement-architect",
+      "ownerAgentId": "main-implementation-thread",
+      "capabilities": [
+        "agent-orchestration"
+      ],
+      "risks": [
+        "shared-contract"
+      ],
+      "dependsOn": [
+        "O01"
+      ],
+      "writeScope": [
+        "requirements/015-professional-agent-orchestration/agent-artifact-map.json",
+        "server/AGENTS.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Legacy routing and inventory checks pass"
+      ],
+      "reviewers": [
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Legacy routing and inventory checks pass",
+          "result": "passed",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "result": "passed",
+          "agentId": "01a12417-5767-73a3-89a5-ae57c5950f20",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        }
+      ],
+      "handoff": "Integrated and independently reviewed within offline/config scope; native custom-profile activation remains tracked by O05."
+    },
+    {
+      "id": "O03",
+      "title": "Configure bounded project agent profiles",
+      "complexity": "complex",
+      "reason": "Shared developer workflow requires integration and independent acceptance.",
+      "owner": "product-requirement-architect",
+      "ownerAgentId": "main-implementation-thread",
+      "capabilities": [
+        "agent-orchestration"
+      ],
+      "risks": [
+        "security"
+      ],
+      "dependsOn": [
+        "O02"
+      ],
+      "writeScope": [
+        ".codex/",
+        "AGENTS.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "TOML parses and native project config loads"
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "TOML parses and native project config loads",
+          "result": "passed",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "result": "passed",
+          "agentId": "01a12417-5767-73a3-89a5-ae57c5950f20",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        },
+        {
+          "role": "security-reviewer",
+          "result": "passed",
+          "agentId": "01a1240c-fffb-7fd1-9f87-522712ea36d5",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        }
+      ],
+      "handoff": "Integrated and independently reviewed within offline/config scope; native custom-profile activation remains tracked by O05."
+    },
+    {
+      "id": "O04",
+      "title": "Validate coordinated task plans",
+      "complexity": "complex",
+      "reason": "Shared developer workflow requires integration and independent acceptance.",
+      "owner": "product-requirement-architect",
+      "ownerAgentId": "main-implementation-thread",
+      "capabilities": [
+        "agent-orchestration"
+      ],
+      "risks": [
+        "shared-contract"
+      ],
+      "dependsOn": [
+        "O03"
+      ],
+      "writeScope": [
+        "scripts/agent-orchestration/",
+        "scripts/verify-agent-orchestration.mjs",
+        "test/agentCoordination.test.js"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Positive and negative coordination tests pass"
+      ],
+      "reviewers": [
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Positive and negative coordination tests pass",
+          "result": "passed",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "result": "passed",
+          "agentId": "01a12417-5767-73a3-89a5-ae57c5950f20",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        }
+      ],
+      "handoff": "Integrated and independently reviewed within offline/config scope; native custom-profile activation remains tracked by O05."
+    },
+    {
+      "id": "O05",
+      "title": "Independent review and delivery evidence",
+      "complexity": "complex",
+      "reason": "Shared developer workflow requires integration and independent acceptance.",
+      "owner": "product-requirement-architect",
+      "ownerAgentId": "main-implementation-thread",
+      "capabilities": [
+        "agent-orchestration"
+      ],
+      "risks": [
+        "shared-contract"
+      ],
+      "dependsOn": [
+        "O04"
+      ],
+      "writeScope": [
+        "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+      ],
+      "status": "review",
+      "acceptance": [
+        "Review findings resolved and unverified runtime gates recorded",
+        "Fresh-session custom-profile activation and effective permissions verified"
+      ],
+      "reviewers": [
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Review findings resolved and unverified runtime gates recorded",
+          "result": "passed",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        },
+        {
+          "check": "Fresh-session custom-profile activation and effective permissions verified",
+          "result": "pending",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "result": "pending",
+          "agentId": "01a12417-5767-73a3-89a5-ae57c5950f20",
+          "reference": "requirements/015-professional-agent-orchestration/010-coordination-verification.md"
+        }
+      ],
+      "handoff": "Offline/config checks conditionally passed; open a fresh trusted Codex session and run the documented no-write custom-profile smoke test before full closure."
+    }
+  ],
+  "parallelBatches": []
+}

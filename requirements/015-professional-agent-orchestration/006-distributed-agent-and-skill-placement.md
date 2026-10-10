@@ -73,7 +73,7 @@ requirements/018-implementation-backend/
   roles/
     backend-platform-architect.md
 
-requirements/018-implementation-commercial-feature-plan/
+requirements/019-implementation-commercial-feature-plan/
   roles/
     commercial-financial-integrity.md
 ```
@@ -122,7 +122,7 @@ web/AGENTS.md
 server/AGENTS.md
 requirements/016-cinematic-studio/AGENTS.md
 requirements/018-implementation-backend/AGENTS.md
-requirements/018-implementation-commercial-feature-plan/AGENTS.md
+requirements/019-implementation-commercial-feature-plan/AGENTS.md
 ```
 
 Their responsibilities are:

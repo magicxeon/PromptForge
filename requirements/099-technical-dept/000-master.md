@@ -4,7 +4,74 @@
 
 This directory tracks refactoring tasks, technical debt payments, and modularization requirements designed to keep the codebase maintainable, performant, and clean.
 
+## Agent Start Here
+
+This file is the central architecture and ownership index, not an exhaustive
+file tree. Start here, select the relevant capability, then inspect only its
+owning requirement, public entry point, nearby code and tests. Current code wins
+over stale documentation; correct the affected map when a discrepancy is found.
+
+| Question | Start here |
+|---|---|
+| Where do server bootstrap, HTTP, domain and storage code belong? | [Server architecture](#3-current-server-architecture-after-step-2) and [server ownership](#41-server) |
+| Where do browser features, shared UI, state and navigation belong? | [Frontend ownership](#42-frontend) |
+| Where do assets, tests, scripts, roles and Skills belong? | [Supporting ownership](#43-assets-scripts-tests-and-requirements) |
+| Which public workflow must a caller reuse? | [Capability entry-point rules](../009-migration-to-react/016-capability-ownership-and-single-workflow-entry-points.md) |
+| Who owns caches, polling, invalidation and performance evidence? | [Performance ownership](../009-migration-to-react/017-performance-ownership-observability-and-tuning.md) |
+| What changed recently or is still planned? | [Capability addenda](#current-capability-addendum); distinguish implemented behavior from plans |
+| How are agents and Skills routed? | [Agent orchestration](../015-professional-agent-orchestration/000-master-professional-agent-orchestration.md) and its [artifact registry](../015-professional-agent-orchestration/agent-artifact-map.json) |
+| Where is the separate post-processing API documented? | [Service instructions](../../post-processing-service/AGENTS.md) and [service README](../../post-processing-service/README.md) |
+
+The normal application dependency direction is React feature -> shared API
+client -> HTTP route -> owning application/domain facade -> repository. Provider
+dispatch stays behind Generation; wallet mutations stay behind Credits;
+reference authority stays behind Reference Processing. A caller must not bypass
+another capability's facade to write its repository. The standalone
+post-processing service has its own API/domain/adapters and service instructions.
+
+### Central Map Maintenance Contract
+
+Documentation-only clarification, 2026-10-10. Owner: architecture governance.
+Scope: this index and repository agent instructions; no runtime or ownership
+change, new agent runtime, generated inventory or full-repository audit.
+
+1. On every task, check whether capability ownership, a public entry point,
+   dependency direction, configuration owner or runtime data location changed.
+   Adding, moving, renaming or retiring an architectural boundary also triggers
+   this check, including deletion of obsolete paths.
+2. Update the affected ownership rows in this file in the same change set.
+   Link the owning requirement and mark planned versus implemented behavior.
+   An addendum may explain a change but must not leave the canonical map stale.
+3. Update affected consumers, local instructions and registries as needed. Keep
+   detailed feature contracts in their owning requirement; link instead of
+   copying them here. Do not list every component, fixture or generated file.
+4. For changes inside an already documented boundary, record "architecture map
+   unchanged" in the task evidence rather than making timestamp-only edits.
+5. Before handoff, verify new/changed local links and mapped source paths, review
+   the scoped diff and report architecture updates or remaining discrepancies.
+   Proposed runtime data files need not exist before their first valid write.
+
+Delivery sequence for this clarification: add the quick navigation above, bind
+root instructions to this maintenance contract, then check the added links and
+diff. Acceptance: an agent can locate the relevant owner without a full tree
+scan, and structural changes explicitly require a same-change map update.
+This is a required workflow gate, not an implemented automatic drift detector.
+
 ## Current Capability Addendum
+
+### Requirement-Linked Agent Coordination (2026-10-10)
+
+[AGENT-ORCH-008](../015-professional-agent-orchestration/008-coordinated-requirement-delivery.md)
+owns complexity routing, task packets, integration and review gates. Simple work
+stays single-agent; complex work uses bounded dependency-aware coordination.
+Project-local Codex profiles/config belong to `.codex/`; they reference existing
+domain charters and do not replace `.agents/skills/`. The canonical registry is
+`requirements/015-professional-agent-orchestration/agent-artifact-map.json`.
+Read-only validation lives in `scripts/agent-orchestration/` with the public
+`scripts/verify-agent-orchestration.mjs` runner and owning tests under `test/`.
+Task state is development documentation beside each owning requirement, never
+application runtime data. No server/API/queue, global credentials or permission
+owner changes. Configuration loading and model execution evidence are separate.
 
 ### Tutorial Learning And AI Cinema (Increment A, 2026-10-08)
 
@@ -1042,6 +1109,8 @@ Client placement rules:
 | External image, video and text provider contracts, pricing evidence and qualification | `requirements/020-generation-providers/` |
 | Domain professional role charters | Owning requirement under `requirements/<domain>/roles/` |
 | Repository-wide discoverable Codex Skills | `.agents/skills/<skill-name>/` |
+| Project-local coding agent profiles and bounded concurrency (not application config) | `.codex/config.toml`, `.codex/agents/`; canonical role/guide/profile registry remains under `requirements/015-professional-agent-orchestration/` |
+| Agent task-plan validation and offline orchestration checks | `scripts/agent-orchestration/`, `scripts/verify-agent-orchestration.mjs`, `test/agentCoordination.test.js`; requirement task plans remain beside their owning requirement |
 | Directory-scoped agent instruction deltas | Nearest justified `AGENTS.md` below the repository root |
 | Cross-project architecture and technical debt plans | `requirements/099-technical-dept/` |
 

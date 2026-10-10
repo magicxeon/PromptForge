@@ -1,0 +1,4 @@
+# Coding-agent configuration only. Inherit model and permissions from the session.
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 2

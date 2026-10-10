@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "requirement": "requirements/015-professional-agent-orchestration/008-coordinated-requirement-delivery.md",
+  "tasks": [
+    {
+      "id": "CONTRACT",
+      "title": "Synthetic contract fixture; not a completed product task",
+      "complexity": "simple",
+      "reason": "Fixture for an approved bounded document checkpoint",
+      "owner": "product-requirement-architect",
+      "capabilities": ["fixture"],
+      "risks": [],
+      "dependsOn": [],
+      "writeScope": [],
+      "status": "complete",
+      "acceptance": ["Fixture contract exists"],
+      "reviewers": [],
+      "evidence": [{ "check": "Fixture contract exists", "result": "passed", "reference": "test/fixtures/agent-coordination-plan.json" }],
+      "reviews": [],
+      "handoff": "Synthetic test data only; a shared contract has already been accepted."
+    },
+    {
+      "id": "FRONTEND",
+      "title": "Synthetic frontend task",
+      "complexity": "complex",
+      "reason": "Implement one side of the accepted shared contract",
+      "owner": "frontend-engineer",
+      "capabilities": ["fixture"],
+      "risks": ["shared-contract", "user-facing"],
+      "dependsOn": ["CONTRACT"],
+      "writeScope": ["web/src/features/tutorials/"],
+      "status": "ready",
+      "acceptance": ["Consumer preserves the fixture contract"],
+      "reviewers": ["qa-release-engineer", "ux-ui-product-designer"],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Return implementation evidence to the Lead; do not edit server files."
+    },
+    {
+      "id": "BACKEND",
+      "title": "Synthetic backend task",
+      "complexity": "complex",
+      "reason": "Implement the other side of the accepted shared contract",
+      "owner": "api-service-engineer",
+      "capabilities": ["fixture"],
+      "risks": ["shared-contract"],
+      "dependsOn": ["CONTRACT"],
+      "writeScope": ["server/domain/tutorials/"],
+      "status": "ready",
+      "acceptance": ["Service preserves the fixture contract"],
+      "reviewers": ["qa-release-engineer"],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Return implementation evidence to the Lead; do not edit frontend files."
+    }
+  ],
+  "parallelBatches": [{ "reason": "CONTRACT is stable; independent fixture consumers have disjoint writes", "tasks": ["FRONTEND", "BACKEND"] }]
+}

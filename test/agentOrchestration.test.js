@@ -135,8 +135,8 @@ test('scoped AGENTS files extend root policy and point to their domain role', ()
     ['web/AGENTS.md', 'ux-ui-product-designer'],
     ['server/AGENTS.md', 'backend-platform-architect'],
     ['requirements/016-cinematic-studio/AGENTS.md', 'cinematic-experience-director'],
-    ['requirements/017-implementation-backend/AGENTS.md', 'backend-platform-architect'],
-    ['requirements/018-implementation-commercial-feature-plan/AGENTS.md', 'commercial-financial-integrity']
+    ['requirements/018-implementation-backend/AGENTS.md', 'backend-platform-architect'],
+    ['requirements/019-implementation-commercial-feature-plan/AGENTS.md', 'commercial-financial-integrity']
   ]);
 
   for (const [relativePath, role] of expectations) {

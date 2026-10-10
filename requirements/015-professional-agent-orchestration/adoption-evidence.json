@@ -71,13 +71,13 @@
         "plan-database-migration",
         "review-commercial-integrity"
       ],
-      "owningRequirement": "requirements/018-implementation-commercial-feature-plan/Phase2-03-database-architecture-and-json-migration.md",
+      "owningRequirement": "requirements/019-implementation-commercial-feature-plan/Phase2-03-database-architecture-and-json-migration.md",
       "owningCapability": "commercial-platform",
       "reasonForRouting": "The work owns repository-adapter cutover and must preserve financial authority, reconciliation and rollback contracts.",
       "userOverride": null,
       "outputs": [
-        "requirements/018-implementation-commercial-feature-plan/Phase2-03-database-architecture-and-json-migration.md",
-        "requirements/018-implementation-commercial-feature-plan/Phase2-20-current-state-reconciliation-and-execution-plan.md"
+        "requirements/019-implementation-commercial-feature-plan/Phase2-03-database-architecture-and-json-migration.md",
+        "requirements/019-implementation-commercial-feature-plan/Phase2-20-current-state-reconciliation-and-execution-plan.md"
       ],
       "handoff": "Current-state audit and dependency-ordered migration plan created; database implementation remains pending.",
       "status": "requirement-complete"

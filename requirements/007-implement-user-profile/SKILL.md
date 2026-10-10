@@ -38,7 +38,7 @@ Current code is authoritative when an old requirement names a stale path.
 Profile Page is a Community presentation capability:
 
 ```text
-Client UI/controller        client/community/
+Client UI/controller        web/src/features/community/
 Server page composition     server/domain/community/
 HTTP routes                 server/app/routes/
 Existing persistence        server/repositories/community/
@@ -149,8 +149,9 @@ For each numbered requirement:
 6. Add localization keys for all enabled locales.
 7. Add focused tests and regression coverage.
 8. Update the requirement status to `Implemented - validation pending`.
-9. Report Node commands for the user to run.
-10. Mark complete only after the user confirms tests and browser acceptance.
+9. Run permitted focused checks and report exact commands/results.
+10. Mark complete only after required tests and browser acceptance have evidence;
+    disclose any live UAT still requiring the user.
 
 ## 8. UI Rules
 
@@ -197,5 +198,5 @@ Node commands for the user
 remaining browser/privacy risk
 ```
 
-Do not run Node commands or tests directly. Do not alter unrelated dirty
-worktree changes.
+Follow current root AGENTS.md validation policy. Do not alter unrelated dirty
+worktree changes or use live customer data for tests.

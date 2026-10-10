@@ -19,7 +19,7 @@ description: Implement or review ModelPromptForge Fashion Blueprint for simple e
      `012-platform-correlation-tracing-and-credit-recovery.md`.
 5. Character Profile `006`
 6. Template Core `010` and Reference Processing Pipeline `011`
-7. Navigation/UI `008`, Community and commercial `013` requirements
+7. Navigation/UI `008`, Community and commercial `019` requirements
 8. Existing shared modules and tests
 
 ## Workflow

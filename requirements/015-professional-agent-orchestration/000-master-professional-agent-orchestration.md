@@ -8,6 +8,22 @@ commercial operations, generative media and QA/release work
 
 ## 1. Purpose
 
+## Current Coordination Extension (2026-10-10)
+
+Use [008 coordinated delivery](008-coordinated-requirement-delivery.md),
+[009 task/handoff contract](009-task-contract-and-handoff.md) and
+[010 verification](010-coordination-verification.md) for requirement-linked
+custom agents, simple/complex classification and integration gates. The artifact
+registry is the current inventory: 13 role charters, 14 custom agent profiles,
+eight discoverable Skills, fourteen retained reference guides and seven scoped
+instruction files. Earlier counts/results below describe their historical
+checkpoint, not current client discovery or a fresh release pass.
+
+The project-local configuration is developer tooling, not a new server service.
+Legacy adoption evidence remains historical; new verification is recorded in 010.
+
+### Original Purpose
+
 ModelPromptForge now contains image generation, reusable Characters, Templates,
 Fashion Blueprint, future Cinematic Studio and future paid operations. A single
 unstructured coding-agent instruction is no longer sufficient to preserve the
@@ -77,7 +93,7 @@ used when the active environment can only apply roles sequentially.
 - Existing specialized Skill policy: `requirements/009-migration-to-react/019-generation-workflow-skill-and-trigger-policy.md`
 - Cinematic domain: `requirements/016-cinematic-studio/`
 - Backend program: `requirements/018-implementation-backend/`
-- Commercial program: `requirements/018-implementation-commercial-feature-plan/`
+- Commercial program: `requirements/019-implementation-commercial-feature-plan/`
 
 ## 6. Delivery Gates
 

@@ -50,7 +50,7 @@ requirements/016-cinematic-studio/
 requirements/018-implementation-backend/
   AGENTS.md
   roles/backend-platform-architect.md
-requirements/018-implementation-commercial-feature-plan/
+requirements/019-implementation-commercial-feature-plan/
   AGENTS.md
   roles/commercial-financial-integrity.md
 test/

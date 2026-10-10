@@ -36,7 +36,7 @@ description: Implement or review ModelPromptForge Character Profile creation, st
 ## File Ownership
 
 ```text
-client/character-profiles/                 Character Profile UI/state/API
+web/src/features/profiles/                 Character Profile UI/state/API
 server/domain/character-profiles/          lifecycle, export, sharing, usage
 server/repositories/character-profiles/    persistence contracts/adapters
 server/app/routes/characterProfileRoutes.js
@@ -59,5 +59,6 @@ references and cross-mode handoff. Do not copy them.
 
 ## Validation Handoff
 
-Do not run Node commands. Report exact `node --check` and `node --test` commands
-for the user, plus manual two-actor privacy and handoff tests.
+Follow current root AGENTS.md validation policy. Run focused isolated checks
+when permitted; report commands/results and remaining two-actor privacy and
+handoff tests. Never use live customer data as a fixture.

@@ -8,7 +8,7 @@ description: Plan, implement or review the complete ModelPromptForge frontend mi
 For work that crosses Generation lifecycle stages or changes Credit, Queue,
 provider dispatch, terminal polling, reference-count parity, Comparison
 ownership or multi-output groups, use
-`skills/implement-generation-workflow/SKILL.md`. Do not load that specialized
+`.agents/skills/implement-generation-workflow/SKILL.md` from the repository root. Do not load that specialized
 Skill for isolated presentation, copy or prompt-wording changes.
 
 ## Required Reading
@@ -197,5 +197,5 @@ commands the user must run
 rollback state and remaining parity gap
 ```
 
-Do not run Node commands in this repository. Ask the user to execute the exact
-commands and report failures.
+Follow current root AGENTS.md validation policy. Run permitted focused checks,
+report exact commands/results and distinguish isolated evidence from live UAT.

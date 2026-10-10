@@ -11,7 +11,7 @@ Before changing the Lab, read:
 
 1. Repository `AGENTS.md`.
 2. `requirements/099-technical-dept/000-master.md`.
-3. `requirements/015-lab-finetune-prompt/000-master-fashion-prompt-recipe-lab.md`.
+3. `requirements/014-lab-finetune-prompt/000-master-fashion-prompt-recipe-lab.md`.
 4. `requirements/013-implementation-fashion-blueprint/010-professional-scene-builder-guided-experience.md`.
 5. The canonical Generation and prompt compiler contracts affected by any
    proposed promotion.

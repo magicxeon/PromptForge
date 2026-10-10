@@ -9,7 +9,9 @@ Before implementation:
 
 1. Read the requirement file that owns the requested feature.
 2. Read `requirements/099-technical-dept/000-master.md` for current architecture
-   and file ownership.
+   and file ownership. Start with its "Agent Start Here" index, then read the
+   relevant ownership section and capability addenda rather than scanning the
+   entire repository by default.
 3. Inspect the nearest existing modules, tests, and runtime data contracts.
 4. Treat current canonical modules as authoritative over stale paths in older
    requirements. Update stale requirement paths when implementation changes them.
@@ -50,8 +52,8 @@ Choose exactly one primary role:
 | Material screen, navigation, interaction, theme or accessibility work | `requirements/009-migration-to-react/roles/ux-ui-product-designer.md` |
 | Video, film, shot, sequence, continuity, motion or audio work | `requirements/016-cinematic-studio/roles/cinematic-experience-director.md` |
 | AI video execution packets, temporal prompting, provider-aware Shot attempts or drift diagnosis | `requirements/016-cinematic-studio/roles/generative-cinematic-production-director.md` |
-| API, domain, repository, database, durable Job or infrastructure work | `requirements/017-implementation-backend/roles/backend-platform-architect.md` |
-| Pricing, Credits, payments, payouts, refunds or billable recovery | `requirements/018-implementation-commercial-feature-plan/roles/commercial-financial-integrity.md` |
+| API, domain, repository, database, durable Job or infrastructure work | `requirements/018-implementation-backend/roles/backend-platform-architect.md` |
+| Pricing, Credits, payments, payouts, refunds or billable recovery | `requirements/019-implementation-commercial-feature-plan/roles/commercial-financial-integrity.md` |
 | Explicit review, regression audit, release gate or requirement closure | `requirements/015-professional-agent-orchestration/roles/qa-release-engineer.md` |
 
 For a tiny local copy, translation, CSS, test expectation or prompt-wording
@@ -114,6 +116,45 @@ rather than claiming parallel or independent execution.
 
 ## 2. Project Structure Gate
 
+### Requirement-Linked Coordination
+
+Follow `requirements/015-professional-agent-orchestration/008-coordinated-requirement-delivery.md`
+and `009-task-contract-and-handoff.md` in that directory. Classify from behavior
+and risk, not line count. Simple bounded, low-risk, unchanged-contract work uses
+one agent and a short requirement checkpoint; do not split it or spawn agents
+merely to use parallelism. Cross-capability, shared-contract, migration or
+sensitive work is complex, but can still be sequential.
+
+For complex work the main thread performs Technical Lead coordination using
+`requirements/015-professional-agent-orchestration/roles/technical-lead.md`.
+This is not a second primary role or a mandatory extra process. Assign one
+domain primary per task, explicit write scopes, stable contracts, dependencies,
+acceptance checks and reviewers. Keep the task plan beside its owning requirement.
+Parallelize only independent complex tasks with completed dependencies and
+non-overlapping writes. Children must not spawn more agents. Main plus two
+subagents is the project default; perform additional mandatory reviews in waves.
+
+Project profiles are indexed in
+`requirements/015-professional-agent-orchestration/agent-artifact-map.json`.
+Additional specialists are frontend-engineer and user-journey-tester under
+`requirements/009-migration-to-react/roles/`; api-service-engineer and
+database-engineer under `requirements/018-implementation-backend/roles/`; and
+security-reviewer under `requirements/015-professional-agent-orchestration/roles/`.
+They refine implementation/review assignments, never duplicate capability ownership.
+
+The Lead sends the task packet and collects a handoff with changed files,
+contracts, test evidence, risks and next action. Integrate and verify before
+marking complete. Never weaken acceptance criteria to pass a check. Require
+independent sensitive review; disclose sequential fallback when unavailable.
+Review-only agents do not edit application code. Role/write-scope instructions
+do not grant permissions or constitute filesystem enforcement. Do not change
+global Codex trust/config, spend live Credits or mutate production during tests.
+
+Run `node scripts/verify-agent-orchestration.mjs --plan <task-plan.json>` for
+complex plan integrity. Focused tooling checks use `--group legacy|contracts|inventory`;
+aggregate checks require explicit `--all`. If custom profiles are unavailable,
+use the same charter/task packet through built-in agents and report that fallback.
+
 Before creating, moving, or renaming any file:
 
 1. Identify the capability that owns it.
@@ -126,6 +167,15 @@ Before creating, moving, or renaming any file:
 6. Update imports, browser script ordering, fixtures, tests, and documentation
    whenever a file moves.
 7. Verify all new or moved files against this map during final validation.
+
+The central map maintenance contract in `requirements/099-technical-dept/000-master.md`
+applies to every task. Update its affected ownership rows in the same change set
+whenever capability boundaries, public entry points, dependency direction,
+configuration ownership or runtime data locations change, including removals.
+Update affected requirement links and registries too; an appended progress note
+alone must not leave the canonical map stale. Changes within an existing mapped
+boundary require no artificial map edit: record "architecture map unchanged" in
+task evidence instead. Verify changed map links/paths before handoff.
 
 Canonical placement:
 

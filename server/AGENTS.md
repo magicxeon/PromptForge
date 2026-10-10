@@ -7,7 +7,7 @@ apply.
 ## Professional Owner
 
 Read
-`requirements/017-implementation-backend/roles/backend-platform-architect.md`
+`requirements/018-implementation-backend/roles/backend-platform-architect.md`
 for API, domain, repository, database, durable Job, provider or infrastructure
 work. Add Commercial and QA review when Credits, money or billable recovery are
 affected.

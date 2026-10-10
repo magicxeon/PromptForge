@@ -2,6 +2,358 @@
   "version": 1,
   "artifacts": [
     {
+      "id": "technical-lead",
+      "kind": "role",
+      "owner": "engineering-governance",
+      "canonicalPath": "requirements/015-professional-agent-orchestration/roles/technical-lead.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "frontend-engineer",
+      "kind": "role",
+      "owner": "engineering-governance",
+      "canonicalPath": "requirements/009-migration-to-react/roles/frontend-engineer.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "api-service-engineer",
+      "kind": "role",
+      "owner": "engineering-governance",
+      "canonicalPath": "requirements/018-implementation-backend/roles/api-service-engineer.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "database-engineer",
+      "kind": "role",
+      "owner": "engineering-governance",
+      "canonicalPath": "requirements/018-implementation-backend/roles/database-engineer.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "security-reviewer",
+      "kind": "role",
+      "owner": "engineering-governance",
+      "canonicalPath": "requirements/015-professional-agent-orchestration/roles/security-reviewer.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "user-journey-tester",
+      "kind": "role",
+      "owner": "engineering-governance",
+      "canonicalPath": "requirements/009-migration-to-react/roles/user-journey-tester.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "technical-lead",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/technical-lead.toml",
+      "discoveryPath": ".codex/agents/technical-lead.toml",
+      "role": "technical-lead",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "frontend-engineer",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/frontend-engineer.toml",
+      "discoveryPath": ".codex/agents/frontend-engineer.toml",
+      "role": "frontend-engineer",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "api-service-engineer",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/api-service-engineer.toml",
+      "discoveryPath": ".codex/agents/api-service-engineer.toml",
+      "role": "api-service-engineer",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "database-engineer",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/database-engineer.toml",
+      "discoveryPath": ".codex/agents/database-engineer.toml",
+      "role": "database-engineer",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "security-reviewer",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/security-reviewer.toml",
+      "discoveryPath": ".codex/agents/security-reviewer.toml",
+      "role": "security-reviewer",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "user-journey-tester",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/user-journey-tester.toml",
+      "discoveryPath": ".codex/agents/user-journey-tester.toml",
+      "role": "user-journey-tester",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "product-requirement-architect",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/product-requirement-architect.toml",
+      "discoveryPath": ".codex/agents/product-requirement-architect.toml",
+      "role": "product-requirement-architect",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "ux-ui-product-designer",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/ux-ui-product-designer.toml",
+      "discoveryPath": ".codex/agents/ux-ui-product-designer.toml",
+      "role": "ux-ui-product-designer",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "backend-platform-architect",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/backend-platform-architect.toml",
+      "discoveryPath": ".codex/agents/backend-platform-architect.toml",
+      "role": "backend-platform-architect",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "system-architect",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/system-architect.toml",
+      "discoveryPath": ".codex/agents/system-architect.toml",
+      "role": "backend-platform-architect",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "qa-release-engineer",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/qa-release-engineer.toml",
+      "discoveryPath": ".codex/agents/qa-release-engineer.toml",
+      "role": "qa-release-engineer",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "commercial-financial-integrity",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/commercial-financial-integrity.toml",
+      "discoveryPath": ".codex/agents/commercial-financial-integrity.toml",
+      "role": "commercial-financial-integrity",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "cinematic-experience-director",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/cinematic-experience-director.toml",
+      "discoveryPath": ".codex/agents/cinematic-experience-director.toml",
+      "role": "cinematic-experience-director",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "generative-cinematic-production-director",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/generative-cinematic-production-director.toml",
+      "discoveryPath": ".codex/agents/generative-cinematic-production-director.toml",
+      "role": "generative-cinematic-production-director",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
+      "id": "requirement-guide-1",
+      "kind": "reference-guide",
+      "owner": "006-implementation-character-profile",
+      "canonicalPath": "requirements/006-implementation-character-profile/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Capability guide retained in place; load only when owning task requires it."
+    },
+    {
+      "id": "requirement-guide-2",
+      "kind": "reference-guide",
+      "owner": "007-implement-user-profile",
+      "canonicalPath": "requirements/007-implement-user-profile/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Capability guide retained in place; load only when owning task requires it."
+    },
+    {
+      "id": "requirement-guide-3",
+      "kind": "reference-guide",
+      "owner": "009-migration-to-react",
+      "canonicalPath": "requirements/009-migration-to-react/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Capability guide retained in place; load only when owning task requires it."
+    },
+    {
+      "id": "requirement-guide-4",
+      "kind": "reference-guide",
+      "owner": "010-implement-template-core",
+      "canonicalPath": "requirements/010-implement-template-core/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Capability guide retained in place; load only when owning task requires it."
+    },
+    {
+      "id": "requirement-guide-5",
+      "kind": "reference-guide",
+      "owner": "011-reference-processing-pipeline",
+      "canonicalPath": "requirements/011-reference-processing-pipeline/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Capability guide retained in place; load only when owning task requires it."
+    },
+    {
+      "id": "requirement-guide-6",
+      "kind": "reference-guide",
+      "owner": "012-implementation-adjustment-ui-2",
+      "canonicalPath": "requirements/012-implementation-adjustment-ui-2/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Capability guide retained in place; load only when owning task requires it."
+    },
+    {
+      "id": "requirement-guide-7",
+      "kind": "reference-guide",
+      "owner": "013-implementation-fashion-blueprint",
+      "canonicalPath": "requirements/013-implementation-fashion-blueprint/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Capability guide retained in place; load only when owning task requires it."
+    },
+    {
+      "id": "requirement-guide-8",
+      "kind": "reference-guide",
+      "owner": "014-lab-finetune-prompt",
+      "canonicalPath": "requirements/014-lab-finetune-prompt/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Capability guide retained in place; load only when owning task requires it."
+    },
+    {
+      "id": "requirement-guide-9",
+      "kind": "reference-guide",
+      "owner": "098-admin-visual-attribute-studio",
+      "canonicalPath": "requirements/098-admin-visual-attribute-studio/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Capability guide retained in place; load only when owning task requires it."
+    },
+    {
+      "id": "requirement-guide-10",
+      "kind": "reference-guide",
+      "owner": "013-implementation-fashion-blueprint",
+      "canonicalPath": "requirements/013-implementation-fashion-blueprint/skills/design-professional-scene-prompts/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Provider/scene procedure retained for explicit reading; discovery promotion requires separate qualification."
+    },
+    {
+      "id": "requirement-guide-11",
+      "kind": "reference-guide",
+      "owner": "013-implementation-fashion-blueprint",
+      "canonicalPath": "requirements/013-implementation-fashion-blueprint/skills/qualify-gemini-fashion-images/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Provider/scene procedure retained for explicit reading; discovery promotion requires separate qualification."
+    },
+    {
+      "id": "requirement-guide-12",
+      "kind": "reference-guide",
+      "owner": "013-implementation-fashion-blueprint",
+      "canonicalPath": "requirements/013-implementation-fashion-blueprint/skills/qualify-grok-fashion-images/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Provider/scene procedure retained for explicit reading; discovery promotion requires separate qualification."
+    },
+    {
+      "id": "requirement-guide-13",
+      "kind": "reference-guide",
+      "owner": "013-implementation-fashion-blueprint",
+      "canonicalPath": "requirements/013-implementation-fashion-blueprint/skills/qualify-openai-fashion-images/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Provider/scene procedure retained for explicit reading; discovery promotion requires separate qualification."
+    },
+    {
+      "id": "requirement-guide-14",
+      "kind": "reference-guide",
+      "owner": "013-implementation-fashion-blueprint",
+      "canonicalPath": "requirements/013-implementation-fashion-blueprint/skills/qualify-seedream-fashion-images/SKILL.md",
+      "discoveryPath": null,
+      "scope": "conditional-reference",
+      "status": "retained",
+      "reason": "Provider/scene procedure retained for explicit reading; discovery promotion requires separate qualification."
+    },
+    {
+      "id": "repository-scope",
+      "kind": "instructions",
+      "owner": "engineering-governance",
+      "canonicalPath": "AGENTS.md",
+      "discoveryPath": "AGENTS.md",
+      "scope": "repository",
+      "status": "active"
+    },
+    {
+      "id": "post-processing-scope",
+      "kind": "instructions",
+      "owner": "post-processing",
+      "canonicalPath": "post-processing-service/AGENTS.md",
+      "discoveryPath": "post-processing-service/AGENTS.md",
+      "scope": "directory",
+      "status": "active"
+    },
+    {
       "id": "product-requirement-architect",
       "kind": "role",
       "owner": "professional-agent-orchestration",
@@ -59,7 +411,7 @@
       "id": "commercial-financial-integrity",
       "kind": "role",
       "owner": "commercial-platform",
-      "canonicalPath": "requirements/018-implementation-commercial-feature-plan/roles/commercial-financial-integrity.md",
+      "canonicalPath": "requirements/019-implementation-commercial-feature-plan/roles/commercial-financial-integrity.md",
       "discoveryPath": null,
       "scope": "domain",
       "status": "active"
@@ -176,8 +528,8 @@
       "id": "commercial-requirement-scope",
       "kind": "instructions",
       "owner": "commercial-platform",
-      "canonicalPath": "requirements/018-implementation-commercial-feature-plan/AGENTS.md",
-      "discoveryPath": "requirements/018-implementation-commercial-feature-plan/AGENTS.md",
+      "canonicalPath": "requirements/019-implementation-commercial-feature-plan/AGENTS.md",
+      "discoveryPath": "requirements/019-implementation-commercial-feature-plan/AGENTS.md",
       "scope": "directory",
       "status": "active"
     }

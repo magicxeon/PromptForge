@@ -9,7 +9,7 @@ description: Implement or review the Momelo Template Core, including versioned a
 
 1. `AGENTS.md`
 2. `requirements/099-technical-dept/000-master.md`
-3. `requirements/10-implement-template-core/000-master-template-core-roadmap.md`
+3. `requirements/010-implement-template-core/000-master-template-core-roadmap.md`
 4. the numbered requirement owning the task
 5. `requirements/Knowledge/ui-design-system-and-visual-language.md`
 6. current Template, Scene Builder, Community, Generation, Credit and Fashion code
