@@ -7,6 +7,14 @@ import {
 } from './routes';
 
 describe('Momelo sidebar navigation registry', () => {
+  it('keeps Tutorial and Cinema as admin-only peers outside Create', () => {
+    const group = sidebarNavigationGroups.find(item => item.id === 'learn-watch');
+    expect(group?.items.map(item => item.path)).toEqual(['/tutorials', '/ai-cinema']);
+    expect(group?.items.every(item => item.allowedRoles?.join() === 'admin' && item.feature === 'learning')).toBe(true);
+    expect(isSidebarNavigationTargetActive('tutorials', '/tutorials/teach/new')).toBe(true);
+    expect(isSidebarNavigationTargetActive('ai-cinema', '/ai-cinema/manage')).toBe(true);
+    expect(isSidebarNavigationTargetActive('cinematic', '/ai-cinema/manage')).toBe(false);
+  });
   it('provides direct Template Detail links and keeps the Templates menu active', () => {
     expect(routeBuilders.templateDetail('post 1')).toBe('/explore/templates/post%201');
     expect(isSidebarNavigationTargetActive('templates', '/explore/templates/post_1')).toBe(true);

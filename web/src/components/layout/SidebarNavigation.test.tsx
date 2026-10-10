@@ -42,20 +42,39 @@ describe('SidebarNavigation Studio behavior', () => {
     expect(screen.getByTitle('Studio'))
       .toHaveAttribute('href', '/create/studio/scene#studio-configurator-title');
   });
+  it.each(['user', 'support'])('hides learning navigation from %s even when enabled', role => {
+    renderNavigation({ collapsed: false, role, learningEnabled: true });
+    expect(document.querySelector('a[href="/tutorials"]')).toBeNull();
+    expect(document.querySelector('a[href="/ai-cinema"]')).toBeNull();
+  });
+  it('shows both entries only for enabled admins', () => {
+    renderNavigation({ collapsed: false, role: 'admin', learningEnabled: true });
+    expect(document.querySelector('a[href="/tutorials"]')).toBeInTheDocument();
+    expect(document.querySelector('a[href="/ai-cinema"]')).toBeInTheDocument();
+  });
+  it('keeps the admin menu hidden when the POC is disabled', () => {
+    renderNavigation({ collapsed: false, role: 'admin', learningEnabled: false });
+    expect(document.querySelector('a[href="/tutorials"]')).toBeNull();
+  });
 });
 
 function renderNavigation({
   collapsed,
-  onToggleStudio = vi.fn()
+  onToggleStudio = vi.fn(),
+  role = 'user',
+  learningEnabled = false
 }: {
   collapsed: boolean;
   onToggleStudio?: () => void;
+  role?: string;
+  learningEnabled?: boolean;
 }) {
   return render(
     <I18nextProvider i18n={testI18n}>
       <MemoryRouter initialEntries={['/']}>
         <SidebarNavigation
-          role="user"
+          role={role}
+          learningEnabled={learningEnabled}
           collapsed={collapsed}
           studioOpen
           communityEnabled

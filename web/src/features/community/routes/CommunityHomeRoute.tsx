@@ -11,6 +11,8 @@ import {
   DiscoveryToolbar
 } from '../../../components/discovery/DiscoveryToolbar';
 import { EditorialTutorialRail } from '../../../components/discovery/EditorialTutorialRail';
+import { useCatalogAccess } from '../../content-catalog/hooks/useCatalogAccess';
+import { TutorialLandingSection } from '../../content-catalog/components/TutorialLandingSection';
 import { HorizontalMediaCarousel } from '../../../components/media/HorizontalMediaCarousel';
 import { MediaCard } from '../../../components/media/MediaCard';
 import { Button } from '../../../components/ui/Button';
@@ -35,6 +37,7 @@ export function CommunityHomeRoute() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const policy = useFeaturePolicy();
+  const catalogAccess = useCatalogAccess();
   const discovery = useCommunityDiscoveryPosts();
   const editorialVisible = !discovery.filters.search;
   const providers = useQuery({
@@ -83,6 +86,7 @@ export function CommunityHomeRoute() {
             communityEnabled={policy.isEnabled('community.exploreEnabled')}
             charactersEnabled={policy.isEnabled('community.characterProfilesEnabled')}
           />
+          {catalogAccess.enabled && catalogAccess.actor ? <TutorialLandingSection actorId={catalogAccess.actor.userId} /> : null}
           <CommunityProviderDirectory
             catalog={providers.data}
             loading={providers.isPending}
@@ -179,7 +183,7 @@ export function CommunityHomeRoute() {
           {feedPosts.map(post => <MediaCard key={post.id} post={post} />)}
         </div>
 
-        {editorialVisible ? (
+        {editorialVisible && !catalogAccess.enabled ? (
           <EditorialTutorialRail
             eyebrow={t('community.home.tutorialEyebrow')}
             title={t('community.home.tutorialTitle')}

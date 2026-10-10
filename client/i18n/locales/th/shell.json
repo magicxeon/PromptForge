@@ -1,4 +1,7 @@
 {
+  "shell.navigation.groups.learnWatch": "เรียนรู้และรับชม",
+  "shell.navigation.items.tutorials": "บทเรียน",
+  "shell.navigation.items.aiCinema": "ภาพยนตร์ AI",
   "shell.navigation.items.templateDetail": "รายละเอียด Template",
   "shell.title": "ModelPromptForge - Premium AI Character Generator",
   "shell.subtitle": "สร้าง Prompt คุณภาพสูงเสมือนจริงจากแอตทริบิวต์ที่เป็นโครงสร้างอย่างปลอดภัยโดยไม่ละเมิดนโยบาย",

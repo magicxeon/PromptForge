@@ -77,6 +77,18 @@
       "enabled": true
     },
     {
+      "id": "tutorials",
+      "patterns": ["/tutorials", "/tutorials/:id"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "ai-cinema",
+      "patterns": ["/ai-cinema", "/ai-cinema/:id"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
       "id": "credits",
       "patterns": ["/credits"],
       "runtime": "react",

@@ -9,6 +9,7 @@ import { CommunityHomeRoute } from './CommunityHomeRoute';
 import { getProviderCatalog } from '../../generation/api/generationApi';
 
 const state = vi.hoisted(() => ({ discovery: null as Record<string, unknown> | null }));
+vi.mock('../../content-catalog/hooks/useCatalogAccess', () => ({ useCatalogAccess: () => ({ enabled: false }) }));
 
 vi.mock('../../generation/api/generationApi', () => ({ getProviderCatalog: vi.fn() }));
 

@@ -32,6 +32,8 @@ function resolveCrumbs(pathname: string, t: (key: string) => string): Crumb[] {
   const explore = { label: t('shell.navigation.groups.explore'), to: routePaths.explore };
   const create = { label: t('shell.navigation.groups.create') };
   const library = { label: t('shell.navigation.groups.library') };
+  if (pathname === routePaths.tutorials || pathname.startsWith(`${routePaths.tutorials}/`)) return [{ label: t('shell.navigation.items.tutorials'), to: pathname === routePaths.tutorials ? undefined : routePaths.tutorials }];
+  if (pathname === routePaths.aiCinema || pathname.startsWith(`${routePaths.aiCinema}/`)) return [{ label: t('shell.navigation.items.aiCinema'), to: pathname === routePaths.aiCinema ? undefined : routePaths.aiCinema }];
 
   if (pathname === routePaths.exploreComparisons) return [explore, { label: t('shell.navigation.items.publicComparisons') }];
   if (pathname === routePaths.exploreTemplates) return [explore, { label: t('shell.navigation.items.templates') }];

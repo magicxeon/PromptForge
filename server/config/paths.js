@@ -42,8 +42,12 @@ export const CINEMATIC_DATA_DIR = path.resolve(DATA_ROOT, 'cinematic');
 export const ADMIN_DATA_DIR = path.resolve(DATA_ROOT, 'admin');
 export const SUPPORT_DATA_DIR = path.resolve(DATA_ROOT, 'support');
 export const ADMIN_CONFIGURATION_DATA_DIR = path.resolve(DATA_ROOT, 'admin-configuration');
+export const TUTORIALS_DATA_DIR = path.resolve(DATA_ROOT, 'tutorials');
+export const AI_CINEMA_DATA_DIR = path.resolve(DATA_ROOT, 'ai-cinema');
 
 export const DATA_FILES = {
+  tutorialCatalog: path.resolve(TUTORIALS_DATA_DIR, 'catalog.json'),
+  aiCinemaCatalog: path.resolve(AI_CINEMA_DATA_DIR, 'catalog.json'),
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
   history: path.resolve(GENERATION_DATA_DIR, 'history.json'),
   generationGroups: path.resolve(GENERATION_DATA_DIR, 'groups.json'),

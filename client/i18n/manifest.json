@@ -26,6 +26,7 @@
     }
   ],
   "namespaces": [
+    "tutorials",
     "common",
     "shell",
     "studio",

@@ -35,10 +35,16 @@ test('frontend route ownership recognizes canonical and parameterized routes', (
   assert.equal(resolveFrontendRoute('/credits').routeId, 'credits');
   assert.equal(resolveFrontendRoute('/admin').routeId, 'admin');
   assert.equal(resolveFrontendRoute('/admin/attributes').routeId, 'admin');
+  assert.equal(resolveFrontendRoute('/tutorials').routeId, 'tutorials');
+  assert.equal(resolveFrontendRoute('/tutorials/tutorial_123').routeId, 'tutorials');
+  assert.equal(resolveFrontendRoute('/ai-cinema').routeId, 'ai-cinema');
+  assert.equal(resolveFrontendRoute('/ai-cinema/series_123').routeId, 'ai-cinema');
 });
 
 test('frontend route ownership rejects API and unknown browser routes', () => {
   assert.equal(resolveFrontendRoute('/api/community/posts').matched, false);
+  assert.equal(resolveFrontendRoute('/api/learning/catalog').matched, false);
+  assert.equal(resolveFrontendRoute('/tutorials-extra').matched, false);
   assert.equal(resolveFrontendRoute('/not-a-real-page').matched, false);
 });
 

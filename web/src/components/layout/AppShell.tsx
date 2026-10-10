@@ -25,6 +25,7 @@ import { AccountMenu } from './AccountMenu';
 import { useTheme } from '../../lib/theme/ThemeContext';
 import { routePaths } from '../../app/routeRegistry/routes';
 import { GenerationJobCenterIndicator } from '../../features/generation/job-center/GenerationJobCenterIndicator';
+import { useCatalogAccess } from '../../features/content-catalog/hooks/useCatalogAccess';
 
 const creditResponseSchema = z.object({
   account: z.object({
@@ -40,6 +41,7 @@ export function AppShell() {
   const { t } = useTranslation('shell');
   const { actor, mockUsers, mockSwitcherEnabled, switchActor } = useActor();
   const { isEnabled } = useFeaturePolicy();
+  const catalogAccess = useCatalogAccess();
   const { syncRoute } = useTheme();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(readCollapsedPreference);
@@ -139,6 +141,7 @@ export function AppShell() {
             communityEnabled={isEnabled('community.enabled')}
             charactersEnabled={isEnabled('community.characterProfilesEnabled')}
             cinematicEnabled={isEnabled('cinematic.enabled')}
+            learningEnabled={catalogAccess.enabled}
             onToggleCollapsed={toggleCollapsed}
             onToggleStudio={() => setStudioOpen(value => !value)}
             onNavigate={() => setMobileOpen(false)}

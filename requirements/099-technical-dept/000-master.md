@@ -6,6 +6,55 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Current Capability Addendum
 
+### Tutorial Learning And AI Cinema (Increment A, 2026-10-08)
+
+[TUT-022](../022-tutorial-learning/000-master.md) documents a new admin-only local
+POC for courses, teaching, private video playback, Credit-funded entitlements,
+learner statistics and course-level monthly/yearly financial reporting. Increment A
+implements only Admin-owned draft metadata/catalog editing; streaming, entitlements
+and money reports remain pending. No balances or live runtime data were changed.
+
+Tutorial ownership: `web/src/features/tutorials/`,
+`server/domain/tutorials/`, `server/repositories/tutorials/`, tutorial HTTP routes
+under `server/app/routes/`, and metadata under `server/data/tutorials/` via paths
+configuration. Assets retains private media/storage/processing; Credits retains
+all wallet mutations and funding attribution; Finance retains financial projections.
+The existing Community home owns the gated Course landing band; routeRegistry
+owns the separate Tutorial menu. Existing static home tutorial samples are not
+paid Courses. Paid funding-lot evidence and policy approval are required before
+Credit consumption can be reported as cash-backed Course value, never assumed
+cash revenue/profit. See the packet for unresolved decisions and T01-T20 gates.
+
+TUT-008 extends this planned foundation to a separate AI Cinema catalog with
+Admin-only initial upload/publication. Free Chapter/episode counts are per-title
+authoring settings, not fixed at three. Proposed `server/domain/content-access/`
+and matching repository/data paths own shared offers/orders/entitlements; this
+supersedes tutorial-only purchase ownership. Tutorial/Cinema adapters reuse that
+facade plus Assets, Credits and Finance, without another wallet or AI queue.
+Cinema feature/domain/repository/data ownership uses `ai-cinema`; Cinematic Studio
+remains the authoring tool and never auto-publishes. `paths.js` now registers
+Tutorial/Cinema catalog JSON paths, created lazily on successful draft saves.
+
+Increment A is implemented: shared React catalog authoring and API
+contracts live in `web/src/features/content-catalog/`, with thin route entries in
+`features/tutorials/` and `features/ai-cinema/`. This shares actual catalog/editor
+behavior without making Tutorial the owner of Cinema UI. It does not own payment
+or entitlement state. Live billing, uploads and financial reporting remain gated
+until their implementation tasks and policy decisions pass. `learningRoutes.js`
+registers the `/api/learning` transport; `LearningAccessPolicy`/`catalogContract`
+provide shared gates and validation, not an implemented commerce engine.
+`learningPolicy.js` requires explicit `LEARNING_ENABLED=true`, excludes production,
+and fixes billing/publication off. Metadata repositories use atomic JSON storage;
+`MockUserRepository` includes accountStatus in actor projection. TUT-009 records
+focused checks, isolated responsive/API evidence and remaining live-UAT gaps.
+
+Increment A implementation is authorized: shared React catalog authoring and API
+contracts live in `web/src/features/content-catalog/`, with thin route entries in
+`features/tutorials/` and `features/ai-cinema/`. This shares actual catalog/editor
+behavior without making Tutorial the owner of Cinema UI. It does not own payment
+or entitlement state. Live billing, uploads and financial reporting remain gated
+until their implementation tasks and policy decisions pass. See TUT-006 progress.
+
 ### Shared Generation Selector UX (2026-10-02)
 
 GEN-UX-021 R5 replaces the narrow Playground composer with an expandable full-width

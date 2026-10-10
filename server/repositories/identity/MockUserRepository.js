@@ -65,6 +65,7 @@ export class MockUserRepository {
       username: mockUser.username,
       displayName: mockUser.displayName,
       role: mockUser.role,
+      accountStatus: mockUser.status,
       activeCreatorProfileId: mockUser.activeCreatorProfileId,
       isMockActor: true,
       authProvider: 'mock',

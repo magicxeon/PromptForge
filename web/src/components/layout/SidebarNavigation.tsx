@@ -1,4 +1,5 @@
 import {
+  BookOpen,
   ChevronDown,
   ChevronLeft,
   Clapperboard,
@@ -29,6 +30,7 @@ import { cn } from '../../lib/utils/cn';
 import { scheduleHashTargetScroll } from '../../lib/navigation/hashScroll';
 
 const iconRegistry = {
+  tutorials: BookOpen,
   gallery: Home,
   templates: LayoutDashboard,
   studio: Sparkles,
@@ -53,6 +55,7 @@ export function SidebarNavigation({
   communityEnabled,
   charactersEnabled,
   cinematicEnabled,
+  learningEnabled = false,
   onToggleCollapsed,
   onToggleStudio,
   onNavigate
@@ -63,6 +66,7 @@ export function SidebarNavigation({
   communityEnabled: boolean;
   charactersEnabled: boolean;
   cinematicEnabled: boolean;
+  learningEnabled?: boolean;
   onToggleCollapsed: () => void;
   onToggleStudio: () => void;
   onNavigate: () => void;
@@ -75,7 +79,7 @@ export function SidebarNavigation({
       <nav aria-label={t('shell.navigation.menu')}>
         {sidebarNavigationGroups.map(group => {
           const items = group.items.filter(item =>
-            isVisible(item, role, communityEnabled, charactersEnabled, cinematicEnabled)
+            isVisible(item, role, communityEnabled, charactersEnabled, cinematicEnabled, learningEnabled)
           );
           if (!items.length) return null;
           return (
@@ -226,11 +230,13 @@ function isVisible(
   role: string | undefined,
   communityEnabled: boolean,
   charactersEnabled: boolean,
-  cinematicEnabled: boolean
+  cinematicEnabled: boolean,
+  learningEnabled: boolean
 ) {
   if (item.allowedRoles?.length && (!role || !item.allowedRoles.includes(role))) return false;
   if (item.feature === 'community' && !communityEnabled) return false;
   if (item.feature === 'characters' && !charactersEnabled) return false;
   if (item.feature === 'cinematic' && !cinematicEnabled) return false;
+  if (item.feature === 'learning' && !learningEnabled) return false;
   return true;
 }

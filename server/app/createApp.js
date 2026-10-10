@@ -17,6 +17,7 @@ import { actorContextMiddleware } from '../middleware/actorContextMiddleware.js'
 import { mockUserRepo } from '../repositories/identity/MockUserRepository.js';
 import { createAttributesBundleLoader, registerAttributesRoutes } from './routes/attributesRoutes.js';
 import { registerIdentityRoutes } from './routes/identityRoutes.js';
+import { registerLearningRoutes } from './routes/learningRoutes.js';
 import { registerCreditRoutes } from './routes/creditRoutes.js';
 import { registerCollectionRoutes } from './routes/collectionRoutes.js';
 import { registerGenerationRoutes } from './routes/generationRoutes.js';
@@ -194,6 +195,7 @@ export function createApp() {
     communityFeaturePolicyService
   });
   registerCreditRoutes(app, sharedDependencies);
+  registerLearningRoutes(app);
   registerCollectionRoutes(app, sharedDependencies);
   registerGenerationRoutes(app, sharedDependencies);
   registerMediaExportRoutes(app, { mediaExportService: new MediaExportService({ generationSources: new GenerationExportSourceService(), comparisons: comparisonOrchestrator }) });

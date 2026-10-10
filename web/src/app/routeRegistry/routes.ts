@@ -1,5 +1,7 @@
 export const routePaths = {
   explore: '/',
+  tutorials: '/tutorials',
+  aiCinema: '/ai-cinema',
   exploreComparisons: '/explore/comparisons',
   exploreTemplates: '/explore/templates',
   exploreCharacters: '/explore/characters',
@@ -44,6 +46,8 @@ export const routeBuilders = {
 
 export type NavigationRouteId =
   | 'gallery'
+  | 'tutorials'
+  | 'aiCinema'
   | 'templates'
   | 'characters'
   | 'publicComparisons'
@@ -71,7 +75,7 @@ export type SidebarNavigationItem = {
   path?: string;
   children?: readonly SidebarNavigationItem[];
   allowedRoles?: readonly string[];
-  feature?: 'community' | 'characters' | 'cinematic';
+  feature?: 'community' | 'characters' | 'cinematic' | 'learning';
 };
 
 export type SidebarNavigationGroup = {
@@ -81,6 +85,8 @@ export type SidebarNavigationGroup = {
 };
 
 export const navigationRoutes: readonly NavigationRoute[] = [
+  { id: 'tutorials', path: routePaths.tutorials, labelKey: 'shell.navigation.items.tutorials', navigation: 'role', allowedRoles: ['admin'] },
+  { id: 'aiCinema', path: routePaths.aiCinema, labelKey: 'shell.navigation.items.aiCinema', navigation: 'role', allowedRoles: ['admin'] },
   { id: 'gallery', path: routePaths.explore, labelKey: 'shell.navigation.items.gallery', navigation: 'primary' },
   { id: 'publicComparisons', path: routePaths.exploreComparisons, labelKey: 'shell.navigation.items.publicComparisons', navigation: 'primary' },
   { id: 'templates', path: routePaths.exploreTemplates, labelKey: 'shell.navigation.items.templates', navigation: 'primary' },
@@ -96,6 +102,14 @@ export const navigationRoutes: readonly NavigationRoute[] = [
 ] as const;
 
 export const sidebarNavigationGroups: readonly SidebarNavigationGroup[] = [
+  {
+    id: 'learn-watch',
+    labelKey: 'shell.navigation.groups.learnWatch',
+    items: [
+      { id: 'tutorials', path: routePaths.tutorials, labelKey: 'shell.navigation.items.tutorials', icon: 'tutorials', allowedRoles: ['admin'], feature: 'learning' },
+      { id: 'ai-cinema', path: routePaths.aiCinema, labelKey: 'shell.navigation.items.aiCinema', icon: 'cinematic', allowedRoles: ['admin'], feature: 'learning' }
+    ]
+  },
   {
     id: 'explore',
     labelKey: 'shell.navigation.groups.explore',
@@ -154,6 +168,8 @@ export function findNavigationRoute(id: NavigationRouteId) {
 
 export function isSidebarNavigationTargetActive(id: string, currentLocation: string) {
   const [pathname = ''] = currentLocation.split('?');
+  if (id === 'tutorials') return pathname === routePaths.tutorials || pathname.startsWith(`${routePaths.tutorials}/`);
+  if (id === 'ai-cinema') return pathname === routePaths.aiCinema || pathname.startsWith(`${routePaths.aiCinema}/`);
   if (id === 'gallery') return pathname === routePaths.explore;
   if (id === 'public-comparisons') return pathname === routePaths.exploreComparisons;
   if (id === 'templates') return pathname === routePaths.exploreTemplates || pathname.startsWith(`${routePaths.exploreTemplates}/`);
