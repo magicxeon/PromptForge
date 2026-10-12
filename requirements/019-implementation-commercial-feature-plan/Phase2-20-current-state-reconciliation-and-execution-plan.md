@@ -79,6 +79,13 @@ Do not implement checkout or broad database tables before this gate.
 
 ### Step 1 - Secure platform foundation
 
+Authentication detail is now owned by the 2026-10-10
+[AUTH-019 packet](Phase2-04-authentication-sessions-and-authorization.md) and its
+[ordered tasks](authentication/task-plan.json). Password, OTP and Google/Facebook
+are in scope; provider selection and real execution remain pending. Follow the
+packet without interpreting documentation delivery as implementation approval or
+replacing this plan's PostgreSQL, Audit and production capability gates.
+
 - PostgreSQL migration framework, pool, transactions and adapter contracts;
 - real users/credentials/sessions/roles and fail-closed production actor;
 - Audit/idempotency for the first Identity slice; then adapt existing Support

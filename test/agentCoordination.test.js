@@ -41,6 +41,35 @@ test('risk cannot be hidden behind simple classification', () => {
   fails(p => { p.tasks[0].contractChanged = true; }, /requires complex/);
 });
 
+test('BSA decomposition remains subject to sensitive task review gates', () => {
+  const plan = fixture();
+  plan.tasks = [plan.tasks[0]];
+  plan.parallelBatches = [];
+  const task = plan.tasks[0];
+  task.id = 'BSA-CONTRACT';
+  task.owner = 'business-system-analyst';
+  task.complexity = 'complex';
+  task.risks = ['security'];
+  task.status = 'proposed';
+  task.evidence = [];
+  task.reviews = [];
+  task.reviewers = ['qa-release-engineer', 'security-reviewer'];
+  assert.deepEqual(validatePlan(plan), []);
+  task.reviewers = ['qa-release-engineer'];
+  assert.match(validatePlan(plan).join('\n'), /missing reviewer security-reviewer/);
+  task.reviewers = ['security-reviewer'];
+  assert.match(validatePlan(plan).join('\n'), /missing reviewer qa-release-engineer/);
+});
+
+test('BSA routing examples distinguish decomposition from scope approval and tiny edits', () => {
+  const fixtures = JSON.parse(read('requirements/015-professional-agent-orchestration/routing-fixtures.json'));
+  const cases = new Map(fixtures.cases.map(entry => [entry.id, entry]));
+  assert.equal(cases.get('bsa-reviewed-decomposition').primary, 'business-system-analyst');
+  assert.equal(cases.get('bsa-scope-boundary').primary, 'product-requirement-architect');
+  assert.equal(cases.get('tiny-translation').primary, 'base-implementation-owner');
+  assert.ok(cases.get('bsa-reviewed-decomposition').reviewers.includes('qa-release-engineer'));
+});
+
 test('small tasks cannot be artificially parallelized', () => {
   fails(p => { p.tasks[1].risks = []; p.tasks[1].complexity = 'simple'; }, /only runnable complex/);
 });
@@ -187,7 +216,7 @@ test('profile policy links roles and handoff without model or permission escalat
     assert.doesNotMatch(source, /danger-full-access/);
     if (['qa-release-engineer', 'security-reviewer', 'system-architect', 'user-journey-tester', 'commercial-financial-integrity'].includes(entry.id)) assert.match(source, /^sandbox_mode = "read-only"$/m);
   }
-  assert.equal(profiles.length, 14);
+  assert.equal(profiles.length, 15);
   assert.match(read('.codex/config.toml'), /^max_concurrent_threads_per_session = 2$/m);
 });
 

@@ -49,6 +49,7 @@ Choose exactly one primary role:
 | Task outcome | Primary role charter |
 |---|---|
 | New feature, changed workflow, requirement creation/reconciliation | `requirements/015-professional-agent-orchestration/roles/product-requirement-architect.md` |
+| BSA analysis, reviewed-requirement decomposition and task acceptance traceability | `requirements/015-professional-agent-orchestration/roles/business-system-analyst.md` |
 | Material screen, navigation, interaction, theme or accessibility work | `requirements/009-migration-to-react/roles/ux-ui-product-designer.md` |
 | Video, film, shot, sequence, continuity, motion or audio work | `requirements/016-cinematic-studio/roles/cinematic-experience-director.md` |
 | AI video execution packets, temporal prompting, provider-aware Shot attempts or drift diagnosis | `requirements/016-cinematic-studio/roles/generative-cinematic-production-director.md` |
@@ -141,6 +142,11 @@ Additional specialists are frontend-engineer and user-journey-tester under
 database-engineer under `requirements/018-implementation-backend/roles/`; and
 security-reviewer under `requirements/015-professional-agent-orchestration/roles/`.
 They refine implementation/review assignments, never duplicate capability ownership.
+
+BSA (`business-system-analyst`) decomposes reviewed requirements into bounded
+task packets under the owning requirement; follow orchestration requirement 011.
+For material user flows, obtain UX review before freezing requirement/task details.
+BSA does not replace Product approval, UX design, implementation owners or QA.
 
 The Lead sends the task packet and collects a handoff with changed files,
 contracts, test evidence, risks and next action. Integrate and verify before

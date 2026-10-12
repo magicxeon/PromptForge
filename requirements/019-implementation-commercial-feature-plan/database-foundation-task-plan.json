@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "requirement": "requirements/019-implementation-commercial-feature-plan/database-foundation.md",
+  "tasks": [
+    {
+      "id": "DB-F01",
+      "title": "Implement bounded PostgreSQL infrastructure",
+      "complexity": "complex",
+      "reason": "Shared persistence and secret-bearing configuration prerequisite for Authentication.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root/auth_database_implementation",
+      "capabilities": [
+        "database-infrastructure"
+      ],
+      "risks": [
+        "security",
+        "shared-contract"
+      ],
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "server/config/database.js",
+        "server/repositories/postgres/",
+        "scripts/database/",
+        "scripts/verify-database-foundation.mjs",
+        "test/databaseFoundation.test.js",
+        "requirements/019-implementation-commercial-feature-plan/database-foundation-evidence.txt",
+        "package.json",
+        "package-lock.json",
+        "requirements/019-implementation-commercial-feature-plan/database-foundation.md",
+        "requirements/019-implementation-commercial-feature-plan/database-foundation-task-plan.json",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Explicit bounded database configuration and single-client transaction failure paths pass isolated tests.",
+        "Ordered migration history, checksum and lock contracts pass isolated tests without application side effects."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "Explicit bounded database configuration and single-client transaction failure paths pass isolated tests.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/database-foundation.md"
+        },
+        {
+          "check": "Ordered migration history, checksum and lock contracts pass isolated tests without application side effects.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/database-foundation.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/database-foundation.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_decision_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/database-foundation.md"
+        }
+      ],
+      "handoff": "Root owns dependency install and documents; scoped worker owns DB source/tests only. No live target or implicit migration."
+    },
+    {
+      "id": "DB-F02",
+      "title": "Qualify disposable PostgreSQL parity",
+      "complexity": "complex",
+      "reason": "Real transaction and migration-lock behavior requires isolated PostgreSQL evidence.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "database-infrastructure"
+      ],
+      "risks": [
+        "security",
+        "shared-contract"
+      ],
+      "contractChanged": false,
+      "dependsOn": [
+        "DB-F01"
+      ],
+      "writeScope": [
+        "scripts/database/qualify-postgres.mjs",
+        "requirements/019-implementation-commercial-feature-plan/database-foundation-evidence.txt",
+        "requirements/019-implementation-commercial-feature-plan/database-foundation.md",
+        "requirements/019-implementation-commercial-feature-plan/database-foundation-task-plan.json"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Explicit disposable PostgreSQL tests prove rollback, migration replay/checksum rejection and concurrent lock serialization."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "Explicit disposable PostgreSQL tests prove rollback, migration replay/checksum rejection and concurrent lock serialization.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/database-foundation.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/database-foundation.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_decision_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/database-foundation.md"
+        }
+      ],
+      "handoff": "Use separately created local disposable database; no application .env or existing data. Keep Auth T03 gated until passing evidence."
+    }
+  ],
+  "parallelBatches": []
+}

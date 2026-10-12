@@ -1,0 +1,591 @@
+[contracts] Authentication harness bootstrap only; no domain authentication qualification.
+TAP version 13
+# Subtest: legacy Audit record delegates unchanged JSON contract and request precedence
+ok 1 - legacy Audit record delegates unchanged JSON contract and request precedence
+  ---
+  duration_ms: 1.7025
+  type: 'test'
+  ...
+# Subtest: new security method fails closed without SQL adapter or transaction and never uses legacy repository
+ok 2 - new security method fails closed without SQL adapter or transaction and never uses legacy repository
+  ---
+  duration_ms: 1.3977
+  type: 'test'
+  ...
+# Subtest: email canonicalization preserves tags and spelling while normalizing IDNA/domain case
+ok 3 - email canonicalization preserves tags and spelling while normalizing IDNA/domain case
+  ---
+  duration_ms: 1.514
+  type: 'test'
+  ...
+# Subtest: non-email URL syntax, controls and unsupported SMTPUTF8 fail without reinterpretation
+ok 4 - non-email URL syntax, controls and unsupported SMTPUTF8 fail without reinterpretation
+  ---
+  duration_ms: 0.6939
+  type: 'test'
+  ...
+# Subtest: canonical email catalogs preserve key and interpolation parity and render purpose-specific English/Thai
+ok 5 - canonical email catalogs preserve key and interpolation parity and render purpose-specific English/Thai
+  ---
+  duration_ms: 4.2931
+  type: 'test'
+  ...
+# Subtest: inactive SMTP uses Nodemailer compilation with strict options, one recipient and stable Message-ID
+ok 6 - inactive SMTP uses Nodemailer compilation with strict options, one recipient and stable Message-ID
+  ---
+  duration_ms: 13.6752
+  type: 'test'
+  ...
+# Subtest: SMTP abort is prechecked but does not falsely settle an already active transport
+ok 7 - SMTP abort is prechecked but does not falsely settle an already active transport
+  ---
+  duration_ms: 0.809
+  type: 'test'
+  ...
+# Subtest: public policy defaults, bypass and fixture configuration never expose methods or secrets
+ok 8 - public policy defaults, bypass and fixture configuration never expose methods or secrets
+  ---
+  duration_ms: 0.5476
+  type: 'test'
+  ...
+# Subtest: runner rejects missing, malformed, unknown, undelivered and incomplete aggregate selections
+ok 9 - runner rejects missing, malformed, unknown, undelivered and incomplete aggregate selections
+  ---
+  duration_ms: 376.1527
+  type: 'test'
+  ...
+# Subtest: persistence CLI rejects absent or unsafe targets without exposing credentials
+ok 10 - persistence CLI rejects absent or unsafe targets without exposing credentials
+  ---
+  duration_ms: 256.2612
+  type: 'test'
+  ...
+# Subtest: invalid database fixtures fail before constructing a pool or calling work
+ok 11 - invalid database fixtures fail before constructing a pool or calling work
+  ---
+  duration_ms: 1.4736
+  type: 'test'
+  ...
+# Subtest: fixture cleanup removes exactly its owned random schema after work failure and closes the pool
+ok 12 - fixture cleanup removes exactly its owned random schema after work failure and closes the pool
+  ---
+  duration_ms: 1.0236
+  type: 'test'
+  ...
+# Subtest: fixture scope cannot be redirected to application runtime files or a caller-owned schema
+ok 13 - fixture scope cannot be redirected to application runtime files or a caller-owned schema
+  ---
+  duration_ms: 0.427
+  type: 'test'
+  ...
+# Subtest: failed create never drops an unowned schema; failed cleanup still closes the pool
+ok 14 - failed create never drops an unowned schema; failed cleanup still closes the pool
+  ---
+  duration_ms: 0.3458
+  type: 'test'
+  ...
+# Subtest: offline network guard denies fetch, HTTP, HTTPS, sockets, TLS, DNS and UDP before contact
+ok 15 - offline network guard denies fetch, HTTP, HTTPS, sockets, TLS, DNS and UDP before contact
+  ---
+  duration_ms: 11.6393
+  type: 'test'
+  ...
+# Subtest: database network allowance validates configuration and still denies other endpoints and transports
+ok 16 - database network allowance validates configuration and still denies other endpoints and transports
+  ---
+  duration_ms: 0.7396
+  type: 'test'
+  ...
+# Subtest: fake clock, idempotent mailbox and single-use provider perform no network and isolate instances
+ok 17 - fake clock, idempotent mailbox and single-use provider perform no network and isolate instances
+  ---
+  duration_ms: 1.3698
+  type: 'test'
+  ...
+# Subtest: canonical fingerprint rejects oversized/deep/non-JSON payloads before persistence
+ok 18 - canonical fingerprint rejects oversized/deep/non-JSON payloads before persistence
+  ---
+  duration_ms: 3.6186
+  type: 'test'
+  ...
+# Subtest: dedicated rings reject reuse across retained versions and missing rotated keys
+ok 19 - dedicated rings reject reuse across retained versions and missing rotated keys
+  ---
+  duration_ms: 0.3323
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 829.258
+[challenges] Fixture-only purpose-bound challenges and shared SQL admission; no HTTP or Login activation.
+TAP version 13
+# Subtest: purpose-bound fixture challenges and durable shared admission
+    # Subtest: issue and encrypted outbox are atomic; replay has no additional charge or plaintext result
+    ok 1 - issue and encrypted outbox are atomic; replay has no additional charge or plaintext result
+      ---
+      duration_ms: 137.2284
+      type: 'test'
+      ...
+    # Subtest: pending or failed delivery cannot verify, then concurrent cross-instance consumption has one winner
+    ok 2 - pending or failed delivery cannot verify, then concurrent cross-instance consumption has one winner
+      ---
+      duration_ms: 251.8988
+      type: 'test'
+      ...
+    # Subtest: foreign, malformed and wrong-purpose proof charges source only, including throwing resolver
+    ok 3 - foreign, malformed and wrong-purpose proof charges source only, including throwing resolver
+      ---
+      duration_ms: 203.4902
+      type: 'test'
+      ...
+    # Subtest: five failures persist; new contexts and resend cannot reset target verification budget
+    ok 4 - five failures persist; new contexts and resend cannot reset target verification budget
+      ---
+      duration_ms: 645.155
+      type: 'test'
+      ...
+    # Subtest: global target cooldown spans contexts/purposes; supersession preserves other owner authority
+    ok 5 - global target cooldown spans contexts/purposes; supersession preserves other owner authority
+      ---
+      duration_ms: 244.8143
+      type: 'test'
+      ...
+    # Subtest: purpose handler failure and wrong-purpose result roll back effects but retain admission
+    ok 6 - purpose handler failure and wrong-purpose result roll back effects but retain admission
+      ---
+      duration_ms: 196.9863
+      type: 'test'
+      ...
+    # Subtest: stale account version, expired proof and expiry during handler reject without effects
+    ok 7 - stale account version, expired proof and expiry during handler reject without effects
+      ---
+      duration_ms: 367.6436
+      type: 'test'
+      ...
+    # Subtest: expiry after an actual PostgreSQL challenge lock wait cannot consume proof
+    ok 8 - expiry after an actual PostgreSQL challenge lock wait cannot consume proof
+      ---
+      duration_ms: 138.4632
+      type: 'test'
+      ...
+    # Subtest: issue failure rolls back send budgets and ciphertext; exact replay fingerprint is immutable
+    ok 9 - issue failure rolls back send budgets and ciphertext; exact replay fingerprint is immutable
+      ---
+      duration_ms: 93.3845
+      type: 'test'
+      ...
+    # Subtest: active rate key rotation fails closed until old windows expire; old OTP keys remain necessary
+    ok 10 - active rate key rotation fails closed until old windows expire; old OTP keys remain necessary
+      ---
+      duration_ms: 194.1699
+      type: 'test'
+      ...
+    # Subtest: parallel final source/global admission is one atomic winner and does not charge target for the loser
+    ok 11 - parallel final source/global admission is one atomic winner and does not charge target for the loser
+      ---
+      duration_ms: 154.5091
+      type: 'test'
+      ...
+    # Subtest: send hour/day and source/global caps reject atomically without another challenge
+    ok 12 - send hour/day and source/global caps reject atomically without another challenge
+      ---
+      duration_ms: 254.0132
+      type: 'test'
+      ...
+    # Subtest: window starts do not slide on admissions and expired windows reset rather than locking account
+    ok 13 - window starts do not slide on admissions and expired windows reset rather than locking account
+      ---
+      duration_ms: 272.6687
+      type: 'test'
+      ...
+    # Subtest: replacement bounce never revives an old code or refunds resend admission
+    ok 14 - replacement bounce never revives an old code or refunds resend admission
+      ---
+      duration_ms: 229.4473
+      type: 'test'
+      ...
+    # Subtest: rate capacity rejects live-row eviction and bounded cleanup removes at most fifty expired rows
+    ok 15 - rate capacity rejects live-row eviction and bounded cleanup removes at most fifty expired rows
+      ---
+      duration_ms: 271.9093
+      type: 'test'
+      ...
+    1..15
+ok 1 - purpose-bound fixture challenges and durable shared admission
+  ---
+  duration_ms: 3943.8811
+  type: 'test'
+  ...
+# Subtest: fixture delivery callbacks, bounded suppression and metadata retention
+    # Subtest: authentication precedes persistence, exact concurrent duplicates converge and conflicts reject
+    ok 1 - authentication precedes persistence, exact concurrent duplicates converge and conflicts reject
+      ---
+      duration_ms: 87.1586
+      type: 'test'
+      ...
+    # Subtest: callbacks survive ciphertext erasure, delivery never removes suppression and sends are blocked
+    ok 2 - callbacks survive ciphertext erasure, delivery never removes suppression and sends are blocked
+      ---
+      duration_ms: 143.3814
+      type: 'test'
+      ...
+    # Subtest: final dispatch snapshot rejects a callback committed during an earlier suppression lookup
+    ok 3 - final dispatch snapshot rejects a callback committed during an earlier suppression lookup
+      ---
+      duration_ms: 146.3689
+      type: 'test'
+      ...
+    # Subtest: final SQL snapshot observes suppression committed while waiting for its outbox lock
+    ok 4 - final SQL snapshot observes suppression committed while waiting for its outbox lock
+      ---
+      duration_ms: 134.2995
+      type: 'test'
+      ...
+    # Subtest: sibling timeout during suppression wait quarantines the already claimed second send
+    ok 5 - sibling timeout during suppression wait quarantines the already claimed second send
+      ---
+      duration_ms: 10094.8836
+      type: 'test'
+      ...
+    # Subtest: recipient rotation correlates both callback orders without extending the first window
+    ok 6 - recipient rotation correlates both callback orders without extending the first window
+      ---
+      duration_ms: 130.7052
+      type: 'test'
+      ...
+    # Subtest: dropping any live callback key fails closed even before its first bounce
+    ok 7 - dropping any live callback key fails closed even before its first bounce
+      ---
+      duration_ms: 35.5864
+      type: 'test'
+      ...
+    # Subtest: MAX expiry stays closed when an earlier matching suppression expires during query
+    ok 8 - MAX expiry stays closed when an earlier matching suppression expires during query
+      ---
+      duration_ms: 70.1723
+      type: 'test'
+      ...
+    # Subtest: expired group rejects a fresh bounce until explicit bounded cleanup
+    ok 9 - expired group rejects a fresh bounce until explicit bounded cleanup
+      ---
+      duration_ms: 92.9191
+      type: 'test'
+      ...
+    # Subtest: SQL rejects partial metadata, malformed aliases and metadata revival
+    ok 10 - SQL rejects partial metadata, malformed aliases and metadata revival
+      ---
+      duration_ms: 82.3752
+      type: 'test'
+      ...
+    # Subtest: event cap and suppression cap reject atomically; cleanup removes at most fifty per category
+    ok 11 - event cap and suppression cap reject atomically; cleanup removes at most fifty per category
+      ---
+      duration_ms: 966.1938
+      type: 'test'
+      ...
+    1..11
+ok 2 - fixture delivery callbacks, bounded suppression and metadata retention
+  ---
+  duration_ms: 12276.9781
+  type: 'test'
+  ...
+1..2
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 12468.5098
+[persistence] Disposable harness, Identity and transactional Audit primitives; no Login/session domain qualification.
+TAP version 13
+# Subtest: transactional Audit security events share Identity commit authority
+    # Subtest: Identity and Audit commit together, including disabled-account denial
+    ok 1 - Identity and Audit commit together, including disabled-account denial
+      ---
+      duration_ms: 18.4993
+      type: 'test'
+      ...
+    # Subtest: failure after both writes rolls back account and event
+    ok 2 - failure after both writes rolls back account and event
+      ---
+      duration_ms: 28.0325
+      type: 'test'
+      ...
+    # Subtest: exact retry and concurrent dedup preserve original recorded time
+    ok 3 - exact retry and concurrent dedup preserve original recorded time
+      ---
+      duration_ms: 93.3781
+      type: 'test'
+      ...
+    # Subtest: concurrent changed-payload reuse has one commit and rolls back the losing Identity write
+    ok 4 - concurrent changed-payload reuse has one commit and rolls back the losing Identity write
+      ---
+      duration_ms: 19.5677
+      type: 'test'
+      ...
+    # Subtest: preauth events claim no account and cross-actor targets are denied
+    ok 5 - preauth events claim no account and cross-actor targets are denied
+      ---
+      duration_ms: 56.6942
+      type: 'test'
+      ...
+    # Subtest: secrets, free text, unsupported fields, missing keys and forged or expired handles fail safely
+    ok 6 - secrets, free text, unsupported fields, missing keys and forged or expired handles fail safely
+      ---
+      duration_ms: 144.5284
+      type: 'test'
+      ...
+    # Subtest: direct UPDATE DELETE TRUNCATE and account deletion cannot erase events
+    ok 7 - direct UPDATE DELETE TRUNCATE and account deletion cannot erase events
+      ---
+      duration_ms: 76.7783
+      type: 'test'
+      ...
+    1..7
+ok 1 - transactional Audit security events share Identity commit authority
+  ---
+  duration_ms: 705.6867
+  type: 'test'
+  ...
+# Subtest: prepared Identity operations, transactional Audit and bounded fixture delivery
+    # Subtest: proof expiration during account lock wait cannot prepare an operation
+    ok 1 - proof expiration during account lock wait cannot prepare an operation
+      ---
+      duration_ms: 51.3164
+      type: 'test'
+      ...
+    # Subtest: fresh clock checks proof callback, mutation handler and final write boundaries
+    ok 2 - fresh clock checks proof callback, mutation handler and final write boundaries
+      ---
+      duration_ms: 164.7169
+      type: 'test'
+      ...
+    # Subtest: prepared handle survives lost response, receipt replacement is capped and immutable
+    ok 3 - prepared handle survives lost response, receipt replacement is capped and immutable
+      ---
+      duration_ms: 83.4626
+      type: 'test'
+      ...
+    # Subtest: concurrent preparations share one operation and preserve one current receipt
+    ok 4 - concurrent preparations share one operation and preserve one current receipt
+      ---
+      duration_ms: 83.4734
+      type: 'test'
+      ...
+    # Subtest: receipt never authorizes commit; changed payload, browser and proof fail
+    ok 5 - receipt never authorizes commit; changed payload, browser and proof fail
+      ---
+      duration_ms: 124.6894
+      type: 'test'
+      ...
+    # Subtest: Audit failure rolls back mutation and outbox; authorized concurrent retry commits once
+    ok 6 - Audit failure rolls back mutation and outbox; authorized concurrent retry commits once
+      ---
+      duration_ms: 95.1014
+      type: 'test'
+      ...
+    # Subtest: notification send uses stable logical id, outside transaction, then erases ciphertext
+    ok 7 - notification send uses stable logical id, outside transaction, then erases ciphertext
+      ---
+      duration_ms: 85.3363
+      type: 'test'
+      ...
+    # Subtest: AES authentication binds key, record, operation, purpose, version and expiry
+    ok 8 - AES authentication binds key, record, operation, purpose, version and expiry
+      ---
+      duration_ms: 1.1486
+      type: 'test'
+      ...
+    # Subtest: expired lease is fenced, retry budget is four and terminal failure erases payload
+    ok 9 - expired lease is fenced, retry budget is four and terminal failure erases payload
+      ---
+      duration_ms: 82.1081
+      type: 'test'
+      ...
+    # Subtest: missing delivery key fails closed and terminalizes without sending
+    ok 10 - missing delivery key fails closed and terminalizes without sending
+      ---
+      duration_ms: 76.6157
+      type: 'test'
+      ...
+    # Subtest: acknowledgement rechecks lease with fresh time after its actual PostgreSQL lock wait
+    ok 11 - acknowledgement rechecks lease with fresh time after its actual PostgreSQL lock wait
+      ---
+      duration_ms: 100.0248
+      type: 'test'
+      ...
+    # Subtest: expired work cleanup erases abandoned lease and preparation expiry is not extended
+    ok 12 - expired work cleanup erases abandoned lease and preparation expiry is not extended
+      ---
+      duration_ms: 65.9784
+      type: 'test'
+      ...
+    # Subtest: provider success followed by failed SQL finalization exposes no account and cannot replay code
+    ok 13 - provider success followed by failed SQL finalization exposes no account and cannot replay code
+      ---
+      duration_ms: 86.0066
+      type: 'test'
+      ...
+    # Subtest: social abandoned lease interrupts; expired operation or exchange cannot complete
+    ok 14 - social abandoned lease interrupts; expired operation or exchange cannot complete
+      ---
+      duration_ms: 107.2022
+      type: 'test'
+      ...
+    # Subtest: trusted reconciliation interrupts expired initiated and claimed exchanges and erases transient proof
+    ok 15 - trusted reconciliation interrupts expired initiated and claimed exchanges and erases transient proof
+      ---
+      duration_ms: 93.5215
+      type: 'test'
+      ...
+    # Subtest: code eligibility rejects superseded, revoked, expired and stale-version proof
+    ok 16 - code eligibility rejects superseded, revoked, expired and stale-version proof
+      ---
+      duration_ms: 228.2483
+      type: 'test'
+      ...
+    # Subtest: delivery retry reuses logical id and never repeats committed mutation
+    ok 17 - delivery retry reuses logical id and never repeats committed mutation
+      ---
+      duration_ms: 132.2642
+      type: 'test'
+      ...
+    # Subtest: one invocation processes at most ten with two concurrent external sends
+    ok 18 - one invocation processes at most ten with two concurrent external sends
+      ---
+      duration_ms: 588.4748
+      type: 'test'
+      ...
+    # Subtest: fresh eligibility deadlines stop dispatch after awaited delivery, challenge, context or lease expiry
+    ok 19 - fresh eligibility deadlines stop dispatch after awaited delivery, challenge, context or lease expiry
+      ---
+      duration_ms: 166.1104
+      type: 'test'
+      ...
+    # Subtest: ten-second timeout aborts adapter and quarantines an unsettled external send
+    ok 20 - ten-second timeout aborts adapter and quarantines an unsettled external send
+      ---
+      duration_ms: 10076.8214
+      type: 'test'
+      ...
+    # Subtest: uncertain short-deadline sends retain both slots across calls until real settlement
+    ok 21 - uncertain short-deadline sends retain both slots across calls until real settlement
+      ---
+      duration_ms: 2758.1094
+      type: 'test'
+      ...
+    1..21
+ok 2 - prepared Identity operations, transactional Audit and bounded fixture delivery
+  ---
+  duration_ms: 15592.0834
+  type: 'test'
+  ...
+# Subtest: authentication disposable PostgreSQL fixture lifecycle (no Identity DDL)
+    # Subtest: shared migration engine applies fixture-only migrations and schema is removed on success
+    ok 1 - shared migration engine applies fixture-only migrations and schema is removed on success
+      ---
+      duration_ms: 47.5192
+      type: 'test'
+      ...
+    # Subtest: failed fixture work cleans its schema while independent sentinel survives
+    ok 2 - failed fixture work cleans its schema while independent sentinel survives
+      ---
+      duration_ms: 19.2784
+      type: 'test'
+      ...
+    1..2
+ok 3 - authentication disposable PostgreSQL fixture lifecycle (no Identity DDL)
+  ---
+  duration_ms: 100.8529
+  type: 'test'
+  ...
+# Subtest: Identity PostgreSQL constraints, concurrent writes, guarded mutations and replay
+    # Subtest: reviewed Identity migration is explicit, atomic and replayable
+    ok 1 - reviewed Identity migration is explicit, atomic and replayable
+      ---
+      duration_ms: 145.9935
+      type: 'test'
+      ...
+    # Subtest: separate connections competing for canonical email leave one account and binding
+    ok 2 - separate connections competing for canonical email leave one account and binding
+      ---
+      duration_ms: 17.8307
+      type: 'test'
+      ...
+    # Subtest: same provider app-scoped subject has one winner and no loser account
+    ok 3 - same provider app-scoped subject has one winner and no loser account
+      ---
+      duration_ms: 16.9365
+      type: 'test'
+      ...
+    # Subtest: FK, status, verified email, retention uniqueness and expiry checks reject malformed durable state
+    ok 4 - FK, status, verified email, retention uniqueness and expiry checks reject malformed durable state
+      ---
+      duration_ms: 84.9249
+      type: 'test'
+      ...
+    # Subtest: same-key concurrent retry returns one safe persisted result and invokes work once
+    ok 5 - same-key concurrent retry returns one safe persisted result and invokes work once
+      ---
+      duration_ms: 50.8698
+      type: 'test'
+      ...
+    # Subtest: unapproved replay fields abort operation and domain mutation atomically
+    ok 6 - unapproved replay fields abort operation and domain mutation atomically
+      ---
+      duration_ms: 21.8509
+      type: 'test'
+      ...
+    # Subtest: stale version rejects before callback and concurrent status changes have one winner
+    ok 7 - stale version rejects before callback and concurrent status changes have one winner
+      ---
+      duration_ms: 46.6013
+      type: 'test'
+      ...
+    # Subtest: aborted enrollment retries with same operation create exactly one stable account
+    ok 8 - aborted enrollment retries with same operation create exactly one stable account
+      ---
+      duration_ms: 48.8321
+      type: 'test'
+      ...
+    # Subtest: security advance revokes old session and grants atomically; rollback preserves all
+    ok 9 - security advance revokes old session and grants atomically; rollback preserves all
+      ---
+      duration_ms: 51.9128
+      type: 'test'
+      ...
+    # Subtest: child INSERT and UPDATE enforce purpose, owner, exact context, version and browser bindings
+    ok 10 - child INSERT and UPDATE enforce purpose, owner, exact context, version and browser bindings
+      ---
+      duration_ms: 956.7669
+      type: 'test'
+      ...
+    # Subtest: lookup and expiry indexes exist; operation expiry and transaction lifetime fail closed
+    ok 11 - lookup and expiry indexes exist; operation expiry and transaction lifetime fail closed
+      ---
+      duration_ms: 22.9952
+      type: 'test'
+      ...
+    1..11
+ok 4 - Identity PostgreSQL constraints, concurrent writes, guarded mutations and replay
+  ---
+  duration_ms: 1572.4735
+  type: 'test'
+  ...
+1..4
+# tests 45
+# suites 0
+# pass 45
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 15795.4832

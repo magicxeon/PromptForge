@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "requirement": "requirements/015-professional-agent-orchestration/011-business-system-analysis-and-task-decomposition.md",
+  "tasks": [
+    {
+      "id": "BSA-DELIVERY",
+      "title": "Create BSA profile and adopt UX-reviewed task decomposition",
+      "complexity": "complex",
+      "reason": "Shared developer routing and sensitive Authentication specification require independent UX, Security and QA review in waves.",
+      "owner": "product-requirement-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "agent-orchestration",
+        "identity"
+      ],
+      "risks": [
+        "shared-contract",
+        "security",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        ".codex/agents/business-system-analyst.toml",
+        "AGENTS.md",
+        "requirements/015-professional-agent-orchestration/011-business-system-analysis-and-task-decomposition.md",
+        "requirements/015-professional-agent-orchestration/bsa-delivery-task-plan.json",
+        "requirements/015-professional-agent-orchestration/roles/business-system-analyst.md",
+        "requirements/015-professional-agent-orchestration/agent-artifact-map.json",
+        "requirements/015-professional-agent-orchestration/routing-fixtures.json",
+        "requirements/015-professional-agent-orchestration/000-master-professional-agent-orchestration.md",
+        "requirements/015-professional-agent-orchestration/001-business-roles-and-governance.md",
+        "requirements/015-professional-agent-orchestration/002-automatic-routing-and-system-specification.md",
+        "requirements/019-implementation-commercial-feature-plan/Phase2-04-authentication-sessions-and-authorization.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/099-technical-dept/000-master.md",
+        "test/agentCoordination.test.js"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "BSA profile and role are registered and focused orchestration checks pass.",
+        "Independent UX findings are reconciled and executable child-task plan validates.",
+        "Native BSA discovery result and fallback are disclosed; Authentication implementation remains proposed."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [
+        {
+          "check": "BSA profile and role are registered and focused orchestration checks pass.",
+          "result": "passed",
+          "reference": "requirements/015-professional-agent-orchestration/011-business-system-analysis-and-task-decomposition.md"
+        },
+        {
+          "check": "Independent UX findings are reconciled and executable child-task plan validates.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/007-expert-ux-review.md"
+        },
+        {
+          "check": "Native BSA discovery result and fallback are disclosed; Authentication implementation remains proposed.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/006-delivery-and-verification.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/007-expert-ux-review.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_requirement_security_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/007-expert-ux-review.md"
+        },
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/auth_expert_ux_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/007-expert-ux-review.md"
+        }
+      ],
+      "handoff": "Documentation/profile delivery only. Verify review dispositions and task plan, then stop before Login implementation; no new global configuration or authority."
+    }
+  ],
+  "parallelBatches": []
+}

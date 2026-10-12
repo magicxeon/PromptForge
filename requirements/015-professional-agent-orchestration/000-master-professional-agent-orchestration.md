@@ -14,7 +14,7 @@ Use [008 coordinated delivery](008-coordinated-requirement-delivery.md),
 [009 task/handoff contract](009-task-contract-and-handoff.md) and
 [010 verification](010-coordination-verification.md) for requirement-linked
 custom agents, simple/complex classification and integration gates. The artifact
-registry is the current inventory: 13 role charters, 14 custom agent profiles,
+registry is the current inventory: 14 role charters, 15 custom agent profiles,
 eight discoverable Skills, fourteen retained reference guides and seven scoped
 instruction files. Earlier counts/results below describe their historical
 checkpoint, not current client discovery or a fresh release pass.
@@ -48,6 +48,7 @@ final closure.
 
 | Requirement | Scope |
 |---|---|
+| [AGENT-ORCH-011](011-business-system-analysis-and-task-decomposition.md) | BSA profile, UX-before-requirement review and verifiable task decomposition |
 | [AGENT-ORCH-001](001-business-roles-and-governance.md) | Business goals, role catalog, ownership and handoff governance |
 | [AGENT-ORCH-002](002-automatic-routing-and-system-specification.md) | Automatic selection, clarification rules, context budget and routing contract |
 | [AGENT-ORCH-003](003-implementation-plan-and-artifact-structure.md) | Repository structure, implementation sequence, rollout and rollback |

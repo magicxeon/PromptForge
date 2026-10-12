@@ -1,0 +1,102 @@
+[challenges] Fixture-only purpose-bound challenges and shared SQL admission; no HTTP or Login activation.
+TAP version 13
+# Subtest: purpose-bound fixture challenges and durable shared admission
+    # Subtest: issue and encrypted outbox are atomic; replay has no additional charge or plaintext result
+    ok 1 - issue and encrypted outbox are atomic; replay has no additional charge or plaintext result
+      ---
+      duration_ms: 112.8703
+      type: 'test'
+      ...
+    # Subtest: pending or failed delivery cannot verify, then concurrent cross-instance consumption has one winner
+    ok 2 - pending or failed delivery cannot verify, then concurrent cross-instance consumption has one winner
+      ---
+      duration_ms: 167.1482
+      type: 'test'
+      ...
+    # Subtest: foreign, malformed and wrong-purpose proof charges source only, including throwing resolver
+    ok 3 - foreign, malformed and wrong-purpose proof charges source only, including throwing resolver
+      ---
+      duration_ms: 107.9858
+      type: 'test'
+      ...
+    # Subtest: five failures persist; new contexts and resend cannot reset target verification budget
+    ok 4 - five failures persist; new contexts and resend cannot reset target verification budget
+      ---
+      duration_ms: 345.583
+      type: 'test'
+      ...
+    # Subtest: global target cooldown spans contexts/purposes; supersession preserves other owner authority
+    ok 5 - global target cooldown spans contexts/purposes; supersession preserves other owner authority
+      ---
+      duration_ms: 172.0909
+      type: 'test'
+      ...
+    # Subtest: purpose handler failure and wrong-purpose result roll back effects but retain admission
+    ok 6 - purpose handler failure and wrong-purpose result roll back effects but retain admission
+      ---
+      duration_ms: 186.1497
+      type: 'test'
+      ...
+    # Subtest: stale account version, expired proof and expiry during handler reject without effects
+    ok 7 - stale account version, expired proof and expiry during handler reject without effects
+      ---
+      duration_ms: 164.369
+      type: 'test'
+      ...
+    # Subtest: expiry after an actual PostgreSQL challenge lock wait cannot consume proof
+    ok 8 - expiry after an actual PostgreSQL challenge lock wait cannot consume proof
+      ---
+      duration_ms: 123.7009
+      type: 'test'
+      ...
+    # Subtest: issue failure rolls back send budgets and ciphertext; exact replay fingerprint is immutable
+    ok 9 - issue failure rolls back send budgets and ciphertext; exact replay fingerprint is immutable
+      ---
+      duration_ms: 63.3959
+      type: 'test'
+      ...
+    # Subtest: active rate key rotation fails closed until old windows expire; old OTP keys remain necessary
+    ok 10 - active rate key rotation fails closed until old windows expire; old OTP keys remain necessary
+      ---
+      duration_ms: 102.5868
+      type: 'test'
+      ...
+    # Subtest: parallel final source/global admission is one atomic winner and does not charge target for the loser
+    ok 11 - parallel final source/global admission is one atomic winner and does not charge target for the loser
+      ---
+      duration_ms: 99.5682
+      type: 'test'
+      ...
+    # Subtest: send hour/day and source/global caps reject atomically without another challenge
+    ok 12 - send hour/day and source/global caps reject atomically without another challenge
+      ---
+      duration_ms: 179.5306
+      type: 'test'
+      ...
+    # Subtest: window starts do not slide on admissions and expired windows reset rather than locking account
+    ok 13 - window starts do not slide on admissions and expired windows reset rather than locking account
+      ---
+      duration_ms: 151.6232
+      type: 'test'
+      ...
+    # Subtest: rate capacity rejects live-row eviction and bounded cleanup removes at most fifty expired rows
+    ok 14 - rate capacity rejects live-row eviction and bounded cleanup removes at most fifty expired rows
+      ---
+      duration_ms: 127.4688
+      type: 'test'
+      ...
+    1..14
+ok 1 - purpose-bound fixture challenges and durable shared admission
+  ---
+  duration_ms: 2321.6026
+  type: 'test'
+  ...
+1..1
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2462.3748

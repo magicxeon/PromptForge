@@ -33,6 +33,7 @@ must not assume every role and Skill lives under this requirement folder.
 | Trigger | Primary | Mandatory reviewer/Skill |
 |---|---|---|
 | New feature or changed cross-screen flow | Product And Requirement Architect | UX for user-facing work; Backend for new server capability |
+| BSA analysis or decomposition of reviewed requirements into testable tasks | Business/System Analyst | Product owns scope; prior UX review for material flows; QA and risk reviewers retained |
 | Layout, interaction, navigation, theme, accessibility | UX/UI Product Designer | QA when shared or substantial |
 | Film, shot, sequence, continuity, motion or audio | Cinematic Experience Director | Generative Media Pipeline; UX for authoring UI |
 | Approved Shot to AI video attempt, temporal prompt or drift diagnosis | Generative Cinematic Production Director | Cinematic Experience Director for intent; Generative Media Pipeline for qualification |

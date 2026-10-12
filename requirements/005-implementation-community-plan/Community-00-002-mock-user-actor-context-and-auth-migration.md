@@ -39,7 +39,7 @@ Server actor source:
   actorContextMiddleware resolves x-mpf-user-id through MockUserRepository
 
 Future production source:
-  Supabase Auth session -> ActorContext
+  Verified production session -> ActorContext (auth vendor not yet selected)
 ```
 
 Do not derive ownership from:
@@ -173,13 +173,17 @@ ID rules:
 
 ### 2.3 Auth Migration Rule
 
-When Supabase Auth is added:
+When production authentication is added under
+[AUTH-019](../019-implementation-commercial-feature-plan/Phase2-04-authentication-sessions-and-authorization.md):
 
 ```text
-Supabase session -> ActorContext -> same domain services
+Verified session -> ActorContext -> same domain services
 ```
 
-Do not rewrite Community services to know Supabase directly.
+Do not rewrite Community services to know an authentication vendor directly.
+The former Supabase-specific future example did not select a provider. AUTH-019
+owns email/password, OTP and Google/Facebook; this completed requirement remains
+the development/mock identity owner only. Real authentication is not implemented.
 
 ### 2.4 Compatibility With Current App State
 
@@ -452,7 +456,7 @@ credit ledger deduction
 community feed UI
 creator profile UI
 payment
-Supabase Auth
+real production authentication (owned by AUTH-019)
 production session cookies
 ```
 

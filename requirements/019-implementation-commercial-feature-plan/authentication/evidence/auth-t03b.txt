@@ -1,0 +1,103 @@
+[persistence] Disposable harness and Identity relational primitives; no Login/session domain qualification.
+TAP version 13
+# Subtest: authentication disposable PostgreSQL fixture lifecycle (no Identity DDL)
+    # Subtest: shared migration engine applies fixture-only migrations and schema is removed on success
+    ok 1 - shared migration engine applies fixture-only migrations and schema is removed on success
+      ---
+      duration_ms: 33.521
+      type: 'test'
+      ...
+    # Subtest: failed fixture work cleans its schema while independent sentinel survives
+    ok 2 - failed fixture work cleans its schema while independent sentinel survives
+      ---
+      duration_ms: 12.8461
+      type: 'test'
+      ...
+    1..2
+ok 1 - authentication disposable PostgreSQL fixture lifecycle (no Identity DDL)
+  ---
+  duration_ms: 69.355
+  type: 'test'
+  ...
+# Subtest: Identity PostgreSQL constraints, concurrent writes, guarded mutations and replay
+    # Subtest: reviewed Identity migration is explicit, atomic and replayable
+    ok 1 - reviewed Identity migration is explicit, atomic and replayable
+      ---
+      duration_ms: 86.9444
+      type: 'test'
+      ...
+    # Subtest: separate connections competing for canonical email leave one account and binding
+    ok 2 - separate connections competing for canonical email leave one account and binding
+      ---
+      duration_ms: 51.4389
+      type: 'test'
+      ...
+    # Subtest: same provider app-scoped subject has one winner and no loser account
+    ok 3 - same provider app-scoped subject has one winner and no loser account
+      ---
+      duration_ms: 13.6798
+      type: 'test'
+      ...
+    # Subtest: FK, status, verified email, retention uniqueness and expiry checks reject malformed durable state
+    ok 4 - FK, status, verified email, retention uniqueness and expiry checks reject malformed durable state
+      ---
+      duration_ms: 106.2792
+      type: 'test'
+      ...
+    # Subtest: same-key concurrent retry returns one safe persisted result and invokes work once
+    ok 5 - same-key concurrent retry returns one safe persisted result and invokes work once
+      ---
+      duration_ms: 58.5761
+      type: 'test'
+      ...
+    # Subtest: unapproved replay fields abort operation and domain mutation atomically
+    ok 6 - unapproved replay fields abort operation and domain mutation atomically
+      ---
+      duration_ms: 21.3243
+      type: 'test'
+      ...
+    # Subtest: stale version rejects before callback and concurrent status changes have one winner
+    ok 7 - stale version rejects before callback and concurrent status changes have one winner
+      ---
+      duration_ms: 42.0965
+      type: 'test'
+      ...
+    # Subtest: aborted enrollment retries with same operation create exactly one stable account
+    ok 8 - aborted enrollment retries with same operation create exactly one stable account
+      ---
+      duration_ms: 41.7227
+      type: 'test'
+      ...
+    # Subtest: security advance revokes old session and grants atomically; rollback preserves all
+    ok 9 - security advance revokes old session and grants atomically; rollback preserves all
+      ---
+      duration_ms: 39.3416
+      type: 'test'
+      ...
+    # Subtest: child INSERT and UPDATE enforce purpose, owner, exact context, version and browser bindings
+    ok 10 - child INSERT and UPDATE enforce purpose, owner, exact context, version and browser bindings
+      ---
+      duration_ms: 760.5982
+      type: 'test'
+      ...
+    # Subtest: lookup and expiry indexes exist; operation expiry and transaction lifetime fail closed
+    ok 11 - lookup and expiry indexes exist; operation expiry and transaction lifetime fail closed
+      ---
+      duration_ms: 21.5966
+      type: 'test'
+      ...
+    1..11
+ok 2 - Identity PostgreSQL constraints, concurrent writes, guarded mutations and replay
+  ---
+  duration_ms: 1341.5684
+  type: 'test'
+  ...
+1..2
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1535.7571

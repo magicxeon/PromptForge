@@ -1,0 +1,17 @@
+{
+  "mail.subject": "Momelo — {purpose}",
+  "mail.codeBody": "รหัส Momelo สำหรับ {purpose} คือ {code}\nผู้รับ: {recipient}\nหมดอายุ: {expiresAt} (UTC)\nหากคุณไม่ได้ทำรายการนี้ สามารถละเว้นอีเมลนี้ได้ อย่าเปิดเผยรหัสนี้แก่ผู้อื่น",
+  "mail.notificationBody": "แจ้งเตือนความปลอดภัยจาก Momelo: {purpose}\nผู้รับ: {recipient}\nเวลาที่แจ้ง: {issuedAt} (UTC)\nหากคุณไม่ได้เปลี่ยนแปลงข้อมูลนี้ ให้กลับไปที่ Momelo เพื่อตรวจสอบความปลอดภัยของบัญชี",
+  "mail.purposes.registration": "สร้างบัญชีของคุณ",
+  "mail.purposes.login": "เข้าสู่ระบบ",
+  "mail.purposes.password_reset": "ตั้งรหัสผ่านใหม่",
+  "mail.purposes.email_change_new": "ยืนยันอีเมลใหม่",
+  "mail.purposes.link_email": "เชื่อมโยงอีเมล",
+  "mail.purposes.reauthentication": "ยืนยันตัวตน",
+  "mail.purposes.password_changed": "เปลี่ยนรหัสผ่านแล้ว",
+  "mail.purposes.email_changed": "เปลี่ยนอีเมลแล้ว",
+  "mail.purposes.method_linked": "เชื่อมโยงวิธีเข้าสู่ระบบแล้ว",
+  "mail.purposes.method_unlinked": "นำวิธีเข้าสู่ระบบออกแล้ว",
+  "mail.purposes.mfa_changed": "เปลี่ยนการยืนยันสองขั้นตอนแล้ว",
+  "mail.purposes.sessions_revoked": "ออกจากระบบแล้ว"
+}

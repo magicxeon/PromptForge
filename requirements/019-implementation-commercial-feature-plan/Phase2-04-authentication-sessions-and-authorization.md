@@ -1,129 +1,123 @@
 # Phase 2-04 Authentication, Sessions and Authorization
 
-**Status:** Next DB/Auth foundation slice; real authentication not implemented (2026-09-07)
-**Target:** Secure accounts for Thai small merchants with future team support.
+**ID:** AUTH-019
+**Updated:** 2026-10-11
+**Status:** Implementation authorized 2026-10-10; foundation, T01/T02, T03A/B/C/D, T04A/B and T15A complete; T05A session implementation in progress; runtime integration pending
+**Capability:** Identity and Account
+**Primary:** product-requirement-architect; main thread coordinates Technical Lead responsibilities
+**Review gates:** Security and QA; UX for screens, Backend for persistence/contracts
+**Triggered Skills:** review-product-ux; verify-release-regressions for requirement review
 
-## 1. MVP Scope
+## 1. Outcome And Authorization Boundary
 
-- Email/password registration and login
-- Email verification
-- Logout current session and logout all sessions
-- Forgot/reset password
-- Persistent secure sessions
-- User profile and preferred language
-- Admin/support role with audited access
-- One Project owner initially; team membership schema retained for later
+One durable Momelo account can sign in with email/password, email OTP, Google,
+or Facebook. Users can verify email, recover access, reset a password and manage
+linked methods without duplicating Credits, Projects or private work.
 
-Social login and organization invitations are deferred unless separately approved.
+The user has now authorized implementation according to this packet. Begin with
+T01 decisions and the bounded Phase2-03 database prerequisite, qualify dependencies
+before advancing, and keep live provider/email/production operations separately
+gated. Historical documentation-only delivery below describes the earlier turn.
 
-## 1.1 Current Boundary And Safe First Slice
+The earlier requirement-authoring request authorized documentation and asked to
+wait. The subsequent implementation instruction supersedes that pause for local
+source, dependencies and isolated verification. Live email/provider setup,
+production migration and paid workflows remain outside this implementation run.
+Task status and actual evidence are recorded in the JSON plan and AUTH-012;
+documentation completion alone does not establish working authentication.
 
-- `server/middleware/actorContextMiddleware.js` currently resolves mock users
-  from `x-mpf-user-id` or `mpfUserId`/`mpf_user_id`. A valid supplied mock ID is
-  still accepted in production mode. This is a launch blocker, not real login.
-- `server/app/routes/identityRoutes.js` already owns `GET /api/me`; replace its
-  identity source and preserve the response contract rather than adding a
-  second current-user endpoint.
-- Preserve `web/src/lib/auth/ActorProvider.tsx`, actor-scoped persistence and
-  query invalidation. Logout, expiry and account changes clear private state.
-- Build the first slice on PostgreSQL identity/Audit adapters, not passwords
-  stored in the mock JSON repository. No provider call or payment is required.
-- Mock users are migration identities only. Preserve IDs for explicitly
-  approved account claims; never infer ownership or grant staff roles from a
-  matching username/email or automatically activate demo accounts.
-- Choose credential/session implementation and email-delivery integration in
-  a recorded decision before coding. The account lifecycle above remains the
-  requirement; GCP hosting does not itself select an authentication provider.
+## 2. Requirement Index And Reading Order
 
-## 2. Security Requirements
+| ID | Owning document | Responsibility |
+|---|---|---|
+| AUTH-001 | [Account lifecycle and boundaries](authentication/001-account-lifecycle-and-boundaries.md) | Scope, owners, durable identity, registration, status and decisions |
+| AUTH-002 | [Password, OTP and social authentication](authentication/002-password-otp-and-social-authentication.md) | Login, verification, challenge policy and provider callbacks |
+| AUTH-003 | [Account linking and recovery](authentication/003-account-linking-and-recovery.md) | Link/unlink, password reset, email changes and Support recovery |
+| AUTH-004 | [Sessions, API and persistence](authentication/004-sessions-api-and-persistence.md) | Session/authorization contracts, data, transport and mock cutover |
+| AUTH-005 | [Screens and user journeys](authentication/005-screens-and-user-journeys.md) | UI states, navigation, draft isolation, accessibility and localization |
+| AUTH-006 | [Delivery and verification](authentication/006-delivery-and-verification.md) | Ordered task packets, decisions, acceptance matrix and release gates |
+| AUTH-007 | [Expert UX review and dispositions](authentication/007-expert-ux-review.md) | Independent flow findings, requirement corrections and remaining visual evidence |
+| AUTH-008 | [Executable task packets](authentication/008-executable-task-packets.md) | BSA child tasks, milestone mapping, checks and handoffs |
+| AUTH-009 | [Local development Login override](authentication/009-local-development-login-override.md) | Server .env toggle, isolated fixture identity, mode transitions and fail-closed limits |
+| AUTH-010 | [Implementation decisions and evidence](authentication/010-implementation-decisions.md) | T01 technical choices, prerequisite checks and unresolved live gates |
+| AUTH-011 | [Identity contract v1](authentication/011-versioned-implementation-contract.md) | T02 concrete transport, context, persistence and interaction contracts |
+| AUTH-012 | [Incremental implementation evidence](authentication/012-implementation-evidence.md) | Actual focused test results and independent implementation reviews |
+| AUTH-013 | [Private-surface cutover inventory](authentication/013-private-surface-cutover-inventory.md) | Registered API/media/stream/actor/transport surfaces, exact future scopes and verification cases |
+| Task state | [Machine-readable plan](authentication/task-plan.json) | Dependencies, write scopes, reviewers, status and evidence |
 
-- Passwords use a current adaptive password hash; never encryption or plain text.
-- Session tokens are random, revocable and stored hashed server-side.
-- Browser session cookie is `HttpOnly`, `Secure` in production and uses an appropriate `SameSite` policy.
-- Rotate session after login and privilege changes.
-- Rate-limit login, registration and password reset.
-- Use generic responses to reduce account enumeration.
-- Reset and verification tokens are single-use and expire.
-- State-changing cookie-authenticated requests require CSRF protection.
-- Record security events without logging passwords or raw tokens.
+This master supersedes the former Phase2-04 deferral of social login and its
+password-only assumptions. Google and Facebook are in scope; passwords remain
+optional for OTP/social accounts. AUTH-004 replaces the old unimplemented API
+sketch; existing `/api/me` and preference routes remain the compatibility anchor.
+Organization invitations and other social providers remain deferred.
 
-## 3. Authorization Model
+The additional developer option `AUTH_DEV_BYPASS_ENABLED` is specified in
+AUTH-009. It skips credential entry only for a qualified local fixture; production
+authentication and resource authorization remain mandatory. No `.env` is changed
+by this requirement update.
 
-Roles do not replace resource ownership checks.
+## 3. Current Source Baseline
 
-```text
-user: own profile and owned/member Projects
-support_agent: Case/search and limited diagnostic access
-support_lead: approved operational recovery and bounded compensation
-finance_ops: payment/refund/reconciliation commands
-moderator: Community moderation
-admin: controlled identity/configuration actions with mandatory audit reason
-system: background jobs with scoped service identity
-```
+Inspected 2026-10-10; source review, not runtime acceptance:
 
-The complete staff permission and two-person approval contract is owned by
-`requirements/018-implementation-backend/007-permission-command-and-approval-matrix.md`,
-coordinated by the Requirement 018 Master.
-This phase supplies authenticated staff identity and authorization primitives;
-it must not duplicate Support Case or financial command policy.
+- `server/middleware/actorContextMiddleware.js` still trusts a supplied mock ID
+  through `x-mpf-user-id`, `mpfUserId` or `mpf_user_id`, including production.
+  Disabled-user enforcement is currently write-oriented. Both are launch gaps.
+- `server/app/routes/identityRoutes.js` owns `/api/me`, `/api/me/preferences`
+  and `/api/mock-users`; it does not implement this packet's login endpoints.
+- `server/domain/identity/AdminIdentityService.js` owns guarded account-status
+  commands against the mock repository; preserve its facade and permission gates.
+- `server/domain/identity/UserPreferenceService.js` and the Identity repository
+  own preferences. Creator Profile is a separate capability.
+- `web/src/lib/auth/ActorProvider.tsx` and `web/src/lib/api/apiClient.ts` resolve
+  mock actors and attach a mock header. They are extension points, not real auth.
+- `AccountMenu.tsx` owns account navigation; `actorScopedStorage.ts` provides
+  owner-keyed local drafts, not encrypted storage or authentication.
+- `test/mockActorContext.test.js`, actor persistence tests and AccountMenu tests
+  are regression inputs. Production expectations must change deliberately;
+  fixture/mock coverage remains explicitly non-production.
 
-Every Project/Collection/Asset/Batch endpoint verifies both authentication and action-level authorization.
+## 4. Dependencies And Protected Owners
 
-## 4. Core Data
+Use [Phase2-03](Phase2-03-database-architecture-and-json-migration.md) for the
+PostgreSQL foundation and [Phase2-20](Phase2-20-current-state-reconciliation-and-execution-plan.md)
+for commercial sequencing. Do not migrate every capability before local auth,
+and do not use mock JSON for production credentials. Auth/email vendors are
+unselected; GCP hosting and old Supabase references do not select them.
 
-- `users`
-- `user_credentials`
-- `sessions`
-- `email_verification_tokens`
-- `password_reset_tokens`
-- `roles`, `user_roles`
-- `security_events`
+Identity supplies authenticated actor/status/session evidence. Credits keeps
+wallets and settlement; Generation keeps queue/provider/job ownership; Assets
+keeps private-media policy; Community keeps publication; Support keeps Cases;
+Audit keeps audit persistence. No auth route writes their repositories.
 
-Account state:
+Production staff roles and approval rules remain owned by
+[Backend 007](../018-implementation-backend/007-permission-command-and-approval-matrix.md).
+Role names never replace resource ownership checks or confer access through an
+email domain. Account verification is not Creator verification or KYC.
 
-```text
-pending_verification -> active -> suspended -> closed
-```
+## 5. Delivery Contract
 
-## 5. API Surface
+Follow AUTH-006 and `task-plan.json` one task at a time, recording actual checks
+and reviewer evidence before dependent work starts. Proposed file/API names are
+not existing implementations. Shared-contract changes require an updated map.
+There is no automatic scheduler or permission to start from the JSON plan.
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `POST /api/auth/logout-all`
-- `POST /api/auth/verify-email`
-- `POST /api/auth/forgot-password`
-- `POST /api/auth/reset-password`
-- `GET /api/me`
-- `PATCH /api/me`
+The implementation instruction has been received. T01/T02 contracts and the
+shared database foundation are complete; continue the dependency-ordered tasks.
+Retention, provider spend, public visibility and production migration choices
+still need the decision owner identified in AUTH-001; no approval is invented.
 
-Use stable machine-readable error codes and localized user messages.
-All `/api/auth/*` and `PATCH /api/me` entries here are target work, not existing
-endpoints. Public Community reads retain deliberate anonymous access.
+## 6. Documentation Evidence
 
-## 6. Prototype Adapter
+Documentation checks and independent review results are recorded in
+[AUTH-006](authentication/006-delivery-and-verification.md#documentation-evidence).
+The architecture map includes explicitly planned Identity/UI boundaries;
+no application runtime paths, live records or credentials were created.
 
-The existing development adapter defaults to `usr_demo`. Its production
-isolation requirements below are still pending. It must:
-
-- Be impossible to enable accidentally in production.
-- Still populate normal actor context.
-- Never bypass authorization service calls.
-
-## 7. Acceptance Criteria
-
-- Unauthorized users cannot access another user's resources by changing IDs.
-- Password/session/reset data is stored safely.
-- Sessions can be revoked immediately.
-- Suspended accounts cannot start billable operations.
-- Authentication and authorization decisions are tested separately.
-- Admin/support actions include actor, target, reason and timestamp in audit events.
-- Production rejects mock identity injection through both headers and query
-  parameters, whether the supplied mock ID is valid, invalid or absent. Hiding
-  the switcher or disabling `/api/mock-users` alone does not satisfy this gate.
-- Revoked, expired and disabled accounts cannot read another private record;
-  test ownership on reads and writes, independently of UI filtering.
-- Focused tests cover session rotation/revocation, CSRF, token expiry/replay,
-  reset/verification, cross-actor media access and client cache clearing before
-  broader launch tests. State mapping from local `disabled` users to the target
-  lifecycle is explicit and never upgrades privileges implicitly.
+The subsequent user-requested independent UX review and BSA decomposition are
+recorded in AUTH-007/008. Eighteen broad milestones now organize smaller executable
+children; AUTH-009 adds milestone T19 and two children. The bounded transactional
+Audit prerequisite AUTH-T03D brings the current total to 47 children.
+Only the JSON child records carry implementation status. Native BSA
+profile discovery and the disclosed Product-profile fallback are separate from
+successful UX review or static task-plan validation.

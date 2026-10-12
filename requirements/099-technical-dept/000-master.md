@@ -59,6 +59,30 @@ This is a required workflow gate, not an implemented automatic drift detector.
 
 ## Current Capability Addendum
 
+### Authentication Delivery (2026-10-10; Foundation Implemented, Runtime Planned)
+
+[AUTH-019](../019-implementation-commercial-feature-plan/Phase2-04-authentication-sessions-and-authorization.md)
+owns email/password, purpose-bound email OTP, Google/Facebook, verification,
+linking/recovery, sessions and the mock-to-real identity boundary. Its
+`authentication/` documents and task-plan now authorize implementation. T01/T02
+design contracts and the separate shared PostgreSQL foundation are reviewed;
+Auth harness, normalized Identity persistence and private prepared-operation,
+reconciliation, fixture-delivery, purpose-bound challenge, mail-event suppression
+and safe public-policy projection services are implemented and isolated-tested;
+runtime authentication remains unimplemented. Actual task reviews/status live in
+AUTH-012 and the owning JSON plan.
+`server/config/authPolicy.js` currently owns frozen challenge fixture policy;
+`IdentityPublicPolicyService` projects explicitly qualified method configuration.
+Deployment configuration and HTTP composition are still planned. Identity extends its existing domain/repository,
+actor middleware and `/api/me` anchors. The planned `IdentityApplicationService`
+facade hides credential/session/email/social adapters. New auth forms belong to
+planned `web/src/features/authentication/`, while `web/src/lib/auth/` retains
+shared actor state. Production identity/session/Audit persistence follows the
+Phase2-03 PostgreSQL foundation; no new runtime JSON or selected auth vendor is
+introduced. Credits, Generation, Assets, Community and Support retain their
+owning public workflows. Canonical ownership rows below distinguish the planned
+extensions from current mock identity behavior.
+
 ### Requirement-Linked Agent Coordination (2026-10-10)
 
 [AGENT-ORCH-008](../015-professional-agent-orchestration/008-coordinated-requirement-delivery.md)
@@ -1029,8 +1053,11 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Support Case lifecycle, links, notes and optimistic versioning | `server/domain/support/`, `server/repositories/support/`, `server/data/support/`; production adapter moves to PostgreSQL without changing the service contract |
 | Bounded process-local performance timing and slow-request measurement | `server/domain/observability/PerformanceTelemetry.js`, `server/middleware/requestPerformanceMiddleware.js` |
 | Shared atomic JSON implementation | `server/repositories/json/` |
+| Audit events and transactional Authentication security-event primitives | `server/domain/audit/AuditService.js` and `server/repositories/audit/AuditLogRepository.js` retain legacy record callers. Implemented `PostgresSecurityAuditRepository.js` and `securityAuditMigrations.js` under `server/repositories/audit/` serve public `recordSecurityEvent` using a live shared transaction; [bounded prerequisite AUTH-T03D](../019-implementation-commercial-feature-plan/database-foundation.md#bounded-audit-prerequisite-for-auth-t03c). Isolated-tested, not runtime-wired; no dual-write or financial-event migration |
+| Shared PostgreSQL infrastructure (implemented and isolated-tested; no runtime cutover) | `server/config/database.js`, `server/repositories/postgres/`; `database.js` owns pooling, transactions and `assertLivePostgresTransaction` provenance across facades. Explicit tooling `scripts/database/` and `scripts/verify-database-foundation.mjs`, owned by [Phase2-03 foundation](../019-implementation-commercial-feature-plan/database-foundation.md). Domain repositories retain business rules; no implicit startup migrations |
 | Runtime JSON state | `server/data/<capability>/` |
 | Request actor/security middleware | `server/middleware/` |
+| Identity/account preferences and guarded status commands; implemented SQL/private operation, challenge and mail services, planned real authentication/session facade | Existing `server/domain/identity/`, `server/repositories/identity/`, `server/app/routes/identityRoutes.js`, `server/middleware/actorContextMiddleware.js`; Identity migrations and PostgreSQL repositories implement normalized constraints/atomic primitives through the shared PostgreSQL owner. Private `IdentityOperationService.js` and `IdentityDeliveryService.js` own prepared receipts, social interruption/reconciliation and bounded encrypted fixture delivery, calling Audit's public transactional method. `IdentityChallengeService.js` and its owning repository implement purpose-bound OTP, same-owner supersession and shared SQL budgets; `server/config/authPolicy.js` owns fixture policy and `identityEmail.js` owns email canonicalization. `IdentityEmailEventService.js` and its owning repository implement verified callback admission, deduplication and bounded suppression; `server/domain/identity/adapters/` owns inactive SMTP and canonical localized mail rendering. `IdentityPublicPolicyService.js` owns safe method-policy projection. No runtime cutover. Planned `IdentityApplicationService.js`, `server/app/routes/authRoutes.js` and deployment configuration extend these owners per [AUTH-019](../019-implementation-commercial-feature-plan/Phase2-04-authentication-sessions-and-authorization.md). Current `server/data/identity/mockUsers.json` remains a development source, never production credentials |
 | AI provider adapters and registry | `server/providers/` |
 | Paths, provider metadata, and server configuration | `server/config/` |
 | Isolated prompt and visual research | `lab/<experiment>/` |
@@ -1065,6 +1092,7 @@ Server placement rules:
 | Reusable React UI and workflow components | `web/src/components/` |
 | Shared normal-generation result grid and group polling | `web/src/components/generation/GenerationResultGrid.tsx`, `web/src/features/generation/hooks/useGenerationGroup.ts` |
 | Shared API, identity, i18n and telemetry adapters | `web/src/lib/` |
+| Planned login/signup/OTP/recovery and account security screens | `web/src/features/authentication/` and `web/src/styles/authentication.css` (not implemented); shared actor remains `web/src/lib/auth/`, navigation remains routeRegistry and `AccountMenu.tsx`, transport remains apiClient; [AUTH-005](../019-implementation-commercial-feature-plan/authentication/005-screens-and-user-journeys.md) |
 | Actor-aware query keys and shared polling policy | `web/src/lib/api/queryKeys.ts`, `web/src/lib/api/pollingPolicy.ts` |
 | Request/correlation propagation and safe support references | `web/src/lib/api/`, `web/src/lib/telemetry/` |
 | Semantic theme resolution and actor preference | `web/src/lib/theme/`, `web/src/styles/themes.css` |
@@ -1105,7 +1133,9 @@ Client placement rules:
 | Migration and maintenance utilities | `scripts/` |
 | Automated tests and fixtures | `test/` and `test/fixtures/` |
 | Business and implementation requirements | `requirements/<phase-or-domain>/` |
+| Authentication requirements, decisions, ordered task packets and isolated verification | `requirements/019-implementation-commercial-feature-plan/Phase2-04-authentication-sessions-and-authorization.md` and `authentication/`; runner `scripts/verify-authentication.mjs`, support `scripts/authentication/`, tests `test/authentication/` implement isolated harness groups; owning React tests and runtime Auth remain pending |
 | Professional agent routing, cross-project Product/QA roles and artifact map | `requirements/015-professional-agent-orchestration/` |
+| BSA requirement analysis and task decomposition (developer tooling) | `requirements/015-professional-agent-orchestration/roles/business-system-analyst.md`, `.codex/agents/business-system-analyst.toml`, registered through the existing artifact map; [AGENT-ORCH-011](../015-professional-agent-orchestration/011-business-system-analysis-and-task-decomposition.md). Product/UX/QA and application capability ownership remain unchanged |
 | External image, video and text provider contracts, pricing evidence and qualification | `requirements/020-generation-providers/` |
 | Domain professional role charters | Owning requirement under `requirements/<domain>/roles/` |
 | Repository-wide discoverable Codex Skills | `.agents/skills/<skill-name>/` |

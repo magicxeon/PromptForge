@@ -1,0 +1,98 @@
+[contracts] Authentication harness bootstrap only; no domain authentication qualification.
+TAP version 13
+# Subtest: runner rejects missing, malformed, unknown, undelivered and incomplete aggregate selections
+ok 1 - runner rejects missing, malformed, unknown, undelivered and incomplete aggregate selections
+  ---
+  duration_ms: 435.8445
+  type: 'test'
+  ...
+# Subtest: persistence CLI rejects absent or unsafe targets without exposing credentials
+ok 2 - persistence CLI rejects absent or unsafe targets without exposing credentials
+  ---
+  duration_ms: 267.2567
+  type: 'test'
+  ...
+# Subtest: invalid database fixtures fail before constructing a pool or calling work
+ok 3 - invalid database fixtures fail before constructing a pool or calling work
+  ---
+  duration_ms: 2.095
+  type: 'test'
+  ...
+# Subtest: fixture cleanup removes exactly its owned random schema after work failure and closes the pool
+ok 4 - fixture cleanup removes exactly its owned random schema after work failure and closes the pool
+  ---
+  duration_ms: 0.9982
+  type: 'test'
+  ...
+# Subtest: fixture scope cannot be redirected to application runtime files or a caller-owned schema
+ok 5 - fixture scope cannot be redirected to application runtime files or a caller-owned schema
+  ---
+  duration_ms: 0.4384
+  type: 'test'
+  ...
+# Subtest: failed create never drops an unowned schema; failed cleanup still closes the pool
+ok 6 - failed create never drops an unowned schema; failed cleanup still closes the pool
+  ---
+  duration_ms: 0.3659
+  type: 'test'
+  ...
+# Subtest: offline network guard denies fetch, HTTP, HTTPS, sockets, TLS, DNS and UDP before contact
+ok 7 - offline network guard denies fetch, HTTP, HTTPS, sockets, TLS, DNS and UDP before contact
+  ---
+  duration_ms: 12.588
+  type: 'test'
+  ...
+# Subtest: database network allowance validates configuration and still denies other endpoints and transports
+ok 8 - database network allowance validates configuration and still denies other endpoints and transports
+  ---
+  duration_ms: 1.3307
+  type: 'test'
+  ...
+# Subtest: fake clock, idempotent mailbox and single-use provider perform no network and isolate instances
+ok 9 - fake clock, idempotent mailbox and single-use provider perform no network and isolate instances
+  ---
+  duration_ms: 2.4799
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 871.3759
+
+
+[persistence] Authentication harness bootstrap only; no domain authentication qualification.
+TAP version 13
+# Subtest: authentication disposable PostgreSQL fixture lifecycle (no Identity DDL)
+    # Subtest: shared migration engine applies fixture-only migrations and schema is removed on success
+    ok 1 - shared migration engine applies fixture-only migrations and schema is removed on success
+      ---
+      duration_ms: 50.8664
+      type: 'test'
+      ...
+    # Subtest: failed fixture work cleans its schema while independent sentinel survives
+    ok 2 - failed fixture work cleans its schema while independent sentinel survives
+      ---
+      duration_ms: 14.4308
+      type: 'test'
+      ...
+    1..2
+ok 1 - authentication disposable PostgreSQL fixture lifecycle (no Identity DDL)
+  ---
+  duration_ms: 107.2632
+  type: 'test'
+  ...
+1..1
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 250.9904
+

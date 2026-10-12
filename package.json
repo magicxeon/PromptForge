@@ -43,8 +43,10 @@
     "express": "^4.19.2",
     "i18next": "^26.3.6",
     "i18next-http-backend": "^4.0.0",
+    "nodemailer": "10.1.0",
     "nodemon": "^3.1.14",
     "openai": "^6.46.0",
+    "pg": "8.23.1",
     "playwright": "^1.62.0",
     "sharp": "^0.34.3"
   }

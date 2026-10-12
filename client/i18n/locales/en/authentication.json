@@ -1,0 +1,17 @@
+{
+  "mail.subject": "Momelo — {purpose}",
+  "mail.codeBody": "Your Momelo code for {purpose} is {code}.\nRecipient: {recipient}\nExpires at: {expiresAt} (UTC).\nIf you did not request this, ignore this email. Never share this code.",
+  "mail.notificationBody": "Momelo security notice: {purpose}.\nRecipient: {recipient}\nIssued at: {issuedAt} (UTC).\nIf you did not make this change, return to Momelo and review your account security.",
+  "mail.purposes.registration": "Create your account",
+  "mail.purposes.login": "Sign in",
+  "mail.purposes.password_reset": "Reset your password",
+  "mail.purposes.email_change_new": "Verify your new email",
+  "mail.purposes.link_email": "Link your email",
+  "mail.purposes.reauthentication": "Confirm your identity",
+  "mail.purposes.password_changed": "Password changed",
+  "mail.purposes.email_changed": "Email changed",
+  "mail.purposes.method_linked": "Sign-in method linked",
+  "mail.purposes.method_unlinked": "Sign-in method removed",
+  "mail.purposes.mfa_changed": "Two-step verification changed",
+  "mail.purposes.sessions_revoked": "Sessions signed out"
+}

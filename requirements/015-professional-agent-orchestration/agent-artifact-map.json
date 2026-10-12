@@ -2,6 +2,25 @@
   "version": 1,
   "artifacts": [
     {
+      "id": "business-system-analyst",
+      "kind": "role",
+      "owner": "engineering-governance",
+      "canonicalPath": "requirements/015-professional-agent-orchestration/roles/business-system-analyst.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "business-system-analyst",
+      "kind": "agent",
+      "owner": "engineering-governance",
+      "canonicalPath": ".codex/agents/business-system-analyst.toml",
+      "discoveryPath": ".codex/agents/business-system-analyst.toml",
+      "role": "business-system-analyst",
+      "scope": "repository",
+      "status": "configured"
+    },
+    {
       "id": "technical-lead",
       "kind": "role",
       "owner": "engineering-governance",

@@ -10,6 +10,11 @@ adapters in dependency-ordered, reconcilable capability waves.
 
 ## 1. Decision Summary
 
+The AUTH-019 implementation authorization starts the bounded
+[database foundation prerequisite](database-foundation.md). It establishes shared
+pool/transaction/migration mechanics and isolated verification only; no domain
+or production data cutover is authorized by that task.
+
 The schema is **not ready for one-shot implementation**. Several local domain
 records have mature lifecycle and identifiers, but production identity,
 commercial Projects, Payments, production Support persistence, durable Job attempts, object storage and

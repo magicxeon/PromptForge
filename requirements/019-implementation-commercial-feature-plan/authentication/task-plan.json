@@ -1,0 +1,2454 @@
+{
+  "version": 1,
+  "requirement": "requirements/019-implementation-commercial-feature-plan/Phase2-04-authentication-sessions-and-authorization.md",
+  "tasks": [
+    {
+      "id": "AUTH-T01A",
+      "title": "Select feasible authentication and delivery approach",
+      "ownerAgentId": "/root",
+      "complexity": "complex",
+      "reason": "Reviewed vendor/library feasibility and authority matrix with unresolved choices named. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "product-requirement-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "requirements/019-implementation-commercial-feature-plan/authentication/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC03, AC20): Given a candidate supports every mandatory workflow, when selection is recorded, then each claim has an attributable feasibility reference and an identified owner.",
+        "Negative (AC03, AC20): Given automatic email linking cannot be disabled, when evaluating that candidate, then it cannot pass selection.",
+        "Recovery (AC03, AC20): Given a vendor prerequisite is unavailable, when handing off, then the decision remains unresolved and dependent implementation stays gated."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "backend-platform-architect"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC03, AC20): Given a candidate supports every mandatory workflow, when selection is recorded, then each claim has an attributable feasibility reference and an identified owner.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        },
+        {
+          "check": "Negative (AC03, AC20): Given automatic email linking cannot be disabled, when evaluating that candidate, then it cannot pass selection.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        },
+        {
+          "check": "Recovery (AC03, AC20): Given a vendor prerequisite is unavailable, when handing off, then the decision remains unresolved and dependent implementation stays gated.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_decision_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        },
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/auth_implementation_foundation",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        }
+      ],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t01a and completed dependency outputs. No provisioning, installation, email sending or invented vendor approval. Stop dependent selection work if vendor capability or material cost/region remains undecided. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T01B",
+      "title": "Freeze security policy and external decision gates",
+      "complexity": "complex",
+      "reason": "Versioned local implementation policy and explicit separate production/staging gates. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "product-requirement-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T01A"
+      ],
+      "writeScope": [
+        "requirements/019-implementation-commercial-feature-plan/authentication/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC03, AC20): Given an implementation-critical choice is settled, when freezing policy, then its value, owner and applicability are explicit.",
+        "Negative (AC03, AC20): Given retention, spend or test-account claims lack approval, when documenting readiness, then they are not represented as authorized.",
+        "Recovery (AC03, AC20): Given an unresolved production-only prerequisite, when continuing isolated design, then it remains a named release blocker rather than an invented implementation default."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "backend-platform-architect"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC03, AC20): Given an implementation-critical choice is settled, when freezing policy, then its value, owner and applicability are explicit.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        },
+        {
+          "check": "Negative (AC03, AC20): Given retention, spend or test-account claims lack approval, when documenting readiness, then they are not represented as authorized.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        },
+        {
+          "check": "Recovery (AC03, AC20): Given an unresolved production-only prerequisite, when continuing isolated design, then it remains a named release blocker rather than an invented implementation default.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_decision_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        },
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/auth_implementation_foundation",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/010-implementation-decisions.md"
+        }
+      ],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t01b and completed dependency outputs. User-selected password, email code, Google and Facebook scope remains intact. Stop affected implementation where unresolved policy changes persisted data, assurance or destructive scope. Return scoped files, contract implications and actual focused evidence; Lead alone updates status.",
+      "ownerAgentId": "/root"
+    },
+    {
+      "id": "AUTH-T02A",
+      "title": "Freeze Identity DTOs, state transitions and persistence boundaries",
+      "complexity": "complex",
+      "reason": "Versioned endpoint/context/operation contract and logical repository transaction map. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "product-requirement-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T01B"
+      ],
+      "writeScope": [
+        "requirements/019-implementation-commercial-feature-plan/authentication/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC01, AC02, AC05, AC09, AC12, AC15): Given valid entry proof, when evaluating its nextAction, then only the documented server-issued purpose transition is possible.",
+        "Negative (AC01, AC02, AC05, AC09, AC12, AC15): Given a foreign or guessed operation ID, when requesting reconciliation, then account existence, secrets and other-owner results are not disclosed.",
+        "Recovery (AC01, AC02, AC05, AC09, AC12, AC15): Given a mutation response is lost after session revocation, when its valid restricted operation receipt is used, then only that operation's bounded result is recoverable."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "backend-platform-architect"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC01, AC02, AC05, AC09, AC12, AC15): Given valid entry proof, when evaluating its nextAction, then only the documented server-issued purpose transition is possible.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        },
+        {
+          "check": "Negative (AC01, AC02, AC05, AC09, AC12, AC15): Given a foreign or guessed operation ID, when requesting reconciliation, then account existence, secrets and other-owner results are not disclosed.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        },
+        {
+          "check": "Recovery (AC01, AC02, AC05, AC09, AC12, AC15): Given a mutation response is lost after session revocation, when its valid restricted operation receipt is used, then only that operation's bounded result is recoverable.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "result": "passed",
+          "agentId": "/root/auth_requirement_qa_review",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        },
+        {
+          "role": "security-reviewer",
+          "result": "passed",
+          "agentId": "/root/auth_decision_security",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        },
+        {
+          "role": "backend-platform-architect",
+          "result": "passed",
+          "agentId": "/root/auth_implementation_foundation",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        }
+      ],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t02a and completed dependency outputs. Preserve /api/me preferences, owning capability facades and provider-owned secrets. Stop if operation authority/TTL or upstream DB transaction ownership is unspecified; no arbitrary public status endpoint. Return scoped files, contract implications and actual focused evidence; Lead alone updates status.",
+      "ownerAgentId": "/root"
+    },
+    {
+      "id": "AUTH-T02B",
+      "title": "Freeze reviewed interaction and preservation contracts",
+      "complexity": "complex",
+      "reason": "Screen/state/form matrix and acceptance traceability for entry, security and interruptions. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "product-requirement-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T02A"
+      ],
+      "writeScope": [
+        "requirements/019-implementation-commercial-feature-plan/authentication/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC16, AC17, AC18): Given reviewed screen requirements, when task contracts are frozen, then every success, error, expired and pending state has an actionable destination.",
+        "Negative (AC16, AC17, AC18): Given a registration-existing or unknown-email login handoff, when specifying UI, then no client field can widen the proof's purpose.",
+        "Recovery (AC16, AC17, AC18): Given popup failure or an uncertain mutation result, when specifying recovery, then warning/cancel or authorized reconciliation replaces silent loss/blind retry."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer",
+        "backend-platform-architect"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC16, AC17, AC18): Given reviewed screen requirements, when task contracts are frozen, then every success, error, expired and pending state has an actionable destination.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        },
+        {
+          "check": "Negative (AC16, AC17, AC18): Given a registration-existing or unknown-email login handoff, when specifying UI, then no client field can widen the proof's purpose.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        },
+        {
+          "check": "Recovery (AC16, AC17, AC18): Given popup failure or an uncertain mutation result, when specifying recovery, then warning/cancel or authorized reconciliation replaces silent loss/blind retry.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_decision_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        },
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/auth_dev_override_ux",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        },
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/auth_implementation_foundation",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/011-versioned-implementation-contract.md"
+        }
+      ],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t02b and completed dependency outputs. Settings opens AccountPreferencesDialog; Profile, Credits, Admin, preferences and public browsing retain ownership. Stop if a material flow differs from reviewed AUTH-005; resolve through Product/UX, not implementation guesswork. Return scoped files, contract implications and actual focused evidence; Lead alone updates status.",
+      "ownerAgentId": "/root"
+    },
+    {
+      "id": "AUTH-T03A",
+      "title": "Bootstrap isolated authentication verification harness",
+      "complexity": "complex",
+      "reason": "Selectable fail-fast runner with fake clock/mail/providers and fixture lifecycle. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "migration"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T02A"
+      ],
+      "writeScope": [
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/evidence/auth-t03a.txt"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC15, AC20): Given an explicitly disposable configured fixture target, when a supported group runs, then it reports actual assertions and cleans only owned fixture resources.",
+        "Negative (AC15, AC20): Given live/unknown database targets or absent prerequisites, when the runner starts, then it fails before writes or network calls.",
+        "Recovery (AC15, AC20): Given a fixture process fails, when cleanup runs, then only the process/resources created by that run are stopped or cleaned."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC15, AC20): Given an explicitly disposable configured fixture target, when a supported group runs, then it reports actual assertions and cleans only owned fixture resources.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Negative (AC15, AC20): Given live/unknown database targets or absent prerequisites, when the runner starts, then it fails before writes or network calls.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Recovery (AC15, AC20): Given a fixture process fails, when cleanup runs, then only the process/resources created by that run are stopped or cleaned.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_decision_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t03a and completed dependency outputs. Never restart existing workers, touch server/data records or send real email/provider requests. Stop until Phase2-03 delivers reviewed DB foundation and disposable credentials via approved configuration. Return scoped files, contract implications and actual focused evidence; Lead alone updates status.",
+      "ownerAgentId": "/root/auth_harness_implementation"
+    },
+    {
+      "id": "AUTH-T03B",
+      "title": "Implement Identity persistence and atomic constraints",
+      "complexity": "complex",
+      "reason": "Identity repository adapters, constraints and security-version/idempotency primitives. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "migration"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T03A"
+      ],
+      "writeScope": [
+        "server/repositories/identity/identityMigrations.js",
+        "server/repositories/identity/PostgresIdentityRepository.js",
+        "scripts/database/registry.mjs",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC01, AC02, AC15): Given concurrent same-email or provider-subject writes, when both commit, then only one durable identity binding succeeds.",
+        "Negative (AC01, AC02, AC15): Given an idempotency key reused with changed payload or stale security version, when committing, then the repository rejects it without partial mutation.",
+        "Recovery (AC01, AC02, AC15): Given a transaction aborts, when retried with the same valid operation, then one consistent result and no duplicate provision remain."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC01, AC02, AC15): Given concurrent same-email or provider-subject writes, when both commit, then only one durable identity binding succeeds.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Negative (AC01, AC02, AC15): Given an idempotency key reused with changed payload or stale security version, when committing, then the repository rejects it without partial mutation.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Recovery (AC01, AC02, AC15): Given a transaction aborts, when retried with the same valid operation, then one consistent result and no duplicate provision remain.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_decision_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "handoff": "Reviewed Identity relational primitives complete; T03C owns prepared receipts/outbox/reconciliation, following Audit prerequisite T03D. No runtime cutover or Login qualification.",
+      "ownerAgentId": "/root/auth_identity_persistence"
+    },
+    {
+      "id": "AUTH-T03C",
+      "title": "Persist security events, delivery work and reconciliation state",
+      "complexity": "complex",
+      "reason": "Identity-owned durable operation/outbox integration with sanitized Audit and retry states. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity",
+        "audit"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "migration"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T03D"
+      ],
+      "writeScope": [
+        "server/domain/identity/IdentityOperationService.js",
+        "server/domain/identity/IdentityDeliveryService.js",
+        "server/domain/identity/identitySecrets.js",
+        "server/repositories/identity/PostgresIdentityOperationRepository.js",
+        "server/repositories/identity/identityOperationMigrations.js",
+        "scripts/database/registry.mjs",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC07, AC15): Given a committed identity mutation, when event/notification delivery succeeds twice, then deduplication yields one logical side effect.",
+        "Negative (AC07, AC15): Given provider success followed by database failure, when inspecting account exposure, then unresolved state cannot grant access.",
+        "Recovery (AC07, AC15): Given delivery or reconciliation resumes after interruption, when the worker retries, then it reaches the recorded result without repeating the identity mutation."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC07, AC15): Given a committed identity mutation, when event/notification delivery succeeds twice, then deduplication yields one logical side effect.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Negative (AC07, AC15): Given provider success followed by database failure, when inspecting account exposure, then unresolved state cannot grant access.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Recovery (AC07, AC15): Given delivery or reconciliation resumes after interruption, when the worker retries, then it reaches the recorded result without repeating the identity mutation.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_decision_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "handoff": "Implement internal prepared-operation/receipt, durable provider claim/reconciliation and encrypted delivery lifecycle per AUTH-011 fixture-only policy. Audit03D completed. No HTTP/session grant authorization claim: T05C owns action proof and route exposure. D02/D05 real delivery/data activation remains gated. Independent Security/QA and retained actual PostgreSQL evidence before closure.",
+      "ownerAgentId": "/root/auth_operations_implementation"
+    },
+    {
+      "id": "AUTH-T04A",
+      "title": "Implement purpose-bound challenges and shared attempt budgets",
+      "complexity": "complex",
+      "reason": "Atomic challenge issue/verify/consume lifecycle and cross-worker rate limits. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T03C"
+      ],
+      "writeScope": [
+        "server/config/authPolicy.js",
+        "server/domain/identity/IdentityChallengeService.js",
+        "server/domain/identity/identityEmail.js",
+        "server/repositories/identity/PostgresIdentityChallengeRepository.js",
+        "server/repositories/identity/identityChallengeMigrations.js",
+        "scripts/database/registry.mjs",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/qualify-challenges.mjs",
+        "test/authentication/challenges.test.js",
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC02, AC05, AC07): Given a valid active bound code, when consumed concurrently, then exactly one caller receives its permitted next action.",
+        "Negative (AC02, AC05, AC07): Given expired, wrong-purpose, foreign-browser or stale-version proof, when verified, then no action/session is granted.",
+        "Recovery (AC02, AC05, AC07): Given repeated new challenges after failed verification, when retrying, then shared budgets still throttle without permanently locking the account."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC02, AC05, AC07): Given a valid active bound code, when consumed concurrently, then exactly one caller receives its permitted next action.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Negative (AC02, AC05, AC07): Given expired, wrong-purpose, foreign-browser or stale-version proof, when verified, then no action/session is granted.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Recovery (AC02, AC05, AC07): Given repeated new challenges after failed verification, when retrying, then shared budgets still throttle without permanently locking the account.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_decision_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "handoff": "Implement AUTH-011 T04A concrete fixture policy using reviewed C delivery transaction contract. Root owns docs/status/map; Backend owns bounded source/tests. Shared SQL attempt budgets must commit for rejected proofs, persist across resend/context/key changes, have explicit row cap/cleanup. Composition-owned handlers only; no HTTP/session authorization until owning later tasks. Code issue+outbox and proof consumption+purpose handler atomic; no real mail/data. Independent Security/QA with actual PostgreSQL races before completion.",
+      "ownerAgentId": "/root/auth_operations_implementation"
+    },
+    {
+      "id": "AUTH-T04B",
+      "title": "Implement email delivery, resend and public challenge policy",
+      "complexity": "complex",
+      "reason": "Purpose-specific templates, delivery states, resend/suppression handling and safe policy projection. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T04A"
+      ],
+      "writeScope": [
+        "server/config/authPolicy.js",
+        "server/domain/identity/IdentityDeliveryService.js",
+        "server/domain/identity/IdentityOperationService.js",
+        "server/domain/identity/IdentityChallengeService.js",
+        "server/domain/identity/IdentityEmailEventService.js",
+        "server/domain/identity/IdentityPublicPolicyService.js",
+        "server/domain/identity/adapters/",
+        "server/repositories/identity/PostgresIdentityOperationRepository.js",
+        "server/repositories/identity/PostgresIdentityEmailEventRepository.js",
+        "server/repositories/identity/identityEmailDeliveryMigrations.js",
+        "scripts/database/registry.mjs",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "package.json",
+        "package-lock.json",
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC04, AC05, AC07): Given a repeated send idempotency key, when requests arrive concurrently, then only one logical email send is recorded.",
+        "Negative (AC04, AC05, AC07): Given a consumed or superseded challenge, when a late delivery callback arrives, then its authority never revives.",
+        "Recovery (AC04, AC05, AC07): Given accepted replacement delivery later fails, when the user retries, then safe recovery respects cooldown/budgets and never reactivates the old code."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC04, AC05, AC07): Given a repeated send idempotency key, when requests arrive concurrently, then only one logical email send is recorded.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Negative (AC04, AC05, AC07): Given a consumed or superseded challenge, when a late delivery callback arrives, then its authority never revives.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Recovery (AC04, AC05, AC07): Given accepted replacement delivery later fails, when the user retries, then safe recovery respects cooldown/budgets and never reactivates the old code.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_mail_security_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_mail_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "handoff": "Implement AUTH-008 T04B after T04A review. SMTP selected via Nodemailer, configurable inactive adapter and fake transport qualification only; real sender/callback protocol/budget and D05 activation remain gated. Purpose-specific localized mail uses canonical catalogs, no inline React language maps. Reuse existing delivery/issue idempotency/cooldown, do not fork outbox. Callback verifier is composition-owned/fail-closed; authenticate and deduplicate events before suppression, never revive consumed/superseded/expired proof. Freeze exact fixture callback/retention/metadata contract in AUTH-011 before code. Root owns docs/status/map. Public policy projection exposes no secrets and no available method until configured/qualified; actual HTTP context/CSRF composition waits T05. Verify focused challenges/contracts and affected persistence; no live mail/provider.",
+      "ownerAgentId": "/root/auth_operations_implementation"
+    },
+    {
+      "id": "AUTH-T05A",
+      "title": "Implement session transport and owned session management",
+      "complexity": "complex",
+      "reason": "Cookie/session lifecycle, owned list/revoke APIs and restricted-context separation. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T03B"
+      ],
+      "writeScope": [
+        "server/config/authPolicy.js",
+        "server/domain/identity/IdentitySessionService.js",
+        "server/domain/identity/IdentityContextService.js",
+        "server/domain/identity/IdentityApplicationService.js",
+        "server/domain/identity/adapters/identityCookies.js",
+        "server/repositories/identity/PostgresIdentitySessionRepository.js",
+        "server/repositories/identity/PostgresIdentityContextRepository.js",
+        "server/repositories/identity/identitySessionMigrations.js",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/database/registry.mjs",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "in_progress",
+      "acceptance": [
+        "Success (AC02, AC12): Given a valid active session, when an authorized request and later logout occur, then access works before revocation and fails afterward on every instance.",
+        "Negative (AC02, AC12): Given reset/enrollment cookie, invalid CSRF or foreign session ID, when used for private access/revocation, then it grants no authority or owner detail.",
+        "Recovery (AC02, AC12): Given repeated logout or loss of its response, when reconciling, then revocation stays idempotent and no extra session is created."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "AUTH-008 T05A with AUTH-011 frozen session inputs and reviewed T15A inventory. FIRST return a concise concrete browser/context cookie and durable target/remember/proof contract proposal to Root, including lock order and existing T04 resolver integration; no code until Root records that contract in AUTH-011. Then implement bounded session/context/facade/thin-route primitives with additive0006, explicit configuration, missing verifier/factor fail closed, no caller-account/method/assurance authority. Session rotation/idle/absolute/caps/list/revoke/logout across instances, restricted context separation, exact Origin+CSRF/cookie parsing. Real deployment/staff/bootstrap/legal/provider gates remain separate; isolated config/fixture qualification may proceed. No createApp/server runtime cutover or .env/bootstrap changes. Root owns docs/map/status/evidence; author code/test only within named scopes. Preserve immutable0001-0005 and existing actor/preferences contracts, never dispatch providers or mutate Credits. No children, no unrelated edits. Return actual focused sessions-authorization/contracts/persistence evidence and remaining runtime gaps; independent Security/QA before closure.",
+      "ownerAgentId": "/root/auth_operations_implementation"
+    },
+    {
+      "id": "AUTH-T05B",
+      "title": "Resolve real actors and enforce account status",
+      "complexity": "complex",
+      "reason": "Session-derived actor middleware and immediate status/grant revocation integration. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T05A",
+        "AUTH-T15A"
+      ],
+      "writeScope": [
+        "server/middleware/actorContextMiddleware.js",
+        "server/app/routes/identityRoutes.js",
+        "server/app/createApp.js",
+        "server/domain/identity/IdentityApplicationService.js",
+        "server/domain/identity/AdminIdentityService.js",
+        "server/domain/identity/UserPreferenceService.js",
+        "server/repositories/identity/PostgresIdentityRepository.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC12, AC13): Given an active real session, when /api/me or own preferences is requested, then the existing owner DTO/policy is preserved.",
+        "Negative (AC02, AC12, AC13): Given suspension/disable/closure or a revoked session, when any protected read/write follows, then access is denied without stale positive cache.",
+        "Recovery (AC02, AC12, AC13): Given an authorized reinstatement, when the owner signs in again, then only a new valid session restores access; login never reinstates status."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t05b and completed dependency outputs. Public Community stays anonymous; Admin approval/reason and resource checks remain authoritative. Stop on unknown status mapping or unowned route; do not weaken private-route checks. Return scoped files, contract implications and actual focused evidence; Lead alone updates status. Exact source scope narrowed by independently reviewed AUTH-013 section7; new AssetDeliveryService/assetRoutes are planned owning Assets boundaries, not existing runtime. No broad mock repository migration or automatic D08 claims. Reconcile any additional session handoff paths before dispatch; preserve public visibility distinctions, existing financial rules and accepted Jobs."
+    },
+    {
+      "id": "AUTH-T05C",
+      "title": "Implement action assurance and operation-status authorization",
+      "complexity": "complex",
+      "reason": "Action-bound assurance/security-version checks and authorized operation lookup facade. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T04A",
+        "AUTH-T05A"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC09, AC12, AC15): Given fresh valid method proof for action A, when assurance is consumed for A on its bound target, then the authorized operation proceeds once.",
+        "Negative (AC02, AC09, AC12, AC15): Given a foreign/expired operation receipt, stale action grant or required but incomplete MFA, when lookup/login/mutation is attempted, then lookup is non-disclosing and a receipt grants no authentication or mutation authority.",
+        "Recovery (AC02, AC09, AC12, AC15): Given a committed mutation's response was lost, when its still-valid operation receipt is queried after session revocation, then only the sanitized recorded outcome is returned."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t05c and completed dependency outputs. Proof adapters are internal to Identity; no generic account lookup, secret response or MFA bypass. Stop if receipt lifetime/authority is unfrozen; T06-T09 wire real primary verifiers and T12 qualifies factors before sensitive consumers. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T06A",
+      "title": "Implement explicit verified enrollment and existing-account handoff",
+      "complexity": "complex",
+      "reason": "Idempotent enrollment completion with optional credential and purpose-safe existing-account result. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T04B",
+        "AUTH-T05B",
+        "AUTH-T05C"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC01, AC02, AC03, AC07): Given fresh verified enrollment and explicit Terms acceptance, when completed twice, then one active account/session result is produced without bonuses or public publication.",
+        "Negative (AC01, AC02, AC03, AC07): Given registration proof for an existing/non-active account or a concurrent email claim, when completed, then no password/name overwrite or normal login occurs.",
+        "Recovery (AC01, AC02, AC03, AC07): Given incomplete or expired onboarding, when returning, then valid pending state resumes or proof safely restarts without duplicate users."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t06a and completed dependency outputs. No required password for code/social accounts, no marketing preselection, no Creator/KYC side effects. Stop if Terms version, provider credential authority or transactional activation contract is unresolved. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T06B",
+      "title": "Implement password policy and primary authentication",
+      "complexity": "complex",
+      "reason": "Password authentication verifier with generic errors and required-MFA restricted result. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T06A"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC04, AC07): Given an active account and valid password, when login completes, then the normal policy or required-MFA pipeline is entered with the chosen session duration.",
+        "Negative (AC02, AC04, AC07): Given unknown, wrong, absent-password or non-active credentials, when login fails, then public error shape does not reveal the account state.",
+        "Recovery (AC02, AC04, AC07): Given valid legacy hash policy or transient provider failure, when retrying through the approved path, then upgrade/retry is safe and never logs credentials."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t06b and completed dependency outputs. Passwords support paste/managers and optional absence; no periodic rotation or secret duplication. Stop if password-policy/hash benchmark or managed credential ownership lacks Security review. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T07A",
+      "title": "Implement code login and explicit enrollment-offer exchange",
+      "complexity": "complex",
+      "reason": "Code-login verifier and restricted unknown-email registration-offer exchange. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T06A"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC01, AC02, AC05, AC09): Given valid login code for an active account, when verified, then login/MFA proceeds and password state remains unchanged.",
+        "Negative (AC01, AC02, AC05, AC09): Given a replayed/substituted enrollment offer, changed browser/purpose or concurrent email creation, when exchange/completion is attempted, then no proof promotion occurs and an existing account requires fresh enabled-method proof.",
+        "Recovery (AC01, AC02, AC05, AC09): Given an unknown-email login offer, when explicitly accepted before expiry, then onboarding continues without a redundant code; expired/mismatched offers restart proof."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t07a and completed dependency outputs. Unknown-email login never silently signs up; Terms and uniqueness are rechecked before activation. Stop if the selected provider cannot enforce the explicit restricted exchange. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T07B",
+      "title": "Implement reset-only password replacement",
+      "complexity": "complex",
+      "reason": "Single-use reset workflow with atomic password change and all-session revocation. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T06B",
+        "AUTH-T07A"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC05, AC09): Given valid reset-only proof for an existing credential, when reset succeeds, then all old sessions/reset grants fail and normal login is required.",
+        "Negative (AC02, AC05, AC09): Given passwordless, blocked, wrong-purpose or stale proof, when reset is attempted, then it cannot create a credential, enroll, reactivate or bypass MFA.",
+        "Recovery (AC02, AC05, AC09): Given policy mismatch or a lost success response, when correcting/reconciling, then valid proof is not wasted by validation and a completed reset cannot run twice."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t07b and completed dependency outputs. Code-login remains a separate flow and does not change passwords. Stop on any inability to atomically invalidate grants/sessions or safely reconcile a revoked-session result. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T08A",
+      "title": "Implement Google authentication protocol and email assurance",
+      "complexity": "complex",
+      "reason": "Google adapter with validated subject, callback replay controls and restricted completion states. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T07A"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md",
+        "server/config/authPolicy.js"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC04, AC06): Given a valid known Google subject, when callback completes, then the owning account enters the common session/MFA pipeline.",
+        "Negative (AC02, AC04, AC06): Given wrong issuer/audience/signature/state, replay or matching email without existing-account proof, when callback is submitted, then it grants no account binding/access.",
+        "Recovery (AC02, AC04, AC06): Given cancellation, outage or untrusted application email, when recovering, then the flow ends safely or resumes restricted email verification before activation."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t08a and completed dependency outputs. No provider role/publication import, automatic email linking or token retention/logging. Stop if callback/proof semantics differ from the frozen protocol; real provider execution belongs to T17A. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T09A",
+      "title": "Implement Facebook authentication and provider-event handling",
+      "complexity": "complex",
+      "reason": "Facebook adapter, resumable missing-email enrollment and idempotent authenticated provider events. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T08A"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md",
+        "server/config/authPolicy.js"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC04, AC06): Given a validated Facebook subject with completed application-email assurance, when onboarding completes, then one account uses the shared session/MFA policy.",
+        "Negative (AC02, AC04, AC06): Given a foreign app token, fabricated subject or forged provider event, when processed, then no binding/session mutation occurs.",
+        "Recovery (AC02, AC04, AC06): Given denied email or repeated valid deauthorization, when completing email proof/retrying the event, then enrollment stays restricted until proof and deauthorization applies once."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t09a and completed dependency outputs. Do not interpret Facebook tokens as Google JWTs or convert provider deletion events into blanket product deletion. Stop if provider event/deletion obligations are undefined; record launch gate without inventing retention/deletion approval. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T10A",
+      "title": "Implement both-side email and social method linking",
+      "complexity": "complex",
+      "reason": "Explicit authenticated link commands through the Identity facade. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T05C",
+        "AUTH-T08A",
+        "AUTH-T09A",
+        "AUTH-T12B"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC01, AC02, AC06, AC08): Given proof of the existing account and unbound new method, when linking is confirmed, then the original userId and owned work remain unchanged.",
+        "Negative (AC01, AC02, AC06, AC08): Given subject already owned elsewhere, equal email alone or stale assurance, when linking is attempted, then no merge/transfer occurs.",
+        "Recovery (AC01, AC02, AC06, AC08): Given callback or commit response repeats, when reconciling the original operation, then one method binding/result is returned."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t10a and completed dependency outputs. No duplicate provisioning, Credit grants, role changes or Support repository edits. Stop if provider defaults auto-link by email or either proof is missing. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T10B",
+      "title": "Implement safe unlink and account security projection",
+      "complexity": "complex",
+      "reason": "Sanitized /api/me/security projection and atomic method unlink. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T10A"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC01, AC07, AC08): Given several usable methods, when one is safely unlinked, then security summary and affected-session policy reflect the committed result.",
+        "Negative (AC01, AC07, AC08): Given simultaneous last-method removals or stale/unverified method badges, when commands commit, then at least one real usable method remains.",
+        "Recovery (AC01, AC07, AC08): Given provider outage or lost unlink response, when refreshing/reconciling, then availability is distinct from binding and no blind second mutation occurs."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t10b and completed dependency outputs. Factor/recovery removal is not ordinary unlink; internal userId and ownership remain stable. Stop if usable-method rules or retained-current-session assurance is ambiguous. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T11A",
+      "title": "Implement authenticated password setup, change and removal",
+      "complexity": "complex",
+      "reason": "Optional-password management with version invalidation and session effects. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T10B"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC07, AC08, AC09, AC12): Given passwordless active account with fresh proof, when adding a valid password, then the credential is added without requiring an old password.",
+        "Negative (AC07, AC08, AC09, AC12): Given stale reset grant or removal of the final usable method, when submitted after change/removal races, then the prohibited mutation fails.",
+        "Recovery (AC07, AC08, AC09, AC12): Given change committed but response/notification failed, when reconciliation/retry occurs, then the credential changes once and durable notification retries safely."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t11a and completed dependency outputs. Reported compromise revokes all; ordinary change preserves only freshly rotated current session. Stop if fresh-proof verification or credential replacement cannot share security-version enforcement. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T11B",
+      "title": "Implement verified application-email replacement",
+      "complexity": "complex",
+      "reason": "Pending email change, bound confirmation, revocation and notification/reconciliation. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T11A"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC10, AC12): Given fresh owner proof and valid new-email code, when change commits, then social subjects/userId remain and normal login is required.",
+        "Negative (AC02, AC10, AC12): Given collision, foreign change ID, stale code or simultaneous link/change, when committing, then the old valid ownership is never overwritten.",
+        "Recovery (AC02, AC10, AC12): Given commit succeeded before the connection failed, when the restricted operation receipt is reconciled, then completion is known without replay; failed notifications retry separately."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t11b and completed dependency outputs. Provider email claims cannot overwrite application email; no wallet/ownership transfer. Stop on unresolved closed-email reuse policy or unsafe post-revocation reconciliation. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T11C",
+      "title": "Implement bounded recovery-help integration",
+      "complexity": "complex",
+      "reason": "Rate-limited neutral recovery guidance/request boundary with no unapproved identity mutation. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity",
+        "support"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T11B"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC11): Given available approved help intake, when a request is accepted, then the caller receives a generic receipt without account details.",
+        "Negative (AC02, AC11): Given absent D07 approval or Support-only ownership claim, when recovery mutation is requested, then identity/MFA remains unchanged.",
+        "Recovery (AC02, AC11): Given Support unavailable or duplicate intake, when seeking help again, then safe guidance/deduplication avoids a dead control or disclosure."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t11c and completed dependency outputs. No identity-document collection, credential-repository editing, Credit grant or account merge. Stop any ownership-changing recovery until evidence/operators/approval/retention policy and public command exist. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T12A",
+      "title": "Implement restricted MFA completion and replay controls",
+      "complexity": "complex",
+      "reason": "Common MFA completion gate with cross-context budgets and atomic factor/recovery-code replay rejection. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T05C",
+        "AUTH-T06B",
+        "AUTH-T07A",
+        "AUTH-T08A",
+        "AUTH-T09A"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md",
+        "server/config/authPolicy.js"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC04, AC11, AC12): Given valid primary proof and required factor, when factor confirmation succeeds, then the correct session policy is issued once.",
+        "Negative (AC02, AC04, AC11, AC12): Given wrong/expired/replayed factor, parallel recovery-code use or stale security version, when verified, then no normal session/MFA downgrade occurs.",
+        "Recovery (AC02, AC04, AC11, AC12): Given a new primary login after failed factors, when retrying, then cross-context budgets persist with bounded recovery rather than permanent lockout."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t12a and completed dependency outputs. Email code and ordinary social success never satisfy application MFA; production staff remains gated. Stop if chosen mechanism cannot enforce required assurance and replay/budget policy. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T12B",
+      "title": "Implement protected MFA enrollment and management",
+      "complexity": "complex",
+      "reason": "Restricted bootstrap, confirmed enrollment, replacement/removal and recovery-code rotation. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T12A"
+      ],
+      "writeScope": [
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md",
+        "server/config/authPolicy.js"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC11, AC12): Given approved staff bootstrap proof, when setup is confirmed, then staff eligibility can proceed only through the selected factor policy.",
+        "Negative (AC02, AC11, AC12): Given bootstrap without confirmation or email-only proof for removal, when requesting staff access/factor downgrade, then it is denied.",
+        "Recovery (AC02, AC11, AC12): Given interrupted setup or recovery-code rotation, when resuming/reconciling, then only the valid current factor/codes remain authoritative and older contexts fail."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t12b and completed dependency outputs. No role grant from domain/email; no circular demand for a nonexistent first factor. Stop if D06 bootstrap/recovery policy or independent Security qualification is missing. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T13A",
+      "title": "Implement shared actor lifecycle, transport and route guards",
+      "complexity": "complex",
+      "reason": "Existing ActorProvider/apiClient extended for real sessions, no second actor store. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T02B",
+        "AUTH-T05B",
+        "AUTH-T12B"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "web/src/lib/auth/",
+        "web/src/lib/api/apiClient.ts",
+        "web/src/lib/api/apiClient.test.ts",
+        "web/src/lib/persistence/",
+        "web/src/app/router.tsx",
+        "web/src/app/routeRegistry/",
+        "web/src/components/layout/AppShell.tsx",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC12, AC13, AC14, AC17, AC18): Given real authentication or anonymous /api/me null, when resolving actor, then the existing provider exposes the correct state and allowed routes.",
+        "Negative (AC12, AC13, AC14, AC17, AC18): Given expired session or foreign mock header, when JSON/progress/Blob requests run, then each respects real authorization and never falls back to a demo actor.",
+        "Recovery (AC12, AC13, AC14, AC17, AC18): Given transient connectivity failure, when identity is retried, then private presentation stays gated without falsely reporting account switch/logout."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t13a and completed dependency outputs. Existing shared query/persistence and transport owners remain canonical; no feature raw fetch/token store. Stop if response schemas or exact shared-route owners differ from inventory; update contract before broad edits. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T13B",
+      "title": "Implement sign-in and provider-callback screens",
+      "complexity": "complex",
+      "reason": "Password/code/social entry and callback states with explicit remembered-device choice. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T13A",
+        "AUTH-T06B",
+        "AUTH-T07A",
+        "AUTH-T08A",
+        "AUTH-T09A"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC04, AC16, AC18): Given enabled methods and valid login, when explicit submit completes, then the authorized next step/safe destination appears without resubmitting work.",
+        "Negative (AC04, AC16, AC18): Given credential rejection, unsupported provider or unsafe return path, when rendered, then rejected secrets clear, unavailable methods hide and navigation stays safe.",
+        "Recovery (AC04, AC16, AC18): Given popup blocked/cancelled or connectivity failure, when recovery is selected, then accessible retry/alternative/back ends the spinner without accidental account creation."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t13b and completed dependency outputs. Primary/form/paste/password-manager behavior follows AUTH-005; MFA-required results cannot expose workspace before T14E. Stop if real provider fallback contradicts reviewed draft-loss behavior; no live provider tests in this task. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T13C",
+      "title": "Implement verification and explicit signup completion screens",
+      "complexity": "complex",
+      "reason": "Registration, code verification, social email completion and onboarding routes. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T13B",
+        "AUTH-T06A"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC01, AC03, AC05, AC16): Given valid unknown-email proof, when Create account and Terms are explicitly accepted, then completion follows the authorized enrollment context.",
+        "Negative (AC01, AC03, AC05, AC16): Given existing-email registration, changed local purpose or denied social email, when continuing, then UI requires the proper proof and never silently activates.",
+        "Recovery (AC01, AC03, AC05, AC16): Given expiry/resend or password mismatch, when correcting, then email/safe route and allowed component-memory password persist appropriately while old proof/code is cleared."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t13c and completed dependency outputs. No extra marketing/profile form; authoritative social email avoids redundant verification; secrets never persist. Stop if UI would need to infer account existence or promote proof client-side. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T13D",
+      "title": "Implement reset and neutral recovery-help screens",
+      "complexity": "complex",
+      "reason": "Forgot/reset success/error/expiry screens and honest recovery-help entry. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T13C",
+        "AUTH-T07B",
+        "AUTH-T11C"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC09, AC11, AC16): Given a successful reset, when confirmed, then normal login is offered and no authenticated workspace is opened automatically.",
+        "Negative (AC09, AC11, AC16): Given unknown/passwordless/blocked account, when any reset response or error appears, then neutral exit/help treatment reveals no credential presence.",
+        "Recovery (AC09, AC11, AC16): Given expired reset proof or unavailable help, when exiting/restarting, then local reset authority is discarded and the user has a usable code-login/back path."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t13d and completed dependency outputs. Policy/mismatch retains generated password only in component memory; rejection/termination clears secrets. Stop if help control has no approved destination or reset outcome cannot be reconciled safely. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T13E",
+      "title": "Implement session interruption, draft isolation and uncertain outcomes",
+      "complexity": "complex",
+      "reason": "In-page reauthentication, bounded temporary actor buffer and cross-tab private cleanup. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T13D",
+        "AUTH-T05C"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "web/src/lib/auth/",
+        "web/src/lib/api/apiClient.ts",
+        "web/src/lib/api/apiClient.test.ts",
+        "web/src/lib/persistence/",
+        "web/src/app/router.tsx",
+        "web/src/app/routeRegistry/",
+        "web/src/components/layout/AppShell.tsx",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC16, AC17, AC18): Given actor A's unsaved temporary work and expiry, when A reauthenticates in-page/popup, then only permitted A work restores without submission.",
+        "Negative (AC16, AC17, AC18): Given actor B, reload, logout, late response or browser Back, when the auth boundary changes, then A's private state cannot reappear.",
+        "Recovery (AC16, AC17, AC18): Given blocked popup or lost mutation response, when recovering, then redirect warns of loss/cancel and operation reconciliation precedes any new submit."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t13e and completed dependency outputs. Accepted Jobs continue under their owner; no automatic Generate, capture/refund, cancellation or durable prompt cache. Stop if a provider requires destructive redirect without warning or a mutation lacks an owning reconciliation contract. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T14A",
+      "title": "Implement Account security sections and menu integration",
+      "complexity": "complex",
+      "reason": "Security page shell with separate email/password/provider/MFA/session/help regions and dedicated menu action. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T13E",
+        "AUTH-T10B",
+        "AUTH-T11B",
+        "AUTH-T12B"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "web/src/components/layout/AccountMenu.tsx",
+        "web/src/components/layout/AccountMenu.test.tsx",
+        "web/src/components/layout/AppShell.tsx",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC16, AC18): Given authenticated account, when opening Account security, then all distinct authorized sections have clear loading/ready/error states.",
+        "Negative (AC16, AC18): Given unresolved/anonymous identity, when security route is requested, then private details/actions never flash.",
+        "Recovery (AC16, AC18): Given Settings or sibling navigation after auth integration, when selected, then AccountPreferencesDialog and its Credit-confirmation preference still work unchanged."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t14a and completed dependency outputs. No sibling redesign, shared polling/cache or changes to Credit consent workflow. Stop if page integration requires removing/relocating an unrelated action or changing shared dialog contract. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T14B",
+      "title": "Implement password-management section",
+      "complexity": "complex",
+      "reason": "Add/change/remove forms with local validation, session-effect warnings and safe async confirmation. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T14A",
+        "AUTH-T11A"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC07, AC08, AC09, AC16): Given passwordless account and valid fresh proof, when adding a valid password, then success updates credential presence without an old-password demand.",
+        "Negative (AC07, AC08, AC09, AC16): Given mismatch/policy error or last-method removal refusal, when submitting, then policy-local secrets retain only permitted component memory and no false success appears.",
+        "Recovery (AC07, AC08, AC09, AC16): Given response loss or expired assurance, when recovering, then operation result is reconciled or fresh proof requested before another mutation."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t14b and completed dependency outputs. Provider/email/MFA/session sections and current-session policy remain unchanged. Stop if pending confirmation would close before outcome or secret retention differs from AUTH-005. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T14C",
+      "title": "Implement verified-email management section",
+      "complexity": "complex",
+      "reason": "Clearly separated active/pending email flow with logout warning and known completion. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T14A",
+        "AUTH-T11B"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC10, AC16): Given verified new address and authorized change, when commit is acknowledged, then the UI explains completion and requires normal login.",
+        "Negative (AC10, AC16): Given collision or foreign/stale change context, when confirmation fails, then active email remains displayed accurately and no merge is offered.",
+        "Recovery (AC10, AC16): Given the session is revoked before response arrives, when the operation receipt is checked, then completion is shown only from authoritative result."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t14c and completed dependency outputs. Social methods remain linked; notifications do not claim guaranteed arrival. Stop if receipt expired/invalid; show safe sign-in/recheck instead of inferring mutation success. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T14D",
+      "title": "Implement provider and email-method management section",
+      "complexity": "complex",
+      "reason": "Explicit link/unlink journeys with both-side proof and remaining-method confirmation. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T14A",
+        "AUTH-T10B"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC06, AC08, AC16): Given an available unlinked method and completed owner/new-method proof, when confirmed, then the linked summary updates after known success.",
+        "Negative (AC06, AC08, AC16): Given last usable method or foreign subject, when removal/link is attempted, then safe refusal exposes no other-owner data.",
+        "Recovery (AC06, AC08, AC16): Given provider cancellation/outage or lost unlink response, when returning, then bindings remain authoritative and recovery does not blindly repeat the mutation."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t14d and completed dependency outputs. Security email/password/MFA regions remain separate; no automatic merge or profile publication. Stop if availability is mistaken for proof/binding or the provider callback loses its original action context. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T14E",
+      "title": "Implement complete MFA authentication and management screens",
+      "complexity": "complex",
+      "reason": "Factor challenge, bootstrap/setup/confirmation and recovery-code/rotation/replacement/removal screens. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T14A",
+        "AUTH-T12B"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC04, AC11, AC16): Given required MFA and valid factor, when confirmation completes, then access proceeds only after server-authorized session issuance.",
+        "Negative (AC04, AC11, AC16): Given email-only bypass attempt, unconfirmed staff bootstrap or stale recovery code, when continuing, then no workspace or weakened factor state appears.",
+        "Recovery (AC04, AC11, AC16): Given interrupted enrollment, unavailable recovery or lost rotation response, when recovering, then safe restart/reconciliation preserves only current authoritative factor state."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t14e and completed dependency outputs. No recovery secret in telemetry/durable browser storage; no factor enrollment requirement that assumes an existing first factor. Stop if D06 does not define secret-display/copy/download or recovery policy; do not invent weaker fallback. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T14F",
+      "title": "Implement device-session list and revocation screens",
+      "complexity": "complex",
+      "reason": "Accessible paginated device list and clear per-device/all-session confirmations. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T14A",
+        "AUTH-T05A"
+      ],
+      "writeScope": [
+        "web/src/features/authentication/",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC12, AC16, AC17): Given a selected other device, when revocation succeeds, then its session disappears while the current session stays valid.",
+        "Negative (AC12, AC16, AC17): Given unknown/foreign ID or repeated clicks, when revoking, then no owner data leaks and one intended operation occurs.",
+        "Recovery (AC12, AC16, AC17): Given connection loss during sign-out-all, when identity/list is re-resolved, then current/private state clears according to actual revocation without false success."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t14f and completed dependency outputs. No precise location/token display; existing preferences and owned Jobs are unaffected. Stop if UI cannot distinguish sign out this device from all devices or hides failed revocation. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T15A",
+      "title": "Inventory private surfaces and bounded cutover files",
+      "complexity": "complex",
+      "reason": "Read-only route/consumer/status matrix with exact edit owners/files and approved-ID questions. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "migration"
+      ],
+      "contractChanged": false,
+      "dependsOn": [
+        "AUTH-T02A"
+      ],
+      "writeScope": [
+        "requirements/019-implementation-commercial-feature-plan/authentication/013-private-surface-cutover-inventory.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/task-plan.json",
+        "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC13, AC14, AC15): Given every inventoried surface, when the matrix is reviewed, then its public/private rule, owner and verification case are explicit.",
+        "Negative (AC13, AC14, AC15): Given static media or legacy mock query credential, when tracing access, then it cannot be omitted because normal API routes are protected.",
+        "Recovery (AC13, AC14, AC15): Given unknown ownership or stale path, when reconciling inventory, then current canonical owner is identified or dependent cutover stays gated."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC13, AC14, AC15): Given every inventoried surface, when the matrix is reviewed, then its public/private rule, owner and verification case are explicit.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/013-private-surface-cutover-inventory.md"
+        },
+        {
+          "check": "Negative (AC13, AC14, AC15): Given static media or legacy mock query credential, when tracing access, then it cannot be omitted because normal API routes are protected.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/013-private-surface-cutover-inventory.md"
+        },
+        {
+          "check": "Recovery (AC13, AC14, AC15): Given unknown ownership or stale path, when reconciling inventory, then current canonical owner is identified or dependent cutover stays gated.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/013-private-surface-cutover-inventory.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_mail_security_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/013-private-surface-cutover-inventory.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_mail_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/013-private-surface-cutover-inventory.md"
+        }
+      ],
+      "handoff": "Implement AUTH-008 T15A after reviewed T02A. Read-only application source inspection; author owns only authentication/013-private-surface-cutover-inventory.md, Root owns plan/evidence. Enumerate registered public/private/optional identity endpoints plus static outputs/assets/downloads/thumbnails/progress and current mock/status/JSON-progress-Blob transport consumers. Exact current file owners and future cutover write scopes, source line references and verification cases required. Do not invent live mock-ID claims or alter visibility/business policy. No code/runtime/.env edits, app startup, network/paid generation, or children. Return unresolved boundary gaps and concrete rollout/rollback. Independent Security/QA review before T05B/T15B/T15C dispatch.",
+      "ownerAgentId": "/root/auth_surface_inventory"
+    },
+    {
+      "id": "AUTH-T15B",
+      "title": "Enforce production mock exclusion and fail-closed cutover",
+      "complexity": "complex",
+      "reason": "Production identity gating, isolated mock-mode separation and reviewable secure rollback. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "migration"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T15A",
+        "AUTH-T05B",
+        "AUTH-T13A"
+      ],
+      "writeScope": [
+        "server/app/createApp.js",
+        "server/server.js",
+        "server/middleware/actorContextMiddleware.js",
+        "server/app/routes/identityRoutes.js",
+        "server/repositories/recordNormalizer.js",
+        "server/config/authPolicy.js",
+        "server/config/paths.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC02, AC14, AC15): Given production configuration and a valid real session, when mock IDs differ, then real actor ownership alone applies.",
+        "Negative (AC02, AC14, AC15): Given no real session, any mock credential or missing required production infrastructure, when private access starts, then it fails closed.",
+        "Recovery (AC02, AC14, AC15): Given login/method rollout is disabled or rolled back, when access is retried, then no demo/JSON/anonymous fallback becomes available."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t15b and completed dependency outputs. No live ID claims, copied staff/Credit seeds or changes to unrelated capability data. Stop before edits until inventory narrows task writeScope to exact files; migrations/claims require separate approved mapping and scope. Return scoped files, contract implications and actual focused evidence; Lead alone updates status. Exact source scope narrowed by independently reviewed AUTH-013 section7; new AssetDeliveryService/assetRoutes are planned owning Assets boundaries, not existing runtime. No broad mock repository migration or automatic D08 claims. Reconcile any additional session handoff paths before dispatch; preserve public visibility distinctions, existing financial rules and accepted Jobs."
+    },
+    {
+      "id": "AUTH-T15C",
+      "title": "Close inventoried private API and media authorization gaps",
+      "complexity": "complex",
+      "reason": "Owner-enforced private reads/writes/downloads/static outputs/thumbnails/streams. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity",
+        "assets"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "migration"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T15B"
+      ],
+      "writeScope": [
+        "server/app/createApp.js",
+        "server/app/routes/assetRoutes.js",
+        "server/domain/assets/AssetDeliveryService.js",
+        "server/repositories/assets/AssetRepository.js",
+        "server/domain/generation/GenerationExportSourceService.js",
+        "server/app/routes/historyRoutes.js",
+        "server/app/routes/generationRoutes.js",
+        "server/domain/generation/GenerationApplicationService.js",
+        "server/app/routes/collectionRoutes.js",
+        "server/app/routes/creditRoutes.js",
+        "server/app/routes/cinematicRoutes.js",
+        "server/domain/community/CommunityPostAccessService.js",
+        "server/domain/community/communityPostPolicy.js",
+        "server/domain/community/CreatorProfilePageService.js",
+        "server/domain/community/CommunityGalleryService.js",
+        "server/domain/community/CommunityTemplateDetailService.js",
+        "server/domain/character-profiles/CharacterProfileSharingService.js",
+        "server/app/routes/communityShareRoutes.js",
+        "server/app/routes/communityCreatorRoutes.js",
+        "server/app/routes/communityGalleryRoutes.js",
+        "server/app/routes/communityComparisonRoutes.js",
+        "server/app/routes/communityCollectionRoutes.js",
+        "server/app/routes/sceneTemplateRoutes.js",
+        "server/app/routes/characterProfileRoutes.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC13, AC14, AC18): Given an authorized owner session, when requesting each private API/media surface, then existing result behavior remains available.",
+        "Negative (AC13, AC14, AC18): Given anonymous/wrong-owner/revoked session and direct file/stream URL, when accessed, then no bypass exposes private content.",
+        "Recovery (AC13, AC14, AC18): Given an explicitly public Community snapshot after cutover, when requested anonymously, then its existing sanitized publication remains accessible."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t15c and completed dependency outputs. No new media owner, broad migration, Generation lifecycle change or financial mutation. Stop if inventory crosses an unapproved capability boundary; assign a bounded owning task instead of editing arbitrary route folders. Return scoped files, contract implications and actual focused evidence; Lead alone updates status. Exact source scope narrowed by independently reviewed AUTH-013 section7; new AssetDeliveryService/assetRoutes are planned owning Assets boundaries, not existing runtime. No broad mock repository migration or automatic D08 claims. Reconcile any additional session handoff paths before dispatch; preserve public visibility distinctions, existing financial rules and accepted Jobs."
+    },
+    {
+      "id": "AUTH-T16A",
+      "title": "Complete isolated acceptance integration and aggregate checks",
+      "complexity": "complex",
+      "reason": "Executed acceptance-to-evidence matrix and explicit aggregate verdict, not implementation fixes. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "qa-release-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": false,
+      "dependsOn": [
+        "AUTH-T07B",
+        "AUTH-T11C",
+        "AUTH-T13E",
+        "AUTH-T14B",
+        "AUTH-T14C",
+        "AUTH-T14D",
+        "AUTH-T14E",
+        "AUTH-T14F",
+          "AUTH-T15C",
+          "AUTH-T19B"
+      ],
+      "writeScope": [
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "web/src/features/authentication/authentication.integration.test.tsx",
+        "web/src/lib/auth/ActorProvider.test.tsx",
+        "web/src/lib/api/apiClient.test.ts",
+        "web/src/lib/persistence/actorScopedStorage.test.ts",
+        "web/src/components/layout/AccountMenu.test.tsx",
+        "requirements/019-implementation-commercial-feature-plan/authentication/"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC01, AC02, AC03, AC04, AC05, AC06, AC07, AC08, AC09, AC10, AC11, AC12, AC13, AC14, AC15, AC16, AC17, AC18, AC21, AC22, AC23): Given completed focused groups and isolated prerequisites, when explicit aggregate runs, then every AC01-AC18 and AC21-AC23 scenario maps to actual raw results.",
+        "Negative (AC01, AC02, AC03, AC04, AC05, AC06, AC07, AC08, AC09, AC10, AC11, AC12, AC13, AC14, AC15, AC16, AC17, AC18, AC21, AC22, AC23): Given unsupported group, production target, missing fixture or network escape, when execution starts, then the runner fails rather than passing/skipping.",
+        "Recovery (AC01, AC02, AC03, AC04, AC05, AC06, AC07, AC08, AC09, AC10, AC11, AC12, AC13, AC14, AC15, AC16, AC17, AC18, AC21, AC22, AC23): Given failed integration assertion, when handing off, then the defect returns to its implementation owner and affected acceptance stays failed/pending."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t16a and completed dependency outputs. QA edits tests/runner/evidence only; no application fix hidden in review scope. Stop live/paid/destructive execution; independent QA peer plus Security/UX must review raw evidence before closure. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T16B",
+      "title": "Verify adjacent workflows and authentication-boundary regressions",
+      "complexity": "complex",
+      "reason": "Cross-capability regression evidence without changed workflow ownership. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "qa-release-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": false,
+      "dependsOn": [
+        "AUTH-T16A"
+      ],
+      "writeScope": [
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "web/src/features/authentication/authentication.integration.test.tsx",
+        "web/src/lib/auth/ActorProvider.test.tsx",
+        "web/src/lib/api/apiClient.test.ts",
+        "web/src/lib/persistence/actorScopedStorage.test.ts",
+        "web/src/components/layout/AccountMenu.test.tsx",
+        "requirements/019-implementation-commercial-feature-plan/authentication/"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC13, AC17, AC18): Given an accepted owned Job during session expiry, when the same actor returns, then status/result resumes through the existing workflow without a new Job.",
+        "Negative (AC13, AC17, AC18): Given another actor or late prior response, when navigation/cache refresh occurs, then no prior private draft/output is exposed.",
+        "Recovery (AC13, AC17, AC18): Given uncertain submission outcome, when authentication resumes, then the owning workflow reconciles status before an explicit further action; no automatic billable retry occurs."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t16b and completed dependency outputs. Settings still restores Credit confirmation; no real Credits/provider operations or repository bypass. Stop if a discovered issue requires Generation/Credits behavior change; return separate owning scope and mandatory reviews. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T17A",
+      "title": "Qualify controlled staging email and provider behavior",
+      "complexity": "complex",
+      "reason": "Redacted real delivery/provider qualification results and outstanding external gates. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "user-journey-tester",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": false,
+      "dependsOn": [
+        "AUTH-T16B"
+      ],
+      "writeScope": [],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC04, AC06, AC19): Given authorized controlled staging prerequisites, when real provider/email flows run, then actual end-to-end results demonstrate AC19.",
+        "Negative (AC04, AC06, AC19): Given absent app approval, incorrect callback or unavailable send authorization, when qualifying, then the case remains blocked rather than inferred from mocks.",
+        "Recovery (AC04, AC06, AC19): Given provider outage/cancel/late mail, when using recovery, then the account remains consistent and safe retry is demonstrated within budget."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t17a and completed dependency outputs. No production accounts, broad deletion, paid generation or uncontrolled email recipients. Stop immediately outside authorized environment/budget; missing credentials are supplied through secret management, never chat. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T17B",
+      "title": "Qualify responsive and accessibility user journeys",
+      "complexity": "complex",
+      "reason": "Redacted manual journey evidence across supported viewports/themes/locales and input methods. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "user-journey-tester",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "user-facing"
+      ],
+      "contractChanged": false,
+      "dependsOn": [
+        "AUTH-T17A"
+      ],
+      "writeScope": [],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC16, AC17, AC18, AC19): Given supported viewport/theme/locale, when completing each auth/security journey, then controls, errors and primary actions remain readable and operable.",
+        "Negative (AC16, AC17, AC18, AC19): Given throttled/expired code, unconfirmed MFA, actor mismatch or revoked device, when continuing, then the user receives safe recovery without private flash.",
+        "Recovery (AC16, AC17, AC18, AC19): Given popup blocked, network interruption or uncertain mutation, when recovering manually, then loss warnings/reconciliation and sibling workflows behave as specified."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t17b and completed dependency outputs. No secret-bearing screenshots; all untested browsers/viewports remain explicit gaps. Stop before claiming visual/accessibility completion if any required state or viewport lacks evidence; Lead records results. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T18A",
+      "title": "Review readiness and controlled rollout handoff",
+      "complexity": "complex",
+      "reason": "Concrete launch readiness verdict and separate controlled rollout proposal. This changes or verifies sensitive Identity contracts and requires scoped independent review.",
+      "owner": "product-requirement-architect",
+      "capabilities": [
+        "identity",
+        "audit"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "migration"
+      ],
+      "contractChanged": false,
+      "dependsOn": [
+        "AUTH-T17B"
+      ],
+      "writeScope": [
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/019-implementation-commercial-feature-plan/Phase2-04-authentication-sessions-and-authorization.md",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC19, AC20): Given complete passing evidence and resolved release prerequisites, when readiness is reviewed, then the verdict names exact supported scope and review references.",
+        "Negative (AC19, AC20): Given missing live qualification, retention decision or security acceptance, when closure is requested, then affected release stays blocked and implementation is not overstated.",
+        "Recovery (AC19, AC20): Given rollback rehearsal, when login/methods are disabled, then owned data stays intact and mock production identity never returns."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t18a and completed dependency outputs. No deployment, live migration, account claim, data deletion or paid workflow is authorized by this review. Stop at the reviewable handoff; production execution needs the separately authorized scope and current prerequisite checks. Return scoped files, contract implications and actual focused evidence; Lead alone updates status."
+    },
+    {
+      "id": "AUTH-T19A",
+      "title": "Implement isolated local Login override policy and actor resolution",
+      "complexity": "complex",
+      "reason": "One server toggle with qualified local fixture resolution and fail-closed startup/request behavior. Security-sensitive development authentication exception requires independent review.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "shared-contract"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T02A",
+        "AUTH-T05B"
+      ],
+      "writeScope": [
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/099-technical-dept/000-master.md",
+        ".env.example",
+        "server/config/authPolicy.js",
+        "server/server.js",
+        "server/app/createApp.js",
+        "server/middleware/actorContextMiddleware.js",
+        "server/domain/identity/",
+        "server/repositories/identity/",
+        "server/app/routes/authRoutes.js",
+        "server/app/routes/identityRoutes.js",
+        "test/mockActorContext.test.js"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC14, AC21, AC22): Given exact true and qualified isolated local development, when startup and requests resolve identity, then the fixed active baseline fixture enters without credentials while ownership and CSRF remain enforced.",
+        "Negative (AC14, AC21, AC22): Given unsafe environment, binding, data target, config, request or fixture, when enabling bypass, then startup or request fails closed before unauthorized access or live startup side effects.",
+        "Recovery (AC14, AC21, AC22): Given bypass is disabled and the server restarts, when old fixture headers, mode state or real cookies are presented, then only ordinary valid real-session checks can authorize private access."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t19a and AUTH-009. No real session assurance, staff elevation, paid dispatch, financial-rule changes or production-data access. If positive fixture isolation or pre-startup gating cannot be established, stop and return the missing owning contract; do not broaden configuration or mutate live fixtures. Return actual focused evidence; Lead updates status."
+    },
+    {
+      "id": "AUTH-T19B",
+      "title": "Integrate development mode presentation and isolated transport transitions",
+      "complexity": "complex",
+      "reason": "Clear development entry and mode transitions across existing shared owners, with isolated local proxy and regression evidence. Security-sensitive development authentication exception requires independent review.",
+      "owner": "frontend-engineer",
+      "capabilities": [
+        "identity",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "shared-contract",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T19A",
+        "AUTH-T13A"
+      ],
+      "writeScope": [
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/",
+        "test/authentication/",
+        "requirements/019-implementation-commercial-feature-plan/authentication/",
+        "requirements/099-technical-dept/000-master.md",
+        "web/vite.config.ts",
+        "web/src/features/authentication/",
+        "web/src/lib/auth/",
+        "web/src/lib/api/",
+        "web/src/lib/persistence/",
+        "web/src/components/layout/AccountMenu.tsx",
+        "web/src/components/layout/AccountMenu.test.tsx",
+        "web/src/components/layout/AppShell.tsx",
+        "web/src/styles/authentication.css",
+        "client/i18n/manifest.json",
+        "client/i18n/locales/"
+      ],
+      "status": "proposed",
+      "acceptance": [
+        "Success (AC16, AC17, AC18, AC21, AC22, AC23): Given the server confirms eligible development mode, when opening a permitted workspace through JSON, progress or Blob transports, then the fixed fixture and visible localized bypass label agree without a Login prompt.",
+        "Negative (AC16, AC17, AC18, AC21, AC22, AC23): Given unresolved mode, hostile local-proxy access or unavailable authentication actions, when rendering or requesting, then no client-only bypass, real security mutation or private-data flash occurs.",
+        "Recovery (AC16, AC17, AC18, AC21, AC22, AC23): Given mode changes with equal or different actor IDs and late responses, when restarting off and refreshing across tabs, then mode-scoped caches and draft presentation clear before normal Identity resolves without transferring fixture work."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Follow 008-executable-task-packets.md#auth-t19b and AUTH-009. Profile/Credits/Settings/navigation remain; no new actor store/polling or automatic billable action. If a proxy exposes the fixture outside the qualified local boundary or any transport cannot invalidate mode authority, keep the mode unavailable and return the gap. Return actual focused evidence; Lead updates status."
+    },
+    {
+      "id": "AUTH-T03D",
+      "title": "Provide Audit-owned transactional security events",
+      "complexity": "complex",
+      "reason": "AUTH-T03C cannot share Identity SQL commits with the existing JSON Audit adapter; bounded Phase2-03 prerequisite. Narrow shared transaction-provenance assertion is required to reject autocommit/forged/expired handles at the new Audit contract; existing database behavior remains protected by contract tests.",
+      "owner": "backend-platform-architect",
+      "capabilities": [
+        "identity",
+        "audit"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "shared-contract"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-T03B"
+      ],
+      "writeScope": [
+        "server/domain/audit/AuditService.js",
+        "server/repositories/audit/PostgresSecurityAuditRepository.js",
+        "server/repositories/audit/securityAuditMigrations.js",
+        "scripts/database/registry.mjs",
+        "scripts/authentication/",
+        "scripts/verify-authentication.mjs",
+        "test/authentication/",
+        "test/auditService.test.js",
+        "requirements/019-implementation-commercial-feature-plan/database-foundation.md",
+        "requirements/099-technical-dept/000-master.md",
+        "server/repositories/postgres/database.js",
+        "test/databaseFoundation.test.js",
+        "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/evidence/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success (AC07, AC15): Given an Identity transaction and sanitized security event, when both commit or roll back, then the Audit public contract shares that same atomic outcome.",
+        "Negative (AC07, AC15): Given forbidden secret metadata, an invalid actor or a reused event ID with different payload, when recording, then the operation rejects without partial writes or secret-bearing errors.",
+        "Recovery (AC07, AC15): Given an exact retry of a committed event, when recording through Audit again, then one logical event remains and existing JSON Audit callers retain their behavior."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "Success (AC07, AC15): Given an Identity transaction and sanitized security event, when both commit or roll back, then the Audit public contract shares that same atomic outcome.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Negative (AC07, AC15): Given forbidden secret metadata, an invalid actor or a reused event ID with different payload, when recording, then the operation rejects without partial writes or secret-bearing errors.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "check": "Recovery (AC07, AC15): Given an exact retry of a committed event, when recording through Audit again, then one logical event remains and existing JSON Audit callers retain their behavior.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_requirement_qa_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_decision_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/012-implementation-evidence.md"
+        }
+      ],
+      "handoff": "Follow database-foundation.md Audit prerequisite and AUTH-011. No Identity direct Audit-table writes, production retention/cleanup, financial audit change or broad Admin migration. Qualify isolated persistence and preserve legacy record.",
+      "ownerAgentId": "/root/auth_audit_implementation"
+    }
+  ],
+  "parallelBatches": []
+}

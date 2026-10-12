@@ -22,6 +22,13 @@ normal repository instructions without loading a role charter.
 
 ## 2. Core Role Catalog
 
+### Business/System Analyst Extension
+
+[BSA charter](roles/business-system-analyst.md) owns dependency analysis and
+bounded, independently verifiable task packets after Product/UX review. It does
+not own product approval, architecture, implementation or QA verdicts. Route
+explicit BSA/task-decomposition work through [AGENT-ORCH-011](011-business-system-analysis-and-task-decomposition.md).
+
 ### 2.1 Product And Requirement Architect
 
 **Mission:** Convert an idea into a coherent business requirement and delivery

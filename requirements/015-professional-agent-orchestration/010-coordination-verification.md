@@ -84,6 +84,82 @@ of all 099 historical architecture notes, or historical blind-QA release gates.
 
 ## Operating Notes
 
+### Windows Sandbox Recovery (2026-10-10)
+
+Owner: agent-orchestration environment support; primary Platform, with Security
+and QA checks. Architecture map unchanged; no application or runtime data change.
+
+The user reported a successful direct custom QA spawn in a new session, with
+the QA developer instructions present. This is user-reported activation evidence,
+not proof of profile-path provenance or OS-enforced read-only access.
+
+Before repair, even `Get-Location` failed before execution with
+`helper_unknown_error: setup refresh had errors`. The sandbox log identifies
+`deny ACE failed on D:\development\ModelPromptForge\.codex: open deny ACL target for update`.
+The directory is not a reparse point; its owner is `CodexSandboxOffline`, while
+the interactive Windows user has inherited Modify but not explicit FullControl.
+This supports an ownership/WRITE_DAC mismatch as the recovery hypothesis.
+
+Ordered repair and acceptance plan:
+1. Preserve diagnostics and inspect the exact directory ACL without credentials.
+2. With explicit elevated approval, back up its security descriptor outside git
+   and change only this directory's owner to the interactive Windows user.
+   Do not recurse, reset ACLs, remove Deny entries, alter global trust, switch
+   sandbox implementation or disable protection.
+3. Retry an ordinary sandboxed read; let Codex apply its own protection rules.
+4. Inspect the resulting owner/ACL and rerun focused profile/config checks.
+5. Request a direct custom QA read-only smoke check if the active runtime
+   supports that name. Record runtime limitations separately from file validity.
+
+Acceptance requires ordinary sandbox reads to succeed and protection to remain
+in place. An escalated read alone is not a repair. If UAC or policy blocks the
+ownership change, stop and provide the exact manual administrator step.
+
+The first repair request was rejected before execution pending explicit user
+approval of the persistent ownership change. The user subsequently approved
+changing only this directory's owner to the verified interactive human account.
+No alternate executable or weakened sandbox setting was used to bypass approval.
+
+Repair result (2026-10-10):
+- Approved UAC `icacls` owner-only operation exited 0. Owner is now
+  `MAGICXEON-L5\punya`. The DACL was unchanged by that operation; no recursion.
+- Original owner and DACL were saved before repair in an access-restricted
+  temporary directory (human user, SYSTEM, Administrators only):
+  `C:\Users\punya\AppData\Local\Temp\momelo-codex-acl-7e4cf776792e409998b99d421298adf4\original-security-descriptor.clixml`.
+  This is recovery evidence outside git, not application runtime data.
+- Ordinary, non-escalated shell reads of the QA profile and requirements now
+  succeed. `whoami /user` identifies `CodexSandboxOffline`, not the human owner.
+- Codex subsequently installed Deny entries on `.codex`; current setup log
+  reports `errors=[]` and `setup binary completed`. No deny rule was removed.
+- Focused inventory passed; contract tests passed 22/22 inside the sandbox.
+- Native probe as the normal human user passed: 15 TOML files, loaded project
+  layer, concurrency 2. No model turn, global trust or configuration change.
+- Git's separate repository-owner check requires a command-scoped
+  `git -c safe.directory=D:/development/ModelPromptForge ...` for this verified
+  repository under the sandbox account. No global safe.directory entry was added.
+
+Status: sandbox startup/read failure repaired. Custom QA activation was reported
+by the user in a new session; this old session still returns `unknown agent_type`.
+The smoke test here does not prove custom-session profile provenance or complete
+OS-enforced read-only behavior. O05 stays open for those separate live checks.
+
+Independent recovery review: Dewey (`01a12470-7649-7a50-9f49-8c72984c0fd9`),
+built-in fallback applying QA/Security checks, independently confirmed ordinary
+reads, the sandbox account, human directory owner, explicit/inherited Deny ACEs,
+medium-integrity token with only SeChangeNotifyPrivilege, and passing inventory.
+Conditional pass for narrow recovery; no write probes or claim of full custom QA
+read-only enforcement. A stale-status documentation finding was fixed and the
+reviewer reread the updated section to confirm resolution. Scoped diff check passed.
+
+Independent security assessment: Lovelace (`01a12457-dc6d-7b22-9b2d-5aa581502460`),
+built-in explorer applying the Security role because the current session still
+rejects custom names, reviewed the supplied evidence without tool execution.
+Conditional approval only: human ownership confers persistent WRITE_DAC
+authority; verify the human SID before elevation, protect the descriptor backup,
+and inspect both protective ACEs and restricted execution after repair. Successful
+command startup alone does not prove read-only enforcement. Do not blindly
+restore a saved DACL after Codex adds protection entries.
+
 Changed owners: `.codex/` configuration/profiles; domain-adjacent role charters;
 015 requirements/registry/task plan; root/server instructions; corrected six
 conditional guides; 099 architecture map; isolated scripts/tests. No files moved,

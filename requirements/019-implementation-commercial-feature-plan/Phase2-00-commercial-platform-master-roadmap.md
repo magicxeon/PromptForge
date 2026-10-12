@@ -5,6 +5,13 @@
 **Architecture:** Modular monolith first, replaceable solution modules  
 **Updated:** 2026-09-07
 
+Authentication scope update, 2026-10-10: [Phase2-04](Phase2-04-authentication-sessions-and-authorization.md)
+now specifies email/password, email OTP fallback/login and Google/Facebook,
+verification, account linking/recovery and secure sessions. Its
+[delivery packet](authentication/006-delivery-and-verification.md) contains ordered
+tasks and explicit decisions. Documentation only; implementation awaits the user's
+next instruction. Existing DB foundation and whole-platform release gates remain.
+
 Cinematic writing pricing is recorded in
 [Phase2-22](Phase2-22-cinematic-writing-pricing.md) as a trial proposal only.
 It does not enable charging or supersede production ledger/authentication gates.
