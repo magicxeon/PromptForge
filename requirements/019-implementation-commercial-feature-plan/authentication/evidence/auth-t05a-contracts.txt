@@ -1,0 +1,131 @@
+[contracts] Authentication harness bootstrap only; no domain authentication qualification.
+TAP version 13
+# Subtest: legacy Audit record delegates unchanged JSON contract and request precedence
+ok 1 - legacy Audit record delegates unchanged JSON contract and request precedence
+  ---
+  duration_ms: 1.7859
+  type: 'test'
+  ...
+# Subtest: new security method fails closed without SQL adapter or transaction and never uses legacy repository
+ok 2 - new security method fails closed without SQL adapter or transaction and never uses legacy repository
+  ---
+  duration_ms: 1.3571
+  type: 'test'
+  ...
+# Subtest: email canonicalization preserves tags and spelling while normalizing IDNA/domain case
+ok 3 - email canonicalization preserves tags and spelling while normalizing IDNA/domain case
+  ---
+  duration_ms: 1.6078
+  type: 'test'
+  ...
+# Subtest: non-email URL syntax, controls and unsupported SMTPUTF8 fail without reinterpretation
+ok 4 - non-email URL syntax, controls and unsupported SMTPUTF8 fail without reinterpretation
+  ---
+  duration_ms: 1.0519
+  type: 'test'
+  ...
+# Subtest: canonical email catalogs preserve key and interpolation parity and render purpose-specific English/Thai
+ok 5 - canonical email catalogs preserve key and interpolation parity and render purpose-specific English/Thai
+  ---
+  duration_ms: 4.3859
+  type: 'test'
+  ...
+# Subtest: inactive SMTP uses Nodemailer compilation with strict options, one recipient and stable Message-ID
+ok 6 - inactive SMTP uses Nodemailer compilation with strict options, one recipient and stable Message-ID
+  ---
+  duration_ms: 18.2422
+  type: 'test'
+  ...
+# Subtest: SMTP abort is prechecked but does not falsely settle an already active transport
+ok 7 - SMTP abort is prechecked but does not falsely settle an already active transport
+  ---
+  duration_ms: 1.0181
+  type: 'test'
+  ...
+# Subtest: public policy defaults, bypass and fixture configuration never expose methods or secrets
+ok 8 - public policy defaults, bypass and fixture configuration never expose methods or secrets
+  ---
+  duration_ms: 0.4312
+  type: 'test'
+  ...
+# Subtest: runner rejects missing, malformed, unknown, undelivered and incomplete aggregate selections
+ok 9 - runner rejects missing, malformed, unknown, undelivered and incomplete aggregate selections
+  ---
+  duration_ms: 544.0324
+  type: 'test'
+  ...
+# Subtest: persistence CLI rejects absent or unsafe targets without exposing credentials
+ok 10 - persistence CLI rejects absent or unsafe targets without exposing credentials
+  ---
+  duration_ms: 337.5594
+  type: 'test'
+  ...
+# Subtest: invalid database fixtures fail before constructing a pool or calling work
+ok 11 - invalid database fixtures fail before constructing a pool or calling work
+  ---
+  duration_ms: 1.8423
+  type: 'test'
+  ...
+# Subtest: fixture cleanup removes exactly its owned random schema after work failure and closes the pool
+ok 12 - fixture cleanup removes exactly its owned random schema after work failure and closes the pool
+  ---
+  duration_ms: 1.1359
+  type: 'test'
+  ...
+# Subtest: fixture scope cannot be redirected to application runtime files or a caller-owned schema
+ok 13 - fixture scope cannot be redirected to application runtime files or a caller-owned schema
+  ---
+  duration_ms: 0.5085
+  type: 'test'
+  ...
+# Subtest: failed create never drops an unowned schema; failed cleanup still closes the pool
+ok 14 - failed create never drops an unowned schema; failed cleanup still closes the pool
+  ---
+  duration_ms: 0.3882
+  type: 'test'
+  ...
+# Subtest: offline network guard denies fetch, HTTP, HTTPS, sockets, TLS, DNS and UDP before contact
+ok 15 - offline network guard denies fetch, HTTP, HTTPS, sockets, TLS, DNS and UDP before contact
+  ---
+  duration_ms: 14.4786
+  type: 'test'
+  ...
+# Subtest: database network allowance validates configuration and still denies other endpoints and transports
+ok 16 - database network allowance validates configuration and still denies other endpoints and transports
+  ---
+  duration_ms: 0.7911
+  type: 'test'
+  ...
+# Subtest: fake clock, idempotent mailbox and single-use provider perform no network and isolate instances
+ok 17 - fake clock, idempotent mailbox and single-use provider perform no network and isolate instances
+  ---
+  duration_ms: 1.5797
+  type: 'test'
+  ...
+# Subtest: canonical fingerprint rejects oversized/deep/non-JSON payloads before persistence
+ok 18 - canonical fingerprint rejects oversized/deep/non-JSON payloads before persistence
+  ---
+  duration_ms: 2.9968
+  type: 'test'
+  ...
+# Subtest: dedicated rings reject reuse across retained versions and missing rotated keys
+ok 19 - dedicated rings reject reuse across retained versions and missing rotated keys
+  ---
+  duration_ms: 0.5438
+  type: 'test'
+  ...
+# Subtest: protected cookie policy is explicit, strict and mode isolated
+ok 20 - protected cookie policy is explicit, strict and mode isolated
+  ---
+  duration_ms: 2.0231
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1144.5172

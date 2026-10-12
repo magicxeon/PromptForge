@@ -1,10 +1,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { apiRequest } from '../api/apiClient';
-import { getActiveActorId } from './actorStore';
+import { assertIdentityEpoch, getActiveActorId, getActorScope, getIdentitySnapshot } from './actorStore';
 
 export const userPreferencesSchema = z.object({ confirmCreditUsage: z.boolean() });
-export const userPreferencesKey = (actorId: string) => ['user-preferences', actorId] as const;
+export const userPreferencesKey = (actorId: string) => ['user-preferences', getActorScope(actorId)] as const;
 
 export function useUserPreferences(actorId: string) {
   const client = useQueryClient();
@@ -15,15 +15,21 @@ export function useUserPreferences(actorId: string) {
     },
     enabled: Boolean(actorId) && getActiveActorId() === actorId, staleTime: 60_000, gcTime: 300_000, retry: false });
   async function save(confirmCreditUsage: boolean) {
-    if (getActiveActorId() !== actorId) throw new Error('Actor changed.');
-    await client.cancelQueries({ queryKey: userPreferencesKey(actorId), exact: true });
-    if (getActiveActorId() !== actorId) throw new Error('Actor changed.');
+    const identity = getIdentitySnapshot();
+    const queryKey = userPreferencesKey(actorId);
+    const assertCurrent = () => {
+      assertIdentityEpoch(identity.epoch);
+      if (!identity.ready || getActiveActorId() !== actorId) throw new Error('Actor changed.');
+    };
+    assertCurrent();
+    await client.cancelQueries({ queryKey, exact: true });
+    assertCurrent();
     const result = await apiRequest('/api/me/preferences', { method: 'PATCH',
       body: { confirmCreditUsage }, schema: userPreferencesSchema });
-    if (getActiveActorId() === actorId) {
-      await client.cancelQueries({ queryKey: userPreferencesKey(actorId), exact: true });
-      if (getActiveActorId() === actorId) client.setQueryData(userPreferencesKey(actorId), result);
-    }
+    assertCurrent();
+    await client.cancelQueries({ queryKey, exact: true });
+    assertCurrent();
+    client.setQueryData(queryKey, result);
     return result;
   }
   return { ...query, save };

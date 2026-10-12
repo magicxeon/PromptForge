@@ -52,6 +52,39 @@ describe('AccountMenu', () => {
     expect(profileLink).toHaveAttribute('href', '/creators/alice');
     expect(screen.queryByRole('menuitemradio')).not.toBeInTheDocument();
   });
+
+  it('closes preferences when authentication mode changes with the same actor ID and preserves sibling actions', async () => {
+    const user = userEvent.setup();
+    const element = (identityScope: string) => <I18nextProvider i18n={testI18n}><MemoryRouter><AccountMenu
+      actorId="alice" identityScope={identityScope} displayName="Alice Creator" initials="AC"
+      profilePath="/me" adminPath="/admin" menuLabel="Account menu" viewProfileLabel="View profile" unavailableLabel="Profile unavailable"
+    /></MemoryRouter></I18nextProvider>;
+    const view = render(element('development_bypass:alice'));
+    await user.click(screen.getByRole('button', { name: 'Account menu' }));
+    expect(await screen.findByRole('menuitem', { name: 'View profile' })).toHaveAttribute('href', '/me');
+    expect(screen.getByRole('menuitem', { name: 'Credits' })).toHaveAttribute('href', '/credits');
+    expect(screen.getByRole('menuitem', { name: 'Admin' })).toHaveAttribute('href', '/admin');
+    await user.click(screen.getByRole('menuitem', { name: 'Settings' }));
+    expect(await screen.findByRole('dialog')).toBeVisible();
+    view.rerender(element('session:alice'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+  it('suspends header and preferences controls while retaining the same-owner dialog', async () => {
+    const user = userEvent.setup();
+    const element = (suspended: boolean) => <I18nextProvider i18n={testI18n}><MemoryRouter><AccountMenu
+      actorId="alice" identityScope="session:alice" suspended={suspended} displayName="Alice Creator" initials="AC"
+      profilePath="/me" menuLabel="Account menu" viewProfileLabel="View profile" unavailableLabel="Profile unavailable"
+    /></MemoryRouter></I18nextProvider>;
+    const view = render(element(false));
+    await user.click(screen.getByRole('button', { name: 'Account menu' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Settings' }));
+    expect(await screen.findByRole('dialog')).toBeVisible();
+    view.rerender(element(true));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Account menu' })).toBeDisabled();
+    view.rerender(element(false));
+    expect(await screen.findByRole('dialog')).toBeVisible();
+  });
 });
 
 function renderAccountMenu(actorId?: string) {

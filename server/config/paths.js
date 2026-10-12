@@ -1,5 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getAuthRuntime } from './authPolicy.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,7 +10,7 @@ export const PROJECT_ROOT = path.resolve(SERVER_ROOT, '..');
 export const CLIENT_ROOT = path.resolve(PROJECT_ROOT, 'client');
 export const WEB_ROOT = path.resolve(PROJECT_ROOT, 'web');
 export const WEB_DIST_ROOT = path.resolve(WEB_ROOT, 'dist');
-export const OUTPUTS_DIR = path.resolve(CLIENT_ROOT, 'outputs');
+export const OUTPUTS_DIR = getAuthRuntime().outputsRoot ?? path.resolve(CLIENT_ROOT, 'outputs');
 export const ATTRIBUTES_ROOT = path.resolve(PROJECT_ROOT, 'attributes');
 export const VISUAL_CHARACTER_ASSETS_ROOT = path.resolve(
   CLIENT_ROOT,
@@ -17,7 +18,7 @@ export const VISUAL_CHARACTER_ASSETS_ROOT = path.resolve(
   'visual-character-builder'
 );
 
-export const DATA_ROOT = path.resolve(SERVER_ROOT, 'data');
+export const DATA_ROOT = getAuthRuntime().dataRoot ?? path.resolve(SERVER_ROOT, 'data');
 export const IDENTITY_DATA_DIR = path.resolve(DATA_ROOT, 'identity');
 export const GENERATION_DATA_DIR = path.resolve(DATA_ROOT, 'generation');
 export const PROMPT_REFINEMENT_AUDIT_DIR = path.resolve(

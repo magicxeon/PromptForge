@@ -1,4 +1,5 @@
 import { getLookSheetPreset } from '../../domain/character-profiles/LookSheetDefinitionService.js';
+import { createAuthorizedEventStream } from '../../middleware/authorizedEventStream.js';
 
 export function registerGenerationRoutes(app, {
   generationApplicationService,
@@ -98,7 +99,8 @@ export function registerGenerationRoutes(app, {
     const username = resolveRequestUsername(req, { allowBody: false });
     const status = await generationApplicationService.getJobStatusForUser(
       req.params.id,
-      username
+      username,
+      req.actorContext
     );
     if (!status) {
       const knownStatus = await generationApplicationService.getJobStatus(req.params.id);
@@ -124,16 +126,18 @@ export function registerGenerationRoutes(app, {
     return res.json(group);
   });
 
-  app.get('/api/jobs/:id/stream', (req, res) => {
+  app.get('/api/jobs/:id/stream', async (req, res) => {
     const jobId = req.params.id;
     const username = resolveRequestUsername(req, { allowBody: false });
-    const success = generationApplicationService.addJobListener(jobId, res, username);
+    let stream;
+    try { stream = await createAuthorizedEventStream(req, res); }
+    catch (error) { return res.status(error?.code === 'auth_session_expired' ? 401 : 503)
+      .json({ error: 'Authentication unavailable.', code: error?.code === 'auth_session_expired' ? 'auth_session_expired' : 'auth_service_unavailable' }); }
+    const success = generationApplicationService.addJobListener(jobId, stream.response, username, req.actorContext);
     if (!success) {
       return res.status(404).json({ error: 'Job not found or closed' });
     }
-    req.on('close', () => {
-      generationApplicationService.removeJobListener(jobId, res);
-    });
+    stream.onClose(() => generationApplicationService.removeJobListener(jobId, stream.response));
   });
 }
 

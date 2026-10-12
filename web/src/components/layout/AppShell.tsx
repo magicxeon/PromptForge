@@ -26,6 +26,7 @@ import { useTheme } from '../../lib/theme/ThemeContext';
 import { routePaths } from '../../app/routeRegistry/routes';
 import { GenerationJobCenterIndicator } from '../../features/generation/job-center/GenerationJobCenterIndicator';
 import { useCatalogAccess } from '../../features/content-catalog/hooks/useCatalogAccess';
+import { AuthenticationGate } from '../../features/authentication/components/AuthenticationGate';
 
 const creditResponseSchema = z.object({
   account: z.object({
@@ -39,7 +40,7 @@ const SIDEBAR_PREFERENCE_KEY = 'momelo.shell.sidebar-collapsed';
 
 export function AppShell() {
   const { t } = useTranslation('shell');
-  const { actor, mockUsers, mockSwitcherEnabled, switchActor } = useActor();
+  const { actor, config, mockUsers, mockSwitcherEnabled, switchActor } = useActor();
   const { isEnabled } = useFeaturePolicy();
   const catalogAccess = useCatalogAccess();
   const { syncRoute } = useTheme();
@@ -149,8 +150,11 @@ export function AppShell() {
         </aside>
         <div className="app-shell__page-column">
           <div className="app-shell__content">
+            {config?.authMode === 'development_bypass' ? <p role="status" className="mb-4 break-words border border-[var(--theme-warning)] p-3 text-sm text-[var(--theme-warning)]">
+              {t('auth.bypassLabel', { ns: 'authentication' })} · {actor?.displayName}
+            </p> : null}
             {location.pathname !== routePaths.explore ? <Breadcrumbs /> : null}
-            <Outlet />
+            <AuthenticationGate><Outlet /></AuthenticationGate>
           </div>
           {routePolicy.showFooter ? <AppFooter /> : null}
         </div>
@@ -183,6 +187,7 @@ function GlobalHeader({
   showCreate: boolean;
 }) {
   const { t } = useTranslation(['shell', 'credits', 'community']);
+  const { identityScope, config, isLoading: identityLoading } = useActor();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialSearch = useMemo(() => searchParams.get('search') || '', [searchParams]);
@@ -234,7 +239,8 @@ function GlobalHeader({
             <span>{t('shell.navigation.create')}</span>
           </Link>
         ) : null}
-        <GenerationJobCenterIndicator />
+        {actor && !identityLoading ? <GenerationJobCenterIndicator /> : null}
+        {actor && !identityLoading ? (
         <Link
           to="/credits"
           className="global-header__credits"
@@ -246,9 +252,13 @@ function GlobalHeader({
           <strong>{credits ?? '...'}</strong>
           <Coins aria-hidden="true" />
         </Link>
+        ) : null}
         <div className="global-header__account">
+          {actor ? (
           <AccountMenu
             actorId={actor?.userId}
+            identityScope={identityScope}
+            suspended={identityLoading}
             displayName={actor?.displayName || '...'}
             initials={actor ? initials : ''}
             profilePath={profileHandle ? '/me' : undefined}
@@ -261,6 +271,7 @@ function GlobalHeader({
             settingsLabel={t('shell.account.settings')}
             adminLabel={t('shell.navigation.items.admin')}
           />
+          ) : <Link to="/login" className="global-header__account-name" style={{ minHeight: 40, display: 'inline-flex', alignItems: 'center', paddingInline: 8 }}>{t('auth.signIn', { ns: 'authentication' })}</Link>}
           {showSwitcher ? (
             <HeaderSelect
               id="react-actor-select"
@@ -274,7 +285,9 @@ function GlobalHeader({
               }))}
             />
           ) : (
-            <span className="global-header__account-name">{actor?.displayName || '...'}</span>
+            <span className="global-header__account-name" title={config?.authMode === 'development_bypass' ? t('auth.bypassGuidance', { ns: 'authentication' }) : undefined}>
+              {identityLoading ? '' : actor?.displayName || ''}
+            </span>
           )}
         </div>
       </div>

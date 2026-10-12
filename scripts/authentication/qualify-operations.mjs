@@ -8,6 +8,7 @@ import { securityAuditMigrations } from '../../server/repositories/audit/securit
 import { identityOperationMigrations } from '../../server/repositories/identity/identityOperationMigrations.js';
 import { identityChallengeMigrations } from '../../server/repositories/identity/identityChallengeMigrations.js';
 import { identityEmailDeliveryMigrations } from '../../server/repositories/identity/identityEmailDeliveryMigrations.js';
+import { identitySessionMigrations } from '../../server/repositories/identity/identitySessionMigrations.js';
 import { PostgresIdentityEmailEventRepository } from '../../server/repositories/identity/PostgresIdentityEmailEventRepository.js';
 import { PostgresIdentityRepository } from '../../server/repositories/identity/PostgresIdentityRepository.js';
 import { PostgresIdentityOperationRepository } from '../../server/repositories/identity/PostgresIdentityOperationRepository.js';
@@ -20,7 +21,7 @@ import { openDelivery,sealDelivery,fingerprint } from '../../server/domain/ident
 test('prepared Identity operations, transactional Audit and bounded fixture delivery',async t=> {
   await withDisposableAuthDatabase(process.env,async({database,schema})=> {
     const s=`"${schema}"`;
-    await runMigrations(database,[...identityMigrations(schema),...securityAuditMigrations(schema),...identityOperationMigrations(schema),...identityChallengeMigrations(schema),...identityEmailDeliveryMigrations(schema)],{mode:'apply',schema});
+    await runMigrations(database,[...identityMigrations(schema),...securityAuditMigrations(schema),...identityOperationMigrations(schema),...identityChallengeMigrations(schema),...identityEmailDeliveryMigrations(schema),...identitySessionMigrations(schema)],{mode:'apply',schema});
     const clock=createFakeClock(Date.now()),now=()=>new Date(clock.now());
     const repository=new PostgresIdentityOperationRepository({database,schema});
     const identityRepository=new PostgresIdentityRepository({database,schema});

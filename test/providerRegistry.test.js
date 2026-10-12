@@ -111,6 +111,7 @@ test('project catalog sorts each provider by the configured local price order', 
 
   assert.deepEqual(providers.get('gemini').models.map(model => model.id), [
     'gemini-3.1-flash-lite-image',
+    'gemini-nano-banana-2.1',
     'gemini-2.5-flash-image',
     'gemini-3.1-flash-image',
     'gemini-3-pro-image'

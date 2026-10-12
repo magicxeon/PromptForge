@@ -1,8 +1,8 @@
 # Phase 2-04 Authentication, Sessions and Authorization
 
 **ID:** AUTH-019
-**Updated:** 2026-10-11
-**Status:** Implementation authorized 2026-10-10; foundation, T01/T02, T03A/B/C/D, T04A/B and T15A complete; T05A session implementation in progress; runtime integration pending
+**Updated:** 2026-10-12
+**Status:** Customer Login source milestone accepted: registration/email verification, password/OTP Login, reset, Google/Facebook completion, published legal links and canonical runtime/private-route cutover. Explicit isolated server `--login` aggregate passes all16 groups; React Login56 checks and representative390/768/1440 UX fixtures pass. Live deployment requires actual configured inputs. T19B remains conditional; linking/account-security/staff MFA retain their separate roadmap. Full Authentication is incomplete; see AUTH-012 for exact evidence.
 **Capability:** Identity and Account
 **Primary:** product-requirement-architect; main thread coordinates Technical Lead responsibilities
 **Review gates:** Security and QA; UX for screens, Backend for persistence/contracts
@@ -43,6 +43,7 @@ documentation completion alone does not establish working authentication.
 | AUTH-011 | [Identity contract v1](authentication/011-versioned-implementation-contract.md) | T02 concrete transport, context, persistence and interaction contracts |
 | AUTH-012 | [Incremental implementation evidence](authentication/012-implementation-evidence.md) | Actual focused test results and independent implementation reviews |
 | AUTH-013 | [Private-surface cutover inventory](authentication/013-private-surface-cutover-inventory.md) | Registered API/media/stream/actor/transport surfaces, exact future scopes and verification cases |
+| AUTH-014 | [Login runtime setup](authentication/014-login-runtime-setup.md) | Exact environment names, persistent runtime inputs, migration and isolated validation commands |
 | Task state | [Machine-readable plan](authentication/task-plan.json) | Dependencies, write scopes, reviewers, status and evidence |
 
 This master supersedes the former Phase2-04 deferral of social login and its

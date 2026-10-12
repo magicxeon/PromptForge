@@ -39,9 +39,8 @@ export function registerHistoryRoutes(app, {
         allowedJobIds,
         username,
         filterKey: referenceRole ? `reference:${referenceRole}` : null,
-        itemFilter: referenceRole
-          ? item => isHistoryEligibleForReferenceRole(item, referenceRole)
-          : null
+        itemFilter: item => isHistoryOwnedByActor(item, req.actorContext)
+          && (!referenceRole || isHistoryEligibleForReferenceRole(item, referenceRole))
       }));
     } catch (error) {
       if (error instanceof HistoryCursorError) {
@@ -58,7 +57,7 @@ export function registerHistoryRoutes(app, {
     if (!item || !isCustomerVisibleHistoryItem(item)) {
       return res.status(404).json({ error: 'History entry not found' });
     }
-    if ((item.username || 'user_demo') !== username) {
+    if (!isHistoryOwnedByActor(item, req.actorContext) || !item.username || item.username !== username) {
       return res.status(404).json({ error: 'History entry not found' });
     }
     return res.json(item);
@@ -96,6 +95,10 @@ export function registerHistoryRoutes(app, {
 
   app.delete('/api/history/:id', async (req, res) => {
     const username = resolveRequestUsername(req, { allowBody: false });
+    const item = await historyRepository.getById(req.params.id);
+    if (!item || !isHistoryOwnedByActor(item, req.actorContext)) {
+      return res.status(404).json({ error: 'History entry not found' });
+    }
     const success = await queueManager.deleteHistoryEntryForUser(req.params.id, username);
     if (!success) {
       return res.status(404).json({ error: 'History entry not found' });
@@ -107,7 +110,8 @@ export function registerHistoryRoutes(app, {
 
 function isHistoryOwnedByActor(item, actor) {
   if (item.ownerUserId && actor?.userId) return item.ownerUserId === actor.userId;
-  const username = item.ownerUsername || item.username || 'user_demo';
+  if (actor?.isMockActor === false) return false;
+  const username = item.ownerUsername || item.username;
   return Boolean(actor?.username && username === actor.username);
 }
 

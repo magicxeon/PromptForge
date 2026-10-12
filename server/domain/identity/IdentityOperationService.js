@@ -30,7 +30,7 @@ const outcome = (op) => ({
 });
 const socialAction = (social, action) =>
   social &&
-  ((social.intent === 'login' && action === 'social_login') ||
+  ((['login', 'reauthentication'].includes(social.intent) && action === 'social_login') ||
     (social.intent === 'link' && action === 'method_link'));
 
 // Private Identity orchestration. Handlers/proof guard are composition-owned;
@@ -58,7 +58,11 @@ export class IdentityOperationService {
       reject();
     keyFor(fingerprintKeys);
     keyFor(receiptKeys);
-    separatedKeys([fingerprintKeys, receiptKeys, ...(deliveryService ? [deliveryService.keyring,deliveryService.recipientKeys] : [])]);
+    separatedKeys([
+      fingerprintKeys,
+      receiptKeys,
+      ...(deliveryService ? [deliveryService.keyring, deliveryService.recipientKeys] : []),
+    ]);
     Object.assign(this, {
       repository,
       identityRepository,
@@ -127,22 +131,28 @@ export class IdentityOperationService {
         (!account || account.status !== 'active' || account.security_version !== i.securityVersion))
     )
       reject('IDENTITY_PROOF_UNAVAILABLE');
+    const verified = await this.verifyProof({
+      stage,
+      action: i.action,
+      target: i.target,
+      context,
+      account,
+      browserDigest: i.browserDigest,
+      proof: i.proof,
+      payload: i.payload,
+      transaction: tx,
+    });
     if (
-      (await this.verifyProof({
-        stage,
-        action: i.action,
-        target: i.target,
-        context,
-        account,
-        browserDigest: i.browserDigest,
-        proof: i.proof,
-        payload: i.payload,
-        transaction: tx,
-      })) !== true
+      verified !== true &&
+      (!verified ||
+        verified.authorized !== true ||
+        Object.keys(verified).some((k) => !['authorized', 'expiresAt'].includes(k)) ||
+        !(verified.expiresAt instanceof Date))
     )
       reject('IDENTITY_PROOF_UNAVAILABLE');
-    this.assertCurrent(context.expires_at);
-    return { context };
+    const proofExpiresAt = verified === true ? context.expires_at : verified.expiresAt;
+    this.assertCurrent(context.expires_at, proofExpiresAt);
+    return { context, proofExpiresAt };
   }
   match(op, i) {
     if (
@@ -159,20 +169,22 @@ export class IdentityOperationService {
     )
       reject('IDENTITY_IDEMPOTENCY_CONFLICT');
   }
-  async prepare(i) {
+  async prepare(i, transaction) {
     this.validate(i);
-    return this.transact(async (r, tx) => {
-      const { context } = await this.guard(r, tx, i, 'prepare');
+    const work = async (r, tx) => {
+      const { context, proofExpiresAt } = await this.guard(r, tx, i, 'prepare');
       await r.lockKey(i);
       let op = await r.findByKey(i);
-      const now = this.assertCurrent(context.expires_at);
+      const now = this.assertCurrent(context.expires_at, proofExpiresAt);
       if (op) this.match(op, i);
       else
         op = await r.insertOperation({
           ...i,
           id: randomUUID(),
           now,
-          expiresAt: new Date(Math.min(context.expires_at.getTime(), now.getTime() + 300000)),
+          expiresAt: new Date(
+            Math.min(context.expires_at.getTime(), +proofExpiresAt, now.getTime() + 300000)
+          ),
           keyVersion: this.fingerprintKeys.current,
           fingerprint: fingerprint(this.fingerprintKeys, this.fingerprintKeys.current, i.action, {
             target: i.target,
@@ -192,22 +204,23 @@ export class IdentityOperationService {
         now,
         expiresAt: op.expires_at,
       });
-      this.assertCurrent(context.expires_at, op.expires_at);
+      this.assertCurrent(context.expires_at, op.expires_at, proofExpiresAt);
       return { operationId: op.id, receiptSecret: secret, expiresAt: op.expires_at };
-    });
+    };
+    return transaction ? work(this.repository.bind(transaction), transaction) : this.transact(work);
   }
   async commit(i) {
     this.validate(i);
     if (!opaque(i.operationId)) reject();
     return this.transact(async (r, tx) => {
-      const { context } = await this.guard(r, tx, i, 'commit');
+      const { context, proofExpiresAt } = await this.guard(r, tx, i, 'commit');
       const op = await r.operation(i.operationId);
       this.match(op, i);
       const now = this.assertCurrent(context.expires_at, op.expires_at);
       if (op.status !== 'pending' || op.expires_at <= now) reject('IDENTITY_OPERATION_UNAVAILABLE');
       if (i.action === 'social_login' || (await r.socialForOperation(op.id)))
         reject('IDENTITY_SOCIAL_CLAIM_REQUIRED');
-      return this.apply(r, tx, op, i, [context.expires_at, op.expires_at]);
+      return this.apply(r, tx, op, i, [context.expires_at, op.expires_at, proofExpiresAt]);
     });
   }
   async apply(r, tx, op, i, deadlines, extra) {
@@ -253,9 +266,9 @@ export class IdentityOperationService {
     this.assertCurrent(...deadlines);
     return outcome({ ...op, status: 'succeeded', next_action: result.nextAction });
   }
-  async lookup({ operationId, browserDigest, receiptSecret }) {
+  async lookup({ operationId, browserDigest, receiptSecret }, transaction) {
     if (!opaque(operationId) || !digest(browserDigest)) reject('IDENTITY_RECEIPT_UNAVAILABLE');
-    return this.transact(async (r) => {
+    const work = async (r) => {
       const row = await r.receipt(operationId),
         now = new Date(this.clock.now());
       if (
@@ -267,7 +280,8 @@ export class IdentityOperationService {
       )
         reject('IDENTITY_RECEIPT_UNAVAILABLE');
       return outcome({ ...row, id: operationId });
-    });
+    };
+    return transaction ? work(this.repository.bind(transaction)) : this.transact(work);
   }
   // Called only by the future owning explicit-logout transaction after resolving
   // its context independently. Forced account-version revocation does not call it.
@@ -279,11 +293,11 @@ export class IdentityOperationService {
     this.validate(i);
     if (!opaque(i.exchangeId)) reject();
     return this.transact(async (r, tx) => {
-      const { context } = await this.guard(r, tx, i, 'prepare');
+      const { context, proofExpiresAt } = await this.guard(r, tx, i, 'prepare');
       const op = await r.operation(i.operationId);
       this.match(op, i);
       const social = await r.social(i.exchangeId);
-      const now = this.assertCurrent(context.expires_at, op.expires_at);
+      const now = this.assertCurrent(context.expires_at, op.expires_at, proofExpiresAt);
       if (
         !socialAction(social, i.action) ||
         social.operation_id !== op.id ||
@@ -306,7 +320,13 @@ export class IdentityOperationService {
       if (social.status !== 'initiated')
         return { status: social.status === 'exchange_claimed' ? 'pending' : 'interrupted' };
       const claimed = await r.claimSocial(social.id, now);
-      this.assertCurrent(context.expires_at, op.expires_at, claimed.expires_at, claimed.claim_expires_at);
+      this.assertCurrent(
+        context.expires_at,
+        op.expires_at,
+        claimed.expires_at,
+        claimed.claim_expires_at,
+        proofExpiresAt
+      );
       return { status: 'exchange_claimed', exchangeId: claimed.id, leaseExpiresAt: claimed.claim_expires_at };
     });
   }
@@ -315,7 +335,7 @@ export class IdentityOperationService {
     let finalizationStarted = false;
     try {
       return await this.transact(async (r, tx) => {
-        const { context } = await this.guard(r, tx, i, 'commit');
+        const { context, proofExpiresAt } = await this.guard(r, tx, i, 'commit');
         const op = await r.operation(i.operationId);
         this.match(op, i);
         const social = await r.social(i.exchangeId);
@@ -332,7 +352,13 @@ export class IdentityOperationService {
         )
           reject('IDENTITY_SOCIAL_UNAVAILABLE');
         finalizationStarted = true;
-        const deadlines = [context.expires_at, op.expires_at, social.expires_at, social.claim_expires_at];
+        const deadlines = [
+          context.expires_at,
+          op.expires_at,
+          social.expires_at,
+          social.claim_expires_at,
+          proofExpiresAt,
+        ];
         const result = await this.apply(r, tx, op, i, deadlines, claims);
         await r.finishSocial(social.id, 'succeeded');
         this.assertCurrent(...deadlines);

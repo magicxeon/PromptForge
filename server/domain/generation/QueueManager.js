@@ -176,10 +176,11 @@ export class QueueManager {
   /**
    * Add SSE listener for a specific job
    */
-  addListener(jobId, res, username = null) {
+  addListener(jobId, res, username = null, actorContext = null) {
     const job = this.jobs.get(jobId);
     if (!job) return false;
-    if (username && job.options?.username && job.options.username !== username) return false;
+    if (username && job.options?.username !== username) return false;
+    if (actorContext?.isMockActor === false && !hasStableOwner(job.options, actorContext, true)) return false;
 
     // Set headers for Server-Sent Events (SSE)
     res.setHeader('Content-Type', 'text/event-stream');
@@ -466,6 +467,7 @@ export class QueueManager {
       // Persist parent lineage and duration metadata to history database
       const historyEntry = {
         id: jobId,
+        ownerUserId: job.options.ownerUserId || job.options.payerUserId || null,
         username: job.options.username,
         prompt: job.prompt,
         imageUrl: `/outputs/${filename}`,
@@ -748,9 +750,10 @@ export class QueueManager {
     };
   }
 
-  async getJobStatusForUser(jobId, username) {
+  async getJobStatusForUser(jobId, username, actorContext = null) {
     const job = this.jobs.get(jobId);
-    if (job && job.options?.username && username && job.options.username !== username) {
+    if (job && ((username && job.options?.username !== username)
+      || (actorContext?.isMockActor === false && !hasStableOwner(job.options, actorContext, true)))) {
       return null;
     }
 
@@ -758,19 +761,20 @@ export class QueueManager {
     if (!status) return null;
 
     if (status.recoveredFromHistory) {
-      const entry = await this.getHistoryEntryForUser(jobId, username);
+      const entry = await this.getHistoryEntryForUser(jobId, username, actorContext);
       return entry ? status : null;
     }
 
     return status;
   }
 
-  listActiveJobSnapshotsForUser(username, { limit = 50 } = {}) {
+  listActiveJobSnapshotsForUser(username, { limit = 50, actorContext = null } = {}) {
     const safeUsername = String(username || '');
     const safeLimit = Math.min(50, Math.max(1, Number(limit) || 50));
     return [...this.jobs.values()]
       .filter(job => (
         !['completed', 'failed', 'cancelled'].includes(job.status)
+        && (actorContext?.isMockActor !== false || hasStableOwner(job.options, actorContext, true))
         && (job.options?.username
           ? job.options.username === safeUsername
           : safeUsername === 'user_demo')
@@ -799,23 +803,30 @@ export class QueueManager {
       }));
   }
 
-  countActiveWorkForUser(username) {
+  countActiveWorkForUser(username, { actorContext = null } = {}) {
     const ids = new Set();
     for (const job of this.jobs.values()) {
       if (['completed', 'failed', 'cancelled'].includes(job.status)) continue;
+      if (actorContext?.isMockActor === false && !hasStableOwner(job.options, actorContext, true)) continue;
       if ((job.options?.username || 'user_demo') !== username) continue;
       ids.add(job.options?.generationGroupId ? `group:${job.options.generationGroupId}` : `job:${job.id}`);
     }
     return ids.size;
   }
 
-  async getHistoryEntryForUser(jobId, username) {
+  async getHistoryEntryForUser(jobId, username, actorContext = null) {
     const entry = await historyRepository.getById(jobId);
     if (!entry) return null;
+    if (actorContext?.isMockActor === false && !hasStableOwner(entry, actorContext)) return null;
     if (!username) return entry;
     if (!entry.username) return username === 'user_demo' ? entry : null;
     return entry.username === username ? entry : null;
   }
+}
+
+function hasStableOwner(work, actor, allowPayer = false) {
+  const ownerId = work?.ownerUserId || (allowPayer ? work?.payerUserId : null);
+  return Boolean(actor?.userId && ownerId === actor.userId);
 }
 
 function createTimingDurations(job) {

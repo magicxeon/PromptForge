@@ -1,7 +1,8 @@
 # AUTH-009 Local Development Login Override
 
 **Parent:** [AUTH-019](../Phase2-04-authentication-sessions-and-authorization.md)
-**Status:** Requirement addition; implementation not started
+**Status:** AUTH-T19A isolated source and security/QA checks complete (7/7).
+Full application and browser qualification remain pending AUTH-T19B.
 **Owner:** Identity; Product primary, Security/QA review, UX for mode presentation
 **Date:** 2026-10-10
 
@@ -10,19 +11,20 @@
 The developer can edit one server `.env` toggle and restart the local server to
 enter the workspace without repeatedly entering a password, OTP or social login.
 This is a local development convenience, not a production authentication method.
-The current request adds requirements/tasks only; it does not change `.env`,
-runtime code, accounts or data. Existing default mock behavior is not evidence
-that this requirement has been implemented.
+The toggle, eligibility checks, fixed isolated actor and guest fallback are now
+implemented. The actual local `.env` and existing accounts/data were not edited.
+The current bypass permits the documented workspace reads and own preferences;
+additional workspace operations require AUTH-T19B qualification.
 
 ```dotenv
-# Proposed server-side setting; default in .env.example remains false.
+# Server-side setting; default in .env.example remains false.
 AUTH_DEV_BYPASS_ENABLED=false
 # Set true in the developer's local .env, then restart the server, to skip Login.
 ```
 
 Only exact `true` enables the mode; absent or exact `false` disables it. Any other
 value is a configuration error. No VITE-prefixed copy, browser storage toggle,
-URL, header, cookie or UI control may enable it. Read once through the planned
+URL, header, cookie or UI control may enable it. Read once through
 `server/config/authPolicy.js`; environment changes require server restart.
 
 ## 2. Eligibility And Failure Matrix
@@ -161,6 +163,24 @@ Manual future checks: one-toggle start and restart/off flow, visible mode/error
 states and neighboring actions across required widths/themes/locales.
 
 ## 6. Documentation Evidence
+
+### T19B Local Proxy Implementation Plan (2026-10-11)
+
+Retain the reviewed T13A shared Identity/Gate/API/mode presentation. Root owns
+the remaining local proxy configuration and qualification: bind Vite to
+127.0.0.1:5173 with strictPort, forward to 127.0.0.1:6500 with changeOrigin while
+preserving the browser Origin, and admit only this exact frontend Origin plus
+the owning backend Origin. Actual socket loopback, backend Host and CSRF checks
+remain mandatory; forwarded headers cannot establish authority. A foreign
+Origin, hostname or frontend port remains denied. No CORS wildcard is added.
+
+Run the focused development-bypass group and an isolated entry qualifier using
+temporary designated fixture data, sanitized environment and blocked outbound
+network. Exercise permitted reads/preferences, hostile proxy requests and
+restart-off denial. Full createApp must write only its temporary runtime roots
+and must not start recovery workers/provider calls. Record any unqualified
+transport or runtime explicitly. UX evidence from T13A remains scoped to its
+reviewed guest/bypass presentation; no full T19B completion is inferred.
 
 Source anchors inspected: actorContextMiddleware, ActorProvider, server bootstrap
 and existing mock-actor tests. Identity/authPolicy and shared React owners already

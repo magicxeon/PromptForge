@@ -13,7 +13,7 @@ export class CommunityTemplateDetailService {
   }
 
   async getPreviews(query = {}, actorContext) {
-    assertActorContext(actorContext);
+    if (actorContext) assertActorContext(actorContext);
     const ids = typeof query.postIds === 'string' ? query.postIds.split(',') : [];
     if (!ids.length || ids.length > 24 || ids.some(id => !/^[a-zA-Z0-9_-]{1,160}$/.test(id))) {
       throw new RepositoryContractError('template_preview_query_invalid', 'Choose between 1 and 24 Template post IDs.');
@@ -36,7 +36,7 @@ export class CommunityTemplateDetailService {
   }
 
   async getForPost(postId, query = {}, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const sort = query.sort || 'likes';
     const limit = query.limit === undefined ? 12 : Number(query.limit);
     if (!['likes', 'latest'].includes(sort) || !Number.isInteger(limit) || limit < 1 || limit > 24) {
@@ -52,7 +52,7 @@ export class CommunityTemplateDetailService {
       : resolveRoot(source, generations.get(generationId(source)), roots);
     if (!root) return emptyPage();
 
-    const scope = JSON.stringify({ kind: 'template-creations-v1', postId: root.id, templateId: root.templateId || null, actor: actor.userId, sort });
+    const scope = JSON.stringify({ kind: 'template-creations-v1', postId: root.id, templateId: root.templateId || null, actor: actor?.userId || null, sort });
     const cursor = query.cursor ? decodeRepositoryCursor(query.cursor, scope) : null;
     const compare = (left, right) => compareCreations(left, right, sort);
     let matches = familyMatches(root, candidates, generations, roots, sort);

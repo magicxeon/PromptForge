@@ -709,8 +709,8 @@ export class GenerationApplicationService {
     return this.queueManager.getJobStatus(jobId);
   }
 
-  getJobStatusForUser(jobId, username) {
-    return this.queueManager.getJobStatusForUser(jobId, username);
+  getJobStatusForUser(jobId, username, actorContext = null) {
+    return this.queueManager.getJobStatusForUser(jobId, username, actorContext);
   }
 
   async getGroupStatusForActor(groupId, actorContext) {
@@ -829,8 +829,8 @@ export class GenerationApplicationService {
     });
   }
 
-  addJobListener(jobId, response, username) {
-    return this.queueManager.addListener(jobId, response, username);
+  addJobListener(jobId, response, username, actorContext = null) {
+    return this.queueManager.addListener(jobId, response, username, actorContext);
   }
 
   removeJobListener(jobId, response) {

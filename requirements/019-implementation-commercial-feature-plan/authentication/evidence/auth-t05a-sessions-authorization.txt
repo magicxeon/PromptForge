@@ -1,0 +1,96 @@
+[sessions-authorization] Disposable session/context and captured-handler fixtures; no runtime authentication activation.
+TAP version 13
+# Subtest: durable browser contexts, verified session transitions and owned transport fixtures
+    # Subtest: encrypted durable context resolves on another instance and never grants session authority
+    ok 1 - encrypted durable context resolves on another instance and never grants session authority
+      ---
+      duration_ms: 95.7373
+      type: 'test'
+      ...
+    # Subtest: one verified proof creates one rotated session across concurrent instances; failed verification rolls back
+    ok 2 - one verified proof creates one rotated session across concurrent instances; failed verification rolls back
+      ---
+      duration_ms: 202.3036
+      type: 'test'
+      ...
+    # Subtest: remember and staff limits are server-bound; missing staff bootstrap denies even verified MFA
+    ok 3 - remember and staff limits are server-bound; missing staff bootstrap denies even verified MFA
+      ---
+      duration_ms: 332.6628
+      type: 'test'
+      ...
+    # Subtest: read/list activity is inert, explicit activity is bounded, idle and absolute expiry deny
+    ok 4 - read/list activity is inert, explicit activity is bounded, idle and absolute expiry deny
+      ---
+      duration_ms: 226.2143
+      type: 'test'
+      ...
+    # Subtest: activity crossing original idle expiry during the awaited SQL write rolls back extension
+    ok 5 - activity crossing original idle expiry during the awaited SQL write rolls back extension
+      ---
+      duration_ms: 92.3483
+      type: 'test'
+      ...
+    # Subtest: caps evict deterministically and notify atomically; foreign list cursor and target disclose nothing
+    ok 6 - caps evict deterministically and notify atomically; foreign list cursor and target disclose nothing
+      ---
+      duration_ms: 567.6702
+      type: 'test'
+      ...
+    # Subtest: Origin/CSRF, logout retry tombstone, all-owner revocation and captured route errors
+    ok 7 - Origin/CSRF, logout retry tombstone, all-owner revocation and captured route errors
+      ---
+      duration_ms: 229.7161
+      type: 'test'
+      ...
+    # Subtest: fresh proof expiry and account version deny with atomic proof rollback
+    ok 8 - fresh proof expiry and account version deny with atomic proof rollback
+      ---
+      duration_ms: 70.0762
+      type: 'test'
+      ...
+    # Subtest: expiry during actual account lock wait rolls back proof and cannot mint a session
+    ok 9 - expiry during actual account lock wait rolls back proof and cannot mint a session
+      ---
+      duration_ms: 71.7876
+      type: 'test'
+      ...
+    # Subtest: concurrent cleanup skips locked browser and delayed context issuance fails after original expiry
+    ok 10 - concurrent cleanup skips locked browser and delayed context issuance fails after original expiry
+      ---
+      duration_ms: 30.9154
+      type: 'test'
+      ...
+    # Subtest: missing retained keys deny old proof and session; no account or remembered request override
+    ok 11 - missing retained keys deny old proof and session; no account or remembered request override
+      ---
+      duration_ms: 66.6519
+      type: 'test'
+      ...
+    # Subtest: eight metadata rows per browser and bounded expiry cleanup preserve historical context
+    ok 12 - eight metadata rows per browser and bounded expiry cleanup preserve historical context
+      ---
+      duration_ms: 107.9762
+      type: 'test'
+      ...
+    # Subtest: browser capacity counts retained rows and explicit cleanup removes only fifty
+    ok 13 - browser capacity counts retained rows and explicit cleanup removes only fifty
+      ---
+      duration_ms: 454.5547
+      type: 'test'
+      ...
+    1..13
+ok 1 - durable browser contexts, verified session transitions and owned transport fixtures
+  ---
+  duration_ms: 2930.7523
+  type: 'test'
+  ...
+1..1
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3093.1784

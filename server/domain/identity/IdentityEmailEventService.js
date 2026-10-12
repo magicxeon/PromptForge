@@ -1,15 +1,16 @@
 import { createHash } from 'node:crypto';
+import { identityRuntimeQualified } from '../../config/identityRuntime.js';
 import { opaque } from './identitySecrets.js';
 
 const fail = (code) => {
   throw Object.assign(new Error('Identity email event rejected.'), { code });
 };
 export class IdentityEmailEventService {
-  constructor({ repository, verifyEvent, providerScope, clock = Date, fixtureOnly = false }) {
+  constructor({ repository, verifyEvent, providerScope, clock = Date, fixtureOnly = false, runtime }) {
     if (
       !repository ||
       typeof verifyEvent !== 'function' ||
-      fixtureOnly !== true ||
+      fixtureOnly !== true && !identityRuntimeQualified(runtime, 'email') ||
       typeof providerScope !== 'string' ||
       !/^[A-Za-z0-9_-]{1,64}$/.test(providerScope)
     )

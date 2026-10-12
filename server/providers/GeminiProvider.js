@@ -2,6 +2,7 @@ import { BaseProvider } from './BaseProvider.js';
 import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
 
 const GEMINI_PRO_IMAGE_MODEL = 'gemini-3-pro-image';
+const NANO_BANANA_21_MODEL = 'gemini-nano-banana-2.1';
 
 const REFERENCE_ROLE_LABELS = Object.freeze({
   template_baseline: 'POSE PROXY',
@@ -100,6 +101,7 @@ export class GeminiProvider extends BaseProvider {
   async generateImage(prompt, options = {}) {
     const submodel = options.submodel || 'gemini-3.1-flash-image';
     const aspectRatio = options.aspectRatio || '1:1';
+    const isNano21 = submodel === NANO_BANANA_21_MODEL;
 
     // Detect if we should use legacy predict API (for older Imagen models) or new Interactions API
     const isLegacyImagen = submodel.includes('imagen');
@@ -143,6 +145,9 @@ export class GeminiProvider extends BaseProvider {
       if (submodel !== 'gemini-3.1-flash-lite-image') {
         imageSize = options.imageResolution || options.imageSize || '1K'; // can be '1K', '2K', '4K', '0.5K'
       }
+      if (isNano21 && (!['1K', '2K', '4K'].includes(imageSize) || !Object.hasOwn(ratioMap, aspectRatio))) {
+        throw new Error('Nano Banana 2.1 output parameters are unsupported.');
+      }
 
       let input = [{ type: 'text', text: prompt }];
 
@@ -153,6 +158,7 @@ export class GeminiProvider extends BaseProvider {
       };
 
       const referenceImages = getResolvedReferenceImages(options);
+      if (isNano21 && referenceImages.length > 6) throw new Error('Nano Banana 2.1 supports six application references.');
       if (submodel === GEMINI_PRO_IMAGE_MODEL && referenceImages.length) {
         input = createGeminiProInput(
           prompt,
@@ -171,11 +177,15 @@ export class GeminiProvider extends BaseProvider {
         }
       }
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/interactions?key=${this.apiKey}`, {
+      const response = await fetch(isNano21
+        ? 'https://generativelanguage.googleapis.com/v1beta/interactions'
+        : `https://generativelanguage.googleapis.com/v1beta/interactions?key=${this.apiKey}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(isNano21 ? { 'x-goog-api-key': this.apiKey } : {}) },
+        ...(isNano21 ? { redirect: 'error', signal: AbortSignal.timeout(120000) } : {}),
         body: JSON.stringify({
           model: submodel,
+          ...(isNano21 ? { store: false, generation_config: { thinking_level: 'medium' } } : {}),
           input: input,
           response_format: {
             type: 'image',
@@ -186,9 +196,28 @@ export class GeminiProvider extends BaseProvider {
         })
       });
 
-      const data = await response.json();
+      if (isNano21 && !response.ok) throw new Error('Nano Banana 2.1 request failed.');
+      let data;
+      try { data = await response.json(); }
+      catch (error) {
+        if (isNano21) throw new Error('Nano Banana 2.1 returned an invalid response.');
+        throw error;
+      }
       if (data.error) {
+        if (isNano21) throw new Error('Nano Banana 2.1 request failed.');
         throw new Error(data.error.message);
+      }
+
+      if (isNano21) {
+        const images = (Array.isArray(data.steps) ? data.steps : [])
+          .filter(step => step.type === 'model_output' && step.thought !== true)
+          .flatMap(step => Array.isArray(step.content) ? step.content : [])
+          .filter(block => block.type === 'image' && block.thought !== true && typeof block.data === 'string' && block.data.length);
+        const image = images.at(-1) || (data.output_image?.thought !== true ? data.output_image : null);
+        const mimeType = image?.mime_type || 'image/jpeg';
+        if (typeof image?.data !== 'string' || !image.data.length || !['image/png', 'image/jpeg', 'image/webp'].includes(mimeType))
+          throw new Error('Nano Banana 2.1 final image is unavailable.');
+        return { base64: image.data, mimeType, usage: { latency_ms: null } };
       }
 
       // Find the image content in the steps response

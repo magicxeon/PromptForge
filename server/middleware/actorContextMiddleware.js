@@ -1,77 +1,62 @@
-import { mockUserRepo } from '../repositories/identity/MockUserRepository.js';
+import { randomUUID } from 'node:crypto';
+import { permitsOptionalIdentityRead } from '../config/identityAccessPolicy.js';
 
-export async function actorContextMiddleware(req, res, next) {
-  const isProduction = process.env.NODE_ENV === 'production';
-  const userIdHeader = req.headers['x-mpf-user-id'] || req.headers['x-mpf-user-id'.toLowerCase()];
-  const userIdQuery = req.query?.mpfUserId || req.query?.mpf_user_id || null;
-  const requestIdHeader = req.headers['x-mpf-request-id'] || req.headers['x-mpf-request-id'.toLowerCase()];
+// Exact fresh workflows retain the facade's Origin, CSRF and purpose checks.
+const freshPosts = new Set([
+  '/api/auth/login', '/api/auth/challenges',
+  '/api/auth/register', '/api/auth/enrollment-intents', '/api/auth/password/reset',
+  '/api/auth/action-contexts', '/api/auth/action-assurance', '/api/auth/operations/prepare',
+  '/api/auth/social/google/start', '/api/auth/social/google/email',
+  '/api/auth/social/facebook/start', '/api/auth/social/facebook/email',
+  '/api/auth/social/facebook/deauthorization', '/api/auth/social/facebook/deletion',
+]);
+const freshGets = new Set([
+  '/api/auth/config', '/api/auth/social/google/callback', '/api/auth/social/google/result',
+  '/api/auth/social/facebook/callback', '/api/auth/social/facebook/result',
+  '/api/auth/social/facebook/deletion-status',
+]);
+const permitsFreshIdentity = (method, pathname) => !/[%\\\x00]/.test(pathname) && (
+  method === 'POST' && (freshPosts.has(pathname) || /^\/api\/auth\/challenges\/[A-Za-z0-9_-]{16,128}\/verify$/.test(pathname)) ||
+  ['GET', 'HEAD'].includes(method) && (freshGets.has(pathname) || /^\/api\/auth\/operations\/[A-Za-z0-9_-]{16,128}$/.test(pathname))
+);
 
-  const requestId = requestIdHeader || 'req_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
-  req.requestId = requestId;
-
-  let targetUserId = userIdHeader || userIdQuery;
-  
-  if (!targetUserId) {
-    if (isProduction) {
-      // Reject mutating request if unauthenticated in production
-      const isMutating = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method);
-      if (isMutating) {
-        return res.status(401).json({ error: 'Unauthenticated mutating request rejected in production' });
-      }
-      // Non-mutating default to anonymous guest
-      req.actorContext = {
-        userId: 'anonymous_user',
-        username: 'anonymous',
-        displayName: 'Anonymous Guest',
-        role: 'user',
-        activeCreatorProfileId: null,
-        isMockActor: true,
-        authProvider: 'mock',
-        requestId,
-        originalRequesterUserId: null
-      };
-      return next();
-    } else {
-      // In development, default to usr_demo
-      targetUserId = 'usr_demo';
+export function createRealActorContextMiddleware({ identityApplicationService: identity }) {
+  if (!identity?.cookies || typeof identity.withRequestPeer !== 'function') throw new Error('Identity facade required.');
+  return async function realActorContext(req, res, next) {
+    req.requestId = randomUUID();
+    req.actorContext = null;
+    try {
+      return await identity.withRequestPeer(req.socket?.remoteAddress, async () => {
+        // Parse first: malformed/duplicate cookies never become stale sessions.
+        identity.cookies.read(req.headers?.cookie ?? '');
+        try {
+          req.actorContext = await identity.resolveActor(req.headers?.cookie ?? '', req.requestId);
+        } catch (error) {
+          if (error?.code !== 'auth_session_expired' || !(
+            permitsOptionalIdentityRead(req.method, req.path) || permitsFreshIdentity(req.method, req.path)
+          )) throw error;
+          const name = identity.cookies.names.session;
+          req.headers.cookie = (req.headers.cookie ?? '').split(';')
+            .filter(part => part.trim().split('=')[0] !== name).join(';');
+        }
+        return next();
+      });
+    } catch (error) {
+      req.actorContext = null;
+      const code = ['auth_forbidden', 'auth_mfa_required', 'auth_session_expired'].includes(error?.code)
+        ? error.code === 'auth_mfa_required' ? 'auth_forbidden' : error.code : 'auth_service_unavailable';
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(code === 'auth_service_unavailable' ? 503 : code === 'auth_forbidden' ? 403 : 401).json({
+        error: 'Authentication unavailable.', code, requestId: req.requestId,
+      });
     }
-  }
+  };
+}
 
-  try {
-    const mockUser = await mockUserRepo.findById(targetUserId);
-    if (!mockUser) {
-      // Reject mutating requests for invalid user ids
-      const isMutating = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method);
-      if (isMutating) {
-        return res.status(401).json({ error: `Invalid user identity: ${targetUserId}` });
-      }
-      
-      // Fallback
-      req.actorContext = {
-        userId: 'anonymous_user',
-        username: 'anonymous',
-        displayName: 'Anonymous Guest',
-        role: 'user',
-        activeCreatorProfileId: null,
-        isMockActor: true,
-        authProvider: 'mock',
-        requestId,
-        originalRequesterUserId: null
-      };
-      return next();
-    }
-
-    if (mockUser.status === 'disabled') {
-      const isMutating = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method);
-      if (isMutating) {
-        return res.status(403).json({ error: 'Forbidden: Account is disabled' });
-      }
-    }
-
-    req.actorContext = mockUserRepo.toActorContext(mockUser, requestId);
-    next();
-  } catch (err) {
-    console.error('[actorContextMiddleware] Resolution error:', err);
-    res.status(500).json({ error: 'Internal identity resolution error' });
-  }
+// Import compatibility only. Mock headers/default actors have no authority.
+// Isolated development uses IdentityDevelopmentService explicitly.
+export function actorContextMiddleware(req, res) {
+  req.actorContext = null;
+  res.setHeader('Cache-Control', 'no-store');
+  return res.status(503).json({ error: 'Authentication unavailable.', code: 'auth_service_unavailable' });
 }

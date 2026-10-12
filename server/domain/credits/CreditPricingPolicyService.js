@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
 import { resolveBytePlusImagePricing } from './BytePlusImagePricing.js';
 import { resolveImage25MeasuredPrice } from './OpenAIImage25Pricing.js';
+import { resolveGeminiNanoBananaPrice } from './GeminiNanoBananaPricing.js';
 import { estimateCinematicWriting } from './CinematicWritingPricing.js';
 import { pricingConfigurationService } from '../admin-configuration/PricingConfigurationService.js';
 import { validateProfitMarkup, calculateCostPlusCredits } from './CostPlusPricing.js';
@@ -205,6 +206,15 @@ export class CreditPricingPolicyService {
     let providerCost = null;
     let provisionalCost = false;
     let measuredPricing = null;
+    if (modelRecord.geminiImagePricing) {
+      const pricing = resolveGeminiNanoBananaPrice(modelRecord, {
+        resolution: normalizedResolution, aspectRatio,
+        referenceCount: Number(referenceCount), outputCount: Number(outputCount),
+      });
+      baseOutputCredits = pricing.baseOutputCredits;
+      providerCost = pricing.providerCost;
+      provisionalCost = true;
+    }
     if (modelRecord.measuredUsagePricing) {
       measuredPricing = resolveImage25MeasuredPrice(modelRecord, {
         resolution: normalizedResolution, aspectRatio, quality: normalizedQuality,

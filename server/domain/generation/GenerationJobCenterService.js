@@ -36,14 +36,17 @@ export class GenerationJobCenterService {
     const [queueJobs, groups, historyPage, videoPage] = await Promise.all([
       Promise.resolve(this.queueManager.listActiveJobSnapshotsForUser(
         actorContext.username,
-        { limit: sourceLimit }
+        { limit: sourceLimit, actorContext }
       )),
       this.generationGroupRepository.listForActor(actorContext.userId, { limit: sourceLimit }),
       this.historyRepository.listPage({
         username: actorContext.username,
         limit: sourceLimit,
         includeInternalArtifacts: false,
-        filterKey: 'generation-job-center'
+        filterKey: 'generation-job-center',
+        itemFilter: actorContext.isMockActor === false
+          ? item => item.ownerUserId === actorContext.userId
+          : null
       }),
       this.videoGenerationService.listActivity
         ? this.videoGenerationService.listActivity(actorContext, { limit: Math.min(24, sourceLimit), scope: safeScope })
@@ -59,7 +62,8 @@ export class GenerationJobCenterService {
     const candidates = [
       ...resolvedGroups.map(projectGroup),
       ...queueJobs.filter(job => !groupChildIds.has(job.id)).map(projectQueueJob),
-      ...historyPage.items.filter(item => !item.generationGroupId).map(projectHistoryItem),
+      ...historyPage.items.filter(item => !item.generationGroupId
+        && (actorContext.isMockActor !== false || item.ownerUserId === actorContext.userId)).map(projectHistoryItem),
       ...videoPage.items.map(projectVideoTask)
     ];
     const items = candidates
@@ -70,7 +74,7 @@ export class GenerationJobCenterService {
 
     return {
       items,
-      activeCount: (this.queueManager.countActiveWorkForUser?.(actorContext.username)
+      activeCount: (this.queueManager.countActiveWorkForUser?.(actorContext.username, { actorContext })
         ?? candidates.filter(item => item.mediaType === 'image' && !item.terminal).length)
         + (videoPage.activeCount ?? candidates.filter(item => item.mediaType === 'video' && !item.terminal).length),
       reviewRequiredCount: videoPage.reviewRequiredCount ?? candidates.filter(item => item.reviewRequired).length,

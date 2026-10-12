@@ -6,6 +6,8 @@ import { AccountPreferencesDialog } from './AccountPreferencesDialog';
 
 type AccountMenuProps = {
   actorId?: string;
+  identityScope?: string;
+  suspended?: boolean;
   displayName: string;
   initials: string;
   profilePath: string | undefined;
@@ -21,6 +23,8 @@ type AccountMenuProps = {
 
 export function AccountMenu({
   actorId,
+  identityScope,
+  suspended = false,
   displayName,
   initials,
   profilePath,
@@ -34,11 +38,13 @@ export function AccountMenu({
   adminLabel = 'Admin'
 }: AccountMenuProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
-  useEffect(() => setSettingsOpen(false), [actorId]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => setSettingsOpen(false), [actorId, identityScope]);
   return (
-    <><DropdownMenu.Root>
+    <><DropdownMenu.Root open={!suspended && menuOpen} onOpenChange={setMenuOpen}>
       <DropdownMenu.Trigger
         type="button"
+        disabled={suspended}
         className="global-header__profile-trigger"
         aria-label={menuLabel}
         title={menuLabel}
@@ -95,6 +101,6 @@ export function AccountMenu({
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
-    {settingsOpen && actorId ? <AccountPreferencesDialog key={actorId} actorId={actorId} onClose={() => setSettingsOpen(false)} /> : null}</>
+    {settingsOpen && actorId ? <AccountPreferencesDialog key={actorId} actorId={actorId} suspended={suspended} onClose={() => setSettingsOpen(false)} /> : null}</>
   );
 }

@@ -2,7 +2,7 @@
 
 **Parent:** [AUTH-019](../Phase2-04-authentication-sessions-and-authorization.md)  
 **Task:** AUTH-T15A complete; source inventory independently reviewed by Security/QA  
-**Snapshot:** 2026-10-11; runtime authentication/cutover is not verified  
+**Snapshot:** Historical source inventory2026-10-11; representative customer Login/private cutover accepted2026-10-12 under AUTH-T15B/C/E/F/G/H. Exact runtime evidence is in AUTH-012; this ledger is not positive UAT for every inventoried route.  
 **Primary:** Backend Platform Architect. Reviewers: Security and QA.  
 **Write owner:** this document only; Lead owns plan, evidence and architecture map.
 
@@ -77,9 +77,12 @@ Each family includes every endpoint in its section8 ledger, with exceptions belo
 
 Registrar names above are exact filenames under `server/app/routes/`; source
 line numbers are fully expanded in section8. No extra route module under that
-folder was found unregistered. There is no current authRoutes.js or generic
-Assets HTTP registrar: planned Auth endpoints and private media transport are
-future files, not inventoried live routes. No root compatibility route is used
+folder was found unregistered at the inventory snapshot. Auth/Assets registrars
+were absent in that historical snapshot; `authRoutes.js`, `assetRoutes.js` and
+`AssetDeliveryService.js` are now implemented and mounted under accepted T15B/C/E/F.
+Raw `/outputs` and orphan static mounts are retired; actual-app fixture checks
+cover stable-owned History/Jobs/JobCenter and original/derivative delivery.
+AUTH-012 records representative runtime evidence. No root compatibility route is used
 as a placement precedent.
 
 Loop expansion: generationRoutes47 expands quote/execute; communityEngagement58
@@ -282,7 +285,15 @@ Do not execute tests importing full createApp against repository data as proof o
 isolation. New grouped auth tests must use dependency injection/disposable
 sources per T03A and selectable sessions-authorization/integration/UI runners.
 
-## 7. Exact future task boundaries and rollout
+## 7. Historical Task Boundaries And Current Cutover
+
+The table preserves the reviewed task decomposition. T15B/C/E/F/G/H are now
+source-accepted; implemented paths supersede their former planned labels. The
+current JSON plan owns exact scopes, including alternate Queue/JobCenter stable
+owner checks and actual `qualify-cutover.mjs`/`qualify-login-app.mjs` runners.
+The bootstrap observations below describe the original inspection, not today's
+startup: canonical `prepareServerComposition` qualifies before protected imports,
+and Login readiness does not start billable recovery.
 
 This table narrows candidates for Lead review/plan changes; it does not grant
 write ownership to T15A. Existing files are exact, new paths explicitly planned.

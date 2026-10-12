@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import { identityRuntimeQualified } from '../../config/identityRuntime.js';
+import { normalizeIdentityEmail } from './identityEmail.js';
 import {
   keyFor,
   separatedKeys,
@@ -14,15 +16,16 @@ import { recipientDigest, recipientDigests } from './adapters/identityEmailMetad
 // capacity. A timed-out promise keeps its slot until the adapter actually settles.
 const adapterSlots = new WeakMap();
 
-function validPayload(purpose, payload) {
+function validPayload(purpose, payload, runtime) {
   if (
     !payload ||
     Object.getPrototypeOf(payload) !== Object.prototype ||
     typeof payload.to !== 'string' ||
     payload.to.length > 254 ||
-    !/^[^@\s]+@example\.invalid$/.test(payload.to)
+    (!identityRuntimeQualified(runtime, 'email') && !/^[^@\s]+@example\.invalid$/.test(payload.to))
   )
     reject('IDENTITY_DELIVERY_REJECTED');
+  normalizeIdentityEmail(payload.to);
   if (purpose === 'challenge_code') {
     if (
       Object.keys(payload).some((k) => !['to', 'code'].includes(k)) ||
@@ -56,8 +59,9 @@ export class IdentityDeliveryService {
     adapter,
     clock = Date,
     fixtureOnly = false,
+    runtime,
   }) {
-    if (fixtureOnly !== true || !repository || !eventRepository || typeof adapter?.send !== 'function')
+    if (fixtureOnly !== true && !identityRuntimeQualified(runtime, 'email') || !repository || !eventRepository || typeof adapter?.send !== 'function')
       reject('IDENTITY_DELIVERY_UNAVAILABLE');
     keyFor(keyring);
     keyFor(recipientKeys);
@@ -69,6 +73,7 @@ export class IdentityDeliveryService {
     this.eventRepository = eventRepository;
     this.adapter = adapter;
     this.clock = clock;
+    this.runtime = runtime;
     if (!adapterSlots.has(adapter)) adapterSlots.set(adapter, new Set());
     this.slots = adapterSlots.get(adapter);
   }
@@ -81,7 +86,7 @@ export class IdentityDeliveryService {
       (item.purpose === 'security_notification' && item.challengeId != null)
     )
       reject('IDENTITY_DELIVERY_REJECTED');
-    validPayload(item.purpose, item.payload);
+    validPayload(item.purpose, item.payload, this.runtime);
     await bound.requireRecipientKeys(
       Object.keys(this.recipientKeys.keys).map(Number),
       () => new Date(this.clock.now())
@@ -156,7 +161,7 @@ export class IdentityDeliveryService {
       let payload;
       try {
         payload = openDelivery(this.keyring, item);
-        validPayload(item.purpose, payload);
+        validPayload(item.purpose, payload, this.runtime);
         if (
           !equalDigest(
             item.recipientDigest,

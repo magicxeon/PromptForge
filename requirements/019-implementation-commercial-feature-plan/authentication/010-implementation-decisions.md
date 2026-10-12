@@ -45,7 +45,9 @@ No framework with mandatory implicit email linking may be substituted.
 Versions above are npm metadata inspected on this date, not installation or
 security-certification evidence. pg was installed for the independent foundation;
 T04B subsequently installed exact Nodemailer10.1.0 with lifecycle scripts disabled
-for inactive SMTP/MIME qualification. Other candidates remain uninstalled.
+for inactive SMTP/MIME qualification. T06B prerequisite qualification subsequently
+installed exact Argon2id0.45.1 with lifecycle scripts disabled and exercised the
+bundled Windows native binary. jose/OTPAuth remain uninstalled.
 Libraries must pass focused adapter tests before use.
 
 ## T01B Local Policy Freeze And External Gates
@@ -91,6 +93,33 @@ The SMTP question was sent to the user; no answer is inferred from elapsed time.
 Unconfigured live adapters fail closed; independent isolated work may proceed.
 
 ## Current Prerequisite Evidence
+
+### Independent Password Prerequisite Qualification
+
+While T05A implements sessions, Lead qualifies only T06B's independent native
+password adapter prerequisite. No enrollment/login endpoint or credential
+persistence is activated, and T06B remains incomplete until its dependencies and
+full acceptance pass. Write scope: package.json/package-lock.json,
+server/domain/identity/adapters/IdentityPasswordAdapter.js,
+test/authentication/passwords.test.js and
+scripts/authentication/qualify-passwords.mjs. The owning runner's passwords group
+will be integrated after T05A's non-overlapping runner edit.
+
+Install exact Argon2id library with lifecycle scripts disabled; verify its bundled
+native binary rather than compile/download helpers. Enforce the frozen15..128
+Unicode-code-point creation policy without trimming, normalization or truncation.
+Creation requires an explicitly qualified compromised-password screening adapter;
+missing, unavailable or rejected screening denies. Tests use fixture screening,
+never claim a vetted production corpus. Bound native jobs across adapter instances
+to two with no queue, retain capacity until actual completion, and sanitize errors.
+Verify only bounded PHC parameters; malformed/unsupported stored hashes must not
+request unbounded memory. Preserve valid approved legacy hashes for verification
+and report rehash need without changing credentials here. Focused acceptance:
+actual native round-trip/wrong-secret/Unicode preservation, malformed/resource
+hash rejection, screening denial, cross-instance capacity and cost benchmark.
+Record CPU/platform/runtime, sample median/p95 and two-job memory budget; these
+measure this workspace, not production sizing. Independent Security/QA review is
+required before this adapter may be consumed by credential tasks.
 
 The first sandbox Docker metadata call failed access; an approved read-only retry
 confirmed Docker server 29.8.0. pg 8.23.1 installed with scripts disabled. A fresh

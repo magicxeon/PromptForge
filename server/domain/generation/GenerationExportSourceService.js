@@ -3,6 +3,12 @@ import { isCustomerVisibleHistoryItem } from '../../repositories/generation/Hist
 
 export class GenerationExportSourceService {
   constructor({ repository = generationResultRepo } = {}) { this.repository = repository; }
+  async getOwnedOutputByUrl(outputUrl, actor) {
+    if (!actor?.userId) throw Object.assign(new Error('Actor required.'), { statusCode: 401, code: 'actor_required' });
+    const item = await this.repository.findOutputByUrlForOwner(outputUrl, actor.userId);
+    if (!item || item.deletedAt || item.status !== 'completed' || !isCustomerVisibleHistoryItem(item)) return null;
+    return { id: item.id, ownerUserId: item.ownerUserId, outputUrl };
+  }
   async getOwnedImage(id, actor) {
     if (!actor?.userId) throw Object.assign(new Error('Actor required.'), { statusCode: 401, code: 'actor_required' });
     const item = await this.repository.findByIdForOwner(id, actor.userId);

@@ -94,7 +94,7 @@ export class CommunityGalleryService {
   }
 
   async listGalleryByHandle(handle, query, actorContext) {
-    assertActorContext(actorContext);
+    if (actorContext) assertActorContext(actorContext);
     const profile = await this.requireProfile(handle);
     const page = await this.galleryRepository.listPublic({
       ...query,
@@ -115,7 +115,7 @@ export class CommunityGalleryService {
   }
 
   async listCharactersByHandle(handle, query, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const profile = await this.requireProfile(handle);
     if (this.profileCharacterService) {
       return this.profileCharacterService.listPublic({
@@ -155,13 +155,13 @@ export class CommunityGalleryService {
   }
 
   async getGalleryMediaFile(itemId, kind, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const item = await this.requireVisibleItem(this.galleryRepository, itemId, actor);
     return this.postAccessService.getPublicMediaFile(item.sourceCommunityPostId, kind, actor);
   }
 
   async getCharacterMediaFile(itemId, kind, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const item = await this.requireVisibleItem(this.characterRepository, itemId, actor);
     return this.postAccessService.getPublicMediaFile(item.sourceCommunityPostId, kind, actor);
   }
@@ -230,7 +230,7 @@ export class CommunityGalleryService {
   async requireVisibleItem(repository, itemId, actor) {
     const item = await repository.findById(itemId);
     if (!item || item.status !== 'active'
-      || (item.ownerUserId !== actor.userId && item.visibility !== 'public')) {
+      || ((!actor || item.ownerUserId !== actor.userId) && item.visibility !== 'public')) {
       throw new RepositoryContractError('community_item_not_found', 'Community item not found.', 404);
     }
     return item;

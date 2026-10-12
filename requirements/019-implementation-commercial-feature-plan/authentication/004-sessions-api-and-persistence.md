@@ -16,7 +16,7 @@ Store only a digest of an application session secret. Rotate after successful
 login, privilege change and credential-changing actions. Preauth/enrollment/reset
 contexts are separate restricted cookies/records, never accepted as normal
 sessions. Protect unsafe requests and login/link initiation from CSRF; use exact
-Origin/Referer checks and a reviewed CSRF-token mechanism. SameSite alone is
+Origin checks and the AUTH-011 CSRF-token mechanism, without a Referer fallback. SameSite alone is
 insufficient. Logout is a mutation, never a GET.
 
 Frozen isolated implementation defaults (AUTH-010/011; real staff bootstrap D06
@@ -88,9 +88,9 @@ T02; exact naming changes require packet/caller updates before implementation.
 | POST `/api/auth/login` | Email/password, rememberDevice | Authenticated or MFA-required; generic denial otherwise |
 | POST `/api/auth/social/:provider/start` | login/link intent, safe return route, rememberDevice for login, CSRF | Validated provider redirect URL; link requires active fresh proof |
 | GET/POST `/api/auth/social/:provider/callback` | Exact provider-supported callback contract | Consume state/proof; redirect to safe completion, no secrets in URL |
-| POST `/api/auth/password/reset` | Reset-only context, password/confirmation | Completed; revoke sessions; normal login required |
+| POST `/api/auth/password/reset` | Reset-only context, prepared operationId, exact password/confirmation and same Idempotency-Key; AUTH-011 frozen DTO | Minimal committed outcome; revoke sessions; normal login required |
 | POST `/api/auth/operations/prepare` | Allowlisted action/target/final payload, independent fresh proof + CSRF | Pending operation and separate receipt issued before revoking commit; AUTH-011 bounded replacement |
-| POST `/api/auth/reauthenticate` | Existing method proof + intended action/target | Short-lived action assurance or MFA step |
+| POST `/api/auth/reauthentication` | Existing durable method proof reference under immutable action context | Short-lived action assurance; incomplete MFA denied |
 | POST `/api/auth/logout` | Session + CSRF | Idempotent 204; clear cookie |
 | POST `/api/auth/logout-all` | Active session, confirmation, CSRF | Revoke all sessions including current |
 | GET `/api/me` | Existing route; optional session | Existing authenticated actor shape or null |

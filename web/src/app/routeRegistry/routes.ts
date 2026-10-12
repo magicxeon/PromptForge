@@ -1,4 +1,11 @@
 export const routePaths = {
+  login: '/login',
+  register: '/register',
+  forgotPassword: '/forgot-password',
+  resetPassword: '/reset-password',
+  authVerify: '/auth/verify',
+  authComplete: '/auth/complete',
+  authCallback: '/auth/callback',
   explore: '/',
   tutorials: '/tutorials',
   aiCinema: '/ai-cinema',

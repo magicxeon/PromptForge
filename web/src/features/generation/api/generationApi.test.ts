@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beginIdentityResolution, publishIdentity } from '../../../lib/auth/actorStore';
 import {
   estimateAndSubmitGeneration,
   generationPayload,
@@ -7,6 +8,12 @@ import {
   submitGeneration,
   type GenerationRequestDraft
 } from './generationApi';
+
+beforeEach(() => {
+  publishIdentity(beginIdentityResolution(), {
+    actorId: 'generation_fixture', authMode: 'session', csrfToken: 'fixture-csrf'
+  });
+});
 
 afterEach(() => {
   vi.unstubAllGlobals();

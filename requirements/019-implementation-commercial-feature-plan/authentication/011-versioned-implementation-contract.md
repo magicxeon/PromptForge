@@ -1,5 +1,38 @@
 # AUTH-011 Identity Contract V1
 
+## Qualified runtime composition (Login completion, 2026-10-11)
+
+Identity owns the planned `server/config/identityRuntime.js` and
+`server/domain/identity/createIdentityRuntime.js`. Runtime qualification is a
+server-composition contract, distinct from every existing fixture gate. A real
+factory must not pass `fixtureOnly: true`. It consumes validated persistent,
+versioned, purpose-separated keys, exact trusted origins, PostgreSQL readiness,
+enabled-method credentials and explicit legal/retention/sender/provider approval
+references. Missing inputs deny affected methods; no random runtime keys,
+example.invalid runtime sender, mock actor or fixture screening fallback.
+
+The factory reuses Context, Session, Enrollment, Primary, Challenge, Action,
+Reset, Social, Operation, Delivery and Audit with one PostgreSQL facade. Pending
+migrations/checksum mismatch block startup: startup performs status only; the
+explicit migration tool alone applies approved migrations. Native SMTP/fetch
+transports are created only in qualified composition. Delivery has one bounded
+non-overlapping dispatcher, explicit start/stop and sanitized errors. External
+mail-event verification remains vendor-owned and disabled without its verifier.
+Password creation requires a vetted screening adapter; it never silently accepts
+all passwords. Social callbacks and password/OTP preserve MFA denial.
+
+Identity readiness and billable recovery readiness are separate. Constructing
+Login cannot start Credit reconciliation, provider dispatch or video recovery.
+T15B/C remain required before the full application is activated: guest/null
+identity, private-route ownership and private media cannot fall back to mock IDs,
+user-supplied usernames or raw output-directory serving. Existing public snapshot
+visibility remains source-owned. Unmapped media denies rather than exposing files.
+
+AUTH-T15D delivers the runtime configuration/factory and qualified adapter gates;
+AUTH-T15B wires bootstrap and HTTP cutover; AUTH-T15C owns private media/public
+snapshot parity. Focused runtime checks use disposable PostgreSQL and injected
+transports; no workspace .env/data, live SMTP/OAuth or paid generation is used.
+
 **Status:** T02A/T02B reviewed and frozen; not a runtime API claim
 **Owner:** Identity; Backend/Security/QA review before implementation
 **Inputs:** AUTH-001..005/009/010; Phase2-03 qualified infrastructure
@@ -23,15 +56,20 @@ enumeration, credential/config secrets or vendor-specific tokens. Methods are
 false until their required configuration/adapters qualify; unavailable methods
 reject direct calls with auth_service_unavailable. Bypass exposes all methods
 false and a fixture mode label; `/api/me` still supplies the fixture actor.
+An explicitly unavailable ordinary-runtime composition may project a null CSRF
+token only with every method false and no private authority. The client disables
+all unsafe requests until a browser-bound token is available. Bypass or any
+enabled method requires a nonempty browser-bound token; null never exempts CSRF.
 
 `/api/me` is null for guests or the existing actor projection plus `authMode`;
 its opaque userId, roles and status come from Identity only. requestId remains
 per request. No browser-supplied role/user header is proof. Shared schema must
 accept null, and mode joins actor identity in cache/persistence namespaces.
 
-Production cookie names use `__Host-mpf_session` and `__Host-mpf_context`;
+Production cookie names use `__Host-mpf_session`, `__Host-mpf_context` (browser/
+CSRF binding) and `__Host-mpf_flow` (restricted purpose proof);
 HttpOnly, Secure, SameSite=Lax, Path=/, no Domain. Explicit local development
-HTTP may use distinct `mpf_local_session`/`mpf_local_context` cookies, never
+HTTP may use distinct `mpf_local_session`/`mpf_local_context`/`mpf_local_flow` cookies, never
 accepted in production. Use32-byte CSPRNG secrets encoded base64url. Store only
 keyed digests in PostgreSQL. Session expiry is bounded by AUTH-010; preauth
 browser context expires after5 minutes and supplies no private access.
@@ -56,6 +94,55 @@ identity and public routes retain explicit separate contracts. Client re-fetches
 config after session/mode changes; never retries an unsafe request automatically.
 
 ## 2. Purpose State And DTO Boundaries
+
+### T07A Code Login And Explicit Signup Offer (2026-10-11)
+
+POST /api/auth/challenges also accepts purpose login with the same202 DTO.
+Verification still accepts only code; the flow cookie determines purpose.
+Outcomes are authenticated+safe returnPath with private post-commit cookies,
+offer_registration+contextId or unavailable. POST /api/auth/enrollment-intents
+accepts an empty body only after an explicit Create account action. Original
+browser/flow proof decides the sole offer; exchange returns complete_registration
+with replacement restricted flow cookie, or sign_in_existing requiring fresh
+independent sign-in. No redundant OTP, synthetic challenge or mutable source
+purpose. Typed0010 proof/exchange keeps original TTL and one-use provenance.
+Action assurance reservation advances0011. Feature UI retains only one bounded
+in-memory email/purpose/challenge/next-step form context; authority remains in
+server HttpOnly cookies, not route params, localStorage or that presentation state.
+
+### T06B Primary Password Input (2026-10-11)
+
+POST /api/auth/login accepts only email, password, optional rememberDevice and
+safe returnPath, with exact Origin/browser/CSRF binding. Success returns
+{contractVersion:1,nextAction:authenticated,returnPath} and private post-commit
+cookies. Unknown, wrong, absent, inactive or unqualified credentials share
+auth_invalid_credentials/401 and bounded dummy hash work; genuine private401
+still invalidates client identity, while this exact Login denial preserves email.
+Shared SQL source/target/global admission precedes expensive hashing. Immutable
+0009 primary proof is bounded under the original context and consumed in the
+same live transaction as session/Audit, with account-before-context locks and
+exact credential/security-version revalidation after hashing. Missing MFA/staff
+qualification denies workspace; reauthentication and MFA completion remain later.
+Runtime adapters remain inactive until real qualification; fixtures are not
+production activation. Action assurance reserves0011 after code-login/offer.
+
+### T06A Activation Input (2026-10-11)
+
+Enrollment extends IdentityApplicationService and authRoutes, not another public
+identity owner. Registration verification stores a durable one-use proof under
+the exact original browser/context/purpose/target/expiry. Its public response
+contains only nextAction/contextId; secrets and the post-commit cookie envelope
+remain private. Completion rechecks proof and unique email under one transaction,
+records current legal consent, creates only a new baseline account/email/optional
+credential, and uses a separate verified-enrollment Session entry point sharing
+the existing policy/rotation/Audit internals. It never changes the immutable
+registration context into an existing-account login. Existing or concurrent
+email ownership produces a fresh-independent-sign-in handoff without overwrite.
+Missing method/MFA/legal/screening qualification fails closed. Replays must not
+create another account or session; Audit failure rolls back the whole activation.
+The additive enrollment migration may use0008; the unimplemented action-grant
+migration reservation advances to0011 after0009 primary login and0010 code login. Registration does not wait for action
+assurance, while reset explicitly does. Staff roles/bootstrap are never created.
 
 Challenge creation accepts purpose, email, safe returnPath, optional existing
 operationId and rememberDevice only for Login/registration. Require an opaque
@@ -517,6 +604,244 @@ production policy accepts only explicit HTTPS origins and protected cookie names
 No inferred Host/proxy origin, permissive CORS or implicit demo identity is added.
 Concrete browser/context cookie composition and exact task write scopes must be
 recorded before T05A implementation, then independently reviewed with its source.
+
+#### T05A Concrete Composition Freeze
+
+Use the three cookie names above with strict duplicate, malformed, mixed-mode
+and size rejection. Browser and flow proofs expire within five minutes; a flow
+never extends its browser's expiry. Remembered sessions set Max-Age bounded by
+their original absolute expiry; ordinary sessions use a browser-session cookie
+and still enforce server-side expiry. CSRF binds the live browser generation,
+current session digest or anonymous scope, mode and key version. Exact explicit
+Origin and CSRF are required for unsafe requests. Config, listing and resolution
+never touch session activity.
+
+Add migration0006 for durable browser records and protected purpose metadata.
+Use distinct external session, browser, CSRF and metadata-protection keys;
+retained rings contain at most eight versions and missing historical keys deny.
+Protected metadata uses AES-256-GCM with fixed associated data and at most2KiB
+plaintext. Bind original purpose/target/account/version, canonical/delivery email,
+remember choice and safe return path to the original context and browser generation.
+Only a composition-owned target resolver derives that authority from persistence;
+caller account IDs, erased outbox data and fixture Maps cannot restore it.
+
+Cap retained browser rows at10000 and retained protected metadata at eight rows
+per browser (80000 total), including expired rows until explicit cleanup. Capacity
+denies new work without eviction or renewed lifetimes. Bootstrap admission is a
+standalone transaction; no account/context/proof mutation acquires its admission
+lock afterward. Cleanup removes at most50 expired browsers and their at-most400
+metadata rows, erases terminal protected payloads and preserves referenced
+historical contexts/operations/sessions/Audit. No real-data retention is approved.
+Rotation reuses a browser row with a fresh generation; old flow/receipt expiry is
+immutable. Preserve a bounded browser-to-context mapping for explicit logout.
+
+For mutations lock account, existing purpose contexts in ID order, challenge/
+proof, browser, then sessions in ID order, followed by new outbox insertion.
+Account-bound context creation follows account-before-browser order. Bootstrap
+and cleanup must not acquire historical account/context locks while holding
+browser/admission locks. Qualify foreign-key and concurrent cleanup/issuance
+behavior in PostgreSQL; sanitization is not evidence of deadlock freedom.
+
+Private finishVerifiedAuthentication receives only an opaque proof reference
+and browser/context proofs. Its mandatory transaction-bound verifier checks the
+durable one-use proof, exact purpose/account/version/method and required factor.
+The service independently rechecks stored account/context/browser/roles, remember
+choice and fresh expiry after awaited work. Reuse the live T04 transaction;
+nested transactions are forbidden. Persisted admin/support memberships classify
+staff; unsupported roles deny. Missing proof/MFA/bootstrap qualification denies.
+Exactly one session may result from a proof. Private cookie material leaves only
+through a post-commit transport result, never public challenge JSON, URLs, logs
+or replay storage. Lost success does not permit another issuance.
+
+Serialize caps under the account lock; replace the initiating session, then evict
+the oldest non-current session when needed. Revocation/eviction and the qualified
+notification commit together; a missing notification target denies issuance.
+Forced credential/status revocation preserves originally bounded read-only
+operation receipts. Explicit logout/account switch invalidates grants and receipts;
+logout-all applies only to the resolved owner. These actions do not cancel Jobs,
+dispatch providers or mutate Credits. A logout-only tombstone may validate an
+exact Origin/CSRF retry until the original five-minute browser expiry; it grants
+no config refresh, access or other mutation and never extends its lifetime.
+
+T05A exposes unregistered thin config/session-list/revoke/logout handlers through
+IdentityApplicationService. No createApp/bootstrap or global middleware cutover.
+Captured request/response fixtures qualify handler contracts only; actual Express
+body-limit, HTTP cookie and browser behavior remain transport/UAT checks. The
+future Auth mount must enforce32KiB rather than inherit the existing20MiB parser.
+
+### T05B Actor And Audit Integration Inputs (2026-10-11)
+
+T05A is qualified as isolated private primitives; it does not yet emit session
+Audit events. T05B must wire session_create/session_revoke/logout/logout_all
+through Audit's public transactional facade before any real composition or
+Authentication closure. Missing qualified Audit/peer binding denies mutation;
+Audit failure rolls back Identity changes. Creation reuses its caller's live
+transaction; logout/revocation must pass their own transaction, never a later
+after-commit event. Trusted peer comes from the qualified request adapter, not
+request body or forwarded headers. Keep event metadata typed and allowlisted.
+Privileged status events must retain the verified staff actor and fingerprinted
+target semantics through an explicit Audit-owned helper if necessary; do not
+mislabel another account as self or access the Audit repository from Identity.
+
+Resolve optional real actors from the session cookie only; guests are null.
+Read current SQL account/status/version and protected roles with no positive
+cache. Staff requires qualified MFA/bootstrap and persisted admin/support;
+missing qualification denies. Request mock headers/query IDs are not credentials.
+New-account compatibility username is its server-derived opaque account ID,
+never a claimed mock username or email. No existing work, roles or Credits are
+transferred. Preserve preference confirmCreditUsage boolean semantics, adding
+an Identity-owned SQL column/migration if needed. Preference writes recheck active
+account/current session inside their transaction. Status changes/reinstatement
+advance securityVersion and revoke pending authority; only a newly verified
+session restores access. Forced revocation preserves read-only receipt TTL.
+Admin approval/reason/self-status restrictions remain authoritative.
+
+T05B's new middleware/facade can be fixture-qualified with optional composition
+injection; production mock exclusion and all private surface gates stay with
+T15B/T15C. Do not start createApp, workers or live adapters to run isolated tests.
+
+### T08A Google Start, Callback And Result Contract (2026-10-11)
+
+`POST /api/auth/social/google/start` accepts login intent, optional
+rememberDevice and safe returnPath; returns version1 authorizationUrl,
+operationId and expiresAt with private HttpOnly flow/receipt cookies. A
+reauthentication intent instead binds the existing actor/security version,
+original Action context/target/initiating session and original expiry from
+protected server state. Link completion remains T10A-gated.
+
+`GET /api/auth/social/google/callback` accepts bounded scalar code/state or
+error/state only. Provider callback has no application Origin/CSRF token;
+original browser/flow plus one-use state and Google nonce/PKCE bind it instead.
+Claim the durable SQL exchange before outbound token/JWKS work. After terminal
+handling redirect only to fixed `/auth/callback?provider=google` without secrets.
+The constant provider enum is a presentation hint for selecting the result
+endpoint; it grants no authority and cannot substitute for protected server
+flow/session binding. Bounded
+read-only `GET /api/auth/social/google/result` returns recorded typed nextAction
+and minimal safe returnPath/rememberDevice/contextId when required. The safe
+rememberDevice presentation boolean is derived only from encrypted original
+context metadata; it preserves the initial proposal across full-page callback
+and registration resend, without creating proof or renewing original expiry.
+Read binds actual original
+restricted browser/flow or exact recorded resulting-session relationship after
+rotation, never URL flags or caller provider claims. Reading cannot remint a
+session, grant assurance, link or create an account.
+
+Known subject enters common account-bound Login/session policy through a
+separate immutable child context. Unknown authoritative Google email receives
+registration-only social proof and requires explicit Terms/account creation.
+Untrusted/missing email preserves the actual verified subject in restricted
+enrollment; `POST /api/auth/social/google/email` accepts email only and issues
+normal independent registration OTP. Existing email never auto-links or logs in.
+
+Additive0012 may extend bounded exchange intent/provenance metadata.
+Reauthentication uses internal Operation action social_login with separately
+typed reauthentication purpose; Login requires Login purpose. The provider
+exchange child references the immutable original Action and initiating session.
+Callback verifies an already-linked subject owned by that actor and consumes
+durable one-use proof in the same transaction that grants the original Action.
+It does not consume the original Action as a provider-operation context or issue
+a new session. Result nextAction is reauthenticated; single-factor Google proof
+cannot satisfy required stronger MFA. No enabled link completion before T10A.
+Actual provider/sender/runtime qualification remains outside isolated fixtures.
+
+### T09A Facebook Fixture Contract Reconciliation (2026-10-11)
+
+Facebook start/callback/result/email mirror the Google DTOs and protected
+state/flow/session authority under `/api/auth/social/facebook/`. Fixed callback
+presentation hint is `/auth/callback?provider=facebook`, never proof. Graph email
+is not authoritative mailbox ownership; unknown subjects always require
+`verify_email` and independent application OTP before explicit consent/signup.
+The shared Social owner scopes every repository/proof read to exact provider
+and expected issuer/app durably bound before exchange; verified issuer remains
+separate provenance. Additive0013 may own the immutable expected scope. Every
+pending state/context/claim/result lookup denies a different same-provider app.
+
+Signed POST deauthorization/deletion accepts only `signed_request` through a
+bounded32KiB urlencoded or JSON body. Verify native HMAC, wellformed bounded
+issued-time and no-future timestamp before receipt lookup. NEW events additionally
+require freshness5minutes. Exact previously authenticated retries may return
+their unchanged receipt until its original24hour expiry, even after5minutes;
+they cannot replay a mutation or renew authority. Unknown old/future events deny.
+Capacity10000, bounded cleanup; retain sanitized private digest/outcome, never
+raw tokens or signed payload logs. Account-version/session/pending-authority
+revocation and Audit commit atomically once. Bounded hashed-subject provenance
+blocks pre-event exchange/enrollment; a genuinely fresh later start is allowed.
+Deletion returns only the D03 obligation receipt, never blanket product deletion.
+Receipt URL derives a qualified fixed composition origin/path, never request
+Host/query or signed subject. These fixture values do not approve production
+retention, origins or provider launch.
+
+Valid original-browser/flow/state-bound provider cancellation records the neutral
+terminal result then uses its fixed callback hint, with no provider exchange,
+account or session. Malformed, forged and expired callbacks remain denied.
+
+### T07B Reset-Only HTTP Contract (2026-10-11)
+
+Extend the existing challenge endpoint with `purpose: 'password_reset'` and
+email only; rememberDevice and login/enrollment returnPath do not apply.
+Verification submits only code under the original browser/flow cookie and
+returns `reset_password` only for the exact eligible existing credential;
+otherwise `unavailable`. It issues action-only assurance and never a session.
+Action grant may reuse an explicitly supplied live transaction so consumed
+sent-challenge provenance, immutable reset proof and assurance Audit share it.
+
+`POST /api/auth/operations/prepare` for this flow accepts only
+`{action:'password_reset',payload:{password,passwordConfirmation}}` plus the
+Idempotency-Key header. The reset target is derived from protected immutable
+flow metadata; no public account or credential ID is accepted. Preparation
+returns `{contractVersion:1,operationId,expiresAt}` and separate HttpOnly
+receipt cookie before commit. It does not consume assurance.
+
+The existing canonical `POST /api/auth/password/reset` accepts
+`{operationId,password,passwordConfirmation}` plus the same Idempotency-Key.
+It commits the exact prepared payload through the owning Operation service.
+Policy, mismatch, breach screening and native hash qualification run before
+assurance consumption. Password replacement, security-version advance,
+all-session/reset-grant revocation, sanitized outcome and Audit are atomic.
+The minimal versioned operation outcome has `nextAction:'sign_in'`; preserve
+browser/receipt for bounded reconciliation and clear restricted flow only.
+No activation, enrollment, first password, session issuance or MFA bypass.
+Lost success is reconciled by the existing minimal operation lookup rather
+than replaying a mutation. Explicit logout invalidates that receipt.
+The consumed sent-challenge provenance and additive0011 immutable Action
+metadata own the reset proof; no additional reset migration is required.
+Historical migrations stay immutable. Real runtime/verifier/mail qualification
+remains a separate gate.
+
+### T05C Action Assurance Implementation Inputs
+
+T05C may proceed alongside T05B using completed T04A/T05A contracts and explicitly
+non-overlapping write scopes. Root owns Action/Context/Operation changes; T05B
+owns Session/Audit/Actor/Preferences and runner/registry/facade until handoff.
+Use canonical sessions.resolveBound(transaction, secret); no second resolver.
+
+Add migration0011 assurance columns to existing bounded context metadata, not
+another unbounded proof ledger. The composition-owned context target resolver
+binds immutable action/target for reauthentication or password_reset. Encrypt
+those fields with the existing metadata and persist matching typed columns.
+An exact durable one-use method proof in the same transaction records verified
+time, assurance and initiating session only once, with original context/browser
+expiry unchanged. Required MFA needs qualified stronger proof. Reset grants
+require an existing password credential and never set a first password or mint
+a session. Unsupported/missing actual verifiers deny; fixtures are not runtime.
+
+Preparation and commit use the existing OperationService and its transaction-bound
+proof guard, matching action/target/owner/version/browser and current initiating
+session. Preparation does not consume assurance; commit consumes it atomically
+with the existing mutation/outcome/Audit. Failure rolls back proof consumption.
+Grant Audit uses Audit's public method with a qualified peerProvider, never a
+request-supplied peer or foreign repository write. Maintain account/context/proof,
+browser, then metadata/session order and fresh expiry checks after awaits.
+
+Operation lookup either resolves a current owner session and exact owned operation
+or verifies its pre-issued receipt under the active original browser in the same
+live transaction. Return only operationId/status/nextAction/version. Unknown,
+foreign, expired and revoked scopes have one denial. Forced credential/status
+revocation leaves bounded receipt lookup; explicit logout/browser rotation denies
+old grants/receipts. A receipt cannot authenticate, grant assurance or mutate.
+Runtime facade/routes and runner/registry integration follow T05B's ownership
+release; the whole T05C task remains incomplete until integrated and reviewed.
 
 ## 5. T02B Interaction Contract Freeze
 

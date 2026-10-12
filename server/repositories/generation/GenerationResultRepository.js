@@ -71,18 +71,32 @@ export class GenerationResultRepository {
 
   async findByOwner(ownerUserId, query = {}) {
     const owner = await this.userRepository.findById(ownerUserId);
-    if (!owner) return createPage([]);
+    if (!ownerUserId) return createPage([]);
     const page = await this.historyStore.listPage({
       cursor: query.cursor || null,
       limit: query.limit,
       collectionId: query.collectionId || 'all',
       allowedJobIds: query.allowedJobIds || null,
-      filterKey: query.filterKey || null,
-      itemFilter: query.itemFilter || null,
-      username: owner.username
+      filterKey: JSON.stringify({ ownerUserId, filter: query.filterKey || null }),
+      itemFilter: item => {
+        const explicitOwner = item.ownerUserId || item.owner_user_id;
+        const owned = explicitOwner ? explicitOwner === ownerUserId
+          : Boolean(owner && item.username === owner.username);
+        return owned && (!query.itemFilter || query.itemFilter(item));
+      },
+      username: null
     });
     const items = await Promise.all(page.items.map(item => normalizeGenerationHistoryRecord(item, this.userRepository)));
     return createPage(items, { nextCursor: page.nextCursor, hasMore: page.hasMore });
+  }
+
+  async findOutputByUrlForOwner(outputUrl, ownerUserId) {
+    if (!outputUrl || !ownerUserId) return null;
+    const item = (await this.historyStore.readAll()).find(record =>
+      (record.ownerUserId || record.owner_user_id) === ownerUserId
+      && [record.imageUrl, record.thumbnailUrl, record.videoUrl, record.posterUrl].includes(outputUrl)
+    );
+    return item ? normalizeGenerationHistoryRecord(item, this.userRepository) : null;
   }
 
   async assertOwner(id, ownerUserId) {

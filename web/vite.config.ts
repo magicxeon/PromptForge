@@ -32,12 +32,14 @@ export default defineConfig({
     }
   },
   server: {
+    host: '127.0.0.1',
     port: 5173,
+    strictPort: true,
     proxy: {
-      '/api': 'http://localhost:6500',
-      '/assets': 'http://localhost:6500',
-      '/outputs': 'http://localhost:6500',
-      '/i18n': 'http://localhost:6500'
+      '/api': { target: 'http://127.0.0.1:6500', changeOrigin: true },
+      '/assets': { target: 'http://127.0.0.1:6500', changeOrigin: true },
+      '/outputs': { target: 'http://127.0.0.1:6500', changeOrigin: true },
+      '/i18n': { target: 'http://127.0.0.1:6500', changeOrigin: true }
     }
   }
 });

@@ -1,6 +1,10 @@
+import { getIdentitySnapshot } from '../auth/actorStore';
+import type { AuthMode } from '../auth/actorSchemas';
+
 export type ActorScopedEnvelope<T> = {
   schemaVersion: number;
   actorId: string;
+  authMode?: AuthMode;
   feature: string;
   updatedAt: string;
   payload: T;
@@ -26,6 +30,7 @@ export function writeActorScopedDraft<T>({
   const envelope: ActorScopedEnvelope<T> = {
     schemaVersion,
     actorId,
+    authMode: getIdentitySnapshot().authMode,
     feature,
     updatedAt: new Date().toISOString(),
     payload
@@ -48,6 +53,7 @@ export function readActorScopedDraft<T>({
     if (
       !envelope
       || envelope.actorId !== actorId
+      || envelope.authMode !== getIdentitySnapshot().authMode
       || envelope.feature !== feature
       || typeof envelope.schemaVersion !== 'number'
       || !Object.hasOwn(envelope, 'payload')
@@ -67,5 +73,19 @@ export function removeActorScopedDraft(actorId: string, feature: string) {
 }
 
 function storageKey(actorId: string, feature: string) {
-  return `${STORAGE_PREFIX}:${feature}:${actorId}`;
+  return `${STORAGE_PREFIX}:${getIdentitySnapshot().authMode}:${feature}:${actorId}`;
+}
+
+// Clear only presentation data owned by the previous actor/mode. Server work
+// and unrelated preferences are retained by their existing owners.
+export function clearActorOwnedBrowserState(actorId: string, authMode: AuthMode) {
+  for (const storage of [localStorage, sessionStorage]) {
+    for (const key of Object.keys(storage)) {
+      if (!key.startsWith(`${STORAGE_PREFIX}:`) && !key.startsWith('mpf.react.handoff:')) continue;
+      try {
+        const envelope = JSON.parse(storage.getItem(key) || 'null');
+        if (envelope?.actorId === actorId && (envelope.authMode ?? 'session') === authMode) storage.removeItem(key);
+      } catch { /* Malformed foreign storage is never a credential. */ }
+    }
+  }
 }

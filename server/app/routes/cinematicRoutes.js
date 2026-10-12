@@ -1,6 +1,7 @@
 import { CinematicError } from '../../domain/cinematic/CinematicApplicationService.js';
 import { normalizeCinematicCastReferences } from '../../domain/cinematic/CinematicImageCastReferences.js';
 import { RepositoryContractError } from '../../repositories/repositoryContracts.js';
+import { createAuthorizedEventStream } from '../../middleware/authorizedEventStream.js';
 
 export function registerCinematicRoutes(app, {
   cinematicService,
@@ -423,7 +424,8 @@ export function registerCinematicRoutes(app, {
     if (!req.body?.writingQuoteId) return sendCinematicError(res,
       new CinematicError('cinematic_writing_quote_required', 'Confirm a current writing Credit quote before requesting AI.', 409));
     if (acceptsEventStream(req) && typeof res.write === 'function') {
-      return streamStoryPlanProposal({ req, res, cinematicService });
+      try { return await streamStoryPlanProposal({ req, res, cinematicService }); }
+      catch (error) { if (res.headersSent) res.destroy(); else sendCinematicError(res, error); return; }
     }
     try {
       res.set('Cache-Control', 'private, no-store');
@@ -762,15 +764,18 @@ function sendCinematicError(res, error) {
   return res.status(response.statusCode).json(response.body);
 }
 
-async function streamStoryPlanProposal({ req, res, cinematicService }) {
+async function streamStoryPlanProposal({ req, res: originalResponse, cinematicService }) {
+  const transport = await createAuthorizedEventStream(req, originalResponse);
+  const res = transport.response;
   let streamOpen = true;
+  let heartbeat;
   res.status(200);
   res.set('Content-Type', 'text/event-stream; charset=utf-8');
   res.set('Cache-Control', 'private, no-store, no-transform');
   res.set('Connection', 'keep-alive');
   res.set('X-Accel-Buffering', 'no');
   res.flushHeaders?.();
-  res.on?.('close', () => { streamOpen = false; });
+  transport.onClose(() => { streamOpen = false; clearInterval(heartbeat); });
   const writeEvent = (event, data) => {
     if (!streamOpen || res.writableEnded) return;
     try {
@@ -778,15 +783,17 @@ async function streamStoryPlanProposal({ req, res, cinematicService }) {
       res.flush?.();
     } catch {
       streamOpen = false;
+      transport.close();
     }
   };
-  const heartbeat = setInterval(() => {
+  heartbeat = setInterval(() => {
     if (!streamOpen || res.writableEnded) return;
     try {
       res.write(': keep-alive\n\n');
       res.flush?.();
     } catch {
       streamOpen = false;
+      transport.close();
     }
   }, 15_000);
   heartbeat.unref?.();
@@ -804,6 +811,7 @@ async function streamStoryPlanProposal({ req, res, cinematicService }) {
   } finally {
     clearInterval(heartbeat);
     if (streamOpen && !res.writableEnded) res.end();
+    await transport.finished;
   }
 }
 

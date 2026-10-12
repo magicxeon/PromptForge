@@ -1,7 +1,7 @@
 # AUTH-006 Delivery And Verification
 
 **Parent:** [AUTH-019](../Phase2-04-authentication-sessions-and-authorization.md)
-**Status:** Implementation authorized; foundation, T01/T02, T03A/B/C/D, T04A/B and T15A complete; T05A session implementation in progress; runtime integration pending
+**Status:** Customer Login source milestone accepted2026-10-12; T13B/C and T15B/C/D/E/F/G/H are source-qualified. Explicit server `--login` aggregate passes all16 groups; current React Login56 checks and native UX social/legal/receipt fixtures pass. Exact evidence: AUTH-012; runtime inputs: AUTH-014. Live deployment, T19B conditional cases and broader account-security/linking/MFA roadmap remain unverified or incomplete. Overall Authentication is incomplete.
 **Task authority:** [task-plan.json](task-plan.json); child packets live in
 [AUTH-008](008-executable-task-packets.md). This page supplies milestone context
 and acceptance coverage; milestone rows are not executable tasks or status copies.
@@ -82,9 +82,10 @@ DB, privacy or live-test prerequisite blocks that child without inventing approv
 
 ## 3. Focused Validation Runner Contract
 
-Proposed future runner: `scripts/verify-authentication.mjs`, support modules in
+Implemented runner: `scripts/verify-authentication.mjs`, support modules in
 `scripts/authentication/`, fixtures/tests in `test/authentication/` plus owning
-frontend tests. These files are NOT created by this documentation change.
+frontend tests. `--login` explicitly aggregates the16 delivered customer Login
+server groups. Broader `--all` remains fail-closed for undelivered roadmap groups.
 
 T03 creates the runner/fixture harness with contracts and persistence groups.
 T04-T15 extend their owning groups as behavior is delivered; they own the needed

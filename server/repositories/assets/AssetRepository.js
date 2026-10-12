@@ -75,6 +75,18 @@ export class AssetRepository {
     return asset ? structuredClone(asset) : null;
   }
 
+  // Delivery never derives an owner from a filename or a legacy default.
+  async findOutputByUrlForOwner(outputUrl, ownerUserId) {
+    if (!outputUrl || !ownerUserId) return null;
+    const asset = (await this.readRaw()).find(item =>
+      (item.ownerUserId || item.owner_user_id) === ownerUserId
+      && item.status === 'active' && !item.deletedAt && item.storageProvider === 'local'
+      && [item.publicUrl, item.thumbnailUrl, item.metadata?.posterUrl,
+        item.storageKey ? `/outputs/${item.storageKey}` : null].includes(outputUrl)
+    );
+    return asset ? structuredClone(asset) : null;
+  }
+
   async findDerivativeForOwner({
     ownerUserId,
     sourceAssetId,

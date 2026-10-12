@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "requirement": "requirements/020-generation-providers/image/009-gemini-nano-banana-21.md",
+  "tasks": [
+    {
+      "id": "NB21-T02",
+      "title": "Add selectable Nano Banana 2.1 through canonical provider and Credit contracts",
+      "complexity": "complex",
+      "reason": "Cohesive model addition changes provider request/capability and price contracts. Mandatory Backend, Commercial, Security and QA review apply in waves; four reviewer roles are justified by the financial validator and private reference/credential boundary, without four simultaneous agents.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "providers",
+        "credits"
+      ],
+      "risks": [
+        "financial",
+        "shared-contract"
+      ],
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "server/config/providers.json",
+        "server/config/credit-pricing-policy.json",
+        "server/providers/GeminiProvider.js",
+        "server/domain/credits/CreditPricingPolicyService.js",
+        "server/domain/credits/GeminiNanoBananaPricing.js",
+        "test/geminiNanoBanana21.test.js",
+        "test/providerRegistry.test.js",
+        "scripts/verify-gemini-nano-banana-21.mjs",
+        "requirements/020-generation-providers/image/009-gemini-nano-banana-21.md",
+        "requirements/020-generation-providers/image/009-gemini-nano-banana-21-task-plan.json",
+        "requirements/020-generation-providers/image/002-provider-pricing-catalog-and-value-ranking.md",
+        "requirements/020-generation-providers/000-master.md",
+        "requirements/099-technical-dept/000-master.md",
+        "test/creditPricingPolicy.test.js"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success: Given configured Gemini, when choosing Nano Banana 2.1 at 1K/2K/4K with supported references, then exact native mock request and final image/MIME agree with the locked server quote, output count and Template fees.",
+        "Negative: Given unsupported parameters, missing final image or provider failure, when quoting/dispatching, then the request fails without silent downgrade, unsafe secret transport or unsupported reservation.",
+        "Recovery: Given retries, changed current pricing or failure, when canonical reservation/capture/refund executes, then accepted prices and idempotency remain intact and existing Gemini defaults/behavior remain available."
+      ],
+      "reviewers": [
+        "backend-platform-architect",
+        "commercial-financial-integrity",
+        "security-reviewer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Success: Given configured Gemini, when choosing Nano Banana 2.1 at 1K/2K/4K with supported references, then exact native mock request and final image/MIME agree with the locked server quote, output count and Template fees.",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/009-gemini-nano-banana-21.md"
+        },
+        {
+          "check": "Negative: Given unsupported parameters, missing final image or provider failure, when quoting/dispatching, then the request fails without silent downgrade, unsafe secret transport or unsupported reservation.",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/009-gemini-nano-banana-21.md"
+        },
+        {
+          "check": "Recovery: Given retries, changed current pricing or failure, when canonical reservation/capture/refund executes, then accepted prices and idempotency remain intact and existing Gemini defaults/behavior remain available.",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/009-gemini-nano-banana-21.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/009-gemini-nano-banana-21.md"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "agentId": "/root/nano21_commercial_review",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/009-gemini-nano-banana-21.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/009-gemini-nano-banana-21.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/009-gemini-nano-banana-21.md"
+        }
+      ],
+      "handoff": "Execute only after customer Login source milestone is accepted. Requirement T01 planning and T03 review are ordered steps in this single cohesive implementation packet, not parallel tasks. No paid provider calls, runtime data, .env, Git or worker restarts. Preserve six-reference application boundary, five existing ratios and default model. Fixed50/70/155 tariff plus1/reference; provisional output-only cost evidence must not enter OpenAI tokenRates. Return exact source changes, focused checks, reviews and live visual qualification limits. Existing pricing-policy regression expected version updated to additive newversion; oldmodeltariffs unchanged. Runner redirectsownedtemp beforeprivateimports, excludessecrets/externalnetwork, limitsJS writesandchildprocesses; trustednativeaddons caveat applies. Root and native QA aggregate22/22; native Commercial focusedpricing8/8; sourceBackend/Security/Commercial/QA PASS. NativeUX actualReact390/768/1440 TH/Neon PASS newmodel+all3sizes+five ratios+Lite default+Compare+nooverflow. TypeScript exit0. Owningrequirement/index/ordering/architecture rows updated; no filesmove/runtimepathschange. Paidlive/fullinvoice/visualquality remainunverified. Source delivery complete."
+    }
+  ],
+  "parallelBatches": []
+}

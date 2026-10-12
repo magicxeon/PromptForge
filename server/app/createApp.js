@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
-import { CLIENT_ROOT, OUTPUTS_DIR, PROJECT_ROOT, WEB_DIST_ROOT } from '../config/paths.js';
+import { CLIENT_ROOT, WEB_DIST_ROOT } from '../config/paths.js';
 import { collectionManager } from '../domain/collections/CollectionManager.js';
 import { getProviderRegistry } from '../providers/ProviderRegistry.js';
 import { queueManager } from '../domain/generation/QueueManager.js';
@@ -13,7 +13,12 @@ import { cinematicWritingOperationService } from '../domain/generation/Cinematic
 import { ComparisonOrchestrator } from '../domain/comparisons/ComparisonOrchestrator.js';
 import { historyRepository } from '../repositories/generation/HistoryRepository.js';
 import { communityShareService } from '../domain/community/CommunityShareService.js';
-import { actorContextMiddleware } from '../middleware/actorContextMiddleware.js';
+import { createRealActorContextMiddleware } from '../middleware/actorContextMiddleware.js';
+import { getAuthRuntime } from '../config/authPolicy.js';
+import { IdentityDevelopmentService } from '../domain/identity/IdentityDevelopmentService.js';
+import { registerAuthRoutes } from './routes/authRoutes.js';
+import { createIdentityAccessMiddleware } from '../middleware/identityAccessMiddleware.js';
+import { isIdentityRuntimeDeploymentReady } from '../domain/identity/createIdentityRuntime.js';
 import { mockUserRepo } from '../repositories/identity/MockUserRepository.js';
 import { createAttributesBundleLoader, registerAttributesRoutes } from './routes/attributesRoutes.js';
 import { registerIdentityRoutes } from './routes/identityRoutes.js';
@@ -23,6 +28,8 @@ import { registerCollectionRoutes } from './routes/collectionRoutes.js';
 import { registerGenerationRoutes } from './routes/generationRoutes.js';
 import { registerMediaExportRoutes } from './routes/mediaExportRoutes.js';
 import { MediaExportService } from '../domain/assets/MediaExportService.js';
+import { AssetDeliveryService } from '../domain/assets/AssetDeliveryService.js';
+import { registerAssetRoutes } from './routes/assetRoutes.js';
 import { GenerationExportSourceService } from '../domain/generation/GenerationExportSourceService.js';
 import { registerHistoryRoutes } from './routes/historyRoutes.js';
 import { registerComparisonRoutes } from './routes/comparisonRoutes.js';
@@ -96,10 +103,12 @@ export function resolveRequestUsername(req, {
     throw err;
   }
 
-  return contextUser || legacyUser || 'user_demo';
+  if (!contextUser) throw Object.assign(new Error('Authentication required.'), { statusCode: 401 });
+  return contextUser;
 }
 
-export function createApp() {
+export function createApp({ authRuntime = getAuthRuntime(), identityRuntime, identityApplicationService = identityRuntime?.identityApplicationService,
+  billableRecoveryReady = false } = {}) {
   const app = express();
   const providerRegistry = getProviderRegistry();
   const generationApplicationService = new GenerationApplicationService({
@@ -140,25 +149,48 @@ export function createApp() {
   const adminInvestigationService = new AdminInvestigationService({ providerRegistry });
   const providerControlService = new ProviderControlApplicationService({ imageRegistry: providerRegistry });
 
-  const startupCreditReconciliation = lookSheetEnhancementService.recover()
-    .then(() => cinematicWritingOperationService.recover()).then(() =>
-    creditApplicationService.reconcileStartupOrphanReservations({
-      shouldPreserveReservation: reservation => reservation.metadata?.kind === 'look_sheet_enhancement'
-        || reservation.metadata?.kind === 'cinematic_text'
-        || videoGenerationApplicationService.hasDurableTaskForReservation(reservation)
-    }));
+  app.locals.authRuntimeReady = !authRuntime.enabled && isIdentityRuntimeDeploymentReady(identityRuntime)
+    && identityApplicationService === identityRuntime.identityApplicationService;
+  app.locals.billableRecoveryReady = app.locals.authRuntimeReady && billableRecoveryReady === true;
+  let beginRecovery;
+  const startupCreditReconciliation = app.locals.billableRecoveryReady
+    ? new Promise((resolve, reject) => {
+      beginRecovery = () => {
+        beginRecovery = undefined;
+        lookSheetEnhancementService.recover().then(() => cinematicWritingOperationService.recover()).then(() =>
+          creditApplicationService.reconcileStartupOrphanReservations({
+            shouldPreserveReservation: reservation => reservation.metadata?.kind === 'look_sheet_enhancement'
+              || reservation.metadata?.kind === 'cinematic_text'
+              || videoGenerationApplicationService.hasDurableTaskForReservation(reservation)
+          })).then(resolve, reject);
+      };
+    }) : Promise.resolve();
+  const startBillableRecovery = () => { beginRecovery?.(); return startupCreditReconciliation; };
 
-  app.use(cors());
+  if (authRuntime.enabled || !identityApplicationService)
+    app.use(new IdentityDevelopmentService({runtime:authRuntime,userRepository:mockUserRepo}).middleware());
+  app.use(cors({ origin: false }));
+  if (!authRuntime.enabled && identityApplicationService) {
+    app.use(createRealActorContextMiddleware({identityApplicationService}));
+    app.use('/api/auth', express.json({ limit: '32kb' }));
+    app.use('/api/auth', express.urlencoded({ extended: false, limit: '32kb', parameterLimit: 16 }));
+    app.use('/api/auth', (error, req, res, next) => {
+      if (!error) return next();
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(error.type === 'entity.too.large' ? 413 : 400)
+        .json({ error: 'Authentication unavailable.', code: 'auth_forbidden' });
+    });
+    registerAuthRoutes(app,{identityApplicationService});
+    app.use(createIdentityAccessMiddleware({identityApplicationService}));
+  }
   app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20mb' }));
-  app.use(actorContextMiddleware);
   app.use(requestPerformanceMiddleware);
   app.use('/react-assets', express.static(path.join(WEB_DIST_ROOT, 'react-assets')));
   // React retains only runtime data/media boundaries from the former client
   // tree. Legacy scripts, HTML and styles are intentionally not web-served.
   app.use('/assets', express.static(path.join(CLIENT_ROOT, 'assets')));
   app.use('/i18n', express.static(path.join(CLIENT_ROOT, 'i18n')));
-  app.use('/outputs', express.static(OUTPUTS_DIR));
-  app.use('/sub-app-game-character', express.static(path.join(PROJECT_ROOT, 'sub-app-game-character')));
+  registerAssetRoutes(app, { assetDeliveryService: new AssetDeliveryService() });
 
   app.use((req, res, next) => {
     req.userRole = req.actorContext?.role || 'user';
@@ -191,6 +223,7 @@ export function createApp() {
   });
   registerPromptComposerRoutes(app, { getAttributesBundle });
   registerIdentityRoutes(app, {
+    identityApplicationService: authRuntime.enabled ? undefined : identityApplicationService,
     mockUserRepo,
     communityFeaturePolicyService
   });
@@ -300,6 +333,7 @@ export function createApp() {
     comparisonOrchestrator,
     getAttributesBundle,
     startupCreditReconciliation,
+    startBillableRecovery,
     videoGenerationApplicationService
   };
 

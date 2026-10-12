@@ -16,7 +16,7 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 const runner = fileURLToPath(new URL('../../scripts/verify-authentication.mjs', import.meta.url));
 
 test('runner rejects missing, malformed, unknown, undelivered and incomplete aggregate selections', () => {
-  for (const args of [[], ['--group'], ['--group', 'unknown'], ['--group', 'social'], ['--group', 'contracts', '--all'], ['--all']]) {
+  for (const args of [[], ['--group'], ['--group', 'unknown'], ['--group', 'linking-recovery'], ['--group', 'contracts', '--all'], ['--all']]) {
     const result = spawnSync(process.execPath, [runner, ...args], { cwd: root, encoding: 'utf8', windowsHide: true, timeout: 5000 });
     assert.equal(result.error, undefined);
     assert.equal(result.status, 2, args.join(' '));
@@ -32,6 +32,16 @@ test('persistence CLI rejects absent or unsafe targets without exposing credenti
     const result = spawnSync(process.execPath, [runner, '--group', 'persistence'], {
       cwd: root, env: { ...env, SystemRoot: process.env.SystemRoot }, encoding: 'utf8', windowsHide: true, timeout: 5000,
     });
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 2);
+    assert.match(result.stderr, /No connection attempted/);
+    assert.doesNotMatch(result.stderr + result.stdout, /sensitive|TAP version/);
+  }
+});
+
+test('newly implemented social runner rejects absent or malformed disposable target before qualification', () => {
+  for (const env of [{}, { ...fixtureEnv, MPF_TEST_DATABASE_DISPOSABLE: 'false' }, { ...fixtureEnv, MPF_TEST_DATABASE_URL: 'postgresql://fixture:sensitive@remote.invalid/mpf_test_auth' }]) {
+    const result = spawnSync(process.execPath, [runner, '--group', 'social'], { cwd: root, env: { ...env, SystemRoot: process.env.SystemRoot }, encoding: 'utf8', windowsHide: true, timeout: 5000 });
     assert.equal(result.error, undefined);
     assert.equal(result.status, 2);
     assert.match(result.stderr, /No connection attempted/);

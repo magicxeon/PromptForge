@@ -9,11 +9,13 @@ export class UserPreferenceError extends Error {
 }
 
 export class UserPreferenceService {
-  constructor({ userRepository = mockUserRepo } = {}) {
+  constructor({ userRepository = mockUserRepo, identityApplicationService } = {}) {
     this.userRepository = userRepository;
+    this.identityApplicationService = identityApplicationService;
   }
 
   async getPreferences(actorContext) {
+    if (this.identityApplicationService) return this.identityApplicationService.preferences(actorContext);
     const userId = requireUserId(actorContext);
     const user = await this.userRepository.findById(userId);
     return projectPreferences(requireUser(user));
@@ -21,14 +23,24 @@ export class UserPreferenceService {
 
   async updatePreferences(input, actorContext) {
     const userId = requireUserId(actorContext);
-    if (!input || typeof input !== 'object' || Array.isArray(input)
-      || Object.keys(input).length !== 1
-      || !Object.hasOwn(input, 'confirmCreditUsage')
-      || typeof input.confirmCreditUsage !== 'boolean') {
-      throw new UserPreferenceError('user_preferences_invalid', 'Expected only confirmCreditUsage as a boolean.', 400);
+    if (
+      !input ||
+      typeof input !== 'object' ||
+      Array.isArray(input) ||
+      Object.keys(input).length !== 1 ||
+      !Object.hasOwn(input, 'confirmCreditUsage') ||
+      typeof input.confirmCreditUsage !== 'boolean'
+    ) {
+      throw new UserPreferenceError(
+        'user_preferences_invalid',
+        'Expected only confirmCreditUsage as a boolean.',
+        400
+      );
     }
+    if (this.identityApplicationService)
+      return this.identityApplicationService.preferences(actorContext, input);
     const user = await this.userRepository.updatePreferences(userId, {
-      confirmCreditUsage: input.confirmCreditUsage
+      confirmCreditUsage: input.confirmCreditUsage,
     });
     return projectPreferences(requireUser(user));
   }
@@ -36,7 +48,11 @@ export class UserPreferenceService {
 
 function requireUserId(actorContext) {
   if (typeof actorContext?.userId !== 'string' || !actorContext.userId.trim()) {
-    throw new UserPreferenceError('user_preferences_actor_required', 'An authenticated actor is required.', 401);
+    throw new UserPreferenceError(
+      'user_preferences_actor_required',
+      'An authenticated actor is required.',
+      401
+    );
   }
   return actorContext.userId;
 }

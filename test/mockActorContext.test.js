@@ -1,135 +1,17 @@
-import assert from 'node:assert/strict';
 import test from 'node:test';
+import assert from 'node:assert/strict';
 import { actorContextMiddleware } from '../server/middleware/actorContextMiddleware.js';
-import { mockUserRepo } from '../server/repositories/identity/MockUserRepository.js';
-import { createSystemActorContext, normalizeActorContext } from '../server/domain/identity/mockActorContext.js';
 
-test('MockUserRepository resolves usr_demo properties correctly', async () => {
-  const user = await mockUserRepo.findById('usr_demo');
-  assert.ok(user);
-  assert.equal(user.username, 'user_demo');
-  assert.equal(user.role, 'user');
-});
-
-test('MockUserRepository exposes support actor for backoffice permission testing', async () => {
-  const user = await mockUserRepo.findById('usr_support');
-  assert.ok(user);
-  assert.equal(user.username, 'support_demo');
-  assert.equal(user.role, 'support');
-  assert.equal(user.status, 'active');
-});
-
-test('MockUserRepository constructs ActorContext with correct shape', async () => {
-  const user = await mockUserRepo.findById('usr_alice');
-  assert.ok(user);
-  const context = mockUserRepo.toActorContext(user, 'req_123');
-  assert.equal(context.userId, 'usr_alice');
-  assert.equal(context.username, 'user_alice');
-  assert.equal(context.role, 'creator');
-  assert.equal(context.authProvider, 'mock');
-  assert.equal(context.isMockActor, true);
-  assert.equal(context.requestId, 'req_123');
-});
-
-test('createSystemActorContext creates system process identity', () => {
-  const context = createSystemActorContext('usr_demo', 'req_sys_123');
-  assert.equal(context.userId, 'system_agent');
-  assert.equal(context.role, 'support');
-  assert.equal(context.authProvider, 'system');
-  assert.equal(context.originalRequesterUserId, 'usr_demo');
-  assert.equal(context.requestId, 'req_sys_123');
-});
-
-test('actorContextMiddleware defaults to usr_demo in development when header is missing', async () => {
-  const req = {
-    headers: {},
-    method: 'GET'
-  };
-  const res = {};
-  let nextCalled = false;
-  const next = () => { nextCalled = true; };
-
-  await actorContextMiddleware(req, res, next);
-
-  assert.ok(nextCalled);
-  assert.ok(req.actorContext);
-  assert.equal(req.actorContext.userId, 'usr_demo');
-  assert.equal(req.actorContext.username, 'user_demo');
-});
-
-test('actorContextMiddleware resolves userId from x-mpf-user-id header', async () => {
-  const req = {
-    headers: {
-      'x-mpf-user-id': 'usr_bob'
-    },
-    method: 'POST'
-  };
-  const res = {};
-  let nextCalled = false;
-  const next = () => { nextCalled = true; };
-
-  await actorContextMiddleware(req, res, next);
-
-  assert.ok(nextCalled);
-  assert.equal(req.actorContext.userId, 'usr_bob');
-  assert.equal(req.actorContext.username, 'user_bob');
-  assert.equal(req.actorContext.role, 'user');
-});
-
-test('actorContextMiddleware rejects mutating requests with invalid user id', async () => {
-  const req = {
-    headers: {
-      'x-mpf-user-id': 'usr_nonexistent'
-    },
-    method: 'POST'
-  };
-  let statusSet = null;
-  let jsonSent = null;
-  const res = {
-    status(s) {
-      statusSet = s;
-      return this;
-    },
-    json(j) {
-      jsonSent = j;
-      return this;
+test('deprecated mock middleware denies missing/header/query identities in every method without fallback', async () => {
+  for (const method of ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE']) {
+    for (const claim of [{}, { headers: { 'x-mpf-user-id': 'usr_demo' } }, { query: { mpfUserId: 'usr_demo' } }]) {
+      const req = { method, headers: {}, query: {}, actorContext: { userId: 'injected' }, ...claim };
+      const res = { headers: {}, setHeader(k,v) { this.headers[k] = v; }, status(value) { this.statusCode = value; return this; },
+        json(value) { this.body = value; return this; } };
+      let advanced = false;
+      await actorContextMiddleware(req, res, () => { advanced = true; });
+      assert.equal(req.actorContext, null); assert.equal(res.statusCode, 503); assert.equal(advanced, false);
+      assert.equal(res.headers['Cache-Control'], 'no-store'); assert.equal(res.body.code, 'auth_service_unavailable');
     }
-  };
-  let nextCalled = false;
-  const next = () => { nextCalled = true; };
-
-  await actorContextMiddleware(req, res, next);
-
-  assert.ok(!nextCalled);
-  assert.equal(statusSet, 401);
-  assert.ok(jsonSent.error.includes('Invalid user identity'));
-});
-
-test('actorContextMiddleware rejects mutating requests for disabled user', async () => {
-  const req = {
-    headers: {
-      'x-mpf-user-id': 'usr_disabled'
-    },
-    method: 'DELETE'
-  };
-  let statusSet = null;
-  let jsonSent = null;
-  const res = {
-    status(s) {
-      statusSet = s;
-      return this;
-    },
-    json(j) {
-      jsonSent = j;
-      return this;
-    }
-  };
-  let nextCalled = false;
-  const next = () => { nextCalled = true; };
-
-  await actorContextMiddleware(req, res, next);
-
-  assert.ok(!nextCalled);
-  assert.equal(statusSet, 403);
-  assert.ok(jsonSent.error.includes('disabled'));
+  }
 });

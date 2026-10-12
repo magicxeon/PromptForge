@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "ai-credit-activation-2026-10-02-v1",
-  "effectiveAt": "2026-10-02T00:00:00.000Z",
+  "policyVersion": "ai-credit-activation-2026-10-12-nano21-v1",
+  "effectiveAt": "2026-10-12T00:00:00.000Z",
   "providerPriceSourceDate": "2026-07-24",
   "referenceFxThbPerUsd": 33.7594,
   "pricingFxThbPerUsd": 35.0,
@@ -67,6 +67,28 @@
     "source": "https://developers.openai.com/api/docs/models/gpt-6-sol"
   },
   "models": [
+    {
+      "providerId": "gemini",
+      "modelId": "gemini-nano-banana-2.1",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 50,
+      "baseCreditsByResolution": { "1K": 50, "2K": 70, "4K": 155 },
+      "referencePricing": { "mode": "fixed", "unitCredits": 1, "freeCount": 0 },
+      "providerPriceSourceDate": "2026-10-12",
+      "providerPriceSource": "https://ai.google.dev/gemini-api/docs/pricing",
+      "geminiImagePricing": {
+        "version": "nano21-fixed-service-2026-10-12-v1",
+        "imageOutputUsdPerResolution": { "1K": 0.0336, "2K": 0.0504, "4K": 0.1134 },
+        "inputUsdPerMillion": 1.5,
+        "textThinkingUsdPerMillion": 7.5,
+        "imageOutputUsdPerMillion": 30,
+        "maxReferences": 6,
+        "maxOutputs": 4,
+        "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5"]
+      },
+      "notes": "Fixed Gemini service tariff; provisional provider cost evidence covers image output only, excludes input/thinking/search. Grounding disabled. Existing canonical quote/reservation/capture/refund remains unchanged; no live visual qualification."
+    },
     {
       "providerId": "meta-muse",
       "modelId": "muse-image-1.0",

@@ -3,6 +3,12 @@
   "defaultRuntime": "react",
   "routes": [
     {
+      "id": "authentication",
+      "patterns": ["/login", "/register", "/forgot-password", "/reset-password", "/auth/verify", "/auth/complete", "/auth/callback", "/auth/facebook/data-deletion"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
       "id": "community-home",
       "patterns": ["/", "/home", "/community", "/explore/comparisons", "/explore/templates"],
       "runtime": "react",

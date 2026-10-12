@@ -1,11 +1,39 @@
 # AUTH-005 Screens And User Journeys
 
 **Parent:** [AUTH-019](../Phase2-04-authentication-sessions-and-authorization.md)
-**Status:** Interaction specification; no screens implemented or visually verified
+**Status:** Shared actor/transport/gate, password/OTP signup/Login, reset and
+Google/Facebook callbacks are source-implemented and scoped-reviewed. Published
+legal links and received-only Facebook receipt passed native UX at 390/768/1440;
+EN/TH 92-key parity passed. Canonical runtime source is qualified; final private
+application integration and live deployment remain separate gates. Published
+legal documents, real sender/provider configuration and live UAT are rollout
+inputs. Full account-security/linking/MFA tasks are not complete.
 **Primary user:** Returning creator/customer entering their workspace; new users
 complete minimal onboarding once.
 
 ## 1. Scope And Preservation
+
+### Login Entry Completion Order (User Steering 2026-10-11)
+
+Finish Login/register/verification/OTP/reset/social callback and development
+bypass entry before adding Gemini Nano Banana2.1. Retain existing password/OTP/
+reset evidence. Next deliver provider entry and typed callback through the shared
+form, then connected runtime and remaining Identity/private-surface boundaries.
+Account-security/MFA/link management remains assigned to existing AUTH-T10/T11/
+T12/T14 packets; entry UI tests cannot complete the full Authentication roadmap.
+Staging credentials, published legal versions/links, sender and retention approval
+remain explicit rollout inputs rather than invented fixture qualifications.
+
+Provider buttons appear only for server-configured methods. One pending action
+prevents duplicate starts. Start sends Login intent/remember/safe return and
+follows only the exact official provider origin returned by the server. Callback
+uses a known constant provider hint solely to select its bounded result endpoint;
+server cookies/recorded result determine the step. Known accounts require
+confirmed Session identity before navigation; new social accounts require explicit
+consent. Missing/untrusted email uses independent email/OTP. Existing-email
+collision returns ordinary Login. Authoritative social signup skips OTP without
+fabricating a challenge. Cancellation/error/uncertain results offer neutral
+retry/back; read retry cannot replay provider start or account creation.
 
 Own login/signup/OTP/reset/callback pages, account security settings, guest header
 entry, logout actions and authentication interruption. Preserve Profile, Library,
@@ -20,6 +48,19 @@ Images are visual references, not new publication/branding decisions.
 
 ## 2. Route And Screen Inventory
 
+Reset UI delivery uses reviewed shared Entry and reset-only server contracts;
+it does not depend on social signup. The current forgot entry retains usable
+OTP Login access and offers an explicit Reset password link. Reset owns its
+email -> purpose-bound OTP -> new password/confirmation -> committed success
+flow, never automatic Login. Unknown/ineligible/error exits use the same neutral
+help and OTP Login/back alternatives without credential-presence claims.
+Final submit prepares the exact payload/key and receipt before committing it;
+lost commit responses use only the bounded shared Query operation lookup
+(one active operation, maximum10 attempts at2seconds, original expiry, stop on
+terminal/unmount/actor-mode change). No mutation retry or success guess.
+Manual Support recovery remains disabled under D07; static honest guidance
+requires no T11C request API or claimed recovery delivery.
+
 Proposed routes use React Router/routeRegistry; shared route guard consumes the
 existing ActorProvider. Do not add a second global auth store.
 
@@ -27,11 +68,12 @@ existing ActorProvider. Do not add a second global auth store.
 |---|---|---|
 | `/login` | Google/Facebook; email/password; show password; optional remember; OTP instead; forgot password; signup | Authorized saved return path, otherwise existing workspace/home |
 | `/register` | Email or social entry; concise Terms/Privacy notice; no redundant profile form | Verification then onboarding |
-| `/auth/verify` | Purpose-specific title, masked email, code, resend timer, edit email, back | Only server-authorized next step |
+| `/auth/verify` | Purpose-specific title, user-entered email destination, code, resend timer, edit email, back; server-only addresses remain masked | Only server-authorized next step |
 | `/auth/complete` | Display name, optional password/confirmation, Terms acceptance; missing social email step | Activate then safe return |
 | `/forgot-password` | Email + generic acknowledgement; clear link to OTP login | Reset OTP challenge |
 | `/reset-password` | Reset-only context, new/confirm password and guidance | Success then login, no auto-login |
 | `/auth/callback` | Accessible processing, cancellation/failure/retry, no token display | Login, onboarding, link proof or workspace |
+| `/auth/facebook/data-deletion` | Bounded read-only opaque receipt lookup; received acknowledgement, never completed deletion/account details | Ordinary Login/back, no identity authority |
 | `/account/security` | Verified email, linked methods, password add/change/remove, sessions/MFA/recovery help | Inline confirmed result |
 | `/account/security/sessions` or section | Bounded device list, current marker, revoke one/all confirmation | Updated list or login if current revoked |
 | Recovery help | Existing Support/help entry with safe guidance | Generic receipt, never automatic ownership change |

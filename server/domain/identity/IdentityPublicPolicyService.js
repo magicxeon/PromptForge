@@ -25,6 +25,14 @@ export class IdentityPublicPolicyService {
       active && q.email?.configured === true && q.email?.qualified === true && q.email?.fixtureOnly === false;
     const method = (name) =>
       active && q[name]?.configured === true && q[name]?.qualified === true && q[name]?.fixtureOnly === false;
+    const legalUrl = value => {
+      try {
+        const url = new URL(value);
+        return typeof value === 'string' && value.length <= 2048 && !url.username && !url.password && !url.hash && !url.search
+          && (url.protocol === 'https:' || url.protocol === 'http:' && url.hostname === '127.0.0.1') ? value : undefined;
+      } catch { return undefined; }
+    };
+    const termsUrl = legalUrl(this.legal.termsUrl), privacyUrl = legalUrl(this.legal.privacyUrl);
     return {
       contractVersion: 1,
       authMode: mode,
@@ -41,7 +49,7 @@ export class IdentityPublicPolicyService {
         passwordMinLength: 15,
         passwordMaxLength: 128,
       },
-      legal: { termsVersion, privacyVersion },
+      legal: { termsVersion, privacyVersion, ...(termsUrl ? { termsUrl } : {}), ...(privacyUrl ? { privacyUrl } : {}) },
     };
   }
 }

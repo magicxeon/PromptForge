@@ -1,0 +1,285 @@
+[persistence] Disposable harness, Identity and transactional Audit primitives; no Login/session domain qualification.
+TAP version 13
+# Subtest: transactional Audit security events share Identity commit authority
+    # Subtest: Identity and Audit commit together, including disabled-account denial
+    ok 1 - Identity and Audit commit together, including disabled-account denial
+      ---
+      duration_ms: 13.3823
+      type: 'test'
+      ...
+    # Subtest: failure after both writes rolls back account and event
+    ok 2 - failure after both writes rolls back account and event
+      ---
+      duration_ms: 22.3238
+      type: 'test'
+      ...
+    # Subtest: exact retry and concurrent dedup preserve original recorded time
+    ok 3 - exact retry and concurrent dedup preserve original recorded time
+      ---
+      duration_ms: 92.1181
+      type: 'test'
+      ...
+    # Subtest: concurrent changed-payload reuse has one commit and rolls back the losing Identity write
+    ok 4 - concurrent changed-payload reuse has one commit and rolls back the losing Identity write
+      ---
+      duration_ms: 24.4756
+      type: 'test'
+      ...
+    # Subtest: preauth events claim no account and cross-actor targets are denied
+    ok 5 - preauth events claim no account and cross-actor targets are denied
+      ---
+      duration_ms: 63.7055
+      type: 'test'
+      ...
+    # Subtest: secrets, free text, unsupported fields, missing keys and forged or expired handles fail safely
+    ok 6 - secrets, free text, unsupported fields, missing keys and forged or expired handles fail safely
+      ---
+      duration_ms: 139.4401
+      type: 'test'
+      ...
+    # Subtest: direct UPDATE DELETE TRUNCATE and account deletion cannot erase events
+    ok 7 - direct UPDATE DELETE TRUNCATE and account deletion cannot erase events
+      ---
+      duration_ms: 62.73
+      type: 'test'
+      ...
+    1..7
+ok 1 - transactional Audit security events share Identity commit authority
+  ---
+  duration_ms: 674.6418
+  type: 'test'
+  ...
+# Subtest: prepared Identity operations, transactional Audit and bounded fixture delivery
+    # Subtest: proof expiration during account lock wait cannot prepare an operation
+    ok 1 - proof expiration during account lock wait cannot prepare an operation
+      ---
+      duration_ms: 58.1097
+      type: 'test'
+      ...
+    # Subtest: fresh clock checks proof callback, mutation handler and final write boundaries
+    ok 2 - fresh clock checks proof callback, mutation handler and final write boundaries
+      ---
+      duration_ms: 176.0037
+      type: 'test'
+      ...
+    # Subtest: prepared handle survives lost response, receipt replacement is capped and immutable
+    ok 3 - prepared handle survives lost response, receipt replacement is capped and immutable
+      ---
+      duration_ms: 83.3435
+      type: 'test'
+      ...
+    # Subtest: concurrent preparations share one operation and preserve one current receipt
+    ok 4 - concurrent preparations share one operation and preserve one current receipt
+      ---
+      duration_ms: 99.5866
+      type: 'test'
+      ...
+    # Subtest: receipt never authorizes commit; changed payload, browser and proof fail
+    ok 5 - receipt never authorizes commit; changed payload, browser and proof fail
+      ---
+      duration_ms: 100.1433
+      type: 'test'
+      ...
+    # Subtest: Audit failure rolls back mutation and outbox; authorized concurrent retry commits once
+    ok 6 - Audit failure rolls back mutation and outbox; authorized concurrent retry commits once
+      ---
+      duration_ms: 118.7587
+      type: 'test'
+      ...
+    # Subtest: notification send uses stable logical id, outside transaction, then erases ciphertext
+    ok 7 - notification send uses stable logical id, outside transaction, then erases ciphertext
+      ---
+      duration_ms: 69.9748
+      type: 'test'
+      ...
+    # Subtest: AES authentication binds key, record, operation, purpose, version and expiry
+    ok 8 - AES authentication binds key, record, operation, purpose, version and expiry
+      ---
+      duration_ms: 1.128
+      type: 'test'
+      ...
+    # Subtest: expired lease is fenced, retry budget is four and terminal failure erases payload
+    ok 9 - expired lease is fenced, retry budget is four and terminal failure erases payload
+      ---
+      duration_ms: 82.442
+      type: 'test'
+      ...
+    # Subtest: missing delivery key fails closed and terminalizes without sending
+    ok 10 - missing delivery key fails closed and terminalizes without sending
+      ---
+      duration_ms: 51.6515
+      type: 'test'
+      ...
+    # Subtest: acknowledgement rechecks lease with fresh time after its actual PostgreSQL lock wait
+    ok 11 - acknowledgement rechecks lease with fresh time after its actual PostgreSQL lock wait
+      ---
+      duration_ms: 73.7762
+      type: 'test'
+      ...
+    # Subtest: expired work cleanup erases abandoned lease and preparation expiry is not extended
+    ok 12 - expired work cleanup erases abandoned lease and preparation expiry is not extended
+      ---
+      duration_ms: 38.4547
+      type: 'test'
+      ...
+    # Subtest: provider success followed by failed SQL finalization exposes no account and cannot replay code
+    ok 13 - provider success followed by failed SQL finalization exposes no account and cannot replay code
+      ---
+      duration_ms: 96.1028
+      type: 'test'
+      ...
+    # Subtest: social abandoned lease interrupts; expired operation or exchange cannot complete
+    ok 14 - social abandoned lease interrupts; expired operation or exchange cannot complete
+      ---
+      duration_ms: 109.7524
+      type: 'test'
+      ...
+    # Subtest: trusted reconciliation interrupts expired initiated and claimed exchanges and erases transient proof
+    ok 15 - trusted reconciliation interrupts expired initiated and claimed exchanges and erases transient proof
+      ---
+      duration_ms: 98.2716
+      type: 'test'
+      ...
+    # Subtest: code eligibility rejects superseded, revoked, expired and stale-version proof
+    ok 16 - code eligibility rejects superseded, revoked, expired and stale-version proof
+      ---
+      duration_ms: 230.1681
+      type: 'test'
+      ...
+    # Subtest: delivery retry reuses logical id and never repeats committed mutation
+    ok 17 - delivery retry reuses logical id and never repeats committed mutation
+      ---
+      duration_ms: 127.6032
+      type: 'test'
+      ...
+    # Subtest: one invocation processes at most ten with two concurrent external sends
+    ok 18 - one invocation processes at most ten with two concurrent external sends
+      ---
+      duration_ms: 563.01
+      type: 'test'
+      ...
+    # Subtest: fresh eligibility deadlines stop dispatch after awaited delivery, challenge, context or lease expiry
+    ok 19 - fresh eligibility deadlines stop dispatch after awaited delivery, challenge, context or lease expiry
+      ---
+      duration_ms: 150.2754
+      type: 'test'
+      ...
+    # Subtest: ten-second timeout aborts adapter and quarantines an unsettled external send
+    ok 20 - ten-second timeout aborts adapter and quarantines an unsettled external send
+      ---
+      duration_ms: 10065.7711
+      type: 'test'
+      ...
+    # Subtest: uncertain short-deadline sends retain both slots across calls until real settlement
+    ok 21 - uncertain short-deadline sends retain both slots across calls until real settlement
+      ---
+      duration_ms: 2682.9422
+      type: 'test'
+      ...
+    1..21
+ok 2 - prepared Identity operations, transactional Audit and bounded fixture delivery
+  ---
+  duration_ms: 15399.7463
+  type: 'test'
+  ...
+# Subtest: authentication disposable PostgreSQL fixture lifecycle (no Identity DDL)
+    # Subtest: shared migration engine applies fixture-only migrations and schema is removed on success
+    ok 1 - shared migration engine applies fixture-only migrations and schema is removed on success
+      ---
+      duration_ms: 59.7254
+      type: 'test'
+      ...
+    # Subtest: failed fixture work cleans its schema while independent sentinel survives
+    ok 2 - failed fixture work cleans its schema while independent sentinel survives
+      ---
+      duration_ms: 19.8685
+      type: 'test'
+      ...
+    1..2
+ok 3 - authentication disposable PostgreSQL fixture lifecycle (no Identity DDL)
+  ---
+  duration_ms: 111.825
+  type: 'test'
+  ...
+# Subtest: Identity PostgreSQL constraints, concurrent writes, guarded mutations and replay
+    # Subtest: reviewed Identity migration is explicit, atomic and replayable
+    ok 1 - reviewed Identity migration is explicit, atomic and replayable
+      ---
+      duration_ms: 127.7733
+      type: 'test'
+      ...
+    # Subtest: separate connections competing for canonical email leave one account and binding
+    ok 2 - separate connections competing for canonical email leave one account and binding
+      ---
+      duration_ms: 24.5143
+      type: 'test'
+      ...
+    # Subtest: same provider app-scoped subject has one winner and no loser account
+    ok 3 - same provider app-scoped subject has one winner and no loser account
+      ---
+      duration_ms: 23.8892
+      type: 'test'
+      ...
+    # Subtest: FK, status, verified email, retention uniqueness and expiry checks reject malformed durable state
+    ok 4 - FK, status, verified email, retention uniqueness and expiry checks reject malformed durable state
+      ---
+      duration_ms: 91.952
+      type: 'test'
+      ...
+    # Subtest: same-key concurrent retry returns one safe persisted result and invokes work once
+    ok 5 - same-key concurrent retry returns one safe persisted result and invokes work once
+      ---
+      duration_ms: 49.777
+      type: 'test'
+      ...
+    # Subtest: unapproved replay fields abort operation and domain mutation atomically
+    ok 6 - unapproved replay fields abort operation and domain mutation atomically
+      ---
+      duration_ms: 23.082
+      type: 'test'
+      ...
+    # Subtest: stale version rejects before callback and concurrent status changes have one winner
+    ok 7 - stale version rejects before callback and concurrent status changes have one winner
+      ---
+      duration_ms: 44.9035
+      type: 'test'
+      ...
+    # Subtest: aborted enrollment retries with same operation create exactly one stable account
+    ok 8 - aborted enrollment retries with same operation create exactly one stable account
+      ---
+      duration_ms: 44.6279
+      type: 'test'
+      ...
+    # Subtest: security advance revokes old session and grants atomically; rollback preserves all
+    ok 9 - security advance revokes old session and grants atomically; rollback preserves all
+      ---
+      duration_ms: 72.9624
+      type: 'test'
+      ...
+    # Subtest: child INSERT and UPDATE enforce purpose, owner, exact context, version and browser bindings
+    ok 10 - child INSERT and UPDATE enforce purpose, owner, exact context, version and browser bindings
+      ---
+      duration_ms: 890.185
+      type: 'test'
+      ...
+    # Subtest: lookup and expiry indexes exist; operation expiry and transaction lifetime fail closed
+    ok 11 - lookup and expiry indexes exist; operation expiry and transaction lifetime fail closed
+      ---
+      duration_ms: 24.8174
+      type: 'test'
+      ...
+    1..11
+ok 4 - Identity PostgreSQL constraints, concurrent writes, guarded mutations and replay
+  ---
+  duration_ms: 1541.6682
+  type: 'test'
+  ...
+1..4
+# tests 45
+# suites 0
+# pass 45
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 15623.7405

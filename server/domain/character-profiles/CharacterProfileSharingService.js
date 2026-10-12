@@ -125,7 +125,7 @@ export class CharacterProfileSharingService {
   }
 
   async listPublic(query = {}, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const page = await this.profileRepository.listPublic(query);
     const summaries = await Promise.all(
       page.items.map(item => this.buildPublicSummary(item, actor))
@@ -137,7 +137,7 @@ export class CharacterProfileSharingService {
   }
 
   async getPublicDetail(profileId, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const profile = assertProfileView(await this.profileRepository.findById(profileId), actor);
     const version = await this.requireActiveVersion(profile);
     const stats = await this.usageService.getStats(profile.id);
@@ -150,8 +150,8 @@ export class CharacterProfileSharingService {
       stats,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
-      isOwner: profile.ownerUserId === actor.userId,
-      recordVersion: profile.ownerUserId === actor.userId ? profile.recordVersion : undefined
+      isOwner: Boolean(actor && profile.ownerUserId === actor.userId),
+      recordVersion: Boolean(actor && profile.ownerUserId === actor.userId) ? profile.recordVersion : undefined
     };
   }
 
@@ -212,7 +212,7 @@ export class CharacterProfileSharingService {
   }
 
   async listPublicWorks(profileId, query = {}, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const profile = assertProfileView(await this.profileRepository.findById(profileId), actor);
     const posts = await this.communityPostRepository.listPublic({
       limit: Math.min(50, Number(query.limit) || 24),
@@ -362,7 +362,7 @@ export class CharacterProfileSharingService {
   }
 
   async getFeaturedImageFile(profileId, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const profile = assertProfileView(await this.profileRepository.findById(profileId), actor);
     const candidatesByProfileId = await this.resolveFeaturedCandidates([profile]);
     const candidate = selectFeaturedCandidate(
@@ -457,7 +457,7 @@ export class CharacterProfileSharingService {
   }
 
   async getMediaFile(profileId, actorContext, mediaKind = 'image') {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const profile = assertProfileView(await this.profileRepository.findById(profileId), actor);
     const version = await this.versionRepository.findById(profile.activeVersionId);
     const characterType = normalizeCharacterType(profile.characterType);
@@ -468,7 +468,7 @@ export class CharacterProfileSharingService {
       : null;
     if (!version || version.characterProfileId !== profile.id
       || !canonicalAssetId
-      || (profile.ownerUserId !== actor.userId && version.status !== 'approved')) {
+      || ((!actor || profile.ownerUserId !== actor.userId) && version.status !== 'approved')) {
       throw new RepositoryContractError(
         'character_profile_media_not_ready',
         'Character image is not ready.',
@@ -558,8 +558,8 @@ export class CharacterProfileSharingService {
       status: profile.status,
       reusePolicy: profile.reusePolicy,
       reuseStatus: reuseStatus(profile, actor),
-      handoffAvailable: profile.ownerUserId === actor.userId || profile.reusePolicy === 'public_reusable',
-      isOwner: profile.ownerUserId === actor.userId,
+      handoffAvailable: Boolean(actor && (profile.ownerUserId === actor.userId || profile.reusePolicy === 'public_reusable')),
+      isOwner: Boolean(actor && profile.ownerUserId === actor.userId),
       imageUrl: canonicalImageUrl,
       thumbnailUrl,
       faceThumbnailUrl: `/api/community/character-profiles/${encodeURIComponent(profile.id)}/face`,

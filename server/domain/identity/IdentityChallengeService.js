@@ -345,12 +345,20 @@ export class IdentityChallengeService {
           challengeId: row.id,
           transaction: tx,
           identity: this.identityRepository.bind(tx),
+          proofs: Object.freeze({ contextProof: input.contextProof, browserProof: input.browserProof }),
         });
         this.fresh(context.expires_at, row.expires_at);
         if (
           !handled ||
           Object.getPrototypeOf(handled) !== Object.prototype ||
-          Object.keys(handled).some((key) => !['nextAction', 'contextId'].includes(key)) ||
+          Object.keys(handled).some(
+            (key) => !['nextAction', 'contextId', 'session', 'returnPath'].includes(key)
+          ) ||
+          ((handled.session !== undefined || handled.returnPath !== undefined) &&
+            (binding.purpose !== 'login' ||
+              handled.nextAction !== 'authenticate' ||
+              !handled.session ||
+              typeof handled.returnPath !== 'string')) ||
           !challengeNextActions[binding.purpose].includes(handled.nextAction) ||
           (handled.contextId !== undefined && !opaque(handled.contextId))
         )

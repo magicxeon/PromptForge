@@ -16,6 +16,10 @@ export const router = createBrowserRouter([{
   element: <AppShell />,
   errorElement: <RouteErrorPage />,
   children: [
+    { path: 'auth/facebook/data-deletion', lazy: lazyRoute(() => import('../features/authentication/routes/FacebookDeletionReceiptRoute'), 'FacebookDeletionReceiptRoute') },
+    ...['login', 'register', 'forgot-password', 'reset-password', 'auth/verify', 'auth/complete', 'auth/callback'].map(path => ({
+      path, lazy: lazyRoute(() => import('../features/authentication/routes/AuthenticationEntryRoute'), 'AuthenticationEntryRoute')
+    })),
     ...['tutorials', 'tutorials/teach', 'tutorials/teach/new', 'tutorials/teach/:contentId/edit'].map(path => ({ path, lazy: lazyRoute(() => import('../features/tutorials/routes/TutorialRoute'), 'TutorialRoute') })),
     ...['ai-cinema', 'ai-cinema/manage', 'ai-cinema/manage/new', 'ai-cinema/manage/:contentId/edit'].map(path => ({ path, lazy: lazyRoute(() => import('../features/ai-cinema/routes/AICinemaRoute'), 'AICinemaRoute') })),
     { index: true, lazy: lazyRoute(() => import('../features/community/routes/CommunityHomeRoute'), 'CommunityHomeRoute') },

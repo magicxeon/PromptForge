@@ -1,5 +1,83 @@
 # AUTH-008 Executable Task Packets
 
+### Final Login source packets AUTH-T15F/G/H
+
+Private Assets transport, private stream delivery and explicit null-viewer public
+facades are independent source responsibilities consuming completed T15D runtime
+and T15E admission contracts. Their exact writes/dependencies/acceptance are in
+task-plan.json; T15C integrates them only after reviewed T15B/F/G/H completion.
+T15F uses existing Assets records or Generation's source facade, never filenames
+as ownership; stable owner IDs are recorded on new completed Generation records
+from canonical server job options, without migrating/claiming legacy records.
+T15G serializes and bounds stream frames, revalidating before each write; it closes
+transport/listeners without cancelling accepted jobs or touching Credits. T15H
+passes null only to explicitly public readers and retains owning visibility,
+sanitization and authenticated mutation/handoff policies. Main plus two authors
+may implement these completed-contract source packets; independent Security/QA
+review follows in a separate wave. No full-app activation before all gates.
+
+## AUTH-T15D — Qualified Login runtime composition
+
+AUTH-T15E is an independent prerequisite for T15B: Root implements planned
+`server/config/identityAccessPolicy.js`,
+`server/middleware/identityAccessMiddleware.js` and
+`test/authentication/httpAccess.test.js`. The policy explicitly enumerates the
+AUTH013 public GET/HEAD paths; unknown API/private media require a facade-issued
+active real actor and unsafe browser calls require exact Origin/CSRF. It exposes
+reauthorization to source-owned continuing streams. Auth registrations precede
+the gate; no wildcard Auth bypass. Source ownership and stream wiring remain
+T15C, not acceptance inferred from this gate. Tests use isolated loopback HTTP
+and injected private authority only, with no application singletons/live data.
+
+Owner Backend, independent Security and QA. Dependencies: reviewed T07B/T08A/
+T09A, canonical PostgreSQL and frozen AUTH-011. Exact source scope:
+`server/config/identityRuntime.js` (new),
+`server/domain/identity/createIdentityRuntime.js` (new), existing Identity
+credential/social/delivery services and adapters, the owning runtime test and
+qualification runner. Root alone owns requirement/plan/map edits and bootstrap/
+HTTP cutover. Do not edit other capabilities or create another identity workflow.
+
+1. Validate explicit enabled methods, persistent key versions, exact origins,
+   qualified legal/retention/sender/provider references and database configuration.
+   Brand the trusted runtime contract; arbitrary object flags do not qualify it.
+2. Extend fixture-only gates to accept this trusted runtime contract while
+   retaining every fixture restriction. Real mail uses canonical normalized
+   addresses; injected fixture transports never qualify live readiness.
+3. Compose existing durable owners with one PostgreSQL facade and exact-purpose
+   proof/handler routing, including both provider enrollment sources. Native
+   transports are created only here. Bound outbox dispatch and lifecycle.
+   Shared PostgreSQL owns planned
+   `server/repositories/postgres/migrationRegistry.js`; move the existing reviewed
+   definitions there and retain `scripts/database/registry.mjs` as a re-export.
+   Both runtime and explicit migration tooling consume one registry; production
+   domain code does not depend on scripts. No historical migration SQL changes.
+4. Validate migration history/status without applying migrations. Missing keys,
+   schema/configuration or method readiness fail closed. Close owned resources
+   on startup failure and explicit shutdown. No background paid recovery.
+5. Add focused `runtime` runner checks using disposable PostgreSQL and private
+   fake transports only: positive composition, invalid qualification, missing
+   migrations, method availability, persistent-key restart, real-address policy,
+   dispatcher duplicate prevention/stop and neutral error behavior. No live .env,
+   SMTP/OAuth/user data or generation; no automatic production migration.
+
+The handoff must name concrete environment variables and explicit migration/
+startup prerequisites. Source qualification is separate from actual deployment
+inputs and live sender/provider UAT. T15B consumes the reviewed factory before
+activation; T15C retains its source-ownership/public-snapshot acceptance.
+
+## Core delivery dependency reconciliation (2026-10-11)
+
+Read-only BSA review removed overbroad waits without reducing acceptance.
+T06A owns the registration-only atomic account activation/session transition;
+it does not wait for authenticated action grants. T06B/T07A use the frozen
+durable method-proof interface rather than all T05C functionality. Reset T07B
+explicitly depends on T05C for preparation/commit/reconciliation. T13A can
+implement guest/actor gates before MFA management, but required/incomplete MFA
+never receives workspace access. T13B can implement qualified password/code
+entry while unqualified Google/Facebook are hidden and direct calls denied;
+provider callback acceptance remains pending until T08A/T09A qualification.
+No full task is complete on partial or mock-only provider evidence.
+
 **Parent:** [AUTH-019](../Phase2-04-authentication-sessions-and-authorization.md)
 **Requirement inputs:** [AUTH-001](001-account-lifecycle-and-boundaries.md), [AUTH-002](002-password-otp-and-social-authentication.md), [AUTH-003](003-account-linking-and-recovery.md), [AUTH-004](004-sessions-api-and-persistence.md), [AUTH-005](005-screens-and-user-journeys.md)
 **Procedure and evidence policy:** [AUTH-006](006-delivery-and-verification.md)
@@ -440,7 +518,7 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 - **Negative:** Given a foreign/expired operation receipt, stale action grant or required but incomplete MFA, when lookup/login/mutation is attempted, then lookup is non-disclosing and a receipt grants no authentication or mutation authority.
 - **Recovery:** Given a committed mutation's response was lost, when its still-valid operation receipt is queried after session revocation, then only the sanitized recorded outcome is returned.
 
-**Evidence:** `node scripts/verify-authentication.mjs --group sessions-authorization`; `node scripts/verify-authentication.mjs --group linking-recovery`. Retain raw output, fixture configuration and scenario results; cross-instance/race tests where the packet changes authority or atomic state.
+**Evidence:** `node scripts/verify-authentication.mjs --group actions`; `node scripts/verify-authentication.mjs --group sessions-authorization`; `node scripts/verify-authentication.mjs --group persistence`; `node scripts/verify-authentication.mjs --group contracts`. Explicit disposable PostgreSQL required for database groups. Scoped inactive Action primitives and captured route contracts passed independent Security/QA; linking-recovery aggregate remains unsupported and real verifier/runtime qualification remains pending.
 **Preserve / non-goal:** Proof adapters are internal to Identity; no generic account lookup, secret response or MFA bypass.
 **Stop:** Stop if receipt lifetime/authority is unfrozen; T06-T09 wire real primary verifiers and T12 qualifies factors before sensitive consumers.
 
@@ -449,7 +527,7 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 ### AUTH-T06A: Implement explicit verified enrollment and existing-account handoff
 
 **Parent:** AUTH-T06. **Owner:** backend-platform-architect. **Scope family:** I; exact paths/reviewers in JSON.
-**Dependencies:** JSON `AUTH-T06A.dependsOn` (AUTH-T04B, AUTH-T05B, AUTH-T05C).
+**Dependencies:** JSON `AUTH-T06A.dependsOn` (AUTH-T04B, AUTH-T05B).
 **Coverage:** AUTH-AC01, AUTH-AC02, AUTH-AC03, AUTH-AC07.
 
 **Inputs:** Verified registration context, frozen Terms version and T05 session/assurance primitives.
@@ -463,7 +541,7 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 - **Negative:** Given registration proof for an existing/non-active account or a concurrent email claim, when completed, then no password/name overwrite or normal login occurs.
 - **Recovery:** Given incomplete or expired onboarding, when returning, then valid pending state resumes or proof safely restarts without duplicate users.
 
-**Evidence:** `node scripts/verify-authentication.mjs --group passwords`; `node scripts/verify-authentication.mjs --group integration`. Retain raw output, fixture configuration and scenario results; cross-instance/race tests where the packet changes authority or atomic state.
+**Evidence:** `node scripts/verify-authentication.mjs --group enrollment` qualifies connected loopback HTTP with fake mail and disposable PostgreSQL; `--group passwords` separately qualifies the private adapter. Aggregate integration remains pending and is not a supported runner group yet. Retain fixture configuration and scenario results, including replay/race/expiry/Audit rollback.
 **Preserve / non-goal:** No required password for code/social accounts, no marketing preselection, no Creator/KYC side effects.
 **Stop:** Stop if Terms version, provider credential authority or transactional activation contract is unresolved.
 
@@ -479,14 +557,14 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 **Output:** Password authentication verifier with generic errors and required-MFA restricted result.
 
 1. Implement approved hashing/check/upgrade policy and rate-limit before expensive verification; never trim/truncate secrets.
-2. Wire password login and enabled-method reauthentication; preserve server-bound remember-device choice and return restricted MFA context when required.
+2. Wire primary password login and preserve server-bound remember-device choice. Required-MFA/staff qualification denies workspace until the owning MFA task; reauthentication remains the later action-assurance owner.
 3. Run the evidence checks below; return unresolved cases and scoped handoff under the common contract.
 
 - **Success:** Given an active account and valid password, when login completes, then the normal policy or required-MFA pipeline is entered with the chosen session duration.
 - **Negative:** Given unknown, wrong, absent-password or non-active credentials, when login fails, then public error shape does not reveal the account state.
 - **Recovery:** Given valid legacy hash policy or transient provider failure, when retrying through the approved path, then upgrade/retry is safe and never logs credentials.
 
-**Evidence:** `node scripts/verify-authentication.mjs --group passwords`. Retain raw output, fixture configuration and scenario results; cross-instance/race tests where the packet changes authority or atomic state.
+**Evidence:** `node scripts/verify-authentication.mjs --group password-login` qualifies connected primary HTTP/PostgreSQL; `--group passwords` separately qualifies the native adapter. Retain fixture configuration and scenario results including admission, races, expiry and Audit rollback. No real MFA or runtime qualification claim.
 **Preserve / non-goal:** Passwords support paste/managers and optional absence; no periodic rotation or secret duplication.
 **Stop:** Stop if password-policy/hash benchmark or managed credential ownership lacks Security review.
 
@@ -509,7 +587,7 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 - **Negative:** Given a replayed/substituted enrollment offer, changed browser/purpose or concurrent email creation, when exchange/completion is attempted, then no proof promotion occurs and an existing account requires fresh enabled-method proof.
 - **Recovery:** Given an unknown-email login offer, when explicitly accepted before expiry, then onboarding continues without a redundant code; expired/mismatched offers restart proof.
 
-**Evidence:** `node scripts/verify-authentication.mjs --group challenges`; `node scripts/verify-authentication.mjs --group passwords`. Retain raw output, fixture configuration and scenario results; cross-instance/race tests where the packet changes authority or atomic state.
+**Evidence:** `node scripts/verify-authentication.mjs --group otp-login`; `node scripts/verify-authentication.mjs --group password-login`; `node scripts/verify-authentication.mjs --group enrollment`; `node scripts/verify-authentication.mjs --group challenges`. Requires explicitly disposable PostgreSQL. Scoped server OTP Login/exchange and independent Security/QA passed; actual browser/provider/runtime gates remain separate.
 **Preserve / non-goal:** Unknown-email login never silently signs up; Terms and uniqueness are rechecked before activation.
 **Stop:** Stop if the selected provider cannot enforce the explicit restricted exchange.
 
@@ -518,7 +596,7 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 ### AUTH-T07B: Implement reset-only password replacement
 
 **Parent:** AUTH-T07. **Owner:** backend-platform-architect. **Scope family:** I; exact paths/reviewers in JSON.
-**Dependencies:** JSON `AUTH-T07B.dependsOn` (AUTH-T06B, AUTH-T07A).
+**Dependencies:** JSON `AUTH-T07B.dependsOn` (AUTH-T06B, AUTH-T07A, AUTH-T05C).
 **Coverage:** AUTH-AC02, AUTH-AC05, AUTH-AC09.
 
 **Inputs:** T04 reset challenge, optional-credential policy, security versions and operation receipts.
@@ -532,7 +610,7 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 - **Negative:** Given passwordless, blocked, wrong-purpose or stale proof, when reset is attempted, then it cannot create a credential, enroll, reactivate or bypass MFA.
 - **Recovery:** Given policy mismatch or a lost success response, when correcting/reconciling, then valid proof is not wasted by validation and a completed reset cannot run twice.
 
-**Evidence:** `node scripts/verify-authentication.mjs --group passwords`; `node scripts/verify-authentication.mjs --group linking-recovery`. Retain raw output, fixture configuration and scenario results; cross-instance/race tests where the packet changes authority or atomic state.
+**Evidence:** `node scripts/verify-authentication.mjs --group reset`; `node scripts/verify-authentication.mjs --group actions`. Retain raw output, fixture configuration and scenario results; cross-instance/race tests where the packet changes authority or atomic state.
 **Preserve / non-goal:** Code-login remains a separate flow and does not change passwords.
 **Stop:** Stop on any inability to atomically invalidate grants/sessions or safely reconcile a revoked-session result.
 
@@ -748,7 +826,7 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 ### AUTH-T13A: Implement shared actor lifecycle, transport and route guards
 
 **Parent:** AUTH-T13. **Owner:** frontend-engineer. **Scope family:** P; exact paths/reviewers in JSON.
-**Dependencies:** JSON `AUTH-T13A.dependsOn` (AUTH-T02B, AUTH-T05B, AUTH-T12B).
+**Dependencies:** JSON `AUTH-T13A.dependsOn` (AUTH-T02B, AUTH-T05B).
 **Coverage:** AUTH-AC12, AUTH-AC13, AUTH-AC14, AUTH-AC17, AUTH-AC18.
 
 **Inputs:** Frozen actor/null/error DTOs, real-session middleware and reviewed auth route metadata.
@@ -762,7 +840,7 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 - **Negative:** Given expired session or foreign mock header, when JSON/progress/Blob requests run, then each respects real authorization and never falls back to a demo actor.
 - **Recovery:** Given transient connectivity failure, when identity is retried, then private presentation stays gated without falsely reporting account switch/logout.
 
-**Evidence:** `node scripts/verify-authentication.mjs --group ui`; `node scripts/verify-authentication.mjs --group sessions-authorization`. Retain raw output, fixture configuration and scenario results; apply all common frontend checks and visual evidence.
+**Evidence:** `npm.cmd run test --prefix web -- --configLoader runner src/lib/api/apiClient.test.ts src/lib/auth/ActorProvider.test.tsx src/lib/auth/userPreferences.test.tsx src/lib/persistence/actorScopedStorage.test.ts src/features/authentication/components/AuthenticationGate.test.tsx src/components/layout/AccountMenu.test.tsx src/components/layout/AppShellRoutePolicy.test.ts src/lib/theme/themeDocument.test.ts`; `node node_modules/typescript/bin/tsc -p web/tsconfig.app.json --noEmit --incremental false`; `node scripts/verify-authentication.mjs --group sessions-authorization`. The owning runner's ui aggregate is still pending, not a passed command. Apply common frontend checks and390/768/1440 visual evidence; no live/runtime authority claim.
 **Preserve / non-goal:** Existing shared query/persistence and transport owners remain canonical; no feature raw fetch/token store.
 **Stop:** Stop if response schemas or exact shared-route owners differ from inventory; update contract before broad edits.
 
@@ -771,7 +849,11 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 ### AUTH-T13B: Implement sign-in and provider-callback screens
 
 **Parent:** AUTH-T13. **Owner:** frontend-engineer. **Scope family:** U; exact paths/reviewers in JSON.
-**Dependencies:** JSON `AUTH-T13B.dependsOn` (AUTH-T13A, AUTH-T06B, AUTH-T07A, AUTH-T08A, AUTH-T09A).
+**Dependencies:** JSON `AUTH-T13B.dependsOn` (AUTH-T13A, AUTH-T06B).
+
+Frozen entry DTOs allow source UI to advance through shared Identity and completed
+password Login. T07A OTP and T08A/T09A provider behavior remain explicit final
+integration acceptance gates; interface fixtures alone cannot close the full task.
 **Coverage:** AUTH-AC04, AUTH-AC16, AUTH-AC18.
 
 **Inputs:** AUTH-005 entry hierarchy, safe config, primary login/callback DTOs and shared actor lifecycle.
@@ -794,7 +876,13 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 ### AUTH-T13C: Implement verification and explicit signup completion screens
 
 **Parent:** AUTH-T13. **Owner:** frontend-engineer. **Scope family:** U; exact paths/reviewers in JSON.
-**Dependencies:** JSON `AUTH-T13C.dependsOn` (AUTH-T13B, AUTH-T06A).
+**Dependencies:** JSON `AUTH-T13C.dependsOn` (AUTH-T13A, AUTH-T06A).
+
+Explicit registration/verification/completion can be built independently of the
+sign-in screen through completed T06A and shared T13A. Existing-account handoff
+uses the existing sign-in entry. Unknown-email Login offer and social completion
+remain integration acceptance gates under T07A/T08A/T09A; no client proof
+promotion or false completion claim is allowed. Full acceptance is preserved.
 **Coverage:** AUTH-AC01, AUTH-AC03, AUTH-AC05, AUTH-AC16.
 
 **Inputs:** Purpose-safe nextAction/enrollment exchange, optional-password/Terms rules and code policy.
@@ -817,7 +905,7 @@ staging/send/test-account authority and budget; T18 authorizes no deployment.
 ### AUTH-T13D: Implement reset and neutral recovery-help screens
 
 **Parent:** AUTH-T13. **Owner:** frontend-engineer. **Scope family:** U; exact paths/reviewers in JSON.
-**Dependencies:** JSON `AUTH-T13D.dependsOn` (AUTH-T13C, AUTH-T07B, AUTH-T11C).
+**Dependencies:** JSON `AUTH-T13D.dependsOn` (AUTH-T13A, AUTH-T07B). The shared Entry and reset server own this independent flow; signup/social is not a prerequisite. D07 manual Support is disabled, so neutral static help requires no Support API; enabled future Support remains separately gated.
 **Coverage:** AUTH-AC09, AUTH-AC11, AUTH-AC16.
 
 **Inputs:** Reset-only endpoints, operation receipt contract and D07 recovery availability.

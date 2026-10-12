@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { identityRuntimeQualified } from '../../../config/identityRuntime.js';
 import { normalizeIdentityEmail } from '../identityEmail.js';
 
 const catalogs = Object.fromEntries(
@@ -19,11 +20,11 @@ const fail = () => {
 };
 const interpolate = (template, values) =>
   template.replace(/\{([A-Za-z]+)\}/g, (_, key) => values[key] ?? fail());
-export function renderIdentityEmail(message) {
+export function renderIdentityEmail(message, { runtime } = {}) {
   const catalog = Object.hasOwn(catalogs, message.locale) ? catalogs[message.locale] : catalogs.en;
   const purposeKey = `mail.purposes.${message.templatePurpose}`;
   const purpose = Object.hasOwn(catalog, purposeKey) ? catalog[purposeKey] : null;
-  if (!purpose || typeof message.to !== 'string' || !/^[^@\s]+@example\.invalid$/.test(message.to)) fail();
+  if (!purpose || typeof message.to !== 'string' || !identityRuntimeQualified(runtime, 'email') && !/^[^@\s]+@example\.invalid$/.test(message.to)) fail();
   const recipient = normalizeIdentityEmail(message.to).deliveryEmail;
   const expiresAt = new Date(message.expiresAt),
     issuedAt = new Date(message.issuedAt);

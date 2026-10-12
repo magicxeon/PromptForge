@@ -1,4 +1,6 @@
 import nodemailer from 'nodemailer';
+import { identityRuntimeQualified } from '../../../config/identityRuntime.js';
+import { normalizeIdentityEmail } from '../identityEmail.js';
 import { renderIdentityEmail } from './IdentityEmailRenderer.js';
 import { opaque } from '../identitySecrets.js';
 
@@ -8,11 +10,11 @@ const fail = () => {
   });
 };
 export class IdentitySmtpAdapter {
-  constructor({ config, transportFactory, fixtureOnly = false } = {}) {
+  constructor({ config, transportFactory, fixtureOnly = false, runtime } = {}) {
     this.available = false;
     if (!config?.enabled) return;
     if (
-      fixtureOnly !== true ||
+      fixtureOnly !== true && !identityRuntimeQualified(runtime, 'email') ||
       typeof transportFactory !== 'function' ||
       typeof config.host !== 'string' ||
       !/^[A-Za-z0-9.-]{1,253}$/.test(config.host) ||
@@ -24,9 +26,10 @@ export class IdentitySmtpAdapter {
       config.password.length > 4096 ||
       !config.password ||
       typeof config.from !== 'string' ||
-      !/^[A-Za-z0-9._+-]+@example\.invalid$/.test(config.from)
+      (!identityRuntimeQualified(runtime, 'email') && !/^[A-Za-z0-9._+-]+@example\.invalid$/.test(config.from))
     )
       fail();
+    normalizeIdentityEmail(config.from);
     const options = {
       host: config.host,
       port: config.port,
@@ -51,11 +54,12 @@ export class IdentitySmtpAdapter {
     if (!transport || typeof transport.send !== 'function') fail();
     this.mailer = nodemailer.createTransport(transport, { disableFileAccess: true, disableUrlAccess: true });
     this.from = config.from;
+    this.runtime = runtime;
   }
   async send(message, { signal } = {}) {
     if (!this.mailer || signal?.aborted || !opaque(message?.id)) fail();
     try {
-      const rendered = renderIdentityEmail(message);
+      const rendered = renderIdentityEmail(message, { runtime: this.runtime });
       // Nodemailer's unpooled SMTP close() is not an active-send cancellation
       // guarantee. Keep this actual promise unsettled on abort; outer delivery
       // timeout/quarantine retains capacity until transport really settles.
@@ -63,7 +67,7 @@ export class IdentitySmtpAdapter {
         from: { name: 'Momelo', address: this.from },
         to: { address: message.to },
         envelope: { from: this.from, to: [message.to] },
-        messageId: `<${message.id}@mail.example.invalid>`,
+        messageId: `<${message.id}@${identityRuntimeQualified(this.runtime, 'email') ? this.from.split('@')[1] : 'mail.example.invalid'}>`,
         subject: rendered.subject,
         text: rendered.text,
         disableFileAccess: true,

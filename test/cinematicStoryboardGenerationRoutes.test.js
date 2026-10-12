@@ -185,6 +185,7 @@ test('Cinematic Story Plan proposal route streams real progress and the same fin
   request.body = { mode: 'generate', sourceResolution: null, writingQuoteId: 'fixture_quote' };
   request.headers = { accept: 'text/event-stream' };
   request.get = name => request.headers[String(name).toLowerCase()] || '';
+  request.reauthorizeIdentity = async () => request.actorContext;
 
   await storyPlanHandler(request, response);
 
@@ -195,6 +196,17 @@ test('Cinematic Story Plan proposal route streams real progress and the same fin
   assert.match(stream, /"proposalId":"proposal_route"/);
   assert.equal(response.ended, true);
   assert.equal(cinematicService.storyPlanCalls.length, 1);
+});
+
+test('Cinematic Story Plan stream rejects missing session reauthorization before accepted work', async () => {
+  const { storyPlanHandler, cinematicService } = routeFixture();
+  const request = requestFixture(), response = responseFixture();
+  request.body = { writingQuoteId: 'fixture_quote' };
+  request.headers = { accept: 'text/event-stream' };
+  response.write = () => { throw new Error('Private frame leaked.'); };
+  await storyPlanHandler(request, response);
+  assert.equal(response.statusCode, 401);
+  assert.equal(cinematicService.storyPlanCalls.length, 0);
 });
 
 function routeFixture({ projectValue = project, contextValue = context } = {}) {

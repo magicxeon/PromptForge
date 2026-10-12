@@ -35,10 +35,10 @@ export class CommunityPostAccessService {
   }
 
   async getPublicPost(postId, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
-    const isOwner = post.ownerUserId === actor.userId;
+    const isOwner = Boolean(actor && post.ownerUserId === actor.userId);
     const sourceGenerationId = post.sourceGenerationResultId || post.sourceGenerationId;
     const generation = sourceGenerationId
       ? await this.generationRepository.findById(sourceGenerationId)
@@ -53,8 +53,8 @@ export class CommunityPostAccessService {
       viewer: {
         isOwner,
         permissions: {
-          canVoteComparison: post.postType === 'comparison' && !isOwner,
-          canReport: !isOwner,
+          canVoteComparison: Boolean(actor && post.postType === 'comparison' && !isOwner),
+          canReport: Boolean(actor && !isOwner),
           canUsePrivateReferences: false,
           canDownloadPrivateOutput: false
         }
@@ -80,7 +80,7 @@ export class CommunityPostAccessService {
   }
 
   async getPublicMediaFile(postId, kind, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
     const source = kind === 'thumbnail' ? (post.thumbnailUrl || post.imageUrl) : post.imageUrl;
@@ -92,7 +92,7 @@ export class CommunityPostAccessService {
   }
 
   async getVideoMediaFile(postId, kind, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
     if (post.postType !== 'video') {
@@ -113,7 +113,7 @@ export class CommunityPostAccessService {
   }
 
   async getComparisonSlotMediaFile(postId, slotId, actorContext, kind = 'image') {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
     if (post.postType !== 'comparison') {
@@ -134,7 +134,7 @@ export class CommunityPostAccessService {
   }
 
   async getCollectionItemMediaFile(postId, itemId, kind, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
     if (post.postType !== 'collection') {

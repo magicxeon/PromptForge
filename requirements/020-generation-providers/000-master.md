@@ -1,7 +1,7 @@
 # Generation Providers - Master Requirement
 
 Status: Active canonical requirement owner  
-Last updated: 2026-08-30  
+Last updated: 2026-10-12  
 Primary role: Backend Platform Architect  
 Required reviewers: QA Release Engineer; Commercial Financial Integrity for
 pricing or paid exposure; Generative Media Pipeline reviewer for capability or
@@ -58,6 +58,10 @@ entry points.
 
 ### Image Providers
 
+- [Gemini Nano Banana 2.1](image/009-gemini-nano-banana-21.md): stable native
+  Interactions adapter, 1K/2K/4K catalog and fixed50/70/155 Credits/output.
+  Contract/isolated tests qualified; paid live generation and visual quality
+  remain unverified. Default model and six-reference application scope stay intact.
 - [OpenAI Image 2.5](image/005-openai-image-25.md): API/catalog integration;
   measured usage and retail pricing gate remain separate from token-rate evidence.
 - [Provider Registry And Grok Imagine](image/001-provider-registry-and-grok-imagine.md)

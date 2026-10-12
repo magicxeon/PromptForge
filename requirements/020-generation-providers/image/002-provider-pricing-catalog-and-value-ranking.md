@@ -87,11 +87,17 @@ Reference:
 | Local order | Model | Reference price | `displayOrder` |
 |---:|---|---:|---:|
 | 1 | `gemini-3.1-flash-lite-image` | $0.0336 / 1K image | 10 |
-| 2 | `gemini-2.5-flash-image` | $0.039 / image up to 1K | 20 |
-| 3 | `gemini-3.1-flash-image` | $0.067 / 1K image | 30 |
-| 4 | `gemini-3-pro-image` | $0.134 / 1K or 2K image | 40 |
+| 2 | `gemini-nano-banana-2.1` | $0.0336 / 1K image output only | 15 |
+| 3 | `gemini-2.5-flash-image` | $0.039 / image up to 1K | 20 |
+| 4 | `gemini-3.1-flash-image` | $0.067 / 1K image | 30 |
+| 5 | `gemini-3-pro-image` | $0.134 / 1K or 2K image | 40 |
 
 หมายเหตุ: `gemini-2.5-flash-image` เป็นรุ่นเดิม แต่ยังวางตามราคาฐานใน local order ตามขอบเขตที่อนุมัติ
+
+2026-10-12: [Nano Banana 2.1](009-gemini-nano-banana-21.md) adds local order15
+between Lite and legacy without changing the default. Its retail tariff is a
+separate versioned Credits contract:50/70/155 at1K/2K/4K, plus reference fees.
+Output-only provider cost does not cover input/thinking or establish quality rank.
 
 ### 4.2 OpenAI
 
@@ -139,6 +145,7 @@ Reference:
 
 ```text
 10 gemini-3.1-flash-lite-image
+15 gemini-nano-banana-2.1
 20 gemini-2.5-flash-image
 30 gemini-3.1-flash-image
 40 gemini-3-pro-image

@@ -1,0 +1,90 @@
+[sessions-authorization] Disposable session/context and captured-handler fixtures; no runtime authentication activation.
+TAP version 13
+# Subtest: durable browser contexts, verified session transitions and owned transport fixtures
+    # Subtest: encrypted durable context resolves on another instance and never grants session authority
+    ok 1 - encrypted durable context resolves on another instance and never grants session authority
+      ---
+      duration_ms: 79.3026
+      type: 'test'
+      ...
+    # Subtest: one verified proof creates one rotated session across concurrent instances; failed verification rolls back
+    ok 2 - one verified proof creates one rotated session across concurrent instances; failed verification rolls back
+      ---
+      duration_ms: 161.3991
+      type: 'test'
+      ...
+    # Subtest: remember and staff limits are server-bound; missing staff bootstrap denies even verified MFA
+    ok 3 - remember and staff limits are server-bound; missing staff bootstrap denies even verified MFA
+      ---
+      duration_ms: 294.63
+      type: 'test'
+      ...
+    # Subtest: read/list activity is inert, explicit activity is bounded, idle and absolute expiry deny
+    ok 4 - read/list activity is inert, explicit activity is bounded, idle and absolute expiry deny
+      ---
+      duration_ms: 172.7093
+      type: 'test'
+      ...
+    # Subtest: caps evict deterministically and notify atomically; foreign list cursor and target disclose nothing
+    ok 5 - caps evict deterministically and notify atomically; foreign list cursor and target disclose nothing
+      ---
+      duration_ms: 563.0416
+      type: 'test'
+      ...
+    # Subtest: Origin/CSRF, logout retry tombstone, all-owner revocation and captured route errors
+    ok 6 - Origin/CSRF, logout retry tombstone, all-owner revocation and captured route errors
+      ---
+      duration_ms: 234.1299
+      type: 'test'
+      ...
+    # Subtest: fresh proof expiry and account version deny with atomic proof rollback
+    ok 7 - fresh proof expiry and account version deny with atomic proof rollback
+      ---
+      duration_ms: 121.2317
+      type: 'test'
+      ...
+    # Subtest: expiry during actual account lock wait rolls back proof and cannot mint a session
+    ok 8 - expiry during actual account lock wait rolls back proof and cannot mint a session
+      ---
+      duration_ms: 82.1875
+      type: 'test'
+      ...
+    # Subtest: concurrent cleanup skips locked browser and delayed context issuance fails after original expiry
+    ok 9 - concurrent cleanup skips locked browser and delayed context issuance fails after original expiry
+      ---
+      duration_ms: 94.3547
+      type: 'test'
+      ...
+    # Subtest: missing retained keys deny old proof and session; no account or remembered request override
+    ok 10 - missing retained keys deny old proof and session; no account or remembered request override
+      ---
+      duration_ms: 89.5669
+      type: 'test'
+      ...
+    # Subtest: eight metadata rows per browser and bounded expiry cleanup preserve historical context
+    ok 11 - eight metadata rows per browser and bounded expiry cleanup preserve historical context
+      ---
+      duration_ms: 196.6907
+      type: 'test'
+      ...
+    # Subtest: browser capacity counts retained rows and explicit cleanup removes only fifty
+    ok 12 - browser capacity counts retained rows and explicit cleanup removes only fifty
+      ---
+      duration_ms: 548.5303
+      type: 'test'
+      ...
+    1..12
+ok 1 - durable browser contexts, verified session transitions and owned transport fixtures
+  ---
+  duration_ms: 3128.9327
+  type: 'test'
+  ...
+1..1
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3310.9614

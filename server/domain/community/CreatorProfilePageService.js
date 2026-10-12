@@ -32,7 +32,7 @@ export class CreatorProfilePageService {
   }
 
   async getPage(profileLocator, query = {}, actorContext) {
-    const actor = assertActorContext(actorContext);
+    const actor = actorContext ? assertActorContext(actorContext) : null;
     const profileRecord = await this.profileRepository.findById?.(profileLocator)
       || await this.profileRepository.findByHandle(profileLocator);
     if (!profileRecord) {
@@ -92,8 +92,8 @@ export class CreatorProfilePageService {
         isFollowing: publicProfile.viewer.isFollowing,
         canEditProfile: publicProfile.viewer.isOwner,
         canManageContent: publicProfile.viewer.isOwner,
-        canFollow: !publicProfile.viewer.isOwner,
-        canReport: !publicProfile.viewer.isOwner
+        canFollow: Boolean(actor && !publicProfile.viewer.isOwner),
+        canReport: Boolean(actor && !publicProfile.viewer.isOwner)
       },
       counts: {
         followers: Number(publicProfile.followerCount) || 0,
@@ -130,7 +130,7 @@ export class CreatorProfilePageService {
   }
 
   async listCreatorPosts(ownerUserId, actor) {
-    const page = actor.userId === ownerUserId
+    const page = actor && actor.userId === ownerUserId
       ? await this.postRepository.findByOwner(ownerUserId, {
         limit: 50,
         sort: 'newest'
