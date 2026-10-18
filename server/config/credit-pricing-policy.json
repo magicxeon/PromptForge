@@ -15,6 +15,7 @@
   "profitMarkupPercentByMedia": { "text": 30, "image": 30, "video": 30 },
   "videoActualUsage": {
     "enabled": true,
+    "localAdminConfiguredRateFallback": true,
     "version": "video-actual-2026-10-02-v1",
     "reservationCostMultiplier": 1.1
   },

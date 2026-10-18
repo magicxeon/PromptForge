@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { getAuthRuntime } from '../../config/authPolicy.js';
 import { creditPricingPolicyService } from './CreditPricingPolicyService.js';
 import { creditAccountRepo } from '../../repositories/credits/CreditAccountRepository.js';
 import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
@@ -35,19 +36,29 @@ export class CreditReservationService {
     }
     const policy = await this.pricingPolicyService.loadPolicy();
     const now = new Date();
-    let preview, videoSettlement;
+    let preview, videoSettlement, localConfiguredRate = false, localAdminTestCredits = null;
     try {
       if (policy.videoActualUsage && policy.videoActualUsage.enabled !== true) throw new TypeError('New video quotes are disabled.');
       if (Number(request.outputCount ?? 1) !== 1) throw new TypeError('Video quotes require one output.');
       preview = calculateVideoPricingPreview(model, request, policy, { now });
-      videoSettlement = policy.videoActualUsage?.enabled === true
-        ? createVideoSettlementSnapshot(model, request, policy, preview) : null;
+      const runtime = getAuthRuntime();
+      if (policy.videoActualUsage?.localAdminConfiguredRateFallback === true
+        && generationMode === 'playground_video' && runtime.enabled === true
+        && runtime.role === 'admin' && runtime.liveGeneration === true && runtime.actorId === userId) {
+        localAdminTestCredits = Number(process.env.CINEMATIC_VIDEO_POC_CREDITS ?? 1);
+        if (!Number.isInteger(localAdminTestCredits) || localAdminTestCredits < 1 || localAdminTestCredits > 10)
+          throw new TypeError('Local Video test Credits must be between1 and10.');
+        localConfiguredRate = true;
+      } else if (policy.videoActualUsage?.enabled === true) {
+        videoSettlement = createVideoSettlementSnapshot(model, request, policy, preview);
+      }
     } catch {
       throw createCreditError(CREDIT_ERROR_CODES.PRICING_UNAVAILABLE,
         'Qualified video pricing and complete rate evidence are required.', 409);
     }
-    const developmentPocCredits = videoSettlement ? null : getDevelopmentPocCredits({ model, generationMode });
-    const qualificationNoCharge = !videoSettlement && developmentPocCredits === null
+    const developmentPocCredits = localConfiguredRate ? localAdminTestCredits
+      : videoSettlement ? null : getDevelopmentPocCredits({ model, generationMode });
+    const qualificationNoCharge = !localConfiguredRate && !videoSettlement && developmentPocCredits === null
       && isNoChargeVideoQualification({ model, generationMode });
     const customerCredits = videoSettlement?.maximumCredits
       ?? developmentPocCredits ?? (qualificationNoCharge ? 0 : preview.estimatedCredits);
@@ -75,7 +86,7 @@ export class CreditReservationService {
         referenceCount: Number(request.referenceImageCount || 0),
         referencePlanFingerprint: request.referencePlanFingerprint || null,
         developmentPocUnverified: model.developmentPocUnverified === true,
-        developmentPocCredits: videoSettlement && model.developmentPocUnverified === true
+        developmentPocCredits: (videoSettlement || localConfiguredRate) && model.developmentPocUnverified === true
           ? model.developmentPocCredits : developmentPocCredits,
         outputCount: 1,
         generationMode: String(generationMode || 'playground_video')
@@ -92,6 +103,7 @@ export class CreditReservationService {
         providerPriceSource: model.providerPriceSource || null,
         providerPriceSourceDate: model.providerPriceSourceDate || null,
         providerEstimatedCredits: preview.estimatedCredits,
+        ...(localConfiguredRate ? { localAdminConfiguredRate: true, rateEvidenceBasis: 'configured_local_development_rate' } : {}),
         estimatorVersion: preview.estimatorVersion,
         ...(videoSettlement ? { videoSettlement } : {}),
         generationCredits: customerCredits,
@@ -289,13 +301,19 @@ export class CreditReservationService {
     });
   }
 
-  async reservePlan({ userId, quoteId, planId, operations, idempotencyKey }) {
-    if (!userId || !quoteId || !planId || !idempotencyKey || !Array.isArray(operations) || !operations.length) {
+  async reservePlan({ userId, quoteId, planId, operations, idempotencyKey, planKind = 'fashion' }) {
+    if (!userId || !quoteId || !planId || !idempotencyKey || !Array.isArray(operations) || !operations.length
+      || !['fashion', 'comparison'].includes(planKind)) {
       throw createCreditError(
         CREDIT_ERROR_CODES.ESTIMATE_STALE,
         'A complete Fashion credit plan is required.',
         400
       );
+    }
+    if (planKind === 'comparison' && (operations.length < 2 || operations.length > 4
+      || ['operationId', 'requestId', 'jobId'].some(field => operations.some(operation => !operation[field])
+        || new Set(operations.map(operation => operation[field])).size !== operations.length))) {
+      throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_STALE, 'Comparison allocations must have distinct operation, request and job IDs.', 400);
     }
     const allocations = [];
     for (const operation of operations) {
@@ -308,6 +326,9 @@ export class CreditReservationService {
         throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_EXPIRED, 'A plan estimate has expired.', 400);
       }
       await this.validateTestTariff(estimate);
+      if (planKind === 'comparison') {
+        assertEstimateCanReserve({ estimate, userId, generationRequest: operation.generationRequest || {} });
+      } else {
       const expected = operation.generationRequest || {};
       const actual = {
         providerId: estimate.routing?.requestedProviderId,
@@ -344,6 +365,7 @@ export class CreditReservationService {
           { operationId: operation.operationId, mismatches }
         );
       }
+      }
       allocations.push({
         operationId: operation.operationId,
         estimateId: estimate.estimateId,
@@ -351,6 +373,7 @@ export class CreditReservationService {
         jobId: operation.jobId,
         amountCredits: estimate.estimatedCredits,
         expiresAt: estimate.expiresAt,
+        ...(planKind === 'comparison' ? { metadata: operation.metadata || {} } : {}),
         pricingSnapshot: {
           providerId: estimate.routing.requestedProviderId,
           modelId: estimate.routing.requestedModelId,
@@ -367,6 +390,7 @@ export class CreditReservationService {
       planId,
       idempotencyKey,
       allocations,
+      ...(planKind === 'comparison' ? { planKind } : {}),
       relatedTemplateId: allocations.find(item => item.relatedTemplateId)?.relatedTemplateId || null
     });
   }

@@ -4,6 +4,7 @@ import { creditAdjustmentService } from './CreditAdjustmentService.js';
 import { creditReservationService } from './CreditReservationService.js';
 import { calculateTextEnhancementPrice } from './TextEnhancementPricing.js';
 import { quoteCinematicWriting } from './CinematicWritingPricing.js';
+import { createCreditError } from './creditErrors.js';
 
 export class CreditApplicationService {
   constructor({
@@ -137,13 +138,26 @@ export class CreditApplicationService {
     return { generatedAt: new Date().toISOString(), counts, reservations, mutationAvailable: false };
   }
 
-  grantMockCredits({ userId, amountCredits, idempotencyKey, actorContext }) {
+  async grantMockCredits({ userId, amountCredits, idempotencyKey, actorContext, reauthorizeIdentity }) {
+    const development = actorContext?.authMode === 'development_bypass';
+    if (development) {
+      const fresh = typeof reauthorizeIdentity === 'function' ? await reauthorizeIdentity() : null;
+      if (actorContext.isMockActor !== true || actorContext.role !== 'admin' || userId !== actorContext.userId
+        || fresh?.authMode !== 'development_bypass' || fresh?.role !== 'admin'
+        || fresh?.isMockActor !== true || fresh?.userId !== userId)
+        throw createCreditError('credit_mock_grant_forbidden', 'Local mock grants require the selected fixture Admin.', 403);
+      if (!Number.isInteger(amountCredits) || amountCredits < 1 || amountCredits > 1000
+        || typeof idempotencyKey !== 'string' || !/^[A-Za-z0-9:_-]{8,160}$/.test(idempotencyKey))
+        throw createCreditError('credit_mock_grant_invalid', 'Use 1–1000 mock Credits and a valid replay key.', 400);
+      idempotencyKey = `development:${userId}:${idempotencyKey}`;
+    }
     return this.accountRepository.grantCredits({
       userId,
       amountCredits,
       idempotencyKey,
       reason: 'mock_grant',
-      actorContext
+      actorContext,
+      ...(development ? { metadata: { developmentFixtureGrant: true } } : {}),
     });
   }
 

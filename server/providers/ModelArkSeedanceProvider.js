@@ -218,7 +218,7 @@ export function normalizeModelArkSeedanceTask(rawResponse, { task } = {}) {
   if (providerStatus === 'failed' || providerStatus === 'cancelled' || providerStatus === 'expired') {
     return {
       providerStatus,
-      providerError: normalizeTerminalProviderError(response, providerStatus)
+      providerError: normalizeTerminalProviderError(response, providerStatus, task)
     };
   }
   if (providerStatus !== 'provider_succeeded') return { providerStatus };
@@ -354,13 +354,18 @@ function normalizeModelArkStatus(value, { defaultStatus = null } = {}) {
   return status ? null : defaultStatus;
 }
 
-function normalizeTerminalProviderError(response, providerStatus) {
+function normalizeTerminalProviderError(response, providerStatus, task) {
   const message = firstString(response?.error?.message, response?.message, response?.error_message) || `ModelArk video task ${providerStatus}.`;
   const providerCode = firstString(response?.error?.code, response?.code);
-  const referenceIssue = parseModelArkReferenceIssue({
+  const referenceCount = task?.submittedRequest?.referenceImageCount;
+  const referenceIssues = parseModelArkReferenceIssues({
     providerCode,
-    message
+    message,
+    referenceCount,
+    contentTypes: Number.isInteger(referenceCount) && referenceCount >= 0 && referenceCount <= 12
+      ? ['text', ...Array(referenceCount).fill('image_url')] : []
   });
+  const referenceIssue = referenceIssues[0];
   return {
     code: referenceIssue ? 'video_provider_input_image_rejected' : providerCode || `video_provider_${providerStatus}`,
     providerCode: safeDiagnosticIdentifier(providerCode),
@@ -368,7 +373,7 @@ function normalizeTerminalProviderError(response, providerStatus) {
     category: 'provider',
     retryable: /internal|unavailable|timeout|rate|overload/i.test(message),
     providerBillableState: 'unknown',
-    ...(referenceIssue ? { referenceIssue } : {})
+    ...(referenceIssue ? { referenceIssue, referenceIssues } : {})
   };
 }
 
@@ -395,24 +400,38 @@ function normalizeModelArkHttpError(status, payload, operation, requestBody) {
     knownSubmitRejection ? 'not_billable' : 'unknown'
   );
   const contentTypes = requestContentTypes(requestBody);
-  const referenceIssue = parseModelArkReferenceIssue({
+  const referenceIssues = parseModelArkReferenceIssues({
     providerCode,
     message,
     contentTypes,
     referenceCount: contentTypes.filter(type => type === 'image_url').length
   });
-  if (referenceIssue) error.referenceIssue = referenceIssue;
+  if (referenceIssues.length) {
+    error.referenceIssues = referenceIssues;
+    error.referenceIssue = referenceIssues[0];
+  }
   return error;
 }
 
-export function parseModelArkReferenceIssue({ providerCode, message, contentTypes, referenceCount } = {}) {
-  if (!/InputImageSensitiveContentDetected\.PrivacyInformation|may contain real person/i.test(`${providerCode || ''} ${message || ''}`)) return null;
-  const match = String(message || '').match(/content\s*\[\s*(\d+)\s*\]/i);
-  const contentIndex = Number(match?.[1]);
-  if (!Number.isInteger(contentIndex) || contentIndex < 1) return null;
-  if (Array.isArray(contentTypes) && contentTypes[contentIndex] !== 'image_url') return null;
-  if (Number.isInteger(referenceCount) && contentIndex > referenceCount) return null;
-  return { contentIndex, referenceIndex: contentIndex - 1, reason: 'possible_real_person' };
+export function parseModelArkReferenceIssue(input = {}) {
+  return parseModelArkReferenceIssues(input)[0] || null;
+}
+
+export function parseModelArkReferenceIssues({ providerCode, message, contentTypes, referenceCount } = {}) {
+  const boundedMessage = String(message || '').slice(0, 16384);
+  if (!/InputImageSensitiveContentDetected\.PrivacyInformation|may contain real person/i.test(`${providerCode || ''} ${boundedMessage}`)) return [];
+  const issues = [];
+  const seen = new Set();
+  for (const match of boundedMessage.matchAll(/content\s*\[\s*(\d+)\s*\]/gi)) {
+    const contentIndex = Number(match[1]);
+    if (!Number.isInteger(contentIndex) || contentIndex < 1 || contentIndex > 12 || seen.has(contentIndex)) continue;
+    if (Array.isArray(contentTypes) && contentTypes[contentIndex] !== 'image_url') continue;
+    if (Number.isInteger(referenceCount) && contentIndex > referenceCount) continue;
+    seen.add(contentIndex);
+    issues.push({ contentIndex, referenceIndex: contentIndex - 1, reason: 'possible_real_person' });
+    if (issues.length === 12) break;
+  }
+  return issues;
 }
 
 function requestContentTypes(body) {

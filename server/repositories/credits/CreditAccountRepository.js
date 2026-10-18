@@ -382,7 +382,7 @@ export class CreditAccountRepository {
         data.accounts.push(account);
       }
       if (account.status !== 'active' || account.availableCredits < totalCredits) {
-        throw createCreditError(CREDIT_ERROR_CODES.INSUFFICIENT, `Insufficient credits for the ${planKind === 'generation_group' ? 'generation group' : 'Fashion plan'}.`, 402, {
+        throw createCreditError(CREDIT_ERROR_CODES.INSUFFICIENT, `Insufficient credits for the ${planKind === 'generation_group' ? 'generation group' : planKind === 'comparison' ? 'Comparison plan' : 'Fashion plan'}.`, 402, {
           requiredCredits: totalCredits,
           availableCredits: account.availableCredits
         });
@@ -410,7 +410,7 @@ export class CreditAccountRepository {
           capturedAt: null,
           refundedAt: null,
           terminalReason: null,
-          metadata: { planId, quoteId, operationId: allocation.operationId, planKind }
+          metadata: { ...(planKind === 'comparison' ? allocation.metadata : {}), planId, quoteId, operationId: allocation.operationId, planKind }
         };
         data.reservations.push(reservation);
         data.ledgerEntries.push({
@@ -433,10 +433,10 @@ export class CreditAccountRepository {
           idempotencyKey: allocationKey(allocation.operationId),
           reasonCode: planKind === 'generation_group'
             ? 'generation_group_reserved'
-            : 'fashion_plan_reserved',
+            : planKind === 'comparison' ? 'comparison_plan_reserved' : 'fashion_plan_reserved',
           actorUserId: userId,
           createdAt: now,
-          metadata: { planId, quoteId, operationId: allocation.operationId, planKind }
+          metadata: { ...(planKind === 'comparison' ? allocation.metadata : {}), planId, quoteId, operationId: allocation.operationId, planKind }
         });
         return reservation;
       });
@@ -678,6 +678,11 @@ export class CreditAccountRepository {
       const existingLedger = (data.ledgerEntries || []).find(l => l.idempotencyKey === key);
       if (existingLedger) {
         const account = (data.accounts || []).find(a => a.userId === userId);
+        if (metadata.developmentFixtureGrant === true && (existingLedger.userId !== userId
+          || existingLedger.actorUserId !== actorContext?.userId
+          || existingLedger.operationType !== 'grant'
+          || existingLedger.amountCredits !== amount || existingLedger.reasonCode !== reason))
+          throw createCreditError('credit_grant_conflict', 'Mock grant replay does not match the accepted request.', 409);
         return { account: structuredClone(account), ledgerEntry: structuredClone(existingLedger) };
       }
 

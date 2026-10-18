@@ -53,7 +53,7 @@ export function ActorProvider({ children }: PropsWithChildren) {
       if (nextActor && (nextActor.authMode !== nextConfig.authMode || nextActor.accountStatus && nextActor.accountStatus !== 'active')) {
         throw new Error('Identity contract is unavailable.');
       }
-      if (nextConfig.authMode === 'development_bypass' && (!nextActor || nextActor.role !== 'user')) {
+      if (nextConfig.authMode === 'development_bypass' && (!nextActor || !['user', 'admin'].includes(nextActor.role))) {
         throw new Error('Development identity is unavailable.');
       }
       const next = { actorId: nextActor?.userId || '', authMode: nextConfig.authMode };

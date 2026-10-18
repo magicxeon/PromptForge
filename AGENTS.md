@@ -3,6 +3,51 @@
 These rules apply to every task in this repository. Preserve them when handing
 work to another agent.
 
+## 0. Case-Based Execution Policy
+
+Use the smallest sufficient workflow. Classify once from the requested behavior
+and actual risk; reclassify only when new findings change scope or risk. This
+section controls the effort required by later planning, role and validation
+rules. It does not waive security, financial or destructive-action safeguards.
+
+| Case | Examples and boundary | Required work |
+|---|---|---|
+| A - Discussion or read-only lookup | Explain a setting, locate configuration, compare approaches; no implementation requested | Answer or inspect only relevant sources. No file edits, task plan, agent delegation, build or tests. |
+| B - Small documentation or presentation edit | Existing rule/document update, translation, label, local CSS or prompt wording; runtime contracts and sensitive behavior unchanged | One agent. Read the owning section and affected files; use at most a short checkpoint in the existing requirement. Inspect the edit and relevant format/links or affected presentation. No JSON plan, specialist review or new tests merely for this case. |
+| C - Bounded local bug | Restore existing behavior within one capability; API/persistence/shared interaction contracts unchanged, no sensitive transition | One agent, existing requirement checkpoint, smallest fix. Run the nearest meaningful regression check; add coverage for a reproducible regression when useful. No new requirement tree, runner or agent solely because several files change. |
+| D - Feature or changed workflow | New registration flow, material form interaction or changed shared component behavior within one capability | Compact plan beside the owning requirement, one primary implementer, applicable UX/QA roles and focused checks. Apply non-sensitive reviews sequentially by default. BSA only when requested or when decomposition is needed for independently verifiable tasks. |
+| E - Cross-capability or migration | Changed public/shared contract, queue/provider lifecycle, data migration or uncertain ownership | Record owners, contracts, dependencies, acceptance and integration checks in the owning task plan. Main agent coordinates; delegate only independent substantial work with disjoint writes when coordination is likely to save time. |
+| F - Sensitive change, overrides B-E | Login/session/authorization logic, private media access, secrets/PII, Credit/pricing/settlement, destructive operations | Keep required security/commercial/backend/QA gates and independent sensitive review. Limit reviews and checks to changed invariants. A label or CSS edit on a Login/Credits page alone does not trigger this case. |
+
+### Effort Limits
+
+- One agent is the default. A role is a perspective, not an instruction to spawn
+  another agent. Delegate only when requested, required for independent sensitive
+  review, or justified by independent complex work. Never fill available slots.
+- Reuse sources and evidence already read in this session while relevant and
+  current. Re-read when files, requirements, dependencies or task scope change;
+  do not rescan the repository, every role, or every Skill on each turn.
+- Keep short checkpoints together: outcome, affected scope, expected behavior,
+  checks/results and material gaps. Do not create separate plan, status, evidence
+  and handoff files for a local fix or documentation edit.
+- Prefer the existing implementation, requirement and test runner. Do not invent
+  new abstractions, refactors, runners or adjacent improvements to finish a fix.
+- Choose validation from what changed: documentation needs content/link checks;
+  code needs relevant static/behavior checks; layout changes need affected
+  viewport checks; sensitive changes need invariant and negative-case checks.
+  Run one focused pass after the fix. Repeat or broaden only for new edits,
+  failures, changed inputs, unresolved risk or an explicit release/UAT request.
+- Build when needed to deliver or verify the changed application, normally once
+  after source edits are ready. Do not build for documentation-only changes or
+  rerun a successful build for an unchanged handoff.
+- For urgent non-sensitive fixes, implement the usable correction before broader
+  testing; run necessary focused checks before claiming completion. Keep optional
+  UAT or release suites separate and state unverified behavior accurately.
+- Do not manage Git (branches, worktrees, commits, merges or PRs) unless the user
+  requests it. Do not repeat permission questions for work already authorized.
+- Stop when the requested outcome and necessary checks are complete. Report the
+  result and material gaps briefly; no extra review cycle for reporting alone.
+
 ## 1. Sources of Truth
 
 Before implementation:
@@ -17,20 +62,24 @@ Before implementation:
    requirements. Update stale requirement paths when implementation changes them.
 
 Do not infer architecture from old compatibility folders or deleted module paths.
+Use already-read relevant sections when still current; Case A does not require
+loading implementation guides merely to answer a question.
 
 ### Requirement-First Delivery Pattern
 
-- Before implementation, create or update the owning requirement and complete
-  the implementation plan, including scope, dependencies and acceptance checks.
-- When work has multiple responsibilities, split it into cohesive numbered
+- Apply Section0 first: Cases B/C use a short checkpoint in the existing owning
+  requirement; Cases D/E/F need a plan with scope, dependencies and acceptance.
+  Discussion alone needs neither. Do not create a new requirement when the
+  current owner already covers the work.
+- When complex work has independently verifiable responsibilities, split it into cohesive numbered
   requirements and small ordered tasks under a master plan. Reuse existing
   ownership and contracts rather than duplicating requirements or workflows.
 - Implement and verify one task at a time, updating its evidence/status before
   advancing. Record gaps or deferred work explicitly; do not silently expand scope.
-- Split automated validation into short focused groups. Extend an existing
-  appropriate runner or add an owning runner under `scripts/` with selectable
-  groups and one aggregate entry point for later UAT or pre-production-build
-  execution. Document commands and prerequisites in the implementation plan.
+- Use existing focused tests/runners first. Add a grouped runner under `scripts/`
+  only when reusable multi-task validation needs it; a local fix or documentation
+  edit does not require one. Document relevant commands in the owning checkpoint
+  or plan without creating duplicate test infrastructure.
 - Aggregate runs must be explicit, fail on errors, and must not silently start
   paid generation, mutate live data or restart workers. Keep live UAT separate
   from isolated automated checks and report unverified runtime behavior.
@@ -44,7 +93,8 @@ role when ownership is clear.
 
 ### Primary Role Selection
 
-Choose exactly one primary role:
+For Cases D/E/F choose exactly one primary role. Cases B/C use
+`base-implementation-owner` unless an actual specialist trigger applies:
 
 | Task outcome | Primary role charter |
 |---|---|
@@ -63,7 +113,7 @@ the owning requirement and repository rules without loading a specialist role.
 
 ### Reviewers And Mandatory Gates
 
-- Add QA for substantial implementations, shared components, bug clusters,
+- Add QA for substantial implementations, changed shared behavior, bug clusters,
   migrations, release gates and requirement closure.
 - Add Backend and QA for financial or billable workflow changes.
 - Add security/privacy review for authentication, authorization, public/private
@@ -76,6 +126,9 @@ the owning requirement and repository rules without loading a specialist role.
   roles requires a written reason.
 - A user override may choose a role or request review-only work, but it cannot
   silently disable financial, security or destructive-action gates.
+- Review roles do not automatically require separate agents. Use sequential
+  scoped review for non-sensitive work and disclose its limited independence.
+  File location alone does not trigger a gate; review the behavior being changed.
 
 ### Skill Routing
 
@@ -113,7 +166,8 @@ For substantial work, state or record the primary role, reviewers, triggered
 Skills, owning requirement and capability. Load only the primary charter first;
 load reviewer charters immediately before review. If independent subagents are
 unavailable, apply roles sequentially and disclose limited review independence
-rather than claiming parallel or independent execution.
+rather than claiming parallel or independent execution. If required independent
+sensitive review is unavailable, report that gate as pending, not passed.
 
 ## 2. Project Structure Gate
 
@@ -132,8 +186,9 @@ This is not a second primary role or a mandatory extra process. Assign one
 domain primary per task, explicit write scopes, stable contracts, dependencies,
 acceptance checks and reviewers. Keep the task plan beside its owning requirement.
 Parallelize only independent complex tasks with completed dependencies and
-non-overlapping writes. Children must not spawn more agents. Main plus two
-subagents is the project default; perform additional mandatory reviews in waves.
+non-overlapping writes when this saves time after coordination. Children must
+not spawn more agents. One agent is the default; main plus two subagents is the
+maximum, not a staffing target. Perform required independent reviews in waves.
 
 Project profiles are indexed in
 `requirements/015-professional-agent-orchestration/agent-artifact-map.json`.
@@ -144,7 +199,8 @@ security-reviewer under `requirements/015-professional-agent-orchestration/roles
 They refine implementation/review assignments, never duplicate capability ownership.
 
 BSA (`business-system-analyst`) decomposes reviewed requirements into bounded
-task packets under the owning requirement; follow orchestration requirement 011.
+task packets when explicitly requested or when complex work needs decomposition;
+follow orchestration requirement011. Do not add BSA to every implementation.
 For material user flows, obtain UX review before freezing requirement/task details.
 BSA does not replace Product approval, UX design, implementation owners or QA.
 
@@ -156,8 +212,9 @@ Review-only agents do not edit application code. Role/write-scope instructions
 do not grant permissions or constitute filesystem enforcement. Do not change
 global Codex trust/config, spend live Credits or mutate production during tests.
 
-Run `node scripts/verify-agent-orchestration.mjs --plan <task-plan.json>` for
-complex plan integrity. Focused tooling checks use `--group legacy|contracts|inventory`;
+Run `node scripts/verify-agent-orchestration.mjs --plan <task-plan.json>` when
+creating or changing a complex JSON plan, not for Cases A/B/C or every resumed
+turn. Focused tooling checks use `--group legacy|contracts|inventory`;
 aggregate checks require explicit `--all`. If custom profiles are unavailable,
 use the same charter/task packet through built-in agents and report that fallback.
 
@@ -451,11 +508,12 @@ For every screen or shared-component change:
   execute and ask them to report failures. -->
 - Read-only checks such as JSON parsing, `git diff --check`, and file inspection
   are allowed.
-- For frontend changes, verify the visible result in the in-app browser when it
-  is available. Check the affected layout at mobile, tablet, and desktop
+- For frontend changes, verify the affected interaction in the in-app browser
+  when available. Layout/responsive changes need mobile, tablet, and desktop
   viewports; representative targets are approximately 390px, 768px or 820px,
-  and 1440px wide. Record any viewport that could not be verified and the
-  remaining responsive risk.
+  and1440px wide. For unchanged layout, inspect only states/viewports affected
+  by the change; do not repeat a three-viewport audit for copy or logic alone.
+  Record relevant visual checks that could not be performed and remaining risk.
 
 ## 10. Required Handoff
 

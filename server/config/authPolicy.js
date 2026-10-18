@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 export const developmentFixtureId = 'usr_auth_local';
+export const developmentAdminFixtureId = 'usr_auth_local_admin';
 const disabledRuntime = Object.freeze({ enabled: false, authMode: 'session', host: '127.0.0.1', port: 6500 });
 let qualifiedRuntime;
 const configFailure = () => {
@@ -15,9 +16,16 @@ const configFailure = () => {
 export function qualifyAuthRuntime(env, projectRoot) {
   const toggle = env.AUTH_DEV_BYPASS_ENABLED;
   if (toggle !== undefined && toggle !== 'true' && toggle !== 'false') configFailure();
+  if (env.AUTH_DEV_BYPASS_ROLE !== undefined && env.UTH_DEV_BYPASS_ROLE !== undefined
+    && env.AUTH_DEV_BYPASS_ROLE !== env.UTH_DEV_BYPASS_ROLE) configFailure();
+  const role = env.AUTH_DEV_BYPASS_ROLE ?? env.UTH_DEV_BYPASS_ROLE ?? 'user';
+  if (!['user', 'admin'].includes(role)) configFailure();
+  if (![undefined, 'true', 'false'].includes(env.AUTH_DEV_BYPASS_GENERATION_ENABLED)) configFailure();
+  const liveGeneration = env.AUTH_DEV_BYPASS_GENERATION_ENABLED === 'true';
   const port = Number(env.PORT ?? 6500);
   if (!Number.isInteger(port) || port < 1024 || port > 65535) configFailure();
   if (toggle !== 'true') return Object.freeze({ ...disabledRuntime, port });
+  if (liveGeneration && role !== 'admin') configFailure();
   if (env.NODE_ENV !== 'development' || (env.HOST && env.HOST !== '127.0.0.1')) configFailure();
   const root = path.join(path.resolve(projectRoot), '.local-auth-fixture');
   try {
@@ -57,34 +65,50 @@ export function qualifyAuthRuntime(env, projectRoot) {
     )
       configFailure();
     const users = JSON.parse(fs.readFileSync(path.join(root, 'data/identity/mockUsers.json'), 'utf8'));
-    if (!Array.isArray(users) || users.length !== 1 || !qualifiedDevelopmentActor(users[0])) configFailure();
+    if (!qualifiedDevelopmentRoster(users, role)) configFailure();
   } catch {
     configFailure();
   }
   return Object.freeze({
     enabled: true,
     authMode: 'development_bypass',
+    role,
+    liveGeneration,
+    actorId: role === 'admin' ? developmentAdminFixtureId : developmentFixtureId,
     host: '127.0.0.1',
     port,
     root,
     dataRoot: path.join(root, 'data'),
     outputsRoot: path.join(root, 'outputs'),
-    allowedHosts: Object.freeze([`127.0.0.1:${port}`]),
-    allowedOrigins: Object.freeze([...new Set([`http://127.0.0.1:${port}`, 'http://127.0.0.1:5173'])]),
+    allowedHosts: Object.freeze([`127.0.0.1:${port}`, `localhost:${port}`]),
+    allowedOrigins: Object.freeze([...new Set([
+      `http://127.0.0.1:${port}`, `http://localhost:${port}`,
+      'http://127.0.0.1:5173', 'http://localhost:5173',
+    ])]),
   });
 }
-export function qualifiedDevelopmentActor(user) {
+export function qualifiedDevelopmentActor(user, role = 'user', requireActive = true) {
+  const actorId = role === 'admin' ? developmentAdminFixtureId : developmentFixtureId;
   return (
+    ['user', 'admin'].includes(role) &&
     !!user &&
-    user.id === developmentFixtureId &&
-    user.username === developmentFixtureId &&
-    user.status === 'active' &&
-    user.role === 'user' &&
-    user.fixtureDesignation === 'isolated-auth-development-v1' &&
+    user.id === actorId &&
+    user.username === actorId &&
+    (requireActive ? user.status === 'active' : ['active', 'suspended', 'disabled'].includes(user.status)) &&
+    user.role === role &&
+    user.fixtureDesignation === (role === 'admin' ? 'isolated-auth-development-admin-v1' : 'isolated-auth-development-v1') &&
     !user.activeCreatorProfileId &&
     (!user.roles || (Array.isArray(user.roles) && user.roles.length === 0)) &&
     (!user.featureFlags || (Array.isArray(user.featureFlags) && user.featureFlags.length === 0))
   );
+}
+export function qualifiedDevelopmentRoster(users, role = 'user') {
+  return Array.isArray(users) && users.length >= 1 && users.length <= 2
+    && users.filter(user => qualifiedDevelopmentActor(user, 'user', false)).length === 1
+    && users.every(user => qualifiedDevelopmentActor(user, 'user', false)
+      || qualifiedDevelopmentActor(user, 'admin', false))
+    && new Set(users.map(user => user.id)).size === users.length
+    && users.some(user => qualifiedDevelopmentActor(user, role));
 }
 export function initializeAuthRuntime(env, projectRoot) {
   if (qualifiedRuntime) configFailure();

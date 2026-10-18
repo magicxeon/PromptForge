@@ -22,6 +22,9 @@ export class ComparisonOrchestrator {
     this.creditManager = creditManager;
     this.creditReservation = creditReservation;
     this.repository = repository;
+    // In-flight admission is not a lost Job. This owner holds the guard until
+    // every enqueue or compensating refund finishes; it never survives restart.
+    this.activeAdmissions = new Set();
     this.templateCoreService = templateCoreService;
     this.generationApplicationService = generationApplicationService
       || new GenerationApplicationService({
@@ -147,9 +150,16 @@ export class ComparisonOrchestrator {
     const setId = created.set.id;
     const runId = created.run.id;
     const enqueuedSlots = [];
+    let reservedOperations = [];
+    const admissionKey = `${setId}:${runId}`;
     try {
-      for (const slot of pricedSlots) {
-        const submitted = await this.generationApplicationService.submitPreparedOperation({
+      // Comparison owns this process-local guard only until create's finally.
+      // Never expire an active admission: that could refund not-yet-enqueued work.
+      if (this.activeAdmissions.size >= 128)
+        throw new ComparisonError('comparison_admission_busy', 'Comparison admission is busy. Please retry.', 409);
+      this.activeAdmissions.add(admissionKey);
+      const operations = pricedSlots.map(slot => ({
+          operationId: slot.id,
           providerId: slot.provider,
           modelId: slot.model,
           estimateId: slot.estimateId,
@@ -205,16 +215,37 @@ export class ComparisonOrchestrator {
             promptRefinement: promptExecution.metadata
           },
           promptRefinementAudit: promptExecution.audit
+        }));
+      reservedOperations = await this.generationApplicationService.reservePreparedOperations({
+        payerUserId: userId,
+        planId: `comparison:${setId}:${runId}`,
+        quoteId: runId,
+        idempotencyKey: `comparison:${userId}:${idempotencyKey}`,
+        operations
+      });
+      // Durable bindings precede dispatch, so fast completion/restart can still
+      // correlate every reserved slot with its canonical Job and settlement.
+      await this.repository.updateRun(setId, runId, targetRun => {
+        for (const operation of reservedOperations) {
+          const targetSlot = targetRun.slots.find(slot => slot.id === operation.operationId);
+          targetSlot.jobId = operation.jobId;
+          targetSlot.reservationId = operation.reservation.reservationId;
+        }
+      });
+      for (const operation of reservedOperations) {
+        const submitted = await this.generationApplicationService.enqueueReservedOperation({
+          ...operation,
+          refundOnFailure: false
         });
         const enqueuedSlot = {
-          slotId: slot.id,
+          slotId: operation.operationId,
           jobId: submitted.jobId,
           reservationId: submitted.reservation.reservationId,
           providerStreaming: submitted.providerStreaming
         };
         enqueuedSlots.push(enqueuedSlot);
         await this.repository.updateRun(setId, runId, targetRun => {
-          const targetSlot = targetRun.slots.find(item => item.id === slot.id);
+          const targetSlot = targetRun.slots.find(item => item.id === operation.operationId);
           if (!targetSlot) return;
           targetSlot.jobId ||= submitted.jobId;
           targetSlot.reservationId ||= submitted.reservation.reservationId;
@@ -228,14 +259,36 @@ export class ComparisonOrchestrator {
       });
       return this.createResponse(created.set, run, false, enqueuedSlots);
     } catch (error) {
+      const accepted = new Set(enqueuedSlots.map(slot => slot.slotId));
+      const unaccepted = reservedOperations.filter(operation => !accepted.has(operation.operationId));
+      const compensation = await Promise.allSettled(unaccepted.map(operation => this.creditReservation.refundForJob({
+        userId,
+        reservationId: operation.reservation.reservationId,
+        jobId: operation.jobId,
+        reasonCode: 'comparison_enqueue_failed',
+        metadata: { comparisonSetId: setId, comparisonRunId: runId }
+      })));
+      for (const refund of compensation) if (refund.status === 'rejected') {
+        console.warn('[Comparison] Unaccepted slot refund requires reconciliation:', refund.reason?.code || 'credit_service_unavailable');
+      }
+      const pendingRefunds = new Set(unaccepted.filter((_operation, index) => compensation[index].status === 'rejected')
+        .map(operation => operation.operationId));
       await this.repository.updateRun(setId, runId, targetRun => {
         targetRun.status = enqueuedSlots.length > 0 ? 'partially_completed' : 'failed';
-        targetRun.slots.filter(slot => !slot.jobId).forEach(slot => {
+        targetRun.slots.filter(slot => !accepted.has(slot.id)).forEach(slot => {
+          const operation = unaccepted.find(item => item.operationId === slot.id);
+          if (operation) {
+            slot.jobId = operation.jobId;
+            slot.reservationId = operation.reservation.reservationId;
+          }
           slot.status = 'failed';
-          slot.error = { code: 'enqueue_failed', message: 'The comparison slot could not be queued.' };
+          slot.error = { code: pendingRefunds.has(slot.id) ? 'comparison_refund_pending' : 'enqueue_failed',
+            message: 'The comparison slot could not be queued.' };
         });
       });
       throw error;
+    } finally {
+      this.activeAdmissions.delete(admissionKey);
     }
   }
 
@@ -335,6 +388,10 @@ export class ComparisonOrchestrator {
   }
 
   async reconcileRun(setId, run) {
+    // All bindings are already durable while later slots still await enqueue.
+    // Concurrent GET must not refund them. After restart the guard is absent,
+    // so the existing missing-Job/history reconciliation releases orphan funds.
+    if (this.activeAdmissions.has(`${setId}:${run.id}`)) return;
     const history = await this.repository.readHistory();
     const historyByComparisonSlot = new Map(
       history
@@ -355,17 +412,20 @@ export class ComparisonOrchestrator {
       && (
         ['queued', 'processing', 'streaming'].includes(slot.status)
         || slot.error?.code === 'job_state_lost'
+        || slot.error?.code === 'comparison_refund_pending'
       )
     );
+    const refundedSlots = new Set();
     await Promise.all(lostSlots.map(slot => {
       if (!slot.reservationId || !run.payerUserId) return Promise.resolve();
       return this.creditReservation.refundForJob({
         userId: run.payerUserId,
         reservationId: slot.reservationId,
         jobId: slot.jobId,
-        reasonCode: 'job_state_lost',
+        reasonCode: slot.error?.code === 'comparison_refund_pending' ? 'comparison_enqueue_failed' : 'job_state_lost',
         metadata: { comparisonSetId: setId, comparisonRunId: run.id }
-      }).catch(error => console.warn(`[Comparison] Lost-job refund failed for ${slot.jobId}:`, error.message));
+      }).then(() => refundedSlots.add(slot.id))
+        .catch(error => console.warn(`[Comparison] Lost-job refund failed for ${slot.jobId}:`, error.message));
     }));
     const costs = await this.creditManager.getNetJobCosts(run.slots.map(slot => slot.jobId).filter(Boolean));
     await this.repository.updateRun(setId, run.id, targetRun => {
@@ -398,6 +458,8 @@ export class ComparisonOrchestrator {
             code: 'job_state_lost',
             message: 'The server restarted before this generation could be recovered. Other completed slots are still available.'
           };
+        } else if (refundedSlots.has(slot.id) && slot.error?.code === 'comparison_refund_pending') {
+          slot.error = { code: 'enqueue_failed', message: 'The comparison slot could not be queued.' };
         }
         slot.actualCredit = Math.max(0, costs.get(slot.jobId) || 0);
       });

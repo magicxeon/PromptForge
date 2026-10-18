@@ -100,6 +100,36 @@ describe('server-resolved actor lifecycle', () => {
     expect(apiRequest).toHaveBeenCalledTimes(3);
   });
 
+  it('accepts the server-resolved local admin and clears its queries/drafts on user downgrade', async () => {
+    const admin = { ...actor('development_bypass', 'usr_auth_local_admin'), role: 'admin', isMockActor: true };
+    vi.mocked(apiRequest).mockResolvedValueOnce(config('development_bypass')).mockResolvedValueOnce(admin);
+    const client = mount();
+    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('usr_auth_local_admin'));
+    writeActorScopedDraft({ actorId: admin.userId, feature: 'playground', schemaVersion: 1, payload: { private: 'admin fixture' } });
+    client.setQueryData(['admin', admin.userId], { private: 'old' });
+    vi.mocked(apiRequest).mockResolvedValueOnce(config('development_bypass')).mockResolvedValueOnce(actor('development_bypass', 'usr_auth_local'));
+    fireEvent.click(screen.getByText('Refresh'));
+    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('usr_auth_local'));
+    expect(getActiveActorId()).toBe('usr_auth_local');
+    expect(client.getQueryData(['admin', admin.userId])).toBeUndefined();
+    expect(Object.keys(localStorage).filter(key => key.startsWith('mpf.react.draft:'))).toEqual([]);
+  });
+
+  it('rejects an unsupported privileged development role without retaining actor presentation', async () => {
+    vi.mocked(apiRequest).mockResolvedValueOnce(config('development_bypass'))
+      .mockResolvedValueOnce({ ...actor('development_bypass'), role: 'support' });
+    mount();
+    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('error'));
+    expect(getActiveActorId()).toBe('');
+  });
+
+  it('preserves the optional qualified live generation disclosure and rejects invalid projection', () => {
+    const live = { ...config('development_bypass'), development: { liveGeneration: true } };
+    expect(authConfigSchema.parse(live).development?.liveGeneration).toBe(true);
+    expect(authConfigSchema.safeParse({ ...live, development: { liveGeneration: 'true' } }).success).toBe(false);
+    expect(authConfigSchema.parse(config('development_bypass')).development).toBeUndefined();
+  });
+
   it('rejects null CSRF with bypass or an enabled method', () => {
     expect(authConfigSchema.safeParse({ ...config(), csrfToken: null }).success).toBe(true);
     expect(authConfigSchema.safeParse({ ...config('development_bypass'), csrfToken: null }).success).toBe(false);

@@ -399,6 +399,7 @@
   "playground.video.referencePending": "Reference and Character selection stays unavailable until a qualified model can honor that authority contract.",
   "playground.video.engineDescription": "Only provider/model operations approved for paid Video routing appear here.",
   "playground.video.loadingModels": "Loading qualified Video models...",
+  "playground.video.modelsLoadFailed": "Video models could not be loaded. Check your connection and access, then retry. Your draft is saved.",
   "playground.video.duration": "Duration",
   "playground.video.audio": "Audio",
   "playground.video.generate": "Generate video",

@@ -20,7 +20,11 @@ const mocks = vi.hoisted(() => ({
   actor: 'alice',
   ask: false,
 }));
-vi.mock('../../../lib/auth/actorStore', () => ({ getActiveActorId: () => mocks.actor }));
+vi.mock('../../../lib/auth/actorStore', async importOriginal => ({
+  ...await importOriginal<typeof import('../../../lib/auth/actorStore')>(),
+  getActiveActorId: () => mocks.actor,
+  getIdentitySnapshot: () => ({ epoch: 0, ready: true, actorId: mocks.actor, authMode: 'session', csrfToken: 'fixture' }),
+}));
 vi.mock('../../../lib/auth/userPreferences', () => ({ useUserPreferences: () => ({ isSuccess: true, isFetching: false, data: { confirmCreditUsage: mocks.ask }, save: vi.fn() }) }));
 vi.mock('../../../lib/auth/ActorProvider', () => ({
   useActor: () => ({ actor: { userId: mocks.actor } }),
@@ -85,6 +89,7 @@ vi.mock('./PlaygroundVideoSources', () => ({
     <button
       data-invalid-frame={String(Boolean(p.invalidFrame))}
       data-invalid-look={String(Boolean(p.invalidLook))}
+      data-invalid-character={String(Boolean(p.invalidCharacter))}
       onClick={() =>
         p.onChange({
           referenceImageUrl: '/outputs/frame.png',
@@ -194,6 +199,34 @@ async function ready(operation = 'character_to_video') {
 }
 
 describe('Playground video execution controls', () => {
+  it('shows loading rather than claiming qualification is blocked before catalog resolves', async () => {
+    mocks.catalog.mockReturnValueOnce(new Promise(() => {}));
+    const view = mount();
+    expect(await screen.findByText('playground.video.loadingModels')).toBeInTheDocument();
+    expect(screen.queryByText('playground.video.qualificationBlockedDescription')).not.toBeInTheDocument();
+    expect(mocks.submit).not.toHaveBeenCalled();
+    view.unmount(); view.client.clear();
+  });
+
+  it('reports catalog failure and retries without losing the draft or submitting a task', async () => {
+    restoreDraft({ prompt: 'Keep this Video direction.' });
+    mocks.catalog.mockRejectedValueOnce(new Error('Authentication mode denied.'));
+    mount();
+    expect(await screen.findByRole('alert')).toHaveTextContent('playground.video.modelsLoadFailed');
+    expect(screen.queryByText('playground.video.qualificationBlockedDescription')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'playground.video.references.retry' }));
+    await screen.findByTestId('model');
+    expect(screen.getByLabelText('Prompt')).toHaveValue('Keep this Video direction.');
+    expect(mocks.submit).not.toHaveBeenCalled();
+  });
+
+  it('shows qualification blocked only after a successful empty catalog', async () => {
+    mocks.catalog.mockResolvedValueOnce({ models: [], comparison: { enabled: false } });
+    mount();
+    expect(await screen.findByText('playground.video.qualificationBlockedDescription')).toBeInTheDocument();
+    expect(screen.queryByText('playground.video.modelsLoadFailed')).not.toBeInTheDocument();
+    expect(mocks.submit).not.toHaveBeenCalled();
+  });
   it('starts collapsed with compact source options and a visible path to missing-reference editors', async () => {
     mount();
     await screen.findByTestId('model');
@@ -287,6 +320,37 @@ describe('Playground video execution controls', () => {
     } finally { unmount(); vi.unstubAllGlobals(); }
   });
 
+  it.each(['image', 'look'])('marks every rejected %s at indexes 1, 3 and 4 without automatic navigation', async kind => {
+    const referenceIssues = [1, 3, 4].map(contentIndex => ({
+      contentIndex, referenceIndex: contentIndex - 1, reason: 'possible_real_person',
+    }));
+    const failed = { id: 'multiple-rejected', status: 'failed', providerError: {
+      code: 'video_provider_input_image_rejected', referenceIssue: referenceIssues[0], referenceIssues,
+    } };
+    const sources = Array.from({ length: 4 }, (_, index) => ({
+      url: `/outputs/reference-${index + 1}.png`, name: `Look ${index + 1}`,
+    }));
+    mocks.task.mockResolvedValue(failed);
+    restoreDraft({ operation: kind === 'image' ? 'image_to_video' : 'character_to_video',
+      prompt: 'Keep all references', activeTaskId: failed.id,
+      ...(kind === 'image' ? { imageReferences: sources } : { lookSheets: sources }) });
+    mount();
+    await screen.findByTestId('model');
+    await waitFor(() => expect(document.querySelector('.generation-reference-disclosure__problem'))
+      .toHaveTextContent('Image 1, 3, 4'));
+    await expandReferences();
+    const controls = screen.getAllByRole('button', { name: 'Attach' });
+    expect(controls).toHaveLength(4);
+    const attribute = kind === 'image' ? 'data-invalid-frame' : 'data-invalid-look';
+    expect(controls.map(control => control.getAttribute(attribute))).toEqual(['true', 'false', 'true', 'true']);
+    expect(screen.getByRole('textbox', { name: 'Prompt' })).toHaveValue('Keep all references');
+    expect(screen.queryByRole('heading', { name: 'playground.video.resultTitle', hidden: true })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'playground.options.viewResult' })).toBeDisabled();
+    expect(mocks.focusRegion).not.toHaveBeenCalled();
+    expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
+    expect(mocks.submit).not.toHaveBeenCalled();
+  });
+
   it.each(['operation', 'model'])('dismisses old rejection highlighting after changing %s', async change => {
     mocks.catalog.mockResolvedValue({ models: [model, { ...model, modelId: 'other' }], comparison: { enabled: false } });
     const failed = { id: 'failed-task', status: 'failed', providerError: {
@@ -328,10 +392,8 @@ describe('Playground video execution controls', () => {
       expect(before.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     }
     expect(screen.getAllByRole('button', { name: /playground.video.generate/ })).toHaveLength(1);
-    const result = screen.getByRole('heading', { name: 'playground.video.resultTitle', hidden: true });
-    expect(result).not.toBeVisible();
-    expect(result.closest('.playground-workspace__output')).not.toBeNull();
-    expect(composer).not.toContainElement(result);
+    expect(screen.queryByRole('heading', { name: 'playground.video.resultTitle', hidden: true })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'playground.options.viewResult' })).toBeDisabled();
     expect(screen.getByRole('heading', { name: 'playground.video.recentTitle' })
       .closest('.playground-workspace__output')).not.toBeNull();
     expect(screen.getByText('Scene / first-frame image')).toBeVisible();
@@ -349,10 +411,10 @@ describe('Playground video execution controls', () => {
   });
 
   it.each([
-    { status: 'completed', publicUrl: '/outputs/complete.mp4', collapsed: true },
-    { status: 'completed', publicUrl: null, collapsed: false },
-    { status: 'failed', publicUrl: null, collapsed: false },
-  ])('folds Video only when a successful task has usable media: $status/$publicUrl', async ({status,publicUrl,collapsed}) => {
+    { status: 'completed', publicUrl: '/outputs/complete.mp4' },
+    { status: 'completed', publicUrl: null },
+    { status: 'failed', publicUrl: null },
+  ])('keeps Video expanded without automatic navigation after submission: $status/$publicUrl', async ({status,publicUrl}) => {
     const task = { id: 'task-one', status, outputAsset: publicUrl ? { publicUrl } : null };
     mocks.submit.mockResolvedValue(task);
     mocks.task.mockResolvedValue(task);
@@ -361,13 +423,16 @@ describe('Playground video execution controls', () => {
     expect(toggle).toHaveAttribute('aria-expanded','true');
     fireEvent.click(screen.getByRole('button',{name:/playground.video.generate/}));
     await waitFor(()=>expect(mocks.task).toHaveBeenCalled());
-    await waitFor(()=>expect(toggle).toHaveAttribute('aria-expanded',collapsed?'false':'true'));
-    expect(screen.getByRole('heading',{name:'playground.video.resultTitle'})).toBeVisible();
-    if(collapsed){
-      fireEvent.click(screen.getByRole('button',{name:'playground.options.returnToSettings'}));
-      await waitFor(()=>expect(toggle).toHaveAttribute('aria-expanded','true'));
-      expect(screen.getByRole('textbox',{name:'Prompt'})).toBeVisible();
+    expect(toggle).toHaveAttribute('aria-expanded','true');
+    expect(screen.getByRole('textbox',{name:'Prompt'})).toBeVisible();
+    const result = screen.queryByRole('heading',{name:'playground.video.resultTitle', hidden: true});
+    if (status === 'completed' && publicUrl) expect(result).toBeVisible();
+    else {
+      expect(result).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'playground.options.viewResult' })).toBeDisabled();
     }
+    expect(mocks.focusRegion).not.toHaveBeenCalled();
+    expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
   });
 
   it('keeps async restored completed Video expanded on entry and cached tab return', async () => {
@@ -392,7 +457,7 @@ describe('Playground video execution controls', () => {
     view.unmount(); view.client.clear();
   });
 
-  it('collapses an observed active restored Video on completion, but preserves reopen during polling', async () => {
+  it('keeps an observed active restored Video expanded on completion and polling', async () => {
     restoreDraft({ activeTaskId: 'task-one', prompt: 'Restored direction' });
     const view = mount();
     await screen.findByTitle('task-one');
@@ -400,11 +465,12 @@ describe('Playground video execution controls', () => {
     mocks.task.mockResolvedValue(completed);
     await act(async () => { await view.client.refetchQueries({ queryKey: ['video-task', 'alice', 'task-one'] }); });
     const toggle = document.querySelector('.playground-workspace__setup-toggle')!;
-    await waitFor(() => expect(toggle).toHaveAttribute('aria-expanded', 'false'));
-    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
     await act(async () => { await view.client.refetchQueries({ queryKey: ['video-task', 'alice', 'task-one'] }); });
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('textbox', { name: 'Prompt' })).toHaveValue('Restored direction');
+    expect(mocks.focusRegion).not.toHaveBeenCalled();
+    expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
     view.unmount(); view.client.clear();
   });
 
@@ -492,15 +558,15 @@ describe('Playground video execution controls', () => {
     expect(screen.getByRole('button', { name: /playground.video.generate/ })).toBeDisabled();
     expect(mocks.submit).not.toHaveBeenCalled();
   });
-  it('uses the server-owned 8000-character Video prompt limit', async () => {
+  it('uses the server-owned 10000-character Video prompt limit', async () => {
     mocks.catalog.mockResolvedValue({
       models: [model],
       comparison: { enabled: false },
-      promptMaximumCharacters: 8000,
+      promptMaximumCharacters: 10000,
     });
     mount();
     const prompt = await screen.findByLabelText('Prompt');
-    expect(prompt).toHaveAttribute('maxlength', '8000');
+    await waitFor(() => expect(prompt).toHaveAttribute('maxlength', '10000'));
   });
   it('refreshes an expired quote without submitting a paid request', async () => {
     mocks.quote.mockResolvedValue({
@@ -598,15 +664,19 @@ describe('Playground video execution controls', () => {
     expect(document.querySelector('.playground-video-reference-summary__list li.is-rejected')).toBeNull();
   });
 
-  it('navigates once on submission and explicitly between stable result and tools regions without changing the draft', async () => {
+  it('navigates only on explicit View result and Return to settings without changing the draft', async () => {
     mount(); await ready();
     const prompt = screen.getByLabelText('Prompt');
-    const result = document.getElementById('generation-video-results')!;
     const tools = document.querySelector('.playground-workspace__tools-frame')!;
     fireEvent.click(screen.getByRole('button', { name: /playground.video.generate/ }));
     await waitFor(() => expect(mocks.submit).toHaveBeenCalledTimes(1));
-    expect(mocks.focusRegion).toHaveBeenCalledTimes(1);
+    await screen.findByTitle('task-one');
+    const result = document.getElementById('generation-video-results')!;
+    expect(mocks.focusRegion).not.toHaveBeenCalled();
+    expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'playground.options.viewResult' }));
     expect(mocks.focusRegion).toHaveBeenLastCalledWith(result);
+    expect(result).toHaveFocus();
     fireEvent.click(screen.getByRole('button', { name: 'playground.options.returnToSettings' }));
     expect(mocks.focusRegion).toHaveBeenLastCalledWith(tools);
     expect(tools).toHaveFocus();
@@ -632,7 +702,8 @@ describe('Playground video execution controls', () => {
       ...(status === 'completed' ? { outputAsset: { publicUrl: '/outputs/video.mp4' } } : {}) };
     await act(async () => { client.setQueryData(['video-task', 'alice', 'task-one'], terminal); });
     await act(async () => { client.setQueryData(['video-task', 'alice', 'task-one'], { ...terminal, completedAt: '2026-10-02' }); });
-    expect(mocks.focusRegion).toHaveBeenCalledTimes(1);
+    expect(mocks.focusRegion).not.toHaveBeenCalled();
+    expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
     expect(prompt).toHaveFocus();
     expect(prompt).toHaveValue('The next direction');
     expect(mocks.submit).toHaveBeenCalledTimes(1);
@@ -655,6 +726,26 @@ describe('Playground video execution controls', () => {
     expect(mocks.quote.mock.calls.at(-1)?.[0]).toEqual(snapshot);
     expect(mocks.focusRegion).not.toHaveBeenCalled();
     expect(mocks.submit).not.toHaveBeenCalled();
+  });
+
+  it('shows only completed usable videos in Recent while retaining successful output', async () => {
+    mocks.recent.mockResolvedValue({ items: [
+      { id: 'recent-completed', modelId: 'completed-model', status: 'completed', outputAsset: { publicUrl: '/outputs/completed.mp4' } },
+      { id: 'recent-failed', modelId: 'failed-model', status: 'failed', outputAsset: { publicUrl: '/outputs/failed.mp4' } },
+      { id: 'recent-running', modelId: 'running-model', status: 'provider_processing' },
+      { id: 'recent-no-media', modelId: 'no-media-model', status: 'completed', outputAsset: null },
+      { id: 'recent-empty-media', modelId: 'empty-media-model', status: 'completed', outputAsset: { publicUrl: '' } },
+    ] });
+    mount(); await ready();
+    expect(await screen.findByRole('button', { name: /completed-model/ })).toBeEnabled();
+    for (const name of ['failed-model', 'running-model', 'no-media-model', 'empty-media-model']) {
+      expect(screen.queryByRole('button', { name: new RegExp(name) })).not.toBeInTheDocument();
+    }
+    expect(document.querySelectorAll('.playground-video-recent-grid button')).toHaveLength(1);
+    expect(document.querySelector('.playground-video-recent-grid video'))
+      .toHaveAttribute('src', expect.stringContaining('/outputs/completed.mp4'));
+    expect(mocks.submit).not.toHaveBeenCalled();
+    expect(mocks.focusRegion).not.toHaveBeenCalled();
   });
 
   it('presents provider processing as a bounded friendly task status', async () => {

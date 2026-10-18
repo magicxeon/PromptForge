@@ -314,7 +314,7 @@ function toPublicModel(model) {
   const profile = model.paidUsageActivationVersion ? {
     inputModes: ['multimodal_reference'], aspectRatios: ['9:16'], resolutions: ['480p', '720p'],
     durations: [...new Set(model.paidUsageActivation.measuredCases.map(row => row.durationSeconds))],
-    referenceImageLimit: 3
+    referenceImageLimit: 9
   } : {};
   return {
     ...safe,

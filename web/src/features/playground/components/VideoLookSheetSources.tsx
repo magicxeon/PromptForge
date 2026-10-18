@@ -9,12 +9,13 @@ import { TrustedVideoSources } from './TrustedVideoSources';
 import { VideoImageReferenceSources } from './VideoImageReferenceSources';
 import { selectedLooks, selectedTrustedLooks, type VideoReferenceSelection } from './videoReferenceSelection';
 
-export function VideoLookSheetSources({ value, model, onChange, onBusy, referenceIssue }: {
+export function VideoLookSheetSources({ value, model, onChange, onBusy, referenceIssue, referenceIssues = referenceIssue ? [referenceIssue] : [] }: {
   value: VideoReferenceSelection;
   model: VideoModelCapability | null;
   onChange: (patch: Partial<VideoReferenceSelection>) => void;
   onBusy: (busy: boolean) => void;
   referenceIssue?: VideoReferenceIssue | null;
+  referenceIssues?: VideoReferenceIssue[];
 }) {
   const { t } = useTranslation('playground');
   const [adding, setAdding] = useState(false);
@@ -46,7 +47,7 @@ export function VideoLookSheetSources({ value, model, onChange, onBusy, referenc
     } else onChange(patch);
   }
   if (value.operation === 'image_to_video') return <VideoImageReferenceSources value={value} model={model} onChange={onChange} onBusy={onBusy}
-    referenceIssue={referenceIssue} />;
+    referenceIssues={referenceIssues} />;
   return <div className="video-look-sheet-list">
     {Array.from({ length: rows }, (_, index) => {
       const frameIndex = frameCount ? 0 : -1;
@@ -55,16 +56,16 @@ export function VideoLookSheetSources({ value, model, onChange, onBusy, referenc
       return <fieldset disabled={busy} key={index} className={index ? 'video-look-sheet-list__additional' : undefined}>
       {trusted ? <TrustedVideoSources withLook={withLook} frame={value.trustedFrame || null}
         look={trustedLooks[index] || null} lookOnly={index > 0 || model?.firstFrameEnabled === false} characterNumber={index + 1}
-        invalidFrame={index === 0 && referenceIssue?.referenceIndex === frameIndex}
-        invalidLook={referenceIssue?.referenceIndex === lookIndex}
+        invalidFrame={index === 0 && referenceIssues.some(issue => issue.referenceIndex === frameIndex)}
+        invalidLook={referenceIssues.some(issue => issue.referenceIndex === lookIndex)}
         excludedIds={trustedLooks.filter((_, i) => i !== index).map(item => item.id)}
         onChange={patch => change(index, patch)} />
         : <PlaygroundVideoSources value={{ ...value, lookSheet: looks[index] || null }}
           lookOnly={index > 0 || model?.firstFrameEnabled === false} characterNumber={index + 1}
-          invalidFrame={index === 0 && referenceIssue?.referenceIndex === frameIndex}
-          invalidLook={Boolean(looks[index]) && referenceIssue?.referenceIndex === lookIndex}
+          invalidFrame={index === 0 && referenceIssues.some(issue => issue.referenceIndex === frameIndex)}
+          invalidLook={Boolean(looks[index]) && referenceIssues.some(issue => issue.referenceIndex === lookIndex)}
           invalidCharacter={index === 0 && Boolean(value.character) && !looks.length
-            && referenceIssue?.referenceIndex === characterIndex}
+            && referenceIssues.some(issue => issue.referenceIndex === characterIndex)}
           excludedUrls={looks.filter((_, i) => i !== index).map(item => item.url)}
           onBusy={reportBusy} onChange={patch => change(index, patch)} />}
     </fieldset>})}

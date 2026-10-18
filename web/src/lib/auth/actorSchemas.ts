@@ -25,6 +25,7 @@ export const authConfigSchema = z.object({
   authMode: z.enum(['session', 'development_bypass']),
   methods: z.object({ password: z.boolean(), emailOtp: z.boolean(), google: z.boolean(), facebook: z.boolean() }),
   csrfToken: z.string().min(1).max(2048).nullable(),
+  development: z.object({ liveGeneration: z.boolean() }).optional(),
   policy: z.object({
     otpDigits: z.literal(6), otpExpiresSeconds: z.number().int().positive(),
     resendSeconds: z.number().int().nonnegative(), passwordMinLength: z.number().int().positive(),

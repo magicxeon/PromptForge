@@ -44,6 +44,10 @@ documentation completion alone does not establish working authentication.
 | AUTH-012 | [Incremental implementation evidence](authentication/012-implementation-evidence.md) | Actual focused test results and independent implementation reviews |
 | AUTH-013 | [Private-surface cutover inventory](authentication/013-private-surface-cutover-inventory.md) | Registered API/media/stream/actor/transport surfaces, exact future scopes and verification cases |
 | AUTH-014 | [Login runtime setup](authentication/014-login-runtime-setup.md) | Exact environment names, persistent runtime inputs, migration and isolated validation commands |
+| AUTH-015 | [Local development entry plan](authentication/015-development-startup-task-plan.json) | Launcher readiness and exact localhost admission |
+| AUTH-016 | [Local Admin bypass](authentication/016-local-admin-bypass.md) | Fixed isolated Admin, bounded commands and role transitions |
+| AUTH-017 | [Local Admin live image Comparison](authentication/017-local-admin-live-comparison.md) | Explicit real API opt-in, atomic Credits admission and guarded owned outputs |
+| AUTH-018 | [Local Admin Video Playground](authentication/018-local-admin-video-playground.md) | Existing generation opt-in admits canonical Video routes; catalog errors are distinct from empty qualification |
 | Task state | [Machine-readable plan](authentication/task-plan.json) | Dependencies, write scopes, reviewers, status and evidence |
 
 This master supersedes the former Phase2-04 deferral of social login and its

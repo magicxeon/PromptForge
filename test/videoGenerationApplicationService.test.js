@@ -230,7 +230,7 @@ test('video quote rejects an empty prompt before pricing', async () => {
   );
 });
 
-test('Playground video rejects prompts above 8000 characters before pricing', async () => {
+test('Playground video rejects prompts above 10000 characters before pricing', async () => {
   let estimates = 0;
   const service = createService({
     creditService: {
@@ -239,12 +239,12 @@ test('Playground video rejects prompts above 8000 characters before pricing', as
     }
   });
   await assert.rejects(
-    service.quote({ ...input, prompt: 'x'.repeat(8001) }, actor),
+    service.quote({ ...input, prompt: 'x'.repeat(10001) }, actor),
     error => error.code === 'generation_prompt_too_long'
-      && error.details?.applicationMaximumCharacters === 8000
+      && error.details?.applicationMaximumCharacters === 10000
   );
   assert.equal(estimates, 0);
-  await service.quote({ ...input, prompt: 'x'.repeat(8000) }, actor);
+  await service.quote({ ...input, prompt: 'x'.repeat(10000) }, actor);
   assert.equal(estimates, 1);
 });
 

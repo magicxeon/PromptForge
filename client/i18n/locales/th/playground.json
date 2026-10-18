@@ -399,6 +399,7 @@
   "playground.video.referencePending": "การเลือกภาพและ Character จะเปิดเมื่อมีโมเดลที่ผ่านการรับรองและรักษาอำนาจของ Reference ได้",
   "playground.video.engineDescription": "แสดงเฉพาะ Provider และ Model ที่ได้รับอนุมัติให้คิดเครดิตสำหรับวิดีโอแล้ว",
   "playground.video.loadingModels": "กำลังโหลดโมเดลวิดีโอที่ผ่านการรับรอง...",
+  "playground.video.modelsLoadFailed": "โหลดโมเดลวิดีโอไม่สำเร็จ โปรดตรวจสอบการเชื่อมต่อและสิทธิ์เข้าใช้งาน แล้วลองอีกครั้ง Draft ของคุณยังถูกบันทึกไว้",
   "playground.video.duration": "ระยะเวลา",
   "playground.video.audio": "เสียง",
   "playground.video.generate": "สร้างวิดีโอ",

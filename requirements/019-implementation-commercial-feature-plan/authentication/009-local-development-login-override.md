@@ -13,8 +13,13 @@ enter the workspace without repeatedly entering a password, OTP or social login.
 This is a local development convenience, not a production authentication method.
 The toggle, eligibility checks, fixed isolated actor and guest fallback are now
 implemented. The actual local `.env` and existing accounts/data were not edited.
-The current bypass permits the documented workspace reads and own preferences;
-additional workspace operations require AUTH-T19B qualification.
+The default user bypass permits documented workspace reads and own preferences.
+Explicit local admin selection is authorized2026-10-12 under
+[AUTH-016](016-local-admin-bypass.md); other workspace operations retain their gates.
+User-authorized real image Generation/Compare is a separate default-off local
+Admin opt-in under [AUTH-017](017-local-admin-live-comparison.md), using normal
+pricing, atomic reservation and guarded owned results. It does not grant real
+Login/security/financial staff authority or enable billable startup recovery.
 
 ```dotenv
 # Server-side setting; default in .env.example remains false.
@@ -41,6 +46,15 @@ URL, header, cookie or UI control may enable it. Read once through
 
 Validate eligibility before `createApp()` or any startup side effects, not just
 before listen: existing composition starts recovery/Credit reconciliation.
+
+2026-10-12 localhost repair (AUTH-DEV-HOST-01): allow the exact same-machine
+Host aliases `127.0.0.1:<API port>` and `localhost:<API port>` and their HTTP
+origins, plus exact frontend `127.0.0.1:5173`/`localhost:5173` origins.
+Keep the listener and socket peer on IPv4 loopback. Never allow suffix hostnames,
+LAN origins, other ports, arbitrary localhost subdomains or forwarded headers.
+Both aliases retain CSRF and fixed fixture authorization; no paid/security/media
+exception. Validate direct localhost GET/preferences, actual Vite proxy and
+hostile/restart/off transitions before closure; Security/QA review required.
 Override startup must not start live provider dispatch, financial reconciliation
 or background recovery against real state. Use owning fixture adapters/disabled
 startup hooks; do not change Credits/Generation business rules. The override must
@@ -68,9 +82,11 @@ a development config into isolated fixtures, not enable bypass on a test server.
   only if it meets this fixture contract; otherwise explicitly provision a local
   fixture through the owning setup task. There is no arbitrary user-ID env input
   or request-driven actor switch in this mode.
-- The actor must be active, baseline customer and explicitly fixture-designated.
-  Never select an Admin, Support, staff or real customer account; no automatic
-  role elevation, email verification, Terms acceptance or account provisioning.
+- The default actor is the active designated user fixture. Only explicit
+  `AUTH_DEV_BYPASS_ROLE=admin` (or its `UTH_DEV_BYPASS_ROLE` alias) may select the
+  separately provisioned fixed local admin fixture. Never select a real customer,
+  real Admin/Support account or arbitrary user; no role elevation by headers,
+  email verification, Terms acceptance or production account provisioning.
 - The server supplies `authMode=development_bypass` separately from real session
   assurance. Never mint a production-valid session, credential proof, MFA grant,
   reauthentication grant or operation receipt from this override.
@@ -169,8 +185,9 @@ states and neighboring actions across required widths/themes/locales.
 Retain the reviewed T13A shared Identity/Gate/API/mode presentation. Root owns
 the remaining local proxy configuration and qualification: bind Vite to
 127.0.0.1:5173 with strictPort, forward to 127.0.0.1:6500 with changeOrigin while
-preserving the browser Origin, and admit only this exact frontend Origin plus
-the owning backend Origin. Actual socket loopback, backend Host and CSRF checks
+preserving the browser Origin, and admit only the exact localhost/127.0.0.1
+frontend5173 aliases plus the same aliases for the owning backend port.
+Actual socket loopback, backend Host and CSRF checks
 remain mandatory; forwarded headers cannot establish authority. A foreign
 Origin, hostname or frontend port remains denied. No CORS wildcard is added.
 

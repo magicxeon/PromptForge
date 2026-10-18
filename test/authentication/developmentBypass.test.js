@@ -82,7 +82,12 @@ test('actual loopback HTTP uses fixed actor, same-origin CSRF, scoped preference
   assert.equal(actor.body.role, 'user');
   assert.equal((await request('/api/me', { headers: { host: 'attacker.invalid' } })).status, 403);
   assert.equal((await request('/api/me', { headers: { origin: 'http://127.0.0.1:5173' } })).status, 200);
-  for (const hostileOrigin of ['http://localhost:5173', 'http://127.0.0.1:5174', 'https://127.0.0.1:5173'])
+  assert.equal((await request('/api/me', { headers: { origin: 'http://localhost:5173' } })).status, 200);
+  const localhostHeaders = { host: `localhost:${port}`, origin: `http://localhost:${port}` };
+  assert.equal((await request('/api/me', { headers: localhostHeaders })).body.userId, developmentFixtureId);
+  for (const hostileHost of ['localhost.attacker.invalid', `localhost:${port + 1}`, `localhost:${port}.attacker.invalid`])
+    assert.equal((await request('/api/me', { headers: { host: hostileHost } })).status, 403);
+  for (const hostileOrigin of ['http://localhost:5174', 'http://127.0.0.1:5174', 'https://127.0.0.1:5173', 'http://localhost.attacker.invalid:5173'])
     assert.equal((await request('/api/me', { headers: { origin: hostileOrigin } })).status, 403);
   assert.equal(
     (
@@ -95,6 +100,13 @@ test('actual loopback HTTP uses fixed actor, same-origin CSRF, scoped preference
   const config = await request('/api/auth/config'),
     cookie = config.headers['set-cookie'][0].split(';')[0];
   assert.equal(config.body.methods.password, false);
+  const localhostConfig = await request('/api/auth/config', { headers: localhostHeaders });
+  const localhostCookie = localhostConfig.headers['set-cookie'][0].split(';')[0];
+  assert.equal((await request('/api/me/preferences', { method: 'PATCH',
+    headers: { ...localhostHeaders, cookie: localhostCookie, 'x-csrf-token': localhostConfig.body.csrfToken },
+    body: { confirmCreditUsage: true } })).status, 200);
+  assert.equal((await request('/api/me/preferences', { method: 'PATCH',
+    headers: { ...localhostHeaders, cookie: localhostCookie }, body: { confirmCreditUsage: false } })).status, 403);
   assert.equal(
     (
       await request('/api/me/preferences', {
@@ -171,7 +183,8 @@ test('disabled restart cannot restore mock actor or authorize private traffic', 
     const req = {
       path,
       method,
-      headers: { 'x-mpf-user-id': developmentFixtureId, cookie: 'mpf_local_development=old' },
+      headers: { host: 'localhost:6500', origin: 'http://localhost:6500',
+        'x-mpf-user-id': developmentFixtureId, cookie: 'mpf_local_development=old' },
       query: { mpfUserId: developmentFixtureId },
     };
     const res = {

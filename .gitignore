@@ -68,3 +68,4 @@ credentials/
 /lab/**/outputs/
 
 requirements/015-lab-finetune-prompt/street-walk-editorial/*
+.local-auth-fixture/

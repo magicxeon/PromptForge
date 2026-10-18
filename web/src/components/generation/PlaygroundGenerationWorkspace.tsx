@@ -43,6 +43,7 @@ export function PlaygroundGenerationWorkspace({
   submittedRenderAttempt = null,
   renderBusy = false,
   showResult = true,
+  autoCollapseOnComplete = true,
   modelSummary
 }: {
   prompt: ReactNode;
@@ -68,6 +69,7 @@ export function PlaygroundGenerationWorkspace({
   submittedRenderAttempt?: PlaygroundRenderAttempt | null;
   renderBusy?: boolean;
   showResult?: boolean;
+  autoCollapseOnComplete?: boolean;
   modelSummary?: ReactNode;
 }) {
   const { t } = useTranslation(['playground', 'react-ui']);
@@ -214,7 +216,7 @@ export function PlaygroundGenerationWorkspace({
   }, [composer, editing]);
 
   useEffect(() => {
-    if (!composer) return;
+    if (!composer || !autoCollapseOnComplete) return;
     // Hydration and generic busy flags are not evidence of a new render.
     const previousAttempt = lastAttempt.current;
     if (submittedRenderAttempt && (submittedRenderAttempt.sequence !== previousAttempt?.sequence
@@ -257,7 +259,7 @@ export function PlaygroundGenerationWorkspace({
     revealOutput.current = active === document.body || Boolean(setupRef.current?.contains(active));
     if (setupRef.current?.contains(active)) toggleRef.current?.focus({ preventScroll: true });
     setExpanded(false);
-  }, [composer, completedResultKey, activeRenderKey, submittedRenderAttempt, editing, composing]);
+  }, [composer, autoCollapseOnComplete, completedResultKey, activeRenderKey, submittedRenderAttempt, editing, composing]);
 
   useEffect(() => {
     if (expanded) return;

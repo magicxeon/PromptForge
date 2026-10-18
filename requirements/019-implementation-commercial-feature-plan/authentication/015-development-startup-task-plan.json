@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "requirement": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md",
+  "tasks": [
+    {
+      "id": "AUTH-DEV-START-01",
+      "title": "Repair development launcher environment and IPv4 readiness",
+      "complexity": "complex",
+      "reason": "Development launcher and sensitive bypass qualification must agree without overriding explicit environments or granting guest authority.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "identity",
+        "development-tooling"
+      ],
+      "risks": [
+        "security",
+        "shared-contract"
+      ],
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "scripts/start-dev.mjs",
+        "scripts/authentication/development-startup.mjs",
+        "test/authentication/developmentStartup.test.js",
+        "scripts/verify-authentication.mjs",
+        "scripts/authentication/qualify-development-entry.mjs",
+        "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/015-development-startup-task-plan.json",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success: Given bypass explicitly enabled and an isolated fixture, when the development launcher has no explicit NODE_ENV, then it passes development to the API and recognizes exact IPv4 health without Login configuration.",
+        "Negative: Given explicit production/test or invalid/missing fixture, when qualifying bypass, then it still denies before protected imports; HTTP errors, invalid health and unreachable endpoints are not ready.",
+        "Recovery: Given restart or bypass off, when polling health, then the read-only unavailable guest shell can listen without granting private authority, and existing fixtures/environment values are not overwritten."
+      ],
+      "reviewers": [
+        "security-reviewer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Success: Given bypass explicitly enabled and an isolated fixture, when the development launcher has no explicit NODE_ENV, then it passes development to the API and recognizes exact IPv4 health without Login configuration.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md"
+        },
+        {
+          "check": "Negative: Given explicit production/test or invalid/missing fixture, when qualifying bypass, then it still denies before protected imports; HTTP errors, invalid health and unreachable endpoints are not ready.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md"
+        },
+        {
+          "check": "Recovery: Given restart or bypass off, when polling health, then the read-only unavailable guest shell can listen without granting private authority, and existing fixtures/environment values are not overwritten.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md"
+        }
+      ],
+      "handoff": "Use existing setupDevelopmentFixture for explicitly selected absent local fixture once, outside tests; no automatic runtime provisioning/reset. Tests use owned temporary roots and loopback only. Do not read/log secret values, modify .env, invoke live providers, run Git, restart user's workers or touch unrelated services. Root owns code/docs; reviewer read-only. Preserve real Login and all bypass authorization restrictions. Completed: independent Security/QA source PASS and focused10/10; Root isolated actual createApp/Vite1/1 and current effective local configuration qualify. Existing absent fixture provisioned once; .env unchanged. New helper/test remain in documented script/test owners, no moved files. Untracked port-health no longer authorizes process termination. Full user launcher/backup/build/process lifecycle unrun; no live calls or worker restart."
+    },
+    {
+      "id": "AUTH-DEV-HOST-01",
+      "title": "Accept exact localhost development aliases without external authority",
+      "complexity": "complex",
+      "reason": "Security-sensitive loopback bypass admission must match the user confirmed localhost:6500 browser URL and same-machine Vite topology.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "shared-contract"
+      ],
+      "contractChanged": true,
+      "dependsOn": [
+        "AUTH-DEV-START-01"
+      ],
+      "writeScope": [
+        "server/config/authPolicy.js",
+        "test/authentication/developmentBypass.test.js",
+        "scripts/authentication/qualify-development-entry.mjs",
+        "requirements/019-implementation-commercial-feature-plan/authentication/009-local-development-login-override.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/015-development-startup-task-plan.json",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success: Given qualified local bypass, when exact localhost:API or localhost:5173 Host/Origin is used on a loopback peer, then the fixed actor/config and legitimate CSRF preferences work just like127.0.0.1.",
+        "Negative: Given external peer, hostname suffix, attacker origin, wrong port or forwarded identity, when admission is checked, then it denies without conferring development authority.",
+        "Recovery: Given bypass disabled or restart-specific CSRF changed, when localhost cookies/claims are reused, then private authority is not restored and fixture isolation remains."
+      ],
+      "reviewers": [
+        "security-reviewer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Success: Given qualified local bypass, when exact localhost:API or localhost:5173 Host/Origin is used on a loopback peer, then the fixed actor/config and legitimate CSRF preferences work just like127.0.0.1.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md"
+        },
+        {
+          "check": "Negative: Given external peer, hostname suffix, attacker origin, wrong port or forwarded identity, when admission is checked, then it denies without conferring development authority.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md"
+        },
+        {
+          "check": "Recovery: Given bypass disabled or restart-specific CSRF changed, when localhost cookies/claims are reused, then private authority is not restored and fixture isolation remains.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md"
+        }
+      ],
+      "handoff": "User confirmed http://localhost:6500. Exact aliases only; listener stays127.0.0.1, peer checks and CSRF mandatory. Root edits; native reviewer read-only. Tests owned temp/ephemeral HTTP and actual Vite only. No production network/.env/Git/worker restart. Retain current restrictions on paid/security/media and existing draft/mode semantics. Completed: Root and independent native reviewer focused10/10 and actual isolated createApp/Vite1/1 PASS; exact localhost positive and hostile/off/CSRF regressions qualify. Requirements/map updated; no new/moved files, runtime data or actual.env changes. User server restart needed for frozen startup policy. T19B broader browser/transport gaps remain unchanged."
+    }
+  ],
+  "parallelBatches": []
+}

@@ -152,6 +152,9 @@ export function AppShell() {
           <div className="app-shell__content">
             {config?.authMode === 'development_bypass' ? <p role="status" className="mb-4 break-words border border-[var(--theme-warning)] p-3 text-sm text-[var(--theme-warning)]">
               {t('auth.bypassLabel', { ns: 'authentication' })} · {actor?.displayName}
+              {config.development?.liveGeneration ? <span className="mt-1 block">
+                {t('auth.bypassLiveGeneration', { ns: 'authentication' })}
+              </span> : null}
             </p> : null}
             {location.pathname !== routePaths.explore ? <Breadcrumbs /> : null}
             <AuthenticationGate><Outlet /></AuthenticationGate>

@@ -800,14 +800,14 @@ Public enablement remains blocked until:
 
 ## 2026-09-22 Playground Video Prompt Capacity
 
-- The Video prompt editor accepts at most 8,000 text characters. The visible
+- The Video prompt editor accepts at most 10,000 text characters. The visible
   counter and native textarea limit must use the same value.
 - The Video capability response publishes this application limit so React does
   not maintain a separate provider table.
-- Generation validates the same 8,000-character Playground boundary before
+- Generation validates the same 10,000-character Playground boundary before
   pricing or provider preflight. Cinematic compiled-prompt policies and verified
   provider-specific limits remain unchanged.
-- Empty prompts remain invalid. A prompt over 8,000 characters returns a stable
+- Empty prompts remain invalid. A prompt over 10,000 characters returns a stable
   validation error and creates no estimate, reservation, Task, or provider call.
 - Existing actor-scoped Video drafts are retained; text already above the new
   boundary remains visible for editing but cannot be quoted or submitted.
@@ -817,10 +817,57 @@ Public enablement remains blocked until:
 - `VideoGenerationApplicationService.getCatalog` publishes the configured
   `promptMaximumCharacters`; Playground passes that value to the shared prompt
   editor and server quote/submission validation uses the same configured bound.
-- Focused server validation covers 8,000 accepted and 8,001 rejected before
-  pricing. Focused React validation asserts the textarea receives `maxlength=8000`.
+- Focused server validation covers 10,000 accepted and 10,001 rejected before
+  pricing. Focused React validation asserts the textarea receives `maxlength=10000`.
+
+2026-10-14 user-authorized limit adjustment: Generation owns the existing
+`server/config/generation-prompt-budget.json` setting
+`surfaceMaximumCharacters.playground_video`. Bounded plan: update that value
+from8000 to10000 and its existing server/React regression expectations, then run
+focused prompt-budget/Video application and Playground tests. No new config,
+provider limit, pricing/dispatch or UI layout change. Architecture map unchanged.
+Configuration is loaded at process start; restart is required. Verification:
+`node --test test/generationPromptBudget.test.js test/videoGenerationApplicationService.test.js`
+passes32/32; focused PlaygroundVideoWorkspace `server-owned 10000-character`
+React check passes1/1 (31 unrelated tests deselected). The React check now waits
+for the asynchronous server capability response rather than asserting the
+temporary loading fallback. No browser application source or static build change
+is needed: the existing frontend consumes the server-projected limit. No paid
+generation or user-service restart was performed.
 
 ## 2026-09-23 Seedance Reference Rejection Guidance
+
+### 2026-10-15 urgent error-recovery correction
+
+User authorized implementation before extended tests. Scope is existing Video
+reference error controls, Recent outputs and page stability only. Ordered work:
+1. Adapter/Task/schema expose all bounded referenceIssues, retaining the legacy
+   first referenceIssue and sanitized durable error records.
+2. Highlight all indexed images; rejected images retain name, replacement,
+   Browse and remove controls. Editing clears stale markers without retrying.
+3. Recent cards show only completed usable videos; failed tasks/error logs stay
+   persisted and error guidance remains near the authoring controls.
+4. Preserve document geometry during Identity revalidation and keep explicit
+   user-directed navigation; error/poll/refetch must not force scroll/collapse.
+   Fix reference-error flex sizing and release busy state after interrupted uploads.
+5. Build usable frontend first, then run short focused regressions. No paid
+   generation, financial changes, user service restart or Git operations.
+Root owns React/CSS/Identity-gate changes; Backend owns adapter/Task/schema.
+Architecture map unchanged; capability boundaries and runtime paths are unchanged.
+Failed Task records retain sanitized error codes, reference issues and provider
+request IDs. This correction filters result presentation only; it does not delete
+failed jobs or their diagnostics. Failure guidance and request ID remain visible
+beside Generate; View result is disabled when there is no visible result.
+
+Delivery evidence: TypeScript validation and the local Vite build pass. Existing
+provider/Task tests pass29/29; a focused parser assertion additionally verifies
+all1/3/4 indices, invalid bounds and duplicate elimination. Identity Gate6/6,
+Video Sources4/4 and reference-source1/1 focused checks passed. Workspace35/35
+passes, covering explicit-only navigation, no automatic collapse/scroll,
+multiple1/3/4 markers, successful-only Recent cards and visible request IDs.
+Security and scoped UX source reviews passed; real-browser
+scroll/focus geometry at390/768/1440px and a live provider rejection have not
+been repeated. No paid API calls, user-service restarts or Git operations.
 
 ### User Problem
 
@@ -832,8 +879,9 @@ the raw provider code does not tell the user which visible reference must change
 ### Required Behavior
 
 1. The ModelArk Seedance adapter shall parse an indexed input-image rejection
-   into a bounded structured `referenceIssue`; raw provider messages must not be
-   persisted or returned to the browser.
+   into bounded structured `referenceIssues`, retaining the legacy first
+   `referenceIssue`; raw provider messages must not be persisted or returned to
+   the browser.
 2. `content[n]` maps to zero-based reference index `n - 1`. The mapping is valid
    only when the indexed payload entry is an image and falls inside the submitted
    reference list; otherwise no slot is identified.
@@ -841,7 +889,7 @@ the raw provider code does not tell the user which visible reference must change
    provider content index, reference index and a stable reason code. Existing
    provider code/request ID diagnostics remain available.
 4. Playground Video shall replace the raw error code with localized guidance
-   naming the visible image number and reason. For the privacy-information error,
+   naming all affected visible image numbers and reason. For the privacy-information error,
    explain that Seedance detected a possible real person and ask the user to
    replace or remove that image before retrying.
 5. The matching reference control shall receive a semantic danger border, an
@@ -863,7 +911,7 @@ the raw provider code does not tell the user which visible reference must change
 
 ### Implementation Evidence
 
-- The Seedance adapter maps validated provider `content[n]` positions to a
+- Initial delivery: the Seedance adapter maps validated provider `content[n]` positions to a
   bounded Task `referenceIssue`; Task sanitization retains no raw provider text.
 - Playground maps the issue through the submitted reference order, presents
   localized Thai/English guidance and marks only the matching source with a

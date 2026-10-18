@@ -7,7 +7,7 @@ import { DisplayMediaImage } from '../../../components/media/DisplayMediaImage';
 import { Button } from '../../../components/ui/Button';
 import { ProcessingSpinner } from '../../../components/ui/ProcessingSpinner';
 import { useActor } from '../../../lib/auth/ActorProvider';
-import { getActiveActorId } from '../../../lib/auth/actorStore';
+import { getActiveActorId, getActorScope } from '../../../lib/auth/actorStore';
 import { uploadGenerationReference } from '../../generation/api/generationApi';
 import { listCharacterLooks } from '../../profiles/api/profileApi';
 import { characterDisplayImages } from '../../profiles/characterDisplayImage';
@@ -50,7 +50,7 @@ export function PlaygroundVideoSources({
   invalidCharacter?: boolean;
 }) {
   const { t } = useTranslation('playground');
-  const { actor } = useActor();
+  const { actor, refresh, identityScope } = useActor();
   const [historySlot, setHistorySlot] = useState<'frame' | 'look' | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
@@ -66,7 +66,8 @@ export function PlaygroundVideoSources({
     [onBusy],
   );
   const isCurrent = (token: number) =>
-    token === epoch.current && getActiveActorId() === actor?.userId;
+    token === epoch.current && getActiveActorId() === actor?.userId
+    && (!identityScope || getActorScope(actor?.userId || '') === identityScope);
   const looks = useQuery({
     queryKey: [
       'character-looks',
@@ -116,6 +117,7 @@ export function PlaygroundVideoSources({
         reader.onerror = () => reject(reader.error);
         reader.readAsDataURL(file);
       });
+      if (epoch.current === token && !getActiveActorId() && typeof refresh === 'function') await refresh();
       if (!isCurrent(token)) return;
       const uploaded = await uploadGenerationReference(
         data,
@@ -139,7 +141,7 @@ export function PlaygroundVideoSources({
       if (isCurrent(token))
         setError(t('playground.video.references.uploadFailed'));
     } finally {
-      if (isCurrent(token)) {
+      if (epoch.current === token) {
         setPending(null);
         onBusy(false);
       }

@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import { useLayoutEffect, useRef, type PropsWithChildren } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useActor } from '../../../lib/auth/ActorProvider';
@@ -38,6 +38,25 @@ export function AuthenticationGate({ children }: PropsWithChildren) {
   const { actor, identityScope, isLoading, error, refresh } = useActor();
   const location = useLocation();
   const { t } = useTranslation('authentication');
+  const contentRef = useRef<HTMLDivElement>(null);
+  const lastHeight = useRef(0);
+  const lastFocus = useRef<HTMLElement | null>(null);
+  useLayoutEffect(() => {
+    if (isLoading || !actor || !contentRef.current) return;
+    const measure = () => {
+      if (!contentRef.current) return;
+      const range = document.createRange();
+      range.selectNodeContents(contentRef.current);
+      lastHeight.current = typeof range.getBoundingClientRect === 'function'
+        ? range.getBoundingClientRect().height : contentRef.current.scrollHeight;
+    };
+    measure();
+    if (lastFocus.current?.isConnected && document.activeElement === document.body)
+      lastFocus.current.focus({ preventScroll: true });
+    const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(measure) : null;
+    observer?.observe(document.documentElement);
+    return () => observer?.disconnect();
+  }, [actor?.userId, identityScope, isLoading]);
   if (isPublicAuthenticationRoute(location.pathname)) return children;
   if (error) return <ErrorState title={t('auth.unavailable')} description={t('auth.retryDescription')}
     retryLabel={t('auth.retry')} onRetry={() => void refresh()} />;
@@ -46,8 +65,9 @@ export function AuthenticationGate({ children }: PropsWithChildren) {
   // Retain only the last confirmed owner's in-memory work during revalidation.
   // Identity changes replace this keyed tree; failures and logout discard it.
   return <>
-    {isLoading && <LoadingState label={t('auth.resolving')} />}
-    <div key={identityScope} hidden={isLoading} inert={isLoading || undefined}
+    {isLoading && <div style={{ minHeight: lastHeight.current }} aria-busy="true"><LoadingState label={t('auth.resolving')} /></div>}
+    <div key={identityScope} ref={contentRef} hidden={isLoading} inert={isLoading || undefined}
+      onFocusCapture={event => { lastFocus.current = event.target as HTMLElement; }}
       style={{ display: isLoading ? 'none' : 'contents' }}>{children}</div>
   </>;
 }

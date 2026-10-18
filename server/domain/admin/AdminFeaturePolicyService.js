@@ -42,6 +42,10 @@ const DEFINITIONS = Object.freeze({
     prerequisites: ['owner_asset_reconciliation_facade', 'durable_audit']
   }
 });
+const DEVELOPMENT_UNAVAILABLE = new Set([
+  'runtimeConfigurationPublish', 'scheduledConfigurationPublish', 'generationCommands',
+  'contentCommands', 'restrictedMediaReveal', 'financialCommands', 'assetReconciliation',
+]);
 
 export class AdminFeaturePolicyService {
   constructor({ policy = adminPolicyService, environment = process.env } = {}) {
@@ -58,14 +62,16 @@ export class AdminFeaturePolicyService {
         const defaultEnabled = typeof definition.defaultEnabled === 'function'
           ? definition.defaultEnabled(this.environment)
           : definition.defaultEnabled;
-        const enabled = readBoolean(this.environment[definition.env], defaultEnabled);
+        const developmentDenied = actorContext.authMode === 'development_bypass' && DEVELOPMENT_UNAVAILABLE.has(id);
+        const enabled = !developmentDenied && readBoolean(this.environment[definition.env], defaultEnabled);
         return [id, {
           id,
           enabled,
           mode: enabled && definition.mode === 'production_gated' ? 'explicit_override' : definition.mode,
           env: definition.env,
           prerequisites: definition.prerequisites || [],
-          reason: enabled ? null : `Set ${definition.env}=true only after all prerequisites are satisfied.`
+          reason: enabled ? null : developmentDenied ? 'Unavailable in isolated development authentication mode.'
+            : `Set ${definition.env}=true only after all prerequisites are satisfied.`
         }];
       }))
     };

@@ -1,7 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { developmentFixtureId } from '../../server/config/authPolicy.js';
+import { developmentFixtureId, developmentAdminFixtureId, qualifyAuthRuntime, qualifiedDevelopmentActor } from '../../server/config/authPolicy.js';
+import { mutateJsonFile } from '../../server/repositories/json/jsonFileStore.js';
 
 // Explicit one-time setup creates only a new, fixed, empty local target. It never
 // copies live users, Credits, history, secrets or outputs and never overwrites.
@@ -38,10 +39,32 @@ export async function setupDevelopmentFixture(projectRoot) {
   );
   return root;
 }
+export async function setupDevelopmentAdminFixture(projectRoot) {
+  const root = path.join(path.resolve(projectRoot), '.local-auth-fixture');
+  try { await fs.lstat(root); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; await setupDevelopmentFixture(projectRoot); }
+  qualifyAuthRuntime({ AUTH_DEV_BYPASS_ENABLED: 'true', NODE_ENV: 'development' }, projectRoot);
+  await mutateJsonFile(path.join(root, 'data/identity/mockUsers.json'), [], users => {
+    if (!Array.isArray(users) || !users.some(user => qualifiedDevelopmentActor(user))
+      || users.length > 2 || users.some(user => !qualifiedDevelopmentActor(user, 'user', false)
+        && !qualifiedDevelopmentActor(user, 'admin', false))) throw new Error('Development fixture is unavailable.');
+    if (!users.some(user => user.id === developmentAdminFixtureId)) users.push({
+      id: developmentAdminFixtureId, username: developmentAdminFixtureId,
+      displayName: 'Local development admin', role: 'admin', status: 'active',
+      fixtureDesignation: 'isolated-auth-development-admin-v1', activeCreatorProfileId: null,
+      featureFlags: [], preferences: { confirmCreditUsage: true },
+    });
+  });
+  return root;
+}
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  if (process.argv.length !== 2) throw new Error('No setup arguments are supported.');
-  await setupDevelopmentFixture(fileURLToPath(new URL('../../', import.meta.url)));
+  if (process.argv.length > 3 || process.argv[2] && process.argv[2] !== '--admin') throw new Error('Only --admin is supported.');
+  const projectRoot = fileURLToPath(new URL('../../', import.meta.url));
+  if (process.argv[2] === '--admin') await setupDevelopmentAdminFixture(projectRoot);
+  else await setupDevelopmentFixture(projectRoot);
   console.log(
-    'Isolated development fixture created. Set NODE_ENV=development and AUTH_DEV_BYPASS_ENABLED=true, then restart.'
+    process.argv[2] === '--admin'
+      ? 'Isolated admin fixture prepared. Set AUTH_DEV_BYPASS_ROLE=admin with local development bypass, then restart.'
+      : 'Isolated development fixture created. Set NODE_ENV=development and AUTH_DEV_BYPASS_ENABLED=true, then restart.'
   );
 }

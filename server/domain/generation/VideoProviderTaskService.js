@@ -238,7 +238,8 @@ export class VideoProviderTaskService {
       draft.status = nextStatus;
       if (!isTerminal(nextStatus)) draft.providerError = null;
       if (isTerminal(nextStatus)) {
-        draft.providerError = response.providerError || null;
+        draft.providerError = response.providerError
+          ? sanitizeError(response.providerError, 'video_provider_task_failed') : null;
         draft.completedAt = new Date().toISOString();
       }
     });
@@ -433,13 +434,21 @@ function boundedIdentifier(value) {
 }
 
 function sanitizeError(error, fallbackCode) {
-  const referenceIssue = sanitizeReferenceIssue(error?.referenceIssue);
+  const referenceIssues = [];
+  const candidates = Array.isArray(error?.referenceIssues) ? error.referenceIssues.slice(0, 12) : [];
+  for (const value of [...candidates, error?.referenceIssue]) {
+    const issue = sanitizeReferenceIssue(value);
+    if (issue && !referenceIssues.some(item => item.contentIndex === issue.contentIndex) && referenceIssues.length < 12) {
+      referenceIssues.push(issue);
+    }
+  }
+  const referenceIssue = referenceIssues[0];
   return {
     code: error?.code || fallbackCode, category: error?.category || 'internal',
     retryable: Boolean(error?.retryable), providerBillableState: error?.providerBillableState || 'unknown',
     ...(boundedIdentifier(error?.providerCode) ? { providerCode: boundedIdentifier(error.providerCode) } : {}),
     ...(boundedIdentifier(error?.providerRequestId) ? { providerRequestId: boundedIdentifier(error.providerRequestId) } : {}),
-    ...(referenceIssue ? { referenceIssue } : {})
+    ...(referenceIssue ? { referenceIssue, referenceIssues } : {})
   };
 }
 

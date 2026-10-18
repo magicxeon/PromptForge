@@ -1,5 +1,5 @@
 import { randomBytes, createHmac, timingSafeEqual } from 'node:crypto';
-import { qualifiedDevelopmentActor, developmentFixtureId } from '../../config/authPolicy.js';
+import { qualifiedDevelopmentActor, qualifiedDevelopmentRoster, developmentFixtureId } from '../../config/authPolicy.js';
 import { IdentityPublicPolicyService } from './IdentityPublicPolicyService.js';
 
 const cookieName = 'mpf_local_development';
@@ -14,15 +14,65 @@ const safeReadPaths = new Set([
   '/api/collections',
   '/api/credits',
   '/api/credits/account',
+  '/api/community/features',
 ]);
+const adminReads = [
+  /^\/api\/admin\/(?:capabilities|provider-health|provider-controls|content|overview|users|generations|operations|audit-events|credit-reconciliation)$/,
+  /^\/api\/admin\/(?:traces|generation-command-previews|users)\/[^/]+$/,
+  /^\/api\/admin\/support\/cases(?:\/[^/]+)?$/,
+  /^\/api\/admin\/configuration\/revisions$/,
+  /^\/api\/admin\/community\/(?:posts|reports)$/,
+  /^\/api\/admin\/credits\/[^/]+\/ledger$/,
+  /^\/api\/admin\/attribute-catalog\/(?:overview|definitions|drafts\/[^/]+)$/,
+  /^\/api\/admin\/cinematic\/(?:projects(?:\/[^/]+)?|video-tasks|video-capabilities)$/,
+  /^\/api\/admin\/finance\/(?:inventory|report|drafts)$/,
+];
+const adminWrites = [
+  ['POST', /^\/api\/admin\/provider-controls\/commands$/],
+  ['POST', /^\/api\/admin\/support\/cases$/],
+  ['PATCH', /^\/api\/admin\/support\/cases\/[^/]+$/],
+  ['POST', /^\/api\/admin\/configuration\/(?:validations|revisions)$/],
+  ['POST', /^\/api\/admin\/users\/[^/]+\/status-commands$/],
+  ['POST', /^\/api\/admin\/operations\/[^/]+\/(?:dismissals|restorations)$/],
+  ['POST', /^\/api\/admin\/attribute-catalog\/drafts$/],
+  ['PUT', /^\/api\/admin\/attribute-catalog\/drafts\/[^/]+\/option$/],
+  ['POST', /^\/api\/admin\/attribute-catalog\/drafts\/[^/]+\/(?:validate|visual-candidates\/plan|focused-test\/plan|publish)$/],
+  ['POST', /^\/api\/admin\/attribute-catalog\/releases\/[^/]+\/activate$/],
+  ['POST', /^\/api\/admin\/attribute-catalog\/rollback$/],
+];
+const liveReads = [
+  /^\/api\/comparisons(?:\/[^/]+)?$/,
+  /^\/api\/jobs\/[^/]+(?:\/stream)?$/,
+  /^\/api\/generation-groups\/[^/]+$/,
+  /^\/api\/generation\/(?:job-center|look-sheet-preset)$/,
+  /^\/api\/generation\/video\/(?:capabilities|trusted-sources|tasks(?:\/[^/]+)?)$/,
+  /^\/api\/character-profiles(?:\/[^/]+(?:\/looks)?)?$/,
+  /^\/api\/character-profiles\/[^/]+\/media\/(?:image|thumbnail|face|sheet)$/,
+  /^\/api\/character-profiles\/[^/]+\/looks\/[^/]+\/versions\/[^/]+\/media\/sheet$/,
+  /^\/api\/history\/[^/]+(?:\/presentations\/[^/]+)?$/,
+  /^\/api\/references\/processing-policy$/,
+  /^\/api\/credits\/ledger$/,
+];
+const liveWrites = [
+  ['POST', /^\/api\/comparisons(?:\/estimate)?$/],
+  ['PATCH', /^\/api\/comparisons\/[^/]+(?:\/winner)?$/],
+  ['DELETE', /^\/api\/comparisons\/[^/]+$/],
+  ['POST', /^\/api\/generate$/],
+  ['POST', /^\/api\/generation\/(?:prompt-preview|look-sheet-preview)$/],
+  ['POST', /^\/api\/generation\/video\/(?:quote|tasks)$/],
+  ['POST', /^\/api\/references(?:\/(?:composites|processing-plan))?$/],
+  ['POST', /^\/api\/credits\/(?:estimate|mock-grants)$/],
+  ['POST', /^\/api\/media\/exports$/],
+];
 const publicReadPaths = new Set(['/api/me', '/api/mock-users', '/api/health']);
 const loopback = (peer) => peer === '127.0.0.1' || peer === '::ffff:127.0.0.1';
 const fail = (res, code, status = 403) =>
   res.status(status).json({ error: 'This action is unavailable in the current authentication mode.', code });
 
 // Deliberately limited local workspace admission. Existing capability handlers
-// still enforce ownership; provider, financial, security and media operations
-// have no local exception. This is never a real authentication/session proof.
+// still enforce ownership. Explicit local Admin image/Video Playground admission uses canonical
+// Generation/Credits and fresh private-media authorization; other sensitive
+// operations stay restricted. This is never a real authentication/session proof.
 export class IdentityDevelopmentService {
   constructor({ runtime, userRepository, realIdentity, clock = Date, csrfKey = randomBytes(32) }) {
     this.runtime = runtime;
@@ -96,13 +146,29 @@ export class IdentityDevelopmentService {
       }
       if (!this.local(req)) return fail(res, 'auth_development_request_denied');
       try {
-        const user = await this.userRepository.findById(developmentFixtureId);
-        if (!qualifiedDevelopmentActor(user)) return fail(res, 'auth_development_fixture_unavailable', 503);
+        const role = this.runtime.role ?? 'user';
+        const users = await this.userRepository.readAll();
+        if (!qualifiedDevelopmentRoster(users, role)) return fail(res, 'auth_development_fixture_unavailable', 503);
+        const user = users.find(user => user.id === (this.runtime.actorId ?? developmentFixtureId));
+        if (!qualifiedDevelopmentActor(user, role)) return fail(res, 'auth_development_fixture_unavailable', 503);
         req.actorContext = Object.freeze({
           ...this.userRepository.toActorContext(user),
           authMode: 'development_bypass',
           authProvider: 'development_bypass',
         });
+        const liveGeneration = role === 'admin' && this.runtime.liveGeneration === true;
+        if (liveGeneration) req.reauthorizeIdentity = async () => {
+          if (!this.runtime.enabled || this.runtime.role !== 'admin' || !this.runtime.liveGeneration || !this.local(req))
+            throw Object.assign(new Error('Authentication unavailable.'), { code: 'auth_session_expired' });
+          const currentUsers = await this.userRepository.readAll();
+          if (!qualifiedDevelopmentRoster(currentUsers, 'admin'))
+            throw Object.assign(new Error('Authentication unavailable.'), { code: 'auth_session_expired' });
+          const current = currentUsers.find(user => user.id === this.runtime.actorId);
+          if (!qualifiedDevelopmentActor(current, 'admin') || current.id !== req.actorContext.userId)
+            throw Object.assign(new Error('Authentication unavailable.'), { code: 'auth_session_expired' });
+          return Object.freeze({ ...this.userRepository.toActorContext(current),
+            authMode: 'development_bypass', authProvider: 'development_bypass' });
+        };
         if (requestPath === '/api/auth/config' && req.method === 'GET') {
           const cookie =
             this.readCookie(req.headers.cookie) ??
@@ -114,17 +180,27 @@ export class IdentityDevelopmentService {
           return res.json({
             ...new IdentityPublicPolicyService().project({ authMode: 'development_bypass' }),
             csrfToken: this.token(cookie),
+            development: { liveGeneration },
           });
         }
         if (requestPath === '/api/mock-users') return res.json({ enabled: false, users: [] });
         if (requestPath.startsWith('/api/auth/')) return fail(res, 'auth_development_mode_unavailable');
-        if (requestPath.startsWith('/outputs') || requestPath.startsWith('/sub-app-game-character'))
+        if ((requestPath.startsWith('/outputs') && !(liveGeneration && ['GET', 'HEAD'].includes(req.method)))
+          || requestPath.startsWith('/sub-app-game-character'))
           return fail(res, 'auth_development_action_unavailable');
         if (requestPath.startsWith('/api/')) {
-          if (req.method === 'PATCH' && requestPath === '/api/me/preferences') {
+          const adminRead = role === 'admin' && adminReads.some(route => route.test(requestPath))
+            && ['GET', 'HEAD'].includes(req.method);
+          const adminWrite = role === 'admin' && adminWrites.some(([method, route]) =>
+            method === req.method && route.test(requestPath));
+          const liveRead = liveGeneration && ['GET', 'HEAD'].includes(req.method)
+            && liveReads.some(route => route.test(requestPath));
+          const liveWrite = liveGeneration && liveWrites.some(([method, route]) =>
+            method === req.method && route.test(requestPath));
+          if (adminWrite || liveWrite || req.method === 'PATCH' && requestPath === '/api/me/preferences') {
             if (!this.runtime.allowedOrigins.includes(req.headers.origin) || !this.validCsrf(req))
               return fail(res, 'auth_csrf_invalid');
-          } else if (!['GET', 'HEAD'].includes(req.method) || !safeReadPaths.has(requestPath))
+          } else if (!adminRead && !liveRead && (!['GET', 'HEAD'].includes(req.method) || !safeReadPaths.has(requestPath)))
             return fail(res, 'auth_development_action_unavailable');
         }
         return next();

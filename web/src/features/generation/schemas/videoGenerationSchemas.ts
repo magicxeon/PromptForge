@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export const videoReferenceIssueSchema = z.object({
+  contentIndex: z.number().int().min(1).max(12),
+  referenceIndex: z.number().int().min(0).max(11),
+  reason: z.literal('possible_real_person')
+}).refine(issue => issue.referenceIndex === issue.contentIndex - 1);
+
 export const videoModelCapabilitySchema = z.object({
   providerId: z.string(),
   modelId: z.string(),
@@ -167,11 +173,9 @@ export const videoTaskSchema = z.object({
     code: z.string().optional(),
     providerCode: z.string().max(200).nullable().optional(),
     providerRequestId: z.string().max(200).nullable().optional(),
-    referenceIssue: z.object({
-      contentIndex: z.number().int().min(1).max(12),
-      referenceIndex: z.number().int().min(0).max(11),
-      reason: z.literal('possible_real_person')
-    }).nullable().optional()
+    referenceIssue: videoReferenceIssueSchema.nullable().optional(),
+    referenceIssues: z.array(videoReferenceIssueSchema).max(12)
+      .refine(issues => new Set(issues.map(issue => issue.contentIndex)).size === issues.length).optional()
   }).passthrough().nullable().optional(),
   outputAsset: z.object({
     id: z.string().optional(),
@@ -203,7 +207,7 @@ export const videoTaskSchema = z.object({
 }).passthrough();
 
 export type VideoTask = z.infer<typeof videoTaskSchema>;
-export type VideoReferenceIssue = NonNullable<NonNullable<VideoTask['providerError']>['referenceIssue']>;
+export type VideoReferenceIssue = z.infer<typeof videoReferenceIssueSchema>;
 
 export const recentVideoTasksSchema = z.object({
   items: z.array(videoTaskSchema).default([]),

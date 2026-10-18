@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "requirement": "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md",
+  "tasks": [
+    {
+      "id": "AUTH-DEV-COMPARE-01",
+      "title": "Enable real provider image Compare through qualified local Admin and canonical Credits",
+      "complexity": "complex",
+      "reason": "Billable Comparison admission, virtual wallet and private result transport cross Identity/Generation/Credits/Assets. Five mandatory reviewer roles (Backend, Commercial, Security, QA, UX) are justified by financial, security and UX duties, applied in waves with at most three active agents.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "identity",
+        "generation",
+        "comparisons",
+        "credits",
+        "assets",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "financial",
+        "shared-contract",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "server/config/authPolicy.js",
+        "server/domain/identity/IdentityDevelopmentService.js",
+        "server/app/routes/creditRoutes.js",
+        "server/domain/credits/CreditApplicationService.js",
+        "server/domain/credits/CreditReservationService.js",
+        "server/repositories/credits/CreditAccountRepository.js",
+        "server/domain/generation/GenerationApplicationService.js",
+        "server/domain/comparisons/ComparisonOrchestrator.js",
+        "test/creditComparisonBilling.test.js",
+        "test/comparisonAtomicReservation.test.js",
+        "test/authentication/developmentAdmin.test.js",
+        "scripts/authentication/qualify-development-entry.mjs",
+        "scripts/verify-authentication.mjs",
+        "web/src/lib/auth/actorSchemas.ts",
+        "web/src/components/layout/AppShell.tsx",
+        "web/src/lib/auth/ActorProvider.test.tsx",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        ".env.example",
+        ".env",
+        "web/dist/",
+        "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison-task-plan.json",
+        "requirements/019-implementation-commercial-feature-plan/authentication/016-local-admin-bypass.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/009-local-development-login-override.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md",
+        "requirements/019-implementation-commercial-feature-plan/Phase2-04-authentication-sessions-and-authorization.md",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success: Given explicitly qualified local Admin live generation, when quoting/submitting two image slots and funding only its fixture wallet, then canonical Queue/provider/capture and owned results work with clear real API cost disclosure.",
+        "Negative: Given unsafe mode, forged request/quote, insufficient funds, grant misuse or foreign output, when invoking the workflow, then it denies before paid dispatch or private delivery and no production financial authority is granted.",
+        "Recovery: Given duplicate requests, partial failure or revoked role/mode, when settling/polling/delivering, then charges/refunds occur once, successful results remain and old authority cannot deliver more private data."
+      ],
+      "reviewers": [
+        "backend-platform-architect",
+        "commercial-financial-integrity",
+        "security-reviewer",
+        "qa-release-engineer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [
+        {
+          "check": "Success: Given explicitly qualified local Admin live generation, when quoting/submitting two image slots and funding only its fixture wallet, then canonical Queue/provider/capture and owned results work with clear real API cost disclosure.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md"
+        },
+        {
+          "check": "Negative: Given unsafe mode, forged request/quote, insufficient funds, grant misuse or foreign output, when invoking the workflow, then it denies before paid dispatch or private delivery and no production financial authority is granted.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md"
+        },
+        {
+          "check": "Recovery: Given duplicate requests, partial failure or revoked role/mode, when settling/polling/delivering, then charges/refunds occur once, successful results remain and old authority cannot deliver more private data.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/auth_backend_contract_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "agentId": "/root/nano21_commercial_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md"
+        },
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/login_completion_ux",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md"
+        }
+      ],
+      "handoff": "Root owns Identity, grant facade/repository, UI, qualifier and docs. /root/login_app_integration owns GenerationApplicationService, CreditReservationService, ComparisonOrchestrator and existing isolated Comparison billing tests: additive atomic plan reservation before first enqueue; preserve Fashion and single operations, compensate unaccepted jobs. Reviewers read-only/no children/no Git. User explicitly selected real provider images; agents/tests never call paid API or seed actual wallet. Strict mock Gemini/native Queue qualification in owned temporary data only. Scope includes only new public opt-in.env assignment; no secret output or other local config mutation. Preserve default bypass/Admin nonfinancial/session behavior. Final: independent70/70 server checks; React13/13, nonincremental TypeScript and static build pass; six TH/Neon390/768/1440 views pass. Current fixed local Admin fixture qualifies read-only. Public live-generation opt-in enabled in actual.env, no actual grants, paid calls or user service restart. Existing runtime roots retained; canonical map and Auth index links updated. Broader roadmap/paid live UAT/distributed consistency not claimed."
+    }
+  ],
+  "parallelBatches": []
+}

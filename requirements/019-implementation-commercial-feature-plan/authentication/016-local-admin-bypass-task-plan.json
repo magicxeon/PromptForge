@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "requirement": "requirements/019-implementation-commercial-feature-plan/authentication/016-local-admin-bypass.md",
+  "tasks": [
+    {
+      "id": "AUTH-DEV-ADMIN-01",
+      "title": "Add isolated local admin role selection and canonical UI admission",
+      "complexity": "complex",
+      "reason": "Privileged local Identity admission crosses Admin API and React actor state; independent Security/QA and UX reviews are mandatory, in waves with at most root plus two reviewers.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "identity",
+        "admin",
+        "react-platform"
+      ],
+      "risks": [
+        "security",
+        "shared-contract",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "server/config/authPolicy.js",
+        "server/domain/identity/IdentityDevelopmentService.js",
+        "server/domain/admin/AdminFeaturePolicyService.js",
+        "scripts/authentication/setup-development.mjs",
+        "scripts/authentication/qualify-development-entry.mjs",
+        "scripts/verify-authentication.mjs",
+        "test/authentication/developmentAdmin.test.js",
+        "web/src/lib/auth/ActorProvider.tsx",
+        "web/src/lib/auth/ActorProvider.test.tsx",
+        ".env.example",
+        "requirements/019-implementation-commercial-feature-plan/authentication/016-local-admin-bypass.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/016-local-admin-bypass-task-plan.json",
+        "requirements/019-implementation-commercial-feature-plan/authentication/009-local-development-login-override.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md",
+        "requirements/099-technical-dept/000-master.md",
+        ".env",
+        "web/dist/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success: Given qualified local bypass and explicit admin fixture, when either role option selects admin, then mounted Admin API and valid-CSRF fixture commands work and canonical UI shows admin while default user remains compatible.",
+        "Negative: Given unsafe configuration, forged authority or prohibited command, when startup/admission executes, then admin authority, paid/security/financial effects and unsafe writes are denied without weakened owning policies.",
+        "Recovery: Given admin-to-user/off/restart or setup replay, when identity resolves or stale work completes, then queries/drafts/late responses cannot preserve admin and fixture data is not reset."
+      ],
+      "reviewers": [
+        "security-reviewer",
+        "qa-release-engineer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [
+        {
+          "check": "Success: Given qualified local bypass and explicit admin fixture, when either role option selects admin, then mounted Admin API and valid-CSRF fixture commands work and canonical UI shows admin while default user remains compatible.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/016-local-admin-bypass.md"
+        },
+        {
+          "check": "Negative: Given unsafe configuration, forged authority or prohibited command, when startup/admission executes, then admin authority, paid/security/financial effects and unsafe writes are denied without weakened owning policies.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/016-local-admin-bypass.md"
+        },
+        {
+          "check": "Recovery: Given admin-to-user/off/restart or setup replay, when identity resolves or stale work completes, then queries/drafts/late responses cannot preserve admin and fixture data is not reset.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/016-local-admin-bypass.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/016-local-admin-bypass.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/login_bypass_release_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/016-local-admin-bypass.md"
+        },
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/login_completion_ux",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/016-local-admin-bypass.md"
+        }
+      ],
+      "handoff": "Root owns listed files; reviewers read-only/no children. User requested UTH spelling accepted as alias; canonical AUTH name documented. Explicit setup provisions synthetic fixture only; User explicitly requested UTH_DEV_BYPASS_ROLE=admin: Root may add only that non-secret assignment to the existing local .env; preserve every other field and never output credentials. Do not restart user services. No Git, paid/provider/network calls, live data or production session changes. Admin capability metadata must match bounded local admission. Native Security/QA may apply charters sequentially with author independence disclosed; UX before UI freeze and actual responsive verification. Generate existing React static build so localhost:6500 serves updated ActorProvider; no new source ownership. Default npm build cannot write protected node_modules/.tmp incremental cache; use already passed nonincremental TypeScript and direct Vite configLoader runner build, leaving cache untouched. Completed: Root+native independent13/13 andactualApp/Vite1/1, nativeprobes6/6; React18/18,TypeScriptPASS,nativeUX390/768/1440PASS. Explicitread/writeallowlists +canonicalfullroster startup/request checks satisfyreviewfixes. AddedrequestedUTHrole.env keyonly+preparedadminfixture; effectiveconfigadminqualified. Staticfrontendrebuilt withoutdeleting oldfiles aftercache/output EPERM workaround; noGit/userworkerrestarts/livepaidcalls. New testfile Authentication owner, no filesmove; architecturemap/config/docsupdated. Runninguserprocessmustrestartfornewrole. BroaderT19B/productionMFA unchanged."
+    }
+  ],
+  "parallelBatches": []
+}

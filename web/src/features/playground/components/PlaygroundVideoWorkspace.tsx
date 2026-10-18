@@ -219,12 +219,12 @@ function PlaygroundVideoSession() {
   }, [selectedModel]);
 
   const activeTask = task.data || submit.data;
-  const referenceIssue = activeTask?.id !== draft.dismissedReferenceIssueTaskId
+  const referenceIssues = activeTask?.id !== draft.dismissedReferenceIssueTaskId
     && activeTask?.providerError?.code === 'video_provider_input_image_rejected'
-    && activeTask.providerError.referenceIssue
-    && activeTask.providerError.referenceIssue.referenceIndex < referencePlan.references.length
-    ? activeTask.providerError.referenceIssue
-    : null;
+    ? (activeTask.providerError.referenceIssues || (activeTask.providerError.referenceIssue ? [activeTask.providerError.referenceIssue] : []))
+      .filter(issue => issue.referenceIndex < referencePlan.references.length)
+    : [];
+  const referenceIssue = referenceIssues[0] || null;
   const viewerItems = useMemo(() => {
     const byId = new Map<string, VideoTask>();
     for (const item of recent.data?.items || []) byId.set(item.id, item);
@@ -261,10 +261,11 @@ function PlaygroundVideoSession() {
     description: [selectedModel?.displayName, `${draft.durationSeconds}s`, draft.resolution].filter(Boolean).join(' / '),
     ready: generationReady });
   const loading = submit.isPending || Boolean(activeTask && !TERMINAL.has(activeTask.status));
+  const hasVisibleResult = loading || Boolean(activeTask?.status === 'completed' && activeTask.outputAsset?.publicUrl);
   const providerErrorMessage = activeTask?.providerError?.code === 'ModelNotOpen'
     ? t('playground.video.providerError.modelNotOpen')
     : referenceIssue?.reason === 'possible_real_person'
-      ? t('playground.video.providerError.possibleRealPerson', { number: referenceIssue.referenceIndex + 1 })
+      ? t('playground.video.providerError.possibleRealPerson', { number: referenceIssues.map(issue => issue.referenceIndex + 1).join(', ') })
     : activeTask?.providerError?.providerCode || activeTask?.providerError?.code || null;
   const errorMessage = submit.error?.message
     || task.error?.message
@@ -396,7 +397,7 @@ function PlaygroundVideoSession() {
         </label>
       )}
       focusTargetSelector={referenceIssue ? '.is-provider-rejected' : undefined}
-      problem={referenceIssue ? <>{t('playground.video.references.imageNumber', { number: referenceIssue.referenceIndex + 1 })}: {t(referenceIssue.reason === 'possible_real_person'
+      problem={referenceIssue ? <>{t('playground.video.references.imageNumber', { number: referenceIssues.map(issue => issue.referenceIndex + 1).join(', ') })}: {t(referenceIssue.reason === 'possible_real_person'
         ? 'playground.video.references.providerRejectedInline' : 'playground.options.referenceRejected')}</>
         : referencePlan.reason ? t(referencePlan.reason) : undefined}
       summary={(
@@ -404,7 +405,7 @@ function PlaygroundVideoSession() {
         {referencePlan.references.length ? (
           <ul className="playground-video-reference-summary__list">
             {referencePlan.references.slice(0, 2).map((reference, index) => (
-              <li key={`${reference.purpose}:${index}`} className={referenceIssue?.referenceIndex === index ? 'is-rejected' : undefined}>
+              <li key={`${reference.purpose}:${index}`} className={referenceIssues.some(issue => issue.referenceIndex === index) ? 'is-rejected' : undefined}>
                 <VideoReferenceThumbnail url={reference.referenceImageUrl || [draft.trustedFrame, draft.trustedLook,
                   ...(draft.trustedImages || []), ...(draft.trustedLooks || [])]
                   .find(source => source && source.id === reference.generationId)?.previewUrl} />
@@ -414,7 +415,7 @@ function PlaygroundVideoSession() {
                   ? 'playground.video.references.frame'
                   : `playground.video.references.purpose.${reference.purpose}`)}</strong>
                   {reference.characterName ? <span>{reference.characterName}</span> : null}
-                  {referenceIssue?.referenceIndex === index ? <small role="status">{t('playground.options.referenceRejected')}</small> : null}
+                  {referenceIssues.some(issue => issue.referenceIndex === index) ? <small role="status">{t('playground.options.referenceRejected')}</small> : null}
                 </div>
               </li>
             ))}
@@ -427,7 +428,7 @@ function PlaygroundVideoSession() {
       )}
     >
       {draft.operation !== 'text_to_video' ? <VideoLookSheetSources key={`${draft.operation}:${draft.providerModelKey}`}
-        model={selectedModel} value={draft} referenceIssue={referenceIssue}
+        model={selectedModel} value={draft} referenceIssues={referenceIssues}
         onChange={patch => {
           setDraft(current => ({ ...current, ...patch,
             ...(activeTask?.id && referenceIssue ? { dismissedReferenceIssueTaskId: activeTask.id } : {}) }));
@@ -443,7 +444,23 @@ function PlaygroundVideoSession() {
         badge={<Sparkles className="size-5 text-amber-300" aria-hidden="true" />}
         studioLayout
       >
-        <p className="p-4" role="status">{t('playground.video.loadingModels')}</p>
+        <p className="flex items-center gap-2 p-4" role="status"><ProcessingSpinner className="size-4" />{t('playground.video.loadingModels')}</p>
+      </EngineTargetPanelFrame>
+    ) : capabilities.isError ? (
+      <EngineTargetPanelFrame
+        title={t('playground.section.engine')}
+        description={t('playground.video.engineDescription')}
+        badge={<Sparkles className="size-5 text-amber-300" aria-hidden="true" />}
+        studioLayout
+      >
+        <div className="p-4">
+          <p role="alert" className="mb-3 text-sm text-[var(--mpf-text-muted)]">{t('playground.video.modelsLoadFailed')}</p>
+          <Button type="button" variant="secondary" disabled={capabilities.isFetching}
+            onClick={() => { void capabilities.refetch(); }}>
+            {capabilities.isFetching ? <ProcessingSpinner className="size-4" /> : null}
+            {t('playground.video.references.retry')}
+          </Button>
+        </div>
       </EngineTargetPanelFrame>
     ) : selectedModel ? (
       <VideoEngineTargetPanel
@@ -496,6 +513,10 @@ function PlaygroundVideoSession() {
     : `${quote.data?.estimate.estimatedCredits} ${t('playground.comparison.credits')}`;
   const actionRegion = (
     <Surface className="studio-generation-action">
+      {errorMessage ? <p role="alert" className="mb-3 text-sm text-[var(--theme-danger)]">{errorMessage}</p> : null}
+      {errorMessage && !hasVisibleResult && activeTask?.providerError?.providerRequestId ? (
+        <small>{t('playground.video.references.requestId', { id: activeTask.providerError.providerRequestId })}</small>
+      ) : null}
       {!healthyQuote ? <div className="engine-target-panel__video-quote" aria-live="polite" aria-busy={quote.isFetching}>
         <span>{t('playground.video.creditEstimate')}</span>
         <strong>{quote.isFetching ? <><ProcessingSpinner className="size-4" />{t('playground.estimate.loading')}</>
@@ -522,7 +543,6 @@ function PlaygroundVideoSession() {
           if (submissionKeyRef.current?.signature !== signature) submissionKeyRef.current = { signature, key: `playground-video:${crypto.randomUUID()}` };
           submit.mutate({ ...generationInput, estimateId: quote.data.estimate.estimateId,
             requestFingerprint: quote.data.requestFingerprint, idempotencyKey: submissionKeyRef.current.key });
-          focusWorkspaceRegion(resultRef.current);
         }}
       >
         <span>{submit.isPending ? t('playground.video.submitting') : t('playground.video.generate')}</span>
@@ -530,7 +550,7 @@ function PlaygroundVideoSession() {
           ? t(referencePlan.reason) : t(`playground.video.readiness.${readiness.reason || 'ready'}`)}</small>
       </Button>
       <Button type="button" variant="ghost" size="icon" icon={<Eye className="size-5" />}
-        disabled={!activeTask && !loading && !errorMessage}
+        disabled={!hasVisibleResult}
         title={t('playground.options.viewResult')} aria-label={t('playground.options.viewResult')}
         onClick={() => focusWorkspaceRegion(resultRef.current)} />
       </div>
@@ -544,14 +564,15 @@ function PlaygroundVideoSession() {
       {creditConsent.dialog}
       <PlaygroundGenerationWorkspace
         composer
+        autoCollapseOnComplete={false}
         completedResultKey={activeTask?.status === 'completed' && activeTask.outputAsset?.publicUrl ? `video:${activeTask.id}` : null}
         activeRenderKey={activeTask?.id === taskId && !TERMINAL.has(activeTask.status) ? `video:${activeTask.id}` : null}
         submittedRenderAttempt={submittedRenderAttempt}
         renderBusy={loading}
-        showResult={Boolean(activeTask || loading || errorMessage)}
+        showResult={hasVisibleResult}
         modelSummary={[selectedModel?.displayName, draft.aspectRatio, `${draft.durationSeconds}s`].filter(Boolean).join(' · ')}
         prompt={directionRegion}
-        result={resultRegion}
+        result={hasVisibleResult ? resultRegion : null}
         queue={null}
         recent={<RecentVideoOutputs tasks={recent.data?.items || []} loading={recent.isLoading} onSelect={selected => {
           setTaskId(selected.id);
@@ -622,11 +643,12 @@ function videoTaskStatusKey(status: string) {
 
 function RecentVideoOutputs({ tasks, loading, onSelect }: { tasks: VideoTask[]; loading: boolean; onSelect: (task: VideoTask) => void }) {
   const { t } = useTranslation('playground');
+  const outputs = tasks.filter(task => task.status === 'completed' && Boolean(task.outputAsset?.publicUrl));
   if (loading) return <p className="playground-recent-panel__empty" role="status">{t('playground.video.loadingRecent')}</p>;
-  if (!tasks.length) return <p className="playground-recent-panel__empty">{t('playground.video.recentEmpty')}</p>;
+  if (!outputs.length) return <p className="playground-recent-panel__empty">{t('playground.video.recentEmpty')}</p>;
   return (
     <div className="playground-video-recent-grid">
-      {tasks.map(task => (
+      {outputs.map(task => (
         <button key={task.id} type="button" disabled={task.status !== 'completed'} onClick={() => onSelect(task)}>
           <span className="playground-video-recent-grid__media">
             {task.outputAsset?.publicUrl ? <video src={apiMediaUrl(task.outputAsset.publicUrl) || undefined} muted preload="metadata" aria-hidden="true" /> : <Film aria-hidden="true" />}

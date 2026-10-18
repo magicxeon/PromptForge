@@ -639,6 +639,35 @@ export class GenerationApplicationService {
     };
   }
 
+  // Comparison reserves the complete accepted quote before Queue sees any slot.
+  // Job IDs and provider preflight remain owned by Generation; Credits owns the
+  // single atomic wallet mutation and immutable per-operation price snapshots.
+  async reservePreparedOperations({ payerUserId, planId, quoteId, idempotencyKey, operations }) {
+    if (!Array.isArray(operations) || operations.length < 2 || operations.length > 4) {
+      throw Object.assign(new Error('Comparison requires two to four prepared operations.'), { code: 'invalid_slot_count' });
+    }
+    const prepared = operations.map(operation => {
+      const { context, providerId, modelId, compiledPrompt, generationRequest } = operation;
+      this.providerRegistry.assertRuntimeAvailable(providerId, modelId, {
+        generationSurface: context.generationSurface,
+        generationMode: generationRequest?.generationMode || context.generationMode,
+        workflow: operation.providerWorkflow
+      });
+      if (context.cinematicPromptBudget || context.cinematicContainsPeople !== undefined) {
+        validateGenerationPrompt(compiledPrompt, { providerId, modelId, operation: 'image' });
+      }
+      this.providerRegistry.shouldStream(operation.providerConfig, operation.modelConfig, operation.streamRequested);
+      return { ...operation, jobId: this.queueManager.createJobId() };
+    });
+    const result = await this.creditService.reservePlan({
+      userId: payerUserId, planId, quoteId, idempotencyKey, planKind: 'comparison',
+      operations: prepared.map(operation => ({ operationId: operation.operationId,
+        estimateId: operation.estimateId, requestId: operation.requestId, jobId: operation.jobId,
+        generationRequest: operation.generationRequest, metadata: operation.reservationMetadata || {} }))
+    });
+    return prepared.map((operation, index) => ({ ...operation, reservation: result.reservations[index] }));
+  }
+
   async enqueueReservedOperation({
     jobId,
     providerId,
@@ -657,7 +686,8 @@ export class GenerationApplicationService {
     queueOptionOverrides = {},
     refundReasonCode = 'enqueue_failed',
     refundOnFailure = true,
-    providerWorkflow = null
+    providerWorkflow = null,
+    promptRefinementAudit = null
   }) {
     try {
       this.providerRegistry.assertRuntimeAvailable(providerId, modelId, {
@@ -689,6 +719,10 @@ export class GenerationApplicationService {
           ...queueOptionOverrides
         })
       );
+      if (promptRefinementAudit) {
+        await Promise.resolve().then(() => this.promptRefinementService.persistAudit?.(jobId, promptRefinementAudit))
+          .catch(error => console.warn(`[Generation] Prompt refinement audit write failed for ${jobId}:`, error.message));
+      }
       return { jobId, providerStreaming: stream, reservation };
     } catch (error) {
       if (refundOnFailure) {

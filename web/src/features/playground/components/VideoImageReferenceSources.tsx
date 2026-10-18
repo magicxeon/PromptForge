@@ -8,10 +8,11 @@ import { PlaygroundVideoSources } from './PlaygroundVideoSources';
 import { TrustedVideoSources } from './TrustedVideoSources';
 import { selectedImages, selectedCompositionImages, selectedTrustedImages, usesUploadedCompositionReferences, type NamedTrustedVideoSource, type VideoReferenceSelection } from './videoReferenceSelection';
 
-export function VideoImageReferenceSources({ value, model, onChange, onBusy, referenceIssue }: {
+export function VideoImageReferenceSources({ value, model, onChange, onBusy, referenceIssue, referenceIssues = referenceIssue ? [referenceIssue] : [] }: {
   value: VideoReferenceSelection; model: VideoModelCapability | null;
   onChange: (patch: Partial<VideoReferenceSelection>) => void; onBusy: (busy: boolean) => void;
   referenceIssue?: VideoReferenceIssue | null;
+  referenceIssues?: VideoReferenceIssue[];
 }) {
   const { t } = useTranslation('playground');
   const [adding, setAdding] = useState(false);
@@ -46,13 +47,13 @@ export function VideoImageReferenceSources({ value, model, onChange, onBusy, ref
       const label = t('playground.video.references.imageNumber', { number: index + 1 });
       return <fieldset key={index} disabled={busy} className="min-w-0 grid gap-2">
         {trusted ? <TrustedVideoSources withLook={false} frame={trustedImages[index] || null} look={null} frameLabel={label}
-          invalidFrame={referenceIssue?.referenceIndex === index}
+          invalidFrame={referenceIssues.some(issue => issue.referenceIndex === index)}
           excludedIds={trustedImages.filter((_, i) => i !== index).map(item => item.id)}
           onChange={patch => update(index, patch)} />
           : <PlaygroundVideoSources value={{ ...value, character: null, lookSheet: null, referenceImageUrl: images[index]?.url || null }} frameLabel={label}
             characterNumber={index + 1} frameName={image?.characterName} onFrameNameChange={name => update(index, { characterName: name })}
             frameRole={uploaded || count > 1 || model?.firstFrameEnabled === false ? 'reference_image' : 'first_frame'}
-            invalidFrame={referenceIssue?.referenceIndex === index}
+            invalidFrame={referenceIssues.some(issue => issue.referenceIndex === index)}
             excludedUrls={images.filter((_, i) => i !== index).map(item => item.url)} onBusy={reportBusy}
             onChange={patch => update(index, patch)} />}
         {trusted && image ? <label className="video-image-reference-name grid gap-1 text-sm">

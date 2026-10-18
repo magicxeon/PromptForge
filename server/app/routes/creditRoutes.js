@@ -92,14 +92,15 @@ export function registerCreditRoutes(app, {
   app.post('/api/credits/mock-grants', async (req, res) => {
     try {
       const userId = req.actorContext?.userId || resolveRequestUsername(req);
-      const amountCredits = Number(req.body?.amountCredits || 10);
+      const amountCredits = req.body?.amountCredits === undefined ? 10 : Number(req.body.amountCredits);
       const idempotencyKey = req.headers['idempotency-key'] || req.body?.idempotencyKey;
 
       const result = await creditApplicationService.grantMockCredits({
         userId,
         amountCredits,
         idempotencyKey,
-        actorContext: req.actorContext
+        actorContext: req.actorContext,
+        reauthorizeIdentity: req.reauthorizeIdentity
       });
       res.json({ account: result.account });
     } catch (err) {

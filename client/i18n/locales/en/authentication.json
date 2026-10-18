@@ -76,6 +76,7 @@
   "auth.bypassGuidance": "Development mode: Login is bypassed. To test Login, set AUTH_DEV_BYPASS_ENABLED=false and restart the server.",
   "auth.backHome": "Back to community",
   "auth.bypassLabel": "Development: Login bypassed",
+  "auth.bypassLiveGeneration": "Real image and video generation is enabled. Provider API charges apply; mock Credits do not pay these charges.",
   "mail.subject": "Momelo — {purpose}",
   "mail.codeBody": "Your Momelo code for {purpose} is {code}.\nRecipient: {recipient}\nExpires at: {expiresAt} (UTC).\nIf you did not request this, ignore this email. Never share this code.",
   "mail.notificationBody": "Momelo security notice: {purpose}.\nRecipient: {recipient}\nIssued at: {issuedAt} (UTC).\nIf you did not make this change, return to Momelo and review your account security.",

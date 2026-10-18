@@ -22,7 +22,8 @@ const groups = Object.freeze({
   ],
   'sessions-authorization': ['scripts/authentication/qualify-sessions.mjs'],
   passwords: ['test/authentication/passwords.test.js', 'scripts/authentication/qualify-passwords.mjs'],
-  'development-bypass': ['test/authentication/developmentBypass.test.js'],
+  'development-bypass': ['test/authentication/developmentBypass.test.js', 'test/authentication/developmentStartup.test.js', 'test/authentication/developmentAdmin.test.js'],
+  'local-comparison': ['scripts/authentication/qualify-development-entry.mjs', 'test/comparisonAtomicReservation.test.js'],
   enrollment: ['scripts/authentication/qualify-enrollment.mjs'],
   'password-login': ['scripts/authentication/qualify-password-login.mjs'],
   'otp-login': ['scripts/authentication/qualify-otp-login.mjs'],
@@ -96,16 +97,22 @@ if (args.length === 1 && args[0] === '--login') {
       ? 'postgres-http'
       : needsDatabase
         ? 'postgres'
-        : ['development-bypass', 'private-access'].includes(group)
+        : ['development-bypass', 'private-access', 'local-comparison'].includes(group)
           ? 'loopback-http'
           : 'offline';
     if (needsDatabase) {
       env.MPF_TEST_DATABASE_DISPOSABLE = 'true';
       env.MPF_TEST_DATABASE_URL = process.env.MPF_TEST_DATABASE_URL;
     }
+    if (group === 'local-comparison') {
+      env.MPF_TEST_AUTH_DEV_FIXTURE = 'true';
+      env.MPF_TEST_AUTH_LIVE_COMPARISON = 'true';
+    }
     console.log(
       group === 'login-integration'
         ? '[login-integration] Actual application source, owned temporary files, disposable SQL and private SMTP; no deployment readiness or paid dispatch.'
+        : group === 'local-comparison'
+        ? '[local-comparison] Owned temporary app and canonical atomic billing; strict mocked Gemini transport, no real provider charges.'
         : group === 'cutover'
         ? '[cutover] Qualified bootstrap, mock retirement and isolated session admission; no live activation.'
         : group === 'private-access'

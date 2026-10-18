@@ -22,11 +22,15 @@ active paths and classify remaining requirement guides without deleting them.
 ## Complexity And Execution
 
 Assess complexity from behavior and risk, not line count or estimated duration.
+The case table in [AGENTS.md](../../AGENTS.md#0-case-based-execution-policy)
+is the canonical decision rule for execution effort. Apply it before loading
+roles, splitting tasks or choosing validation. Cases are routing guidance, not
+new task-plan schema values: plans retain `simple` and `complex`.
 
 | Class | Criteria | Execution |
 |---|---|---|
 | simple | Clear bounded outcome, one capability, existing contract unchanged, no migration or sensitive risk | One agent, one task; no delegation or artificial subtasks |
-| complex | Cross-capability contract, uncertain ownership, migration, shared behavior, financial/security/privacy/destructive risk | Lead records dependencies and review gates; split only cohesive independently verifiable deliverables |
+| complex | New/changed workflow, cross-capability contract, uncertain ownership, migration, changed shared behavior, financial/security/privacy/destructive risk | Lead records dependencies and review gates; split only cohesive independently verifiable deliverables |
 
 A complex task may still be sequential and single-implementer. Parallel work is
 allowed only when inputs/contracts are stable, dependencies are satisfied and
@@ -34,10 +38,15 @@ write scopes are disjoint. Review after implementation is normally sequential.
 No parallelism merely to occupy agents. Reclassify a simple task if new risk is
 discovered; pause affected writes until its contract and reviewers are updated.
 
-Default maximum: main thread plus two subagents. Role perspectives can be used
-sequentially; mandatory reviews cannot be removed to satisfy the concurrency
-cap. The Lead is a coordination responsibility of the main thread, not an extra
-mandatory process or a second primary role. Keep one domain primary per task.
+Default execution is one agent. Main thread plus two subagents is a maximum,
+not a target. Delegate only for explicitly requested agent work, required
+independent sensitive review, or independent substantial tasks whose parallel
+execution is likely to save time after coordination costs. Do not create
+separate Product, BSA, UX, implementer and QA agents for every request.
+Non-sensitive role perspectives and QA may be applied sequentially by the same
+agent, with review independence disclosed. Sensitive review remains independent;
+if unavailable, report the gap without claiming that gate passed. The Lead is a
+responsibility of the main thread, not an extra process or second primary role.
 
 ## Requirement To Agent Contract
 
@@ -48,6 +57,13 @@ duplicate backlog. A task names its requirement, role, scope, dependencies,
 acceptance checks, reviewers and evidence. The Lead sends those inputs with
 each delegation; agents do not assume shared chat memory or automatic dispatch
 from a Markdown file.
+
+Read-only discussion needs no requirement edit. Small documentation/copy/style
+work needs at most one short checkpoint, not a new requirement, JSON plan,
+runner or evidence file. Local bug fixes should record expected behavior and
+focused verification in the existing owning requirement. Extend an existing
+test only when it protects a meaningful regression. Reuse passed evidence until
+relevant inputs change; do not rerun checks for an unchanged handoff.
 
 The lifecycle is proposed -> ready -> in_progress -> review -> complete.
 Blocked/cancelled work remains explicit. Only user-approved scope is ready;
@@ -106,6 +122,20 @@ claim of custom-profile execution. No agents persistently run in the background.
    that evidence exists; offline/config implementation is independently accepted.
 
 ## Implementation Tasks
+
+### 2026-10-18 execution-effort policy correction
+
+User authorized a permanent case-based reduction in agent overhead. This is a
+bounded documentation-only task, owned by the main agent under Engineering
+governance. Scope: `AGENTS.md`, this requirement and009 task-contract guidance.
+Plan: define cases and effort limits, reconcile conflicting blanket rules, then
+inspect cases, links and preserved sensitive gates. No model/config/profile,
+validator schema, application code, runtime data or architecture boundary changes.
+Acceptance: discussion creates no artifacts; small work uses one agent and no
+JSON plan; local bugs use focused checks; new workflows retain planning and
+applicable reviews; sensitive changes retain independent review. Full builds,
+application tests and new runners are unnecessary for this documentation edit.
+Architecture map unchanged. Verification evidence is recorded after editing.
 
 Task state and acceptance evidence are owned by
 [coordination-task-plan.json](coordination-task-plan.json), not duplicated here.

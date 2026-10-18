@@ -7,6 +7,8 @@ import path from 'node:path';
 import net from 'node:net';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
+import { developmentApiEnvironment, developmentApiReady } from './authentication/development-startup.mjs';
 const pythonExecutable = existsSync('D:/applications/momelo-post-processing/venv/Scripts/python.exe')
   ? 'D:/applications/momelo-post-processing/venv/Scripts/python.exe'
   : 'python';
@@ -43,13 +45,7 @@ await stopPreviousDevSession();
 
 if (process.argv.includes('--stop-existing')) {
   if (await isApiReady()) {
-    console.log('Stopping an untracked ModelPromptForge API on port 6500...');
-    if (!restartExistingApi()) {
-      throw new Error(
-        'The existing ModelPromptForge API could not be stopped. Close its terminal and run this script again.'
-      );
-    }
-    await waitForApiStop();
+    throw new Error('Port 6500 is occupied by an untracked service. Close its terminal before starting ModelPromptForge.');
   }
   process.exit(0);
 }
@@ -67,18 +63,15 @@ process.on('exit', () => {
 });
 
 if (await isApiReady()) {
-  console.log('Restarting the existing ModelPromptForge API on port 6500...');
-  if (!restartExistingApi()) {
-    throw new Error(
-      'The existing ModelPromptForge API could not be stopped. Close its terminal and run this script again.'
-    );
-  }
-  await waitForApiStop();
+  throw new Error('Port 6500 is occupied by an untracked service. Close its terminal before starting ModelPromptForge.');
 }
 
 let postProcess = null;
+const environmentFile = path.join(rootDirectory, '.env');
+const fileEnv = existsSync(environmentFile) ? dotenv.parse(readFileSync(environmentFile)) : {};
+const developmentApiEnv = developmentApiEnvironment(process.env, fileEnv);
 let apiEnv = {
-  ...process.env,
+  ...developmentApiEnv,
   POST_PROCESSING_PILOT_ENABLED: 'false',
   POST_PROCESSING_INTERNAL_TOKEN: ''
 };
@@ -111,7 +104,8 @@ if (skipPostProcessing) {
   }
 }
 
-console.log('Starting ModelPromptForge API on http://localhost:6500...');
+apiEnv = { ...apiEnv, NODE_ENV: developmentApiEnv.NODE_ENV };
+console.log('Starting ModelPromptForge API on http://127.0.0.1:6500...');
 const apiProcess = startNode(nodemonEntry, ['server/server.js'], rootDirectory, apiEnv);
 const ready = await waitForApi(apiProcess);
 if (!ready) {
@@ -119,7 +113,7 @@ if (!ready) {
   stop(1);
 }
 
-console.log('Starting React development server on http://localhost:5173...');
+console.log('Starting React development server on http://127.0.0.1:5173...');
 const webProcess = startNode(viteEntry, [], path.join(rootDirectory, 'web'));
 
 const exitCode = await waitForFirstExit(
@@ -177,48 +171,7 @@ async function waitForApi(apiChild) {
 }
 
 async function isApiReady() {
-  try {
-    const response = await fetch(
-      'http://localhost:6500/api/community/features',
-      { signal: AbortSignal.timeout(1_000) }
-    );
-    return response.status >= 200 && response.status < 500;
-  } catch {
-    return false;
-  }
-}
-
-function restartExistingApi() {
-  if (process.platform !== 'win32') return false;
-  const result = spawnSync('netstat', ['-ano', '-p', 'tcp'], {
-    encoding: 'utf8',
-    windowsHide: true
-  });
-  if (result.status !== 0) return false;
-  const pids = new Set(
-    String(result.stdout || '')
-      .split(/\r?\n/)
-      .map(line => line.trim().match(/^TCP\s+\S+:6500\s+\S+\s+LISTENING\s+(\d+)$/i)?.[1])
-      .filter(Boolean)
-  );
-  if (pids.size === 0) return false;
-  for (const pid of pids) {
-    const stopped = spawnSync('taskkill', ['/PID', pid, '/T', '/F'], {
-      stdio: 'ignore',
-      windowsHide: true
-    });
-    if (stopped.status !== 0) return false;
-  }
-  return true;
-}
-
-async function waitForApiStop() {
-  const deadline = Date.now() + 10_000;
-  while (Date.now() < deadline) {
-    if (!await isApiReady()) return;
-    await delay(200);
-  }
-  throw new Error('The previous ModelPromptForge API did not stop within 10 seconds.');
+  return developmentApiReady();
 }
 
 function waitForFirstExit(processes) {

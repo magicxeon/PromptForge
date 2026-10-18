@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "requirement": "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md",
+  "tasks": [
+    {
+      "id": "AUTH-DEV-VIDEO-01",
+      "title": "Admit existing Video Playground for explicit local Admin generation and correct catalog error states",
+      "complexity": "complex",
+      "reason": "Local authorization admission reaches existing billable Video contracts; Backend, Commercial and Security/QA review apply. UX is scoped to correcting existing asynchronous Engine states without redesign. Five reviewer charters apply in waves; Backend/Security/QA share one author-independent reviewer; UX and Commercial are separate.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "identity",
+        "generation",
+        "playground"
+      ],
+      "risks": [
+        "security",
+        "financial",
+        "user-facing"
+      ],
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "server/domain/identity/IdentityDevelopmentService.js",
+        "test/authentication/developmentAdmin.test.js",
+        "scripts/authentication/qualify-development-entry.mjs",
+        "web/src/features/playground/components/PlaygroundVideoWorkspace.tsx",
+        "web/src/features/playground/components/PlaygroundVideoWorkspace.test.tsx",
+        "client/i18n/locales/en/playground.json",
+        "client/i18n/locales/th/playground.json",
+        "client/i18n/locales/en/authentication.json",
+        "client/i18n/locales/th/authentication.json",
+        "web/dist/",
+        "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground-task-plan.json",
+        "requirements/019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md",
+        "requirements/019-implementation-commercial-feature-plan/authentication/014-login-runtime-setup.md",
+        "requirements/019-implementation-commercial-feature-plan/Phase2-04-authentication-sessions-and-authorization.md",
+        "requirements/099-technical-dept/000-master.md",
+        "server/config/credit-pricing-policy.json",
+        "server/domain/credits/CreditReservationService.js"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Success: Explicit qualified local Admin generation can read existing Video models and use canonical quote/task routes without promoting models or changing prices.",
+        "Negative: User, disabled mode, hostile Origin and missing CSRF cannot reach Video submission; other financial and Cinematic actions remain denied.",
+        "Recovery: Catalog loading, failure/retry and truly empty success are distinct; retry preserves drafts and cannot create a task.",
+        "Local pricing supersession: Qualified fixed local Admin Playground uses existing CINEMATIC_VIDEO_POC_CREDITS (default1) for supported configured models; request parity and canonical reservation/refund work while production pricing, disabled/invalid-rate guards and old locked quotes remain unchanged."
+      ],
+      "reviewers": [
+        "backend-platform-architect",
+        "commercial-financial-integrity",
+        "security-reviewer",
+        "qa-release-engineer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [
+        {
+          "check": "Success: Explicit qualified local Admin generation can read existing Video models and use canonical quote/task routes without promoting models or changing prices.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md"
+        },
+        {
+          "check": "Negative: User, disabled mode, hostile Origin and missing CSRF cannot reach Video submission; other financial and Cinematic actions remain denied.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md"
+        },
+        {
+          "check": "Recovery: Catalog loading, failure/retry and truly empty success are distinct; retry preserves drafts and cannot create a task.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md"
+        },
+        {
+          "check": "Local pricing supersession: Qualified fixed local Admin Playground uses existing CINEMATIC_VIDEO_POC_CREDITS (default1) for supported configured models; request parity and canonical reservation/refund work while production pricing, disabled/invalid-rate guards and old locked quotes remain unchanged.",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/auth_dev_override_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/auth_dev_override_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/auth_dev_override_security",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "agentId": "/root/local_video_commercial_review",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md"
+        },
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/auth_dev_override_ux",
+          "result": "passed",
+          "reference": "requirements/019-implementation-commercial-feature-plan/authentication/018-local-admin-video-playground.md"
+        }
+      ],
+      "handoff": "Root owns all writes; reviewers read-only/no children/Git/live calls. Keep Generation/Credits contracts unchanged. No new flags or actual wallet changes. Backend and Security/QA may be applied sequentially by one independent reviewer with disclosure. UX correction reviewed in root sequentially; responsive checks required. Complete: exact local Video admission fixed, frontend built. Independent backend14+12+35+15, React32, TypeScript/static build pass. UX source pass with actual failure/retry390/768/1440 partial visual proof; successful browser recovery and live paid Video/quality unverified, documented. Existing env/pricing/lifecycle/runtime roots retained. Only owned frontend fixture stopped; no user services restarted. Native Commercial final pass. User explicitly requested immediate local activation on2026-10-14: configured-price fallback enabled only for qualified bypass Admin. Native actual-app12/12 +actual-settlement40/40 pass; native Commercial agent applied independent Commercial/Backend/QA source review PASS. No paid dispatch, actual wallet or user service restart. Production restrictions unchanged. Latest explicit user override: restore1CreditlocalAdminVideotariff fromexistingCINEMATIC_VIDEO_POC_CREDITS=1, includingqualifiedmodels. Actualapp12/12+financial40/40 pass; no.envedit/frontendsourcebuild/livecalls/restarts; oldlockedquotesretainprice."
+    }
+  ],
+  "parallelBatches": []
+}
