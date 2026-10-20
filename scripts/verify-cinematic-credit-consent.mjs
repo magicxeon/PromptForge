@@ -8,6 +8,7 @@ import { chromium } from 'playwright';
 
 // Isolated fixtures only. No API server, workers, live data or AI provider calls.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const closureOnly = process.argv.includes('--closure');
 const catalogs = Object.fromEntries(await Promise.all(['en', 'th'].map(async locale => [locale,
   Object.fromEntries(await Promise.all(['cinematic', 'react-ui', 'playground'].map(async ns => [ns,
     JSON.parse(await fs.readFile(path.join(root, `client/i18n/locales/${locale}/${ns}.json`), 'utf8'))])))])));
@@ -21,6 +22,9 @@ import { z } from 'zod';
 import { i18n } from '/src/lib/i18n/i18n.ts';
 import { apiRequest } from '/src/lib/api/apiClient.ts';
 import { Button } from '/src/components/ui/Button.tsx';
+import { useCreditConfirmation } from '/src/components/generation/useCreditConfirmation.tsx';
+import { AccountPreferencesDialog } from '/src/components/layout/AccountPreferencesDialog.tsx';
+import { beginIdentityResolution, publishIdentity } from '/src/lib/auth/actorStore.ts';
 import { EngineTargetPanel } from '/src/components/generation/EngineTargetPanel.tsx';
 import { CinematicWritingBillingConsent } from '/src/features/cinematic/components/CinematicWritingBillingConsent.tsx';
 import { CinematicWritingConsent } from '/src/features/cinematic/components/CinematicWritingConsent.tsx';
@@ -36,8 +40,9 @@ const catalogs = ${JSON.stringify(catalogs)};
 const locale = params.get('locale') || 'en';
 document.documentElement.lang = locale;
 document.documentElement.dataset.theme = params.get('theme') || 'default';
-localStorage.setItem('mpf_active_mock_user_id', 'fixture');
-localStorage.removeItem('mpf.react.draft:cinematic-writing-recovery:fixture');
+const fixtureActor = params.get('actor') || 'fixture';
+publishIdentity(beginIdentityResolution(), { actorId: fixtureActor, authMode: 'session', csrfToken: 'fixture-csrf' });
+localStorage.removeItem('mpf.react.draft:session:cinematic-writing-recovery:fixture');
 if (params.get('view') === 'recovery') {
   const fingerprint = await cinematicWritingRequestFingerprint({ actorId: 'fixture', projectId: 'fixture', operation: 'environment', input: { expectedVersion: 0 }, sceneId: null, assignmentId: null });
   saveCinematicWritingReceipt('fixture', { id: 'cw_fixture', fingerprint, projectId: 'fixture', operation: 'environment', sceneId: null, assignmentId: null });
@@ -48,6 +53,29 @@ const project = { id: 'fixture', projectId: 'fixture', version: 1, title: locale
   setup: createCinematicSetupDraft(), fullStoryVersions: [], castAssignments: [], scenes: [], chapterProposals: [],
   activeFullStoryVersionId: null, confirmedFullStoryVersionId: null };
 const noop = () => {};
+function SharedFixture() {
+  const { t } = useTranslation('react-ui');
+  const [settings, setSettings] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState(0);
+  const consent = useCreditConfirmation({ actorId: fixtureActor, requestKey: 'fixture-shared-quote',
+    estimatedCredits: 1, description: 'Fixture Video / 1 Credit', mandatory: params.get('bulk') === 'true' });
+  async function run() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (await consent.request() && consent.isCurrent()) {
+        await apiRequest('/api/fixture-generation', { method: 'POST', body: { estimateId: 'fixture-shared-quote' } });
+        setResult(current => current + 1);
+      }
+    } finally { setBusy(false); }
+  }
+  return React.createElement(React.Fragment, null, consent.dialog,
+    settings ? React.createElement(AccountPreferencesDialog, { actorId: fixtureActor, onClose: () => setSettings(false) }) : null,
+    React.createElement(Button, { 'data-testid': 'shared-generate', disabled: busy, onClick: run }, 'Generate fixture'),
+    React.createElement(Button, { 'data-testid': 'shared-settings', onClick: () => setSettings(true) }, t('ui.creditConsent.settings')),
+    React.createElement('output', { 'data-testid': 'shared-result' }, result));
+}
 const engineCatalog = { defaultProvider: 'fixture', providers: [{ id: 'fixture', displayName: 'Fixture Image', defaultModel: 'fixture-image',
   models: [{ id: 'fixture-image', displayName: 'Fixture Image', paidRoutingEnabled: true,
     capabilities: { imageGeneration: true, imageEdit: false, imageReferences: false, maxReferenceImages: 0,
@@ -83,7 +111,7 @@ function Fixture() {
       React.createElement('p', { role: 'status', 'data-testid': 'fixture-result' }, result)));
 }
 createRoot(document.getElementById('root')).render(React.createElement(QueryClientProvider, { client: new QueryClient({ defaultOptions: { queries: { retry: false } } }) },
-  React.createElement(I18nextProvider, { i18n }, React.createElement(Fixture))));
+  React.createElement(I18nextProvider, { i18n }, React.createElement(params.get('view') === 'shared' ? SharedFixture : Fixture))));
 </script></body></html>`;
 const output = await fs.mkdtemp(path.join(os.tmpdir(), 'mpf-cinematic-credit-consent-'));
 const server = await createServer({ root: path.join(root, 'web'), configFile: path.join(root, 'web/vite.config.ts'), configLoader: 'runner',
@@ -98,6 +126,7 @@ const server = await createServer({ root: path.join(root, 'web'), configFile: pa
   } }] });
 let browser;
 const errors = [], requests = [], matrix = [];
+const preferences = new Map();
 try {
   await server.listen();
   browser = await chromium.launch({ headless: true });
@@ -107,7 +136,20 @@ try {
     const request = route.request(), url = new URL(request.url());
     if (!url.pathname.startsWith('/api/')) return route.continue();
     requests.push({ path: url.pathname, method: request.method() });
-    if (url.pathname === '/api/me/preferences' && request.method() === 'GET') return route.fulfill({ json: { confirmCreditUsage: true } });
+    const fixtureActor = new URL(request.frame().url()).searchParams.get('actor') || 'fixture';
+    if (url.pathname === '/api/me/preferences') {
+      if (request.method() === 'PATCH') {
+        assert.equal(request.headers()['x-csrf-token'], 'fixture-csrf');
+        assert.deepEqual(Object.keys(request.postDataJSON()), ['confirmCreditUsage']);
+        preferences.set(fixtureActor, request.postDataJSON().confirmCreditUsage);
+      }
+      return route.fulfill({ json: { confirmCreditUsage: preferences.get(fixtureActor) ?? true } });
+    }
+    if (url.pathname === '/api/fixture-generation' && request.method() === 'POST') {
+      assert.equal(request.headers()['x-csrf-token'], 'fixture-csrf');
+      assert.equal(request.postDataJSON().estimateId, 'fixture-shared-quote');
+      return route.fulfill({ json: { id: 'fixture-result' } });
+    }
     if (url.pathname === '/api/cinematic/projects/fixture/series' && request.method() === 'GET') return route.fulfill({ json: {
       productionProject: { id: 'fixture', productionProjectId: 'fixture', version: 1, title: 'Rain Letters', format: 'mini-series', seasonsEnabled: false, chapterCount: 0, chapterWorkStarted: false },
       series: null, chapters: [] } });
@@ -129,7 +171,7 @@ try {
     return route.abort();
   });
   const origin = server.resolvedUrls.local[0];
-  for (const theme of ['default', 'fashion', 'creative']) for (const locale of ['th', 'en']) for (const width of [390, 820, 1440]) {
+  for (const theme of closureOnly ? ['default'] : ['default', 'fashion', 'creative']) for (const locale of ['th', 'en']) for (const width of [390, 820, 1440]) {
     await page.setViewportSize({ width, height: 950 });
     await page.goto(`${origin}__credit-consent?locale=${locale}&theme=${theme}`, { waitUntil: 'networkidle' });
     const notice = page.locator('.cinematic-writing-free');
@@ -183,9 +225,59 @@ try {
   await finalDialog.getByRole('button', { name: catalogs.en.cinematic['cinematic.writingBilling.confirm'].replace('{credits}', '240') }).click();
   await page.getByTestId('fixture-result').filter({ hasText: 'fixture' }).waitFor();
   assert.equal(requests.filter(item => item.path === '/api/cinematic/fixture-execute').length, 1, 'Only explicit fixture confirmation executes');
+  if (closureOnly) {
+    const count = () => requests.filter(item => item.path === '/api/fixture-generation').length;
+    for (const locale of ['th', 'en']) for (const width of [390, 820, 1440]) {
+      preferences.set('fixture', true);
+      await page.setViewportSize({ width, height: 950 });
+      const sharedUrl = `${origin}__credit-consent?view=shared&locale=${locale}`;
+      await page.goto(sharedUrl, { waitUntil: 'networkidle' });
+      const before = count();
+      await page.getByTestId('shared-generate').click();
+      let dialog = page.getByRole('alertdialog'); await dialog.waitFor();
+      assert.equal(await dialog.getByText(catalogs[locale]['react-ui']['ui.creditConsent.amount'].replace('{credits}', '1'), { exact: true }).isVisible(), true);
+      await page.screenshot({ path: path.join(output, `${locale}-${width}-shared-confirm.png`) });
+      assert.ok(await dialog.evaluate(el => { const r = el.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight && el.scrollWidth <= el.clientWidth + 1; }));
+      await dialog.getByRole('button', { name: catalogs[locale]['react-ui']['ui.action.cancel'] }).click();
+      assert.equal(count(), before, 'Cancel creates no fixture job');
+      await page.getByTestId('shared-generate').click();
+      dialog = page.getByRole('alertdialog');
+      await dialog.getByRole('checkbox').check();
+      await dialog.getByRole('button', { name: catalogs[locale]['react-ui']['ui.creditConsent.confirm'] }).click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="shared-result"]')?.textContent === '1');
+      assert.equal(count(), before + 1);
+      await page.reload({ waitUntil: 'networkidle' });
+      await page.getByTestId('shared-generate').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="shared-result"]')?.textContent === '1');
+      assert.equal(await page.getByRole('alertdialog').count(), 0, 'Reload retains opt-out');
+      await page.getByTestId('shared-settings').click();
+      const settings = page.getByRole('dialog');
+      await settings.getByRole('checkbox').click();
+      await page.waitForFunction(() => {
+        const input = document.querySelector('[role="dialog"] input');
+        return input?.checked && !input.disabled;
+      });
+      assert.equal(preferences.get('fixture'), true, 'Settings restores confirmation');
+      await settings.getByRole('button', { name: catalogs[locale]['react-ui']['ui.action.close'] }).click();
+      await page.getByTestId('shared-generate').click();
+      dialog = page.getByRole('alertdialog'); await dialog.waitFor();
+      await dialog.getByRole('button', { name: catalogs[locale]['react-ui']['ui.action.cancel'] }).click();
+      preferences.set('fixture', false);
+      await page.goto(`${sharedUrl}&bulk=true`, { waitUntil: 'networkidle' });
+      await page.getByTestId('shared-generate').click();
+      dialog = page.getByRole('alertdialog'); await dialog.waitFor();
+      assert.equal(await dialog.getByRole('checkbox').count(), 0, 'Bulk never offers opt-out');
+      await dialog.getByRole('button', { name: catalogs[locale]['react-ui']['ui.action.cancel'] }).click();
+      await page.goto(`${sharedUrl}&actor=other`, { waitUntil: 'networkidle' });
+      await page.getByTestId('shared-generate').click();
+      dialog = page.getByRole('alertdialog'); await dialog.waitFor();
+      await dialog.getByRole('button', { name: catalogs[locale]['react-ui']['ui.action.cancel'] }).click();
+      matrix.push({ locale, width, view: 'shared-cancel-confirm-reload-restore-bulk-actor', passed: true });
+    }
+  }
   assert.deepEqual(errors, []);
   await fs.writeFile(path.join(output, 'metadata.json'), JSON.stringify({ matrix, requests, errors, liveAi: false }, null, 2));
-  console.log(`PASS isolated Credit consent/free notices: TH/EN, 390/820/1440, default/fashion/creative. Screenshots: ${output}`);
+  console.log(`PASS isolated Credit consent${closureOnly ? '/closure' : '/free notices'}: TH/EN, 390/820/1440. Screenshots: ${output}`);
 } catch (error) {
   console.error('Browser errors:', errors, `Screenshots: ${output}`);
   for (const context of browser?.contexts() || []) for (const page of context.pages()) await page.screenshot({ path: path.join(output, 'failure.png'), fullPage: true });

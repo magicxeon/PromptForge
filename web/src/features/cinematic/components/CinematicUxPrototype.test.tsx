@@ -628,7 +628,7 @@ describe('Cinematic UX prototype', () => {
 
   it('removes the prototype Credit amount from Story Plan and keeps approval distinct from draft save', () => {
     render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="story-plan" mode="advanced" onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
-    expect(screen.getByText('cinematic.story.qualificationNotice')).toBeVisible();
+    expect(screen.queryByText('cinematic.story.qualificationNotice')).not.toBeInTheDocument();
     expect(screen.queryByText(/5 cinematic\.cost\.credits/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'cinematic.story.saveDraft' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'cinematic.story.approvePlan' })).toBeDisabled();

@@ -15,7 +15,7 @@ type ContextualOperationDockProps = {
   media?: boolean;
   disabled?: boolean;
   loading?: boolean;
-  notice?: string;
+  notice?: string | null;
   onAction?: () => void;
 };
 
@@ -55,7 +55,7 @@ export function ContextualOperationDock({
       >
         {actionLabel}
       </Button>
-      <p className="cinematic-operation-dock__notice">{notice || t('cinematic.operation.previewOnly')}</p>
+      {notice !== null ? <p className="cinematic-operation-dock__notice">{notice || t('cinematic.operation.previewOnly')}</p> : null}
     </aside>
   );
 }

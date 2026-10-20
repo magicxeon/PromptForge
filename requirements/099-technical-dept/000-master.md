@@ -462,6 +462,20 @@ post-processing-service/domain, post-processing-service/adapters and
 post-processing-service/config, with service-scoped AGENTS.md, validated
 runtime .env and versioned non-secret JSON policy. It uses a checksum-pinned
 ignored model under post-processing-service/models.
+The direct Windows `post-processing-service/scripts/start-service.bat` owns
+interpreter/bootstrap selection: `POST_PROCESSING_BASE_PYTHON` defaults to
+`D:/Program Files/Python3/python.exe`, with a separate default venv at
+`D:/applications/momelo-post-processing/venv-py313`; `VENV_DIR` can select another
+working environment. The legacy3.10 venv/model environment is preserved.
+Post-Processing `ExpressiveTtsPolicy` owns the TTS model/vocoder/cache paths;
+`HF_HOME`/`HF_HUB_CACHE` project to its `hfCacheDir`, with optional
+`POST_PROCESSING_TTS_VOCODER_PATH`. Existing Thonburian checkpoints stay under
+`D:/applications/momelo-post-processing/models/thonburian-tts`; new Vocos files
+and Hugging Face/Torch caches stay under `D:/development/temp/momelo-models`.
+The existing model downloader owns pinned Vocos artifact preparation.
+The direct Windows launcher prepares official CUDA wheels when an NVIDIA GPU
+is detected and checks availability before service startup; CPU-only hosts keep
+the base runtime. Python package/model caches and temporary downloads stay on D.
 scripts/start-dev.mjs launches it separately with an ephemeral internal
 token; server/providers/PostProcessingServiceClient.js connects Core over
 loopback. server/domain/assets/FacelessPrevisAssetService.js imports the

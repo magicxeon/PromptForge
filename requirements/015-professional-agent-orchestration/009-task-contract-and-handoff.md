@@ -9,10 +9,19 @@
 Root AGENTS.md -> 099 Agent Start Here -> owning requirement -> assigned task
 and dependency handoffs -> primary charter -> relevant code/tests. Load only
 triggered Skills and review charters. Do not load every role or requirement.
+Apply the [case-based effort policy](../../AGENTS.md#0-case-based-execution-policy)
+first and reuse already-read, still-current sources. Read-only questions need
+no task artifact; small edits and local bugs use an existing requirement checkpoint.
 
 ## Task Plan
 
-Complex plans use JSON so local tooling can validate dependencies and scope.
+Use JSON for delegated multi-owner implementation, migrations, sensitive changes
+and work already tracked by a JSON plan, so tooling can validate scope and gates.
+Other single-implementer, non-sensitive complex work may use a compact Markdown
+plan in the owning requirement. It still records scope, dependencies, acceptance,
+applicable QA/UX perspectives and focused evidence; sequential self-review must
+be disclosed and must not be claimed independent. Do not convert an active JSON
+plan to Markdown to bypass its completion checks.
 Use an owning `tasks/task-plan.json` or a named task-plan JSON alongside the
 owning requirement when an extra directory is unnecessary.
 The plan is a review aid, not an executable scheduler. Example values below
@@ -67,7 +76,8 @@ workers in total; omitting batches cannot bypass these rules.
 "reference": "path/to/review.md" }`. References are existing repository files.
 These records must describe checks actually performed, not expected results.
 
-Complex tasks require QA. Financial tasks also require Backend, Commercial and
+Complex tasks require QA. For JSON-tracked tasks, the identity/completion rules
+below remain mandatory. Financial tasks also require Backend, Commercial and
 Security; security/privacy/destructive tasks also require Security, and
 user-facing tasks require UX. The owner is not its
 own reviewer. If the owner is the required specialist, use a separate agent of
@@ -94,6 +104,12 @@ and stop conditions. Request a concise return with:
 4. Review findings, residual risks and next action.
 5. Architecture map updated or architecture map unchanged.
 
+In the final user handoff, list 1-3 concrete related follow-up tasks when any
+remain and wait for explicit confirmation before starting new scope. Complete
+already-authorized work and required checks first. Report unresolved required
+work separately; do not claim it is optional or complete. If no next task remains,
+say so without creating artificial work or inspecting unrelated backlogs.
+
 Only the Lead updates the master task status after integrating results. Workers
 do not independently approve changes to price, rights or public visibility.
 Missing credentials, unclear destructive scope or conflicting shared contracts
@@ -104,3 +120,8 @@ are escalated; other independent safe work may continue.
 Use a short owning-requirement checkpoint: outcome, simple classification/reason,
 one owner, affected files, acceptance and verification. No JSON plan, new role
 document, extra Skill or subagent is required merely for a label/CSS/local bug.
+Documentation-only changes use content/link checks without application tests or
+builds. A local bug uses existing focused tests where meaningful; add a runner
+only when recurring validation needs it. Reuse passed evidence until relevant
+source, dependencies or inputs change. Stop after necessary checks pass; full
+release/UAT suites remain a separate explicit activity.

@@ -7,6 +7,7 @@ type ConfirmDialogProps = {
   trigger: ReactNode;
   title: string;
   description: string;
+  descriptionHidden?: boolean;
   confirmLabel: string;
   pending?: boolean;
   cancelDisabled?: boolean;
@@ -22,6 +23,7 @@ export function ConfirmDialog({
   trigger,
   title,
   description,
+  descriptionHidden = false,
   confirmLabel,
   pending = false,
   cancelDisabled = false,
@@ -36,7 +38,7 @@ export function ConfirmDialog({
         <AlertDialog.Overlay className="app-confirm-dialog__overlay fixed inset-0 bg-[var(--theme-overlay)] backdrop-blur-sm" />
         <AlertDialog.Content onCloseAutoFocus={onCloseAutoFocus} className="app-confirm-dialog__content fixed left-1/2 top-1/2 max-h-[90dvh] w-[min(92vw,480px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-[var(--mpf-border)] bg-[var(--mpf-surface-strong)] p-5 shadow-[var(--mpf-shadow-raised)]">
           <AlertDialog.Title className="m-0 text-xl">{title}</AlertDialog.Title>
-          <AlertDialog.Description className="mb-5 mt-3 text-sm leading-6 text-[var(--mpf-text-muted)]">
+          <AlertDialog.Description className={descriptionHidden ? 'sr-only' : 'mb-5 mt-3 text-sm leading-6 text-[var(--mpf-text-muted)]'}>
             {description}
           </AlertDialog.Description>
           {children}

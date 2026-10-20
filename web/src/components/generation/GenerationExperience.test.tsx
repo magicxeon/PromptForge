@@ -5,13 +5,13 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { GenerationExperience } from './GenerationExperience';
 import { generationRoutePointerFeature, writeGenerationRoutePointer } from '../../features/generation/job-center/generationRoutePointer';
+import { beginIdentityResolution, publishIdentity } from '../../lib/auth/actorStore';
 
 const mocks = vi.hoisted(() => ({ actor: { userId: 'owner' }, skip: false,
   estimate: vi.fn(), submit: vi.fn(), compareEstimate: vi.fn(), compare: vi.fn(),
   job: vi.fn(), group: vi.fn(), comparison: vi.fn(), catalog: vi.fn(),
   enhanceQuote: vi.fn(), enhance: vi.fn(), readEnhance: vi.fn() }));
 vi.mock('../../lib/auth/ActorProvider', () => ({ useActor: () => ({ actor: mocks.actor }) }));
-vi.mock('../../lib/auth/actorStore', () => ({ getActiveActorId: () => mocks.actor.userId }));
 vi.mock('../../lib/auth/userPreferences', () => ({ useUserPreferences: () => ({ isSuccess: true, isFetching: false, data: { confirmCreditUsage: !mocks.skip }, save: vi.fn() }) }));
 vi.mock('../../lib/permissions/FeaturePolicyProvider', () => ({ useFeaturePolicy: () => ({ isEnabled: () => false }) }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en' } }) }));
@@ -32,8 +32,12 @@ const providerCatalog = { defaultProvider: 'fixture', providers: [{ id: 'fixture
   models: ['one', 'two'].map(id => ({ id, name: id, displayName: id, capabilities: { aspectRatios: ['6:8'], resolutions: ['1K'], maxReferenceImages: 10 } })) }] };
 const quote = (credits = 10) => ({ estimate: { estimateId: `price-${credits}`, estimatedCredits: credits, expiresAt: '2099-01-01' }, account: { availableCredits: 100, canAfford: true } });
 const textQuote = { id: 'text-price', status: 'quoted', credits: 4, expiresAt: '2099-01-01', artifactExpiresAt: '2099-01-01' };
+const switchActor = (actorId: string) => {
+  mocks.actor = { userId: actorId };
+  publishIdentity(beginIdentityResolution(), { actorId, authMode: 'session', csrfToken: 'fixture-csrf' });
+};
 beforeEach(() => {
-  vi.clearAllMocks(); localStorage.clear(); sessionStorage.clear(); mocks.actor = { userId: 'owner' }; mocks.skip = false;
+  vi.clearAllMocks(); localStorage.clear(); sessionStorage.clear(); switchActor('owner'); mocks.skip = false;
   Element.prototype.scrollIntoView = vi.fn();
   mocks.estimate.mockReset().mockResolvedValue(quote());
   mocks.submit.mockReset().mockResolvedValue({ jobId: 'job', status: 'queued' });
@@ -89,7 +93,7 @@ it('invalidates open consent on live draft change before debounce, then prices t
 
 it('invalidates actor changes while the real consent dialog is open', async () => {
   const view = setup(); await generate();
-  mocks.actor = { userId: 'other' }; view.change({});
+  switchActor('other'); view.change({});
   await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
   expect(mocks.submit).not.toHaveBeenCalled();
 });
@@ -223,8 +227,8 @@ function lifecycleFixture(kind: RenderKind, status = 'completed', media = true) 
   return {
     data,
     read: kind === 'comparison' ? mocks.comparison : kind === 'group' ? mocks.group : mocks.job,
-    queryKey: kind === 'comparison' ? ['comparison', 'owner', 'set']
-      : kind === 'group' ? ['generation-group', 'owner', 'group'] : ['generation-job', 'owner', 'job'],
+    queryKey: kind === 'comparison' ? ['comparison', 'session:owner', 'set']
+      : kind === 'group' ? ['generation-group', 'owner', 'group'] : ['generation-job', 'session:owner', 'job'],
     pointer: { jobId: kind === 'image' || kind === 'look-sheet' ? 'job' : null,
       generationGroupId: kind === 'group' ? 'group' : null, comparisonSetId: kind === 'comparison' ? 'set' : null }
   };

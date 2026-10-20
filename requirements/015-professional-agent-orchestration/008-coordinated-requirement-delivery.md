@@ -50,9 +50,14 @@ responsibility of the main thread, not an extra process or second primary role.
 
 ## Requirement To Agent Contract
 
-For simple work, a short checkpoint in the owning requirement is enough. For
-complex work use `tasks/task-plan.json` or a named task-plan JSON beside the owning requirement, following
-[the task contract](009-task-contract-and-handoff.md). Do not create a global
+For simple work, a short checkpoint in the owning requirement is enough.
+Non-sensitive complex work with one implementer may use a compact Markdown plan
+there, including dependencies, acceptance and applicable review evidence.
+Use `tasks/task-plan.json` or a named task-plan JSON beside the owning requirement
+for delegated multi-owner implementation, migrations, sensitive changes, or work
+already tracked by a JSON plan, following [the task contract](009-task-contract-and-handoff.md).
+Existing machine-validated plans retain their independent-review completion
+rules; do not downgrade an active plan to evade them. Do not create a global
 duplicate backlog. A task names its requirement, role, scope, dependencies,
 acceptance checks, reviewers and evidence. The Lead sends those inputs with
 each delegation; agents do not assume shared chat memory or automatic dispatch
@@ -76,7 +81,8 @@ cannot weaken acceptance criteria or accept unimplemented behavior.
 - Freeze a shared API/data contract before dependent implementations start.
 - Each task has one write owner. Shared files, lockfiles and global config are
   assigned explicitly; other agents propose changes to that owner.
-- Use worktrees for overlapping branch work when justified. Worktrees do not
+- When the user requests Git work, use worktrees for overlapping branch work
+  when justified. Worktrees do not
   isolate runtime JSON, ports, wallets or external services: isolate test data
   separately. Never launch paid work or production mutations as a test.
 - The Lead integrates in dependency order, runs the relevant combined checks,
@@ -127,7 +133,7 @@ claim of custom-profile execution. No agents persistently run in the background.
 
 User authorized a permanent case-based reduction in agent overhead. This is a
 bounded documentation-only task, owned by the main agent under Engineering
-governance. Scope: `AGENTS.md`, this requirement and009 task-contract guidance.
+governance. Scope: `AGENTS.md`, this requirement and 009 task-contract guidance.
 Plan: define cases and effort limits, reconcile conflicting blanket rules, then
 inspect cases, links and preserved sensitive gates. No model/config/profile,
 validator schema, application code, runtime data or architecture boundary changes.
@@ -135,9 +141,22 @@ Acceptance: discussion creates no artifacts; small work uses one agent and no
 JSON plan; local bugs use focused checks; new workflows retain planning and
 applicable reviews; sensitive changes retain independent review. Full builds,
 application tests and new runners are unnecessary for this documentation edit.
-Architecture map unchanged. Verification evidence is recorded after editing.
+Architecture map unchanged. Verification passed: all six cases and effort limits
+are present, sensitive/completion gates remain, Markdown code fences balance,
+and all five local Markdown links across the three edited files resolve.
+Manual consistency review reconciled single-agent defaults, conditional JSON
+plans, existing independent-review rules, focused validation and Git scope.
+No subagents, application tests, build or Git operations were needed or run.
 
-Task state and acceptance evidence are owned by
+Follow-up instruction, same date: add a concise user-facing list of 1-3 related
+next tasks when any remain, with explicit user confirmation before new scope.
+Finish already-authorized work and necessary checks first; do not relabel gaps
+as optional follow-ups or invent tasks. Scope remains the same three documents;
+verify wording consistency and preserve completion rules. Architecture map unchanged.
+Content checks passed for new-scope confirmation, authorized-work completion
+and the prohibition on inventing follow-up tasks. No application tests or build.
+
+The original O01-O05 task state and acceptance evidence are owned by
 [coordination-task-plan.json](coordination-task-plan.json), not duplicated here.
 O01 defines requirements; O02 reconciles artifacts; O03 configures profiles;
 O04 implements validators; O05 records independent review and handoff.

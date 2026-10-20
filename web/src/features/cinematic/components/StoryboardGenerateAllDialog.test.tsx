@@ -9,6 +9,7 @@ import {
   writeStoryboardEnginePreference
 } from '../state/storyboardEnginePreference';
 import { StoryboardGenerateAllDialog } from './StoryboardGenerateAllDialog';
+import { beginIdentityResolution, publishIdentity } from '../../../lib/auth/actorStore';
 
 const mocks = vi.hoisted(() => ({
   actorId: 'usr_alice', skipConsent: true,
@@ -21,7 +22,6 @@ const mocks = vi.hoisted(() => ({
 vi.mock('../../../lib/auth/ActorProvider', () => ({
   useActor: () => ({ actor: { userId: mocks.actorId, username: 'alice', role: 'user' } })
 }));
-vi.mock('../../../lib/auth/actorStore', () => ({ getActiveActorId: () => mocks.actorId }));
 vi.mock('../../../lib/auth/userPreferences', () => ({ useUserPreferences: () => ({
   isSuccess: true, isFetching: false, data: { confirmCreditUsage: !mocks.skipConsent }, save: vi.fn()
 }) }));
@@ -39,6 +39,10 @@ vi.mock('../api/cinematicApi', async importOriginal => ({
 }));
 
 const testI18n = i18next.createInstance();
+const switchActor = (actorId: string) => {
+  mocks.actorId = actorId;
+  publishIdentity(beginIdentityResolution(), { actorId, authMode: 'session', csrfToken: 'fixture-csrf' });
+};
 
 describe('StoryboardGenerateAllDialog', () => {
   beforeAll(async () => {
@@ -52,7 +56,7 @@ describe('StoryboardGenerateAllDialog', () => {
   });
 
   beforeEach(() => {
-    mocks.actorId = 'usr_alice'; mocks.skipConsent = true;
+    switchActor('usr_alice'); mocks.skipConsent = true;
     localStorage.clear();
     mocks.getProviderCatalog.mockReset();
     mocks.estimateGeneration.mockReset();
@@ -183,7 +187,7 @@ describe('StoryboardGenerateAllDialog', () => {
   });
   it.each(['actor', 'project', 'close'])('invalidates batch consent on %s changes', async change => {
     const view = setupConsent(); await requestConsent();
-    if (change === 'actor') mocks.actorId = 'usr_bob';
+    if (change === 'actor') switchActor('usr_bob');
     view.change(change !== 'close', change === 'project' ? { ...projectFixture(), version: 4 } : projectFixture());
     await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
     expect(mocks.submitBatch).not.toHaveBeenCalled();

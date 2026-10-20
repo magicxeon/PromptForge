@@ -184,7 +184,7 @@ export function StoryEnhanceDialog({ open, onOpenChange, draft, purpose = 'story
             title={t(rolesOnly ? 'cinematic.roles.operationTitle' : 'cinematic.enhance.operationTitle')}
             description={t(rolesOnly ? 'cinematic.roles.operationDescription' : 'cinematic.enhance.operationDescription')}
             operation={t('cinematic.enhance.operation')}
-            notice={t('cinematic.enhance.qualificationNotice')}
+            notice={null}
             actionLabel={t(rolesOnly ? 'cinematic.roles.generate' : 'cinematic.enhance.generateStory')}
             actionIcon={<Sparkles aria-hidden="true" />}
             disabled={!draft.storyBrief.trim() || loading}
@@ -580,7 +580,7 @@ export function SceneDirectorDialog({
           </details> : null}
           {scene && onGenerate ? <section className="cinematic-director-ai">
             <label><span>{t('cinematic.director.aiDirection')}</span><textarea rows={2} value={direction} onChange={event => setDirection(event.target.value)} placeholder={t('cinematic.director.aiDirectionPlaceholder')} /></label>
-            <div><p className="cinematic-operation-status">{t('cinematic.story.qualificationNotice')}</p><Button icon={<WandSparkles aria-hidden="true" />} disabled={generating || !draft} onClick={() => draft && onGenerate(scene.id, direction, draft)}>{generating ? t('cinematic.story.generating') : t('cinematic.director.generate')}</Button></div>
+            <div><Button icon={<WandSparkles aria-hidden="true" />} disabled={generating || !draft} onClick={() => draft && onGenerate(scene.id, direction, draft)}>{generating ? t('cinematic.story.generating') : t('cinematic.director.generate')}</Button></div>
           </section> : null}
           {authoringMode === 'simple' ? <CinematicReadinessSummary
             ready={isSimpleSceneReady(draft)}
@@ -727,7 +727,7 @@ export function StoryPlanProposalDialog({ open, onOpenChange, proposal, liveProg
       {scriptPreview.length ? <details className="cinematic-film-script"><summary>{t('cinematic.story.filmScriptPreview')}</summary><ol>{scriptPreview.map(entry => <li key={entry.shotId}><header><time>{formatScriptTime(entry.startMs)}-{formatScriptTime(entry.endMs)}</time><strong>{entry.sceneTitle} / {entry.shotTitle}</strong></header>{entry.visual ? <p><b>{t('cinematic.story.scriptVisual')}</b>{entry.visual}</p> : null}{entry.action ? <p><b>{t('cinematic.story.scriptAction')}</b>{entry.action}</p> : null}{entry.performance ? <p><b>{t('cinematic.story.scriptPerformance')}</b>{entry.performance}</p> : null}{entry.dialogue.map((cue, index) => <p key={`dialogue-${index}`}><b>{t('cinematic.story.scriptDialogue')}</b>{cue.text}</p>)}{entry.audio.map((cue, index) => <p key={`audio-${index}`}><b>{t('cinematic.story.scriptAudio')}</b>{cue.description || cue.source}</p>)}{entry.cut ? <p><b>{t('cinematic.story.scriptCut')}</b>{entry.cut}</p> : null}</li>)}</ol></details> : null}
       {plan.warnings.length ? <div className="cinematic-plan-warning" role="status">{plan.warnings.join(' ')}</div> : null}
       {draftSaved ? <p className="cinematic-story-plan-workflow__clear" role="status"><Check aria-hidden="true" />{t('cinematic.story.generatedDraftSaved')}</p> : null}
-      <p className="cinematic-qualification-notice">{t('cinematic.story.qualificationNotice')}</p></> : null}
+      </> : null}
       {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
       <div className="cinematic-dialog__footer">{draftSaved
         ? <Dialog.Close asChild><Button variant="primary" disabled={busy}>{t('cinematic.story.continueEditing')}</Button></Dialog.Close>
@@ -812,7 +812,6 @@ export function SceneDirectionProposalDialog({ open, onOpenChange, proposal, onA
             </li>;
           })}</ul> : <p>{t('cinematic.director.proposalNoChanges')}</p>}
         </section> : <div className="cinematic-scene-proposal"><dl><div><dt>{t('cinematic.director.storyChange')}</dt><dd>{proposal.scene.storyChange}</dd></div><div><dt>{t('cinematic.director.blocking')}</dt><dd>{proposal.scene.blocking}</dd></div><div><dt>{t('cinematic.director.performance')}</dt><dd>{proposal.scene.performance}</dd></div></dl></div>}
-        <p className="cinematic-qualification-notice">{t('cinematic.story.qualificationNotice')}</p>
       </> : null}
       {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
       <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button disabled={busy}>{proposal ? t('cinematic.story.discardProposal') : t('cinematic.actions.close')}</Button></Dialog.Close>{proposal ? <Button variant="primary" disabled={busy || (hasFieldContract && selectedFieldKeys.length === 0)} onClick={() => void onApply(proposal, selectedFieldKeys)}>{applying ? t('cinematic.save.saving') : t('cinematic.story.applyProposal')}</Button> : null}</div>

@@ -24,6 +24,24 @@ Direct .env values and browser layout are not part of isolated tests.
 
 ## Evidence And Remaining Gates
 
+2026-10-18 bounded Windows startup repair: `scripts/start-service.bat` now selects
+the user-supplied D-drive Python and an independent `venv-py313`, calls module pip
+and Python directly, and stops on bootstrap/install failures. Fresh requirements
+include startup-required Torch and exclude incompatible legacy tltk on3.12+.
+Installed dependencies, pip consistency, batch failure handling and isolated
+application/health200 checks pass. See009 for scope and evidence. Old3.10 ML
+environment preserved; optional voice/GPU migration is not claimed. No user
+process, live queue or model download was changed by validation.
+
+2026-10-18 subsequent TTS/GPU repair completed: installed F5-TTS/TorchAudio and
+official CUDA wheels in the separate D-drive environment, reused existing Thai
+weights, prepared pinned Vocos support files on D, and configured D cache/temp
+defaults. Actual RTX3060 speech synthesis passed (4.84s inference,28.3s including
+initialization,1991.2MB peak allocation), with a finite/nonzero waveform. Package
+consistency and offline manifest resolution passed. See009 for exact evidence.
+No user-service restart, live queue mutation, paid API or Git action. Operator
+restart and listening-quality assessment remain; no production qualification claim.
+
 - node scripts/test-post-processing.mjs --group=all: 12 passed. Existing
   mask, API, security and Cinematic cases remained green; new config cases
   cover precedence, fail-closed startup, policy validation, advertised input

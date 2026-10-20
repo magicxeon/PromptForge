@@ -14,7 +14,7 @@ export function AccountPreferencesDialog({ actorId, suspended = false, onClose }
     <Dialog.Overlay hidden={suspended} className="app-confirm-dialog__overlay fixed inset-0 bg-[var(--theme-overlay)]" />
     <Dialog.Content hidden={suspended} inert={suspended || undefined} style={{ display: suspended ? 'none' : undefined }} className="app-confirm-dialog__content fixed left-1/2 top-1/2 w-[min(92vw,480px)] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[var(--mpf-border)] bg-[var(--mpf-surface-strong)] p-5">
       <Dialog.Title className="m-0 text-lg">{t('ui.creditConsent.settings')}</Dialog.Title>
-      <Dialog.Description className="my-3 text-sm text-[var(--mpf-text-muted)]">{t('ui.creditConsent.settingsDescription')}</Dialog.Description>
+      <Dialog.Description className="sr-only">{t('ui.creditConsent.settingsDescription')}</Dialog.Description>
       {preferences.isLoading ? <ProcessingSpinner /> : <label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={preferences.data?.confirmCreditUsage ?? true} disabled={saving || suspended}
         onChange={async event => { const enabled = event.target.checked; setSaving(true); setFailed(false);
           try { await preferences.save(enabled); } catch { setFailed(true); } finally { setSaving(false); } }} />{t('ui.creditConsent.ask')}</label>}

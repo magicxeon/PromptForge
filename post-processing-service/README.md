@@ -1,5 +1,42 @@
 # Momelo Post-Processing Microservice Specification & Architecture Guide
 
+## Windows startup with the local Python installation
+
+Run `scripts\start-service.bat` from this service or its `scripts` folder.
+The launcher uses `D:\Program Files\Python3\python.exe` and a separate environment
+at `D:\applications\momelo-post-processing\venv-py313`. It calls that environment's
+Python directly for both pip and the service; activating a shell environment is
+unnecessary. The old `venv` and its Python3.10 ML packages are preserved.
+When `nvidia-smi` detects an NVIDIA GPU, the launcher prepares CUDA13.0 Torch
+wheels if CUDA is unavailable, verifies the GPU and prints its name before
+starting. CPU-only hosts keep the standard wheels. The first CUDA installation
+downloads about2GB to D-drive pip cache/temp; no system CUDA toolkit is required
+by this launcher.
+
+For an explicit override in Command Prompt:
+
+```bat
+set "POST_PROCESSING_BASE_PYTHON=D:\Program Files\Python3\python.exe"
+set "VENV_DIR=D:\applications\momelo-post-processing\venv-py313"
+scripts\start-service.bat
+```
+
+Installation errors stop startup and remain visible. Pip cache/temp files stay
+under D. The service manifest includes TorchAudio and F5-TTS. Legacy `tltk` is
+installed only on Python<3.12; OpenVoice and production qualification remain separate.
+
+Local RTX3060 validation passed with real Thonburian speech:4.84s synthesis,
+28.3s including initialization and1991.2MB peak GPU allocation. Restart an already
+running service with Ctrl+C, then run `scripts\start-service.bat` to load this runtime.
+
+Thonburian reuses `D:\applications\momelo-post-processing\models\thonburian-tts`.
+Vocos support files use `D:\development\temp\momelo-models\vocos-mel-24khz`;
+`scripts\download_thonburian_model.py` includes their pinned revision/SHA256.
+Launcher defaults keep Hugging Face, Torch, datasets, Matplotlib and Numba caches
+under `D:\development\temp\momelo-models`. The validated TTS policy projects
+`HF_HUB_CACHE`/`HF_HOME` to `hfCacheDir`; `POST_PROCESSING_TTS_VOCODER_PATH` can
+select a prepared Vocos directory. Existing model files are reused.
+
 เอกสารกำกับสถาปัตยกรรม แผนผังระบบ และคู่มือการระบุตำแหน่งไฟล์ (Diagnostic & File Mapping Guide) สำหรับ **Post-Processing Microservice** (พัฒนาด้วย **Python 3.10+ FastAPI + Uvicorn** รันบน `http://127.0.0.1:6501` คืนค่าข้อมูลในรูปแบบ **JSON Format 100%**)
 
 ---

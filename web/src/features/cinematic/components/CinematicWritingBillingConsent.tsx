@@ -99,6 +99,7 @@ export function CinematicWritingBillingConsent({ actorId, scopeKey }: { actorId:
       requestAnimationFrame(() => { if (target?.isConnected) target.focus(); }); }}
     title={offer?.recovery ? t('cinematic:cinematic.writingBilling.recoveryTitle') : offer?.title || t('cinematic:cinematic.writingBilling.confirmTitle')}
     description={t(offer?.recovery ? 'cinematic:cinematic.writingBilling.recoveryDescription' : 'cinematic:cinematic.writingBilling.servicePrice')}
+    descriptionHidden={!offer?.recovery}
     confirmLabel={offer?.recovery ? t('cinematic:cinematic.writingBilling.reviewPrevious') : t('cinematic:cinematic.writingBilling.confirm', { credits: offer?.quote.credits ?? 0 })}
     pending={saving || expired} cancelDisabled={saving} onConfirm={() => void confirm()}>
     {offer?.scope ? <p>{offer.scope}</p> : null}

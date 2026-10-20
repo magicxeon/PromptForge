@@ -76,6 +76,8 @@ class ExpressiveTtsPolicy(BaseModel):
     engine: str = "thonburian_tts"
     architecture: str = "f5_tts_flow_matching"
     modelPath: str = "D:/applications/momelo-post-processing/models/thonburian-tts"
+    hfCacheDir: str = "D:/development/temp/momelo-models/huggingface/hub"
+    vocoderPath: str = "D:/development/temp/momelo-models/vocos-mel-24khz"
     maxTextLength: int = 2000
     processingTimeoutMs: int = 30000
     defaultSampleRate: int = 24000
@@ -178,6 +180,9 @@ def load_post_processing_config(
         
     policy, job_queue_policy, resilience_policy, image_enhancement_policy, expressive_tts_policy = load_post_processing_policy(policy_path)
     expressive_tts_policy.modelPath = merged_env.get("POST_PROCESSING_THAI_MODEL_PATH", expressive_tts_policy.modelPath)
+    hf_home = merged_env.get("HF_HOME", "D:/development/temp/momelo-models/huggingface")
+    expressive_tts_policy.hfCacheDir = merged_env.get("HF_HUB_CACHE", str(Path(hf_home) / "hub"))
+    expressive_tts_policy.vocoderPath = merged_env.get("POST_PROCESSING_TTS_VOCODER_PATH", expressive_tts_policy.vocoderPath)
     with open(policy_path, "r", encoding="utf-8") as dialogue_file:
         dialogue_policy = DialoguePocPolicy.model_validate(json.load(dialogue_file).get("dialoguePoc", {}))
     dialogue_policy.enabled = dialogue_policy.enabled and str(merged_env.get("POST_PROCESSING_DIALOGUE_POC_ENABLED", "false")).lower() in ("true", "1", "yes")

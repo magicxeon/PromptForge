@@ -15,7 +15,7 @@ rules. It does not waive security, financial or destructive-action safeguards.
 | A - Discussion or read-only lookup | Explain a setting, locate configuration, compare approaches; no implementation requested | Answer or inspect only relevant sources. No file edits, task plan, agent delegation, build or tests. |
 | B - Small documentation or presentation edit | Existing rule/document update, translation, label, local CSS or prompt wording; runtime contracts and sensitive behavior unchanged | One agent. Read the owning section and affected files; use at most a short checkpoint in the existing requirement. Inspect the edit and relevant format/links or affected presentation. No JSON plan, specialist review or new tests merely for this case. |
 | C - Bounded local bug | Restore existing behavior within one capability; API/persistence/shared interaction contracts unchanged, no sensitive transition | One agent, existing requirement checkpoint, smallest fix. Run the nearest meaningful regression check; add coverage for a reproducible regression when useful. No new requirement tree, runner or agent solely because several files change. |
-| D - Feature or changed workflow | New registration flow, material form interaction or changed shared component behavior within one capability | Compact plan beside the owning requirement, one primary implementer, applicable UX/QA roles and focused checks. Apply non-sensitive reviews sequentially by default. BSA only when requested or when decomposition is needed for independently verifiable tasks. |
+| D - Feature or changed workflow | New search/filter flow, material form interaction or changed shared component behavior within one capability | Compact plan beside the owning requirement, one primary implementer, applicable UX/QA roles and focused checks. Apply non-sensitive reviews sequentially by default. BSA only when requested or when decomposition is needed for independently verifiable tasks. |
 | E - Cross-capability or migration | Changed public/shared contract, queue/provider lifecycle, data migration or uncertain ownership | Record owners, contracts, dependencies, acceptance and integration checks in the owning task plan. Main agent coordinates; delegate only independent substantial work with disjoint writes when coordination is likely to save time. |
 | F - Sensitive change, overrides B-E | Login/session/authorization logic, private media access, secrets/PII, Credit/pricing/settlement, destructive operations | Keep required security/commercial/backend/QA gates and independent sensitive review. Limit reviews and checks to changed invariants. A label or CSS edit on a Login/Credits page alone does not trigger this case. |
 
@@ -30,6 +30,11 @@ rules. It does not waive security, financial or destructive-action safeguards.
 - Keep short checkpoints together: outcome, affected scope, expected behavior,
   checks/results and material gaps. Do not create separate plan, status, evidence
   and handoff files for a local fix or documentation edit.
+- Single-implementer, non-sensitive complex work may use a compact Markdown
+  plan in its owning requirement. JSON plans are required for delegated
+  multi-owner implementation, migrations, sensitive changes and already-tracked
+  JSON work. Existing JSON completion/reviewer identity rules remain in force;
+  do not change plan format to evade a required review.
 - Prefer the existing implementation, requirement and test runner. Do not invent
   new abstractions, refactors, runners or adjacent improvements to finish a fix.
 - Choose validation from what changed: documentation needs content/link checks;
@@ -67,12 +72,12 @@ loading implementation guides merely to answer a question.
 
 ### Requirement-First Delivery Pattern
 
-- Apply Section0 first: Cases B/C use a short checkpoint in the existing owning
+- Apply Section 0 first: Cases B/C use a short checkpoint in the existing owning
   requirement; Cases D/E/F need a plan with scope, dependencies and acceptance.
   Discussion alone needs neither. Do not create a new requirement when the
   current owner already covers the work.
-- When complex work has independently verifiable responsibilities, split it into cohesive numbered
-  requirements and small ordered tasks under a master plan. Reuse existing
+- When complex work has independently verifiable responsibilities, split it into
+  cohesive numbered requirements and small ordered tasks under a master plan. Reuse existing
   ownership and contracts rather than duplicating requirements or workflows.
 - Implement and verify one task at a time, updating its evidence/status before
   advancing. Record gaps or deferred work explicitly; do not silently expand scope.
@@ -200,7 +205,7 @@ They refine implementation/review assignments, never duplicate capability owners
 
 BSA (`business-system-analyst`) decomposes reviewed requirements into bounded
 task packets when explicitly requested or when complex work needs decomposition;
-follow orchestration requirement011. Do not add BSA to every implementation.
+follow orchestration requirement 011. Do not add BSA to every implementation.
 For material user flows, obtain UX review before freezing requirement/task details.
 BSA does not replace Product approval, UX design, implementation owners or QA.
 
@@ -511,13 +516,20 @@ For every screen or shared-component change:
 - For frontend changes, verify the affected interaction in the in-app browser
   when available. Layout/responsive changes need mobile, tablet, and desktop
   viewports; representative targets are approximately 390px, 768px or 820px,
-  and1440px wide. For unchanged layout, inspect only states/viewports affected
+  and 1440px wide. For unchanged layout, inspect only states/viewports affected
   by the change; do not repeat a three-viewport audit for copy or logic alone.
   Record relevant visual checks that could not be performed and remaining risk.
 
 ## 10. Required Handoff
 
 Every implementation handoff should report only relevant items:
+
+Finish authorized scope and necessary checks first. Then list 1-3 concrete,
+related follow-up tasks if any, with the proposed action for user confirmation.
+Wait for explicit confirmation before starting new scope; existing authorization
+still applies. Distinguish unfinished required work from optional follow-ups;
+never claim completion with required work outstanding. If none remain, say so
+without inventing tasks. Keep the list brief and do not audit unrelated backlogs.
 
 ```text
 behavior completed

@@ -16,6 +16,60 @@ consent. No change to prices, reserves, settlement or provider dispatch contract
 
 ## Scope And Decisions
 
+### 2026-10-18 local-use closure
+
+User approved closing consent, preference persistence/restore and Credit outcome
+flows, and removing repetitive notification messages. Primary: QA closure with
+Commercial perspective; one implementer, focused independent QA before handoff.
+Scope: hide redundant informational Credit/qualification reminders in authoring
+and confirmation/settings UI. Preserve accessible descriptions, exact totals,
+Cancel/Confirm, mandatory Bulk consent, actionable errors and durable error logs.
+No blanket bypass, pricing/authorization/settlement policy change or live debit.
+Ordered plan: (1) remove repeated copy using existing components; (2) run existing
+consent/preference/Video settlement regressions and fix scoped failures; (3) check
+isolated browser cancel/confirm/opt-out/reload/restore and representative layouts;
+(4) build once and record evidence. Existing tests must reflect current Identity
+contracts, not restore legacy actor storage. Use fixture/stub APIs only; paid live
+UAT and production certification remain separate. Architecture map unchanged.
+
+Closure evidence (2026-10-18): redundant authoring Credit/qualification reminders
+are removed; technical writing-price and Settings descriptions are visually
+hidden but remain accessible. Exact amounts, controls, recovery guidance and
+actionable errors remain. No consent, preference, pricing or settlement logic
+was bypassed. Shared dialog defaults and other dock callers retain their UI.
+
+- Focused shared consent/Settings and writing-consent suites pass27/27; Image
+  GenerationExperience32/32, Bulk Storyboard21/21, Playground Video35/35 and the
+  changed Story Plan notice assertion1/1 pass. Four test fixtures now publish
+  actual Identity state instead of using obsolete actor storage/mocks.
+- Existing preferences/reservation/actual Video settlement tests pass49/49.
+  A separate temporary local-Admin replay qualifies an isolated development
+  fixture, quotes1 Credit, captures/replays once, refunds a failed reservation
+  once and verifies balance9 from10 with reserved0. An ordinary actor retains
+  normal actual-usage pricing. No provider calls or live data mutations.
+- `node scripts/verify-cinematic-credit-consent.mjs --closure` passes with all
+  HTTP APIs intercepted. TH/EN390/820/1440 checks cover exact amount, no dispatch
+  on Cancel, confirm, opt-out persistence after reload, Settings restore,
+  mandatory Bulk and actor isolation; normal/Bulk/recovery writing dialogs also
+  pass. Screenshot inspection: Thai390 shared confirmation and English1440
+  writing confirmation. Evidence directory:
+  `C:/Users/punya/AppData/Local/Temp/mpf-cinematic-credit-consent-IbgfYF`.
+- Final TypeScript check and Vite local build pass, with the existing large-chunk warning. Independent
+  QA source review found no blocker; this is bounded consent closure, not live
+  provider/production certification. Architecture map and runtime paths unchanged.
+- Broader checks exposed pre-existing gaps outside this change: Video application
+  test pins10000 while current config is12000; four neighboring UX-prototype
+  tests also failed in the broader run. These were not suppressed or treated as
+  passed. Focused consent/notice tests above are green; no full-suite pass claimed.
+
+Reproduce UI checks with the existing Vitest runner against
+`useCreditConfirmation.test.tsx`, `CinematicWritingBillingConsent.test.tsx`,
+`GenerationExperience.test.tsx`, `StoryboardGenerateAllDialog.test.tsx` and
+`PlaygroundVideoWorkspace.test.tsx` using `--configLoader runner`. Backend:
+`node --test test/userPreferences.test.js test/creditReservationService.test.js test/videoActualCreditSettlement.test.js`.
+Browser closure command above uses only isolated fixtures and closes its own
+browser/server. No user-service restart, Git operation or paid generation.
+
 1. Keep native plain-text textareas. No rich editor, character highlight or HTML.
 2. Full Story's right rail uses AI Assist / Characters tabs like Chapter Writer.
    Preserve text, pending operations and selections when switching tabs. History,

@@ -6,11 +6,11 @@ import { CinematicWritingConsent } from './CinematicWritingConsent';
 import { useState } from 'react';
 import { webcrypto } from 'node:crypto';
 import { z } from 'zod';
+import { beginIdentityResolution, publishIdentity } from '../../../lib/auth/actorStore';
 
-const state = vi.hoisted(() => ({ actor: 'writer', request: vi.fn(), save: vi.fn(), refetch: vi.fn(), invalidate: vi.fn(), confirm: true, loaded: true }));
+const state = vi.hoisted(() => ({ request: vi.fn(), save: vi.fn(), refetch: vi.fn(), invalidate: vi.fn(), confirm: true, loaded: true }));
 vi.mock('@tanstack/react-query', () => ({ useQueryClient: () => queryClient }));
 const queryClient = { invalidateQueries: state.invalidate };
-vi.mock('../../../lib/auth/actorStore', () => ({ getActiveActorId: () => state.actor }));
 vi.mock('../../../lib/api/apiClient', () => ({ apiRequest: (...args: unknown[]) => state.request(...args) }));
 vi.mock('../../../lib/i18n/i18n', () => ({ i18n: { t: (key: string) => key } }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string, values?: { credits: number }) => values ? `${key} ${values.credits}` : key }) }));
@@ -18,9 +18,12 @@ vi.mock('../../../lib/auth/userPreferences', () => ({ useUserPreferences: () => 
   isSuccess: state.loaded, isFetching: false, isStale: false, data: { confirmCreditUsage: state.confirm }, refetch: state.refetch, save: state.save
 }) }));
 const quote = () => ({ id: 'cw_one', operation: 'environment', credits: 30, billingStatus: 'paid', expiresAt: new Date(Date.now() + 60000).toISOString() });
+const switchActor = (actorId: string) => publishIdentity(beginIdentityResolution(), {
+  actorId, authMode: 'session', csrfToken: 'fixture-csrf'
+});
 beforeEach(() => {
   localStorage.clear(); vi.stubGlobal('crypto', webcrypto);
-  state.actor = 'writer'; state.confirm = true; state.loaded = true;
+  switchActor('writer'); state.confirm = true; state.loaded = true;
   state.request.mockReset().mockResolvedValue(quote()); state.save.mockReset().mockResolvedValue({ confirmCreditUsage: false });
   state.refetch.mockReset().mockResolvedValue({ isSuccess: false });
   state.invalidate.mockReset().mockResolvedValue(undefined);
@@ -38,7 +41,7 @@ describe('Cinematic priced consent', () => {
     render(<CinematicWritingBillingConsent actorId="writer" scopeKey="route" />);
     await start().result;
     expect(state.invalidate.mock.calls).toEqual([
-      [{ queryKey: ['credits', 'writer'] }], [{ queryKey: ['credit-ledger', 'writer'] }]
+      [{ queryKey: ['credits', 'session:writer'] }], [{ queryKey: ['credit-ledger', 'session:writer'] }]
     ]);
   });
   it.each(['succeeded', 'failed', 'delivered'] as const)('refreshes mounted wallet only after confirmed terminal recovery (%s)', async status => {
@@ -52,22 +55,23 @@ describe('Cinematic priced consent', () => {
     else await expect(result).resolves.toEqual({ story: 'Recovered' });
     if (status === 'delivered') expect(state.invalidate).not.toHaveBeenCalled();
     else expect(state.invalidate.mock.calls).toEqual([
-      [{ queryKey: ['credits', 'writer'] }], [{ queryKey: ['credit-ledger', 'writer'] }]
+      [{ queryKey: ['credits', 'session:writer'] }], [{ queryKey: ['credit-ledger', 'session:writer'] }]
     ]);
   });
   it('does not refresh another actor wallet after an actor change during execution', async () => {
     state.confirm = false;
     render(<CinematicWritingBillingConsent actorId="writer" scopeKey="route" />);
-    const execute = vi.fn(async () => { state.actor = 'other'; return { billingStatus: 'paid' }; });
+    const execute = vi.fn(async () => { switchActor('other'); return { billingStatus: 'paid' }; });
     await expect(withCinematicWritingQuote({ projectId: 'p', operation: 'environment', input: {} }, execute)).rejects.toBeInstanceOf(CinematicWritingCancelled);
     expect(state.invalidate).not.toHaveBeenCalled();
-    expect(localStorage.getItem('mpf.react.draft:cinematic-writing-recovery:writer')).toContain('cw_one');
+    expect(localStorage.getItem('mpf.react.draft:session:cinematic-writing-recovery:writer')).toContain('cw_one');
   });
   it('shows server Credits, an optional-image boundary and cancellation without execution', async () => {
     render(<CinematicWritingBillingConsent actorId="writer" scopeKey="route" />);
     const pending = start();
     const rejection = expect(pending.result).rejects.toBeInstanceOf(CinematicWritingCancelled);
     expect(await screen.findByRole('alertdialog')).toBeVisible();
+    expect(screen.getByText('cinematic:cinematic.writingBilling.servicePrice')).toHaveClass('sr-only');
     expect(screen.getByText('cinematic:cinematic.writingBilling.credits 30')).toBeVisible();
     expect(screen.getByText('cinematic:cinematic.writingBilling.imageSeparate')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'ui.action.cancel' }));
@@ -140,6 +144,7 @@ describe('Cinematic priced consent', () => {
     const caller = vi.fn(), result = withCinematicWritingQuote({ ...options, input: { expectedVersion: 2 } }, caller);
     const cancellation = expect(result).rejects.toBeInstanceOf(CinematicWritingCancelled);
     expect(await screen.findByRole('alertdialog')).toHaveTextContent('Previous accepted description');
+    expect(screen.getByText('cinematic:cinematic.writingBilling.recoveryDescription')).not.toHaveClass('sr-only');
     expect(screen.getByText('cw_one')).toBeVisible();
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'cinematic.writingBilling.downloadResult' })).toBeEnabled();
@@ -147,7 +152,7 @@ describe('Cinematic priced consent', () => {
     await cancellation;
     expect(caller).not.toHaveBeenCalled();
     expect(state.request.mock.calls.every(call => String(call[0]).includes('/operations/cw_one'))).toBe(true);
-    expect(localStorage.getItem('mpf.react.draft:cinematic-writing-recovery:writer')).not.toContain('cw_one');
+    expect(localStorage.getItem('mpf.react.draft:session:cinematic-writing-recovery:writer')).not.toContain('cw_one');
   });
   it('expires an open quote and preserves the Cancel action', async () => {
     state.request.mockResolvedValue({ ...quote(), expiresAt: new Date(Date.now() + 150).toISOString() });

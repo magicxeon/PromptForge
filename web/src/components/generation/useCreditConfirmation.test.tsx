@@ -4,9 +4,9 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import { useCreditConfirmation } from './useCreditConfirmation';
 import { AccountPreferencesDialog } from '../layout/AccountPreferencesDialog';
 import { userPreferencesKey, useUserPreferences } from '../../lib/auth/userPreferences';
+import { beginIdentityResolution, publishIdentity } from '../../lib/auth/actorStore';
 
-const api = vi.hoisted(() => ({ actor: 'alice', ask: true, request: vi.fn(), submit: vi.fn() }));
-vi.mock('../../lib/auth/actorStore', () => ({ getActiveActorId: () => api.actor }));
+const api = vi.hoisted(() => ({ ask: true, request: vi.fn(), submit: vi.fn() }));
 vi.mock('../../lib/api/apiClient', () => ({ apiRequest: (...args: unknown[]) => api.request(...args) }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string, args?: { credits?: number }) => args?.credits !== undefined ? `${key} ${args.credits}` : key }) }));
 
@@ -24,9 +24,12 @@ function setup(props = {}) {
 }
 const generate = () => fireEvent.click(screen.getByRole('button', { name: 'Generate' }));
 const confirm = () => fireEvent.click(screen.getByRole('button', { name: 'ui.creditConsent.confirm' }));
+const switchActor = (actorId: string) => publishIdentity(beginIdentityResolution(), {
+  actorId, authMode: 'session', csrfToken: 'fixture-csrf'
+});
 
 beforeEach(() => {
-  api.actor = 'alice'; api.ask = true; api.submit.mockReset(); api.request.mockReset();
+  switchActor('alice'); api.ask = true; api.submit.mockReset(); api.request.mockReset();
   api.request.mockImplementation(async (_path, options) => {
     if (options.method === 'PATCH') api.ask = options.body.confirmCreditUsage;
     return { confirmCreditUsage: api.ask };
@@ -82,7 +85,7 @@ it('cancel does not persist a checked opt-out', async () => {
 it.each(['quote', 'actor', 'readiness'])('invalidates consent when %s changes', async change => {
   const view = setup({ amount: 12, requestKey: 'quote-1', actor: 'alice', ready: true }); generate();
   await screen.findByRole('alertdialog');
-  if (change === 'actor') api.actor = 'bob';
+  if (change === 'actor') switchActor('bob');
   view.update({ amount: change === 'quote' ? 24 : 12, requestKey: change === 'quote' ? 'quote-2' : 'quote-1',
     actor: change === 'actor' ? 'bob' : 'alice', ready: change !== 'readiness' });
   await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
@@ -107,7 +110,7 @@ it('does not dispatch a stale actor after opt-out persistence finishes late', as
     ? new Promise(done => { resolve = done; }) : { confirmCreditUsage: true });
   const view = setup({ actor: 'alice' }); generate(); fireEvent.click(await screen.findByRole('checkbox')); confirm();
   await waitFor(() => expect(resolve).toBeDefined());
-  api.actor = 'bob'; view.update({ actor: 'bob' });
+  switchActor('bob'); view.update({ actor: 'bob' });
   await act(async () => resolve({ confirmCreditUsage: false }));
   expect(api.submit).not.toHaveBeenCalled();
 });
@@ -123,6 +126,8 @@ it('asks by default if profile loading fails and refuses unavailable estimates',
 it('restores the ask preference from account settings', async () => {
   api.ask = false;
   render(<QueryClientProvider client={new QueryClient()}><AccountPreferencesDialog actorId="alice" onClose={vi.fn()} /></QueryClientProvider>);
+  expect(screen.getByRole('dialog')).toHaveAccessibleDescription('ui.creditConsent.settingsDescription');
+  expect(screen.getByText('ui.creditConsent.settingsDescription')).toHaveClass('sr-only');
   const toggle = await screen.findByRole('checkbox');
   expect(toggle).not.toBeChecked(); fireEvent.click(toggle);
   await waitFor(() => expect(toggle).toBeChecked());

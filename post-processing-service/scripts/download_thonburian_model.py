@@ -25,9 +25,26 @@ MODEL_DIR = Path("D:/applications/momelo-post-processing/models")
 THONBURIAN_DIR = MODEL_DIR / "thonburian-tts"
 VIZINTZOR_V1_DIR = MODEL_DIR / "f5-tts-thai-v1"
 VIZINTZOR_V2_DIR = MODEL_DIR / "f5-tts-thai-v2"
+VOCOS_DIR = Path("D:/development/temp/momelo-models/vocos-mel-24khz")
 
 # ── Files to download from HuggingFace ─────────────────────────────────────────
 FILES = [
+    {
+        "name": "config.yaml",
+        "url": "https://huggingface.co/charactr/vocos-mel-24khz/resolve/0feb3fdd929bcd6649e0e7c5a688cf7dd012ef21/config.yaml",
+        "min_bytes": 100,
+        "sha256": "da9033922f969a47f0c160010226919e59f27761fd5066f3828d46de6650b0fc",
+        "required": True,
+        "dest_dir": VOCOS_DIR,
+    },
+    {
+        "name": "pytorch_model.bin",
+        "url": "https://huggingface.co/charactr/vocos-mel-24khz/resolve/0feb3fdd929bcd6649e0e7c5a688cf7dd012ef21/pytorch_model.bin",
+        "min_bytes": 1_000_000,
+        "sha256": "97ec976ad1fd67a33ab2682d29c0ac7df85234fae875aefcc5fb215681a91b2a",
+        "required": True,
+        "dest_dir": VOCOS_DIR,
+    },
     {
         "name": "mega_vocab.txt",
         "url": "https://huggingface.co/biodatlab/ThonburianTTS/resolve/main/megaF5/mega_vocab.txt",
@@ -160,6 +177,7 @@ def main():
     print()
 
     THONBURIAN_DIR.mkdir(parents=True, exist_ok=True)
+    VOCOS_DIR.mkdir(parents=True, exist_ok=True)
     VIZINTZOR_V1_DIR.mkdir(parents=True, exist_ok=True)
     VIZINTZOR_V2_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -167,6 +185,15 @@ def main():
     for file_info in FILES:
         dest = file_info["dest_dir"] / file_info["name"]
         ok = _download_file(file_info["url"], dest, file_info["min_bytes"])
+        if ok and file_info.get("sha256"):
+            with dest.open("rb") as source:
+                digest = hashlib.sha256()
+                for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                    digest.update(chunk)
+                actual_hash = digest.hexdigest()
+            if actual_hash != file_info["sha256"]:
+                print(f"  [FAIL] SHA256 mismatch: {dest.name}")
+                ok = False
         if not ok and file_info["required"]:
             success_all = False
         print()

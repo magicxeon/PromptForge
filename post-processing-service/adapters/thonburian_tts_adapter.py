@@ -80,6 +80,15 @@ THONBURIAN_VOICE_CATALOG = [
         "lang": "th-TH",
         "style": "Romantic Comedy / Anime (สดใส/โรแมนติก)",
         "description": "เสียงพากย์ตัวละครหญิงสดใส น่ารัก อารมณ์ร่าเริง เหมาะกับฉากโรแมนติกคอมเมดี้"
+    },
+    {
+        "id": "akaradech",
+        "name": "เสียงอัครเดช",
+        "group": "ลิขิตรัตนา",
+        "gender": "Male (ผู้ชาย)",
+        "lang": "th-TH",
+        "style": "ลิขิตรัตนา",
+        "description": "เสียงอัครเดชจากไฟล์อ้างอิง Akaradech.mp3"
     }
 ]
 
@@ -177,6 +186,8 @@ class ThonburianTtsAdapter:
                 )
 
             from f5_tts.api import F5TTS
+            vocoder_path = Path(getattr(self.policy, "vocoderPath", "D:/development/temp/momelo-models/vocos-mel-24khz"))
+            local_vocoder = all((vocoder_path / name).is_file() for name in ("config.yaml", "pytorch_model.bin"))
             logger.info(
                 f"[THONBURIAN_INIT] Loading Thai fine-tuned model ({model_id}):\n"
                 f"  Checkpoint : {ckpt_path}\n"
@@ -187,7 +198,8 @@ class ThonburianTtsAdapter:
                 ckpt_file=str(ckpt_path),
                 vocab_file=str(vocab_path),
                 device=self.torch_device,
-                hf_cache_dir=os.getenv("HF_HOME", r"C:\Users\punya\.cache\huggingface")
+                vocoder_local_path=str(vocoder_path) if local_vocoder else None,
+                hf_cache_dir=getattr(self.policy, "hfCacheDir", "D:/development/temp/momelo-models/huggingface/hub")
             )
             _CURRENT_MODEL_ID = model_id
 
@@ -235,6 +247,15 @@ class ThonburianTtsAdapter:
             f"[THONBURIAN_TTS_START] [CorrelationID: {corr_id}] TextLen={len(text)} chars, Voice='{voice or 'auto'}', "
             f"HasRefAudio={bool(ref_audio_bytes)}, CfgStrength={cfg_strength}, Speed={speed}, Emotion='{emotion}', ChunkLen={chunk_length}"
         )
+
+        # Named local presets use the same MP3-to-WAV preparation as uploads.
+        # An explicit upload retains precedence over the selected preset.
+        if not ref_audio_bytes and voice == "akaradech":
+            preset_path = SERVICE_ROOT / "ref_samples" / "Akaradech.mp3"
+            if not preset_path.is_file():
+                raise ValueError("Akaradech reference audio is unavailable.")
+            ref_audio_bytes = preset_path.read_bytes()
+            ref_text = "ยังต้องหาพยานให้พบก่อน แต่สิ่งที่เจ้าทำวันนี้ ช่วยข้าได้มาก"
 
         # Prepare reference audio WAV file ONCE for all chunks
         tmp_ref_path = None
@@ -381,11 +402,7 @@ class ThonburianTtsAdapter:
         Executes canonical F5TTS.infer() for a single text chunk and returns the raw numpy array.
         """
         if self.f5_engine is None:
-            from f5_tts.api import F5TTS
-            self.f5_engine = F5TTS(
-                device=self.torch_device,
-                hf_cache_dir=os.getenv("HF_HOME", r"C:\Users\punya\.cache\huggingface")
-            )
+            self._initialize_engine(_CURRENT_MODEL_ID or "thonburian")
 
         logger.info(
             f"[THONBURIAN_F5_INFER_CHUNK] [CorrelationID: {corr_id}] "
