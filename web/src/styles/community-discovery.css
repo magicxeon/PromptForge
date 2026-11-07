@@ -65,7 +65,7 @@
 .discovery-page-hero h1 {
   max-width: 680px;
   margin: 10px 0;
-  font-size: 42px;
+  font-size: max(12px, calc(42px * var(--mpf-ui-type-scale)));
   font-weight: 600;
   line-height: 1.14;
 }
@@ -74,7 +74,7 @@
   max-width: 610px;
   margin: 0;
   color: color-mix(in srgb, #fff 78%, transparent);
-  font-size: 14px;
+  font-size: max(12px, calc(14px * var(--mpf-ui-type-scale)));
   line-height: 1.65;
 }
 
@@ -201,7 +201,7 @@
 }
 
 .discovery-section-heading h2,
-.editorial-tutorial h2 { margin: 4px 0 0; font-size: 22px; font-weight: 600; }
+.editorial-tutorial h2 { margin: 4px 0 0; font-size: max(12px, calc(22px * var(--mpf-ui-type-scale))); font-weight: 600; }
 .discovery-section-heading p { max-width: 620px; margin: 6px 0 0; color: var(--theme-text-muted); font-size: 12px; }
 
 .discovery-metric-row {
@@ -289,7 +289,7 @@
 .editorial-tutorial__sample { left: 8px; }
 .editorial-tutorial__duration { right: 8px; }
 .editorial-tutorial__copy { padding: 12px; }
-.editorial-tutorial__copy h3 { margin: 0; font-size: 13px; }
+.editorial-tutorial__copy h3 { margin: 0; font-size: max(12px, calc(13px * var(--mpf-ui-type-scale))); }
 .editorial-tutorial__copy p { margin: 5px 0 0; color: var(--theme-text-muted); font-size: 11px; line-height: 1.5; }
 
 .discovery-load-more { display: flex; min-height: 44px; align-items: center; justify-content: center; }
@@ -300,7 +300,7 @@
   .discovery-page-hero, .discovery-page-hero__copy { min-height: 360px; }
   .discovery-page-hero__copy { width: 72%; padding: 28px; }
   .discovery-page-hero__scrim { clip-path: polygon(0 0, 82% 0, 60% 100%, 0 100%); }
-  .discovery-page-hero h1 { font-size: 34px; }
+  .discovery-page-hero h1 { font-size: max(12px, calc(34px * var(--mpf-ui-type-scale))); }
   .discovery-toolbar { align-items: stretch; flex-direction: column; }
   .discovery-toolbar__search { width: 100%; }
   .discovery-toolbar__controls { justify-content: flex-start; }
@@ -311,7 +311,7 @@
   .discovery-page-hero, .discovery-page-hero__copy { min-height: 420px; }
   .discovery-page-hero__copy { width: 100%; justify-content: end; padding: 22px 18px; background: color-mix(in srgb, #03060d 54%, transparent); }
   .discovery-page-hero__scrim { display: none; }
-  .discovery-page-hero h1 { font-size: 30px; }
+  .discovery-page-hero h1 { font-size: max(12px, calc(30px * var(--mpf-ui-type-scale))); }
   .discovery-page-hero__actions, .discovery-page-hero__action { width: 100%; }
   .discovery-toolbar__controls, .discovery-select, .discovery-select select { width: 100%; }
   .discovery-segmented-control { width: 100%; overflow-x: auto; }

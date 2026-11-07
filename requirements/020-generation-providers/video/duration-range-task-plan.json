@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "requirement": "requirements/020-generation-providers/video/005-seedance-25-usage-based-credit-activation.md",
+  "tasks": [{
+    "id": "SD25-DURATION-1",
+    "title": "Configuration-driven duration control and retained failure diagnostics",
+    "complexity": "complex",
+    "reason": "User-authorized extension of paid duration admission plus shared Video control",
+    "owner": "backend-platform-architect",
+    "ownerAgentId": "/root",
+    "capabilities": ["generation", "credits"],
+    "risks": ["financial", "user-facing", "shared-contract"],
+    "dependsOn": [],
+    "writeScope": ["server/config/cinematic-video-models.json", "server/config/videoPaidActivation.js", "server/domain/generation/VideoCapabilityRegistry.js", "web/src/components/generation/VideoEngineTargetPanel.tsx", "web/src/components/generation/VideoEngineTargetPanel.test.tsx", "web/src/features/playground/components/PlaygroundVideoWorkspace.test.tsx", "web/src/styles/generation-options.css", "client/i18n/locales/en/playground.json", "client/i18n/locales/th/playground.json", "test/videoCapabilityRegistry.test.js", "test/videoActualCreditSettlement.test.js", "scripts/verify-generation-options-layout.mjs", "requirements/016-cinematic-studio/009-playground-unified-image-and-video-generation.md", "requirements/020-generation-providers/video/005-seedance-25-usage-based-credit-activation.md", "requirements/020-generation-providers/video/duration-range-task-plan.json", "requirements/099-technical-dept/000-master.md"],
+    "status": "complete",
+    "acceptance": ["Seedance exact integer4..30 catalog and admission preserve paid scope and historical snapshots", "Shared slider/number control follows catalog and preserves sparse dropdown and sibling controls", "Failed videos have no preview and retain diagnostics; existing successful videos stay visible", "Focused tests and build pass; independent required reviews pass; visual gaps recorded"],
+    "reviewers": ["commercial-financial-integrity", "backend-platform-architect", "security-reviewer", "qa-release-engineer", "ux-ui-product-designer"],
+    "evidence": [
+      { "check": "Seedance exact integer4..30 catalog and admission preserve paid scope and historical snapshots", "result": "passed", "reference": "requirements/020-generation-providers/video/005-seedance-25-usage-based-credit-activation.md" },
+      { "check": "Shared slider/number control follows catalog and preserves sparse dropdown and sibling controls", "result": "passed", "reference": "requirements/016-cinematic-studio/009-playground-unified-image-and-video-generation.md" },
+      { "check": "Failed videos have no preview and retain diagnostics; existing successful videos stay visible", "result": "passed", "reference": "requirements/016-cinematic-studio/009-playground-unified-image-and-video-generation.md" },
+      { "check": "Focused tests and build pass; independent required reviews pass; visual gaps recorded", "result": "passed", "reference": "requirements/020-generation-providers/video/005-seedance-25-usage-based-credit-activation.md" }
+    ],
+    "reviews": [
+      { "role": "commercial-financial-integrity", "result": "passed", "agentId": "/root/duration_financial_review", "reference": "requirements/020-generation-providers/video/005-seedance-25-usage-based-credit-activation.md" },
+      { "role": "backend-platform-architect", "result": "passed", "agentId": "/root/duration_financial_review", "reference": "requirements/020-generation-providers/video/005-seedance-25-usage-based-credit-activation.md" },
+      { "role": "security-reviewer", "result": "passed", "agentId": "/root/duration_financial_review", "reference": "requirements/020-generation-providers/video/005-seedance-25-usage-based-credit-activation.md" },
+      { "role": "qa-release-engineer", "result": "passed", "agentId": "/root/duration_ui_qa_review", "reference": "requirements/016-cinematic-studio/009-playground-unified-image-and-video-generation.md" },
+      { "role": "ux-ui-product-designer", "result": "passed", "agentId": "/root/duration_ui_qa_review", "reference": "requirements/016-cinematic-studio/009-playground-unified-image-and-video-generation.md" }
+    ],
+    "handoff": "Root implements sequentially; duration_financial_review reviews Commercial/Backend/Security and a second read-only agent reviews QA/UX. No child agents, paid calls, live data, restarts or Git. See owning requirements for bounded task order."
+  }],
+  "parallelBatches": []
+}

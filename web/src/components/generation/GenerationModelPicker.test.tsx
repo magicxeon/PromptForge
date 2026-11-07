@@ -19,6 +19,39 @@ function setup(providerId = 'alpha', modelId = 'shared') {
 }
 
 describe('GenerationModelPicker', () => {
+  it('filters by provider and search without changing selection, and resets on reopening', async () => {
+    const { user, trigger, onChange } = setup();
+    await user.click(trigger);
+    await user.click(screen.getByRole('button', { name: 'Beta' }));
+    expect(screen.getByRole('button', { name: 'Beta' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getAllByRole('menuitemradio')).toHaveLength(1);
+    expect(screen.getByRole('menuitemradio')).toHaveTextContent('Second Model');
+    expect(onChange).not.toHaveBeenCalled();
+    await user.type(screen.getByRole('searchbox'), 'First');
+    expect(screen.queryAllByRole('menuitemradio')).toHaveLength(0);
+    await user.click(screen.getByRole('button', { name: 'playground.options.allProviders' }));
+    expect(screen.getByRole('menuitemradio')).toHaveTextContent('First Model');
+    await user.keyboard('{Escape}');
+    await user.click(trigger);
+    expect(screen.getByRole('searchbox')).toHaveValue('');
+    expect(screen.getAllByRole('menuitemradio')).toHaveLength(3);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('supports keyboard navigation of provider categories and retains unavailable reasons', async () => {
+    const { user, trigger, onChange } = setup();
+    await user.click(trigger);
+    await user.keyboard('{ArrowLeft}');
+    expect(screen.getByRole('button', { name: 'playground.options.allProviders' })).toHaveFocus();
+    await user.keyboard('{End}{Enter}');
+    expect(screen.getByRole('button', { name: 'Restricted Provider' })).toHaveFocus();
+    expect(screen.getByRole('menuitemradio')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('menuitemradio')).toHaveTextContent('References are not supported');
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('searchbox')).toHaveFocus();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it('selects provider and model atomically even when model IDs are shared', async () => {
     const { user, onChange, trigger } = setup();
     expect(trigger).toHaveTextContent('First Model');

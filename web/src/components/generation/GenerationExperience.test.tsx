@@ -252,6 +252,15 @@ function lifecycleToggle() {
   return screen.getByRole('button', { name: /playground.setup.title/ });
 }
 
+function expectCreationVisible(kind: RenderKind) {
+  if (kind === 'look-sheet') expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  else {
+    expect(document.querySelector('.playground-workspace--sidebar .playground-workspace__composer')).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'playground.prompt.label' })).toHaveValue('Lifecycle direction');
+    expect(document.querySelector('.playground-workspace__setup-toggle')).toBeNull();
+  }
+}
+
 it.each<RenderKind>(['image', 'look-sheet', 'group', 'comparison'])('keeps async restored %s expanded despite initial pending hydration and tab return', async kind => {
   const fixture = lifecycleFixture(kind);
   let resolve!: (value: typeof fixture.data) => void;
@@ -259,25 +268,25 @@ it.each<RenderKind>(['image', 'look-sheet', 'group', 'comparison'])('keeps async
   writeGenerationRoutePointer('owner', generationRoutePointerFeature('playground', kind === 'look-sheet' ? 'character-sheet' : 'playground'), fixture.pointer);
   const view = mountLifecycle(kind);
   await waitFor(() => expect(fixture.read).toHaveBeenCalled());
-  await screen.findByRole('button', { name: /playground.setup.title/ });
-  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  await waitFor(() => expectCreationVisible(kind));
   expect(view.container.querySelector('.studio-generate-button')).toBeDisabled();
   await act(async () => resolve(fixture.data));
   await waitFor(() => expect(view.client.getQueryData(fixture.queryKey)).toEqual(fixture.data));
-  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
-  fireEvent.click(lifecycleToggle());
-  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'false');
+  expectCreationVisible(kind);
+  if (kind === 'look-sheet') {
+    fireEvent.click(lifecycleToggle());
+    expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'false');
+  }
   view.tab(false);
   view.tab(true);
-  await screen.findByRole('button', { name: /playground.setup.title/ });
-  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  await waitFor(() => expectCreationVisible(kind));
   expect(view.client.getQueryData(fixture.queryKey)).toEqual(fixture.data);
   expect(mocks.submit).not.toHaveBeenCalled();
   expect(mocks.compare).not.toHaveBeenCalled();
   view.unmount(); view.client.clear();
 });
 
-it.each<RenderKind>(['image', 'look-sheet', 'group', 'comparison'])('collapses a newly submitted %s whose first query is already completed, once only', async kind => {
+it.each<RenderKind>(['image', 'look-sheet', 'group', 'comparison'])('preserves the owning layout on immediate %s completion; only Look Sheet collapses', async kind => {
   mocks.skip = true;
   const fixture = lifecycleFixture(kind);
   let resolve!: (value: typeof fixture.data) => void;
@@ -288,50 +297,50 @@ it.each<RenderKind>(['image', 'look-sheet', 'group', 'comparison'])('collapses a
   await waitFor(() => expect(generateButton).toBeEnabled());
   fireEvent.click(generateButton);
   await waitFor(() => expect(fixture.read).toHaveBeenCalled());
-  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  expectCreationVisible(kind);
   await act(async () => resolve(fixture.data));
-  await waitFor(() => expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'false'));
-  fireEvent.click(lifecycleToggle());
+  if (kind === 'look-sheet') {
+    await waitFor(() => expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'false'));
+    fireEvent.click(lifecycleToggle());
+  } else expectCreationVisible(kind);
   await act(async () => { await view.client.refetchQueries({ queryKey: fixture.queryKey }); });
-  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  expectCreationVisible(kind);
   expect(kind === 'comparison' ? mocks.compare : mocks.submit).toHaveBeenCalledTimes(1);
   view.unmount(); view.client.clear();
 });
 
-it.each<RenderKind>(['image', 'group', 'comparison'])('collapses an actually observed active restored %s only when it succeeds with media', async kind => {
+it.each<RenderKind>(['image', 'group', 'comparison'])('keeps the sidebar available when an observed active restored %s succeeds', async kind => {
   const fixture = lifecycleFixture(kind, 'queued');
   fixture.read.mockResolvedValue(fixture.data);
   writeGenerationRoutePointer('owner', generationRoutePointerFeature('playground', 'playground'), fixture.pointer);
   const view = mountLifecycle(kind);
   await waitFor(() => expect(view.client.getQueryData(fixture.queryKey)).toEqual(fixture.data));
-  await screen.findByRole('button', { name: /playground.setup.title/ });
-  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  await waitFor(() => expectCreationVisible(kind));
   await act(async () => { view.client.setQueryData(fixture.queryKey, lifecycleFixture(kind).data); });
-  await waitFor(() => expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'false'));
+  expectCreationVisible(kind);
+  expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
   view.unmount(); view.client.clear();
 });
 
-it('keeps manually reopened setup expanded when first-time Compare loading remounts the workspace', async () => {
+it('retains the draft and sidebar after first-time Compare catalog loading', async () => {
   mocks.skip = true;
   mocks.job.mockResolvedValue(lifecycleFixture('image').data);
   const view = mountLifecycle('image');
   const generateButton = await screen.findByRole('button', { name: /^playground.action.generate/ });
   await waitFor(() => expect(generateButton).toBeEnabled());
   fireEvent.click(generateButton);
-  await waitFor(() => expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'false'));
-  const oldToggle = lifecycleToggle();
-  fireEvent.click(oldToggle);
+  await waitFor(() => expect(mocks.job).toHaveBeenCalled());
+  expectCreationVisible('image');
+  const oldComposer = view.container.querySelector('.playground-workspace__composer');
   let resolve!: (value: typeof providerCatalog) => void;
   mocks.catalog.mockReturnValueOnce(new Promise(done => { resolve = done; }));
   fireEvent.click(screen.getByRole('button', { name: /^playground.action.compare/ }));
   await screen.findByText('playground.engine.loading');
-  expect(oldToggle).not.toBeInTheDocument();
+  expect(oldComposer).not.toBeInTheDocument();
   await act(async () => resolve(providerCatalog));
-  const newToggle = await screen.findByRole('button', { name: /playground.setup.title/ });
-  expect(newToggle).not.toBe(oldToggle);
-  expect(newToggle).toHaveAttribute('aria-expanded', 'true');
+  await waitFor(() => expectCreationVisible('comparison'));
   await waitFor(() => expect(screen.getByRole('button', { name: /^playground.action.generateComparison/ })).toBeEnabled());
-  expect(newToggle).toHaveAttribute('aria-expanded', 'true');
+  expectCreationVisible('comparison');
   expect(mocks.submit).toHaveBeenCalledTimes(1);
   expect(mocks.compare).not.toHaveBeenCalled();
   view.unmount(); view.client.clear();
@@ -346,6 +355,6 @@ it.each(['failed', 'cancelled', 'partially_completed', 'missing-media'])('keeps 
   fireEvent.click(generateButton);
   await waitFor(() => expect(mocks.job).toHaveBeenCalled());
   await waitFor(() => expect(generateButton).toBeEnabled());
-  expect(lifecycleToggle()).toHaveAttribute('aria-expanded', 'true');
+  expectCreationVisible('image');
   view.unmount(); view.client.clear();
 });

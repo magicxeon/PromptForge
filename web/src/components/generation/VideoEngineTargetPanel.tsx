@@ -1,5 +1,5 @@
 import { AudioLines, Check, Clock3, Columns3, Maximize, Monitor, Volume2 } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { VideoModelCapability } from '../../features/generation/schemas/videoGenerationSchemas';
 import { Button } from '../ui/Button';
@@ -7,6 +7,7 @@ import { ProcessingSpinner } from '../ui/ProcessingSpinner';
 import { EngineTargetPanelFrame } from './EngineTargetPanelFrame';
 import { GenerationModelPicker } from './GenerationModelPicker';
 import { GenerationOptionSelect } from './GenerationOptionSelect';
+import { GenerationOutputControls } from './GenerationOutputControls';
 
 export function VideoEngineTargetPanel({
   models, catalogModels = models, selectedModel, aspectRatio, resolution, durationSeconds,
@@ -90,14 +91,13 @@ export function VideoEngineTargetPanel({
           }} />
       </div>
       {selectionNotice ? <p className="generation-option-warning" role="status">{selectionNotice}</p> : null}
-      {outputContractAvailable ? <div className="engine-target-panel__output-grid">
+      {outputContractAvailable ? <GenerationOutputControls><div className="engine-target-panel__output-grid">
         {selectedModel.aspectRatios.length ? <GenerationOptionSelect label={t('playground.engine.aspect')}
           icon={Maximize} value={aspectRatio} locked={aspectRatioLocked}
           options={selectedModel.aspectRatios.map(value => ({ value, label: value }))}
           onChange={onAspectRatioChange} /> : null}
-        <GenerationOptionSelect label={t('playground.video.duration')} icon={Clock3} value={String(durationSeconds)}
-          options={selectedModel.durations.map(value => ({ value: String(value), label: `${value}s` }))}
-          onChange={value => onDurationChange(Number(value))} />
+        <VideoDurationControl key={`${selectedModel.providerId}:${selectedModel.modelId}`}
+          model={selectedModel} value={durationSeconds} onChange={onDurationChange} />
         <GenerationOptionSelect label={t('playground.engine.resolution')} icon={Monitor} value={resolution}
           options={selectedModel.resolutions.map(value => ({ value, label: value.toUpperCase() }))}
           onChange={onResolutionChange} />
@@ -112,7 +112,7 @@ export function VideoEngineTargetPanel({
         </div> : <GenerationOptionSelect label={t('playground.video.audio')} icon={AudioLines} value={audioMode}
           options={selectedModel.audioModes.map(value => ({ value, label: t(`playground.options.audio.${value}`) }))}
           onChange={onAudioModeChange} />}
-      </div> : <p className="engine-target-panel__video-notice" role="status">{t('playground.video.catalogOnlyNotice')}</p>}
+      </div></GenerationOutputControls> : <p className="engine-target-panel__video-notice" role="status">{t('playground.video.catalogOnlyNotice')}</p>}
       {!selectedModel.developmentPocUnverified && selectedModel.testingRoutingEnabled && !selectedModel.paidRoutingEnabled
         ? compactNotices ? <details className="engine-target-panel__video-notice engine-target-panel__video-notice--compact">
           <summary>{t('playground.options.internalTestingOnly')}</summary>
@@ -131,6 +131,53 @@ export function VideoEngineTargetPanel({
       {footer}
     </div>
   </EngineTargetPanelFrame>;
+}
+
+function VideoDurationControl({ model, value, onChange }: {
+  model: VideoModelCapability; value: number; onChange: (value: number) => void;
+}) {
+  const { t } = useTranslation('playground');
+  const id = useId();
+  const [numericDraft, setNumericDraft] = useState<string | null>(null);
+  const values = model.durations;
+  const minimum = values[0] ?? 0;
+  const maximum = values[values.length - 1] ?? 0;
+  const rangeSupported = model.durationControlMode === 'exact' && values.length > 1
+    && values.every((duration, index) => Number.isSafeInteger(duration) && duration === minimum + index);
+  if (!rangeSupported) return <GenerationOptionSelect label={t('playground.video.duration')} icon={Clock3}
+    value={String(value)} options={values.map(duration => ({ value: String(duration), label: `${duration}s` }))}
+    onChange={duration => onChange(Number(duration))} />;
+
+  const commitNumber = () => {
+    const parsed = numericDraft?.trim() ? Number(numericDraft) : value;
+    const next = Number.isFinite(parsed) ? Math.max(minimum, Math.min(maximum, Math.round(parsed))) : value;
+    setNumericDraft(null);
+    if (next !== value) onChange(next);
+  };
+  const unit = t('playground.video.durationUnit');
+  return <div className="generation-option-field generation-duration-field">
+    <label htmlFor={id} className="generation-option-label">{t('playground.video.duration')}</label>
+    <div className="generation-option-field__control generation-duration-field__number">
+      <Clock3 aria-hidden="true" />
+      <input type="number" min={minimum} max={maximum} step={1} inputMode="numeric"
+        aria-label={t('playground.video.duration')} value={numericDraft ?? String(value)}
+        onChange={event => {
+          const text = event.target.value;
+          setNumericDraft(text);
+          const next = text.trim() ? Number(text) : NaN;
+          if (Number.isSafeInteger(next) && values.includes(next) && next !== value) onChange(next);
+        }} onBlur={commitNumber} onKeyDown={event => {
+          if (event.key === 'Enter') { event.preventDefault(); commitNumber(); }
+        }} />
+      <span>{unit}</span>
+    </div>
+    <input id={id} className="generation-duration-field__slider" type="range"
+      min={minimum} max={maximum} step={1} value={value} aria-valuetext={`${value} ${unit}`}
+      onChange={event => { setNumericDraft(null); onChange(Number(event.target.value)); }} />
+    <div className="generation-duration-field__bounds" aria-hidden="true">
+      <span>{minimum} {unit}</span><span>{maximum} {unit}</span>
+    </div>
+  </div>;
 }
 
 function providerLabel(providerId: string) {

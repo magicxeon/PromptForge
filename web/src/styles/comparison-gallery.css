@@ -133,7 +133,7 @@
   display: -webkit-box;
   overflow: hidden;
   margin: 4px 0 0;
-  font-size: 14px;
+  font-size: max(12px, calc(14px * var(--mpf-ui-type-scale)));
   line-height: 1.35;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;

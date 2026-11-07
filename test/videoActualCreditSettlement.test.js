@@ -92,7 +92,7 @@ test('actual video: catalog activation quotes and settles all measured cases wit
   }
 });
 
-test('actual video: scoped activation never qualifies production, other models or unmeasured requests', async () => {
+test('actual video: scoped activation never qualifies production, other models or unauthorized combinations', async () => {
   for (const runtimeEnvironment of ['development', 'test']) {
     const registry = new VideoCapabilityRegistry({ runtimeEnvironment, developmentPocEnabled: true,
       availabilityPolicy: isolatedAvailability });
@@ -103,8 +103,9 @@ test('actual video: scoped activation never qualifies production, other models o
       accountRepo: { saveEstimate() { throw new Error('Out-of-profile quote must not be saved'); } } });
     const base = { ...request, operation: 'image_to_video', inputMode: 'multimodal_reference',
       referenceImageCount: 3, durationSeconds: 8, audioMode: 'generated' };
-    for (const overrides of [{ aspectRatio: '16:9' }, { resolution: '1080p' }, { durationSeconds: 5 },
-      { resolution: '480p', durationSeconds: 30 }, { fps: 30 }, { inputVideoSeconds: 1 },
+    for (const overrides of [{ aspectRatio: '16:9' }, { resolution: '1080p' }, { durationSeconds: 3 },
+      { durationSeconds: 31 }, { durationSeconds: 7.5 }, { fps: 30 }, { inputVideoSeconds: 1 },
+      { outputCount: 2 }, { serviceTier: 'offline' },
       { referenceImageCount: 4 }, { referenceImageCount: 0 }, { inputMode: 'image_to_video' }, { audioMode: 'none' }]) {
       await assert.rejects(service.estimateVideo({ userId: actor.userId, model: selected, request: { ...base, ...overrides } }),
         { code: 'credit_pricing_unavailable' });
@@ -114,6 +115,31 @@ test('actual video: scoped activation never qualifies production, other models o
   const production = new VideoCapabilityRegistry({ runtimeEnvironment: 'production', availabilityPolicy: isolatedAvailability });
   assert.deepEqual(production.getPublicCatalog().models, []);
   assert.equal(production.resolve('modelark', model.modelId).paidRoutingEnabled, false);
+});
+
+test('actual video: range durations quote, reserve, settle and replay with immutable snapshots', async t => {
+  const registry = new VideoCapabilityRegistry({ runtimeEnvironment: 'test', availabilityPolicy: isolatedAvailability });
+  const selected = registry.resolve(model.providerId, model.modelId);
+  assert.equal(selected.paidUsageActivation.measuredCases.reduce((sum, row) => sum + row.sampleCount, 0), 32);
+  for (const durationSeconds of [7, 25]) {
+    const requested = { ...request, providerId: model.providerId, modelId: model.modelId,
+      operation: 'image_to_video', inputMode: 'multimodal_reference', audioMode: 'generated',
+      referenceImageCount: 3, durationSeconds };
+    const qualified = registry.validateRequest(requested);
+    const f = await fixture(t, policy, qualified, requested);
+    assert.equal(f.quote.chargeMode, 'actual_usage');
+    assert.equal(f.quote.breakdown.videoSettlement.paidUsageActivationVersion, selected.paidUsageActivation.version);
+    const completionTokens = f.quote.breakdown.estimatedCompletionTokens;
+    const capture = () => f.credits.captureForJob({ userId: actor.userId,
+      reservationId: f.reserved.reservation.reservationId, jobId: 'videotask_fixture',
+      usage: { ...usage, completionTokens } });
+    const first = await capture();
+    const replay = await capture();
+    assert.ok(first.reservation.capturedCredits > 0);
+    assert.ok(first.reservation.releasedCredits > 0);
+    assert.equal(replay.reservation.capturedCredits, first.reservation.capturedCredits);
+    assert.equal(replay.reservation.releasedCredits, first.reservation.releasedCredits);
+  }
 });
 
 test('actual video: activated profile preserves source and first-frame gates', () => {

@@ -1,6 +1,126 @@
 # Shared Generation Options UX
 
-ID: GEN-UX-021. Updated: 2026-10-03.
+ID: GEN-UX-021. Updated: 2026-10-27.
+
+## R8: Reference-Video Image And Video Workspace
+
+### R8.1 Provider Subcategories (2026-10-27)
+
+Case D, primary UX, sequential scoped QA. User reference: provider icon rail in
+the attached Fuzion model picker screenshot. Extend the shared model picker for
+Image, Video and existing consumers; no provider catalog or routing changes.
+
+- Derive provider categories from supplied options, with All and a visible active
+  provider label. Category filtering combines with model/provider search; selecting
+  a category must not select a model, alter the draft or dispatch any request.
+- Preserve selected marks, unavailable reasons, atomic provider/model selection,
+  search focus, Escape restoration and Tab exit. Search ArrowLeft enters provider
+  rail; rail Up/Down/Home/End navigate, Right returns to search. Label the rail and
+  its icon buttons in TH/EN; keep44px targets and viewport-contained menus.
+- Reopening starts at All with empty search. If a category is removed from live
+  options, fall back to All without changing the selected model.
+- Tasks: (1) requirement + regression cases; (2) shared picker/locale/CSS change;
+  (3) focused tests and responsive browser checks. Complete.
+
+R8.1 evidence:41 tests passed (ModelPicker13, ImagePanel16, VideoPanel12).
+`npm.cmd --prefix web test -- src/components/generation/GenerationModelPicker.test.tsx src/components/generation/EngineTargetPanel.test.tsx src/components/generation/VideoEngineTargetPanel.test.tsx --silent`.
+`node scripts/verify-generation-options-layout.mjs --view image-sidebar` and
+`--view dialog`:36 browser cases passed, TH/EN x3 themes x390/820/1440. Checks cover
+provider category/search composition, keyboard rail navigation, preserved selection,
+disabled reasons, Escape/Tab, viewport bounds, contrast and44px targets. Raw
+screenshots/evidence: `%TEMP%/mpf-generation-options-{RcFetG,HRqHuq}`. Visually
+inspected desktop sidebar and mobile light-theme nested dialog. The runner now
+uses an available test port starting18730 to avoid the running user dev server.
+Actual Image/app-shell12 cases passed via `node scripts/verify-playground-video-references.mjs
+--image-workspace --width 1440`; artifacts `%TEMP%/mpf-video-references-layout-DjCVht`.
+`npm.cmd run build:web` passed (existing vendor-size warning). Sequential UX/QA
+review, limited independence; no paid calls. No new/moved files or runtime paths;
+architecture map unchanged. No required implementation work remains.
+
+Global compact typography is owned by theme requirement012/001, same delivery.
+
+Case D. Owner/primary: UX/UI Product Designer, shared Generation presentation and
+Playground. Reference: `_temp/playground-recommendation.mp4` (Image at147s,
+Video at52s/121s). UX review before implementation: use its creation-sidebar and
+large-output composition with Momelo tokens; preserve existing working controls.
+QA is scoped sequential review by the implementer, not independent certification.
+
+### Scope And Acceptance
+
+1. General Image and Video only: desktop has a360–400px creation sidebar and a
+   flexible output canvas. Order is model/Compare, references, prompt, output
+   settings and Generate. Keep a single controlled instance of every field.
+   Supersedes R5–R7 placement/auto-collapse for these two modes only; Look Sheet,
+   Studio, navigation and other consumers retain their existing layouts.
+2. Sidebar body scrolls independently at desktop; settings, current quote and
+   Generate remain at its foot. Small containers and short viewports use natural
+   stacked page flow so the keyboard, references and errors stay reachable.
+   Check390/820/1440px, TH/EN and existing theme variants, keyboard focus and menus.
+3. References show compact thumbnails with readable names/counts. Existing Edit,
+   Browse, library, remove/replace and provider rejection recovery remain usable.
+   Prompt retains character limits, copy, negative prompt and enhancement tools.
+   Model-supported settings, Seedance duration range and Compare slots remain
+   driven by current catalog/controlled state, never a second capability table.
+4. Results use the broad canvas with a localized empty state and existing Recent,
+   viewer/download and Queue actions. Failed/cancelled/expired Video tasks do not
+   create blank previews; existing logs and successful history remain unchanged.
+5. No completion-driven collapse, scroll or focus change in this layout. Editing,
+   quote refresh and job polling preserve input nodes, draft, scroll and selection.
+   Explicit View result/Back to settings remain available. Preserve actor-scoped
+   persistence, quotes/consent, submitted payloads and all provider/server flows.
+6. No unrelated reference-app promotions, Agent, audio workspace, unsupported
+   modes or fabricated history search. No new runtime storage, API or paid UAT.
+
+### Compact Delivery Plan
+
+- GO-T35: reviewed reference and current owners; freeze the above presentation
+  contract. Complete. Dependencies: existing shared panels/workspace and catalog.
+- GO-T36: implement opt-in sidebar, shared output-control placement, localized
+  canvas and scoped thumbnail/layout styling. Preserve legacy workspace default.
+- GO-T37: focused workspace/panel/Video regressions, isolated responsive browser
+  evidence with no API calls, and one web build. Record results and limits here.
+
+Status: GO-T35–GO-T37 complete, implemented and focused-verified (2026-10-27).
+
+### Evidence And Handoff
+
+- Implemented an opt-in sidebar in `PlaygroundGenerationWorkspace`; general
+  `GenerationExperience` and `PlaygroundVideoWorkspace` opt in. Look Sheet retains
+  its existing expandable builder. `GenerationOutputControls.tsx` is the only new
+  source file, owned by shared Generation presentation. It moves the existing
+  controlled fields to the sidebar footer through a stable portal, with no second
+  field state, catalog or submission path. No files moved or runtime data changed.
+- `playground.css` scopes the split canvas, compact reference grid, Compare rows,
+  footer and responsive stacking. TH/EN workspace strings added. All selected
+  references are visible in the summary, including rejected items after index2.
+  Explicit reference editing and failed-video filtering/log ownership are retained.
+- Focused React regressions:144 tests passed across Workspace42, Image panel16,
+  Video panel12, Reference Disclosure4, GenerationExperience32 and VideoWorkspace38.
+  Command: `npm.cmd --prefix web test -- src/components/generation/PlaygroundGenerationWorkspace.test.tsx src/components/generation/EngineTargetPanel.test.tsx src/components/generation/VideoEngineTargetPanel.test.tsx src/components/generation/GenerationExperience.test.tsx src/components/generation/GenerationReferenceDisclosure.test.tsx src/features/playground/components/PlaygroundVideoWorkspace.test.tsx`.
+  Initial old-layout assertions were updated to R8; the two affected suites were
+  rerun successfully (70 tests). Look Sheet collapse/locks, quote/consent, drafts,
+  references, terminal failures and successful Recent history remain protected.
+- Isolated Playwright: `node scripts/verify-generation-options-layout.mjs --view
+  image-sidebar`, `--view video-sidebar --duration-range`, and `--view
+  comparison-sidebar`:18 cases each,54 total, TH/EN,3 themes,390/820/1440px. Checked
+  model search/focus/contrast, single output controls, footer placement, references,
+  no completion scroll/focus change, draft retention and Seedance numeric/slider.
+  Raw artifacts in `%TEMP%/mpf-generation-options-{4pLOaQ,KcZ3CU,bIZicc}`.
+- Actual-route browser: `node scripts/verify-playground-video-references.mjs
+  --image-workspace --width 1440`:12 cases passed, including fresh/restored drafts,
+  reference editing, negative prompt, Recent viewer and Look Sheet tab roundtrip.
+  `node scripts/verify-playground-video-references.mjs --max-references`:18 cases
+  passed at390/820/1440px, including all9 source editors and thumbnails. Raw
+  artifacts: `%TEMP%/mpf-video-references-layout-{NcFhlc,FdyZk5}`. Screenshots were
+  visually inspected. Existing runner fixtures were updated for current auth
+  config, session-scoped drafts and the read-only application-shell config.
+  Every API response was intercepted; no live provider or Credit request occurred.
+- `npm.cmd run build:web` passed TypeScript and production build. The existing
+  large vendor chunk warning remains outside this UI scope. Architecture map
+  updated for the new shared presentation owner; no backend restart required.
+- Sequential scoped UX/QA review: pass for this presentation change, with limited
+  independence. No paid generation or physical-device/virtual-keyboard UAT was
+  performed. No required implementation work remains; live use is separate UAT.
 
 ## R7: Setup Slide Motion
 

@@ -26,6 +26,44 @@ function props(overrides: Partial<ComponentProps<typeof VideoEngineTargetPanel>>
 }
 
 describe('VideoEngineTargetPanel', () => {
+  it('uses catalog integer bounds for a slider and numeric input without model-name conditions', () => {
+    const continuous = { ...model, durations: Array.from({ length: 27 }, (_, i) => i + 4) };
+    const callbacks = props({ selectedModel: continuous, durationSeconds: 12 });
+    const view = render(<VideoEngineTargetPanel {...callbacks} />);
+    const slider = screen.getByRole('slider', { name: 'playground.video.duration' });
+    const number = screen.getByRole('spinbutton', { name: 'playground.video.duration' });
+    expect(slider).toHaveAttribute('min', '4');
+    expect(slider).toHaveAttribute('max', '30');
+    expect(slider).toHaveAttribute('step', '1');
+    expect(number).toHaveValue(12);
+    fireEvent.change(slider, { target: { value: '7' } });
+    expect(callbacks.onDurationChange).toHaveBeenLastCalledWith(7);
+    fireEvent.change(number, { target: { value: '25' } });
+    expect(callbacks.onDurationChange).toHaveBeenLastCalledWith(25);
+    vi.mocked(callbacks.onDurationChange).mockClear();
+    fireEvent.change(number, { target: { value: '' } });
+    expect(callbacks.onDurationChange).not.toHaveBeenCalled();
+    fireEvent.blur(number);
+    expect(number).toHaveValue(12);
+    fireEvent.change(number, { target: { value: '99' } });
+    expect(callbacks.onDurationChange).not.toHaveBeenCalled();
+    fireEvent.keyDown(number, { key: 'Enter' });
+    expect(callbacks.onDurationChange).toHaveBeenLastCalledWith(30);
+    fireEvent.change(number, { target: { value: '2' } });
+    fireEvent.blur(number);
+    expect(callbacks.onDurationChange).toHaveBeenLastCalledWith(4);
+    fireEvent.change(number, { target: { value: '7.4' } });
+    fireEvent.blur(number);
+    expect(callbacks.onDurationChange).toHaveBeenLastCalledWith(7);
+    expect(screen.getByRole('combobox', { name: 'playground.engine.resolution' })).toHaveValue('720p');
+    view.rerender(<VideoEngineTargetPanel {...callbacks} selectedModel={{ ...continuous, durationControlMode: 'prompted' }} />);
+    expect(screen.queryByRole('slider')).not.toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'playground.video.duration' })).toBeInTheDocument();
+    view.rerender(<VideoEngineTargetPanel {...props()} />);
+    expect(screen.queryByRole('slider')).not.toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'playground.video.duration' })).toHaveValue('8');
+  });
+
   it('preserves comparison availability and callbacks with the inline model action', () => {
     const callbacks = props({ inlineModelAction: true });
     const view = render(<VideoEngineTargetPanel {...callbacks} />);

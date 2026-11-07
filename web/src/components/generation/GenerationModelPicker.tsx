@@ -1,5 +1,5 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { Check, ChevronDown, Cpu, Search } from 'lucide-react';
+import { Check, ChevronDown, Cpu, Grid2X2, Search } from 'lucide-react';
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -24,6 +24,8 @@ export function GenerationModelPicker({ options, providerId, modelId, onChange, 
   const { t } = useTranslation('playground');
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [category, setCategory] = useState<string | null>(null);
+  const providerRailRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -31,7 +33,10 @@ export function GenerationModelPicker({ options, providerId, modelId, onChange, 
   const tabExit = useRef(false);
   const initialFocusPending = useRef(false);
   const selected = options.find(option => option.providerId === providerId && option.modelId === modelId);
-  const filtered = options.filter(option => `${option.modelLabel} ${option.providerLabel}`
+  const providers = [...new Map(options.map(option => [option.providerId, option.providerLabel])).entries()];
+  const categories: Array<[string | null, string]> = [[null, t('playground.options.allProviders')], ...providers];
+  const activeCategory = providers.some(([id]) => id === category) ? category : null;
+  const filtered = options.filter(option => (!activeCategory || option.providerId === activeCategory) && `${option.modelLabel} ${option.providerLabel}`
     .toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
   const selectedValue = optionKey({ providerId, modelId });
 
@@ -59,7 +64,7 @@ export function GenerationModelPicker({ options, providerId, modelId, onChange, 
     </div>
     <DropdownMenu.Root modal={false} open={open} onOpenChange={next => {
       setOpen(next);
-      if (next) { setSearch(''); tabExit.current = false; initialFocusPending.current = true; }
+      if (next) { setSearch(''); setCategory(null); tabExit.current = false; initialFocusPending.current = true; }
     }}>
       <DropdownMenu.Trigger ref={triggerRef} className="generation-model-picker__trigger"
         aria-label={t('playground.engine.model')}>
@@ -103,11 +108,40 @@ export function GenerationModelPicker({ options, providerId, modelId, onChange, 
               onKeyDown={event => {
                 if (event.key === 'Escape' || event.key === 'Tab') return;
                 event.stopPropagation();
+                if (event.key === 'ArrowLeft' && !event.nativeEvent.isComposing && event.currentTarget.selectionStart === 0) {
+                  event.preventDefault();
+                  providerRailRef.current?.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus();
+                }
                 if (event.key === 'ArrowDown' && !event.nativeEvent.isComposing) {
                   event.preventDefault();
                   contentRef.current?.querySelector<HTMLElement>('[role="menuitemradio"]:not([data-disabled])')?.focus();
                 }
               }} />
+          </div>
+          <div className="generation-model-picker__catalog">
+          <div ref={providerRailRef} className="generation-model-picker__providers" role="toolbar"
+            aria-orientation="vertical" aria-label={t('playground.options.providers')}
+            onKeyDown={event => {
+              if (event.key === 'Escape' || event.key === 'Tab') return;
+              event.stopPropagation();
+              const buttons = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('button')];
+              const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+              const next = event.key === 'ArrowDown' ? (index + 1) % buttons.length
+                : event.key === 'ArrowUp' ? (index - 1 + buttons.length) % buttons.length
+                  : event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : null;
+              if (next !== null) { event.preventDefault(); buttons[next]?.focus(); }
+              if (event.key === 'ArrowRight') { event.preventDefault(); searchRef.current?.focus(); }
+            }}>
+            {categories.map(([id, label]) => <button
+              key={id ?? 'all'} type="button" tabIndex={-1} aria-label={label} title={label}
+              aria-pressed={activeCategory === id} onClick={() => setCategory(id)}>
+              {id === null ? <Grid2X2 aria-hidden="true" /> : <span aria-hidden="true">{label.slice(0, 2).toUpperCase()}</span>}
+            </button>)}
+          </div>
+          <div className="generation-model-picker__models">
+          <div className="generation-model-picker__category" aria-live="polite">
+            {providers.find(([id]) => id === activeCategory)?.[1] || t('playground.options.allProviders')}
+            <span>{filtered.length}</span>
           </div>
           <DropdownMenu.RadioGroup value={selectedValue} aria-label={t('playground.engine.model')}
             onValueChange={key => {
@@ -126,6 +160,8 @@ export function GenerationModelPicker({ options, providerId, modelId, onChange, 
             </DropdownMenu.RadioItem>)}
           </DropdownMenu.RadioGroup>
           {!filtered.length ? <p className="generation-model-picker__empty" role="status">{t('playground.options.noModels')}</p> : null}
+          </div>
+          </div>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

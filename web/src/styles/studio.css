@@ -149,7 +149,7 @@
 .studio-job-context h2 {
   margin: 0;
   color: var(--mpf-text);
-  font-size: 15px;
+  font-size: max(12px, calc(15px * var(--mpf-ui-type-scale)));
   letter-spacing: 0;
 }
 
@@ -483,7 +483,7 @@
 
 .generation-library--full .generation-library__page-header h1 {
   margin: 7px 0 0;
-  font-size: 1.75rem;
+  font-size: max(12px, calc(1.75rem * var(--mpf-ui-type-scale)));
 }
 
 .generation-library__media-filter {
@@ -698,7 +698,7 @@
 
 .library-comparison-card__body h3 {
   margin: 5px 0 0;
-  font-size: 0.82rem;
+  font-size: max(12px, calc(0.82rem * var(--mpf-ui-type-scale)));
 }
 
 .library-comparison-card__body p {
@@ -995,7 +995,7 @@
 .scene-pose-controls__heading h2 {
   margin: 0;
   color: var(--theme-text, var(--mpf-text));
-  font-size: 0.9rem;
+  font-size: max(12px, calc(0.9rem * var(--mpf-ui-type-scale)));
 }
 
 .scene-pose-controls__heading p,
@@ -1306,7 +1306,7 @@
 .studio-attribute-group > summary::after {
   content: "+";
   color: var(--mpf-text-muted);
-  font-size: 18px;
+  font-size: max(12px, calc(18px * var(--mpf-ui-type-scale)));
   font-weight: 400;
 }
 
@@ -1920,7 +1920,7 @@
 
 .engine-target-panel__title h2 {
   margin: 0;
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--mpf-ui-type-scale)));
   line-height: 1.2;
 }
 
@@ -1971,7 +1971,7 @@
   border-radius: 10px;
   background: var(--theme-input);
   color: var(--theme-text);
-  font-size: 0.85rem;
+  font-size: max(12px, calc(0.85rem * var(--mpf-ui-type-scale)));
   font-weight: 800;
 }
 
@@ -2404,7 +2404,7 @@
   background: #ffc52a;
   color: #11131a;
   box-shadow: 0 0 22px rgb(255 197 45 / 28%);
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--mpf-ui-type-scale)));
   font-weight: 800;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -2476,7 +2476,7 @@
   display: inline-flex;
   align-items: baseline;
   gap: 9px;
-  font-size: 1.2rem;
+  font-size: max(12px, calc(1.2rem * var(--mpf-ui-type-scale)));
 }
 
 .studio-generate-button small {
@@ -2752,7 +2752,7 @@
 }
 
 .comparison-slot-card__heading strong {
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--mpf-ui-type-scale)));
 }
 
 .comparison-slot-card__fields {

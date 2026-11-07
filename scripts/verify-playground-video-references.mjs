@@ -35,6 +35,8 @@ const actor = {
   username: 'layout',
   displayName: 'Video layout',
   role: 'admin',
+  authMode: 'session',
+  accountStatus: 'active',
 };
 const model = {
   ...(process.argv.includes('--composition') ? { playgroundReferencePolicy: { kind: 'trusted_generated_only', version: 'layout-policy', maximumAgeDays: 30, allowImageReferenceUploads: true } } : {}),
@@ -95,6 +97,12 @@ const activeJobItem = {
   error: null,
 };
 const api = {
+  '/api/learning/config': { enabled: false, adminOnly: true, billingEnabled: false, defaultFreeCount: 1,
+    limits: { titleLength: 120, descriptionLength: 2000, chapters: 20, episodes: 20, lessonsPerChapter: 20, totalLessons: 100 } },
+  '/api/auth/config': { contractVersion: 1, authMode: 'session', csrfToken: 'isolated-layout-fixture',
+    methods: { password: true, emailOtp: true, google: false, facebook: false },
+    policy: { otpDigits: 6, otpExpiresSeconds: 300, resendSeconds: 30, passwordMinLength: 8, passwordMaxLength: 128 },
+    legal: { termsVersion: null, privacyVersion: null } },
   '/api/history': { items: ['frame', 'look'].map((id, index) => ({
     id: `job_layout_${id}`, imageUrl: `/outputs/layout-${id}.jpg`, timestamp: 1,
     provider: index ? 'openai' : 'gemini', submodel: index ? 'GPT Image' : 'Gemini',
@@ -168,14 +176,15 @@ try {
       ({ locale, theme, actor, model, trusted, trustedImages, active, activeTask, named, startImages, sourceIds }) => {
         localStorage.setItem('model_prompt_forge_language', locale);
         localStorage.setItem('mpf_active_mock_user_id', actor.userId);
-        localStorage.setItem(`mpf.react.draft:ui-theme-preference:${actor.userId}`, JSON.stringify({ schemaVersion:1,
-          actorId:actor.userId,feature:'ui-theme-preference',updatedAt:new Date().toISOString(),payload:{theme} }));
-        if (localStorage.getItem(`mpf.react.draft:playground-video:${actor.userId}`)) return;
+        localStorage.setItem(`mpf.react.draft:session:ui-theme-preference:${actor.userId}`, JSON.stringify({ schemaVersion:1,
+          actorId:actor.userId,authMode:'session',feature:'ui-theme-preference',updatedAt:new Date().toISOString(),payload:{theme} }));
+        if (localStorage.getItem(`mpf.react.draft:session:playground-video:${actor.userId}`)) return;
         localStorage.setItem(
-          `mpf.react.draft:playground-video:${actor.userId}`,
+          `mpf.react.draft:session:playground-video:${actor.userId}`,
           JSON.stringify({
             schemaVersion: 4,
             actorId: actor.userId,
+            authMode: 'session',
             feature: 'playground-video',
             updatedAt: new Date().toISOString(),
             payload: {
@@ -339,8 +348,8 @@ try {
       );
       assert.equal(measure.clipped, 0);
       assert.equal(measure.referenceStripClipped, false);
-      assert.equal(measure.referenceThumbnails.length, Math.min(2, expectedImages));
-      assert.ok(measure.referenceThumbnails.every(img => img.width === 40 && img.height === 50));
+      assert.equal(measure.referenceThumbnails.length, expectedImages);
+      assert.ok(measure.referenceThumbnails.every(img => img.width >= 44 && Math.abs(img.width - img.height) <= 1));
       assert.equal(measure.rawKeys, false);
       assert.equal(await page.locator('.video-look-sheet-list').evaluate(el => /\{(?:number|count|limit)\}/.test(el.textContent || '')), false);
       assert.equal(measure.activeStatusBars, active ? 1 : 0);
@@ -506,11 +515,11 @@ async function verifyImageWorkspace() {
       await context.addInitScript(({actor,theme,locale,roles,restored,guided,lookSheetDefinition}) => {
         localStorage.setItem('model_prompt_forge_language',locale);
         localStorage.setItem('mpf_active_mock_user_id',actor.userId);
-        const save = (feature,schemaVersion,payload) => localStorage.setItem(`mpf.react.draft:${feature}:${actor.userId}`,
-          JSON.stringify({actorId:actor.userId,feature,schemaVersion,updatedAt:new Date().toISOString(),payload}));
+        const save = (feature,schemaVersion,payload) => localStorage.setItem(`mpf.react.draft:session:${feature}:${actor.userId}`,
+          JSON.stringify({actorId:actor.userId,authMode:'session',feature,schemaVersion,updatedAt:new Date().toISOString(),payload}));
         save('ui-theme-preference',1,{theme});
-        if (restored && guided && !localStorage.getItem(`mpf.react.draft:look-sheet-playground:${actor.userId}`)) save('look-sheet-playground',1,{definition:lookSheetDefinition,character:null,enhancementEnabled:false,enhancementOperation:null});
-        if (restored && !guided && !localStorage.getItem(`mpf.react.draft:playground:${actor.userId}`)) save('playground',2,{prompt:'Keep restored Image direction',references:Object.fromEntries(roles.map(role=>[role,`/outputs/layout-${role}.jpg`])),faceReferenceContext:null,characterSelection:null});
+        if (restored && guided && !localStorage.getItem(`mpf.react.draft:session:look-sheet-playground:${actor.userId}`)) save('look-sheet-playground',1,{definition:lookSheetDefinition,character:null,enhancementEnabled:false,enhancementOperation:null});
+        if (restored && !guided && !localStorage.getItem(`mpf.react.draft:session:playground:${actor.userId}`)) save('playground',2,{prompt:'Keep restored Image direction',references:Object.fromEntries(roles.map(role=>[role,`/outputs/layout-${role}.jpg`])),faceReferenceContext:null,characterSelection:null});
       }, {actor,theme,locale,roles,restored,guided,lookSheetDefinition});
       let lastEstimate, guidedHeader = false;
       await context.route('**/*',async route => {
@@ -575,9 +584,9 @@ async function verifyImageWorkspace() {
         await page.waitForFunction(expected => {
           const images=[...document.querySelectorAll('.generation-reference-disclosure > :not(details) img')];
           return images.length === expected && images.every(img=>img.complete&&img.naturalWidth>0);
-        },restored?2:0);
+        },restored?roles.length:0);
         const firstView=await inspectFirstView(page,width,height);
-        assert.equal(await page.locator('.playground-workspace__setup-toggle').getAttribute('aria-expanded'),'true');
+        assert.equal(await page.locator('.playground-workspace--sidebar').count(),1);
         if (comparison) {
           const slots=await page.locator('.comparison-slot-card').evaluateAll(cards=>cards.map(card=>{
             const name=card.querySelector('.generation-model-picker__value strong');
@@ -603,7 +612,7 @@ async function verifyImageWorkspace() {
       }
       if (!comparison) {
         assert.equal(lastEstimate.generationRequest.sceneBuilder.manualPromptText,'Edited Image direction stays here\n\nAvoid: No unwanted text');
-        const persisted=await page.evaluate(actorId=>JSON.parse(localStorage.getItem(`mpf.react.draft:playground:${actorId}`)).payload,actor.userId);
+        const persisted=await page.evaluate(actorId=>JSON.parse(localStorage.getItem(`mpf.react.draft:session:playground:${actorId}`)).payload,actor.userId);
         assert.deepEqual(persisted.references,restored?Object.fromEntries(roles.map(role=>[role,`/outputs/layout-${role}.jpg`])):{});
       }
       const expand=page.locator('.playground-recent-panel__heading button');
@@ -626,7 +635,7 @@ async function verifyImageWorkspace() {
       }
       await page.reload();
       await disclosure.waitFor();
-      assert.equal(await page.locator('.playground-workspace__setup-toggle').getAttribute('aria-expanded'),'true');
+      assert.equal(await page.locator('.playground-workspace--sidebar').count(),1);
       assert.equal(await disclosure.getAttribute('open'),null);
       assert.equal(await prompt.inputValue(),'Edited Image direction stays here');
       await page.goto(`${origin}/create/playground?media=image${comparison?'&compare=1':''}#reference-images`);
@@ -649,9 +658,8 @@ async function verifyImageWorkspace() {
         await page.getByRole('button',{name:labels['lookSheet.generalImage'],exact:true}).click();
         await page.locator('.look-sheet-experience').waitFor({state:'hidden'});
         await prompt.waitFor();
-        assert.equal(await setupToggle.getAttribute('aria-expanded'),'true','General Image tab return resets setup disclosure');
+        assert.equal(await page.locator('.playground-workspace--sidebar').count(),1,'General Image tab returns to the sidebar');
         assert.equal(await prompt.inputValue(),'Edited Image direction stays here','Switching tabs preserves the writing draft');
-        await setupToggle.click();
         await page.getByRole('button',{name:labels['lookSheet.title'],exact:true}).click();
         await page.locator('.look-sheet-experience').waitFor();
         assert.equal(await setupToggle.getAttribute('aria-expanded'),'true','Look Sheet tab return resets setup disclosure');
@@ -754,7 +762,7 @@ async function verifyGuidedWorkspace(page, {theme,locale,restored,records,caseVi
   assert.equal(await builder.getAttribute('open'),'','Restored definition starts expanded');
   assert.equal(await expand.getAttribute('aria-expanded'),'false','Guided Recent collapse survives route reload');
   for (const key of ['name','appearance','situation','outfit','personality']) assert.equal(await field(key).inputValue(),lookSheetDefinition[key]);
-  const persisted=await page.evaluate(actorId=>JSON.parse(localStorage.getItem(`mpf.react.draft:look-sheet-playground:${actorId}`)).payload,actor.userId);
+  const persisted=await page.evaluate(actorId=>JSON.parse(localStorage.getItem(`mpf.react.draft:session:look-sheet-playground:${actorId}`)).payload,actor.userId);
   assert.deepEqual(persisted.definition,lookSheetDefinition);
   await page.setViewportSize({width:1440,height:900});
   await page.goto(`${origin}/create/playground?media=image`);
@@ -811,6 +819,32 @@ async function inspectFirstView(page, width, height, {guided=false,hasPrompt=tru
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   await page.waitForFunction(()=>scrollY===0 && document.querySelector('.playground-workspace__composer').scrollTop===0,
     null,{timeout:3000});
+  if (!guided) {
+    const measure=await page.evaluate(()=>{
+      const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,bottom:r.bottom,right:r.right};};
+      return {tools:rect('.playground-workspace__tools-frame'),footer:rect('.playground-workspace__footer'),
+        output:rect('.playground-workspace__output'),prompt:rect('.playground-prompt-editor__main'),
+        scrollWidth:document.documentElement.scrollWidth,composerOverflow:getComputedStyle(document.querySelector('.playground-workspace__composer')).overflowY};
+    });
+    assert.ok(measure.scrollWidth<=width+1,JSON.stringify(measure));
+    assert.equal(await page.locator('.playground-workspace__setup-toggle').count(),0);
+    assert.equal(await page.locator('.playground-entry-header__modes button').count(),2);
+    assert.equal(await page.locator('.playground-workspace__footer .engine-target-panel__output-grid').count(),1);
+    if(width===1440) {
+      assert.ok(measure.tools.width>=360&&measure.tools.width<=400,JSON.stringify(measure));
+      assert.ok(measure.output.x>=measure.tools.right,JSON.stringify(measure));
+      assert.ok(measure.footer.bottom<=height,JSON.stringify(measure));
+      assert.equal(measure.composerOverflow,'auto');
+    } else {
+      assert.ok(measure.output.y>=measure.tools.bottom,JSON.stringify(measure));
+      assert.equal(measure.composerOverflow,'visible');
+    }
+    const prompt=page.locator('.playground-prompt-editor__main');
+    await prompt.scrollIntoViewIfNeeded();
+    assert.ok(await prompt.evaluate(el=>{const r=el.getBoundingClientRect();return el.contains(document.elementFromPoint(r.x+20,r.y+20));}), 'Prompt remains reachable above the footer');
+    await page.evaluate(()=>{window.scrollTo(0,0);document.querySelector('.playground-workspace__composer').scrollTop=0;});
+    return measure;
+  }
   const measure = await page.evaluate(guided => {
     const rect = selector => { const node = document.querySelector(selector); if (!node) return null;
       const r = node.getBoundingClientRect(); return { x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom }; };

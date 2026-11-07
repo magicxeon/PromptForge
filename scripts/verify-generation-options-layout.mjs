@@ -7,12 +7,16 @@ import { chromium } from 'playwright';
 
 // Isolated component/container evidence; never dispatches provider or wallet calls.
 const root = process.cwd();
+const durationRange = process.argv.includes('--duration-range');
+const durationValues = durationRange ? JSON.parse(await fs.readFile(path.join(root,
+  'server/config/cinematic-video-models.json'), 'utf8')).models
+  .find(model => model.modelId === 'dreamina-seedance-2-5-260628').durations : [4, 6, 8];
 const catalogs = Object.fromEntries(await Promise.all(['en', 'th'].map(async locale => [locale,
   Object.fromEntries(await Promise.all(['playground', 'react-ui'].map(async namespace => [namespace,
     JSON.parse(await fs.readFile(path.join(root, `client/i18n/locales/${locale}/${namespace}.json`), 'utf8'))])))])));
 const output = await fs.mkdtemp(path.join(os.tmpdir(), 'mpf-generation-options-'));
 const views = process.argv.includes('--view') ? [process.argv[process.argv.indexOf('--view') + 1]] : ['composer', 'comparison', 'look-sheet', 'settings', 'dialog', 'slot'];
-assert.ok(views.every(view => ['composer', 'comparison', 'look-sheet', 'settings', 'dialog', 'slot'].includes(view)));
+assert.ok(views.every(view => ['composer', 'comparison', 'look-sheet', 'settings', 'dialog', 'slot', 'image-sidebar', 'video-sidebar', 'comparison-sidebar'].includes(view)));
 const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body><div id="root" style="max-width:1400px;padding:16px;margin:auto"></div><script type="module">
 import React from 'react';
@@ -43,7 +47,7 @@ const imageCatalog={defaultProvider:'openai',providers:[{id:'openai',displayName
  {id:'second-provider',displayName:'Second provider',models:[{id:'image-three',displayName:'Image Three',paidRoutingEnabled:true,
  capabilities:{imageGeneration:true,aspectRatios:['1:1','9:16'],resolutions:['1K'],maxReferenceImages:6,imageReferences:true}}]}]};
 const models=[{providerId:'modelark',modelId:'video-one',displayName:'Seedance / Long production model name',
- durations:[4,6,8],resolutions:['720p','1080p'],aspectRatios:['9:16','16:9'],audioModes:['none','generated'],paidRoutingEnabled:true},
+ durationControlMode:'exact',durations:${JSON.stringify(durationValues)},resolutions:['720p','1080p'],aspectRatios:['9:16','16:9'],audioModes:['none','generated'],paidRoutingEnabled:true},
  {providerId:'gemini',modelId:'video-two',displayName:'Veo Test',durations:[8],resolutions:['720p'],aspectRatios:['9:16'],audioModes:['generated'],paidRoutingEnabled:true}];
 function App(){
  const[value,setValue]=React.useState({provider:'openai',model:'image-one',aspectRatio:'9:16',resolution:'1K',outputCount:1});
@@ -55,25 +59,26 @@ function App(){
  const[definition,setDefinition]=React.useState({schemaVersion:1,name:'Fixture Character',ageYears:28,
   appearance:'Adult character with short dark hair.',situation:'A quiet exchange in the flower shop.',outfit:'Plain clothing',personality:'Neutral'});
  const view=params.get('view');
- const image=e(EngineTargetPanel,{catalog:imageCatalog,value,comparison:view==='slot'||view==='comparison',comparisonSlots:slots,inlineModelAction:view==='look-sheet'||view==='comparison',
+ const sidebar=view.endsWith('-sidebar'),videoView=view==='composer'||view==='video-sidebar';
+ const image=e(EngineTargetPanel,{catalog:imageCatalog,value,comparison:view==='slot'||view==='comparison'||view==='comparison-sidebar',comparisonSlots:slots,inlineModelAction:sidebar||view==='look-sheet'||view==='comparison',
   comparisonEstimates:slots.map(slot=>({id:slot.id,estimatedCredit:15})),requiredReferenceCount:view==='look-sheet'?0:1,
   fixedAspectRatio:view==='dialog'?'9:16':null,allowComparison:!['dialog','look-sheet'].includes(view),allowMultiOutput:!['dialog','look-sheet'].includes(view),
   promptRefinementAvailable:!['dialog','look-sheet'].includes(view),promptRefinementEnabled:refinement,onPromptRefinementChange:setRefinement,
  onChange:setValue,onSlotsChange:setSlots,onComparisonChange:()=>{},presentation:'compact'});
  const references=e('div',{style:{display:'flex',flexWrap:'wrap',gap:12}},[1,2,3].map(n=>e('figure',{key:n,style:{margin:0}},
  e('img',{src:'/fixture-image',alt:'Reference '+n,style:{width:64,height:86,objectFit:'contain'}}),e('figcaption',null,'Image '+n))));
- const composerSummary=e(React.Fragment,null,e('ul',{className:'generation-reference-disclosure__previews'},[1,2].map(n=>e('li',{key:n},
+ const composerSummary=e(React.Fragment,null,e('ul',{className:'generation-reference-disclosure__previews'},(sidebar?[1,2,3,4,5,6,7,8,9]:[1,2]).map(n=>e('li',{key:n},
  e('span',{className:'generation-reference-disclosure__thumbnail'},e('img',{src:'/fixture-image',alt:'Reference '+n})),e('strong',null,'Image '+n)))),
- e('small',null,i18n.t('playground.options.moreReferences',{ns:'playground',count:7})));
+ sidebar?null:e('small',null,i18n.t('playground.options.moreReferences',{ns:'playground',count:7})));
  const clip=e(VideoEngineTargetPanel,{models,selectedModel:video.model,aspectRatio:video.aspectRatio,resolution:video.resolution,
  durationSeconds:video.durationSeconds,audioMode:video.audioMode,comparisonEnabled:false,comparisonActive:false,quoteLoading:false,
- estimatedCredits:45,maximumCreditEstimate:true,compact:true,showComparisonAction:false,
+ estimatedCredits:45,maximumCreditEstimate:true,compact:true,showComparisonAction:false,showQuote:!sidebar,
  onModelChange:key=>setVideo(current=>({...current,model:models.find(item=>item.providerId+':'+item.modelId===key)})),
  onAspectRatioChange:aspectRatio=>setVideo(current=>({...current,aspectRatio})),
  onResolutionChange:resolution=>setVideo(current=>({...current,resolution})),
  onDurationChange:durationSeconds=>setVideo(current=>({...current,durationSeconds})),
- onAudioModeChange:audioMode=>setVideo(current=>({...current,audioMode})),onComparisonChange:()=>{},summary:view==='composer'?null:references,
- footer:view==='composer'?null:e('button',{type:'button',className:'btn btn-primary',onClick:()=>{}},'Generate fixture')});
+ onAudioModeChange:audioMode=>setVideo(current=>({...current,audioMode})),onComparisonChange:()=>{},summary:videoView?null:references,
+ footer:videoView?null:e('button',{type:'button',className:'btn btn-primary',onClick:()=>{}},'Generate fixture')});
  if(view==='dialog')return e(Dialog.Root,{open:dialogOpen,onOpenChange:setDialogOpen},e(Dialog.Portal,null,
  e(Dialog.Overlay,{style:{position:'fixed',inset:0,background:'var(--theme-overlay)',zIndex:160}}),
  e(Dialog.Content,{style:{position:'fixed',top:32,left:'50%',transform:'translateX(-50%)',width:'min(620px,calc(100vw - 24px))',
@@ -85,13 +90,13 @@ function App(){
   e('button',{'data-fixture-fail':true,onClick:()=>setRenderStatus('failed')},'Fail fixture'));
  const expansion={completedResultKey:renderStatus==='completed'?'fixture-1':null,activeRenderKey:renderStatus==='running'?'fixture-1':null,renderBusy:renderStatus==='running',showResult:renderStatus!=='idle',modelSummary:view==='composer'?video.model.displayName:'Image One'};
  const actions=e('button',{type:'button',className:'studio-generate-button btn-neon-yellow-glow',onClick:()=>setRenderStatus('running')},'Generate fixture');
- if(view==='composer'||view==='comparison')return e(PlaygroundGenerationWorkspace,{composer:true,...expansion,
+ if(sidebar||view==='composer'||view==='comparison')return e(PlaygroundGenerationWorkspace,{composer:true,sidebar,mediaType:videoView?'video':'image',...expansion,
  prompt:e(PromptEditor,{variant:'playground',value:prompt,onChange:setPrompt,negativeValue:'',onNegativeChange:()=>{},showNegative:false,
  primaryLabel:view==='composer'?i18n.t('playground.video.promptTitle',{ns:'playground'}):undefined,inputId:'fixture-prompt'}),
  result,
- queue:e('p',null,'Queue fixture'),recent:e('p',null,'Recent fixture'),engine:view==='comparison'?image:clip,
+ queue:e('p',null,'Queue fixture'),recent:e('p',null,'Recent fixture'),engine:videoView?clip:image,
  references:e(GenerationReferenceDisclosure,{count:9,limit:9,summary:composerSummary},e('input',{'aria-label':'Reference name',defaultValue:'Preserved reference'})),
- actions,showRenderPromptHeading:false,recentExpanded:true,onRecentExpandedChange:()=>{},comparisonActive:view==='comparison'});
+ actions,showRenderPromptHeading:false,recentExpanded:true,onRecentExpandedChange:()=>{},comparisonActive:view==='comparison'||view==='comparison-sidebar'});
  if(view==='look-sheet')return e(PlaygroundGenerationWorkspace,{composer:true,engine:image,...expansion,
   builderTitle:i18n.t('lookSheet.title',{ns:'playground'}),builder:e(CharacterLookSheetForm,{value:definition,onChange:setDefinition}),
   references:e(GenerationReferenceDisclosure,{count:0,limit:6,label:i18n.t('playground.options.references',{ns:'playground'})},references),
@@ -105,7 +110,7 @@ createRoot(document.getElementById('root')).render(e(I18nextProvider,{i18n},e(Ap
 </script></body></html>`;
 const server = await createServer({ root: path.join(root, 'web'), configFile: path.join(root, 'web/vite.config.ts'),
   configLoader: 'runner', cacheDir: path.join(output, 'vite-cache'),
-  server: { host: '127.0.0.1', port: 0, open: false },
+  server: { host: '127.0.0.1', port: 18730, strictPort: false, open: false },
   plugins: [{ name: 'generation-options-review', configureServer(vite) {
     vite.middlewares.use(async (req, res, next) => {
       if (!req.url?.startsWith('/__generation-options') || req.url.includes('html-proxy')) return next();
@@ -137,7 +142,69 @@ try {
     }).length);
     assert.equal(clipped, 0);
     assert.equal(await page.locator('body').evaluate(el => /playground\.(options|engine)\./.test(el.textContent)), false);
-    const renderFrame = await inspectRenderFrame(page);
+    const sidebar = view.endsWith('-sidebar');
+    const renderFrame = sidebar ? null : await inspectRenderFrame(page);
+    if (sidebar) {
+      const geometry = await page.evaluate(() => {
+        const box = selector => { const r=document.querySelector(selector).getBoundingClientRect(); return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width}; };
+        return {tools:box('.playground-workspace__tools-frame'),output:box('.playground-workspace__output'),footer:box('.playground-workspace__footer')};
+      });
+      if (width===1440) {
+        assert.ok(geometry.tools.width>=360 && geometry.tools.width<=400);
+        assert.ok(geometry.output.x>=geometry.tools.right);
+        assert.ok(geometry.footer.bottom<=height);
+      } else assert.ok(geometry.output.y>=geometry.tools.bottom);
+      assert.equal(await page.locator('.playground-workspace__composer .engine-target-panel__output-grid').count(),0);
+      assert.equal(await page.locator('.playground-workspace__footer .engine-target-panel__output-grid').count(),1);
+      assert.equal(await page.locator('.playground-workspace__setup-toggle').count(),0);
+      const field=page.locator('#fixture-prompt');
+      await field.fill('My preserved direction');
+      await page.locator('.playground-workspace__footer button').last().click();
+      await field.focus();
+      await page.locator('.playground-workspace__composer').evaluate(el=>{el.dataset.retained='yes';el.scrollTop=80;});
+      const before=await page.evaluate(()=>({scroll:document.querySelector('.playground-workspace__composer').scrollTop,y:scrollY}));
+      await page.locator('[data-fixture-complete]').evaluate(el=>el.click());
+      assert.equal(await field.inputValue(),'My preserved direction');
+      assert.equal(await field.evaluate(el=>el===document.activeElement),true);
+      assert.equal(await page.locator('.playground-workspace__composer').getAttribute('data-retained'),'yes');
+      assert.deepEqual(await page.evaluate(()=>({scroll:document.querySelector('.playground-workspace__composer').scrollTop,y:scrollY})),before);
+      if (view==='video-sidebar' && durationRange) {
+        const number=page.getByRole('spinbutton');
+        await number.fill('25'); await number.press('Tab');
+        assert.equal(await page.getByRole('slider').inputValue(),'25');
+        await page.getByRole('slider').focus(); await page.keyboard.press('End');
+        assert.equal(await number.inputValue(),'30');
+      }
+      await page.locator('.generation-reference-disclosure summary').click();
+      await page.getByRole('textbox',{name:'Reference name'}).fill('Edited source');
+      await page.locator('.generation-reference-disclosure summary').click();
+      await page.evaluate(()=>{scrollTo(0,0);document.querySelector('.playground-workspace__composer').scrollTop=0;});
+    }
+    if (durationRange && view === 'settings') {
+      const slider = page.getByRole('slider');
+      const number = page.getByRole('spinbutton');
+      assert.equal(await slider.getAttribute('min'), '4');
+      assert.equal(await slider.getAttribute('max'), '30');
+      assert.equal(await slider.getAttribute('step'), '1');
+      await number.fill('25');
+      await number.press('Tab');
+      assert.equal(await slider.inputValue(), '25');
+      await slider.focus();
+      await slider.press('ArrowLeft');
+      assert.equal(await number.inputValue(), '24');
+      await slider.press('Home');
+      assert.equal(await number.inputValue(), '4');
+      await slider.press('End');
+      assert.equal(await number.inputValue(), '30');
+      await number.fill('99');
+      await number.press('Enter');
+      assert.equal(await number.inputValue(), '30');
+      await number.fill('');
+      await number.press('Tab');
+      assert.equal(await number.inputValue(), '30');
+      const bounds = await slider.boundingBox();
+      assert.ok(bounds && bounds.width > 0 && bounds.height >= 44);
+    }
     let firstView, setupMotion;
     if (view === 'look-sheet') {
       const builder = page.locator('.playground-workspace__builder');
@@ -263,9 +330,37 @@ try {
     const search = page.locator('.generation-model-picker__search input');
     await search.waitFor();
     await page.waitForFunction(() => document.activeElement?.matches('.generation-model-picker__search input'));
+    const providerButtons = page.locator('.generation-model-picker__providers button');
+    assert.ok(await providerButtons.count() >= 2);
+    const selectedBefore = await trigger.textContent();
+    await page.keyboard.press('ArrowLeft');
+    assert.equal(await providerButtons.first().evaluate(el => el === document.activeElement), true);
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+    assert.equal(await providerButtons.last().getAttribute('aria-pressed'), 'true');
+    const providerLabel = await providerButtons.last().getAttribute('aria-label');
+    assert.ok((await page.getByRole('menuitemradio').allTextContents()).every(text => text.includes(providerLabel)));
+    assert.equal(await trigger.textContent(), selectedBefore, 'Filtering does not select a model');
+    await providerButtons.first().click();
+    await search.focus();
+    const typeScale = await page.evaluate(() => {
+      const trigger = document.querySelector('.generation-model-picker__trigger');
+      const text = trigger.querySelector('strong');
+      const probe = document.createElement('span'); probe.className = 'text-base'; probe.textContent = 'Type'; document.body.append(probe);
+      const compact = parseFloat(getComputedStyle(text).fontSize), utility = parseFloat(getComputedStyle(probe).fontSize);
+      document.documentElement.style.setProperty('--mpf-ui-type-scale', '1');
+      const baseline = parseFloat(getComputedStyle(text).fontSize);
+      document.documentElement.style.removeProperty('--mpf-ui-type-scale');
+      probe.remove();
+      return { compact, baseline, utility, root: parseFloat(getComputedStyle(document.documentElement).fontSize), target: trigger.getBoundingClientRect().height };
+    });
+    assert.ok(Math.abs(typeScale.compact - Math.max(12, typeScale.baseline * .93)) < .05, JSON.stringify(typeScale));
+    assert.ok(Math.abs(typeScale.utility - 14.88) < .05, JSON.stringify(typeScale));
+    assert.equal(typeScale.root, 16);
+    assert.ok(typeScale.target >= 44);
     await search.fill('not-a-model');
     assert.equal(await page.getByRole('menuitemradio').count(), 0);
-    await search.fill(view === 'settings' || view === 'composer' ? 'Seedance' : 'Image One');
+    await search.fill(view === 'settings' || view === 'composer' || view === 'video-sidebar' ? 'Seedance' : 'Image One');
     assert.equal(await page.getByRole('menuitemradio').count(), 1);
     await page.keyboard.press('ArrowDown');
     assert.equal(await page.getByRole('menuitemradio').evaluate(el => el === document.activeElement), true);

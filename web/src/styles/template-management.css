@@ -35,7 +35,7 @@
 
 .template-management-dialog__header h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: max(12px, calc(1.1rem * var(--mpf-ui-type-scale)));
 }
 
 .template-management-dialog__header p {

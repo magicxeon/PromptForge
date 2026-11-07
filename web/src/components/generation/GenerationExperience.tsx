@@ -1096,7 +1096,7 @@ export function GenerationExperience({
     problem={referencePreview.error?.message}
     summary={selectedReferences.length ? <>
       <ul className="generation-reference-disclosure__previews">
-        {selectedReferences.slice(0, 2).map(([role, reference]) => {
+        {selectedReferences.slice(0, isGuidedPlaygroundComposer ? 2 : selectedReferences.length).map(([role, reference]) => {
           const preview = referenceDisplayPreviews?.[role];
           const display = preview?.reference === reference ? preview : null;
           const fallback = <Images aria-hidden="true" />;
@@ -1109,7 +1109,7 @@ export function GenerationExperience({
           </li>;
         })}
       </ul>
-      {selectedReferences.length > 2 ? <small className="generation-reference-disclosure__more">{t('playground.options.moreReferences', { count: selectedReferences.length - 2 })}</small> : null}
+      {isGuidedPlaygroundComposer && selectedReferences.length > 2 ? <small className="generation-reference-disclosure__more">{t('playground.options.moreReferences', { count: selectedReferences.length - 2 })}</small> : null}
     </> : null}>
     {referenceEditor}
   </GenerationReferenceDisclosure> : referenceEditor;
@@ -1352,6 +1352,7 @@ export function GenerationExperience({
       <PlaygroundGenerationWorkspace
         key={`${actorId}:${routePointerFeature}`}
         composer={isPlaygroundComposer}
+        sidebar={isPlaygroundComposer && !isGuidedPlaygroundComposer}
         completedResultKey={completedResultKey}
         activeRenderKey={activeRenderKey}
         submittedRenderAttempt={submittedRenderAttempt}

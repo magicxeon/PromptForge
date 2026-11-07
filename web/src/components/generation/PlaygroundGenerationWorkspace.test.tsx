@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { PlaygroundGenerationWorkspace } from './PlaygroundGenerationWorkspace';
+import { GenerationOutputControls } from './GenerationOutputControls';
 
 const testI18n = i18next.createInstance();
 
@@ -68,6 +69,31 @@ describe('PlaygroundGenerationWorkspace', () => {
       keySeparator: false,
       interpolation: { escapeValue: false }
     });
+  });
+
+  it('places one output control after the prompt and retains its node and draft across completion in sidebar mode', () => {
+    const engine = <><button>Model</button><GenerationOutputControls>
+      <input aria-label="Duration" defaultValue="12" />
+    </GenerationOutputControls></>;
+    const view = render(composerWorkspace({ sidebar: true, engine, showResult: false }));
+    const duration = screen.getByLabelText('Duration');
+    const prompt = screen.getByRole('textbox', { name: 'Direction' });
+    expect(screen.getAllByLabelText('Duration')).toHaveLength(1);
+    expect(duration.closest('.playground-workspace__footer')).not.toBeNull();
+    expect(prompt.compareDocumentPosition(duration) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(view.container.querySelector('.playground-workspace__empty')).toBeVisible();
+    fireEvent.change(duration, { target: { value: '25' } });
+    act(() => prompt.focus());
+    view.rerender(composerWorkspace({ sidebar: true, engine, ...successfulAttempt('image:one') }));
+    expect(screen.getByLabelText('Duration')).toBe(duration);
+    expect(duration).toHaveValue('25');
+    expect(prompt).toHaveFocus();
+    expect(prompt).toBeVisible();
+    expect(view.container.querySelector('.playground-workspace__setup-toggle')).toBeNull();
+    expect(screen.getByText('Queue status')).toBeVisible();
+    expect(screen.getByText('Recent images')).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('Quote needs attention');
+    expect(view.container.querySelector('.playground-workspace__empty')).toBeNull();
   });
 
   it('renders the task regions and delegates the recent collapse preference', () => {

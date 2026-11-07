@@ -4,6 +4,36 @@
 
 ## 1. Token Layers
 
+### Compact Typography (2026-10-27)
+
+User requests slightly smaller text across the web application. Case D shared
+presentation, UX primary with sequential QA. Central `--mpf-ui-type-scale: .93`
+in `web/src/styles/tokens.css` scales explicit CSS text sizes above12px and the
+Tailwind standard typography scale. Keep existing text12px or smaller unchanged,
+and clamp newly reduced text at12px. Preserve root font size, spacing, media,
+icons, hit targets, theme, font families and line heights; no whole-page zoom.
+Use scalable `rem` values where already present so browser zoom remains usable.
+
+Tasks: define the token and connect stylesheet font-size declarations plus
+Tailwind type tokens; verify representative shell, forms, dialogs and Playground
+in TH/EN at390/820/1440 and three themes; build once. Changes outside existing
+CSS numeric font sizes are limited to picker subcategories (GEN-UX-021 R8.1).
+Existing arbitrary utility type sizes retain their caller-specific contracts.
+No runtime state/API changes; architecture map unchanged. Status: complete.
+
+Evidence:327 numeric font-size declarations in26 existing stylesheets now use
+the token, plus standard Tailwind sm–9xl sizes. Reviewed the mechanical patch:
+all26 files differ only in font-size values; no geometry, color or media edits.
+Browser measurements compare scale1 against.93: fixed text scales with a12px
+floor, `text-base` is14.88px, root remains16px and control targets remain44px.
+36 isolated sidebar/nested-dialog cases passed (TH/EN,3 themes,390/820/1440), plus
+12 actual app-shell/Image route cases at1440px. Screenshots inspected. Commands
+and raw evidence are recorded in GEN-UX-021 R8.1. Shared picker/panel41 tests and
+`npm.cmd run build:web` passed. No new/moved files or runtime data paths.
+Sequential scoped UX/QA review; all application routes and physical-device zoom
+were not exhaustively exercised. Existing caller-specific arbitrary utilities
+remain unchanged. No required implementation work remains.
+
 Use three layers:
 
 ```text

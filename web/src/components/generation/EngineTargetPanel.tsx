@@ -9,6 +9,7 @@ import { EngineTargetPanelFrame } from './EngineTargetPanelFrame';
 import { imageModelUnavailableReason, imageModelPickerOptions, supportedImageRatio } from './engineTargetPanelHelpers';
 import { GenerationModelPicker } from './GenerationModelPicker';
 import { GenerationOptionSelect } from './GenerationOptionSelect';
+import { GenerationOutputControls } from './GenerationOutputControls';
 
 export type EngineValue = {
   provider: string;
@@ -141,7 +142,7 @@ export function EngineTargetPanel({
             ? <small className="generation-option-warning">{t('playground.engine.internalTesting')}</small> : null}
         </div> : null}
         {selectionNotice && !comparison ? <p className="generation-option-warning" role="status">{selectionNotice}</p> : null}
-        <div className="engine-target-panel__output-grid">
+        <GenerationOutputControls><div className="engine-target-panel__output-grid">
           <GenerationOptionSelect label={t('playground.engine.aspect')} icon={Maximize}
             value={fixedAspectRatio || value.aspectRatio} locked={Boolean(fixedAspectRatio)}
             options={ratios.map(ratio => ({ value: ratio, label: ratio }))}
@@ -167,7 +168,7 @@ export function EngineTargetPanel({
           {!comparison && !allowMultiOutput ? <GenerationOptionSelect label={t('playground.engine.images')}
             icon={Images} locked value={String(value.outputCount)} options={[{ value: String(value.outputCount), label: String(value.outputCount) }]}
             onChange={() => {}} /> : null}
-        </div>
+        </div></GenerationOutputControls>
       </div>
       {comparison ? (
         <ComparisonConfigurator

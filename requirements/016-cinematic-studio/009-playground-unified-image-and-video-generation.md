@@ -774,6 +774,51 @@ still making operational cache and polling behavior tunable.
   later catalog exposure uses existing Video components and does not alter
   Image, Veo, Seedance, Comparison, focus, Recent or actor-isolation behavior.
 
+## 2026-10-26 Configuration-driven duration slider and failed previews
+
+User authorizes a single-thumb duration slider plus numeric input, initially
+enabling every whole second4–30 for Seedance2.5. Shared UI derives its control
+from the server catalog: exact-duration models with a complete ascending integer
+list use a step1 slider; sparse, singleton and prompted lists retain the dropdown.
+No model-ID branching or duplicate capability limits in UI. The existing
+`server/config/cinematic-video-models.json` durations remain authoritative.
+
+Scope: only the Duration control in VideoEngineTargetPanel and Seedance2.5
+duration admission. Preserve model/aspect/resolution/audio/Comparison, authoring
+drafts, Generate, processing feedback and reference recovery. Numeric editing can
+be temporarily empty, but emits only configured integers; blur/Enter clamps to
+bounds or restores the selected value. Support keyboard/pointer/touch, localized
+labels/units, theme tokens and44px targets. Fit390/768/1440px without overflow.
+The existing quote query/fingerprint and submitted request use the selected value.
+
+Recent/result/viewer previews show only completed tasks with usable output URLs.
+Failed/cancelled/expired tasks must never create black media cards, including
+stale output metadata. Preserve successful cards and pending processing feedback.
+Keep failed tasks and sanitized diagnostics in existing logs; inline failure and
+reference-replacement guidance remains. Existing filters already implement this;
+verify before changing behavior or deleting records.
+
+Ordered delivery: (1) extend bounded duration policy and negative checks under
+020/005; (2) shared duration interaction and regressions; (3) failed preview/log
+regressions, build and isolated responsive checks. Plan:
+`../020-generation-providers/video/duration-range-task-plan.json`.
+Primary: Backend; reviewers: Commercial/Backend/Security and QA/UX in two scoped
+independent reviewers. Five perspectives are justified by a paid admission change
+plus shared UI; three agents maximum, sequential perspectives within each review.
+Skills: review-product-ux, verify-release-regressions, review-commercial-integrity,
+implement-generation-workflow. No live generation, production activation, data
+mutation, service restart or Git management. Implemented and validated:50/50
+focused React checks,65/65 server checks and TypeScript/Vite build pass. Existing
+Recent/result/viewer filters needed no application change; stale failed/cancelled/
+expired URLs remain hidden while error metadata and successful outputs survive.
+Existing provider persistence test proves sanitized failures/request IDs remain
+durable. The existing generation-options visual runner adds only the opt-in
+`--duration-range` fixture, no new runner.18 browser cases pass at390/820/1440px
+in en/th across three themes, including native number/keyboard/bounds/overflow.
+Independent QA/UX reviewer `/root/duration_ui_qa_review` inspected representative
+screenshots and returned PASS for both roles. Full live route/provider UAT was
+not run. Exact commands, artifact path and remaining limits are in020/005.
+
 ## 13. Launch Blockers
 
 Reference POC addendum (2026-09-07):

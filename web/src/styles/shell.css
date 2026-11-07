@@ -39,7 +39,7 @@
 }
 
 .momelo-brand__wordmark {
-  font-size: 21px;
+  font-size: max(12px, calc(21px * var(--mpf-ui-type-scale)));
   line-height: 1;
   letter-spacing: 0;
 }
@@ -95,7 +95,7 @@
   border-radius: var(--mpf-radius-sm);
   background: var(--theme-input);
   color: var(--theme-text);
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--mpf-ui-type-scale)));
 }
 
 .global-header__create {
@@ -109,7 +109,7 @@
   border-radius: var(--mpf-radius-sm);
   background: var(--mpf-brand-gradient);
   color: var(--theme-on-primary);
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--mpf-ui-type-scale)));
   text-decoration: none;
   box-shadow: 0 0 24px var(--theme-shadow);
 }
@@ -129,7 +129,7 @@
   border-left: 1px solid var(--mpf-border);
   border-right: 1px solid var(--mpf-border);
   color: var(--theme-action);
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--mpf-ui-type-scale)));
   text-decoration: none;
 }
 
@@ -622,7 +622,7 @@
   border-radius: 4px;
   background: transparent;
   color: var(--theme-text-muted);
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--mpf-ui-type-scale)));
   opacity: .68;
   text-align: left;
   text-decoration: none;
@@ -832,7 +832,7 @@
 }
 
 .site-footer__brand .momelo-brand__wordmark {
-  font-size: 17px;
+  font-size: max(12px, calc(17px * var(--mpf-ui-type-scale)));
 }
 
 .site-footer__brand p {

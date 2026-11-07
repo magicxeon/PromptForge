@@ -180,6 +180,14 @@ frame. One ancestor frame suppresses nested framing. No new runtime data owner.
 shared image/video selector implementation. Existing presentation
 owners are `web/src/components/generation/EngineTargetPanel.tsx`,
 `VideoEngineTargetPanel.tsx` and `web/src/components/comparisons/ComparisonConfigurator.tsx`.
+VideoEngineTargetPanel derives its duration slider/number input from the public
+catalog's complete integer durations and exact mode; sparse/prompted models retain
+the dropdown. Seedance2.5 duration admission is owned by
+`server/config/cinematic-video-models.json` and `server/config/videoPaidActivation.js`
+(`getVideoPaidActivationDurations`), projected by VideoCapabilityRegistry. Its
+explicitly versioned4–30 range extends only duration within existing paid
+resolution/audio/reference-count profiles; measuredCases remain historical data.
+No Credit calculation, ledger, output store or failure-log ownership changes.
 Feature callers retain orchestration, drafts, references and actions; Generation
 and Credits retain their public workflows. `GenerationModelPicker.tsx` and
 `GenerationOptionSelect.tsx` live under `web/src/components/generation/` and own
@@ -198,6 +206,12 @@ right output/actions/Queue/Recent region. Existing option controls and other
 feature placements remain authoritative. GO-T14-T18 extend the existing
 workspace/CSS ownership. `GenerationReferenceDisclosure.tsx` under the shared
 Generation components owns collapsible presentation only, not reference processing.
+GEN-UX-021 R8 opts general Image/Video into the persistent creation sidebar;
+Look Sheet keeps the expandable workspace. Shared `GenerationOutputControls.tsx`
+owns a presentation-only React portal target for existing panel output controls
+at the sidebar foot; state, capabilities and callbacks stay in the owning panels.
+`PlaygroundGenerationWorkspace.tsx` and `web/src/styles/playground.css` own its
+responsive canvas, empty state and placement, with no automatic completion scroll.
 No new runtime data path, cache or persistence owner is introduced.
 The existing `PlaygroundRoute.tsx` owns the compact editable-workspace entry header;
 guided headers remain unchanged. Image36/maximum-reference Video18 actual-route

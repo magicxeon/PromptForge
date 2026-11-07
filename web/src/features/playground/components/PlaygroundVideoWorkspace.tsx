@@ -404,7 +404,7 @@ function PlaygroundVideoSession() {
         <div className="playground-video-reference-summary">
         {referencePlan.references.length ? (
           <ul className="playground-video-reference-summary__list">
-            {referencePlan.references.slice(0, 2).map((reference, index) => (
+            {referencePlan.references.map((reference, index) => (
               <li key={`${reference.purpose}:${index}`} className={referenceIssues.some(issue => issue.referenceIndex === index) ? 'is-rejected' : undefined}>
                 <VideoReferenceThumbnail url={reference.referenceImageUrl || [draft.trustedFrame, draft.trustedLook,
                   ...(draft.trustedImages || []), ...(draft.trustedLooks || [])]
@@ -421,9 +421,6 @@ function PlaygroundVideoSession() {
             ))}
           </ul>
         ) : null}
-        {referencePlan.references.length > 2 ? <span>{t('playground.options.moreReferences', {
-          count: referencePlan.references.length - 2,
-        })}</span> : null}
         </div>
       )}
     >
@@ -564,6 +561,8 @@ function PlaygroundVideoSession() {
       {creditConsent.dialog}
       <PlaygroundGenerationWorkspace
         composer
+        sidebar
+        mediaType="video"
         autoCollapseOnComplete={false}
         completedResultKey={activeTask?.status === 'completed' && activeTask.outputAsset?.publicUrl ? `video:${activeTask.id}` : null}
         activeRenderKey={activeTask?.id === taskId && !TERMINAL.has(activeTask.status) ? `video:${activeTask.id}` : null}

@@ -159,7 +159,7 @@
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgb(255 255 255 / 5%);
   color: var(--mpf-violet);
-  font-size: 1.1rem;
+  font-size: max(12px, calc(1.1rem * var(--mpf-ui-type-scale)));
 }
 
 .generation-viewer__metadata {
@@ -217,7 +217,7 @@
   overflow-y: auto;
   color: var(--mpf-text-muted);
   font-family: monospace;
-  font-size: 0.8rem;
+  font-size: max(12px, calc(0.8rem * var(--mpf-ui-type-scale)));
   line-height: 1.5;
 }
 
@@ -345,7 +345,7 @@
   background: #16b9d2;
   color: #061018;
   box-shadow: 0 0 18px rgb(17 197 236 / 20%);
-  font-size: 0.85rem;
+  font-size: max(12px, calc(0.85rem * var(--mpf-ui-type-scale)));
   font-weight: 700;
   text-decoration: none;
 }
@@ -478,7 +478,7 @@
 .comparison-export-dialog { position: fixed; z-index: 181; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(960px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); display: flex; flex-direction: column; border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-bg-raised); color: var(--theme-text); overflow: hidden; }
 .comparison-export-dialog > header, .comparison-export-dialog > footer { display: flex; align-items: center; gap: 10px; padding: 12px 16px; flex: none; }
 .comparison-export-dialog > header { justify-content: space-between; border-bottom: 1px solid var(--theme-border); }
-.comparison-export-dialog > header h2 { margin: 0; font-size: 1rem; }
+.comparison-export-dialog > header h2 { margin: 0; font-size: max(12px, calc(1rem * var(--mpf-ui-type-scale))); }
 .comparison-export-dialog > footer { border-top: 1px solid var(--theme-border); justify-content: flex-end; flex-wrap: wrap; }
 .comparison-export-dialog > footer > span { margin-right: auto; font-size: .7rem; color: var(--theme-text-muted); }
 .comparison-export-dialog__body { padding: 14px 16px; overflow: auto; min-height: 0; }

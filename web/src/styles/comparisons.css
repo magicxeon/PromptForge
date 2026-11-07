@@ -74,7 +74,7 @@
 }
 
 .comparison-configurator__heading strong {
-  font-size: 0.85rem;
+  font-size: max(12px, calc(0.85rem * var(--mpf-ui-type-scale)));
 }
 
 .comparison-configurator__heading p {
@@ -121,7 +121,7 @@
 }
 
 .comparison-slot-card__heading > strong {
-  font-size: 0.78rem;
+  font-size: max(12px, calc(0.78rem * var(--mpf-ui-type-scale)));
 }
 
 .comparison-slot-card__actions {
@@ -241,7 +241,7 @@
 
 .comparison-configurator__total strong {
   color: var(--theme-action);
-  font-size: 0.86rem;
+  font-size: max(12px, calc(0.86rem * var(--mpf-ui-type-scale)));
 }
 
 .studio-step-card--generation:has(.comparison-configurator) {
@@ -571,7 +571,7 @@
 
 .comparison-workspace__prompt h2 {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: max(12px, calc(0.78rem * var(--mpf-ui-type-scale)));
 }
 
 .comparison-workspace__prompt span {

@@ -48,7 +48,7 @@
     "generatedShotMaximumPerScene": 20,
     "shotProposalHistoryLimit": 10,
     "shotDocumentMaximumCharacters": 12000,
-    "videoPromptMaximumCharacters": 12000,
+    "videoPromptMaximumCharacters": 18000,
     "storyPlanningRequiresFinalLooks": false,
     "recommendFirstFrame": true,
     "defaultAudioEnabled": true

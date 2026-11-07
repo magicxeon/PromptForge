@@ -55,6 +55,7 @@
   --mpf-brand-gradient: var(--theme-primary-gradient);
 
   /* Layout and typography are independent from color themes. */
+  --mpf-ui-type-scale: .93;
   --mpf-header-height: 64px;
   --mpf-sidebar-width: 244px;
   --mpf-content-max: 1480px;

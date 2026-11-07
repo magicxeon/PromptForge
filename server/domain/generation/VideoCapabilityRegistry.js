@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 import { TRUSTED_GENERATED_SOURCE_POLICY } from '../../config/trustedGeneratedSources.js';
 import { generatedReferencePolicy, assertGeneratedReferenceAllowed } from '../../config/generatedReferencePolicy.js';
-import { resolveVideoPaidActivation, assertVideoPaidActivationRequest } from '../../config/videoPaidActivation.js';
+import { resolveVideoPaidActivation, assertVideoPaidActivationRequest, getVideoPaidActivationDurations } from '../../config/videoPaidActivation.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_PATH = path.resolve(__dirname, '../../config/cinematic-video-models.json');
@@ -313,7 +313,7 @@ function toPublicModel(model) {
     ratesByResolutionAndInputModeUsdPerMillionTokens, providerDiscounts, minimumInputVideoTokens, ...safe } = model;
   const profile = model.paidUsageActivationVersion ? {
     inputModes: ['multimodal_reference'], aspectRatios: ['9:16'], resolutions: ['480p', '720p'],
-    durations: [...new Set(model.paidUsageActivation.measuredCases.map(row => row.durationSeconds))],
+    durations: getVideoPaidActivationDurations(model),
     referenceImageLimit: 9
   } : {};
   return {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "catalogVersion": "cinematic-video-2026-10-02-scoped-paid-v13",
+  "catalogVersion": "cinematic-video-2026-10-26-duration-range-v14",
   "models": [
     {
       "providerId": "gemini", "modelId": "veo-3.1-lite-generate-preview", "displayName": "Veo 3.1 Lite",
@@ -146,7 +146,7 @@
       "requiresInputVideoMinimumTokens": true,
       "providerDiscounts": [{ "id": "sd25-1080p-28pct-20260814-20260917", "startsAt": "2026-08-14T06:00:00.000Z", "endsAt": "2026-09-17T06:00:00.000Z", "multiplier": 0.72, "resolutions": ["1080p"] }],
       "developmentPocLookReferences": true,
-      "operations": ["text_to_video", "cinematic_draft_clip", "cinematic_final_clip"], "durationControlMode": "exact", "durations": [4, 5, 6, 8, 10, 12, 15, 20, 30],
+      "operations": ["text_to_video", "cinematic_draft_clip", "cinematic_final_clip"], "durationControlMode": "exact", "durations": [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
       "commercialOperations": ["playground_video", "cinematic_draft_clip", "cinematic_final_clip"],
       "inputModes": ["text_to_video"],
       "resolutions": ["480p", "720p"], "qualificationBlockedResolutions": ["1080p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
@@ -161,7 +161,8 @@
       "providerRateVersion": "byteplus-seedance-2026-09-04", "pricingStatus": "research_only",
       "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true,
       "paidUsageActivation": {
-        "enabled": true, "version": "seedance25-measured-paid-2026-10-02-v1",
+        "enabled": true, "version": "seedance25-duration-range-2026-10-26-v2",
+        "durationRange": { "minimum": 4, "maximum": 30, "step": 1, "evidenceBasis": "provider_documented_duration_range_user_authorized" },
         "runtimeEnvironments": ["development", "test"],
         "rateEvidenceBasis": "configured_rate_user_authorized_provisional",
         "evidenceRequirement": "requirements/020-generation-providers/video/005-seedance-25-usage-based-credit-activation.md",

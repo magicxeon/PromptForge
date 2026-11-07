@@ -29,6 +29,22 @@
 @import "./dialogs.css";
 @import "./generation-options.css";
 
+/* Font-only density: preserve root/rem spacing and all control hit targets. */
+@theme inline {
+  --text-sm: max(12px, calc(.875rem * var(--mpf-ui-type-scale)));
+  --text-base: max(12px, calc(1rem * var(--mpf-ui-type-scale)));
+  --text-lg: calc(1.125rem * var(--mpf-ui-type-scale));
+  --text-xl: calc(1.25rem * var(--mpf-ui-type-scale));
+  --text-2xl: calc(1.5rem * var(--mpf-ui-type-scale));
+  --text-3xl: calc(1.875rem * var(--mpf-ui-type-scale));
+  --text-4xl: calc(2.25rem * var(--mpf-ui-type-scale));
+  --text-5xl: calc(3rem * var(--mpf-ui-type-scale));
+  --text-6xl: calc(3.75rem * var(--mpf-ui-type-scale));
+  --text-7xl: calc(4.5rem * var(--mpf-ui-type-scale));
+  --text-8xl: calc(6rem * var(--mpf-ui-type-scale));
+  --text-9xl: calc(8rem * var(--mpf-ui-type-scale));
+}
+
 * {
   box-sizing: border-box;
 }

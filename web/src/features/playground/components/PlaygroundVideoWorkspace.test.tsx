@@ -248,7 +248,7 @@ describe('Playground video execution controls', () => {
     expect(mocks.submit).not.toHaveBeenCalled();
   });
 
-  it('bounds a restored maximum-reference summary without trimming or reordering the quote snapshot', async () => {
+  it('shows all restored reference thumbnails without trimming or reordering the quote snapshot', async () => {
     const imageReferences = Array.from({ length: 9 }, (_, index) => ({ url: `/outputs/image-${index + 1}.png` }));
     restoreDraft({ operation: 'image_to_video', prompt: 'Restored motion', imageReferences });
     mount();
@@ -257,8 +257,7 @@ describe('Playground video execution controls', () => {
     expect(details).not.toHaveAttribute('open');
     const thumbnails = document.querySelectorAll('.playground-video-reference-summary__thumbnail img');
     expect(Array.from(thumbnails).map(image => image.getAttribute('src')))
-      .toEqual(imageReferences.slice(0, 2).map(image => image.url));
-    expect(screen.getByText('+7 more references')).toBeVisible();
+      .toEqual(imageReferences.map(image => image.url));
     expect(document.querySelector('.generation-reference-disclosure__count')).toHaveTextContent('9 / 9');
     expect(document.querySelectorAll('.generation-reference-disclosure__editor button[data-invalid-frame]')).toHaveLength(9);
     const snapshot = mocks.quote.mock.calls.at(-1)?.[0];
@@ -289,8 +288,8 @@ describe('Playground video execution controls', () => {
     const problem = document.querySelector<HTMLElement>('.generation-reference-disclosure__problem')!;
     expect(problem).toBeVisible();
     await waitFor(() => expect(problem).toHaveTextContent('Image 8'));
-    expect(document.querySelectorAll('.playground-video-reference-summary__list li')).toHaveLength(2);
-    expect(document.querySelector('.playground-video-reference-summary__list li.is-rejected')).toBeNull();
+    expect(document.querySelectorAll('.playground-video-reference-summary__list li')).toHaveLength(9);
+    expect(document.querySelector('.playground-video-reference-summary__list li.is-rejected')).toHaveTextContent('Image 8');
     const details = document.querySelector<HTMLDetailsElement>('.generation-reference-disclosure details')!;
     expect(details).not.toHaveAttribute('open');
     const affected = document.querySelector<HTMLButtonElement>('.generation-reference-disclosure__editor .is-provider-rejected button')!;
@@ -384,10 +383,10 @@ describe('Playground video execution controls', () => {
     for (const region of [source, engine]) expect(composer).toContainElement(region);
     for (const region of [generate]) {
       expect(tools).toContainElement(region);
-      expect(composer).toContainElement(region);
-      expect(engine.closest('.playground-workspace__render-settings')).toContainElement(region);
+      expect(composer).not.toContainElement(region);
+      expect(document.querySelector('.playground-workspace__footer')).toContainElement(region);
     }
-    const orderedRegions: Array<[Element, Element]> = [[source, prompt], [prompt, engine], [engine, generate]];
+    const orderedRegions: Array<[Element, Element]> = [[engine, source], [source, prompt], [prompt, generate]];
     for (const [before, after] of orderedRegions) {
       expect(before.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     }
@@ -414,16 +413,20 @@ describe('Playground video execution controls', () => {
     { status: 'completed', publicUrl: '/outputs/complete.mp4' },
     { status: 'completed', publicUrl: null },
     { status: 'failed', publicUrl: null },
+    { status: 'failed', publicUrl: '/outputs/stale-failure.mp4' },
+    { status: 'cancelled', publicUrl: '/outputs/stale-cancelled.mp4' },
+    { status: 'expired', publicUrl: '/outputs/stale-expired.mp4' },
   ])('keeps Video expanded without automatic navigation after submission: $status/$publicUrl', async ({status,publicUrl}) => {
     const task = { id: 'task-one', status, outputAsset: publicUrl ? { publicUrl } : null };
     mocks.submit.mockResolvedValue(task);
     mocks.task.mockResolvedValue(task);
     mount(); await ready();
-    const toggle=document.querySelector('.playground-workspace__setup-toggle')!;
-    expect(toggle).toHaveAttribute('aria-expanded','true');
+    const composer=document.querySelector('.playground-workspace__composer')!;
+    expect(composer).toBeVisible();
     fireEvent.click(screen.getByRole('button',{name:/playground.video.generate/}));
     await waitFor(()=>expect(mocks.task).toHaveBeenCalled());
-    expect(toggle).toHaveAttribute('aria-expanded','true');
+    expect(document.querySelector('.playground-workspace__composer')).toBe(composer);
+    expect(composer).toBeVisible();
     expect(screen.getByRole('textbox',{name:'Prompt'})).toBeVisible();
     const result = screen.queryByRole('heading',{name:'playground.video.resultTitle', hidden: true});
     if (status === 'completed' && publicUrl) expect(result).toBeVisible();
@@ -443,15 +446,14 @@ describe('Playground video execution controls', () => {
     const view = mount();
     await screen.findByTestId('model');
     await waitFor(() => expect(mocks.task).toHaveBeenCalled());
-    expect(document.querySelector('.playground-workspace__setup-toggle')).toHaveAttribute('aria-expanded', 'true');
+    expect(document.querySelector('.playground-workspace__composer')).toBeVisible();
     await act(async () => resolve(completed));
     await screen.findByTitle(completed.id);
-    expect(document.querySelector('.playground-workspace__setup-toggle')).toHaveAttribute('aria-expanded', 'true');
-    fireEvent.click(document.querySelector('.playground-workspace__setup-toggle')!);
+    expect(document.querySelector('.playground-workspace__composer')).toBeVisible();
     view.tab(false);
     view.tab(true);
     await screen.findByTitle(completed.id);
-    expect(document.querySelector('.playground-workspace__setup-toggle')).toHaveAttribute('aria-expanded', 'true');
+    expect(document.querySelector('.playground-workspace__composer')).toBeVisible();
     expect(screen.getByRole('textbox', { name: 'Prompt' })).toHaveValue('Restored direction');
     expect(mocks.submit).not.toHaveBeenCalled();
     view.unmount(); view.client.clear();
@@ -464,10 +466,10 @@ describe('Playground video execution controls', () => {
     const completed = { id: 'task-one', status: 'completed', outputAsset: { publicUrl: '/outputs/new.mp4' } };
     mocks.task.mockResolvedValue(completed);
     await act(async () => { await view.client.refetchQueries({ queryKey: ['video-task', 'alice', 'task-one'] }); });
-    const toggle = document.querySelector('.playground-workspace__setup-toggle')!;
-    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const composer = document.querySelector('.playground-workspace__composer')!;
+    expect(composer).toBeVisible();
     await act(async () => { await view.client.refetchQueries({ queryKey: ['video-task', 'alice', 'task-one'] }); });
-    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(composer).toBeVisible();
     expect(screen.getByRole('textbox', { name: 'Prompt' })).toHaveValue('Restored direction');
     expect(mocks.focusRegion).not.toHaveBeenCalled();
     expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
@@ -483,8 +485,8 @@ describe('Playground video execution controls', () => {
     const completed = { id: 'task-one', status: 'completed', outputAsset: { publicUrl: '/outputs/new.mp4' } };
     mocks.task.mockResolvedValue(completed);
     await act(async () => { await view.client.refetchQueries({ queryKey: ['video-task', 'alice', 'task-one'] }); });
-    const toggle = document.querySelector('.playground-workspace__setup-toggle')!;
-    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const composer = document.querySelector('.playground-workspace__composer')!;
+    expect(composer).toBeVisible();
     mocks.submit.mockRejectedValueOnce(new Error('New submission failed'));
     const generate = screen.getByRole('button', { name: /playground.video.generate/ });
     await waitFor(() => expect(generate).toBeEnabled());
@@ -497,7 +499,7 @@ describe('Playground video execution controls', () => {
     await waitFor(() => expect(view.client.getMutationCache().getAll().at(-1)?.state.status).toBe('error'));
     expect(mocks.submit).toHaveBeenCalledTimes(2);
     await act(async () => { await view.client.refetchQueries({ queryKey: ['video-task', 'alice', 'task-one'] }); });
-    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(composer).toBeVisible();
     expect(screen.getByRole('textbox', { name: 'Prompt' })).toHaveValue('Small motion');
     expect(document.querySelector('.playground-video-result-media video source')).toHaveAttribute('src', expect.stringContaining('/outputs/new.mp4'));
     view.unmount(); view.client.clear();
@@ -732,16 +734,20 @@ describe('Playground video execution controls', () => {
     mocks.recent.mockResolvedValue({ items: [
       { id: 'recent-completed', modelId: 'completed-model', status: 'completed', outputAsset: { publicUrl: '/outputs/completed.mp4' } },
       { id: 'recent-failed', modelId: 'failed-model', status: 'failed', outputAsset: { publicUrl: '/outputs/failed.mp4' } },
+      { id: 'recent-cancelled', modelId: 'cancelled-model', status: 'cancelled', outputAsset: { publicUrl: '/outputs/cancelled.mp4' } },
+      { id: 'recent-expired', modelId: 'expired-model', status: 'expired', providerError: { code: 'timeout', providerRequestId: 'retained-request' } },
       { id: 'recent-running', modelId: 'running-model', status: 'provider_processing' },
       { id: 'recent-no-media', modelId: 'no-media-model', status: 'completed', outputAsset: null },
       { id: 'recent-empty-media', modelId: 'empty-media-model', status: 'completed', outputAsset: { publicUrl: '' } },
     ] });
-    mount(); await ready();
+    const view = mount(); await ready();
     expect(await screen.findByRole('button', { name: /completed-model/ })).toBeEnabled();
-    for (const name of ['failed-model', 'running-model', 'no-media-model', 'empty-media-model']) {
+    for (const name of ['failed-model', 'cancelled-model', 'expired-model', 'running-model', 'no-media-model', 'empty-media-model']) {
       expect(screen.queryByRole('button', { name: new RegExp(name) })).not.toBeInTheDocument();
     }
     expect(document.querySelectorAll('.playground-video-recent-grid button')).toHaveLength(1);
+    const retained = view.client.getQueryData<{ items: Array<{ id: string; providerError?: { providerRequestId?: string } }> }>(['video-tasks', 'alice', 'playground-recent']);
+    expect(retained?.items.find(task => task.id === 'recent-expired')?.providerError?.providerRequestId).toBe('retained-request');
     expect(document.querySelector('.playground-video-recent-grid video'))
       .toHaveAttribute('src', expect.stringContaining('/outputs/completed.mp4'));
     expect(mocks.submit).not.toHaveBeenCalled();

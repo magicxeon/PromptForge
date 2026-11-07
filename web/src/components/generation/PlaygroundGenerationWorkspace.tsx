@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, History, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, ChevronUp, Film, History, Images, SlidersHorizontal } from 'lucide-react';
 import {
   useCallback,
   useEffect,
@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { GenerationCommandRegion } from './GenerationCommandRegion';
+import { GenerationOutputTarget } from './GenerationOutputControls';
 
 export type PlaygroundRenderAttempt = {
   sequence: number;
@@ -35,6 +36,8 @@ export function PlaygroundGenerationWorkspace({
   recentTitle,
   recentPlacement = 'before-engine',
   composer = false,
+  sidebar = false,
+  mediaType = 'image',
   builder,
   builderTitle,
   toolsRef,
@@ -61,6 +64,8 @@ export function PlaygroundGenerationWorkspace({
   recentTitle?: ReactNode;
   recentPlacement?: 'before-engine' | 'after-engine';
   composer?: boolean;
+  sidebar?: boolean;
+  mediaType?: 'image' | 'video';
   builder?: ReactNode;
   builderTitle?: ReactNode;
   toolsRef?: Ref<HTMLElement>;
@@ -92,6 +97,7 @@ export function PlaygroundGenerationWorkspace({
   const revealOutput = useRef(false);
   const [builderExpanded, setBuilderExpanded] = useState(true);
   const [scrollFade, setScrollFade] = useState({ top: false, bottom: false });
+  const [outputTarget, setOutputTarget] = useState<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
     if (!composer || previousExpanded.current === expanded) return;
@@ -216,7 +222,7 @@ export function PlaygroundGenerationWorkspace({
   }, [composer, editing]);
 
   useEffect(() => {
-    if (!composer || !autoCollapseOnComplete) return;
+    if (!composer || sidebar || !autoCollapseOnComplete) return;
     // Hydration and generic busy flags are not evidence of a new render.
     const previousAttempt = lastAttempt.current;
     if (submittedRenderAttempt && (submittedRenderAttempt.sequence !== previousAttempt?.sequence
@@ -259,7 +265,7 @@ export function PlaygroundGenerationWorkspace({
     revealOutput.current = active === document.body || Boolean(setupRef.current?.contains(active));
     if (setupRef.current?.contains(active)) toggleRef.current?.focus({ preventScroll: true });
     setExpanded(false);
-  }, [composer, autoCollapseOnComplete, completedResultKey, activeRenderKey, submittedRenderAttempt, editing, composing]);
+  }, [composer, sidebar, autoCollapseOnComplete, completedResultKey, activeRenderKey, submittedRenderAttempt, editing, composing]);
 
   useEffect(() => {
     if (expanded) return;
@@ -270,6 +276,46 @@ export function PlaygroundGenerationWorkspace({
     outputRef.current?.scrollIntoView?.({ block: 'start',
       behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }, [expanded, setupVisible]);
+
+  if (sidebar) return <GenerationOutputTarget.Provider value={outputTarget}>
+    <div className={`playground-workspace playground-workspace--composer playground-workspace--sidebar${comparisonActive ? ' is-comparison' : ''}`}>
+      <div className="playground-workspace__layout">
+        <section className="playground-workspace__tools-frame" aria-label={t('playground.setup.title')}
+          tabIndex={-1} ref={node => {
+            setupRef.current = node;
+            if (typeof toolsRef === 'function') toolsRef(node);
+            else if (toolsRef) toolsRef.current = node;
+          }}>
+          <div className="playground-workspace__composer">
+            {engine}
+            {references}
+            {prompt}
+          </div>
+          <div className="playground-workspace__footer">
+            <div ref={setOutputTarget} className="playground-workspace__output-settings" />
+            <div className="playground-workspace__action">
+              <GenerationCommandRegion showPromptHeading={showRenderPromptHeading} actions={actions} messages={messages} />
+            </div>
+          </div>
+        </section>
+        <section ref={outputRef} className="playground-workspace__output" aria-label={t('playground.workspace.outputs')}>
+          <header className="playground-workspace__canvas-heading">
+            {mediaType === 'video' ? <Film aria-hidden="true" /> : <Images aria-hidden="true" />}
+            <h2>{t(`playground.workspace.${mediaType}Outputs`)}</h2>
+          </header>
+          <p className="sr-only" role="status">{completedResultKey && !renderBusy ? t('playground.setup.resultReady') : ''}</p>
+          <div hidden={!showResult} className={`playground-workspace__result${comparisonActive ? ' playground-workspace__comparison-output' : ''}`}>{result}</div>
+          {!showResult ? <div className="playground-workspace__empty">
+            {mediaType === 'video' ? <Film aria-hidden="true" /> : <Images aria-hidden="true" />}
+            <h3>{t('playground.workspace.emptyTitle')}</h3>
+            <p>{t(`playground.workspace.${mediaType}EmptyDescription`)}</p>
+          </div> : null}
+          {queue}
+          {recent ? renderRecentPanel() : null}
+        </section>
+      </div>
+    </div>
+  </GenerationOutputTarget.Provider>;
 
   if (composer) return <div
     className={`playground-workspace playground-workspace--composer playground-workspace--expandable${comparisonActive ? ' is-comparison' : ''}`}>

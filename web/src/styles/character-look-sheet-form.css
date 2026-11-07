@@ -22,17 +22,17 @@
 }
 .look-sheet-form { container-type: inline-size; gap: 24px; }
 .look-sheet-group-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.look-sheet-group-heading h3 { display: flex; align-items: center; gap: 10px; font-size: 18px; margin: 0; }
+.look-sheet-group-heading h3 { display: flex; align-items: center; gap: 10px; font-size: max(12px, calc(18px * var(--mpf-ui-type-scale))); margin: 0; }
 .look-sheet-group-heading h3 svg { width: 20px; height: 20px; color: var(--theme-primary); }
 .look-sheet-identity-row { display: grid; grid-template-columns: minmax(0, 3fr) minmax(96px, 1fr); gap: 16px; }
 .look-sheet-form input { min-height: 44px; }
-.look-sheet-secondary-fields textarea { min-height: 112px; font-size: 15px; line-height: 1.6; padding: 12px; }
+.look-sheet-secondary-fields textarea { min-height: 112px; font-size: max(12px, calc(15px * var(--mpf-ui-type-scale))); line-height: 1.6; padding: 12px; }
 @container (max-width: 419px) { .look-sheet-identity-row { grid-template-columns: minmax(0, 1fr); } }
 .look-sheet-character-prompt textarea {
   width: 100%; min-width: 0; min-height: 220px; resize: vertical;
   border: 1px solid var(--theme-border); border-radius: 8px;
   background: var(--theme-bg); color: var(--mpf-text); padding: 12px;
-  font-size: 15px; line-height: 1.7;
+  font-size: max(12px, calc(15px * var(--mpf-ui-type-scale))); line-height: 1.7;
 }
 .look-sheet-character-prompt textarea:focus-visible {
   outline: 2px solid var(--theme-primary); outline-offset: 2px;

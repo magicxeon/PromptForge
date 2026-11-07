@@ -188,7 +188,7 @@
   height: 100%;
   place-items: center;
   color: var(--theme-primary);
-  font-size: 2.5rem;
+  font-size: max(12px, calc(2.5rem * var(--mpf-ui-type-scale)));
   font-weight: 700;
 }
 
@@ -298,7 +298,7 @@
 .creator-profile-hero__counts dd {
   margin: 2px 0 0;
   color: var(--theme-text);
-  font-size: 1rem;
+  font-size: max(12px, calc(1rem * var(--mpf-ui-type-scale)));
   font-weight: 700;
 }
 
@@ -400,7 +400,7 @@
 .profile-overview-section__header h2 {
   margin: 0;
   color: var(--theme-text);
-  font-size: 1rem;
+  font-size: max(12px, calc(1rem * var(--mpf-ui-type-scale)));
 }
 
 .profile-overview-section__header a {
@@ -462,7 +462,7 @@
 .profile-comparison-card h3,
 .profile-collection-mosaic h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: max(12px, calc(1rem * var(--mpf-ui-type-scale)));
 }
 
 .profile-featured-work p {
@@ -526,7 +526,7 @@
   order: -1;
   margin: 0;
   color: var(--theme-text);
-  font-size: 1.2rem;
+  font-size: max(12px, calc(1.2rem * var(--mpf-ui-type-scale)));
   font-weight: 700;
 }
 
@@ -846,7 +846,7 @@
   }
 
   .creator-profile-hero__name-row h1 {
-    font-size: 1.45rem;
+    font-size: max(12px, calc(1.45rem * var(--mpf-ui-type-scale)));
   }
 
   .creator-profile-hero__counts {

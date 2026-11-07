@@ -238,7 +238,7 @@
 
 .community-comment-thread > h2 {
   margin: 0 0 12px;
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--mpf-ui-type-scale)));
   font-weight: 500;
 }
 
@@ -339,7 +339,7 @@
 
 .community-more-from-creator__heading h2 {
   margin: 0;
-  font-size: 14px;
+  font-size: max(12px, calc(14px * var(--mpf-ui-type-scale)));
   font-weight: 500;
 }
 

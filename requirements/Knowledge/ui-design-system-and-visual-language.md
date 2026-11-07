@@ -34,6 +34,11 @@ system information support the media instead of competing with it.
 - Letter spacing is `0`.
 - Use page-scale headings only for true page titles or hero content.
 - Compact panels, cards, sidebars, and metadata use smaller, tighter type.
+- Shared text density is controlled by `--mpf-ui-type-scale` in
+  `web/src/styles/tokens.css` (default `.93`). Standard Tailwind text sizes and
+  numeric stylesheet sizes above12px use this font-only scale, with a12px floor.
+  Existing12px/smaller metadata and explicit caller utility sizes remain intact.
+  Do not reduce root/rem geometry or use page zoom to make typography compact.
 
 ## 4. Color and Surfaces
 

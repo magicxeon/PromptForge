@@ -1,5 +1,48 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { assertVideoPaidActivationRequest, getVideoPaidActivationDurations, resolveVideoPaidActivation } from '../server/config/videoPaidActivation.js';
+
+test('Seedance2.5 exposes and admits every documented integer duration without changing other dimensions', () => {
+  const registry = new VideoCapabilityRegistry({ runtimeEnvironment: 'development' });
+  const model = registry.resolve('modelark', 'dreamina-seedance-2-5-260628');
+  const published = registry.getPublicCatalog().models.find(row => row.modelId === model.modelId);
+  assert.deepEqual(published.durations, Array.from({ length: 27 }, (_, i) => i + 4));
+  const base = { providerId: model.providerId, modelId: model.modelId, commercialOperation: 'playground_video',
+    inputMode: 'multimodal_reference', aspectRatio: '9:16', resolution: '720p', audioMode: 'generated', referenceImageCount: 3 };
+  for (const durationSeconds of published.durations) {
+    registry.validateRequest({ ...base, durationSeconds });
+    assert.doesNotThrow(() => assertVideoPaidActivationRequest(model, { ...base, durationSeconds }));
+  }
+  for (const durationSeconds of [3, 31, 7.5, NaN, Infinity, 0, -1]) {
+    assert.throws(() => registry.validateRequest({ ...base, durationSeconds }), { code: 'video_parameter_unsupported' });
+    assert.throws(() => assertVideoPaidActivationRequest(model, { ...base, durationSeconds }));
+  }
+  assert.deepEqual(registry.resolve('gemini', 'veo-3.1-lite-generate-preview').durations, [4, 6, 8]);
+  assert.equal(model.paidUsageActivation.measuredCases.reduce((sum, row) => sum + row.sampleCount, 0), 32);
+});
+
+test('paid duration policy rejects invalid configuration and retains measured-only fallback', () => {
+  const registry = new VideoCapabilityRegistry({ runtimeEnvironment: 'development' });
+  const model = registry.resolve('modelark', 'dreamina-seedance-2-5-260628');
+  for (const durationRange of [null, { minimum: 3, maximum: 30, step: 1 },
+    { ...model.paidUsageActivation.durationRange, minimum: 4.5 },
+    { ...model.paidUsageActivation.durationRange, maximum: 31 },
+    { ...model.paidUsageActivation.durationRange, minimum: 10, maximum: 4 },
+    { ...model.paidUsageActivation.durationRange, step: 0 },
+    { ...model.paidUsageActivation.durationRange, evidenceBasis: 'unverified' }]) {
+    const invalid = structuredClone(model);
+    invalid.paidUsageActivation.durationRange = durationRange;
+    assert.throws(() => resolveVideoPaidActivation(invalid, 'development'), TypeError);
+  }
+  const sparse = structuredClone(model);
+  sparse.durations = [4, 30];
+  assert.throws(() => getVideoPaidActivationDurations(sparse), TypeError);
+  const legacy = structuredClone(model);
+  delete legacy.paidUsageActivation.durationRange;
+  assert.deepEqual(getVideoPaidActivationDurations(legacy), [4, 6, 8, 30]);
+  assert.throws(() => assertVideoPaidActivationRequest(legacy, { inputMode: 'multimodal_reference',
+    aspectRatio: '9:16', resolution: '720p', audioMode: 'generated', referenceImageCount: 3, durationSeconds: 7 }));
+});
 
 test('Cinematic Look mode is catalog-driven and development-only for Seedance 2.x', () => {
   const development = new VideoCapabilityRegistry({ seedanceFirstFrameEnabled: true, runtimeEnvironment: 'development', developmentPocEnabled: true });

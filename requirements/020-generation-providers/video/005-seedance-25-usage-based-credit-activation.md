@@ -1,5 +1,69 @@
 # Seedance 2.5 Usage-Based Credit Activation
 
+## 2026-10-26 Authorized duration range extension
+
+User authorizes selecting each integer4–30 seconds, including paid local quotes
+through the existing workflow. BytePlus documents `duration` as integer4–30:
+https://docs.byteplus.com/en/docs/modelark/seedance-2-5 . This supersedes only the
+exact measured-duration admission below; measuredCases remain historical samples,
+never fabricated evidence for new durations. No new provider call is required.
+
+Plan: extend configured model durations to4..30 and add activation.durationRange
+with minimum4, maximum30, step1 and evidenceBasis
+`provider_documented_duration_range_user_authorized`. Bump activation.version so
+new immutable pricing snapshots distinguish this authorization. Validate range
+shape, evidence and bounds against model.durations. Paid requests may vary duration
+only: resolution/audio/referenceCount must still match an existing measured row.
+Keep dev/test-only activation,9:16,24fps,no input video,one output,online,
+resolution/source gates, existing rates/calculation/reserve/capture/refund and
+historical snapshots. Catalog projects the same admitted duration values; absent
+range retains historical measured-only behavior. Production remains disabled.
+
+Scope/acceptance/review identities are tracked in `duration-range-task-plan.json`.
+Checks: registry4..30 and invalid durations/config, historical fallback, restricted
+combinations/production, actual-usage snapshot/cap/replay regressions; UI slider
+and failed-preview checks under016/009. No live data/provider call or restart.
+Primary Backend; mandatory independent Commercial/Backend/Security and QA/UX
+review. Architecture boundaries/data stores unchanged; configuration map amended
+for range policy ownership. Status: bounded implementation and validation complete.
+
+Delivery evidence (2026-10-26):
+- `node --test test/videoCapabilityRegistry.test.js test/videoActualCreditSettlement.test.js`:
+  53/53 passed, including all27 duration values, invalid/fractional/bounds/config,
+  historical fallback, protected dimensions/production, and7/25-second immutable
+  quote/reserve/capture/release/replay. Existing rollback/dispatch tests passed.
+- `node --test test/videoProviderTaskService.test.js`:12/12 passed, including
+  durable sanitized failure/request-ID retention and provider-task restart paths.
+- `npm.cmd run test --workspace web -- src/components/generation/VideoEngineTargetPanel.test.tsx src/features/playground/components/PlaygroundVideoWorkspace.test.tsx`:
+  50/50 passed. `npm.cmd run build:web`: TypeScript and Vite passed after fixing
+  strict optional indexing in the new control and typed test mock reset.
+  Windows npm.ps1 policy and node_modules cache permissions required npm.cmd and
+  an approved cache-write escalation; no global settings were changed.
+- `node scripts/verify-generation-options-layout.mjs --view settings --duration-range`:
+  18 isolated browser cases passed (en/th,default/fashion/creative,390/820/1440px),
+  with native keyboard/number/clamp/restore,44px slider target, overflow, focus,
+  theme contrast and sibling controls. All API requests blocked by the fixture.
+  Artifacts: `C:/Users/punya/AppData/Local/Temp/mpf-generation-options-7m65c3`.
+- Independent `/root/duration_financial_review`: Commercial, Backend and Security
+  PASS;27 valid values,7 invalid values,10 protected dimensions,7 malformed ranges,
+  sparse capabilities, fallback,32 unchanged measured samples and production
+  exclusion independently probed read-only. No financial-source blockers.
+- Independent `/root/duration_ui_qa_review`: QA and UX PASS; inspected raw test
+  results, source, evidence.json and representative390/820/1440 screenshots.
+  No source-level or visual blockers in the bounded component scope.
+
+No pricing formula/ledger/persistence/logging changes, model calls or runtime data
+paths introduced. The only new file is the Generation-owned task-plan JSON.
+Full live route and paid provider execution were not repeated; these are not
+claimed as passed. Restart API and refresh the browser to load the new catalog;
+the service was not restarted by validation. No additional implementation remains
+within this request.
+
+Task-plan structural validation passed after recording independent reviewer IDs.
+`git diff --check` was unavailable because this workspace is not a Git repository;
+no Git management was performed. Changed source/JSON and mapped file placement
+were inspected directly instead; no moved files or duplicate capability owners.
+
 ## 2026-10-02 Authorized Supersession
 
 [Phase2-23 AI Credit Activation](../../019-implementation-commercial-feature-plan/Phase2-23-ai-credit-activation.md)
