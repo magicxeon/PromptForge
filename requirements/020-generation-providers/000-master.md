@@ -1,13 +1,53 @@
 # Generation Providers - Master Requirement
 
 Status: Active canonical requirement owner  
-Last updated: 2026-10-12  
+Last updated: 2026-11-15
 Primary role: Backend Platform Architect  
 Required reviewers: QA Release Engineer; Commercial Financial Integrity for
 pricing or paid exposure; Generative Media Pipeline reviewer for capability or
 qualification changes
 
 ## 1. Purpose
+
+2026-11-15 documentation-only update: Seedream 5.5 is specified in
+[Image 003 section 15](image/003-byteplus-modelark-seedream-provider.md#15-seedream-55-extension--2026-11-15);
+Seedance 2.5 Flash in
+[Video 002 section 0.3](video/002-video-generation-provider-contract.md#03-seedance-25-flash-extension-2026-11-15).
+Their provider-cost snapshot is recorded once in
+[Video 004 section November 15](video/004-byteplus-pricing-reconciliation.md#2026-11-15-seedance-25-flash-and-seedream-55-evidence).
+Implementation authorized2026-11-15; tracked in
+[bounded delivery plan](byteplus-20261115-task-plan.json). Seedream5.5 retail uses
+the existing image cost-plus policy, including all input charges per independent
+request; no fixed retail tariff is invented. Flash uses internal development POC
+exposure without copying standard2.5 paid activation. Provider live verification,
+Flash production promotion and advanced layers/video-edit workflows remain pending.
+Existing model exposure and accepted quotes are unchanged.
+
+Delivery checkpoint2026-11-15: ordinary Seedream5.5 generation and Flash internal
+text/image POC integration implemented. New5.5-only dimension resolver includes
+1.5K; public catalog controls remain driven by capability strings, including the
+existing React Zod string-array resolution contract.10-reference caps, independent
+fan-out costs, exact pixel tiers, Auto upper bound and image cost-plus retail use
+the existing owners. Returned5.5 dimensions validate and record actual pixels.
+Flash validates4–30s,10 images,480p/720p and rejects provider Draft; frame payloads
+explicitly use adaptive ratio. Existing standard2.5 activation/trust is preserved.
+
+Validation:102 tests passed across `modelArkSeedreamProvider`,
+`modelArkSeedanceProvider`, `byteplusPricingReconciliation`, `providerRegistry`,
+`videoCapabilityRegistry`, `videoActualCreditSettlement` under `test/`.
+Independent `/root/byteplus_review` Commercial/Backend/Security/QA review passed;
+its separate focused run passed61/61 plus invalid-count/quote-copy checks.
+The four review perspectives are mandatory sensitive gates applied by one
+independent read-only reviewer, not four additional active agents.
+No paid calls, live state mutations, UI layout edits or service restart performed.
+No frontend build/viewport audit needed for unchanged UI code; actual account
+entitlement/provider output/visual quality and invoicing remain unverified.
+Layer/OCR/transparency controls, video/audio references and edit/extend workflows
+remain the separately scoped follow-ups documented in the model requirements.
+No files moved or runtime data paths introduced; architecture map unchanged.
+JSON and plan validation pass. `git diff --check` was unavailable because this
+workspace has no Git repository metadata; scoped whitespace checks used instead.
+Restart the backend to reload cached model/pricing catalogs when active jobs finish.
 
 2026-09-09: [Image 2.5 measured pricing](image/007-openai-image25-measured-pricing.md)
 replaces the temporary tariff with cost-derived locked Credits for measured

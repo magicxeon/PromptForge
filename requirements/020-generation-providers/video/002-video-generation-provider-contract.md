@@ -50,6 +50,96 @@ normalize through this same provider-independent Generation, Asset, Credit and
 durable task lifecycle. It remains unqualified and unpriced; this extension
 does not authorize internal or customer-paid exposure.
 
+### 0.3 Seedance 2.5 Flash extension (2026-11-15)
+
+**Status:** Implementation authorized2026-11-15; bounded delivery evidence in
+`../byteplus-20261115-task-plan.json`. Existing
+runtime configuration and activation policy remain authoritative for currently
+enabled models. The August implementation status is historical, not evidence
+that Flash has been implemented or that current models should be disabled.
+
+Sources read2026-11-15:
+- [User-supplied create-task API](https://docs.byteplus.com/en/docs/modelark/create-video-generation-task-api), updated2026-11-15;
+  its body was available through the official
+  [Markdown API](https://ai.byteplus.com/ark/region:ap-southeast-1/docs/create-video-generation-task-api.md).
+- [Seedance2.5 tutorial](https://ai.byteplus.com/ark/region:ap-southeast-1/docs/seedance-2-5), updated2026-11-15.
+- [Cost evidence](004-byteplus-pricing-reconciliation.md#2026-11-15-seedance-25-flash-and-seedream-55-evidence).
+
+#### Verified Flash contract
+
+| Item | Requirement input |
+|---|---|
+| Identity | `modelark` / `dreamina-seedance-2-5-flash-261115`; display `Seedance 2.5 Flash` |
+| Transport | Existing asynchronous `POST /api/v3/contents/generations/tasks` |
+| Output |480p/720p; default720p; integer4–30 seconds or adaptive `-1`; native audio or silent |
+| Modes | Text, first frame, first+last frame, omni references; frame modes cannot mix with omni |
+| Omni references | Up to10 images,5 videos,5 audio clips; audio-only input supported |
+| Media duration | Each source video2–30s (editing4–30s), total video≤30s; each audio2–30s, total audio≤30s |
+| Draft | Provider Draft/draft-task continuation unsupported by Flash; no1080p/4K output |
+
+The tutorial requires `ratio: adaptive` for first-frame, first+last-frame and
+extension tasks. Editing additionally requires `duration: -1`. Use
+`omni_reference_task_type` values `reference`, `edit`, `extend`, `auto` according
+to intent; `auto` can infer an edit and impose its constraints. Preserve
+`InvalidParameter.TaskTypeConstraint` and `InvalidParameter.TaskTypeMismatch`
+for both submission and later polling failures. Do not assume acceptance means
+the request will finish successfully.
+
+#### Required application behavior
+
+1. Add a separate model entry in `server/config/cinematic-video-models.json` and
+   route through `server/providers/ModelArkSeedanceProvider.js`. Keep the canonical
+   Generation task/Asset/Credits lifecycle, ownership checks and idempotency.
+2. First delivery targets existing text/image workflows, including ordered omni
+   images. Preserve provider roles and indexes end-to-end;10 is the provider
+   ceiling for Flash. Existing configurable lower app limits remain explicit.
+   The same effective limit must reach picker, validator, quote and dispatch.
+3. Reuse the existing duration slider with range4–30, step1 for explicit-duration
+   generation. Expose adaptive only if the quote supports a documented upper bound.
+   A requested mode that requires adaptive ratio/duration must be represented in
+   preview and quote before dispatch, never silently rewrite a confirmed selection.
+4. Video/audio references, editing and extension are documented capabilities;
+   expose each only with its reference-source, task-intent, upload validation and
+   estimate contract implemented. Do not advertise unsupported current UI paths.
+   Model settings must distinguish provider support from application exposure.
+5. Reuse portrait trust/provenance controls. Flash's model ID is not an automatic
+   entitlement or trust grant. A real-person/source rejection must identify every
+   affected reference and leave replacement/removal controls accessible.
+6. Save terminal errors and safe provider identifiers to existing logs/task
+   history; failed/cancelled/expired jobs must not create black preview cards.
+   Keep existing successes and draft state visible; completion must not jump scroll.
+7. Use `VideoPricingCalculator.js` and Credits; cost configuration belongs in the
+   server catalog. Never reuse standard2.5's dev/test paidUsageActivation or
+   measuredCases for Flash. Existing one-Credit/local testing and standard2.5
+   activation remain unchanged by this documentation update.
+8. A Cinematic product operation named draft is distinct from provider `draft`.
+   Never send Flash `draft`/`draft_task` merely because the product operation is a
+   draft clip. Qualify it as an ordinary generation if that operation is enabled.
+
+#### Existing model reconciliation
+
+The new tutorial lists standard2.5 at30 images/10 videos/10 audios and1080p;
+Flash has its own smaller limits. This supersedes the old provider-documentation
+claim in7.2 that standard2.5 only declares480p/720p. Current application limits
+(including the configured9-image cap and blocked1080p) are not changed here.
+Do not relabel an intentional application cap as the latest upstream maximum.
+
+#### Ordered implementation acceptance (pending)
+
+- V1 Catalog: exact Flash ID and model-specific choices, no accidental default or
+  standard2.5 activation changes; shared controls reflect config including overrides.
+- V2 Payload:4/30s boundaries; reject3/31s;10/11-image boundary; first/last/omni
+  exclusivity; task-type adaptive rules; no Draft or unsupported resolution leakage.
+- V3 Lifecycle: create/poll/terminal usage, retries without duplicate billing,
+  indexed multi-reference errors, recoverable drafts and failed-preview filtering.
+- V4 Pricing: both input modes, minimum-token evidence, actual completion tokens,
+  immutable quotes and existing-model parity; financial review before activation.
+- V5 Authorized live validation: account/region, supported payloads, output/usage
+  and portrait provenance. No provider call is authorized by this requirement edit.
+
+Documentation checkpoint: sources/current config inspected; no runtime files,
+data stores or capability boundaries changed; architecture map unchanged.
+
 ## 1. Outcome
 
 Momelo shall support Google Veo, Gemini Omni Flash and BytePlus Seedance

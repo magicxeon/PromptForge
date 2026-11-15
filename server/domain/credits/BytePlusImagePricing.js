@@ -5,9 +5,14 @@ export function resolveBytePlusImagePricing(model, { resolution, aspectRatio, re
   const size = resolveModelArkOutputSize({ model: model.modelId, resolution, aspectRatio });
   const dimensions = size.match(/^(\d+)x(\d+)$/);
   const pixels = dimensions ? Number(dimensions[1]) * Number(dimensions[2]) : null;
-  const tier = selectImagePixelTier(rule.outputTiers, pixels);
+  const costPlus = rule.retailMode === 'cost_plus';
+  if (costPlus && (!Number.isSafeInteger(rule.minimumPixels) || !Number.isSafeInteger(rule.maximumPixels)
+    || rule.minimumPixels <= 0 || rule.maximumPixels < rule.minimumPixels
+    || (pixels !== null && (pixels < rule.minimumPixels || pixels > rule.maximumPixels)))) throw new TypeError('Invalid image output pixel bounds.');
+  const tier = selectImagePixelTier(rule.outputTiers, pixels, { requireCredits: !costPlus });
   if (!Number.isSafeInteger(rule.inputImages.freeCount) || rule.inputImages.freeCount < 0
-    || !Number.isSafeInteger(referenceCount) || referenceCount < 0) throw new TypeError('Invalid image reference counts.');
+    || !Number.isSafeInteger(referenceCount) || referenceCount < 0
+    || (model.modelId === 'dola-seedream-5-5-261028' && referenceCount > 10)) throw new TypeError('Invalid image reference counts.');
   const references = Math.max(0, referenceCount - rule.inputImages.freeCount);
   const outputMicros = usdMicros(tier.usdPerImage);
   const referenceMicros = references * usdMicros(rule.inputImages.usdPerImage);
@@ -33,11 +38,11 @@ export function resolveBytePlusImagePricing(model, { resolution, aspectRatio, re
   };
 }
 
-export function selectImagePixelTier(tiers, pixels) {
+export function selectImagePixelTier(tiers, pixels, { requireCredits = true } = {}) {
   if (!Array.isArray(tiers) || tiers.length !== 2
     || !Number.isSafeInteger(tiers[0].maxPixels) || tiers[0].maxPixels <= 0
     || tiers[1].maxPixels !== null
-    || tiers.some(tier => !Number.isSafeInteger(tier.publishedCredits) || tier.publishedCredits <= 0
+    || tiers.some(tier => (requireCredits && (!Number.isSafeInteger(tier.publishedCredits) || tier.publishedCredits <= 0))
       || !Number.isFinite(tier.usdPerImage) || tier.usdPerImage <= 0)) {
     throw new TypeError('Image pixel pricing tiers are invalid.');
   }

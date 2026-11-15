@@ -74,6 +74,11 @@ const SEEDREAM_FIVE_PRO_SIZE_OVERRIDES = {
     '9:16': '1584x2816'
   }
 };
+const SEEDREAM_FIVE_FIVE_SIZES = {
+  '1K': { ...STANDARD_SIZE_MAP['1K'], '16:9': '1424x800', '9:16': '800x1424' },
+  '1.5K': { '1:1': '1536x1536', '4:3': '1792x1344', '3:4': '1344x1792', '16:9': '2048x1152', '9:16': '1152x2048', '3:2': '1872x1248', '2:3': '1248x1872', '4:5': '1376x1720', '21:9': '2352x1008' },
+  '2K': { ...STANDARD_SIZE_MAP['2K'], ...SEEDREAM_FIVE_PRO_SIZE_OVERRIDES['2K'] }
+};
 
 function normalizeBaseUrl(value) {
   const baseUrl = typeof value === 'string' && value.trim() ? value.trim() : DEFAULT_BASE_URL;
@@ -130,6 +135,14 @@ export function resolveModelArkOutputSize({
 } = {}) {
   const normalizedResolution = String(resolution || '2K').toUpperCase();
   const normalizedRatio = aspectRatio === '6:8' ? '3:4' : String(aspectRatio || '1:1');
+  if (model === 'dola-seedream-5-5-261028') {
+    const sizes = SEEDREAM_FIVE_FIVE_SIZES[normalizedResolution];
+    if (!sizes) throw new Error(`Seedream 5.5 does not support resolution ${normalizedResolution}.`);
+    if (normalizedRatio === 'auto') return normalizedResolution;
+    const size = sizes[normalizedRatio];
+    if (!size) throw new Error(`Seedream 5.5 aspect ratio ${aspectRatio} is not mapped.`);
+    return size;
+  }
   if (normalizedRatio === 'auto') return normalizedResolution;
 
   const resolutionMap = STANDARD_SIZE_MAP[normalizedResolution];
@@ -210,7 +223,7 @@ export class ModelArkSeedreamProvider extends BaseProvider {
     const selectedModel = options.submodel || options.modelConfig?.id || this.providerConfig.defaultModel || 'seedream-4-0-250828';
     const modelConfig = options.modelConfig || this.providerConfig.models?.find(entry => entry.id === selectedModel) || {};
     const model = modelConfig.id || selectedModel;
-    const maxReferences = Number(modelConfig.capabilities?.maxReferenceImages || 0);
+    const maxReferences = Math.min(Number(modelConfig.capabilities?.maxReferenceImages || 0), model === 'dola-seedream-5-5-261028' ? 10 : Infinity);
     const references = collectReferences(options);
     if (references.length > maxReferences) {
       throw this.createError('invalid_request', `${model} supports up to ${maxReferences} reference images.`, false);
@@ -304,6 +317,17 @@ export class ModelArkSeedreamProvider extends BaseProvider {
       throw error;
     }
 
+    let responsePixels = null;
+    if (model === 'dola-seedream-5-5-261028' && image.size !== undefined) {
+      const dimensions = /^(\d+)x(\d+)$/.exec(String(image.size));
+      const width = Number(dimensions?.[1]), height = Number(dimensions?.[2]);
+      responsePixels = width * height;
+      if (!dimensions || !Number.isSafeInteger(responsePixels) || responsePixels < 921600 || responsePixels > 4624220
+        || width / height < 1 / 16 || width / height > 16) {
+        throw this.createError('provider_error', 'Seedream 5.5 returned invalid output dimensions.', false);
+      }
+    }
+
     let base64 = image.b64_json || null;
     let downloadedMimeType = null;
     if (!base64 && image.url) {
@@ -342,6 +366,7 @@ export class ModelArkSeedreamProvider extends BaseProvider {
         resolvedModel: data.model || image.model || model,
         requestId,
         responseSize: image.size || null,
+        ...(model === 'dola-seedream-5-5-261028' ? { responsePixels } : {}),
         requestedAspectRatio: options.aspectRatio || '1:1',
         requestedResolution: resolution,
         resolvedSize,

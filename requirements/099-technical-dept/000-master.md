@@ -1101,6 +1101,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Nano Banana2.1 fixed tariff and provisional provider cost | `server/domain/credits/GeminiNanoBananaPricing.js` is an internal pure validator/calculator behind `CreditPricingPolicyService.js`; `server/config/credit-pricing-policy.json` owns50/70/155 Credits/output plus existing reference fees and separate output-only rate evidence. Reservation/capture/refund and accepted quote ownership remain Credits. No new persistence or runtime path |
 | Paths, provider metadata, and server configuration | `server/config/` |
 | Isolated prompt and visual research | `lab/<experiment>/` |
+| Standalone Character DNA prompt utility | `lab/random-character-design/` owns its vanilla browser UI, versioned DNA dictionary, seeded randomizer, Thai prompt composer, IndexedDB library/history/images and portable backups. Source requirement: `requirements/Utilitites-Requirements/Character_DNA_Requirements_v1_2.md`. Local loopback static launcher only; no production imports, provider/API dispatch or shared account/data ownership |
 
 Server placement rules:
 

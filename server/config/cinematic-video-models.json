@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "catalogVersion": "cinematic-video-2026-10-26-duration-range-v14",
+  "catalogVersion": "cinematic-video-2026-11-15-flash-v15",
   "models": [
     {
       "providerId": "gemini", "modelId": "veo-3.1-lite-generate-preview", "displayName": "Veo 3.1 Lite",
@@ -139,6 +139,23 @@
       },
       "providerRateVersion": "byteplus-seedance-2026-09-04", "pricingStatus": "research_only",
       "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true
+    },
+    {
+      "providerId": "modelark", "modelId": "dreamina-seedance-2-5-flash-261115", "displayName": "Seedance 2.5 Flash",
+      "providerPriceSource": "https://ai.byteplus.com/ark/region:ap-southeast-1/docs/model-pricing", "providerPriceSourceDate": "2026-11-13",
+      "requiresInputVideoMinimumTokens": true, "developmentPocLookReferences": true,
+      "operations": ["text_to_video", "cinematic_draft_clip", "cinematic_final_clip"],
+      "durationControlMode": "exact", "durations": [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+      "commercialOperations": ["playground_video", "cinematic_draft_clip", "cinematic_final_clip"],
+      "inputModes": ["text_to_video"], "resolutions": ["480p", "720p"],
+      "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
+      "referenceImageLimit": 10, "supportsFirstFrame": true, "supportsLastFrame": true,
+      "portraitReferencePolicy": "provider_generated_asset_required",
+      "trustedGeneratedImageSource": { "compatibilityId": "modelark-seedance-2", "providerId": "modelark", "modelIds": ["seedream-5-0-lite-260128", "dola-seedream-5-0-pro-260628"], "requiresSameCredentialScope": true, "requiresOriginalBytes": true },
+      "billingMetric": "completion_token",
+      "ratesByResolutionAndInputModeUsdPerMillionTokens": { "480p": { "without_video": 7.0, "with_video": 4.3 }, "720p": { "without_video": 7.0, "with_video": 4.3 } },
+      "providerRateVersion": "byteplus-seedance25-flash-2026-11-13-v1",
+      "pricingStatus": "research_only", "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true
     },
     {
       "providerId": "modelark", "modelId": "dreamina-seedance-2-5-260628", "displayName": "Seedance 2.5",

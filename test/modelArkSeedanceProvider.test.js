@@ -1,6 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+test('Seedance Flash accepts10 ordered images and4–30 seconds without borrowing provider Draft', () => {
+  const request = {modelId:'dreamina-seedance-2-5-flash-261115',prompt:'An action',resolution:'720p',durationSeconds:30,
+    referenceImages:Array.from({length:10},(_,i)=>({url:`https://example.test/${i}.png`,role:'reference_image'}))};
+  const payload = buildModelArkSeedancePayload(request);
+  assert.equal(payload.content.length,11); assert.equal(payload.model,request.modelId);
+  assert.equal(payload.content[10].image_url.url,'https://example.test/9.png');
+  for(const change of [{durationSeconds:3},{durationSeconds:31},{resolution:'1080p'},{draft:true},{draftTaskId:'old'},
+    {referenceImages:[...request.referenceImages,request.referenceImages[0]]}]) assert.throws(()=>buildModelArkSeedancePayload({...request,...change}));
+  assert.equal(buildModelArkSeedancePayload({...request,durationSeconds:4,referenceImages:[],referenceImage:'https://example.test/first.png'}).ratio,'adaptive');
+});
+
 test('Seedance multimodal images keep ordered reference_image roles and cannot mix frame modes', () => {
   const request = { modelId: 'dreamina-seedance-2-5-260628', prompt: 'One action.', durationSeconds: 6,
     referenceImages: [{ url: 'https://example.com/board.png', role: 'reference_image' },

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="th" data-theme="light">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark"><meta name="description" content="ออกแบบ DNA ตัวละครและสร้าง Prompt ภาษาไทยในเครื่องของคุณ">
+  <title>Character DNA Studio · Local Lab</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b6157'/%3E%3Ctext x='5' y='23' fill='white' font-size='23'%3E✧%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./vendor/jszip.min.js" defer></script><script src="./js/app.js" type="module"></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">ข้ามไปพื้นที่ทำงาน</a>
+  <header class="app-header">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">✧</span><span>Character DNA <small>STUDIO / LOCAL LAB</small></span></a>
+    <nav aria-label="เมนูหลัก" id="navigation">
+      <button data-action="navigate" data-view="builder" class="active" aria-current="page">ออกแบบ <span>Builder</span></button>
+      <button data-action="navigate" data-view="library">คลังตัวละคร <span id="library-count">0</span></button>
+      <button data-action="navigate" data-view="history">ประวัติ <span id="history-count">0</span></button>
+      <button data-action="navigate" data-view="compare">เปรียบเทียบ</button>
+    </nav>
+    <button class="icon-button" data-action="settings" title="ตั้งค่าและสำรองข้อมูล" aria-label="ตั้งค่าและสำรองข้อมูล">⚙</button>
+  </header>
+  <main id="workspace" tabindex="-1">
+    <div class="page-heading"><div><p class="eyebrow">DESIGN A CHARACTER. KEEP THEIR DNA.</p><h1>เอกลักษณ์ใหม่ เริ่มจากรายละเอียด</h1><p>ออกแบบใบหน้า เก็บจุดจำ และสร้าง Prompt ภาษาไทยที่พร้อมนำไปใช้</p></div><button data-action="new" class="secondary">＋ ตัวละครใหม่</button></div>
+    <div id="storage-error" class="notice danger" role="alert" hidden></div>
+    <div class="privacy-note"><span class="local-dot" aria-hidden="true"></span>ข้อมูลอยู่ใน Browser นี้ · ไม่มีการเรียก AI <button data-action="backup-json">สำรองข้อมูล</button><span>ล้างข้อมูลเว็บไซต์หรือใช้โหมดส่วนตัวอาจทำให้ข้อมูลหาย</span></div>
+    <section id="builder-view" aria-label="ออกแบบตัวละคร">
+      <nav class="builder-jumps" aria-label="ไปส่วนของตัวละคร"><button data-action="jump" data-target="profile-fields">Profile</button><button data-action="jump" data-target="dna-fields">DNA</button><button data-action="jump" data-target="style-fields">Styling</button><button data-action="jump" data-target="output-panel">Prompt ↓</button></nav>
+      <div class="workspace-grid">
+        <section class="panel controls-panel" aria-labelledby="controls-title">
+          <div class="panel-heading"><div><span class="step">01</span><h2 id="controls-title">ออกแบบตัวละคร</h2></div><label class="advanced-switch"><input type="checkbox" id="advanced"> Advanced</label></div>
+          <form id="character-form" novalidate>
+            <div id="profile-fields" class="profile-grid"></div>
+            <div class="section-label"><h3>Random studio</h3><span>Seed + Locks</span></div>
+            <div class="trending-control"><label><input type="checkbox" id="trending-random" checked aria-describedby="trending-note"> Trending Random <span class="badge">Lead</span></label><p id="trending-note" class="help">คัดโครงหน้าพระเอก/นางเอก · ผิวอ่อน–กลาง · เคารพ Lock</p></div>
+            <div class="seed-field"><label for="seed">Seed</label><div><input id="seed" data-profile="randomSeed" maxlength="100" spellcheck="false"><button type="button" data-action="replay" class="secondary" title="ย้อนผลจากค่าตั้งต้นและล็อกของการสุ่มที่บันทึกไว้">↶ Replay</button></div></div>
+            <div class="random-actions"><button type="button" data-action="random" data-mode="full">⚄ สุ่มทั้งหมด</button><button type="button" data-action="random" data-mode="guided">ตาม Archetype</button><button type="button" data-action="random" data-mode="selective">สุ่มกลุ่มที่เลือก</button><button type="button" data-action="random" data-mode="novelty" class="tint">✧ หาความต่างใหม่</button></div>
+            <p id="random-note" class="help" role="status">สุ่มเฉพาะค่าที่ปลดล็อก · เลือกกลุ่มได้จากช่องหน้าชื่อหมวด</p>
+            <div class="section-label"><h3>Permanent DNA <span class="badge">13 กลุ่ม</span></h3><button type="button" data-action="lock-all" class="text-button" id="lock-all">ล็อก DNA ทั้งหมด</button></div>
+            <div id="dna-fields"></div>
+            <div class="section-label"><h3>รูปลักษณ์ บุคลิก และการแสดง</h3><span>ไม่เปลี่ยน DNA</span></div><div id="style-fields"></div>
+            <button type="button" data-action="reset" class="secondary full">คืนค่าเริ่มต้นของตัวละคร</button>
+          </form>
+        </section>
+        <aside class="summary-column" aria-label="สรุปตัวละคร">
+          <section class="panel identity-card"><div class="panel-heading"><div><span class="step">02</span><h2>DNA Summary</h2></div><span class="local-pill">LOCAL</span></div><div id="dna-summary"></div><div class="card-actions"><button data-action="save" class="primary">บันทึกตัวละคร</button><button data-action="save-new" class="secondary">บันทึกเป็นตัวใหม่</button></div><div class="compact-actions"><button data-action="save-preset">บันทึก Preset</button><button data-action="load-preset">โหลด Preset</button><button data-action="export-profile">Export DNA</button></div></section>
+          <section class="panel"><div class="panel-heading"><h2>ภาพอ้างอิง</h2><span class="muted">เพิ่มเองในเครื่อง</span></div><div id="reference-images" class="reference-images"></div><label class="upload-button">＋ เพิ่มภาพ JPEG / PNG / WebP<input type="file" id="image-upload" accept="image/jpeg,image/png,image/webp" multiple></label><p class="help">ไม่เกิน5MB/ภาพ · แนบภาพเหล่านี้เองในเครื่องมือสร้างภาพปลายทาง</p></section>
+          <section class="panel"><div class="panel-heading"><h2>ความใกล้เคียง</h2><button data-action="navigate" data-view="compare" class="text-button">Compare ↗</button></div><p class="help">เทียบค่า DNA Attributes เท่านั้น ไม่ใช่ภาพหรือใบหน้าจริง</p><div id="closest-matches"></div></section>
+        </aside>
+        <section id="output-panel" class="panel output-panel" aria-labelledby="output-title"><div class="panel-heading"><div><span class="step">03</span><h2 id="output-title">Thai Prompt</h2></div><span id="prompt-status" class="draft-pill">ร่าง · ยังไม่บันทึก</span></div>
+          <div class="mode-tabs" role="group" aria-label="ประเภท Prompt"><button data-action="mode" data-mode="hero" aria-pressed="true">Hero</button><button data-action="mode" data-mode="looksheet" aria-pressed="false">Looksheet</button><button data-action="mode" data-mode="scene" aria-pressed="false">Scene</button></div>
+          <div class="output-toolbar"><label><input type="checkbox" id="same-identity" checked> รักษา Identity เดิม</label><button data-action="wireframe" class="text-button">ดู Layout ↗</button></div>
+          <label for="prompt-output" class="sr-only">Prompt ภาษาไทย</label><textarea id="prompt-output" readonly spellcheck="false"></textarea><div class="prompt-meta"><span id="prompt-count"></span><span>ไทย + ศัพท์เทคนิค</span></div>
+          <div id="validation-warnings" class="warnings" role="status"></div>
+          <div class="generate-footer"><button data-action="generate" id="generate" class="primary generate">✧ Generate Prompt <span>บันทึก History</span></button><div class="two-columns"><button data-action="copy" class="secondary">คัดลอก Prompt</button><button data-action="download-txt" class="secondary">ดาวน์โหลด TXT</button></div></div>
+          <p class="help disclaimer">เครื่องมือนี้สร้างข้อความและ Wireframe เท่านั้น ภาพจาก AI อาจมีใบหน้า เลย์เอาต์ หรือข้อความคลาดเคลื่อน</p>
+        </section>
+      </div>
+    </section>
+    <section id="records-view" hidden aria-label="รายการที่บันทึก"><div class="records-heading"><h2 id="records-title"></h2><div class="compact-actions"><button data-action="backup-zip">Export ZIP + ภาพ</button><button data-action="import">Import</button><button data-action="clear-history" id="clear-history">ล้างประวัติ</button></div></div><div class="filters"><label>ค้นหา<input id="record-search" type="search" placeholder="ชื่อ / Project / Seed / Archetype"></label><label>Project<select id="project-filter"><option value="">ทั้งหมด</option></select></label><label>Archetype<select id="archetype-filter"><option value="">ทั้งหมด</option></select></label><label>ตั้งแต่วันที่<input id="date-filter" type="date"></label><label>เรียง<select id="sort-filter"><option value="newest">ใหม่สุด</option><option value="oldest">เก่าสุด</option><option value="name">ชื่อตัวละคร</option></select></label></div><div id="records-grid" class="records-grid"></div></section>
+    <section id="compare-view" hidden aria-label="เปรียบเทียบ DNA"><div class="records-heading"><div><h2>เปรียบเทียบ DNA</h2><p class="help">Current Draft เทียบหนึ่งรายการ · เทียบ Attributes ไม่ใช่ภาพ</p></div><label>รายการที่ต้องการเทียบ<select id="compare-select"></select></label></div><div id="compare-content"></div></section>
+    <footer class="page-footer"><span>Character DNA Studio · offline-first / v1.0</span><button data-action="settings">Storage & Backup</button><span id="storage-usage"></span></footer>
+  </main>
+  <dialog id="utility-dialog" aria-labelledby="dialog-title"><div class="dialog-heading"><h2 id="dialog-title"></h2><button data-action="close-dialog" class="icon-button" aria-label="ปิดหน้าต่าง">×</button></div><div id="dialog-body"></div></dialog>
+  <input type="file" id="backup-upload" accept=".json,.zip" hidden>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <noscript>กรุณาเปิด JavaScript เพื่อใช้เครื่องมือ</noscript>
+</body>
+</html>

@@ -100,7 +100,7 @@ test('paid video catalog exposes no unqualified research models', () => {
   assert.deepEqual(paidModels[0].inputModes, ['multimodal_reference']);
   assert.deepEqual(paidModels[0].aspectRatios, ['9:16']);
   const researchModels = videoCapabilityRegistry.getPublicCatalog({ includeResearch: true }).models;
-  assert.equal(researchModels.length, 11);
+  assert.equal(researchModels.length, 12);
   const omni = researchModels.find(model => model.modelId === 'gemini-omni-1.1-flash');
   assert.equal(omni.providerApi, 'interactions');
   assert.equal(omni.pricingStatus, 'research_only');
@@ -110,8 +110,8 @@ test('paid video catalog exposes no unqualified research models', () => {
   assert.deepEqual(omni.resolutions, ['720p']);
   assert.ok(researchModels.some(model => model.modelId === 'seedance-1-0-pro-250528'));
   const testingModels = videoCapabilityRegistry.getPublicCatalog({ includeTesting: true }).models;
-  assert.equal(testingModels.length, 9);
-  assert.equal(testingModels.filter(model => model.providerId === 'modelark').length, 7);
+  assert.equal(testingModels.length, 10);
+  assert.equal(testingModels.filter(model => model.providerId === 'modelark').length, 8);
   assert.deepEqual(
     testingModels.filter(model => model.providerId === 'gemini').map(model => model.modelId),
     ['veo-3.1-lite-generate-preview', 'gemini-omni-1.1-flash']

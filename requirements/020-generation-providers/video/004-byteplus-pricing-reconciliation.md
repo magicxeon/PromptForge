@@ -13,6 +13,49 @@ not independent). Skills: review-commercial-integrity, implement-generation-work
 verify-release-regressions. Capability owners: Credits and provider configuration;
 Finance consumes inventory only. No new pricing editor, scheduler or ledger.
 
+## 2026-11-15 Seedance 2.5 Flash and Seedream 5.5 evidence
+
+**Status:** Documentary snapshot only. Implementation and retail activation pending.
+Source: [BytePlus pricing](https://ai.byteplus.com/ark/region:ap-southeast-1/docs/model-pricing#8f25f772),
+page updated2026-11-13, read2026-11-15. This section adds two model records; it
+does not supersede historical accepted quotes or authorize new customer charges.
+
+| Model | Cost basis | Published USD rate |
+|---|---|---|
+| `dreamina-seedance-2-5-flash-261115` |480p/720p, no video input, per million completion tokens |7.00 |
+| Same Flash model |480p/720p, with video input, per million completion tokens |4.30 |
+| `dola-seedream-5-5-261028` | Each input image |0.008 |
+| Same Seedream model | Each output,921,600≤pixels≤2,601,123.84 |0.020 |
+| Same Seedream model | Each output,2,601,123.84<pixels≤4,624,220.16 |0.035 |
+
+Flash has no1080p/4K/offline tariff. Estimate tokens from
+`(inputVideoSeconds + outputSeconds) * width * height * fps / 1024`;
+video-input minimum-token floors still apply. Actual cost uses
+`usage.completion_tokens`. Image input alone uses the no-video tariff.
+Seedream cost sums input charges and each output's pixel tier. Output failures
+are not billed as successful outputs; do not infer undocumented input-fee refunds.
+
+Implementation implications owned by the existing Credits capability:
+- Pin separate rate/model/version/source/date, input-mode/reference count,
+  dimensions and usage evidence. Never copy5.0 Pro's free first input or2.61M
+  rounded threshold into5.5. Integer boundary tests are2,601,123/2,601,124.
+- Reference costs repeat for each independent image request. For example, our
+  derived one-reference/lower-tier estimate is$0.028; two independent such
+  requests total$0.056. This is arithmetic from list rates, not observed invoicing.
+- Resolve dimensions with the same model-specific resolver used by dispatch.
+  Auto sizing requires a bounded provisional quote; record actual output dimensions.
+- Persist per-output metadata for any future layer decomposition; ordinary image
+  fan-out and decomposition have different cardinality contracts.
+- No new retail Credit values, promotions, margin approvals or paid flags are
+  supplied here. Keep existing dev overrides and versioned quote settlement intact.
+- Exact Flash video-input floors, account entitlement and invoiced usage remain
+  verification items. Do not substitute standard2.5 measured samples or a linear
+  estimate for missing floor evidence. Reuse the existing evidence collection flow.
+
+Related owners: [Image003 section15](../image/003-byteplus-modelark-seedream-provider.md#15-seedream-55-extension--2026-11-15)
+and [Video002 section0.3](002-video-generation-provider-contract.md#03-seedance-25-flash-extension-2026-11-15).
+Documentation checks only; financial state and runtime behavior unchanged.
+
 ## Evidence And Rates
 
 Official https://docs.byteplus.com/en/docs/ModelArk/1544106, updated September 4,

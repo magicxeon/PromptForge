@@ -21,6 +21,32 @@ const modelConfig = {
   }
 };
 
+test('Seedream 5.5 maps supported sizes, caps references and omits unsupported batching', async () => {
+  const { readFileSync } = await import('node:fs');
+  const config = JSON.parse(readFileSync(new URL('../server/config/providers.json', import.meta.url))).providers.find(p => p.id === 'modelark');
+  const model = config.models.find(m => m.id === 'dola-seedream-5-5-261028');
+  for (const resolution of model.capabilities.resolutions) for (const aspectRatio of model.capabilities.aspectRatios) {
+    const size = resolveModelArkOutputSize({ model: model.id, resolution, aspectRatio });
+    if (aspectRatio !== 'auto') { const [w,h] = size.split('x').map(Number); assert.ok(w*h >= 921600 && w*h <= 4624220); }
+  }
+  assert.equal(resolveModelArkOutputSize({model:model.id,resolution:'1.5K',aspectRatio:'9:16'}),'1152x2048');
+  assert.throws(() => resolveModelArkOutputSize({model:model.id,resolution:'4K'}));
+  const originalFetch = globalThis.fetch; let payload;
+  globalThis.fetch = async (_, options) => { payload = JSON.parse(options.body); return mockJsonResponse({data:[{b64_json:'IMAGE',size:'1152x2048'}],usage:{input_images:10,generated_images:1}}); };
+  try {
+    const provider = new ModelArkSeedreamProvider('fixture',config);
+    const options = {modelConfig:model,submodel:model.id,imageResolution:'1.5K',aspectRatio:'9:16',resolvedReferenceImagesOrdered:Array(10).fill('https://example.test/ref.png')};
+    const output = await provider.generateImage('Portrait',options);
+    assert.equal(payload.size,'1152x2048'); assert.equal(payload.image.length,10);
+    assert.equal(payload.sequential_image_generation,undefined); assert.equal(payload.layer_decomposition,undefined);
+    assert.equal(output.usage.input_images,10); assert.equal(output.providerMetadata.responseSize,'1152x2048');
+    assert.equal(output.providerMetadata.responsePixels,1152*2048);
+    globalThis.fetch = async ()=>mockJsonResponse({data:[{b64_json:'IMAGE',size:'512x512'}]});
+    await assert.rejects(provider.generateImage('Portrait',options),/invalid output dimensions/);
+    await assert.rejects(provider.generateImage('Portrait',{...options,resolvedReferenceImagesOrdered:Array(11).fill('https://example.test/ref.png')}),{code:'invalid_request'});
+  } finally { globalThis.fetch = originalFetch; }
+});
+
 const seedreamProConfig = {
   ...modelConfig,
   id: 'dola-seedream-5-0-pro-260628',

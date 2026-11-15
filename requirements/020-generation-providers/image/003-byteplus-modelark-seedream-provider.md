@@ -3,6 +3,9 @@
 Current pricing correction: 004-seedream-pro-pixel-pricing.md supersedes the
 historical 2.36M pixel threshold below with 2.61M (September 4 provider source).
 
+2026-11-15: section15 adds Seedream5.5 as a **requirement only**. The implemented
+status and July examples below describe older models, not Seedream5.5.
+
 **ID:** `023-byteplus-modelark-seedream-provider`  
 **Application:** `ModelPromptForge`  
 **Status:** Implemented - Pending Runtime Verification  
@@ -514,3 +517,83 @@ Before public release:
 - Missing ModelArk API key does not break other providers.
 - Unsupported model IDs and reference counts are rejected server-side.
 - History and AI Comparison can consume Seedream outputs without provider-specific branching.
+
+## 15. Seedream 5.5 extension — 2026-11-15
+
+**Status:** Implementation authorized2026-11-15; bounded delivery evidence in
+`../byteplus-20261115-task-plan.json`. Scope: existing
+ModelArk Image provider, no Lab tool or parallel generation flow. Delivery status
+and focused validation are recorded in the provider master and linked task plan.
+No new ledger workflow or runtime data paths.
+Architecture map unchanged. Earlier sections remain applicable unless this
+model-specific extension explicitly narrows them.
+
+### 15.1 Verified provider evidence
+
+Read on2026-11-15:
+- [Image API](https://ai.byteplus.com/ark/region:ap-southeast-1/docs/image-generation-api.md).
+- [Seedream5.5 tutorial](https://ai.byteplus.com/ark/region:ap-southeast-1/docs/seedream-5-5), updated2026-11-13.
+- [Pricing evidence](../video/004-byteplus-pricing-reconciliation.md#2026-11-15-seedance-25-flash-and-seedream-55-evidence).
+
+| Item | Seedream5.5 contract |
+|---|---|
+| Model | `dola-seedream-5-5-261028`; display `Seedream 5.5`; provider `modelark` |
+| Operation | Existing `POST /api/v3/images/generations`; text, single-reference and multi-reference image generation |
+| References | Maximum10; URL or data URL; per-image30MB, dimensions>14px, pixels196–36,000,000, ratio1/16–16 |
+| Output | `1K`, `1.5K`, `2K` (provider default2K); explicit dimensions allowed,921,600–4,624,220 pixels and ratio1/16–16 |
+| Formats | `png`/`jpeg`; `url`/`b64_json`; prompt optimization `standard` only |
+| Unsupported | Sequential image generation, streaming and web search |
+| Prompt | Thai supported;600 English words/300 Chinese characters is guidance, not a new application character limit |
+
+The tutorial additionally documents native RGBA via `background: transparent`
+with PNG, and layer decomposition/OCR. Decomposition accepts one image, returns
+a base plus up to99 layers, and exposes `max_images`2–100 (default30). These
+are separate capabilities, not normal multi-output image generation.
+
+### 15.2 Required integration behavior
+
+1. Extend `server/config/providers.json`, `ModelArkSeedreamProvider.js` and its
+   existing output-size resolver. Keep current defaults and historical model IDs.
+   Add model-specific size mapping; do not copy4K options or the5.0 Pro pricing
+   threshold into5.5. Store exact requested/resolved pixels for quote parity.
+2. Project supported choices through the existing public catalog to Playground,
+   Studio and Comparison. Effective reference limit comes from the canonical
+   configuration override path, bounded by the provider limit; no separate UI cap.
+3. Initial implementation target is ordinary single-output generation. Omit
+   `sequential_image_generation` and related options entirely for this model,
+   including the value `disabled`. Use existing Generation Groups for multiple
+   outputs, with separately accounted requests and no silent native batching.
+4. Reuse server credential aliases, region/base URL validation, request timeout,
+   normalized image persistence and safe provider errors. Do not assume another
+   region/account is activated because the Singapore docs list the model.
+5. Transparency can be added through the existing capability contract with a
+   PNG/alpha-preserving Asset path. Reject JPEG+transparent. Layer decomposition
+   and OCR remain a separately scoped follow-up because they need layer metadata,
+   output grouping, per-layer cost and UI contracts; do not expose them implicitly.
+6. Quote through Credits using the new model's cost evidence. Input references
+   are charged per actual provider request, including fan-out. Preserve accepted
+   snapshots and current retail policies for older models. Public5.5 Credit price
+   follows the existing image cost-plus policy under the2026-11-15 implementation
+   authorization; no number is inferred from older Seedream retail tiers. Each
+   independent output request rounds its all-in cost to Credits once.
+7. Seedream5.5-to-Seedance portrait trust is not implied by family naming. Keep
+   the existing Reference Processing/provenance contract and verify same-account,
+   original-source compatibility before adding this model to trusted allowlists.
+
+### 15.3 Ordered implementation acceptance (pending)
+
+- I1 Catalog/adapter: exact ID, new size mapping and all supported ratios share
+  one resolver;10 references accepted,11 rejected or blocked before dispatch;
+  UI override parity; no streaming/sequential/4K parameter leakage.
+- I2 Cost/usage: zero/one/multiple references, tier boundary2,601,123 vs2,601,124
+  pixels, bounds921,600 and4,624,220, Auto upper-bound estimate and fan-out input
+  costs. Validate returned dimensions and retain input/output counts without
+  treating token metadata as this model's price basis.
+- I3 Regression: existing models, Comparison totals, queue/history, URL/base64
+  persistence and optional PNG alpha; successful outputs stay visible, failures
+  remain in diagnostics without empty media cards.
+- I4 Live entitlement/output/usage evidence after explicit instruction. Record
+  actual quality and reference trust separately from mocked adapter correctness.
+
+Documentation review: model identity, unsupported fields and local links checked.
+No implementation acceptance above is marked passed by this document update.

@@ -133,6 +133,7 @@ test('project catalog sorts each provider by the configured local price order', 
     'seedream-4-0-250828',
     'seedream-5-0-lite-260128',
     'seedream-4-5-251128',
+    'dola-seedream-5-5-261028',
     'dola-seedream-5-0-pro-260628'
   ]);
 });

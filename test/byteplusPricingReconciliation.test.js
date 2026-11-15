@@ -21,6 +21,38 @@ const request = { resolution: '720p', aspectRatio: '9:16', durationSeconds: 5, a
 const imageInput = { requestedProviderId: 'modelark', requestedModelId: pro.modelId, userId: 'test', aspectRatio: '6:8' };
 const at = now => ({ now });
 
+test('Seedream 5.5 cost-plus includes every input per output with exact tiers and immutable assumptions', async () => {
+  const { calculateCostPlusCredits } = await import('../server/domain/credits/CostPlusPricing.js');
+  const service = new CreditPricingPolicyService(); const current = await service.loadPolicy();
+  const model = current.models.find(m=>m.modelId==='dola-seedream-5-5-261028');
+  assert.equal(selectImagePixelTier(model.providerCostPricing.outputTiers,2601123,{requireCredits:false}).usdPerImage,.020);
+  assert.equal(selectImagePixelTier(model.providerCostPricing.outputTiers,2601124,{requireCredits:false}).usdPerImage,.035);
+  for(const resolution of ['1K','1.5K','2K']) for(const refs of [0,1,10]) {
+    const input={...imageInput,requestedModelId:model.modelId,resolution,referenceCount:refs,outputCount:2};
+    const estimate=await service.calculateEstimate(input);
+    const unit=(resolution==='2K'?.035:.020)+refs*.008;
+    assert.ok(Math.abs(estimate.breakdown.providerCostUsd-unit*2)<1e-9);
+    assert.equal(estimate.estimatedCredits,calculateCostPlusCredits(unit,current,'image')*2);
+    assert.equal(estimate.breakdown.retailAssumptions.profitMarkupPercent,current.profitMarkupPercentByMedia.image);
+    assert.equal(estimate.pricingInputs.resolution,resolution);
+  }
+  for(const change of [{referenceCount:-1},{referenceCount:1.5},{outputCount:0},{outputCount:1.5},{outputCount:NaN},{resolution:'4K'}]) {
+    await assert.rejects(service.calculateEstimate({...imageInput,requestedModelId:model.modelId,resolution:'1K',...change}));
+  }
+  const auto=await service.calculateEstimate({...imageInput,requestedModelId:model.modelId,resolution:'1K',aspectRatio:'auto'});
+  assert.equal(auto.breakdown.outputUnitCostUsd,.035); assert.equal(auto.estimateConfidence,'provisional');
+});
+
+test('Flash catalog exposes its own internal POC and rates without standard2.5 paid activation', () => {
+  const registry = new VideoCapabilityRegistry({runtimeEnvironment:'development',developmentPocEnabled:true});
+  const flash=registry.resolve('modelark','dreamina-seedance-2-5-flash-261115');
+  assert.equal(flash.referenceImageLimit,10); assert.deepEqual(flash.resolutions,['480p','720p']);
+  assert.equal(flash.paidUsageActivation,undefined); assert.equal(flash.paidRoutingEnabled,false);
+  assert.ok(registry.getPublicCatalog({includeTesting:true}).models.some(m=>m.modelId===flash.modelId));
+  assert.equal(calculateVideoPricingPreview(flash,request,policy).tokenRateUsdPerMillion,7);
+  assert.throws(()=>calculateVideoPricingPreview(flash,{...request,inputVideoSeconds:2},policy),/floor/);
+});
+
 test('image: exact pixel boundary and one pixel above select different rates', () => {
   assert.equal(selectImagePixelTier(pro.providerCostPricing.outputTiers, 2610000).usdPerImage, 0.045);
   assert.equal(selectImagePixelTier(pro.providerCostPricing.outputTiers, 2610001).usdPerImage, 0.09);

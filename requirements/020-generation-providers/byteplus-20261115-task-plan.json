@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "requirement": "requirements/020-generation-providers/000-master.md",
+  "tasks": [
+    {
+      "id": "BYTEPLUS-20261115",
+      "title": "Seedream 5.5 and Seedance 2.5 Flash integration",
+      "complexity": "complex",
+      "reason": "Provider dispatch and cost-derived image estimates; independent financial review",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "generation",
+        "credits"
+      ],
+      "risks": [
+        "financial",
+        "shared-contract"
+      ],
+      "uncertain": false,
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "server/providers/ModelArkSeedreamProvider.js",
+        "server/providers/ModelArkSeedanceProvider.js",
+        "server/config/providers.json",
+        "server/config/cinematic-video-models.json",
+        "server/config/credit-pricing-policy.json",
+        "server/domain/credits/BytePlusImagePricing.js",
+        "server/domain/credits/CreditPricingPolicyService.js",
+        "test/modelArkSeedreamProvider.test.js",
+        "test/modelArkSeedanceProvider.test.js",
+        "test/byteplusPricingReconciliation.test.js",
+        "requirements/020-generation-providers/",
+        "test/providerRegistry.test.js",
+        "test/videoCapabilityRegistry.test.js"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "New model payloads and catalogs preserve old behavior",
+        "Seedream cost-plus quotes include all inputs and exact pixel tiers",
+        "Focused regressions and independent review pass"
+      ],
+      "reviewers": [
+        "commercial-financial-integrity",
+        "backend-platform-architect",
+        "security-reviewer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "New model payloads and catalogs preserve old behavior",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/000-master.md"
+        },
+        {
+          "check": "Seedream cost-plus quotes include all inputs and exact pixel tiers",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/000-master.md"
+        },
+        {
+          "check": "Focused regressions and independent review pass",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/000-master.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "commercial-financial-integrity",
+          "result": "passed",
+          "agentId": "/root/byteplus_review",
+          "reference": "requirements/020-generation-providers/000-master.md"
+        },
+        {
+          "role": "backend-platform-architect",
+          "result": "passed",
+          "agentId": "/root/byteplus_review",
+          "reference": "requirements/020-generation-providers/000-master.md"
+        },
+        {
+          "role": "security-reviewer",
+          "result": "passed",
+          "agentId": "/root/byteplus_review",
+          "reference": "requirements/020-generation-providers/000-master.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "result": "passed",
+          "agentId": "/root/byteplus_review",
+          "reference": "requirements/020-generation-providers/000-master.md"
+        }
+      ],
+      "handoff": "Root writes; byteplus_review performs read-only Commercial/Backend/QA review. Reuse catalog -> Generation -> Credits/adapter -> persisted outputs. No paid live calls, Git, production state, trust expansion or new data paths. Flash internal POC only; video/audio editing and image layers remain separate scoped work. Image retail derives from existing commercial policy."
+    }
+  ],
+  "parallelBatches": []
+}

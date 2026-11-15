@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "ai-credit-activation-2026-10-12-nano21-v1",
+  "policyVersion": "ai-credit-activation-2026-11-15-seedream55-v1",
   "effectiveAt": "2026-10-12T00:00:00.000Z",
   "providerPriceSourceDate": "2026-07-24",
   "referenceFxThbPerUsd": 33.7594,
@@ -268,6 +268,22 @@
       },
       "providerCostUsd": 0.040,
       "notes": "BytePlus Seedream 4.5"
+    },
+    {
+      "providerId": "modelark",
+      "modelId": "dola-seedream-5-5-261028",
+      "billingMetric": "returned_image",
+      "providerPriceSource": "https://ai.byteplus.com/ark/region:ap-southeast-1/docs/model-pricing",
+      "providerPriceSourceDate": "2026-11-13",
+      "providerCostPricing": {
+        "version": "byteplus-seedream55-2026-11-13-v1", "retailMode": "cost_plus",
+        "minimumPixels": 921600, "maximumPixels": 4624220,
+        "outputTiers": [ { "maxPixels": 2601123, "usdPerImage": 0.020 }, { "maxPixels": null, "usdPerImage": 0.035 } ],
+        "inputImages": { "freeCount": 0, "usdPerImage": 0.008 }
+      },
+      "enabled": true, "pricingStatus": "priced", "publishedCredits": null,
+      "referencePricing": { "mode": "free", "freeCount": 0, "unitCredits": 0 },
+      "notes": "Retail derives from existing image cost-plus policy including every input per request. No separate reference surcharge."
     },
     {
       "providerId": "modelark",

@@ -196,7 +196,7 @@ export class CreditPricingPolicyService {
       baseOutputCredits = Number(prices[qualityForLookup] ?? prices.standard ?? baseOutputCredits);
     }
 
-    if (!Number.isFinite(baseOutputCredits) || baseOutputCredits <= 0) {
+    if ((!Number.isFinite(baseOutputCredits) || baseOutputCredits <= 0) && modelRecord.providerCostPricing?.retailMode !== 'cost_plus') {
       throw createCreditError(CREDIT_ERROR_CODES.PRICING_UNAVAILABLE, 'No valid base credit rate exists for this request.', 400);
     }
 
@@ -236,12 +236,22 @@ export class CreditPricingPolicyService {
     }
     if (modelRecord.providerCostPricing) {
       try {
+        const costPlus = modelRecord.providerCostPricing.retailMode === 'cost_plus';
         const pricing = resolveBytePlusImagePricing(modelRecord, {
           resolution: normalizedResolution, aspectRatio,
-          referenceCount: normalizedReferenceCount, outputCount: normalizedOutputCount
+          referenceCount: costPlus ? Number(referenceCount) : normalizedReferenceCount,
+          outputCount: costPlus ? Number(outputCount) : normalizedOutputCount
         });
-        baseOutputCredits = pricing.baseOutputCredits;
+        if (costPlus && referencePolicy.mode !== 'free') throw new TypeError('Cost-plus input charges must not have a second reference surcharge.');
+        baseOutputCredits = costPlus
+          ? calculateCostPlusCredits(pricing.providerCost.providerCostUsd / normalizedOutputCount, policy, 'image')
+          : pricing.baseOutputCredits;
         providerCost = pricing.providerCost;
+        if (costPlus) providerCost.retailAssumptions = {
+          pricingMethod: 'cost_plus_markup', profitMarkupPercent: policy.profitMarkupPercentByMedia?.image,
+          pricingFxThbPerUsd: policy.pricingFxThbPerUsd, operatingSafetyBufferRate: policy.operatingSafetyBufferRate,
+          creditsPerThbAssumption: policy.creditsPerThbAssumption, creditRoundingIncrement: policy.creditRoundingIncrement
+        };
         provisionalCost = pricing.provisional;
       } catch {
         throw createCreditError(CREDIT_ERROR_CODES.PRICING_UNAVAILABLE, 'Output dimensions or provider cost tiers are unavailable.', 400);

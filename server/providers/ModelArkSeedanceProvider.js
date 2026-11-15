@@ -186,6 +186,12 @@ export function buildModelArkSeedancePayload(request = {}) {
   if (!prompt) throw providerError('video_prompt_required', 'ModelArk video prompt is required.', false, 'not_billable');
   const content = [{ type: 'text', text: prompt }];
   const references = normalizeReferences(request);
+  const flash = request.modelId === 'dreamina-seedance-2-5-flash-261115';
+  if (flash && (!['480p', '720p'].includes(request.resolution || '720p')
+    || !Number.isInteger(Number(request.durationSeconds)) || Number(request.durationSeconds) < 4 || Number(request.durationSeconds) > 30
+    || references.length > 10 || request.draft === true || request.draftTaskId)) {
+    throw providerError('video_parameter_unsupported', 'Seedance 2.5 Flash requires 480p/720p, 4–30 seconds, at most 10 images and no provider Draft.', false, 'not_billable');
+  }
   const roles = new Set(references.map(reference => reference.role));
   if ([...roles].some(role => !['first_frame', 'last_frame', 'reference_image'].includes(role))
     || (roles.has('reference_image') && (roles.has('first_frame') || roles.has('last_frame')))) {
@@ -201,7 +207,7 @@ export function buildModelArkSeedancePayload(request = {}) {
   return compactObject({
     model: String(request.modelId || '').trim(),
     content,
-    ratio: followsFirstFrameRatio ? undefined : String(request.aspectRatio || '9:16'),
+    ratio: followsFirstFrameRatio ? (flash ? 'adaptive' : undefined) : String(request.aspectRatio || '9:16'),
     resolution: String(request.resolution || '720p'),
     duration: Number(request.durationSeconds),
     generate_audio: request.audioMode === 'generated',
