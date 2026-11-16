@@ -21,6 +21,7 @@ export const VISUAL_CHARACTER_ASSETS_ROOT = path.resolve(
 export const DATA_ROOT = getAuthRuntime().dataRoot ?? path.resolve(SERVER_ROOT, 'data');
 export const IDENTITY_DATA_DIR = path.resolve(DATA_ROOT, 'identity');
 export const GENERATION_DATA_DIR = path.resolve(DATA_ROOT, 'generation');
+export const VOICE_STUDIO_DATA_DIR = path.resolve(DATA_ROOT, 'voice-studio');
 export const PROMPT_REFINEMENT_AUDIT_DIR = path.resolve(
   GENERATION_DATA_DIR,
   'output',
@@ -47,6 +48,11 @@ export const TUTORIALS_DATA_DIR = path.resolve(DATA_ROOT, 'tutorials');
 export const AI_CINEMA_DATA_DIR = path.resolve(DATA_ROOT, 'ai-cinema');
 
 export const DATA_FILES = {
+  voiceStudioDocuments: path.resolve(VOICE_STUDIO_DATA_DIR, 'documents.json'),
+  voiceStudioCharacters: path.resolve(VOICE_STUDIO_DATA_DIR, 'characters.json'),
+  voiceStudioTakes: path.resolve(VOICE_STUDIO_DATA_DIR, 'takes.json'),
+  speechOperations: path.resolve(GENERATION_DATA_DIR, 'speechOperations.json'),
+  voiceStudioCustomVoices: path.resolve(VOICE_STUDIO_DATA_DIR, 'customVoices.json'),
   tutorialCatalog: path.resolve(TUTORIALS_DATA_DIR, 'catalog.json'),
   aiCinemaCatalog: path.resolve(AI_CINEMA_DATA_DIR, 'catalog.json'),
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),

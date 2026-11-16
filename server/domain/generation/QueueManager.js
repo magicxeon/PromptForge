@@ -165,6 +165,14 @@ export class QueueManager {
     return () => this.lifecycleSubscribers.delete(listener);
   }
 
+  // Internal typed tasks share this queue's concurrency; no provider callbacks enter HTTP input.
+  enqueueOperation({ id, provider, model, ownerUserId, reservationId, execute }) {
+    if (!reservationId || !ownerUserId || typeof execute !== 'function' || this.jobs.has(id)) throw new Error('Invalid reserved operation.');
+    const job = { id, provider, submodel: model, status: 'queued', options: { payerUserId: ownerUserId, ownerUserId, reservationId },
+      operationExecutor: execute, listeners: [], created: Date.now(), timings: { enqueuedAt: Date.now() }, result: null, error: null };
+    this.jobs.set(id, job); this.queue.push(id); this.emitLifecycle(job, 'queued'); this.processNext(); return id;
+  }
+
   emitLifecycle(job, status, extra = {}) {
     this.lifecycleSubscribers.forEach(listener => {
       Promise.resolve(listener({ job, status, ...extra })).catch(error => {
@@ -262,6 +270,20 @@ export class QueueManager {
     console.log(`[Queue] Processing job ${jobId}. Active jobs: ${this.activeCount}`);
     
     this.emitToListeners(jobId, 'status', { status: 'processing' });
+
+    if (job.operationExecutor) {
+      try {
+        job.result = await job.operationExecutor();
+        job.status = job.result.status === 'succeeded' ? 'completed' : 'failed';
+      } catch {
+        job.status = 'failed'; job.error = { code: 'operation_failed', message: 'Generation operation failed.' };
+      } finally {
+        delete job.operationExecutor;
+        job.timings.terminalAt = Date.now(); this.emitLifecycle(job, job.status);
+        this.activeCount--; this.processNext();
+      }
+      return;
+    }
 
     try {
       const providerInstance = ProviderFactory.getProvider(job.provider);

@@ -36,7 +36,7 @@
   "shell.navigation.items.recent": "Recent",
   "shell.navigation.items.profile": "Profile",
   "shell.navigation.items.post": "Post",
-  "shell.navigation.items.studio": "Studio",
+  "shell.navigation.items.studio": "Character & Scene Studio",
   "shell.navigation.items.faceCreator": "Face Creator",
   "shell.navigation.items.characterSheet": "Character Sheet",
   "shell.navigation.items.headshotGrid": "Headshot Grid",
@@ -113,5 +113,9 @@
   "shell.jobCenter.submitting": "Submitting",
   "shell.jobCenter.queued": "Queued",
   "shell.jobCenter.processing": "Generating",
-  "shell.jobCenter.progress": "{completed} of {total} outputs"
+  "shell.jobCenter.progress": "{completed} of {total} outputs",
+  "shell.navigation.items.voiceStudio": "Voice Studio",
+  "shell.navigation.items.voiceScript": "Script",
+  "shell.navigation.items.myVoices": "My Voices",
+  "shell.navigation.items.voiceLibrary": "Audio Library"
 }

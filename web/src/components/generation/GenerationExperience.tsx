@@ -439,7 +439,7 @@ export function GenerationExperience({
   ]);
 
   useEffect(() => {
-    if (!actor || !catalog.data || enginePreferenceActorId !== actor.userId || !engine.provider) return;
+    if (comparison || !actor || !catalog.data || enginePreferenceActorId !== actor.userId || !engine.provider) return;
     const provider = catalog.data.providers.find(item => item.id === engine.provider);
     const model = provider?.models.find(item => item.id === engine.model);
     if (model && !imageModelUnavailableReason(
@@ -468,6 +468,7 @@ export function GenerationExperience({
   }, [
     actor,
     catalog.data,
+    comparison,
     engine.aspectRatio,
     engine.model,
     engine.provider,
@@ -581,11 +582,17 @@ export function GenerationExperience({
   const selectedCatalogModel = catalog.data?.providers
     .find(item => item.id === engine.provider)?.models
     .find(item => item.id === engine.model);
-  const modelAvailabilityReason = imageModelUnavailableReason(
-    selectedCatalogModel,
-    requiredReferenceCount,
-    fixedAspectRatio || engine.aspectRatio
-  );
+  const modelAvailabilityReason = comparison
+    ? comparisonSlots.map(slot => imageModelUnavailableReason(
+      catalog.data?.providers.find(item => item.id === slot.provider)?.models.find(item => item.id === slot.model),
+      requiredReferenceCount,
+      fixedAspectRatio || engine.aspectRatio
+    )).find(reason => reason !== null) || null
+    : imageModelUnavailableReason(
+      selectedCatalogModel,
+      requiredReferenceCount,
+      fixedAspectRatio || engine.aspectRatio
+    );
   const canEstimate = Boolean(
     debouncedDraft?.provider
     && debouncedDraft.submodel

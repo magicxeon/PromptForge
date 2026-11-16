@@ -16,24 +16,29 @@ import {
   ScanFace,
   Settings,
   Shirt,
-  Sparkles,
-  UsersRound
-} from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+  UsersRound,
+} from "lucide-react";
+import { AudioLines, Layers3, FileText, Mic, Library } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   isSidebarNavigationTargetActive,
   sidebarNavigationGroups,
-  type SidebarNavigationItem
-} from '../../app/routeRegistry/routes';
-import { cn } from '../../lib/utils/cn';
-import { scheduleHashTargetScroll } from '../../lib/navigation/hashScroll';
+  type SidebarNavigationItem,
+} from "../../app/routeRegistry/routes";
+import { cn } from "../../lib/utils/cn";
+import { scheduleHashTargetScroll } from "../../lib/navigation/hashScroll";
 
 const iconRegistry = {
   tutorials: BookOpen,
   gallery: Home,
   templates: LayoutDashboard,
-  studio: Sparkles,
+  studio: Layers3,
+  voiceStudio: AudioLines,
+  script: FileText,
+  voice: Mic,
+  audioLibrary: Library,
   face: ScanFace,
   character: ContactRound,
   scene: Images,
@@ -45,7 +50,7 @@ const iconRegistry = {
   history: ImagePlus,
   collections: FolderOpen,
   admin: Settings,
-  fallback: LayoutDashboard
+  fallback: LayoutDashboard,
 } as const;
 
 export function SidebarNavigation({
@@ -58,7 +63,7 @@ export function SidebarNavigation({
   learningEnabled = false,
   onToggleCollapsed,
   onToggleStudio,
-  onNavigate
+  onNavigate,
 }: {
   role?: string;
   collapsed: boolean;
@@ -71,15 +76,22 @@ export function SidebarNavigation({
   onToggleStudio: () => void;
   onNavigate: () => void;
 }) {
-  const { t } = useTranslation('shell');
+  const { t } = useTranslation("shell");
   const location = useLocation();
 
   return (
     <div className="sidebar-navigation">
-      <nav aria-label={t('shell.navigation.menu')}>
-        {sidebarNavigationGroups.map(group => {
-          const items = group.items.filter(item =>
-            isVisible(item, role, communityEnabled, charactersEnabled, cinematicEnabled, learningEnabled)
+      <nav aria-label={t("shell.navigation.menu")}>
+        {sidebarNavigationGroups.map((group) => {
+          const items = group.items.filter((item) =>
+            isVisible(
+              item,
+              role,
+              communityEnabled,
+              charactersEnabled,
+              cinematicEnabled,
+              learningEnabled,
+            ),
           );
           if (!items.length) return null;
           return (
@@ -88,7 +100,7 @@ export function SidebarNavigation({
                 <h2>{t(group.labelKey)}</h2>
               ) : null}
               <div className="sidebar-navigation__items">
-                {items.map(item => (
+                {items.map((item) => (
                   <SidebarItem
                     key={item.id}
                     item={item}
@@ -109,10 +121,14 @@ export function SidebarNavigation({
         type="button"
         className="sidebar-navigation__collapse"
         onClick={onToggleCollapsed}
-        title={t('shell.navigation.collapse')}
+        title={t("shell.navigation.collapse")}
       >
-        {collapsed ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}
-        {!collapsed ? <span>{t('shell.navigation.collapse')}</span> : null}
+        {collapsed ? (
+          <PanelLeftOpen aria-hidden="true" />
+        ) : (
+          <PanelLeftClose aria-hidden="true" />
+        )}
+        {!collapsed ? <span>{t("shell.navigation.collapse")}</span> : null}
       </button>
     </div>
   );
@@ -125,7 +141,7 @@ function SidebarItem({
   studioOpen,
   child,
   onToggleStudio,
-  onNavigate
+  onNavigate,
 }: {
   item: SidebarNavigationItem;
   location: string;
@@ -135,28 +151,42 @@ function SidebarItem({
   onToggleStudio: () => void;
   onNavigate: () => void;
 }) {
-  const { t } = useTranslation('shell');
-  const Icon = iconRegistry[item.icon as keyof typeof iconRegistry] || iconRegistry.fallback;
+  const { t } = useTranslation("shell");
+  const Icon =
+    iconRegistry[item.icon as keyof typeof iconRegistry] ||
+    iconRegistry.fallback;
   const active = item.children
-    ? item.children.some(child => isSidebarNavigationTargetActive(child.id, location))
+    ? item.children.some((child) =>
+        isSidebarNavigationTargetActive(child.id, location),
+      )
     : isSidebarNavigationTargetActive(item.id, location);
+  const [ownOpen, setOwnOpen] = useState(active);
+  const groupOpen = item.id === "studio" ? studioOpen : ownOpen;
+  const toggleGroup =
+    item.id === "studio" ? onToggleStudio : () => setOwnOpen((value) => !value);
+  useEffect(() => {
+    if (active && item.children && item.id !== "studio") setOwnOpen(true);
+  }, [active, location, item.id]);
 
   if (item.children) {
     if (collapsed) {
-      const collapsedDestination = item.children.find(child => child.id === 'scene-builder')
-        || item.children[0];
+      const collapsedDestination =
+        item.children.find((child) => child.id === "scene-builder") ||
+        item.children[0];
       return (
-        <div className={cn('sidebar-navigation__parent', active && 'is-active')}>
+        <div
+          className={cn("sidebar-navigation__parent", active && "is-active")}
+        >
           <Link
-            to={collapsedDestination?.path || '/create/studio/scene'}
-            className={cn('sidebar-navigation__row', active && 'is-active')}
-            aria-current={active ? 'page' : undefined}
+            to={collapsedDestination?.path || "/create/studio/scene"}
+            className={cn("sidebar-navigation__row", active && "is-active")}
+            aria-current={active ? "page" : undefined}
             title={t(item.labelKey)}
             onClick={() => {
               onNavigate();
               const path = collapsedDestination?.path;
-              if (path?.includes('#')) {
-                scheduleHashTargetScroll(path.slice(path.indexOf('#')));
+              if (path?.includes("#")) {
+                scheduleHashTargetScroll(path.slice(path.indexOf("#")));
               }
             }}
           >
@@ -167,23 +197,26 @@ function SidebarItem({
     }
 
     return (
-      <div className={cn('sidebar-navigation__parent', active && 'is-active')}>
+      <div className={cn("sidebar-navigation__parent", active && "is-active")}>
         <button
           type="button"
           className="sidebar-navigation__row"
-          aria-expanded={studioOpen}
-          onClick={onToggleStudio}
+          aria-expanded={groupOpen}
+          onClick={toggleGroup}
         >
           <Icon aria-hidden="true" />
           <span>{t(item.labelKey)}</span>
           <ChevronDown
-            className={cn('sidebar-navigation__chevron', studioOpen && 'is-open')}
+            className={cn(
+              "sidebar-navigation__chevron",
+              groupOpen && "is-open",
+            )}
             aria-hidden="true"
           />
         </button>
-        {studioOpen ? (
+        {groupOpen ? (
           <div className="sidebar-navigation__children">
-            {item.children.map(child => (
+            {item.children.map((child) => (
               <SidebarItem
                 key={child.id}
                 item={child}
@@ -203,24 +236,29 @@ function SidebarItem({
 
   return (
     <Link
-      to={item.path || '/'}
+      to={item.path || "/"}
       className={cn(
-        'sidebar-navigation__row',
-        child && 'is-child',
-        active && 'is-active'
+        "sidebar-navigation__row",
+        child && "is-child",
+        active && "is-active",
       )}
-      aria-current={active ? 'page' : undefined}
+      aria-current={active ? "page" : undefined}
       title={collapsed ? t(item.labelKey) : undefined}
       onClick={() => {
         onNavigate();
-        if (item.path?.includes('#')) {
-          scheduleHashTargetScroll(item.path.slice(item.path.indexOf('#')));
+        if (item.path?.includes("#")) {
+          scheduleHashTargetScroll(item.path.slice(item.path.indexOf("#")));
         }
       }}
     >
       <Icon aria-hidden="true" />
       {!collapsed ? <span>{t(item.labelKey)}</span> : null}
-      {item.id === 'gallery' && !collapsed ? <ChevronLeft className="sidebar-navigation__home-accent" aria-hidden="true" /> : null}
+      {item.id === "gallery" && !collapsed ? (
+        <ChevronLeft
+          className="sidebar-navigation__home-accent"
+          aria-hidden="true"
+        />
+      ) : null}
     </Link>
   );
 }
@@ -231,12 +269,13 @@ function isVisible(
   communityEnabled: boolean,
   charactersEnabled: boolean,
   cinematicEnabled: boolean,
-  learningEnabled: boolean
+  learningEnabled: boolean,
 ) {
-  if (item.allowedRoles?.length && (!role || !item.allowedRoles.includes(role))) return false;
-  if (item.feature === 'community' && !communityEnabled) return false;
-  if (item.feature === 'characters' && !charactersEnabled) return false;
-  if (item.feature === 'cinematic' && !cinematicEnabled) return false;
-  if (item.feature === 'learning' && !learningEnabled) return false;
+  if (item.allowedRoles?.length && (!role || !item.allowedRoles.includes(role)))
+    return false;
+  if (item.feature === "community" && !communityEnabled) return false;
+  if (item.feature === "characters" && !charactersEnabled) return false;
+  if (item.feature === "cinematic" && !cinematicEnabled) return false;
+  if (item.feature === "learning" && !learningEnabled) return false;
   return true;
 }

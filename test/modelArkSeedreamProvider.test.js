@@ -21,6 +21,25 @@ const modelConfig = {
   }
 };
 
+test('Seedream catalog exposes every mapped preset at every advertised resolution', async () => {
+  const { readFileSync } = await import('node:fs');
+  const config = JSON.parse(readFileSync(new URL('../server/config/providers.json', import.meta.url)));
+  const models = config.providers.find(provider => provider.id === 'modelark').models;
+  for (const model of models) {
+    for (const ratio of ['1:1', '16:9', '9:16', '6:8', '3:4', '4:3', '4:5', '3:2', '2:3', '21:9', 'auto']) {
+      assert.ok(model.capabilities.aspectRatios.includes(ratio), `${model.id}: missing ${ratio}`);
+      for (const resolution of model.capabilities.resolutions) {
+        const size = resolveModelArkOutputSize({ model: model.id, resolution, aspectRatio: ratio });
+        if (ratio === 'auto') { assert.equal(size, resolution); continue; }
+        const [width, height] = size.split('x').map(Number);
+        assert.ok(Number.isInteger(width) && width > 0 && Number.isInteger(height) && height > 0);
+        const [rw, rh] = ratio.split(':').map(Number);
+        assert.ok(Math.abs(width / height / (rw / rh) - 1) < .02, `${model.id}/${resolution}/${ratio}: wrong orientation`);
+      }
+    }
+  }
+});
+
 test('Seedream 5.5 maps supported sizes, caps references and omits unsupported batching', async () => {
   const { readFileSync } = await import('node:fs');
   const config = JSON.parse(readFileSync(new URL('../server/config/providers.json', import.meta.url))).providers.find(p => p.id === 'modelark');

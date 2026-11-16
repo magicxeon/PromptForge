@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1, "maxRows": 100, "maxTextLength": 2000, "maxStyleLength": 400,
+  "maxTitleLength": 120, "maxTags": 10, "maxTagLength": 40,
+  "maxDocuments": 500, "maxCharacters": 500, "maxTakes": 5000,
+  "pageSize": 20, "maxPageSize": 50, "maxAudioBytes": 33554432,
+  "maxConcurrentPerActor": 1,
+  "maxDesignLength": 1000, "maxCustomVoices": 30, "maxDesignCandidates": 5, "maxProjectVoices": 180,
+  "eventGroups": [
+    {"id":"reactions","labelKey":"eventGroup.reactions","tags":["<gasp>","<laugh>","<sob>"]},
+    {"id":"breathing","labelKey":"eventGroup.breathing","tags":["<sigh>","<breath>"]},
+    {"id":"pauses","labelKey":"eventGroup.pauses","tags":["<short pause>","<long pause>"]}
+  ],
+  "eventToolbarTags": ["<sigh>","<laugh>","<gasp>","<short pause>"],
+  "inlineTags": ["<gasp>", "<sigh>", "<laugh>", "<sob>", "<breath>", "<short pause>", "<long pause>"],
+  "stylePresets": {"emotion": ["neutral", "calm", "happy", "sad", "angry", "surprised"], "pace": ["natural", "slow", "fast"], "delivery": ["natural", "gentle", "firm", "whispered"]}
+}

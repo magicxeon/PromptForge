@@ -1,0 +1,326 @@
+{
+  "version": 1,
+  "requirement": "requirements/023-voice-studio/000-master.md",
+  "tasks": [
+    {
+      "id": "VS-BACKEND",
+      "title": "Voice documents, library and HTTP composition",
+      "complexity": "complex",
+      "reason": "Private audio and cross-capability workflow",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "voice-studio",
+        "assets",
+        "identity"
+      ],
+      "risks": [
+        "security",
+        "shared-contract"
+      ],
+      "uncertain": false,
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "server/domain/voice-studio/",
+        "server/repositories/voice-studio/",
+        "server/app/",
+        "server/config/paths.js",
+        "server/domain/identity/IdentityDevelopmentService.js",
+        "web/src/lib/api/apiClient.ts",
+        "requirements/023-voice-studio/",
+        "requirements/099-technical-dept/000-master.md",
+        "test/voiceStudio.test.js"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Actor-isolated versioned documents and library",
+        "Generation and Assets facades used"
+      ],
+      "reviewers": [
+        "security-reviewer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Actor-isolated versioned documents and library",
+          "result": "passed",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        },
+        {
+          "check": "Generation and Assets facades used",
+          "result": "passed",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "result": "passed",
+          "agentId": "/root/voice_sensitive_review",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "result": "passed",
+          "agentId": "/root/voice_sensitive_review",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        }
+      ],
+      "handoff": "Root owns domain and integration; independent sensitive review after implementation. No live calls or Git."
+    },
+    {
+      "id": "VS-SPEECH",
+      "title": "Catalog and canonical speech generation",
+      "complexity": "complex",
+      "reason": "Billable synthesis and private audio assets",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root/voice_generation",
+      "capabilities": [
+        "generation",
+        "credits",
+        "assets"
+      ],
+      "risks": [
+        "financial",
+        "security"
+      ],
+      "uncertain": false,
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "server/domain/generation/",
+        "server/repositories/generation/SpeechOperationRepository.js",
+        "server/repositories/credits/CreditAccountRepository.js",
+        "server/providers/GeminiSpeechProvider.js",
+        "server/config/voice-studio/",
+        "server/config/credit-pricing-policy.json",
+        "server/domain/assets/AudioAssetService.js",
+        "server/domain/credits/",
+        "server/domain/admin-configuration/ProviderAvailabilityPolicyService.js",
+        "test/voiceSpeech.test.js"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Valid WAV and immutable quote",
+        "Duplicate and uncertain dispatch protected"
+      ],
+      "reviewers": [
+        "commercial-financial-integrity",
+        "backend-platform-architect",
+        "security-reviewer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Valid WAV and immutable quote",
+          "result": "passed",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        },
+        {
+          "check": "Duplicate and uncertain dispatch protected",
+          "result": "passed",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "commercial-financial-integrity",
+          "result": "passed",
+          "agentId": "/root/voice_sensitive_review",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        },
+        {
+          "role": "backend-platform-architect",
+          "result": "passed",
+          "agentId": "/root/voice_sensitive_review",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        },
+        {
+          "role": "security-reviewer",
+          "result": "passed",
+          "agentId": "/root/voice_sensitive_review",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "result": "passed",
+          "agentId": "/root/voice_sensitive_review",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        }
+      ],
+      "handoff": "Speech service stays behind Generation facade; shared Queue and Credits. Root supplies snapshot. No paid tests."
+    },
+    {
+      "id": "VS-UI",
+      "title": "Creator and Manager interface",
+      "complexity": "complex",
+      "reason": "New responsive audio creation workflow",
+      "owner": "frontend-engineer",
+      "ownerAgentId": "/root/voice_frontend",
+      "capabilities": [
+        "voice-studio"
+      ],
+      "risks": [
+        "shared-contract"
+      ],
+      "uncertain": false,
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "web/src/features/voice-studio/",
+        "web/src/app/",
+        "client/i18n/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Creator and Manager workflows",
+        "Responsive localized accessible UI"
+      ],
+      "reviewers": [
+        "ux-ui-product-designer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Creator and Manager workflows",
+          "result": "passed",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        },
+        {
+          "check": "Responsive localized accessible UI",
+          "result": "passed",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "ux-ui-product-designer",
+          "result": "passed",
+          "agentId": "/root",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "result": "passed",
+          "agentId": "/root",
+          "reference": "requirements/023-voice-studio/005-delivery-and-acceptance.md"
+        }
+      ],
+      "handoff": "Agreed API contracts delivered by root. Backend dependencies required before integration acceptance."
+    },
+    {
+      "id": "VS-R2-UX",
+      "title": "ElevenLabs-inspired dialogue editor and contextual voice events",
+      "complexity": "complex",
+      "reason": "User rejects current row hierarchy and detached event insertion",
+      "owner": "frontend-engineer",
+      "ownerAgentId": "/root/voice_frontend",
+      "capabilities": ["voice-studio"],
+      "risks": ["user-facing"],
+      "uncertain": false,
+      "contractChanged": false,
+      "dependsOn": ["VS-UI"],
+      "writeScope": ["web/src/features/voice-studio/", "client/i18n/"],
+      "status": "complete",
+      "acceptance": ["R2-AC01 through R2-AC05: contextual insertion, compact accessible layout and preserved actions"],
+      "reviewers": ["ux-ui-product-designer", "qa-release-engineer"],
+      "evidence": [{"check":"R2-AC01 through R2-AC05: contextual insertion, compact accessible layout and preserved actions","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}],
+      "reviews": [
+        {"role":"ux-ui-product-designer","agentId":"/root","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"role":"qa-release-engineer","agentId":"/root","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}
+      ],
+      "handoff": "Editor flow and responsive checks passed; root reviewed screenshots and mobile title correction. Custom Voice integration follows."
+    },
+    {
+      "id": "VS-R2-DESIGN",
+      "title": "Owned reusable custom voices from text descriptions",
+      "complexity": "complex",
+      "reason": "Private provider identities and billable design operations cross existing owners",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": ["voice-studio", "generation", "assets", "credits"],
+      "risks": ["shared-contract", "financial", "privacy", "destructive"],
+      "uncertain": true,
+      "contractChanged": true,
+      "dependsOn": ["VS-BACKEND", "VS-SPEECH"],
+      "writeScope": ["server/domain/voice-studio/", "server/repositories/voice-studio/", "server/domain/generation/", "server/repositories/generation/", "server/domain/assets/", "server/domain/credits/", "server/domain/identity/IdentityDevelopmentService.js", "server/providers/", "server/config/", "server/app/routes/voiceStudioRoutes.js", "test/voiceStudio.test.js", "test/voiceSpeech.test.js", "test/authentication/developmentAdmin.test.js", "requirements/023-voice-studio/", "requirements/099-technical-dept/000-master.md"],
+      "status": "complete",
+      "acceptance": ["R2-AC06 through R2-AC11: stable voice identity, recovery, ownership, compatibility and qualified settlement"],
+      "reviewers": ["backend-platform-architect", "commercial-financial-integrity", "security-reviewer", "qa-release-engineer"],
+      "evidence": [{"check":"R2-AC06 through R2-AC11: stable voice identity, recovery, ownership, compatibility and qualified settlement","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}],
+      "reviews": [
+        {"role":"backend-platform-architect","agentId":"/root/voice_sensitive_review","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"role":"commercial-financial-integrity","agentId":"/root/voice_sensitive_review","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"role":"security-reviewer","agentId":"/root/voice_sensitive_review","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"role":"qa-release-engineer","agentId":"/root/voice_sensitive_review","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}
+      ],
+      "handoff": "Source and independent sensitive review passed. Endpoint-to-model pricing is documented inference; first live usage/invoice and Thai listening remain R2-AC12. Frontend integration follows."
+    },
+    {
+      "id": "VS-R2-INTEGRATE",
+      "title": "My Voices design workflow and integrated acceptance",
+      "complexity": "complex",
+      "reason": "Connect owned voice design and reusable character bindings to the revised editor",
+      "owner": "frontend-engineer",
+      "ownerAgentId": "/root/voice_frontend",
+      "capabilities": ["voice-studio"],
+      "risks": ["user-facing", "shared-contract"],
+      "uncertain": true,
+      "contractChanged": true,
+      "dependsOn": ["VS-R2-UX", "VS-R2-DESIGN"],
+      "writeScope": ["web/src/features/voice-studio/", "client/i18n/", "requirements/023-voice-studio/"],
+      "status": "review",
+      "acceptance": ["R2-AC01 through R2-AC11 integrated source and offline behavior", "R2-AC12 separate live Thai design and reuse evidence"],
+      "reviewers": ["ux-ui-product-designer", "qa-release-engineer"],
+      "evidence": [
+        {"check":"R2-AC01 through R2-AC11 integrated source and offline behavior","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"check":"R2-AC12 separate live Thai design and reuse evidence","result":"pending","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}
+      ],
+      "reviews": [
+        {"role":"ux-ui-product-designer","agentId":"/root","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"role":"qa-release-engineer","agentId":"/root","result":"pending","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}
+      ],
+      "handoff": "Source and offline browser acceptance passed, including modal playback and running-row tab recovery. Independent sensitive backend review passed in VS-R2-DESIGN. Live Google account, usage/invoice and Thai listening qualification remain pending; no paid calls performed."
+    },
+    {
+      "id":"VS-R2-RECOVERY", "title":"Delivered voice usage settlement recovery",
+      "complexity":"complex", "reason":"Actual provider usage exposes a financial recovery bug",
+      "owner":"backend-platform-architect", "ownerAgentId":"/root",
+      "capabilities":["generation","credits"], "risks":["financial"], "uncertain":false,
+      "contractChanged":true, "dependsOn":[],
+      "writeScope":["server/domain/generation/SpeechGenerationService.js","server/domain/credits/SpeechPricing.js","server/config/voice-studio/README.md","test/voiceSpeech.test.js","requirements/023-voice-studio/","requirements/099-technical-dept/000-master.md"],
+      "status":"complete",
+      "acceptance":["Observed usage settles within frozen quote; invalid usage remains blocked", "Existing delivered voice recovers without provider dispatch or duplicate capture; failures observable"],
+      "reviewers":["commercial-financial-integrity","backend-platform-architect","qa-release-engineer","security-reviewer"],
+      "evidence":[
+        {"check":"Observed usage settles within frozen quote; invalid usage remains blocked","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"check":"Existing delivered voice recovers without provider dispatch or duplicate capture; failures observable","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}
+      ], "reviews":[
+        {"role":"commercial-financial-integrity","agentId":"/root/voice_sensitive_review","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"role":"backend-platform-architect","agentId":"/root/voice_sensitive_review","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"role":"qa-release-engineer","agentId":"/root/voice_sensitive_review","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"role":"security-reviewer","agentId":"/root/voice_sensitive_review","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}
+      ], "handoff":"Source plus20tests passed independently. Live stored usage dry calculation passed without mutation; normal Check status recovers after backend reload. No paid generation or direct ledger edits."
+    },
+    {
+      "id":"VS-R2-NAV-STATUS", "title":"Status panel, library filters and clear studio navigation",
+      "complexity":"complex", "reason":"Material status and navigation interaction",
+      "owner":"frontend-engineer", "ownerAgentId":"/root/voice_frontend",
+      "capabilities":["voice-studio","navigation"], "risks":["user-facing"], "uncertain":false,
+      "contractChanged":false, "dependsOn":[],
+      "writeScope":["web/src/features/voice-studio/","web/src/app/routeRegistry/","web/src/components/layout/","client/i18n/"],
+      "status":"complete",
+      "acceptance":["UX 7.1 status panel and usable filters at mobile tablet desktop", "Distinct studio names/icons and route-backed Voice Studio submenus preserve draft and existing navigation"],
+      "reviewers":["ux-ui-product-designer","qa-release-engineer"],
+      "evidence":[
+        {"check":"UX 7.1 status panel and usable filters at mobile tablet desktop","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"check":"Distinct studio names/icons and route-backed Voice Studio submenus preserve draft and existing navigation","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}
+      ], "reviews":[
+        {"role":"ux-ui-product-designer","agentId":"/root","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
+        {"role":"qa-release-engineer","agentId":"/root","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}
+      ], "handoff":"23focusedtests, localeparity, affectedbrowserstates at390/820/1440 and finalbuild passed. Root reviewed source/screenshots. Testhelper stopped; no live creation calls."
+    }
+  ],
+  "parallelBatches": []
+}

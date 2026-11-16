@@ -4,6 +4,7 @@ import { creditAdjustmentService } from './CreditAdjustmentService.js';
 import { creditReservationService } from './CreditReservationService.js';
 import { calculateTextEnhancementPrice } from './TextEnhancementPricing.js';
 import { quoteCinematicWriting } from './CinematicWritingPricing.js';
+import { quoteSpeechPrice, settleSpeechPrice } from './SpeechPricing.js';
 import { createCreditError } from './creditErrors.js';
 
 export class CreditApplicationService {
@@ -25,6 +26,26 @@ export class CreditApplicationService {
 
   estimate(options) {
     return this.reservationService.estimate(options);
+  }
+
+  async quoteSpeech(inputs) {
+    return quoteSpeechPrice(await this.pricingPolicyService.loadPolicy(), inputs);
+  }
+
+  reserveSpeech({ userId, operationId, quote }) {
+    return this.accountRepository.reserveCredits({ userId, amountCredits: quote.totalCredits,
+      estimateId: operationId, requestId: operationId, jobId: operationId, pricingSnapshot: structuredClone(quote),
+      metadata: { kind: 'speech_generation', operationId, expiresAt: quote.expiresAt, idempotencyKey: `reserve:${userId}:${operationId}` } });
+  }
+
+  async captureSpeech({ userId, operationId, reservationId, usage, providerResponseId }) {
+    const reservation = await this.accountRepository.getReservationForOwner({ userId, reservationId, jobId: operationId });
+    if (!reservation || reservation.metadata?.kind !== 'speech_generation') throw createCreditError('speech_reservation_not_found', 'Speech reservation unavailable.', 404);
+    if (reservation.status === 'captured') return this.accountRepository.captureReservation({ userId, reservationId, jobId: operationId,
+      idempotencyKey: `capture:${reservationId}` });
+    const evidence = settleSpeechPrice(reservation.pricingSnapshot, usage);
+    return this.accountRepository.captureReservation({ userId, reservationId, jobId: operationId, amountCredits: evidence.amountCredits,
+      idempotencyKey: `capture:${reservationId}`, metadata: { kind: 'speech_generation', providerResponseId, providerCostEvidence: evidence } });
   }
 
   estimateVideo(options) {

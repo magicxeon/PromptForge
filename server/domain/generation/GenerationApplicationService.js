@@ -1,6 +1,7 @@
 import { characterCastingExportService } from '../character-profiles/CharacterCastingExportService.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { performanceTelemetry } from '../observability/PerformanceTelemetry.js';
+import { speechGenerationService } from './SpeechGenerationService.js';
 import { validateGenerationPrompt } from './GenerationPromptBudget.js';
 import {
   compileGenerationContext,
@@ -13,6 +14,18 @@ import { promptRefinementService as defaultPromptRefinementService } from './Pro
 import { generationGroupRepository as defaultGenerationGroupRepository } from '../../repositories/generation/GenerationGroupRepository.js';
 
 export class GenerationApplicationService {
+  speechCatalog() { return speechGenerationService.catalog(); }
+  quoteSpeech(input) { return speechGenerationService.quote(input); }
+  generateSpeech(input) { return speechGenerationService.generate(input); }
+  readSpeech(input) { return speechGenerationService.read(input); }
+  quoteVoiceDesign(input) { return speechGenerationService.quote({ ...input, operation: 'voice_design' }); }
+  createVoiceDesign(input) { return speechGenerationService.generate({ ...input, operation: 'voice_design' }); }
+  deleteVoiceDesign(input) { return speechGenerationService.deleteDesignedVoice(input); }
+  async listSpeechOperations(actorContext) {
+    speechGenerationService.actor(actorContext);
+    return (await speechGenerationService.repository.read()).filter(item => item.ownerUserId === actorContext.userId)
+      .map(item => speechGenerationService.publicRecord(item));
+  }
   constructor({
     providerRegistry,
     queueManager,

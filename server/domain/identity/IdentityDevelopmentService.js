@@ -41,6 +41,8 @@ const adminWrites = [
   ['POST', /^\/api\/admin\/attribute-catalog\/rollback$/],
 ];
 const liveReads = [
+  /^\/api\/voice-studio\/custom-voices$/,
+  /^\/api\/voice-studio\/(?:catalog|documents(?:\/[^/]+(?:\/rows\/[^/]+\/takes)?)?|characters|audio-library|generations\/[^/]+)$/,
   /^\/api\/comparisons(?:\/[^/]+)?$/,
   /^\/api\/jobs\/[^/]+(?:\/stream)?$/,
   /^\/api\/generation-groups\/[^/]+$/,
@@ -54,6 +56,13 @@ const liveReads = [
   /^\/api\/credits\/ledger$/,
 ];
 const liveWrites = [
+  ['POST', /^\/api\/voice-studio\/custom-voices(?:\/quotes|\/[^/]+\/save)?$/],
+  ['PATCH', /^\/api\/voice-studio\/custom-voices\/[^/]+$/],
+  ['DELETE', /^\/api\/voice-studio\/custom-voices\/[^/]+$/],
+  ['POST', /^\/api\/voice-studio\/(?:documents|characters|(?:documents|characters)\/[^/]+\/archive|documents\/[^/]+\/rows\/[^/]+\/(?:quotes|generations)|takes\/[^/]+\/save)$/],
+  ['PATCH', /^\/api\/voice-studio\/(?:documents|characters|takes)\/[^/]+$/],
+  ['PUT', /^\/api\/voice-studio\/documents\/[^/]+\/rows\/[^/]+\/selected-take$/],
+  ['DELETE', /^\/api\/voice-studio\/takes\/[^/]+$/],
   ['POST', /^\/api\/comparisons(?:\/estimate)?$/],
   ['PATCH', /^\/api\/comparisons\/[^/]+(?:\/winner)?$/],
   ['DELETE', /^\/api\/comparisons\/[^/]+$/],
@@ -70,7 +79,7 @@ const fail = (res, code, status = 403) =>
   res.status(status).json({ error: 'This action is unavailable in the current authentication mode.', code });
 
 // Deliberately limited local workspace admission. Existing capability handlers
-// still enforce ownership. Explicit local Admin image/Video Playground admission uses canonical
+// still enforce ownership. Explicit local Admin image/video/Voice Studio admission uses canonical
 // Generation/Credits and fresh private-media authorization; other sensitive
 // operations stay restricted. This is never a real authentication/session proof.
 export class IdentityDevelopmentService {

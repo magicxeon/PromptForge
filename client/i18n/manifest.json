@@ -26,6 +26,7 @@
     }
   ],
   "namespaces": [
+    "voice-studio",
     "authentication",
     "tutorials",
     "common",

@@ -1,75 +1,173 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 import {
   isSidebarNavigationTargetActive,
   routePaths,
   routeBuilders,
-  sidebarNavigationGroups
-} from './routes';
+  sidebarNavigationGroups,
+} from "./routes";
 
-describe('Momelo sidebar navigation registry', () => {
-  it('keeps Tutorial and Cinema as admin-only peers outside Create', () => {
-    const group = sidebarNavigationGroups.find(item => item.id === 'learn-watch');
-    expect(group?.items.map(item => item.path)).toEqual(['/tutorials', '/ai-cinema']);
-    expect(group?.items.every(item => item.allowedRoles?.join() === 'admin' && item.feature === 'learning')).toBe(true);
-    expect(isSidebarNavigationTargetActive('tutorials', '/tutorials/teach/new')).toBe(true);
-    expect(isSidebarNavigationTargetActive('ai-cinema', '/ai-cinema/manage')).toBe(true);
-    expect(isSidebarNavigationTargetActive('cinematic', '/ai-cinema/manage')).toBe(false);
+describe("Momelo sidebar navigation registry", () => {
+  it("exposes each Voice Studio view exactly once and marks only its query view active", () => {
+    const voice = sidebarNavigationGroups
+      .flatMap((group) => group.items)
+      .find((item) => item.id === "voice-studio");
+    expect(voice?.icon).toBe("voiceStudio");
+    expect(voice?.children?.map((item) => item.path)).toEqual(
+      ["script", "voices", "library"].map(
+        (view) => `/create/voice-studio?view=${view}`,
+      ),
+    );
+    expect(
+      isSidebarNavigationTargetActive(
+        "voice-voices",
+        "/create/voice-studio?view=voices",
+      ),
+    ).toBe(true);
+    expect(
+      isSidebarNavigationTargetActive(
+        "voice-library",
+        "/create/voice-studio?view=voices",
+      ),
+    ).toBe(false);
+    expect(
+      isSidebarNavigationTargetActive("voice-script", "/create/voice-studio"),
+    ).toBe(true);
+    expect(
+      isSidebarNavigationTargetActive(
+        "voice-script",
+        "/create/voice-studio?view=unknown",
+      ),
+    ).toBe(true);
+    expect(
+      isSidebarNavigationTargetActive(
+        "voice-voices",
+        "/create/studio/face?view=voices",
+      ),
+    ).toBe(false);
   });
-  it('provides direct Template Detail links and keeps the Templates menu active', () => {
-    expect(routeBuilders.templateDetail('post 1')).toBe('/explore/templates/post%201');
-    expect(isSidebarNavigationTargetActive('templates', '/explore/templates/post_1')).toBe(true);
-    expect(isSidebarNavigationTargetActive('templates', '/posts/post_1')).toBe(false);
-    expect(routeBuilders.post('post_1')).toBe('/posts/post_1');
+  it("keeps Tutorial and Cinema as admin-only peers outside Create", () => {
+    const group = sidebarNavigationGroups.find(
+      (item) => item.id === "learn-watch",
+    );
+    expect(group?.items.map((item) => item.path)).toEqual([
+      "/tutorials",
+      "/ai-cinema",
+    ]);
+    expect(
+      group?.items.every(
+        (item) =>
+          item.allowedRoles?.join() === "admin" && item.feature === "learning",
+      ),
+    ).toBe(true);
+    expect(
+      isSidebarNavigationTargetActive("tutorials", "/tutorials/teach/new"),
+    ).toBe(true);
+    expect(
+      isSidebarNavigationTargetActive("ai-cinema", "/ai-cinema/manage"),
+    ).toBe(true);
+    expect(
+      isSidebarNavigationTargetActive("cinematic", "/ai-cinema/manage"),
+    ).toBe(false);
   });
-  it('declares the three canonical Studio workflows once', () => {
+  it("provides direct Template Detail links and keeps the Templates menu active", () => {
+    expect(routeBuilders.templateDetail("post 1")).toBe(
+      "/explore/templates/post%201",
+    );
+    expect(
+      isSidebarNavigationTargetActive("templates", "/explore/templates/post_1"),
+    ).toBe(true);
+    expect(isSidebarNavigationTargetActive("templates", "/posts/post_1")).toBe(
+      false,
+    );
+    expect(routeBuilders.post("post_1")).toBe("/posts/post_1");
+  });
+  it("declares the three canonical Studio workflows once", () => {
     const studio = sidebarNavigationGroups
-      .flatMap(group => group.items)
-      .find(item => item.id === 'studio');
+      .flatMap((group) => group.items)
+      .find((item) => item.id === "studio");
 
-    expect(studio?.children?.map(item => [item.id, item.path])).toEqual([
-      ['face-creator', '/create/studio/face#studio-configurator-title'],
-      ['character-sheet', '/create/studio/character#studio-configurator-title'],
-      ['scene-builder', '/create/studio/scene#studio-configurator-title']
+    expect(studio?.children?.map((item) => [item.id, item.path])).toEqual([
+      ["face-creator", "/create/studio/face#studio-configurator-title"],
+      ["character-sheet", "/create/studio/character#studio-configurator-title"],
+      ["scene-builder", "/create/studio/scene#studio-configurator-title"],
     ]);
   });
 
-  it('distinguishes Face Creator, Character Sheet and Scene Builder routes', () => {
-    expect(isSidebarNavigationTargetActive('face-creator', '/create/studio/face')).toBe(true);
-    expect(isSidebarNavigationTargetActive('face-creator', '/create/studio/character')).toBe(false);
-    expect(isSidebarNavigationTargetActive('character-sheet', '/create/studio/character')).toBe(true);
-    expect(isSidebarNavigationTargetActive('scene-builder', '/create/studio/scene')).toBe(true);
+  it("distinguishes Face Creator, Character Sheet and Scene Builder routes", () => {
+    expect(
+      isSidebarNavigationTargetActive("face-creator", "/create/studio/face"),
+    ).toBe(true);
+    expect(
+      isSidebarNavigationTargetActive(
+        "face-creator",
+        "/create/studio/character",
+      ),
+    ).toBe(false);
+    expect(
+      isSidebarNavigationTargetActive(
+        "character-sheet",
+        "/create/studio/character",
+      ),
+    ).toBe(true);
+    expect(
+      isSidebarNavigationTargetActive("scene-builder", "/create/studio/scene"),
+    ).toBe(true);
   });
 
-  it('keeps private work and owned Characters in My Library', () => {
-    const library = sidebarNavigationGroups.find(group => group.id === 'library');
-    expect(library?.items.map(item => [item.id, item.path])).toEqual([
-      ['history', '/library/recent'],
-      ['collections', '/library/collections'],
-      ['my-characters', '/me/characters'],
-      ['my-templates', '/me/templates']
+  it("keeps private work and owned Characters in My Library", () => {
+    const library = sidebarNavigationGroups.find(
+      (group) => group.id === "library",
+    );
+    expect(library?.items.map((item) => [item.id, item.path])).toEqual([
+      ["history", "/library/recent"],
+      ["collections", "/library/collections"],
+      ["my-characters", "/me/characters"],
+      ["my-templates", "/me/templates"],
     ]);
-    expect(isSidebarNavigationTargetActive('history', '/library/recent')).toBe(true);
-    expect(isSidebarNavigationTargetActive('my-characters', '/me/characters')).toBe(true);
-    expect(isSidebarNavigationTargetActive('my-characters', '/me/characters/charprof_1')).toBe(true);
-    expect(isSidebarNavigationTargetActive('my-templates', '/me/templates')).toBe(true);
+    expect(isSidebarNavigationTargetActive("history", "/library/recent")).toBe(
+      true,
+    );
+    expect(
+      isSidebarNavigationTargetActive("my-characters", "/me/characters"),
+    ).toBe(true);
+    expect(
+      isSidebarNavigationTargetActive(
+        "my-characters",
+        "/me/characters/charprof_1",
+      ),
+    ).toBe(true);
+    expect(
+      isSidebarNavigationTargetActive("my-templates", "/me/templates"),
+    ).toBe(true);
   });
 
-  it('keeps Attribute Studio under the canonical Admin route', () => {
-    expect(routePaths.admin).toBe('/admin');
-    expect(routePaths.adminOperations).toBe('/admin/operations');
-    expect(routePaths.adminAttributes).toBe('/admin/attributes');
-    expect(routePaths.adminProviders).toBe('/admin/providers');
+  it("keeps Attribute Studio under the canonical Admin route", () => {
+    expect(routePaths.admin).toBe("/admin");
+    expect(routePaths.adminOperations).toBe("/admin/operations");
+    expect(routePaths.adminAttributes).toBe("/admin/attributes");
+    expect(routePaths.adminProviders).toBe("/admin/providers");
   });
 
-  it('registers Cinematic Studio once under Create and marks nested routes active', () => {
-    const create = sidebarNavigationGroups.find(group => group.id === 'create');
-    const cinematicItems = create?.items.filter(item => item.id === 'cinematic');
+  it("registers Cinematic Studio once under Create and marks nested routes active", () => {
+    const create = sidebarNavigationGroups.find(
+      (group) => group.id === "create",
+    );
+    const cinematicItems = create?.items.filter(
+      (item) => item.id === "cinematic",
+    );
 
-    expect(cinematicItems).toEqual([expect.objectContaining({
-      path: '/create/cinematic',
-      feature: 'cinematic'
-    })]);
-    expect(routePaths.createCinematicNew).toBe('/create/cinematic/new');
-    expect(isSidebarNavigationTargetActive('cinematic', '/create/cinematic/project_1/storyboard')).toBe(true);
+    expect(cinematicItems).toEqual([
+      expect.objectContaining({
+        path: "/create/cinematic",
+        feature: "cinematic",
+      }),
+    ]);
+    expect(routePaths.createCinematicNew).toBe("/create/cinematic/new");
+    expect(
+      isSidebarNavigationTargetActive(
+        "cinematic",
+        "/create/cinematic/project_1/storyboard",
+      ),
+    ).toBe(true);
   });
 });

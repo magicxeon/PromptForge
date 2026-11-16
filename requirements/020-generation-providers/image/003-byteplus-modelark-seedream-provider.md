@@ -597,3 +597,30 @@ are separate capabilities, not normal multi-output image generation.
 
 Documentation review: model identity, unsupported fields and local links checked.
 No implementation acceptance above is marked passed by this document update.
+
+### 2026-11-15 — expose all existing mapped aspect-ratio presets
+
+Bounded catalog correction: all five configured Seedream models expose the complete
+existing adapter preset set: 1:1, 16:9, 9:16, 6:8, 3:4, 4:3, 4:5, 3:2, 2:3, 21:9, auto.
+6:8 remains an alias of 3:4 for existing drafts. Model-specific resolutions and pixel
+mapping, pricing, defaults and dispatch remain unchanged. Existing catalog-driven
+Playground/Studio controls consume these options; no parallel UI list is introduced.
+This exposes all mapped presets, not arbitrary numeric-ratio input. Architecture map
+unchanged; no new files or runtime data paths. Focused adapter/catalog checks below.
+
+Validation: `node --test --test-reporter=dot test/modelArkSeedreamProvider.test.js`
+passed 13 tests, including every advertised model/resolution/preset combination and
+Seedream 5.5 pixel bounds. No paid calls, UI source edits or build. Browser selection
+was not exercised; reload the server/catalog and refresh the page to consume the config.
+
+### 2026-11-15 — Comparison ratio selector correction
+
+User reported Comparison still showing the hidden normal-mode model's limited ratios.
+EngineTargetPanel now derives the selectable union from the configured models in actual
+Comparison slots. GenerationExperience validates those slots and does not auto-replace
+the hidden normal-mode model while editing Comparison. Incompatible slots still block
+estimation/submission through existing capability validation; no provider coercion or
+pricing/dispatch changes. Fixed-ratio workflows remain locked, normal mode unchanged.
+Architecture map unchanged. Source inspected only; user explicitly requested no tests
+or build and will verify in the browser. Production bundle must be rebuilt to serve
+these source changes when running without Vite HMR.

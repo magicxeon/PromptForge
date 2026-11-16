@@ -250,7 +250,7 @@ export class CreditAccountRepository {
         capturedAt: null,
         refundedAt: null,
         terminalReason: null,
-        ...(['look_sheet_enhancement', 'cinematic_text'].includes(metadata.kind)
+        ...(['look_sheet_enhancement', 'cinematic_text', 'speech_generation'].includes(metadata.kind)
           ? { metadata: { kind: metadata.kind, operationId: metadata.operationId,
             ...(metadata.kind === 'cinematic_text' ? { operation: metadata.operation } : {}) } } : {})
       };

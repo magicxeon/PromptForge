@@ -59,11 +59,19 @@ used an explicit test tariff; its release gate is now superseded by 007 for
 the measured scope only.
 
 This folder is the canonical requirement owner for external AI provider
-integration across image, video, and text-generation support. It consolidates
+integration across image, video, text-generation and planned speech support. It consolidates
 provider architecture, adapters, capability catalogs, pricing evidence,
 qualification, promotion, observability, and rollback without moving product
 workflow ownership out of Playground, Studio, Fashion, Cinematic, Community,
 Credits, or Generation.
+
+2026-11-15 speech scope: [Voice Studio Basic](../023-voice-studio/000-master.md)
+owns the new product workflow; [VS-03](../023-voice-studio/003-model-configuration.md)
+records its initial Gemini TTS evidence and configuration. Provider configuration,
+availability and adapter ownership stay here and behind Generation. GeminiSpeechProvider,
+shared Queue admission, validated WAV Assets and capped actual-usage Credits are
+source implemented. Independent sensitive review passed; actual Google entitlement,
+usage payload and Thai listening remain unverified. See 023 delivery evidence.
 
 ## 2. Ownership Boundary
 

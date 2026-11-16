@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "voices": [
+    {"id": "Kore", "displayName": "Kore", "description": "Firm", "modelIds": ["gemini-3.8-flash-tts"]},
+    {"id": "Puck", "displayName": "Puck", "description": "Upbeat", "modelIds": ["gemini-3.8-flash-tts"]},
+    {"id": "Charon", "displayName": "Charon", "description": "Informative", "modelIds": ["gemini-3.8-flash-tts"]},
+    {"id": "Fenrir", "displayName": "Fenrir", "description": "Excitable", "modelIds": ["gemini-3.8-flash-tts"]},
+    {"id": "Aoede", "displayName": "Aoede", "description": "Breezy", "modelIds": ["gemini-3.8-flash-tts"]},
+    {"id": "Leda", "displayName": "Leda", "description": "Youthful", "modelIds": ["gemini-3.8-flash-tts"]},
+    {"id": "Orus", "displayName": "Orus", "description": "Firm", "modelIds": ["gemini-3.8-flash-tts"]},
+    {"id": "Zephyr", "displayName": "Zephyr", "description": "Bright", "modelIds": ["gemini-3.8-flash-tts"]}
+  ]
+}

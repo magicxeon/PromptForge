@@ -1,6 +1,7 @@
 import { providerControlRepository } from '../../repositories/admin-configuration/ProviderControlRepository.js';
 
 export const PROVIDER_WORKFLOWS = Object.freeze([
+  'voice-studio.speech',
   'playground.image',
   'playground.video',
   'comparison.image',

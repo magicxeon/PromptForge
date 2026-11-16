@@ -78,7 +78,14 @@ export function EngineTargetPanel({
   const { t: tUi } = useTranslation('react-ui');
   const provider = catalog.providers.find(item => item.id === value.provider) || catalog.providers[0];
   const model = provider?.models.find(item => item.id === value.model) || provider?.models[0];
-  const availableRatios = model?.capabilities.aspectRatios.length ? model.capabilities.aspectRatios : ['6:8', '1:1', '16:9'];
+  // Comparison is configured by its slots, not the hidden single-model selection.
+  // Keep the union selectable; existing slot validation identifies incompatible models.
+  const comparisonRatios = [...new Set(comparisonSlots.flatMap(slot => (
+    catalog.providers.find(item => item.id === slot.provider)?.models
+      .find(item => item.id === slot.model)?.capabilities.aspectRatios || []
+  )))];
+  const availableRatios = comparison ? comparisonRatios
+    : model?.capabilities.aspectRatios.length ? model.capabilities.aspectRatios : ['6:8', '1:1', '16:9'];
   const ratios = fixedAspectRatio ? [fixedAspectRatio] : availableRatios;
   const resolutions = model?.capabilities.resolutions || [];
   const selectionRatio = fixedAspectRatio || (adaptAspectRatio ? null : value.aspectRatio);

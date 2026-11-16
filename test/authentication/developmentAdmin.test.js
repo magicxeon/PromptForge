@@ -122,10 +122,20 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
   assert.equal(capabilities.capabilities.runtimeConfigurationPublish.enabled, false);
   assert.equal(capabilities.capabilities.providerRuntimeControl.enabled, true);
   assert.equal((await request('/api/generation/video/capabilities')).status, 403);
+  assert.equal((await request('/api/voice-studio/custom-voices')).status, 403);
+  assert.equal((await request('/api/voice-studio/custom-voices', 'POST', headers)).status, 403);
   runtime = qualifyAuthRuntime({ ...env, PORT: String(port), AUTH_DEV_BYPASS_GENERATION_ENABLED: 'true' }, f.project);
   middleware = new IdentityDevelopmentService({ runtime, userRepository: f.repo }).middleware();
   const liveConfig = await request('/api/auth/config');
   const liveHeaders = { cookie: liveConfig.headers['set-cookie'][0].split(';')[0], 'x-csrf-token': liveConfig.body.csrfToken };
+  assert.equal((await request('/api/voice-studio/custom-voices')).status, 200);
+  for (const [url, method] of [['/api/voice-studio/custom-voices','POST'], ['/api/voice-studio/custom-voices/quotes','POST'],
+    ['/api/voice-studio/custom-voices/fixture/save','POST'], ['/api/voice-studio/custom-voices/fixture','PATCH'], ['/api/voice-studio/custom-voices/fixture','DELETE']]) {
+    assert.equal((await request(url, method)).status, 403);
+    assert.equal((await request(url, method, liveHeaders)).status, 200);
+    assert.equal((await request(url, method, { ...liveHeaders, origin: 'https://attacker.invalid' })).status, 403);
+  }
+  assert.equal((await request('/api/voice-studio/custom-voices/fixture/import', 'POST', liveHeaders)).status, 403);
   for (const url of ['/api/generation/video/capabilities', '/api/generation/video/trusted-sources',
     '/api/generation/video/tasks', '/api/generation/video/tasks/fixture', '/api/character-profiles',
     '/api/character-profiles/fixture/looks', '/api/character-profiles/fixture/media/thumbnail',
@@ -142,6 +152,8 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
   runtime = qualifyAuthRuntime({ ...env, PORT: String(port), AUTH_DEV_BYPASS_ROLE: 'user' }, f.project);
   middleware = new IdentityDevelopmentService({ runtime, userRepository: f.repo }).middleware();
   assert.equal((await request('/api/me', 'GET', headers)).body.userId, developmentFixtureId);
+  assert.equal((await request('/api/voice-studio/custom-voices')).status, 403);
+  assert.equal((await request('/api/voice-studio/custom-voices', 'POST', liveHeaders)).status, 403);
   assert.equal((await request('/api/admin/overview', 'GET', headers)).status, 403);
   assert.equal((await request('/api/generation/video/capabilities')).status, 403);
   assert.equal((await request('/api/generation/video/tasks', 'POST', liveHeaders)).status, 403);

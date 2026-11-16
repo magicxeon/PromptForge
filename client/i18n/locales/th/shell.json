@@ -36,7 +36,7 @@
   "shell.navigation.items.recent": "ล่าสุด",
   "shell.navigation.items.profile": "โปรไฟล์",
   "shell.navigation.items.post": "ผลงาน",
-  "shell.navigation.items.studio": "สตูดิโอ",
+  "shell.navigation.items.studio": "สตูดิโอตัวละครและฉาก",
   "shell.navigation.items.faceCreator": "สร้างใบหน้า",
   "shell.navigation.items.characterSheet": "สร้าง Character",
   "shell.navigation.items.headshotGrid": "สร้างแบบง่าย",
@@ -113,5 +113,9 @@
   "shell.jobCenter.submitting": "กำลังส่งงาน",
   "shell.jobCenter.queued": "อยู่ในคิว",
   "shell.jobCenter.processing": "กำลังสร้าง",
-  "shell.jobCenter.progress": "เสร็จแล้ว {completed} จาก {total} ภาพ"
+  "shell.jobCenter.progress": "เสร็จแล้ว {completed} จาก {total} ภาพ",
+  "shell.navigation.items.voiceStudio": "Voice Studio",
+  "shell.navigation.items.voiceScript": "บทพากย์",
+  "shell.navigation.items.myVoices": "เสียงของฉัน",
+  "shell.navigation.items.voiceLibrary": "คลังไฟล์เสียง"
 }

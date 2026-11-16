@@ -12,6 +12,22 @@
   "creditsPerThbAssumption": 10,
   "creditRoundingIncrement": 5,
   "estimateTtlSeconds": 900,
+  "speechGeneration": {
+    "voiceDesign": {
+      "enabled": true,
+      "mapping": "model_token_rates_inferred_from_model_voice_design_capability",
+      "source": "https://aistudio.google.com/docs/models/gemini-3.8-flash-tts",
+      "usageSource": "https://aistudio.google.com/api-reference/voices",
+      "verifiedAt": "2026-11-15",
+      "remainingEvidence": "Confirm first CreateVoice usage against provider billing; no separate creation tariff documented."
+    },
+    "version": "gemini-speech-2026-11-15-v1",
+    "markupPolicy": "text",
+    "rates": [
+      {"modelId": "gemini-3.8-flash-tts", "effectiveAt": "2026-11-15T00:00:00Z", "until": "2027-01-01T00:00:00Z", "inputUsdPerMillion": 0.5, "outputUsdPerMillion": 9, "source": "https://aistudio.google.com/docs/pricing#gemini-3.8-flash-tts"},
+      {"modelId": "gemini-3.8-flash-tts", "effectiveAt": "2027-01-01T00:00:00Z", "until": "2027-04-01T00:00:00Z", "inputUsdPerMillion": 1, "outputUsdPerMillion": 18, "source": "https://aistudio.google.com/docs/pricing#gemini-3.8-flash-tts"}
+    ]
+  },
   "profitMarkupPercentByMedia": { "text": 30, "image": 30, "video": 30 },
   "videoActualUsage": {
     "enabled": true,

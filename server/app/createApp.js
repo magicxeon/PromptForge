@@ -86,6 +86,9 @@ import { GenerationJobCenterService } from '../domain/generation/GenerationJobCe
 import { registerGenerationJobCenterRoutes } from './routes/generationJobCenterRoutes.js';
 import { AdminInvestigationService } from '../domain/admin/AdminInvestigationService.js';
 import { ProviderControlApplicationService } from '../domain/admin-configuration/ProviderControlApplicationService.js';
+import { VoiceStudioApplicationService } from '../domain/voice-studio/VoiceStudioApplicationService.js';
+import { registerVoiceStudioRoutes } from './routes/voiceStudioRoutes.js';
+import { audioAssetService } from '../domain/assets/AudioAssetService.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -160,6 +163,7 @@ export function createApp({ authRuntime = getAuthRuntime(), identityRuntime, ide
         lookSheetEnhancementService.recover().then(() => cinematicWritingOperationService.recover()).then(() =>
           creditApplicationService.reconcileStartupOrphanReservations({
             shouldPreserveReservation: reservation => reservation.metadata?.kind === 'look_sheet_enhancement'
+              || reservation.metadata?.kind === 'speech_generation'
               || reservation.metadata?.kind === 'cinematic_text'
               || videoGenerationApplicationService.hasDurableTaskForReservation(reservation)
           })).then(resolve, reject);
@@ -215,6 +219,7 @@ export function createApp({ authRuntime = getAuthRuntime(), identityRuntime, ide
     templatePoseProxyService,
     resolveRequestUsername
   };
+  registerVoiceStudioRoutes(app, { voiceStudio: new VoiceStudioApplicationService({ generation: generationApplicationService, audioAssets: audioAssetService }) });
 
   registerAttributesRoutes(app, {
     providerRegistry,

@@ -25,7 +25,7 @@ test('source-authorized private binary delivery is isolated and closes on lost a
   await fs.mkdir(outputs); await fs.mkdir(outside);
   const bytes = Buffer.from([0, 255, 17, 128, 52, 0, 71, 10]);
   const names = ['original.png', 'thumb.webp', 'video.mp4', 'poster.png', 'generation.png',
-    'generation-thumb.webp', 'deleted.png', 'unmapped.png', 'legacy.png', 'internal.png', 'failed.png'];
+    'generation-thumb.webp', 'deleted.png', 'unmapped.png', 'legacy.png', 'internal.png', 'failed.png', 'voice.wav'];
   for (const name of names) await fs.writeFile(path.join(outputs, name), bytes);
   await fs.writeFile(path.join(outside, 'secret.png'), Buffer.from('outside private bytes'));
   await fs.symlink(outside, path.join(outputs, 'escaped'), process.platform === 'win32' ? 'junction' : 'dir');
@@ -36,7 +36,8 @@ test('source-authorized private binary delivery is isolated and closes on lost a
     storageKey: 'video.mp4', publicUrl: '/outputs/video.mp4', metadata: { posterUrl: '/outputs/poster.png' } },
   { id: 'asset-deleted', ownerUserId: ownerId, status: 'deleted', storageProvider: 'local', publicUrl: '/outputs/deleted.png' },
   { id: 'asset-link', ownerUserId: ownerId, status: 'active', storageProvider: 'local', publicUrl: '/outputs/escaped/secret.png' },
-  { id: 'asset-large', ownerUserId: ownerId, status: 'active', storageProvider: 'local', publicUrl: '/outputs/large.mp4' }];
+  { id: 'asset-large', ownerUserId: ownerId, status: 'active', storageProvider: 'local', publicUrl: '/outputs/large.mp4' },
+  { id: 'asset-audio', ownerUserId: ownerId, status: 'active', storageProvider: 'local', storageKey: 'voice.wav', publicUrl: '/outputs/voice.wav' }];
   const historyRows = [{ id: 'new-owned-result', ownerUserId: ownerId, username: ownerId, timestamp: 10,
     imageUrl: '/outputs/generation.png', thumbnailUrl: '/outputs/generation-thumb.webp', status: 'completed' },
   { id: 'legacy-unmapped', username: 'user_demo', timestamp: 9, imageUrl: '/outputs/legacy.png' },
@@ -105,6 +106,13 @@ test('source-authorized private binary delivery is isolated and closes on lost a
       assert.equal(conditional.status, 304); assert.equal(await conditional.text(), '');
       const foreign = await call('/outputs/video.mp4', { headers: { cookie: 'other', 'if-none-match': full.headers.get('etag') } });
       assert.equal(foreign.status, 404); assert.equal(foreign.headers.get('etag'), null);
+    });
+    await t.test('private WAV delivery has audio MIME and authorized seek/download bytes',async()=>{
+      const full=await call('/outputs/voice.wav');assert.equal(full.status,200);assert.equal(full.headers.get('content-type'),'audio/wav');
+      assert.deepEqual(Buffer.from(await full.arrayBuffer()),bytes);
+      const range=await call('/outputs/voice.wav',{headers:{range:'bytes=1-3'}});assert.equal(range.status,206);
+      assert.deepEqual(Buffer.from(await range.arrayBuffer()),bytes.subarray(1,4));
+      assert.equal((await call('/outputs/voice.wav',{headers:{cookie:'other'}})).status,404);
     });
     await t.test('guest/wrong owner/unmapped/deleted/internal/failed outputs deny without source bytes', async () => {
       assert.equal((await call('/outputs/original.png', { headers: { cookie: '', 'x-mpf-user-id': ownerId } })).status, 401);
