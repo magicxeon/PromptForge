@@ -20,7 +20,7 @@ const request = { userId: 'owner', requestedProviderId: 'openai', requestedModel
 
 test('all four reported jobs reproduce modality-specific USD and existing retail floors', () => {
   const expected = [[0.039420, 0.051357], [0.039210, 0.055068]];
-  models.forEach((model, index) => {
+  models.filter(model => !model.measuredUsagePricing.baselineModelId).forEach((model, index) => {
     const profile = model.measuredUsagePricing;
     [profile.textOnly, profile.withReferences].forEach((sample, mode) => {
       const cost = calculateImageTokenCost(sample.usage, model.tokenRateEvidence);

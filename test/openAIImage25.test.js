@@ -5,8 +5,12 @@ import { loadProviderConfig } from '../server/providers/ProviderConfigLoader.js'
 import { ProviderRegistry } from '../server/providers/ProviderRegistry.js';
 import { CreditPricingPolicyService } from '../server/domain/credits/CreditPricingPolicyService.js';
 import { CreditReservationService } from '../server/domain/credits/CreditReservationService.js';
+import { FashionRoutingPolicyService } from '../server/domain/fashion-blueprint/FashionRoutingPolicyService.js';
+import { ProviderAvailabilityPolicyService } from '../server/domain/admin-configuration/ProviderAvailabilityPolicyService.js';
 
 const ids = ['gpt-image-2.5-sunburst', 'gpt-image-2.5-flare'];
+const ids26 = ['gpt-image-2.6-sunburst', 'gpt-image-2.6-flare'];
+const modernModels = [...ids.flatMap(id => [id, `${id}-2026-09-08`]), ...ids26];
 const config = loadProviderConfig();
 const provider = new OpenAIProvider('isolated-test-key');
 
@@ -19,7 +23,7 @@ test('adapter: both models and snapshots use correct sizes and retain complete u
     return new Response(JSON.stringify({ data: [{ b64_json: 'aW1hZ2U=' }], usage,
       size: '768x1024', quality: 'high', output_format: 'png' }));
   });
-  for (const id of ids) for (const model of [id, `${id}-2026-09-08`]) {
+  for (const model of modernModels) {
     assert.equal(provider.supportsOpenAIImageStreaming(model), false);
     const result = await provider.generateImage('An editorial sheet', { submodel: model, aspectRatio: '6:8', quality: 'high' });
     assert.deepEqual(result.usage, usage);
@@ -38,7 +42,7 @@ test('adapter: edits preserve ordered references and omit unverified optional fi
     requests.push({ url, request });
     return new Response(JSON.stringify({ data: [{ b64_json: 'aW1hZ2U=' }], output_format: 'webp' }));
   });
-  for (const id of ids) for (const model of [id, `${id}-2026-09-08`]) {
+  for (const model of modernModels) {
     const result = await provider.generateImage('Keep identity', { submodel: model, aspectRatio: '4:5',
       resolvedReferenceImagesOrdered: ['b25l', 'dHdv'], quality: 'xhigh', inputFidelity: 'high', outputFormat: 'webp' });
     const { url, request } = requests.at(-1);
@@ -62,7 +66,7 @@ test('adapter: invalid parameters fail before dispatch and provider errors stay 
     calls++;
     return new Response(JSON.stringify({ error: { message: 'Model unavailable' } }), { status: 403 });
   });
-  for (const model of ids) {
+  for (const model of [...ids, ...ids26]) {
     await assert.rejects(provider.generateImage('prompt', { submodel: model, aspectRatio: '5:9' }), /aspect ratio/);
     await assert.rejects(provider.generateImage('prompt', { submodel: model, quality: 'standard' }), /quality/);
   }
@@ -75,7 +79,7 @@ test('catalog: exposed ratios match adapter dimensions and legacy defaults do no
   const registry = new ProviderRegistry(config, { OPENAI_API_KEY: 'isolated-test-key' });
   const openai = registry.getPublicCatalog().providers.find(item => item.id === 'openai');
   assert.equal(openai.defaultModel, 'gpt-image-1-mini');
-  for (const id of ids) {
+  for (const id of [...ids, ...ids26]) {
     const model = openai.models.find(item => item.id === id);
     assert.equal(model.paidRoutingEnabled, true);
     assert.equal(model.estimatedCredits, 55);
@@ -157,4 +161,68 @@ test('pricing: persisted test-tariff quotes require new consent after measured p
   });
   await assert.rejects(service.validateAndReserveForRequest({ userId: 'owner', estimateId: estimate.estimateId,
     generationRequest: { requestId: 'req-test' }, metadata: { jobId: 'job-test' } }), { code: 'credit_estimate_stale' });
+});
+
+test('catalog: Image 2.6 is selectable on all image surfaces and explicit Fashion routes', () => {
+  const availability = new ProviderAvailabilityPolicyService({ initialState: { version: 0 } });
+  const registry = new ProviderRegistry(config, { NODE_ENV: 'production', OPENAI_API_KEY: 'isolated-test-key' }, availability);
+  for (const workflow of ['playground.image', 'comparison.image', 'studio.face', 'studio.character_sheet',
+    'studio.scene', 'fashion.image', 'cinematic.storyboard_image', 'internal.template_pose_proxy']) {
+    const catalog = registry.getPublicCatalog({ workflow });
+    for (const id of ids26) {
+      const model = catalog.providers.find(p => p.id === 'openai').models.find(m => m.id === id);
+      assert.equal(model.unavailableReason, null);
+      assert.equal(model.paidRoutingEnabled, true);
+      assert.equal(model.qualificationStatus, 'provisional_pricing');
+      assert.equal(registry.resolveSelection('openai', id, { workflow }).model.id, id);
+    }
+  }
+  const fashion = new FashionRoutingPolicyService();
+  const models = fashion.getAdvancedCatalog(registry).providers.find(p => p.id === 'openai').models;
+  for (const id of ids26) {
+    assert.ok(models.some(m => m.id === id && m.paidRoutingEnabled));
+    assert.equal(fashion.resolveAdvancedRoute('openai', id, registry).qualificationStatus, 'experimental');
+  }
+});
+
+test('pricing: Image 2.6 quotes retain cross-model provenance and never claim measured 2.6 usage', async () => {
+  const pricing = new CreditPricingPolicyService({ environment: { NODE_ENV: 'production' } });
+  for (const id of ids26) for (const aspectRatio of Object.keys((await import('../server/config/openAIImage25.js')).OPENAI_IMAGE25_SIZES)) {
+    for (const referenceCount of [0, 6]) {
+      const inputs = { userId: 'owner', requestedProviderId: 'openai', requestedModelId: id, aspectRatio, referenceCount, outputCount: 1 };
+      const quote = await pricing.calculateEstimate(inputs);
+      assert.ok(quote.estimatedCredits > 1);
+      assert.equal(quote.routing.resolvedModelId, id);
+      assert.equal(quote.breakdown.costBasis, 'provisional_usage_estimate');
+      assert.equal(quote.breakdown.baselineModelId, id.replace('2.6', '2.5'));
+      assert.equal(quote.breakdown.qualifiedWidth, undefined);
+      assert.equal(quote.breakdown.tokenRates.version, 'openai-image26-2026-11-18');
+      assert.ok(quote.breakdown.tokenRates.source.endsWith(id));
+      const { width, height } = quote.breakdown.estimation;
+      assert.equal(`${width}x${height}`, provider.resolveOpenAIImageSize(id, aspectRatio));
+      const multiple = await pricing.calculateEstimate({ ...inputs, outputCount: 4 });
+      assert.equal(multiple.estimatedCredits, quote.estimatedCredits * 4);
+    }
+    await assert.rejects(pricing.calculateEstimate({ userId: 'owner', requestedProviderId: 'openai', requestedModelId: id,
+      aspectRatio, referenceCount: 7, outputCount: 1 }), { code: 'credit_pricing_unavailable' });
+  }
+});
+
+test('adapter: Image 2.6 streaming callers complete once with six ordered references and no streaming fields', async t => {
+  let calls = 0;
+  const refs = Array.from({ length: 6 }, (_, i) => Buffer.from(`reference-${i}`).toString('base64'));
+  t.mock.method(globalThis, 'fetch', async (_url, request) => {
+    calls++;
+    assert.deepEqual(await Promise.all(request.body.getAll('image[]').map(f => f.text())), refs.map(r => Buffer.from(r, 'base64').toString()));
+    assert.equal(request.body.has('stream'), false);
+    assert.equal(request.body.has('input_fidelity'), false);
+    return new Response(JSON.stringify({ data: [{ b64_json: 'aW1hZ2U=' }] }));
+  });
+  for (const id of ids26) {
+    const events = [];
+    await provider.generateImageStream('Keep all identities', { submodel: id, resolvedReferenceImagesOrdered: refs }, e => events.push(e));
+    assert.equal(events.length, 1);
+    assert.equal(events[0].event, 'image_generation.completed');
+  }
+  assert.equal(calls, 2);
 });

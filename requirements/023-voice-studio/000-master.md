@@ -3,6 +3,7 @@
 Date: 2026-11-15  
 Status: Basic Creator/Manager source implemented; live Google/Thai listening qualification remains open.
 Revision 2: UX redesign and Custom Voice Design source implemented; offline integration passed. Live provider qualification remains open in 005.
+Revision 3 (2026-11-16): Voice Replication requirement draft only; implementation awaits user instruction after their Chinese-to-Thai experiment.
 Primary: Product Requirement Architect. UX design: `/root/voice_studio_ux` (`ux-ui-product-designer`).
 
 ## 1. เป้าหมายและขอบเขต
@@ -50,11 +51,13 @@ archive) โดยแยกจากรายการไฟล์เสีย�
 
 ## 4. Deferred โดยตั้งใจ
 
-Voice replication/remixing, อัปโหลดเสียงอ้างอิง, multi-speaker request,
+Voice remixing, multi-speaker request,
 สร้างทุกแถวด้วยปุ่มเดียว, นำเข้าบทจำนวนมาก, รวม WAV/ZIP, MP3, waveform editor,
 ตัด/เร่ง/ปรับ pitch หลังสร้าง, timing แบบ frame-accurate, lip-sync, music/SFX,
 public sharing, การผูก Project/Scene/Shot และการเชื่อม Character DNA/Profile แบบถาวร
 อยู่ใน phase ถัดไปของ requirement นี้ ไม่เป็นเงื่อนไขปิด Basic release
+Voice Replication และการอัปโหลดเสียงต้นแบบย้ายเป็น requirement draft Revision 3;
+ยังไม่ใช่ฟังก์ชันที่ implement แล้วหรือเงื่อนไขปิด Basic release.
 งาน dialogue repair/voice conversion เดิมยังเป็นของ [021-VOICE](../021-post-processing-service/006-voice-dialogue-and-lipsync.md)
 
 ### Revision 2 — UX correction and Custom Voice Design (2026-11-15)
@@ -108,3 +111,17 @@ voice_frontend ทำ UI; write scopes และ review อยู่ใน [task
 Independent `/root/voice_sensitive_review` ผ่าน Security/Commercial/Backend/QA source gates
 เหตุผลที่ใช้สี่มุมมอง: private media และ actual-usage billing ข้าม Generation/Credits/Assets
 เป็น reviewer คนเดียว ไม่ใช่เพิ่มสี่ agent; ผล UI/live checks แยกใน 005
+
+### Revision 3 — Voice Replication (requirement only, 2026-11-16)
+
+เพิ่มวิธีสร้างเสียงใน Create new voice เดิม: **จากข้อความ / จากเสียงต้นแบบ**.
+เสียงที่สร้างแล้วมี icon พร้อม label แยกที่มาใน My Voices, voice picker และตัวละคร.
+ขยาย owner/pipeline เดิม ไม่สร้างระบบสังเคราะห์หรือคลังเสียงใหม่. รายละเอียด UI ใน
+[001 ข้อ 8](001-ux-and-workflows.md), contracts/config/data ใน 002–004 และ tasks/acceptance
+ใน [005](005-delivery-and-acceptance.md). การไม่รวม cloning ใน Revision 2 เป็นขอบเขต
+ประวัติศาสตร์; Revision 3 เพิ่มเฉพาะ replication ตามข้อกำหนดผู้ให้บริการ.
+
+ผู้ใช้จะทดลองเสียงจีนพูดไทยเองก่อน; ผลยัง pending ไม่ใช่การรับประกันสำเนียงหรือความ
+เหมือนต้นฉบับ. ไม่มีการอนุมัติ implement, เรียก API, อัปโหลดคลิป หรือสร้างเสียงในรอบนี้.
+Primary: Product Requirement Architect; root ทบทวน UX requirement แบบ sequential.
+Security/Commercial/Backend/QA implementation reviews ยังไม่เกิดขึ้นและไม่อ้างว่าผ่าน.

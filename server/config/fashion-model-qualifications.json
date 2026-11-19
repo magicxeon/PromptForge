@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+  "qualificationVersion": "fashion-qualification-2026-11-18-v8",
   "simpleEligibleStatuses": ["qualified"],
   "models": [
     {
@@ -22,6 +22,8 @@
     { "providerId": "openai", "modelId": "gpt-image-1.5", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1", "benchmarkEvidence": "manual-pass-with-accessory-drift-2026-08-02" },
     { "providerId": "openai", "modelId": "gpt-image-1", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1" },
     { "providerId": "openai", "modelId": "gpt-image-2", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1", "benchmarkEvidence": "manual-outfit-failure-2026-08-02" },
+    { "providerId": "openai", "modelId": "gpt-image-2.6-sunburst", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1" },
+    { "providerId": "openai", "modelId": "gpt-image-2.6-flare", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1" },
     { "providerId": "openai", "modelId": "gpt-image-1-mini", "status": "failed", "operations": [], "promptStrategyVersion": null },
     { "providerId": "gemini", "modelId": "gemini-3-pro-image", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "GEMINI-PRO-CONCISE-AUTHORITY-V4", "benchmarkEvidence": "manual-postman-pass-2026-08-04" },
     { "providerId": "modelark", "modelId": "seedream-4-0-250828", "status": "failed", "operations": [], "promptStrategyVersion": null, "benchmarkEvidence": "manual-clothed-grid-failure-2026-08-02" },

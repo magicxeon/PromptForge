@@ -44,7 +44,8 @@ export function resolveImage25MeasuredPrice(record, { resolution, aspectRatio, q
   const referenceBuckets = Math.ceil(referenceCount / profile.withReferences.referenceCount);
   const baseUsd = base.providerCostUsd * pixelFactor * factor;
   const perOutputUsd = baseUsd + Math.max(0, selected.providerCostUsd - base.providerCostUsd) * referenceBuckets;
-  const measured = profile.aspectRatios.includes(aspectRatio) && (!quality || quality === 'auto')
+  const usesOtherModelBaseline = Boolean(profile.baselineModelId && profile.baselineModelId !== record.modelId);
+  const measured = !usesOtherModelBaseline && profile.aspectRatios.includes(aspectRatio) && (!quality || quality === 'auto')
     && referenceCount <= profile.maxReferences;
   const baseOutputCredits = floor(baseUsd);
   const perOutputCredits = floor(perOutputUsd);
@@ -54,6 +55,7 @@ export function resolveImage25MeasuredPrice(record, { resolution, aspectRatio, q
       estimation: { version: estimation.version, width, height, pixelFactor, qualityFactor: factor,
         quality: quality || 'auto', referenceCount, referenceBuckets, outputCount },
       tokenRates: structuredClone(record.tokenRateEvidence), measuredUsageVersion: profile.version,
+      ...(usesOtherModelBaseline ? { baselineModelId: profile.baselineModelId } : {}),
       measuredUsage: structuredClone(referenceCount ? profile.withReferences.usage : profile.textOnly.usage),
       billingMetric: 'image_tokens', ...(measured ? { qualifiedWidth: 768, qualifiedHeight: 1024 } : {}) } };
 }

@@ -165,3 +165,35 @@ components only for event toolbar, inspector, picker and design form. Keep pure 
 insertion commands in model/, API schemas together, and no provider-specific switches in UI.
 Provider protocol code stays in GeminiSpeechProvider or a focused adjacent adapter hidden
 behind Generation; no new public pipeline. Tests extend voiceStudio/voiceSpeech runners.
+
+## 7. Revision 3 — Replication contracts (planned, not implemented)
+
+- Extend existing CustomVoiceService/VoiceStudioApplicationService facade; public create
+  inputs distinguish `sourceType: text | audio`. Missing discriminator on old requests
+  means text. Audio carries actor-owned `sourceAudioAssetId` and `consentAudioAssetId`,
+  not arbitrary filesystem paths, remote URLs, Base64 in documents or raw Google IDs.
+- Use Assets for private temporary uploads/validated metadata and media access. Routes
+  translate multipart input and delegate; check ownership, MIME/header, decoded duration,
+  byte limits and upload purpose again on server. Proposed upload endpoints stay under
+  `/api/voice-studio/custom-voices/` with Assets as storage owner; finalize exact route and
+  existing intake reuse before implementation. No unrestricted media/static route.
+- Generation adds operation `voice_replication` to the existing speech operation owner;
+  request hash includes immutable validated audio IDs/digests and consent version.
+  Extend GeminiSpeechProvider with replicated create/read/delete response handling.
+  Shared Queue, concurrency, status, actor isolation and Credits remain authoritative.
+- Treat successful remote identity creation separately from optional synthesized preview.
+  Persist private remote ID before any further projection. Do not call voiceSample or
+  require outputAssetId for replication success. A separate audition failure must not
+  discard/recreate the ready voice or alter its source type.
+- Audition uses canonical speech synthesis and its own explicit request/quote, output
+  Assets and status. Save/rename/list/play do not implicitly synthesize. Keep provider
+  identity private in Generation and application customVoiceId in character bindings.
+- Creation billing needs a replication-specific qualified policy; absence of design usage
+  is neither zero-cost proof nor a reason to apply the prompted-design settlement rules.
+  Support documented nonbillable creation only if confirmed; otherwise resolve pricing
+  before enabling creation. Existing TTS estimates/reservations/settlement remain intact.
+- Recovery reads inspect known identity; unknown remote outcome never blindly replays
+  CreateVoice. Consent rejection is distinct from network uncertainty. Error responses
+  use safe codes; no raw audio/consent transcript/secret in logs or browser errors.
+- Extend existing versioned Zod/API contracts and UI modules; one feature-local upload
+  form responsibility, one shared origin badge, no separate Voice Studio/provider store.

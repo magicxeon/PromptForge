@@ -320,6 +320,26 @@
         {"role":"ux-ui-product-designer","agentId":"/root","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"},
         {"role":"qa-release-engineer","agentId":"/root","result":"passed","reference":"requirements/023-voice-studio/005-delivery-and-acceptance.md"}
       ], "handoff":"23focusedtests, localeparity, affectedbrowserstates at390/820/1440 and finalbuild passed. Root reviewed source/screenshots. Testhelper stopped; no live creation calls."
+    },
+    {
+      "id": "VS-R3-REPLICATION",
+      "title": "Reference-audio voice creation and visible voice origin — proposed",
+      "complexity": "complex",
+      "reason": "Future private audio intake and billable replication span existing owners; requirements only in this amendment",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": ["voice-studio", "generation", "assets", "credits"],
+      "risks": ["shared-contract", "financial", "privacy"],
+      "uncertain": true,
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": ["server/domain/voice-studio/", "server/repositories/voice-studio/", "server/domain/generation/", "server/domain/assets/", "server/domain/credits/", "server/providers/", "server/config/", "server/app/routes/voiceStudioRoutes.js", "web/src/features/voice-studio/", "client/i18n/", "requirements/023-voice-studio/"],
+      "status": "proposed",
+      "acceptance": ["R3-1 through R3-5 in 005 section 6; UX section 8 distinguishes text/audio origins and preserves text design", "Human reference and consent remain private; ready voice does not require sample audio; explicit audition reuses identity", "Chinese-to-Thai listening evidence, replication pricing and retention decisions remain pending"],
+      "reviewers": ["ux-ui-product-designer", "backend-platform-architect", "commercial-financial-integrity", "security-reviewer", "qa-release-engineer"],
+      "evidence": [],
+      "reviews": [],
+      "handoff": "Requirements only. Await the user's experiment and implementation instruction. No provider calls, runtime changes or sensitive review claimed. Ordered subtasks and future review scope are in 005 section 6."
     }
   ],
   "parallelBatches": []

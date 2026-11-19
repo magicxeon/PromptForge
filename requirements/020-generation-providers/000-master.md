@@ -106,6 +106,9 @@ entry points.
 
 ### Image Providers
 
+- [OpenAI Image 2.6](image/010-openai-image-26.md): Sunburst/Flare in shared image
+  catalogs and explicit Fashion selection; provisional pricing identifies its 2.5
+  baseline separately from actual 2.6 usage. Existing defaults remain unchanged.
 - [Gemini Nano Banana 2.1](image/009-gemini-nano-banana-21.md): stable native
   Interactions adapter, 1K/2K/4K catalog and fixed50/70/155 Credits/output.
   Contract/isolated tests qualified; paid live generation and visual quality

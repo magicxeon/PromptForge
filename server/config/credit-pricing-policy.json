@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "ai-credit-activation-2026-11-15-seedream55-v1",
+  "policyVersion": "ai-credit-activation-2026-11-18-openai26-v1",
   "effectiveAt": "2026-10-12T00:00:00.000Z",
   "providerPriceSourceDate": "2026-07-24",
   "referenceFxThbPerUsd": 33.7594,
@@ -475,6 +475,168 @@
         "source": "https://developers.openai.com/api/docs/models/gpt-image-2.5-flare"
       },
       "notes": "Historical retail baseline: 55 Credits text-only; 75 with 1-2 references. New measured-cost quotes use the active image category markup (default 30%), not this catalog hint. Other supported settings use provisional pixel/quality/reference estimates, not official token predictions. Accepted quote stays fixed; actual usage cost recorded separately."
+    },
+    {
+      "providerId": "openai",
+      "modelId": "gpt-image-2.6-sunburst",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 55,
+      "billingMetric": "image_tokens",
+      "providerPriceSourceDate": "2026-11-18",
+      "providerPriceSource": "https://developers.openai.com/api/docs/models/gpt-image-2.6-sunburst",
+      "measuredUsagePricing": {
+        "version": "sunburst-26-provisional-from-25-2026-11-18-v1",
+        "estimation": {
+          "version": "pixel-reference-bucket-v1",
+          "baselinePixels": 786432,
+          "maxReferences": 6,
+          "qualityFactors": {
+            "auto": 1,
+            "low": 1,
+            "medium": 1,
+            "high": 2,
+            "xhigh": 3,
+            "max": 4
+          }
+        },
+        "aspectRatios": [
+          "6:8",
+          "3:4"
+        ],
+        "maxReferences": 2,
+        "textOnly": {
+          "jobId": "job_1788961128682_vr145zye4",
+          "usage": {
+            "input_tokens": 660,
+            "input_tokens_details": {
+              "text_tokens": 660,
+              "image_tokens": 0
+            },
+            "output_tokens": 1204,
+            "output_tokens_details": {
+              "image_tokens": 1204,
+              "text_tokens": 0
+            },
+            "total_tokens": 1864
+          }
+        },
+        "withReferences": {
+          "jobId": "job_1788968339660_hco841fct",
+          "referenceCount": 2,
+          "usage": {
+            "input_tokens": 2433,
+            "input_tokens_details": {
+              "text_tokens": 1409,
+              "image_tokens": 1024
+            },
+            "output_tokens": 1204,
+            "output_tokens_details": {
+              "image_tokens": 1204,
+              "text_tokens": 0
+            },
+            "total_tokens": 3637
+          }
+        },
+        "baselineModelId": "gpt-image-2.5-sunburst"
+      },
+      "referencePricing": {
+        "mode": "measured_usage_bucket"
+      },
+      "tokenRateEvidence": {
+        "version": "openai-image26-2026-11-18",
+        "verifiedAt": "2026-11-18",
+        "currency": "USD",
+        "unit": "million_tokens",
+        "textInput": 5,
+        "cachedTextInput": 1.25,
+        "imageInput": 8,
+        "cachedImageInput": 2,
+        "imageOutput": 30,
+        "source": "https://developers.openai.com/api/docs/models/gpt-image-2.6-sunburst"
+      },
+      "notes": "Provisional 2.6 estimate using the corresponding measured 2.5 baseline, not measured 2.6 consumption. Source job IDs remain 2.5 evidence. Existing pixel/quality/reference assumptions and image markup apply. Accepted charge stays fixed; actual provider usage cost is recorded separately."
+    },
+    {
+      "providerId": "openai",
+      "modelId": "gpt-image-2.6-flare",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 55,
+      "billingMetric": "image_tokens",
+      "providerPriceSourceDate": "2026-11-18",
+      "providerPriceSource": "https://developers.openai.com/api/docs/models/gpt-image-2.6-flare",
+      "measuredUsagePricing": {
+        "version": "flare-26-provisional-from-25-2026-11-18-v1",
+        "estimation": {
+          "version": "pixel-reference-bucket-v1",
+          "baselinePixels": 786432,
+          "maxReferences": 6,
+          "qualityFactors": {
+            "auto": 1,
+            "low": 1,
+            "medium": 1,
+            "high": 2,
+            "xhigh": 3,
+            "max": 4
+          }
+        },
+        "aspectRatios": [
+          "6:8",
+          "3:4"
+        ],
+        "maxReferences": 2,
+        "textOnly": {
+          "jobId": "job_1788966593111_y2272shw8",
+          "usage": {
+            "input_tokens": 618,
+            "input_tokens_details": {
+              "text_tokens": 618,
+              "image_tokens": 0
+            },
+            "output_tokens": 1204,
+            "output_tokens_details": {
+              "image_tokens": 1204,
+              "text_tokens": 0
+            },
+            "total_tokens": 1822
+          }
+        },
+        "withReferences": {
+          "jobId": "job_1788968172852_pk2saeo9y",
+          "referenceCount": 2,
+          "usage": {
+            "input_tokens": 2877,
+            "input_tokens_details": {
+              "text_tokens": 1356,
+              "image_tokens": 1521
+            },
+            "output_tokens": 1204,
+            "output_tokens_details": {
+              "image_tokens": 1204,
+              "text_tokens": 0
+            },
+            "total_tokens": 4081
+          }
+        },
+        "baselineModelId": "gpt-image-2.5-flare"
+      },
+      "referencePricing": {
+        "mode": "measured_usage_bucket"
+      },
+      "tokenRateEvidence": {
+        "version": "openai-image26-2026-11-18",
+        "verifiedAt": "2026-11-18",
+        "currency": "USD",
+        "unit": "million_tokens",
+        "textInput": 5,
+        "cachedTextInput": 1.25,
+        "imageInput": 8,
+        "cachedImageInput": 2,
+        "imageOutput": 30,
+        "source": "https://developers.openai.com/api/docs/models/gpt-image-2.6-flare"
+      },
+      "notes": "Provisional 2.6 estimate using the corresponding measured 2.5 baseline, not measured 2.6 consumption. Source job IDs remain 2.5 evidence. Existing pixel/quality/reference assumptions and image markup apply. Accepted charge stays fixed; actual provider usage cost is recorded separately."
     },
     {
       "providerId": "openai",

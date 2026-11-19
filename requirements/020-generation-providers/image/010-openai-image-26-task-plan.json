@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "requirement": "requirements/020-generation-providers/image/010-openai-image-26.md",
+  "tasks": [
+    {
+      "id": "OI26-01",
+      "title": "Enable both GPT Image 2.6 models through existing image workflows",
+      "complexity": "complex",
+      "reason": "Shared provider contract and provisional pricing require bounded independent financial review.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "providers",
+        "credits",
+        "fashion-blueprint"
+      ],
+      "risks": [
+        "financial",
+        "shared-contract"
+      ],
+      "uncertain": true,
+      "contractChanged": true,
+      "dependsOn": [],
+      "writeScope": [
+        "server/config/providers.json",
+        "server/config/credit-pricing-policy.json",
+        "server/config/fashion-model-qualifications.json",
+        "server/providers/OpenAIProvider.js",
+        "server/domain/credits/OpenAIImage25Pricing.js",
+        "test/openAIImage25.test.js",
+        "requirements/020-generation-providers/",
+        "test/openAIImage25Cost.test.js"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Both models selectable through every existing image catalog surface and explicit Fashion routing with unchanged defaults.",
+        "Exact model, size, quality and ordered references reach mocked Images API; invalid inputs fail without dispatch.",
+        "Quotes preserve provisional 2.5 baseline provenance and published 2.6 rates; existing reservation and settlement invariants remain intact."
+      ],
+      "reviewers": [
+        "backend-platform-architect",
+        "commercial-financial-integrity",
+        "security-reviewer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Both models selectable through every existing image catalog surface and explicit Fashion routing with unchanged defaults.",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/010-openai-image-26.md"
+        },
+        {
+          "check": "Exact model, size, quality and ordered references reach mocked Images API; invalid inputs fail without dispatch.",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/010-openai-image-26.md"
+        },
+        {
+          "check": "Quotes preserve provisional 2.5 baseline provenance and published 2.6 rates; existing reservation and settlement invariants remain intact.",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/010-openai-image-26.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/image26_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/010-openai-image-26.md"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "agentId": "/root/image26_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/010-openai-image-26.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/image26_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/010-openai-image-26.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/image26_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/020-generation-providers/image/010-openai-image-26.md"
+        }
+      ],
+      "handoff": "Source complete: both models enabled in shared image catalogs and Fashion explicit experimental selection. Root20/20 focused checks; independent11/11 plus540 in-memory quotes and Backend/Commercial/Security/QA passed. Scope reconciled. No paid calls, UI build, live data edits, Git management or service restart. Live entitlement/quality/usage and browser interactions unverified. Backend restart and browser refresh load configuration."
+    }
+  ],
+  "parallelBatches": []
+}

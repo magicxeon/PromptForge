@@ -325,3 +325,41 @@ Temporary Vite stopped. Requirement links and task-plan validation passed. This 
 correction is complete; prior live invoice/Thai quality qualification remains separate.
 Reload the backend and use the existing job's Check status to apply normal recovery;
 no live service restart, direct ledger repair, new paid generation or Git action performed.
+
+## 6. Revision 3 — Replication requirement only (2026-11-16)
+
+User requested documentation and will test Chinese-to-Thai independently first. No
+implementation, provider dispatch, tests or build authorized for this amendment. Root
+applies Product/UX perspectives sequentially within existing ownership; no delegated
+review or independent sensitive PASS claimed. Planned work follows existing owners.
+
+Future review perspectives include UX, Backend, Commercial, Security and QA because
+this combines a material form, private speaker recordings and billable operations.
+Apply scoped reviews in sequential waves; this is not a five-agent staffing request.
+Independent sensitive review remains a future implementation gate.
+
+| Order | Task / dependency | Acceptance |
+|---|---|---|
+| R3-1 | Provider/config and policy decisions; user experiment first | Confirm replication contract/entitlement/pricing, separate source/consent/synthesis languages and file limits; finalize raw-clip retention. Record Chinese-to-Thai result as passed/failed/untested, never infer it |
+| R3-2 | Private audio intake and replication facade; after R3-1 | Validate and owner-scope two clips; durable create/recovery uses existing Generation/Assets/Credits; verified voice can become ready without preview; no blind redispatch |
+| R3-3 | Create new voice UI and origin badges; after contract stable | From text preserves existing behavior; From audio accepts both clips; immutable source icons/labels appear in My Voices/picker/character; proper status box and right Check action |
+| R3-4 | Optional audition and reuse; after R3-2/3 | Explicit Thai dialogue synthesis reuses the replicated ID; returned audio can be played/saved; preview/save does not recreate voice; repeated playback is local |
+| R3-5 | Scoped acceptance before release | Old voices default text; other actors denied; replay/quota/expiry/delete/timeout and mobile/tablet/desktop accessible states covered; required sensitive review performed |
+
+Acceptance inventory: distinguish synthetic-reference rejection, invalid/missing consent,
+speaker mismatch, invalid audio, unknown provider outcome, ready-without-preview and
+audition failure without losing the voice. Check status operates on the existing job.
+Source type is visible without opening details and cannot be spoofed through rename.
+No changes to unrelated navigation, full library-card redesign or shared typography.
+
+User listening experiment: human Chinese reference plus the same speaker's consent →
+replicated voice → short Thai dialogue. Record model, languages, acceptance/rejection,
+voice resemblance, Thai tones/consonants, accent and consistency across two utterances.
+Audio evidence stays private; do not paste raw reference recordings into this requirement.
+This experiment is pending and does not authorize us to call paid APIs on the user's behalf.
+
+Documentation checkpoint: 000–005 reconciled; future work recorded as proposed in the
+existing JSON plan. Architecture map unchanged: no new executable boundary/path, only
+planned extensions under Voice Studio/Generation/Assets/Credits. Source/config/runtime
+data unchanged. Task-plan structure validation passed (documentation check only).
+No application tests/build or Git work; wait for user test results and next instruction.

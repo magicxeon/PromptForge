@@ -51,9 +51,9 @@ export class OpenAIProvider extends BaseProvider {
     const model = options.submodel || 'gpt-image-1.5';
     const aspectRatio = options.aspectRatio || '1:1';
 
-    if (this.isGPTImage25Model(model) && options.quality
+    if (this.isModernGPTImageModel(model) && options.quality
       && !['low', 'medium', 'high', 'xhigh', 'max', 'auto'].includes(options.quality)) {
-      throw new Error('Unsupported GPT Image 2.5 quality.');
+      throw new Error('Unsupported GPT Image quality.');
     }
 
     if (!this.apiKey) {
@@ -290,9 +290,9 @@ export class OpenAIProvider extends BaseProvider {
    * Resolve supported output dimensions by model.
    */
   resolveOpenAIImageSize(model, aspectRatio) {
-    if (this.isGPTImage25Model(model)) {
+    if (this.isModernGPTImageModel(model)) {
       const sizes = OPENAI_IMAGE25_SIZES;
-      if (!sizes[aspectRatio]) throw new Error('Unsupported GPT Image 2.5 aspect ratio.');
+      if (!sizes[aspectRatio]) throw new Error('Unsupported GPT Image aspect ratio.');
       return sizes[aspectRatio];
     }
     if (model === 'dall-e-2') {
@@ -357,9 +357,14 @@ export class OpenAIProvider extends BaseProvider {
     return /^gpt-image-2\.5-(sunburst|flare)(-\d{4}-\d{2}-\d{2})?$/.test(model);
   }
 
+  isModernGPTImageModel(model) {
+    return this.isGPTImage25Model(model)
+      || /^gpt-image-2\.6-(sunburst|flare)$/.test(model);
+  }
+
   supportsInputFidelity(model) {
     return this.isGPTImageModel(model)
-      && !this.isGPTImage25Model(model)
+      && !this.isModernGPTImageModel(model)
       && model !== 'gpt-image-1-mini'
       && model !== 'gpt-image-2'
       && !model.startsWith('gpt-image-2-');

@@ -135,7 +135,7 @@ operation using its saved usage without calling CreateVoice again.
   values against provider documentation and storage policy before enabling the operation
 - Private custom voices are actor runtime records, never entries in public voices.v1.json.
   Catalog only advertises support and prebuilt options; My Voices uses owned list API
-- `voiceReplication` remains unsupported in this release; no reference upload controls.
+- Revision 2 has no `voiceReplication` support; planned Revision 3 is defined in section 6.
   Do not expose ElevenLabs stability/similarity sliders or square-bracket tags as Google
   parameters. Delivery controls continue compiling to the canonical Google style contract
 - Design creation and optional audition require separately qualified pricing/usage mappings
@@ -159,3 +159,31 @@ and get/list/delete operations. It documents a project-wide 200 stored-voice lim
 one-year TTL. These are provider limits, not a 200-voices-per-user allowance. Use returned
 expiry when available and handle missing/expired identities; do not promise permanence.
 Account access, actual creation charges/usage and Thai sample quality remain unverified.
+
+## 6. Revision 3 — Provider evidence and planned configuration
+
+Checked 2026-11-16: [Google Voice Replication](https://aistudio.google.com/docs/voice-replication).
+Provider facts: `POST /v1beta/voices`, `type: replicated`, source and consent audio from
+the same adult human; source clip 10–30 seconds; 24kHz mono PCM16 WAV recommended.
+Synthetic/watermarked inputs are rejected. Paid Tier 1+ required. Stored mode returns
+`voice_...`; prompted/replicated voices share a project limit of 200 and sliding one-year
+expiry. Thai and Chinese consent phrases are listed in the linked guide.
+
+Application proposal: use stored mode for reusable My Voices, retaining existing private
+remote-ID management. Stateless keys, remix and voice conversion are outside this draft.
+Do not assume replicated responses contain the prompted voice sample or usage fields;
+verify the [Voices API contract](https://aistudio.google.com/api-reference/voices) before
+implementation. Missing preview must not classify an otherwise created voice as failed.
+
+Proposed model JSON: `capabilities.voiceReplication`, supported source/consent languages
+and synthesis-language capability remain distinct. Policy JSON owns accepted MIME types,
+source-duration bounds, separate consent limits, maximum bytes, temporary-upload lifetime,
+consent text/version/source and per-actor/project quota; no duplicate constants in React.
+Exact bytes/consent-duration bounds await adapter qualification; do not infer source
+duration bounds apply to consent too. Defaults are proposals until implementation approval.
+Keep Chinese source metadata possible without claiming Chinese-to-Thai quality. Current
+runtime still exposes th/en only; this documentation does not change config or enable API.
+
+Open evidence: creation pricing/billing semantics, account entitlement for replication,
+decoded-file limits, retention proposal and the user's Chinese-to-Thai listening result.
+No arbitrary new Credit rate, global warning or extra approval UI is authorized here.

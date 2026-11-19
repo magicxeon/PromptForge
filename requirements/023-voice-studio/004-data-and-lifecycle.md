@@ -120,8 +120,37 @@ Archive prevents new selection but preserves existing bindings. Permanent deleti
 blocked while character/document bindings or active operations need the voice; return usable
 references so the user can reassign/archive deliberately. Historical audio bytes and immutable
 Take evidence survive deletion of a voice identity. Deleting a voice does not delete its
-previously generated dialogue audio. No raw provider ID import, public sharing or cloning.
+previously generated dialogue audio. No raw provider ID import or public sharing.
+Replication is a planned addition in section 7, not implemented by Revision 2.
 
 All CRUD, generation, preview GET/HEAD/Range and deletion recheck actor ownership. Project
 voice quota applies across actors; admission needs a shared bound against concurrent creates.
 Catalog reload, actor switch and logout must not leak private voice choices or preview URLs.
+
+## 7. Revision 3 — Origin and reference audio lifecycle (planned)
+
+Keep customVoices and speechOperations canonical; no new parallel voice database.
+Version custom-voice metadata with `sourceType: text | audio`, source-language metadata
+and nullable previewAssetId. Missing sourceType on existing custom voices resolves to
+text; prebuilt stays its own voiceKind. A stored text voice cannot be patched into audio.
+Character selection uses the same application customVoiceId. Take snapshots preserve
+origin/version at generation time; changing voice metadata never relabels old Takes.
+
+Private upload metadata records owner, purpose (source/consent), asset ID, MIME, decoded
+duration, bytes, digest and expiry. Generation snapshot holds these immutable references,
+consent locale/version and provider verification outcome. Raw clips do not enter custom
+voice list DTOs, client persistence, ordinary logs or public generated-media listings.
+Do not label a checkbox or local file upload as Google consent verification success.
+
+Proposed retention for approval before implementation: temporary inputs only, delete after
+terminal verification/creation or discard; abandoned uploads expire after configurable
+24 hours. Accepted in-flight/uncertain operations retain required inputs only under a
+bounded recovery policy; no silent permanent retention. Keep minimal outcome/digest/audit
+metadata after byte deletion. Final retention and recovery bound remain open, not approved.
+Private intake uses existing Assets ownership and paths.js; finalize exact temporary
+location in the architecture map before creating files. No runtime path introduced now.
+
+Stored provider profile and completed synthesized Takes have separate lifecycles. Existing
+archive/in-use deletion rules apply to replicated voices; remote deletion failures remain
+retryable with the same ID. Retain already-generated audio unless explicitly deleted.
+Actor switch/logout clears transient files, preview URLs and pending recording resources.
