@@ -59,6 +59,19 @@ This is a required workflow gate, not an implemented automatic drift detector.
 
 ## Current Capability Addendum
 
+### Separate Frontend Rebuild — Requirement Only (2026-11-19)
+
+[FE24](../024-frontend-rebuild/000-master.md) owns the planned replacement
+frontend, starting with Playground image/video and then Comparison. Proposed
+`web-next/` uses one fixed visual palette and Thai/English. This is documentation,
+not a runtime cutover: `web/` remains the current browser owner. New presentation
+and draft namespaces must be isolated while API/session/media and Generation/Credit
+contracts retain their existing owners. The shared client extraction boundary,
+package path, preview origin and sensitive review are prerequisites to implementation.
+No new executable folder, data location, authentication bypass or production route
+is introduced. FE24 owns its new visual proposal; existing visual/theme requirements
+continue to govern `web/` until an explicit per-route cutover.
+
 ### Authentication Delivery (2026-10-12; Customer Login Source Milestone Accepted)
 
 [AUTH-019](../019-implementation-commercial-feature-plan/Phase2-04-authentication-sessions-and-authorization.md)
@@ -1123,6 +1136,7 @@ Server placement rules:
 | File responsibility | Canonical location |
 |---|---|
 | React bootstrap and app providers | `web/src/main.tsx`, `web/src/app/` |
+| Planned separate frontend and Playground replacement | Proposed `web-next/src/` under [024-frontend-rebuild](../024-frontend-rebuild/000-master.md); requirements only. App shell/UI/media/Playground presentation are planned here. Shared transport/session/schema extraction path is pending dependency review; current `web/` and backend owners remain authoritative. No runtime folder or cutover exists from this requirement change |
 | React navigation metadata | `web/src/app/routeRegistry/`; shared `components/layout/SidebarNavigation` renders groups. Voice Studio uses route-backed `?view=script|voices|library` submenus; Character & Scene Studio retains its Face Creator / Character Sheet / Scene Builder routes. [Voice navigation correction](../023-voice-studio/001-ux-and-workflows.md) |
 | React routes and feature orchestration | `web/src/features/<feature>/` |
 | Character Profile and reusable Character Look owner UI/application boundary | `web/src/features/profiles/`; the shared source-draft dialog belongs in `web/src/features/profiles/components/` and may be invoked by Cinematic without creating Cinematic-owned Look persistence |
@@ -1145,7 +1159,7 @@ Server placement rules:
 | Design tokens and global responsive styling | `web/src/styles/` |
 | Canonical UI visual language and agent guidance | `requirements/Knowledge/ui-design-system-and-visual-language.md` |
 | Runtime application assets | `client/assets/<feature>/` |
-| Translation manifests, schemas, and locale catalogs | `client/i18n/` |
+| Translation manifests, schemas, and locale catalogs | Current `client/i18n/`; proposed `web-next/src/locales/{th,en}/` owns only the new frontend's presentation copy under [FE24 architecture](../024-frontend-rebuild/003-source-architecture-and-contracts.md). No locale files moved or runtime loader changed |
 | Generated image output | `client/outputs/` |
 | Legacy browser source pending post-validation deletion | `client/` excluding retained data/assets |
 
