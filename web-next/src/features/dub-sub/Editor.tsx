@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import { Pause, Play, Redo2, Undo2, PanelsTopLeft, SlidersHorizontal, Mic } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -9,6 +10,8 @@ import {
 } from "../../lib/canonical";
 import {
   projectsApi,
+  scenePreviewKey,
+  type ScenePreview,
   newCue,
   parseSubtitles,
   timeLabel,
@@ -20,12 +23,12 @@ import {
 import config from "./editorConfig";
 import { useTakePlayback } from "./useTakePlayback";
 import { SpeakerMixer } from "./SpeakerMixer";
-import { SubtitleInspector } from "./SubtitleInspector";
+import { SubtitleCaption, SubtitleInspector } from "./SubtitleInspector";
 import { DialogueList } from "./DialogueList";
 import { Timeline } from "./Timeline";
 import { ExportDialog } from "./ExportDialog";
 import { Dialog } from "./Dialog";
-import { subtitleFamily, wrapSubtitle } from "./subtitleFonts";
+import { SceneTranscription } from "./SceneTranscription";
 import { useDubDraft } from "./useDubDraft";
 const Voice = lazy(() =>
   import("./DubVoice").then((m) => ({ default: m.DubVoice })),
@@ -50,7 +53,7 @@ export default function Editor() {
     refetchIntervalInBackground: false,
   });
   return query.data ? (
-    <Work key={id} initial={query.data} />
+    <Work key={JSON.stringify([identityScope, id])} initial={query.data} />
   ) : query.error ? (
     <p role="alert">{query.error.message}</p>
   ) : (
@@ -63,7 +66,16 @@ function Work({ initial }: { initial: Project }) {
     p = model.draft,
     client = useQueryClient(),
     loc = useLocation();
-  const { identityScope } = useActor();
+  const { identityScope, actor, config: auth } = useActor();
+  const sceneAvailable = actor?.role === "admin" && auth?.authMode === "development_bypass" && auth.development?.liveGeneration;
+  const [createdPreview, setCreatedPreview] = useState(() =>
+    client.getQueryData<ScenePreview>(scenePreviewKey(identityScope, initial.id)));
+  const [sceneOpen, setSceneOpen] = useState(!!createdPreview);
+  function closeScene() {
+    setSceneOpen(false);
+    setCreatedPreview(undefined);
+    client.removeQueries({ queryKey: scenePreviewKey(identityScope, initial.id), exact: true });
+  }
   const returned = loc.state?.resume;
   const resume = returned?.scope === identityScope &&
     initial.cues.some((c) => c.id === returned.cueId) &&
@@ -92,7 +104,8 @@ function Work({ initial }: { initial: Project }) {
   const [panel, setPanel] = useState<"tracks" | "font" | "voice">(fromVoice ? "voice" : "tracks"),
     [styleLang, setStyleLang] = useState(lang);
   const [busy, setBusy] = useState(""),
-    [error, setError] = useState(""),
+    [error, setError] = useState(() => loc.state?.sceneError
+      ? t("scene.errors." + loc.state.sceneError, { defaultValue: t("scene.failed") }) : ""),
     [time, setTime] = useState<number>(Number.isFinite(resume?.timeMs) ? Math.min(initial.durationMs || 0, Math.max(0, resume.timeMs)) : 0),
     [loop, setLoop] = useState(false);
   const [ratio, setRatio] = useState(16 / 9),
@@ -104,7 +117,7 @@ function Work({ initial }: { initial: Project }) {
     [exports, setExports] = useState<Export[]>(p.exports || []);
   const [exportOpen, openExport] = useState(false);
   const [imported, setImported] = useState<Cue[] | null>(null),
-    [follow, setFollow] = useState(false);
+    [follow, setFollow] = useState(true);
   const [audition, setAudition] = useState<{
     cueId: string;
     id: string;
@@ -122,6 +135,14 @@ function Work({ initial }: { initial: Project }) {
       ...p.tracks[l],
     });
   const style = track(styleLang);
+  const translationCounts = useMemo(() => {
+    const lines = p.cues.filter((row) => row.text.trim());
+    return Object.fromEntries(p.targetLanguages.map((language) => {
+      const translated = lines.filter((row) => row.translations[language]).length;
+      return [language, { total: lines.length, translated }];
+    }));
+  }, [p.cues, p.targetLanguages]);
+  const timingLocked = ["source", ...p.targetLanguages].some((l) => track(l).locked);
   const edit = (patch: Partial<Project>) =>
     model.edit((prev) => ({ ...prev, ...patch }));
   const update = (c: Cue) =>
@@ -165,6 +186,14 @@ function Work({ initial }: { initial: Project }) {
     if (!cue) return;
     const next = p.cues[p.cues.indexOf(cue) + 1];
     if (!next) return;
+    const rows = [cue, next];
+    const sources = rows.filter(row => row.text.trim());
+    const translationOrigins: Record<string, "gemini"> = {};
+    for (const language of p.targetLanguages) {
+      const contributors = rows.filter(row => row.translations[language]?.trim());
+      if (contributors.length && contributors.every(row => row.translationOrigins?.[language] === "gemini"))
+        translationOrigins[language] = "gemini";
+    }
     edit({
       cues: p.cues
         .filter((c) => c !== next)
@@ -173,6 +202,8 @@ function Work({ initial }: { initial: Project }) {
             ? c
             : {
                 ...cue,
+                sourceOrigin: sources.length && sources.every(row => row.sourceOrigin === "gemini") ? "gemini" : undefined,
+                translationOrigins,
                 endMs: Math.max(cue.endMs, next.endMs),
                 text: [cue.text, next.text].filter(Boolean).join(" "),
                 translations: Object.fromEntries(
@@ -199,27 +230,25 @@ function Work({ initial }: { initial: Project }) {
       await fn(saved);
       await client.invalidateQueries({ queryKey: ["dub-projects"] });
     } catch (e) {
-      setError((e as Error).message);
+      const code = e && typeof e === "object" && "code" in e ? String(e.code) : "";
+      setError(label === "translate"
+        ? t("scene.errors." + code, { defaultValue: t("scene.translationFailed") })
+        : (e as Error).message);
     } finally {
       setBusy("");
     }
   }
-  async function process(step: "transcribe" | "translate", cueId?: string) {
-    await operation(step, async (saved) => {
-      if (step === "transcribe" && p.cues.length) {
-        const result = await projectsApi.detect(p.id, "transcribe", {
-          revision: saved.revision,
-          preview: true,
-        });
-        setImported(result.cues);
-        return;
-      }
-      const next = await projectsApi.process(p.id, step, {
+  function translate(language: string, overwrite: boolean, line?: Cue) {
+    const consent = t("scene.translateConsent", { language: t("lang." + language) });
+    const replace = overwrite ? t(line ? "replaceLine" : "replaceTrack", { language: t("lang." + language) }) : "";
+    if (!sceneAvailable || !window.confirm([consent, replace].filter(Boolean).join("\n"))) return;
+    void operation("translate", async (saved) => {
+      const next = await projectsApi.process(p.id, "translate", {
         revision: saved.revision,
-        language: lang,
-        ...(cueId ? { cueIds: [cueId] } : {}),
-        overwrite:
-          step === "translate" && p.cues.some((c) => c.translations[lang]),
+        language,
+        confirmed: true, requestId: crypto.randomUUID(),
+        ...(line ? { cueIds: [line.id] } : {}),
+        overwrite,
       });
       model.accept(next);
       if (!next.cues.some((c) => c.id === selected))
@@ -237,18 +266,6 @@ function Work({ initial }: { initial: Project }) {
     }
     lastServer.current = initial;
   }, [initial, model.dirty, busy, p.revision, selected, model.accept]);
-  const started = useRef(false);
-  useEffect(() => {
-    if (
-      loc.state?.startTranscription &&
-      !started.current &&
-      !initial.cues.length
-    ) {
-      started.current = true;
-      window.history.replaceState({ ...window.history.state, usr: null }, "");
-      void process("transcribe");
-    }
-  }, []);
   useEffect(() => {
     const el = stage.current;
     if (!el) return;
@@ -272,10 +289,11 @@ function Work({ initial }: { initial: Project }) {
     }
     setTime(ms);
     if (
-      follow &&
+      follow && !loop &&
       playing &&
       !(document.activeElement instanceof HTMLInputElement) &&
-      !(document.activeElement instanceof HTMLTextAreaElement)
+      !(document.activeElement instanceof HTMLTextAreaElement) &&
+      !(document.activeElement instanceof HTMLSelectElement)
     ) {
       const row = p.cues.find((c) => c.startMs <= ms && ms < c.endMs);
       if (row) setSelected(row.id);
@@ -303,7 +321,8 @@ function Work({ initial }: { initial: Project }) {
   return (
     <section className="dub-editor">
       <header className="dub-bar">
-        <Link to="/dub-sub">‹ {t("projects")}</Link>
+        <Link to="/dub-sub"><span aria-hidden="true">‹ </span>{t("projects")}</Link>
+        <Link to="/dub-sub/voice">Voice Studio</Link>
         <input
           disabled={!!busy}
           aria-label={t("name")}
@@ -314,6 +333,13 @@ function Work({ initial }: { initial: Project }) {
         <small role="status">
           {t(model.saving ? "saving" : model.dirty ? "unsaved" : "saved")}
         </small>
+        {compact && (
+          <button className="dub-open-inspector" aria-expanded={inspectorOpen}
+            aria-label={t("editCue") + " · " + t("tracks")}
+            title={t("tracks")} onClick={() => setInspectorOpen(!inspectorOpen)}>
+            <PanelsTopLeft size={16} />
+          </button>
+        )}
         <button
           disabled={!!busy || !model.dirty}
           onClick={() => void model.save().catch(() => {})}
@@ -409,44 +435,22 @@ function Work({ initial }: { initial: Project }) {
           following={follow}
           reveal={timelineSelection}
           onSelect={select}
+          onUpdate={update}
           onLanguage={(l) => {
             setLang(l);
             setAudition(null);
           }}
           onAdd={() => add(time)}
-          locked={track(lang).locked}
+          sourceLocked={track("source").locked}
+          onTranscribe={sceneAvailable ? () => { video.current?.pause(); setSceneOpen(true); } : undefined}
+          canTranscribe={!!p.mediaUrl && p.hasAudio !== false && !timingLocked && !!p.targetLanguages.length}
+          targetLocked={track(lang).locked}
+          timingLocked={timingLocked}
         />
         <section className="dub-preview">
           <div className="dub-stage" ref={stage}>
             <div
               className="dub-picture"
-              onPointerDown={(e) => {
-                if (panel !== "font" || style.locked) return;
-                e.currentTarget.setPointerCapture(e.pointerId);
-              }}
-              onPointerUp={(e) => {
-                if (
-                  panel !== "font" ||
-                  style.locked ||
-                  !e.currentTarget.hasPointerCapture(e.pointerId)
-                )
-                  return;
-                const box = e.currentTarget.getBoundingClientRect();
-                setStyle(styleLang, {
-                  x: Math.round(
-                    Math.max(
-                      0,
-                      Math.min(100, (100 * (e.clientX - box.left)) / box.width),
-                    ),
-                  ),
-                  y: Math.round(
-                    Math.max(
-                      0,
-                      Math.min(100, (100 * (e.clientY - box.top)) / box.height),
-                    ),
-                  ),
-                });
-              }}
               style={{
                 width: height ? "min(100%, " + height * ratio + "px)" : "100%",
                 aspectRatio: ratio,
@@ -500,35 +504,9 @@ function Work({ initial }: { initial: Project }) {
                   return (
                     s.visible &&
                     text && (
-                      <div
-                        key={l}
-                        className="dub-caption"
-                        lang={l === "source" ? p.sourceLanguage : l}
-                        style={{
-                          left: s.x + "%",
-                          top: s.y + "%",
-                          fontSize: s.size / 10.8 + "cqh",
-                          color:
-                            s.color === "yellow"
-                              ? config.colors.yellow
-                              : config.colors.white,
-                          fontFamily: subtitleFamily(
-                            s.font,
-                            l === "source"
-                              ? String(p.detectedLanguage || p.sourceLanguage)
-                              : l,
-                          ),
-                          maxWidth: "96%",
-                        }}
-                      >
-                        {wrapSubtitle(
-                          text,
-                          l === "source"
-                            ? String(p.detectedLanguage || p.sourceLanguage)
-                            : l,
-                          s.maxChars,
-                        )}
-                      </div>
+                      <SubtitleCaption key={l} track={s} language={l} text={text} disabled={!!busy} aspectRatio={ratio}
+                        script={l === "source" ? String(p.detectedLanguage || p.sourceLanguage) : l}
+                        changeY={(y) => setStyle(l, { y })} />
                     )
                   );
                 })}
@@ -548,13 +526,16 @@ function Work({ initial }: { initial: Project }) {
             </button>
             <button
               disabled={!p.mediaUrl}
+              className="dub-play-toggle"
+              aria-label={t(playing ? "pause" : "play")}
+              title={t(playing ? "pause" : "play")}
               onClick={() =>
                 playing
                   ? video.current?.pause()
                   : void video.current?.play().catch((e) => setError(e.message))
               }
             >
-              {t(playing ? "pause" : "play")}
+              {playing ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
             </button>
             <button
               aria-label={t("next")}
@@ -595,14 +576,6 @@ function Work({ initial }: { initial: Project }) {
             </button>
           </div>
         </section>
-        {compact && (
-          <button
-            className="dub-open-inspector"
-            onClick={() => setInspectorOpen(true)}
-          >
-            {t("editCue")} · {t("tracks")}
-          </button>
-        )}
         <aside className="dub-inspector" hidden={compact && !inspectorOpen}>
           <header>
             <h2>{t(panel)}</h2>
@@ -620,26 +593,45 @@ function Work({ initial }: { initial: Project }) {
           {panel === "tracks" ? (
             <>
               {["source", ...p.targetLanguages].map((l) => (
-                <div className="dub-track" key={l}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={track(l).visible}
-                      onChange={(e) =>
-                        setStyle(l, { visible: e.target.checked })
-                      }
-                    />
-                    {t("lang." + l)}
-                  </label>
-                  <button
-                    onClick={() => {
-                      setStyleLang(l);
-                      setPanel("font");
-                    }}
-                  >
-                    {t("font")}
-                  </button>
-                </div>
+                <section className="dub-track" key={l} aria-label={t("lang." + l)}>
+                  <div className="dub-track-heading">
+                    <label>
+                      <input type="checkbox" checked={track(l).visible}
+                        onChange={(e) => setStyle(l, { visible: e.target.checked })} />
+                      {t("lang." + l)}
+                    </label>
+                    <button onClick={() => { setStyleLang(l); setPanel("font"); }}
+                      aria-label={t("font") + " · " + t("lang." + l)} title={t("font")}>
+                      <SlidersHorizontal size={15} aria-hidden="true" />
+                    </button>
+                  </div>
+                  <details>
+                    <summary>{t(l === "source" ? "sourceTools" : "translationTools")}</summary>
+                    {l === "source" ? (
+                      <div className="dub-tools">
+                        <button disabled={!p.mediaUrl || timingLocked} onClick={() => void operation("ocr", async (saved) => {
+                          const result = await projectsApi.detect(p.id, "ocr", {
+                            revision: saved.revision, language: p.sourceLanguage === "auto" ? "zh" : p.sourceLanguage,
+                          });
+                          setImported(result.cues);
+                        })}>{t("ocr")}</button>
+                        <button disabled={timingLocked} onClick={() => fileInput.current?.click()}>{t("import")}</button>
+                      </div>
+                    ) : (
+                      <div className="dub-tools">
+                        {track(l).locked && (
+                          <button onClick={() => setStyle(l, { locked: false })}>
+                            {t("unlockLanguageTrack", { language: t("lang." + l) })}
+                          </button>
+                        )}
+                        <button disabled={!sceneAvailable || track(l).locked || translationCounts[l].translated === translationCounts[l].total}
+                          onClick={() => translate(l, false)}>{t("translateMissing")}</button>
+                        <button disabled={!sceneAvailable || track(l).locked || !translationCounts[l].total}
+                          onClick={() => translate(l, translationCounts[l].translated > 0)}>{t("retranslateAll")}</button>
+                      </div>
+                    )}
+                  </details>
+                </section>
               ))}
               {p.targetLanguages.length < config.maxTargets && (
                 <label>
@@ -673,46 +665,6 @@ function Work({ initial }: { initial: Project }) {
                   </select>
                 </label>
               )}
-              <div className="dub-tools">
-                <button
-                  disabled={!p.mediaUrl}
-                  onClick={() => {
-                    if (!p.cues.length || confirm(t("overwrite")))
-                      void process("transcribe");
-                  }}
-                >
-                  {t("transcribe")}
-                </button>
-                <button
-                  disabled={!p.cues.length || track(lang).locked}
-                  onClick={() => {
-                    if (
-                      !p.cues.some((c) => c.translations[lang]) ||
-                      confirm(t("overwrite"))
-                    )
-                      void process("translate");
-                  }}
-                >
-                  {t("translate")}
-                </button>
-                <button
-                  disabled={!p.mediaUrl}
-                  onClick={() =>
-                    void operation("ocr", async (saved) => {
-                      const result = await projectsApi.detect(p.id, "ocr", {
-                        revision: saved.revision,
-                        language:
-                          p.sourceLanguage === "auto" ? "zh" : p.sourceLanguage,
-                      });
-                      setImported(result.cues);
-                    })
-                  }
-                >
-                  {t("ocr")}
-                </button>
-                <button onClick={() => fileInput.current?.click()}>
-                  {t("import")}
-                </button>
                 <input
                   hidden
                   ref={fileInput}
@@ -733,7 +685,8 @@ function Work({ initial }: { initial: Project }) {
                     }
                   }}
                 />
-              </div>
+              <details className="dub-audio-settings">
+                <summary>{t("playbackSettings")}</summary>
               <label className="dub-inline">
                 <input
                   type="checkbox"
@@ -772,8 +725,26 @@ function Work({ initial }: { initial: Project }) {
                 language={lang}
                 change={(mixer) => edit({ mixer })}
               />
+              </details>
               {cue && (
-                <>
+                <section className="dub-cue-actions" aria-label={t("editCue")}>
+                  <h3>{t("editCue")} <small>{timeLabel(cue.startMs)}</small></h3>
+                  <div className="dub-tools">
+                    <button onClick={() => setPanel("voice")}>
+                      <Mic size={16} aria-hidden="true" /> {t("chooseVoice")}
+                    </button>
+                      <button disabled={!sceneAvailable || track(lang).locked || !cue.text.trim()}
+                      onClick={() => translate(lang, !!cue.translations[lang], cue)}>{t("translateCue")}</button>
+                    <button disabled={timingLocked || time <= cue.startMs || time >= cue.endMs} onClick={split}>{t("split")}</button>
+                    <button disabled={timingLocked || p.cues.at(-1) === cue} onClick={merge}>{t("merge")}</button>
+                    <button disabled={timingLocked} onClick={() => {
+                      const remaining = p.cues.filter((c) => c.id !== cue.id);
+                      edit({ cues: remaining });
+                      setSelected(remaining[Math.min(p.cues.indexOf(cue), remaining.length - 1)]?.id || "");
+                    }}>{t("remove")}</button>
+                  </div>
+                  <details>
+                    <summary>{t("cueDetails")}</summary>
                   <label>
                     {t("speaker")}
                     <input
@@ -783,36 +754,13 @@ function Work({ initial }: { initial: Project }) {
                       }
                     />
                   </label>
-                  <label>
-                    {t("original")}
-                    <textarea
-                      disabled={track("source").locked}
-                      value={cue.text}
-                      onChange={(e) => update({ ...cue, text: e.target.value })}
-                    />
-                  </label>
-                  <label>
-                    {t("lang." + lang)}
-                    <textarea
-                      disabled={track(lang).locked}
-                      value={cue.translations[lang] || ""}
-                      onChange={(e) =>
-                        update({
-                          ...cue,
-                          translations: {
-                            ...cue.translations,
-                            [lang]: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </label>
                   <div className="dub-pair">
                     {(["startMs", "endMs"] as const).map((key) => (
                       <label key={key}>
                         {t(key)}
                         <input
                           type="number"
+                          disabled={timingLocked}
                           min={0}
                           max={duration}
                           value={cue[key]}
@@ -831,44 +779,8 @@ function Work({ initial }: { initial: Project }) {
                       </label>
                     ))}
                   </div>
-                  <button onClick={() => setPanel("voice")}>
-                    {t("direct")}
-                  </button>
-                  <details>
-                    <summary>{t("editCue")}</summary>
-                    <div className="dub-tools">
-                      <button
-                        disabled={track(lang).locked || !cue.text.trim()}
-                        onClick={() => {
-                          if (
-                            !cue.translations[lang] ||
-                            confirm(t("overwrite"))
-                          )
-                            void process("translate", cue.id);
-                        }}
-                      >
-                        {t("translateCue")}
-                      </button>
-                      <button
-                        onClick={split}
-                        disabled={time <= cue.startMs || time >= cue.endMs}
-                      >
-                        {t("split")}
-                      </button>
-                      <button onClick={merge} disabled={p.cues.at(-1) === cue}>
-                        {t("merge")}
-                      </button>
-                      <button
-                        onClick={() => {
-                          edit({ cues: p.cues.filter((c) => c.id !== cue.id) });
-                          setSelected("");
-                        }}
-                      >
-                        {t("remove")}
-                      </button>
-                    </div>
                   </details>
-                </>
+                </section>
               )}
             </>
           ) : panel === "font" ? (
@@ -1069,23 +981,26 @@ function Work({ initial }: { initial: Project }) {
           )}
         </aside>
       </fieldset>
-      <div className="dub-tools">
+      <Timeline historyControls={<>
         <button
+          aria-label={t("undo")} title={t("undo")}
           disabled={!!busy || !model.canUndo}
           onClick={() => model.step(true)}
         >
-          {t("undo")}
+          <Undo2 size={15} />
         </button>
         <button
+          aria-label={t("redo")} title={t("redo")}
           disabled={!!busy || !model.canRedo}
           onClick={() => model.step(false)}
         >
-          {t("redo")}
+          <Redo2 size={15} />
         </button>
-      </div>
-      <Timeline
+      </>}
         p={p}
         ms={time}
+        playing={playing}
+        following={follow}
         selected={selected}
         lang={lang}
         seek={seek}
@@ -1096,11 +1011,23 @@ function Work({ initial }: { initial: Project }) {
         }}
         change={update}
         add={add}
-        locked={
-          !!busy ||
-          ["source", ...p.targetLanguages].some((l) => track(l).locked)
-        }
+        locked={!!busy || timingLocked}
       />
+      {sceneOpen && sceneAvailable && (
+        <SceneTranscription project={p} language={p.targetLanguages.includes(lang) ? lang : p.targetLanguages[0]}
+          locked={timingLocked || !!busy} initialPreview={createdPreview}
+          prepare={(languageStyle, storyContext) => {
+            if (p.languageStyle !== languageStyle || p.storyContext !== storyContext) edit({ languageStyle, storyContext });
+            return model.save();
+          }}
+          apply={(cues, language, detectedLanguage) => {
+            edit({ cues, ...(p.sourceLanguage === "auto" ? { detectedLanguage } : {}) });
+            setLang(language);
+            select(cues[0]);
+            closeScene();
+          }}
+          close={closeScene} />
+      )}
       {imported && (
         <Dialog label={t("import")} onClose={() => setImported(null)}>
           <h2>
@@ -1117,7 +1044,7 @@ function Work({ initial }: { initial: Project }) {
           <button
             onClick={() => {
               edit({ cues: imported });
-              select(imported[0]);
+              if (imported[0]) select(imported[0]);
               setImported(null);
             }}
           >

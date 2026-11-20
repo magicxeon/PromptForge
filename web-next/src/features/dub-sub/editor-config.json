@@ -13,6 +13,7 @@
   "minimumCueMs": 100,
   "autosaveMs": 1400,
   "timelineZoom": [1, 2, 4, 8, 16],
+  "timelineFollowAnchor": 0.3333333333,
   "subtitleControls": {
     "size": { "min": 8, "max": 96 },
     "x": { "min": 0, "max": 100 },

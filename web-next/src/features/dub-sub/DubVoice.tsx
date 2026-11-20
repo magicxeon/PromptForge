@@ -382,25 +382,9 @@ function VoiceInspector({
       {libraryLink?.(selection, model?.id || "")}
       <fieldset disabled={busy || active}>
         <label>
-          {t("model")}
-          <select
-            value={model?.id || ""}
-            onChange={(e) => {
-              setModel(e.target.value);
-              setVoice("");
-              setQuote(null);
-            }}
-          >
-            {models.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.displayName}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
           {t("character")}
           <select
+            aria-label={t("character")}
             value={selection}
             onChange={(e) => {
               setVoice(e.target.value);
@@ -435,6 +419,23 @@ function VoiceInspector({
                 ))}
               </optgroup>
             )}
+          </select>
+        </label>
+        <label>
+          {t("model")}
+          <select
+            value={model?.id || ""}
+            onChange={(e) => {
+              setModel(e.target.value);
+              setVoice("");
+              setQuote(null);
+            }}
+          >
+            {models.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.displayName}
+              </option>
+            ))}
           </select>
         </label>
         {(["emotion", "intensity", "pace"] as const).map((key) => (

@@ -20,6 +20,8 @@ const cue = z
     startMs: z.number(),
     endMs: z.number(),
     text: z.string(),
+    sourceOrigin: z.literal("gemini").optional(),
+    translationOrigins: z.record(z.string(), z.literal("gemini")).optional(),
     speaker: z.string().nullish(),
     translations: z.record(z.string(), z.string()).default({}),
     voiceBindings: z.record(z.string(), binding).default({}),
@@ -63,6 +65,7 @@ const summary = z
     posterUrl: z.string().nullish(),
     revision: z.number(),
     archived: z.boolean().optional(),
+    deletionPending: z.boolean().optional(),
     operations: z
       .array(
         z.object({
@@ -78,6 +81,8 @@ const summary = z
   .passthrough();
 export const project = summary.extend({
   mediaUrl: z.string().nullish(),
+  hasAudio: z.boolean().optional(),
+  detectedLanguage: z.string().nullish(),
   cues: z.array(cue),
   tracks: z.record(z.string(), track),
   characterMappings: z
@@ -100,6 +105,12 @@ export type Export = z.infer<typeof exported>;
 export const base = "/api/dub-sub/projects";
 export const projectUrl = (id: string) => base + "/" + encodeURIComponent(id);
 export const projectsApi = {
+  remove: (id: string, revision: number) =>
+    apiRequest(projectUrl(id), {
+      method: "DELETE",
+      body: { revision, confirmed: true },
+      schema: z.object({ id: z.literal(id), deleted: z.literal(true) }),
+    }),
   updateDetails: (
     id: string,
     revision: number,
@@ -142,12 +153,16 @@ export const projectsApi = {
       headers: { "Content-Type": file.type || "video/mp4" },
       schema: project,
     }),
-  save: (p: Project) =>
+  save: (p: Project, previous?: Project) =>
     apiRequest(projectUrl(p.id), {
       method: "PATCH",
       body: {
         revision: p.revision,
         name: p.name,
+        languageStyle: p.languageStyle,
+        storyContext: p.storyContext,
+        ...(previous && p.sourceLanguage === "auto" && previous.detectedLanguage !== p.detectedLanguage
+          ? { detectedLanguage: p.detectedLanguage ?? null } : {}),
         cues: p.cues,
         tracks: p.tracks,
         targetLanguages: p.targetLanguages,
@@ -158,7 +173,7 @@ export const projectsApi = {
     }),
   process: (
     id: string,
-    step: "translate" | "transcribe",
+    step: "translate",
     body: Record<string, unknown>,
   ) =>
     apiRequest(projectUrl(id) + "/" + step, {
@@ -197,6 +212,16 @@ export const projectsApi = {
     return blob;
   },
 };
+export type ScenePreview = { revision: number; target: string; language: string; cues: Cue[] };
+
+export async function requestScenePreview(project: Project, target: string, requestId: string): Promise<ScenePreview> {
+  const response = await projectsApi.detect(project.id, "transcribe", {
+    revision: project.revision, language: target, requestId, confirmed: true, preview: true, method: "gemini-scene",
+  });
+  return { ...response, revision: project.revision, target };
+}
+
+export const scenePreviewKey = (scope: string, projectId: string) => ["dub-scene-preview", scope, projectId] as const;
 export const newCue = (startMs: number, endMs: number): Cue => ({
   id: crypto.randomUUID(),
   startMs,

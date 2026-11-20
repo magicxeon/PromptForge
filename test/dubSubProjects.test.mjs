@@ -13,6 +13,8 @@ import { DubLanguageService } from '../server/domain/dub-sub/DubLanguageService.
 import { prepareMedia } from '../server/domain/dub-sub/DubMediaService.js';
 import { renderExport, renderPreview } from '../server/domain/dub-sub/DubExportService.js';
 import { tracksFor } from '../server/domain/dub-sub/projectFields.js';
+import { VoiceStudioApplicationService } from '../server/domain/voice-studio/VoiceStudioApplicationService.js';
+import { VoiceStudioRepository } from '../server/repositories/voice-studio/VoiceStudioRepository.js';
 
 async function compareFrame(t,root,video,png) {
   const frame=path.join(root,'check.png');
@@ -23,6 +25,107 @@ async function compareFrame(t,root,video,png) {
   assert.ok(score>=0.95,'Subtitle frame SSIM '+score);
   t.diagnostic('same-time preview vs encoded video SSIM '+score);
 }
+
+test('confirmed project deletion reauthorizes its owner and removes only private files and its take pins', async t => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'dub-delete-'));
+  t.after(() => fs.rm(root, {recursive:true, force:true}));
+  const repo = new DubProjectRepository(path.join(root, 'projects'));
+  const takes = new VoiceStudioRepository({files:{takes:path.join(root, 'takes.json')}});
+  const voiceStudio = new VoiceStudioApplicationService({repository:takes});
+  const service = new DubProjectService({repo, voiceStudio});
+  const actor = {userId:'owner'}, other = {userId:'other'};
+  const project = await service.create(actor, {name:'Feature'});
+  const sibling = await service.create(actor, {name:'Trailer'});
+  await repo.create(other, {...project, id:project.id});
+  const privateDir = repo.directory(actor, project.id);
+  const siblingDir = repo.directory(actor, sibling.id);
+  const otherDir = repo.directory(other, project.id);
+  for (const directory of [privateDir, siblingDir, otherDir]) {
+    await fs.mkdir(path.join(directory, 'source'), {recursive:true});
+    await fs.writeFile(path.join(directory, 'source', 'media'), 'media');
+  }
+  await fs.writeFile(path.join(privateDir, 'render.srt'), 'export');
+  const sharedDir = path.join(root, 'originals');
+  await fs.mkdir(sharedDir);
+  await fs.writeFile(path.join(sharedDir, 'library-video'), 'library video');
+  await fs.symlink(sharedDir, path.join(privateDir, 'link'), 'junction');
+  await takes.insert('takes', actor.userId, {id:'take', dubProjectIds:[project.id, sibling.id]});
+  await takes.insert('takes', other.userId, {id:'other-take', dubProjectIds:[project.id]});
+
+  const app = express();
+  app.use(express.json());
+  app.use((req, res, next) => {
+    req.actorContext = {userId:req.headers['x-owner'] || actor.userId};
+    req.reauthorizeIdentity = async () => req.headers['x-revoked'] ? null : req.actorContext;
+    next();
+  });
+  registerDubSubRoutes(app, {projects:service});
+  const server = await new Promise(resolve => {const s = app.listen(0, '127.0.0.1', () => resolve(s));});
+  t.after(() => {server.closeAllConnections(); return new Promise(resolve => server.close(resolve));});
+  const url = 'http://127.0.0.1:' + server.address().port + '/api/dub-sub/projects/' + project.id;
+  const remove = (body, headers = {}) => fetch(url, {method:'DELETE', headers:{'content-type':'application/json', ...headers}, body:JSON.stringify(body)});
+  const confirmed = {confirmed:true, revision:project.revision};
+  for (const [body, headers, status, code] of [
+    [{revision:1}, {}, 400, 'dub_confirm_delete'],
+    [{confirmed:true}, {}, 400, 'dub_invalid_input'],
+    [{...confirmed, revision:2}, {}, 409, 'dub_revision_conflict'],
+    [{...confirmed, userId:actor.userId}, {'x-owner':'foreign'}, 404, 'dub_project_missing'],
+    [confirmed, {'x-revoked':'true'}, 401, 'auth_session_expired'],
+  ]) {
+    const response = await remove(body, headers);
+    assert.equal(response.status, status);
+    assert.equal((await response.json()).code, code);
+  }
+  assert.equal(await fs.readFile(path.join(privateDir, 'render.srt'), 'utf8'), 'export');
+  const response = await remove(confirmed);
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {id:project.id, deleted:true});
+  assert.equal((await remove(confirmed)).status, 404);
+  assert.equal((await fetch(url + '/media')).status, 404);
+  await assert.rejects(fs.stat(privateDir), {code:'ENOENT'});
+  assert.deepEqual((await service.list(actor, {archived:'true'})).items.map(p => p.id), [sibling.id]);
+  assert.equal((await service.get(other, project.id)).id, project.id);
+  for (const directory of [siblingDir, otherDir])
+    assert.equal(await fs.readFile(path.join(directory, 'source', 'media'), 'utf8'), 'media');
+  assert.equal(await fs.readFile(path.join(sharedDir, 'library-video'), 'utf8'), 'library video');
+  assert.deepEqual((await takes.get('takes', 'take', actor.userId)).dubProjectIds, [sibling.id]);
+  assert.deepEqual((await takes.get('takes', 'other-take', other.userId)).dubProjectIds, [project.id]);
+});
+
+test('deletion refuses active work and resumes confirmed cleanup after a restart', async t => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'dub-delete-retry-'));
+  t.after(() => fs.rm(root, {recursive:true, force:true}));
+  const repo = new DubProjectRepository(root);
+  const actor = {userId:'owner'};
+  let release;
+  const paused = new Promise(resolve => { release = resolve; });
+  let reached;
+  const processing = new Promise(resolve => { reached = resolve; });
+  const service = new DubProjectService({repo, languageService:{
+    scan:async () => { reached(); await paused; return []; },
+  }, voiceStudio:{withDubTakePins:async (owner, id, pins, commit) => {
+    await commit();
+    throw Error('fixture pin write failed');
+  }}});
+  const created = await service.create(actor, {name:'Review'});
+  const p = await repo.mutate(actor, created.id, created.revision, record => {
+    record.media = {folder:'source'};
+  });
+  const body = {revision:p.revision, confirmed:true};
+  const review = service.review(actor, p.id, 'ocr', body);
+  await processing;
+  await assert.rejects(service.remove(actor, p.id, body, async () => actor), {code:'dub_operation_busy'});
+  release();
+  await review;
+  await assert.rejects(service.remove(actor, p.id, body, async () => actor), /fixture pin write failed/);
+  const restarted = new DubProjectService({repo:new DubProjectRepository(root),
+    voiceStudio:{withDubTakePins:async (owner, id, pins, commit) => { assert.deepEqual(pins, []); return commit(); }}});
+  assert.equal((await restarted.list(actor, {})).items[0].deletionPending, true);
+  await assert.rejects(restarted.get(actor, p.id), {code:'dub_deletion_pending'});
+  await assert.rejects(restarted.update(actor, p.id, {...body, name:'Stale edit'}), {code:'dub_deletion_pending'});
+  assert.deepEqual(await restarted.remove(actor, p.id, body, async () => actor), {id:p.id, deleted:true});
+  await assert.rejects(restarted.get(actor, p.id), {code:'dub_project_missing'});
+});
 
 test('private local video, peaks, revision, subtitle export and byte ranges', async t => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(),'dub-test-'));
@@ -64,7 +167,7 @@ test('private local video, peaks, revision, subtitle export and byte ranges', as
   const frame = await service.review(actor,project.id,'preview',{...both,timeMs:500});
   assert.equal(frame.toString('hex',0,8),'89504e470d0a1a0a');
   await compareFrame(t,root,(await service.file(actor,project.id,'export',burned.id)).path,frame);
-  await assert.rejects(service.perform(actor,project.id,'transcribe',input),{code:'dub_confirm_replace'});
+  await assert.rejects(service.perform(actor,project.id,'transcribe',input),{code:'dub_invalid_input'});
   await assert.rejects(service.perform(actor,project.id,'exports',{...input,format:'wav'}),{code:'dub_take_missing'});
   assert.equal((await service.get(actor,project.id)).operations.at(-1).status,'failed');
   const app = express();
@@ -106,10 +209,7 @@ test('private local video, peaks, revision, subtitle export and byte ranges', as
   assert.equal(checked,true);assert.equal(grouped.characterMappings.th.actor,'char-1');assert.equal(grouped.mixer.th.actor.gain,0.25);
   await assert.rejects(service.update(actor,project.id,{revision:grouped.revision,mixer:JSON.parse('{"th":{"__proto__":{}}}')}),
     {code:'dub_invalid_input'});
-  const asr = new DubLanguageService({postProcessing:{endpoint:'http://fixture',fetchWithRetry:async ()=>
-    Response.json({success:true,fallbackUsed:true,words:[{word:'fake',start:0,end:1}]})}});
-  const stored = await service.repo.get(actor,project.id);
-  await assert.rejects(asr.transcribe(stored,service.repo.directory(actor,project.id)),{code:'dub_asr_unavailable'});
+  await assert.rejects(service.review(actor,project.id,'transcribe',{revision:grouped.revision,preview:true}),{code:'dub_invalid_input'});
 });
 
 test('portrait bilingual subtitle render preserves geometry and matches final-frame preview',async t=>{
@@ -138,18 +238,13 @@ test('portrait bilingual subtitle render preserves geometry and matches final-fr
   await compareFrame(t,root,output,png);
 });
 
-test('translation retains edited language and calls the configured adapter once per batch',async()=>{
+test('Gemini text requests include missing or selected originals and omit other languages',async()=>{
   const p = {sourceLanguage:'zh',cues:[{id:'first',text:'甲',translations:{th:'เดิม'}},{id:'second',text:'乙',translations:{en:'Existing'}}]};
-  let calls=0;
-  const service = new DubLanguageService({translateUrl:'http://fixture.local',fetchImpl:async(url,init)=>{
-    calls++; assert.equal(url.pathname,'/translate'); assert.deepEqual(JSON.parse(init.body).q,['乙']);
-    return Response.json({translatedText:['สอง']});
-  }});
-  const result=await service.translate(p,'th',false);
-  assert.equal(calls,1); assert.deepEqual(result.map(c=>c.translations),[{th:'เดิม'},{en:'Existing',th:'สอง'}]);
+  const service = new DubLanguageService();
+  assert.deepEqual(service.translationContext(p,'th',false).cues, [{id:'second',text:'乙'}]);
+  assert.deepEqual(service.translationContext(p,'th',true,['first']).cues, [{id:'first',text:'甲'}]);
+  assert.deepEqual(service.translationContext(p,'th',true).cues, [{id:'first',text:'甲'},{id:'second',text:'乙'}]);
   assert.equal(p.cues[1].translations.th,undefined);
-  const selected=await service.translate(p,'th',true,['second']);
-  assert.equal(selected[0].translations.th,'เดิม');assert.equal(selected[1].translations.th,'สอง');
 });
 
 test('library import reserves bounded work before either lookup and releases on failure',async t=>{

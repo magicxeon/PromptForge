@@ -24,6 +24,7 @@ export default z
     minimumCueMs: count,
     autosaveMs: count,
     timelineZoom: z.array(z.number().min(1)).nonempty(),
+    timelineFollowAnchor: z.number().min(0).max(1),
     subtitleControls: z.object({
       size: range(8, 200),
       x: range(0, 100),

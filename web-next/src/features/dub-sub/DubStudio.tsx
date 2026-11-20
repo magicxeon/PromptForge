@@ -4,6 +4,7 @@ import {
   NavLink,
   Route,
   Routes,
+  useMatch,
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
@@ -45,6 +46,7 @@ const VoiceStudio = lazy(async () => {
   return { default: VoiceStudioRoute };
 });
 export default function DubStudio() {
+  const editingProject = !!useMatch("/dub-sub/projects/:id");
   const { t } = useTranslation("dub");
   const navigate = useNavigate();
   const { identityScope } = useActor();
@@ -74,7 +76,7 @@ export default function DubStudio() {
   }
   return (
     <main className="dub-studio">
-      <nav aria-label={t("workspace")}>
+      {!editingProject && <nav aria-label={t("workspace")}>
         <NavLink end to="/dub-sub">
           {t("projects")}
         </NavLink>
@@ -88,7 +90,7 @@ export default function DubStudio() {
             ‹ {t("backEditor")}
           </Link>
         )}
-      </nav>
+      </nav>}
       <Suspense fallback={<ProcessingSpinner />}>
         <Routes>
           <Route index element={<Projects />} />

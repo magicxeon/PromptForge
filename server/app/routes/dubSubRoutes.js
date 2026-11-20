@@ -18,15 +18,16 @@ function fail(res, error) {
 }
 function verifyIdentity(req) {
   return async () => {
+    const current = await req.reauthorizeIdentity?.();
     if (
       !req.actorContext?.userId ||
-      (await req.reauthorizeIdentity?.())?.userId !== req.actorContext.userId
+      current?.userId !== req.actorContext.userId
     )
       throw Object.assign(new Error(), {
         code: "auth_session_expired",
         statusCode: 401,
       });
-    return req.actorContext;
+    return current;
   };
 }
 async function sendPrivate(req, res, file) {
@@ -123,6 +124,9 @@ export function registerDubSubRoutes(app, { projects }) {
   route("patch", "/:id", (req, actor, id, body) =>
     projects.update(actor, id, body),
   );
+  route("delete", "/:id", (req, actor, id, body) =>
+    projects.remove(actor, id, body, verifyIdentity(req)),
+  );
   route("put", "/:id/media", (req, actor, id) =>
     projects.upload(actor, id, req, verifyIdentity(req)),
   );
@@ -159,15 +163,12 @@ export function registerDubSubRoutes(app, { projects }) {
   ]) {
     app.get(base + "/:id/" + suffix, async (req, res) => {
       try {
-        await sendPrivate(
-          req,
-          res,
-          await projects.file(
-            req.actorContext,
-            req.params.id,
-            kind,
-            req.params.exportId,
-          ),
+        await projects.withFile(
+          req.actorContext,
+          req.params.id,
+          kind,
+          req.params.exportId,
+          (file) => sendPrivate(req, res, file),
         );
       } catch (error) {
         fail(res, error);

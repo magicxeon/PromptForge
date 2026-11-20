@@ -108,10 +108,11 @@ export function assertUnlocked(previous, tracks, cues) {
     if (!next || old.startMs !== next.startMs || old.endMs !== next.endMs)
       failLock();
     for (const lang of locked) {
-      if (lang === "source" && old.text !== next.text) failLock();
+      if (lang === "source" && (old.text !== next.text || old.sourceOrigin !== next.sourceOrigin)) failLock();
       if (
         lang !== "source" &&
-        old.translations[lang] !== next.translations[lang]
+        (old.translations[lang] !== next.translations[lang] ||
+         old.translationOrigins?.[lang] !== next.translationOrigins?.[lang])
       )
         failLock();
     }
@@ -163,6 +164,7 @@ export async function normalizeCues(rows, project, resolveTake) {
       startMs: raw.startMs,
       endMs: raw.endMs,
       text: label(raw.text ?? "", 4000),
+      ...(raw.sourceOrigin === undefined ? {} : { sourceOrigin: choice(raw.sourceOrigin, ["gemini"]) }),
       speaker: label(raw.speaker ?? "", 120),
       characterId: label(raw.characterId ?? "", 160),
       emotion: label(raw.emotion ?? "", 100),
@@ -179,6 +181,10 @@ export async function normalizeCues(rows, project, resolveTake) {
     for (const lang of project.targetLanguages) {
       if (raw.translations?.[lang] !== undefined)
         cue.translations[lang] = label(raw.translations[lang], 4000);
+      if (raw.translationOrigins?.[lang] !== undefined && cue.translations[lang]) {
+        cue.translationOrigins ??= {};
+        cue.translationOrigins[lang] = choice(raw.translationOrigins[lang], ["gemini"]);
+      }
       const binding = raw.voiceBindings?.[lang];
       if (binding) {
         label(binding.documentId, 160, true);

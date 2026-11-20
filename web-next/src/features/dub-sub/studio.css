@@ -103,6 +103,53 @@
 }
 .dub-projects article {
   padding: 0.75rem;
+  position: relative;
+}
+.dub-projects article:hover, .dub-projects article:focus-within {
+  border-color: #91b5a5;
+}
+.dub-projects article a:not([download])::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+.dub-project-menu, .dub-projects article a[download] {
+  position: relative;
+}
+.dub-project-menu { margin-inline-start: auto; }
+.dub-projects article > div { min-width: min(9rem, 100%); overflow-wrap: anywhere; }
+.dub-project-menu summary {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.dub-project-menu summary::-webkit-details-marker { display: none; }
+.dub-project-menu[open] summary, .dub-project-menu summary:hover { background: #e8f0ea; }
+.dub-project-menu-items {
+  position: absolute;
+  inset-inline-end: 0;
+  z-index: 6;
+  display: grid;
+  min-width: max-content;
+  padding: 4px;
+  background: white;
+  border: 1px solid #cfdbd4;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px #163b271f;
+}
+.dub-studio .dub-project-menu-items button {
+  text-align: start;
+  border: 0;
+  background: transparent;
+}
+.dub-studio .dub-project-menu-items button:hover { background: #eef3ef; }
+.dub-studio .dub-delete-action { color: #a12f2f; }
+.dub-studio .dub-delete-confirm { background: #a12f2f; color: white; }
+.dub-projects article:has(.dub-project-menu[open]) {
+  z-index: 1;
 }
 .dub-projects article div {
   flex: 1;
@@ -150,6 +197,17 @@
 .dub-project-details textarea {
   min-height: 5rem;
   resize: vertical;
+}
+.dub-scene-cues {
+  padding: 0;
+  list-style: none;
+  max-height: 48dvh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+}
+.dub-scene-cues li {
+  padding-block: .55rem;
+  border-bottom: 1px solid #dce4df;
 }
 .dub-studio dialog .dub-inline,
 .dub-inline {
@@ -300,6 +358,16 @@
   flex: 1;
   min-width: 55px;
 }
+.dub-transport output {
+  font-family: ui-monospace, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.dub-transport .dub-play-toggle {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 2.5rem;
+  padding-inline: 0;
+}
 .dub-inspector {
   border-inline-start: 1px solid #d8e2da;
 }
@@ -388,7 +456,89 @@
   border-left: 2px solid #1a6550;
   pointer-events: none;
 }
+.app-shell:has(.dub-editor) {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.app-shell:has(.dub-editor) > .app-header {
+  height: 46px;
+  flex: none;
+}
+.app-shell > div:has(> .dub-studio .dub-editor) {
+  flex: 1;
+  min-height: 0;
+}
+.dub-studio:has(.dub-editor) {
+  max-width: none;
+  height: 100%;
+  padding: 4px 8px;
+}
+.dub-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 4px;
+}
+.dub-editor > .dub-bar { flex: none; margin: 0; }
+.dub-editor > .dub-bar input { flex: 1; width: 0; min-width: 4rem; max-width: 28rem; }
+.dub-editor > .dub-layout {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+}
+.dub-editor .dub-script, .dub-editor .dub-inspector, .dub-editor .dub-preview {
+  min-height: 0;
+  height: 100%;
+  max-height: none;
+}
+.dub-editor .dub-script { overflow: hidden; }
+.dub-editor .dub-script header { flex-wrap: nowrap; }
+.dub-transcript-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .25rem .5rem; }
+.dub-transcript-actions small { color: #51635a; }
+.dub-transcript-actions button { padding: .25rem .5rem; min-height: 28px; }
+.dub-editor .dub-script header select { width: auto; max-width: 55%; }
+.dub-editor .dub-rows { flex: 1; min-height: 0; }
+.dub-editor .dub-rows button { justify-items: start; justify-content: stretch; }
+.dub-editor .dub-rows button.selected:not([aria-current]) {
+  background: transparent;
+  border: 1px dashed #89a897;
+}
+.dub-editor .dub-rows button[aria-current="time"] {
+  background: #d9eedf;
+  border: 1px solid #79a889;
+  border-inline-start: 4px solid #246a4a;
+}
+.dub-editor .dub-transport { flex: none; gap: 4px; }
+.dub-editor .dub-audio-settings { margin: .6rem 0; }
+.dub-editor summary { cursor: pointer; }
+.dub-editor > details[open], .dub-editor > .dub-downloads {
+  max-height: 12dvh;
+  overflow: auto;
+  margin: 0;
+}
+.dub-editor .dub-timeline { flex: none; padding: 4px 6px; }
+.dub-editor .dub-timeline header { justify-content: start; gap: 4px; margin-bottom: 3px; }
+.dub-editor .dub-timeline header label { margin-inline-start: auto; }
+.dub-editor .dub-timeline header :is(button, select) { min-height: 30px; padding: 3px 7px; }
+.dub-timing-options {
+  width: min(28rem, 92vw);
+  max-height: 80dvh;
+  padding: 1rem;
+  border: 1px solid #cbd8d0;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px #182a2229;
+}
 @media (max-width: 970px) {
+  .dub-editor .dub-inspector:not([hidden]) {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(95%, 26rem);
+    background: #fff;
+    z-index: 9;
+    box-shadow: -4px 0 20px #18312224;
+  }
   .dub-studio .dub-layout {
     grid-template-columns: minmax(160px, 0.72fr) minmax(0, 1.6fr);
   }
@@ -403,6 +553,15 @@
   }
 }
 @media (max-width: 600px) {
+  .dub-studio:has(.dub-editor) { padding: 3px; }
+  .dub-editor .dub-layout .dub-preview { flex: 1.35; height: 0; }
+  .dub-editor .dub-layout .dub-stage { min-height: 0; height: auto; flex: 1; }
+  .dub-editor .dub-layout .dub-script { flex: 1; height: 0; gap: 3px; padding: 4px; }
+  .dub-editor .dub-script header select, .dub-editor .dub-script > input { min-height: 28px; padding-block: 2px; }
+  .dub-editor .dub-transport { padding: 2px; }
+  .dub-editor .dub-transport button { min-height: 30px; padding: 3px 5px; }
+  .dub-editor .dub-timeline header label { font-size: 0; gap: 0; }
+  .dub-editor .dub-timeline header select { font-size: 12px; min-width: 0; }
   .dub-bar {
     gap: 0.35rem;
   }
@@ -438,3 +597,72 @@
     width: 46%;
   }
 }
+
+.dub-row-window { position: relative; }
+.dub-line {
+  position: absolute;
+  inset-inline: 0;
+  display: grid;
+  grid-template-rows: 20px repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  padding: 2px 5px;
+  border: 1px solid transparent;
+  border-bottom-color: #d8e2da;
+  border-radius: 6px;
+}
+.dub-line.selected { border-color: #89a897; }
+.dub-line[aria-current="time"] {
+  background: #d9eedf;
+  border: 1px solid #79a889;
+  box-shadow: inset 3px 0 #246a4a;
+}
+.dub-editor .dub-line button,
+.dub-editor .dub-line textarea {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 1px 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  line-height: 1.3;
+}
+.dub-editor .dub-line button {
+  color: #52665b;
+  font-size: 12px;
+  text-align: start;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.dub-editor .dub-line textarea { resize: none; font-size: 14px; }
+.dub-editor .dub-line textarea:last-child { font-weight: 600; }
+.dub-editor .dub-line textarea:not([readonly]):is(:hover, :focus) {
+  background: #fff;
+  border-color: #89a897;
+}
+.dub-caption[aria-disabled="false"] {
+  pointer-events: auto;
+  cursor: ns-resize;
+  touch-action: none;
+  user-select: none;
+}
+.dub-caption[aria-disabled="false"]:is(:hover, :focus-visible) {
+  outline: 1px dashed white;
+  outline-offset: 2px;
+}
+.dub-editor .dub-track { display: block; padding-block: .35rem; }
+.dub-track-heading { display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
+.dub-track-heading label { display: flex; align-items: center; gap: .4rem; }
+.dub-track-heading button { display: grid; place-items: center; min-height: 30px; }
+.dub-track details, .dub-cue-actions > details { font-size: .9rem; }
+.dub-editor :is(.dub-track, .dub-cue-actions) .dub-tools { gap: .35rem; margin: .3rem 0; }
+.dub-editor :is(.dub-track, .dub-cue-actions) .dub-tools button {
+  display: inline-flex; align-items: center; gap: .3rem; min-height: 32px;
+  padding: .3rem .5rem;
+}
+.dub-cue-actions h3 { font-size: 1rem; margin: .45rem 0; }
+.dub-cue-actions h3 small { font-weight: 400; color: #52665b; }
+.dub-cue-actions details label { display: grid; gap: .25rem; margin: .4rem 0; }

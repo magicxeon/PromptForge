@@ -3,6 +3,7 @@ import path from "node:path";
 import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { DUB_SUB_FONTS_DIR } from "../../config/paths.js";
 import { boundedCopy, mediaCommand, videoInput } from "./DubMediaService.js";
+import { wrapSubtitle } from "./subtitleLayout.js";
 
 function clock(ms, separator) {
   const pad = (n, width = 2) => String(n).padStart(width, "0");
@@ -84,26 +85,13 @@ function ass(project, language, rows) {
     Math.round((style.y * height) / 100) +
     ")}";
   const time = (ms) => clock(ms, ".").slice(0, -1);
-  const wrap = (text) => {
-    const segmenter = new Intl.Segmenter(lang === "auto" ? undefined : lang, {
-      granularity: "grapheme",
-    });
-    return text
-      .split(/\r?\n/)
-      .map((line) => {
-        const clusters = [...segmenter.segment(line)].map(
-          (item) => item.segment,
-        );
-        const lines = [];
-        for (let i = 0; i < clusters.length; i += style.maxChars)
-          lines.push(clusters.slice(i, i + style.maxChars).join(""));
-        return lines.join("\\N");
-      })
-      .join("\\N");
-  };
+  const wrap = (text) => wrapSubtitle(text, lang, style, width / height)
+    .replace(/[{}\\]/g, char => ({ "{": "｛", "}": "｝", "\\": "＼" })[char])
+    .replaceAll("\n", "\\N");
   return [
     "[Script Info]",
     "ScriptType: v4.00+",
+    "WrapStyle: 2",
     "PlayResX: " + width,
     "PlayResY: " + height,
     "ScaledBorderAndShadow: yes",
@@ -130,12 +118,7 @@ function ass(project, language, rows) {
         language +
         ",,0,0,0,," +
         pos +
-        wrap(
-          cue.caption.replace(
-            /[{}\\]/g,
-            (c) => ({ "{": "｛", "}": "｝", "\\": "＼" })[c],
-          ),
-        ),
+        wrap(cue.caption),
     ),
   ].join("\n");
 }

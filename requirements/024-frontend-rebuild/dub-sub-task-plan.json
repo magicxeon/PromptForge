@@ -4,6 +4,379 @@
   "requirement": "requirements/024-frontend-rebuild/008-dub-sub-studio.md",
   "tasks": [
     {
+      "id": "DS-GEMINI-ONLY",
+      "title": "Authorized Gemini transcription and text translation preserve owner, revision, cue identities and replay safety.",
+      "complexity": "complex",
+      "reason": "Change a private paid language workflow.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root/dub_scene_api",
+      "capabilities": [
+        "dub-sub"
+      ],
+      "risks": [
+        "security",
+        "financial",
+        "privacy"
+      ],
+      "dependsOn": [
+        "DS-SCENE"
+      ],
+      "writeScope": [
+        "server/app/routes/dubSubRoutes.js",
+        "server/domain/dub-sub/DubProjectService.js",
+        "server/domain/dub-sub/DubLanguageService.js",
+        "server/domain/dub-sub/projectFields.js",
+        "server/domain/generation/SceneTranscriptionService.js",
+        "server/providers/GeminiSceneTranscriptionProvider.js",
+        "test/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Authorized Gemini transcription and text translation preserve owner, revision, cue identities and replay safety."
+      ],
+      "reviewers": [
+        "security-reviewer",
+        "qa-release-engineer",
+        "backend-platform-architect",
+        "commercial-financial-integrity"
+      ],
+      "evidence": [
+        {
+          "check": "Authorized Gemini transcription and text translation preserve owner, revision, cue identities and replay safety.",
+          "result": "passed",
+          "reference": "test/dubSceneTranscription.test.mjs"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/dubSceneTranscription.test.mjs"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/dubSceneTranscription.test.mjs"
+        },
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/dubSceneTranscription.test.mjs"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/dubSceneTranscription.test.mjs"
+        }
+      ],
+      "handoff": "Integrate and validate against requirement 008 and operator guide 011."
+    },
+    {
+      "id": "DS-READ-PLAY",
+      "title": "Thai word-safe subtitles and continuous playback following work in isolated preview, render and timeline checks.",
+      "complexity": "complex",
+      "reason": "Coordinate playback and text layout through browser and renderer.",
+      "owner": "frontend-engineer",
+      "ownerAgentId": "/root/dub_playback_layout",
+      "capabilities": [
+        "dub-sub"
+      ],
+      "risks": [
+        "user-facing"
+      ],
+      "dependsOn": [
+        "DS-T"
+      ],
+      "writeScope": [
+        "web-next/src/features/dub-sub/Timeline.tsx",
+        "web-next/src/features/dub-sub/timeline.css",
+        "web-next/src/features/dub-sub/subtitleFonts.ts",
+        "web-next/src/features/dub-sub/SubtitleInspector.tsx",
+        "server/domain/dub-sub/DubExportService.js",
+        "server/domain/dub-sub/subtitleLayout.js",
+        "web-next/test/dub-timeline-check.mjs"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Thai word-safe subtitles and continuous playback following work in isolated preview, render and timeline checks."
+      ],
+      "reviewers": [
+        "ux-ui-product-designer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Thai word-safe subtitles and continuous playback following work in isolated preview, render and timeline checks.",
+          "result": "passed",
+          "reference": "web-next/test/dub-timeline-check.mjs"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dub-timeline-check.mjs"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dub-timeline-check.mjs"
+        }
+      ],
+      "handoff": "Integrate and validate against requirement 008 and operator guide 011."
+    },
+    {
+      "id": "DS-CREATE-PREVIEW",
+      "title": "Create, preview, apply and retranslate identify provider and language without automatic repeat dispatch.",
+      "complexity": "complex",
+      "reason": "Change a private paid language workflow.",
+      "owner": "frontend-engineer",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "dub-sub"
+      ],
+      "risks": [
+        "privacy",
+        "user-facing"
+      ],
+      "dependsOn": [
+        "DS-SCENE"
+      ],
+      "writeScope": [
+        "web-next/src/features/dub-sub/",
+        "web-next/src/locales/",
+        "web-next/test/dub-editor-check.mjs",
+        "requirements/024-frontend-rebuild/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Create, preview, apply and retranslate identify provider and language without automatic repeat dispatch."
+      ],
+      "reviewers": [
+        "security-reviewer",
+        "ux-ui-product-designer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Create, preview, apply and retranslate identify provider and language without automatic repeat dispatch.",
+          "result": "passed",
+          "reference": "web-next/test/dub-editor-check.mjs"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dub-editor-check.mjs"
+        },
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dub-editor-check.mjs"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dub-editor-check.mjs"
+        }
+      ],
+      "handoff": "Integrate and validate against requirement 008 and operator guide 011."
+    },
+    {
+      "id": "DS-SCENE",
+      "title": "Operator-funded audio-only scene transcription and translation preview",
+      "complexity": "complex",
+      "reason": "Explicit private media transfer and paid inference on the local admin path.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root/dub_scene_api",
+      "capabilities": [
+        "dub-sub",
+        "provider-integration"
+      ],
+      "risks": [
+        "security",
+        "privacy",
+        "financial"
+      ],
+      "dependsOn": [
+        "DS-P"
+      ],
+      "writeScope": [
+        "server/app/routes/dubSubRoutes.js",
+        "server/domain/dub-sub/",
+        "server/providers/",
+        "server/config/",
+        "server/repositories/dub-sub/",
+        "test/",
+        "server/domain/generation/SceneTranscriptionService.js"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Explicit authorized sends return revision-bound bilingual cues, replay once and disclose no private video or key."
+      ],
+      "reviewers": [
+        "security-reviewer",
+        "commercial-financial-integrity",
+        "qa-release-engineer",
+        "backend-platform-architect"
+      ],
+      "handoff": "Return the validated timed cue preview through the existing transcribe route.",
+      "evidence": [
+        {
+          "check": "Explicit authorized sends return revision-bound bilingual cues, replay once and disclose no private video or key.",
+          "result": "passed",
+          "reference": "test/dubSceneTranscription.test.mjs"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/dubSceneTranscription.test.mjs"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/dubSceneTranscription.test.mjs"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/dubSceneTranscription.test.mjs"
+        },
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/dubSceneTranscription.test.mjs"
+        }
+      ]
+    },
+    {
+      "id": "DS-SCENE-EDITOR",
+      "title": "Review context and bilingual subtitles before applying",
+      "complexity": "complex",
+      "reason": "Editor handoff for the private paid preview.",
+      "owner": "frontend-engineer",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "dub-sub"
+      ],
+      "risks": [
+        "user-facing",
+        "privacy"
+      ],
+      "dependsOn": [
+        "DS-EDIT"
+      ],
+      "writeScope": [
+        "web-next/src/features/dub-sub/",
+        "web-next/src/locales/",
+        "web-next/test/dub-editor-check.mjs",
+        "requirements/024-frontend-rebuild/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Sending requires an explicit action and the preview can be dismissed or applied to the timeline."
+      ],
+      "reviewers": [
+        "ux-ui-product-designer",
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "handoff": "Exercise the consent, review and apply path using a synthetic clip.",
+      "evidence": [
+        {
+          "check": "Sending requires an explicit action and the preview can be dismissed or applied to the timeline.",
+          "result": "passed",
+          "reference": "web-next/test/dub-editor-check.mjs"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dub-editor-check.mjs"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dub-editor-check.mjs"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dub-editor-check.mjs"
+        }
+      ]
+    },
+    {
+      "id": "DS-DELETE",
+      "title": "Confirmed permanent removal of an owned project",
+      "complexity": "complex",
+      "reason": "Deletes private media and releases project references.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root/dub_project_delete",
+      "capabilities": ["dub-sub", "identity"],
+      "risks": ["security", "privacy", "destructive"],
+      "dependsOn": ["DS-P"],
+      "writeScope": ["server/domain/dub-sub/", "server/repositories/dub-sub/", "server/app/routes/dubSubRoutes.js", "server/domain/identity/IdentityDevelopmentService.js", "test/"],
+      "status": "complete",
+      "acceptance": ["Only a confirmed owner request at the matching revision can remove an idle project and its private files while preserving shared assets."],
+      "reviewers": ["security-reviewer", "qa-release-engineer"],
+      "handoff": "Server contract to Projects menu and independent deletion review on isolated fixtures.",
+      "evidence": [{
+        "check": "Only a confirmed owner request at the matching revision can remove an idle project and its private files while preserving shared assets.",
+        "result": "passed", "reference": "test/dubSubProjects.test.mjs"
+      }],
+      "reviews": [
+        {"role":"security-reviewer","agentId":"/root/dub_delete_review","result":"passed","reference":"test/dubSubProjects.test.mjs"},
+        {"role":"qa-release-engineer","agentId":"/root/dub_delete_review","result":"passed","reference":"test/authentication/developmentAdmin.test.js"}
+      ]
+    },
+    {
+      "id": "DS-EDIT",
+      "title": "Edit subtitles in context and organize project actions",
+      "complexity": "complex",
+      "reason": "Changes project navigation and editing interactions across desktop and mobile.",
+      "owner": "frontend-engineer",
+      "ownerAgentId": "/root/dub_editor_work",
+      "capabilities": ["dub-sub"],
+      "risks": ["user-facing"],
+      "dependsOn": ["DS-T"],
+      "writeScope": ["web-next/src/features/dub-sub/", "web-next/src/locales/", "web-next/test/"],
+      "status": "complete",
+      "acceptance": ["Edit both subtitle languages in place, move subtitles vertically, retranslate a named track, select a voice and operate the project menu."],
+      "reviewers": ["ux-ui-product-designer", "qa-release-engineer"],
+      "handoff": "Root integrates Projects actions and validates the editor owner's work against the reviewed design.",
+      "evidence": [{
+        "check": "Edit both subtitle languages in place, move subtitles vertically, retranslate a named track, select a voice and operate the project menu.",
+        "result":"passed", "reference":"web-next/test/dub-editor-check.mjs"
+      }],
+      "reviews": [
+        {"role":"ux-ui-product-designer","agentId":"/root/dub_editor_ux","result":"passed","reference":"requirements/024-frontend-rebuild/010-dub-sub-editor-design.md"},
+        {"role":"qa-release-engineer","agentId":"/root","result":"passed","reference":"web-next/test/dub-editor-check.mjs"}
+      ]
+    },
+    {
       "id": "DS-P",
       "title": "Private projects and processing",
       "complexity": "complex",

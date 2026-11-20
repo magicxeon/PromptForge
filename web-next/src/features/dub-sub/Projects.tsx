@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { MoreHorizontal } from "lucide-react";
 import { listRecentVideoTasks } from "../../../../web/src/features/generation/api/videoGenerationApi";
 import { Dialog } from "./Dialog";
 import {
@@ -13,7 +14,7 @@ import {
   ProcessingSpinner,
   pollingPolicy,
 } from "../../lib/canonical";
-import { projectsApi, timeLabel } from "./projectApi";
+import { projectsApi, requestScenePreview, scenePreviewKey, timeLabel } from "./projectApi";
 import config from "./editorConfig";
 
 type LanguageContext = { languageStyle: string; storyContext: string };
@@ -77,12 +78,15 @@ function SourcePreview({ src }: { src: string }) {
 }
 export function Projects() {
   const { t } = useTranslation("dub"),
-    { identityScope } = useActor(),
+    { identityScope, actor, config: auth } = useActor(),
     nav = useNavigate(),
     client = useQueryClient();
   const [form, showForm] = useState(false),
     [grid, setGrid] = useState(false);
   const [context, setContext] = useState<LanguageContext>(emptyContext);
+  const [deleting, setDeleting] = useState<{ id: string; name: string; revision: number } | null>(null);
+  const createButton = useRef<HTMLButtonElement>(null);
+  const actionsTrigger = useRef<HTMLElement | null>(null);
   const [editing, setEditing] = useState<
     | (LanguageContext & {
         id: string;
@@ -104,8 +108,9 @@ export function Projects() {
     [preview, setPreview] = useState("");
   const controller = useRef<AbortController | null>(null),
     pendingProject = useRef<string | null>(null);
-  const [asr, setAsr] = useState(false),
-    [archived, setArchived] = useState(false);
+  const geminiAvailable = actor?.role === "admin" && auth?.authMode === "development_bypass" && auth.development?.liveGeneration;
+  const [listening, setListening] = useState(false);
+  const [archived, setArchived] = useState(false);
   const projects = useInfiniteQuery({
     queryKey: ["dub-projects", identityScope, archived],
     queryFn: ({ pageParam }) => projectsApi.list(pageParam, archived),
@@ -137,34 +142,48 @@ export function Projects() {
   useEffect(() => () => controller.current?.abort(), []);
   async function create(e: FormEvent) {
     e.preventDefault();
-    if (busy) return;
+    if (busy || controller.current) return;
+    const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    const sendAudio = geminiAvailable && submitter?.value === "gemini";
     setError("");
     setBusy(true);
     const abort = new AbortController();
     controller.current = abort;
     try {
-      const id =
-        pendingProject.current ??
-        (
-          await projectsApi.create({
+      let project = pendingProject.current
+        ? await projectsApi.read(pendingProject.current)
+        : await projectsApi.create({
             name: name.trim(),
             ...context,
             sourceLanguage: source,
             targetLanguages: targets,
             ...(useLibrary ? { sourceUrl } : {}),
-          })
-        ).id;
+          });
+      const id = project.id;
       pendingProject.current = id;
-      if (!useLibrary && file) await projectsApi.upload(id, file, abort.signal);
+      if (!useLibrary && file) project = await projectsApi.upload(id, file, abort.signal);
       await client.invalidateQueries({
         queryKey: ["dub-projects", identityScope],
       });
-      nav("/dub-sub/projects/" + id, { state: { startTranscription: asr } });
+      let sceneError: string | undefined;
+      if (sendAudio && !abort.signal.aborted) {
+        setListening(true);
+        try {
+          const preview = await requestScenePreview(project, project.targetLanguages[0], crypto.randomUUID());
+          if (abort.signal.aborted) return;
+          client.setQueryData(scenePreviewKey(identityScope, id), preview);
+        } catch (cause) {
+          sceneError = cause && typeof cause === "object" && "code" in cause ? String(cause.code) : "unknown";
+        }
+      }
+      if (!abort.signal.aborted) nav("/dub-sub/projects/" + id, { state: { sceneError } });
     } catch (err) {
       if (!abort.signal.aborted)
         setError(err instanceof Error ? err.message : t("failed"));
     } finally {
+      controller.current = null;
       setBusy(false);
+      setListening(false);
     }
   }
   return (
@@ -184,6 +203,7 @@ export function Projects() {
         </button>
         <button
           className="primary"
+          ref={createButton}
           onClick={() => {
             pendingProject.current = null;
             setContext(emptyContext);
@@ -193,7 +213,6 @@ export function Projects() {
             setLibrary(false);
             setSource("auto");
             setTargets(["th"]);
-            setAsr(false);
             setError("");
             showForm(true);
           }}
@@ -201,6 +220,45 @@ export function Projects() {
           {t("create")}
         </button>
       </header>
+      {deleting && (
+        <Dialog label={t("deleteProject")} onClose={() => {
+          if (!busy) {
+            setDeleting(null);
+            setError("");
+            actionsTrigger.current?.focus();
+          }
+        }}>
+          <h2>{t("deleteProject")}</h2>
+          <p>{t("deleteProjectMessage", { name: deleting.name })}</p>
+          {error && <p role="alert">{error}</p>}
+          <footer>
+            <button type="button" autoFocus disabled={busy} onClick={() => {
+              setDeleting(null);
+              setError("");
+              actionsTrigger.current?.focus();
+            }}>{t("cancel")}</button>
+            <button type="button" className="dub-delete-confirm" disabled={busy} onClick={async () => {
+              if (busy) return;
+              setBusy(true);
+              setError("");
+              try {
+                await projectsApi.remove(deleting.id, deleting.revision);
+                client.removeQueries({ queryKey: ["dub-project", identityScope, deleting.id] });
+                client.removeQueries({ queryKey: ["dub-peaks", identityScope, deleting.id] });
+                await client.invalidateQueries({ queryKey: ["dub-projects", identityScope] });
+                setDeleting(null);
+                requestAnimationFrame(() => createButton.current?.focus());
+              } catch (err) {
+                const code = (err as Error).message;
+                setError(t("deleteErrors." + code, { defaultValue: t("deleteFailed") }));
+                void projects.refetch();
+              } finally {
+                setBusy(false);
+              }
+            }}>{busy ? <ProcessingSpinner /> : t("deleteProject")}</button>
+          </footer>
+        </Dialog>
+      )}
       {editing && (
         <Dialog
           label={t("editDetails")}
@@ -398,14 +456,7 @@ export function Projects() {
                 </small>
               )}
 
-              <label className="dub-inline">
-                <input
-                  type="checkbox"
-                  checked={asr}
-                  onChange={(e) => setAsr(e.target.checked)}
-                />
-                {t("transcribe")}
-              </label>
+              {geminiAvailable && <p>{t("scene.createInfo", { language: t("lang." + (targets[0] || "th")) })}</p>}
             </fieldset>
             {error && (
               <p role="alert">
@@ -415,6 +466,7 @@ export function Projects() {
             <footer>
               <button
                 type="button"
+                disabled={listening}
                 onClick={() => {
                   controller.current?.abort();
                   if (!busy) showForm(false);
@@ -422,14 +474,17 @@ export function Projects() {
               >
                 {t("cancel")}
               </button>
-              <button disabled={busy || !targets.length} className="primary">
-                {busy ? <ProcessingSpinner /> : t("create")}
+              {geminiAvailable && <button type="submit" value="gemini" className="primary" disabled={busy || !targets.length}>
+                {busy && <ProcessingSpinner />} {t(listening ? "scene.working" : "scene.create")}
+              </button>}
+              <button type="submit" value="manual" disabled={busy || !targets.length} className={geminiAvailable ? undefined : "primary"}>
+                {t(geminiAvailable ? "scene.createManual" : "create")}
               </button>
             </footer>
           </form>
         </Dialog>
       )}
-      {error && !form && !editing && <p role="alert">{error}</p>}
+      {error && !form && !editing && !deleting && <p role="alert">{error}</p>}
       {projects.isPending ? (
         <ProcessingSpinner />
       ) : projects.error ? (
@@ -447,11 +502,11 @@ export function Projects() {
                 ["running", "failed", "interrupted"].includes(operation.status);
               return (
                 <article key={p.id}>
-                  {p.posterUrl && (
+                  {!p.deletionPending && p.posterUrl && (
                     <img loading="lazy" src={p.posterUrl} alt="" />
                   )}
                   <div>
-                    <Link to={"projects/" + p.id}>{p.name}</Link>
+                    {p.deletionPending ? <strong>{p.name}</strong> : <Link to={"projects/" + p.id}>{p.name}</Link>}
                     <small>
                       {timeLabel(p.durationMs || 0)} ·{" "}
                       {t("lang." + p.sourceLanguage)} →{" "}
@@ -459,7 +514,7 @@ export function Projects() {
                     </small>
                   </div>
                   <span>
-                    {processing
+                    {p.deletionPending ? t("deletePending") : processing
                       ? t(
                           operation.kind === "exports"
                             ? "export"
@@ -469,9 +524,35 @@ export function Projects() {
                         t("op." + operation.status)
                       : t("status." + p.status)}
                   </span>
-                  <details>
-                    <summary aria-label={t("editProject")}>⋯</summary>
+                  <time>{new Date(p.updatedAt).toLocaleDateString()}</time>
+                  {!p.deletionPending && p.exports?.at(-1) && (
+                    <a href={p.exports.at(-1)!.url} download>
+                      {t("download")}
+                    </a>
+                  )}
+                  <details className="dub-project-menu" name="dub-project-actions"
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.open = false;
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
+                        e.currentTarget.open = false;
+                        e.currentTarget.querySelector("summary")?.focus();
+                      }
+                    }}>
+                    <summary aria-label={t("editProject") + " · " + p.name} title={t("editProject")}>
+                      <MoreHorizontal size={18} aria-hidden="true" />
+                    </summary>
+                    <div className="dub-project-menu-items" onClick={(event) => {
+                      const menu = event.currentTarget.closest("details");
+                      if (menu) {
+                        menu.open = false;
+                        actionsTrigger.current = menu.querySelector("summary");
+                        actionsTrigger.current?.focus();
+                      }
+                    }}>
                     <button
+                      disabled={p.deletionPending}
                       onClick={() => {
                         setError("");
                         setEditing({
@@ -488,6 +569,7 @@ export function Projects() {
                       {t("editDetails")}
                     </button>
                     <button
+                      disabled={p.deletionPending}
                       onClick={async () => {
                         try {
                           await projectsApi.archive(
@@ -503,13 +585,13 @@ export function Projects() {
                     >
                       {t(p.archived ? "restore" : "archive")}
                     </button>
+                    <button className="dub-delete-action" disabled={operation?.status === "running"}
+                      onClick={() => {
+                        setError("");
+                        setDeleting({ id: p.id, name: p.name, revision: p.revision });
+                      }}>{t("deleteProject")}</button>
+                    </div>
                   </details>
-                  <time>{new Date(p.updatedAt).toLocaleDateString()}</time>
-                  {p.exports?.at(-1) && (
-                    <a href={p.exports.at(-1)!.url} download>
-                      {t("download")}
-                    </a>
-                  )}
                 </article>
               );
             })}

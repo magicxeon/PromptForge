@@ -1,0 +1,13 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "maxDurationMs": 300000,
+  "maxAudioBytes": 12000000,
+  "maxResponseBytes": 262144,
+  "maxPreviewBytes": 131072,
+  "maxOutputTokens": 16384,
+  "maxCues": 400,
+  "maxRequestsPerRevision": 4,
+  "maxRetainedRequestsPerProject": 64,
+  "maxReplayIdsPerRequest": 32,
+  "timeoutMs": 180000
+}

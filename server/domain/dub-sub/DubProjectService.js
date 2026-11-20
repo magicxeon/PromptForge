@@ -10,6 +10,7 @@ import {
   assertUnlocked,
   fail,
   label,
+  languages,
   normalizeCues,
   sourceLanguage,
   speakerSettings,
@@ -19,8 +20,11 @@ import {
 import { DubLanguageService } from "./DubLanguageService.js";
 import { prepareMedia } from "./DubMediaService.js";
 import { renderExport, renderPreview } from "./DubExportService.js";
+import { sceneTranscriptionPolicy } from "../generation/SceneTranscriptionService.js";
 
 const prefix = "/api/dub-sub/projects/";
+// A preparation from an earlier local server process has never reached dispatch.
+const sceneProcessId = randomUUID();
 function selectedCaptions(project, body, language, allowEmpty = false) {
   const requested = body.captionLanguages ?? body.languages ?? [language];
   if (
@@ -54,6 +58,8 @@ export class DubProjectService {
     });
     this.running = new Map();
     this.uploads = new Set();
+    this.activeProjects = new Map();
+    this.deletingProjects = new Set();
   }
 
   view(project, summary = false) {
@@ -89,6 +95,42 @@ export class DubProjectService {
   }
   async get(actor, id) {
     return this.view(await this.repo.get(actor, id));
+  }
+  async useProject(actor, id, work) {
+    const key = this.repo.directory(actor, id);
+    if (this.deletingProjects.has(key)) throw dubError("dub_deletion_pending", 409);
+    this.activeProjects.set(key, (this.activeProjects.get(key) || 0) + 1);
+    try {
+      return await work(await this.repo.get(actor, id));
+    } finally {
+      const count = this.activeProjects.get(key) - 1;
+      if (count) this.activeProjects.set(key, count);
+      else this.activeProjects.delete(key);
+    }
+  }
+
+  async remove(actor, id, { confirmed, revision }, reauthorize) {
+    if (confirmed !== true) throw dubError("dub_confirm_delete");
+    if (!Number.isSafeInteger(revision) || revision < 1) fail();
+    const key = this.repo.directory(actor, id);
+    if (this.activeProjects.has(key) || this.deletingProjects.has(key))
+      throw dubError("dub_operation_busy", 429);
+    this.deletingProjects.add(key);
+    try {
+      const project = await this.repo.get(actor, id, { includePendingDeletion: true });
+      if (project.revision !== revision) throw dubError("dub_revision_conflict", 409);
+      await this.repo.checkedRemovalDirectory(actor, id);
+      // Keep the confirmed intent until both stores finish. An owner retry can
+      // safely resume after a file lock, pin write failure or server restart.
+      await this.voiceStudio.withDubTakePins(actor, id, [], () =>
+        this.repo.beginDeletion(actor, id, revision, reauthorize),
+      );
+      await this.repo.removePrivateFiles(actor, id);
+      await this.repo.finishDeletion(actor, id, revision);
+      return { id, deleted: true };
+    } finally {
+      this.deletingProjects.delete(key);
+    }
   }
   async create(actor, body, reauthorize) {
     const targets = targetList(body.targetLanguages ?? ["th"]);
@@ -160,8 +202,10 @@ export class DubProjectService {
       await source?.handle.close().catch(() => {});
     }
   }
-  async upload(actor, id, stream, reauthorize) {
-    const p = await this.repo.get(actor, id);
+  upload(actor, id, stream, reauthorize) {
+    return this.useProject(actor, id, (p) => this.uploadMedia(actor, id, p, stream, reauthorize));
+  }
+  async uploadMedia(actor, id, p, stream, reauthorize) {
     if (p.media) throw dubError("dub_media_already_set", 409);
     if (this.uploads.has(id) || this.uploads.size >= 4)
       throw dubError("dub_upload_busy", 429);
@@ -185,14 +229,16 @@ export class DubProjectService {
       this.uploads.delete(id);
     }
   }
-  async update(actor, id, body) {
+  update(actor, id, body) {
+    return this.useProject(actor, id, (p) => this.updateProject(actor, id, p, body));
+  }
+  async updateProject(actor, id, previous, body) {
     const busy = () =>
       [...this.running.keys()].some((key) => {
         const [projectId, kind] = JSON.parse(key);
-        return projectId === id && kind === "exports";
+        return projectId === id && (kind === "exports" || kind === "gemini-scene");
       });
     if (busy()) throw dubError("dub_operation_busy", 429);
-    const previous = await this.repo.get(actor, id);
     if (previous.revision !== body.revision)
       throw dubError("dub_revision_conflict", 409);
     const targets = targetList(
@@ -206,6 +252,13 @@ export class DubProjectService {
       (character) => this.voiceStudio.getDubCharacter(actor, character),
     );
     const rows = body.cues ?? (body.targetLanguages ? previous.cues : null);
+    const source = body.sourceLanguage ?? previous.sourceLanguage;
+    if (body.detectedLanguage !== undefined &&
+        (source !== "auto" || !Array.isArray(body.cues) ||
+         (body.detectedLanguage !== null && !languages.includes(body.detectedLanguage))))
+      fail();
+    if (body.detectedLanguage !== undefined && body.detectedLanguage !== (previous.detectedLanguage ?? null) &&
+        previous.tracks.source.locked && tracks.source.locked) throw dubError("dub_track_locked", 409);
     const cues = rows
       ? await normalizeCues(
           rows,
@@ -225,8 +278,12 @@ export class DubProjectService {
           p.storyContext = label(body.storyContext, 2000).trim();
         p.targetLanguages = targets;
         Object.assign(p, settings);
-        if (body.sourceLanguage !== undefined)
+        if (body.sourceLanguage !== undefined) {
           p.sourceLanguage = sourceLanguage(body.sourceLanguage);
+          if (p.sourceLanguage !== previous.sourceLanguage) delete p.detectedLanguage;
+        }
+        if (body.detectedLanguage === null) delete p.detectedLanguage;
+        else if (body.detectedLanguage !== undefined) p.detectedLanguage = body.detectedLanguage;
         p.tracks = tracks;
         if (body.archived !== undefined) {
           if (typeof body.archived !== "boolean") fail();
@@ -250,6 +307,15 @@ export class DubProjectService {
   }
   async file(actor, id, kind, exportId) {
     const project = await this.repo.get(actor, id);
+    return this.projectFile(actor, project, kind, exportId);
+  }
+  withFile(actor, id, kind, exportId, send) {
+    return this.useProject(actor, id, (project) =>
+      send(this.projectFile(actor, project, kind, exportId)),
+    );
+  }
+  projectFile(actor, project, kind, exportId) {
+    const id = project.id;
     const dir = this.repo.directory(actor, id);
     if (kind === "export") {
       const record = project.exports.find((e) => e.id === exportId);
@@ -280,37 +346,23 @@ export class DubProjectService {
       }[kind],
     };
   }
-  async perform(actor, id, kind, body, reauthorize) {
+  perform(actor, id, kind, body, reauthorize) {
+    return this.useProject(actor, id, (p) => this.performOperation(actor, id, p, kind, body, reauthorize));
+  }
+  async performOperation(actor, id, p, kind, body, reauthorize) {
+    if (kind === "translate") return this.translateProject(actor, p, body, reauthorize);
+    if (kind !== "exports") fail();
     if (!Number.isInteger(body.revision)) fail();
-    const p = await this.repo.get(actor, id);
     if (!p.media) throw dubError("dub_media_missing", 409);
     const language = body.language || p.targetLanguages[0];
-    if (
-      !p.targetLanguages.includes(language) &&
-      !(kind === "exports" && language === "source")
-    )
-      fail();
-    const format = kind === "exports" ? body.format || "srt" : "srt";
-    if (kind === "exports" && !["srt", "vtt", "wav", "mp4"].includes(format))
-      fail();
+    if (!p.targetLanguages.includes(language) && language !== "source") fail();
+    const format = body.format || "srt";
+    if (!["srt", "vtt", "wav", "mp4"].includes(format)) fail();
     const captionLanguages =
-      kind === "exports" && format === "mp4"
+      format === "mp4"
         ? selectedCaptions(p, body, language, true)
         : [language];
-    let cueIds;
-    if (body.cueIds !== undefined) {
-      if (
-        kind !== "translate" ||
-        !Array.isArray(body.cueIds) ||
-        !body.cueIds.length ||
-        body.cueIds.length > 3000
-      )
-        fail();
-      const available = new Set(p.cues.map((c) => c.id));
-      if (body.cueIds.some((cueId) => !available.has(cueId)))
-        throw dubError("dub_cue_missing", 422);
-      cueIds = [...new Set(body.cueIds)].sort();
-    }
+    if (body.cueIds !== undefined) fail();
     const sourceGain =
       body.sourceGain ?? (body.includeDubbing || format === "wav" ? 0 : 1);
     const dubGain = body.dubGain ?? 1;
@@ -323,9 +375,6 @@ export class DubProjectService {
       dubGain > 2
     )
       fail();
-    const selectionHash =
-      cueIds &&
-      createHash("sha256").update(JSON.stringify(cueIds)).digest("hex");
     const key = JSON.stringify([
       id,
       kind,
@@ -338,16 +387,13 @@ export class DubProjectService {
       captionLanguages,
       sourceGain,
       dubGain,
-      selectionHash,
+      null,
     ]);
     if (this.running.has(key)) return this.running.get(key);
     const prior = p.operations.find(
       (op) => op.key === key && op.status === "succeeded",
     );
-    if (prior)
-      return kind === "exports"
-        ? p.exports.find((e) => e.id === prior.exportId)
-        : this.view(p);
+    if (prior) return p.exports.find((e) => e.id === prior.exportId);
     if (p.revision !== body.revision)
       throw dubError("dub_revision_conflict", 409);
     if (
@@ -368,7 +414,6 @@ export class DubProjectService {
       captionLanguages,
       sourceGain,
       dubGain,
-      cueIds,
     });
     this.running.set(key, work);
     try {
@@ -390,7 +435,6 @@ export class DubProjectService {
     captionLanguages,
     sourceGain,
     dubGain,
-    cueIds,
   }) {
     const directory = this.repo.directory(actor, id);
     const prior = p.operations.find((item) => item.key === key);
@@ -421,86 +465,48 @@ export class DubProjectService {
     let output;
     let tmp;
     try {
-      let updates = {};
-      let record;
-      if (kind === "transcribe") {
-        if (Object.values(p.tracks).some((track) => track.locked))
-          throw dubError("dub_track_locked", 409);
-        if (p.cues.length && !body.overwrite)
-          throw dubError("dub_confirm_replace", 409);
-        const result = await this.languageService.transcribe(p, directory);
-        updates = {
-          cues: await normalizeCues(result.cues, p),
-          detectedLanguage: result.language,
-        };
-      } else if (kind === "translate") {
-        if (p.tracks[language]?.locked) throw dubError("dub_track_locked", 409);
-        updates.cues = await this.languageService.translate(
-          p,
-          language,
-          body.overwrite === true,
-          cueIds,
-        );
-      } else {
-        const exportId = randomUUID();
-        tmp = await fs.mkdtemp(path.join(directory, "render-"));
-        output = path.join(directory, exportId + "." + format);
-        await renderExport({
-          project: p,
-          language,
-          captionLanguages,
-          format,
-          sourceGain,
-          dubGain,
-          burnIn: body.burnIn === true,
-          includeDubbing: body.includeDubbing === true,
-          source: path.join(directory, p.media.folder, "media"),
-          dir: tmp,
-          output,
-          fontsDir: this.fontsDir,
-          openTake: async (takeId) => {
-            const take = await this.voiceStudio.getDubTake(actor, takeId);
-            const file = await this.assets.openOwnedOutput({
-              outputUrl: take.audioUrl,
-              actor,
-              reauthorize,
-            });
-            return { ...file, durationMs: take.durationMs };
-          },
-        });
-        record = {
-          id: exportId,
-          format,
-          language,
-          captionLanguages,
-          revision: p.revision,
-          createdAt: new Date().toISOString(),
-          url: prefix + id + "/exports/" + exportId,
-        };
-      }
+      const exportId = randomUUID();
+      tmp = await fs.mkdtemp(path.join(directory, "render-"));
+      output = path.join(directory, exportId + "." + format);
+      await renderExport({
+        project: p,
+        language,
+        captionLanguages,
+        format,
+        sourceGain,
+        dubGain,
+        burnIn: body.burnIn === true,
+        includeDubbing: body.includeDubbing === true,
+        source: path.join(directory, p.media.folder, "media"),
+        dir: tmp,
+        output,
+        fontsDir: this.fontsDir,
+        openTake: async (takeId) => {
+          const take = await this.voiceStudio.getDubTake(actor, takeId);
+          const file = await this.assets.openOwnedOutput({
+            outputUrl: take.audioUrl,
+            actor,
+            reauthorize,
+          });
+          return { ...file, durationMs: take.durationMs };
+        },
+      });
+      const record = {
+        id: exportId,
+        format,
+        language,
+        captionLanguages,
+        revision: p.revision,
+        createdAt: new Date().toISOString(),
+        url: prefix + id + "/exports/" + exportId,
+      };
       await reauthorize?.();
-      const commit = () =>
-        this.repo.mutate(
-          actor,
-          id,
-          p.revision,
-          (project) => {
-            Object.assign(project, updates, {
-              status: record ? "complete" : "ready",
-            });
-            Object.assign(
-              project.operations.find((item) => item.id === op.id),
-              {
-                status: "succeeded",
-                ...(record ? { exportId: record.id } : {}),
-              },
-            );
-            if (record) project.exports.push(record);
-          },
-          !record,
-        );
-      const updated = await this.commitCues(actor, id, updates.cues, commit);
-      return record || this.view(updated);
+      await this.repo.mutate(actor, id, p.revision, project => {
+        project.status = "complete";
+        Object.assign(project.operations.find(item => item.id === op.id), { status: "succeeded", exportId: record.id });
+        project.exports.push(record);
+      }, false);
+      return record;
     } catch (error) {
       if (output) await fs.unlink(output).catch(() => {});
       await this.repo
@@ -526,11 +532,20 @@ export class DubProjectService {
       if (tmp) await fs.rm(tmp, { recursive: true, force: true });
     }
   }
-  async review(actor, id, kind, body, reauthorize) {
-    const p = await this.repo.get(actor, id);
+  review(actor, id, kind, body, reauthorize) {
+    return this.useProject(actor, id, (p) => this.reviewOperation(actor, id, p, kind, body, reauthorize));
+  }
+  async reviewOperation(actor, id, p, kind, body, reauthorize) {
     if (body.revision !== p.revision)
       throw dubError("dub_revision_conflict", 409);
     if (!p.media) throw dubError("dub_media_missing", 409);
+    if (kind === "transcribe") {
+      if (body.method !== "gemini-scene" || body.preview !== true) fail();
+      const preview = await this.reviewScene(actor, p, body, reauthorize);
+      // Earlier private Gemini receipts predate the optional origin fields.
+      return { ...preview, cues: preview.cues.map(cue => ({ ...cue, sourceOrigin: "gemini",
+        translationOrigins: { ...cue.translationOrigins, [body.language]: "gemini" } })) };
+    }
     const key = JSON.stringify([
       id,
       kind,
@@ -549,8 +564,6 @@ export class DubProjectService {
           directory,
           body.language || p.detectedLanguage || p.sourceLanguage,
         );
-      if (kind === "transcribe")
-        return this.languageService.transcribe(p, directory);
       if (
         !Number.isFinite(body.timeMs) ||
         body.timeMs < 0 ||
@@ -580,6 +593,187 @@ export class DubProjectService {
       return result;
     } finally {
       this.running.delete(key);
+    }
+  }
+
+  async verifySceneActor(actor, reauthorize) {
+    const current = await reauthorize?.();
+    if (!current?.userId || current.userId !== actor.userId) throw dubError("auth_session_expired", 401);
+    this.languageService.sceneGeneration.assertAccess(current);
+    return current;
+  }
+
+  async translateProject(actor, project, body, reauthorize) {
+    const { id } = project;
+    const { language, cueIds, requestId, revision, overwrite = false } = body;
+    if (body.confirmed !== true) throw dubError("dub_scene_confirmation_required", 400);
+    if (body.method !== undefined || body.preview === true) fail();
+    if (typeof requestId !== "string" || !/^[A-Za-z0-9_-]{8,128}$/.test(requestId) ||
+        !Number.isSafeInteger(revision) || revision < 1 || !languages.includes(language) || typeof overwrite !== "boolean") fail();
+    if (cueIds !== undefined && (!Array.isArray(cueIds) || !cueIds.length || cueIds.length > 3000 ||
+        cueIds.some(cueId => typeof cueId !== "string" || !/^[\w-]{1,100}$/.test(cueId)))) fail();
+    const selected = cueIds && [...new Set(cueIds)].sort();
+    const scope = createHash("sha256").update(JSON.stringify(["translate", overwrite, selected || null])).digest("hex");
+    const operationKey = JSON.stringify([id, "gemini-scene", actor.userId, revision, language, requestId, scope]);
+    this.languageService.sceneGeneration.assertAccess(actor);
+    await this.verifySceneActor(actor, reauthorize);
+    const prior = project.operations.find(op => op.kind === "translate" && op.requestId === requestId);
+    if (prior) {
+      if (prior.key !== operationKey) throw dubError("dub_scene_request_conflict", 409);
+      if (prior.status === "succeeded") return this.view(project);
+    }
+    if (revision !== project.revision) throw dubError("dub_revision_conflict", 409);
+    if (!project.targetLanguages.includes(language)) fail();
+    if (project.tracks[language]?.locked) throw dubError("dub_track_locked", 409);
+    const context = this.languageService.translationContext(project, language, overwrite, selected);
+    if (!context.cues.length) return this.view(project);
+    try {
+      return await this.reviewScene(actor, project, body, reauthorize, { context, scope });
+    } catch (error) {
+      if (error.code !== "dub_revision_conflict") throw error;
+      const saved = await this.repo.get(actor, id);
+      if (!saved.operations.some(op => op.key === operationKey && op.status === "succeeded")) throw error;
+      await this.verifySceneActor(actor, reauthorize);
+      return this.view(saved);
+    }
+  }
+
+  async executeTranslation(actor, project, body, verify, translation, key) {
+    const { id, revision } = project;
+    const { requestId, language } = body;
+    await this.repo.mutate(actor, id, revision, current => {
+      const previous = current.operations.find(op => op.key === key);
+      current.operations = [...current.operations.filter(op => op.key !== key).slice(-49),
+        { id: previous?.id || randomUUID(), key, kind: "translate", status: "running", revision, language, requestId,
+          createdAt: previous?.createdAt || new Date().toISOString() }];
+    }, false);
+    try {
+      const translations = await this.executeScene(actor, project, requestId, language, verify, translation);
+      const byId = new Map(translations.map(row => [row.id, row.translation]));
+      const saved = await this.repo.mutate(actor, id, revision, async current => {
+        await verify(false);
+        for (const cue of current.cues) {
+          if (!byId.has(cue.id)) continue;
+          cue.translations[language] = byId.get(cue.id);
+          (cue.translationOrigins ??= {})[language] = "gemini";
+        }
+        current.status = current.media ? "ready" : "draft";
+        current.operations.find(op => op.key === key).status = "succeeded";
+      });
+      return this.view(saved);
+    } catch (error) {
+      await this.repo.mutate(actor, id, null, current => {
+        const op = current.operations.find(item => item.key === key);
+        if (op?.status === "running") Object.assign(op, { status: "failed", code: publicDubError(error) });
+      }, false);
+      throw error;
+    }
+  }
+
+  async reviewScene(actor, project, body, reauthorize, translation = null) {
+    const { id, revision } = project;
+    const { requestId, language } = body;
+    if (body.confirmed !== true) throw dubError("dub_scene_confirmation_required", 400);
+    if (typeof requestId !== "string" || !/^[A-Za-z0-9_-]{8,128}$/.test(requestId) ||
+        !project.targetLanguages.includes(language)) fail();
+    if (!translation) {
+      if (!project.media?.hasAudio) throw dubError("dub_audio_missing", 422);
+      if (!Number.isSafeInteger(project.durationMs) || project.durationMs <= 0 ||
+          project.durationMs > sceneTranscriptionPolicy.maxDurationMs) throw dubError("dub_scene_audio_limit", 413);
+      if (Object.values(project.tracks).some(track => track.locked)) throw dubError("dub_track_locked", 409);
+    }
+    this.languageService.sceneGeneration.assertAccess(actor);
+    const verify = async (checkRevision = true) => {
+      const current = await this.verifySceneActor(actor, reauthorize);
+      if (checkRevision && (await this.repo.get(actor, id)).revision !== revision) throw dubError("dub_revision_conflict", 409);
+      return current;
+    };
+    await verify();
+    const key = JSON.stringify([id, "gemini-scene", actor.userId, revision, language, requestId, translation?.scope]);
+    if (this.running.has(key)) {
+      const cached = await this.running.get(key);
+      await verify(!translation);
+      return cached;
+    }
+    if (this.running.size >= 4 || [...this.running.keys()].some(other => JSON.parse(other)[0] === id))
+      throw dubError("dub_operation_busy", 429);
+    const task = translation
+      ? this.executeTranslation(actor, project, body, verify, translation, key)
+      : this.executeScene(actor, project, requestId, language, verify, null);
+    this.running.set(key, task);
+    try {
+      const result = await task;
+      await verify(!translation);
+      return result;
+    } finally {
+      this.running.delete(key);
+    }
+  }
+
+  async executeScene(actor, project, requestId, language, verify, translation) {
+    const { id, revision } = project;
+    const source = translation ? null : await this.repo.sceneSource(actor, project);
+    const scope = translation?.scope;
+    const receipt = apply => this.repo.sceneReceipts(actor, id, apply);
+    const claim = await receipt(records => {
+      const duplicate = records.find(record => record.requestId === requestId || record.replayIds?.includes(requestId));
+      if (duplicate && (duplicate.revision !== revision || duplicate.language !== language || duplicate.scope !== scope))
+        throw dubError("dub_scene_request_conflict", 409);
+      const matching = records.filter(record => record.revision === revision && record.language === language && record.scope === scope);
+      const replay = duplicate || matching.find(record => record.status !== "failed");
+      if (replay) {
+        if (!duplicate) {
+          replay.replayIds ??= [];
+          if (replay.replayIds.length >= sceneTranscriptionPolicy.maxReplayIdsPerRequest)
+            throw dubError("dub_scene_request_limit", 429);
+          replay.replayIds.push(requestId);
+        }
+        if (replay.status === "succeeded") return { preview: replay.preview };
+        if (replay.status === "preparing" && replay.processId !== sceneProcessId) {
+          this.languageService.sceneGeneration.assertAvailable();
+          replay.processId = sceneProcessId;
+          return { requestId: replay.requestId };
+        }
+        return { code: replay.code || "dub_scene_outcome_unknown", statusCode: replay.statusCode || 409 };
+      }
+      this.languageService.sceneGeneration.assertAvailable();
+      if (records.filter(record => record.revision === revision).length >= sceneTranscriptionPolicy.maxRequestsPerRevision)
+        throw dubError("dub_scene_request_limit", 429);
+      while (records.length >= sceneTranscriptionPolicy.maxRetainedRequestsPerProject) {
+        const oldestStale = records.findIndex(record => record.revision < revision);
+        if (oldestStale < 0) throw dubError("dub_scene_request_limit", 429);
+        records.splice(oldestStale, 1);
+      }
+      for (const record of records) if (record.revision !== revision) delete record.preview;
+      records.push({ requestId, revision, language, scope, model: sceneTranscriptionPolicy.model,
+        confirmedAt: new Date().toISOString(), status: "preparing", processId: sceneProcessId });
+      return { requestId };
+    });
+    if (claim.code) throw dubError(claim.code, claim.statusCode);
+    if (claim.preview) return claim.preview;
+    const update = change => receipt(records => {
+      const record = records.find(item => item.requestId === claim.requestId);
+      if (!record || record.processId !== sceneProcessId) throw dubError("dub_scene_request_conflict", 409);
+      Object.assign(record, change);
+    });
+    let dispatching = false;
+    try {
+      const beforeDispatch = async () => {
+        await update({ status: "dispatching" });
+        const current = await verify();
+        dispatching = true;
+        return current;
+      };
+      const preview = translation
+        ? await this.languageService.translate(translation.context, beforeDispatch)
+        : await this.languageService.transcribeScene(project, source, language, beforeDispatch);
+      await update({ status: "succeeded", preview });
+      return preview;
+    } catch (error) {
+      const unknown = dispatching && (!error.code?.startsWith("dub_") || error.code === "dub_scene_outcome_unknown");
+      await update({ status: unknown ? "dispatching" : "failed",
+        code: unknown ? "dub_scene_outcome_unknown" : publicDubError(error), statusCode: error.statusCode || 500 });
+      throw error;
     }
   }
 }

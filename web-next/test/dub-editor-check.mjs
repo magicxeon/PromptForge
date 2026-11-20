@@ -9,6 +9,7 @@ import { chromium } from "playwright";
 import { createServer } from "vite";
 import { DubProjectRepository } from "../../server/repositories/dub-sub/DubProjectRepository.js";
 import { DubProjectService } from "../../server/domain/dub-sub/DubProjectService.js";
+import { DubLanguageService } from "../../server/domain/dub-sub/DubLanguageService.js";
 import { registerDubSubRoutes } from "../../server/app/routes/dubSubRoutes.js";
 
 const root = await fs.mkdtemp(path.join(os.tmpdir(), "dub-ui-"));
@@ -22,18 +23,18 @@ const actor = {
 };
 let completeTranslation;
 let translationCalls = 0;
-const languageService = {
-  async translate(project, language) {
+const translationInputs = [];
+const languageService = new DubLanguageService({ sceneGeneration: {
+  assertAccess() {}, assertAvailable() {},
+  async translate(_actor, context) {
     translationCalls++;
-    await new Promise((resolve) => {
+    translationInputs.push(context);
+    if (translationCalls === 1) await new Promise((resolve) => {
       completeTranslation = resolve;
     });
-    return project.cues.map((c) => ({
-      ...c,
-      translations: { ...c.translations, [language]: "Scene line" },
-    }));
+    return { cues: context.cues.map(c => ({ id: c.id, translation: "Scene line" })) };
   },
-};
+}});
 const projects = new DubProjectService({
   languageService,
   repo: new DubProjectRepository(root),
@@ -51,6 +52,7 @@ app.get("/api/auth/config", (_, res) =>
   res.json({
     contractVersion: 1,
     authMode: actor.authMode,
+    development: { liveGeneration: true },
     methods: {
       password: false,
       emailOtp: false,
@@ -69,6 +71,13 @@ app.get("/api/auth/config", (_, res) =>
   }),
 );
 app.get("/api/me", (_, res) => res.json(actor));
+app.get("/api/voice-studio/catalog", (_, res) => res.json({
+  catalogVersion: "fixture", defaultModelId: "fixture",
+  models: [{ id: "fixture", providerId: "fixture", displayName: "Fixture", capabilities: { languages: ["th"] } }],
+  voices: [{ id: "fixture", displayName: "Fixture voice", modelIds: ["fixture"], languages: ["th"] }],
+  policy: { maxRows: 10, maxTextLength: 1000, maxStyleLength: 200, inlineTags: [] },
+}));
+app.get(["/api/voice-studio/characters", "/api/voice-studio/custom-voices"], (_, res) => res.json({ items: [] }));
 registerDubSubRoutes(app, { projects });
 app.use("/assets/dub-sub/fonts", express.static("client/assets/dub-sub/fonts"));
 app.use("/api", (_, res) => res.status(404).json({ error: "Offline fixture" }));
@@ -161,14 +170,14 @@ try {
       route.fulfill({ status: 415, json: { error: "unsupported_video" } }),
     { times: 1 },
   );
-  await form.getByRole("button", { name: "Create", exact: true }).click();
+  await form.getByRole("button", { name: "Create project only", exact: true }).click();
   await form.getByRole("alert").waitFor();
   await form.locator('input[type="file"]').setInputFiles({
     name: "replacement.mp4",
     mimeType: "video/mp4",
     buffer: await fs.readFile(path.join(root, "scene.mp4")),
   });
-  await form.getByRole("button", { name: "Create", exact: true }).click();
+  await form.getByRole("button", { name: "Create project only", exact: true }).click();
   await page.waitForURL("**/projects/*");
   assert.equal(
     projectCreates,
@@ -182,14 +191,36 @@ try {
   await page.locator(".dub-picture video").waitFor();
   await page.getByRole("button", { name: "Add cue" }).click();
   const inspector = page.locator(".dub-inspector");
-  await inspector.getByLabel("Source language").fill("你好");
-  await inspector
-    .getByLabel("Thai", { exact: true })
-    .filter({ visible: true })
-    .last()
-    .fill("สวัสดี");
+  const line = page.locator(".dub-line.selected");
+  await line.getByRole("textbox", { name: "Source language" }).fill("你好");
+  await line.getByRole("textbox", { name: "Thai" }).fill("สวัสดี");
+  assert.equal(await inspector.getByRole("textbox", { name: "Thai" }).count(), 0);
+  await inspector.getByRole("button", { name: "Choose dubbing voice" }).click();
+  const voicePicker = inspector.getByRole("combobox", { name: "Dubbing voice" });
+  await voicePicker.selectOption("preset/fixture");
+  assert.equal(await voicePicker.inputValue(), "preset/fixture");
+  await inspector.getByRole("button", { name: "Tracks" }).click();
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.getByText("Saved", { exact: true }).waitFor();
+  const caption = page.getByRole("slider", { name: /Thai subtitle position/ });
+  const beforeY = await caption.getAttribute("aria-valuenow");
+  const beforeX = await caption.evaluate(el => el.style.left);
+  const box = await caption.boundingBox();
+  const fromX = box.x + box.width / 2, fromY = box.y + box.height / 2;
+  await page.mouse.move(fromX, fromY);
+  await page.mouse.down();
+  await page.mouse.move(fromX + 35, fromY - 25, { steps: 4 });
+  const draggedY = await caption.getAttribute("aria-valuenow");
+  assert.ok(Number(draggedY) < Number(beforeY));
+  assert.equal(await page.getByRole("button", { name: "Save", exact: true }).isDisabled(), true);
+  await page.mouse.up();
+  assert.equal(await caption.evaluate(el => el.style.left), beforeX);
+  await page.getByRole("button", { name: "Undo" }).click();
+  assert.equal(await caption.getAttribute("aria-valuenow"), beforeY);
+  await page.getByRole("button", { name: "Redo" }).click();
+  assert.equal(await caption.getAttribute("aria-valuenow"), draggedY);
+  await caption.press("ArrowUp");
+  assert.equal(Number(await caption.getAttribute("aria-valuenow")), Number(draggedY) - 1);
   for (const width of [390, 820, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.waitForTimeout(80);
@@ -206,6 +237,17 @@ try {
     .nth(1)
     .click();
   await inspector.getByLabel("Text color").selectOption("yellow");
+  assert.equal(await inspector.getByRole("slider").count(), 2);
+  await inspector.getByLabel("Lock track").check();
+  assert.equal(await caption.getAttribute("aria-disabled"), "true");
+  assert.equal(await line.getByRole("textbox", { name: "Thai" }).getAttribute("readonly"), "");
+  assert.equal(await line.getByRole("textbox", { name: "Source language" }).getAttribute("readonly"), null);
+  await inspector.getByRole("button", { name: /Tracks/ }).click();
+  const thaiTrack = inspector.getByRole("region", { name: "Thai", exact: true });
+  await thaiTrack.locator("summary").click();
+  assert.ok(await thaiTrack.getByRole("button", { name: "Translate all lines" }).isDisabled());
+  await thaiTrack.getByRole("button", { name: "Unlock Thai track" }).click();
+  assert.ok(await thaiTrack.getByRole("button", { name: "Translate all lines" }).isEnabled());
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.getByText("Saved", { exact: true }).waitFor();
   await page.getByRole("button", { name: "Export", exact: true }).click();
@@ -224,8 +266,10 @@ try {
   );
   await page.reload();
   await page.getByRole("link", { name: /Download SRT/i }).waitFor();
-  await page.locator(".dub-script select").selectOption("en");
-  await page.getByRole("button", { name: "Translate dialogue" }).click();
+  const englishTrack = inspector.getByRole("region", { name: "English", exact: true });
+  await englishTrack.locator("summary").click();
+  page.once("dialog", dialog => dialog.accept());
+  await englishTrack.getByRole("button", { name: "Translate all lines" }).click();
   await page.waitForFunction(
     () => document.querySelector(".dub-editor fieldset")?.disabled,
   );
@@ -236,9 +280,53 @@ try {
   await page.getByText("Processing history").waitFor();
   completeTranslation();
   await page.locator(".dub-script select").selectOption("en");
-  await page.locator(".dub-rows").getByText("Scene line").waitFor();
+  await page.waitForFunction(() => document.querySelector('.dub-line textarea[aria-label="English"]')?.value === "Scene line");
   assert.equal(translationCalls, 1);
+  assert.equal(translationInputs[0].targetLanguage, "en");
+  assert.equal(translationInputs[0].storyContext, context);
+  assert.equal(translationInputs[0].languageStyle, era);
+  await englishTrack.locator("summary").click();
+  const retranslate = englishTrack.getByRole("button", { name: "Translate all lines" });
+  page.once("dialog", (dialog) => { assert.match(dialog.message(), /English/); return dialog.dismiss(); });
+  await retranslate.click();
+  assert.equal(translationCalls, 1);
+  page.once("dialog", (dialog) => dialog.accept());
+  await retranslate.click();
+  await page.waitForFunction(() => !document.querySelector(".dub-layout").disabled);
+  assert.equal(translationInputs[1].targetLanguage, "en");
+  await page.locator(".dub-script select").selectOption("th");
+  assert.equal(await line.getByRole("textbox", { name: "Thai" }).inputValue(), "สวัสดี");
   const currentVideo = await page.locator(".dub-picture video").elementHandle();
+  const sceneButton = page.getByRole("button", { name: "Transcribe again with Gemini" });
+  let sends = 0;
+  await page.route("**/api/dub-sub/projects/*/transcribe", async route => {
+    const body = route.request().postDataJSON();
+    if (body.method !== "gemini-scene") return route.continue();
+    assert.equal(body.confirmed, true);
+    assert.equal(body.language, "th");
+    sends++;
+    await route.fulfill({ json: { language: "zh", cues: [{ id: "scene_line_1", startMs: 500, endMs: 1800,
+      text: "客栈在哪儿？", sourceOrigin: "gemini", translations: { th: "โรงเตี๊ยมอยู่ที่ใด" }, translationOrigins: {th: "gemini"} }] } });
+  });
+  await sceneButton.click();
+  const sceneDialog = page.getByRole("dialog", { name: "Transcribe and translate with Gemini" });
+  assert.equal(await sceneDialog.getByLabel(/Story or scene context/).inputValue(), context);
+  await sceneDialog.getByRole("button", { name: "Cancel" }).click();
+  assert.equal(sends, 0);
+  await sceneButton.click();
+  await sceneDialog.getByRole("button", { name: "Send audio to Gemini" }).click();
+  await sceneDialog.getByText("โรงเตี๊ยมอยู่ที่ใด").waitFor();
+  assert.equal(await line.getByRole("textbox", { name: "Thai" }).inputValue(), "สวัสดี");
+  for (const width of [390, 820, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    assert.ok(await sceneDialog.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+  }
+  await sceneDialog.getByRole("button", { name: "Use these subtitles" }).click();
+  await page.getByText("Current subtitles · Translated with Gemini", {exact:true}).waitFor();
+  assert.equal(await line.getByRole("textbox", { name: "Thai" }).inputValue(), "โรงเตี๊ยมอยู่ที่ใด");
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await page.getByText("Saved", { exact: true }).waitFor();
+  assert.equal(sends, 1);
   await page
     .getByRole("link", { name: "Projects", exact: true })
     .first()
@@ -271,6 +359,38 @@ try {
     (el) => !el.isConnected && !el.hasAttribute("src"),
     currentVideo,
   );
+  const actions = page.locator(".dub-project-menu summary").first();
+  const deleteButton = page.getByRole("button", { name: "Delete project", exact: true });
+  assert.equal(await deleteButton.count(), 0);
+  for (const width of [390, 820, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await actions.click();
+    const bounds = await deleteButton.boundingBox();
+    assert.ok(bounds && bounds.x >= 0 && bounds.x + bounds.width <= width, "project actions fit in the viewport");
+    await actions.press("Escape");
+  }
+  await actions.click();
+  await deleteButton.click();
+  const confirmation = page.getByRole("dialog", { name: "Delete project" });
+  assert.ok((await confirmation.innerText()).includes("Scene two"));
+  await confirmation.getByRole("button", { name: "Cancel" }).click();
+  assert.equal((await projects.list(actor, {})).items.length, 1);
+  await actions.click();
+  await deleteButton.click();
+  await confirmation.getByRole("button", { name: "Delete project" }).click();
+  await confirmation.waitFor({ state: "detached" });
+  await page.getByRole("link", { name: "Scene two", exact: true }).waitFor({ state: "detached" });
+  assert.equal((await projects.list(actor, {})).items.length, 0);
+  await page.getByRole("button", { name: "Create", exact: true }).click();
+  await form.locator('input[type="file"]').setInputFiles(path.join(root, "scene.mp4"));
+  await form.getByRole("button", { name: "Create and transcribe with Gemini" }).click();
+  await sceneDialog.getByText("New preview · Not applied").waitFor();
+  assert.equal(sends, 2);
+  await sceneDialog.getByRole("button", { name: "Use these subtitles" }).click();
+  await page.getByText("Saved", { exact: true }).waitFor();
+  await page.reload();
+  await page.getByText("Current subtitles · Translated with Gemini", {exact:true}).waitFor();
+  assert.equal(sends, 2, "reloading an editor must never submit media again");
   assert.deepEqual(errors, []);
   console.log(
     "PASS create/upload, two targets, edit/save, style, responsive bounds, SRT export, reload and private video teardown",

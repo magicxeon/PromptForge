@@ -56,11 +56,13 @@ try {
     });
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/dub-sub/projects/roundtrip`);
     await page.locator(".dub-script select").selectOption("en");
-    await page.locator(".dub-rows button").filter({ hasText: "second" }).click();
-    if (width === 390 && !(await page.getByRole("button", { name: "Direct this line" }).isVisible()))
+    const source = page.locator(".dub-rows").getByRole("textbox", { name: "Source language" }).nth(1);
+    assert.equal(await source.inputValue(), "second");
+    await source.click();
+    if (width === 390 && !(await page.getByRole("button", { name: "Choose dubbing voice" }).isVisible()))
       await page.locator(".dub-open-inspector").click();
-    await page.getByRole("button", { name: "Direct this line" }).click();
-    const voice = page.getByLabel("Character and voice");
+    await page.getByRole("button", { name: "Choose dubbing voice" }).click();
+    const voice = page.getByLabel("Dubbing voice", { exact: true });
     await voice.selectOption("character/actor-a");
     await page.waitForFunction(() => document.querySelector("video")?.duration === 5);
     await page.locator("video").evaluate(video => { video.currentTime = 2.525; });
@@ -74,7 +76,7 @@ try {
     await voice.waitFor(); assert.equal(await voice.inputValue(), "preset/voice-b");
     assert.equal(await page.getByLabel("Speech model").inputValue(), "b");
     assert.equal(await page.locator(".dub-script select").inputValue(), "en");
-    await page.locator(".dub-rows button.selected").getByText("second", { exact: true }).waitFor();
+    assert.equal(await page.locator(".dub-line.selected").getByLabel("Source language").inputValue(), "second");
     await page.waitForFunction(() => Math.abs(document.querySelector("video").currentTime - 2.525) < .01);
     assert.equal(await page.locator(".dub-inspector").isVisible(), true);
     assert.deepEqual(errors, []); assert.deepEqual(writes, []);

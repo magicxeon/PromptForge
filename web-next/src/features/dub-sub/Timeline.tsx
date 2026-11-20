@@ -1,13 +1,16 @@
 import {
   memo,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type KeyboardEvent,
   type PointerEvent,
+  type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { SlidersHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   apiMediaBlob,
@@ -26,8 +29,11 @@ i18n.addResourceBundle("en", "dubTimeline", en);
 i18n.addResourceBundle("th", "dubTimeline", th);
 
 type Props = {
+  historyControls: ReactNode;
   p: Project;
   ms: number;
+  playing: boolean;
+  following: boolean;
   selected: string;
   lang: string;
   seek: (ms: number) => void;
@@ -48,7 +54,7 @@ type Lane = {
   locked: boolean;
 };
 type Actions = Pick<Props, "select" | "change" | "seek" | "add">;
-const ROW = 56,
+const ROW = 38,
   RULER = 30,
   LABEL = 132,
   OVERSCAN = 100,
@@ -633,27 +639,37 @@ const TimelineLane = memo(function TimelineLane({
 const Playhead = memo(function Playhead({
   ms,
   scale,
+  duration,
   height,
 }: {
   ms: number;
   scale: number;
+  duration: number;
   height: number;
 }) {
+  const offset = Math.max(0, Math.min(ms * scale, duration * scale - 2));
   return (
     <div
       className="dub-timeline-playhead"
-      style={{ transform: `translateX(${LABEL + ms * scale}px)`, height }}
+      style={{
+        transform: `translateX(${LABEL + offset}px)`,
+        height,
+      }}
       aria-hidden="true"
     />
   );
 });
 
 export function Timeline(props: Props) {
-  const { p, ms, selected, lang, locked } = props;
+  const { p, ms, selected, lang, locked, playing, following } = props;
   const { t } = useTranslation("dubTimeline"),
     { identityScope, isLoading } = useActor();
   const scroll = useRef<HTMLDivElement>(null),
     latest = useRef(props);
+  const manualScroll = useRef(false);
+  function suspendFollow() {
+    if (playing) manualScroll.current = true;
+  }
   latest.current = props;
   const actions = useMemo<Actions>(
     () => ({
@@ -751,6 +767,10 @@ export function Timeline(props: Props) {
   }, []);
   const contentWidth = Math.max(1, viewport.width * zoom),
     scale = contentWidth / duration;
+  // Paint a bounded window ahead of the scroll position. Native scrolling
+  // moves the existing waveform between tiles without rasterizing every frame.
+  const renderLeft = Math.min(viewport.left, contentWidth - viewport.width);
+  const renderWidth = Math.min(contentWidth - renderLeft, viewport.width + OVERSCAN);
   const zoomLevels = useMemo(() => {
     const levels = [...config.timelineZoom];
     // 1x fits the whole video. Long projects may zoom further to edit short cues.
@@ -761,14 +781,22 @@ export function Timeline(props: Props) {
       levels.push(levels[levels.length - 1] * 2);
     return levels;
   }, [duration, viewport.width]);
+  useLayoutEffect(() => { manualScroll.current = false; }, [playing, following]);
+  useLayoutEffect(() => {
+    const el = scroll.current;
+    if (!el || !playing || !following || manualScroll.current || zoom === 1) return;
+    const next = Math.min(contentWidth - viewport.width,
+      Math.max(0, ms * scale - viewport.width * config.timelineFollowAnchor));
+    if (Math.abs(el.scrollLeft - next) >= 0.5) el.scrollLeft = next;
+  }, [playing, following, ms, zoom, scale, contentWidth, viewport.width]);
   useEffect(() => {
     const el = scroll.current;
-    if (!el || !selectedCue) return;
+    if (!el || latest.current.playing || zoom === 1 || !selectedCue) return;
     const left = selectedCue.startMs * scale,
       right = selectedCue.endMs * scale;
     if (left < el.scrollLeft || right > el.scrollLeft + viewport.width)
-      el.scrollLeft = Math.max(0, left - viewport.width / 3);
-  }, [selected, scale, viewport.width]);
+      el.scrollLeft = Math.max(0, left - viewport.width * config.timelineFollowAnchor);
+  }, [selected, scale, viewport.width, zoom]);
   const firstLane = Math.max(0, Math.floor((viewport.top - RULER) / ROW) - 1),
     lastLane = Math.min(
       lanes.length,
@@ -785,8 +813,8 @@ export function Timeline(props: Props) {
   const tickStep = Math.max(1000, 10 ** Math.ceil(Math.log10(90 / scale))),
     ticks = [];
   for (
-    let time = Math.ceil(viewport.left / scale / tickStep) * tickStep;
-    time <= (viewport.left + viewport.width) / scale;
+    let time = Math.ceil(renderLeft / scale / tickStep) * tickStep;
+    time <= (renderLeft + renderWidth) / scale;
     time += tickStep
   )
     ticks.push(time);
@@ -799,6 +827,9 @@ export function Timeline(props: Props) {
     >
       <header>
         <b>{t("timeline")}</b>
+        {props.historyControls}
+        <button type="button" popoverTarget="dub-timeline-options"
+          title={t("timingOptions")} aria-label={t("timingOptions")}><SlidersHorizontal size={15} /></button>
         <label>
           {t("zoom")}
           <select
@@ -814,7 +845,6 @@ export function Timeline(props: Props) {
           </select>
         </label>
       </header>
-      <p className="dub-timeline-help">{t("keyboardHelp")}</p>
       {peaks.isFetching && (
         <p role="status">
           <ProcessingSpinner className="small-spinner" />{" "}
@@ -831,27 +861,30 @@ export function Timeline(props: Props) {
       )}
       <div
         className="dub-time-scroll dub-timeline-viewport"
+        data-fit={zoom === 1}
         ref={scroll}
+        style={{ height: height + 16 }}
         tabIndex={0}
         aria-label={t("scrollTimeline")}
+        onWheelCapture={suspendFollow}
+        onPointerDownCapture={suspendFollow}
+        onKeyDownCapture={suspendFollow}
         onScroll={(event) => {
           const el = event.currentTarget;
-          setViewport((value) => ({
-            ...value,
-            left: el.scrollLeft,
-            top: el.scrollTop,
-          }));
+          const left = Math.floor(el.scrollLeft / OVERSCAN) * OVERSCAN;
+          const top = el.scrollTop;
+          setViewport((value) => value.left === left && value.top === top ? value : { ...value, left, top });
         }}
       >
         <div
           className="dub-timeline-content"
-          style={{ width: LABEL + contentWidth, height }}
+          style={{ width: zoom === 1 ? "100%" : LABEL + contentWidth, height }}
         >
           <div className="dub-timeline-ruler">
             <span className="dub-timeline-label">{t("tracks")}</span>
             <div
               className="dub-ruler-ticks"
-              style={{ left: LABEL + viewport.left, width: viewport.width }}
+              style={{ left: LABEL + renderLeft, width: renderWidth }}
               onClick={(event) =>
                 actions.seek(
                   Math.min(
@@ -860,7 +893,7 @@ export function Timeline(props: Props) {
                       0,
                       (event.clientX -
                         event.currentTarget.getBoundingClientRect().left +
-                        viewport.left) /
+                        renderLeft) /
                         scale,
                     ),
                   ),
@@ -870,7 +903,7 @@ export function Timeline(props: Props) {
               {ticks.map((time) => (
                 <small
                   key={time}
-                  style={{ left: time * scale - viewport.left }}
+                  style={{ left: time * scale - renderLeft }}
                 >
                   {timeLabel(time).slice(0, 8)}
                 </small>
@@ -885,8 +918,8 @@ export function Timeline(props: Props) {
                 index={firstLane + index}
                 scale={scale}
                 duration={duration}
-                viewLeft={viewport.left}
-                viewWidth={viewport.width}
+                viewLeft={renderLeft}
+                viewWidth={renderWidth}
                 selected={selected}
                 actions={actions}
                 peaks={lane.kind === "source" ? peaks.data?.peaks : undefined}
@@ -897,10 +930,13 @@ export function Timeline(props: Props) {
                 waveBudget={Math.floor(MAX_WAVES / takeLaneCount)}
               />
             ))}
-          <Playhead ms={ms} scale={scale} height={height} />
+          <Playhead ms={ms} scale={scale} duration={duration} height={height} />
         </div>
       </div>
-      {selectedCue && (
+      <div id="dub-timeline-options" popover="auto" className="dub-timing-options"
+        onFocusCapture={suspendFollow} onKeyDownCapture={suspendFollow}>
+        <p className="dub-timeline-help">{t("keyboardHelp")}</p>
+        {selectedCue && (
         <div className="dub-timeline-time-fields" key={selectedCue.id}>
           <b>{t("selectedCue")}</b>
           {(["startMs", "endMs"] as const).map((field) => (
@@ -965,6 +1001,7 @@ export function Timeline(props: Props) {
           )}
         </div>
       )}
+      </div>
     </section>
   );
 }

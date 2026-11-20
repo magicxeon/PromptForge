@@ -46,7 +46,7 @@ export function useDubDraft(initial: Project) {
     if (inflight.current) return inflight.current;
     const snapshot = latest.current;
     const request = projectsApi
-      .save(snapshot)
+      .save(snapshot, saved.current)
       .then((p) => {
         saved.current = p;
         if (mounted.current)

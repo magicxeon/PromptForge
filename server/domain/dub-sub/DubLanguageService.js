@@ -6,6 +6,8 @@ import { promisify } from "node:util";
 import { PostProcessingServiceClient } from "../../providers/PostProcessingServiceClient.js";
 import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { mediaCommand, videoInput } from "./DubMediaService.js";
+import { sceneTranscriptionPolicy, SceneTranscriptionService } from "../generation/SceneTranscriptionService.js";
+import { languages, normalizeCues } from "./projectFields.js";
 
 const run = promisify(execFile);
 const ocrLanguages = {
@@ -19,12 +21,58 @@ const ocrLanguages = {
 export class DubLanguageService {
   constructor({
     postProcessing = new PostProcessingServiceClient(),
-    translateUrl = process.env.LIBRETRANSLATE_URL,
-    fetchImpl = fetch,
+    sceneGeneration = new SceneTranscriptionService(),
   } = {}) {
     this.postProcessing = postProcessing;
-    this.translateUrl = translateUrl;
-    this.fetchImpl = fetchImpl;
+    this.sceneGeneration = sceneGeneration;
+  }
+
+  async transcribeScene(project, source, targetLanguage, beforeDispatch) {
+    const policy = sceneTranscriptionPolicy;
+    const directory = path.dirname(path.dirname(source));
+    const temp = await fs.mkdtemp(path.join(directory, "scene-"));
+    try {
+      const wav = path.join(temp, "audio.wav");
+      await mediaCommand([
+        ...videoInput(source), "-map", "0:a:0", "-vn", "-sn", "-dn", "-map_metadata", "-1",
+        "-t", String(project.durationMs / 1000), "-ac", "1", "-af", "aresample=16000:async=1:first_pts=0", "-c:a", "pcm_s16le",
+        "-fs", String(policy.maxAudioBytes), wav,
+      ], { timeout: policy.timeoutMs });
+      const { size } = await fs.stat(wav);
+      if (size <= 44 || size >= policy.maxAudioBytes) throw dubError("dub_scene_audio_limit", 413);
+      const audio = await fs.readFile(wav);
+      const actor = await beforeDispatch();
+      const data = await this.sceneGeneration.transcribe(actor, audio, {
+        sourceLanguage: project.sourceLanguage, targetLanguage, durationMs: project.durationMs,
+        storyContext: project.storyContext || "", languageStyle: project.languageStyle || "",
+      });
+      if (!data || typeof data.language !== "string" || !/^[a-z]{2,3}(-[A-Za-z0-9]{2,8}){0,2}$/.test(data.language) ||
+          !Array.isArray(data.cues) || data.cues.length > policy.maxCues ||
+          (project.sourceLanguage !== "auto" && data.language.split("-")[0] !== project.sourceLanguage.split("-")[0]))
+        throw dubError("dub_scene_invalid_response", 502);
+      if (!data.cues.length) throw dubError("dub_no_speech", 422);
+      const detected = languages.includes(data.language) ? data.language : data.language.split("-")[0];
+      if (project.sourceLanguage === "auto" && !languages.includes(detected))
+        throw dubError("dub_scene_language_unsupported", 422);
+      let lastStart = -1;
+      const rows = data.cues.map(cue => {
+        if (!cue || typeof cue.original !== "string" || !cue.original.trim() ||
+            typeof cue.translation !== "string" || !cue.translation.trim() || typeof cue.speaker !== "string" ||
+            !Number.isInteger(cue.startMs) || cue.startMs < lastStart)
+          throw dubError("dub_scene_invalid_response", 502);
+        lastStart = cue.startMs;
+        return { id: randomUUID(), startMs: cue.startMs, endMs: cue.endMs, text: cue.original.trim(), sourceOrigin: "gemini",
+          speaker: cue.speaker.trim(), translations: { [targetLanguage]: cue.translation.trim() },
+          translationOrigins: { [targetLanguage]: "gemini" } };
+      });
+      const cues = await normalizeCues(rows, project).catch(() => { throw dubError("dub_scene_invalid_response", 502); });
+      const result = { cues, language: project.sourceLanguage === "auto" ? detected : project.sourceLanguage };
+      if (Buffer.byteLength(JSON.stringify(result)) > policy.maxPreviewBytes)
+        throw dubError("dub_scene_invalid_response", 502);
+      return result;
+    } finally {
+      await fs.rm(temp, { recursive: true, force: true });
+    }
   }
 
   async localRequest(route, body, code) {
@@ -53,159 +101,36 @@ export class DubLanguageService {
     }
   }
 
-  async transcribe(project, directory) {
-    if (!project.media.hasAudio) throw dubError("dub_audio_missing", 422);
-    const client = this.postProcessing;
-    const temp = await fs.mkdtemp(path.join(directory, "asr-"));
-    const filename = path.join(temp, "segment.wav");
-    const cues = [];
-    let language = project.sourceLanguage;
-    try {
-      for (let offset = 0; offset < project.durationMs; offset += 300000) {
-        await mediaCommand([
-          "-y",
-          "-ss",
-          String(offset / 1000),
-          ...videoInput(path.join(directory, project.media.folder, "media")),
-          "-t",
-          "300",
-          "-vn",
-          "-ac",
-          "1",
-          "-ar",
-          "16000",
-          filename,
-        ]);
-        const wav = await fs.readFile(filename);
-        let data;
-        try {
-          const result = await client.fetchWithRetry(
-            client.endpoint.replace(/\/$/, "") + "/v1/audio/transcribe",
-            {
-              method: "POST",
-              redirect: "error",
-              signal: AbortSignal.timeout(300000),
-              headers: {
-                "Content-Type": "application/json",
-                ...(client.token
-                  ? { "X-Post-Processing-Token": client.token }
-                  : {}),
-              },
-              body: JSON.stringify({
-                bytesBase64: wav.toString("base64"),
-                language: language === "auto" ? "zh" : language.split("-")[0],
-                detectLanguage: language === "auto",
-              }),
-            },
-            1,
-          );
-          if (!result.ok) throw new Error();
-          data = await result.json();
-        } catch {
-          throw dubError("dub_asr_unavailable", 503);
-        }
-        if (!data.success || data.fallbackUsed || !Array.isArray(data.words))
-          throw dubError("dub_asr_unavailable", 503);
-        if (language === "auto" && typeof data.language === "string")
-          language = data.language;
-        for (const item of data.words) {
-          const startMs = Math.round(item.start * 1000) + offset;
-          const endMs = Math.min(
-            project.durationMs,
-            Math.round(item.end * 1000) + offset,
-          );
-          if (!item.word?.trim()) continue;
-          if (
-            !Number.isFinite(startMs) ||
-            !Number.isFinite(endMs) ||
-            startMs < offset ||
-            endMs <= startMs
-          )
-            throw dubError("dub_asr_missing_timestamps", 422);
-          cues.push({
-            id: randomUUID(),
-            startMs,
-            endMs,
-            text: item.word,
-            translations: {},
-            speaker: item.speaker || "",
-          });
-        }
-      }
-    } finally {
-      await fs.rm(temp, { recursive: true, force: true });
+  translationContext(project, language, overwrite, cueIds) {
+    if (!project.cues.length) throw dubError("dub_no_cues", 422);
+    const selected = cueIds ? new Set(cueIds) : null;
+    if (selected) {
+      const available = new Set(project.cues.map(cue => cue.id));
+      if ([...selected].some(id => !available.has(id))) throw dubError("dub_cue_missing", 422);
     }
-    if (!cues.length) throw dubError("dub_no_speech", 422);
-    return { cues, language };
+    const cues = project.cues.filter(cue => (!selected || selected.has(cue.id)) && cue.text.trim() &&
+      (overwrite || !cue.translations?.[language]?.trim())).map(({ id, text }) => ({ id, text }));
+    const context = { sourceLanguage: project.detectedLanguage || project.sourceLanguage, targetLanguage: language,
+      storyContext: project.storyContext || "", languageStyle: project.languageStyle || "", cues };
+    if (cues.length > sceneTranscriptionPolicy.maxCues ||
+        Buffer.byteLength(JSON.stringify(context)) > sceneTranscriptionPolicy.maxPreviewBytes)
+      throw dubError("dub_translation_limit", 413);
+    return context;
   }
 
-  async translate(project, language, overwrite, cueIds) {
-    if (!project.cues.length) throw dubError("dub_no_cues", 422);
-    const source = (project.detectedLanguage || project.sourceLanguage).split(
-      "-",
-    )[0];
-    const cues = structuredClone(project.cues);
-    const selected = cueIds ? new Set(cueIds) : null;
-    const pending = cues.filter(
-      (cue) =>
-        (!selected || selected.has(cue.id)) &&
-        cue.text.trim() &&
-        (overwrite || !cue.translations[language]),
-    );
-    for (let start = 0; start < pending.length; start += 25) {
-      const group = pending.slice(start, start + 25);
-      let translations;
-      const body = {
-        q: group.map((cue) => cue.text),
-        source,
-        target: language.split("-")[0],
-        format: "text",
-      };
-      if (this.translateUrl) {
-        const endpoint = new URL(this.translateUrl);
-        if (!["https:", "http:"].includes(endpoint.protocol))
-          throw dubError("dub_translation_unconfigured", 503);
-        if (endpoint.pathname === "/") endpoint.pathname = "/translate";
-        try {
-          const response = await this.fetchImpl(endpoint, {
-            method: "POST",
-            redirect: "error",
-            signal: AbortSignal.timeout(90000),
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ...body,
-              ...(process.env.LIBRETRANSLATE_API_KEY
-                ? { api_key: process.env.LIBRETRANSLATE_API_KEY }
-                : {}),
-            }),
-          });
-          if (!response.ok) throw new Error();
-          translations = (await response.json()).translatedText;
-        } catch {
-          throw dubError("dub_translation_unavailable", 503);
-        }
-      } else
-        translations = (
-          await this.localRequest(
-            "/v1/audio/translate",
-            body,
-            "dub_translation_unavailable",
-          )
-        ).translatedText;
-      if (
-        !Array.isArray(translations) ||
-        translations.length !== group.length ||
-        translations.some(
-          (text) =>
-            typeof text !== "string" || !text.trim() || text.length > 4000,
-        )
-      )
-        throw dubError("dub_translation_incomplete", 422);
-      group.forEach((cue, index) => {
-        cue.translations[language] = translations[index];
-      });
-    }
-    return cues;
+  async translate(context, beforeDispatch) {
+    const actor = await beforeDispatch();
+    const output = await this.sceneGeneration.translate(actor, context);
+    const expected = new Set(context.cues.map(cue => cue.id));
+    if (!Array.isArray(output?.cues) || output.cues.length !== expected.size ||
+        Buffer.byteLength(JSON.stringify(output.cues)) > sceneTranscriptionPolicy.maxPreviewBytes)
+      throw dubError("dub_scene_invalid_response", 502);
+    return output.cues.map(row => {
+      if (!row || !expected.delete(row.id) || typeof row.translation !== "string" ||
+          !row.translation.trim() || row.translation.length > 4000 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(row.translation))
+        throw dubError("dub_scene_invalid_response", 502);
+      return { id: row.id, translation: row.translation.trim() };
+    });
   }
 
   // OCR produces a review candidate. It never overwrites an edited transcript.

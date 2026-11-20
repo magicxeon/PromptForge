@@ -62,6 +62,7 @@ const liveReads = [
 const liveWrites = [
   ['POST', /^\/api\/dub-sub\/projects(?:\/[\w-]+\/(?:transcribe|translate|ocr|preview|exports))?$/],
   ['PATCH', /^\/api\/dub-sub\/projects\/[\w-]+$/],
+  ['DELETE', /^\/api\/dub-sub\/projects\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/],
   ['PUT', /^\/api\/dub-sub\/projects\/[\w-]+\/media$/],
   ['POST', /^\/api\/voice-studio\/custom-voices(?:\/quotes|\/[^/]+\/save)?$/],
   ['PATCH', /^\/api\/voice-studio\/custom-voices\/[^/]+$/],
