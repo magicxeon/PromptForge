@@ -4,10 +4,13 @@ import logging
 import time
 import uuid
 import importlib.util
+import json
 from pathlib import Path
 from typing import Optional
 from fastapi import APIRouter, Request, Header, HTTPException, Response, status
 from fastapi.responses import JSONResponse, HTMLResponse
+from starlette.concurrency import run_in_threadpool
+from domain.dub_language_manager import dub_language_manager, LanguageUnavailable
 
 from domain.faceless_previs import FacelessPrevisManager, faceless_previs_manager, HTTPException_Like
 from domain.face_landmarks import FaceLandmarksManager, face_landmarks_manager
@@ -22,6 +25,38 @@ from adapters.openvoice_conversion_adapter import OpenVoiceConversionAdapter
 
 logger = logging.getLogger("post_processing.api")
 router = APIRouter()
+
+
+async def dub_language_request(request, token, handler, limit_field):
+    verify_internal_token(request, token)
+    policy = request.app.state.config.dubLanguage
+    limit = getattr(policy,limit_field)
+    data = bytearray()
+    async for chunk in request.stream():
+        if len(data) + len(chunk) > limit:
+            raise HTTPException(status_code=413, detail="dub_payload_too_large")
+        data.extend(chunk)
+    try:
+        body = json.loads(data)
+        if not isinstance(body, dict):
+            raise ValueError()
+        return await run_in_threadpool(handler, body, policy)
+    except LanguageUnavailable as error:
+        raise HTTPException(status_code=503, detail=str(error)) from None
+    except (ValueError, TypeError, OSError):
+        raise HTTPException(status_code=422, detail="dub_invalid_language_input") from None
+    except Exception:
+        raise HTTPException(status_code=503, detail="dub_language_operation_unavailable") from None
+
+
+@router.post("/v1/audio/translate")
+async def post_dub_translation(request: Request, x_post_processing_token: Optional[str] = Header(None)):
+    return await dub_language_request(request, x_post_processing_token, dub_language_manager.translate, "maxTranslationBytes")
+
+
+@router.post("/v1/audio/subtitle-ocr")
+async def post_dub_ocr(request: Request, x_post_processing_token: Optional[str] = Header(None)):
+    return await dub_language_request(request, x_post_processing_token, dub_language_manager.recognize, "maxOcrBytes")
 
 # 1. Health Probe Endpoints
 @router.get("/health", response_class=JSONResponse)
@@ -65,6 +100,7 @@ def get_capabilities(request: Request, x_post_processing_token: Optional[str] = 
         }
     }
 
+    ops.update(dub_language_manager.capabilities(config.dubLanguage))
     if enhancement_policy:
         ops["image_upscale"] = {
             "available": True,

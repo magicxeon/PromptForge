@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { getProviderRegistry, getConfiguredSecret } from '../../providers/ProviderRegistry.js';
 import { providerAvailabilityPolicyService } from '../admin-configuration/ProviderAvailabilityPolicyService.js';
 import { speechError } from './SpeechRequestCompiler.js';
+import { seedSpeechCredentials } from '../../providers/SeedSpeechProvider.js';
 export function loadSpeechCatalog() {
   try {
     const load = name => JSON.parse(readFileSync(new URL(`../../config/voice-studio/${name}.v1.json`, import.meta.url), 'utf8'));
@@ -18,9 +19,12 @@ export function loadSpeechCatalog() {
       || !policy.eventToolbarTags.every(tag => policy.inlineTags.includes(tag))
       || !policy.eventGroups.every(group => typeof group.id === 'string' && typeof group.labelKey === 'string' && Array.isArray(group.tags) && group.tags.every(tag => policy.inlineTags.includes(tag)))
       || new Set(policy.eventGroups.map(group => group.id)).size !== policy.eventGroups.length) throw new Error('Invalid voice design policy');
-    for (const model of models.models) if (model.adapterKey !== 'gemini-speech' || model.providerId !== 'gemini'
-      || !Number.isSafeInteger(model.limits?.inputTokens) || model.limits.inputTokens <= 0
-      || !Number.isSafeInteger(model.limits?.outputTokens) || model.limits.outputTokens <= 0
+    const positive = value => Number.isSafeInteger(value) && value > 0;
+    for (const model of models.models) if (!(model.adapterKey === 'gemini-speech' && model.providerId === 'gemini'
+      && positive(model.limits?.inputTokens) && positive(model.limits?.outputTokens)
+      || model.adapterKey === 'seed-speech' && model.providerId === 'byteplus-seed-speech'
+      && typeof model.providerModelId === 'string' && positive(model.limits?.promptCharacters)
+      && positive(model.limits?.originalSeconds) && model.limits.originalSeconds <= 120)
       || typeof model.id !== 'string' || !/^[a-z0-9._-]+$/.test(model.id) || typeof model.displayName !== 'string'
       || typeof model.enabled !== 'boolean' || !Array.isArray(model.capabilities?.languages) || !model.capabilities.languages.length) throw new Error('Invalid model');
     for (const voice of voices.voices) if (typeof voice.id !== 'string' || !/^[A-Za-z0-9_-]+$/.test(voice.id)
@@ -30,7 +34,7 @@ export function loadSpeechCatalog() {
   } catch { throw speechError('speech_catalog_unavailable', 503); }
 }
 export function assertSpeechAvailable(model) {
-  const provider = getProviderRegistry().getProvider(model.providerId);
+  const provider = model.adapterKey === 'seed-speech' ? seedSpeechCredentials : getProviderRegistry().getProvider(model.providerId);
   if (!provider || provider.enabled === false || !getConfiguredSecret(process.env, provider)) throw speechError('speech_provider_unavailable', 503);
   providerAvailabilityPolicyService.assertAvailable({ providerId: model.providerId, modelId: model.id, workflow: 'voice-studio.speech' });
 }

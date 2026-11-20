@@ -19,6 +19,14 @@ async function fixture(t) {
   return {service,repository,calls};
 }
 const actor = {userId:'a',username:'actor-a'};
+test('dubbing can assign only an active character owned by the project actor',async t=>{
+  const {service,repository}=await fixture(t);
+  const character=await repository.insert('characters',actor.userId,{name:'Narrator'});
+  assert.deepEqual(await service.getDubCharacter(actor,character.id),{id:character.id,name:'Narrator'});
+  await assert.rejects(service.getDubCharacter({userId:'other'},character.id),{code:'voice_record_not_found'});
+  await repository.update('characters',character.id,actor.userId,character.revision,row=>{row.archivedAt='archived';});
+  await assert.rejects(service.getDubCharacter(actor,character.id),{code:'voice_record_not_found'});
+});
 test('application design to saved voice to two dialogue rows reuses identity without generation on listen/save',async t=>{
   const dir=await mkdtemp(path.join(tmpdir(),'voice-integration-'));t.after(()=>rm(dir,{recursive:true,force:true}));
   const repository=new VoiceStudioRepository({files:Object.fromEntries(['documents','characters','takes','customVoices'].map(k=>[k,path.join(dir,`${k}.json`)]))});
@@ -109,7 +117,11 @@ test('generation replay creates one Take; save/rename preserve audio snapshot',a
   const op={id:'operation',status:'succeeded',snapshot:{documentId:d.id,rowId:d.rows[0].id,text:'Original',modelId:'tts'},outputAssetId:'asset',outputUrl:'/outputs/voice-studio/asset.wav',durationMs:1000};
   await s.project(actor,op); await s.project(actor,op);
   assert.equal((await s.takes(actor,d.id,d.rows[0].id)).items.length,1);
+  assert.equal((await s.getDubTake(actor,op.id)).id,op.id);
+  await assert.rejects(s.getSavedTake(actor,op.id),{code:'voice_record_not_found'});
+  await assert.rejects(s.getDubTake({userId:'different-owner'},op.id),{code:'voice_record_not_found'});
   const saved=await s.updateTake(actor,op.id,{},true);
+  assert.equal((await s.getSavedTake(actor,op.id)).id,op.id);
   const renamed=await s.updateTake(actor,op.id,{expectedRevision:saved.metadataRevision,displayTitle:'Title',tags:['episode1']});
   assert.equal(renamed.inputSnapshot.text,'Original');
   assert.equal((await s.list('takes',actor,{tag:'episode1',saved:'true'})).items.length,1);
@@ -125,7 +137,35 @@ test('selected Take deletion is blocked and failed generation creates no playabl
   assert.equal(calls.length,0);
   await s.select(actor,d.id,d.rows[0].id,{takeId:null,expectedRevision:selected.revision});
   await s.deleteTake(actor,'take');
+  await assert.rejects(s.getDubTake(actor,'take'),{code:'voice_record_not_found'});
   assert.deepEqual(await s.deleteTake(actor,'take'),{deleted:true});
   assert.equal(calls.length,1);
   assert.equal((await s.list('takes',actor)).items.length,0);
+});
+
+test('Dub project pins serialize against delete, survive reload and roll back a failed project write',async t=>{
+  const {service:s,repository,calls} = await fixture(t);
+  for (const id of ['first','second']) {
+    await s.project(actor,{id,status:'succeeded',snapshot:{documentId:'doc',rowId:'row',text:'test'},outputAssetId:id,outputUrl:'/outputs/'+id+'.wav',durationMs:1000});
+  }
+  let start, finish;
+  const entered=new Promise(resolve=>{start=resolve;});
+  const hold=new Promise(resolve=>{finish=resolve;});
+  const save=s.withDubTakePins(actor,'project',['first'],async()=>{start();await hold;});
+  await entered;
+  const deletion=assert.rejects(s.deleteTake(actor,'first'),{code:'voice_take_in_use'});
+  finish(); await save; await deletion;
+  const recovered=new VoiceStudioApplicationService({repository,audioAssets:s.audioAssets});
+  await assert.rejects(recovered.deleteTake(actor,'first'),{code:'voice_take_in_use'});
+  await assert.rejects(recovered.withDubTakePins(actor,'project',['second'],async()=>{throw Error('stale');}),/stale/);
+  await assert.rejects(recovered.deleteTake(actor,'first'),{code:'voice_take_in_use'});
+  assert.equal(calls.length,0);
+  await recovered.deleteTake(actor,'second');
+  await assert.rejects(recovered.withDubTakePins(actor,'project',['second'],async()=>assert.fail()),{code:'voice_record_not_found'});
+  await recovered.withDubTakePins(actor,'another-project',['first'],async()=>{});
+  await recovered.withDubTakePins(actor,'project',[],async()=>{});
+  await assert.rejects(recovered.deleteTake(actor,'first'),{code:'voice_take_in_use'});
+  await recovered.withDubTakePins(actor,'another-project',[],async()=>{});
+  await recovered.deleteTake(actor,'first');
+  assert.equal(calls.length,2);
 });

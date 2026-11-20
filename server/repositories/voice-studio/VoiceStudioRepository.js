@@ -9,6 +9,25 @@ const keys = { documents: 'voiceStudioDocuments', characters: 'voiceStudioCharac
 export class VoiceStudioRepository {
   constructor({ files } = {}) { this.files = files || Object.fromEntries(Object.entries(keys).map(([k,v]) => [k, resolveDataFile(v)])); }
   async list(kind, owner) { return (await readJsonFile(this.files[kind], [])).filter(r => r.ownerUserId === owner && !r.deletedAt); }
+  async setDubPins(owner, projectId, takeIds, keepExisting = false) {
+    const wanted = new Set(takeIds);
+    return mutateJsonFile(this.files.takes, [], records => {
+      const owned = records.filter(record => record.ownerUserId === owner);
+      const available = new Set(owned.filter(r => !r.deletedAt && !r.deletingAt).map(r => r.id));
+      if ([...wanted].some(id => !available.has(id))) throw voiceError('voice_record_not_found',404);
+      const previous = [];
+      for (const record of owned) {
+        const pins = record.dubProjectIds || [];
+        if (pins.includes(projectId)) {
+          previous.push(record.id);
+          if (!keepExisting && !wanted.has(record.id)) record.dubProjectIds = pins.filter(id => id !== projectId);
+        } else if (wanted.has(record.id)) {
+          record.dubProjectIds = [...pins,projectId];
+        }
+      }
+      return previous;
+    });
+  }
   async get(kind, id, owner, { includeDeleted = false } = {}) {
     const values = includeDeleted ? (await readJsonFile(this.files[kind], [])).filter(r => r.ownerUserId === owner) : await this.list(kind, owner);
     const value = values.find(r => r.id === id);

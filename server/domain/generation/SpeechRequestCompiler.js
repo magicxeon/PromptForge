@@ -12,9 +12,14 @@ export function compileSpeechRequest(snapshot, catalog, customVoice = null) {
   if (!model || !voice || typeof text !== 'string' || !text.trim()
     || [...text].length > policy.maxTextLength || [...style].length > policy.maxStyleLength
     || !model.capabilities.languages.includes(snapshot.language || 'th')) throw speechError('speech_invalid_input');
-  for (const tag of text.match(/<[^>]*>/g) || []) if (!policy.inlineTags.includes(tag)) throw speechError('speech_unknown_tag');
+  if (voice.languages && !voice.languages.includes(snapshot.language || 'th')) throw speechError('speech_invalid_voice_language');
+  for (const tag of text.match(/<[^>]*>/g) || []) if (model.capabilities.inlineVocalEvents === false || !policy.inlineTags.includes(tag)) throw speechError('speech_unknown_tag');
   const normalized = JSON.parse(JSON.stringify({ ...snapshot, text, style, delivery: delivery || {}, language: snapshot.language || 'th',
     providerId: model.providerId, catalogVersion: catalog.catalogVersion, compilerVersion: 'speech-v1' }));
+  if (model.adapterKey === 'seed-speech') {
+    normalized.providerPrompt = [`Speak in ${normalized.language} with the voice of @Audio1.`, style, `Say exactly: ${JSON.stringify(text)}`].filter(Boolean).join('\n');
+    if ([...normalized.providerPrompt].length > model.limits.promptCharacters) throw speechError('speech_invalid_input');
+  }
   const stable = value => value && typeof value === 'object' && !Array.isArray(value)
     ? Object.fromEntries(Object.keys(value).sort().map(key => [key, stable(value[key])])) : Array.isArray(value) ? value.map(stable) : value;
   return { snapshot: normalized, model, requestHash: createHash('sha256').update(JSON.stringify(stable(normalized))).digest('hex') };

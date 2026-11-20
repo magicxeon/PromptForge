@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from typing import Optional, Tuple, Dict, Any
+from typing import Optional, Tuple, Dict, Any, Literal
 from pydantic import BaseModel, Field, field_validator
 from dotenv import dotenv_values
 
@@ -105,6 +105,19 @@ class DialoguePocPolicy(BaseModel):
     openVoiceCheckpoint: str = "D:/development/temp/momelo-models/openvoice/checkpoints_v2/converter"
     thaiTtsModelPath: str = "D:/applications/momelo-post-processing/models/thonburian-tts"
 
+class DubLanguagePolicy(BaseModel):
+    policyVersion: str = "dub-language-v1"
+    enabled: bool = False
+    modelRoot: Path = D_APPLICATIONS_ROOT / "models/dub-sub" if os.name=="nt" else Path.home()/".cache/momelo/dub-sub"
+    device: Literal["cpu","cuda"] = "cpu"
+    maxTranslationBytes: int = Field(default=524288, ge=1024, le=1048576)
+    maxOcrBytes: int = Field(default=12582912, ge=1024, le=16777216)
+    maxRows: int = Field(default=25,ge=1,le=50)
+    maxTextLength: int = Field(default=4000,ge=1,le=8000)
+    maxFrames: int = Field(default=8,ge=1,le=12)
+    maxFrameChars: int = Field(default=1600000,ge=1,le=2500000)
+    maxPixels: int = Field(default=2000000,ge=1,le=4000000)
+
 class PolicyDocument(BaseModel):
     schemaVersion: int
     facelessPrevis: FacelessPrevisPolicy
@@ -113,6 +126,7 @@ class PolicyDocument(BaseModel):
     imageEnhancement: Optional[ImageEnhancementPolicy] = None
     expressiveTts: Optional[ExpressiveTtsPolicy] = None
     dialoguePoc: Optional[DialoguePocPolicy] = None
+    dubLanguage: DubLanguagePolicy = Field(default_factory=DubLanguagePolicy)
 
 class RuntimeConfig(BaseModel):
     host: str = "127.0.0.1"
@@ -130,6 +144,7 @@ class ServiceConfig(BaseModel):
     imageEnhancement: ImageEnhancementPolicy
     expressiveTts: ExpressiveTtsPolicy
     dialoguePoc: DialoguePocPolicy
+    dubLanguage: DubLanguagePolicy = Field(default_factory=DubLanguagePolicy)
 
 def load_post_processing_policy(policy_path: Path = DEFAULT_POLICY_PATH) -> Tuple[FacelessPrevisPolicy, JobQueuePolicy, ResiliencePolicy, ImageEnhancementPolicy, ExpressiveTtsPolicy]:
     if not policy_path.exists():
@@ -184,7 +199,14 @@ def load_post_processing_config(
     expressive_tts_policy.hfCacheDir = merged_env.get("HF_HUB_CACHE", str(Path(hf_home) / "hub"))
     expressive_tts_policy.vocoderPath = merged_env.get("POST_PROCESSING_TTS_VOCODER_PATH", expressive_tts_policy.vocoderPath)
     with open(policy_path, "r", encoding="utf-8") as dialogue_file:
-        dialogue_policy = DialoguePocPolicy.model_validate(json.load(dialogue_file).get("dialoguePoc", {}))
+        operation_policies = json.load(dialogue_file)
+    dialogue_policy = DialoguePocPolicy.model_validate(operation_policies.get("dialoguePoc", {}))
+    dub_values = dict(operation_policies.get("dubLanguage", {}))
+    if merged_env.get("DUB_LANGUAGE_MODELS"):
+        dub_values["modelRoot"] = merged_env["DUB_LANGUAGE_MODELS"]
+    if merged_env.get("DUB_TRANSLATION_DEVICE"):
+        dub_values["device"] = merged_env["DUB_TRANSLATION_DEVICE"]
+    dub_policy = DubLanguagePolicy.model_validate(dub_values)
     dialogue_policy.enabled = dialogue_policy.enabled and str(merged_env.get("POST_PROCESSING_DIALOGUE_POC_ENABLED", "false")).lower() in ("true", "1", "yes")
     dialogue_policy.ffmpegPath = merged_env.get("POST_PROCESSING_FFMPEG_PATH", dialogue_policy.ffmpegPath)
     dialogue_policy.ffprobePath = merged_env.get("POST_PROCESSING_FFPROBE_PATH", dialogue_policy.ffprobePath)
@@ -221,5 +243,6 @@ def load_post_processing_config(
         resilience=resilience_policy,
         imageEnhancement=image_enhancement_policy,
         expressiveTts=expressive_tts_policy,
-        dialoguePoc=dialogue_policy
+        dialoguePoc=dialogue_policy,
+        dubLanguage=dub_policy
     )

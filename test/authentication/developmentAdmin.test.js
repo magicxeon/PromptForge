@@ -127,6 +127,7 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
     assert.equal((await request(url)).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices')).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices', 'POST', headers)).status, 403);
+  assert.equal((await request('/api/dub-sub/projects')).status, 403);
   runtime = qualifyAuthRuntime({ ...env, PORT: String(port), AUTH_DEV_BYPASS_GENERATION_ENABLED: 'true' }, f.project);
   middleware = new IdentityDevelopmentService({ runtime, userRepository: f.repo }).middleware();
   const liveConfig = await request('/api/auth/config');
@@ -147,6 +148,13 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
     '/api/generation/video/requests/short', '/api/generation/video/requests/request_key_123/dispatch'])
     assert.equal((await request(url)).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices')).status, 200);
+  for (const [url, method] of [['/api/dub-sub/projects', 'POST'], ['/api/dub-sub/projects/fixture/media', 'PUT'],
+    ['/api/dub-sub/projects/fixture/preview', 'POST'], ['/api/dub-sub/projects/fixture/exports', 'POST']]) {
+    assert.equal((await request(url, method)).status, 403);
+    assert.equal((await request(url, method, liveHeaders)).status, 200);
+    assert.equal((await request(url, method, {...liveHeaders, origin:'https://untrusted.invalid'})).status, 403);
+  }
+  assert.equal((await request('/api/dub-sub/projects/fixture/admin', 'POST', liveHeaders)).status, 403);
   for (const [url, method] of [['/api/voice-studio/custom-voices','POST'], ['/api/voice-studio/custom-voices/quotes','POST'],
     ['/api/voice-studio/custom-voices/fixture/save','POST'], ['/api/voice-studio/custom-voices/fixture','PATCH'], ['/api/voice-studio/custom-voices/fixture','DELETE']]) {
     assert.equal((await request(url, method)).status, 403);

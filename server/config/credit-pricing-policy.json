@@ -24,6 +24,7 @@
     "version": "gemini-speech-2026-11-15-v1",
     "markupPolicy": "text",
     "rates": [
+      {"modelId": "dola-seed-audio", "providerId": "byteplus-seed-speech", "unit": "original_second", "usdPerSecond": 0.0025, "effectiveAt": "2026-07-14T00:00:00Z", "until": "2027-04-01T00:00:00Z", "source": "https://docs.byteplus.com/en/docs/byteplusvoice/audiopricing"},
       {"modelId": "gemini-3.8-flash-tts", "effectiveAt": "2026-11-15T00:00:00Z", "until": "2027-01-01T00:00:00Z", "inputUsdPerMillion": 0.5, "outputUsdPerMillion": 9, "source": "https://aistudio.google.com/docs/pricing#gemini-3.8-flash-tts"},
       {"modelId": "gemini-3.8-flash-tts", "effectiveAt": "2027-01-01T00:00:00Z", "until": "2027-04-01T00:00:00Z", "inputUsdPerMillion": 1, "outputUsdPerMillion": 18, "source": "https://aistudio.google.com/docs/pricing#gemini-3.8-flash-tts"}
     ]

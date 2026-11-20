@@ -41,6 +41,7 @@ const adminWrites = [
   ['POST', /^\/api\/admin\/attribute-catalog\/rollback$/],
 ];
 const liveReads = [
+  /^\/api\/dub-sub\/projects(?:\/[\w-]+(?:\/(?:media|poster|peaks|exports\/[\w-]+))?)?$/,
   /^\/api\/voice-studio\/custom-voices$/,
   /^\/api\/voice-studio\/(?:catalog|documents(?:\/[^/]+(?:\/rows\/[^/]+\/takes)?)?|characters|audio-library|generations\/[^/]+)$/,
   /^\/api\/comparisons(?:\/[^/]+)?$/,
@@ -59,6 +60,9 @@ const liveReads = [
   /^\/api\/credits\/ledger$/,
 ];
 const liveWrites = [
+  ['POST', /^\/api\/dub-sub\/projects(?:\/[\w-]+\/(?:transcribe|translate|ocr|preview|exports))?$/],
+  ['PATCH', /^\/api\/dub-sub\/projects\/[\w-]+$/],
+  ['PUT', /^\/api\/dub-sub\/projects\/[\w-]+\/media$/],
   ['POST', /^\/api\/voice-studio\/custom-voices(?:\/quotes|\/[^/]+\/save)?$/],
   ['PATCH', /^\/api\/voice-studio\/custom-voices\/[^/]+$/],
   ['DELETE', /^\/api\/voice-studio\/custom-voices\/[^/]+$/],

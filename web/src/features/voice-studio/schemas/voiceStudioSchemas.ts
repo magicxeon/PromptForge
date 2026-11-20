@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const deliverySchema = z.object({
   emotion: z.string().optional(),
+  intensity: z.string().optional(),
   pace: z.string().optional(),
   method: z.string().optional(),
   direction: z.string().optional(),
@@ -70,6 +71,7 @@ export const catalogSchema = z.object({
       displayName: z.string(),
       providerId: z.string(),
       enabled: z.boolean().optional(),
+      available: z.boolean().optional(),
       capabilities: z
         .object({
           voiceDesign: z.boolean().optional(),
@@ -86,6 +88,7 @@ export const catalogSchema = z.object({
         id: z.string(),
         displayName: z.string(),
         modelIds: z.array(z.string()).optional(),
+        languages: z.array(z.string()).optional(),
       })
       .passthrough(),
   ),

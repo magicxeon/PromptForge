@@ -77,3 +77,5 @@ responsive mockup หรือทดสอบ paid generation สำหรับ
 
 M0 document review จบแล้ว. M1 มี source และ scoped mock/browser evidence ตาม005;
 ไม่ได้อ้าง full Image UAT, production authentication หรือ paid-provider qualification.
+
+พื้นที่ทำงาน Dub & Sub Studio อยู่ที่ `/dub-sub` ใน frontend ใหม่ ดู [workflow](008-dub-sub-studio.md), [การออกแบบ Editor](010-dub-sub-editor-design.md), [คู่มือใช้งานและสถานะการตรวจ](011-dub-sub-operations.md) และ [คู่มือ Seed Audio](009-seed-audio-manual.md)

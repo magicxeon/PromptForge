@@ -8,6 +8,8 @@
 
 ## 1. Outcome And Delivery Boundary
 
+Dub & Sub Studio uses the private local audio service for timed transcription, cue translation and recognition of burned-in subtitles. The API checks the internal token before reading the bounded request. Model inventory, pinned file digests and limits are owned by service configuration. FE24 and the Dub project domain own the editor, project revisions and export files. [Operating guide](../024-frontend-rebuild/011-dub-sub-operations.md)
+
 ### 2026-09-30 Dialogue API POC Decision
 
 The local code slice now includes [010 Dialogue repair](010-dialogue-repair-api-poc.md)

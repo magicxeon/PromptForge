@@ -2,7 +2,10 @@
 
 Parent: [Basic release](000-master.md). Configuration source implemented.
 The example below explains the schema; actual validated files and README are authoritative.
-Runtime registry key is `gemini`, supported languages live at `capabilities.languages`.
+The Gemini adapter uses provider key `gemini`. The Dub & Sub adapter uses `byteplus-seed-speech`,
+model alias `dola-seed-audio` and provider model `seed-audio-1.0`. Model languages live at
+`capabilities.languages`. Seed speaker entries list compatible languages in `voices.v1.json`.
+Both providers run through the same Voice Studio row quote, generation and take lifecycle.
 
 ## 1. Configuration ownership
 

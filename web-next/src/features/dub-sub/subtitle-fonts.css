@@ -1,0 +1,36 @@
+@font-face {
+  font-family: "Dub Noto Sans Thai";
+  src: url("/assets/dub-sub/fonts/NotoSansThai.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Dub Noto Sans SC";
+  src: url("/assets/dub-sub/fonts/NotoSansSC.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Dub Noto Sans TC";
+  src: url("/assets/dub-sub/fonts/NotoSansTC.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Dub Noto Serif Thai";
+  src: url("/assets/dub-sub/fonts/NotoSerifThai.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Dub Noto Serif SC";
+  src: url("/assets/dub-sub/fonts/NotoSerifSC.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Dub Noto Serif TC";
+  src: url("/assets/dub-sub/fonts/NotoSerifTC.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}

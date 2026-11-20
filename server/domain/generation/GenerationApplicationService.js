@@ -14,7 +14,7 @@ import { promptRefinementService as defaultPromptRefinementService } from './Pro
 import { generationGroupRepository as defaultGenerationGroupRepository } from '../../repositories/generation/GenerationGroupRepository.js';
 
 export class GenerationApplicationService {
-  speechCatalog() { return speechGenerationService.catalog(); }
+  speechCatalog() { return speechGenerationService.publicCatalog(); }
   quoteSpeech(input) { return speechGenerationService.quote(input); }
   generateSpeech(input) { return speechGenerationService.generate(input); }
   readSpeech(input) { return speechGenerationService.read(input); }

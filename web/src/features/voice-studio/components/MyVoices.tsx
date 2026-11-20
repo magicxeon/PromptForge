@@ -17,6 +17,7 @@ export function MyVoices({
   characters,
   actorId,
   onUse,
+  useLabel,
   onManageCharacters,
   startDesign = false,
   onDesignOpened,
@@ -25,6 +26,7 @@ export function MyVoices({
   characters: VoiceCharacter[];
   actorId: string;
   onUse: (choice: VoiceChoice) => void;
+  useLabel?: string;
   onManageCharacters: () => void;
   startDesign?: boolean;
   onDesignOpened?: () => void;
@@ -163,6 +165,7 @@ export function MyVoices({
                 characters={characters}
                 onChange={refresh}
                 onUse={onUse}
+                useLabel={useLabel}
               />
             ))}
         </div>
@@ -198,7 +201,7 @@ export function MyVoices({
                       })
                     }
                   >
-                    {t("useWithCharacter")}
+                    {useLabel || t("useWithCharacter")}
                   </Button>
                 </div>
               ))}

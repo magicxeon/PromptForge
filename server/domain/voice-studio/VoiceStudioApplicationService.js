@@ -13,7 +13,7 @@ export class VoiceStudioApplicationService {
     this.repo = repository; this.generation = generation; this.audioAssets = audioAssets;
     this.customVoices = new CustomVoiceService({ repository, generation });
     // Serialize commands that validate references across document/Take files.
-    for (const method of ['createDocument', 'character', 'updateDocument', 'updateTake', 'deleteTake', 'generate', 'createCustomVoice', 'updateCustomVoice', 'deleteCustomVoice']) {
+    for (const method of ['createDocument', 'character', 'updateDocument', 'updateTake', 'deleteTake', 'withDubTakePins', 'generate', 'createCustomVoice', 'updateCustomVoice', 'deleteCustomVoice']) {
       const execute = this[method].bind(this);
       this[method] = (actor,...args) => {
         const key = owner(actor), previous = actorCommands.get(key) || Promise.resolve();
@@ -81,7 +81,7 @@ export class VoiceStudioApplicationService {
       if (typeof row.enabled !== 'boolean') throw voiceError('voice_invalid_rows');
       if (row.characterPresetId && !characters.some(c => c.id === row.characterPresetId)) throw voiceError('voice_character_not_found');
       if (!row.delivery || typeof row.delivery !== 'object' || Array.isArray(row.delivery)) throw voiceError('voice_invalid_delivery');
-      for (const [k,v] of Object.entries(row.delivery)) { if (!['emotion','pace','method','direction'].includes(k)) throw voiceError('voice_invalid_delivery'); string(v, policy.maxStyleLength || 400, true); }
+      for (const [k,v] of Object.entries(row.delivery)) { if (!['emotion','intensity','pace','method','direction'].includes(k)) throw voiceError('voice_invalid_delivery'); string(v, policy.maxStyleLength || 400, true); }
       if (row.selectedTakeId) {
         const take = await this.repo.get('takes', row.selectedTakeId, owner(actor));
         if (take.rowId !== row.id || take.documentId !== id || take.deletingAt) throw voiceError('voice_invalid_take');
@@ -136,10 +136,40 @@ export class VoiceStudioApplicationService {
     if (op.status !== 'succeeded') return op;
     const s = op.snapshot;
     const take = await this.repo.insert('takes',owner(actor),{id:op.id,documentId:s.documentId,rowId:s.rowId,jobId:op.id,outputAssetId:op.outputAssetId,
-      inputSnapshot:s,audioUrl:op.outputUrl,durationMs:op.durationMs,displayTitle:s.text.slice(0,80),tags:[],savedAt:null,metadataRevision:1});
+      inputSnapshot:s,audioUrl:op.outputUrl,durationMs:op.durationMs,...(op.timing ? {timing:op.timing} : {}),
+      displayTitle:s.text.slice(0,80),tags:[],savedAt:null,metadataRevision:1});
     return {...op,jobId:op.id,take:take.deletedAt || take.deletingAt ? null : take};
   }
   async takes(actor,id,rowId) { await this.getDocument(actor,id); return {items:(await this.repo.list('takes',owner(actor))).filter(t => t.documentId === id && t.rowId === rowId && !t.deletingAt)}; }
+  async getDubCharacter(actor,id) {
+    const character = await this.repo.get('characters',id,owner(actor));
+    if (character.archivedAt) throw voiceError('voice_record_not_found',404);
+    return {id:character.id,name:character.name};
+  }
+  async getDubTake(actor,id) {
+    const take = await this.repo.get('takes',id,owner(actor));
+    if (take.deletingAt || take.deletedAt) throw voiceError('voice_record_not_found',404);
+    return take;
+  }
+  async getSavedTake(actor,id) {
+    const take = await this.getDubTake(actor,id);
+    if (!take.savedAt) throw voiceError('voice_record_not_found',404);
+    return take;
+  }
+  async withDubTakePins(actor, projectId, takeIds, commit) {
+    const userId = owner(actor);
+    // Persist both reference sets before committing the project. If the process
+    // stops between files, every referenced take stays protected until the next save.
+    const previous = await this.repo.setDubPins(userId, projectId, takeIds, true);
+    let result;
+    try { result = await commit(); }
+    catch (error) {
+      await this.repo.setDubPins(userId, projectId, previous);
+      throw error;
+    }
+    await this.repo.setDubPins(userId, projectId, takeIds);
+    return result;
+  }
   async select(actor,id,rowId,body) {
     const document = await this.getDocument(actor,id);
     const row = document.rows.find(r => r.id === rowId); if (!row) throw voiceError('voice_record_not_found',404);
@@ -165,7 +195,10 @@ export class VoiceStudioApplicationService {
     if (take.deletedAt) return {deleted:true};
     const documents = await this.repo.list('documents',owner(actor));
     if (documents.some(d => d.rows.some(r => r.selectedTakeId === id))) throw voiceError('voice_take_in_use',409);
-    await this.repo.update('takes',id,owner(actor),undefined,r => { r.deletingAt ||= new Date().toISOString(); });
+    await this.repo.update('takes',id,owner(actor),undefined,r => {
+      if (r.dubProjectIds?.length) throw voiceError('voice_take_in_use',409);
+      r.deletingAt ||= new Date().toISOString();
+    });
     await this.audioAssets.remove({actorContext:actor,assetId:take.outputAssetId});
     await this.repo.update('takes',id,owner(actor),undefined,r => { r.deletedAt = new Date().toISOString(); });
     return {deleted:true};

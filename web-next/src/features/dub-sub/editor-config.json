@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "compactWidth": 970,
+  "transcriptRowPx": 80,
+  "transcriptWindowRows": 22,
+  "languages": ["th", "zh", "zh-CN", "zh-TW", "en"],
+  "maxTargets": 2,
+  "languageStyleMaxLength": 300,
+  "storyContextMaxLength": 2000,
+  "pageSize": 20,
+  "libraryLimit": 40,
+  "defaultCueMs": 2200,
+  "minimumCueMs": 100,
+  "autosaveMs": 1400,
+  "timelineZoom": [1, 2, 4, 8, 16],
+  "subtitleControls": {
+    "size": { "min": 8, "max": 96 },
+    "x": { "min": 0, "max": 100 },
+    "y": { "min": 0, "max": 100 },
+    "maxChars": { "min": 8, "max": 100 }
+  },
+  "defaultStyle": {
+    "visible": true,
+    "locked": false,
+    "font": "sans",
+    "color": "white",
+    "size": 48,
+    "x": 50,
+    "y": 85,
+    "maxChars": 42
+  },
+  "fonts": {
+    "sans": "Noto Sans",
+    "serif": "Noto Serif"
+  },
+  "colors": {
+    "white": "#ffffff",
+    "yellow": "#ffdf44"
+  },
+  "formats": ["srt", "vtt", "wav", "mp4"]
+}

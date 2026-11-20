@@ -1,5 +1,27 @@
 # Momelo Post-Processing Microservice Specification & Architecture Guide
 
+## Dub & Sub Studio on Windows
+
+จากโฟลเดอร์ `post-processing-service` ใช้ PowerShell เตรียมแพ็กเกจเพิ่มเติมใน Python environment เดียวกับตัวบริการ โมเดลแปลภาษาและ OCR อยู่ใน `D:\applications\momelo-post-processing\models\dub-sub` เปลี่ยนที่เก็บได้ด้วย `DUB_LANGUAGE_MODELS`
+
+```powershell
+$dubPython = 'D:\applications\momelo-post-processing\venv-py313\Scripts\python.exe'
+$env:PIP_CACHE_DIR = 'D:\applications\momelo-post-processing\pip-cache'
+$env:XDG_CACHE_HOME = 'D:\development\temp\momelo-models\cache'
+& $dubPython -m pip install -r requirements-dub-language.txt
+& $dubPython scripts/install_dub_language_models.py
+& $dubPython -c "import whisper; whisper.load_model('tiny', device='cpu')"
+& $dubPython scripts/test_dub_language.py
+```
+
+เริ่ม FastAPI ด้วย `scripts\start-service.bat` ฝั่ง Node ติดต่อ `POST_PROCESSING_URL` ด้วย `POST_PROCESSING_INTERNAL_TOKEN` ที่ตรงกับฝั่งบริการ หน้าเว็บเรียก Dub project API เท่านั้น
+
+- ถอดเสียงด้วย Whisper multilingual และใช้ GPU เมื่อ environment รองรับ CUDA
+- แปลประโยคด้วยโมเดล Argos บนเครื่อง จีนกับไทยแปลผ่านอังกฤษ ส่วน `LIBRETRANSLATE_URL` เป็นตัวเลือกฝั่ง Node สำหรับใช้เซิร์ฟเวอร์แปลที่กำหนดเอง เวอร์ชันและ SHA-256 ของโมเดลแปลและ OCR อยู่ใน `config/dub_language_models.json` ตรวจสอบทั้งไฟล์ดาวน์โหลดและไฟล์บนเครื่องก่อนใช้งาน
+- OCR อ่านซับช่วงล่างของภาพด้วย Tesseract ข้อมูลภาษา `tha`, `chi_sim`, `chi_tra` และ `eng` ผู้ใช้ตรวจช่วงเวลาและข้อความก่อนนำเข้าบท
+
+สคริปต์ smoke test ใช้ภาพข้อความจีน เสียงพูดสังเคราะห์สั้น และคำแปลจีนเป็นไทย ผ่าน route ที่ลงทะเบียนใน FastAPI โดยไม่ใช้ข้อมูลโปรเจกต์จริง
+
 ## Windows startup with the local Python installation
 
 Run `scripts\start-service.bat` from this service or its `scripts` folder.

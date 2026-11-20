@@ -22,6 +22,8 @@ export const DATA_ROOT = getAuthRuntime().dataRoot ?? path.resolve(SERVER_ROOT, 
 export const IDENTITY_DATA_DIR = path.resolve(DATA_ROOT, 'identity');
 export const GENERATION_DATA_DIR = path.resolve(DATA_ROOT, 'generation');
 export const VOICE_STUDIO_DATA_DIR = path.resolve(DATA_ROOT, 'voice-studio');
+export const DUB_SUB_DATA_DIR = path.resolve(DATA_ROOT, 'dub-sub');
+export const DUB_SUB_FONTS_DIR = path.resolve(CLIENT_ROOT, 'assets', 'dub-sub', 'fonts');
 export const PROMPT_REFINEMENT_AUDIT_DIR = path.resolve(
   GENERATION_DATA_DIR,
   'output',

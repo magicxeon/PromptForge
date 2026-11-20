@@ -1,0 +1,103 @@
+import { getConfiguredSecret } from "./ProviderRegistry.js";
+import { speechError } from "../domain/generation/SpeechRequestCompiler.js";
+
+export const seedSpeechCredentials = {
+  apiKeyEnv: "BYTEPLUS_SEED_SPEECH_API_KEY",
+};
+const endpoint =
+  "https://voice.ap-southeast-1.bytepluses.com/api/v3/tts/create";
+
+export class SeedSpeechProvider {
+  constructor({ fetchImpl = fetch, apiKey = null } = {}) {
+    this.fetch = fetchImpl;
+    this.apiKey = apiKey;
+  }
+
+  async generate(snapshot, model, maxBytes, requestId) {
+    const apiKey =
+      this.apiKey || getConfiguredSecret(process.env, seedSpeechCredentials);
+    if (!apiKey) throw speechError("speech_provider_unavailable", 503);
+    try {
+      const response = await this.fetch(endpoint, {
+        method: "POST",
+        redirect: "error",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Api-Key": apiKey,
+          "X-Api-Request-Id": requestId,
+        },
+        signal: AbortSignal.timeout(120000),
+        body: JSON.stringify({
+          model: model.providerModelId,
+          text_prompt: snapshot.providerPrompt,
+          references: [{ speaker: snapshot.voiceId }],
+          audio_config: {
+            format: model.defaults.format,
+            sample_rate: model.defaults.sampleRateHz,
+            enable_subtitle: true,
+          },
+        }),
+      });
+      if (!response.ok)
+        throw speechError(`speech_provider_http_${response.status}`, 502);
+      const chunks = [];
+      let size = 0;
+      for await (const chunk of response.body) {
+        size += chunk.length;
+        if (size > Math.ceil((maxBytes * 4) / 3) + 1048576)
+          throw speechError("speech_response_too_large", 502);
+        chunks.push(chunk);
+      }
+      const payload = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+      if (payload.code != null && ![0, 20000000].includes(payload.code)) {
+        throw speechError("speech_provider_rejected_response", 502);
+      }
+      if (
+        typeof payload.audio !== "string" ||
+        payload.audio.length > 4 * Math.ceil(maxBytes / 3) ||
+        !/^[A-Za-z0-9+/]+={0,2}$/.test(payload.audio)
+      )
+        throw speechError("speech_invalid_output", 502);
+      const bytes = Buffer.from(payload.audio, "base64");
+      if (
+        bytes.length > maxBytes ||
+        bytes.toString("ascii", 0, 4) !== "RIFF" ||
+        bytes.toString("ascii", 8, 12) !== "WAVE"
+      )
+        throw speechError("speech_invalid_output", 502);
+      const timing = (
+        Array.isArray(payload.subtitle?.sentences)
+          ? payload.subtitle.sentences
+          : []
+      )
+        .filter(
+          (s) =>
+            typeof s?.text === "string" &&
+            Number.isSafeInteger(s.start_time) &&
+            Number.isSafeInteger(s.end_time) &&
+            s.start_time >= 0 &&
+            s.end_time > s.start_time,
+        )
+        .map((s) => ({
+          startMs: s.start_time,
+          endMs: s.end_time,
+          text: s.text,
+        }));
+      const logId = response.headers.get("x-tt-logid");
+      return {
+        bytes,
+        timing,
+        usage: {
+          original_duration: payload.original_duration,
+          duration: payload.duration,
+        },
+        providerResponseId:
+          logId && /^[a-zA-Z0-9_-]{1,200}$/.test(logId) ? logId : requestId,
+      };
+    } catch (error) {
+      throw error.code?.startsWith("speech_")
+        ? error
+        : speechError("speech_provider_outcome_unknown", 502);
+    }
+  }
+}

@@ -5,17 +5,29 @@ import { compileSpeechRequest, compileVoiceDesign, speechError } from './SpeechR
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { queueManager } from './QueueManager.js';
 import { GeminiSpeechProvider } from '../../providers/GeminiSpeechProvider.js';
+import { SeedSpeechProvider } from '../../providers/SeedSpeechProvider.js';
 import { AudioAssetService } from '../assets/AudioAssetService.js';
 export class SpeechGenerationService {
   constructor({ repository = new SpeechOperationRepository(), credits = creditApplicationService, queue = queueManager,
-    provider = new GeminiSpeechProvider(), assets = new AudioAssetService(), catalog = loadSpeechCatalog, available = assertSpeechAvailable } = {}) {
-    Object.assign(this, { repository, credits, queue, provider, assets, loadCatalog: catalog, available });
+    provider = new GeminiSpeechProvider(), seedProvider = new SeedSpeechProvider(), assets = new AudioAssetService(), catalog = loadSpeechCatalog, available = assertSpeechAvailable } = {}) {
+    Object.assign(this, { repository, credits, queue, provider, seedProvider, assets, loadCatalog: catalog, available });
   }
   catalog() { return this.loadCatalog(); }
+  publicCatalog() {
+    const catalog = this.catalog();
+    return { ...catalog, models: catalog.models.map(model => {
+      try {
+        this.available(model);
+        return { ...model, available: model.enabled };
+      } catch (error) {
+        return { ...model, available:false, unavailableReason:error.code || 'speech_provider_unavailable' };
+      }
+    }) };
+  }
   actor(actor) { if (!actor?.userId) throw speechError('actor_required', 401); }
   publicRecord(record) {
     const { id, status, snapshot, outputAssetId = null, outputUrl = null, durationMs = null, errorCode = null, createdAt } = record;
-    return { id, status, snapshot, outputAssetId, outputUrl, durationMs, errorCode, createdAt,
+    return { id, status, snapshot, outputAssetId, outputUrl, durationMs, errorCode, createdAt, ...(record.timing ? {timing:record.timing} : {}),
       operation: record.operation || 'speech', expiresAt: record.voiceExpiresAt || null, deletedAt: record.voiceDeletedAt || null };
   }
   connectionId() { return this.provider.connectionId(); }
@@ -33,7 +45,7 @@ export class SpeechGenerationService {
   async quote({ actorContext, snapshot, operation = 'speech' }) {
     this.actor(actorContext);
     const prepared = await this.prepare(actorContext, snapshot, operation); this.available(prepared.model);
-    const quote = await this.credits.quoteSpeech({ operation, modelId: prepared.model.id, inputTokens: prepared.model.limits.inputTokens, outputTokens: prepared.model.limits.outputTokens });
+    const quote = await this.credits.quoteSpeech({ operation, modelId: prepared.model.id, ...prepared.model.limits });
     const record = { id: `speech_${randomUUID()}`, operation, ownerUserId: actorContext.userId, status: 'quoted', ...prepared, quote, createdAt: new Date().toISOString() };
     await this.repository.mutate(records => {
       if (records.filter(item => item.ownerUserId === actorContext.userId).length >= this.catalog().policy.maxTakes) throw speechError('speech_operation_quota', 409);
@@ -92,9 +104,12 @@ export class SpeechGenerationService {
           providerResponseId: voice.id, voiceExpiresAt: voice.expire_time || null });
         return await this.finishDesign(record, actorContext, voice);
       }
-      const result = await this.provider.generate({ ...record.snapshot, voiceId: record.resolvedVoiceId || record.snapshot.voiceId }, record.model, this.catalog().policy.maxAudioBytes);
+      const adapter = record.model.adapterKey === 'seed-speech' ? this.seedProvider : this.provider;
+      const result = await adapter.generate({ ...record.snapshot, voiceId: record.resolvedVoiceId || record.snapshot.voiceId },
+        record.model, this.catalog().policy.maxAudioBytes, record.id.replace(/^speech_/, ''));
       const output = await this.assets.register({ bytes: result.bytes, actorContext, jobId: record.id });
-      record = await this.repository.update(record.id, actorContext.userId, { ...output, status: 'delivered', usage: result.usage, providerResponseId: result.providerResponseId });
+      record = await this.repository.update(record.id, actorContext.userId, { ...output, status: 'delivered', usage: result.usage,
+        ...(result.timing ? {timing:result.timing} : {}), providerResponseId: result.providerResponseId });
       return await this.settle(record);
     } catch (error) {
       const rejectedStatus = /^speech_provider_http_(\d{3})$/.exec(error.code || '');

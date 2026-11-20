@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "components": {
+    "zh-en": {
+      "url": "https://data.argosopentech.com/argospm/v1/translate-zh_en-1_9.argosmodel",
+      "sha256": "62e7af5a3a48b530e47b7b3e5c78c2de79073ecd815750d2bf3ab35b4a67da2d",
+      "files": {
+        "zh-en/metadata.json": "e42259bbbec6cd09ecd16d97d614bebbf1e7351130c6970fe77a2f1ed7f99cca",
+        "zh-en/model/config.json": "b28e3136fc7a103e29585c10c8124849fb01d649531f58e00cbe240111560cd7",
+        "zh-en/model/model.bin": "edd8c8a6863d36959613ff291074627a1635fab2f51b872ef437e924d238921a",
+        "zh-en/model/shared_vocabulary.json": "c980413009e8041fc42c81730ad4b72ab6cb1313b3b89b1ced261fe5e177b024",
+        "zh-en/README.md": "1bb7a1261520b8f7d1f94b7fd108c0ccfd7333a3e40a2256df274df0a2ff1cc8",
+        "zh-en/sentencepiece.model": "72600ea476b3e3b76763919c3a30ef5104d9b473b19567d45251f56034264f54"
+      }
+    },
+    "en-zh": {
+      "url": "https://data.argosopentech.com/argospm/v1/translate-en_zh-1_9.argosmodel",
+      "sha256": "433e7c4f034d87fbe2353161e05f18646d7999452f801a4e1f0378522b9850ab",
+      "files": {
+        "en-zh/metadata.json": "106086bc1b77d2d5c298aa38be69e8e87263eeb4167b4614b08a030c43d31b6a",
+        "en-zh/model/config.json": "3a8660f12559a223969532ff191e5e6f50d4ff24164517edbd6a5090dc5144c6",
+        "en-zh/model/model.bin": "1a039114d9456b6528fabb65b455b6f156319634a0f984b1f6018f7737d67598",
+        "en-zh/model/shared_vocabulary.json": "c0b6e24705ec0489d5b810de365959c1013aecd644cfeca161b54ea1df6a7dc0",
+        "en-zh/README.md": "050e546664f0e70d80b6f83aa1da5f04ee85335f4a1b62d1c89184f76100b5dc",
+        "en-zh/sentencepiece.model": "872224b85a11edc9d769a94949fd387b67ea85b50708db9f91f32f5b497a9af3"
+      }
+    },
+    "en-th": {
+      "url": "https://data.argosopentech.com/argospm/v1/translate-en_th-1_9.argosmodel",
+      "sha256": "b0fd94eceb04b967b91c2c7d8d1f7b5493c25362e43027a52649242385d0b2a3",
+      "files": {
+        "en-th/metadata.json": "5b9957d0160063c5a91b1631d0305f3865c23885e509d01cd3604599097d505e",
+        "en-th/model/config.json": "b28e3136fc7a103e29585c10c8124849fb01d649531f58e00cbe240111560cd7",
+        "en-th/model/model.bin": "5c46a0c60cf4e7d41ca632201b9cb4233f5b17555bdfffa6e82f7adfb3b73991",
+        "en-th/model/shared_vocabulary.json": "8a1cf3e29a6442af9ba0df9458490318cccfdc92bd623a1499f1e23a415c4559",
+        "en-th/README.md": "9f9cf340fcacd1a4cda095fae282b711aa71203860e67e6bff94e2381fa0dc6d",
+        "en-th/sentencepiece.model": "fc618401104178afa0e8d67d469a49f8e71cd3151c51d640a7003a1f71b16b1e"
+      }
+    },
+    "th-en": {
+      "url": "https://data.argosopentech.com/argospm/v1/translate-th_en-1_9.argosmodel",
+      "sha256": "b6642c07389b156f568aa08c64140243bc1b1926f82df2559a2eae08316f84ce",
+      "files": {
+        "th-en/metadata.json": "0d986123bd8330293096cf7c2c4156a5b9c5896d5e24347ebf4a387ad802498b",
+        "th-en/model/config.json": "b28e3136fc7a103e29585c10c8124849fb01d649531f58e00cbe240111560cd7",
+        "th-en/model/model.bin": "38a6a63c75a9cdbc7ce4791a349ab8353df13a9942cb3c6f6409adfbdf1d5d69",
+        "th-en/model/shared_vocabulary.json": "518acb062335a1adf199bfb46d17f07dc707ba6a7afd9fd9e8ef1e6597144861",
+        "th-en/README.md": "c3cfcb1d04ddb5fdcfa97569c93bb7d6b88446f283d28ba4db93c1b39a838d14",
+        "th-en/sentencepiece.model": "493675a00bb77f552782da057587a4dc3bf96b300637d363bae9c32c9d36a38d"
+      }
+    },
+    "chi_sim": {
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/chi_sim.traineddata",
+      "sha256": "a5fcb6f0db1e1d6d8522f39db4e848f05984669172e584e8d76b6b3141e1f730",
+      "files": {
+        "tessdata/chi_sim.traineddata": "a5fcb6f0db1e1d6d8522f39db4e848f05984669172e584e8d76b6b3141e1f730"
+      }
+    },
+    "chi_tra": {
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/chi_tra.traineddata",
+      "sha256": "529c5b5797d64b126065cd55f2bb4c7fd7b15790798091b1ff259941a829330b",
+      "files": {
+        "tessdata/chi_tra.traineddata": "529c5b5797d64b126065cd55f2bb4c7fd7b15790798091b1ff259941a829330b"
+      }
+    },
+    "eng": {
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/eng.traineddata",
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "files": {
+        "tessdata/eng.traineddata": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+      }
+    },
+    "tha": {
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/tha.traineddata",
+      "sha256": "294227cc2d1292b0acb28d61d4115c88252b96d466ca90b417cf4cf0c67bf07c",
+      "files": {
+        "tessdata/tha.traineddata": "294227cc2d1292b0acb28d61d4115c88252b96d466ca90b417cf4cf0c67bf07c"
+      }
+    }
+  }
+}

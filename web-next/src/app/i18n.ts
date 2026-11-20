@@ -1,4 +1,8 @@
 import i18n from "i18next";
+import dubTh from "../locales/th/dub.json";
+import dubEn from "../locales/en/dub.json";
+import dubVoiceTh from "../locales/th/dubVoice.json";
+import dubVoiceEn from "../locales/en/dubVoice.json";
 import { initReactI18next } from "react-i18next";
 import th from "../locales/th/workspace.json";
 import en from "../locales/en/workspace.json";
@@ -44,3 +48,7 @@ i18n.on("languageChanged", (language) => {
 });
 document.documentElement.lang = i18n.language;
 export default i18n;
+i18n.addResourceBundle("th", "dub", dubTh);
+i18n.addResourceBundle("en", "dub", dubEn);
+i18n.addResourceBundle("th", "dubVoice", dubVoiceTh);
+i18n.addResourceBundle("en", "dubVoice", dubVoiceEn);

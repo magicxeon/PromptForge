@@ -1,5 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { Aperture } from "lucide-react";
+import { lazy, Suspense } from "react";
+import { WorkspaceMenu } from "./WorkspaceMenu";
+const DubStudio = lazy(() => import("../features/dub-sub/DubStudio"));
 import { useActor, ProcessingSpinner } from "../lib/canonical";
 import { ImageWorkspace } from "../features/playground/routes/ImageWorkspace";
 import { Link, Navigate, Route, Routes } from "react-router-dom";
@@ -14,8 +17,9 @@ export function App() {
     <div className="app-shell">
       <header className="app-header">
         <Link className="brand" to="/image">
-          <Aperture size={25} /> momelo <span>Playground</span>
+          <Aperture size={25} /> momelo
         </Link>
+        <WorkspaceMenu />
         <div className="header-actions">
           <select
             aria-label={t("language")}
@@ -58,6 +62,7 @@ export function App() {
             <Route path="/image" element={<ImageWorkspace />} />
             <Route path="/comparison" element={<ComparisonWorkspace />} />
             <Route path="/video" element={<VideoWorkspace />} />
+            <Route path="/dub-sub/*" element={<Suspense fallback={<ProcessingSpinner />}><DubStudio /></Suspense>} />
             <Route path="*" element={<Navigate to="/image" replace />} />
           </Routes>
         </div>

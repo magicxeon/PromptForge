@@ -1,0 +1,5 @@
+# Optional local speech, cue translation and burned-in subtitle OCR.
+openai-whisper==20250625
+ctranslate2==4.9.0
+sentencepiece==0.2.3
+tesserocr==2.13.0

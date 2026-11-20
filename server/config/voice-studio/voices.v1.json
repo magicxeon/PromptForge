@@ -8,6 +8,12 @@
     {"id": "Aoede", "displayName": "Aoede", "description": "Breezy", "modelIds": ["gemini-3.8-flash-tts"]},
     {"id": "Leda", "displayName": "Leda", "description": "Youthful", "modelIds": ["gemini-3.8-flash-tts"]},
     {"id": "Orus", "displayName": "Orus", "description": "Firm", "modelIds": ["gemini-3.8-flash-tts"]},
-    {"id": "Zephyr", "displayName": "Zephyr", "description": "Bright", "modelIds": ["gemini-3.8-flash-tts"]}
+    {"id": "Zephyr", "displayName": "Zephyr", "description": "Bright", "modelIds": ["gemini-3.8-flash-tts"]},
+    {"id": "th_female_elle_uranus_bigtts", "displayName": "Elle", "languages":["th"], "modelIds":["dola-seed-audio"]},
+    {"id": "th_male_angpao_uranus_bigtts", "displayName": "Angpao", "languages":["th"], "modelIds":["dola-seed-audio"]},
+    {"id": "zh_female_vv_uranus_bigtts", "displayName": "Vivi", "languages":["zh","zh-CN","zh-TW"], "modelIds":["dola-seed-audio"]},
+    {"id": "zh_male_ruyayichen_uranus_bigtts", "displayName": "Yichen", "languages":["zh","zh-CN","zh-TW"], "modelIds":["dola-seed-audio"]},
+    {"id": "en_female_nadia_uranus_bigtts", "displayName": "Blair", "languages":["en"], "modelIds":["dola-seed-audio"]},
+    {"id": "en_male_tim_uranus_bigtts", "displayName": "Tim", "languages":["en"], "modelIds":["dola-seed-audio"]}
   ]
 }

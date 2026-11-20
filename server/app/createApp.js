@@ -88,6 +88,8 @@ import { AdminInvestigationService } from '../domain/admin/AdminInvestigationSer
 import { ProviderControlApplicationService } from '../domain/admin-configuration/ProviderControlApplicationService.js';
 import { VoiceStudioApplicationService } from '../domain/voice-studio/VoiceStudioApplicationService.js';
 import { registerVoiceStudioRoutes } from './routes/voiceStudioRoutes.js';
+import { registerDubSubRoutes } from './routes/dubSubRoutes.js';
+import { DubProjectService } from '../domain/dub-sub/DubProjectService.js';
 import { audioAssetService } from '../domain/assets/AudioAssetService.js';
 
 export function resolveRequestUsername(req, {
@@ -219,7 +221,9 @@ export function createApp({ authRuntime = getAuthRuntime(), identityRuntime, ide
     templatePoseProxyService,
     resolveRequestUsername
   };
-  registerVoiceStudioRoutes(app, { voiceStudio: new VoiceStudioApplicationService({ generation: generationApplicationService, audioAssets: audioAssetService }) });
+  const voiceStudio = new VoiceStudioApplicationService({ generation: generationApplicationService, audioAssets: audioAssetService });
+  registerVoiceStudioRoutes(app, { voiceStudio });
+  registerDubSubRoutes(app, { projects: new DubProjectService({ videoGeneration: videoGenerationApplicationService, voiceStudio }) });
 
   registerAttributesRoutes(app, {
     providerRegistry,

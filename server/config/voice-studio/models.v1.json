@@ -1,12 +1,18 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "voice-studio-2026-11-15-v2",
+  "catalogVersion": "voice-studio-2026-11-20-v3",
   "defaultModelId": "gemini-3.8-flash-tts",
   "models": [{
     "id": "gemini-3.8-flash-tts", "providerId": "gemini", "adapterKey": "gemini-speech",
     "displayName": "Gemini 3.8 Flash TTS", "enabled": true,
     "capabilities": {"singleSpeaker": true, "turnStyle": true, "inlineVocalEvents": true, "voiceDesign": true, "customVoiceSynthesis": true, "languages": ["th", "en"], "outputFormats": ["wav"], "sampleRatesHz": [24000]},
     "limits": {"inputTokens": 8192, "outputTokens": 16384},
+    "defaults": {"language": "th", "format": "wav", "sampleRateHz": 24000}
+  }, {
+    "id": "dola-seed-audio", "providerId": "byteplus-seed-speech", "adapterKey": "seed-speech",
+    "providerModelId": "seed-audio-1.0", "displayName": "Dola Seed Audio 1.0", "enabled": true,
+    "capabilities": {"singleSpeaker": true, "turnStyle": true, "inlineVocalEvents": false, "voiceDesign": false, "customVoiceSynthesis": false, "languages": ["th", "zh", "zh-CN", "zh-TW", "en"], "outputFormats": ["wav"], "sampleRatesHz": [24000]},
+    "limits": {"promptCharacters": 3000, "originalSeconds": 120},
     "defaults": {"language": "th", "format": "wav", "sampleRateHz": 24000}
   }]
 }

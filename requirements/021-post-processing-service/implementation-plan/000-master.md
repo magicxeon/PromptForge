@@ -41,4 +41,6 @@ P0 may use local development media only after an explicit scoped private grant d
 
 ## Master Closure Criteria
 
+The FE24 editor consumes the existing transcription route plus authenticated translation and subtitle OCR. Install and verify the pinned language packs before operator acceptance. Local smoke tests cover Chinese-to-Thai dialogue, OCR and timed speech. Listening and subtitle review with a production scene remain a separate acceptance step. [Setup and evidence](../../024-frontend-rebuild/011-dub-sub-operations.md)
+
 Each phase status advances only with linked test evidence, owner review and release decision. P0 completion does not complete 021-PPS as a whole. The master is complete only after the full source-proposal scope is either shipped with evidence or explicitly retired by a later approved requirement.

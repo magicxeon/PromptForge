@@ -29,15 +29,21 @@ import { WorkspaceDialog } from "../components/WorkspaceDialog";
 import { UnsavedChangesGuard } from "../components/UnsavedChangesGuard";
 import "../voice-studio.css";
 
-export function VoiceStudioRoute() {
+type VoiceStudioPicker = {
+  useLabel: string;
+  onVoice: (choice: VoiceChoice) => void;
+  onCharacter: (id: string) => void;
+};
+
+export function VoiceStudioRoute({ picker }: { picker?: VoiceStudioPicker }) {
   const { actor, identityScope } = useActor();
   return (
     <VoicePlayback key={identityScope}>
-      <Workspace actorId={actor?.userId || ""} />
+      <Workspace actorId={actor?.userId || ""} picker={picker} />
     </VoicePlayback>
   );
 }
-function Workspace({ actorId }: { actorId: string }) {
+function Workspace({ actorId, picker }: { actorId: string; picker?: VoiceStudioPicker }) {
   const { t } = useTranslation("voice-studio");
   const playback = useVoicePlayback();
   const client = useQueryClient();
@@ -302,7 +308,9 @@ function Workspace({ actorId }: { actorId: string }) {
           actorId={actorId}
           startDesign={startVoiceDesign}
           onDesignOpened={() => setStartVoiceDesign(false)}
+          useLabel={picker?.useLabel}
           onUse={(choice) => {
+            if (picker) return picker.onVoice(choice);
             setVoiceChoice(choice);
             setVoiceBindingCharacterId(
               activeRow?.characterPresetId || undefined,
@@ -595,6 +603,7 @@ function Workspace({ actorId }: { actorId: string }) {
             onChange={() => void characters.refetch()}
             onSaved={(character) => {
               setShowVoices(false);
+              if (picker) return picker.onCharacter(character.id);
               if (activeRow && draftRef.current) {
                 editRow({ ...activeRow, characterPresetId: character.id });
                 setTab("script");

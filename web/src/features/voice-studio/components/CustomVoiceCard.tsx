@@ -18,12 +18,14 @@ export function CustomVoiceCard({
   characters,
   onChange,
   onUse,
+  useLabel,
 }: {
   voice: CustomVoice;
   catalog: VoiceCatalog;
   characters: VoiceCharacter[];
   onChange: () => void;
   onUse: (choice: VoiceChoice) => void;
+  useLabel?: string;
 }) {
   const { t } = useTranslation("voice-studio");
   const playback = useVoicePlayback();
@@ -93,7 +95,7 @@ export function CustomVoiceCard({
               onUse({ kind: "custom", id: voice.id, name: voice.name })
             }
           >
-            {t("useWithCharacter")}
+            {useLabel || t("useWithCharacter")}
           </Button>
         )}
         <details className="voice-row-menu">

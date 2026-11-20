@@ -54,7 +54,7 @@ async function ensureBackend() {
     const log = openSync(apiLog, 'a');
     try {
       // Keep the shared API alive across frontend restarts. .env/auth policy are still server-owned.
-      apiChild = spawn(process.execPath, [path.join(root, 'server', 'server.js')], {
+      apiChild = spawn(process.execPath, [path.join(root, 'scripts', 'start-web-next-api.mjs')], {
         cwd: root, env, detached: true, windowsHide: true, stdio: ['ignore', log, log]
       });
       apiChild.once('error', error => { spawnError = error; });

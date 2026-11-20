@@ -1,4 +1,7 @@
 {
+  "primaryMenu": "Main menu",
+  "playgroundName": "Playground",
+  "dubStudioName": "Dub & Sub Studio",
   "previousImage": "Previous image",
   "nextImage": "Next image",
   "showThumbnails": "Show thumbnails",

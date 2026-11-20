@@ -1,11 +1,12 @@
 # Voice Studio configuration
 
-`models.v1.json` declares supported speech models, adapter and native token limits.
+`models.v1.json` declares speech models, adapters and their native token or duration limits.
 `voices.v1.json` contains the curated prebuilt voices; modelIds must reference the model catalog.
 `policy.v1.json` contains editor/storage-count bounds and the inline tag allowlist.
 
 The Generation-owned `SpeechCatalog.js` validates these files and projects safe values.
-Existing Gemini credential selection and ProviderAvailabilityPolicyService apply.
+Gemini uses its existing provider credentials. Seed Audio uses the server environment variable
+`BYTEPLUS_SEED_SPEECH_API_KEY`. Both use ProviderAvailabilityPolicyService and expose availability in the catalog.
 Changing a JSON file affects subsequent catalog reads/new requests; existing accepted requests
 retain their model/catalog/compiler/pricing snapshots. No file watcher is installed.
 
@@ -15,8 +16,9 @@ To disable synthesis, disable the model or use existing provider/model/workflow 
 Existing audio files are unaffected. Editor limits can be adjusted in policy without UI edits.
 
 Pricing is owned by `../credit-pricing-policy.json` under `speechGeneration`, not this catalog.
-Reserve the maximum configured input/output token cost; capture only validated actual usage
-at locked rates and existing text-service markup/FX. Unused reservation is released by Credits.
+Gemini reserves the maximum configured input/output token cost. Seed Audio reserves up to the provider's
+120-second output cap and captures the reported `original_duration` at the frozen USD/second rate.
+Both use existing text-service markup/FX. Credits releases the unused reservation.
 Unknown provider outcomes or missing usage require reconciliation; no automatic paid retry.
 
 Custom Voice Design uses `models[].capabilities.voiceDesign/customVoiceSynthesis`.

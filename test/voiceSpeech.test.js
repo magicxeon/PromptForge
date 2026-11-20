@@ -8,6 +8,7 @@ import { loadSpeechCatalog } from '../server/domain/generation/SpeechCatalog.js'
 import { inspectWav, AudioAssetService } from '../server/domain/assets/AudioAssetService.js';
 import { quoteSpeechPrice, settleSpeechPrice } from '../server/domain/credits/SpeechPricing.js';
 import { GeminiSpeechProvider } from '../server/providers/GeminiSpeechProvider.js';
+import { SeedSpeechProvider } from '../server/providers/SeedSpeechProvider.js';
 import { SpeechGenerationService } from '../server/domain/generation/SpeechGenerationService.js';
 import { SpeechOperationRepository } from '../server/repositories/generation/SpeechOperationRepository.js';
 import { CreditApplicationService } from '../server/domain/credits/CreditApplicationService.js';
@@ -15,6 +16,45 @@ import { CreditAccountRepository } from '../server/repositories/credits/CreditAc
 
 const snapshot = { documentId: 'doc', rowId: 'row', modelId: 'gemini-3.8-flash-tts', voiceId: 'Kore', text: 'สวัสดี\n<gasp> จริงหรือ', delivery: { emotion: 'happy' }, language: 'th' };
 const actorContext = { userId: 'actor', username: 'actor' };
+test('Seed Audio directs the chosen speaker in the requested language and prices original duration', async () => {
+  const catalog = loadSpeechCatalog();
+  const seedModel = catalog.models.find(m=>m.id==='dola-seed-audio');
+  const speaker1 = catalog.voices.find(v=>v.languages?.includes('th'));
+  const speaker2 = catalog.voices.find(v=>v.languages?.includes('zh'));
+  const first = {...snapshot, text:'สวัสดี', modelId:seedModel.id, voiceId:speaker1.id, delivery:{emotion:'sad',intensity:'subtle'}};
+  const second = {...first,text:'你好',language:'zh',voiceId:speaker2.id,delivery:{emotion:'happy',pace:'fast'}};
+  const requests = [];
+  const provider = new SeedSpeechProvider({apiKey:'synthetic',fetchImpl:async(url,options)=>{
+    requests.push(options);
+    return Response.json({audio:wav().toString('base64'),duration:4,original_duration:7.5,
+      subtitle:{sentences:[{start_time:0,end_time:300,text:'line'}]}});
+  }});
+  for (const s of [first,second]) {
+    const compiled = compileSpeechRequest(s,catalog);
+    const result = await provider.generate(compiled.snapshot,seedModel,1024,'fixture');
+    assert.deepEqual(result.bytes,wav());
+    const request = JSON.parse(requests.at(-1).body);
+    assert.equal(requests.at(-1).redirect,'error','credentialed requests must refuse all redirects');
+    assert.deepEqual(request.references,[{speaker:s.voiceId}]);
+    assert.ok(request.text_prompt.includes('@Audio1') && request.text_prompt.includes(s.text) && request.text_prompt.includes(s.delivery.emotion));
+    assert.equal(request.model,'seed-audio-1.0');
+    assert.equal(request.audio_config.format,'wav');
+    assert.equal(result.usage.original_duration,7.5);
+    assert.equal(result.timing[0].endMs,300);
+  }
+  assert.throws(()=>compileSpeechRequest({...first,voiceId:speaker2.id},catalog),{code:'speech_invalid_voice_language'});
+  assert.throws(()=>compileSpeechRequest({...first,text:'<gasp>'},catalog),{code:'speech_unknown_tag'});
+  const policy=JSON.parse(await readFile(new URL('../server/config/credit-pricing-policy.json',import.meta.url),'utf8'));
+  const q=quoteSpeechPrice(policy,{modelId:seedModel.id,...seedModel.limits},Date.parse('2026-11-20'));
+  assert.equal(q.providerId,seedModel.providerId);
+  assert.equal(q.providerCostUsd,.3);
+  const settled=settleSpeechPrice(q,{duration:4,original_duration:7.5});
+  assert.equal(settled.providerCostUsd,7.5*.0025);
+  assert.ok(settled.amountCredits<=q.totalCredits);
+  for (const usage of [{duration:4},{original_duration:-1},{original_duration:121}])
+    assert.throws(()=>settleSpeechPrice(q,usage),{code:'speech_usage_reconciliation_required'});
+  assert.throws(()=>quoteSpeechPrice(policy,{modelId:seedModel.id,...seedModel.limits,operation:'voice_design'},Date.parse('2026-11-20')));
+});
 test('concurrent sample registration keeps only the deduplicated asset bytes',async t=>{
   const directory=await mkdtemp(path.join(os.tmpdir(),'voice-audio-race-'));t.after(()=>rm(directory,{recursive:true,force:true}));
   let stored;

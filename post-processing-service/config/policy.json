@@ -1,5 +1,17 @@
 {
   "schemaVersion": 1,
+  "dubLanguage": {
+    "policyVersion": "dub-language-v1",
+    "enabled": true,
+    "device": "cpu",
+    "maxTranslationBytes": 524288,
+    "maxOcrBytes": 12582912,
+    "maxRows": 25,
+    "maxTextLength": 4000,
+    "maxFrames": 8,
+    "maxFrameChars": 1600000,
+    "maxPixels": 2000000
+  },
   "facelessPrevis": {
     "policyVersion": "white-previs-v1",
     "maxInputBytes": 26214400,

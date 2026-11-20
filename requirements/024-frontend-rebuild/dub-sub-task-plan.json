@@ -1,0 +1,281 @@
+{
+  "version": 1,
+  "parallelBatches": [],
+  "requirement": "requirements/024-frontend-rebuild/008-dub-sub-studio.md",
+  "tasks": [
+    {
+      "id": "DS-P",
+      "title": "Private projects and processing",
+      "complexity": "complex",
+      "reason": "Private projects and processing integrates established capability facades.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root/dub_projects",
+      "capabilities": [
+        "dub-sub",
+        "assets"
+      ],
+      "risks": [
+        "security",
+        "privacy"
+      ],
+      "dependsOn": [],
+      "writeScope": [
+        "server/domain/dub-sub/",
+        "server/repositories/dub-sub/",
+        "server/app/routes/dubSubRoutes.js",
+        "server/app/createApp.js",
+        "server/config/paths.js",
+        "server/domain/voice-studio/VoiceStudioApplicationService.js",
+        "test/dubSubProjects.test.mjs",
+        "post-processing-service/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Private source upload, timecoded processing, revision guard and private export verified."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer"
+      ],
+      "evidence": [
+        {
+          "check": "Private source upload, timecoded processing, revision guard and private export verified.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        }
+      ],
+      "handoff": "Verify scoped contracts with isolated media fixtures; independent review before close."
+    },
+    {
+      "id": "DS-V",
+      "title": "Cue voice generation",
+      "complexity": "complex",
+      "reason": "Cue voice generation integrates established capability facades.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root/dub_voice",
+      "capabilities": [
+        "voice-studio",
+        "generation",
+        "credits"
+      ],
+      "risks": [
+        "financial",
+        "security",
+        "user-facing"
+      ],
+      "dependsOn": [],
+      "writeScope": [
+        "web-next/src/features/dub-sub/DubVoice.tsx",
+        "server/providers/",
+        "server/config/voice-studio/",
+        "server/domain/credits/",
+        "server/domain/generation/",
+        "server/domain/voice-studio/",
+        "server/repositories/voice-studio/",
+        "server/config/credit-pricing-policy.json",
+        "test/voiceSpeech.test.js",
+        "test/voiceStudio.test.js",
+        "web-next/src/locales/",
+        "web-next/src/features/dub-sub/DubVoice.test.tsx",
+        "web/src/features/voice-studio/",
+        "web-next/test/dub-voice-roundtrip.mjs"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Cue voice generation reuses canonical quote and settlement with owner-scoped takes."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "backend-platform-architect",
+        "commercial-financial-integrity",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [
+        {
+          "check": "Cue voice generation reuses canonical quote and settlement with owner-scoped takes.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        },
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        },
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/dub_ux_acceptance",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        }
+      ],
+      "handoff": "Quote/settlement fixtures and contextual voice picker accepted. Paid provider output and invoice remain unqualified."
+    },
+    {
+      "id": "DS-E",
+      "title": "Studio editor and integration",
+      "complexity": "complex",
+      "reason": "Studio editor and integration integrates established capability facades.",
+      "owner": "ux-ui-product-designer",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "frontend-experience",
+        "dub-sub"
+      ],
+      "risks": [
+        "security",
+        "user-facing"
+      ],
+      "dependsOn": [
+        "DS-P",
+        "DS-V"
+      ],
+      "writeScope": [
+        "web-next/src/",
+        "requirements/024-frontend-rebuild/",
+        "server/domain/identity/IdentityDevelopmentService.js",
+        "web-next/test/dub-editor-check.mjs",
+        "test/authentication/developmentAdmin.test.js",
+        "scripts/start-web-next.mjs",
+        "scripts/start-web-next-api.mjs",
+        "scripts/install-dub-sub-fonts.mjs",
+        "client/assets/dub-sub/fonts/",
+        "requirements/099-technical-dept/000-master.md",
+        "requirements/021-post-processing-service/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Create, edit captions, preview timed dubbing and export with persisted project revisions."
+      ],
+      "reviewers": [
+        "qa-release-engineer",
+        "security-reviewer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [
+        {
+          "check": "Create, edit captions, preview timed dubbing and export with persisted project revisions.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        },
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/dub_ux_acceptance",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        }
+      ],
+      "handoff": "Three-viewport editing, upload recovery, export and live service startup verified. Production-content UAT is listed in the operating guide."
+    },
+    {
+      "id": "DS-T",
+      "title": "Synchronized timeline and waveform interaction",
+      "complexity": "complex",
+      "reason": "Virtualized linked private media timeline for long projects.",
+      "owner": "frontend-engineer",
+      "ownerAgentId": "/root/fe24_cv_video",
+      "capabilities": [
+        "dub-sub",
+        "frontend-experience"
+      ],
+      "risks": [
+        "user-facing",
+        "privacy"
+      ],
+      "dependsOn": [
+        "DS-P"
+      ],
+      "writeScope": [
+        "web-next/src/features/dub-sub/Timeline.tsx",
+        "web-next/src/features/dub-sub/timeline.css",
+        "web-next/test/dub-timeline-check.mjs"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Real take waveforms, synchronized clip dragging and bounded DOM with 3,000 cues."
+      ],
+      "reviewers": [
+        "ux-ui-product-designer",
+        "security-reviewer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Real take waveforms, synchronized clip dragging and bounded DOM with 3,000 cues.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/dub_ux_acceptance",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/dub_ux_acceptance",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/dub_ux_acceptance",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/011-dub-sub-operations.md"
+        }
+      ],
+      "handoff": "Large-project selection, trim, waveform isolation, cancellation and responsive behavior verified."
+    }
+  ]
+}
