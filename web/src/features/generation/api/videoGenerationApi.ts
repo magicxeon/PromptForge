@@ -1,5 +1,5 @@
 import { apiRequest } from '../../../lib/api/apiClient';
-import { recentVideoTasksSchema, videoCapabilityCatalogSchema, videoQuoteSchema, videoTaskSchema } from '../schemas/videoGenerationSchemas';
+import { recentVideoTasksSchema, videoCapabilityCatalogSchema, videoQuoteSchema, videoTaskSchema, videoRequestStatusSchema } from '../schemas/videoGenerationSchemas';
 
 export type PlaygroundVideoReference = {
   characterName?: string;
@@ -52,6 +52,12 @@ export function submitVideoGeneration(input: VideoGenerationInput & { estimateId
     method: 'POST',
     body: input,
     schema: videoTaskSchema
+  });
+}
+
+export function getVideoRequestStatus(requestId: string, signal?: AbortSignal) {
+  return apiRequest(`/api/generation/video/requests/${encodeURIComponent(requestId)}`, {
+    schema: videoRequestStatusSchema, signal, cache: 'no-store'
   });
 }
 

@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { ComparisonError } from '../../repositories/comparisons/ComparisonRepository.js';
 
 const ESTIMATE_TTL_MS = 5 * 60 * 1000;
+export const IMAGE_COMPARISON_POLICY = Object.freeze({ minimumSlots: 2, maximumSlots: 4 });
 
 export function aggregateRunStatus(slots) {
   if (slots.length === 0) return 'draft';
@@ -25,7 +26,8 @@ export class ComparisonValidator {
     const mediaType = context.mediaType === 'video' ? 'video' : 'image';
     const validSlotCount = mediaType === 'video'
       ? Array.isArray(slots) && slots.length === 2
-      : Array.isArray(slots) && slots.length >= 2 && slots.length <= 4;
+      : Array.isArray(slots) && slots.length >= IMAGE_COMPARISON_POLICY.minimumSlots
+        && slots.length <= IMAGE_COMPARISON_POLICY.maximumSlots;
     if (!validSlotCount) {
       throw new ComparisonError(
         'invalid_slot_count',

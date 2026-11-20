@@ -10,8 +10,9 @@ const publishedComparisonSchema = z.object({
   id: z.string()
 }).passthrough();
 
-export function listComparisons(cursor?: string | null) {
-  const query = new URLSearchParams({ limit: '18' });
+export function listComparisons(cursor?: string | null, pageSize = 18) {
+  const limit = Number.isFinite(pageSize) ? Math.min(50, Math.max(1, Math.floor(pageSize))) : 18;
+  const query = new URLSearchParams({ limit: String(limit) });
   if (cursor) query.set('cursor', cursor);
   return apiRequest(`/api/comparisons?${query}`, { schema: comparisonPageSchema });
 }

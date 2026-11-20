@@ -129,6 +129,17 @@ export class VideoGenerationApplicationService {
     return this.trustedSources.list(actorContext, query);
   }
 
+  async getRequestStatus(requestId, actorContext) {
+    if (!actorContext?.userId) throw videoError('actor_context_required', 'Actor context is required.', 401);
+    if (typeof requestId !== 'string' || !/^[A-Za-z0-9:_-]{8,200}$/.test(requestId)) {
+      throw videoError('video_idempotency_key_invalid', 'A valid video request key is required.');
+    }
+    const task = await this.taskRepository.findByIdempotencyKey(actorContext.userId, requestId);
+    if (!task || task.ownerUserId !== actorContext.userId) return { state: 'unknown', requestId };
+    if (!task.id) return { state: 'reconciliation_required', requestId };
+    return { state: 'found', requestId, taskId: task.id };
+  }
+
   async quote(input, actorContext, workflowContext = null) {
     const workflow = normalizeWorkflowContext(workflowContext);
     const { request, model, durationReconciliation, playgroundPlan } = await this.#prepareValidatedRequest(

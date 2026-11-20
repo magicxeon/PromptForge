@@ -1,13 +1,13 @@
 # Frontend ใหม่ — Playground สำหรับสร้างภาพและวิดีโอ
 
-**ID:** FE24 · **วันที่:** 2026-11-19 · **สถานะ:** M1 Image preview implemented (2026-11-20); Video/Comparison/cutover remain subsequent milestones
+**ID:** FE24 · **วันที่:** 2026-11-19 · **สถานะ:** M1 Image, M2 Comparison และ M3 Video implemented (2026-11-20); scoped acceptance/evidence ใน005 และ task-plan.json; production cutover แยกจาก preview
 **Owner:** Frontend experience · **Primary role:** Product Requirement Architect
 **Review update:** 2026-11-20 — delegated UX, User Journey, Architecture, Security/Commercial และ BSA;
 coverage/ข้อเสนอที่นำมาปรับและ QA document review บันทึกใน [004](004-delivery-migration-and-acceptance.md).
 
-**Latest scope:** 2026-11-20 — ผู้ใช้สั่ง requirement ของ Comparison/Video และเมนู
-**Image → Comparison → Video**. รายละเอียดอยู่006/007; รอบนี้เอกสารเท่านั้นและรอคำสั่ง
-implementation ถัดไป. M1/FE24-U1 ที่ส่งมอบแล้วคงเดิม.
+**Latest scope:** 2026-11-20 — ผู้ใช้อนุญาต implementation ของ Comparison/Video และเมนู
+**Image → Comparison → Video**. เปิดผ่าน6502 โดยเชื่อมบริการเดิม; รายละเอียด006/007
+และหลักฐาน005. M1/FE24-U1 คงเดิม; ไม่เปลี่ยน default frontend หรือเรียก paid provider ในการตรวจ.
 
 ## 1. เป้าหมายและขอบเขตที่ผู้ใช้ยืนยัน
 
@@ -28,7 +28,7 @@ implementation ถัดไป. M1/FE24-U1 ที่ส่งมอบแล้�
 | [002 Workflow ภาพและวิดีโอ](002-image-video-workflows.md) | Input, capability, validation, job states, results และ error recovery |
 | [003 โครงสร้างและสัญญาระบบ](003-source-architecture-and-contracts.md) | โฟลเดอร์ใหม่, API reuse, CSS isolation, session, data ownership |
 | [004 งานย่อยและการย้ายใช้งาน](004-delivery-migration-and-acceptance.md) | ลำดับงาน dependencies, acceptance, cutover, rollback และข้อเสนอรอยืนยัน |
-| [005 Image preview implementation](005-implementation-checkpoint.md) | การตัดสินใจจริง วิธีเปิด ขอบเขต review/checks และข้อจำกัดของ M1 |
+| [005 Preview implementation](005-implementation-checkpoint.md) | การตัดสินใจจริง วิธีเปิด ขอบเขต review/checks และข้อจำกัดของ Image/Comparison/Video |
 | [006 Comparison workspace](006-comparison-workspace.md) | Image Comparison, shared/per-slot inputs, results/history, recovery dependencies, C01–C05 และ CMP01–09 |
 | [007 Video workspace](007-video-workspace.md) | Video modes/references/duration/player, success-only previews, recovery dependencies, V01–V06 และ VID01–10 |
 

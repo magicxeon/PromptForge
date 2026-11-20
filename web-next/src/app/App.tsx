@@ -1,7 +1,10 @@
 import { useTranslation } from "react-i18next";
-import { Aperture, ArrowUpRight } from "lucide-react";
+import { Aperture } from "lucide-react";
 import { useActor, ProcessingSpinner } from "../lib/canonical";
 import { ImageWorkspace } from "../features/playground/routes/ImageWorkspace";
+import { Link, Navigate, Route, Routes } from "react-router-dom";
+import { ComparisonWorkspace } from "../features/comparisons/routes/ComparisonWorkspace";
+import { VideoWorkspace } from "../features/playground/routes/VideoWorkspace";
 export const legacyUrl = (path = "/playground") =>
   `${location.protocol}//${location.hostname}:6500${path}`;
 export function App() {
@@ -10,13 +13,10 @@ export function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <a className="brand" href="/">
+        <Link className="brand" to="/image">
           <Aperture size={25} /> momelo <span>Playground</span>
-        </a>
+        </Link>
         <div className="header-actions">
-          <a href={legacyUrl()}>
-            {t("oldWorkspace")} <ArrowUpRight size={14} />
-          </a>
           <select
             aria-label={t("language")}
             value={i18n.language}
@@ -53,7 +53,13 @@ export function App() {
         )
       ) : (
         <div hidden={isLoading} inert={isLoading || undefined}>
-          <ImageWorkspace key={identityScope} />
+          <Routes key={identityScope}>
+            <Route path="/" element={<Navigate to="/image" replace />} />
+            <Route path="/image" element={<ImageWorkspace />} />
+            <Route path="/comparison" element={<ComparisonWorkspace />} />
+            <Route path="/video" element={<VideoWorkspace />} />
+            <Route path="*" element={<Navigate to="/image" replace />} />
+          </Routes>
         </div>
       )}
     </div>

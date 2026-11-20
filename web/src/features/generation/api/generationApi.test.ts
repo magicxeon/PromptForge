@@ -4,8 +4,11 @@ import {
   estimateAndSubmitGeneration,
   generationPayload,
   getJobStatus,
+  getComparisonPolicy,
+  getComparisonRequestStatus,
   pricingPayload,
   submitGeneration,
+  submitComparison,
   type GenerationRequestDraft
 } from './generationApi';
 
@@ -38,6 +41,37 @@ function draft(overrides: Partial<GenerationRequestDraft> = {}): GenerationReque
 }
 
 describe('React generation contract', () => {
+  it('preserves caller Comparison keys and retains generated keys for legacy callers', async () => {
+    const payloads: Array<Record<string, unknown>> = [];
+    vi.stubGlobal('fetch', vi.fn(async (_url, init) => {
+      payloads.push(JSON.parse(init.body));
+      return new Response(JSON.stringify({ setId: 'set_1', runId: 'run_1', status: 'queued' }), { headers: { 'content-type': 'application/json' } });
+    }));
+    const estimate = { slots: [], estimatedTotalCredit: 0, providerConfigVersion: 1, expiresAt: 123, estimateToken: 'quote' };
+    await submitComparison(draft(), [], estimate, 'Named set', 'cmp_stable_123');
+    await submitComparison(draft(), [], estimate, 'Named set', 'cmp_stable_123');
+    await submitComparison(draft(), [], estimate, 'Legacy name');
+    expect(payloads[0]).toMatchObject({ name: 'Named set', idempotencyKey: 'cmp_stable_123' });
+    expect(payloads[1]?.idempotencyKey).toBe(payloads[0]?.idempotencyKey);
+    expect(payloads[2]?.name).toBe('Legacy name');
+    expect(payloads[2]?.idempotencyKey).toMatch(/^cmp/);
+    expect(payloads[2]?.idempotencyKey).not.toBe('cmp_stable_123');
+  });
+
+  it('loads Comparison policy and request recovery using GET without cache or replay', async () => {
+    const calls: Array<{ url: string; init?: RequestInit }> = [];
+    vi.stubGlobal('fetch', vi.fn(async (url, init) => {
+      calls.push({ url: String(url), init });
+      return new Response(JSON.stringify(String(url).endsWith('/policy')
+        ? { minimumSlots: 2, maximumSlots: 4 }
+        : { state: 'found', requestId: 'cmp_key_123', setId: 'set_1', runId: 'run_1' }), { headers: { 'content-type': 'application/json' } });
+    }));
+    expect(await getComparisonPolicy()).toEqual({ minimumSlots: 2, maximumSlots: 4 });
+    expect(await getComparisonRequestStatus('cmp_key_123')).toMatchObject({ state: 'found', setId: 'set_1' });
+    expect(calls[1]?.url).toContain('/api/comparisons/requests/cmp_key_123');
+    for (const { init } of calls) { expect(init?.method ?? 'GET').toBe('GET'); expect(init?.cache).toBe('no-store'); expect(init?.body).toBeUndefined(); }
+  });
+
   it('preserves an explicit image request ID for uncertain Look Sheet submission replay', async () => {
     const fetchMock = vi.fn().mockImplementation(async () => new Response(JSON.stringify({ jobId: 'same-job', status: 'queued' }), { headers: { 'content-type': 'application/json' } }));
     vi.stubGlobal('fetch', fetchMock);

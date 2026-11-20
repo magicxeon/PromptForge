@@ -3,6 +3,54 @@
   "requirement": "requirements/024-frontend-rebuild/000-master.md",
   "tasks": [
     {
+      "id": "FE24-CV-B",
+      "title": "Comparison and Video owner-scoped request recovery contracts",
+      "complexity": "complex",
+      "reason": "Read-only recovery and stable submission identity cross sensitive Generation/Comparison boundaries.",
+      "owner": "backend-platform-architect", "ownerAgentId": "/root/fe24_cv_backend",
+      "capabilities": ["comparisons", "generation", "identity"],
+      "risks": ["shared-contract", "security", "financial"], "dependsOn": ["FE24-M1"],
+      "writeScope": ["server/domain/comparisons/", "server/repositories/comparisons/", "server/domain/generation/VideoGenerationApplicationService.js", "server/app/routes/comparisonRoutes.js", "server/app/routes/videoGenerationRoutes.js", "server/domain/identity/IdentityDevelopmentService.js", "web/src/features/generation/api/", "web/src/features/generation/schemas/", "test/"],
+      "status": "complete",
+      "acceptance": ["Stable Comparison key and actor-owned Comparison/Video read-only request lookup recover without replay or billing mutation; unknown/foreign requests reveal no private data."],
+      "reviewers": ["backend-platform-architect", "commercial-financial-integrity", "security-reviewer", "qa-release-engineer"],
+      "evidence": [{"check":"Stable Comparison key and actor-owned Comparison/Video read-only request lookup recover without replay or billing mutation; unknown/foreign requests reveal no private data.","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"}],
+      "reviews": [
+        {"role":"backend-platform-architect","agentId":"/root/fe24_focus_security","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"},
+        {"role":"commercial-financial-integrity","agentId":"/root/fe24_focus_security","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"},
+        {"role":"security-reviewer","agentId":"/root/fe24_focus_security","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"},
+        {"role":"qa-release-engineer","agentId":"/root/fe24_focus_security","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"}
+      ],
+      "handoff": "Backend worker owns API/domain/schema/tests; root integrates explicit bridge. Independent sensitive review after integration."
+    },
+    {
+      "id": "FE24-CV-UI",
+      "title": "Image, Comparison and Video workspaces on preview6502",
+      "complexity": "complex",
+      "reason": "Two new workspace flows consume canonical quote/submission/private media contracts.",
+      "owner": "ux-ui-product-designer", "ownerAgentId": "/root",
+      "capabilities": ["frontend-experience", "comparisons", "generation"],
+      "risks": ["user-facing", "shared-contract", "security", "financial"], "dependsOn": ["FE24-CV-B", "FE24-U1"],
+      "writeScope": ["web-next/", "requirements/024-frontend-rebuild/", "requirements/099-technical-dept/000-master.md"],
+      "status": "complete",
+      "acceptance": ["Comparison C02-C05 and CMP01-CMP09 use canonical slots, quotes, recovery, results and winner with actor-safe drafts.", "Video V02-V06 and VID01-VID10 use supported sources/duration, canonical task recovery, authorized playback and success-only previews with retained error activity.", "Navigation Image-Comparison-Video, handoff protection, TH/EN responsive controls and existing Image flows remain usable."],
+      "reviewers": ["ux-ui-product-designer", "backend-platform-architect", "commercial-financial-integrity", "security-reviewer", "qa-release-engineer"],
+      "evidence": [
+        {"check":"Comparison C02-C05 and CMP01-CMP09 use canonical slots, quotes, recovery, results and winner with actor-safe drafts.","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"},
+        {"check":"Video V02-V06 and VID01-VID10 use supported sources/duration, canonical task recovery, authorized playback and success-only previews with retained error activity.","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"},
+        {"check":"Navigation Image-Comparison-Video, handoff protection, TH/EN responsive controls and existing Image flows remain usable.","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"}
+      ],
+      "reviews": [
+        {"role":"ux-ui-product-designer","agentId":"/root/fe24_focus_security","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"},
+        {"role":"backend-platform-architect","agentId":"/root/fe24_focus_security","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"},
+        {"role":"commercial-financial-integrity","agentId":"/root/fe24_focus_security","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"},
+        {"role":"security-reviewer","agentId":"/root/fe24_focus_security","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"},
+        {"role":"qa-release-engineer","agentId":"/root/fe24_focus_security","result":"passed","reference":"requirements/024-frontend-rebuild/005-implementation-checkpoint.md"}
+      ],
+      "handoff": "Root owns shell/Comparison/shared modules; fe24_cv_video owns only new Video files/styles/locales. Five role perspectives are required because UX, billing integration and private transport intersect; reviews run in bounded waves. No paid calls or Git."
+    }
+    ,
+    {
       "id": "FE24-U1",
       "title": "Provider menu, expanded prompt, automatic Fit and stable window return",
       "complexity": "complex",

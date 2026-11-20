@@ -123,6 +123,8 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
   assert.equal(capabilities.capabilities.providerRuntimeControl.enabled, true);
   assert.equal((await request('/api/generation/video/capabilities')).status, 403);
   assert.equal((await request('/api/generation/requests/fixture')).status, 403);
+  for (const url of ['/api/comparisons/policy', '/api/comparisons/requests/request_key_123', '/api/generation/video/requests/request_key_123'])
+    assert.equal((await request(url)).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices')).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices', 'POST', headers)).status, 403);
   runtime = qualifyAuthRuntime({ ...env, PORT: String(port), AUTH_DEV_BYPASS_GENERATION_ENABLED: 'true' }, f.project);
@@ -136,6 +138,14 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
     assert.equal((await request('/api/generation/requests/fixture', 'GET', { origin: previewOrigin })).status, 403);
   }
   assert.equal((await request('/api/generation/requests/fixture', 'POST', liveHeaders)).status, 403);
+  for (const url of ['/api/comparisons/policy', '/api/comparisons/requests/request_key_123', '/api/generation/video/requests/request_key_123']) {
+    assert.equal((await request(url)).status, 200);
+    assert.equal((await request(url, 'POST', liveHeaders)).status, 403);
+    assert.equal((await request(url, 'GET', { origin: 'https://attacker.invalid' })).status, 403);
+  }
+  for (const url of ['/api/comparisons/requests/short', '/api/comparisons/requests/request_key_123/dispatch',
+    '/api/generation/video/requests/short', '/api/generation/video/requests/request_key_123/dispatch'])
+    assert.equal((await request(url)).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices')).status, 200);
   for (const [url, method] of [['/api/voice-studio/custom-voices','POST'], ['/api/voice-studio/custom-voices/quotes','POST'],
     ['/api/voice-studio/custom-voices/fixture/save','POST'], ['/api/voice-studio/custom-voices/fixture','PATCH'], ['/api/voice-studio/custom-voices/fixture','DELETE']]) {

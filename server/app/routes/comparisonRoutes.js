@@ -10,6 +10,21 @@ export function registerComparisonRoutes(app, { comparisonOrchestrator }) {
     return req.actorContext;
   };
 
+  app.get('/api/comparisons/policy', (req, res) => {
+    try {
+      getComparisonActor(req);
+      res.set('Cache-Control', 'private, no-store');
+      res.json(comparisonOrchestrator.getPolicy());
+    } catch (error) { sendComparisonError(res, error); }
+  });
+
+  app.get('/api/comparisons/requests/:requestId', async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
+    try {
+      res.json(await comparisonOrchestrator.getRequestStatus(req.params.requestId, getComparisonActor(req)));
+    } catch (error) { sendComparisonError(res, error); }
+  });
+
   app.post('/api/comparisons/estimate', async (req, res) => {
     try {
       res.json(await comparisonOrchestrator.estimate({ ...req.body, userRole: req.userRole }, getComparisonActor(req)));

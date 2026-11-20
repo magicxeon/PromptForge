@@ -34,6 +34,17 @@ export function registerVideoGenerationRoutes(app, {
     }
   });
 
+  app.get('/api/generation/video/requests/:requestId', async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
+    try {
+      await communityFeaturePolicyService.assertEnabled('cinematic.playgroundVideoEnabled');
+      return res.json(await videoGenerationService.getRequestStatus(req.params.requestId, req.actorContext));
+    } catch (error) {
+      if (error.statusCode >= 400 && error.statusCode < 500) return sendVideoGenerationError(res, error);
+      return res.status(503).json({ error: { code: 'video_request_lookup_unavailable', message: 'Video request status is temporarily unavailable.' } });
+    }
+  });
+
   app.post('/api/generation/video/quote', async (req, res) => {
     try {
       await communityFeaturePolicyService.assertEnabled('cinematic.playgroundVideoEnabled');

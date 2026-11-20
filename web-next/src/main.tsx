@@ -8,6 +8,8 @@ import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/600.css";
 import "./app/i18n";
 import "./styles/workspace.css";
+import "./styles/comparison.css";
+import "./styles/video.css";
 import { ActorProvider } from "./lib/canonical";
 import { App } from "./app/App";
 const queryClient = new QueryClient({

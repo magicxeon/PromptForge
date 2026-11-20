@@ -1,7 +1,7 @@
 import {
   compileGenerationContext
 } from '../generation/generationRequestService.js';
-import { aggregateRunStatus, ComparisonValidator, stripPrivateConfig } from './ComparisonValidator.js';
+import { aggregateRunStatus, ComparisonValidator, stripPrivateConfig, IMAGE_COMPARISON_POLICY } from './ComparisonValidator.js';
 import { ComparisonError, ComparisonRepository } from '../../repositories/comparisons/ComparisonRepository.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
@@ -41,6 +41,21 @@ export class ComparisonOrchestrator {
 
   async init() {
     await this.repository.init();
+  }
+
+  getPolicy() {
+    return { ...IMAGE_COMPARISON_POLICY };
+  }
+
+  async getRequestStatus(requestId, actor) {
+    if (!actor?.userId) throw new ComparisonError('actor_context_required', 'Actor context is required.', 401);
+    const key = normalizeIdempotencyKey(requestId);
+    const mapping = await this.repository.findRequestForActor(key, actor);
+    if (!mapping) return { state: 'unknown', requestId: key };
+    if (!mapping.setId || !mapping.runId || mapping.ambiguous) {
+      return { state: 'reconciliation_required', requestId: key };
+    }
+    return { state: 'found', requestId: key, setId: mapping.setId, runId: mapping.runId };
   }
 
   async estimate(payload, actor) {

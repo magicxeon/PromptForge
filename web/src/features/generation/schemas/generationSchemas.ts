@@ -1,4 +1,16 @@
 import { z } from 'zod';
+
+export const comparisonPolicySchema = z.object({
+  minimumSlots: z.number().int().positive(),
+  maximumSlots: z.number().int().positive()
+}).refine(value => value.maximumSlots >= value.minimumSlots);
+
+export const comparisonRequestStatusSchema = z.discriminatedUnion('state', [
+  z.object({ state: z.literal('found'), requestId: z.string().min(1), setId: z.string().min(1), runId: z.string().min(1) }),
+  z.object({ state: z.literal('unknown'), requestId: z.string().min(1) }),
+  z.object({ state: z.literal('reconciliation_required'), requestId: z.string().min(1) })
+]);
+export type ComparisonRequestStatus = z.infer<typeof comparisonRequestStatusSchema>;
 const imageRequestIdSchema = z.string().regex(/^[A-Za-z0-9:_-]{1,160}$/);
 export const imageRequestStatusSchema = z.discriminatedUnion('state', [
   z.object({

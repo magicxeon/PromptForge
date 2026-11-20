@@ -1,10 +1,11 @@
 # FE24-DELIVERY — งานย่อย การตรวจ และการย้ายใช้งาน
 
-สถานะ 2026-11-20: M0 review จบ; M1 Image preview มี implementation และ scoped evidence ใน
-[005](005-implementation-checkpoint.md)/task-plan.json. T06–T08 ยังเป็นขั้นถัดไป; ไม่อ้าง full UAT.
+สถานะ 2026-11-20: M0 review จบ; M1 Image, M2 Comparison และ M3 Video มี implementation;
+scoped evidence/review ใน[005](005-implementation-checkpoint.md)/task-plan.json.
+T08 production cutover ยังแยกต่างหาก; ไม่อ้าง full UAT หรือpaidprovider qualification.
 
-Latest requirement update: เมนูImage→Comparison→Video; ออกแบบComparisonก่อนVideoตาม
-006/007. **รอบปัจจุบันทำเอกสารและรอคำสั่งต่อไป** ไม่เริ่มT06/T07หรือเปลี่ยนcompletedJSONtasks.
+Latest implementation: เมนูImage→Comparison→Video บน6502 ตาม006/007;
+C01/V01 recovery prerequisites ลงcanonical ownerแล้ว; รอบนี้ส่งมอบT06/T07 preview.
 
 ## 1. งานที่เรียงตาม dependency
 

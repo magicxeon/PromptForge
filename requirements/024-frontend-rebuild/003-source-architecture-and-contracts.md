@@ -16,7 +16,7 @@ web-next/src/
     state/                      actor-scoped/versioned draft และ pure validation
     api/                        facade สำหรับ public contracts ที่ใช้ร่วมกัน
     routes/                     page composition
-  features/comparisons/         planned: routes/components/hooks/state ของ Comparison UI
+  features/comparisons/         routes/components/hooks/state ของ Comparison UI
   lib/                          shared-runtime adapters เท่าที่จำเป็น
   locales/th/                   ข้อความ presentation ใหม่
   locales/en/                   key/interpolation parity
@@ -54,9 +54,10 @@ client owners ใน `web/` โดยตรง ไม่คัดลอกโค
 ไม่รู้จักหน้าตาของทั้งสองแอป. การ extraction เป็น future task ที่มี independent
 Security/Backend review เมื่อแตะ session/private-media contract.
 
-Comparison/Video expansionใช้boundaryเดิมตาม006/007. โฟลเดอร์comparisonsข้างบนเป็น
-planned presentationownerยังไม่สร้าง; backendComparison/Generation/Creditsไม่เปลี่ยนเจ้าของ.
-App routingเพิ่มเฉพาะหลังสั่งimplementตาม001§9; รอบrequirementนี้ไม่เปลี่ยนruntimeURL.
+Comparison/Video ใช้boundaryเดิมตาม006/007. โฟลเดอร์comparisonsเป็น presentation owner;
+backendComparison/Generation/Creditsไม่เปลี่ยนเจ้าของ. App routing บน6502 ใช้
+`/image`, `/comparison`, `/video`; `/` redirect ไปImage. Video source/polling/API helper
+ยังอยู่canonical `web/`; bridgeและexplicit owner importsไม่สร้างprovider/queueใหม่.
 
 Inventory แยก pure schemas/types, transport, React identity lifecycle, workflow hooks และ UI;
 Generation API มี Studio/Profile type dependencies ต้องตรวจจริง ไม่ถือว่าย้ายไฟล์ API อย่างเดียวแล้วจบ.
@@ -100,7 +101,7 @@ Library ต้องใช้ authorized transport/allowed origins; ห้าม
 
 | Inventory | สิ่งที่ต้องบันทึก | ข้อจำกัดจาก source review 2026-11-20 |
 |---|---|---|
-| Image/Video/Comparison recovery แยกกัน | owner, correlation key, immutable input identity, permitted persistence, lookup/safe replay, expiry/conflict และ terminal cleanup | Image helper สร้าง request ID ใหม่ถ้าไม่ส่ง; Comparison helper สร้าง key ภายในทุก call; Video key ปัจจุบันอยู่ React ref จึงยังไม่รับรอง reload recovery |
+| Image/Video/Comparison recovery แยกกัน | owner, correlation key, immutable input identity, permitted persistence, lookup/safe replay, expiry/conflict และ terminal cleanup | FE24 ทุกworkspace persist stable intent ก่อนPOST; Comparison helperรับ optional key ตัวที่5; owner-scopedGET `/api/comparisons/requests/:requestId` และ `/api/generation/video/requests/:requestId` กู้mappingโดยไม่dispatch/poll provider/แตะCredits |
 | Recent outputs/งานล่าสุด/reference picker แต่ละรายการ | API owner, stable ID/order/filter, page limit, continuation, thumbnail vs original | Image History มี cursor; Video Recent มี limit แต่ยังไม่มี continuation; ห้ามอ้าง load more โดยเพิ่ม limit ไม่จำกัด |
 | Submitted intent vs draft vs selected result | owner/lifetime ของแต่ละ state, actor scope, cleanup และ observer ต่อ operation | แก้ draft ได้โดยไม่เปลี่ยนคำขอเดิม; งานหลายชิ้นต้องไม่ถูกแทนด้วย active ID เดียว |
 

@@ -32,3 +32,7 @@ export { useGenerationGroup } from "../../../web/src/features/generation/hooks/u
 export { useGenerationJobCenter } from "../../../web/src/features/generation/job-center/useGenerationJobCenter";
 export { imageModelUnavailableReason } from "../../../web/src/features/generation/modelAvailability";
 export { getImageRequestStatus } from "../../../web/src/features/generation/api/generationApi";
+export { estimateComparison, submitComparison, getComparisonPolicy, getComparisonRequestStatus } from "../../../web/src/features/generation/api/generationApi";
+export { listComparisons, getComparison, updateComparison, setComparisonWinner } from "../../../web/src/features/comparisons/api/comparisonApi";
+export { pollingPolicy } from "../../../web/src/lib/api/pollingPolicy";
+export type { ComparisonSlotInput } from "../../../web/src/features/generation/api/generationApi";

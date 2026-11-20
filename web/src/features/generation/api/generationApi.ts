@@ -3,6 +3,8 @@ import {
   attributesBundleSchema,
   comparisonEstimateSchema,
   comparisonSubmitSchema,
+  comparisonPolicySchema,
+  comparisonRequestStatusSchema,
   compiledPromptPreviewSchema,
   creditEstimateResponseSchema,
   generationSubmitSchema,
@@ -159,6 +161,16 @@ export function getGenerationGroupStatus(groupId: string, signal?: AbortSignal) 
   });
 }
 
+export function getComparisonPolicy(signal?: AbortSignal) {
+  return apiRequest('/api/comparisons/policy', { schema: comparisonPolicySchema, signal, cache: 'no-store' });
+}
+
+export function getComparisonRequestStatus(requestId: string, signal?: AbortSignal) {
+  return apiRequest(`/api/comparisons/requests/${encodeURIComponent(requestId)}`, {
+    schema: comparisonRequestStatusSchema, signal, cache: 'no-store'
+  });
+}
+
 export function estimateComparison(draft: GenerationRequestDraft, slots: ComparisonSlotInput[]) {
   return apiRequest('/api/comparisons/estimate', {
     method: 'POST',
@@ -174,7 +186,8 @@ export function submitComparison(
   draft: GenerationRequestDraft,
   slots: ComparisonSlotInput[],
   estimate: ComparisonEstimate,
-  name?: string
+  name?: string,
+  idempotencyKey?: string
 ) {
   return apiRequest('/api/comparisons', {
     method: 'POST',
@@ -190,7 +203,7 @@ export function submitComparison(
       })),
       estimateToken: estimate.estimateToken,
       estimateExpiresAt: estimate.expiresAt,
-      idempotencyKey: createRequestId('cmp')
+      idempotencyKey: idempotencyKey ?? createRequestId('cmp')
     },
     schema: comparisonSubmitSchema
   });

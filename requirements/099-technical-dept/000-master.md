@@ -59,18 +59,18 @@ This is a required workflow gate, not an implemented automatic drift detector.
 
 ## Current Capability Addendum
 
-### Separate Frontend Rebuild — Image Preview (2026-11-20)
+### Separate Frontend Rebuild — Image, Comparison and Video Preview (2026-11-20)
 
-[FE24](../024-frontend-rebuild/000-master.md) owns `web-next/`, an isolated Image
-Playground preview on local6502, one fixed palette and TH/EN. Planned expansion:
+[FE24](../024-frontend-rebuild/000-master.md) owns `web-next/`, an isolated
+Playground preview on local6502, one fixed palette and TH/EN. Implemented routes:
 `web-next/src/features/comparisons/` owns Comparison presentation per
 [FE24-CMP](../024-frontend-rebuild/006-comparison-workspace.md); Video presentation
 stays in `features/playground/` and shared `components/media/` per
-[FE24-VID](../024-frontend-rebuild/007-video-workspace.md). These two expansions are
-requirements only, awaiting implementation; navigation order is Image, Comparison,
+[FE24-VID](../024-frontend-rebuild/007-video-workspace.md). Navigation order is Image, Comparison,
 Video. Canonical Comparison/Generation/Identity/Credits backend ownership is unchanged.
 `web/` remains the
-default frontend; Video/Comparison still link to it. `web-next/src/lib/canonical.ts`
+default frontend; FE24 Comparison/history inspection is self-contained with no
+previous-workspace link. `web-next/src/lib/canonical.ts`
 is a temporary explicit bridge to existing identity/API/schema/polling owners, not
 a duplicated client or shared package. New drafts use actor/auth-mode-scoped FE24
 namespaces. Generation adds read-only `/api/generation/requests/:requestId` through
@@ -78,6 +78,15 @@ its facade and Credits' read-only request mapping; no billing mutation/replay is
 performed by lookup. Identity adds only explicit loopback6502 origins to qualified
 development bypass. No production mount, server storage migration or new provider
 path. See [implementation evidence](../024-frontend-rebuild/005-implementation-checkpoint.md).
+
+Comparison adds read-only `/api/comparisons/policy` and `/api/comparisons/requests/:requestId`
+through ComparisonOrchestrator/ComparisonRepository; Video adds read-only
+`/api/generation/video/requests/:requestId` through VideoGenerationApplicationService
+and its existing repository. These return actor-owned durable mappings without provider
+polling, dispatch or Credit mutation. Stable intent is persisted before POST under
+FE24 comparison/video draft and intent namespaces; actor-scoped navigation handoffs
+are cleared after consumption. Native Video playback/seek/download uses existing
+same-origin authorized delivery; no public media route or storage location was added.
 
 ### Authentication Delivery (2026-10-12; Customer Login Source Milestone Accepted)
 
@@ -1095,7 +1104,8 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Voice Studio documents, character voice presets and Take selection | `server/domain/voice-studio/VoiceStudioApplicationService.js`, `server/repositories/voice-studio/`, `server/app/routes/voiceStudioRoutes.js` and logical `server/data/voice-studio/{documents,characters,takes,customVoices}.json`; [023 requirement](../023-voice-studio/000-master.md). Versioned actor-scoped metadata uses atomic JSON. Internal `CustomVoiceService.js` owns saved design candidates and versioned character bindings. Speech and design enter GenerationApplicationService, shared QueueManager and durable `server/data/generation/speechOperations.json`; remote voice identities/credential bindings remain private in Generation. Samples use Assets; billable work uses Credits. Source and independent sensitive review passed; live Google/invoice/Thai listening remain unverified. See [data contract](../023-voice-studio/004-data-and-lifecycle.md) |
 | Voice Studio model/voice catalog, speech adapter, audio files and capped pricing | `server/config/voice-studio/{models,voices,policy}.v1.json` is validated by Generation's SpeechCatalog and existing availability policy; includes design capabilities, candidate/project limits and event toolbar metadata. `server/providers/GeminiSpeechProvider.js` owns Google speech and Voices REST. `server/domain/assets/AudioAssetService.js` validates/registers WAV under `OUTPUTS_DIR/voice-studio/`; AssetDeliveryService serves private audio GET/HEAD/Range. CreditApplicationService/SpeechPricing reserve a frozen maximum and capture actual usage through existing Credit repository; rate versions and documented Voice Design model-rate inference live in credit-pricing-policy.json. [Configuration contract](../023-voice-studio/003-model-configuration.md). No new wallet/media store |
 | Generation Group persistence and child status aggregation | `server/repositories/generation/GenerationGroupRepository.js`, `server/data/generation/groups.json` |
-| Guarded video capability catalog, durable provider-task lifecycle and actor task reads | `server/domain/generation/VideoCapabilityRegistry.js`, `server/domain/generation/VideoProviderTaskService.js`, `server/repositories/generation/VideoProviderTaskRepository.js`, `server/app/routes/videoGenerationRoutes.js` |
+| Guarded video capability catalog, durable provider-task lifecycle and actor task reads | `server/domain/generation/VideoCapabilityRegistry.js`, `server/domain/generation/VideoProviderTaskService.js`, `server/repositories/generation/VideoProviderTaskRepository.js`, `server/app/routes/videoGenerationRoutes.js`. FE24 read-only request lookup enters through `VideoGenerationApplicationService.js`; existing actor/idempotency mapping, no replay/poll/billing mutation |
+| Comparison policy, submission and actor-owned request recovery | `server/domain/comparisons/ComparisonOrchestrator.js`, `ComparisonValidator.js`, `server/repositories/comparisons/ComparisonRepository.js`, `server/app/routes/comparisonRoutes.js`; GET policy projects owner slot limits, GET request lookup reads existing run idempotency mapping by actor. Canonical quote/create/winner and Credit boundaries unchanged |
 | Persistence interfaces and adapters | `server/repositories/<capability>/` |
 | Character Profile lifecycle, casting, sharing, usage and reusable private Character Look versions | `server/domain/character-profiles/`, `server/repositories/character-profiles/`, `server/data/character-profiles/`; Look state is owned by `CharacterLookService.js`, `CharacterLookRepository.js` and `looks.json`, while Cinematic stores only pinned authorized bindings |
 | Fashion Blueprint planning, quotes, runs and assets | `server/domain/fashion-blueprint/`, `server/repositories/fashion-blueprint/`, `server/data/fashion-blueprint/` |
@@ -1144,7 +1154,9 @@ Server placement rules:
 |---|---|
 | React bootstrap and app providers | `web/src/main.tsx`, `web/src/app/` |
 | Separate Image Playground preview | `web-next/src/app/`, `features/playground/`, `components/media/`, `styles/` under [FE24](../024-frontend-rebuild/000-master.md). Vite6502 proxies API6500. `src/lib/canonical.ts` bridges existing `web/` public client owners; new FE24 actor-scoped drafts. Root `dev:web-next` / `stop:web-next` and `scripts/start-web-next.bat` use `scripts/start-web-next.mjs`; it reuses API6500 or starts canonical `server/server.js` using the existing development environment helper, waits for health/auth config, then starts Vite. Shared API survives frontend-only restarts; startup log is in OS temporary storage. `scripts/stop-web-next-port.ps1` checks exact ownership before clearing6502. `web-next/start-dev.bat` forwards to this launcher; no production cutover |
-| Planned Comparison and Video preview presentation | Requirements only, awaiting implementation: `web-next/src/features/comparisons/` owns image Comparison UI per [006](../024-frontend-rebuild/006-comparison-workspace.md); Video remains under `features/playground/` with shared `components/media/` per [007](../024-frontend-rebuild/007-video-workspace.md). App navigation is planned as Image → Comparison → Video. Canonical Comparison/Generation/Identity/Credits services and storage stay unchanged; request-recovery prerequisites are tasks C01/V01, not claimed implemented |
+| Comparison and Video preview presentation | `web-next/src/features/comparisons/` owns image Comparison routes/hooks/state/results per [006](../024-frontend-rebuild/006-comparison-workspace.md); Video remains under `features/playground/` with `components/media/VideoViewer.tsx` per [007](../024-frontend-rebuild/007-video-workspace.md). App navigation is Image → Comparison → Video, using `/image`, `/comparison`, `/video`. Canonical Comparison/Generation/Identity/Credits services and storage stay unchanged; C01/V01 add owner-scoped read-only request recovery; UI uses existing consent, quote/submission and reference plan owners |
+| Comparison history presentation configuration | `web-next/src/features/comparisons/config/comparison-ui.json` with validated `comparisonUi.ts` owns page size (default5), lazy-load margin and retained-set bound. `components/ComparisonHistory.tsx` owns preview gallery/independent history modal. Existing `ComparisonExportDialog` and `GenerationResultMetadata` remain canonical in `web/src/components/`; no export/auth/pricing/storage fork. `listComparisons` accepts an optional pageSize while legacy callers retain18 |
+| FE24 media inspection | `web-next/src/components/media/ImageViewer.tsx` owns inline/expanded image viewing and optional recent-image navigation/filmstrip; `idleScrollbars.ts` owns transient native scrollbar visibility with disposal. `features/playground/components/ImageResultActions.tsx` shares existing image actions between inline and modal contexts. `features/comparisons/components/DetailCompare.tsx` owns fit-to-screen multi-image layout and synchronized normalized pan/zoom. All reuse private media through `MediaImage.tsx`; no backend, persistence or provider dispatch fork |
 | React navigation metadata | `web/src/app/routeRegistry/`; shared `components/layout/SidebarNavigation` renders groups. Voice Studio uses route-backed `?view=script|voices|library` submenus; Character & Scene Studio retains its Face Creator / Character Sheet / Scene Builder routes. [Voice navigation correction](../023-voice-studio/001-ux-and-workflows.md) |
 | React routes and feature orchestration | `web/src/features/<feature>/` |
 | Character Profile and reusable Character Look owner UI/application boundary | `web/src/features/profiles/`; the shared source-draft dialog belongs in `web/src/features/profiles/components/` and may be invoked by Cinematic without creating Cinematic-owned Look persistence |
@@ -1167,7 +1179,7 @@ Server placement rules:
 | Design tokens and global responsive styling | `web/src/styles/` |
 | Canonical UI visual language and agent guidance | `requirements/Knowledge/ui-design-system-and-visual-language.md` |
 | Runtime application assets | `client/assets/<feature>/` |
-| Translation manifests, schemas, and locale catalogs | `client/i18n/` owns existing frontend translations. `web-next/src/locales/{th,en}/workspace.json` and `web-next/src/app/i18n.ts` own only isolated FE24 presentation. No old locales moved; one i18next runtime per application |
+| Translation manifests, schemas, and locale catalogs | `client/i18n/` owns existing frontend translations. `web-next/src/locales/{th,en}/{workspace,comparison,video}.json` and `web-next/src/app/i18n.ts` own isolated FE24 presentation; existing Credit consent/action keys come from canonical `react-ui.json`. Shared Comparison export/metadata use canonical `comparisons.json`, converting its legacy single-brace placeholders at the FE24 boundary. No old locales moved; one i18next runtime per application |
 | Generated image output | `client/outputs/` |
 | Legacy browser source pending post-validation deletion | `client/` excluding retained data/assets |
 

@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+export const videoRequestStatusSchema = z.discriminatedUnion('state', [
+  z.object({ state: z.literal('found'), requestId: z.string().min(1), taskId: z.string().min(1) }),
+  z.object({ state: z.literal('unknown'), requestId: z.string().min(1) }),
+  z.object({ state: z.literal('reconciliation_required'), requestId: z.string().min(1) })
+]);
+export type VideoRequestStatus = z.infer<typeof videoRequestStatusSchema>;
+
 export const videoReferenceIssueSchema = z.object({
   contentIndex: z.number().int().min(1).max(12),
   referenceIndex: z.number().int().min(0).max(11),

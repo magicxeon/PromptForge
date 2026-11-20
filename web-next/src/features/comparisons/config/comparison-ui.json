@@ -1,0 +1,8 @@
+{
+  "history": {
+    "pageSize": 5,
+    "lazyLoad": true,
+    "prefetchMarginPx": 300,
+    "maxLoadedSets": 100
+  }
+}

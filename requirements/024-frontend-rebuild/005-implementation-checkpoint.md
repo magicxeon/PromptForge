@@ -208,3 +208,118 @@ evidence, not claimed independently rerun. The identified delayed401 handling wa
 corrected and verified before acceptance. TH/EN101-key/interpolation parity and
 affected owner paths passed. FE24-U1 is complete; no remaining required work in
 these four corrections. Later Video/Comparison migration is unchanged.
+
+## FE24-CV — Comparison and Video preview (2026-11-20)
+
+User authorized implementation of006/007. Primary: UX/UI implementation;
+Backend, Commercial, Security and QA review cover existing sensitive boundaries.
+Root owns shell/Comparison/shared presentation/docs; `fe24_cv_video` owns new
+Video presentation and its scoped browser check; `fe24_cv_backend` owns canonical
+request-recovery additions. Independent review: `fe24_focus_security`.
+See task-plan.json for acceptance/review disposition; no Git or paid generation.
+
+Delivered behavior:
+- Local6502 navigation is Image → Comparison → Video, with `/` redirecting to
+  `/image`. Drafts are separate; handoffs carry identityScope, reject mismatches,
+  clear router state after consumption, and require explicit application.
+- Comparison has capability-driven provider/model slots, stable IDs, enable/reorder,
+  ratio intersection, resolution from canonical quotes, enabled-slot-only totals,
+  durable request intent, unknown lookup, per-slot status, successful images,
+  zoom/download, rename (100-character owner limit), winner and bounded history.
+  Partial/all-failed runs retain status/logs without empty media cards.
+- Video has existing typed text/image/Character-look inputs, upload/generated/
+  trusted/approved-Look sources, config-driven duration slider or selector,
+  ratio/resolution/audio, durable intent and canonical quote/consent/task monitoring.
+  Failed source indexes map through the submitted plan; renaming retains rejection,
+  replacing an asset clears its old rejection, and remove-during-upload ignores
+  late replies. Activity inspection does not unlock an active submission.
+- Recent Video contains only completed tasks with assets. Native same-origin
+  playback/seek/fullscreen/download uses original files. Media Retry is local,
+  never resubmits generation or loops identity refresh; current retried player
+  is paused and src cleared at unmount/identity invalidation.
+- Both submissions retain their stable request key for every uncertain HTTP
+  failure; status recovery is GET-only. Existing Credit confirmation preferences
+  remain authoritative. Stale/expired quotes cannot authorize a different input.
+
+Owner contracts and placement:
+- ComparisonOrchestrator/Repository and comparisonRoutes own new read-only
+  `GET /api/comparisons/policy` and `GET /api/comparisons/requests/:requestId`.
+  `submitComparison` accepts an optional fifth idempotency-key argument, preserving
+  old callers. VideoGenerationApplicationService/videoGenerationRoutes own new
+  `GET /api/generation/video/requests/:requestId` using existing durable mapping.
+  Foreign/unknown keys disclose no asset; lookup has no provider polling, dispatch,
+  reservation/capture/refund or new storage location.
+- New Comparison files: `web-next/src/features/comparisons/{routes,components,hooks,state}/`.
+  New Video files: `features/playground/{routes/VideoWorkspace.tsx,hooks/useVideoWorkspace.ts,
+  state/videoDraft.ts,components/VideoSources.tsx}`, `components/media/VideoViewer.tsx`.
+  Shared shell uses `app/WorkspaceNavigation.tsx`; styles/locales split by workspace.
+- Browser draft/intent features: `fe24-comparison`, `fe24-comparison-intent`,
+  `fe24-video`, `fe24-video-intent`, schemaVersion1 through actor-scoped storage.
+  Only input metadata/relative storage keys/version IDs persist, never file bytes.
+  Existing server data/output locations unchanged; no moved files. Architecture
+  map updated for implemented presentation, new public reads and locale ownership.
+
+Scoped evidence:
+- Backend worker:33 focused Node tests,21 canonical API Vitest tests, old-web
+  TypeScript and7 JS syntax checks pass. Independent reviewer reran recovery/local
+  admin9 tests and API21 tests before Backend/Commercial/Security/scopedQA acceptance.
+- `node --test test/authentication/privateMedia.test.js`:12 pass, including
+  private original/poster/video ownership, bounded/suffix Range, guest/foreign,
+  deleted assets and authority revocation during bounded streaming.
+- Video state tests:6 pass (duration lists, source-plan authority, persistence,
+  cooldown). TypeScript checked through the final production build.
+- `node web-next/test/comparison-video-check.mjs`:pass. Fully intercepted APIs;
+  slots/disabled totals, consent cancel/confirm, double-click, expired/out-of-order
+  quotes in both modes, lost-response/reload lookup, partial/all-failed results,
+  winner/zoom, Video seek/fullscreen/media retry, retried-node cleanup, foreign
+  handoff rejection on all three routes and explicit identity gate. TH/EN at
+  390/820/1440 plus CSS200% layout/reflow; captures under `_temp/fe24-cv/`.
+  Uses installed FFmpeg to finalize a generated synthetic WebM fixture's seek index.
+- `node web-next/test/video-sources-check.mjs`:pass. Intercepted mixed upload
+  success/failure, per-file retry, removal/late success, multiple rejection indexes,
+  rename versus replacement and Image→Video confirm/cancel/reload/no auto-submit.
+- `node web-next/test/browser-check.mjs`:existing Image regression pass,
+  including private portal/focus, prompt/model controls, Fit/zoom and unknown recovery.
+- `node web-next/test/live-preview-check.mjs`:real Chromium/API6500 through6502,
+  read-only:2 initial Comparison slots,10 Video catalog models, policy/read-only
+  unknown lookups200,0 mutations and0 browser errors. API restarted only after
+  confirming active job count0 and exact process ownership; services left running.
+- `npm.cmd run build:web-next`:pass. Entry781.92KB /231.26KB gzip; Vite's existing
+  500KB chunk warning remains visible. No warning-limit change or unrelated tuning.
+
+Limits: no paid generation or provider qualification claimed; native physical-device,
+screen-reader and actual browser-toolbar zoom checks remain in broader cutover UAT
+(CSS200% reflow was checked here). Video first/last-frame and audio/video-reference
+inputs await an end-to-end typed DTO; Image Comparison only, no Video Comparison.
+Video Recent is12 tasks with a link to the old workspace, not unlimited pagination.
+Trusted-only Image handoff checks the first bounded source page; older eligible
+images remain available via the paginated source picker. Default production frontend
+and advanced old-workspace actions remain unchanged; T08 cutover needs separate approval.
+
+Final review: `/root/fe24_focus_security` independently reviewed source, assertions
+and representative captures: Backend, Commercial, Security, UX and scoped QA PASS.
+The final200% Comparison finding was corrected with a result-container breakpoint
+and contained button wrapping; browser assertions now check action bounds inside
+each card, not just page overflow. Final browser rerun and build pass after that
+correction. Browser/build/private-media/live-smoke execution is implementation-thread
+evidence, not claimed independently rerun by the reviewer. TH/EN key/interpolation
+parity:workspace107/comparison38/video111. Local requirement links and execution
+plan structure checked. FE24-CV-B and FE24-CV-UI complete for the preview scope;
+no required implementation work remains in this delivery.
+
+## Comparison history parity correction — 2026-11-20
+
+Implemented006§8: preview mosaics, configurable five-set lazy history, independent
+history modal, complete slot gallery, submitted settings and canonical metadata/
+export controls. Active authoring draft and current results remain intact.
+Configuration: `web-next/src/features/comparisons/config/comparison-ui.json`.
+Canonical list helper accepts optional pageSize while legacy callers retain18.
+Architecture map updated; no runtime-data migration or moved files.
+
+Focused browser acceptance,3 canonical export tests, typecheck/build and live
+read-only five-card/four-image smoke passed. TH/EN390/820/1440 and CSS200% covered;
+evidence and limits in006§8, captures under `_temp/fe24-history/`.
+This correction used one implementer and sequential UX/QA review; earlier
+independent reviews above do not claim review of this new change. No paid
+generation or live export mutation was performed. Existing build chunk warning
+remains; no required history-correction work remains.

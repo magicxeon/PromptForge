@@ -651,6 +651,41 @@ select[aria-invalid="true"] {
 .image-surface.zoomed:active {
   cursor: grabbing;
 }
+.idle-scrollbars {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color .2s;
+}
+.idle-scrollbars[data-scroll-active="true"] {
+  scrollbar-color: #7b8b82 transparent;
+}
+.idle-scrollbars::-webkit-scrollbar { width: 8px; height: 8px; }
+.idle-scrollbars::-webkit-scrollbar-track,
+.idle-scrollbars::-webkit-scrollbar-corner { background: transparent; }
+.idle-scrollbars::-webkit-scrollbar-thumb { background: transparent; border-radius: 8px; transition: background-color .2s; }
+.idle-scrollbars[data-scroll-active="true"]::-webkit-scrollbar-thumb { background: #7b8b82; }
+@media (prefers-reduced-motion: reduce) {
+  .idle-scrollbars { transition: none; }
+  .idle-scrollbars::-webkit-scrollbar-thumb { transition: none; }
+}
+.gallery-viewer .image-surface { min-height: 100px; overscroll-behavior: contain; }
+.gallery-navigation { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 6px 12px; flex: none; }
+.gallery-navigation button { padding: 6px 10px; }
+.gallery-filmstrip { display: flex; position: relative; overflow-x: auto; gap: 6px; padding: 6px 12px; height: 80px; flex: none; }
+.gallery-filmstrip button { width: 86px; padding: 2px; flex: none; border: 2px solid transparent; }
+.gallery-filmstrip button[aria-pressed="true"] { border-color: #286b52; }
+.gallery-filmstrip img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-actions { max-height: 24dvh; overflow: auto; flex: none; }
+.gallery-error { margin: 4px 12px; font-size: 12px; flex: none; }
+.gallery-actions .result-info { margin: 0; padding: 10px 12px; border-radius: 0; gap: 10px; }
+.gallery-actions .result-info > div:first-child { max-width: 240px; overflow-wrap: anywhere; }
+@media (max-width: 700px) {
+  .expanded-viewer.gallery-viewer { inset: 0; border-radius: 0; }
+  .gallery-filmstrip { height: 62px; }
+  .gallery-filmstrip button { width: 66px; }
+  .gallery-actions { max-height: 22dvh; }
+  .gallery-navigation { gap: 5px; }
+}
 .image-stage {
   display: flex;
   align-items: center;

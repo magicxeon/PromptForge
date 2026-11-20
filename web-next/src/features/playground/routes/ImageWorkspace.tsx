@@ -1,39 +1,43 @@
 import { useEffect, useState } from "react";
 import {
-  Film,
-  ImageIcon,
-  Layers2,
   Sparkles,
-  ArrowUpRight,
   ChevronDown,
   Clock3,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
+import { WorkspaceNavigation } from "../../../app/WorkspaceNavigation";
 import { useImageWorkspace } from "../hooks/useImageWorkspace";
 import { ImageViewer } from "../../../components/media/ImageViewer";
 import { MediaImage } from "../../../components/media/MediaImage";
 import { ReferenceEditor } from "../components/ReferenceEditor";
 import { PromptEditor } from "../components/PromptEditor";
+import { ImageResultActions } from "../components/ImageResultActions";
 import {
   ProcessingSpinner,
+  useActor,
   GenerationModelPicker,
   type HistoryItem,
-  type GenerationReferenceRole,
 } from "../../../lib/canonical";
-import { roles, referenceUrl } from "../state/imageDraft";
+import { referenceUrl } from "../state/imageDraft";
 
 const oldUrl = (path: string) =>
   `${location.protocol}//${location.hostname}:6500${path}`;
 export function ImageWorkspace() {
+  const { identityScope } = useActor();
   const workspace = useImageWorkspace();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { t, i18n } = useTranslation();
   const { draft, setDraft, selected, estimate, preview } = workspace;
   const [tab, setTab] = useState<"create" | "results">("create");
   const [selectedResult, selectResult] = useState<HistoryItem | null>(null);
-  const [targetRole, setTargetRole] =
-    useState<GenerationReferenceRole>("style_reference");
-  const [reuse, setReuse] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const [activity, setActivity] = useState(false);
+  const [handoff, setHandoff] = useState<{ prompt?: string; provider?: string; model?: string; ratio?: string; resolution?: string } | null>(location.state?.identityScope === identityScope ? location.state?.imageSettings || null : null);
+  useEffect(() => {
+    if (location.state?.imageSettings) navigate(location.pathname, { replace: true, state: null });
+  }, [location.state, location.pathname, navigate]);
   const label = (value: string | Record<string, string>) =>
     typeof value === "string"
       ? value
@@ -60,23 +64,7 @@ export function ImageWorkspace() {
     t(`status_${status}`, { defaultValue: status });
   return (
     <main className={`workspace mobile-${tab}`}>
-      <nav className="workspace-nav" aria-label="Playground">
-        <div className="media-tabs">
-          <span className="active">
-            <ImageIcon size={17} />
-            {t("image")}
-          </span>
-          <a href={oldUrl("/playground?media=video")}>
-            <Film size={17} />
-            {t("video")}
-            <ArrowUpRight size={12} />
-          </a>
-          <a href={oldUrl("/comparisons")}>
-            <Layers2 size={17} />
-            {t("comparison")}
-            <ArrowUpRight size={12} />
-          </a>
-        </div>
+      <WorkspaceNavigation>
         <button
           className="activity-button"
           onClick={() => setActivity((value) => !value)}
@@ -88,7 +76,13 @@ export function ImageWorkspace() {
             <span className="badge">{workspace.jobs.data.activeCount}</span>
           ) : null}
         </button>
-      </nav>
+      </WorkspaceNavigation>
+      {handoff && <section className="handoff-panel" role="region" aria-label={t("handoffTitle")}>
+        <strong>{t("handoffTitle")}</strong><p>{t("handoffSettings")}</p>
+        <p>{[handoff.provider, handoff.model, handoff.ratio, handoff.resolution].filter(Boolean).join(" · ")}</p>
+        <button onClick={() => { setDraft(value => ({ ...value, ...handoff })); setHandoff(null); }}>{t("replace")}</button>
+        <button onClick={() => setHandoff(null)}>{t("cancel")}</button>
+      </section>}
       <div className="mobile-tabs">
         <button
           className={tab === "create" ? "selected" : ""}
@@ -366,63 +360,17 @@ export function ImageWorkspace() {
         </section>
         <section className="results-panel" aria-label={t("results")}>
           <ImageViewer item={selectedResult} />
-          {selectedResult && (
-            <div className="result-info">
-              <div>
-                <strong>{selectedResult.submodel}</strong>
-                <span>
-                  {selectedResult.width && selectedResult.height
-                    ? `${selectedResult.width} × ${selectedResult.height}`
-                    : selectedResult.provider}
-                </span>
-              </div>
-              <details>
-                <summary>{t("details")}</summary>
-                <p className="result-prompt">{selectedResult.prompt}</p>
-                <button onClick={() => setReuse(true)}>{t("reuse")}</button>
-                {reuse && (
-                  <div role="group" className="confirm-reuse">
-                    <p>{t("replaceConfirm")}</p>
-                    <button
-                      onClick={() => {
-                        update("prompt", selectedResult.prompt);
-                        setReuse(false);
-                        setTab("create");
-                      }}
-                    >
-                      {t("replace")}
-                    </button>
-                    <button onClick={() => setReuse(false)}>
-                      {t("close")}
-                    </button>
-                  </div>
-                )}
-              </details>
-              <div className="reuse-reference">
-                <select
-                  aria-label={t("chooseRole")}
-                  value={targetRole}
-                  onChange={(e) =>
-                    setTargetRole(e.target.value as GenerationReferenceRole)
-                  }
-                >
-                  {roles.map((role) => (
-                    <option key={role} value={role}>
-                      {t(role)}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => {
-                    workspace.useReference(selectedResult, targetRole);
-                    setTab("create");
-                  }}
-                >
-                  {t("useReference")}
-                </button>
-              </div>
-            </div>
-          )}
+          {selectedResult && <ImageResultActions key={selectedResult.id} item={selectedResult}
+            onPrompt={prompt => { update("prompt", prompt); setTab("create"); }}
+            onReference={(item, role) => { workspace.useReference(item, role); setTab("create"); }} />}
+          {galleryOpen && selectedResult && <ImageViewer item={selectedResult} initialExpanded
+            gallery={workspace.results} onSelect={selectResult} onExpandedClose={() => setGalleryOpen(false)}
+            loadMore={workspace.history.hasNextPage ? () => void workspace.history.fetchNextPage() : undefined}
+            loadingMore={workspace.history.isFetchingNextPage}
+            galleryError={workspace.history.isError ? t("historyError") : undefined}
+            footer={<ImageResultActions key={selectedResult.id} item={selectedResult}
+              onPrompt={prompt => { update("prompt", prompt); setGalleryOpen(false); setTab("create"); }}
+              onReference={(item, role) => { workspace.useReference(item, role); setGalleryOpen(false); setTab("create"); }} />} />}
           <section className="recent-panel">
             <div className="section-heading">
               <h2>{t("recent")}</h2>
@@ -435,7 +383,7 @@ export function ImageWorkspace() {
                 <button
                   key={item.id}
                   className={`result-thumb ${selectedResult?.id === item.id ? "selected" : ""}`}
-                  onClick={() => selectResult(item)}
+                  onClick={() => { selectResult(item); setGalleryOpen(true); }}
                   aria-label={`${item.submodel} ${new Date(item.timestamp).toLocaleString(i18n.language)}`}
                 >
                   <MediaImage

@@ -1,6 +1,6 @@
 # FE24-VID — Video workspace
 
-วันที่: 2026-11-20 · สถานะ: Requirement พร้อมสำหรับทบทวน; **รอคำสั่ง implement**.
+วันที่: 2026-11-20 · สถานะ: Implemented preview; acceptance/review ล่าสุดอยู่[005](005-implementation-checkpoint.md) และtask-plan.json.
 Owner: Frontend experience / Video presentation; Product Requirement Architect primary.
 UX/QA ทบทวนเอกสารตามลำดับโดยผู้เขียนเดียวกัน ไม่อ้าง independent runtime review.
 อ้างอิง [001](001-ux-and-screen-components.md), [002](002-image-video-workflows.md),
@@ -123,13 +123,13 @@ UIซ่อนfailed previewเท่านั้น ไม่ลบประว
 
 | Source / owner | สิ่งที่ reuse / prerequisite |
 |---|---|
-| `web/src/features/generation/api/videoGenerationApi.ts`, `schemas/videoGenerationSchemas.ts` | catalog/quote/submit/gettask/recent, typedcapabilities/errors/recovery; เพิ่มrequestlookupผ่านownerก่อนreloadunknown |
+| `web/src/features/generation/api/videoGenerationApi.ts`, `schemas/videoGenerationSchemas.ts` | catalog/quote/submit/gettask/recent, typedcapabilities/errors/recovery; `getVideoRequestStatus` คืนactor-ownedmappingโดยไม่ส่งงานใหม่ |
 | `web/src/features/playground/components/PlaygroundVideoWorkspace.tsx` | อ้างอิงsourceplan/task/quote/readiness; submission keyอยู่Reactrefจึงยังไม่ใช่durablereloadintent |
 | `web/src/components/generation/VideoEngineTargetPanel.tsx` | durationrange/discrete logicและcapability-driven controls; reusebehaviorไม่copyhard-codedlimits |
 | `web/src/components/media/VideoMediaPlayer.tsx` | contain/metadata/stop-other-player; wrapperต้องgateassetก่อนrenderเพราะcomponentมีemptyplaceholderเมื่อไม่มีURL |
 | `web/src/features/playground/api/trustedVideoSources.ts`, generation trusted source API | sources/authorityและhandoffตามowner;ตรวจtypedDTOก่อนเพิ่มตัวเลือก |
 | `server/domain/generation/VideoGenerationApplicationService.js`, `VideoProviderTaskService.js` | quote/submit/idempotency/durabletask/providerpolling; browserห้ามเรียกproviderหรือrepositoryเอง |
-| `server/app/routes/videoGenerationRoutes.js` | capabilities/quote/tasks/get/recheck; ไม่มีpubliclookup-by-keyหรือrecentcursorในroutesที่ตรวจ |
+| `server/app/routes/videoGenerationRoutes.js` | capabilities/quote/tasks/get/recheck; GET `/requests/:requestId` ผ่านGeneration owner; Recentยังไม่มีcursorและจำกัด12รายการในFE24 |
 
 **Mode readiness:** capabilityschemaมี `supportsLastFrame`/`inputModes` แต่
 `VideoGenerationInput.references` ปัจจุบันรองรับroleเพียง `first_frame`/`reference_image`.
@@ -147,8 +147,10 @@ explicitinvalid/actorchangeหยุดprivateworkและถอดสื่อ
 
 ## 8. งานย่อยและ acceptance
 
-งานทั้งหมด **ยังไม่เริ่ม implementation**. วางหลังComparison previewตามลำดับชุด004;
-ข้อจำกัดVideoไม่ขวางการส่งมอบComparisonภาพ.
+งาน V01–V05 ลงimplementationแล้ว; V06 หลักฐาน/reviewและข้อจำกัดอยู่005/task-plan.json.
+Nativevideoใช้same-origin deliveryและcontain; Retryโหลดไฟล์เดิม, ไม่สร้างtaskใหม่.
+ทุกHTTPerrorหลังsubmitเก็บintent; ภาพที่เปลี่ยนแล้วเทียบasset/versionกับsnapshotก่อน
+แสดงproviderrejectionเดิม. First/last/audio-reference/video-referenceยังไม่เปิดเพราะDTOไม่ครบ.
 
 | Task / owner | Dependency | ผลที่ส่งมอบและตรวจจบได้ |
 |---|---|---|
@@ -175,3 +177,5 @@ explicitinvalid/actorchangeหยุดprivateworkและถอดสื่อ
 Scope review รอบเอกสาร: ไล่ text→image-reference→invalidduration→quote→unknownrecovery
 →providerfailหลายภาพ→แก้source→completedmediaerror→ดูงานเก่า→logout. ไม่มีprovider-paid
 test,buildหรือappeditในรอบนี้; acceptanceเป็นสิ่งที่ต้องพิสูจน์หลังได้รับคำสั่งimplement.
+
+ย่อหน้าข้างบนบันทึกขั้นออกแบบเดิม; implementation/evidenceล่าสุดอยู่005/task-plan.json.

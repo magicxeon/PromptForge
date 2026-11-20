@@ -160,7 +160,7 @@ responses, both modal transitions, provider/search keyboard flow and TH/EN at
 
 - เมนูเรียง **Image → Comparison → Video** บนdesktop/tablet/mobile โดยไม่สลับตามactivepage.
   Englishใช้คำเต็ม`Comparison`; ไทยใช้`ภาพ → เปรียบเทียบ → วิดีโอ`.
-- Planned routes: `/image`, `/comparison`, `/video`; `/`เป็นทางเข้าImageเพื่อคงURL6502
+- Implemented preview routes: `/image`, `/comparison`, `/video`; `/`เป็นทางเข้าImageเพื่อคงURL6502
   ที่ผู้ใช้เปิดอยู่. ใช้ReactRouterและdeep-link/back/forward; ไม่ใช้location reloadเพื่อสลับworkspace.
 - Active itemชัดเจนและมีaccessible current-page semantics. Image,Comparison,Videoมีicon
   คนละแบบพร้อมข้อความ; mobileต้องอ่านและกดได้ ไม่ซ่อนComparisonในoverflowเมนู.
@@ -171,3 +171,52 @@ responses, both modal transitions, provider/search keyboard flow and TH/EN at
   หรืออ้างว่าทั้ง3workspaceพร้อมเพราะเปลี่ยนlabelแล้ว.
 - Header/language/account/activityและImage behaviorที่ส่งมอบแล้วต้องคงอยู่.
   รายละเอียดComparisonอยู่[006](006-comparison-workspace.md), Videoอยู่[007](007-video-workspace.md).
+
+## 10. Recent-image inspection and quiet scrollbars (2026-11-20)
+
+Authorized implementation; primary UX, one implementer, sequential scoped QA.
+Flow: click Recent image → large modal at current gallery position → previous/
+next or collapsible thumbnail strip → zoom/download/reuse/reference/handoff →
+close back to the same gallery scroll position with the selected item highlighted.
+Reuse ImageViewer and the existing image actions; do not create provider or
+generation workflows. Previous/next operate on loaded results, with explicit Load
+more when history has another page. Disable navigation at loaded boundaries.
+Arrow keys change images at Fit; zoomed-surface arrow keys pan instead. Ignore
+navigation shortcuts in editable fields. Touch swipe changes images at Fit;
+zoomed drag/pinch retain image navigation. Each newly selected image starts at Fit.
+
+Image scrollbars fade after1500ms idle and reappear on pointer movement within
+the surface, scrolling, touch or keyboard input. Keep them visible during pointer
+drag and keyboard focus. Preserve scrollbar space so showing/hiding never shifts
+the image. Apply to inline/expanded image viewing and Detail Compare panes; do not
+hide page scrollbars or toolbar controls. Reduced-motion disables fading animation.
+
+Protected behavior: private-media loading/error/retry, identity cleanup, stable
+draft, original-resolution download, existing prompt-replacement confirmation,
+reference validation and Comparison/Video handoff. Modal close/Escape restores
+focus without scrolling the page; TH/EN and390/820/1440 supported.
+
+Ordered plan: shared idle-scroll observer; extend ImageViewer gallery navigation
+and shared result actions; implement006§8.2 Detail Compare and move submitted
+settings below results; focused browser checks and typecheck/build. Record evidence
+here and006; no paid generation. Status: implemented and scoped checks passed.
+
+Evidence (2026-11-20):
+- `node web-next/test/media-inspection-check.mjs`: previous/next, keyboard,
+  thumbnail collapse, Load more, idle hide/wake and keyboard visibility, touch
+  swipe, media error/retry, preserved draft/selection and390/820/1440 bounds PASS.
+- Existing `node web-next/test/browser-check.mjs`: quote/submission recovery,
+  Fit/100%, TH/EN responsive behavior, focus return and private-portal suspension
+  PASS. All provider/mutation requests intercepted in these checks.
+- `node web-next/test/comparison-history-check.mjs`: history/export regressions
+  plus Detail Compare acceptance in006§8.2 PASS.
+- Live read-only inspection loaded existing original images in gallery modal and
+  four-pane Detail Compare; captures `_temp/fe24-media/` and `_temp/fe24-history/`
+  inspected. `npm.cmd run build:web-next` (including TypeScript) PASS. Existing
+  chunk-size warning remains (824.98kB entry); no bundle tuning in this scope.
+- TH/EN key/interpolation parity and new ownership paths PASS. New shared idle
+  scrollbar helper, ImageResultActions and DetailCompare live in mapped FE24
+  capability folders; architecture map updated. No files moved or runtime paths
+  introduced. Review was sequential UX/QA by the implementer, not independent.
+- Browser evidence is Chromium with emulated touch/viewports; physical-device
+  multi-touch and OS-specific scrollbar rendering remain manual UAT coverage.

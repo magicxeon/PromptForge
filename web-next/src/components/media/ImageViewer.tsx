@@ -1,19 +1,33 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Download, Expand, ImageIcon, Minus, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Expand, ImageIcon, Minus, Plus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   ProcessingSpinner,
   useActor,
   type HistoryItem,
 } from "../../lib/canonical";
-import { usePrivateImage } from "./MediaImage";
+import { MediaImage, usePrivateImage } from "./MediaImage";
+import { observeIdleScrollbars } from "./idleScrollbars";
 
-export function ImageViewer({ item }: { item: HistoryItem | null }) {
+export function ImageViewer({ item, initialExpanded = false, onExpandedClose, gallery, onSelect, footer, loadMore, loadingMore, galleryError }: {
+  item: HistoryItem | null; initialExpanded?: boolean; onExpandedClose?: () => void;
+  gallery?: HistoryItem[]; onSelect?: (item: HistoryItem) => void; footer?: ReactNode;
+  loadMore?: () => void; loadingMore?: boolean;
+  galleryError?: string;
+}) {
   const { t } = useTranslation();
   const { isLoading } = useActor();
   const media = usePrivateImage(item?.imageUrl);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(initialExpanded);
+  const [showThumbnails, setShowThumbnails] = useState(true);
+  const swipe = useRef<{ x: number; y: number } | null>(null);
+  const index = gallery?.findIndex(image => image.id === item?.id) ?? -1;
+  function step(direction: number) {
+    const next = gallery?.[index + direction];
+    if (next) onSelect?.(next);
+  }
+  const initialFocus = useRef(document.activeElement instanceof HTMLElement ? document.activeElement : null);
   const [natural, setNatural] = useState({ width: 1, height: 1 });
   const [size, setSize] = useState({ width: 1, height: 1 });
   const [manual, setManual] = useState<number | null>(null);
@@ -46,9 +60,11 @@ export function ImageViewer({ item }: { item: HistoryItem | null }) {
     const measure = () => setSize({ width: Math.max(1, node.clientWidth - 32), height: Math.max(1, node.clientHeight - 32) });
     measure();
     const observer = new ResizeObserver(measure);
+    const stopScrollbars = observeIdleScrollbars(node);
     observer.observe(node);
     return () => {
       observer.disconnect();
+      stopScrollbars();
       if (surface.current === node) surface.current = null;
     };
   }, []);
@@ -138,9 +154,11 @@ export function ImageViewer({ item }: { item: HistoryItem | null }) {
         onKeyDown={(event) => {
           if (!item) return;
           if (event.key === "+" || event.key === "=") {
+            event.stopPropagation();
             event.preventDefault();
             zoom(scale * 1.4);
           } else if (event.key === "-") {
+            event.stopPropagation();
             event.preventDefault();
             zoom(scale / 1.4);
           } else if (
@@ -150,6 +168,7 @@ export function ImageViewer({ item }: { item: HistoryItem | null }) {
             )
           ) {
             event.preventDefault();
+            event.stopPropagation();
             event.currentTarget.scrollBy({
               left:
                 event.key === "ArrowLeft"
@@ -173,6 +192,10 @@ export function ImageViewer({ item }: { item: HistoryItem | null }) {
           }
         }}
         onPointerDown={(event) => {
+          if (event.pointerType === "touch" && !manual) {
+            swipe.current = { x: event.clientX, y: event.clientY };
+            event.currentTarget.setPointerCapture(event.pointerId);
+          }
           pointers.current.set(event.pointerId, {
             x: event.clientX,
             y: event.clientY,
@@ -187,6 +210,7 @@ export function ImageViewer({ item }: { item: HistoryItem | null }) {
             };
           }
           if (pointers.current.size === 2) {
+            swipe.current = null;
             const [a, b] = [...pointers.current.values()];
             pinch.current = {
               distance: Math.hypot(a.x - b.x, a.y - b.y),
@@ -214,11 +238,17 @@ export function ImageViewer({ item }: { item: HistoryItem | null }) {
           }
         }}
         onPointerUp={(event) => {
+          if (swipe.current && !manual && pointers.current.size === 1) {
+            const dx = event.clientX - swipe.current.x, dy = event.clientY - swipe.current.y;
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+          }
+          swipe.current = null;
           pointers.current.delete(event.pointerId);
           drag.current = null;
           pinch.current = null;
         }}
         onPointerCancel={() => {
+          swipe.current = null;
           pointers.current.clear();
           drag.current = null;
           pinch.current = null;
@@ -287,21 +317,42 @@ export function ImageViewer({ item }: { item: HistoryItem | null }) {
       pinch.current = null;
       pointers.current.clear();
       setExpanded(open);
+      if (!open) onExpandedClose?.();
     }}>
       <section className="viewer">{!expanded && content}</section>
       {expanded && !isLoading && (
         <Dialog.Portal>
           <Dialog.Overlay className="dialog-overlay" />
           <Dialog.Content
-            className="expanded-viewer"
+            className={`expanded-viewer ${gallery ? "gallery-viewer" : ""}`}
             aria-describedby={undefined}
+            onKeyDown={(event) => {
+              if (!gallery || (event.target instanceof Element && event.target.closest("input,select,textarea,[contenteditable=true]"))) return;
+              if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                event.preventDefault(); step(event.key === "ArrowLeft" ? -1 : 1);
+              }
+            }}
             onCloseAutoFocus={(event) => {
               event.preventDefault();
-              requestAnimationFrame(() => opener.current?.focus());
+              requestAnimationFrame(() => (initialExpanded ? initialFocus.current : opener.current)?.focus({ preventScroll: true }));
             }}
           >
             <Dialog.Title className="sr-only">{t("results")}</Dialog.Title>
             {content}
+            {gallery && <div className="gallery-navigation">
+              <button aria-label={t("previousImage")} disabled={index <= 0} onClick={() => step(-1)}><ChevronLeft size={18} /></button>
+              <span aria-live="polite">{index + 1} / {gallery.length}</span>
+              <button aria-label={t("nextImage")} disabled={index < 0 || index >= gallery.length - 1} onClick={() => step(1)}><ChevronRight size={18} /></button>
+              <button aria-expanded={showThumbnails} onClick={() => setShowThumbnails(value => !value)}>{t(showThumbnails ? "hideThumbnails" : "showThumbnails")}</button>
+              {loadMore && <button disabled={loadingMore} onClick={loadMore}>{loadingMore && <ProcessingSpinner />}{t("loadMore")}</button>}
+            </div>}
+            {galleryError && <p role="alert" className="gallery-error">{galleryError}</p>}
+            {gallery && showThumbnails && <div className="gallery-filmstrip" aria-label={t("recent")}>
+              {gallery.map(image => <button key={image.id} aria-label={image.submodel} aria-pressed={image.id === item?.id}
+                ref={node => { if (node && image.id === item?.id) { const parent = node.parentElement; if (parent) parent.scrollLeft = node.offsetLeft - parent.clientWidth / 2 + node.clientWidth / 2; } }}
+                onClick={() => onSelect?.(image)}><MediaImage src={image.thumbnailUrl || image.imageUrl} alt={image.submodel} /></button>)}
+            </div>}
+            {footer && <div className="gallery-actions">{footer}</div>}
           </Dialog.Content>
         </Dialog.Portal>
       )}

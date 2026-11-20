@@ -180,6 +180,21 @@ export class ComparisonRepository {
     return structuredClone(set);
   }
 
+  async findRequestForActor(idempotencyKey, actor) {
+    if (!actor?.userId) return null;
+    const data = await this.readData();
+    let mapping = null;
+    for (const set of data.sets) {
+      if (set.ownerUserId !== actor.userId) continue;
+      for (const run of Array.isArray(set.runs) ? set.runs : []) {
+        if (run.idempotencyKey !== idempotencyKey) continue;
+        if (mapping) return { ambiguous: true };
+        mapping = { setId: set.id, runId: run.id };
+      }
+    }
+    return mapping;
+  }
+
   async createSetWithRun({ ownerUserId = null, username, name, description, idempotencyKey, run }) {
     return this.mutate(async data => {
       const existing = data.sets.find(set =>

@@ -1,9 +1,25 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getVideoTask, listRecentVideoTasks, quoteVideoGeneration, submitVideoGeneration } from './videoGenerationApi';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beginIdentityResolution, publishIdentity } from '../../../lib/auth/actorStore';
+import { getVideoTask, getVideoRequestStatus, listRecentVideoTasks, quoteVideoGeneration, submitVideoGeneration } from './videoGenerationApi';
 
 afterEach(() => vi.unstubAllGlobals());
+beforeEach(() => publishIdentity(beginIdentityResolution(), {
+  actorId: 'video_fixture', authMode: 'session', csrfToken: 'fixture-csrf'
+}));
 
 describe('videoGenerationApi', () => {
+  it.each(['found', 'unknown', 'reconciliation_required'])('looks up %s requests without submitting or polling', async state => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ state, requestId: 'video_key_123', ...(state === 'found' ? { taskId: 'task_1' } : {}) }), { headers: { 'content-type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+    expect((await getVideoRequestStatus('video_key_123')).state).toBe(state);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toContain('/api/generation/video/requests/video_key_123');
+    expect(init.method ?? 'GET').toBe('GET');
+    expect(init.cache).toBe('no-store');
+    expect(init.body).toBeUndefined();
+  });
+
   it('keeps quote and submit parameters identical and sends the locked estimate', async () => {
     const payloads: Array<{ url: string; body: Record<string, unknown> }> = [];
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
