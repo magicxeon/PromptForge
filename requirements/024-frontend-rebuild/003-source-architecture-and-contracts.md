@@ -1,7 +1,7 @@
 # FE24-ARCH — โครงสร้าง source และการใช้ระบบเดิมร่วมกัน
 
-สถานะ: Planned เท่านั้น; `web/` ยังเป็น runtime owner ปัจจุบัน.
-Frontend ใหม่เสนอ `web-next/`; ไม่สร้างโฟลเดอร์ executable ในรอบ requirement นี้.
+สถานะ 2026-11-20: `web-next/` มี Image preview แยกที่ port6502; `web/` ยังเป็น default runtime.
+การตัดสินใจและข้อจำกัด implementation อยู่ใน [005](005-implementation-checkpoint.md).
 
 ## 1. โครงสร้างที่เสนอ
 
@@ -16,6 +16,7 @@ web-next/src/
     state/                      actor-scoped/versioned draft และ pure validation
     api/                        facade สำหรับ public contracts ที่ใช้ร่วมกัน
     routes/                     page composition
+  features/comparisons/         planned: routes/components/hooks/state ของ Comparison UI
   lib/                          shared-runtime adapters เท่าที่จำเป็น
   locales/th/                   ข้อความ presentation ใหม่
   locales/en/                   key/interpolation parity
@@ -40,15 +41,22 @@ CSS ของ feature จำกัดขอบเขต ใช้ CSS Modules �
 | `components/ui/ProcessingSpinner.tsx` | share implementation ผ่าน boundary เดียว; ไม่สร้าง spinner คู่ขนาน |
 | `components/media/AuthenticatedMediaImage.tsx` และ media APIs | private asset delivery contract, session expiry, URL cleanup |
 | UI controls/shell ปัจจุบัน | ตรวจ behavior ที่ต้องคง แต่สร้าง presentation ใหม่ในขอบเขตที่อนุญาต |
+| `features/comparisons/api/comparisonApi.ts` และ schemas | list/detail/name/winner ของ canonical Comparison set/run; `generationApi.ts` ยังเป็น owner client ของ estimate/submit |
 
-T01 ต้องระบุรายการ exports/dependencies ที่นำกลับใช้จริงและ temporary compatibility.
-แนวทางที่เสนอคือ shared client package สำหรับ transport/schemas/identity/polling
-ที่ไม่มี theme dependency ให้ทั้งสอง frontend ใช้ implementation เดียว.
-ยังไม่กำหนด path package ก่อนตรวจ dependency graph; ห้ามคัดลอกโค้ดสองชุดแล้วแก้แยก.
+M1 ใช้ `web-next/src/lib/canonical.ts` เป็น temporary compatibility facade ไปยัง canonical
+client owners ใน `web/` โดยตรง ไม่คัดลอกโค้ดและไม่ import CSS/theme/AppShell เดิม.
+รายการ exports ระบุใน facade; dependency graph มีเฉพาะ identity/transport/query/schema/media
+ที่จำเป็น. ข้อเสนอ shared package extraction เลื่อนไปเมื่อมีขอบเขตคุ้มค่าการย้าย;
+ไม่ใช่ prerequisite ของ M1 อีกต่อไป. เมื่อ extract จริงต้องย้ายทั้ง consumers และถอน bridge
+หลัง parity review ไม่คง implementation สองชุด. ไม่มี package ใหม่ที่ import ย้อนเข้า app.
 ก่อนย้ายไฟล์ต้องอัปเดต architecture map, imports, callers และ parity evidence.
 ห้ามให้ package ใหม่ import กลับไป app/component ของ frontend ใด; shared layer
 ไม่รู้จักหน้าตาของทั้งสองแอป. การ extraction เป็น future task ที่มี independent
 Security/Backend review เมื่อแตะ session/private-media contract.
+
+Comparison/Video expansionใช้boundaryเดิมตาม006/007. โฟลเดอร์comparisonsข้างบนเป็น
+planned presentationownerยังไม่สร้าง; backendComparison/Generation/Creditsไม่เปลี่ยนเจ้าของ.
+App routingเพิ่มเฉพาะหลังสั่งimplementตาม001§9; รอบrequirementนี้ไม่เปลี่ยนruntimeURL.
 
 Inventory แยก pure schemas/types, transport, React identity lifecycle, workflow hooks และ UI;
 Generation API มี Studio/Profile type dependencies ต้องตรวจจริง ไม่ถือว่าย้ายไฟล์ API อย่างเดียวแล้วจบ.
@@ -59,7 +67,7 @@ CSRF publication, focus/BroadcastChannel invalidation และการปฏ�
 
 ใช้ server/routes/facades เดิมทั้งหมด. New frontend ใช้ same-origin API proxy;
 API keys ยังอยู่ server env. ไม่ส่ง key ไป Vite variables หรือ browser.
-เส้นทาง dev port และ production preview mount ต้องกำหนดในT01 ก่อนสร้าง launcher.
+Dev port6502 proxy6500 ใช้ base `/`; production second mount/cutover ยังไม่เปิด.
 เลือก origin ที่เข้ากับ Identity allowlist/CSRF/local bypass เดิม ไม่ขยาย wildcard.
 `WEB_DIST_ROOT`/Express fallback ปัจจุบันยังชี้เว็บเดิม; ไม่สลับในรอบนี้.
 Local bypass admin ต้องใช้ policy เดิม ไม่เพิ่ม bypass ด้วยเหตุผลทดสอบ UI.

@@ -1,4 +1,16 @@
 import { z } from 'zod';
+const imageRequestIdSchema = z.string().regex(/^[A-Za-z0-9:_-]{1,160}$/);
+export const imageRequestStatusSchema = z.discriminatedUnion('state', [
+  z.object({
+    state: z.literal('found'), requestId: imageRequestIdSchema,
+    jobId: imageRequestIdSchema.nullable(), groupId: imageRequestIdSchema.nullable(),
+    childJobIds: z.array(imageRequestIdSchema).min(1).max(4).optional()
+  }),
+  z.object({ state: z.literal('unknown'), requestId: imageRequestIdSchema, jobId: imageRequestIdSchema.nullable().optional() }),
+  z.object({ state: z.literal('reconciliation_required'), requestId: imageRequestIdSchema, jobId: imageRequestIdSchema.nullable().optional() })
+]);
+export type ImageRequestStatus = z.infer<typeof imageRequestStatusSchema>;
+
 export const cinematicCastReferenceSchema = z.object({
   castAssignmentId: z.string().min(1).max(120), displayName: z.string().min(1).max(120),
   sourceType: z.enum(['generated_sheet', 'character_look']), contentHash: z.string().min(1).max(120),

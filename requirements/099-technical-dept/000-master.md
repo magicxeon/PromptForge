@@ -59,18 +59,25 @@ This is a required workflow gate, not an implemented automatic drift detector.
 
 ## Current Capability Addendum
 
-### Separate Frontend Rebuild — Requirement Only (2026-11-19)
+### Separate Frontend Rebuild — Image Preview (2026-11-20)
 
-[FE24](../024-frontend-rebuild/000-master.md) owns the planned replacement
-frontend, starting with Playground image/video and then Comparison. Proposed
-`web-next/` uses one fixed visual palette and Thai/English. This is documentation,
-not a runtime cutover: `web/` remains the current browser owner. New presentation
-and draft namespaces must be isolated while API/session/media and Generation/Credit
-contracts retain their existing owners. The shared client extraction boundary,
-package path, preview origin and sensitive review are prerequisites to implementation.
-No new executable folder, data location, authentication bypass or production route
-is introduced. FE24 owns its new visual proposal; existing visual/theme requirements
-continue to govern `web/` until an explicit per-route cutover.
+[FE24](../024-frontend-rebuild/000-master.md) owns `web-next/`, an isolated Image
+Playground preview on local6502, one fixed palette and TH/EN. Planned expansion:
+`web-next/src/features/comparisons/` owns Comparison presentation per
+[FE24-CMP](../024-frontend-rebuild/006-comparison-workspace.md); Video presentation
+stays in `features/playground/` and shared `components/media/` per
+[FE24-VID](../024-frontend-rebuild/007-video-workspace.md). These two expansions are
+requirements only, awaiting implementation; navigation order is Image, Comparison,
+Video. Canonical Comparison/Generation/Identity/Credits backend ownership is unchanged.
+`web/` remains the
+default frontend; Video/Comparison still link to it. `web-next/src/lib/canonical.ts`
+is a temporary explicit bridge to existing identity/API/schema/polling owners, not
+a duplicated client or shared package. New drafts use actor/auth-mode-scoped FE24
+namespaces. Generation adds read-only `/api/generation/requests/:requestId` through
+its facade and Credits' read-only request mapping; no billing mutation/replay is
+performed by lookup. Identity adds only explicit loopback6502 origins to qualified
+development bypass. No production mount, server storage migration or new provider
+path. See [implementation evidence](../024-frontend-rebuild/005-implementation-checkpoint.md).
 
 ### Authentication Delivery (2026-10-12; Customer Login Source Milestone Accepted)
 
@@ -1083,8 +1090,8 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Capability-oriented HTTP endpoints | `server/app/routes/` |
 | Shared route error translation | `server/app/` |
 | Business rules and orchestration | `server/domain/<capability>/` |
-| Credit workflow facade and internal Credit policy | `server/domain/credits/CreditApplicationService.js`, `server/domain/credits/`; `reservePlan` validates every locked Comparison allocation before the existing atomic repository reservation. Local mock grants require fresh qualified Identity and bounded actor-scoped replay; [AUTH-017](../019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md) |
-| Generation submission facade and Queue lifecycle | `server/domain/generation/GenerationApplicationService.js`, `server/domain/generation/QueueManager.js`; `reservePreparedOperations` preflights all Comparison slots before atomic Credits admission, then the existing reserved enqueue/capture/refund lifecycle; [AUTH-017](../019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md) |
+| Credit workflow facade and internal Credit policy | `server/domain/credits/CreditApplicationService.js`, `server/domain/credits/`; `reservePlan` validates every locked Comparison allocation before existing atomic reservation. FE24 Image recovery exposes a narrow read-only owner/request mapping through this facade and `CreditAccountRepository`, without migration or ledger mutation. Local mock grants retain [AUTH-017](../019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md) |
+| Generation submission facade and Queue lifecycle | `server/domain/generation/GenerationApplicationService.js`, `server/domain/generation/QueueManager.js`; existing reserve/enqueue/capture/refund ownership retained. `server/app/routes/generationRoutes.js` exposes FE24 read-only `GET /api/generation/requests/:requestId` through Generation/Groups/Credits, returning found/unknown/reconciliation_required without replay. [FE24 evidence](../024-frontend-rebuild/005-implementation-checkpoint.md); [AUTH-017](../019-implementation-commercial-feature-plan/authentication/017-local-admin-live-comparison.md) |
 | Voice Studio documents, character voice presets and Take selection | `server/domain/voice-studio/VoiceStudioApplicationService.js`, `server/repositories/voice-studio/`, `server/app/routes/voiceStudioRoutes.js` and logical `server/data/voice-studio/{documents,characters,takes,customVoices}.json`; [023 requirement](../023-voice-studio/000-master.md). Versioned actor-scoped metadata uses atomic JSON. Internal `CustomVoiceService.js` owns saved design candidates and versioned character bindings. Speech and design enter GenerationApplicationService, shared QueueManager and durable `server/data/generation/speechOperations.json`; remote voice identities/credential bindings remain private in Generation. Samples use Assets; billable work uses Credits. Source and independent sensitive review passed; live Google/invoice/Thai listening remain unverified. See [data contract](../023-voice-studio/004-data-and-lifecycle.md) |
 | Voice Studio model/voice catalog, speech adapter, audio files and capped pricing | `server/config/voice-studio/{models,voices,policy}.v1.json` is validated by Generation's SpeechCatalog and existing availability policy; includes design capabilities, candidate/project limits and event toolbar metadata. `server/providers/GeminiSpeechProvider.js` owns Google speech and Voices REST. `server/domain/assets/AudioAssetService.js` validates/registers WAV under `OUTPUTS_DIR/voice-studio/`; AssetDeliveryService serves private audio GET/HEAD/Range. CreditApplicationService/SpeechPricing reserve a frozen maximum and capture actual usage through existing Credit repository; rate versions and documented Voice Design model-rate inference live in credit-pricing-policy.json. [Configuration contract](../023-voice-studio/003-model-configuration.md). No new wallet/media store |
 | Generation Group persistence and child status aggregation | `server/repositories/generation/GenerationGroupRepository.js`, `server/data/generation/groups.json` |
@@ -1136,7 +1143,8 @@ Server placement rules:
 | File responsibility | Canonical location |
 |---|---|
 | React bootstrap and app providers | `web/src/main.tsx`, `web/src/app/` |
-| Planned separate frontend and Playground replacement | Proposed `web-next/src/` under [024-frontend-rebuild](../024-frontend-rebuild/000-master.md); requirements only. App shell/UI/media/Playground presentation are planned here. Shared transport/session/schema extraction path is pending dependency review; current `web/` and backend owners remain authoritative. No runtime folder or cutover exists from this requirement change |
+| Separate Image Playground preview | `web-next/src/app/`, `features/playground/`, `components/media/`, `styles/` under [FE24](../024-frontend-rebuild/000-master.md). Vite6502 proxies API6500. `src/lib/canonical.ts` bridges existing `web/` public client owners; new FE24 actor-scoped drafts. Root `dev:web-next` / `stop:web-next` and `scripts/start-web-next.bat` use `scripts/start-web-next.mjs`; it reuses API6500 or starts canonical `server/server.js` using the existing development environment helper, waits for health/auth config, then starts Vite. Shared API survives frontend-only restarts; startup log is in OS temporary storage. `scripts/stop-web-next-port.ps1` checks exact ownership before clearing6502. `web-next/start-dev.bat` forwards to this launcher; no production cutover |
+| Planned Comparison and Video preview presentation | Requirements only, awaiting implementation: `web-next/src/features/comparisons/` owns image Comparison UI per [006](../024-frontend-rebuild/006-comparison-workspace.md); Video remains under `features/playground/` with shared `components/media/` per [007](../024-frontend-rebuild/007-video-workspace.md). App navigation is planned as Image → Comparison → Video. Canonical Comparison/Generation/Identity/Credits services and storage stay unchanged; request-recovery prerequisites are tasks C01/V01, not claimed implemented |
 | React navigation metadata | `web/src/app/routeRegistry/`; shared `components/layout/SidebarNavigation` renders groups. Voice Studio uses route-backed `?view=script|voices|library` submenus; Character & Scene Studio retains its Face Creator / Character Sheet / Scene Builder routes. [Voice navigation correction](../023-voice-studio/001-ux-and-workflows.md) |
 | React routes and feature orchestration | `web/src/features/<feature>/` |
 | Character Profile and reusable Character Look owner UI/application boundary | `web/src/features/profiles/`; the shared source-draft dialog belongs in `web/src/features/profiles/components/` and may be invoked by Cinematic without creating Cinematic-owned Look persistence |
@@ -1149,7 +1157,7 @@ Server placement rules:
 | Reusable Template presentation and replacement controls | `web/src/components/templates/` |
 | Reusable React UI and workflow components | `web/src/components/` |
 | Shared normal-generation result grid and group polling | `web/src/components/generation/GenerationResultGrid.tsx`, `web/src/features/generation/hooks/useGenerationGroup.ts` |
-| Shared API, identity, i18n and telemetry adapters | `web/src/lib/` |
+| Shared API, identity, i18n and telemetry adapters | `web/src/lib/`. Identity's `auth/actorStore.ts` owns the FE24-U1 single-flight revalidation barrier; `api/apiClient.ts` waits before private dispatch and response publication (JSON, media, streams), with epoch/caller cancellation checks. Same-session focus preserves completed presentation; explicit invalidation or changed/failed confirmation retains the hard gate. [Contract](../019-implementation-commercial-feature-plan/authentication/005-screens-and-user-journeys.md) |
 | Authentication shared gate, credential forms and social callback | `web/src/features/authentication/` owns shared entry, typed API, transient route-local flow and Login/Registration/ResetPassword/SocialCallback routes with owning tests. Password/OTP signup/login, explicit enrollment offer, replacement-password receipt reconciliation and server-directed social signup/email completion are source-implemented. Entry owns confirmed-session navigation through ActorProvider. Published legal links renew consent on document changes; FacebookDeletionReceiptRoute presents bounded received-only status. Account-security/MFA management and actual deployment remain pending. `web/src/lib/auth/` owns nullable actor, in-memory identity epoch/CSRF and invalidation; shared `apiClient.ts` owns credentialed transport and late response rejection. Actor/mode scope remains in persistence and query keys. Existing routeRegistry, AccountMenu and visual tokens are preserved. [AUTH-005](../019-implementation-commercial-feature-plan/authentication/005-screens-and-user-journeys.md) |
 | Actor-aware query keys and shared polling policy | `web/src/lib/api/queryKeys.ts`, `web/src/lib/api/pollingPolicy.ts` |
 | Request/correlation propagation and safe support references | `web/src/lib/api/`, `web/src/lib/telemetry/` |
@@ -1159,7 +1167,7 @@ Server placement rules:
 | Design tokens and global responsive styling | `web/src/styles/` |
 | Canonical UI visual language and agent guidance | `requirements/Knowledge/ui-design-system-and-visual-language.md` |
 | Runtime application assets | `client/assets/<feature>/` |
-| Translation manifests, schemas, and locale catalogs | Current `client/i18n/`; proposed `web-next/src/locales/{th,en}/` owns only the new frontend's presentation copy under [FE24 architecture](../024-frontend-rebuild/003-source-architecture-and-contracts.md). No locale files moved or runtime loader changed |
+| Translation manifests, schemas, and locale catalogs | `client/i18n/` owns existing frontend translations. `web-next/src/locales/{th,en}/workspace.json` and `web-next/src/app/i18n.ts` own only isolated FE24 presentation. No old locales moved; one i18next runtime per application |
 | Generated image output | `client/outputs/` |
 | Legacy browser source pending post-validation deletion | `client/` excluding retained data/assets |
 

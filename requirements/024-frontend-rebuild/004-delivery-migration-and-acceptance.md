@@ -1,7 +1,10 @@
 # FE24-DELIVERY — งานย่อย การตรวจ และการย้ายใช้งาน
 
-สถานะ 2026-11-20: ปรับ requirement จาก delegated reviews; ทุก implementation task ยัง proposed.
-หลักฐานรอบนี้เป็น document review และ source inspection เท่านั้น ไม่ใช่ runtime PASS/UAT.
+สถานะ 2026-11-20: M0 review จบ; M1 Image preview มี implementation และ scoped evidence ใน
+[005](005-implementation-checkpoint.md)/task-plan.json. T06–T08 ยังเป็นขั้นถัดไป; ไม่อ้าง full UAT.
+
+Latest requirement update: เมนูImage→Comparison→Video; ออกแบบComparisonก่อนVideoตาม
+006/007. **รอบปัจจุบันทำเอกสารและรอคำสั่งต่อไป** ไม่เริ่มT06/T07หรือเปลี่ยนcompletedJSONtasks.
 
 ## 1. งานที่เรียงตาม dependency
 
@@ -12,16 +15,17 @@
 | FE24-T03 | Shared transport/session/media integration / Backend | T01,T02 | ใช้ implementationเดียว; actor/CSRF/private-media parity; ไม่มี secrets/fetch bypass และมี independent sensitive review |
 | FE24-T04 | Playground Image / Frontend | T02,T03 และ recovery dependency ของ Image | Prompt/reference→ตรวจค่า→quote→submit→status→results ใช้งานผ่านเจ้าของเดิม; draftคงอยู่; errorทุกภาพแก้ได้ |
 | FE24-T05 | Image inspection / Frontend | T04มี result contract | fit/100%/zoom/pan/fullscreen/download original, thumbnail bounds, private load error และ resizeผ่าน |
-| FE24-T06 | Playground Video / Frontend | T04,T05 และ recovery dependency ของ Video | mode/first-last/reference/duration/audio ตามcatalog; playerและrecovery; failed taskไม่เป็นpreviewดำ |
-| FE24-T07 | Comparison / Frontend | T04–T06 และ recovery dependency ของ Comparison | ต่อslotแสดงค่า/สถานะถูก, estimateเฉพาะslotเปิด, partial successคงอยู่; ไม่แทน workflowเดิม |
+| FE24-T07 / M2 | Comparison / Frontend | T04,T05 และ C01 ของ006; ไม่ต้องรอVideo | C01–C05, CMP01–09: ต่อslotแสดงค่า/สถานะถูก, estimateเฉพาะslotเปิด, partial successคงอยู่ |
+| FE24-T06 / M3 | Playground Video / Frontend | T04,T05 และ V01 ของ007; ใช้sharednavigationจากM2 | V01–V06, VID01–10: mode/reference/duration/audioตามtypedcontract; playerและrecovery; failedtaskไม่เป็นpreviewดำ |
 | FE24-T08 | ย้าย Playground / Backend owner, QA ตรวจ parity | T04–T07 ผ่านและระบุ route parity ครบ | userยืนยันcutover, deep links/session/mediaถูกต้อง, rollbackได้; Image preview อย่างเดียวไม่ผ่านข้อนี้ |
 
-ลำดับปิดงาน: M0 requirement review → M1 Image preview (T01–T05) → M2 Video preview (T06)
-→ M3 Comparison preview (T07) → M4 เปลี่ยน Playground route (T08). แต่ละ milestone ใช้ได้และตรวจจบ
+ลำดับปิดงานล่าสุด: M0 requirement review → M1 Image preview (T01–T05) → M2 Comparison preview (T07)
+→ M3 Video preview (T06) → M4 เปลี่ยน Playground route (T08). เก็บTaskIDเดิมเพื่อไม่ทำลายtraceability.
+แต่ละ milestone ใช้ได้และตรวจจบ
 แยกกัน; M1 ไม่ต้องรอ M2/M3 แต่ต้องมีทางกลับ Video/Comparison เดิมและไม่เปลี่ยน default route.
 T01 สรุป dependency ต่อ mode; contract gap ของ Video/Comparison ไม่ขวาง M1 หาก Image ผ่านเงื่อนไขตัวเอง.
 
-ตารางนี้คือแผน requirement ไม่ใช่การมอบหมาย agent หรืออนุมัติเริ่มงาน.
+ตารางนี้คือ scope/rollup; ผู้ใช้อนุญาต implementation แล้ว และ task-plan.json เก็บการส่งมอบ M1/B1.
 เมื่อเริ่ม implementation ให้สร้าง execution JSON plan ข้างเอกสารนี้ก่อนงาน migration/
 sensitive extraction มี write scopes, dependencies, acceptance และ independent reviews.
 Defaultหนึ่ง implementer; เพิ่ม agentเฉพาะ required sensitive review หรือ independentงานใหญ่
@@ -72,8 +76,8 @@ AC07/22: Cancel มีเฉพาะ API ที่รองรับ; pending c
 | T03 | AC09/12/20/21/23 ด้าน common transport/identity/mount; video range ทวนใน T06 |
 | T04 / M1 | AC02–05/07/09/11/13–16/19/22/23 เฉพาะ Image; AC14 เฉพาะ Use reference/Reuse |
 | T05 / M1 | AC06/11/18/21 ด้าน Image viewer/download |
-| T06 / M2 | AC08 และ AC02–05/07/09/11/13–16/19/21–23 เฉพาะ Video รวม Image→Video |
-| T07 / M3 | AC10/17 และ AC02–07/09/11/15/19/22 เฉพาะ Comparison |
+| T07 / M2 | CMP01–09 ใน006; AC10/17 และ AC02–07/09/11/15/19/22 เฉพาะ Comparisonภาพ |
+| T06 / M3 | VID01–10 ใน007; AC08 และ AC02–05/07/09/11/13–16/19/21–23 เฉพาะ Video รวม Image→Video |
 | T08 / M4 | AC12/23 route parity/rollback และ UAT ของ scope ทั้งหมด; ใช้หลักฐานก่อนหน้าที่ยังตรง ไม่รันซ้ำโดยไม่มีเหตุ |
 
 Shared checks ทวนเฉพาะ input/contract/layout ที่เปลี่ยน; ไม่มีข้อกำหนด Video/Comparison มาขวาง M1.
@@ -85,7 +89,7 @@ Buildเมื่อถึง sourceพร้อมส่ง; ไม่มี bu
 
 ## 3. Cutover และ rollback
 
-เปิดหน้าใหม่แบบpreviewแยกก่อน; defaultเว็บเดิมคงอยู่. ภาพ→วิดีโอ→Comparison
+เปิดหน้าใหม่แบบpreviewแยกก่อน; defaultเว็บเดิมคงอยู่. ภาพ→Comparison→วิดีโอ
 เป็น milestone แต่ไม่ตัดฟังก์ชันเดิมเพื่อเรียก migrationว่าจบ.
 ก่อนcutoverจัด parity listของPlaygroundเดิม: reference picker/trustedhandoff,
 activejobs, comparisons, history, downloads, creditsและreturnnavigation.
@@ -96,12 +100,12 @@ Look Sheet/Character-specific flow ที่ยังไม่ย้ายต้
 เลิกใช้oldPlaygroundหลังparity/UATและobservationผ่าน; ไม่ลบwebทั้งชุดเมื่อหน้าอื่นยังใช้อยู่.
 กำหนด removal checkpointของtemporary adaptersในexecutionplan ไม่ปล่อยสองownerถาวร.
 
-## 4. ข้อเสนอรอตกลงก่อน scaffold
+## 4. ฐานสำหรับ milestone ถัดไป
 
-ชื่อweb-next, palette/font scale, primitive family, viewer/player packages, sharedpackage
-exports/path และ preview origin ต้องสรุปจากT01. ทั้งหมดไม่จำเป็นต้องถามเพื่อเขียน
-requirementนี้ แต่ต้องเป็นผลลัพธ์ที่ตรวจดูได้ก่อนผูกโครงสร้างimplementation.
-ไม่มีการตัดสินใจใหม่ด้านราคา สิทธิ์เผยแพร่ หรือ retentionในชุดนี้.
+ใช้M1/U1ที่ส่งมอบแล้ว: web-next, fixedlightpalette, TH/EN, Radix, canonicalbridge
+และpreview6502. ไม่ต้องตกลงscaffoldใหม่. เพิ่มเฉพาะComparison/Video presentationตาม006/007
+และowningcontract prerequisitesที่ระบุไว้. ไม่มีการตัดสินใจใหม่ด้านราคา สิทธิ์เผยแพร่
+หรือretention; การเลือกplayer packageใหม่ต้องมีเหตุผลเมื่อreuseของเดิมไม่เพียงพอ.
 
 ## 5. Checkpoint รอบเอกสาร
 
@@ -131,6 +135,19 @@ Library/palette/package path ยังคงเป็น T01 decision; ไม่
 ไม่เรียก Cinematic/production-generation agents เพราะไม่ได้ออกแบบเรื่อง/ช็อตหรือเปลี่ยน provider dispatch/คุณภาพสื่อ.
 Database review ครอบคลุม ownership โดย Architecture; ไม่มี schema migration จึงไม่เปิดงานฐานข้อมูลเพิ่ม.
 
-ผลตรวจเอกสาร: local Markdown links ของ000–004 resolve ครบและไม่มี Unicode replacement character.
-M0 requirement review เสร็จ; M1–M4 ยังไม่เริ่ม. ยังไม่มี mockup/browser/automated runtime evidence
-และ QA ไม่ได้ re-prove source findings ของ reviewers อื่น. ขั้นถัดไปคือ T01 เมื่อผู้ใช้สั่ง implementation.
+ผลตรวจเอกสารรอบM0เดิม: local Markdown links ของ000–004 resolve ครบและไม่มี Unicode replacement character.
+ณรอบM0นั้น M1–M4ยังไม่เริ่ม; สถานะล่าสุดM1/U1และruntimeevidenceให้อ่าน005/task-plan.json.
+
+### Comparison/Video requirement checkpoint (2026-11-20)
+
+ส่งมอบ006/007พร้อมflow,sourceownership,dependencies,tasksและacceptance; ปรับเมนู/
+milestone/linksใน000–004ให้สอดคล้อง. Productเป็นprimary, UX/QAตรวจเอกสารตามลำดับ
+โดยrootคนเดียว (ไม่ใช่independentimplementationreview). ไม่มีapp/source/config/runtime
+dataเปลี่ยน ไม่มีbuild/tests,paidcalls,service restartหรือGit. Architecture mapเพิ่มเพียง
+plannedComparisonpresentationในขอบเขตFE24. ตรวจlocalMarkdownlinksและnavigation/milestone
+consistencyก่อนส่งมอบ. JSONexecutionplanของงานที่เสร็จแล้วคงเดิม; เมื่อได้รับคำสั่ง
+implementจึงเพิ่มC/Vexecutiontasksและindependentsensitivegatesตามcontractที่เปลี่ยนจริง.
+
+ผลตรวจรอบนี้: เอกสาร024จำนวน8ไฟล์อ่านUTF-8ได้, localMarkdownfilelinks30รายการresolveครบ,
+menu/milestone orderสอดคล้องและไม่มีข้อความลำดับM2Video/M3Comparisonเก่าค้างในชุด.
+Requirement006/007และการเชื่อมmasterเสร็จแล้ว; app implementationยังไม่เริ่มและรอคำสั่งผู้ใช้.

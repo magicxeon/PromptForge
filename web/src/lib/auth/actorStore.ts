@@ -4,6 +4,39 @@ import type { AuthMode } from './actorSchemas';
 // from storage nor this presentation state authenticate a server request.
 let identity = { epoch: 0, ready: false, actorId: '', authMode: 'session' as AuthMode, csrfToken: '' };
 const requests = new Set<AbortController>();
+let revalidation: { token: symbol; promise: Promise<void>; release: () => void } | null = null;
+
+// Suspend private transport, not completed presentation, while a returning tab
+// confirms its session. Hard invalidation changes the epoch before release.
+export function beginIdentityRevalidation() {
+  const token = Symbol('identity-revalidation');
+  let release!: () => void;
+  const promise = new Promise<void>(resolve => { release = resolve; });
+  revalidation?.release();
+  revalidation = { token, promise, release };
+  return token;
+}
+
+export function finishIdentityRevalidation(token: symbol) {
+  if (revalidation?.token !== token) return;
+  revalidation.release();
+  revalidation = null;
+}
+
+export async function waitForIdentityRevalidation(signal?: AbortSignal | null) {
+  const epoch = identity.epoch;
+  while (revalidation) {
+    const pending = revalidation.promise;
+    await new Promise<void>((resolve, reject) => {
+      const abort = () => { cleanup(); reject(new DOMException('Request cancelled.', 'AbortError')); };
+      const cleanup = () => signal?.removeEventListener('abort', abort);
+      if (signal?.aborted) { abort(); return; }
+      signal?.addEventListener('abort', abort, { once: true });
+      void pending.then(() => { cleanup(); resolve(); });
+    });
+    assertIdentityEpoch(epoch);
+  }
+}
 
 export function getActiveActorId() { return identity.ready ? identity.actorId : ''; }
 export function getIdentitySnapshot() { return { ...identity }; }
@@ -11,6 +44,7 @@ export function getActorScope(actorId: string) { return `${identity.authMode}:${
 
 export function beginIdentityResolution() {
   identity = { ...identity, epoch: identity.epoch + 1, ready: false, csrfToken: '' };
+  if (revalidation) finishIdentityRevalidation(revalidation.token);
   for (const controller of requests) controller.abort();
   return identity.epoch;
 }

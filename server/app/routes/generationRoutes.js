@@ -5,6 +5,17 @@ export function registerGenerationRoutes(app, {
   generationApplicationService,
   resolveRequestUsername
 }) {
+  app.get('/api/generation/requests/:requestId', async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
+    try {
+      return res.json(await generationApplicationService.getImageRequestStatus(req.params.requestId, req.actorContext));
+    } catch (error) {
+      return res.status(error.statusCode || 503).json({ error: {
+        code: error.statusCode ? error.code : 'generation_request_lookup_unavailable',
+        message: 'Image request status is unavailable.'
+      } });
+    }
+  });
   app.get('/api/generation/look-sheet-preset', (_req, res) => res.json(getLookSheetPreset()));
   app.post('/api/generation/look-sheet-preview', async (req, res) => {
     res.set('Cache-Control', 'private, no-store');

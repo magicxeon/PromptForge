@@ -55,22 +55,116 @@ describe('server-resolved actor lifecycle', () => {
     expect(getIdentitySnapshot().csrfToken).toBe('');
     expect(client.getQueryData(['private', 'owner'])).toBeUndefined();
   });
-  it('retains the confirmed actor and cache while same-owner focus revalidation suspends authority', async () => {
+  it('coalesces focus checks without resetting presentation, epoch or completed queries', async () => {
     vi.mocked(apiRequest).mockResolvedValueOnce(config()).mockResolvedValueOnce(actor());
     const client = mount();
     await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('owner'));
     client.setQueryData(['private', 'owner'], { draft: 'kept' });
+    const epoch = getIdentitySnapshot().epoch;
+    const cancel = vi.spyOn(client, 'cancelQueries');
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
     let finish!: (value: unknown) => void;
     vi.mocked(apiRequest).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; })).mockResolvedValueOnce(actor());
     fireEvent(window, new Event('focus'));
-    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('resolving'));
-    expect(getActiveActorId()).toBe('');
-    expect(getIdentitySnapshot().csrfToken).toBe('');
+    fireEvent(document, new Event('visibilitychange'));
+    fireEvent(window, new Event('focus'));
+    await waitFor(() => expect(apiRequest).toHaveBeenCalledTimes(3));
+    expect(screen.getByTestId('actor')).toHaveTextContent('owner');
+    expect(getIdentitySnapshot().epoch).toBe(epoch);
     expect(screen.getByTestId('mode')).toHaveTextContent('session');
     expect(client.getQueryData(['private', 'owner'])).toEqual({ draft: 'kept' });
     await act(async () => { finish(config()); });
     await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('owner'));
     expect(client.getQueryData(['private', 'owner'])).toEqual({ draft: 'kept' });
+    expect(cancel).not.toHaveBeenCalled();
+    expect(invalidate).not.toHaveBeenCalled();
+    expect(getIdentitySnapshot().epoch).toBe(epoch);
+  });
+
+  it.each([
+    { ...actor(), userId: 'different' },
+    { ...actor(), role: 'admin' },
+    { ...actor(), securityVersion: 2 },
+    null
+  ])('hard-gates a changed focus identity and clears old private state: %j', async nextActor => {
+    vi.mocked(apiRequest).mockResolvedValueOnce(config()).mockResolvedValueOnce(actor());
+    const client = mount();
+    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('owner'));
+    const epoch = getIdentitySnapshot().epoch;
+    writeActorScopedDraft({ actorId: 'owner', feature: 'playground', schemaVersion: 1, payload: { private: 'old' } });
+    client.setQueryData(['private', 'owner'], { private: 'old' });
+    vi.mocked(apiRequest).mockResolvedValueOnce(config()).mockResolvedValueOnce(nextActor)
+      .mockResolvedValueOnce(config()).mockResolvedValueOnce(nextActor);
+    fireEvent(window, new Event('focus'));
+    await waitFor(() => expect(apiRequest).toHaveBeenCalledTimes(6));
+    await waitFor(() => expect(screen.getByTestId('actor')).not.toHaveTextContent('resolving'));
+    expect(getIdentitySnapshot().epoch).toBeGreaterThan(epoch);
+    expect(client.getQueryData(['private', 'owner'])).toBeUndefined();
+    expect(Object.keys(localStorage).filter(key => key.startsWith('mpf.react.draft:'))).toEqual([]);
+  });
+
+  it('gates changed config before resolving another actor and clears drafts on failed verification', async () => {
+    vi.mocked(apiRequest).mockResolvedValueOnce(config()).mockResolvedValueOnce(actor());
+    const client = mount();
+    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('owner'));
+    writeActorScopedDraft({ actorId: 'owner', feature: 'playground', schemaVersion: 1, payload: { private: 'old' } });
+    client.setQueryData(['private', 'owner'], { private: 'old' });
+    vi.mocked(apiRequest).mockResolvedValueOnce({ ...config(), csrfToken: 'changed' }).mockRejectedValueOnce(new Error('offline'));
+    fireEvent(window, new Event('focus'));
+    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('error'));
+    expect(vi.mocked(apiRequest).mock.calls.slice(2).map(call => call[0])).toEqual(['/api/auth/config', '/api/auth/config']);
+    expect(client.getQueryData(['private', 'owner'])).toBeUndefined();
+    expect(Object.keys(localStorage).filter(key => key.startsWith('mpf.react.draft:'))).toEqual([]);
+    expect(getActiveActorId()).toBe('');
+  });
+
+  it.each(['resolve', 'reject'])('ignores stale background %s after explicit invalidation', async result => {
+    vi.mocked(apiRequest).mockResolvedValueOnce(config()).mockResolvedValueOnce(actor());
+    mount();
+    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('owner'));
+    let resolve!: (value: unknown) => void, reject!: (reason: Error) => void;
+    vi.mocked(apiRequest).mockImplementationOnce(() => new Promise((yes, no) => { resolve = yes; reject = no; }));
+    fireEvent(window, new Event('focus'));
+    await waitFor(() => expect(apiRequest).toHaveBeenCalledTimes(3));
+    vi.mocked(apiRequest).mockResolvedValueOnce(config()).mockResolvedValueOnce(null);
+    fireEvent(window, new Event('mpf:identity-invalidated'));
+    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('guest'));
+    await act(async () => { if (result === 'resolve') resolve(config()); else reject(new Error('old failure')); });
+    expect(screen.getByTestId('actor')).toHaveTextContent('guest');
+    expect(apiRequest).toHaveBeenCalledTimes(5);
+  });
+
+  it('bounds a stalled focus check and fails closed when hard verification also fails', async () => {
+    vi.mocked(apiRequest).mockResolvedValueOnce(config()).mockResolvedValueOnce(actor());
+    const client = mount();
+    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('owner'));
+    client.setQueryData(['private', 'owner'], { secret: 'old' });
+    vi.useFakeTimers();
+    try {
+      vi.mocked(apiRequest).mockImplementationOnce((_path, options) => new Promise((_resolve, reject) => {
+        options?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true });
+      })).mockRejectedValueOnce(new Error('offline'));
+      fireEvent(window, new Event('focus'));
+      expect(screen.getByTestId('actor')).toHaveTextContent('owner');
+      await act(async () => { await vi.advanceTimersByTimeAsync(10_000); });
+      expect(screen.getByTestId('actor')).toHaveTextContent('error');
+      expect(getIdentitySnapshot().ready).toBe(false);
+      expect(client.getQueryData(['private', 'owner'])).toBeUndefined();
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('discards a background result after provider unmount', async () => {
+    vi.mocked(apiRequest).mockResolvedValueOnce(config()).mockResolvedValueOnce(actor());
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const view = render(<QueryClientProvider client={client}><ActorProvider><State /></ActorProvider></QueryClientProvider>);
+    await waitFor(() => expect(screen.getByTestId('actor')).toHaveTextContent('owner'));
+    let finish!: (value: unknown) => void;
+    vi.mocked(apiRequest).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    fireEvent(window, new Event('focus'));
+    view.unmount();
+    await act(async () => { finish(config()); });
+    expect(getIdentitySnapshot().ready).toBe(false);
+    expect(apiRequest).toHaveBeenCalledTimes(3);
   });
 
   it('clears prior mode drafts and cache even when the actor ID is equal', async () => {

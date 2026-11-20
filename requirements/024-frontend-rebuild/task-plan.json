@@ -1,0 +1,236 @@
+{
+  "version": 1,
+  "requirement": "requirements/024-frontend-rebuild/000-master.md",
+  "tasks": [
+    {
+      "id": "FE24-U1",
+      "title": "Provider menu, expanded prompt, automatic Fit and stable window return",
+      "complexity": "complex",
+      "reason": "Requested UX correction includes canonical session revalidation and private presentation.",
+      "owner": "ux-ui-product-designer",
+      "ownerAgentId": "/root",
+      "capabilities": ["frontend-experience", "identity"],
+      "risks": ["user-facing", "shared-contract", "security"],
+      "dependsOn": ["FE24-M1"],
+      "writeScope": ["web-next/", "web/src/lib/auth/", "web/src/lib/api/apiClient.ts", "web/src/lib/api/apiClient.test.ts", "requirements/024-frontend-rebuild/", "requirements/019-implementation-commercial-feature-plan/authentication/005-screens-and-user-journeys.md", "requirements/099-technical-dept/000-master.md"],
+      "status": "complete",
+      "acceptance": [
+        "Provider categories/search and shared-draft prompt modal work in TH/EN at390/820/1440 without changing generation inputs.",
+        "Expand and collapse reset the image to measured Fit while existing zoom, pan and download remain usable.",
+        "Same-session window return preserves media and work; changed, failed or explicitly invalidated identity remains gated and rejects stale responses."
+      ],
+      "reviewers": ["ux-ui-product-designer", "qa-release-engineer", "security-reviewer"],
+      "evidence": [
+        {
+          "check": "Provider categories/search and shared-draft prompt modal work in TH/EN at390/820/1440 without changing generation inputs.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "check": "Expand and collapse reset the image to measured Fit while existing zoom, pan and download remain usable.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "check": "Same-session window return preserves media and work; changed, failed or explicitly invalidated identity remains gated and rejects stale responses.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/fe24_focus_security",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        }
+      ],
+      "handoff": "Root implements; scoped UX/QA checks and independent Security review. No paid provider calls or Git operations."
+    },
+    {
+      "id": "FE24-M1",
+      "title": "Separate Image Playground preview on localhost6502",
+      "complexity": "complex",
+      "reason": "New frontend reuses identity, private media and billable generation contracts.",
+      "owner": "ux-ui-product-designer",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "frontend-experience",
+        "generation",
+        "identity"
+      ],
+      "risks": [
+        "user-facing",
+        "shared-contract",
+        "security",
+        "financial"
+      ],
+      "dependsOn": [
+        "FE24-B1"
+      ],
+      "writeScope": [
+        "web-next/",
+        "package.json",
+        "package-lock.json",
+        "requirements/024-frontend-rebuild/",
+        "requirements/099-technical-dept/000-master.md"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Image preview uses canonical catalog, quote, references, submission and recovery without changing the old frontend.",
+        "TH/EN responsive authoring and authenticated fit/zoom/download are usable at390/820/1440.",
+        "Actor isolation, explicit6502 loopback origin and same-request recovery preserve authorization and once-only charging."
+      ],
+      "reviewers": [
+        "ux-ui-product-designer",
+        "backend-platform-architect",
+        "commercial-financial-integrity",
+        "security-reviewer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Image preview uses canonical catalog, quote, references, submission and recovery without changing the old frontend.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "check": "TH/EN responsive authoring and authenticated fit/zoom/download are usable at390/820/1440.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "check": "Actor isolation, explicit6502 loopback origin and same-request recovery preserve authorization and once-only charging.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/fe24_frontend_review",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/fe24_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "agentId": "/root/fe24_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/fe24_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/fe24_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        }
+      ],
+      "handoff": "Implement T01–T05, focused checks and independent reviews. No live paid calls, Git management or production cutover."
+    },
+    {
+      "id": "FE24-B1",
+      "title": "Image request lookup and explicit local6502 origin",
+      "complexity": "complex",
+      "reason": "Read-only Generation recovery crosses Credits ownership and local auth origin policy.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root/fe24_backend_delivery",
+      "capabilities": [
+        "generation",
+        "credits",
+        "identity"
+      ],
+      "risks": [
+        "shared-contract",
+        "financial",
+        "security"
+      ],
+      "dependsOn": [],
+      "writeScope": [
+        "server/config/authPolicy.js",
+        "server/domain/generation/GenerationApplicationService.js",
+        "server/app/routes/generationRoutes.js",
+        "server/domain/credits/",
+        "server/repositories/credits/",
+        "web/src/features/generation/api/",
+        "web/src/features/generation/schemas/",
+        "test/",
+        "server/domain/identity/IdentityDevelopmentService.js"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Owned Image request lookup never mutates billing or dispatches work and hides foreign mappings.",
+        "Only explicit loopback6502 preview origins are added to existing local bypass qualification."
+      ],
+      "reviewers": [
+        "backend-platform-architect",
+        "commercial-financial-integrity",
+        "security-reviewer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Owned Image request lookup never mutates billing or dispatches work and hides foreign mappings.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "check": "Only explicit loopback6502 preview origins are added to existing local bypass qualification.",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/fe24_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "agentId": "/root/fe24_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/fe24_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/fe24_sensitive_review",
+          "result": "passed",
+          "reference": "requirements/024-frontend-rebuild/005-implementation-checkpoint.md"
+        }
+      ],
+      "handoff": "Implement scoped GET recovery and local origin; root integrates client. No production auth changes or paid calls."
+    }
+  ],
+  "parallelBatches": []
+}

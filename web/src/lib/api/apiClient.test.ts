@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { apiMediaBlob, apiRequest, apiRequestWithProgress } from './apiClient';
-import { beginIdentityResolution, publishIdentity } from '../auth/actorStore';
+import { beginIdentityResolution, beginIdentityRevalidation, finishIdentityRevalidation, publishIdentity, getIdentitySnapshot } from '../auth/actorStore';
 
 beforeEach(() => {
   const epoch = beginIdentityResolution();
@@ -9,6 +9,108 @@ beforeEach(() => {
 });
 
 describe('apiRequestWithProgress', () => {
+  it.each(['json', 'media', 'progress'])('invalidates a private401 during background checking immediately: %s', async kind => {
+    let finish!: (value: Response) => void;
+    const fetchMock = vi.fn().mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+    vi.stubGlobal('fetch', fetchMock);
+    const listener = vi.fn();
+    window.addEventListener('mpf:identity-invalidated', listener);
+    try {
+      const pending = kind === 'json' ? apiRequest('/api/private') : kind === 'media'
+        ? apiMediaBlob('/outputs/private.png') : apiRequestWithProgress('/api/stream', {
+          method: 'POST', schema: z.object({ ok: z.boolean() }), progressSchema: z.object({ stage: z.string() }), onProgress: () => undefined
+        });
+      const rejected = expect(pending).rejects.toMatchObject({ status: 401 });
+      await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+      const token = beginIdentityRevalidation();
+      finish(new Response('{"error":{"code":"auth_session_expired","message":"Expired"}}', {
+        status: 401, headers: { 'content-type': 'application/json' }
+      }));
+      await rejected;
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(getIdentitySnapshot().ready).toBe(false);
+      finishIdentityRevalidation(token);
+    } finally { window.removeEventListener('mpf:identity-invalidated', listener); }
+  });
+
+  it('holds new private reads, media and mutations during a same-session check without replaying them', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{"ok":true}', {
+      headers: { 'content-type': 'application/json' }
+    })));
+    vi.stubGlobal('fetch', fetchMock);
+    const epoch = getIdentitySnapshot().epoch;
+    const token = beginIdentityRevalidation();
+    const json = apiRequest('/api/private');
+    const media = apiMediaBlob('/outputs/private.png');
+    const mutation = apiRequest('/api/private', { method: 'POST', body: {} });
+    await Promise.resolve();
+    expect(fetchMock).not.toHaveBeenCalled();
+    await apiRequest('/api/me');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    finishIdentityRevalidation(token);
+    await Promise.all([json, media, mutation]);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(getIdentitySnapshot().epoch).toBe(epoch);
+  });
+
+  it('never dispatches waiting mutations after identity changes or caller cancellation', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    let token = beginIdentityRevalidation();
+    const pending = apiRequest('/api/private', { method: 'POST', body: {} });
+    const rejected = expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+    const epoch = beginIdentityResolution();
+    publishIdentity(epoch, { actorId: 'another', authMode: 'session', csrfToken: 'new' });
+    finishIdentityRevalidation(token);
+    await rejected;
+    token = beginIdentityRevalidation();
+    const controller = new AbortController();
+    const cancelled = apiMediaBlob('/outputs/private.png', controller.signal);
+    const aborted = expect(cancelled).rejects.toMatchObject({ name: 'AbortError' });
+    controller.abort();
+    await aborted;
+    finishIdentityRevalidation(token);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it.each(['json', 'blob'] as const)('holds decoded %s until identity is confirmed and rejects changed-session data', async kind => {
+    let finish!: (value: never) => void;
+    const response = new Response(null, { headers: { 'content-type': 'application/json' } });
+    const decoder = vi.spyOn(response, kind).mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));
+    const pending = kind === 'json' ? apiRequest('/api/private') : apiMediaBlob('/outputs/private.png');
+    const rejected = expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+    await vi.waitFor(() => expect(decoder).toHaveBeenCalled());
+    const token = beginIdentityRevalidation();
+    finish((kind === 'json' ? { private: 'old' } : new Blob(['private'])) as never);
+    let settled = false;
+    void pending.then(() => { settled = true; }, () => { settled = true; });
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(settled).toBe(false);
+    beginIdentityResolution();
+    finishIdentityRevalidation(token);
+    await rejected;
+  });
+
+  it('pauses a stream between events during a focus check and resumes once without replay', async () => {
+    let release!: symbol;
+    const body = new ReadableStream<Uint8Array>({ start(controller) {
+      controller.enqueue(new TextEncoder().encode('event: progress\ndata: {"stage":"first"}\n\nevent: progress\ndata: {"stage":"second"}\n\nevent: result\ndata: {"id":"done"}\n\n'));
+      controller.close();
+    } });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(body, { headers: { 'content-type': 'text/event-stream' } })));
+    const events: string[] = [];
+    const pending = apiRequestWithProgress('/api/stream', {
+      method: 'POST', schema: z.object({ id: z.string() }), progressSchema: z.object({ stage: z.string() }),
+      onProgress: event => { events.push(event.stage); if (event.stage === 'first') release = beginIdentityRevalidation(); }
+    });
+    await vi.waitFor(() => expect(events).toEqual(['first']));
+    finishIdentityRevalidation(release);
+    expect(await pending).toEqual({ id: 'done' });
+    expect(events).toEqual(['first', 'second']);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
   it('preserves authorized PNG/JPEG blobs and exposes response headers without changing JSON errors', async () => {
     for (const type of ['image/png', 'image/jpeg', 'application/zip']) {
       const response = new Response(null, { headers: { 'Content-Type': type, 'X-Momelo-Export': 'metadata' } });

@@ -4,13 +4,17 @@
   "type": "module",
   "main": "server/server.js",
   "workspaces": [
-    "web"
+    "web",
+    "web-next"
   ],
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
     "dev:server": "nodemon server/server.js",
     "dev:web": "npm run dev --workspace web",
+    "dev:web-next": "node scripts/start-web-next.mjs",
+    "stop:web-next": "node scripts/start-web-next.mjs --stop",
+    "build:web-next": "npm run build --workspace web-next",
     "build:web": "npm run build --workspace web",
     "performance:bundle-budget": "node scripts/measure-react-build-budget.mjs",
     "attributes:audit": "node scripts/audit-attribute-catalog.js",

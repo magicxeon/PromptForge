@@ -7,7 +7,7 @@
 
 Desktop: header กะทัดรัด → แผงสร้างงานซ้าย + พื้นที่ดูผลงานขวา.
 แผงสร้างงานเรียง Model/Mode แบบกะทัดรัด → Prompt → References → ค่าหลัก → Generate.
-เส้นทางหลักของผู้ใช้คือ เลือก Image/Video → เขียนหรือคืน Prompt → เพิ่ม reference ตามต้องการ
+เส้นทางหลักของผู้ใช้คือ เลือก Image/Comparison/Video → เขียนหรือคืน Prompt → เพิ่ม reference ตามต้องการ
 → ตรวจโมเดล/ค่าที่ตั้งไว้ → ดู estimate → Generate → ดูและนำผลไปใช้.
 ใช้ค่าเริ่มต้นที่ถูกต้องจาก catalog หรือ draft ที่ยังใช้ได้ ไม่บังคับเลือกโมเดลใหม่ทุกครั้ง.
 เปิดหน้า Create แล้วต้องเห็น label และช่อง Prompt โดยไม่ต้องขยาย panel; references และ advanced
@@ -27,7 +27,7 @@ Reference/advanced settings ยุบได้แต่เห็นสรุป.
 
 | ส่วน | Component และพฤติกรรม | การแสดง |
 |---|---|---|
-| Header | Image / Video, ชื่อหน้า, ไทย/English, บัญชี/เครดิตอย่างกะทัดรัด | เสมอ; สื่อที่ยังไม่เปิดระบุสถานะตรงจริง |
+| Header | Image → Comparison → Video, ชื่อหน้า, ไทย/English, บัญชี/เครดิตอย่างกะทัดรัด | ลำดับเหมือนกันทุกviewport; สื่อที่ยังไม่ย้ายมีทางไปหน้าเดิม |
 | Model picker | Searchable combobox แบ่ง provider แสดงชื่อโมเดลและความสามารถสั้น ๆ | ค่าปัจจุบันเห็นเสมอ |
 | Mode picker | ปุ่มแบ่งส่วนเมื่อมีน้อย; selector เมื่อมีหลายโหมด | เฉพาะ mode ที่โมเดลรองรับ |
 | References | เพิ่มไฟล์/เลือก output เดิม, thumbnail, label, จำนวน/max | แสดงตาม mode |
@@ -118,3 +118,56 @@ presentation ของกรอบสถานะเป็นแบบเรี�
 - [MDN object-fit](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/object-fit): contain สำหรับดูภาพครบ.
 
 ทั้งหมดเป็น reference ไม่ใช่การอนุมัติ library หรือการคัดลอก provider limits.
+
+## 8. Approved interaction correction — FE24-U1 (2026-11-20)
+
+Scope: Image Playground in `web-next/`; preserve references, settings, estimates,
+Generate, activity, history and the links to the existing Video/Comparison pages.
+Primary: UX/UI; focused QA and independent Security review for session revalidation.
+
+1. **Provider / model menu:** reuse the existing `GenerationModelPicker` through
+   the canonical bridge. One trigger shows the current provider/model; inside the
+   menu, search and provider categories narrow the model list. Options come from
+   the current catalog. Choosing a model preserves the prompt/references/settings;
+   unsupported combinations retain the existing validation. Clear search/empty
+   results, selection, Escape, keyboard navigation and focus return must work.
+2. **Expanded prompt:** an explicit expand button beside the prompt label opens
+   a near-fullscreen modal. It edits the same actor-scoped draft immediately;
+   Close/Escape returns to the form with all edits retained, with no second Save
+   or implicit generation. Preserve text selection and provide the same count/
+   limit. The modal fits mobile, tablet and desktop, traps focus and returns focus.
+3. **Expanded image:** opening and closing the expanded viewer always resets to
+   Fit, even after manual zoom/pan. Measure the actual image surface after layout
+   and on resize; preserve aspect ratio and show the entire image. Existing
+   small-image no-upscale policy and explicit 100%/zoom/download remain unchanged.
+4. **Return to workspace:** ordinary window focus/visibility checks the session
+   in the background, coalescing overlapping checks. If the resolved actor and
+   security/config context are unchanged, retain draft, selection, scroll, open
+   modal, image object URL and zoom; do not cancel/invalidate every query. Explicit
+   logout/session invalidation, changed identity/security context or failed checks
+   retain the canonical hard identity gate, abort stale requests and remove stale
+   private state. Background responses cannot overwrite a newer identity epoch.
+
+Implementation order: canonical session correction; reuse picker and add prompt
+editor; viewer Fit transitions; focused lifecycle and browser checks. No paid
+generation, new storage contract or backend provider/billing changes.
+Acceptance evidence belongs to `005-implementation-checkpoint.md` and FE24-U1 in
+`task-plan.json`. Required checks cover unchanged and changed identity, delayed
+responses, both modal transitions, provider/search keyboard flow and TH/EN at
+390/820/1440px. Architecture ownership remains unchanged.
+
+## 9. Navigation contract — Comparison/Video expansion (requirement only)
+
+- เมนูเรียง **Image → Comparison → Video** บนdesktop/tablet/mobile โดยไม่สลับตามactivepage.
+  Englishใช้คำเต็ม`Comparison`; ไทยใช้`ภาพ → เปรียบเทียบ → วิดีโอ`.
+- Planned routes: `/image`, `/comparison`, `/video`; `/`เป็นทางเข้าImageเพื่อคงURL6502
+  ที่ผู้ใช้เปิดอยู่. ใช้ReactRouterและdeep-link/back/forward; ไม่ใช้location reloadเพื่อสลับworkspace.
+- Active itemชัดเจนและมีaccessible current-page semantics. Image,Comparison,Videoมีicon
+  คนละแบบพร้อมข้อความ; mobileต้องอ่านและกดได้ ไม่ซ่อนComparisonในoverflowเมนู.
+- คงImage/Comparison/Video draftแยกต่อactor. Navigationไม่copyinputข้ามหน้าเอง;
+  การนำไปใช้ข้ามworkspaceเป็นexplicithandoffพร้อมป้องกันoverwriteตาม002/006/007.
+- ระหว่างทยอยเปิดหน้าใหม่ ถ้ายังไม่มีrouteที่พร้อม ให้itemเปิดหน้าเดิมพร้อมexternal-link
+  indicatorตามM1; เปลี่ยนเป็นinternalrouteเมื่อmilestoneนั้นผ่านเท่านั้น. ไม่ทำdeadlink
+  หรืออ้างว่าทั้ง3workspaceพร้อมเพราะเปลี่ยนlabelแล้ว.
+- Header/language/account/activityและImage behaviorที่ส่งมอบแล้วต้องคงอยู่.
+  รายละเอียดComparisonอยู่[006](006-comparison-workspace.md), Videoอยู่[007](007-video-workspace.md).

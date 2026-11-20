@@ -4,7 +4,7 @@
 
 ## 1. Happy path ร่วม
 
-Resolve session/actor → โหลด catalog/คืน draft → เลือก Image/Video → เขียน Prompt/reference
+Resolve session/actor → โหลด catalog/คืน draft → เลือก Image/Comparison/Video → เขียน Prompt/reference
 → ตรวจโมเดล/mode/ค่าที่รองรับซึ่งมีค่าเริ่มต้นที่ใช้ได้ → estimate คำขอปัจจุบัน → Generate explicit → ติดตามงานเดิม
 → ดูผลงานสำเร็จ → ดาวน์โหลด/ใช้ reference/นำค่ากลับมาแก้สร้างอีกครั้ง.
 ไม่ dispatch จากการเปิดหน้า เปลี่ยนโมเดล เลือกไฟล์ ดูตัวอย่าง หรือเปิดประวัติ.
@@ -76,7 +76,7 @@ Generation/Video ชัดเจนก่อนทำ flow นี้ ห้า�
 
 ## 5. Draft, results และ Comparison
 
-Image/Video มี draft แยกและ versioned ต่อ actor. ไม่เก็บ Base64/Blob/private tokens
+Image/Comparison/Video มี draft แยกและ versioned ต่อ actor. ไม่เก็บ Base64/Blob/private tokens
 ใน browser durable state. refresh คืน lightweight draft และ active job ID ตาม003.
 เมื่อมีไฟล์ที่ยังไม่ upload ต้องแจ้งเลือกใหม่ ไม่อ้างว่ากู้คืนไฟล์แล้ว.
 ไม่แย่ง scroll/focus/ผลลัพธ์ที่ผู้ใช้กำลังดูเมื่อ job อื่นเสร็จ; ใช้ป้ายงานใหม่ให้เลือกเอง.
@@ -96,6 +96,11 @@ Grid เปรียบเทียบไม่ crop ภาพ; แต่ละ 
 เข้า/ออก Comparison แล้ว normal draft คงอยู่; ปิด slot ไม่ยกเลิกงานที่ส่งไปแล้วโดยปริยาย.
 Retry ต้องแสดง scope/estimate ตาม owner; ห้ามสร้าง slot ที่สำเร็จซ้ำเงียบ ๆ.
 ถ้า owner ยังไม่รองรับ retry เฉพาะ slot ให้แสดงทางแก้ที่รองรับจริง ไม่ทำ client fan-out ใหม่.
+
+รายละเอียดรอบขยาย: [006 Comparison](006-comparison-workspace.md) และ
+[007 Video](007-video-workspace.md) เป็นเจ้าของtasks/acceptanceเฉพาะworkspace.
+Comparisonรุ่นนี้สร้างภาพเท่านั้นตามbackendที่ตรวจ; VideoComparisonยังไม่มีsubmitที่ใช้ได้.
+เมนูImage→Comparison→Videoไม่ใช่คำสั่งให้ผสมภาพและคลิปในComparisonrunเดียว.
 
 ## 6. ข้อจำกัดทางธุรกิจที่รักษา
 

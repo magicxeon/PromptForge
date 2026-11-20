@@ -261,3 +261,19 @@ AUTH-AC17: Same-actor reauth preserves only permitted temporary work; logout,
 actor change, cross-tab invalidation and late responses cannot leak private state.
 AUTH-AC18: Public browsing and AccountMenu siblings remain usable; successful
 login returns safely without automatically triggering paid work.
+
+### FE24-U1 — returning-window session check (2026-11-20)
+
+[FE24 UX section8](../../024-frontend-rebuild/001-ux-and-screen-components.md)
+reconciles AUTH-T13A's prior full hiding on every focus/visibility event. Ordinary
+return keeps completed presentation and the current draft/modal visible while a
+single, bounded10s Identity check runs. Canonical transport waits before private
+dispatch and before publishing in-flight JSON/media/stream responses; it rejects
+changed epochs and canceled callers. No provider request is replayed. Identical
+Actor/config releases the barrier without invalidating queries or media URLs.
+Changed Actor/config or failed check enters the existing hard gate; explicit
+logout/local/BroadcastChannel invalidation remains immediate. Hard resolution
+unmounts private actor presentation; actor/mode/authority changes clear prior
+cache/drafts, and failed resolution clears persisted actor drafts. Late background
+responses cannot replace a newer resolution. Server authorization/CSRF policy is
+unchanged; this rule applies to both consumers of canonical ActorProvider.

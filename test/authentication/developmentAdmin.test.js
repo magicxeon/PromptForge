@@ -122,12 +122,20 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
   assert.equal(capabilities.capabilities.runtimeConfigurationPublish.enabled, false);
   assert.equal(capabilities.capabilities.providerRuntimeControl.enabled, true);
   assert.equal((await request('/api/generation/video/capabilities')).status, 403);
+  assert.equal((await request('/api/generation/requests/fixture')).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices')).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices', 'POST', headers)).status, 403);
   runtime = qualifyAuthRuntime({ ...env, PORT: String(port), AUTH_DEV_BYPASS_GENERATION_ENABLED: 'true' }, f.project);
   middleware = new IdentityDevelopmentService({ runtime, userRepository: f.repo }).middleware();
   const liveConfig = await request('/api/auth/config');
   const liveHeaders = { cookie: liveConfig.headers['set-cookie'][0].split(';')[0], 'x-csrf-token': liveConfig.body.csrfToken };
+  for (const previewOrigin of ['http://localhost:6502', 'http://127.0.0.1:6502']) {
+    assert.equal((await request('/api/generation/requests/fixture', 'GET', { origin: previewOrigin })).status, 200);
+  }
+  for (const previewOrigin of ['http://localhost:6503', 'http://127.0.0.2:6502', 'https://localhost:6502', 'https://attacker.invalid']) {
+    assert.equal((await request('/api/generation/requests/fixture', 'GET', { origin: previewOrigin })).status, 403);
+  }
+  assert.equal((await request('/api/generation/requests/fixture', 'POST', liveHeaders)).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices')).status, 200);
   for (const [url, method] of [['/api/voice-studio/custom-voices','POST'], ['/api/voice-studio/custom-voices/quotes','POST'],
     ['/api/voice-studio/custom-voices/fixture/save','POST'], ['/api/voice-studio/custom-voices/fixture','PATCH'], ['/api/voice-studio/custom-voices/fixture','DELETE']]) {
@@ -152,6 +160,7 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
   runtime = qualifyAuthRuntime({ ...env, PORT: String(port), AUTH_DEV_BYPASS_ROLE: 'user' }, f.project);
   middleware = new IdentityDevelopmentService({ runtime, userRepository: f.repo }).middleware();
   assert.equal((await request('/api/me', 'GET', headers)).body.userId, developmentFixtureId);
+  assert.equal((await request('/api/generation/requests/fixture')).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices')).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices', 'POST', liveHeaders)).status, 403);
   assert.equal((await request('/api/admin/overview', 'GET', headers)).status, 403);

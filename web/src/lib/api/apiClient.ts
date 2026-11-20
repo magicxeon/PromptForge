@@ -1,5 +1,5 @@
 import { z, type ZodType } from 'zod';
-import { assertIdentityEpoch, getIdentitySnapshot, notifyIdentityInvalidated, trackIdentityRequest } from '../auth/actorStore';
+import { assertIdentityEpoch, getIdentitySnapshot, notifyIdentityInvalidated, trackIdentityRequest, waitForIdentityRevalidation } from '../auth/actorStore';
 import { ApiError } from './apiError';
 import { emitTelemetry } from '../telemetry/telemetry';
 
@@ -30,7 +30,13 @@ function apiRequestUrl(path: string) {
   return `${apiBaseUrl}${path}`;
 }
 
-function identityRequest(path: string, inputHeaders?: HeadersInit, method = 'GET', inputSignal?: AbortSignal | null) {
+async function identityRequest(path: string, inputHeaders?: HeadersInit, method = 'GET', inputSignal?: AbortSignal | null) {
+  const epoch = getIdentitySnapshot().epoch;
+  const identityRead = ['GET', 'HEAD', 'OPTIONS'].includes(method.toUpperCase())
+    && ['/api/auth/config', '/api/me', '/api/community/features'].includes(path);
+  if (!identityRead) await waitForIdentityRevalidation(inputSignal);
+  assertIdentityEpoch(epoch);
+  if (inputSignal?.aborted) throw new DOMException('Request cancelled.', 'AbortError');
   const state = getIdentitySnapshot();
   const safeMethod = ['GET', 'HEAD', 'OPTIONS'].includes(method.toUpperCase());
   // Only the canonical identity resolver and public exposure policy bootstrap
@@ -52,11 +58,16 @@ function identityRequest(path: string, inputHeaders?: HeadersInit, method = 'GET
   if (inputSignal?.aborted) controller.abort();
   inputSignal?.addEventListener('abort', abort, { once: true });
   const untrack = trackIdentityRequest(controller);
+  const assertCurrentNow = () => {
+    assertIdentityEpoch(state.epoch);
+    if (controller.signal.aborted) throw new DOMException('Request cancelled.', 'AbortError');
+  };
   return {
     headers, signal: controller.signal,
-    assertCurrent() {
-      assertIdentityEpoch(state.epoch);
-      if (controller.signal.aborted) throw new DOMException('Request cancelled.', 'AbortError');
+    assertCurrentNow,
+    async assertCurrent() {
+      if (!identityRead) await waitForIdentityRevalidation(controller.signal);
+      assertCurrentNow();
     },
     finish() { untrack(); inputSignal?.removeEventListener('abort', abort); }
   };
@@ -67,7 +78,7 @@ export async function apiRequest<TSchema extends ZodType | undefined = undefined
   options: ApiRequestOptions<TSchema> = {}
 ): Promise<TSchema extends ZodType ? z.infer<TSchema> : unknown> {
   const url = apiRequestUrl(path);
-  const request = identityRequest(path, options.headers, options.method, options.signal);
+  const request = await identityRequest(path, options.headers, options.method, options.signal);
   const headers = request.headers;
 
   try {
@@ -84,16 +95,22 @@ export async function apiRequest<TSchema extends ZodType | undefined = undefined
     headers,
     body: body as BodyInit | null | undefined
   });
-  request.assertCurrent();
+  request.assertCurrentNow();
 
   if (!response.ok) {
     emitTelemetry('api_error', { path: path.split('?', 1)[0], status: response.status });
     const error = await createApiError(response);
-    request.assertCurrent();
+    request.assertCurrentNow();
     const rejectedLogin = path === '/api/auth/login' && error.code === 'auth_invalid_credentials';
-    if (response.status === 401 && !rejectedLogin && !['/api/me', '/api/auth/config'].includes(path)) notifyIdentityInvalidated();
+    if (response.status === 401 && !rejectedLogin && !['/api/me', '/api/auth/config'].includes(path)) {
+      notifyIdentityInvalidated();
+      throw error;
+    }
+    await request.assertCurrent();
     throw error;
   }
+
+  await request.assertCurrent();
 
   if (response.status === 204) {
     return undefined as TSchema extends ZodType ? z.infer<TSchema> : unknown;
@@ -107,7 +124,7 @@ export async function apiRequest<TSchema extends ZodType | undefined = undefined
     : contentType.includes('application/json')
     ? await response.json()
     : await response.text();
-  request.assertCurrent();
+  await request.assertCurrent();
 
   if (!options.schema) return payload as TSchema extends ZodType ? z.infer<TSchema> : unknown;
   const parsed = options.schema.safeParse(payload);
@@ -134,7 +151,7 @@ export async function apiRequestWithProgress<
     onProgress,
     ...requestInit
   } = options;
-  const request = identityRequest(path, requestInit.headers, requestInit.method, requestInit.signal);
+  const request = await identityRequest(path, requestInit.headers, requestInit.method, requestInit.signal);
   const headers = request.headers;
   headers.set('accept', 'text/event-stream');
 
@@ -152,21 +169,24 @@ export async function apiRequestWithProgress<
     headers,
     body: body as BodyInit | null | undefined
   });
-  request.assertCurrent();
+  request.assertCurrentNow();
   if (!response.ok) {
     emitTelemetry('api_error', { path: path.split('?', 1)[0], status: response.status });
     const error = await createApiError(response);
-    request.assertCurrent();
-    if (response.status === 401) notifyIdentityInvalidated();
+    request.assertCurrentNow();
+    if (response.status === 401) { notifyIdentityInvalidated(); throw error; }
+    await request.assertCurrent();
     throw error;
   }
+
+  await request.assertCurrent();
 
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/event-stream')) {
     const payload = contentType.includes('application/json')
       ? await response.json()
       : await response.text();
-    request.assertCurrent();
+    await request.assertCurrent();
     return parseStreamContract(schema, payload, path, 'result');
   }
   if (!response.body) {
@@ -179,8 +199,8 @@ export async function apiRequestWithProgress<
 
   let result: z.infer<TResultSchema> | undefined;
   let resultReceived = false;
-  await consumeEventStream(response.body, (event, payload) => {
-    request.assertCurrent();
+  await consumeEventStream(response.body, async (event, payload) => {
+    await request.assertCurrent();
     if (event === 'progress') {
       onProgress(parseStreamContract(progressSchema, payload, path, 'progress'));
       return;
@@ -192,7 +212,7 @@ export async function apiRequestWithProgress<
     }
     if (event === 'error') throw apiErrorFromStream(payload);
   });
-  request.assertCurrent();
+  await request.assertCurrent();
   if (!resultReceived) {
     throw new ApiError({
       status: 502,
@@ -224,18 +244,20 @@ export function apiMediaUrl(path: string | null | undefined) {
 export async function apiMediaBlob(path: string, signal?: AbortSignal) {
   const url = apiMediaUrl(path);
   if (!url) throw new Error('Media URL is unavailable.');
-  const request = identityRequest(path, undefined, 'GET', signal);
+  const request = await identityRequest(path, undefined, 'GET', signal);
   try {
     const response = await fetch(url, { headers: request.headers, credentials: 'include', signal: request.signal });
-    request.assertCurrent();
+    request.assertCurrentNow();
     if (!response.ok) {
       const error = await createApiError(response);
-      request.assertCurrent();
-      if (response.status === 401) notifyIdentityInvalidated();
+      request.assertCurrentNow();
+      if (response.status === 401) { notifyIdentityInvalidated(); throw error; }
+      await request.assertCurrent();
       throw error;
     }
+    await request.assertCurrent();
     const blob = await response.blob();
-    request.assertCurrent();
+    await request.assertCurrent();
     return blob;
   } finally { request.finish(); }
 }
@@ -262,7 +284,7 @@ async function createApiError(response: Response) {
 
 async function consumeEventStream(
   body: ReadableStream<Uint8Array>,
-  onEvent: (event: string, payload: unknown) => void
+  onEvent: (event: string, payload: unknown) => void | Promise<void>
 ) {
   const reader = body.getReader();
   const decoder = new TextDecoder();
@@ -282,19 +304,19 @@ async function consumeEventStream(
     while (boundary >= 0) {
       const block = buffer.slice(0, boundary);
       buffer = buffer.slice(boundary + 2);
-      dispatchEventBlock(block, onEvent);
+      await dispatchEventBlock(block, onEvent);
       boundary = buffer.indexOf('\n\n');
     }
     if (done) break;
   }
-  if (buffer.trim()) dispatchEventBlock(buffer, onEvent);
+  if (buffer.trim()) await dispatchEventBlock(buffer, onEvent);
   } finally {
     await reader.cancel().catch(() => undefined);
     reader.releaseLock();
   }
 }
 
-function dispatchEventBlock(block: string, onEvent: (event: string, payload: unknown) => void) {
+async function dispatchEventBlock(block: string, onEvent: (event: string, payload: unknown) => void | Promise<void>) {
   const lines = block.split('\n');
   if (lines.every(line => !line || line.startsWith(':'))) return;
   const event = lines.find(line => line.startsWith('event:'))?.slice(6).trim() || 'message';
@@ -310,7 +332,7 @@ function dispatchEventBlock(block: string, onEvent: (event: string, payload: unk
       message: 'The server returned an invalid progress event.'
     });
   }
-  onEvent(event, payload);
+  await onEvent(event, payload);
 }
 
 function parseStreamContract<TSchema extends ZodType>(

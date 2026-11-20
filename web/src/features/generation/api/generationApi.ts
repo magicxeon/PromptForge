@@ -7,6 +7,7 @@ import {
   creditEstimateResponseSchema,
   generationSubmitSchema,
   generationGroupStatusSchema,
+  imageRequestStatusSchema,
   jobStatusSchema,
   providerCatalogSchema,
   referenceProcessingPreviewSchema,
@@ -137,6 +138,14 @@ export async function estimateAndSubmitGeneration(draft: GenerationRequestDraft)
 export function getJobStatus(jobId: string, signal?: AbortSignal) {
   return apiRequest(`/api/jobs/${encodeURIComponent(jobId)}`, {
     schema: jobStatusSchema,
+    signal,
+    cache: 'no-store'
+  });
+}
+
+export function getImageRequestStatus(requestId: string, signal?: AbortSignal) {
+  return apiRequest(`/api/generation/requests/${encodeURIComponent(requestId)}`, {
+    schema: imageRequestStatusSchema,
     signal,
     cache: 'no-store'
   });

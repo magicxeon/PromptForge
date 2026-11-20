@@ -94,6 +94,10 @@ export class CreditApplicationService {
     return this.reservationService.validateAndReserveForRequest(input);
   }
 
+  findImageRequestMappings(input) {
+    return this.accountRepository.findImageRequestMappings(input);
+  }
+
   reservePlan(input) {
     return this.reservationService.reservePlan(input);
   }

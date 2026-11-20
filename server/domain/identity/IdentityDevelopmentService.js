@@ -46,6 +46,7 @@ const liveReads = [
   /^\/api\/comparisons(?:\/[^/]+)?$/,
   /^\/api\/jobs\/[^/]+(?:\/stream)?$/,
   /^\/api\/generation-groups\/[^/]+$/,
+  /^\/api\/generation\/requests\/[a-z0-9:_-]{1,160}$/,
   /^\/api\/generation\/(?:job-center|look-sheet-preset)$/,
   /^\/api\/generation\/video\/(?:capabilities|trusted-sources|tasks(?:\/[^/]+)?)$/,
   /^\/api\/character-profiles(?:\/[^/]+(?:\/looks)?)?$/,

@@ -760,6 +760,54 @@ export class GenerationApplicationService {
     return this.queueManager.getJobStatusForUser(jobId, username, actorContext);
   }
 
+  async getImageRequestStatus(requestId, actorContext) {
+    if (!actorContext?.userId) {
+      throw Object.assign(new Error('Actor required.'), { statusCode: 401, code: 'actor_required' });
+    }
+    if (!isRecoveryId(requestId)) {
+      throw Object.assign(new Error('Invalid request ID.'), { statusCode: 400, code: 'generation_request_id_invalid' });
+    }
+    const unknown = { state: 'unknown', requestId };
+    const reconciliation = { state: 'reconciliation_required', requestId };
+    // Group status projection can write aggregates. Read the durable mapping instead.
+    let group = await this.generationGroupRepository.findByRequest(actorContext.userId, requestId);
+    if (!group) {
+      const mappings = await this.creditService.findImageRequestMappings({ userId: actorContext.userId, requestId });
+      if (!mappings.length) return unknown;
+      if (mappings.some(mapping => mapping.userId !== actorContext.userId)) return unknown;
+      const grouped = mappings.filter(mapping => mapping.grouped);
+      if (grouped.length) {
+        const groupId = grouped[0].groupId;
+        if (grouped.length !== mappings.length || mappings.length > 4 || !isRecoveryId(groupId)
+          || grouped.some(mapping => mapping.groupId !== groupId)
+          || new Set(grouped.map(mapping => mapping.jobId)).size !== grouped.length
+          || new Set(grouped.map(mapping => mapping.requestId)).size !== grouped.length) return reconciliation;
+        group = await this.generationGroupRepository.findById(groupId);
+        if (!group || group.actorUserId !== actorContext.userId || group.requestId !== requestId) return reconciliation;
+      } else {
+        if (mappings.length !== 1 || mappings[0].requestId !== requestId || !isRecoveryId(mappings[0].jobId)) return reconciliation;
+        const jobId = mappings[0].jobId;
+        const job = await this.queueManager.getJobStatusForUser(jobId, actorContext.username,
+          { ...actorContext, isMockActor: false });
+        return job ? { state: 'found', requestId, jobId, groupId: null } : reconciliation;
+      }
+    }
+    if (group.actorUserId !== actorContext.userId || group.requestId !== requestId) return unknown;
+    if (group.groupType === 'heterogeneous_batch') return unknown;
+    const ids = group.childJobIds;
+    if (!isRecoveryId(group.id) || !Array.isArray(ids) || ids.length < 1 || ids.length > 4
+      || ids.length !== group.requestedOutputCount || ids.some(id => !isRecoveryId(id))
+      || new Set(ids).size !== ids.length) return reconciliation;
+    for (const jobId of ids) {
+      const job = await this.queueManager.getJobStatusForUser(jobId, actorContext.username,
+        { ...actorContext, isMockActor: false });
+      const persisted = group.children?.find(child => child.jobId === jobId);
+      const failed = group.enqueueFailures?.some(child => child.jobId === jobId);
+      if (!job && !failed && !['completed', 'failed'].includes(persisted?.status)) return reconciliation;
+    }
+    return { state: 'found', requestId, jobId: ids[0], groupId: group.id, childJobIds: [...ids] };
+  }
+
   async getGroupStatusForActor(groupId, actorContext) {
     const group = await this.generationGroupRepository.findById(groupId);
     if (!group || !actorContext?.userId || group.actorUserId !== actorContext.userId) {
@@ -921,6 +969,10 @@ function createGenerationRequestPayload(body, userRole, templateExecution) {
         : [],
     userRole
   };
+}
+
+function isRecoveryId(value) {
+  return typeof value === 'string' && /^[A-Za-z0-9:_-]{1,160}$/.test(value);
 }
 
 function batchSubmissionResult(group) {

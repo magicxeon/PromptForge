@@ -112,6 +112,26 @@ export class CreditAccountRepository {
       Object.fromEntries(fields.map(key => [key, record?.[key] ?? null]))) };
   }
 
+  // Recovery is a pure read: readRaw also performs legacy migration writes.
+  async findImageRequestMappings({ userId, requestId }) {
+    if (!userId || typeof requestId !== 'string' || !/^[A-Za-z0-9:_-]{1,160}$/.test(requestId)) return [];
+    const data = await readJsonFile(this.databaseFile, DB_FALLBACK);
+    const childRequests = new Set(Array.from({ length: 4 }, (_, index) => `${requestId}:output:${index}`));
+    const mappings = [];
+    for (const record of data.reservations || []) {
+      if (record?.userId !== userId || record.metadata?.kind || record.metadata?.capability) continue;
+      const planKind = record.metadata?.planKind;
+      const group = planKind === 'generation_group';
+      if (planKind && !group) continue;
+      if (record.requestId !== requestId && !(group && childRequests.has(record.requestId))) continue;
+      mappings.push({ userId, requestId: record.requestId, jobId: record.jobId || null,
+        groupId: group ? record.metadata?.planId || null : null, grouped: group });
+      // One Image request has at most four allocations; a fifth proves ambiguity.
+      if (mappings.length === 5) break;
+    }
+    return mappings;
+  }
+
   async getReservationForOwner({ userId, reservationId, jobId }) {
     const data = await readJsonFile(this.databaseFile, DB_FALLBACK);
     return structuredClone((data.reservations || []).find(record => record.userId === userId
