@@ -143,6 +143,7 @@ export const customVoiceSchema = z.object({
   name: z.string(),
   displayDescription: z.string(),
   designPrompt: z.string(),
+  genre: z.string().optional(),
   sourceType: z.enum(["description", "reference"]).optional(),
   voiceGender: z.enum(["female", "male", "unspecified"]).optional(),
   sampleText: z.string().optional(),

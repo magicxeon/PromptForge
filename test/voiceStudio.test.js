@@ -12,7 +12,7 @@ import { SeedSpeechProvider } from '../server/providers/SeedSpeechProvider.js';
 
 test('suggesting a voice profile uses only the text director, validates inputs and isolates pending work', async () => {
   const admin = {userId:'operator',role:'admin',authMode:'development_bypass'};
-  const body = {language:'th', voiceGender:'female', locale:'th', role:'A young physician',genre:'period'};
+  const body = {language:'th', voiceGender:'female', locale:'en', role:'A young physician',genre:'period'};
   const calls = [];
   let complete;
   const seedProvider = new SeedSpeechProvider({director:{voiceDirection:request=>{
@@ -24,14 +24,20 @@ test('suggesting a voice profile uses only the text director, validates inputs a
   await assert.rejects(service.suggestVoiceDescription(admin,{...body,role:'x'.repeat(1001)}),{code:'voice_invalid_input'});
   const pending=service.suggestVoiceDescription(admin,body);
   assert.equal(calls[0].input.role,body.role);
-  assert.equal(calls[0].input.locale,'th');
+  assert.equal(calls[0].input.locale,'en');
+  assert.equal(calls[0].input.language,'th');
+  assert.deepEqual(calls[0].schema.required,['description','sampleText']);
   await assert.rejects(service.suggestVoiceDescription(admin,body),{code:'speech_actor_busy'});
-  complete({description:'เสียงนุ่ม พูดไทยชัด จังหวะมั่นคง'});
-  assert.deepEqual(await pending,{description:'เสียงนุ่ม พูดไทยชัด จังหวะมั่นคง'});
+  const suggestion={description:'Soft voice with precise Thai diction.',sampleText:'ท่านนั่งลงก่อน ข้าขอดูแผลสักครู่'};
+  complete(suggestion);
+  assert.deepEqual(await pending,suggestion);
   const second=service.suggestVoiceDescription(admin,{language:'en',voiceGender:'unspecified',locale:'en'});
-  complete({description:'x'.repeat(851)});
+  complete({description:'x'.repeat(851),sampleText:'Hello.'});
   await assert.rejects(second,{code:'speech_direction_invalid'});
-  assert.equal(calls.length,2);
+  const incomplete=service.suggestVoiceDescription(admin,body);
+  complete({description:'Quiet.'});
+  await assert.rejects(incomplete,{code:'speech_direction_invalid'});
+  assert.equal(calls.length,3);
 });
 
 async function fixture(t) {
@@ -121,6 +127,10 @@ test('custom voice save is idempotent, binds only owned saved voices and preserv
   await assert.rejects(s.character(actor,{name:'Hero',voiceKind:'custom',voiceId:op.id}),{code:'voice_custom_unavailable'});
   await s.updateCustomVoice(actor,op.id,{},true);
   const first = await s.updateCustomVoice(actor,op.id,{},true);
+  const cleanup = t.mock.fn();
+  s.generation.deleteVoiceDesign = cleanup;
+  await assert.rejects(s.deleteCustomVoice(actor,op.id,{onlyIfUnsaved:true}),{code:'voice_revision_conflict'});
+  assert.equal(cleanup.mock.callCount(),0);
   assert.equal((await r.list('customVoices','a')).length,1);
   const c = await s.character(actor,{name:'Hero',voiceKind:'custom',voiceId:op.id});
   assert.equal(c.schemaVersion,2);

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm, writeFile, readFile, readdir } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { compileSpeechRequest } from '../server/domain/generation/SpeechRequestCompiler.js';
+import { compileSpeechRequest, compileVoiceDesign } from '../server/domain/generation/SpeechRequestCompiler.js';
 import { loadSpeechCatalog } from '../server/domain/generation/SpeechCatalog.js';
 import { inspectWav, normalizeSeedWav, trimSilentCueTail, alignCueSpeech, AudioAssetService } from '../server/domain/assets/AudioAssetService.js';
 import { quoteSpeechPrice, settleSpeechPrice } from '../server/domain/credits/SpeechPricing.js';
@@ -19,6 +19,7 @@ test('a rejected Luna request still prepares the original Thai audition for Seed
     throw Object.assign(new Error('Access denied'), {isProviderError:true, status:403});
   }}, async () => ({voiceProfile:input.description, scene:'Inside an inn.', actingDirection:'Speak softly.', durationSeconds:5}));
   assert.equal(snapshot.directionSource, 'gemini');
+  assert.ok(snapshot.providerPrompt.endsWith('Professional Thai dubbing.'));
   assert.ok(snapshot.providerPrompt.includes(JSON.stringify(input.sampleText)));
   assert.ok(snapshot.providerPrompt.includes(input.description));
   assert.doesNotMatch(snapshot.providerPrompt.replace(JSON.stringify(input.sampleText), ''), /\p{Script=Thai}/u);
@@ -26,6 +27,13 @@ test('a rejected Luna request still prepares the original Thai audition for Seed
     throw Object.assign(new Error(), {isProviderError:true});
   }};
   const style = 'Professional Thai romantic-drama dubbing.';
+  const {snapshot: compiled} = compileVoiceDesign({...input, modelId:model.id, genre:'romance'}, loadSpeechCatalog());
+  const fromGenre = await directSeedAudition(compiled,model,{voiceDirection:async()=>({
+    voiceProfile:'A clear warm voice.',scene:'Inside an inn.',actingDirection:'Speak softly.',durationSeconds:5
+  })});
+  assert.equal(compiled.description,input.description);
+  assert.ok(fromGenre.voiceProfile.endsWith(style));
+  assert.ok(fromGenre.providerPrompt.endsWith(style));
   const thaiInput = {...input, description:'เสียงนุ่ม ' + style};
   const translated = await directSeedAudition(thaiInput, model, unavailable, async request => {
     assert.equal(request.input.description, thaiInput.description);

@@ -8,6 +8,7 @@ import { assertIdentityEpoch } from "../../../../web/src/lib/auth/actorStore";
 import { getIdentitySnapshot, pollingPolicy, ProcessingSpinner, readActorScopedDraft, removeActorScopedDraft, useActor, writeActorScopedDraft } from "../../lib/canonical";
 import { usePrivateImage } from "../../components/media/MediaImage";
 import config from "./dubbing-voice-config.json";
+import dubbingGenres from "../../../../server/config/voice-studio/dubbing-genres.json";
 import { prepareSeedReference } from "./seedReferenceAudio";
 import { useWorkspaceCredits } from "../../lib/workspaceConfig";
 import { createSpeechRequest } from "./speechRequest";
@@ -18,7 +19,7 @@ type ReturnProps = { onReturn?: (voice?: CustomVoice) => void };
 const feature = "dub-seed-voice-preview";
 type DesignQuote = { price: Awaited<ReturnType<typeof voiceApi.quoteVoiceDesign>>; input: VoiceDesignInput; requestId: string };
 const workingStates = ["admitting", "queued", "dispatching", "delivered"];
-const genres = Object.entries(config.genres);
+const genres = Object.entries(dubbingGenres);
 function genreOf(description: string) {
   return genres.find(([, phrase]) => description.trimEnd().toLowerCase().endsWith(phrase.toLowerCase()));
 }
@@ -117,7 +118,7 @@ function SavedVoices({ scope, maxTitleLength }: { scope: string; maxTitleLength?
         <button type="button" aria-label={t("cancel")} title={t("cancel")} disabled={saving} onClick={() => setEditing(null)}><X size={17} /></button>
         {renameError && <small role="alert">{renameError}</small>}
       </form> : <div className="seed-voice-title"><strong>{v.name}</strong><button title={t("rename")} aria-label={t("rename") + " " + v.name} disabled={saving} onClick={() => { setEditing(v); setDraftName(v.name); setRenameError(""); }}><Pencil size={15} /></button></div>}
-      <small>{[t(v.voiceGender || "unspecified"), languages.of(v.language), t("genres." + (genreOf(v.designPrompt)?.[0] || "none")), t(v.sourceType === "reference" ? "reference" : "description")].join(" · ")}</small></div>
+      <small>{[t(v.voiceGender || "unspecified"), languages.of(v.language), t("genres." + (v.genre || genreOf(v.designPrompt)?.[0] || "none")), t(v.sourceType === "reference" ? "reference" : "description")].join(" · ")}</small></div>
       <div className="seed-voice-actions">
       <button type="button" onClick={() => { setFailedSample(""); setPlaying(playing === v.id ? "" : v.id); }}>
         {playing === v.id ? <Square size={15} fill="currentColor" /> : <Play size={15} />}
@@ -148,20 +149,19 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
   const [role, setRole] = useState("");
   const [suggesting, setSuggesting] = useState(false);
   const [suggestionError, setSuggestionError] = useState(false);
-  const [style, setStyle] = useState("");
-  const typedStyle = genreOf(description);
-  const baseDescription = typedStyle ? description.trimEnd().slice(0, -typedStyle[1].length).trimEnd() : description.trim();
-  const selectedStyle = style || typedStyle?.[1] || "";
-  const directedDescription = [baseDescription, selectedStyle].filter(Boolean).join("\n");
+  const [genre, setGenre] = useState("");
   const languages = model.capabilities.languages || [];
   const [language, setLanguage] = useState(languages.includes(i18n.language) ? i18n.language : languages[0] || "");
   const [gender, setGender] = useState<VoiceDesignInput["voiceGender"]>("unspecified");
   const [sampleText, setSampleText] = useState("");
+  const suggestedLine = useRef("");
+  const [editedPreview,setEditedPreview] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [fileUrl, setFileUrl] = useState("");
   const [quote, setQuote] = useState<DesignQuote | null>(null);
   const creditsEnabled = useWorkspaceCredits();
   const [opId, setOpId] = useState(initialId);
+  const replacedPreview = useRef<CustomVoice | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const lock = useRef(false);
@@ -180,10 +180,34 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
   });
   const candidate = op.data?.customVoice;
   const previewReady = candidate?.lifecycleState === "ready";
+  useEffect(()=>{
+    const previous=replacedPreview.current;
+    if (!previewReady || !previous || previous.id===candidate.id) return;
+    replacedPreview.current=null;
+    // Only retire the superseded draft once its replacement can be played.
+    if (!previous.savedAt) void voiceApi.deleteCustomVoice(previous.id,{onlyIfUnsaved:true}).catch(()=>{ /* Keep the old preview when cleanup is unavailable. */ });
+  },[previewReady,candidate]);
   const missing = op.error && "status" in op.error && op.error.status === 404;
   const unavailable = op.data?.status === "succeeded" && !previewReady;
-  const valid = name.trim() && language && sampleText.trim() && (!policy.maxDesignLength || directedDescription.length <= Number(policy.maxDesignLength)) && (mode === "description" ? description.trim() : file);
-  const locked = Boolean(opId) || busy || suggesting;
+  const valid = name.trim() && language && sampleText.trim() && (!policy.maxDesignLength || description.length <= Number(policy.maxDesignLength)) && (mode === "description" ? description.trim() : file);
+  const waiting = !!opId && !op.isError && !previewReady && (!op.data || workingStates.includes(op.data.status));
+  const locked = (!!opId && !previewReady) || busy || suggesting;
+  const restored = useRef(false);
+  useEffect(()=>{
+    if (!initialId || restored.current || !op.data) return;
+    restored.current=true;
+    const source=op.data.snapshot;
+    const text=source?.description ?? candidate?.designPrompt ?? "";
+    const legacy = genreOf(text);
+    setDescription(legacy ? text.trimEnd().slice(0,-legacy[1].length).trimEnd() : text);
+    setGenre(String(source?.genre ?? candidate?.genre ?? legacy?.[0] ?? ""));
+    setName(source?.name ?? candidate?.name ?? "");
+    setLanguage(source?.language ?? candidate?.language ?? language);
+    setSampleText(String(source?.sampleText ?? candidate?.sampleText ?? ""));
+    setMode((source?.sourceType ?? candidate?.sourceType)==="reference"?"reference":"description");
+    const restoredGender=source?.voiceGender ?? candidate?.voiceGender;
+    if(restoredGender==="female" || restoredGender==="male") setGender(restoredGender);
+  },[initialId,op.data,candidate,language]);
   async function suggestDescription() {
     if (locked || lock.current) return;
     lock.current = true;
@@ -191,12 +215,16 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
     setSuggesting(true);
     setSuggestionError(false);
     try {
-      const result = await voiceApi.suggestDescription({role:role.trim(),name:name.trim(),genre:selectedStyle,language,
+      const result = await voiceApi.suggestDescription({role:role.trim(),name:name.trim(),genre,language,
         voiceGender:gender,locale:i18n.language.startsWith("th") ? "th" : "en"});
       assertIdentityEpoch(epoch);
       if (alive.current) {
-        setStyle(selectedStyle);
         setDescription(result.description);
+        if (!sampleText.trim() || sampleText===suggestedLine.current) {
+          setSampleText(result.sampleText);
+          suggestedLine.current=result.sampleText;
+        }
+        setEditedPreview(true);
         setQuote(null);
       }
     } catch {
@@ -226,7 +254,7 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
     void run(async verify => {
       const referenceAudio = mode === "reference" && file ? await prepareSeedReference(file) : undefined;
       verify();
-      const input = { name: name.trim(), description: directedDescription, language, modelId: model.id,
+      const input = { name: name.trim(), description: description.trim(), genre, language, modelId: model.id,
         sampleText: sampleText.trim(), sourceType: mode, voiceGender: gender, ...(referenceAudio ? { referenceAudio, retainOriginal: true } : {}) };
       if (!creditsEnabled) {
         const { id, requestId } = createSpeechRequest();
@@ -246,6 +274,8 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
     void run(verify => submitDesign(quote.input, quote.price.id, quote.requestId, verify));
   }
   async function submitDesign(input: VoiceDesignInput, id: string, requestId: string, verify: () => void) {
+    if (previewReady) replacedPreview.current=candidate;
+    setEditedPreview(false);
     writeActorScopedDraft({ actorId, feature, schemaVersion: 1, payload: id });
     setOpId(id);
     const submitted = await voiceApi.designVoice({ ...input, quoteId: id, requestId });
@@ -254,13 +284,20 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
     setQuote(null);
   }
   function reset() {
+    const previous=replacedPreview.current;
+    if (previous) {
+      replacedPreview.current=null;
+      setOpId(previous.operationId); setEditedPreview(true); setQuote(null); setError("");
+      writeActorScopedDraft({actorId,feature,schemaVersion:1,payload:previous.operationId});
+      return;
+    }
     removeActorScopedDraft(actorId, feature);
     onReset();
     setOpId(""); setQuote(null); setError("");
   }
   function discard() {
     void run(async verify => {
-      if (candidate && !candidate.savedAt) await voiceApi.deleteCustomVoice(candidate.id);
+      if (candidate && !candidate.savedAt) await voiceApi.deleteCustomVoice(candidate.id,{onlyIfUnsaved:true});
       verify(); reset();
     });
   }
@@ -274,10 +311,10 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
       onSaved(saved);
     });
   }
-  return <section className={"seed-designer" + (opId && !previewReady ? " seed-waiting" : "")}>
+  return <section className="seed-designer">
     <h2>{t("create")}</h2>
-    {!opId && <form onSubmit={e => { e.preventDefault(); if (!creditsEnabled || !quote) prepareSample(); }}
-      onChange={() => { setQuote(null); setError(""); }}>
+    <form onSubmit={e => { e.preventDefault(); if (!creditsEnabled || !quote) prepareSample(); }}
+      onChange={() => { setQuote(null); setError(""); if(previewReady) setEditedPreview(true); }}>
       <fieldset disabled={locked}>
         <legend>{t("source")}</legend>
         <div className="seed-source-options">{(["description", "reference"] as const).map(type =>
@@ -296,12 +333,9 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
           {fileUrl && <audio src={fileUrl} controls preload="metadata" aria-label={t("recording")} />}
           <small>{t("retain")}</small>
         </>}
-        <label>{t("genre")}<select value={selectedStyle} onChange={e => {
-          if (typedStyle) setDescription(baseDescription);
-          setStyle(e.target.value);
-        }}>
+        <label>{t("genre")}<select value={genre} onChange={e => setGenre(e.target.value)}>
           <option value="">{t("genres.none")}</option>
-          {genres.map(([id, phrase]) => <option key={id} value={phrase} disabled={Boolean(policy.maxDesignLength && [baseDescription, phrase].filter(Boolean).join("\n").length > Number(policy.maxDesignLength))}>{t("genres." + id)}</option>)}
+          {genres.map(([id]) => <option key={id} value={id}>{t("genres." + id)}</option>)}
         </select></label>
         <fieldset className="seed-voice-brief"><legend>{t("voiceBrief")}</legend>
         <label>{t("role")}<textarea rows={2} value={role} maxLength={config.maximumRoleLength}
@@ -311,26 +345,30 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
         {suggestionError && <small role="alert">{t("suggestionFailed")}</small>}
         </fieldset>
         <label>{t(mode === "reference" ? "optionalNotes" : "describe")}<textarea rows={3} required={mode === "description"} value={description}
-          placeholder={t("descriptionExample")} maxLength={policy.maxDesignLength ? Number(policy.maxDesignLength) - (style ? style.length + 1 : 0) : undefined} onChange={e => setDescription(e.target.value)} /></label>
-        {style && <small lang="en">{style}</small>}
+          placeholder={t("descriptionExample")} maxLength={Number(policy.maxDesignLength) || undefined} onChange={e => setDescription(e.target.value)} /></label>
         <label>{t("sampleText")}<textarea rows={2} required value={sampleText} maxLength={policy.maxTextLength} onChange={e => setSampleText(e.target.value)} /></label>
       </fieldset>
       {creditsEnabled === false && <small>{t("directProvider")}</small>}
       {creditsEnabled && quote && <p role="status">{t("price", { credits: quote.price.totalCredits })}</p>}
       <div className="seed-actions">{creditsEnabled && quote
-        ? <button className="primary" disabled={locked} type="button" onClick={generate}>{t("generate")}</button>
-        : <button className="primary" disabled={creditsEnabled === undefined || !valid || locked} type="submit">{t(creditsEnabled ? "quote" : "generate")}</button>}
-        <button type="button" disabled={busy} onClick={onClose}>{t("cancel")}</button></div>
-    </form>}
-    {opId && <div className="seed-preview" aria-live="polite">
+        ? <button className="primary" disabled={locked} type="button" onClick={generate}>{t(previewReady ? "regenerate" : "generate")}</button>
+        : <button className="primary" disabled={creditsEnabled === undefined || !valid || locked} type="submit">{t(creditsEnabled ? "quote" : previewReady ? "regenerate" : "generate")}</button>}
+        {!opId && <button type="button" disabled={busy} onClick={onClose}>{t("cancel")}</button>}</div>
+    </form>
+    {waiting && <Dialog label={t("pending")} onClose={()=>{}}>
+      <div className="seed-progress" role="status"><ProcessingSpinner variant="wave" className="seed-generation-wave" /><p>{t("pending")}</p>
+        <button disabled={busy || op.isFetching} onClick={()=>void op.refetch()}>{t("check")}</button></div>
+    </Dialog>}
+    {opId && !waiting && <div className="seed-preview" aria-live="polite">
       {previewReady ? <>
         <strong>{candidate.name}</strong>
         {op.data?.snapshot?.directionSource === "form" && <small>{t("formDirection")}</small>}
         {mode === "reference" && fileUrl && <label>{t("recording")}<audio src={fileUrl} controls /></label>}
-        <label>{t("preview")}<Sample src={candidate.audioUrl} label={t("preview")} /></label>
         {op.data?.snapshot?.providerPrompt && <details><summary>{t("sentPrompt")}</summary>
           <p style={{whiteSpace: "pre-wrap", overflowWrap: "anywhere"}}>{op.data.snapshot.providerPrompt}</p></details>}
-        <div className="seed-actions"><button className="primary" disabled={busy} onClick={save}>{t("save")}</button>
+        <label>{t("preview")}<Sample src={candidate.audioUrl} label={t("preview")} /></label>
+        {editedPreview && <small>{t("previewChanged")}</small>}
+        <div className="seed-actions"><button className="primary" disabled={busy || suggesting || editedPreview} onClick={save}>{t("save")}</button>
           {!candidate.savedAt && <button disabled={busy} onClick={discard}>{t("discard")}</button>}</div>
       </> : <>
         {(!op.data || workingStates.includes(op.data.status)) && !op.isError && <ProcessingSpinner variant="wave" className="seed-generation-wave" />}

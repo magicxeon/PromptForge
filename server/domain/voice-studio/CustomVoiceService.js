@@ -16,7 +16,7 @@ export class CustomVoiceService {
     const s = operation.snapshot;
     const record = await this.repo.insert('customVoices', this.actor(actor), {
       id: operation.id, operationId: operation.id, name: s.name, displayDescription: s.description,
-      designPrompt: s.description, modelId: s.modelId, providerId: s.providerId, language: s.language,
+      designPrompt: s.description, ...(s.genre && {genre:s.genre}), modelId: s.modelId, providerId: s.providerId, language: s.language,
       ...(s.sourceType ? { sourceType: s.sourceType, voiceGender: s.voiceGender, sampleText: s.sampleText, retainOriginal: s.retainOriginal === true,
         candidateExpiresAt: new Date(Date.parse(operation.createdAt) + this.generation.speechCatalog().policy.seedDraftLifetimeHours * 3600000).toISOString() } : {}),
       previewAssetId: operation.outputAssetId, audioUrl: operation.outputUrl, durationMs: operation.durationMs,
@@ -90,15 +90,17 @@ export class CustomVoiceService {
     });
     return this.view(record);
   }
-  async remove(actor, id, { retireLinkedCharacters = false } = {}) {
+  async remove(actor, id, { retireLinkedCharacters = false, onlyIfUnsaved = false } = {}) {
     const userId = this.actor(actor);
     const record = await this.repo.get('customVoices', id, userId, { includeDeleted: true });
     if (record.deletedAt) return { deleted: true };
+    if (onlyIfUnsaved && record.savedAt) throw voiceError('voice_revision_conflict', 409);
     const seed = !!record.sourceType;
     const retire = seed && (record.retireLinkedCharacters === true || retireLinkedCharacters === true);
     const linked = (await this.repo.list('characters', userId)).filter(c => c.voiceKind === 'custom' && c.voiceId === id);
     if (linked.length && !retire) throw voiceError('voice_custom_in_use', 409);
     const markDeleting = () => this.repo.update('customVoices', id, userId, undefined, r => {
+      if (onlyIfUnsaved && r.savedAt) throw voiceError('voice_revision_conflict', 409);
       r.deletingAt ||= new Date().toISOString();
       if (retire) r.retireLinkedCharacters = true;
     });

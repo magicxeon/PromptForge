@@ -31,9 +31,9 @@ try {
       if (path.endsWith("/custom-voices/description-suggestion")) {
         const body=route.request().postDataJSON();
         assert.equal(body.role,width===390 ? "" : "A reserved young spy");
-        assert.equal(body.genre,"Professional Thai spy-thriller dubbing.");
+        assert.equal(body.genre,"spy");
         assert.equal(body.locale,"en");
-        return json({description:"A soft clear adult voice."});
+        return json({description:"A soft clear adult voice.",sampleText:"Keep your voice down."});
       }
       if (path === "/api/web-next/config") return json({ creditsEnabled });
       if (path === "/api/auth/config") return json({ contractVersion: 1, authMode: "development_bypass", methods: { password: false, emailOtp: false, google: false, facebook: false }, csrfToken: "fixture", policy: { otpDigits: 6, otpExpiresSeconds: 300, resendSeconds: 30, passwordMinLength: 8, passwordMaxLength: 128 }, legal: { termsVersion: null, privacyVersion: null } });
@@ -60,7 +60,7 @@ try {
           durationMs: 1000, archivedAt: null, savedAt: null, expiresAt: null, lifecycleState: "ready", createdAt: new Date().toISOString() };
         return json({ id: input.quoteId, status: "queued" });
       }
-      if (path.includes("/generations/")) return json(generations.length === 3
+      if (path.includes("/generations/")) return json(candidate.name==="Retry voice"
         ? { id: candidate.id, status: "failed", errorCode: "speech_invalid_wav" }
         : { id: candidate.id, status: "succeeded", customVoice: candidate });
       if (path.endsWith("/save")) { candidate.savedAt = new Date().toISOString(); saved.push(candidate); return json(candidate); }
@@ -85,6 +85,7 @@ try {
         await page.getByLabel("Film genre").selectOption({label:"Espionage"});
         await aiGroup.getByRole("button",{name:"Suggest a voice with AI"}).click();
         await page.waitForFunction(()=>Array.from(document.querySelectorAll("textarea")).some(t=>t.value==="A soft clear adult voice."));
+        assert.equal(await page.getByLabel("Line to speak in the sample").inputValue(),"Keep your voice down.");
         assert.equal(generations.length,0);
       }
       await page.getByLabel("Line to speak in the sample").fill("Meet me at the inn.");
@@ -93,9 +94,18 @@ try {
         await page.getByRole("button", { name: "Generate sample" }).waitFor();
         await page.getByLabel("Voice name", { exact: true }).press("Enter");
       } else assert.equal(await page.getByRole("button", {name:"Get preview estimate"}).count(), 0);
-      assert.equal(generations.length, saved.length);
+      assert.equal(generations.length, saved.length + (width===390 && source==="reference" ? 1 : 0));
       await page.getByRole("button", { name: "Generate sample" }).click();
       await page.getByRole("button", { name: "Save dubbing voice" }).waitFor();
+      if(width===390 && source==="description") {
+        await page.getByLabel("Line to speak in the sample").fill("Try this instead.");
+        assert.ok(await page.getByRole("button",{name:"Save dubbing voice"}).isDisabled());
+        await page.getByRole("button",{name:"Generate a new sample"}).click();
+        await page.getByRole("button",{name:"Save dubbing voice"}).waitFor();
+        assert.equal(generations.at(-1).sampleText,"Try this instead.");
+        assert.equal(generations.at(-1).name,name);
+        assert.deepEqual(deletions,[{onlyIfUnsaved:true}]);
+      }
       if (source === "description") await page.reload();
       await page.locator('audio[aria-label="Generated sample"]').evaluate(el => el.play());
       await page.getByRole("button", { name: "Save dubbing voice" }).click();
@@ -104,9 +114,13 @@ try {
       await row.getByRole("button", { name: "Listen" }).click();
       await row.getByRole("button", {name:"Stop",exact:true}).click();
       await row.getByRole("button", {name:"Listen",exact:true}).waitFor();
-      assert.equal(generations.length, saved.length);
+      assert.equal(generations.length, saved.length + (width===390 ? 1 : 0));
       const sent = generations.at(-1);
       assert.equal(sent.sourceType, source);
+      if(source==="description") {
+        assert.equal(sent.genre,"spy");
+        assert.equal(sent.description,"A soft clear adult voice.");
+      }
       if (creditsEnabled) assert.equal(sent.referenceAudio, quotes.at(-1).referenceAudio);
       else {
         assert.equal(quotes.length, 0);
@@ -123,11 +137,12 @@ try {
     const deleteButton = referenceRow.getByRole("button", {name:/Delete/});
     await deleteButton.click();
     await page.getByRole("dialog").getByRole("button", {name:"Cancel", exact:true}).click();
-    assert.equal(deletions.length, 0);
+    const discardedPreviews=width===390 ? 1 : 0;
+    assert.equal(deletions.length, discardedPreviews);
     await deleteButton.click();
     await page.getByRole("dialog").getByRole("button", {name:"Delete permanently", exact:true}).click();
     await referenceRow.waitFor({state:"detached"});
-    assert.deepEqual(deletions, [{retireLinkedCharacters:true}]);
+    assert.deepEqual(deletions.slice(discardedPreviews), [{retireLinkedCharacters:true}]);
     await page.getByRole("button", { name: "Create dubbing voice" }).click();
     await page.getByLabel("Voice name", {exact:true}).fill("Retry voice");
     await page.getByLabel("Voice description", {exact:true}).fill("Calm and clear.");
@@ -142,7 +157,7 @@ try {
     await page.getByRole("button", {name:"Cancel", exact:true}).click();
     await page.getByRole("button", {name:"Create dubbing voice"}).click();
     await page.getByLabel("Voice name", {exact:true}).waitFor();
-    assert.equal(generations.length, 3);
+    assert.equal(generations.length, 3 + discardedPreviews);
     assert.deepEqual(errors, []);
     console.log("PASS", width, {creditsEnabled}, "reference + description, preview audition, reload and explicit save");
     await page.close();

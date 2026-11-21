@@ -20,6 +20,7 @@ const key = encodeURIComponent;
 const rowPath = (doc: string, row: string) =>
   `${root}/documents/${key(doc)}/rows/${key(row)}`;
 export type VoiceDesignInput = {
+  genre?: string;
   name: string;
   description: string;
   modelId: string;
@@ -32,7 +33,7 @@ export type VoiceDesignInput = {
 };
 export const voiceApi = {
   suggestDescription: (input: {role:string; name:string; genre:string; language:string; voiceGender:VoiceDesignInput["voiceGender"]; locale:string}) =>
-    apiRequest(`${root}/custom-voices/description-suggestion`, {method:"POST", body:input, schema:z.object({description:z.string().trim().min(1)})}),
+    apiRequest(`${root}/custom-voices/description-suggestion`, {method:"POST", body:input, schema:z.object({description:z.string().trim().min(1),sampleText:z.string().trim().min(1)})}),
   catalog: () => apiRequest(`${root}/catalog`, { schema: catalogSchema }),
   documents: (cursor?: string) =>
     apiRequest(
@@ -180,7 +181,7 @@ export const voiceApi = {
       body: input,
       schema: customVoiceSchema,
     }),
-  deleteCustomVoice: (id: string, options?: { retireLinkedCharacters: true }) =>
+  deleteCustomVoice: (id: string, options?: { retireLinkedCharacters: true } | { onlyIfUnsaved: true }) =>
     apiRequest(`${root}/custom-voices/${key(id)}`, {
       method: "DELETE",
       body: options,

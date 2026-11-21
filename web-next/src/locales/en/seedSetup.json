@@ -56,6 +56,8 @@
   "quote": "Get preview estimate",
   "price": "Maximum charge: {{credits}} Credits. Generating sends the voice inputs to Dola Seed Audio.",
   "generate": "Generate sample",
+  "regenerate": "Generate a new sample",
+  "previewChanged": "Generate a new sample to hear and save your changes.",
   "listen": "Listen",
   "stopSample": "Stop",
   "closeSample": "Close player",

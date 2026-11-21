@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import dubbingGenres from '../../config/voice-studio/dubbing-genres.json' with {type:'json'};
 import { inspectWav } from '../assets/AudioAssetService.js';
 import { validSpeechWindows, timedSpeechDirection } from './speechWindows.js';
 export const speechError = (code, statusCode = 400) => Object.assign(new Error('Speech request could not be completed.'), { code, statusCode });
@@ -58,6 +59,8 @@ function compileSeedDesign(input, model, catalog) {
   const name = clean(input.name, catalog.policy.maxTitleLength);
   const description = clean(input.description ?? '', catalog.policy.maxDesignLength, sourceType === 'description');
   const sampleText = clean(input.sampleText, catalog.policy.maxTextLength);
+  const genre = input.genre ?? '';
+  if (typeof genre !== 'string' || (genre && !Object.hasOwn(dubbingGenres,genre))) throw speechError('speech_invalid_input');
   const reference = sourceType === 'reference';
   const retainOriginal = reference;
   if (input.retainOriginal !== undefined && input.retainOriginal !== retainOriginal) throw speechError('speech_invalid_input');
@@ -80,7 +83,7 @@ function compileSeedDesign(input, model, catalog) {
     voiceGender !== 'unspecified' && `Voice type: ${voiceGender}.`, description, `Say exactly: ${JSON.stringify(sampleText)}`,
   ].filter(Boolean).join('\n');
   if ([...providerPrompt].length > model.limits.promptCharacters) throw speechError('speech_invalid_input');
-  const snapshot = { sourceType, name, description, language, voiceGender, sampleText, referenceHash, retainOriginal,
+  const snapshot = { sourceType, name, description, language, voiceGender, sampleText, ...(genre && {genre}), referenceHash, retainOriginal,
     providerPrompt, modelId: model.id, providerId: model.providerId, catalogVersion: catalog.catalogVersion, compilerVersion: 'seed-design-v1' };
   return { snapshot, model, requestHash: createHash('sha256').update(JSON.stringify(snapshot)).digest('hex') };
 }

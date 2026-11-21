@@ -127,6 +127,7 @@ function Work({ initial }: { initial: Project }) {
     [follow, setFollow] = useState(true);
   const [audition, setAudition] = useState<{
     cueId: string;
+    endMs: number;
     id: string;
     durationMs: number;
     audioUrl: string;
@@ -291,6 +292,15 @@ function Work({ initial }: { initial: Project }) {
   useTakePlayback(p.cues, lang, time, playing, dubVol, p.mixer, audition, mutedSpeakers[lang]);
   const onTime = () => {
     const ms = Math.round((video.current?.currentTime || 0) * 1000);
+    if (audition) {
+      if (ms >= audition.endMs) {
+        video.current?.pause();
+        setPlaying(false);
+        setAudition(null);
+        seek(audition.endMs);
+      } else setTime(ms);
+      return;
+    }
     if (loop && playing && cue && ms >= cue.endMs) {
       seek(cue.startMs);
       return;
@@ -523,7 +533,7 @@ function Work({ initial }: { initial: Project }) {
                   onTimeUpdate={onTime}
                   onSeeked={onTime}
                   onPlay={() => setPlaying(true)}
-                  onPause={() => setPlaying(false)}
+                  onPause={() => {setPlaying(false); setAudition(null);}}
                 />
               )}
               {active &&
@@ -910,11 +920,17 @@ function Work({ initial }: { initial: Project }) {
                       : undefined
                   }
                   onAudition={(take) => {
-                    setAudition({ cueId: cue.id, ...take });
-                    seek(cue.startMs);
+                    const start = cue.startMs + (cue.offsetMs ?? 0);
+                    const speechEnd = take.rhythmReview?.actualEndMs || take.durationMs;
+                    setAudition({ cueId: cue.id, ...take, endMs:Math.min(duration,start + Math.min(speechEnd,take.durationMs)) });
+                    seek(Math.max(0,start));
                     void video.current
                       ?.play()
-                      .catch((e) => setError(e.message));
+                      .catch((e) => {setAudition(null); setError(e.message);});
+                  }}
+                  usedTakeId={cue.takes[lang]?.id}
+                  onTakeDeleted={id=>{
+                    if (audition?.id===id) {video.current?.pause();setAudition(null);}
                   }}
                   text={
                     cue.voiceBindings[lang]?.dubText ??

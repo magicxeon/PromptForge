@@ -38,6 +38,7 @@ export function useTakePlayback(
   useEffect(() => {
     const needed = new Set<string>();
     for (const cue of cues) {
+      if (audition && audition.cueId!==cue.id) continue;
       const take = audition?.cueId === cue.id ? audition : cue.takes[language];
       if (!take) continue;
       const elapsed = timeMs - cue.startMs - (cue.offsetMs || 0);

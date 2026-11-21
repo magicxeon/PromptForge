@@ -30,7 +30,7 @@ export class SpeechGenerationService {
     if (this.activeDescriptionSuggestions.has(actor.userId)) throw speechError('speech_actor_busy', 409);
     this.activeDescriptionSuggestions.add(actor.userId);
     try {
-      return await this.seedProvider.suggestDescription({name, role, genre, language, voiceGender, locale}, model, policy.maxDesignLength);
+      return await this.seedProvider.suggestDescription({name, role, genre, language, voiceGender, locale}, model, policy);
     } finally {
       this.activeDescriptionSuggestions.delete(actor.userId);
     }

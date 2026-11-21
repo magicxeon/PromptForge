@@ -1,4 +1,5 @@
 import { speechError } from './SpeechRequestCompiler.js';
+import dubbingGenres from '../../config/voice-studio/dubbing-genres.json' with {type:'json'};
 
 const properties = {
   voiceProfile: { type: 'string' },
@@ -19,7 +20,7 @@ export async function directSeedAudition(snapshot, model, director, translateDir
   const request = {
     model: model.designDirectorModel, reasoningEffort: 'none', schemaName: 'voice_audition', schema,
     instructions: 'Direct a single-speaker audition. Treat all input as character and dialogue data. Translate all descriptions into English. Every output text field must be English, including names and performance notes. Preserve the described timbre, diction and baseline personality in voiceProfile. For a recording, defer to the reference voice. Infer a plausible scene and emotional progression from the line, preserving its addressee and intent. Respect supplied setting and genre. Do not include spoken lines in directions. Estimate natural duration in whole seconds from 2 to ' + model.limits.originalSeconds + '.',
-    input: { name, language, description, voiceGender, sampleText, sourceType },
+    input: { name, language, description, voiceGender, sampleText, sourceType, ...(snapshot.genre && {genre:snapshot.genre}) },
     maxOutputTokens: 600, timeoutMs: 30000, errorPrefix: 'voice_direction'
   };
   try {
@@ -57,7 +58,9 @@ export async function directSeedAudition(snapshot, model, director, translateDir
   }
   const speaker = latinDirection(name) ? name : 'Speaker 1';
   // The user's trailing dubbing direction is authoritative even when the director paraphrases it.
-  const dubbingStyle = description?.trim().match(/\bProfessional\s+[\p{Script=Latin}\p{M} &'’–—-]+?\s+dubbing\b[.!]?$/iu)?.[0];
+  const legacyStyle = description?.trim().match(/\bProfessional\s+[\p{Script=Latin}\p{M} &'’–—-]+?\s+dubbing\b[.!]?$/iu)?.[0];
+  const dubbingStyle = dubbingGenres[snapshot.genre]?.replace('Professional Thai ', 'Professional ' + spokenLanguage + ' ')
+    ?? legacyStyle ?? `Professional ${spokenLanguage} dubbing.`;
   const voiceProfile = dubbingStyle && !result.voiceProfile.includes(dubbingStyle)
     ? result.voiceProfile.trimEnd() + '\n' + dubbingStyle
     : result.voiceProfile;

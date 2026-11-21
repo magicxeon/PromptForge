@@ -51,7 +51,9 @@ type Props = {
   binding?: Binding;
   onBind: (binding: Binding) => void | Promise<void>;
   onUse: (take: SelectedTake) => void | Promise<void>;
-  onAudition?: (take: SelectedTake) => void;
+  onAudition?: (take: VoiceTake) => void;
+  usedTakeId?: string;
+  onTakeDeleted?: (id:string) => void;
 };
 type Quote = Awaited<ReturnType<typeof voiceApi.quote>> & {
   binding: Binding;
@@ -100,6 +102,7 @@ function VoiceInspector({
   onBind,
   onUse,
   onAudition,
+  usedTakeId, onTakeDeleted,
   defaultCharacterId,
   initialSelection,
   targetMs,
@@ -469,6 +472,22 @@ function VoiceInspector({
           >
             {t(item.savedAt ? "saved" : "save")}
           </button>
+          <button type="button" disabled={busy || row?.selectedTakeId===item.id || usedTakeId===item.id}
+            title={t(row?.selectedTakeId===item.id || usedTakeId===item.id ? "deleteInUse" : "deleteTake")}
+            onClick={()=>{
+              if (!window.confirm(t("deleteConfirm",{name:item.inputSnapshot.characterName,seconds:(item.durationMs/1000).toFixed(1)}))) return;
+              void run(async()=>{
+                try { await voiceApi.deleteTake(item.id); }
+                catch (e) {
+                  if ((e as {code?:string}).code==="voice_take_in_use") {setError(t("deleteInUse"));return;}
+                  throw e;
+                }
+                if (audition===item.audioUrl) setAudition("");
+                onTakeDeleted?.(item.id);
+                if (newest?.id===item.id) client.setQueryData([...prefix,"operation",operationId],{...operation.data,take:null});
+                await takes.refetch();
+              });
+            }}>{t("deleteTake")}</button>
         </div>
       );})}
       {media.url && <TakePlayback src={media.url} />}

@@ -1,4 +1,7 @@
 {
+  "deleteTake":"Delete take",
+  "deleteConfirm":"Permanently delete the take for {{name}} ({{seconds}} seconds)?",
+  "deleteInUse":"This take is in use. Replace it before deleting.",
   "timingChanged":"The cue timing has changed. Edit the take and prepare it again.",
   "ai": "AI",
   "edited": "Edited",
