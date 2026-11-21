@@ -5,6 +5,7 @@ import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { DUB_SUB_FONTS_DIR } from "../../config/paths.js";
 import { boundedCopy, mediaCommand, videoInput } from "./DubMediaService.js";
 import { wrapSubtitle } from "./subtitleLayout.js";
+import { sceneAudioFile } from "./sceneAudio.js";
 
 function clock(ms, separator) {
   const pad = (n, width = 2) => String(n).padStart(width, "0");
@@ -336,6 +337,7 @@ export async function renderExport({
   format,
   burnIn,
   includeDubbing,
+  sceneAudio = false,
   sourceGain,
   dubGain,
   source,
@@ -350,7 +352,7 @@ export async function renderExport({
     if (sourceGain > 0 && project.media.hasAudio) {
       const mixed = path.join(dir, "mixed.wav");
       await mediaCommand([
-        ...videoInput(source),
+        ...(sceneAudio ? ["-f", "wav", "-i", await sceneAudioFile(source, dir)] : videoInput(source)),
         "-f",
         "wav",
         "-i",

@@ -55,6 +55,7 @@ const track = z
   .passthrough();
 export const exported = z
   .object({
+    sceneAudioProcessor: z.string().nullable().optional(),
     id: z.string(),
     url: z.string(),
     format: z.string(),

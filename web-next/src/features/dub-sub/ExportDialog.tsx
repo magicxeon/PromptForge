@@ -39,9 +39,12 @@ export function ExportDialog({
   const [withVoice, setVoice] = useState(
       !!p.cues.some((c) => c.takes[language]),
     ),
+    [keepScene, setKeepScene] = useState(true),
     [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
+    [pending, setPending] = useState<"frame" | "export" | null>(null),
+    [result, setResult] = useState<Export | null>(null),
     [frame, setFrame] = useState("");
+  const busy = pending !== null;
   useEffect(
     () => () => {
       if (frame) URL.revokeObjectURL(frame);
@@ -82,7 +85,7 @@ export function ExportDialog({
     );
   async function run(preview: boolean) {
     if (busy) return;
-    setBusy(true);
+    setPending(preview ? "frame" : "export");
     setError("");
     try {
       const current = await save(),
@@ -92,7 +95,8 @@ export function ExportDialog({
           burnIn: burn,
           includeDubbing: withVoice,
           captionLanguages: captions,
-          sourceGain,
+          sceneAudio: p.hasAudio !== false && keepScene && (format === "wav" || (format === "mp4" && withVoice)),
+          sourceGain: format === "wav" || (format === "mp4" && withVoice) ? Number(keepScene) : sourceGain,
           dubGain,
         };
       if (preview) {
@@ -102,11 +106,17 @@ export function ExportDialog({
           captionLanguages: captions,
         });
         setFrame(URL.createObjectURL(blob));
-      } else done(await projectsApi.export(current, body));
+      } else {
+        const file = await projectsApi.export(current, body);
+        if (body.sceneAudio && file.sceneAudioProcessor !== "bandit-v2")
+          throw new Error("dub_scene_export_unconfirmed");
+        setResult(file);
+        done(file);
+      }
     } catch (e) {
       setError((e as Error).message);
     } finally {
-      setBusy(false);
+      setPending(null);
     }
   }
   return (
@@ -116,11 +126,18 @@ export function ExportDialog({
         if (!busy) close();
       }}
     >
-      <h2>{t("export")}</h2>
-      <small>
-        {p.name} · r{p.revision}
-      </small>
-      <fieldset disabled={busy}>
+      <header className="dub-export-heading">
+        <h2>{t("export")}</h2>
+        <small>{p.name}</small>
+      </header>
+      {busy && <div className="dub-export-status" role="status">
+        <ProcessingSpinner variant="wave" className="seed-generation-wave" />
+        {t(pending === "frame" ? "preparingFrame" : "preparingExport", {format:format.toUpperCase()})}
+      </div>}
+      {result && <div className="dub-export-status" role="status">
+        {t("exportReady", {format:result.format.toUpperCase()})}
+      </div>}
+      {!busy && !result && <fieldset className="dub-export-options">
         <label>
           {t("format")}
           <select
@@ -133,12 +150,32 @@ export function ExportDialog({
             }}
           >
             {config.formats.map((f) => (
-              <option key={f}>{f}</option>
+              <option key={f} value={f}>{t("exportType." + f)}</option>
             ))}
           </select>
         </label>
-        <label>
-          {t(format === "mp4" || format === "wav" ? "voice" : "target")}
+        {(format === "mp4" || format === "wav") && (
+          <fieldset className="dub-export-group">
+            <legend>{t("exportSound")}</legend>
+            {format === "mp4" && <div className="dub-export-choices">
+              <label><input type="radio" name="export-sound" checked={!withVoice} onChange={() => setVoice(false)} />{t("exportOriginal")}</label>
+              <label><input type="radio" name="export-sound" checked={withVoice} onChange={() => setVoice(true)} />{t("exportDub")}</label>
+            </div>}
+            {(format === "wav" || withVoice) && <>
+              <label>{t("dubLanguage")}
+                <select value={lang} onChange={e => setLang(e.target.value)}>
+                  {p.targetLanguages.map(l => <option key={l} value={l}>{t("lang." + l)}</option>)}
+                </select>
+              </label>
+              {p.hasAudio !== false && <label className="dub-export-toggle">
+                <input type="checkbox" checked={keepScene} onChange={e => setKeepScene(e.target.checked)} />
+                {t("keepSceneAudio")}
+              </label>}
+            </>}
+          </fieldset>
+        )}
+        {(format === "srt" || format === "vtt") && <label>
+          {t("exportSubLang")}
           <select value={lang} onChange={(e) => setLang(e.target.value)}>
             {[
               ...(format === "srt" || format === "vtt" ? ["source"] : []),
@@ -149,11 +186,11 @@ export function ExportDialog({
               </option>
             ))}
           </select>
-        </label>
+        </label>}
         {format === "mp4" && (
-          <>
-            <fieldset>
+            <fieldset className="dub-export-group">
               <legend>{t("captions")}</legend>
+              <div className="dub-export-choices">
               {["source", ...p.targetLanguages].map((l) => (
                 <label className="dub-inline" key={l}>
                   <input
@@ -172,24 +209,16 @@ export function ExportDialog({
                   {t("lang." + l)}
                 </label>
               ))}
-            </fieldset>
-            <label>
+              </div>
+            {captions.length > 0 && <label className="dub-export-toggle">
               <input
                 type="checkbox"
                 checked={burn}
-                onChange={(e) => setBurn(e.target.checked)}
+                onChange={(e) => {setBurn(e.target.checked); setFrame("");}}
               />
               {t("burn")}
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={withVoice}
-                onChange={(e) => setVoice(e.target.checked)}
-              />
-              {t("includeVoice")}
-            </label>
-            {burn && (
+            </label>}
+            {burn && captions.length > 0 && (
               <button
                 disabled={!captions.length}
                 onClick={() => void run(true)}
@@ -204,7 +233,7 @@ export function ExportDialog({
                 alt={t("frame")}
               />
             )}
-          </>
+            </fieldset>
         )}
         {issue && (
           <button onClick={() => jump(issue.id)}>
@@ -212,18 +241,20 @@ export function ExportDialog({
             {issue.speaker || issue.text}
           </button>
         )}
-      </fieldset>
+      </fieldset>}
       <footer>
         <button disabled={busy} onClick={close}>
           {t("close")}
         </button>
-        <button
+        {result ? <a className="dub-export-download" href={result.url} download>
+          {t("download")} {result.format.toUpperCase()}
+        </a> : !busy && <button
           className="primary"
           disabled={busy || !!issue || (!p.cues.length && format !== "mp4")}
           onClick={() => void run(false)}
         >
-          {busy ? <ProcessingSpinner /> : t("export")}
-        </button>
+          {t("export")}
+        </button>}
       </footer>
       {error && (
         <p role="alert">{t("errors." + error, { defaultValue: error })}</p>

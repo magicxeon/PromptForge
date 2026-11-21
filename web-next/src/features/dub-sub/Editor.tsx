@@ -1139,7 +1139,6 @@ function Work({ initial }: { initial: Project }) {
               file,
             ]);
             void client.invalidateQueries({ queryKey: ["dub-projects"] });
-            openExport(false);
           }}
         />
       )}

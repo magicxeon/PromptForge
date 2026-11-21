@@ -6,6 +6,8 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Agent Start Here
 
+Dub & Sub export uses `server/domain/dub-sub/sceneAudio.js` and `separateScene.py` for local BandIt v2 inference. Shared model assets resolve through `BANDIT_RUNTIME_DIR` in server configuration. The derived `scene-bandit-v2.wav` belongs to the existing private, immutable project media folder and shares its lifecycle. [Export setup](../024-frontend-rebuild/011-dub-sub-operations.md)
+
 This file is the central architecture and ownership index, not an exhaustive
 file tree. Start here, select the relevant capability, then inspect only its
 owning requirement, public entry point, nearby code and tests. Current code wins

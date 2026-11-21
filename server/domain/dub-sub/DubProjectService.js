@@ -372,8 +372,10 @@ export class DubProjectService {
         ? selectedCaptions(p, body, language, true)
         : [language];
     if (body.cueIds !== undefined) fail();
+    if (body.sceneAudio !== undefined && typeof body.sceneAudio !== "boolean") fail();
+    const sceneAudio = body.sceneAudio === true && (format === "wav" || (format === "mp4" && body.includeDubbing === true));
     const sourceGain =
-      body.sourceGain ?? (body.includeDubbing || format === "wav" ? 0 : 1);
+      body.sourceGain ?? (sceneAudio ? 1 : body.includeDubbing || format === "wav" ? 0 : 1);
     const dubGain = body.dubGain ?? 1;
     if (
       !Number.isFinite(sourceGain) ||
@@ -396,7 +398,7 @@ export class DubProjectService {
       captionLanguages,
       sourceGain,
       dubGain,
-      null,
+      sceneAudio ? "bandit-v2-confirmed" : null,
     ]);
     if (this.running.has(key)) return this.running.get(key);
     const prior = p.operations.find(
@@ -486,6 +488,7 @@ export class DubProjectService {
         dubGain,
         burnIn: body.burnIn === true,
         includeDubbing: body.includeDubbing === true,
+        sceneAudio: body.sceneAudio === true,
         source: path.join(directory, p.media.folder, "media"),
         dir: tmp,
         output,
@@ -503,6 +506,8 @@ export class DubProjectService {
       const record = {
         id: exportId,
         format,
+        sceneAudioProcessor: body.sceneAudio === true && sourceGain > 0 && p.media.hasAudio &&
+          (format === "wav" || (format === "mp4" && body.includeDubbing === true)) ? "bandit-v2" : null,
         language,
         captionLanguages,
         revision: p.revision,

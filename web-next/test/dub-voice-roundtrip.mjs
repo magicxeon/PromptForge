@@ -28,6 +28,11 @@ pcm.writeUInt32LE(16000, 24); pcm.writeUInt32LE(32000, 28); pcm.writeUInt16LE(2,
 pcm.writeUInt16LE(16, 34); pcm.write("data", 36); pcm.writeUInt32LE(pcm.length - 44, 40);
 
 const server = await createServer({ root: "web-next", configFile: false, server: { host: "127.0.0.1", port: 0, hmr: false, fs: { allow: [process.cwd()] } } });
+server.middlewares.stack.unshift({route:"/api/dub-sub/projects/roundtrip/exports/render",handle:(_req,res)=>{
+  res.setHeader("Content-Disposition",'attachment; filename="subtitles-1.srt"');
+  res.setHeader("Content-Type","application/x-subrip");
+  res.end("1\n00:00:00,000 --> 00:00:01,000\nHello\n");
+}});
 await server.listen();
 const browser = await chromium.launch(process.env.PLAYWRIGHT_CHANNEL ? {channel:process.env.PLAYWRIGHT_CHANNEL} : {});
 try {
@@ -39,6 +44,8 @@ try {
     let draft = structuredClone(project);
     let batch = null;
     let confirmedRetry = false;
+    let finishExport;
+    const rendering = new Promise(resolve => { finishExport = resolve; });
     const seed = {id:"seed-saved", revision:1, operationId:"seed-saved", name:"English guest", displayDescription:"Quiet", designPrompt:"Quiet",
       modelId:"dola-seed-audio", providerId:"byteplus", language:"en", sourceType:"description", previewAssetId:"sample",
       audioUrl:"/outputs/voice-studio/sample.wav", durationMs:1000, savedAt:new Date().toISOString(), archivedAt:null,
@@ -52,6 +59,10 @@ try {
       if (!path.startsWith("/api/")) return route.continue();
       if (route.request().method() !== "GET") writes.push(path);
       const json = value => route.fulfill({ json: value });
+      if (path.endsWith("/exports")) return rendering.then(() => json({
+        id:"render",url:path+"/render",format:"srt",revision:1
+      }));
+      if (path.endsWith("/exports/render")) return route.continue();
       if (path === "/api/web-next/config") return json({ creditsEnabled: true });
       if (path === "/api/auth/config") return json({ contractVersion: 1, authMode: "development_bypass", methods: { password: false, emailOtp: false, google: false, facebook: false }, csrfToken: "fixture", policy: { otpDigits: 6, otpExpiresSeconds: 300, resendSeconds: 30, passwordMinLength: 8, passwordMaxLength: 128 }, legal: { termsVersion: null, privacyVersion: null } });
       if (path === "/api/me") return json({ userId: "fixture", username: "fixture", displayName: "Fixture", role: "admin", authMode: "development_bypass", accountStatus: "active" });
@@ -112,6 +123,31 @@ try {
       return json({ items: [] });
     });
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/dub-sub/projects/roundtrip`);
+    await page.getByRole("button", {name:"Export", exact:true}).first().click();
+    const exportDialog = page.getByRole("dialog", {name:"Export",exact:true});
+    await exportDialog.getByLabel("Dubbing from timeline").check();
+    assert.ok(await exportDialog.getByLabel("Dubbing language").isVisible());
+    assert.ok(await exportDialog.getByLabel("Keep original music and sound effects").isChecked());
+    await exportDialog.getByLabel("Original soundtrack").check();
+    assert.equal(await exportDialog.getByLabel("Dubbing language").count(),0);
+    await exportDialog.getByLabel("File format").selectOption("wav");
+    assert.equal(await exportDialog.getByText("Subtitle tracks",{exact:true}).count(),0);
+    await exportDialog.getByLabel("File format").selectOption("srt");
+    assert.ok(await exportDialog.getByLabel("Subtitle language").isVisible());
+    assert.ok(await exportDialog.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+    await exportDialog.getByRole("button",{name:"Export",exact:true}).click();
+    await exportDialog.getByRole("status").filter({hasText:"Preparing your SRT"}).waitFor();
+    assert.ok(await exportDialog.locator(".seed-generation-wave").isVisible());
+    await page.keyboard.press("Escape");
+    assert.ok(await exportDialog.isVisible());
+    finishExport();
+    const downloadEvent = page.waitForEvent("download");
+    await exportDialog.getByRole("link",{name:"Download SRT"}).click();
+    assert.equal(await exportDialog.locator(".seed-generation-wave").count(),0);
+    const downloaded = await downloadEvent;
+    assert.equal(downloaded.suggestedFilename(),"subtitles-1.srt");
+    assert.equal(await downloaded.failure(),null);
+    await exportDialog.getByRole("button",{name:"Close",exact:true}).click();
     await page.locator(".dub-script select").selectOption("en");
     const source = page.locator(".dub-rows").getByRole("textbox", { name: "Source language" }).nth(1);
     assert.equal(await source.inputValue(), "second");
@@ -134,7 +170,7 @@ try {
     assert.equal(await page.locator(".dub-line.selected").getByLabel("Source language").inputValue(), "second");
     await page.waitForFunction(() => Math.abs(document.querySelector("video").currentTime - 2.525) < .01);
     assert.equal(await page.locator(".dub-inspector").isVisible(), true);
-    assert.deepEqual(errors, []); assert.deepEqual(writes, []);
+    assert.deepEqual(errors, []); assert.deepEqual(writes, ["/api/dub-sub/projects/roundtrip/exports"]);
     await page.getByRole("button", { name:"Dub project" }).click();
     const casting = page.getByRole("dialog", { name:"Dub project" });
     await casting.waitFor();
