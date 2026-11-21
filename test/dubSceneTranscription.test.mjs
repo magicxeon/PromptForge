@@ -27,6 +27,98 @@ function providerWith(fetchImpl) {
   }) });
 }
 
+test("a failed late Luna group returns editable lines and a fresh request ID cannot repeat dispatched groups", async t => {
+  const f = await fixture(t, () => assert.fail("unexpected Gemini request"));
+  const project = await f.repo.mutate(actor,f.project.id,f.project.revision,p=>{
+    p.cues = Array.from({length:17},(_,i)=>({id:String(i), text:"你好",startMs:i*50,endMs:(i+1)*50,
+      translations:{th:"ท่านกำลังจะไปไหนหรือเจ้าคะ"}}));
+  });
+  const scene = f.service.languageService.sceneGeneration;
+  scene.timedDirector = ()=>({});
+  let calls = 0;
+  scene.shorten = (_,input)=>{
+    if (++calls===2) throw Object.assign(new Error(),{code:"dub_scene_outcome_unknown"});
+    return {lines:input.cues.map(c=>({id:c.id,text:"ไปไหน"}))};
+  };
+  const check = requestId=>f.service.timingReview(actor,project.id,{...f.body,revision:project.revision,
+    requestId,cueIds:project.cues.map(c=>c.id)},async()=>actor);
+  for (const id of ["first_request","second_request"]) {
+    const lines = await check(id);
+    assert.equal(lines.length,17);
+    assert.ok(lines.every(l=>l.manual));
+  }
+  assert.equal(calls,2);
+});
+
+test("a rejected Luna request keeps its reason and Gemini runs only on explicit selection", async t => {
+  const f = await fixture(t, () => assert.fail("unexpected network request"));
+  const project = await f.repo.mutate(actor,f.project.id,f.project.revision,p=>{
+    p.cues = [{id:"one",text:"Hello",startMs:0,endMs:450,translations:{th:"สวัสดีเจ้าค่ะ"}}];
+  });
+  const scene = f.service.languageService.sceneGeneration;
+  let lunaCalls=0, geminiCalls=0;
+  scene.timedDirector=()=>({voiceDirection:async()=>{
+    lunaCalls++;
+    if (lunaCalls===1) throw Object.assign(new Error(),{isProviderError:true,status:403});
+    return {lines:[{id:"one",text:"หวัดดี"}]};
+  }});
+  scene.provider.request=async (_policy,_schema,_directions,parts)=>{
+    assert.equal(JSON.parse(parts[0].text).cues[0].id,"one");
+    geminiCalls++;
+    return {lines:[{id:"one",text:"สวัสดี"}]};
+  };
+  const check=(requestId,director)=>f.service.timingReview(actor,project.id,{...f.body,
+    revision:project.revision,requestId,director,cueIds:["one"],forceSingle:true},async()=>actor);
+  assert.equal((await check("request_first","luna"))[0].reason,"dub_luna_access");
+  assert.deepEqual([lunaCalls,geminiCalls],[1,0]);
+  assert.equal((await check("request_second","gemini"))[0].suggested,"สวัสดี");
+  await check("request_third","gemini");
+  assert.deepEqual([lunaCalls,geminiCalls],[1,1]);
+  assert.equal((await check("request_retry","luna"))[0].suggested,"หวัดดี");
+  assert.deepEqual([lunaCalls,geminiCalls],[2,1]);
+});
+
+test("timed dialogue proposes only long lines, replays Luna proposals without another call and preserves reviewed subtitles", async t => {
+  const f = await fixture(t, () => assert.fail("unexpected Gemini request"));
+  const project = await f.repo.mutate(actor,f.project.id,f.project.revision,p=>{
+    p.cues = [
+      {id:"short",text:"Yes",startMs:0,endMs:700,translations:{th:"ค่ะ"}},
+      {id:"long",text:"Where are you going tonight?",startMs:700,endMs:1000,translations:{th:"คืนนี้คุณชายกำลังจะเดินทางไปที่ไหนหรือเจ้าคะ"}}
+    ];
+  });
+  const scene = f.service.languageService.sceneGeneration;
+  const speechWindows=[{startMs:40,endMs:260}];
+  f.service.analyzeSourceRhythms=async()=>new Map([["long",speechWindows]]);
+  scene.timedDirector = () => ({});
+  let calls = 0;
+  scene.shorten = (current,input) => {
+    calls++;
+    assert.equal(current.userId,actor.userId);
+    assert.deepEqual(input.cues.map(c=>c.id),["long"]);
+    assert.equal(input.cues[0].windowMs,300);
+    assert.equal(input.cues[0].speakingMs,220);
+    assert.equal(input.cues[0].budget,2);
+    assert.deepEqual(input.cues[0].speechWindows,speechWindows);
+    assert.equal(input.cues[0].before,"Yes");
+    assert.equal(input.storyContext,context.storyContext);
+    return {lines:[{id:"long",text:"ไปไหนเจ้าคะ"}]};
+  };
+  const check = (overrides={},current=actor) => f.service.timingReview(current,project.id,
+    {...f.body,revision:project.revision,cueIds:["short","long"],...overrides},async()=>current);
+  assert.deepEqual(await check({cueIds:["short"]}),[]);
+  assert.equal(calls,0);
+  const proposals = await check();
+  assert.deepEqual(proposals[0].speechWindows,speechWindows);
+  assert.equal(proposals[0].suggested,"ไปไหนเจ้าคะ");
+  assert.deepEqual(await check({requestId:"retry_56789"}),proposals);
+  assert.equal(calls,1);
+  assert.deepEqual((await f.repo.get(actor,project.id)).cues,project.cues);
+  await assert.rejects(check({revision:project.revision-1}),{code:"dub_revision_conflict"});
+  await assert.rejects(check({}, {...actor,userId:"another"}),{code:"dub_project_missing"});
+  assert.equal((await check({}, {...actor,role:"customer"}))[0].manual,true);
+  assert.equal(calls,1);
+});
+
 async function fixture(t, fetchImpl) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "dub-scene-"));
   t.after(() => fs.rm(root, { recursive: true, force: true }));

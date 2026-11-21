@@ -15,6 +15,7 @@ const binding = z.object({
   operationId: z.string().optional(),
   operationRevision: z.number().int().positive().optional(),
   usesCueDelivery: z.boolean().optional(),
+  usesSpeakerMapping: z.boolean().optional(),
 });
 const take = z.object({
   id: z.string(),
@@ -32,6 +33,7 @@ const cue = z
     suggestedDelivery: z.record(z.string(), delivery).optional(),
     deliveryOverrides: z.record(z.string(), delivery).optional(),
     speaker: z.string().nullish(),
+    speakerVoiceType: z.enum(["female","male","unknown"]).optional(),
     translations: z.record(z.string(), z.string()).default({}),
     voiceBindings: z.record(z.string(), binding).default({}),
     takes: z.record(z.string(), take).default({}),

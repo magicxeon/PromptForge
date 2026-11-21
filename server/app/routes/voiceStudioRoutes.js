@@ -6,6 +6,7 @@ export function registerVoiceStudioRoutes(app, { voiceStudio }) {
   });
   route('get','/catalog',a=>voiceStudio.catalog(a));
   route('get','/custom-voices',(a,p,b,q)=>voiceStudio.listCustomVoices(a,q));
+  route('post','/custom-voices/description-suggestion',(a,p,b)=>voiceStudio.suggestVoiceDescription(a,b));
   route('post','/custom-voices/quotes',(a,p,b)=>voiceStudio.quoteCustomVoice(a,b));
   route('post','/custom-voices',(a,p,b)=>voiceStudio.createCustomVoice(a,b));
   route('patch','/custom-voices/:id',(a,p,b)=>voiceStudio.updateCustomVoice(a,p.id,b));

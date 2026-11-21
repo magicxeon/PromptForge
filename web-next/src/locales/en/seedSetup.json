@@ -1,5 +1,11 @@
 {
   "genre": "Film genre",
+  "voiceBrief": "Draft a voice description with AI",
+  "role": "Character role (optional)",
+  "roleHint": "For example, a reserved young innkeeper. Leave blank for a random suggestion.",
+  "randomDescription": "Suggest a voice with AI",
+  "suggesting": "Drafting a voice description…",
+  "suggestionFailed": "The AI could not draft a description. Try again or write your own.",
   "filterGender": "Filter voices by gender",
   "allGenders": "All genders",
   "noMatches": "No saved voices match this gender.",
@@ -14,7 +20,8 @@
     "period": "Historical drama",
     "scifi": "Science fiction",
     "family": "Family drama",
-    "animation": "Animation"
+    "animation": "Animation",
+    "mystery": "Mystery", "spy": "Espionage", "war": "War drama", "sports": "Sports drama", "comingOfAge": "Coming of age"
   },
   "needsEnglish": "Voice direction translation failed. Try creating the sample again with the same description.",
   "formDirection": "Luna was unavailable. This sample uses direction from your form.",

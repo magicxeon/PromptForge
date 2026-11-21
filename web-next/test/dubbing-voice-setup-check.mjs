@@ -5,7 +5,7 @@ import { createServer } from "vite";
 const server = await createServer({ root: "web-next", configFile: "web-next/vite.config.ts",
   server: { host: "127.0.0.1", port: 0, hmr: false } });
 await server.listen();
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.PLAYWRIGHT_CHANNEL ? {channel:process.env.PLAYWRIGHT_CHANNEL} : {});
 const modelId = "dola-seed-audio";
 const wav = Buffer.alloc(44 + 8000 * 2);
 wav.write("RIFF"); wav.writeUInt32LE(wav.length - 8, 4); wav.write("WAVEfmt ", 8);
@@ -28,6 +28,13 @@ try {
       if (!path.startsWith("/api/")) return route.continue();
       const method = route.request().method();
       const json = value => route.fulfill({ json: value });
+      if (path.endsWith("/custom-voices/description-suggestion")) {
+        const body=route.request().postDataJSON();
+        assert.equal(body.role,width===390 ? "" : "A reserved young spy");
+        assert.equal(body.genre,"Professional Thai spy-thriller dubbing.");
+        assert.equal(body.locale,"en");
+        return json({description:"A soft clear adult voice."});
+      }
       if (path === "/api/web-next/config") return json({ creditsEnabled });
       if (path === "/api/auth/config") return json({ contractVersion: 1, authMode: "development_bypass", methods: { password: false, emailOtp: false, google: false, facebook: false }, csrfToken: "fixture", policy: { otpDigits: 6, otpExpiresSeconds: 300, resendSeconds: 30, passwordMinLength: 8, passwordMaxLength: 128 }, legal: { termsVersion: null, privacyVersion: null } });
       if (path === "/api/me") return json({ userId: "test", username: "test", displayName: "Test", role: "admin", authMode: "development_bypass", accountStatus: "active" });
@@ -68,7 +75,18 @@ try {
       if (source === "reference") {
         await page.getByRole("radio", { name: "Reference audio" }).check();
         await page.getByLabel("Original recording", { exact: true }).first().setInputFiles({ name: "line.wav", mimeType: "audio/wav", buffer: wav });
-      } else await page.getByLabel("Voice description", { exact: true }).fill("A soft clear adult voice.");
+      } else {
+        const aiGroup=page.getByRole("group",{name:"Draft a voice description with AI",exact:true});
+        const role=aiGroup.getByLabel("Character role (optional)",{exact:true});
+        assert.equal(await role.inputValue(),"");
+        assert.equal(await aiGroup.locator("textarea").count(),1);
+        assert.equal(await aiGroup.locator("select").count(),0);
+        if(width!==390) await role.fill("A reserved young spy");
+        await page.getByLabel("Film genre").selectOption({label:"Espionage"});
+        await aiGroup.getByRole("button",{name:"Suggest a voice with AI"}).click();
+        await page.waitForFunction(()=>Array.from(document.querySelectorAll("textarea")).some(t=>t.value==="A soft clear adult voice."));
+        assert.equal(generations.length,0);
+      }
       await page.getByLabel("Line to speak in the sample").fill("Meet me at the inn.");
       if (creditsEnabled) {
         await page.getByRole("button", { name: "Get preview estimate" }).click();
@@ -84,7 +102,8 @@ try {
       await page.getByRole("button", { name: "Create dubbing voice" }).waitFor();
       const row = page.getByRole("listitem").filter({ hasText: name });
       await row.getByRole("button", { name: "Listen" }).click();
-      await row.locator("audio").evaluate(el => el.play());
+      await row.getByRole("button", {name:"Stop",exact:true}).click();
+      await row.getByRole("button", {name:"Listen",exact:true}).waitFor();
       assert.equal(generations.length, saved.length);
       const sent = generations.at(-1);
       assert.equal(sent.sourceType, source);

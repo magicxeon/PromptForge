@@ -58,11 +58,14 @@ export async function directSeedAudition(snapshot, model, director, translateDir
   const speaker = latinDirection(name) ? name : 'Speaker 1';
   // The user's trailing dubbing direction is authoritative even when the director paraphrases it.
   const dubbingStyle = description?.trim().match(/\bProfessional\s+[\p{Script=Latin}\p{M} &'’–—-]+?\s+dubbing\b[.!]?$/iu)?.[0];
+  const voiceProfile = dubbingStyle && !result.voiceProfile.includes(dubbingStyle)
+    ? result.voiceProfile.trimEnd() + '\n' + dubbingStyle
+    : result.voiceProfile;
   const end = (duration - 0.3).toFixed(1);
   const providerPrompt = [
     `Create a cinematic monologue. Exactly one speaker. Spoken language: ${spokenLanguage}. No narrator, music, or sound effects.`,
     `DURATION: ${duration} seconds.`,
-    `CHARACTER — ${speaker}${voiceGender === 'unspecified' ? '' : ' (' + voiceGender + ')'}: ${result.voiceProfile}`,
+    `CHARACTER — ${speaker}${voiceGender === 'unspecified' ? '' : ' (' + voiceGender + ')'}: ${voiceProfile}`,
     reference && 'Maintain the voice identity of @Audio1.',
     `SCENE: ${result.scene}`,
     `ACTING DIRECTION: ${result.actingDirection}`,
@@ -71,5 +74,5 @@ export async function directSeedAudition(snapshot, model, director, translateDir
       (dubbingStyle ? '\n' + dubbingStyle : '')
   ].filter(Boolean).join('\n\n');
   if ([...providerPrompt].length > model.limits.promptCharacters) throw speechError('speech_direction_too_long');
-  return { ...snapshot, directionSource, voiceProfile: result.voiceProfile, providerPrompt };
+  return { ...snapshot, directionSource, voiceProfile, providerPrompt };
 }

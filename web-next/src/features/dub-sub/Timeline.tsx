@@ -35,6 +35,9 @@ type Props = {
   ms: number;
   playing: boolean;
   following: boolean;
+  sourceMuted: boolean;
+  mutedSpeakers?: ReadonlySet<string>;
+  togglePreviewAudio: (speaker?: string) => void;
   selected: string;
   lang: string;
   seek: (ms: number) => void;
@@ -54,7 +57,7 @@ type Lane = {
   maxEnds: number[];
   locked: boolean;
 };
-type Actions = Pick<Props, "select" | "change" | "seek" | "add">;
+type Actions = Pick<Props, "select" | "change" | "seek" | "add" | "togglePreviewAudio">;
 const ROW = 38,
   RULER = 30,
   LABEL = 132,
@@ -401,7 +404,7 @@ const CueClip = memo(function CueClip({
     >
       <button
         type="button"
-        className="dub-cue-button"
+        className={clip.badge ? "dub-cue-button has-cast" : "dub-cue-button"}
         aria-pressed={chosen}
         data-start-ms={clip.start}
         title={[`${timeLabel(clip.start)} – ${timeLabel(clip.end)} (${timeLabel(clip.end - clip.start)})`, clip.badge?.name, clip.badge?.voice, text].filter(Boolean).join(" · ")}
@@ -419,8 +422,8 @@ const CueClip = memo(function CueClip({
       >
         {waveform && clip.take && <TakeWave take={clip.take} {...waveform} />}
         <span>{text || t("emptyCue")}</span>
-        {clip.badge && <small className="dub-cast-badge" style={{ borderColor: clip.badge.color }}>
-          {width > 85 ? clip.badge.name : clip.badge.name.slice(0, 1)}
+        {clip.badge && <small aria-hidden="true" className="dub-cast-badge" style={{ borderColor: clip.badge.color }}>
+          {width > 110 ? clip.badge.name : ""}
         </small>}
         {clip.take && clip.end > clip.cue.endMs && (
           <span className="dub-take-overrun" title={t("overrun")}>
@@ -467,6 +470,7 @@ const TimelineLane = memo(function TimelineLane({
   projectId,
   globalLocked,
   waveBudget,
+  muted,
 }: {
   lane: Lane;
   index: number;
@@ -482,6 +486,7 @@ const TimelineLane = memo(function TimelineLane({
   projectId: string;
   globalLocked: boolean;
   waveBudget: number;
+  muted: boolean;
 }) {
   const { t } = useTranslation("dubTimeline"),
     { t: dub } = useTranslation("dub"),
@@ -553,7 +558,10 @@ const TimelineLane = memo(function TimelineLane({
       aria-label={label}
     >
       <div className="dub-timeline-label" title={label}>
-        {label}
+        {lane.kind === "subtitle" ? label : <label className="dub-track-preview">
+          <input type="checkbox" checked={!muted} onChange={() => actions.togglePreviewAudio(lane.speaker)} />
+          <span>{label}</span>
+        </label>}
         {lane.locked && lane.kind !== "source" && <span> · {t("locked")}</span>}
       </div>
       <canvas
@@ -681,6 +689,7 @@ export function Timeline(props: Props) {
       select: (cue, language) => latest.current.select(cue, language),
       change: (cue) => latest.current.change(cue),
       add: (value) => latest.current.add(value),
+      togglePreviewAudio: (speaker) => latest.current.togglePreviewAudio(speaker),
     }),
     [],
   );
@@ -924,6 +933,7 @@ export function Timeline(props: Props) {
               <TimelineLane
                 key={lane.id}
                 lane={lane}
+                muted={lane.kind === "source" ? props.sourceMuted : !!props.mutedSpeakers?.has(lane.speaker || "")}
                 index={firstLane + index}
                 scale={scale}
                 duration={duration}

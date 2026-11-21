@@ -89,6 +89,7 @@ export class DubLanguageService {
         lastStart = cue.startMs;
         return { id: randomUUID(), startMs: cue.startMs, endMs: cue.endMs, text: cue.original.trim(), sourceOrigin: "gemini",
           speaker: cue.speaker.trim(), translations: { [targetLanguage]: cue.translation.trim() },
+          ...(cue.speakerVoiceType ? {speakerVoiceType:cue.speakerVoiceType} : {}),
           suggestedDelivery: { [targetLanguage]: suggestedDelivery(cue.delivery) },
           translationOrigins: { [targetLanguage]: "gemini" } };
       });

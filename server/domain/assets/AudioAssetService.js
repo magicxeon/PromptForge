@@ -5,6 +5,9 @@ import { randomUUID, createHash } from 'node:crypto';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { AssetDeliveryService } from './AssetDeliveryService.js';
+import { detectSpeechIntervals } from './speechIntervals.js';
+import dubScenePolicy from '../../config/dub-scene-transcription.json' with {type:'json'};
+const alignment = dubScenePolicy.timedDialogue.alignment;
 export function inspectWav(bytes) {
   const invalid = () => { throw Object.assign(new Error('Invalid WAV output.'), { code: 'speech_invalid_wav' }); };
   if (!Buffer.isBuffer(bytes) || bytes.length < 44 || bytes.toString('ascii', 0, 4) !== 'RIFF' || bytes.toString('ascii', 8, 12) !== 'WAVE'
@@ -33,6 +36,101 @@ function monoPcmWav(data, sampleRateHz) {
   header.writeUInt32LE(sampleRateHz, 24); header.writeUInt32LE(sampleRateHz * 2, 28);
   header.writeUInt16LE(2, 32); header.writeUInt16LE(16, 34); header.write('data', 36); header.writeUInt32LE(data.length, 40);
   return Buffer.concat([header, data]);
+}
+
+// An aligned take must preserve RIFF metadata and PCM sample boundaries. With
+// multiple data chunks the take can still be auditioned but is not rewritten.
+function singleDataOffset(bytes) {
+  let offset = null;
+  for (let at = 12; at + 8 <= bytes.length;) {
+    const length = bytes.readUInt32LE(at + 4);
+    if (bytes.toString('ascii', at, at + 4) === 'data') {
+      if (offset !== null) return null;
+      offset = at;
+    }
+    at += 8 + length + length % 2;
+  }
+  return offset;
+}
+
+// Average each three 24 kHz samples into two 16 kHz VAD samples. The
+// provider's original PCM stays untouched for playback.
+function vadPcm(pcm) {
+  const result = Buffer.alloc(Math.floor(pcm.length/6)*4);
+  for (let i=0,j=0; j<result.length; i+=6,j+=4) {
+    const a=pcm.readInt16LE(i), b=pcm.readInt16LE(i+2), c=pcm.readInt16LE(i+4);
+    result.writeInt16LE(Math.round((2*a+b)/3),j);
+    result.writeInt16LE(Math.round((b+2*c)/3),j+2);
+  }
+  return result;
+}
+
+export function significantPauses(spans) {
+  return spans.slice(1).flatMap((s,i)=>s.startMs-spans[i].endMs >= alignment.significantPauseMs
+    ? [{startMs:spans[i].endMs,endMs:s.startMs}] : []);
+}
+
+export async function alignCueSpeech(bytes, windows, maxBytes, detect=detectSpeechIntervals) {
+  inspectWav(bytes);
+  const offset = singleDataOffset(bytes);
+  const pcmStart = offset === null ? 0 : offset + 8;
+  const pcmLength = offset === null ? 0 : bytes.readUInt32LE(offset + 4);
+  const pcm = bytes.subarray(pcmStart,pcmStart+pcmLength);
+  let spans = [];
+  if (pcm.length) {
+    try { spans = await detect(vadPcm(pcm)); }
+    catch { /* An unavailable classifier leaves the generated take for manual review. */ }
+  }
+  if (!spans.length) return {bytes,review:{status:'review',reasons:['unmeasurable'],actualStartMs:null,actualEndMs:null,shiftMs:0}};
+  const desiredShift = windows[0].startMs - spans[0].startMs;
+  // Never cut a breath or a quiet consonant. Remove only whole leading PCM
+  // frames equal to zero, or add silence to delay an early onset once.
+  let shiftMs = 0;
+  if (desiredShift < -10) {
+    let leading = 0;
+    while (leading < Math.min(pcm.length,-desiredShift*48) && pcm.readInt16LE(leading) === 0) leading += 2;
+    shiftMs = -Math.floor(leading/48);
+  } else if (desiredShift > 10 && desiredShift <= (maxBytes-bytes.length)/48) shiftMs = desiredShift;
+  if (shiftMs !== 0) {
+    const delta = shiftMs*48;
+    bytes = Buffer.concat([bytes.subarray(0,pcmStart),Buffer.alloc(Math.max(delta,0)),
+      bytes.subarray(pcmStart+Math.max(-delta,0))]);
+    bytes.writeUInt32LE(pcmLength+delta,offset+4);
+    bytes.writeUInt32LE(bytes.length-8,4);
+    for (const s of spans) { s.startMs += shiftMs; s.endMs += shiftMs; }
+  }
+  const actualStartMs = Math.round(spans[0].startMs), actualEndMs = Math.round(spans.at(-1).endMs);
+  const reasons = [];
+  if (Math.abs(actualStartMs-windows[0].startMs)>alignment.onsetToleranceMs) reasons.push('onset');
+  if (Math.abs(actualEndMs-windows.at(-1).endMs)>alignment.endingToleranceMs) reasons.push('ending');
+  const expected = significantPauses(windows), actual = significantPauses(spans);
+  // Pauses are ordered. Check both added and missing pauses as well as shifted boundaries.
+  const pausesMatch = expected.length === actual.length && expected.every((gap,index)=>{
+    const p = actual[index];
+    return Math.abs(p.startMs-gap.startMs)<=alignment.pauseToleranceMs &&
+      Math.abs(p.endMs-gap.endMs)<=alignment.pauseToleranceMs &&
+      Math.min(p.endMs,gap.endMs)-Math.max(p.startMs,gap.startMs)>=(gap.endMs-gap.startMs)*.5;
+  });
+  if (!pausesMatch) reasons.push('pause');
+  return {bytes,review:{status:reasons.length?'review':'matched',reasons,actualStartMs,actualEndMs,shiftMs}};
+}
+
+// Only remove digital silence beyond a cue boundary. Keep quiet consonants,
+// breaths, provider metadata and the original take whenever the tail has sound.
+export function trimSilentCueTail(bytes, targetMs) {
+  const { durationMs, sampleRateHz } = inspectWav(bytes);
+  if (durationMs <= targetMs) return bytes;
+  const dataOffset = singleDataOffset(bytes);
+  if (dataOffset === null) return bytes;
+  const length = bytes.readUInt32LE(dataOffset + 4);
+  const keep = Math.floor(targetMs * sampleRateHz / 1000) * 2;
+  const cut = dataOffset + 8 + keep;
+  const end = dataOffset + 8 + length;
+  if (bytes.subarray(cut, end).some(value => value !== 0)) return bytes;
+  const trimmed = Buffer.concat([bytes.subarray(0, cut), bytes.subarray(end)]);
+  trimmed.writeUInt32LE(keep, dataOffset + 4);
+  trimmed.writeUInt32LE(trimmed.length - 8, 4);
+  return trimmed;
 }
 
 export async function normalizeSeedWav(bytes, maxBytes) {
@@ -65,6 +163,22 @@ export class AudioAssetService {
   async findReferenceId(actor, operationId) {
     const asset = await this.repository.findBySourceJobIdForOwner(operationId + '-reference', actor.userId, 'generated_audio');
     return asset?.id || null;
+  }
+  async measureDubAudio(actor, assetId, maxBytes) {
+    const asset = await this.repository.findByIdForOwner(assetId, actor.userId);
+    if (!asset || asset.assetType !== 'generated_audio' || asset.status === 'deleted') return [];
+    const delivery = new AssetDeliveryService({ outputsDirectory: this.outputsDirectory, assetRepository: this.repository });
+    const { handle, stat } = await delivery.openOwnedOutput({actor, outputUrl:asset.publicUrl, reauthorize:async()=>actor});
+    try {
+      if (stat.size > maxBytes) return [];
+      const bytes = await handle.readFile();
+      inspectWav(bytes);
+      const offset = singleDataOffset(bytes);
+      if (offset === null) return [];
+      const pcm = bytes.subarray(offset + 8, offset + 8 + bytes.readUInt32LE(offset + 4));
+      try { return await detectSpeechIntervals(vadPcm(pcm)); }
+      catch { return []; }
+    } finally { await handle.close(); }
   }
   async referenceClip(actor, assetId, seconds, maxBytes) {
     const asset = await this.repository.findByIdForOwner(assetId, actor.userId);

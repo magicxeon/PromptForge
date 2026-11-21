@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AudioLines, Check, FileText, Pencil, Play, Plus, Square, Trash2, X } from "lucide-react";
+import { Check, Pencil, Play, Plus, Square, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { voiceApi, type VoiceDesignInput } from "../../../../web/src/features/voice-studio/api/voiceStudioApi";
 import type { CustomVoice, VoiceCatalog } from "../../../../web/src/features/voice-studio/schemas/voiceStudioSchemas";
@@ -145,6 +145,9 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
   const [mode, setMode] = useState<"description" | "reference">("description");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [role, setRole] = useState("");
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestionError, setSuggestionError] = useState(false);
   const [style, setStyle] = useState("");
   const typedStyle = genreOf(description);
   const baseDescription = typedStyle ? description.trimEnd().slice(0, -typedStyle[1].length).trimEnd() : description.trim();
@@ -180,7 +183,29 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
   const missing = op.error && "status" in op.error && op.error.status === 404;
   const unavailable = op.data?.status === "succeeded" && !previewReady;
   const valid = name.trim() && language && sampleText.trim() && (!policy.maxDesignLength || directedDescription.length <= Number(policy.maxDesignLength)) && (mode === "description" ? description.trim() : file);
-  const locked = Boolean(opId) || busy;
+  const locked = Boolean(opId) || busy || suggesting;
+  async function suggestDescription() {
+    if (locked || lock.current) return;
+    lock.current = true;
+    const {epoch} = getIdentitySnapshot();
+    setSuggesting(true);
+    setSuggestionError(false);
+    try {
+      const result = await voiceApi.suggestDescription({role:role.trim(),name:name.trim(),genre:selectedStyle,language,
+        voiceGender:gender,locale:i18n.language.startsWith("th") ? "th" : "en"});
+      assertIdentityEpoch(epoch);
+      if (alive.current) {
+        setStyle(selectedStyle);
+        setDescription(result.description);
+        setQuote(null);
+      }
+    } catch {
+      if (alive.current && getIdentitySnapshot().epoch === epoch) setSuggestionError(true);
+    } finally {
+      lock.current = false;
+      if (alive.current) setSuggesting(false);
+    }
+  }
   async function run(fn: (verify: () => void) => Promise<void>) {
     if (lock.current) return;
     lock.current = true;
@@ -249,7 +274,7 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
       onSaved(saved);
     });
   }
-  return <section className="seed-designer">
+  return <section className={"seed-designer" + (opId && !previewReady ? " seed-waiting" : "")}>
     <h2>{t("create")}</h2>
     {!opId && <form onSubmit={e => { e.preventDefault(); if (!creditsEnabled || !quote) prepareSample(); }}
       onChange={() => { setQuote(null); setError(""); }}>
@@ -257,7 +282,7 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
         <legend>{t("source")}</legend>
         <div className="seed-source-options">{(["description", "reference"] as const).map(type =>
           <label key={type}><input type="radio" name="seed-source" checked={mode === type} onChange={() => { setMode(type); setFile(null); }} />
-            {type === "reference" ? <AudioLines size={16} aria-hidden /> : <FileText size={16} aria-hidden />}{t(type)}</label>)}</div>
+            <span>{t(type)}</span></label>)}</div>
         <label>{t("name")}<input required value={name} maxLength={Number(policy.maxTitleLength) || undefined} onChange={e => setName(e.target.value)} /></label>
         <div className="seed-pair">
           <label>{t("language")}<select value={language} onChange={e => setLanguage(e.target.value)}>{languages.map(l =>
@@ -278,6 +303,13 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
           <option value="">{t("genres.none")}</option>
           {genres.map(([id, phrase]) => <option key={id} value={phrase} disabled={Boolean(policy.maxDesignLength && [baseDescription, phrase].filter(Boolean).join("\n").length > Number(policy.maxDesignLength))}>{t("genres." + id)}</option>)}
         </select></label>
+        <fieldset className="seed-voice-brief"><legend>{t("voiceBrief")}</legend>
+        <label>{t("role")}<textarea rows={2} value={role} maxLength={config.maximumRoleLength}
+          placeholder={t("roleHint")} onChange={e=>setRole(e.target.value)} /></label>
+        <button className="seed-suggest" type="button" onClick={()=>void suggestDescription()} disabled={locked}>{t("randomDescription")}</button>
+        {suggesting && <small role="status">{t("suggesting")}</small>}
+        {suggestionError && <small role="alert">{t("suggestionFailed")}</small>}
+        </fieldset>
         <label>{t(mode === "reference" ? "optionalNotes" : "describe")}<textarea rows={3} required={mode === "description"} value={description}
           placeholder={t("descriptionExample")} maxLength={policy.maxDesignLength ? Number(policy.maxDesignLength) - (style ? style.length + 1 : 0) : undefined} onChange={e => setDescription(e.target.value)} /></label>
         {style && <small lang="en">{style}</small>}
@@ -286,8 +318,8 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
       {creditsEnabled === false && <small>{t("directProvider")}</small>}
       {creditsEnabled && quote && <p role="status">{t("price", { credits: quote.price.totalCredits })}</p>}
       <div className="seed-actions">{creditsEnabled && quote
-        ? <button className="primary" disabled={busy} type="button" onClick={generate}>{t("generate")}</button>
-        : <button className="primary" disabled={creditsEnabled === undefined || !valid || busy} type="submit">{t(creditsEnabled ? "quote" : "generate")}</button>}
+        ? <button className="primary" disabled={locked} type="button" onClick={generate}>{t("generate")}</button>
+        : <button className="primary" disabled={creditsEnabled === undefined || !valid || locked} type="submit">{t(creditsEnabled ? "quote" : "generate")}</button>}
         <button type="button" disabled={busy} onClick={onClose}>{t("cancel")}</button></div>
     </form>}
     {opId && <div className="seed-preview" aria-live="polite">
@@ -309,7 +341,7 @@ function Designer({ scope, actorId, model, policy, initialId, onReset, onClose, 
       </>}
     </div>}
     {error && <p role="alert">{error}</p>}
-    {busy && !opId && <ProcessingSpinner className="small-spinner" />}
+    {busy && !opId && <ProcessingSpinner variant="wave" className="seed-generation-wave" />}
   </section>;
 }
 

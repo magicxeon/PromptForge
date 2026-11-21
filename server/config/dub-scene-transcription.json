@@ -1,5 +1,12 @@
 {
   "model": "gemini-3.5-flash-lite",
+  "timedDialogue": {
+    "model": "gpt-6-luna",
+    "graphemesPerSecond": {"th": 10, "zh": 4, "en": 13},
+    "linesPerRequest": 16,
+    "alignment": {"onsetToleranceMs":120,"endingToleranceMs":180,"significantPauseMs":180,"pauseToleranceMs":120},
+    "maxCallsPerRevision": 25
+  },
   "maxDurationMs": 300000,
   "maxAudioBytes": 12000000,
   "maxResponseBytes": 262144,

@@ -22,6 +22,7 @@ export function useTakePlayback(
   volume: number,
   mixer: Project["mixer"],
   audition: (Take & { cueId: string }) | null,
+  mutedSpeakers?: ReadonlySet<string>,
 ) {
   const players = useRef(new Map<string, Player>()),
     context = useRef<AudioContext | null>(null);
@@ -61,8 +62,10 @@ export function useTakePlayback(
         volume *
         (cue.gain ?? 1) *
         speakerGain(mixer[language] || {}, cue.speaker || "");
-      if (player.gain) player.gain.gain.value = gain;
-      else player.audio.volume = Math.min(1, gain);
+      player.audio.muted = mutedSpeakers?.has(cue.speaker || "") ?? false;
+      const previewGain = player.audio.muted ? 0 : gain;
+      if (player.gain) player.gain.gain.value = previewGain;
+      else player.audio.volume = Math.min(1, previewGain);
       if (Math.abs(player.audio.currentTime - elapsed / 1000) > 0.12)
         player.audio.currentTime = elapsed / 1000;
       if (playing && player.audio.paused)
@@ -74,5 +77,5 @@ export function useTakePlayback(
         dispose(player);
         players.current.delete(id);
       }
-  }, [cues, language, timeMs, playing, volume, mixer, audition]);
+  }, [cues, language, timeMs, playing, volume, mixer, audition, mutedSpeakers]);
 }

@@ -4,6 +4,149 @@
   "requirement": "requirements/024-frontend-rebuild/008-dub-sub-studio.md",
   "tasks": [
     {
+      "id":"DS-VOICE-BRIEF","title":"Draft an editable dubbing voice description from the character role",
+      "complexity":"complex","reason":"The Setup form calls a new operator-funded text route before generating a sample.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root/voice_suggestion","capabilities":["voice-studio","dub-sub"],
+      "risks":["shared-contract","user-facing","privacy"],"dependsOn":[],
+      "writeScope":["server/","web/src/features/voice-studio/api/","web-next/","test/","requirements/024-frontend-rebuild/"],
+      "status":"complete","acceptance":["Generate an editable description without creating audio, enforce operator access and retain manual design and explicit sample generation."],
+      "reviewers":["security-reviewer","qa-release-engineer","ux-ui-product-designer"],"reviews":[{"role":"security-reviewer","agentId":"/root/access_review","result":"passed","reference":"requirements/024-frontend-rebuild/012-dubbing-voices.md"},{"role":"ux-ui-product-designer","agentId":"/root/setup_ux","result":"passed","reference":"requirements/024-frontend-rebuild/012-dubbing-voices.md"},{"role":"qa-release-engineer","agentId":"/root/setup_ux","result":"passed","reference":"web-next/test/dubbing-voice-setup-check.mjs"}],
+      "evidence":[{"check":"Generate an editable description without creating audio, enforce operator access and retain manual design and explicit sample generation.","result":"passed","reference":"web-next/test/dubbing-voice-setup-check.mjs"}],
+      "handoff":"Backend and tests by voice_suggestion; root owns form, genre configuration, wave display and responsive verification."
+    },
+    {
+      "id":"DS-RETIME","title":"Place existing dubbing takes against source timing",
+      "complexity":"complex","reason":"Connect measured private takes, batch placement and review controls.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root","capabilities":["dub-sub","voice-studio"],
+      "risks":["shared-contract","user-facing"],"dependsOn":["DS-SOURCE-RHYTHM"],
+      "writeScope":["server/domain/","test/","web-next/","requirements/024-frontend-rebuild/"],
+      "status":"complete","acceptance":["Place eligible existing takes, retain manual selections and flag incompatible timing without dispatch."],
+      "evidence":[{"check":"Place eligible existing takes, retain manual selections and flag incompatible timing without dispatch.","result":"passed","reference":"test/dubBatch.test.mjs"}],
+      "reviews":[{"role":"qa-release-engineer","agentId":"/root/retime_qa","result":"passed","reference":"test/dubTakeOffset.test.mjs"},{"role":"ux-ui-product-designer","agentId":"/root/retime_ux","result":"passed","reference":"web-next/test/dub-voice-roundtrip.mjs"}],"reviewers":["qa-release-engineer","ux-ui-product-designer"],
+      "handoff":"offset_solver owns timing and audio measurement; retime_ui owns batch controls; root owns batch integration and verification."
+    },
+    {
+      "id":"DS-SOURCE-RHYTHM","title":"Fit dubbing to source speech and significant pauses",
+      "complexity":"complex","reason":"Use one source timing contract across source analysis, dialogue review, Seed generation and audio verification.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root","capabilities":["dub-sub","voice-studio"],
+      "risks":["shared-contract","security","user-facing"],"dependsOn":["DS-TIMED-DUB"],
+      "writeScope":["server/domain/","server/config/","web-next/src/features/dub-sub/","web/src/features/voice-studio/","test/"],
+      "status":"complete","acceptance":["Use cue-relative source speech windows in Luna and Seed, preserve reviewed words and flag mismatched generated takes."],
+      "evidence":[{"check":"Use cue-relative source speech windows in Luna and Seed, preserve reviewed words and flag mismatched generated takes.","result":"passed","reference":"test/voiceSpeech.test.js"}],
+      "reviews":[
+        {"role":"qa-release-engineer","agentId":"/root/rhythm_qa","result":"passed","reference":"test/dubBatch.test.mjs"},
+        {"role":"security-reviewer","agentId":"/root/rhythm_guard","result":"passed","reference":"test/dubSourceRhythm.test.mjs"},
+        {"role":"ux-ui-product-designer","agentId":"/root/rhythm_ux","result":"passed","reference":"web-next/test/dub-voice-roundtrip.mjs"}
+      ],"reviewers":["qa-release-engineer","security-reviewer","ux-ui-product-designer"],
+      "handoff":"rhythm_analysis owns source analysis; rhythm_take owns speech snapshot and take timing; root integrates both project entry points and the review UI."
+    },
+    {
+      "id": "DS-TIMED-DUB",
+      "title": "Review concise spoken lines, constrain takes and audition tracks in context",
+      "complexity": "complex",
+      "reason": "The project timeline supplies each speech row's timing and validates the returned take.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root",
+      "capabilities": ["dub-sub","voice-studio"],
+      "risks": ["shared-contract","user-facing"],
+      "dependsOn": ["DS-CAST-BATCH"],
+      "writeScope": ["server/domain/dub-sub/","server/domain/generation/","server/domain/voice-studio/","web-next/src/features/dub-sub/","test/"],
+      "status": "complete",
+      "acceptance": ["Review timed Luna suggestions independently of subtitles, protect existing takes on overrun, and mute individual preview tracks."],
+      "evidence": [{"check":"Review timed Luna suggestions independently of subtitles, protect existing takes on overrun, and mute individual preview tracks.","result":"passed","reference":"requirements/024-frontend-rebuild/012-dubbing-voices.md"}],
+      "reviews": [
+        {"role":"ux-ui-product-designer","agentId":"/root/timed_cast_ux","result":"passed","reference":"web-next/test/dub-voice-roundtrip.mjs"},
+        {"role":"qa-release-engineer","agentId":"/root/timed_dub_qa","result":"passed","reference":"test/dubBatch.test.mjs"},
+        {"role":"security-reviewer","agentId":"/root/dub_timing_gate","result":"passed","reference":"test/dubSceneTranscription.test.mjs"}
+      ],
+      "reviewers": ["ux-ui-product-designer","qa-release-engineer","security-reviewer"],
+      "handoff": "Root owns reviewed shortening; timed_take owns timing and take validation; timeline_and_cast owns preview mixing and casting layout."
+    },
+    {
+      "id": "DS-CAST-BATCH",
+      "title": "Cast speakers and dub remaining reviewed cues in one action",
+      "complexity": "complex",
+      "reason": "Connect saved voices, existing project cues and canonical speech operations.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root/batch",
+      "capabilities": [
+        "dub-sub",
+        "voice-studio"
+      ],
+      "risks": [
+        "shared-contract",
+        "financial",
+        "security",
+        "user-facing"
+      ],
+      "dependsOn": [
+        "DS-PRESET-API"
+      ],
+      "writeScope": [
+        "server/domain/dub-sub/",
+        "server/app/routes/",
+        "web-next/src/features/dub-sub/",
+        "test/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Keep selected takes by default and surface per-cue results."
+      ],
+      "reviewers": [
+        "backend-platform-architect",
+        "commercial-financial-integrity",
+        "security-reviewer",
+        "qa-release-engineer",
+        "ux-ui-product-designer"
+      ],
+      "evidence": [
+        {
+          "check": "Keep selected takes by default and surface per-cue results.",
+          "result": "passed",
+          "reference": "test/dubBatch.test.mjs"
+        },
+        {
+          "check": "Three viewport casting, saved Seed voice and metered confirmation flow",
+          "result": "passed",
+          "reference": "web-next/test/dub-voice-roundtrip.mjs"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "backend-platform-architect",
+          "result": "passed",
+          "agentId": "/root/audit",
+          "reference": "test/dubBatch.test.mjs"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "result": "passed",
+          "agentId": "/root/audit",
+          "reference": "test/dubBatch.test.mjs"
+        },
+        {
+          "role": "security-reviewer",
+          "result": "passed",
+          "agentId": "/root/audit",
+          "reference": "test/dubBatch.test.mjs"
+        },
+        {
+          "role": "qa-release-engineer",
+          "result": "passed",
+          "agentId": "/root/audit",
+          "reference": "test/dubBatch.test.mjs"
+        },
+        {
+          "role": "ux-ui-product-designer",
+          "result": "passed",
+          "agentId": "/root",
+          "reference": "web-next/test/dub-voice-roundtrip.mjs"
+        }
+      ],
+      "handoff": "The root performed the UI review sequentially and verified three browser widths. Independent backend, security, commercial and QA audit covered actor scope, idempotency, credits, locks and deletion. Focused backend tests 28/28, UI tests 7/7. Provider audio quality not live-tested. Batch advance resumes when reopening the same project and language.",
+      "contractChanged": true
+    },
+    {
       "id": "DS-SEED-WAV",
       "title": "Recover undeliverable Seed auditions",
       "complexity": "complex",

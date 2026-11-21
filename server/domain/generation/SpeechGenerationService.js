@@ -7,14 +7,34 @@ import { creditApplicationService } from '../credits/CreditApplicationService.js
 import { queueManager } from './QueueManager.js';
 import { GeminiSpeechProvider } from '../../providers/GeminiSpeechProvider.js';
 import { SeedSpeechProvider } from '../../providers/SeedSpeechProvider.js';
-import { AudioAssetService, normalizeSeedWav } from '../assets/AudioAssetService.js';
+import { assertOperatorTextAccess } from './SceneTranscriptionService.js';
+import { getAuthRuntime } from '../../config/authPolicy.js';
+import { AudioAssetService, alignCueSpeech, normalizeSeedWav, trimSilentCueTail } from '../assets/AudioAssetService.js';
 const speechProcessId = randomUUID();
 export class SpeechGenerationService {
   constructor({ repository = new SpeechOperationRepository(), credits = creditApplicationService, queue = queueManager,
-    provider = new GeminiSpeechProvider(), seedProvider = new SeedSpeechProvider(), assets = new AudioAssetService(), catalog = loadSpeechCatalog, available = assertSpeechAvailable } = {}) {
-    Object.assign(this, { repository, credits, queue, provider, seedProvider, assets, loadCatalog: catalog, available });
+    provider = new GeminiSpeechProvider(), seedProvider = new SeedSpeechProvider(), assets = new AudioAssetService(), catalog = loadSpeechCatalog, available = assertSpeechAvailable, runtime = getAuthRuntime } = {}) {
+    Object.assign(this, { repository, credits, queue, provider, seedProvider, assets, loadCatalog: catalog, available, runtime });
   }
   catalog() { return this.loadCatalog(); }
+  activeDescriptionSuggestions = new Set();
+  async suggestVoiceDescription(actor, body) {
+    assertOperatorTextAccess(actor, this.runtime());
+    const { models, policy } = this.catalog();
+    const model = models.find(m => m.enabled && m.adapterKey === 'seed-speech' && m.capabilities.voiceDesign);
+    if (!model) throw speechError('speech_provider_unavailable', 503);
+    const { name = '', role = '', genre = '', language, voiceGender, locale } = body;
+    if (!model.capabilities.languages.includes(language) || !['female','male','unspecified'].includes(voiceGender) ||
+        !['en','th'].includes(locale) || [[name,policy.maxTitleLength],[role,policy.maxDesignLength],[genre,160]].some(
+          ([value,max]) => typeof value !== 'string' || value.length > max)) throw speechError('voice_invalid_input');
+    if (this.activeDescriptionSuggestions.has(actor.userId)) throw speechError('speech_actor_busy', 409);
+    this.activeDescriptionSuggestions.add(actor.userId);
+    try {
+      return await this.seedProvider.suggestDescription({name, role, genre, language, voiceGender, locale}, model, policy.maxDesignLength);
+    } finally {
+      this.activeDescriptionSuggestions.delete(actor.userId);
+    }
+  }
   publicCatalog() {
     const catalog = this.catalog();
     return { ...catalog, models: catalog.models.map(model => {
@@ -30,6 +50,7 @@ export class SpeechGenerationService {
   publicRecord(record) {
     const { id, status, snapshot, outputAssetId = null, outputUrl = null, durationMs = null, errorCode = null, createdAt } = record;
     return { id, status, snapshot, outputAssetId, outputUrl, durationMs, errorCode, createdAt, ...(record.timing ? {timing:record.timing} : {}),
+      ...(record.rhythmReview && {rhythmReview:record.rhythmReview}),
       operation: record.operation || 'speech', expiresAt: record.voiceExpiresAt || null, deletedAt: record.voiceDeletedAt || null };
   }
   connectionId() { return this.provider.connectionId(); }
@@ -158,6 +179,8 @@ export class SpeechGenerationService {
       const result = await adapter.generate({ ...record.snapshot, voiceId: record.resolvedVoiceId || record.snapshot.voiceId },
         record.model, this.catalog().policy.maxAudioBytes, record.id.replace(/^speech_/, ''), referenceBytes);
       let bytes = result.bytes;
+      let timing = result.timing;
+      let rhythmReview;
       if (record.model.adapterKey === 'seed-speech') {
         try { bytes = await normalizeSeedWav(bytes, this.catalog().policy.maxAudioBytes); }
         catch (error) {
@@ -165,10 +188,26 @@ export class SpeechGenerationService {
           return await this.releaseRejectedDesign(record, actorContext, error.code, 'speech_unusable_preview',
             { providerResponseId: result.providerResponseId, usage: result.usage });
         }
+        const target = record.snapshot.targetDurationMs;
+        if (record.operation === 'speech' && target !== undefined) {
+          if (record.snapshot.speechWindows) {
+            const aligned = await alignCueSpeech(bytes, record.snapshot.speechWindows, this.catalog().policy.maxAudioBytes);
+            bytes = aligned.bytes;
+            rhythmReview = aligned.review;
+            if (rhythmReview.shiftMs && timing) timing = timing
+              .map(t=>({...t,startMs:Math.max(0,t.startMs+rhythmReview.shiftMs),endMs:t.endMs+rhythmReview.shiftMs}))
+              .filter(t=>t.endMs>t.startMs);
+          }
+          const trimmed = trimSilentCueTail(bytes, target);
+          if (trimmed !== bytes && timing) timing = timing.filter(part => part.startMs < target)
+            .map(part => ({ ...part, endMs: Math.min(part.endMs, target) }));
+          bytes = trimmed;
+        }
       }
       const output = await this.assets.register({ bytes, actorContext, jobId: record.id });
       record = await this.repository.update(record.id, actorContext.userId, { ...output, status: 'delivered', usage: result.usage,
-        ...(result.timing ? {timing:result.timing} : {}), providerResponseId: result.providerResponseId });
+        ...(rhythmReview && {rhythmReview}),
+        ...(timing ? {timing} : {}), providerResponseId: result.providerResponseId });
       return await this.settle(record);
     } catch (error) {
       const rejectedStatus = /^speech_provider_http_(\d{3})$/.exec(error.code || '');

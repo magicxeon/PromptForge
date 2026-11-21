@@ -29,6 +29,7 @@ const schema = {
         properties: {
           startMs: { type: "integer" }, endMs: { type: "integer" },
           original: { type: "string" }, translation: { type: "string" }, speaker: { type: "string" },
+          speakerVoiceType: {type:"string", enum:["female","male","unknown"], description:"Suggested casting voice range from the audio only. Use unknown when unclear. This is a dubbing suggestion."},
           delivery,
         },
       },

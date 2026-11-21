@@ -1,4 +1,5 @@
 import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
+import { takePlacement } from "./takePlacement.js";
 import voicePolicy from "../../config/voice-studio/policy.v1.json" with { type: "json" };
 
 export const languages = ["th", "zh", "zh-CN", "zh-TW", "en"];
@@ -171,6 +172,7 @@ export async function normalizeCues(rows, project, resolveTake) {
   if (!Array.isArray(rows) || rows.length > 3000) fail();
   const ids = new Set();
   const takes = new Map();
+  const previousCues = new Map((project.cues || []).map(cue => [cue.id, cue]));
   const normalized = [];
   for (const raw of rows) {
     if (
@@ -196,6 +198,7 @@ export async function normalizeCues(rows, project, resolveTake) {
       text: label(raw.text ?? "", 4000),
       ...(raw.sourceOrigin === undefined ? {} : { sourceOrigin: choice(raw.sourceOrigin, ["gemini"]) }),
       speaker: label(raw.speaker ?? "", 120),
+      ...(raw.speakerVoiceType ? { speakerVoiceType: choice(raw.speakerVoiceType, ["female", "male", "unknown"]) } : {}),
       characterId: label(raw.characterId ?? "", 160),
       emotion: label(raw.emotion ?? "", 100),
       direction: label(raw.direction ?? "", 1000),
@@ -219,13 +222,17 @@ export async function normalizeCues(rows, project, resolveTake) {
         cue.translationOrigins[lang] = choice(raw.translationOrigins[lang], ["gemini"]);
       }
       const binding = raw.voiceBindings?.[lang];
-      if (binding) {
+      if (binding && Object.keys(binding).length === 1 && Object.hasOwn(binding, "dubText")) {
+        // Reviewed wording is saved before batch preparation creates a speech document and row.
+        cue.voiceBindings[lang] = { dubText: label(binding.dubText, 4000) };
+      } else if (binding) {
         label(binding.documentId, 160, true);
         label(binding.rowId, 160, true);
         cue.voiceBindings[lang] = {};
         if (binding.operationId && Number.isSafeInteger(binding.operationRevision) && binding.operationRevision > 0)
           cue.voiceBindings[lang].operationRevision = binding.operationRevision;
         if (binding.usesCueDelivery === true) cue.voiceBindings[lang].usesCueDelivery = true;
+        if (binding.usesSpeakerMapping === true) cue.voiceBindings[lang].usesSpeakerMapping = true;
         for (const key of [
           "documentId",
           "rowId",
@@ -250,6 +257,11 @@ export async function normalizeCues(rows, project, resolveTake) {
         label(id, 160, true);
         if (!takes.has(id)) takes.set(id, await resolveTake(id));
         const take = takes.get(id);
+        const previous = previousCues.get(cue.id);
+        const previousId = previous?.takes?.[lang]?.id ||
+          (lang === project.targetLanguages[0] && previous?.selectedTakeId);
+        if (id !== previousId && !takePlacement(cue,take.durationMs,project.durationMs).fits)
+          throw dubError("dub_take_exceeds_window", 422);
         cue.takes[lang] = {
           id: take.id,
           audioUrl: take.audioUrl,

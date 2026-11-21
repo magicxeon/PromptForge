@@ -1,9 +1,11 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Mic } from "lucide-react";
 import config from "./editorConfig";
-import { timeLabel, type Cue } from "./projectApi";
+import { timeLabel, type Cue, type Project } from "./projectApi";
 export function DialogueList({
   cues,
+  profiles,
   language,
   languages,
   activeId,
@@ -12,6 +14,7 @@ export function DialogueList({
   reveal,
   onSelect,
   onDirect,
+  compact,
   onUpdate,
   onLanguage,
   onAdd,
@@ -22,6 +25,7 @@ export function DialogueList({
   canTranscribe,
 }: {
   cues: Cue[];
+  profiles?: Project["speakerProfiles"];
   language: string;
   languages: string[];
   activeId?: string;
@@ -30,6 +34,7 @@ export function DialogueList({
   reveal?: { id: string };
   onSelect: (c: Cue) => void;
   onDirect: (c: Cue) => void;
+  compact: boolean;
   onUpdate: (c: Cue) => void;
   onLanguage: (l: string) => void;
   onAdd: () => void;
@@ -140,8 +145,11 @@ export function DialogueList({
                 if (!e.currentTarget.contains(e.relatedTarget)) setEditingId("");
               }}>
               <div className="dub-line-heading"><button type="button" onClick={() => onSelect(c)} title={c.speaker || undefined}>
-                {timeLabel(c.startMs)} – {timeLabel(c.endMs)} {c.speaker}
+                {c.speaker && profiles?.[c.speaker] && <i className="dub-speaker-dot" style={{background:profiles[c.speaker].color}} />}
+                {timeLabel(c.startMs)} – {timeLabel(c.endMs)} {c.speaker ? profiles?.[c.speaker]?.name || c.speaker : ""}
               </button>
+              {compact && !(c.suggestedDelivery?.[language] || c.deliveryOverrides?.[language]) &&
+                <button type="button" aria-label={t("dubVoice:editPerformance") + " · " + timeLabel(c.startMs)} title={t("dubVoice:editPerformance")} onClick={() => onDirect(c)}><Mic size={16} /></button>}
               {(c.suggestedDelivery?.[language] || c.deliveryOverrides?.[language]) &&
                 <button className="dub-line-emotion" type="button" onClick={() => onDirect(c)}
                   title={t("dubVoice:editPerformance")}>
@@ -157,7 +165,8 @@ export function DialogueList({
                   value={original ? c.text : c.translations[key] || ""}
                   onFocus={() => {
                     setEditingId(c.id);
-                    if (selected !== c.id || activeId !== c.id) onSelect(c);
+                    if (!original && !compact) onDirect(c);
+                    else if (selected !== c.id || activeId !== c.id) onSelect(c);
                   }}
                   onChange={(e) => {
                     if (original) {

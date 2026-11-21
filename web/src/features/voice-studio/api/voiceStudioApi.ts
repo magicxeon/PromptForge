@@ -31,6 +31,8 @@ export type VoiceDesignInput = {
   retainOriginal?: boolean;
 };
 export const voiceApi = {
+  suggestDescription: (input: {role:string; name:string; genre:string; language:string; voiceGender:VoiceDesignInput["voiceGender"]; locale:string}) =>
+    apiRequest(`${root}/custom-voices/description-suggestion`, {method:"POST", body:input, schema:z.object({description:z.string().trim().min(1)})}),
   catalog: () => apiRequest(`${root}/catalog`, { schema: catalogSchema }),
   documents: (cursor?: string) =>
     apiRequest(

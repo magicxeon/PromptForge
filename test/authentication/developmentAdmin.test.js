@@ -149,7 +149,13 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
     assert.equal((await request(url)).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices')).status, 200);
   const dubProject = '/api/dub-sub/projects/bb655a14-f103-4664-9c5c-5ca7c21f55c8';
+  const batchRoute = dubProject + '/dubbing-batches';
+  const advanceRoute = batchRoute + '/c9c48bc1-0e0d-4d60-a40c-f7566293bd26/advance';
+  assert.equal((await request(batchRoute)).status, 200);
+  assert.equal((await request(advanceRoute, 'GET')).status, 403);
+  assert.equal((await request(batchRoute + '/wrong/advance', 'POST', liveHeaders)).status, 403);
   for (const [url, method] of [['/api/dub-sub/projects', 'POST'], [dubProject, 'DELETE'], ['/api/dub-sub/projects/fixture/media', 'PUT'],
+    [batchRoute, 'POST'], [advanceRoute, 'POST'], [dubProject+'/cue-rhythm','POST'], [dubProject+'/dubbing-timing-review','POST'],
     ['/api/dub-sub/projects/fixture/preview', 'POST'], ['/api/dub-sub/projects/fixture/exports', 'POST']]) {
     assert.equal((await request(url, method)).status, 403);
     assert.equal((await request(url, method, liveHeaders)).status, 200);
@@ -159,6 +165,7 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
   for (const url of ['/api/dub-sub/projects', '/api/dub-sub/projects/fixture', dubProject + '/media', dubProject + '/exports'])
     assert.equal((await request(url, 'DELETE', liveHeaders)).status, 403);
   for (const [url, method] of [['/api/voice-studio/custom-voices','POST'], ['/api/voice-studio/custom-voices/quotes','POST'],
+    ['/api/voice-studio/custom-voices/description-suggestion','POST'],
     ['/api/voice-studio/custom-voices/fixture/save','POST'], ['/api/voice-studio/custom-voices/fixture','PATCH'], ['/api/voice-studio/custom-voices/fixture','DELETE']]) {
     assert.equal((await request(url, method)).status, 403);
     assert.equal((await request(url, method, liveHeaders)).status, 200);

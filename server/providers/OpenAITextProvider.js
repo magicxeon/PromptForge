@@ -486,7 +486,7 @@ export class OpenAITextProvider {
           store: false,
           instructions,
           input: JSON.stringify(input),
-          reasoning: { effort: reasoningEffort },
+          ...(reasoningEffort && {reasoning: { effort: reasoningEffort }}),
           text: {
             format: { type: 'json_schema', name: schemaName, strict: true, schema },
             verbosity: 'low'

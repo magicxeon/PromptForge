@@ -18,6 +18,9 @@ import {
   tracksFor,
 } from "./projectFields.js";
 import { DubLanguageService } from "./DubLanguageService.js";
+import { DubBatchService } from "./DubBatchService.js";
+import { timingContext, proposeTimedDialogue } from "./timedDialogue.js";
+import { sourceRhythms } from "./sourceRhythm.js";
 import { prepareMedia } from "./DubMediaService.js";
 import { renderExport, renderPreview } from "./DubExportService.js";
 import { sceneTranscriptionPolicy } from "../generation/SceneTranscriptionService.js";
@@ -46,6 +49,7 @@ export class DubProjectService {
     videoGeneration,
     voiceStudio,
     languageService = new DubLanguageService(),
+    analyzeSourceRhythms = sourceRhythms,
     fontsDir,
   } = {}) {
     Object.assign(this, {
@@ -54,16 +58,18 @@ export class DubProjectService {
       videoGeneration,
       voiceStudio,
       languageService,
+      analyzeSourceRhythms,
       fontsDir,
     });
     this.running = new Map();
     this.uploads = new Set();
     this.activeProjects = new Map();
     this.deletingProjects = new Set();
+    this.batches = new DubBatchService(this);
   }
 
   view(project, summary = false) {
-    const { media, operations = [], exports, ...data } = project;
+    const { media, operations = [], exports, dubBatches, ...data } = project;
     if (summary) {
       delete data.tracks;
       delete data.cues;
@@ -119,6 +125,8 @@ export class DubProjectService {
     this.deletingProjects.add(key);
     try {
       const project = await this.repo.get(actor, id, { includePendingDeletion: true });
+      if (Object.values(project.dubBatches || {}).some(batch =>
+        batch.items.some(item => item.status === 'working' || item.status === 'review'))) throw dubError('dub_operation_busy', 429);
       if (project.revision !== revision) throw dubError("dub_revision_conflict", 409);
       await this.repo.checkedRemovalDirectory(actor, id);
       // Keep the confirmed intent until both stores finish. An owner retry can
@@ -673,6 +681,50 @@ export class DubProjectService {
     }
   }
 
+  cueRhythm(actor,id,{cueId,revision},reauthorize) {
+    return this.useProject(actor,id,async project=>{
+      if (revision !== project.revision) throw dubError("dub_revision_conflict",409);
+      const cue = project.cues.find(c=>c.id===cueId);
+      if (!cue) throw dubError("dub_cue_missing",422);
+      await reauthorize();
+      const rhythms = await this.analyzeSourceRhythms(this,actor,project,[cue],reauthorize);
+      return rhythms.get(cueId) ?? [];
+    });
+  }
+
+  timingReview(actor,id,body,reauthorize) {
+    return this.useProject(actor,id,async project => {
+      const {revision,language,cueIds} = body;
+      if (!project.targetLanguages.includes(language) || body.confirmed !== true || !Array.isArray(cueIds) ||
+          !cueIds.length || cueIds.length > 3000 || cueIds.some(id => typeof id !== "string")) fail();
+      if (revision !== project.revision) throw dubError("dub_revision_conflict",409);
+      if (project.tracks[language]?.locked) throw dubError("dub_track_locked",409);
+      await reauthorize();
+      const requested = new Set(cueIds);
+      const selectedCues = project.cues.filter(c=>requested.has(c.id));
+      if (selectedCues.length !== requested.size) throw dubError("dub_cue_missing",422);
+      const rhythms = await this.analyzeSourceRhythms(this,actor,project,selectedCues,reauthorize);
+      const context = timingContext(project,language,cueIds,body.forceSingle === true && cueIds.length===1,rhythms);
+      if (!context.cues.length) return [];
+      if (context.cues.length > sceneTranscriptionPolicy.maxCues ||
+          Buffer.byteLength(JSON.stringify(context)) > sceneTranscriptionPolicy.maxPreviewBytes)
+        throw dubError("dub_translation_limit",413);
+      const director = body.director ?? "luna";
+      if (!["luna","gemini"].includes(director)) fail();
+      const scope = createHash("sha256").update(JSON.stringify([director==="luna" ? "timed-dialogue" : "timed-dialogue-gemini",context])).digest("hex");
+      try {
+        return await this.reviewScene(actor,project,body,reauthorize,{timing:true,director,scope,context});
+      } catch (error) {
+        if (!["dub_scene_access_denied","dub_luna_unavailable","dub_luna_access","dub_luna_quota","dub_luna_rejected","dub_scene_provider_unavailable","dub_scene_outcome_unknown",
+            "dub_scene_request_limit","dub_scene_invalid_response"].includes(error.code)) throw error;
+        // Editing a project's own spoken lines remains available without operator-funded AI.
+        console.warn("[DubTiming] manual_review", {requestId:body.requestId,director,code:error.code,lines:context.cues.length});
+        return context.cues.map(c=>({id:c.id,original:c.text,suggested:c.text,windowMs:c.windowMs,
+          ...(c.speechWindows && {speechWindows:c.speechWindows}),manual:true,reason:error.code,director}));
+      }
+    });
+  }
+
   async reviewScene(actor, project, body, reauthorize, translation = null) {
     const { id, revision } = project;
     const { requestId, language } = body;
@@ -695,18 +747,18 @@ export class DubProjectService {
     const key = JSON.stringify([id, "gemini-scene", actor.userId, revision, language, requestId, translation?.scope]);
     if (this.running.has(key)) {
       const cached = await this.running.get(key);
-      await verify(!translation);
+      await verify(!translation || translation.timing);
       return cached;
     }
     if (this.running.size >= 4 || [...this.running.keys()].some(other => JSON.parse(other)[0] === id))
       throw dubError("dub_operation_busy", 429);
-    const task = translation
+    const task = translation && !translation.timing
       ? this.executeTranslation(actor, project, body, verify, translation, key)
-      : this.executeScene(actor, project, requestId, language, verify, null);
+      : this.executeScene(actor, project, requestId, language, verify, translation);
     this.running.set(key, task);
     try {
       const result = await task;
-      await verify(!translation);
+      await verify(!translation || translation.timing);
       return result;
     } finally {
       this.running.delete(key);
@@ -717,6 +769,9 @@ export class DubProjectService {
     const { id, revision } = project;
     const source = translation ? null : await this.repo.sceneSource(actor, project);
     const scope = translation?.scope;
+    const timing = translation?.timing;
+    const luna = timing && translation.director !== "gemini";
+    const assertAvailable = () => luna ? this.languageService.sceneGeneration.timedDirector() : this.languageService.sceneGeneration.assertAvailable();
     const receipt = apply => this.repo.sceneReceipts(actor, id, apply);
     const claim = await receipt(records => {
       const duplicate = records.find(record => record.requestId === requestId || record.replayIds?.includes(requestId));
@@ -733,13 +788,16 @@ export class DubProjectService {
         }
         if (replay.status === "succeeded") return { preview: replay.preview };
         if (replay.status === "preparing" && replay.processId !== sceneProcessId) {
-          this.languageService.sceneGeneration.assertAvailable();
+          assertAvailable();
           replay.processId = sceneProcessId;
           return { requestId: replay.requestId };
         }
         return { code: replay.code || "dub_scene_outcome_unknown", statusCode: replay.statusCode || 409 };
       }
-      this.languageService.sceneGeneration.assertAvailable();
+      assertAvailable();
+      const reservedCalls = timing ? Math.ceil(translation.context.cues.length / sceneTranscriptionPolicy.timedDialogue.linesPerRequest) : 0;
+      if (timing && reservedCalls + records.filter(r=>r.revision===revision).reduce((n,r)=>n+(r.reservedCalls || 0),0)
+          > sceneTranscriptionPolicy.timedDialogue.maxCallsPerRevision) throw dubError("dub_scene_request_limit",429);
       if (records.filter(record => record.revision === revision).length >= sceneTranscriptionPolicy.maxRequestsPerRevision)
         throw dubError("dub_scene_request_limit", 429);
       while (records.length >= sceneTranscriptionPolicy.maxRetainedRequestsPerProject) {
@@ -748,11 +806,14 @@ export class DubProjectService {
         records.splice(oldestStale, 1);
       }
       for (const record of records) if (record.revision !== revision) delete record.preview;
-      records.push({ requestId, revision, language, scope, model: sceneTranscriptionPolicy.model,
+      records.push({ requestId, revision, language, scope, ...(timing && {reservedCalls}), model: luna ? sceneTranscriptionPolicy.timedDialogue.model : sceneTranscriptionPolicy.model,
         confirmedAt: new Date().toISOString(), status: "preparing", processId: sceneProcessId });
       return { requestId };
     });
-    if (claim.code) throw dubError(claim.code, claim.statusCode);
+    if (claim.code) {
+      if (timing) console.info("[DubTiming] retained_request", {requestId,director:translation.director,code:claim.code});
+      throw dubError(claim.code, claim.statusCode);
+    }
     if (claim.preview) return claim.preview;
     const update = change => receipt(records => {
       const record = records.find(item => item.requestId === claim.requestId);
@@ -760,20 +821,26 @@ export class DubProjectService {
       Object.assign(record, change);
     });
     let dispatching = false;
+    let dispatchCount = 0;
     try {
       const beforeDispatch = async () => {
         await update({ status: "dispatching" });
         const current = await verify();
         dispatching = true;
+        dispatchCount++;
         return current;
       };
-      const preview = translation
+      const preview = timing ? await proposeTimedDialogue(translation.context,beforeDispatch,
+        (current,input)=>this.languageService.sceneGeneration.shorten(current,input,translation.director)) : translation
         ? await this.languageService.translate(translation.context, beforeDispatch)
         : await this.languageService.transcribeScene(project, source, language, beforeDispatch);
       await update({ status: "succeeded", preview });
       return preview;
     } catch (error) {
-      const unknown = dispatching && (!error.code?.startsWith("dub_") || error.code === "dub_scene_outcome_unknown");
+      // A timing review may already have completed other groups before this one failed.
+      const rejectedFirstGroup = timing && dispatchCount === 1 &&
+        ["dub_luna_access","dub_luna_quota","dub_luna_rejected","dub_scene_provider_unavailable"].includes(error.code);
+      const unknown = dispatching && !rejectedFirstGroup && (timing || !error.code?.startsWith("dub_") || error.code === "dub_scene_outcome_unknown");
       await update({ status: unknown ? "dispatching" : "failed",
         code: unknown ? "dub_scene_outcome_unknown" : publicDubError(error), statusCode: error.statusCode || 500 });
       throw error;

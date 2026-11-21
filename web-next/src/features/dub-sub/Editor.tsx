@@ -10,6 +10,7 @@ import {
 } from "../../lib/canonical";
 import {
   projectsApi,
+  requestScenePreview,
   scenePreviewKey,
   type ScenePreview,
   newCue,
@@ -25,12 +26,16 @@ import { useTakePlayback } from "./useTakePlayback";
 import { SpeakerMixer } from "./SpeakerMixer";
 import { SubtitleCaption, SubtitleInspector } from "./SubtitleInspector";
 import { DialogueList } from "./DialogueList";
+import { takePlacement } from "../../../../server/domain/dub-sub/takePlacement.js";
+import { dubBatchApi, type TimingLine } from "./dubBatchApi";
+import { TimingReview } from "./TimingReview";
 import { Timeline } from "./Timeline";
 import { ExportDialog } from "./ExportDialog";
 import { Dialog } from "./Dialog";
 import { SceneTranscription } from "./SceneTranscription";
 import { useDubDraft } from "./useDubDraft";
 import { SpeakerReview } from "./SpeakerReview";
+import { detectCueSpeakers } from "./detectCueSpeakers";
 const Voice = lazy(() =>
   import("./DubVoice").then((m) => ({ default: m.DubVoice })),
 );
@@ -106,6 +111,17 @@ function Work({ initial }: { initial: Project }) {
   const [sourceVol, setSourceVol] = useState(1),
     [dubVol, setDubVol] = useState(1),
     [exports, setExports] = useState<Export[]>(p.exports || []);
+  const [sourceMuted, setSourceMuted] = useState(false);
+  const [mutedSpeakers, setMutedSpeakers] = useState<Record<string, Set<string>>>({});
+  function togglePreviewAudio(speaker?: string) {
+    if (speaker === undefined) { setSourceMuted(value => !value); return; }
+    setMutedSpeakers(previous => {
+      const next = new Set(previous[lang]);
+      if (next.has(speaker)) next.delete(speaker);
+      else next.add(speaker);
+      return { ...previous, [lang]: next };
+    });
+  }
   const [exportOpen, openExport] = useState(false);
   const [imported, setImported] = useState<Cue[] | null>(null),
     [follow, setFollow] = useState(true);
@@ -143,6 +159,7 @@ function Work({ initial }: { initial: Project }) {
         .map((row) => (row.id === c.id ? c : row))
         .sort((a, b) => a.startMs - b.startMs),
     }));
+  const [timingProposal,setTimingProposal] = useState<{lang:string;revision:number;line:TimingLine}>();
   const setStyle = (key: string, patch: Partial<Track>) =>
     edit({ tracks: { ...p.tracks, [key]: { ...track(key), ...patch } } });
   const seek = (ms: number) => {
@@ -224,7 +241,7 @@ function Work({ initial }: { initial: Project }) {
       const code = e && typeof e === "object" && "code" in e ? String(e.code) : "";
       setError(label === "translate"
         ? t("scene.errors." + code, { defaultValue: t("scene.translationFailed") })
-        : (e as Error).message);
+        : label === "timed.check" ? t("errors."+code,{defaultValue:t("timed.failed")}) : (e as Error).message);
     } finally {
       setBusy("");
     }
@@ -271,7 +288,7 @@ function Work({ initial }: { initial: Project }) {
       if (el) releaseMedia(el);
     };
   }, [p.mediaUrl]);
-  useTakePlayback(p.cues, lang, time, playing, dubVol, p.mixer, audition);
+  useTakePlayback(p.cues, lang, time, playing, dubVol, p.mixer, audition, mutedSpeakers[lang]);
   const onTime = () => {
     const ms = Math.round((video.current?.currentTime || 0) * 1000);
     if (loop && playing && cue && ms >= cue.endMs) {
@@ -311,12 +328,25 @@ function Work({ initial }: { initial: Project }) {
   }, [playing]);
   return (
     <>
-    {(casting || inVoiceSetup) && <SpeakerReview project={p}
+    {(casting || inVoiceSetup) && <SpeakerReview key={lang} project={p}
       language={p.targetLanguages.includes(lang) ? lang : p.targetLanguages[0]}
+      onLanguage={setLang}
+      onReload={async () => model.accept(await projectsApi.read(p.id))}
+      onDetect={sceneAvailable && p.mediaUrl && p.hasAudio !== false && !timingLocked ? async () => {
+        const saved = await model.save();
+        const result = await requestScenePreview(saved, lang, crypto.randomUUID());
+        const cues = detectCueSpeakers(saved.cues, result.cues);
+        edit({ cues });
+        return model.save();
+      } : undefined}
+      onAssign={async (id, speaker) => {
+        model.edit(prev => ({ ...prev, cues: prev.cues.map(c => c.id === id ? { ...c, speaker } : c) }));
+        return model.save();
+      }}
       setup={inVoiceSetup} openSetup={() => navigate("/dub-sub/projects/" + p.id + "/setup/voices")}
       returnToEditor={() => navigate("/dub-sub/projects/" + p.id, { replace: true })}
       onClose={() => setCasting(false)} onSave={async (speakerProfiles, characterMappings) => {
-        edit({ speakerProfiles, characterMappings }); await model.save();
+        edit({ speakerProfiles, characterMappings }); return model.save();
       }} />}
     <section hidden={inVoiceSetup} className={inVoiceSetup ? "dub-editor-away" : "dub-editor"}>
       <header className="dub-bar">
@@ -333,7 +363,7 @@ function Work({ initial }: { initial: Project }) {
         </small>
         <button disabled={!!busy || !p.cues.length} onClick={() => {
           video.current?.pause(); setCasting(true);
-        }}>{t("casting.title")}</button>
+        }}>{t("casting.batchTitle")}</button>
         {compact && (
           <button className="dub-open-inspector" aria-expanded={inspectorOpen}
             aria-label={t("editCue") + " · " + t("tracks")}
@@ -428,7 +458,9 @@ function Work({ initial }: { initial: Project }) {
       )}
       <fieldset className="dub-layout" disabled={!!busy}>
         <DialogueList
+          compact={compact}
           cues={p.cues}
+          profiles={p.speakerProfiles}
           language={lang}
           languages={p.targetLanguages}
           activeId={active?.id}
@@ -481,6 +513,7 @@ function Work({ initial }: { initial: Project }) {
                 <video
                   ref={video}
                   src={p.mediaUrl}
+                  muted={sourceMuted}
                   preload="metadata"
                   playsInline
                   onLoadedMetadata={(e) => {
@@ -841,11 +874,31 @@ function Work({ initial }: { initial: Project }) {
                     }}
                   />
                 </label>
+                {sceneAvailable && <button disabled={!!busy || !!p.tracks[lang]?.locked} onClick={()=>void operation("timed.check",async saved=>{
+                  const [line] = await dubBatchApi.timing(saved.id,saved.revision,lang,[cue.id],true);
+                  if (line) setTimingProposal({lang,revision:saved.revision,line});
+                })}>{t("timed.shorten")}</button>}
+                {timingProposal?.line.id === cue.id && timingProposal.lang === lang && timingProposal.revision === p.revision &&
+                  <><TimingReview disabled={!!busy} lines={[timingProposal.line]} cues={[cue]} onRequest={director=>void operation("timed.check",async saved=>{
+                    const [line] = await dubBatchApi.timing(saved.id,saved.revision,lang,[cue.id],true,director);
+                    if (line) setTimingProposal({lang,revision:saved.revision,line});
+                  })} onEdit={(_,text)=>setTimingProposal({
+                    ...timingProposal,line:{...timingProposal.line,suggested:text}
+                  })}/><button disabled={!timingProposal.line.suggested.trim() || !!p.tracks[lang]?.locked} onClick={()=>{
+                    update({...cue,voiceBindings:{...cue.voiceBindings,[lang]:{...cue.voiceBindings[lang],dubText:timingProposal.line.suggested.trim()}}});
+                    setTimingProposal(undefined);
+                  }}>{t("timed.use")}</button><button onClick={()=>setTimingProposal(undefined)}>{t("cancel")}</button></>}
                 <Voice
                   key={cue.id + lang}
                   projectId={p.id}
                   cueId={cue.id}
                   targetMs={cue.endMs - cue.startMs}
+                  cueStartMs={cue.startMs}
+                  cueOffsetMs={cue.offsetMs} projectDurationMs={p.durationMs ?? undefined}
+                  loadSpeechWindows={async()=>{
+                    const saved = await model.save();
+                    return dubBatchApi.cueRhythm(saved.id,saved.revision,cue.id);
+                  }}
                   suggestedDelivery={cue.suggestedDelivery?.[lang]}
                   overrides={cue.deliveryOverrides?.[lang]}
                   onDeliveryChange={value => update({ ...cue, deliveryOverrides: { ...cue.deliveryOverrides, [lang]: value } })}
@@ -964,7 +1017,7 @@ function Work({ initial }: { initial: Project }) {
                 {cue.takes[lang] && (
                   <p>
                     {timeLabel(cue.takes[lang].durationMs)}{" "}
-                    {cue.takes[lang].durationMs > cue.endMs - cue.startMs &&
+                    {!takePlacement(cue,cue.takes[lang].durationMs,p.durationMs ?? undefined).fits &&
                       t("overrun")}
                   </p>
                 )}
@@ -993,6 +1046,9 @@ function Work({ initial }: { initial: Project }) {
         ms={time}
         playing={playing}
         following={follow}
+        sourceMuted={sourceMuted}
+        mutedSpeakers={mutedSpeakers[lang]}
+        togglePreviewAudio={togglePreviewAudio}
         selected={selected}
         lang={lang}
         seek={seek}

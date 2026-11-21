@@ -21,7 +21,7 @@ const thaiDialogue = "คนในโรงเตี๊ยมนี้หาย�
 cues.at(-1).translations.th = thaiDialogue;
 const vite = await createServer({ root: "web-next", configFile: false, server: { host: "127.0.0.1", port: 0, hmr: false, fs: { allow: [process.cwd()] } } });
 await vite.listen();
-const browser = await chromium.launch({ headless: true, ignoreDefaultArgs: ["--hide-scrollbars"], args: ["--enable-precise-memory-info"] });
+const browser = await chromium.launch({ channel:process.env.PLAYWRIGHT_CHANNEL, headless: true, ignoreDefaultArgs: ["--hide-scrollbars"], args: ["--enable-precise-memory-info"] });
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   page.setDefaultTimeout(15000);
@@ -53,6 +53,17 @@ try {
   metrics.clipDom = await page.locator(".dub-timeline [data-cue-id], .dub-lane > button").count();
   metrics.heapBytes = await page.evaluate(() => performance.memory?.usedJSHeapSize);
   if (!baseline) {
+    const sourceAudio = page.locator(".lane-source input[type=checkbox]");
+    const speakers = page.locator(".lane-take input[type=checkbox]");
+    await page.locator(".lane-source .dub-track-preview span").click();
+    assert.equal(await sourceAudio.isChecked(),false);
+    assert.equal(await page.locator("video").evaluate(el=>el.muted),true);
+    await sourceAudio.check();
+    await speakers.first().uncheck();
+    assert.equal(await speakers.nth(1).isChecked(),true);
+    await speakers.first().check();
+    assert.equal(await page.locator("video").evaluate(el=>el.muted),false);
+    assert.equal(project.revision,1,"preview toggles leave saved mix untouched");
     assert.ok(metrics.clipDom <= 200, `fit viewport clip DOM bound: ${metrics.clipDom}`);
     await page.getByRole("combobox", { name: "Timeline zoom", exact: true }).selectOption({ index: await page.getByRole("combobox", { name: "Timeline zoom", exact: true }).locator("option").count() - 1 });
     await page.locator('.dub-take-wave[data-ready="true"]').first().waitFor().catch(async error => { console.error("Timeline", await page.locator(".dub-timeline").innerText(), "audioRequests", audioRequests, "errors", errors); throw error; });
@@ -192,6 +203,10 @@ try {
       const seekBar = document.querySelector(".dub-transport input[type=range]");
       let backwards = false;
       let previous;
+      // Settle the deliberate seek back from the preceding ~249s playback fixture.
+      video.currentTime = 13;
+      video.dispatchEvent(new Event("timeupdate"));
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       for (let ms = 13100; ms <= 19500; ms += 100) {
         video.currentTime = ms / 1000;
         video.dispatchEvent(new Event("timeupdate"));

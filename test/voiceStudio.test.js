@@ -8,6 +8,31 @@ import { VoiceStudioApplicationService } from '../server/domain/voice-studio/Voi
 import { SpeechGenerationService } from '../server/domain/generation/SpeechGenerationService.js';
 import { SpeechOperationRepository } from '../server/repositories/generation/SpeechOperationRepository.js';
 import { loadSpeechCatalog } from '../server/domain/generation/SpeechCatalog.js';
+import { SeedSpeechProvider } from '../server/providers/SeedSpeechProvider.js';
+
+test('suggesting a voice profile uses only the text director, validates inputs and isolates pending work', async () => {
+  const admin = {userId:'operator',role:'admin',authMode:'development_bypass'};
+  const body = {language:'th', voiceGender:'female', locale:'th', role:'A young physician',genre:'period'};
+  const calls = [];
+  let complete;
+  const seedProvider = new SeedSpeechProvider({director:{voiceDirection:request=>{
+    calls.push(request);
+    return new Promise(resolve=>{complete=resolve;});
+  }},fetchImpl:()=>assert.fail('Unexpected speech request')});
+  const service = new SpeechGenerationService({seedProvider,runtime:()=>({enabled:true,actorId:'operator',role:'admin',liveGeneration:true})});
+  await assert.rejects(service.suggestVoiceDescription({...admin,userId:'other'},body),{code:'dub_scene_access_denied'});
+  await assert.rejects(service.suggestVoiceDescription(admin,{...body,role:'x'.repeat(1001)}),{code:'voice_invalid_input'});
+  const pending=service.suggestVoiceDescription(admin,body);
+  assert.equal(calls[0].input.role,body.role);
+  assert.equal(calls[0].input.locale,'th');
+  await assert.rejects(service.suggestVoiceDescription(admin,body),{code:'speech_actor_busy'});
+  complete({description:'เสียงนุ่ม พูดไทยชัด จังหวะมั่นคง'});
+  assert.deepEqual(await pending,{description:'เสียงนุ่ม พูดไทยชัด จังหวะมั่นคง'});
+  const second=service.suggestVoiceDescription(admin,{language:'en',voiceGender:'unspecified',locale:'en'});
+  complete({description:'x'.repeat(851)});
+  await assert.rejects(second,{code:'speech_direction_invalid'});
+  assert.equal(calls.length,2);
+});
 
 async function fixture(t) {
   const dir = await mkdtemp(path.join(tmpdir(),'voice-studio-'));
@@ -77,12 +102,15 @@ test('documents and presets persist and reject cross actor reads and stale write
   const {service:s} = await fixture(t);
   const c = await s.character(actor,{name:'Actor',voiceId:'Kore'});
   const d = await s.createDocument(actor,{});
-  const changed = await s.updateDocument(actor,d.id,{expectedRevision:d.revision,rows:[{...d.rows[0],characterPresetId:c.id,text:'สวัสดี\n<gasp> จริงหรือ',delivery:{emotion:'surprised'}}]});
+  const speechWindows=[{startMs:200,endMs:850},{startMs:1200,endMs:2300}];
+  const changed = await s.updateDocument(actor,d.id,{expectedRevision:d.revision,rows:[{...d.rows[0],characterPresetId:c.id,targetDurationMs:2400,speechWindows,text:'สวัสดี\n<gasp> จริงหรือ',delivery:{emotion:'surprised'}}]});
   assert.equal(changed.rows[0].text,'สวัสดี\n<gasp> จริงหรือ');
   await assert.rejects(s.getDocument({userId:'b'},d.id),{code:'voice_record_not_found'});
   await assert.rejects(s.updateDocument(actor,d.id,{expectedRevision:1}),{code:'voice_revision_conflict'});
   const q = await s.quote(actor,d.id,d.rows[0].id,{expectedRevision:changed.revision});
   assert.equal(q.snapshot.voiceId,'Kore'); assert.equal(q.snapshot.documentRevision,2);
+  assert.equal(q.snapshot.targetDurationMs,2400);
+  assert.deepEqual(q.snapshot.speechWindows,speechWindows);
 });
 
 test('custom voice save is idempotent, binds only owned saved voices and preserves old prebuilt presets', async t => {

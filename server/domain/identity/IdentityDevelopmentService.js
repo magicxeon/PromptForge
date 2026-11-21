@@ -41,7 +41,10 @@ const adminWrites = [
   ['POST', /^\/api\/admin\/attribute-catalog\/releases\/[^/]+\/activate$/],
   ['POST', /^\/api\/admin\/attribute-catalog\/rollback$/],
 ];
+const projectUuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+const dubBatchPath = '/api/dub-sub/projects/' + projectUuid + '/dubbing-batches';
 const liveReads = [
+  new RegExp('^' + dubBatchPath + '$'),
   /^\/api\/dub-sub\/projects(?:\/[\w-]+(?:\/(?:media|poster|peaks|exports\/[\w-]+))?)?$/,
   /^\/api\/voice-studio\/custom-voices$/,
   /^\/api\/voice-studio\/(?:catalog|documents(?:\/[^/]+(?:\/rows\/[^/]+\/takes)?)?|characters|audio-library|generations\/[^/]+)$/,
@@ -61,6 +64,9 @@ const liveReads = [
   /^\/api\/credits\/ledger$/,
 ];
 const liveWrites = [
+  ['POST', /^\/api\/voice-studio\/custom-voices\/description-suggestion$/],
+  ['POST', new RegExp('^/api/dub-sub/projects/' + projectUuid + '/(?:dubbing-timing-review|cue-rhythm)$')],
+  ['POST', new RegExp('^' + dubBatchPath + '(?:/' + projectUuid + '/advance)?$')],
   ['POST', /^\/api\/dub-sub\/projects(?:\/[\w-]+\/(?:transcribe|translate|ocr|preview|exports))?$/],
   ['PATCH', /^\/api\/dub-sub\/projects\/[\w-]+$/],
   ['DELETE', /^\/api\/dub-sub\/projects\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/],

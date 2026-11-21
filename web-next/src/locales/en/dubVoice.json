@@ -1,8 +1,9 @@
 {
+  "timingChanged":"The cue timing has changed. Edit the take and prepare it again.",
   "ai": "AI",
   "edited": "Edited",
   "editPerformance": "Edit voice performance for this line",
-  "model": "Speech model",
+  "chooseVoice": "Choose a saved voice",
   "selectionUnavailable": "Selected voice unavailable for this line",
   "character": "Dubbing voice",
   "builtIn": "Voice presets",

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { VoiceStudioRepository, voiceError } from '../../repositories/voice-studio/VoiceStudioRepository.js';
 import { CustomVoiceService } from './CustomVoiceService.js';
+import { validSpeechWindows } from '../generation/speechWindows.js';
 
 const owner = actor => { if (!actor?.userId) throw voiceError('actor_required', 401); return actor.userId; };
 const string = (v, max, allowEmpty = false) => {
@@ -26,6 +27,7 @@ export class VoiceStudioApplicationService {
   }
   async catalog(actor) { owner(actor); return this.generation.speechCatalog(); }
   listCustomVoices(actor, query) { return this.customVoices.list(actor, query); }
+  suggestVoiceDescription(actor, body) { return this.generation.suggestVoiceDescription(actor, body); }
   quoteCustomVoice(actor, body) { return this.customVoices.quote(actor, body); }
   createCustomVoice(actor, body) { return this.customVoices.create(actor, body); }
   updateCustomVoice(actor, id, body, save = false) { return this.customVoices.update(actor, id, body, save); }
@@ -79,6 +81,8 @@ export class VoiceStudioApplicationService {
     for (const row of rows) {
       string(row.id, 100); string(row.text, policy.maxTextLength || 2000, true);
       if (typeof row.enabled !== 'boolean') throw voiceError('voice_invalid_rows');
+      if (row.targetDurationMs !== undefined && (!Number.isSafeInteger(row.targetDurationMs) || row.targetDurationMs <= 0)) throw voiceError('voice_invalid_rows');
+      if (!validSpeechWindows(row.speechWindows,row.targetDurationMs)) throw voiceError('voice_invalid_rows');
       if (row.characterPresetId && !characters.some(c => c.id === row.characterPresetId)) throw voiceError('voice_character_not_found');
       if (!row.delivery || typeof row.delivery !== 'object' || Array.isArray(row.delivery)) throw voiceError('voice_invalid_delivery');
       for (const [k,v] of Object.entries(row.delivery)) { if (!['emotion','intensity','pace','method','direction'].includes(k)) throw voiceError('voice_invalid_delivery'); string(v, policy.maxStyleLength || 400, true); }
@@ -94,7 +98,9 @@ export class VoiceStudioApplicationService {
       record.title = string(body.title ?? record.title, policy.maxTitleLength || 120);
       record.modelId = string(body.modelId ?? record.modelId, 160);
       record.language = string(body.language ?? record.language, 30);
-      record.rows = rows.map(r => ({ id: r.id, enabled: r.enabled, characterPresetId: r.characterPresetId || '', text: r.text, delivery: structuredClone(r.delivery), selectedTakeId: r.selectedTakeId || null }));
+      record.rows = rows.map(r => ({ id: r.id, enabled: r.enabled, characterPresetId: r.characterPresetId || '', text: r.text, delivery: structuredClone(r.delivery),
+        ...(r.targetDurationMs !== undefined && { targetDurationMs: r.targetDurationMs }),
+        ...(r.speechWindows && {speechWindows:structuredClone(r.speechWindows)}), selectedTakeId: r.selectedTakeId || null }));
     });
   }
   archive(kind, actor, id, archived = true) {
@@ -128,6 +134,8 @@ export class VoiceStudioApplicationService {
     if (character.archivedAt) throw voiceError('voice_character_archived');
     const custom = character.voiceKind === 'custom' ? await this.customVoices.resolve(actor, character.voiceId) : null;
     return { documentId:id,rowId,text:row.text,delivery:row.delivery,voiceId:character.voiceId,modelId:document.modelId,language:document.language,
+      ...(row.targetDurationMs !== undefined && { targetDurationMs: row.targetDurationMs }),
+      ...(row.speechWindows && {speechWindows:row.speechWindows}),
       ...(custom ? { voiceKind: 'custom', customVoiceOperationId: custom.operationId, customVoiceRevision: custom.revision } : {}),
       characterName:character.name,characterPresetId:character.id,documentRevision:document.revision,characterRevision:character.revision };
   }
@@ -145,6 +153,7 @@ export class VoiceStudioApplicationService {
     const s = op.snapshot;
     const take = await this.repo.insert('takes',owner(actor),{id:op.id,documentId:s.documentId,rowId:s.rowId,jobId:op.id,outputAssetId:op.outputAssetId,
       inputSnapshot:s,audioUrl:op.outputUrl,durationMs:op.durationMs,...(op.timing ? {timing:op.timing} : {}),
+      ...(op.rhythmReview && {rhythmReview:op.rhythmReview}),
       displayTitle:s.text.slice(0,80),tags:[],savedAt:null,metadataRevision:1});
     return {...op,jobId:op.id,take:take.deletedAt || take.deletingAt ? null : take};
   }
@@ -158,6 +167,13 @@ export class VoiceStudioApplicationService {
     }
     return {id:character.id,name:character.name};
   }
+  async getSeedDubCasting(actor, id, language) {
+    const character = await this.repo.get('characters', id, owner(actor));
+    if (character.archivedAt || character.voiceKind !== 'custom') throw voiceError('dub_voice_required', 422);
+    const voice = await this.customVoices.resolve(actor, character.voiceId, {selection:true});
+    if (voice.modelId !== 'dola-seed-audio' || voice.language !== language) throw voiceError('dub_voice_required', 422);
+    return { characterRevision: character.revision, voiceId: voice.id, voiceRevision: voice.revision };
+  }
   async getDubTake(actor,id) {
     const take = await this.repo.get('takes',id,owner(actor));
     if (take.deletingAt || take.deletedAt) throw voiceError('voice_record_not_found',404);
@@ -167,6 +183,11 @@ export class VoiceStudioApplicationService {
     const take = await this.getDubTake(actor,id);
     if (!take.savedAt) throw voiceError('voice_record_not_found',404);
     return take;
+  }
+  async measureDubTake(actor,id) {
+    const take = await this.getDubTake(actor,id);
+    const {policy} = await this.catalog(actor);
+    return this.audioAssets.measureDubAudio(actor,take.outputAssetId,policy.maxAudioBytes);
   }
   async withDubTakePins(actor, projectId, takeIds, commit) {
     const userId = owner(actor);

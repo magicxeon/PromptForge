@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { inspectWav } from '../assets/AudioAssetService.js';
+import { validSpeechWindows, timedSpeechDirection } from './speechWindows.js';
 export const speechError = (code, statusCode = 400) => Object.assign(new Error('Speech request could not be completed.'), { code, statusCode });
 export function compileSpeechRequest(snapshot, catalog, customVoice = null) {
   const model = catalog.models.find(item => item.id === snapshot?.modelId && item.enabled);
@@ -19,7 +20,14 @@ export function compileSpeechRequest(snapshot, catalog, customVoice = null) {
   const normalized = JSON.parse(JSON.stringify({ ...snapshot, text, style, delivery: delivery || {}, language: snapshot.language || 'th',
     providerId: model.providerId, catalogVersion: catalog.catalogVersion, compilerVersion: 'speech-v1' }));
   if (model.adapterKey === 'seed-speech') {
-    normalized.providerPrompt = [`Speak in ${normalized.language} with the voice of @Audio1.`, style, `Say exactly: ${JSON.stringify(text)}`].filter(Boolean).join('\n');
+    const target = normalized.targetDurationMs;
+    if (target !== undefined && (!Number.isSafeInteger(target) || target <= 0)) throw speechError('speech_invalid_input');
+    const windows = normalized.speechWindows;
+    if (!validSpeechWindows(windows,target)) throw speechError('speech_invalid_input');
+    const slot = target === undefined ? '' : `[0.0s:${target / 1000}s] `;
+    normalized.providerPrompt = [`Speak in ${normalized.language} with the voice of @Audio1.`, style,
+      target !== undefined && `DURATION: ${target / 1000} seconds. ${windows ? 'Speak naturally' : 'Start promptly, speak naturally'}, and finish the entire line within this time window. Dialogue only.`,
+      windows ? timedSpeechDirection(text,normalized.language,windows) : `${slot}Say exactly: ${JSON.stringify(text)}`].filter(Boolean).join('\n');
     if ([...normalized.providerPrompt].length > model.limits.promptCharacters) throw speechError('speech_invalid_input');
   }
   const stable = value => value && typeof value === 'object' && !Array.isArray(value)

@@ -12,6 +12,8 @@ export const rowSchema = z.object({
   enabled: z.boolean(),
   characterPresetId: z.string(),
   text: z.string(),
+  targetDurationMs: z.number().int().positive().optional(),
+  speechWindows: z.array(z.object({startMs:z.number().int().nonnegative(), endMs:z.number().int().positive()})).min(1).max(12).optional(),
   delivery: deliverySchema,
   selectedTakeId: z.string().nullable(),
   activeOperationId: z.string().nullable().optional(),
@@ -56,6 +58,11 @@ export const takeSchema = z.object({
     .string()
     .refine((value) => value.startsWith("/outputs/") && !value.includes("..")),
   durationMs: z.number(),
+  rhythmReview: z.object({
+    status:z.enum(["matched","review"]),
+    reasons:z.array(z.enum(["onset","ending","pause","unmeasurable"])),
+    actualStartMs:z.number().nullable(), actualEndMs:z.number().nullable(), shiftMs:z.number(),
+  }).optional(),
   displayTitle: z.string(),
   tags: z.array(z.string()),
   savedAt: z.string().nullable(),

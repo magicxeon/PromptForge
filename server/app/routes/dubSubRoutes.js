@@ -121,6 +121,15 @@ export function registerDubSubRoutes(app, { projects }) {
     projects.create(actor, body, verifyIdentity(req)),
   );
   route("get", "/:id", (req, actor, id) => projects.get(actor, id));
+  route("post", "/:id/dubbing-timing-review", (req, actor, id, body) =>
+    projects.timingReview(actor,id,body,verifyIdentity(req)));
+  route("post", "/:id/cue-rhythm", (req, actor, id, body) =>
+    projects.cueRhythm(actor,id,body,verifyIdentity(req)));
+  route("get", "/:id/dubbing-batches", (req, actor, id) => projects.batches.get(actor, id, req.query.language));
+  route("post", "/:id/dubbing-batches", (req, actor, id, body) =>
+    projects.batches.prepare(actor, id, body, verifyIdentity(req)));
+  route("post", "/:id/dubbing-batches/:batchId/advance", (req, actor, id, body) =>
+    projects.batches.advance(actor, id, req.params.batchId, body, verifyIdentity(req)));
   route("patch", "/:id", (req, actor, id, body) =>
     projects.update(actor, id, body),
   );

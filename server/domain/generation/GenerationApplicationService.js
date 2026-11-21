@@ -16,6 +16,7 @@ import { generationGroupRepository as defaultGenerationGroupRepository } from '.
 
 export class GenerationApplicationService {
   speechCatalog() { return speechGenerationService.publicCatalog(); }
+  suggestVoiceDescription(actor, body) { return speechGenerationService.suggestVoiceDescription(actor, body); }
   quoteSpeech(input) { return speechGenerationService.quote(input); }
   generateSpeech(input) { return speechGenerationService.generate(input); }
   readSpeech(input) { return speechGenerationService.read(input); }

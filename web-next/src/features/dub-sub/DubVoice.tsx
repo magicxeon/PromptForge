@@ -3,8 +3,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { voiceApi } from "../../../../web/src/features/voice-studio/api/voiceStudioApi";
 import type {
-  CustomVoice,
-  VoiceCharacter,
   VoiceDocument,
   VoiceTake,
 } from "../../../../web/src/features/voice-studio/schemas/voiceStudioSchemas";
@@ -17,10 +15,12 @@ import {
 import { assertIdentityEpoch } from "../../../../web/src/lib/auth/actorStore";
 import { usePrivateImage } from "../../components/media/MediaImage";
 import "./dubVoice.css";
-import { activeCharacters } from "./dubbingCharacters";
+import { loadDubbingChoices } from "./dubbingCharacters";
+import config from "./dubbing-voice-config.json";
 import { createSpeechRequest } from "./speechRequest";
 import { useWorkspaceCredits } from "../../lib/workspaceConfig";
 import type { CueDelivery } from "./projectApi";
+import { takePlacement } from "../../../../server/domain/dub-sub/takePlacement.js";
 
 type Binding = {
   documentId: string;
@@ -29,6 +29,7 @@ type Binding = {
   operationId?: string;
   operationRevision?: number;
   usesCueDelivery?: boolean;
+  usesSpeakerMapping?: boolean;
 };
 type SelectedTake = Pick<VoiceTake, "id" | "durationMs" | "audioUrl">;
 type Props = {
@@ -38,6 +39,10 @@ type Props = {
   language: string;
   speaker: string;
   targetMs?: number;
+  cueStartMs?:number;
+  cueOffsetMs?:number;
+  projectDurationMs?:number;
+  loadSpeechWindows?:()=>Promise<{startMs:number;endMs:number}[]>;
   suggestedDelivery?: CueDelivery;
   overrides?: CueDelivery;
   onDeliveryChange: (value: CueDelivery) => void;
@@ -68,25 +73,6 @@ export function DubVoice(props: Props) {
   );
 }
 
-async function savedVoices(selectedId?: string) {
-  const { epoch } = getIdentitySnapshot();
-  const result: CustomVoice[] = [];
-  let cursor: string | undefined;
-  do {
-    assertIdentityEpoch(epoch);
-    const params = new URLSearchParams({ saved: "true", limit: "50" });
-    if (cursor) params.set("cursor", cursor);
-    const page = await voiceApi.customVoices(params);
-    if (!cursor) result.push(...page.items);
-    else {
-      const selected = page.items.find((v) => v.id === selectedId);
-      if (selected) result.push(selected);
-    }
-    if (!selectedId || result.some((v) => v.id === selectedId)) break;
-    cursor = page.nextCursor || undefined;
-  } while (cursor);
-  return result;
-}
 
 function TakePlayback({ src }: { src: string }) {
   const player = useRef<HTMLAudioElement>(null);
@@ -117,6 +103,7 @@ function VoiceInspector({
   defaultCharacterId,
   initialSelection,
   targetMs,
+  cueStartMs=0, cueOffsetMs, projectDurationMs, loadSpeechWindows,
   suggestedDelivery, overrides, onDeliveryChange,
 }: Props & { scope: string }) {
   const { t } = useTranslation("dubVoice");
@@ -127,20 +114,9 @@ function VoiceInspector({
     queryKey: [...prefix, "catalog"],
     queryFn: voiceApi.catalog,
   });
-  const characters = useQuery({
-    queryKey: [...prefix, "characters"],
-    queryFn: activeCharacters,
-  });
-  const [chosenVoice, setVoice] = useState(initialSelection || "");
-  const [kind, voiceId] = chosenVoice.split("/");
-  const characterId = kind === "character" ? voiceId : binding?.characterId || defaultCharacterId;
-  const character = characters.data?.find((c) => c.id === characterId);
-  const pickedCharacter = !chosenVoice || kind === "character" ? character : undefined;
-  const requestedCustom = kind === "custom" ? voiceId : character?.voiceKind === "custom" ? character.voiceId : undefined;
-  const customs = useQuery({
-    queryKey: [...prefix, "voices", requestedCustom || ""],
-    queryFn: () => savedVoices(requestedCustom),
-  });
+  const choicesKey = ["dub-speaker-choices", scope, language];
+  const choices = useQuery({ queryKey: choicesKey, queryFn: () => loadDubbingChoices(language) });
+  const [chosenVoice, setVoice] = useState(initialSelection?.replace(/^custom\//, "") || "");
   const [localBinding, setLocalBinding] = useState(binding);
   const b = localBinding ?? binding;
   const documentKey = [...prefix, "document", b?.documentId];
@@ -150,69 +126,27 @@ function VoiceInspector({
     enabled: !!b,
   });
   const row = doc.data?.rows.find((item) => item.id === b?.rowId);
-  const [chosenModel, setModel] = useState("");
   const previousSettings = b?.usesCueDelivery ? undefined : row?.delivery;
   const delivery = { ...(row?.delivery.method && { method: row.delivery.method }), ...suggestedDelivery, ...previousSettings, ...overrides };
   function changeDelivery(key: keyof CueDelivery, value: string) {
     setQuote(null);
     onDeliveryChange({ ...overrides, [key]: value });
   }
-  const models =
-    catalog.data?.models.filter(
-      (m) =>
-        m.enabled !== false &&
-        m.available !== false &&
-        m.capabilities.languages?.includes(language),
-    ) || [];
-  const pickedPreset = kind === "preset" || pickedCharacter?.voiceKind === "prebuilt"
-    ? catalog.data?.voices.find((v) => v.id === (pickedCharacter?.voiceId || voiceId)) : undefined;
-  const pickedCustom = kind === "custom" || pickedCharacter?.voiceKind === "custom"
-    ? customs.data?.find((v) => v.id === (pickedCharacter?.voiceId || voiceId)) : undefined;
-  const supported = pickedPreset?.modelIds || (pickedCustom ? [pickedCustom.modelId] : undefined);
-  const preferredModel = chosenModel || doc.data?.modelId;
-  const model = models.find((m) => m.id === preferredModel && (!supported || supported.includes(m.id))) ||
-    models.find((m) => supported?.includes(m.id)) || models[0];
-  const voices =
-    catalog.data?.voices.filter(
-      (v) =>
-        v.modelIds?.includes(model?.id || "") &&
-        (!v.languages || v.languages.includes(language)),
-    ) || [];
-  const custom =
-    customs.data?.filter(
-      (v) =>
-        v.savedAt &&
-        v.lifecycleState === "ready" &&
-        v.modelId === model?.id &&
-        v.language === language,
-    ) || [];
-  const compatible =
-    characters.data?.filter((c) =>
-      c.voiceKind === "custom"
-        ? custom.some((v) => v.id === c.voiceId)
-        : voices.some((v) => v.id === c.voiceId),
-    ) || [];
-  const boundId = b?.characterId || defaultCharacterId;
-  const initialCharacter = boundId
-    ? compatible.find(c => c.id === boundId)
-    : compatible.find(c => c.name === speaker);
-  const selection =
-    chosenVoice ||
-    (initialCharacter
-      ? "character/" + initialCharacter.id
-      : !boundId && voices[0]
-        ? "preset/" + voices[0].id
-        : "");
-  const available = chosenVoice
-    ? (kind === "preset" && voices.some((v) => v.id === voiceId)) ||
-      (kind === "custom" && custom.some((v) => v.id === voiceId)) ||
-      (kind === "character" && compatible.some((c) => c.id === voiceId))
-    : Boolean(selection);
+  const model = catalog.data?.models.find(m => m.id === config.modelId && m.enabled !== false && m.available !== false && m.capabilities.languages?.includes(language));
+  const voices = choices.data?.voices || [];
+  const characters = choices.data?.characters || [];
+  const boundCharacterId = b?.usesSpeakerMapping ? defaultCharacterId : b?.characterId || defaultCharacterId;
+  const mapped = characters.find(c => c.id === boundCharacterId && c.voiceKind === "custom");
+  const selection = chosenVoice || mapped?.voiceId || "";
+  const selectedVoice = voices.find(v => v.id === selection);
+  const available = Boolean(model && selectedVoice);
   const inputSignature = (voice: string) =>
     JSON.stringify([
       text,
       language,
       model?.id,
+      targetMs,
+      cueStartMs,
       voice,
       delivery.emotion,
       delivery.intensity,
@@ -249,7 +183,7 @@ function VoiceInspector({
     ? /^speech_([0-9a-f-]{36})$/i.exec(operationId || "")?.[1] : undefined;
   const canRetry = Boolean(missingRequestId && available && b?.operationRevision && row && doc.data &&
     doc.data.revision === b.operationRevision && doc.data.language === language && doc.data.modelId === model?.id &&
-    row.text === text && row.characterPresetId === b.characterId && selection === "character/" + b.characterId &&
+    row.text === text && row.targetDurationMs === targetMs && row.characterPresetId === b.characterId && mapped?.id === b.characterId && selection === mapped?.voiceId &&
     (["emotion", "intensity", "pace", "method", "direction"] as const)
       .every(key => (row.delivery[key] || "") === (delivery[key] || "")));
   const takes = useQuery({
@@ -284,26 +218,17 @@ function VoiceInspector({
   async function prepareTake() {
     if (creditsEnabled === undefined || !model || !available || !text.trim() || active) return;
     const { epoch } = getIdentitySnapshot();
-    const [kind, id] = selection.split("/");
-    const character =
-      kind === "character"
-        ? compatible.find((c) => c.id === id)
-        : compatible.find((c) => c.name === speaker && c.voiceId === id) ||
-          (await voiceApi.saveCharacter({
-            name:
-              speaker ||
-              custom.find((v) => v.id === id)?.name ||
-              voices.find((v) => v.id === id)!.displayName,
-            voiceId: id,
-            voiceKind: kind === "custom" ? "custom" : "prebuilt",
-            color: "",
-          }));
-    if (!character) throw new Error("Voice unavailable");
+    if (!selectedVoice) return;
+    const speechWindows = await loadSpeechWindows?.();
     assertIdentityEpoch(epoch);
-    client.setQueryData<VoiceCharacter[]>([...prefix, "characters"], (prev) => [
-      ...(prev || []).filter((c) => c.id !== character.id),
-      character,
-    ]);
+    const character = (mapped?.voiceId === selection ? mapped : undefined)
+      || characters.find(c => c.voiceKind === "custom" && c.voiceId === selection)
+      || await voiceApi.saveCharacter({ name: selectedVoice.name, voiceId: selection, voiceKind: "custom", color: "" });
+    assertIdentityEpoch(epoch);
+    client.setQueryData<Awaited<ReturnType<typeof loadDubbingChoices>>>(choicesKey, prev => prev && ({
+      ...prev, characters: [...prev.characters.filter(c => c.id !== character.id), character]
+    }));
+    void client.invalidateQueries({ queryKey: [...prefix, "characters"] });
     let document: VoiceDocument = b
       ? await voiceApi.document(b.documentId)
       : await voiceApi.createDocument();
@@ -312,7 +237,8 @@ function VoiceInspector({
       const { method: _method, ...previousFields } = previousSettings;
       onDeliveryChange({ ...previousFields, ...overrides });
     }
-    const next = { documentId: document.id, rowId, characterId: character.id, usesCueDelivery: true };
+    const next = { documentId: document.id, rowId, characterId: character.id, usesCueDelivery: true,
+      usesSpeakerMapping: character.id === defaultCharacterId };
     await remember(next);
     assertIdentityEpoch(epoch);
     document = await voiceApi.saveDocument({
@@ -326,6 +252,8 @@ function VoiceInspector({
               ...r,
               enabled: true,
               text,
+              targetDurationMs: targetMs,
+              speechWindows: speechWindows?.length ? speechWindows : undefined,
               characterPresetId: character.id,
               delivery,
             }
@@ -334,7 +262,7 @@ function VoiceInspector({
     });
     client.setQueryData([...prefix, "document", document.id], document);
     assertIdentityEpoch(epoch);
-    setVoice("character/" + character.id);
+    setVoice(selection);
     if (!creditsEnabled) {
       await submitTake({ ...createSpeechRequest(), binding: next, revision: document.revision });
       return;
@@ -345,7 +273,7 @@ function VoiceInspector({
       binding: next,
       revision: document.revision,
       requestId: crypto.randomUUID(),
-      signature: inputSignature("character/" + character.id),
+      signature,
     });
   }
   async function submitTake(q: Pick<Quote, "id" | "requestId" | "binding" | "revision">) {
@@ -382,13 +310,13 @@ function VoiceInspector({
     b?.documentId,
     b?.rowId,
   ]);
-  if (catalog.isLoading || characters.isLoading || (b && doc.isLoading))
+  if (catalog.isLoading || choices.isLoading || (b && doc.isLoading))
     return (
       <p role="status">
         <ProcessingSpinner className="small-spinner" /> {t("loading")}
       </p>
     );
-  if (catalog.isError || characters.isError || doc.isError)
+  if (catalog.isError || choices.isError || doc.isError)
     return <p role="alert">{t("error", { code: "" })}</p>;
   return (
     <section className="dub-voice">
@@ -403,79 +331,38 @@ function VoiceInspector({
               setQuote(null);
             }}
           >
-            {!chosenVoice && boundId && !initialCharacter &&
-              <option value="" disabled>{t("selectionUnavailable")}</option>}
-            {chosenVoice && !available && (
-              <option value={chosenVoice} disabled>{t("selectionUnavailable")}</option>
-            )}
-            {compatible.length > 0 && (
-              <optgroup label={t("characters")}>
-                {compatible.map((c) => (
-                  <option key={c.id} value={"character/" + c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            <optgroup label={t("builtIn")}>
-              {voices.map((v) => (
-                <option key={v.id} value={"preset/" + v.id}>
-                  {v.displayName}
-                </option>
-              ))}
-            </optgroup>
-            {custom.length > 0 && (
-              <optgroup label={t("custom")}>
-                {custom.map((v) => (
-                  <option key={v.id} value={"custom/" + v.id}>
-                    {v.name}
-                  </option>
-                ))}
-              </optgroup>
-            )}
+            <option value="" disabled>{t(!chosenVoice && boundCharacterId && !mapped ? "selectionUnavailable" : "chooseVoice")}</option>
+            {selection && !selectedVoice && <option value={selection} disabled>{t("selectionUnavailable")}</option>}
+            {voices.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
           </select>
         </label>
-        <label>
-          {t("model")}
-          <select
-            value={model?.id || ""}
-            onChange={(e) => {
-              setModel(e.target.value);
-              setVoice("");
-              setQuote(null);
-            }}
-          >
-            {models.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.displayName}
-              </option>
-            ))}
-          </select>
-        </label>
-        {(["emotion", "intensity", "pace"] as const).map((key) => (
-          <label key={key}>
-            {t(key)}
-            <select
-              value={delivery[key] || ""}
-              onChange={(e) => changeDelivery(key, e.target.value)}
-            >
-              <option value="">{t("default")}</option>
-              {catalog.data?.policy.stylePresets?.[key]?.map((v) => (
-                <option key={v} value={v}>
-                  {t(v, { defaultValue: v })}
-                </option>
-              ))}
-            </select>
+        <details>
+          <summary>{t("editPerformance")}</summary>
+          {(["emotion", "intensity", "pace"] as const).map((key) => (
+            <label key={key}>
+              {t(key)}
+              <select
+                value={delivery[key] || ""}
+                onChange={(e) => changeDelivery(key, e.target.value)}
+              >
+                <option value="">{t("default")}</option>
+                {catalog.data?.policy.stylePresets?.[key]?.map((v) => (
+                  <option key={v} value={v}>
+                    {t(v, { defaultValue: v })}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+          <label>
+            {t("direction")}
+            <textarea
+              value={delivery.direction || ""}
+              maxLength={catalog.data?.policy.maxStyleLength}
+              onChange={(e) => changeDelivery("direction", e.target.value)}
+            />
           </label>
-        ))}
-        <label>
-          {t("direction")}
-          <textarea
-            value={delivery.direction || ""}
-            maxLength={catalog.data?.policy.maxStyleLength}
-            onChange={(e) => changeDelivery("direction", e.target.value)}
-          />
-        </label>
+        </details>
         {usableQuote ? (
           <button type="button" onClick={() => void run(() => submitTake(usableQuote))}>
             {t("generate", { credits: usableQuote.totalCredits })}
@@ -489,13 +376,17 @@ function VoiceInspector({
             {t(creditsEnabled ? "quote" : "generateTake")}
           </button>
         )}
-        {!selection && <p>{t("unavailable")}</p>}
+        {!voices.length && <p>{t("unavailable")}</p>}
       </fieldset>
       {missingRequestId && b && <div>
         <p role="status">{t("requestMissing")}</p>
-        {canRetry && <button disabled={busy} onClick={() => void run(() => submitTake({
-          binding: b, revision: b.operationRevision!, id: b.operationId!, requestId: missingRequestId,
-        }))}>{t("retryTake")}</button>}
+        {canRetry && <button disabled={busy} onClick={() => void run(async () => {
+          const windows = row?.speechWindows?.length ? await loadSpeechWindows?.() : undefined;
+          if (windows && JSON.stringify(windows) !== JSON.stringify(row?.speechWindows ?? [])) {
+            setError(t("timingChanged")); return;
+          }
+          await submitTake({binding:b,revision:b.operationRevision!,id:b.operationId!,requestId:missingRequestId});
+        })}>{t("retryTake")}</button>}
         <button disabled={busy} onClick={() => void run(async () => {
           await remember({ ...b, operationId: undefined, operationRevision: undefined });
           setOpId(undefined);
@@ -503,7 +394,7 @@ function VoiceInspector({
       </div>}
       {((active && !missingRequestId) || busy) && (
         <p role="status">
-          <ProcessingSpinner className="small-spinner" />{" "}
+          <ProcessingSpinner variant="wave" className="seed-generation-wave" />{" "}
           {t(operation.data?.errorCode ? "review" : "pending")}
         </p>
       )}
@@ -515,19 +406,26 @@ function VoiceInspector({
       {(error || operation.data?.status === "failed") && (
         <p role="alert">{error || t("failed")}</p>
       )}
-      {items.map((item) => (
+      {items.map((item) => {
+        const placement = targetMs === undefined ? null : takePlacement({
+          startMs:cueStartMs,endMs:cueStartMs+targetMs,offsetMs:cueOffsetMs
+        },item.durationMs,projectDurationMs);
+        return (
         <div key={item.id} className="dub-take">
           <span>
             {item.inputSnapshot.characterName} ·{" "}
             {t("duration", { seconds: (item.durationMs / 1000).toFixed(1) })}
           </span>
-          {targetMs && item.durationMs > targetMs && (
+          {placement && !placement.fits && (
             <span>
-              {t("overrun", {
-                seconds: ((item.durationMs - targetMs) / 1000).toFixed(1),
+              {placement.start < 0 ? t("dub:errors.dub_take_exceeds_window") : t("overrun", {
+                seconds: ((item.durationMs - placement.availableMs) / 1000).toFixed(2),
               })}
             </span>
           )}
+          {item.rhythmReview?.status === "review" && <span>
+            {item.rhythmReview.reasons.map(reason=>t("dub:errors.dub_take_rhythm_"+reason)).join(" · ")}
+          </span>}
           <button
             type="button"
             onClick={() =>
@@ -538,7 +436,7 @@ function VoiceInspector({
           </button>
           <button
             type="button"
-            disabled={busy || !b}
+            disabled={busy || !b || placement?.fits === false}
             onClick={() =>
               void run(async () => {
                 const current = await voiceApi.document(b!.documentId);
@@ -572,7 +470,7 @@ function VoiceInspector({
             {t(item.savedAt ? "saved" : "save")}
           </button>
         </div>
-      ))}
+      );})}
       {media.url && <TakePlayback src={media.url} />}
     </section>
   );

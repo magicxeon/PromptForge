@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { compileSpeechRequest } from '../server/domain/generation/SpeechRequestCompiler.js';
 import { loadSpeechCatalog } from '../server/domain/generation/SpeechCatalog.js';
-import { inspectWav, normalizeSeedWav, AudioAssetService } from '../server/domain/assets/AudioAssetService.js';
+import { inspectWav, normalizeSeedWav, trimSilentCueTail, alignCueSpeech, AudioAssetService } from '../server/domain/assets/AudioAssetService.js';
 import { quoteSpeechPrice, settleSpeechPrice } from '../server/domain/credits/SpeechPricing.js';
 import { GeminiSpeechProvider } from '../server/providers/GeminiSpeechProvider.js';
 import { SeedSpeechProvider } from '../server/providers/SeedSpeechProvider.js';
@@ -34,11 +34,14 @@ test('a rejected Luna request still prepares the original Thai audition for Seed
     return {voiceProfile:'A soft voice.', scene:'Inside an inn.', actingDirection:'Speak softly.', durationSeconds:5};
   });
   assert.equal(translated.directionSource, 'gemini');
+  assert.equal(translated.voiceProfile, 'A soft voice.\n' + style);
+  assert.ok(translated.providerPrompt.includes(translated.voiceProfile + '\n\nSCENE:'));
   assert.ok(translated.providerPrompt.endsWith('\n' + style));
   const directed = await directSeedAudition(thaiInput, model, {voiceDirection: async () => ({
-    voiceProfile:'A warm voice.', scene:'A private chamber.', actingDirection:'Speak softly.', durationSeconds:5
+    voiceProfile:'A warm voice. ' + style, scene:'A private chamber.', actingDirection:'Speak softly.', durationSeconds:5
   })});
   assert.ok(directed.providerPrompt.endsWith('\n' + style));
+  assert.equal(directed.voiceProfile, 'A warm voice. ' + style);
   assert.ok(translated.providerPrompt.includes(JSON.stringify(input.sampleText)));
   assert.doesNotMatch(translated.providerPrompt.replace(JSON.stringify(input.sampleText), ''), /\p{Script=Thai}/u);
   await assert.rejects(directSeedAudition(thaiInput, model, unavailable, async () => { throw new Error('Unavailable'); }),
@@ -60,7 +63,7 @@ test('Seed Audio directs the chosen speaker in the requested language and prices
   const seedModel = catalog.models.find(m=>m.id==='dola-seed-audio');
   const speaker1 = catalog.voices.find(v=>v.languages?.includes('th'));
   const speaker2 = catalog.voices.find(v=>v.languages?.includes('zh'));
-  const first = {...snapshot, text:'สวัสดี', modelId:seedModel.id, voiceId:speaker1.id, delivery:{emotion:'sad',intensity:'subtle'}};
+  const first = {...snapshot, text:'สวัสดี', targetDurationMs:2400, modelId:seedModel.id, voiceId:speaker1.id, delivery:{emotion:'sad',intensity:'subtle'}};
   const second = {...first,text:'你好',language:'zh',voiceId:speaker2.id,delivery:{emotion:'happy',pace:'fast'}};
   const requests = [];
   const provider = new SeedSpeechProvider({apiKey:'synthetic',fetchImpl:async(url,options)=>{
@@ -76,6 +79,7 @@ test('Seed Audio directs the chosen speaker in the requested language and prices
     assert.equal(requests.at(-1).redirect,'error','credentialed requests must refuse all redirects');
     assert.deepEqual(request.references,[{speaker:s.voiceId}]);
     assert.ok(request.text_prompt.includes('@Audio1') && request.text_prompt.includes(s.text) && request.text_prompt.includes(s.delivery.emotion));
+    assert.match(request.text_prompt, /\[0\.0s:2\.4s\]/);
     assert.equal(request.model,'seed-audio-1.0-multilingual');
     assert.equal(request.audio_config.format,'wav');
     assert.equal(result.usage.original_duration,7.5);
@@ -109,6 +113,62 @@ function wav() {
   b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(24000, 24); b.writeUInt32LE(48000, 28);
   b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(4, 40); return b;
 }
+test('timed takes remove only digital silence beyond the slot and retain metadata', () => {
+  const bytes = Buffer.concat([wav().subarray(0,44),Buffer.alloc(2400 * 2),Buffer.from('note\x04\x00\x00\x00tail', 'binary')]);
+  bytes.writeUInt32LE(bytes.length - 8, 4); bytes.writeUInt32LE(4800, 40);
+  bytes.writeInt16LE(-1300, 44);
+  const trimmed = trimSilentCueTail(bytes, 50);
+  assert.equal(inspectWav(trimmed).durationMs, 50);
+  assert.equal(trimmed.readInt16LE(44), -1300);
+  assert.equal(trimmed.subarray(-4).toString(), 'tail');
+  bytes.writeInt16LE(1,44 + 1200 * 2);
+  assert.equal(trimSilentCueTail(bytes,50), bytes);
+});
+
+test('Seed directs approved wording into source speech windows and rejects invalid timing', () => {
+  const catalog = loadSpeechCatalog(), modelId='dola-seed-audio';
+  const voiceId = catalog.voices.find(v=>v.languages?.includes('th')).id;
+  const text = 'คุณชาย… อย่าไปเจ้าค่ะ';
+  const base = {...snapshot,text,modelId,voiceId,targetDurationMs:1800};
+  const windows = [{startMs:200,endMs:600},{startMs:1000,endMs:1700}];
+  const {providerPrompt} = compileSpeechRequest({...base,speechWindows:windows},catalog).snapshot;
+  assert.match(providerPrompt,/\[0.2s:0.6s\]/);
+  assert.match(providerPrompt,/\[1s:1.7s\]/);
+  assert.equal([...providerPrompt.matchAll(/Say exactly: (".*")/g)].map(m=>JSON.parse(m[1])).join(''),text);
+  for (const invalid of [[],[windows[1],windows[0]],[{startMs:0,endMs:1801}],[{startMs:1,endMs:1}]])
+    assert.throws(()=>compileSpeechRequest({...base,speechWindows:invalid},catalog),{code:'speech_invalid_input'});
+});
+
+test('onset alignment does not double delay, preserves metadata and flags missing pauses or late endings', async () => {
+  const windows=[{startMs:300,endMs:600},{startMs:900,endMs:1200}];
+  function sample(lead,extra=0) {
+    const pcm=Buffer.alloc((lead+900+extra)*48);
+    pcm.fill(0x50,lead*48,(lead+300)*48);
+    pcm.fill(0x50,(lead+600)*48);
+    const result = Buffer.concat([wav().subarray(0,44),pcm,Buffer.from('note\x04\x00\x00\x00meta','binary')]);
+    result.writeUInt32LE(result.length-8,4); result.writeUInt32LE(pcm.length,40);
+    return result;
+  }
+  for (const lead of [0,300,500]) {
+    const spans=()=>[{startMs:lead,endMs:lead+300},{startMs:lead+600,endMs:lead+900}];
+    const output=await alignCueSpeech(sample(lead),windows,256000,spans);
+    assert.equal(output.review.status,'matched');
+    assert.equal(output.review.shiftMs,300-lead);
+    assert.deepEqual(output.bytes,sample(300));
+  }
+  const combined = await alignCueSpeech(sample(300,300),windows,256000,()=>[{startMs:300,endMs:1500}]);
+  assert.deepEqual(combined.review.reasons,['ending','pause']);
+  const addedPause = await alignCueSpeech(sample(300),[{startMs:300,endMs:1200}],256000,
+    ()=>[{startMs:300,endMs:600},{startMs:900,endMs:1200}]);
+  assert.deepEqual(addedPause.review.reasons,['pause']);
+  const faint=sample(500);
+  faint.writeInt16LE(1,44);
+  const safe=await alignCueSpeech(faint,windows,256000,()=>[{startMs:500,endMs:800},{startMs:1100,endMs:1400}]);
+  assert.equal(safe.bytes,faint);
+  assert.ok(safe.review.reasons.includes('onset'));
+  const silent=await alignCueSpeech(wav(),windows,256000);
+  assert.deepEqual(silent.review.reasons,['unmeasurable']);
+});
 test('Seed design quotes freeze the source, sample text and voice type; confirmed drafts reuse owned audio for dubbing', async t => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'seed-presets-'));
   t.after(() => rm(root, { recursive: true, force: true }));
@@ -166,7 +226,10 @@ test('Seed design quotes freeze the source, sample text and voice type; confirme
   const line = { ...snapshot, text:'The next scene.', voiceKind:'custom', voiceId:designed, modelId:design.modelId,
     language:design.language, customVoiceOperationId:designed };
   await assert.rejects(service.quote({actorContext: { userId:'other' }, snapshot:line}), {code:'speech_custom_voice_unavailable'});
-  await perform(line, 'speech');
+  const timedId = await perform({...line,targetDurationMs:2000,speechWindows:[{startMs:300,endMs:1750}]}, 'speech');
+  const timedOp = await service.read({actorContext,id:timedId});
+  assert.deepEqual(timedOp.rhythmReview.reasons,['unmeasurable']);
+  assert.match(calls[2].text_prompt,/\[0.3s:1.75s\]/);
   assert.deepEqual(calls[2].references, [{ audio_data: ref }]); assert.match(calls[2].text_prompt, /The next scene/);
   assert.equal(calls.length, 3); assert.equal(captures.length, 3);
   assert.equal(samples.has(uploaded + '-reference'), true);

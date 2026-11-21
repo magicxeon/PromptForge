@@ -49,14 +49,14 @@ beforeEach(() => { vi.clearAllMocks(); policy.creditsEnabled = true; });
 it("resolves a returned saved voice beyond the first page and rejects an unavailable choice", async () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   api.catalog.mockResolvedValue({
-    models: [{ id: "g", displayName: "G", capabilities: { languages: ["th"] } }],
+    models: [{ id: "dola-seed-audio", displayName: "Seed", capabilities: { languages: ["th"] } }],
     voices: [], policy: {},
   });
   api.characters.mockResolvedValue({ items: [] });
   api.customVoices.mockImplementation(async (params: URLSearchParams) =>
     params.get("cursor") === "more"
-      ? { items: [{ id: "voice42", name: "Voice 42", savedAt: "today", lifecycleState: "ready", language: "th", modelId: "g" }] }
-      : { items: [], nextCursor: "more" },
+      ? { items: [{ id: "voice42", name: "Voice 42", savedAt: "today", lifecycleState: "ready", language: "th", modelId: "dola-seed-audio" }] }
+      : { items: [{id:"legacy", name:"Legacy Gemini", modelId:"gemini-tts", language:"th", savedAt:"today", lifecycleState:"ready"}], nextCursor: "more" },
   );
   const inspect = (voice: string) => (
     <QueryClientProvider client={client}>
@@ -66,7 +66,9 @@ it("resolves a returned saved voice beyond the first page and rejects an unavail
   );
   const view = render(inspect("voice42"));
   await screen.findByRole("option", { name: "Voice 42" });
-  expect((screen.getByLabelText("character") as HTMLSelectElement).value).toBe("custom/voice42");
+  expect((screen.getByLabelText("character") as HTMLSelectElement).value).toBe("voice42");
+  expect(screen.queryByLabelText("model")).toBeNull();
+  expect(screen.queryByRole("option", {name:"Legacy Gemini"})).toBeNull();
   view.rerender(inspect("removed"));
   await screen.findByRole("option", { name: "selectionUnavailable" });
   expect((screen.getByText("quote") as HTMLButtonElement).disabled).toBe(true);
@@ -81,13 +83,13 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
     id: "hero",
     name: "Hero",
     voiceId: "seed-speaker",
-    voiceKind: "prebuilt",
+    voiceKind: "custom",
   };
   const doc = {
     id: "doc",
     rows: [{ id: "row", text: "", delivery: {}, enabled: true }],
     revision: 1,
-    modelId: "seed",
+    modelId: "dola-seed-audio",
   };
   const take = {
     id: "op",
@@ -99,7 +101,7 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
     onAudition = vi.fn();
   api.catalog.mockResolvedValue({
     models: [
-      { id: "seed", displayName: "Seed", capabilities: { languages: ["th"] } },
+      { id: "dola-seed-audio", displayName: "Seed", capabilities: { languages: ["th"] } },
     ],
     voices: [
       {
@@ -112,7 +114,7 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
     policy: { stylePresets: { emotion: ["happy"] } },
   });
   api.characters.mockResolvedValue({ items: [character] });
-  api.customVoices.mockResolvedValue({ items: [] });
+  api.customVoices.mockResolvedValue({ items: [{id:character.voiceId, name:"Saved Seed", savedAt:"today", lifecycleState:"ready", language:"th", modelId:"dola-seed-audio"}] });
   api.document.mockResolvedValue(doc);
   api.saveDocument.mockImplementation(async (d) => ({ ...d, revision: 2 }));
   api.quote.mockResolvedValue({ id: "op", totalCredits: 10 });
@@ -135,6 +137,9 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
         language="th"
         text="สวัสดี"
         speaker="Hero"
+        targetMs={2400}
+        loadSpeechWindows={async()=>[{startMs:120,endMs:1650}]}
+        defaultCharacterId="hero"
         suggestedDelivery={{direction:"A soft greeting."}}
         overrides={overrides} onDeliveryChange={setOverrides}
         binding={{ documentId: "doc", rowId: "row" }}
@@ -146,6 +151,7 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
     );
   }
   render(<DirectedCue />);
+  fireEvent.click(await screen.findByText("editPerformance"));
   fireEvent.change(await screen.findByLabelText("emotion"), {
     target: { value: "happy" },
   });
@@ -164,6 +170,8 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
     expect(operationId).toBe(`speech_${requestId}`);
   }
   expect(api.saveDocument.mock.calls[0][0].rows[0]).toMatchObject({
+    targetDurationMs: 2400,
+    speechWindows:[{startMs:120,endMs:1650}],
     text: "สวัสดี",
     characterPresetId: "hero",
     delivery: { emotion: "happy", direction: "A soft greeting." },
@@ -191,18 +199,18 @@ it.each(["original", "edited"])("recovers a missing direct operation with %s cue
   const binding = {documentId:"doc", rowId:"row", characterId:"hero", operationId:id, operationRevision:2};
   const onBind = vi.fn();
   api.catalog.mockResolvedValue({
-    models: [{id:"seed", capabilities:{languages:["en"]}}],
+    models: [{id:"dola-seed-audio", capabilities:{languages:["en"]}}],
     voices: [{id:"speaker", modelIds:["seed"], languages:["en"]}], policy:{},
   });
-  api.characters.mockResolvedValue({items:[{id:"hero", name:"Hero", voiceId:"speaker", voiceKind:"prebuilt"}]});
-  api.customVoices.mockResolvedValue({items:[]});
-  api.document.mockResolvedValue({id:"doc", modelId:"seed", language:"en", revision:2,
+  api.characters.mockResolvedValue({items:[{id:"hero", name:"Hero", voiceId:"speaker", voiceKind:"custom"}]});
+  api.customVoices.mockResolvedValue({items:[{id:"speaker", name:"Saved Seed", savedAt:"today", lifecycleState:"ready", language:"en", modelId:"dola-seed-audio"}]});
+  api.document.mockResolvedValue({id:"doc", modelId:"dola-seed-audio", language:"en", revision:2,
     rows:[{id:"row", characterPresetId:"hero", text:"original", delivery:{}, enabled:true}]});
   api.operation.mockRejectedValue(Object.assign(new Error("missing"), {status:404}));
   api.takes.mockResolvedValue({items:[]});
   const client = new QueryClient({defaultOptions:{queries:{retry:false, gcTime:0}}});
   render(<QueryClientProvider client={client}><DubVoice projectId="p" cueId="c" text={text} language="en" speaker="Hero"
-    binding={binding} onBind={onBind} onUse={() => {}} onDeliveryChange={() => {}} /></QueryClientProvider>);
+    binding={binding} loadSpeechWindows={async () => [{startMs:250,endMs:750}]} onBind={onBind} onUse={() => {}} onDeliveryChange={() => {}} /></QueryClientProvider>);
   await screen.findByText("requestMissing");
   expect(api.generate).not.toHaveBeenCalled();
   if (text === "original") {

@@ -36,6 +36,7 @@ export default defineConfig({
       "../web/node_modules",
       "../client/i18n",
       "../server/domain/dub-sub/subtitleLayout.js",
+      "../server/domain/dub-sub/takePlacement.js",
     ].map(source => fileURLToPath(new URL(source, import.meta.url))) },
     host: "127.0.0.1",
     port: 6502,
