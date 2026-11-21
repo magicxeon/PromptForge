@@ -217,6 +217,59 @@ test("explicit performance acceptance survives resume, accepts a pause mismatch 
   assert.equal((await f.step(batch.id)).items[1].errorCode,"dub_take_overlap");
 });
 
+test("manual take acceptance checks the bound voice row and expires after changing cue timing",async t=>{
+  const f=await fixture(t);
+  const p=await f.repo.mutate(f.actor,f.project.id,f.project.revision,p=>{
+    p.durationMs=6000;
+    p.cues[0].takes={};
+    p.cues[1].voiceBindings.th={documentId:"doc",rowId:"row"};
+  });
+  const speech=[{startMs:100,endMs:650},{startMs:1100,endMs:1800}];
+  f.service.analyzeSourceRhythms=async()=>new Map([["cue1",speech]]);
+  f.service.voiceStudio.getDubTake=async(_,id)=>({id,documentId:"doc",rowId:id==="wrong"?"other":"row",
+    audioUrl:"/tone.wav",durationMs:1900});
+  f.service.voiceStudio.measureDubTake=async()=>[{startMs:100,endMs:1800}];
+  const use=takeId=>f.service.batches.useTakeBoundaries(f.actor,p.id,{revision:p.revision,language:"th",cueId:"cue1",takeId},f.noop);
+  await assert.rejects(use("wrong"),{code:"dub_batch_changed"});
+  await use("right");
+  const saved=await f.repo.get(f.actor,p.id);
+  const resolve=id=>f.service.voiceStudio.getDubTake(f.actor,id);
+  const unchanged=await normalizeCues(saved.cues,saved,resolve);
+  assert.equal(unchanged[1].takes.th.internalPausesAccepted,true);
+  const edited=await normalizeCues(saved.cues.map(c=>c.id==="cue1"?{...c,startMs:c.startMs+50}:c),saved,resolve);
+  assert.equal(edited[1].takes.th,undefined);
+  assert.equal(edited[1].selectedTakeId,null);
+});
+
+test("approve only the nominated pause candidate, retaining the other candidate for review",async t=>{
+  const f=await fixture(t);
+  const batch=await f.prepare("all");
+  const project=await f.repo.get(f.actor,f.project.id);
+  const saved=await f.repo.mutate(f.actor,project.id,project.revision,p=>{
+    p.durationMs=6000;
+    const b=p.dubBatches.th;
+    b.status="partial";
+    for(const item of b.items){
+      item.status="needs_listen";
+      item.errorCode="dub_take_rhythm_pause";
+      const binding=p.cues.find(c=>c.id===item.cueId).voiceBindings;
+      binding.th={...binding.th,operationId:item.operationId};
+    }
+  });
+  f.service.voiceStudio.getDubTake=async(_,id)=>({id,audioUrl:"/test.wav",durationMs:1900,
+    inputSnapshot:{speechWindows:[{startMs:100,endMs:650},{startMs:1100,endMs:1800}]}});
+  f.service.voiceStudio.measureDubTake=async()=>[{startMs:100,endMs:1800}];
+  const [first,second]=saved.dubBatches.th.items;
+  const approve=takeId=>f.service.batches.advance(f.actor,project.id,batch.id,{retime:true,revision:saved.revision,
+    pauseException:{cueId:first.cueId,takeId}},f.noop);
+  await assert.rejects(approve(second.operationId),{code:"dub_batch_changed"});
+  const result=await approve(first.operationId);
+  assert.deepEqual(result.items.map(i=>i.status),["done","needs_listen","needs_listen"]);
+  assert.equal(result.items[0].internalPausesAccepted,true);
+  assert.equal((await f.repo.get(f.actor,project.id)).cues[0].takes.th.id,first.operationId);
+  assert.equal(f.requests.length,0);
+});
+
 test("retime an old partial batch using saved takes only; preserve chosen cues and skip dispatch",async t=>{
   const f=await fixture(t);
   const batch=await f.prepare("missing");

@@ -25,10 +25,22 @@
   min-width: 0;
 }
 .dub-take {
-  grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   padding-block: 0.6rem;
   border-top: 1px solid #dbe1dc;
 }
 .dub-take span {
-  grid-column: 1 / -1;
+  flex-basis: 100%;
 }
+.dub-voice .dub-performance-settings {
+  background: #eff6f2;
+  color: #203e31;
+  border: 1px solid #ccded3;
+  border-radius: .65rem;
+  padding: .65rem .75rem;
+}
+.dub-performance-settings > label {margin-top: .6rem}
+.dub-voice .dub-timing-mode {display:flex;align-items:flex-start;gap:.5rem}
+.dub-voice .dub-timing-mode input {width:auto;flex:none;margin:.2rem 0}
+.dub-timing-mode small {display:block}

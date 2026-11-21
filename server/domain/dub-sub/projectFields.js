@@ -260,12 +260,16 @@ export async function normalizeCues(rows, project, resolveTake) {
         const previous = previousCues.get(cue.id);
         const previousId = previous?.takes?.[lang]?.id ||
           (lang === project.targetLanguages[0] && previous?.selectedTakeId);
+        const accepted = id===previousId && previous?.takes?.[lang]?.internalPausesAccepted;
+        if (accepted && (previous.startMs!==cue.startMs || previous.endMs!==cue.endMs ||
+            (previous.offsetMs??0)!==cue.offsetMs)) continue;
         if (id !== previousId && !takePlacement(cue,take.durationMs,project.durationMs).fits)
           throw dubError("dub_take_exceeds_window", 422);
         cue.takes[lang] = {
           id: take.id,
           audioUrl: take.audioUrl,
           durationMs: take.durationMs,
+          ...(accepted && {internalPausesAccepted:true}),
         };
       }
     }

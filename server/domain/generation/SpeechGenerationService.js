@@ -191,7 +191,7 @@ export class SpeechGenerationService {
         const target = record.snapshot.targetDurationMs;
         if (record.operation === 'speech' && target !== undefined) {
           if (record.snapshot.speechWindows) {
-            const aligned = await alignCueSpeech(bytes, record.snapshot.speechWindows, this.catalog().policy.maxAudioBytes);
+            const aligned = await alignCueSpeech(bytes, record.snapshot.speechWindows, this.catalog().policy.maxAudioBytes, undefined, record.snapshot.boundaryTimingOnly);
             bytes = aligned.bytes;
             rhythmReview = aligned.review;
             if (rhythmReview.shiftMs && timing) timing = timing

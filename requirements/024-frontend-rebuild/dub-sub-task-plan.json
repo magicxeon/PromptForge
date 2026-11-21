@@ -4,6 +4,18 @@
   "requirement": "requirements/024-frontend-rebuild/008-dub-sub-studio.md",
   "tasks": [
     {
+      "id":"DS-TAKE-BOUNDARIES","title":"Accept internal pause differences for one measured take",
+      "complexity":"complex","reason":"Coordinate the per-take placement action, editor controls, pending feedback and confirmations.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root","capabilities":["dub-sub"],
+      "risks":["shared-contract","user-facing"],"dependsOn":["DS-RETIME"],
+      "writeScope":["server/domain/dub-sub/","server/app/routes/dubSubRoutes.js","web-next/","test/","requirements/024-frontend-rebuild/"],
+      "status":"complete","acceptance":["Place only the chosen take when both measured endpoints fit and neighbors remain clear."],
+      "reviewers":["qa-release-engineer","ux-ui-product-designer"],
+      "reviews":[{"role":"qa-release-engineer","agentId":"/root/menu","result":"passed","reference":"test/dubBatch.test.mjs"},{"role":"ux-ui-product-designer","agentId":"/root/menu","result":"passed","reference":"web-next/test/dub-voice-roundtrip.mjs"}],
+      "evidence":[{"check":"Place only the chosen take when both measured endpoints fit and neighbors remain clear.","result":"passed","reference":"test/dubTakeOffset.test.mjs"}],
+      "handoff":"Root owns placement and integration. Menu owns cue actions and timing-review wave. Modal owns native confirmation replacement."
+    },
+    {
       "id":"DS-VOICE-BRIEF","title":"Draft an editable dubbing voice description from the character role",
       "complexity":"complex","reason":"The Setup form calls a new operator-funded text route before generating a sample.",
       "owner":"backend-platform-architect","ownerAgentId":"/root/voice_suggestion","capabilities":["voice-studio","dub-sub"],

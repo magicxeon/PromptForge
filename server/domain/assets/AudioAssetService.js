@@ -70,7 +70,7 @@ export function significantPauses(spans) {
     ? [{startMs:spans[i].endMs,endMs:s.startMs}] : []);
 }
 
-export async function alignCueSpeech(bytes, windows, maxBytes, detect=detectSpeechIntervals) {
+export async function alignCueSpeech(bytes, windows, maxBytes, detect=detectSpeechIntervals, boundaryTimingOnly=false) {
   inspectWav(bytes);
   const offset = singleDataOffset(bytes);
   const pcmStart = offset === null ? 0 : offset + 8;
@@ -111,7 +111,7 @@ export async function alignCueSpeech(bytes, windows, maxBytes, detect=detectSpee
       Math.abs(p.endMs-gap.endMs)<=alignment.pauseToleranceMs &&
       Math.min(p.endMs,gap.endMs)-Math.max(p.startMs,gap.startMs)>=(gap.endMs-gap.startMs)*.5;
   });
-  if (!pausesMatch) reasons.push('pause');
+  if (!boundaryTimingOnly && !pausesMatch) reasons.push('pause');
   return {bytes,review:{status:reasons.length?'review':'matched',reasons,actualStartMs,actualEndMs,shiftMs}};
 }
 

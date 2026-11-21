@@ -83,6 +83,8 @@ export class VoiceStudioApplicationService {
       if (typeof row.enabled !== 'boolean') throw voiceError('voice_invalid_rows');
       if (row.targetDurationMs !== undefined && (!Number.isSafeInteger(row.targetDurationMs) || row.targetDurationMs <= 0)) throw voiceError('voice_invalid_rows');
       if (!validSpeechWindows(row.speechWindows,row.targetDurationMs)) throw voiceError('voice_invalid_rows');
+      if (row.boundaryTimingOnly !== undefined && (typeof row.boundaryTimingOnly !== 'boolean' ||
+          (row.boundaryTimingOnly && !row.speechWindows?.length))) throw voiceError('voice_invalid_rows');
       if (row.characterPresetId && !characters.some(c => c.id === row.characterPresetId)) throw voiceError('voice_character_not_found');
       if (!row.delivery || typeof row.delivery !== 'object' || Array.isArray(row.delivery)) throw voiceError('voice_invalid_delivery');
       for (const [k,v] of Object.entries(row.delivery)) { if (!['emotion','intensity','pace','method','direction'].includes(k)) throw voiceError('voice_invalid_delivery'); string(v, policy.maxStyleLength || 400, true); }
@@ -100,6 +102,7 @@ export class VoiceStudioApplicationService {
       record.language = string(body.language ?? record.language, 30);
       record.rows = rows.map(r => ({ id: r.id, enabled: r.enabled, characterPresetId: r.characterPresetId || '', text: r.text, delivery: structuredClone(r.delivery),
         ...(r.targetDurationMs !== undefined && { targetDurationMs: r.targetDurationMs }),
+        ...(r.boundaryTimingOnly && {boundaryTimingOnly:true}),
         ...(r.speechWindows && {speechWindows:structuredClone(r.speechWindows)}), selectedTakeId: r.selectedTakeId || null }));
     });
   }
@@ -136,6 +139,7 @@ export class VoiceStudioApplicationService {
     return { documentId:id,rowId,text:row.text,delivery:row.delivery,voiceId:character.voiceId,modelId:document.modelId,language:document.language,
       ...(row.targetDurationMs !== undefined && { targetDurationMs: row.targetDurationMs }),
       ...(row.speechWindows && {speechWindows:row.speechWindows}),
+      ...(row.boundaryTimingOnly && {boundaryTimingOnly:true}),
       ...(custom ? { voiceKind: 'custom', customVoiceOperationId: custom.operationId, customVoiceRevision: custom.revision } : {}),
       characterName:character.name,characterPresetId:character.id,documentRevision:document.revision,characterRevision:character.revision };
   }

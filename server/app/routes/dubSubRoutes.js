@@ -131,7 +131,8 @@ export function registerDubSubRoutes(app, { projects }) {
   route("post", "/:id/dubbing-batches/:batchId/advance", (req, actor, id, body) =>
     projects.batches.advance(actor, id, req.params.batchId, body, verifyIdentity(req)));
   route("patch", "/:id", (req, actor, id, body) =>
-    projects.update(actor, id, body),
+    body.takeTiming === undefined ? projects.update(actor, id, body) :
+      projects.batches.useTakeBoundaries(actor,id,{...body.takeTiming,revision:body.revision},verifyIdentity(req)),
   );
   route("delete", "/:id", (req, actor, id, body) =>
     projects.remove(actor, id, body, verifyIdentity(req)),

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import {
   useActor,
   type HistoryItem,
@@ -20,7 +21,6 @@ export function ImageResultActions({
   const { t } = useTranslation();
   const { identityScope } = useActor();
   const navigate = useNavigate();
-  const [reuse, setReuse] = useState(false);
   const [role, setRole] = useState<GenerationReferenceRole>("style_reference");
   return (
     <div className="result-info">
@@ -35,21 +35,20 @@ export function ImageResultActions({
       <details>
         <summary>{t("details")}</summary>
         <p className="result-prompt">{item.prompt}</p>
-        <button onClick={() => setReuse(true)}>{t("reuse")}</button>
-        {reuse && (
-          <div role="group" className="confirm-reuse">
-            <p>{t("replaceConfirm")}</p>
-            <button
-              onClick={() => {
-                onPrompt(item.prompt);
-                setReuse(false);
-              }}
-            >
-              {t("replace")}
-            </button>
-            <button onClick={() => setReuse(false)}>{t("close")}</button>
-          </div>
-        )}
+        <AlertDialog.Root>
+          <AlertDialog.Trigger asChild><button>{t("reuse")}</button></AlertDialog.Trigger>
+          <AlertDialog.Portal>
+            <AlertDialog.Overlay className="app-confirm-dialog__overlay" />
+            <AlertDialog.Content className="app-confirm-dialog__content">
+              <AlertDialog.Title>{t("reuse")}</AlertDialog.Title>
+              <AlertDialog.Description>{t("replaceConfirm")}</AlertDialog.Description>
+              <div>
+                <AlertDialog.Cancel asChild><button>{t("cancel")}</button></AlertDialog.Cancel>
+                <AlertDialog.Action asChild><button className="primary" onClick={() => onPrompt(item.prompt)}>{t("replace")}</button></AlertDialog.Action>
+              </div>
+            </AlertDialog.Content>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>
       </details>
       <div className="reuse-reference">
         <select

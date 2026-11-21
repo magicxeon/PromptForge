@@ -140,6 +140,10 @@ test('Seed directs approved wording into source speech windows and rejects inval
   const base = {...snapshot,text,modelId,voiceId,targetDurationMs:1800};
   const windows = [{startMs:200,endMs:600},{startMs:1000,endMs:1700}];
   const {providerPrompt} = compileSpeechRequest({...base,speechWindows:windows},catalog).snapshot;
+  const relaxed=compileSpeechRequest({...base,speechWindows:windows,boundaryTimingOnly:true},catalog).snapshot;
+  assert.ok(relaxed.providerPrompt.includes('[0.2s:1.7s]'));
+  assert.ok(relaxed.providerPrompt.includes(JSON.stringify(text)));
+  assert.ok(!relaxed.providerPrompt.includes('[1s:1.7s]'));
   assert.match(providerPrompt,/\[0.2s:0.6s\]/);
   assert.match(providerPrompt,/\[1s:1.7s\]/);
   assert.equal([...providerPrompt.matchAll(/Say exactly: (".*")/g)].map(m=>JSON.parse(m[1])).join(''),text);
@@ -166,6 +170,9 @@ test('onset alignment does not double delay, preserves metadata and flags missin
   }
   const combined = await alignCueSpeech(sample(300,300),windows,256000,()=>[{startMs:300,endMs:1500}]);
   assert.deepEqual(combined.review.reasons,['ending','pause']);
+  const relaxed=async endMs=>(await alignCueSpeech(sample(300,300),windows,256000,()=>[{startMs:300,endMs}],true)).review;
+  assert.equal((await relaxed(1200)).status,'matched');
+  assert.deepEqual((await relaxed(1500)).reasons,['ending']);
   const addedPause = await alignCueSpeech(sample(300),[{startMs:300,endMs:1200}],256000,
     ()=>[{startMs:300,endMs:600},{startMs:900,endMs:1200}]);
   assert.deepEqual(addedPause.review.reasons,['pause']);

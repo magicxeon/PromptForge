@@ -21,9 +21,9 @@ async function castStillMatches(voice,actor,item,language) {
   }
 }
 
-function place(cue, language, take, offsetMs, primaryLanguage) {
+function place(cue, language, take, offsetMs, primaryLanguage, internalPausesAccepted=false) {
   return {...cue,offsetMs,takes:{...cue.takes,[language]:{
-    id:take.id,audioUrl:take.audioUrl,durationMs:take.durationMs
+    id:take.id,audioUrl:take.audioUrl,durationMs:take.durationMs,...(internalPausesAccepted && {internalPausesAccepted:true})
   }},...(language===primaryLanguage && {selectedTakeId:take.id})};
 }
 
@@ -56,9 +56,11 @@ function view(batch) {
     language: batch.language,
     status: batch.status,
     totalCredits: batch.totalCredits,
-    items: batch.items.map(({ cueId, status, errorCode, durationMs, targetMs }) => ({
+    items: batch.items.map(({ cueId, status, errorCode, durationMs, targetMs, operationId, internalPausesAccepted }) => ({
       cueId,
       status,
+      ...(errorCode === "dub_take_rhythm_pause" && operationId && {takeId:operationId}),
+      ...(internalPausesAccepted && {internalPausesAccepted:true}),
       ...(errorCode && { errorCode }),
       ...(errorCode === "dub_take_exceeds_window" && { durationMs, targetMs }),
     })),
@@ -253,7 +255,39 @@ export class DubBatchService {
       return view(batch);
     });
   }
-  async retime(actor,id,batchId,revision,verify) {
+  async useTakeBoundaries(actor,id,{revision,language,cueId,takeId},verify) {
+    return this.exclusive(actor,id,async project=>{
+      if (typeof cueId!=="string" || typeof takeId!=="string" || !takeId || takeId.length>160)
+        throw dubError("dub_invalid_input",422);
+      if (revision!==project.revision) throw dubError("dub_revision_conflict",409);
+      if (!project.targetLanguages.includes(language)) throw dubError("dub_invalid_input",422);
+      if (project.tracks?.[language]?.locked) throw dubError("dub_track_locked",409);
+      const batch=project.dubBatches?.[language];
+      if (batch?.status==="running") throw dubError("dub_batch_busy",409);
+      const cue=project.cues.find(c=>c.id===cueId);
+      const binding=cue?.voiceBindings?.[language];
+      if (!binding?.rowId || !binding.documentId) throw dubError("dub_batch_changed",409);
+      await verify();
+      const voice=this.projects.voiceStudio;
+      const take=await voice.getDubTake(actor,takeId);
+      if (take.rowId!==binding.rowId || take.documentId!==binding.documentId)
+        throw dubError("dub_batch_changed",409);
+      const rhythms=await this.projects.analyzeSourceRhythms(this.projects,actor,project,[cue],verify);
+      const measured={...take,inputSnapshot:{...take.inputSnapshot,speechWindows:rhythms.get(cueId)}};
+      const fit=await fitTakeOffset(project,cue,language,measured,voice,actor,false,true);
+      if (fit.errorCode) throw dubError(fit.errorCode,422);
+      await verify();
+      const cues=project.cues.map(c=>c.id===cueId ? place(c,language,take,fit.offsetMs,project.targetLanguages[0],true) : c);
+      const committed=await this.projects.commitCues(actor,id,cues,()=>this.projects.repo.mutate(actor,id,revision,p=>{
+        p.cues=cues;
+        const b=p.dubBatches?.[language];
+        const item=b?.items.find(i=>i.cueId===cueId && i.operationId===take.id && hasCandidate(i));
+        if (item) {item.status="done"; delete item.errorCode; item.internalPausesAccepted=true; b.status=summarize(b);}
+      }));
+      return this.projects.view(committed);
+    });
+  }
+  async retime(actor,id,batchId,revision,verify,pauseException) {
     return this.exclusive(actor,id,async project=>{
       const batch = currentBatch(project,batchId);
       if (revision !== project.revision) throw dubError("dub_revision_conflict",409);
@@ -264,13 +298,19 @@ export class DubBatchService {
       const indices = new Map(cues.map((cue,index)=>[cue.id,index]));
       const items = batch.items.map(i=>({...i}));
       const voice = this.projects.voiceStudio;
-      for (const item of items.filter(hasCandidate)) {
+      let candidates = items.filter(hasCandidate);
+      if (pauseException !== undefined) {
+        candidates = candidates.filter(item => item.cueId === pauseException?.cueId &&
+          item.operationId === pauseException?.takeId && item.errorCode === "dub_take_rhythm_pause");
+        if (candidates.length !== 1) throw dubError("dub_batch_changed",409);
+      }
+      for (const item of candidates) {
         await verify();
         const index = indices.get(item.cueId);
         const cue = cues[index];
         if (!cue) continue;
         const selected = cue.takes?.[batch.language];
-        if (selected) {
+        if (selected && !pauseException) {
           item.status="done"; delete item.errorCode;
           continue;
         }
@@ -285,12 +325,17 @@ export class DubBatchService {
           if (error.code!=="voice_record_not_found") throw error;
           item.status="failed"; item.errorCode="dub_batch_changed"; continue;
         }
-        const fit = await fitTakeOffset({...project,cues},cue,batch.language,take,voice,actor);
+        if (pauseException && !take.inputSnapshot?.speechWindows) {
+          const rhythms=await this.projects.analyzeSourceRhythms(this.projects,actor,project,[cue],verify);
+          take={...take,inputSnapshot:{...take.inputSnapshot,speechWindows:rhythms.get(cue.id)}};
+        }
+        const fit = await fitTakeOffset({...project,cues},cue,batch.language,take,voice,actor,false,!!pauseException);
         if (fit.errorCode) {
           item.status="needs_listen"; item.errorCode=fit.errorCode;
           if (fit.errorCode==="dub_take_exceeds_window") Object.assign(item,{durationMs:take.durationMs,targetMs:fit.targetMs});
         } else {
-          cues[index]=place(cue,batch.language,take,fit.offsetMs,project.targetLanguages[0]);
+          cues[index]=place(cue,batch.language,take,fit.offsetMs,project.targetLanguages[0],!!pauseException);
+          if (pauseException) item.internalPausesAccepted = true;
           item.status="done"; delete item.errorCode;
         }
       }
@@ -304,8 +349,8 @@ export class DubBatchService {
       return view(currentBatch(committed,batchId));
     });
   }
-  async advance(actor, id, batchId, { confirmed, retime, revision }, verify) {
-    if (retime === true) return this.retime(actor,id,batchId,revision,verify);
+  async advance(actor, id, batchId, { confirmed, retime, revision, pauseException }, verify) {
+    if (retime === true) return this.retime(actor,id,batchId,revision,verify,pauseException);
     if (confirmed !== true) throw dubError("dub_batch_invalid", 400);
     return this.exclusive(actor, id, async (project) => {
       const batch = currentBatch(project, batchId);

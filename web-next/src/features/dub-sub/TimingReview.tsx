@@ -1,18 +1,23 @@
 import { useTranslation } from "react-i18next";
 import type { TimingLine } from "./dubBatchApi";
+import { useDubConfirmation } from "./useDubConfirmation";
 import { timeLabel, type Cue } from "./projectApi";
 
 export function TimingReview({lines,cues,onEdit,onRequest,disabled=false,offerAnalysis=false}: {
   lines: TimingLine[]; cues:Cue[]; onEdit:(id:string,text:string)=>void; onRequest:(director:"luna"|"gemini")=>void; disabled?:boolean; offerAnalysis?:boolean;
 }) {
   const {t} = useTranslation("dub");
+  const confirmation = useDubConfirmation();
   const manual = lines.find(line=>line.manual);
   const canRequest = manual && !["dub_scene_access_denied","dub_scene_request_limit"].includes(manual.reason ?? "");
   const actionsDisabled = disabled || lines.some(line=>line.original!==line.suggested);
   return <section aria-label={t("timed.title")}>
+    {confirmation.modal}
     <h3>{t("timed.title")}</h3>
     {offerAnalysis && !manual && <button type="button" disabled={disabled} onClick={()=>{
-      if (!lines.some(l=>l.original!==l.suggested) || window.confirm(t("timed.replaceDraft"))) onRequest("gemini");
+      if (lines.some(l=>l.original!==l.suggested)) {
+        confirmation.ask({action:t("timed.analyzeAI"), message:t("timed.replaceDraft"), proceed:()=>onRequest("gemini")});
+      } else onRequest("gemini");
     }}>{t("timed.analyzeAI")}</button>}
     {manual && <div className="dub-timing-error"><div role="status"><strong>{t("timed.errorHeading")}</strong>
       <p>{t(`timed.reasons.${manual.reason}`,{defaultValue:t("timed.manual"),provider:manual.director==="gemini"?"Gemini":"Luna"})}</p></div>

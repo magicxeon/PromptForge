@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { voiceApi } from "../../../../web/src/features/voice-studio/api/voiceStudioApi";
+import { useDubConfirmation } from "./useDubConfirmation";
 import type {
   VoiceDocument,
   VoiceTake,
@@ -51,8 +52,10 @@ type Props = {
   binding?: Binding;
   onBind: (binding: Binding) => void | Promise<void>;
   onUse: (take: SelectedTake) => void | Promise<void>;
+  onUseBoundaries?: (takeId:string) => Promise<void>;
   onAudition?: (take: VoiceTake) => void;
   usedTakeId?: string;
+  internalPausesAccepted?: boolean;
   onTakeDeleted?: (id:string) => void;
 };
 type Quote = Awaited<ReturnType<typeof voiceApi.quote>> & {
@@ -101,8 +104,9 @@ function VoiceInspector({
   binding,
   onBind,
   onUse,
+  onUseBoundaries,
   onAudition,
-  usedTakeId, onTakeDeleted,
+  usedTakeId, internalPausesAccepted, onTakeDeleted,
   defaultCharacterId,
   initialSelection,
   targetMs,
@@ -110,6 +114,7 @@ function VoiceInspector({
   suggestedDelivery, overrides, onDeliveryChange,
 }: Props & { scope: string }) {
   const { t } = useTranslation("dubVoice");
+  const confirmation = useDubConfirmation();
   const creditsEnabled = useWorkspaceCredits();
   const client = useQueryClient();
   const prefix = ["dubVoice", scope];
@@ -121,6 +126,7 @@ function VoiceInspector({
   const choices = useQuery({ queryKey: choicesKey, queryFn: () => loadDubbingChoices(language) });
   const [chosenVoice, setVoice] = useState(initialSelection?.replace(/^custom\//, "") || "");
   const [localBinding, setLocalBinding] = useState(binding);
+  const [boundaryTimingOnly,setBoundaryTimingOnly] = useState(false);
   const b = localBinding ?? binding;
   const documentKey = [...prefix, "document", b?.documentId];
   const doc = useQuery({
@@ -150,6 +156,7 @@ function VoiceInspector({
       model?.id,
       targetMs,
       cueStartMs,
+      boundaryTimingOnly,
       voice,
       delivery.emotion,
       delivery.intensity,
@@ -208,7 +215,8 @@ function VoiceInspector({
     try {
       await action();
     } catch (err) {
-      setError(t("error", { code: (err as { code?: string })?.code || "" }));
+      const code=(err as {code?:string})?.code || "";
+      setError(t("dub:errors."+code,{defaultValue:t("error",{code})}));
     } finally {
       lock.current = false;
       setBusy(false);
@@ -223,6 +231,10 @@ function VoiceInspector({
     const { epoch } = getIdentitySnapshot();
     if (!selectedVoice) return;
     const speechWindows = await loadSpeechWindows?.();
+    if (boundaryTimingOnly && !speechWindows?.length) {
+      setError(t("dub:errors.dub_take_rhythm_unmeasurable"));
+      return;
+    }
     assertIdentityEpoch(epoch);
     const character = (mapped?.voiceId === selection ? mapped : undefined)
       || characters.find(c => c.voiceKind === "custom" && c.voiceId === selection)
@@ -256,6 +268,7 @@ function VoiceInspector({
               enabled: true,
               text,
               targetDurationMs: targetMs,
+              boundaryTimingOnly,
               speechWindows: speechWindows?.length ? speechWindows : undefined,
               characterPresetId: character.id,
               delivery,
@@ -323,6 +336,7 @@ function VoiceInspector({
     return <p role="alert">{t("error", { code: "" })}</p>;
   return (
     <section className="dub-voice">
+      {confirmation.modal}
       <fieldset disabled={busy || active}>
         <label>
           {t("character")}
@@ -339,7 +353,7 @@ function VoiceInspector({
             {voices.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
           </select>
         </label>
-        <details>
+        <details className="dub-performance-settings">
           <summary>{t("editPerformance")}</summary>
           {(["emotion", "intensity", "pace"] as const).map((key) => (
             <label key={key}>
@@ -365,6 +379,10 @@ function VoiceInspector({
               onChange={(e) => changeDelivery("direction", e.target.value)}
             />
           </label>
+          {loadSpeechWindows && <label className="dub-timing-mode">
+            <input type="checkbox" checked={boundaryTimingOnly} onChange={e=>{setBoundaryTimingOnly(e.target.checked);setQuote(null);}}/>
+            <span>{t("dub:boundaryTimingOption")}<small>{t("dub:boundaryTimingHint")}</small></span>
+          </label>}
         </details>
         {usableQuote ? (
           <button type="button" onClick={() => void run(() => submitTake(usableQuote))}>
@@ -437,11 +455,16 @@ function VoiceInspector({
           >
             {t("listen")}
           </button>
+          {usedTakeId===item.id && internalPausesAccepted && <span role="status">{t("dub:boundaryTimingApplied")}</span>}
           <button
             type="button"
             disabled={busy || !b || placement?.fits === false}
             onClick={() =>
               void run(async () => {
+                if (item.inputSnapshot.boundaryTimingOnly && onUseBoundaries) {
+                  await onUseBoundaries(item.id);
+                  return;
+                }
                 const current = await voiceApi.document(b!.documentId);
                 const next = await voiceApi.select(
                   current.id,
@@ -458,7 +481,7 @@ function VoiceInspector({
               })
             }
           >
-            {t(row?.selectedTakeId === item.id ? "selected" : "use")}
+            {t(usedTakeId === item.id ? "selected" : "use")}
           </button>
           <button
             type="button"
@@ -474,9 +497,10 @@ function VoiceInspector({
           </button>
           <button type="button" disabled={busy || row?.selectedTakeId===item.id || usedTakeId===item.id}
             title={t(row?.selectedTakeId===item.id || usedTakeId===item.id ? "deleteInUse" : "deleteTake")}
-            onClick={()=>{
-              if (!window.confirm(t("deleteConfirm",{name:item.inputSnapshot.characterName,seconds:(item.durationMs/1000).toFixed(1)}))) return;
-              void run(async()=>{
+            onClick={()=>confirmation.ask({
+              action:t("deleteTake"), destructive:true,
+              message:t("deleteConfirm",{name:item.inputSnapshot.characterName,seconds:(item.durationMs/1000).toFixed(1)}),
+              proceed:()=>void run(async()=>{
                 try { await voiceApi.deleteTake(item.id); }
                 catch (e) {
                   if ((e as {code?:string}).code==="voice_take_in_use") {setError(t("deleteInUse"));return;}
@@ -486,8 +510,8 @@ function VoiceInspector({
                 onTakeDeleted?.(item.id);
                 if (newest?.id===item.id) client.setQueryData([...prefix,"operation",operationId],{...operation.data,take:null});
                 await takes.refetch();
-              });
-            }}>{t("deleteTake")}</button>
+              }),
+            })}>{t("deleteTake")}</button>
         </div>
       );})}
       {media.url && <TakePlayback src={media.url} />}

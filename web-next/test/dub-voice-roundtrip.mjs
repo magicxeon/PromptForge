@@ -93,14 +93,17 @@ try {
       if (path.endsWith("/advance")) {
         const request=route.request().postDataJSON();
         if (request.retime) {
-          assert.deepEqual(request,{retime:true,revision:draft.revision});
+          assert.deepEqual(request,{retime:true,revision:draft.revision,...(width===820 && {
+            pauseException:{cueId:batch.items[0].cueId,takeId:"saved-take"}
+          })});
           batch.status="complete";batch.items[0].status="done";delete batch.items[0].errorCode;
         } else if (confirmedRetry) {
           batch.status="complete";batch.items[0].status="done";
         } else {
           assert.deepEqual(request,{confirmed:true});
           batch.status="partial";batch.items[0].status=width===820 ? "failed" : "needs_listen";
-          batch.items[0].errorCode="dub_take_rhythm_onset";
+          batch.items[0].errorCode=width===820?"dub_take_rhythm_pause":"dub_take_rhythm_onset";
+          if (width===820) batch.items[0].takeId="saved-take";
         }
         return json(batch);
       }
@@ -159,9 +162,24 @@ try {
     await source.click();
     if (!(await page.getByRole("button", { name: "Choose dubbing voice" }).isVisible()))
       await page.locator(".dub-open-inspector").click();
+    const selectedLine = page.getByRole("region", {name:"Selected line"});
+    assert.equal(await selectedLine.locator(".dub-cue-excerpt").innerText(), "EN second");
+    assert.match(await selectedLine.locator(".dub-cue-range").innerText(), /02\.000.*03\.700/);
+    await selectedLine.getByText("Arrange timing", {exact:true}).click();
+    await selectedLine.getByText("Move the playhead inside this line to split it.").waitFor();
+    assert.ok(await selectedLine.getByRole("button", {name:"Split at playhead"}).isDisabled());
+    assert.ok(await selectedLine.getByRole("button", {name:"Delete this line"}).isVisible());
+    assert.ok(await selectedLine.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
     await page.getByRole("button", { name: "Choose dubbing voice" }).click();
     const voice = page.getByLabel("Dubbing voice", { exact: true });
     await voice.selectOption(seed.id);
+    const performance=page.locator(".dub-performance-settings");
+    await performance.locator("summary").click();
+    const boundaryMode=performance.getByRole("checkbox",{name:/Match start and end only/});
+    assert.equal(await boundaryMode.isChecked(),false);
+    await boundaryMode.check();
+    assert.ok(await performance.evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+    await performance.locator("summary").click();
     await page.waitForFunction(() => document.querySelector("video")?.duration === 5);
     await page.locator("video").evaluate(video => { video.currentTime = 2.525; });
     assert.equal(await page.getByRole("link", { name: /Voice Studio/ }).count(), 0);
@@ -225,7 +243,17 @@ try {
     await previewButtons.first().click();
     assert.notEqual(await previewButtons.first().innerText(),await previewButtons.nth(1).innerText());
     await previewButtons.first().click();
+    let continueTiming;
+    const pauseTiming = new Promise(resolve => { continueTiming = resolve; });
+    await page.route("**/dubbing-timing-review", async route => {
+      await pauseTiming;
+      await route.fallback();
+    }, {times:1});
     await casting.getByRole("button",{name:/Dub .* remaining lines/}).click();
+    const timingProgress = casting.getByRole("status").filter({hasText:"Preparing timed dialogue"});
+    await timingProgress.locator(".seed-generation-wave").waitFor();
+    continueTiming();
+    await timingProgress.waitFor({state:"hidden"});
     const proposed = casting.getByRole("textbox",{name:"Suggested dubbing line"});
     await casting.getByRole("button",{name:"Retry with Luna"}).click();
     await casting.getByRole("button",{name:"Retry with Luna"}).waitFor({state:"hidden"});
@@ -251,11 +279,22 @@ try {
     const writeCount=writes.length;
     if (width===390) {
       await retry.click();
-      await casting.getByRole("button",{name:"Analyze and revise dialogue with AI (Gemini)"}).waitFor();
+      const analyze = casting.getByRole("button",{name:"Analyze and revise dialogue with AI (Gemini)"});
+      await analyze.waitFor();
       assert.equal(await proposed.inputValue(),"Hello.");
+      await proposed.fill("My edit.");
+      await analyze.click();
+      const replaceDialog = page.getByRole("dialog",{name:"Analyze and revise dialogue with AI (Gemini)",exact:true});
+      await replaceDialog.getByRole("button",{name:"Cancel"}).waitFor();
+      await page.keyboard.press("Escape");
+      await replaceDialog.waitFor({state:"hidden"});
+      assert.equal(await proposed.inputValue(),"My edit.");
+      assert.ok(await analyze.evaluate(el=>el===document.activeElement));
+      await proposed.fill("Hello.");
       await casting.getByRole("button",{name:"Generate and use these lines"}).click();
       await casting.getByRole("button",{name:/Confirm dubbing/}).click();
-    } else await casting.getByRole("button",{name:"Analyze scene audio"}).click();
+    } else if (width===820) await casting.getByRole("button",{name:"Use this take if the start and end match"}).click();
+    else await casting.getByRole("button",{name:"Analyze scene audio"}).click();
     await casting.getByText("Placed 1 of 1 lines").waitFor();
     if (width!==390) assert.deepEqual(writes.slice(writeCount),["/api/dub-sub/projects/roundtrip/dubbing-batches/batch-1/advance"]);
     else assert.ok(confirmedRetry);

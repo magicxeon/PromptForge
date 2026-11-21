@@ -3,15 +3,24 @@ import test from "node:test";
 import {fitTakeOffset} from "../server/domain/dub-sub/fitTakeOffset.js";
 
 const spans = pairs => pairs.map(([startMs,endMs])=>({startMs,endMs}));
-function fit({goal=[[102,1982]], measured=[[320,1970]], offsetMs=0, peer, otherTake, duration=2080, startMs=1058, windowMs=2080,acceptRhythmMismatch=false}={}) {
+function fit({goal=[[102,1982]], measured=[[320,1970]], offsetMs=0, peer, otherTake, duration=2080, startMs=1058, windowMs=2080,acceptRhythmMismatch=false,skipInternalPauses=false}={}) {
   const cue = {id:"one",startMs,endMs:startMs+windowMs,offsetMs,takes:otherTake ? {en:otherTake} : {}};
   const project = {durationMs:6000,cues:[cue,...(peer?[peer]:[])]};
   const take = {id:"fixture",durationMs:duration,inputSnapshot:{speechWindows:spans(goal)}};
   const actor = {userId:"owner"};
   return fitTakeOffset(project,cue,"th",take,{measureDubTake:async (user,id)=>{
     assert.equal(user,actor); assert.equal(id,take.id); return spans(measured);
-  }},actor,acceptRhythmMismatch);
+  }},actor,acceptRhythmMismatch,skipInternalPauses);
 }
+
+test("a single pause exception requires measured endpoints, a common offset and room between cues",async()=>{
+  const sample={goal:[[100,700],[1200,1900]],measured:[[100,1900]],skipInternalPauses:true};
+  assert.equal((await fit(sample)).errorCode,null);
+  assert.equal((await fit({...sample,measured:[[100,1250]]})).errorCode,"dub_take_rhythm_ending");
+  assert.equal((await fit({...sample,startMs:0,measured:[[700,1900]]})).errorCode,"dub_take_rhythm_onset");
+  assert.equal((await fit({...sample,measured:[]})).errorCode,"dub_take_rhythm_unmeasurable");
+  assert.ok((await fit({...sample,peer:{id:"next",startMs:1800,endMs:2200}})).errorCode);
+});
 
 test("offset solver preserves an approved manual placement and corrects the same original at zero",async()=>{
   assert.equal((await fit({offsetMs:-125})).offsetMs,-125);

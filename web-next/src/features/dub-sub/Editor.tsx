@@ -31,6 +31,7 @@ import { dubBatchApi, type TimingLine } from "./dubBatchApi";
 import { TimingReview } from "./TimingReview";
 import { Timeline } from "./Timeline";
 import { ExportDialog } from "./ExportDialog";
+import { useDubConfirmation } from "./useDubConfirmation";
 import { Dialog } from "./Dialog";
 import { SceneTranscription } from "./SceneTranscription";
 import { useDubDraft } from "./useDubDraft";
@@ -67,6 +68,7 @@ export default function Editor() {
   );
 }
 function Work({ initial }: { initial: Project }) {
+  const confirmation = useDubConfirmation();
   const { t } = useTranslation("dub"),
     model = useDubDraft(initial),
     p = model.draft,
@@ -250,18 +252,22 @@ function Work({ initial }: { initial: Project }) {
   function translate(language: string, overwrite: boolean, line?: Cue) {
     const consent = t("scene.translateConsent", { language: t("lang." + language) });
     const replace = overwrite ? t(line ? "replaceLine" : "replaceTrack", { language: t("lang." + language) }) : "";
-    if (!sceneAvailable || !window.confirm([consent, replace].filter(Boolean).join("\n"))) return;
-    void operation("translate", async (saved) => {
-      const next = await projectsApi.process(p.id, "translate", {
-        revision: saved.revision,
-        language,
-        confirmed: true, requestId: crypto.randomUUID(),
-        ...(line ? { cueIds: [line.id] } : {}),
-        overwrite,
-      });
-      model.accept(next);
-      if (!next.cues.some((c) => c.id === selected))
-        setSelected(next.cues[0]?.id || "");
+    if (!sceneAvailable) return;
+    confirmation.ask({
+      action: t(line ? "translateCue" : "retranslateAll"),
+      message: [consent, replace].filter(Boolean).join("\n"),
+      proceed: () => void operation("translate", async (saved) => {
+        const next = await projectsApi.process(p.id, "translate", {
+          revision: saved.revision,
+          language,
+          confirmed: true, requestId: crypto.randomUUID(),
+          ...(line ? { cueIds: [line.id] } : {}),
+          overwrite,
+        });
+        model.accept(next);
+        if (!next.cues.some((c) => c.id === selected))
+          setSelected(next.cues[0]?.id || "");
+      }),
     });
   }
   const lastServer = useRef(initial);
@@ -359,6 +365,7 @@ function Work({ initial }: { initial: Project }) {
         edit({ speakerProfiles, characterMappings }); return model.save();
       }} />}
     <section hidden={inVoiceSetup} className={inVoiceSetup ? "dub-editor-away" : "dub-editor"}>
+      {confirmation.modal}
       <header className="dub-bar">
         <Link to="/dub-sub"><span aria-hidden="true">‹ </span>{t("projects")}</Link>
         <input
@@ -402,13 +409,13 @@ function Work({ initial }: { initial: Project }) {
           })}{" "}
           {model.error && (
             <button
-              onClick={() => {
-                if (confirm(t("overwrite")))
-                  void projectsApi
+              onClick={() => confirmation.ask({
+                action:t("reload"), message:t("overwrite"),
+                proceed: () => void projectsApi
                     .read(p.id)
                     .then(model.accept)
-                    .catch((e) => setError(e.message));
-              }}
+                    .catch((e) => setError(e.message)),
+              })}
             >
               {t("reload")}
             </button>
@@ -767,22 +774,25 @@ function Work({ initial }: { initial: Project }) {
               />
               </details>
               {cue && (
-                <section className="dub-cue-actions" aria-label={t("editCue")}>
-                  <h3>{t("editCue")} <small>{timeLabel(cue.startMs)}</small></h3>
+                <section className="dub-cue-actions" aria-label={t("selectedLine")}>
+                  <h3>{t("selectedLine")}</h3>
+                  <small className="dub-cue-range">{timeLabel(cue.startMs)} – {timeLabel(cue.endMs)}</small>
+                  <p className="dub-cue-excerpt">{cue.translations[lang]?.trim() || cue.text}</p>
                   <div className="dub-tools">
                     <button onClick={() => setPanel("voice")}>
                       <Mic size={16} aria-hidden="true" /> {t("chooseVoice")}
                     </button>
                       <button disabled={!sceneAvailable || track(lang).locked || !cue.text.trim()}
                       onClick={() => translate(lang, !!cue.translations[lang], cue)}>{t("translateCue")}</button>
-                    <button disabled={timingLocked || time <= cue.startMs || time >= cue.endMs} onClick={split}>{t("split")}</button>
-                    <button disabled={timingLocked || p.cues.at(-1) === cue} onClick={merge}>{t("merge")}</button>
-                    <button disabled={timingLocked} onClick={() => {
-                      const remaining = p.cues.filter((c) => c.id !== cue.id);
-                      edit({ cues: remaining });
-                      setSelected(remaining[Math.min(p.cues.indexOf(cue), remaining.length - 1)]?.id || "");
-                    }}>{t("remove")}</button>
                   </div>
+                  <details>
+                    <summary>{t("arrangeTiming")}</summary>
+                    <div className="dub-tools">
+                      <button disabled={timingLocked || time <= cue.startMs || time >= cue.endMs} onClick={split}>{t("split")}</button>
+                      <button disabled={timingLocked || p.cues.at(-1) === cue} onClick={merge}>{t("merge")}</button>
+                    </div>
+                    {!timingLocked && (time <= cue.startMs || time >= cue.endMs) && <small>{t("splitHint")}</small>}
+                  </details>
                   <details>
                     <summary>{t("cueDetails")}</summary>
                   <label>
@@ -820,6 +830,13 @@ function Work({ initial }: { initial: Project }) {
                     ))}
                   </div>
                   </details>
+                  <div className="dub-cue-delete">
+                    <button disabled={timingLocked} onClick={() => {
+                      const remaining = p.cues.filter((c) => c.id !== cue.id);
+                      edit({ cues: remaining });
+                      setSelected(remaining[Math.min(p.cues.indexOf(cue), remaining.length - 1)]?.id || "");
+                    }}>{t("deleteLine")}</button>
+                  </div>
                 </section>
               )}
             </>
@@ -929,6 +946,11 @@ function Work({ initial }: { initial: Project }) {
                       .catch((e) => {setAudition(null); setError(e.message);});
                   }}
                   usedTakeId={cue.takes[lang]?.id}
+                  internalPausesAccepted={cue.takes[lang]?.internalPausesAccepted}
+                  onUseBoundaries={async takeId=>{
+                    const saved=await model.save();
+                    model.accept(await projectsApi.useTakeBoundaries(saved,lang,cue.id,takeId));
+                  }}
                   onTakeDeleted={id=>{
                     if (audition?.id===id) {video.current?.pause();setAudition(null);}
                   }}

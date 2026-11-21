@@ -7,7 +7,7 @@ const policy = config.timedDialogue.alignment;
 
 // Intersect the acceptable offset range for each measured boundary. If the
 // ranges do not intersect, moving the entire waveform cannot fix the cadence.
-export async function fitTakeOffset(project, cue, language, take, voice, actor, acceptRhythmMismatch = false) {
+export async function fitTakeOffset(project, cue, language, take, voice, actor, acceptRhythmMismatch = false, skipInternalPauses = false) {
   const current = cue.offsetMs ?? 0;
   const projectEnd = project.durationMs ?? cue.endMs;
   const placement = takePlacement(cue,take.durationMs,projectEnd);
@@ -37,6 +37,7 @@ export async function fitTakeOffset(project, cue, language, take, voice, actor, 
   const canKeepPosition = acceptRhythmMismatch && placement.fits && current >= lower && current <= upper;
   const rhythmMismatch = reason => reject(canKeepPosition ? null : "dub_take_rhythm_" + reason);
   if (!expected) {
+    if (skipInternalPauses) return reject("dub_take_rhythm_unmeasurable");
     if (!placement.fits) return reject("dub_take_exceeds_window");
     if (current < lower || current > upper) return reject("dub_take_overlap");
     const reason = take.rhythmReview?.reasons?.[0];
@@ -58,8 +59,8 @@ export async function fitTakeOffset(project, cue, language, take, voice, actor, 
     return rhythmMismatch("onset");
   if (!matchBoundary(expected.at(-1).endMs,actual.at(-1).endMs,policy.endingToleranceMs))
     return rhythmMismatch("ending");
-  const wantedPauses = significantPauses(expected);
-  const measuredPauses = significantPauses(actual);
+  const wantedPauses = skipInternalPauses ? [] : significantPauses(expected);
+  const measuredPauses = skipInternalPauses ? [] : significantPauses(actual);
   if (wantedPauses.length !== measuredPauses.length) return rhythmMismatch("pause");
   for (const [i, wanted] of wantedPauses.entries()) {
     const measured = measuredPauses[i];

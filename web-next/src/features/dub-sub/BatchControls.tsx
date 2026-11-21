@@ -5,6 +5,7 @@ import { ProcessingSpinner, pollingPolicy, useActor } from "../../lib/canonical"
 import { dubBatchApi, type Batch, type BatchMode, type TimingLine } from "./dubBatchApi";
 import { projectsApi, timeLabel, type Project, type Cue } from "./projectApi";
 import { TimingReview } from "./TimingReview";
+import { useDubConfirmation } from "./useDubConfirmation";
 
 function needsListen(item: Batch["items"][number]) {
   return item.status === "needs_listen" || (item.status === "failed" &&
@@ -17,6 +18,7 @@ export function BatchControls({ project, language, save, onReload, onBusy, canPr
   onCanExit: (canExit:boolean) => void; missingInputs: Cue[]; castVersion: number; closing: boolean;
 }) {
   const { t } = useTranslation("dub");
+  const confirmation = useDubConfirmation();
   const {identityScope} = useActor();
   const client = useQueryClient();
   const key = ["dub-batch", identityScope, project.id, language];
@@ -44,10 +46,10 @@ export function BatchControls({ project, language, save, onReload, onBusy, canPr
   const review = batch?.items.some(i=>i.status==="review");
   const done = batch?.items.filter(i=>i.status==="done").length ?? 0;
   const failed = batch?.items.filter(i=>i.status==="failed" && !needsListen(i)).length ?? 0;
-  function retime() {
+  function retime(pauseException?:{cueId:string;takeId:string}) {
     if (!batch) return;
     void run(async()=>{
-      const next = await dubBatchApi.advance(project.id,batch.id,{retime:true,revision:project.revision});
+      const next = await dubBatchApi.advance(project.id,batch.id,{retime:true,revision:project.revision,pauseException});
       client.setQueryData(key,next);
       await onReload();
       const newlyPlaced = next.items.filter(i=>i.status==="done" &&
@@ -86,8 +88,12 @@ export function BatchControls({ project, language, save, onReload, onBusy, canPr
     client.setQueryData(key,next);
     if (next.totalCredits === null && next.status==="prepared") await advance(next);
   }
-  function start(mode:BatchMode) {
-    if (!reviewed || !canPrepare || (mode==="all" && !window.confirm(t("casting.replaceConfirm")))) return;
+  function start(mode:BatchMode, confirmed=false) {
+    if (!reviewed || !canPrepare) return;
+    if (mode==="all" && !confirmed) {
+      confirmation.ask({action:t("casting.replace"), message:t("casting.replaceConfirm"), proceed:()=>start(mode,true)});
+      return;
+    }
     void run(async()=>{
       const saved = await save();
       const cues = saved.cues.filter(c=>mode==="all" || (mode==="missing" ? missing(c) : needsNewTake(c)));
@@ -122,9 +128,10 @@ export function BatchControls({ project, language, save, onReload, onBusy, canPr
   }
   const blocked = !canPrepare || working || running || query.isPending || query.isError || review;
   return <section className="dub-batch-controls">
+    {confirmation.modal}
     {query.isError && <button onClick={()=>void query.refetch()}>{t("refresh")}</button>}
     {!timing && batch?.status==="partial" && existingCandidates.size>0 && <section className="dub-analysis">
-      <button disabled={working || closing || review || !!project.tracks[language]?.locked} onClick={retime}>{t("casting.retime")}</button>
+      <button disabled={working || closing || review || !!project.tracks[language]?.locked} onClick={()=>retime()}>{t("casting.retime")}</button>
       <small>{t("casting.analysisHint")}</small>
       {retimeResult && <p role="status">{retimeResult}</p>}
     </section>}
@@ -133,7 +140,7 @@ export function BatchControls({ project, language, save, onReload, onBusy, canPr
     {!query.isPending && missingInputs.length>0 && <details><summary>{t("casting.incomplete",{count:missingInputs.length})}</summary>
       <ul>{missingInputs.map(c=><li key={c.id}>{timeLabel(c.startMs)} · {c.translations[language] || c.text}</li>)}</ul>
     </details>}
-    {checkingTime && <p role="status"><ProcessingSpinner /> {t("timed.check")}</p>}
+    {checkingTime && <p role="status"><ProcessingSpinner variant="wave" className="seed-generation-wave" /> {t("timed.check")}</p>}
     {timing && <><TimingReview disabled={working} lines={timing.lines} cues={project.cues} onRequest={director=>void run(async()=>{
       const lines = await dubBatchApi.timing(project.id,timing.revision,language,timing.lines.map(l=>l.id),true,director);
       const suggestions = new Map(lines.map(l=>[l.id,l]));
@@ -156,7 +163,9 @@ export function BatchControls({ project, language, save, onReload, onBusy, canPr
     {!timing && batch?.items.filter(i=>i.status==="failed" || i.status==="review" || needsListen(i)).map(i=>{
       const cue=project.cues.find(c=>c.id===i.cueId);
       return <p key={i.cueId}>{cue && timeLabel(cue.startMs) + " · "}{cue?.voiceBindings[language]?.dubText || cue?.translations[language] || cue?.text} · {i.errorCode==="dub_take_exceeds_window" && i.durationMs && i.targetMs ?
-        t("timed.over",{actual:i.durationMs/1000,target:i.targetMs/1000}) : t("errors."+i.errorCode,{defaultValue:t(i.status==="review"?"dubVoice:review":"dubVoice:failed")})}</p>;
+        t("timed.over",{actual:i.durationMs/1000,target:i.targetMs/1000}) : t("errors."+i.errorCode,{defaultValue:t(i.status==="review"?"dubVoice:review":"dubVoice:failed")})}
+        {i.errorCode==="dub_take_rhythm_pause" && i.takeId && !running && <button disabled={working || closing || !!project.tracks[language]?.locked}
+          onClick={()=>retime({cueId:i.cueId,takeId:i.takeId!})}>{t("useBoundaryTiming")}</button>}</p>;
     })}
     {error && <p role="alert">{error}</p>}
     {batch && (review || (running && error)) && <button disabled={working} onClick={()=>void run(()=>advance(batch))}>{t("refresh")}</button>}

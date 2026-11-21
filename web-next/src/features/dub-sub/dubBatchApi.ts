@@ -10,6 +10,8 @@ const batch = z.object({
   items: z.array(
     z.object({
       cueId: z.string(),
+      takeId: z.string().optional(),
+      internalPausesAccepted: z.boolean().optional(),
       status: z.enum(["pending", "working", "done", "failed", "review", "needs_listen"]),
       errorCode: z.string().optional(),
       durationMs: z.number().optional(),
@@ -45,7 +47,7 @@ export const dubBatchApi = {
       body,
       schema: batch,
     }),
-  advance: (id: string, batchId: string, request: {retime:true;revision:number} | {confirmed:true} = {confirmed:true}) =>
+  advance: (id: string, batchId: string, request: {retime:true;revision:number;pauseException?:{cueId:string;takeId:string}} | {confirmed:true} = {confirmed:true}) =>
     apiRequest(
       projectUrl(id) +
         "/dubbing-batches/" +

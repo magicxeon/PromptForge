@@ -32,7 +32,8 @@ const languageService = new DubLanguageService({ sceneGeneration: {
     if (translationCalls === 1) await new Promise((resolve) => {
       completeTranslation = resolve;
     });
-    return { cues: context.cues.map(c => ({ id: c.id, translation: "Scene line" })) };
+    return { cues: context.cues.map(c => ({ id: c.id, translation: "Scene line",
+      delivery:{ emotion:"calm", pace:"slow", intensity:"subtle", direction:"Speak gently." } })) };
   },
 }});
 const projects = new DubProjectService({
@@ -74,11 +75,17 @@ app.get("/api/auth/config", (_, res) =>
 app.get("/api/me", (_, res) => res.json(actor));
 app.get("/api/voice-studio/catalog", (_, res) => res.json({
   catalogVersion: "fixture", defaultModelId: "fixture",
-  models: [{ id: "fixture", providerId: "fixture", displayName: "Fixture", capabilities: { languages: ["th"] } }],
+  models: [{ id: "dola-seed-audio", providerId: "fixture", displayName: "Fixture", capabilities: { languages: ["th"] } }],
   voices: [{ id: "fixture", displayName: "Fixture voice", modelIds: ["fixture"], languages: ["th"] }],
   policy: { maxRows: 10, maxTextLength: 1000, maxStyleLength: 200, inlineTags: [] },
 }));
-app.get(["/api/voice-studio/characters", "/api/voice-studio/custom-voices"], (_, res) => res.json({ items: [] }));
+app.get("/api/voice-studio/characters", (_, res) => res.json({ items: [] }));
+app.get("/api/voice-studio/custom-voices", (_, res) => res.json({ items: [{
+  id:"seed-fixture", revision:1, operationId:"fixture", name:"Thai fixture", displayDescription:"Warm", designPrompt:"Warm",
+  modelId:"dola-seed-audio", providerId:"fixture", language:"th", sourceType:"description", previewAssetId:"sample",
+  audioUrl:"/outputs/voice-studio/sample.wav", durationMs:1000, savedAt:new Date().toISOString(), archivedAt:null,
+  expiresAt:null, createdAt:new Date().toISOString(), lifecycleState:"ready",
+}] }));
 registerDubSubRoutes(app, { projects });
 app.use("/assets/dub-sub/fonts", express.static("client/assets/dub-sub/fonts"));
 app.use("/api", (_, res) => res.status(404).json({ error: "Offline fixture" }));
@@ -196,10 +203,9 @@ try {
   await line.getByRole("textbox", { name: "Source language" }).fill("你好");
   await line.getByRole("textbox", { name: "Thai" }).fill("สวัสดี");
   assert.equal(await inspector.getByRole("textbox", { name: "Thai" }).count(), 0);
-  await inspector.getByRole("button", { name: "Choose dubbing voice" }).click();
   const voicePicker = inspector.getByRole("combobox", { name: "Dubbing voice" });
-  await voicePicker.selectOption("preset/fixture");
-  assert.equal(await voicePicker.inputValue(), "preset/fixture");
+  await voicePicker.selectOption("seed-fixture");
+  assert.equal(await voicePicker.inputValue(), "seed-fixture");
   await inspector.getByRole("button", { name: "Tracks" }).click();
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.getByText("Saved", { exact: true }).waitFor();
@@ -255,7 +261,7 @@ try {
   const out = page.getByRole("dialog");
   await out.getByLabel("File format").selectOption("srt");
   await out.getByRole("button", { name: "Export", exact: true }).click();
-  const download = page.getByRole("link", { name: /Download SRT/i });
+  const download = out.getByRole("link", { name: "Download SRT", exact: true });
   await download.waitFor();
   assert.match(
     await (
@@ -269,8 +275,9 @@ try {
   await page.getByRole("link", { name: /Download SRT/i }).waitFor();
   const englishTrack = inspector.getByRole("region", { name: "English", exact: true });
   await englishTrack.locator("summary").click();
-  page.once("dialog", dialog => dialog.accept());
+  const translateDialog = page.getByRole("dialog", { name: "Translate all lines" });
   await englishTrack.getByRole("button", { name: "Translate all lines" }).click();
+  await translateDialog.getByRole("button", { name: "Translate all lines" }).click();
   await page.waitForFunction(
     () => document.querySelector(".dub-editor fieldset")?.disabled,
   );
@@ -288,11 +295,12 @@ try {
   assert.equal(translationInputs[0].languageStyle, era);
   await englishTrack.locator("summary").click();
   const retranslate = englishTrack.getByRole("button", { name: "Translate all lines" });
-  page.once("dialog", (dialog) => { assert.match(dialog.message(), /English/); return dialog.dismiss(); });
   await retranslate.click();
+  assert.match(await translateDialog.innerText(), /English/);
+  await translateDialog.getByRole("button", { name: "Cancel" }).click();
   assert.equal(translationCalls, 1);
-  page.once("dialog", (dialog) => dialog.accept());
   await retranslate.click();
+  await translateDialog.getByRole("button", { name: "Translate all lines" }).click();
   await page.waitForFunction(() => !document.querySelector(".dub-layout").disabled);
   assert.equal(translationInputs[1].targetLanguage, "en");
   await page.locator(".dub-script select").selectOption("th");
@@ -323,13 +331,14 @@ try {
     assert.ok(await sceneDialog.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
   }
   await sceneDialog.getByRole("button", { name: "Use these subtitles" }).click();
-  const speakerDialog = page.getByRole("dialog", { name: "Assign speakers" });
+  const speakerDialog = page.getByRole("dialog", { name: "Dub project" });
+  await speakerDialog.locator(".dub-cast-row summary").click();
   await speakerDialog.getByLabel("Character name").fill("Inn guest");
   await speakerDialog.getByRole("button", { name: "Set up dubbing voices" }).click();
   await page.getByRole("heading", { name: "Dubbing voices", exact: true }).waitFor();
   await page.goBack();
   assert.equal(await speakerDialog.getByLabel("Character name").inputValue(), "Inn guest");
-  await speakerDialog.getByRole("button", { name: "Cancel" }).click();
+  await speakerDialog.getByRole("button", { name: "Close", exact:true }).click();
   await page.getByText("Current subtitles · Translated with Gemini", {exact:true}).waitFor();
   assert.equal(await line.getByRole("textbox", { name: "Thai" }).inputValue(), "โรงเตี๊ยมอยู่ที่ใด");
   await page.getByRole("button", { name: "Undo", exact: true }).click();

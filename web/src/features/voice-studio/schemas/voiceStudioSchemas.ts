@@ -13,6 +13,7 @@ export const rowSchema = z.object({
   characterPresetId: z.string(),
   text: z.string(),
   targetDurationMs: z.number().int().positive().optional(),
+  boundaryTimingOnly: z.boolean().optional(),
   speechWindows: z.array(z.object({startMs:z.number().int().nonnegative(), endMs:z.number().int().positive()})).min(1).max(12).optional(),
   delivery: deliverySchema,
   selectedTakeId: z.string().nullable(),

@@ -1,4 +1,8 @@
 {
+  "boundaryTimingOption": "Match start and end only",
+  "boundaryTimingHint": "Match the original speech boundaries and allow natural pauses between words.",
+  "boundaryTimingApplied": "Take placed · internal pauses accepted",
+  "useBoundaryTiming": "Use this take if the start and end match",
   "timed": {
     "analyzeAI":"Analyze and revise dialogue with AI (Gemini)",
     "replaceDraft":"Replace your current edits with a Gemini suggestion based on the saved lines?",
@@ -88,7 +92,11 @@
   "replaceTrack": "Replace all existing {{language}} translations, including manual edits?",
   "replaceLine": "Replace the {{language}} translation for this line?",
   "captionPosition": "{{language}} subtitle position. Drag vertically or use the up and down arrow keys.",
-  "cueDetails": "Speaker and timing",
+  "cueDetails": "Edit speaker and timing",
+  "selectedLine": "Selected line",
+  "arrangeTiming": "Arrange timing",
+  "splitHint": "Move the playhead inside this line to split it.",
+  "deleteLine": "Delete this line",
   "chooseVoice": "Choose dubbing voice",
   "errors": {
     "dub_scene_export_unconfirmed": "The server did not confirm BandIt v2 scene audio. Restart the API and export again.",
@@ -207,7 +215,7 @@
   "direct": "Direct this line",
   "editCue": "Edit cue",
   "split": "Split at playhead",
-  "merge": "Merge with next",
+  "merge": "Merge with next line",
   "remove": "Delete cue",
   "family": "Font family",
   "color": "Text color",
