@@ -7,43 +7,8 @@ import {
 } from "./routes";
 
 describe("Momelo sidebar navigation registry", () => {
-  it("exposes each Voice Studio view exactly once and marks only its query view active", () => {
-    const voice = sidebarNavigationGroups
-      .flatMap((group) => group.items)
-      .find((item) => item.id === "voice-studio");
-    expect(voice?.icon).toBe("voiceStudio");
-    expect(voice?.children?.map((item) => item.path)).toEqual(
-      ["script", "voices", "library"].map(
-        (view) => `/create/voice-studio?view=${view}`,
-      ),
-    );
-    expect(
-      isSidebarNavigationTargetActive(
-        "voice-voices",
-        "/create/voice-studio?view=voices",
-      ),
-    ).toBe(true);
-    expect(
-      isSidebarNavigationTargetActive(
-        "voice-library",
-        "/create/voice-studio?view=voices",
-      ),
-    ).toBe(false);
-    expect(
-      isSidebarNavigationTargetActive("voice-script", "/create/voice-studio"),
-    ).toBe(true);
-    expect(
-      isSidebarNavigationTargetActive(
-        "voice-script",
-        "/create/voice-studio?view=unknown",
-      ),
-    ).toBe(true);
-    expect(
-      isSidebarNavigationTargetActive(
-        "voice-voices",
-        "/create/studio/face?view=voices",
-      ),
-    ).toBe(false);
+  it("omits the retired voice workspace from navigation", () => {
+    expect(sidebarNavigationGroups.flatMap(group => group.items).some(item => item.id === "voice-studio")).toBe(false);
   });
   it("keeps Tutorial and Cinema as admin-only peers outside Create", () => {
     const group = sidebarNavigationGroups.find(

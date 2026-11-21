@@ -50,27 +50,9 @@ describe("SidebarNavigation Studio behavior", () => {
       "/create/studio/scene#studio-configurator-title",
     );
   });
-  it("opens Voice Studio independently and preserves distinct group icons", () => {
-    const onToggleStudio = vi.fn();
-    renderNavigation({ collapsed: false, onToggleStudio });
-    const voice = screen.getByRole("button", { name: "Voice Studio" });
-    expect(voice).toHaveAttribute("aria-expanded", "false");
-    fireEvent.click(voice);
-    expect(screen.getByRole("link", { name: "Script" })).toHaveAttribute(
-      "href",
-      "/create/voice-studio?view=script",
-    );
-    expect(screen.getByRole("link", { name: "My Voices" })).toHaveAttribute(
-      "href",
-      "/create/voice-studio?view=voices",
-    );
-    expect(onToggleStudio).not.toHaveBeenCalled();
-    expect(voice.querySelector("svg")?.getAttribute("class")).not.toBe(
-      screen
-        .getByRole("button", { name: "Studio" })
-        .querySelector("svg")
-        ?.getAttribute("class"),
-    );
+  it("keeps the retired voice workspace out of the sidebar", () => {
+    renderNavigation({ collapsed: false });
+    expect(screen.queryByRole("button", { name: "Voice Studio" })).not.toBeInTheDocument();
   });
   it.each(["user", "support"])(
     "hides learning navigation from %s even when enabled",

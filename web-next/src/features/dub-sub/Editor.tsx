@@ -76,22 +76,9 @@ function Work({ initial }: { initial: Project }) {
     setCreatedPreview(undefined);
     client.removeQueries({ queryKey: scenePreviewKey(identityScope, initial.id), exact: true });
   }
-  const returned = loc.state?.resume;
-  const resume = returned?.scope === identityScope &&
-    initial.cues.some((c) => c.id === returned.cueId) &&
-    initial.targetLanguages.includes(returned.language) ? returned : undefined;
-  const fromVoice = resume?.panel === "voice";
-  const [lang, setLang] = useState<string>(
-      initial.targetLanguages.includes(resume?.language)
-        ? resume.language
-        : initial.targetLanguages[0] || "source",
-    ),
-    [selected, setSelected] = useState<string>(
-      initial.cues.some((c) => c.id === resume?.cueId)
-        ? resume.cueId
-        : initial.cues[0]?.id || "",
-    );
-  const [inspectorOpen, setInspectorOpen] = useState(fromVoice),
+  const [lang, setLang] = useState<string>(initial.targetLanguages[0] || "source"),
+    [selected, setSelected] = useState<string>(initial.cues[0]?.id || "");
+  const [inspectorOpen, setInspectorOpen] = useState(false),
     [compact, setCompact] = useState(
       () => window.innerWidth <= config.compactWidth,
     );
@@ -101,12 +88,12 @@ function Work({ initial }: { initial: Project }) {
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);
-  const [panel, setPanel] = useState<"tracks" | "font" | "voice">(fromVoice ? "voice" : "tracks"),
+  const [panel, setPanel] = useState<"tracks" | "font" | "voice">("tracks"),
     [styleLang, setStyleLang] = useState(lang);
   const [busy, setBusy] = useState(""),
     [error, setError] = useState(() => loc.state?.sceneError
       ? t("scene.errors." + loc.state.sceneError, { defaultValue: t("scene.failed") }) : ""),
-    [time, setTime] = useState<number>(Number.isFinite(resume?.timeMs) ? Math.min(initial.durationMs || 0, Math.max(0, resume.timeMs)) : 0),
+    [time, setTime] = useState(0),
     [loop, setLoop] = useState(false);
   const [ratio, setRatio] = useState(16 / 9),
     [height, setHeight] = useState(0),
@@ -322,7 +309,6 @@ function Work({ initial }: { initial: Project }) {
     <section className="dub-editor">
       <header className="dub-bar">
         <Link to="/dub-sub"><span aria-hidden="true">‹ </span>{t("projects")}</Link>
-        <Link to="/dub-sub/voice">Voice Studio</Link>
         <input
           disabled={!!busy}
           aria-label={t("name")}
@@ -484,11 +470,6 @@ function Work({ initial }: { initial: Project }) {
                   onLoadedMetadata={(e) => {
                     const v = e.currentTarget;
                     setRatio(v.videoWidth / v.videoHeight || 16 / 9);
-                    if (resume && Number.isFinite(resume.timeMs))
-                      v.currentTime = Math.max(
-                        0,
-                        Math.min(v.duration, resume.timeMs / 1000),
-                      );
                   }}
                   onTimeUpdate={onTime}
                   onSeeked={onTime}
@@ -851,14 +832,6 @@ function Work({ initial }: { initial: Project }) {
                   targetMs={cue.endMs - cue.startMs}
                   speaker={cue.speaker || ""}
                   language={lang}
-                  initialSelection={resume?.cueId === cue.id && resume.language === lang ? resume.voice : undefined}
-                  initialModel={resume?.cueId === cue.id && resume.language === lang ? resume.modelId : undefined}
-                  libraryLink={(voice, modelId) => (
-                    <Link to={"/dub-sub/voice?" + new URLSearchParams({
-                      view: "voices", project: p.id, cue: cue.id, language: lang,
-                      ms: String(time), voice, model: modelId,
-                    })}>Voice Studio ↗</Link>
-                  )}
                   defaultCharacterId={
                     cue.speaker
                       ? p.characterMappings[lang]?.[cue.speaker]

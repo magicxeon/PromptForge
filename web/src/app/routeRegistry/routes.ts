@@ -13,7 +13,6 @@ export const routePaths = {
   exploreTemplates: "/explore/templates",
   exploreCharacters: "/explore/characters",
   createPlayground: "/create/playground",
-  createVoiceStudio: "/create/voice-studio",
   createStudioFace: "/create/studio/face",
   createStudioCharacter: "/create/studio/character",
   createStudioScene: "/create/studio/scene",
@@ -35,8 +34,6 @@ export const routePaths = {
 } as const;
 
 export const routeBuilders = {
-  voiceStudio: (view: VoiceStudioView = "script") =>
-    `${routePaths.createVoiceStudio}?view=${view}`,
   post: (postId: string) => `/posts/${encodeURIComponent(postId)}`,
   templateDetail: (postId: string) =>
     `/explore/templates/${encodeURIComponent(postId)}`,
@@ -71,7 +68,6 @@ export type NavigationRouteId =
   | "fashion"
   | "cinematic"
   | "playground"
-  | "voiceStudio"
   | "history"
   | "collections"
   | "myCharacters"
@@ -162,12 +158,6 @@ export const navigationRoutes: readonly NavigationRoute[] = [
     id: "playground",
     path: routePaths.createPlayground,
     labelKey: "shell.navigation.items.playground",
-    navigation: "primary",
-  },
-  {
-    id: "voiceStudio",
-    path: routePaths.createVoiceStudio,
-    labelKey: "shell.navigation.items.voiceStudio",
     navigation: "primary",
   },
   {
@@ -263,31 +253,6 @@ export const sidebarNavigationGroups: readonly SidebarNavigationGroup[] = [
         path: routePaths.createPlayground,
         labelKey: "shell.navigation.items.playground",
         icon: "playground",
-      },
-      {
-        id: "voice-studio",
-        labelKey: "shell.navigation.items.voiceStudio",
-        icon: "voiceStudio",
-        children: [
-          {
-            id: "voice-script",
-            path: routeBuilders.voiceStudio("script"),
-            labelKey: "shell.navigation.items.voiceScript",
-            icon: "script",
-          },
-          {
-            id: "voice-voices",
-            path: routeBuilders.voiceStudio("voices"),
-            labelKey: "shell.navigation.items.myVoices",
-            icon: "voice",
-          },
-          {
-            id: "voice-library",
-            path: routeBuilders.voiceStudio("library"),
-            labelKey: "shell.navigation.items.voiceLibrary",
-            icon: "audioLibrary",
-          },
-        ],
       },
       {
         id: "studio",
@@ -393,19 +358,6 @@ export function isSidebarNavigationTargetActive(
   currentLocation: string,
 ) {
   const [pathname = ""] = currentLocation.split("?");
-  if (
-    id === "voice-script" ||
-    id === "voice-voices" ||
-    id === "voice-library"
-  ) {
-    const query = new URLSearchParams(
-      (currentLocation.split("?")[1] || "").split("#")[0],
-    );
-    return (
-      pathname === routePaths.createVoiceStudio &&
-      id === `voice-${resolveVoiceStudioView(query.get("view"))}`
-    );
-  }
   if (id === "tutorials")
     return (
       pathname === routePaths.tutorials ||
@@ -438,8 +390,6 @@ export function isSidebarNavigationTargetActive(
     return pathname.startsWith(routePaths.createCinematic);
   if (id === "playground")
     return pathname.startsWith(routePaths.createPlayground);
-  if (id === "voice-studio")
-    return pathname.startsWith(routePaths.createVoiceStudio);
   if (id === "history") return pathname.startsWith(routePaths.libraryRecent);
   if (id === "collections")
     return pathname.startsWith(routePaths.libraryCollections);
@@ -450,7 +400,3 @@ export function isSidebarNavigationTargetActive(
   return false;
 }
 
-export type VoiceStudioView = "script" | "voices" | "library";
-export function resolveVoiceStudioView(value: string | null): VoiceStudioView {
-  return value === "voices" || value === "library" ? value : "script";
-}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { voiceApi } from "../../../../web/src/features/voice-studio/api/voiceStudioApi";
@@ -35,8 +35,6 @@ type Props = {
   targetMs?: number;
   defaultCharacterId?: string;
   initialSelection?: string;
-  initialModel?: string;
-  libraryLink?: (voice: string, modelId: string) => ReactNode;
   binding?: Binding;
   onBind: (binding: Binding) => void | Promise<void>;
   onUse: (take: SelectedTake) => void | Promise<void>;
@@ -123,8 +121,6 @@ function VoiceInspector({
   onAudition,
   defaultCharacterId,
   initialSelection,
-  initialModel,
-  libraryLink,
   targetMs,
 }: Props & { scope: string }) {
   const { t } = useTranslation("dubVoice");
@@ -172,7 +168,7 @@ function VoiceInspector({
   const pickedCustom = kind === "custom" || pickedCharacter?.voiceKind === "custom"
     ? customs.data?.find((v) => v.id === (pickedCharacter?.voiceId || voiceId)) : undefined;
   const supported = pickedPreset?.modelIds || (pickedCustom ? [pickedCustom.modelId] : undefined);
-  const preferredModel = chosenModel || initialModel || doc.data?.modelId;
+  const preferredModel = chosenModel || doc.data?.modelId;
   const model = models.find((m) => m.id === preferredModel && (!supported || supported.includes(m.id))) ||
     models.find((m) => supported?.includes(m.id)) || models[0];
   const voices =
@@ -379,7 +375,6 @@ function VoiceInspector({
     return <p role="alert">{t("error", { code: "" })}</p>;
   return (
     <section className="dub-voice">
-      {libraryLink?.(selection, model?.id || "")}
       <fieldset disabled={busy || active}>
         <label>
           {t("character")}

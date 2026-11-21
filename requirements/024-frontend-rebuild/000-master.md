@@ -38,7 +38,7 @@ coverage/ข้อเสนอที่นำมาปรับและ QA docu
   estimate/generate/status, ผลลัพธ์/ซูม/ดาวน์โหลด, Recent outputs และไทย/อังกฤษ.
 - ลำดับถัดมาในชุดเดียวกัน: Comparison ภาพ แล้ว Playground วิดีโอและ player.
   ต้องไม่ถือว่าจบทั้งชุดเมื่อเสร็จเฉพาะภาพ.
-- หน้าที่ยังไม่ย้ายเปิดผ่านเว็บเดิมได้; Voice Studio, Character/Scene Studio,
+- หน้าที่ยังไม่ย้ายเปิดผ่านเว็บเดิมได้ เช่น Character/Scene Studio,
   Fashion, Cinematic และ Admin จะได้ scope แยกเมื่อสั่งย้าย ไม่ทำเพิ่มอัตโนมัติ.
 - ไม่สร้าง provider adapter, wallet, queue, job store, authentication หรือ media store ใหม่.
 - ไม่เพิ่ม timeline editor, node workflow, inpainting editor, SVG/GIF authoring,

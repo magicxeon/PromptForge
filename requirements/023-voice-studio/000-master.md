@@ -1,7 +1,7 @@
 # 023 — Voice Studio: Basic Release
 
 Date: 2026-11-15  
-Status: Basic Creator/Manager source implemented; live Google/Thai listening qualification remains open.
+Status: The standalone frontend screens are retired in both clients. The speech API, catalogs, private audio and generation services continue to support per-cue dubbing. See [character voices and full-project dubbing](../024-frontend-rebuild/012-dubbing-voices.md).
 Revision 2: UX redesign and Custom Voice Design source implemented; offline integration passed. Live provider qualification remains open in 005.
 Revision 3 (2026-11-16): Voice Replication requirement draft only; implementation awaits user instruction after their Chinese-to-Thai experiment.
 Primary: Product Requirement Architect. UX design: `/root/voice_studio_ux` (`ux-ui-product-designer`).

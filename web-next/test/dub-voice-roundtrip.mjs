@@ -1,4 +1,4 @@
-// Opens the real editor and My Voices with isolated project, catalog and audio responses.
+// Verify in-editor voice selection and retired bookmarks with isolated API responses.
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
 import { createServer } from "vite";
@@ -29,7 +29,7 @@ const server = await createServer({ root: "web-next", configFile: false, server:
 await server.listen();
 const browser = await chromium.launch();
 try {
-  for (const width of [1440, 390]) {
+  for (const width of [1440, 820, 390]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     page.setDefaultTimeout(10000);
     const errors = [], writes = [];
@@ -59,28 +59,24 @@ try {
     const source = page.locator(".dub-rows").getByRole("textbox", { name: "Source language" }).nth(1);
     assert.equal(await source.inputValue(), "second");
     await source.click();
-    if (width === 390 && !(await page.getByRole("button", { name: "Choose dubbing voice" }).isVisible()))
+    if (!(await page.getByRole("button", { name: "Choose dubbing voice" }).isVisible()))
       await page.locator(".dub-open-inspector").click();
     await page.getByRole("button", { name: "Choose dubbing voice" }).click();
     const voice = page.getByLabel("Dubbing voice", { exact: true });
     await voice.selectOption("character/actor-a");
     await page.waitForFunction(() => document.querySelector("video")?.duration === 5);
     await page.locator("video").evaluate(video => { video.currentTime = 2.525; });
-    const library = page.getByRole("link", { name: /Voice Studio ↗/ });
-    await page.waitForFunction(() => document.querySelector(".dub-voice a")?.href.includes("ms=2525"));
-    await library.click();
-    await page.getByRole("link", { name: "Return to editor" }).click();
-    await voice.waitFor(); assert.equal(await voice.inputValue(), "character/actor-a");
-    await library.click();
-    await page.locator(".voice-picker-option").filter({ hasText: "Voice b" }).getByRole("button", { name: "Use for this line" }).click();
-    await voice.waitFor(); assert.equal(await voice.inputValue(), "preset/voice-b");
-    assert.equal(await page.getByLabel("Speech model").inputValue(), "b");
+    assert.equal(await page.getByRole("link", { name: /Voice Studio/ }).count(), 0);
+    assert.equal(await voice.inputValue(), "character/actor-a");
     assert.equal(await page.locator(".dub-script select").inputValue(), "en");
     assert.equal(await page.locator(".dub-line.selected").getByLabel("Source language").inputValue(), "second");
     await page.waitForFunction(() => Math.abs(document.querySelector("video").currentTime - 2.525) < .01);
     assert.equal(await page.locator(".dub-inspector").isVisible(), true);
     assert.deepEqual(errors, []); assert.deepEqual(writes, []);
-    console.log("PASS", width, "cue=second language=en time=2525ms previous character restored and selected voice/model returned");
+    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/dub-sub/voice?view=voices`);
+    await page.waitForURL("**/dub-sub");
+    assert.equal(await page.getByRole("link", { name: /Voice Studio/ }).count(), 0);
+    console.log("PASS", width, "cue, language and time preserved in editor; old voice bookmark opens Projects");
     await page.close();
   }
 } finally {

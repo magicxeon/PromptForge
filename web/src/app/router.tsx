@@ -35,7 +35,6 @@ export const router = createBrowserRouter([{
     { path: 'me/characters/:characterId', lazy: lazyRoute(() => import('../features/profiles/routes/CharacterProfileRoute'), 'CharacterOwnerProfileRoute') },
 
     { path: 'create/playground', lazy: lazyRoute(() => import('../features/playground/routes/PlaygroundRoute'), 'PlaygroundRoute') },
-    { path: 'create/voice-studio', lazy: lazyRoute(() => import('../features/voice-studio/routes/VoiceStudioRoute'), 'VoiceStudioRoute') },
     { path: 'create/studio/face', lazy: lazyRoute(() => import('../features/studio/routes/StudioRoute'), 'StudioRoute') },
     { path: 'create/studio/character', lazy: lazyRoute(() => import('../features/studio/routes/StudioRoute'), 'StudioRoute') },
     { path: 'create/studio/scene', lazy: lazyRoute(() => import('../features/scene-builder/routes/SceneBuilderRoute'), 'SceneBuilderRoute') },

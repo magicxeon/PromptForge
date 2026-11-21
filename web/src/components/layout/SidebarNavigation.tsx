@@ -18,7 +18,7 @@ import {
   Shirt,
   UsersRound,
 } from "lucide-react";
-import { AudioLines, Layers3, FileText, Mic, Library } from "lucide-react";
+import { Layers3 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -35,10 +35,6 @@ const iconRegistry = {
   gallery: Home,
   templates: LayoutDashboard,
   studio: Layers3,
-  voiceStudio: AudioLines,
-  script: FileText,
-  voice: Mic,
-  audioLibrary: Library,
   face: ScanFace,
   character: ContactRound,
   scene: Images,
