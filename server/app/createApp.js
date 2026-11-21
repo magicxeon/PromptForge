@@ -1,4 +1,6 @@
 import express from 'express';
+import { createWebNextCreditPolicy } from '../middleware/webNextCreditPolicy.js';
+import { webNextCreditsDisabled } from '../domain/credits/WorkspaceCreditPolicy.js';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
@@ -190,6 +192,11 @@ export function createApp({ authRuntime = getAuthRuntime(), identityRuntime, ide
     app.use(createIdentityAccessMiddleware({identityApplicationService}));
   }
   app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20mb' }));
+  app.use(createWebNextCreditPolicy());
+  app.get('/api/web-next/config', (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
+    res.json({ creditsEnabled: !webNextCreditsDisabled(req.actorContext) });
+  });
   app.use(requestPerformanceMiddleware);
   app.use('/react-assets', express.static(path.join(WEB_DIST_ROOT, 'react-assets')));
   // React retains only runtime data/media boundaries from the former client

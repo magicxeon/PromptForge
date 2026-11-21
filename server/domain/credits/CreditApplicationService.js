@@ -38,6 +38,11 @@ export class CreditApplicationService {
       metadata: { kind: 'speech_generation', operationId, expiresAt: quote.expiresAt, idempotencyKey: `reserve:${userId}:${operationId}` } });
   }
 
+  async findSpeechReservation(userId, operationId) {
+    const reservation = await this.accountRepository.getReservationForOwner({ userId, jobId: operationId });
+    return reservation?.metadata?.kind === 'speech_generation' ? reservation : null;
+  }
+
   async captureSpeech({ userId, operationId, reservationId, usage, providerResponseId }) {
     const reservation = await this.accountRepository.getReservationForOwner({ userId, reservationId, jobId: operationId });
     if (!reservation || reservation.metadata?.kind !== 'speech_generation') throw createCreditError('speech_reservation_not_found', 'Speech reservation unavailable.', 404);
@@ -96,6 +101,10 @@ export class CreditApplicationService {
 
   findImageRequestMappings(input) {
     return this.accountRepository.findImageRequestMappings(input);
+  }
+
+  async hasJobReservation(userId, jobId) {
+    return Boolean(await this.accountRepository.getReservationForOwner({userId, jobId}));
   }
 
   reservePlan(input) {

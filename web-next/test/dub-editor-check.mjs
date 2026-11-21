@@ -48,6 +48,7 @@ app.use(express.json(), (req, res, next) => {
   req.reauthorizeIdentity = async () => actor;
   next();
 });
+app.get("/api/web-next/config", (_, res) => res.json({ creditsEnabled: false }));
 app.get("/api/auth/config", (_, res) =>
   res.json({
     contractVersion: 1,
@@ -306,7 +307,7 @@ try {
     assert.equal(body.language, "th");
     sends++;
     await route.fulfill({ json: { language: "zh", cues: [{ id: "scene_line_1", startMs: 500, endMs: 1800,
-      text: "客栈在哪儿？", sourceOrigin: "gemini", translations: { th: "โรงเตี๊ยมอยู่ที่ใด" }, translationOrigins: {th: "gemini"} }] } });
+      text: "客栈在哪儿？", speaker: "Guest", sourceOrigin: "gemini", translations: { th: "โรงเตี๊ยมอยู่ที่ใด" }, translationOrigins: {th: "gemini"} }] } });
   });
   await sceneButton.click();
   const sceneDialog = page.getByRole("dialog", { name: "Transcribe and translate with Gemini" });
@@ -322,6 +323,13 @@ try {
     assert.ok(await sceneDialog.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
   }
   await sceneDialog.getByRole("button", { name: "Use these subtitles" }).click();
+  const speakerDialog = page.getByRole("dialog", { name: "Assign speakers" });
+  await speakerDialog.getByLabel("Character name").fill("Inn guest");
+  await speakerDialog.getByRole("button", { name: "Set up dubbing voices" }).click();
+  await page.getByRole("heading", { name: "Dubbing voices", exact: true }).waitFor();
+  await page.goBack();
+  assert.equal(await speakerDialog.getByLabel("Character name").inputValue(), "Inn guest");
+  await speakerDialog.getByRole("button", { name: "Cancel" }).click();
   await page.getByText("Current subtitles · Translated with Gemini", {exact:true}).waitFor();
   assert.equal(await line.getByRole("textbox", { name: "Thai" }).inputValue(), "โรงเตี๊ยมอยู่ที่ใด");
   await page.getByRole("button", { name: "Undo", exact: true }).click();
@@ -387,6 +395,7 @@ try {
   await sceneDialog.getByText("New preview · Not applied").waitFor();
   assert.equal(sends, 2);
   await sceneDialog.getByRole("button", { name: "Use these subtitles" }).click();
+  await speakerDialog.getByRole("button", { name: "Save assignments" }).click();
   await page.getByText("Saved", { exact: true }).waitFor();
   await page.reload();
   await page.getByText("Current subtitles · Translated with Gemini", {exact:true}).waitFor();

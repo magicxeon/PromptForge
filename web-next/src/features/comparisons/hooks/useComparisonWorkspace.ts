@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useWorkspaceCredits } from "../../../lib/workspaceConfig";
 import {
   useActor,
   getIdentitySnapshot,
@@ -46,6 +47,7 @@ import {
 const terminal = (status: string) =>
   ["completed", "partially_completed", "failed", "cancelled"].includes(status);
 export function useComparisonWorkspace() {
+  const creditsEnabled = useWorkspaceCredits();
   const { actor, identityScope } = useActor();
   const actorId = actor!.userId;
   const { t } = useTranslation("comparison");
@@ -127,9 +129,9 @@ export function useComparisonWorkspace() {
     [catalog.data],
   );
   useEffect(() => {
-    if (draft.slots.length || !policy.data || !models.length) return;
+    if (draft.slots.length || !policy.data || !models.length || creditsEnabled === undefined) return;
     const available = models.filter(
-      (item) => !imageModelUnavailableReason(item.model),
+      (item) => !imageModelUnavailableReason(item.model, 0, null, creditsEnabled),
     );
     if (!available.length) return;
     setDraft((value) =>
@@ -151,7 +153,7 @@ export function useComparisonWorkspace() {
             ),
           },
     );
-  }, [draft.slots.length, policy.data, models]);
+  }, [draft.slots.length, policy.data, models, creditsEnabled]);
   const enabledSlots = draft.slots.filter((slot) => slot.enabled);
   const slots = enabledSlots.map(({ id, provider, model }) => ({
     id,
@@ -192,6 +194,7 @@ export function useComparisonWorkspace() {
         selections[index]?.model,
         draft.references.length,
         draft.ratio,
+        creditsEnabled,
       ),
     }))
     .filter((item) => item.reason);
@@ -235,7 +238,7 @@ export function useComparisonWorkspace() {
       const input = JSON.parse(settledKey);
       return estimateComparison(input.request, input.slots);
     },
-    enabled: valid && requestKey === settledKey,
+    enabled: creditsEnabled === true && valid && requestKey === settledKey,
     retry: false,
   });
   useEffect(() => {
@@ -249,6 +252,7 @@ export function useComparisonWorkspace() {
     return () => clearTimeout(timer);
   }, [estimate.data]);
   const quoteCurrent =
+    creditsEnabled === true &&
     valid &&
     requestKey === settledKey &&
     !!estimate.data &&
@@ -256,15 +260,15 @@ export function useComparisonWorkspace() {
     !estimate.isFetching &&
     !estimate.isError;
   const unresolved = !!intent && intent.status !== "accepted";
-  const canGenerate = quoteCurrent && !busy && !unresolved;
+  const canGenerate = (creditsEnabled === false ? valid : quoteCurrent) && !busy && !unresolved;
   const consent = useCreditConfirmation({
-    actorId,
+    actorId: creditsEnabled ? actorId : "",
     requestKey: JSON.stringify([requestKey, draft.name, estimate.data]),
     estimatedCredits: quoteCurrent
       ? estimate.data?.estimatedTotalCredit
       : undefined,
     description: t("generateCount", { count: slots.length }),
-    ready: canGenerate,
+    ready: creditsEnabled === true && canGenerate,
   });
   const history = useInfiniteQuery({
     retry: false,
@@ -360,9 +364,9 @@ export function useComparisonWorkspace() {
     const epoch = getIdentitySnapshot().epoch;
     let sent = false;
     try {
-      if (!(await consent.request()) || !consent.isCurrent() || !current(epoch))
+      if (creditsEnabled && (!(await consent.request()) || !consent.isCurrent() || !current(epoch)))
         return;
-      if (!estimate.data || estimate.data.expiresAt <= Date.now()) {
+      if (creditsEnabled && (!estimate.data || estimate.data.expiresAt <= Date.now())) {
         void estimate.refetch();
         return;
       }
@@ -372,8 +376,7 @@ export function useComparisonWorkspace() {
       );
       if (
         !current(epoch) ||
-        !consent.isCurrent() ||
-        estimate.data.expiresAt <= Date.now()
+        (creditsEnabled && (!consent.isCurrent() || !estimate.data || estimate.data.expiresAt <= Date.now()))
       )
         return;
       setBusy(true);
@@ -392,7 +395,7 @@ export function useComparisonWorkspace() {
       const result = await submitComparison(
         request,
         slots,
-        estimate.data,
+        creditsEnabled ? estimate.data : undefined,
         draft.name.trim() || undefined,
         next.requestId,
       );
@@ -523,6 +526,7 @@ export function useComparisonWorkspace() {
     slotIssues,
     estimate,
     quoteCurrent,
+    creditsEnabled,
     canGenerate,
     consent,
     generate,

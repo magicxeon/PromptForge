@@ -266,7 +266,7 @@ export function ImageWorkspace() {
                         (workspace.processing.data &&
                           !workspace.processingAccepted)
                       ? t("processingError")
-                      : t("quoteError"))}
+                      : t("previewUnavailable"))}
             </div>
           )}
           {workspace.intent && (
@@ -323,7 +323,7 @@ export function ImageWorkspace() {
             </div>
           )}
           <footer className="generate-bar">
-            <div className="quote-line">
+            {workspace.creditsEnabled && <div className="quote-line">
               {estimate.isError ||
               (estimate.data &&
                 !workspace.quoteCurrent &&
@@ -347,7 +347,7 @@ export function ImageWorkspace() {
                   {draft.prompt.trim() ? t("estimating") : t("noPrompt")}
                 </span>
               )}
-            </div>
+            </div>}
             <button
               className="primary-button"
               disabled={!workspace.canGenerate}

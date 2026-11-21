@@ -19,6 +19,17 @@ const root = "/api/voice-studio";
 const key = encodeURIComponent;
 const rowPath = (doc: string, row: string) =>
   `${root}/documents/${key(doc)}/rows/${key(row)}`;
+export type VoiceDesignInput = {
+  name: string;
+  description: string;
+  modelId: string;
+  language: string;
+  sourceType?: "description" | "reference";
+  sampleText?: string;
+  voiceGender?: "female" | "male" | "unspecified";
+  referenceAudio?: string;
+  retainOriginal?: boolean;
+};
 export const voiceApi = {
   catalog: () => apiRequest(`${root}/catalog`, { schema: catalogSchema }),
   documents: (cursor?: string) =>
@@ -132,22 +143,13 @@ export const voiceApi = {
     apiRequest(`${root}/custom-voices?${params}`, {
       schema: customVoicesSchema,
     }),
-  quoteVoiceDesign: (input: {
-    name: string;
-    description: string;
-    modelId: string;
-    language: string;
-  }) =>
+  quoteVoiceDesign: (input: VoiceDesignInput) =>
     apiRequest(`${root}/custom-voices/quotes`, {
       method: "POST",
       body: input,
       schema: quoteSchema,
     }),
-  designVoice: (input: {
-    name: string;
-    description: string;
-    modelId: string;
-    language: string;
+  designVoice: (input: VoiceDesignInput & {
     quoteId: string;
     requestId: string;
   }) =>
@@ -176,9 +178,10 @@ export const voiceApi = {
       body: input,
       schema: customVoiceSchema,
     }),
-  deleteCustomVoice: (id: string) =>
+  deleteCustomVoice: (id: string, options?: { retireLinkedCharacters: true }) =>
     apiRequest(`${root}/custom-voices/${key(id)}`, {
       method: "DELETE",
+      body: options,
       schema: z.object({ deleted: z.boolean() }),
     }),
   audio: async (url: string) => {

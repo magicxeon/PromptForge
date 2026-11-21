@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Aperture } from "lucide-react";
 import { lazy, Suspense } from "react";
 import { WorkspaceMenu } from "./WorkspaceMenu";
+import { WorkspaceConfig } from "../lib/workspaceConfig";
 const DubStudio = lazy(() => import("../features/dub-sub/DubStudio"));
 import { useActor, ProcessingSpinner } from "../lib/canonical";
 import { ImageWorkspace } from "../features/playground/routes/ImageWorkspace";
@@ -57,14 +58,14 @@ export function App() {
         )
       ) : (
         <div hidden={isLoading} inert={isLoading || undefined}>
-          <Routes key={identityScope}>
+          <WorkspaceConfig identityScope={identityScope} key={identityScope}><Routes>
             <Route path="/" element={<Navigate to="/image" replace />} />
             <Route path="/image" element={<ImageWorkspace />} />
             <Route path="/comparison" element={<ComparisonWorkspace />} />
             <Route path="/video" element={<VideoWorkspace />} />
             <Route path="/dub-sub/*" element={<Suspense fallback={<ProcessingSpinner />}><DubStudio /></Suspense>} />
             <Route path="*" element={<Navigate to="/image" replace />} />
-          </Routes>
+          </Routes></WorkspaceConfig>
         </div>
       )}
     </div>

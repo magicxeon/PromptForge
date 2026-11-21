@@ -3,6 +3,24 @@
   "requirement": "requirements/024-frontend-rebuild/000-master.md",
   "tasks": [
     {
+      "id": "FE24-CREDIT-MODE", "title": "Server-owned credit-free mode for the new workspace",
+      "complexity":"complex", "reason":"Authenticated frontend proxy requests and durable Generation admission affect settlement and UI across Image, Comparison, Video and Speech.",
+      "owner":"backend-platform-architect", "ownerAgentId":"/root", "capabilities":["frontend-experience","generation","credits"],
+      "risks":["financial","security","user-facing"], "dependsOn":["FE24-CV-UI"],
+      "writeScope":["server/config/","server/middleware/","server/app/","server/domain/","server/repositories/","scripts/start-web-next.mjs","web-next/","web/src/features/","web/src/components/","requirements/024-frontend-rebuild/","requirements/099-technical-dept/","test/"],
+      "status":"complete", "acceptance":["The trusted new frontend submits with zero balance and no financial quote or ledger activity. Historical and legacy work retains its original settlement."],
+      "reviewers":["backend-platform-architect","qa-release-engineer","ux-ui-product-designer","security-reviewer","commercial-financial-integrity"],
+      "evidence":[{"check":"The trusted new frontend submits with zero balance and no financial quote or ledger activity. Historical and legacy work retains its original settlement.","result":"passed","reference":"test/webNextCreditPolicy.test.js"}],
+      "reviews":[
+        {"role":"backend-platform-architect","agentId":"/root/webnext_policy_review","result":"passed","reference":"requirements/024-frontend-rebuild/000-master.md"},
+        {"role":"commercial-financial-integrity","agentId":"/root/webnext_policy_review","result":"passed","reference":"requirements/024-frontend-rebuild/000-master.md"},
+        {"role":"security-reviewer","agentId":"/root/webnext_policy_review","result":"passed","reference":"requirements/024-frontend-rebuild/000-master.md"},
+        {"role":"qa-release-engineer","agentId":"/root/webnext_policy_review","result":"passed","reference":"test/webNextCreditPolicy.test.js"},
+        {"role":"ux-ui-product-designer","agentId":"/root/credit_mode_ux","result":"passed","reference":"requirements/024-frontend-rebuild/000-master.md"}
+      ],
+      "handoff":"WorkspaceCreditPolicy owns the workspace billing decision. 83 backend and 12 frontend checks passed with isolated providers. The local preview returned creditsEnabled false and healthy API status after restart."
+    },
+    {
       "id": "FE24-CV-B",
       "title": "Comparison and Video owner-scoped request recovery contracts",
       "complexity": "complex",

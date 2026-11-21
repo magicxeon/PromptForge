@@ -19,6 +19,15 @@ async function fixture(t) {
   return {service,repository,calls};
 }
 const actor = {userId:'a',username:'actor-a'};
+test('new Seed casting assignments respect the saved language', async t => {
+  const {service, repository} = await fixture(t);
+  const preset = await repository.insert('customVoices', actor.userId, {
+    savedAt: new Date().toISOString(), language: 'th', modelId: 'dola-seed-audio'
+  });
+  const character = await repository.insert('characters', actor.userId, {name:'Guest', voiceKind:'custom', voiceId:preset.id});
+  assert.equal((await service.getDubCharacter(actor, character.id, 'th')).id, character.id);
+  await assert.rejects(service.getDubCharacter(actor, character.id, 'en'), { code:'voice_language_mismatch' });
+});
 test('dubbing can assign only an active character owned by the project actor',async t=>{
   const {service,repository}=await fixture(t);
   const character=await repository.insert('characters',actor.userId,{name:'Narrator'});
@@ -89,6 +98,7 @@ test('custom voice save is idempotent, binds only owned saved voices and preserv
   assert.equal(c.schemaVersion,2);
   await assert.rejects(s.character({userId:'b'},{name:'Stolen',voiceKind:'custom',voiceId:op.id}),{code:'voice_record_not_found'});
   await assert.rejects(s.deleteCustomVoice(actor,op.id),{code:'voice_custom_in_use'});
+  await assert.rejects(s.deleteCustomVoice(actor,op.id,{retireLinkedCharacters:true}),{code:'voice_custom_in_use'});
   const renamed = await s.updateCustomVoice(actor,op.id,{expectedRevision:first.revision,name:'Another title'});
   assert.equal(renamed.designPrompt,op.snapshot.description);
   s.generation.listSpeechOperations=()=>[op];
@@ -97,6 +107,26 @@ test('custom voice save is idempotent, binds only owned saved voices and preserv
   assert.equal((await s.listCustomVoices(actor,{saved:'false'})).items.length,0);
   assert.equal(inserts,0,'listing existing projections must not rewrite each voice');
   assert.equal((await s.character(actor,{name:'Old voice',voiceId:'Kore'})).voiceKind,'prebuilt');
+});
+
+test('Seed candidate expiry removes only unsaved designs belonging to the listing actor', async t => {
+  const { service, repository } = await fixture(t);
+  service.generation.speechCatalog = loadSpeechCatalog;
+  const old = new Date(Date.now() - 48 * 3600000).toISOString();
+  const saved = { id:'seed-saved', operation:'voice_design', status:'succeeded', createdAt:new Date().toISOString(),
+    snapshot:{name:'Private narrator', description:'Warm', sourceType:'reference', retainOriginal:true, language:'th', modelId:'dola-seed-audio'} };
+  await service.project(actor, saved);
+  await service.updateCustomVoice(actor, saved.id, {}, true);
+  await repository.update('customVoices', saved.id, actor.userId, undefined, item => { item.candidateExpiresAt = old; });
+  await service.project(actor, {...saved, id:'seed-expired', createdAt:old});
+  await service.project({userId:'other'}, {...saved, id:'other-expired', createdAt:old});
+  const deleted = [];
+  service.generation.deleteVoiceDesign = async ({actorContext, id}) => deleted.push([actorContext.userId, id]);
+  await assert.rejects(service.updateCustomVoice(actor, 'seed-expired', {}, true), {code:'voice_custom_unavailable'});
+  const list = await service.listCustomVoices(actor, {saved:'true'});
+  assert.deepEqual(list.items.map(v => v.id), [saved.id]);
+  assert.deepEqual(deleted, [[actor.userId, 'seed-expired']]);
+  assert.equal((await repository.list('customVoices', 'other')).length, 1);
 });
 
 test('custom deletion retry preserves tombstone and never recreates deleted candidate',async t=>{

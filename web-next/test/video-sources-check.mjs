@@ -25,6 +25,7 @@ try {
     if (!path.startsWith("/api/")) return route.continue();
     const json = value => route.fulfill({ contentType: "application/json", body: JSON.stringify(value) });
     if (path === "/api/auth/config") return json(config);
+    if (path === "/api/web-next/config") return json({ creditsEnabled: true });
     if (path === "/api/me") return json({ userId: "fixture", username: "fixture", displayName: "Fixture", role: "admin", authMode: config.authMode, accountStatus: "active" });
     if (path === "/api/me/preferences") return json({ confirmCreditUsage: false });
     if (path === "/api/generation/video/capabilities") return json({ schemaVersion: 1, catalogVersion: "fixture", mediaType: "video", promptMaximumCharacters: 10000, models: [model], comparison: { enabled: false, minimumSlots: 2, maximumSlots: 2 }, launchStatus: "available" });

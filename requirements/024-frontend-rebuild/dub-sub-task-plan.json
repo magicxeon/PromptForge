@@ -4,6 +4,212 @@
   "requirement": "requirements/024-frontend-rebuild/008-dub-sub-studio.md",
   "tasks": [
     {
+      "id": "DS-SEED-WAV",
+      "title": "Recover undeliverable Seed auditions",
+      "complexity": "complex",
+      "reason": "Known invalid output leaves an actor's reservation and audition pending.",
+      "owner": "backend-platform-architect", "ownerAgentId": "/root",
+      "capabilities": ["voice-studio", "generation", "credits"], "risks": ["financial"],
+      "dependsOn": ["DS-PRESET-API"],
+      "writeScope": ["server/domain/assets/AudioAssetService.js", "server/domain/generation/SpeechGenerationService.js", "web-next/src/features/dub-sub/DubbingVoiceSetup.tsx", "web-next/src/locales/", "test/voiceSpeech.test.js", "web-next/test/dubbing-voice-setup-check.mjs"],
+      "status": "complete",
+      "acceptance": ["Decode usable WAVs and close confirmed invalid Seed auditions without duplicate settlement or dispatch."],
+      "reviewers": ["backend-platform-architect", "commercial-financial-integrity", "qa-release-engineer", "security-reviewer"],
+      "evidence": [{"check":"Decode usable WAVs and close confirmed invalid Seed auditions without duplicate settlement or dispatch.","result":"passed","reference":"test/voiceSpeech.test.js"}],
+      "reviews": [
+        {"role":"backend-platform-architect","agentId":"/root/seed_failure_review","result":"passed","reference":"test/voiceSpeech.test.js"},
+        {"role":"security-reviewer","agentId":"/root/seed_wav_security","result":"passed","reference":"test/voiceSpeech.test.js"},
+        {"role":"commercial-financial-integrity","agentId":"/root/seed_failure_review","result":"passed","reference":"requirements/024-frontend-rebuild/012-dubbing-voices.md"},
+        {"role":"qa-release-engineer","agentId":"/root/seed_failure_review","result":"passed","reference":"requirements/024-frontend-rebuild/012-dubbing-voices.md"}
+      ],
+      "handoff": "22 speech tests, three viewport setup checks and web-next build passed. Status through port 6502 closed the existing audition and the ledger confirmed release. Architecture map unchanged. Provider generation was not replayed."
+    },
+    {
+      "id": "DS-PRESET-API",
+      "title": "Quoted Seed previews and saved references are owner-scoped and reusable through the speech pipeline.",
+      "complexity": "complex",
+      "reason": "Implement requirement 012 with private speech previews and durable speaker assignments.",
+      "owner": "backend-platform-architect",
+      "ownerAgentId": "/root/seed_setup_api",
+      "capabilities": [
+        "dub-sub",
+        "voice-studio"
+      ],
+      "risks": [
+        "security",
+        "financial"
+      ],
+      "dependsOn": [
+        "DS-CREATE-PREVIEW"
+      ],
+      "writeScope": [
+        "server/domain/generation/",
+        "server/providers/SeedSpeechProvider.js",
+        "server/domain/voice-studio/",
+        "server/domain/assets/",
+        "test/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Quoted Seed previews and saved references are owner-scoped and reusable through the speech pipeline."
+      ],
+      "reviewers": [
+        "backend-platform-architect",
+        "security-reviewer",
+        "commercial-financial-integrity",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Quoted Seed previews and saved references are owner-scoped and reusable through the speech pipeline.",
+          "result": "passed",
+          "reference": "test/voiceSpeech.test.js"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "backend-platform-architect",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/voiceStudio.test.js"
+        },
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/voiceStudio.test.js"
+        },
+        {
+          "role": "commercial-financial-integrity",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/voiceSpeech.test.js"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/authentication/developmentAdmin.test.js"
+        }
+      ],
+      "handoff": "Implemented and verified with isolated media and service fixtures. Live voice quality requires a provider audition."
+    },
+    {
+      "id": "DS-PRESET-UI",
+      "title": "Both creation modes support audition and explicit save in a standalone Setup.",
+      "complexity": "complex",
+      "reason": "Implement requirement 012 with private speech previews and durable speaker assignments.",
+      "owner": "frontend-engineer",
+      "ownerAgentId": "/root/seed_setup_front",
+      "capabilities": [
+        "dub-sub",
+        "voice-studio"
+      ],
+      "risks": [
+        "user-facing"
+      ],
+      "dependsOn": [
+        "DS-CREATE-PREVIEW"
+      ],
+      "writeScope": [
+        "web-next/src/features/dub-sub/DubbingVoiceSetup.tsx",
+        "web/src/features/voice-studio/",
+        "web-next/src/locales/"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "Both creation modes support audition and explicit save in a standalone Setup."
+      ],
+      "reviewers": [
+        "ux-ui-product-designer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "Both creation modes support audition and explicit save in a standalone Setup.",
+          "result": "passed",
+          "reference": "web-next/test/dubbing-voice-setup-check.mjs"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dubbing-voice-setup-check.mjs"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dubbing-voice-setup-check.mjs"
+        }
+      ],
+      "handoff": "Implemented and verified with isolated media and service fixtures. Live voice quality requires a provider audition."
+    },
+    {
+      "id": "DS-SPEAKER-BIND",
+      "title": "A project can assign saved voices after transcription and return from Setup without losing speaker choices.",
+      "complexity": "complex",
+      "reason": "Implement requirement 012 with private speech previews and durable speaker assignments.",
+      "owner": "frontend-engineer",
+      "ownerAgentId": "/root",
+      "capabilities": [
+        "dub-sub",
+        "voice-studio"
+      ],
+      "risks": [
+        "user-facing",
+        "privacy"
+      ],
+      "dependsOn": [
+        "DS-CREATE-PREVIEW"
+      ],
+      "writeScope": [
+        "web-next/src/features/dub-sub/Editor.tsx",
+        "web-next/src/features/dub-sub/SpeakerReview.tsx",
+        "server/domain/dub-sub/projectFields.js",
+        "web-next/src/features/dub-sub/Timeline.tsx"
+      ],
+      "status": "complete",
+      "acceptance": [
+        "A project can assign saved voices after transcription and return from Setup without losing speaker choices."
+      ],
+      "reviewers": [
+        "security-reviewer",
+        "ux-ui-product-designer",
+        "qa-release-engineer"
+      ],
+      "evidence": [
+        {
+          "check": "A project can assign saved voices after transcription and return from Setup without losing speaker choices.",
+          "result": "passed",
+          "reference": "web-next/test/dub-voice-roundtrip.mjs"
+        }
+      ],
+      "reviews": [
+        {
+          "role": "security-reviewer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "test/dubSubProjects.test.mjs"
+        },
+        {
+          "role": "ux-ui-product-designer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dub-editor-check.mjs"
+        },
+        {
+          "role": "qa-release-engineer",
+          "agentId": "/root/scene_review",
+          "result": "passed",
+          "reference": "web-next/test/dub-voice-roundtrip.mjs"
+        }
+      ],
+      "handoff": "Implemented and verified with isolated media and service fixtures. Live voice quality requires a provider audition."
+    },
+    {
       "id": "DS-GEMINI-ONLY",
       "title": "Authorized Gemini transcription and text translation preserve owner, revision, cue identities and replay safety.",
       "complexity": "complex",

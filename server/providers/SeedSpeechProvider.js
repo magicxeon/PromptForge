@@ -1,4 +1,7 @@
 import { getConfiguredSecret } from "./ProviderRegistry.js";
+import { OpenAITextProvider } from "./OpenAITextProvider.js";
+import { GeminiCinematicTextProvider } from "./GeminiCinematicTextProvider.js";
+import { directSeedAudition } from "../domain/generation/SeedAuditionDirection.js";
 import { speechError } from "../domain/generation/SpeechRequestCompiler.js";
 
 export const seedSpeechCredentials = {
@@ -8,16 +11,47 @@ const endpoint =
   "https://voice.ap-southeast-1.bytepluses.com/api/v3/tts/create";
 
 export class SeedSpeechProvider {
-  constructor({ fetchImpl = fetch, apiKey = null } = {}) {
+  constructor({ fetchImpl = fetch, apiKey = null, director = null } = {}) {
     this.fetch = fetchImpl;
     this.apiKey = apiKey;
+    this.director = director;
   }
 
-  async generate(snapshot, model, maxBytes, requestId) {
+  async prepareDesign(snapshot, model) {
+    try {
+      const director = this.director || {
+        voiceDirection: request => new OpenAITextProvider(getConfiguredSecret(process.env, {apiKeyEnv: 'OPENAI_API_KEY'}), {fetchImpl: this.fetch}).voiceDirection(request)
+      };
+      return await directSeedAudition(snapshot, model, director, request => {
+        const key = getConfiguredSecret(process.env, {apiKeyEnv: 'GEMINI_API_KEY'});
+        if (!key) throw new Error('Translation unavailable');
+        return new GeminiCinematicTextProvider(key, {fetchImpl: this.fetch}).requestStructured(request);
+      });
+    } catch (error) {
+      throw error.code?.startsWith('speech_') ? error : speechError('speech_direction_unavailable', 502);
+    }
+  }
+
+  async generate(snapshot, model, maxBytes, requestId, referenceBytes) {
     const apiKey =
       this.apiKey || getConfiguredSecret(process.env, seedSpeechCredentials);
     if (!apiKey) throw speechError("speech_provider_unavailable", 503);
     try {
+      const body = {
+        model: model.providerModelId,
+        text_prompt: snapshot.providerPrompt,
+        ...(referenceBytes ? { references: [{ audio_data: referenceBytes.toString('base64') }] }
+          : snapshot.voiceId ? { references: [{ speaker: snapshot.voiceId }] } : {}),
+        audio_config: {
+          format: model.defaults.format,
+          sample_rate: model.defaults.sampleRateHz,
+          enable_subtitle: true,
+        },
+      };
+      if (process.env.NODE_ENV === 'development' && process.env.SEED_AUDIO_DEBUG_PAYLOAD === 'true') {
+        const printable = referenceBytes ? {...body, references: [{audio_data: '[redacted]'}]} : body;
+        console.info('[Seed Audio submit]', JSON.stringify({requestId, directionSource: snapshot.directionSource, body: printable}));
+      }
       const response = await this.fetch(endpoint, {
         method: "POST",
         redirect: "error",
@@ -27,16 +61,7 @@ export class SeedSpeechProvider {
           "X-Api-Request-Id": requestId,
         },
         signal: AbortSignal.timeout(120000),
-        body: JSON.stringify({
-          model: model.providerModelId,
-          text_prompt: snapshot.providerPrompt,
-          references: [{ speaker: snapshot.voiceId }],
-          audio_config: {
-            format: model.defaults.format,
-            sample_rate: model.defaults.sampleRateHz,
-            enable_subtitle: true,
-          },
-        }),
+        body: JSON.stringify(body),
       });
       if (!response.ok)
         throw speechError(`speech_provider_http_${response.status}`, 502);

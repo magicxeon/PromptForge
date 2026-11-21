@@ -24,6 +24,7 @@ import en from "../../locales/en/dubTimeline.json";
 import th from "../../locales/th/dubTimeline.json";
 import config from "./editor-config.json";
 import "./timeline.css";
+import { activeCharacters } from "./dubbingCharacters";
 
 i18n.addResourceBundle("en", "dubTimeline", en);
 i18n.addResourceBundle("th", "dubTimeline", th);
@@ -43,7 +44,7 @@ type Props = {
   locked: boolean;
 };
 type Take = Cue["takes"][string];
-type Clip = { cue: Cue; start: number; end: number; take?: Take };
+type Clip = { cue: Cue; start: number; end: number; take?: Take; badge?: { name: string; color: string; voice: string } };
 type Lane = {
   id: string;
   kind: "source" | "subtitle" | "take";
@@ -403,8 +404,8 @@ const CueClip = memo(function CueClip({
         className="dub-cue-button"
         aria-pressed={chosen}
         data-start-ms={clip.start}
-        title={`${timeLabel(clip.start)} – ${timeLabel(clip.end)} · ${text}`}
-        aria-label={`${text || t("emptyCue")} · ${timeLabel(clip.start)}`}
+        title={[`${timeLabel(clip.start)} – ${timeLabel(clip.end)} (${timeLabel(clip.end - clip.start)})`, clip.badge?.name, clip.badge?.voice, text].filter(Boolean).join(" · ")}
+        aria-label={[text || t("emptyCue"), timeLabel(clip.start), clip.badge?.name, clip.badge?.voice].filter(Boolean).join(" · ")}
         onClick={() => {
           if (suppressClick.current) {
             suppressClick.current = false;
@@ -418,6 +419,9 @@ const CueClip = memo(function CueClip({
       >
         {waveform && clip.take && <TakeWave take={clip.take} {...waveform} />}
         <span>{text || t("emptyCue")}</span>
+        {clip.badge && <small className="dub-cast-badge" style={{ borderColor: clip.badge.color }}>
+          {width > 85 ? clip.badge.name : clip.badge.name.slice(0, 1)}
+        </small>}
         {clip.take && clip.end > clip.cue.endMs && (
           <span className="dub-take-overrun" title={t("overrun")}>
             !
@@ -693,7 +697,12 @@ export function Timeline(props: Props) {
       p.cues.reduce((maximum, cue) => Math.max(maximum, cue.endMs), 1000),
     [p.durationMs, p.cues],
   );
+  const characters = useQuery({
+    queryKey: ["dubVoice", identityScope, "characters"], queryFn: activeCharacters,
+    enabled: !isLoading && Object.values(p.characterMappings).some(mapping => Object.keys(mapping).length > 0),
+  });
   const lanes = useMemo(() => {
+    const names = new Map(characters.data?.map(character => [character.id, character.name]));
     const result: Lane[] = [
       indexLane({ id: "audio", kind: "source", clips: [], locked: true }),
     ];
@@ -704,11 +713,11 @@ export function Timeline(props: Props) {
           kind: "subtitle",
           language,
           locked: !!p.tracks[language]?.locked,
-          clips: p.cues.map((cue) => ({
-            cue,
-            start: cue.startMs,
-            end: cue.endMs,
-          })),
+          clips: p.cues.map((cue) => {
+            const profile = language !== "source" && cue.speaker ? p.speakerProfiles?.[cue.speaker] : undefined;
+            return { cue, start: cue.startMs, end: cue.endMs,
+              badge: profile && cue.speaker ? { name: profile.name, color: profile.color, voice: names.get(p.characterMappings[language]?.[cue.speaker]) || "" } : undefined };
+          }),
         }),
       );
     const speakers = new Map<string, Clip[]>();
@@ -733,7 +742,7 @@ export function Timeline(props: Props) {
         }),
       );
     return result;
-  }, [p.cues, p.targetLanguages, p.tracks, lang]);
+  }, [p.cues, p.targetLanguages, p.tracks, p.speakerProfiles, p.characterMappings, characters.data, lang]);
   const selectedCue = useMemo(
     () => p.cues.find((cue) => cue.id === selected),
     [p.cues, selected],

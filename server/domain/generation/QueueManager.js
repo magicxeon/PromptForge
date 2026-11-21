@@ -1,3 +1,4 @@
+import { UNMETERED } from '../credits/WorkspaceCreditPolicy.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -121,7 +122,7 @@ export class QueueManager {
     if (this.jobs.has(jobId)) {
       throw new Error(`Generation job ID collision: ${jobId}`);
     }
-    if (!options.reservationId || !options.payerUserId) {
+    if (!options.payerUserId || (!options.reservationId && options.billingMode !== UNMETERED)) {
       throw new Error('A credit reservation and payer are required before a generation job can be enqueued.');
     }
     const jobOptions = {
@@ -166,8 +167,8 @@ export class QueueManager {
   }
 
   // Internal typed tasks share this queue's concurrency; no provider callbacks enter HTTP input.
-  enqueueOperation({ id, provider, model, ownerUserId, reservationId, execute }) {
-    if (!reservationId || !ownerUserId || typeof execute !== 'function' || this.jobs.has(id)) throw new Error('Invalid reserved operation.');
+  enqueueOperation({ id, provider, model, ownerUserId, reservationId, billingMode, execute }) {
+    if ((!reservationId && billingMode !== UNMETERED) || !ownerUserId || typeof execute !== 'function' || this.jobs.has(id)) throw new Error('Invalid operation admission.');
     const job = { id, provider, submodel: model, status: 'queued', options: { payerUserId: ownerUserId, ownerUserId, reservationId },
       operationExecutor: execute, listeners: [], created: Date.now(), timings: { enqueuedAt: Date.now() }, result: null, error: null };
     this.jobs.set(id, job); this.queue.push(id); this.emitLifecycle(job, 'queued'); this.processNext(); return id;
@@ -456,22 +457,22 @@ export class QueueManager {
         });
       }
 
-      // Capture credit reservation on successful completion
-      await creditApplicationService.captureForJob({
-        userId: job.options.payerUserId,
-        reservationId: job.options.reservationId,
-        jobId,
-        usage: result.usage || null,
-        metadata: {
-          comparisonSetId: job.options.comparisonSetId,
-          comparisonRunId: job.options.comparisonRunId,
-          generationGroupId: job.options.generationGroupId,
-          outputIndex: job.options.outputIndex
-        }
-      });
-      job.creditCharged = true;
+      if (job.options.reservationId) {
+        await creditApplicationService.captureForJob({
+          userId: job.options.payerUserId,
+          reservationId: job.options.reservationId,
+          jobId,
+          usage: result.usage || null,
+          metadata: {
+            comparisonSetId: job.options.comparisonSetId,
+            comparisonRunId: job.options.comparisonRunId,
+            generationGroupId: job.options.generationGroupId,
+            outputIndex: job.options.outputIndex
+          }
+        });
+        job.creditCharged = true;
+      }
 
-      // Only expose a completed output after its matching reservation is captured.
       const providerDimensions = parseProviderDimensions(
         result.providerMetadata?.responseSize
       );
@@ -529,6 +530,7 @@ export class QueueManager {
         }),
         providerConfigVersion: job.options.providerConfigVersion || null,
         creditCost: Number(job.options.pricingSnapshot?.estimatedCredits || 0),
+        ...(job.options.billingMode === UNMETERED ? { billingMode: UNMETERED } : {}),
         mimeType,
         width: providerDimensions.width,
         height: providerDimensions.height,

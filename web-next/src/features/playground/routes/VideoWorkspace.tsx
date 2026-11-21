@@ -522,7 +522,7 @@ export function VideoWorkspace() {
           )}
           {handoffError && <p role="alert">{handoffError}</p>}
           <div className="video-submit">
-            {w.quote.isFetching && (
+            {w.creditsEnabled && w.quote.isFetching && (
               <p role="status">
                 <ProcessingSpinner className="small-spinner" />
                 {t("quoting")}
@@ -538,7 +538,7 @@ export function VideoWorkspace() {
                 )}
               </p>
             )}
-            {w.quote.data?.durationReconciliation && (
+            {w.creditsEnabled && w.quote.data?.durationReconciliation && (
               <p className="muted">
                 {t("durationPlan", {
                   requested:
@@ -548,7 +548,7 @@ export function VideoWorkspace() {
                 })}
               </p>
             )}
-            {w.quote.isError && (
+            {w.creditsEnabled && w.quote.isError && (
               <p role="alert">
                 {w.quote.error instanceof Error
                   ? w.quote.error.message
@@ -558,7 +558,7 @@ export function VideoWorkspace() {
                 </button>
               </p>
             )}
-            {w.quote.data &&
+            {w.creditsEnabled && w.quote.data &&
               !w.quote.isFetching &&
               !w.quoteReady &&
               w.valid && (
@@ -569,7 +569,7 @@ export function VideoWorkspace() {
             {!w.valid && draft.prompt && (
               <p role="status">{t("invalidSettings")}</p>
             )}
-            {w.quote.data && !w.quote.data.account.canAfford && (
+            {w.creditsEnabled && w.quote.data && !w.quote.data.account.canAfford && (
               <p role="alert">{t("insufficientCredits")}</p>
             )}
             <button
@@ -692,7 +692,7 @@ export function VideoWorkspace() {
           )}
         </section>
       </div>
-      {w.consent.dialog}
+      {w.creditsEnabled && w.consent.dialog}
       <Dialog.Root
         open={!!replacement}
         onOpenChange={(open) => {

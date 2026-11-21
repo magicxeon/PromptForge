@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { voiceApi } from "../../../../web/src/features/voice-studio/api/voiceStudioApi";
 import type {
-  DialogueRow,
   CustomVoice,
   VoiceCharacter,
   VoiceDocument,
@@ -18,12 +17,18 @@ import {
 import { assertIdentityEpoch } from "../../../../web/src/lib/auth/actorStore";
 import { usePrivateImage } from "../../components/media/MediaImage";
 import "./dubVoice.css";
+import { activeCharacters } from "./dubbingCharacters";
+import { createSpeechRequest } from "./speechRequest";
+import { useWorkspaceCredits } from "../../lib/workspaceConfig";
+import type { CueDelivery } from "./projectApi";
 
 type Binding = {
   documentId: string;
   rowId: string;
   characterId?: string;
   operationId?: string;
+  operationRevision?: number;
+  usesCueDelivery?: boolean;
 };
 type SelectedTake = Pick<VoiceTake, "id" | "durationMs" | "audioUrl">;
 type Props = {
@@ -33,6 +38,9 @@ type Props = {
   language: string;
   speaker: string;
   targetMs?: number;
+  suggestedDelivery?: CueDelivery;
+  overrides?: CueDelivery;
+  onDeliveryChange: (value: CueDelivery) => void;
   defaultCharacterId?: string;
   initialSelection?: string;
   binding?: Binding;
@@ -46,19 +54,6 @@ type Quote = Awaited<ReturnType<typeof voiceApi.quote>> & {
   requestId: string;
   signature: string;
 };
-
-async function activeCharacters() {
-  const characters: VoiceCharacter[] = [];
-  const { epoch } = getIdentitySnapshot();
-  let cursor: string | undefined;
-  do {
-    assertIdentityEpoch(epoch);
-    const page = await voiceApi.characters(cursor);
-    characters.push(...page.items.filter((item) => !item.archivedAt));
-    cursor = page.nextCursor || undefined;
-  } while (cursor);
-  return characters;
-}
 
 export function DubVoice(props: Props) {
   const { identityScope } = useActor();
@@ -122,8 +117,10 @@ function VoiceInspector({
   defaultCharacterId,
   initialSelection,
   targetMs,
+  suggestedDelivery, overrides, onDeliveryChange,
 }: Props & { scope: string }) {
   const { t } = useTranslation("dubVoice");
+  const creditsEnabled = useWorkspaceCredits();
   const client = useQueryClient();
   const prefix = ["dubVoice", scope];
   const catalog = useQuery({
@@ -138,7 +135,7 @@ function VoiceInspector({
   const [kind, voiceId] = chosenVoice.split("/");
   const characterId = kind === "character" ? voiceId : binding?.characterId || defaultCharacterId;
   const character = characters.data?.find((c) => c.id === characterId);
-  const pickedCharacter = kind === "character" ? character : undefined;
+  const pickedCharacter = !chosenVoice || kind === "character" ? character : undefined;
   const requestedCustom = kind === "custom" ? voiceId : character?.voiceKind === "custom" ? character.voiceId : undefined;
   const customs = useQuery({
     queryKey: [...prefix, "voices", requestedCustom || ""],
@@ -154,8 +151,12 @@ function VoiceInspector({
   });
   const row = doc.data?.rows.find((item) => item.id === b?.rowId);
   const [chosenModel, setModel] = useState("");
-  const [changes, setChanges] = useState<DialogueRow["delivery"]>({});
-  const delivery = { ...row?.delivery, ...changes };
+  const previousSettings = b?.usesCueDelivery ? undefined : row?.delivery;
+  const delivery = { ...(row?.delivery.method && { method: row.delivery.method }), ...suggestedDelivery, ...previousSettings, ...overrides };
+  function changeDelivery(key: keyof CueDelivery, value: string) {
+    setQuote(null);
+    onDeliveryChange({ ...overrides, [key]: value });
+  }
   const models =
     catalog.data?.models.filter(
       (m) =>
@@ -191,14 +192,15 @@ function VoiceInspector({
         ? custom.some((v) => v.id === c.voiceId)
         : voices.some((v) => v.id === c.voiceId),
     ) || [];
-  const initialCharacter =
-    compatible.find((c) => c.id === (b?.characterId || defaultCharacterId)) ||
-    compatible.find((c) => c.name === speaker);
+  const boundId = b?.characterId || defaultCharacterId;
+  const initialCharacter = boundId
+    ? compatible.find(c => c.id === boundId)
+    : compatible.find(c => c.name === speaker);
   const selection =
     chosenVoice ||
     (initialCharacter
       ? "character/" + initialCharacter.id
-      : voices[0]
+      : !boundId && voices[0]
         ? "preset/" + voices[0].id
         : "");
   const available = chosenVoice
@@ -242,6 +244,14 @@ function VoiceInspector({
     !!operationId &&
     (!operation.data ||
       !["succeeded", "failed", "quoted"].includes(operation.data.status));
+  const missingRequestId = creditsEnabled === false && b?.operationId === operationId && !operation.data
+    && operation.error && "status" in operation.error && operation.error.status === 404
+    ? /^speech_([0-9a-f-]{36})$/i.exec(operationId || "")?.[1] : undefined;
+  const canRetry = Boolean(missingRequestId && available && b?.operationRevision && row && doc.data &&
+    doc.data.revision === b.operationRevision && doc.data.language === language && doc.data.modelId === model?.id &&
+    row.text === text && row.characterPresetId === b.characterId && selection === "character/" + b.characterId &&
+    (["emotion", "intensity", "pace", "method", "direction"] as const)
+      .every(key => (row.delivery[key] || "") === (delivery[key] || "")));
   const takes = useQuery({
     queryKey: [...prefix, "takes", b?.documentId, b?.rowId],
     queryFn: () => voiceApi.takes(b!.documentId, b!.rowId),
@@ -252,7 +262,7 @@ function VoiceInspector({
   const newest = operation.data?.take;
   const items = [...(takes.data?.items || [])];
   if (newest && !items.some((i) => i.id === newest.id)) items.push(newest);
-  const usableQuote = quote?.signature === signature ? quote : null;
+  const usableQuote = creditsEnabled && quote?.signature === signature ? quote : null;
   const run = async (action: () => Promise<void>) => {
     if (lock.current) return;
     lock.current = true;
@@ -271,8 +281,8 @@ function VoiceInspector({
     setLocalBinding(next);
     await onBind(next);
   }
-  async function estimate() {
-    if (!model || !available || !text.trim() || active) return;
+  async function prepareTake() {
+    if (creditsEnabled === undefined || !model || !available || !text.trim() || active) return;
     const { epoch } = getIdentitySnapshot();
     const [kind, id] = selection.split("/");
     const character =
@@ -298,7 +308,11 @@ function VoiceInspector({
       ? await voiceApi.document(b.documentId)
       : await voiceApi.createDocument();
     const rowId = b?.rowId || document.rows[0].id;
-    const next = { documentId: document.id, rowId, characterId: character.id };
+    if (previousSettings && Object.keys(previousSettings).length) {
+      const { method: _method, ...previousFields } = previousSettings;
+      onDeliveryChange({ ...previousFields, ...overrides });
+    }
+    const next = { documentId: document.id, rowId, characterId: character.id, usesCueDelivery: true };
     await remember(next);
     assertIdentityEpoch(epoch);
     document = await voiceApi.saveDocument({
@@ -319,8 +333,13 @@ function VoiceInspector({
       ),
     });
     client.setQueryData([...prefix, "document", document.id], document);
-    const price = await voiceApi.quote(document.id, rowId, document.revision);
+    assertIdentityEpoch(epoch);
     setVoice("character/" + character.id);
+    if (!creditsEnabled) {
+      await submitTake({ ...createSpeechRequest(), binding: next, revision: document.revision });
+      return;
+    }
+    const price = await voiceApi.quote(document.id, rowId, document.revision);
     setQuote({
       ...price,
       binding: next,
@@ -329,12 +348,10 @@ function VoiceInspector({
       signature: inputSignature("character/" + character.id),
     });
   }
-  async function generate() {
-    if (!usableQuote || active) return;
+  async function submitTake(q: Pick<Quote, "id" | "requestId" | "binding" | "revision">) {
     const { epoch } = getIdentitySnapshot();
-    const q = usableQuote;
     setQuote(null);
-    await remember({ ...q.binding, operationId: q.id });
+    await remember({ ...q.binding, operationId: q.id, operationRevision: q.revision });
     assertIdentityEpoch(epoch);
     try {
       const op = await voiceApi.generate(
@@ -386,6 +403,8 @@ function VoiceInspector({
               setQuote(null);
             }}
           >
+            {!chosenVoice && boundId && !initialCharacter &&
+              <option value="" disabled>{t("selectionUnavailable")}</option>}
             {chosenVoice && !available && (
               <option value={chosenVoice} disabled>{t("selectionUnavailable")}</option>
             )}
@@ -438,9 +457,7 @@ function VoiceInspector({
             {t(key)}
             <select
               value={delivery[key] || ""}
-              onChange={(e) =>
-                setChanges((c) => ({ ...c, [key]: e.target.value }))
-              }
+              onChange={(e) => changeDelivery(key, e.target.value)}
             >
               <option value="">{t("default")}</option>
               {catalog.data?.policy.stylePresets?.[key]?.map((v) => (
@@ -455,33 +472,42 @@ function VoiceInspector({
           {t("direction")}
           <textarea
             value={delivery.direction || ""}
-            onChange={(e) =>
-              setChanges((c) => ({ ...c, direction: e.target.value }))
-            }
+            maxLength={catalog.data?.policy.maxStyleLength}
+            onChange={(e) => changeDelivery("direction", e.target.value)}
           />
         </label>
         {usableQuote ? (
-          <button type="button" onClick={() => void run(generate)}>
+          <button type="button" onClick={() => void run(() => submitTake(usableQuote))}>
             {t("generate", { credits: usableQuote.totalCredits })}
           </button>
         ) : (
           <button
             type="button"
-            disabled={!text.trim() || !available}
-            onClick={() => void run(estimate)}
+            disabled={creditsEnabled === undefined || !text.trim() || !available}
+            onClick={() => void run(prepareTake)}
           >
-            {t("quote")}
+            {t(creditsEnabled ? "quote" : "generateTake")}
           </button>
         )}
         {!selection && <p>{t("unavailable")}</p>}
       </fieldset>
-      {(active || busy) && (
+      {missingRequestId && b && <div>
+        <p role="status">{t("requestMissing")}</p>
+        {canRetry && <button disabled={busy} onClick={() => void run(() => submitTake({
+          binding: b, revision: b.operationRevision!, id: b.operationId!, requestId: missingRequestId,
+        }))}>{t("retryTake")}</button>}
+        <button disabled={busy} onClick={() => void run(async () => {
+          await remember({ ...b, operationId: undefined, operationRevision: undefined });
+          setOpId(undefined);
+        })}>{t("editTake")}</button>
+      </div>}
+      {((active && !missingRequestId) || busy) && (
         <p role="status">
           <ProcessingSpinner className="small-spinner" />{" "}
           {t(operation.data?.errorCode ? "review" : "pending")}
         </p>
       )}
-      {active && (
+      {active && !missingRequestId && (
         <button type="button" onClick={() => void operation.refetch()}>
           {t("check")}
         </button>

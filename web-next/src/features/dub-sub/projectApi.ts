@@ -2,12 +2,19 @@ import { z } from "zod";
 import { apiRequest } from "../../lib/canonical";
 import config from "./editorConfig";
 
+const delivery = z.object({
+  emotion: z.string().optional(), intensity: z.string().optional(),
+  pace: z.string().optional(), direction: z.string().optional(),
+});
+export type CueDelivery = z.infer<typeof delivery>;
 const binding = z.object({
   documentId: z.string().optional(),
   rowId: z.string().optional(),
   dubText: z.string().optional(),
   characterId: z.string().optional(),
   operationId: z.string().optional(),
+  operationRevision: z.number().int().positive().optional(),
+  usesCueDelivery: z.boolean().optional(),
 });
 const take = z.object({
   id: z.string(),
@@ -22,6 +29,8 @@ const cue = z
     text: z.string(),
     sourceOrigin: z.literal("gemini").optional(),
     translationOrigins: z.record(z.string(), z.literal("gemini")).optional(),
+    suggestedDelivery: z.record(z.string(), delivery).optional(),
+    deliveryOverrides: z.record(z.string(), delivery).optional(),
     speaker: z.string().nullish(),
     translations: z.record(z.string(), z.string()).default({}),
     voiceBindings: z.record(z.string(), binding).default({}),
@@ -82,6 +91,10 @@ const summary = z
 export const project = summary.extend({
   mediaUrl: z.string().nullish(),
   hasAudio: z.boolean().optional(),
+  speakerProfiles: z.record(z.string(), z.object({
+    name: z.string(), color: z.string(), gender: z.string(), style: z.string(),
+    voiceNames: z.record(z.string(), z.string()).default({}),
+  })).default({}),
   detectedLanguage: z.string().nullish(),
   cues: z.array(cue),
   tracks: z.record(z.string(), track),
@@ -167,6 +180,7 @@ export const projectsApi = {
         tracks: p.tracks,
         targetLanguages: p.targetLanguages,
         characterMappings: p.characterMappings,
+        speakerProfiles: p.speakerProfiles,
         mixer: p.mixer,
       },
       schema: project,

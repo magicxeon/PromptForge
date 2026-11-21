@@ -1,0 +1,19 @@
+{
+  "modelId": "dola-seed-audio",
+  "genres": {
+    "romance": "Professional Thai romantic-drama dubbing.",
+    "crime": "Professional Thai crime-thriller dubbing.",
+    "comedy": "Professional Thai deadpan comedy dubbing.",
+    "fantasy": "Professional Thai fantasy-adventure dubbing.",
+    "action": "Professional Thai action dubbing.",
+    "horror": "Professional Thai horror dubbing.",
+    "period": "Professional Thai historical-drama dubbing.",
+    "scifi": "Professional Thai science-fiction dubbing.",
+    "family": "Professional Thai family-drama dubbing.",
+    "animation": "Professional Thai animated-feature dubbing."
+  },
+  "acceptedReferenceExtensions": [".wav", ".mp3", ".ogg", ".opus"],
+  "maximumReferenceBytes": 10485760,
+  "maximumReferenceSeconds": 30,
+  "referenceSampleRate": 24000
+}

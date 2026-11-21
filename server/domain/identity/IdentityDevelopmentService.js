@@ -8,6 +8,7 @@ const safeReadPaths = new Set([
   '/api/me/preferences',
   '/api/mock-users',
   '/api/health',
+  '/api/web-next/config',
   '/api/providers',
   '/api/attributes/bundle',
   '/api/history',

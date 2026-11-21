@@ -47,7 +47,7 @@ export function quoteVideoGeneration(input: VideoGenerationInput) {
   });
 }
 
-export function submitVideoGeneration(input: VideoGenerationInput & { estimateId: string; idempotencyKey: string }) {
+export function submitVideoGeneration(input: VideoGenerationInput & { estimateId?: string; idempotencyKey: string }) {
   return apiRequest('/api/generation/video/tasks', {
     method: 'POST',
     body: input,

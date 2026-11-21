@@ -453,7 +453,7 @@ export function ComparisonWorkspace() {
             </div>
           )}
           <footer className="generate-bar">
-            <div className="quote-line">
+            {w.creditsEnabled && <div className="quote-line">
               {w.quoteCurrent ? (
                 <strong>
                   {common("estimate", {
@@ -477,7 +477,7 @@ export function ComparisonWorkspace() {
                     : common("noPrompt")}
                 </span>
               )}
-            </div>
+            </div>}
             <button
               className="primary-button"
               disabled={!w.canGenerate || w.consent.awaitingConfirmation}
@@ -513,7 +513,7 @@ export function ComparisonWorkspace() {
           <ComparisonHistory history={w.history} />
         </section>
       </div>
-      {w.consent.dialog}
+      {w.creditsEnabled && w.consent.dialog}
     </main>
   );
 }

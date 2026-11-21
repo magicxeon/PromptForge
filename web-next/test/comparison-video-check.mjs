@@ -36,6 +36,8 @@ try {
   await context.addInitScript(() => localStorage.setItem("mpf.next.language", "en"));
   let cmpPosts = 0, videoPosts = 0, imagePosts = 0, cmpInput, videoInput, winner = null, setName = "Fixture comparison";
   let delayIdentity = false, identityChecks = 0, cmpQuotes = 0, videoQuotes = 0, allFailed = false;
+  let creditsEnabled, imageInput;
+  const directCreditCalls = [];
   const config = { contractVersion: 1, authMode: "development_bypass", methods: { password: false, emailOtp: false, google: false, facebook: false }, csrfToken: "fixture",
     policy: { otpDigits: 6, otpExpiresSeconds: 300, resendSeconds: 30, passwordMinLength: 8, passwordMaxLength: 128 }, legal: { termsVersion: null, privacyVersion: null } };
   const imageItem = { id: "image_fixture", prompt: "An image prompt", imageUrl: "/outputs/image.png", thumbnailUrl: "/outputs/image.png", timestamp: Date.now(), provider: "fixture", submodel: "Image A", mode: "normal", width: 1600, height: 1000 };
@@ -45,7 +47,7 @@ try {
   const submittedTask = () => ({ ...failedVideo, id: "video_submitted", modelId: "Video Range", submittedRequest: videoInput });
   const comparison = () => ({ id: "set_fixture", name: setName, description: "", winnerJobId: winner, createdAt: 1, updatedAt: 2,
     runs: [{ id: "run_fixture", status: "partially_completed", createdAt: 1, sourcePrompt: "Comparison prompt", configurationSnapshot: { aspectRatio: "1:1", imageResolution: "1K" },
-      slots: (cmpInput?.slots || []).map((slot,index) => ({ ...slot, status: index === 0 && !allFailed ? "completed" : "failed", jobId: `cmp_job_${index}`, submittedPrompt: "Comparison prompt", result: index === 0 && !allFailed ? { imageUrl: "/outputs/image.png", width:1600,height:1000 } : null, error: index || allFailed ? { code:"provider_refused",message:"Fixture provider refusal" } : null })) }] });
+      slots: (cmpInput?.slots || []).map((slot,index) => ({ ...slot, actualCredit:4, estimatedCredit:4, status: index === 0 && !allFailed ? "completed" : "failed", jobId: `cmp_job_${index}`, submittedPrompt: "Comparison prompt", result: index === 0 && !allFailed ? { imageUrl: "/outputs/image.png", width:1600,height:1000 } : null, error: index || allFailed ? { code:"provider_refused",message:"Fixture provider refusal" } : null })) }] });
   await page.route("**/outputs/**", route => {
     if(!route.request().url().endsWith(".webm"))return route.fulfill({contentType:"image/png",body:png});
     const range=/bytes=(\d+)-(\d*)/.exec(route.request().headers().range||"");
@@ -56,6 +58,8 @@ try {
     const req=route.request(), url=new URL(req.url()), path=url.pathname;
     if(!path.startsWith("/api/"))return route.continue();
     const json=value=>route.fulfill({contentType:"application/json",body:JSON.stringify(value)});
+    if(path==="/api/web-next/config") return json({creditsEnabled});
+    if (creditsEnabled !== true && ["/api/credits/estimate", "/api/comparisons/estimate", "/api/generation/video/quote", "/api/me/preferences"].includes(path)) directCreditCalls.push(path);
     if(path==="/api/auth/config") { identityChecks++;if(delayIdentity)await new Promise(resolve=>setTimeout(resolve,500));return json(config); }
     if(path==="/api/me")return json({userId:"fixture",username:"fixture",displayName:"Fixture",role:"admin",authMode:config.authMode,accountStatus:"active"});
     if(path==="/api/me/preferences")return json({confirmCreditUsage:true});
@@ -66,7 +70,7 @@ try {
     if(path==="/api/generation/prompt-preview")return json({compiledPrompt:"fixture"});
     if(path==="/api/references/processing-plan")return json({status:"accepted",planVersion:1,references:[]});
     if(path==="/api/references")return json({referenceId:crypto.randomUUID(),imageUrl:"/outputs/image.png"});
-    if(path==="/api/generate"){imagePosts++;return route.abort();}
+    if(path==="/api/generate"){imagePosts++;imageInput=req.postDataJSON();return route.abort();}
     if(path==="/api/comparisons/policy")return json({minimumSlots:2,maximumSlots:4});
     if(path==="/api/comparisons/estimate") { const body=req.postDataJSON(), quote=++cmpQuotes;const stale=body.sceneBuilder.manualPromptText==="Stale comparison";if(stale)await new Promise(resolve=>setTimeout(resolve,1000));const expiry=Date.now()+(quote===1?2000:60000);return json({slots:body.slots.map(slot=>({...slot,estimateId:`quote_${slot.id}`,estimatedCredit:4,estimateExpiresAt:expiry,imageResolution:"1K"})),estimatedTotalCredit:stale?999:body.slots.length*4,providerConfigVersion:1,expiresAt:expiry,estimateToken:"fixture"}); }
     if(path.startsWith("/api/comparisons/requests/"))return json({state:"found",requestId:decodeURIComponent(path.split("/").pop()),setId:"set_fixture",runId:"run_fixture"});
@@ -84,6 +88,48 @@ try {
     if(path==="/api/generation/video/tasks/video_failed")return json(failedVideo);
     console.error("UNMOCKED",req.method(),path); return route.fulfill({status:500,contentType:"application/json",body:JSON.stringify({error:{message:`Unmocked ${path}`}})});
   });
+  await page.goto("http://127.0.0.1:6502/image");
+  await page.locator("#prompt").fill("Direct image");
+  const policyError = page.getByRole("alert").filter({hasText:"Workspace settings could not be loaded"});
+  await policyError.waitFor();
+  assert.equal(await page.locator(".generate-bar .primary-button").isDisabled(), true);
+  creditsEnabled = false;
+  await policyError.getByRole("button", {name:"Try again"}).click();
+  for (const [surface, buttonSelector, endpoint] of [
+    ["Image", ".generate-bar .primary-button", "/api/generate"],
+    ["Comparison", ".generate-bar .primary-button", "/api/comparisons"],
+    ["Video", ".video-submit .primary-button", "/api/generation/video/tasks"],
+  ]) {
+    await page.getByRole("link", {name:surface, exact:true}).click();
+    if (surface === "Comparison") await page.locator(".comparison-slot").nth(1).waitFor();
+    if (surface === "Video") await page.locator(".video-editor").waitFor();
+    await page.locator("#prompt").fill("Direct " + surface);
+    const submit = page.locator(buttonSelector + ":not(:disabled)");
+    await submit.waitFor();
+    assert.equal(await page.locator(".quote-line, .comparison-slot-price").count(), 0);
+    const sent = page.waitForRequest(r => new URL(r.url()).pathname === endpoint && r.method() === "POST");
+    await submit.evaluate(button => { button.click(); button.click(); });
+    await sent;
+    assert.equal(await page.getByRole("alertdialog").count(), 0);
+    if (surface === "Comparison") {
+      await page.locator(".operation-status").getByRole("button",{name:"Check status",exact:true}).click();
+      await page.locator(".comparison-result.has-image .generation-result-metadata").waitFor();
+      assert.equal(await page.getByLabel("Actual cost: 4 Credits").count(), 0);
+    }
+  }
+  assert.deepEqual([imagePosts, cmpPosts, videoPosts], [1, 1, 1]);
+  assert.deepEqual(directCreditCalls, []);
+  assert.equal(imageInput.estimateId, undefined);
+  assert.equal(cmpInput.creditEstimates, undefined);
+  assert.equal(cmpInput.estimateToken, undefined);
+  assert.equal(videoInput.estimateId, undefined);
+  assert.equal(videoInput.requestFingerprint, undefined);
+  assert.ok(imageInput.requestId && cmpInput.idempotencyKey && videoInput.idempotencyKey);
+  console.log("PASS: missing policy blocks creation; credit-free image, comparison and video submit once without quotes, preferences or consent.");
+  creditsEnabled = true;
+  cmpPosts = videoPosts = imagePosts = 0;
+  cmpInput = videoInput = imageInput = undefined;
+  await page.evaluate(() => localStorage.clear());
   await page.goto("http://127.0.0.1:6502/image");
   await page.locator("#prompt").fill("Image draft stays here");
   assert.deepEqual(await page.locator(".media-tabs a").allTextContents(),["Image","Comparison","Video"]);
@@ -107,6 +153,7 @@ try {
   await page.reload();
   await page.locator(".operation-status").getByRole("button",{name:"Check status",exact:true}).click();
   await page.locator(".comparison-result.has-image").waitFor();
+  await page.getByLabel("Actual cost: 4 Credits").first().waitFor();
   assert.equal(cmpPosts,1);assert.equal(await page.locator(".comparison-image").count(),1);
   await page.getByText("Fixture provider refusal",{exact:true}).waitFor();
   await page.getByRole("button",{name:"Choose result",exact:true}).click();

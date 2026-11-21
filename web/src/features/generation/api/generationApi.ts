@@ -124,10 +124,10 @@ export function previewCompiledPrompt(draft: GenerationRequestDraft) {
   });
 }
 
-export function submitGeneration(draft: GenerationRequestDraft, estimateId: string, requestId = createRequestId('gen')) {
+export function submitGeneration(draft: GenerationRequestDraft, estimateId: string | undefined, requestId = createRequestId('gen')) {
   return apiRequest('/api/generate', {
     method: 'POST',
-    body: generationPayload(draft, { estimateId, requestId }),
+    body: { ...generationPayload(draft, { requestId }), estimateId },
     schema: generationSubmitSchema
   });
 }
@@ -185,7 +185,7 @@ export function estimateComparison(draft: GenerationRequestDraft, slots: Compari
 export function submitComparison(
   draft: GenerationRequestDraft,
   slots: ComparisonSlotInput[],
-  estimate: ComparisonEstimate,
+  estimate: ComparisonEstimate | undefined,
   name?: string,
   idempotencyKey?: string
 ) {
@@ -195,14 +195,14 @@ export function submitComparison(
       ...generationPayload(draft),
       name: name || `Comparison ${new Date().toLocaleDateString('en-CA')}`,
       slots,
-      creditEstimates: estimate.slots.map(slot => ({
+      creditEstimates: estimate?.slots.map(slot => ({
         slotId: slot.id,
         estimateId: slot.estimateId,
         estimatedCredit: slot.estimatedCredit,
         estimateExpiresAt: slot.estimateExpiresAt
       })),
-      estimateToken: estimate.estimateToken,
-      estimateExpiresAt: estimate.expiresAt,
+      estimateToken: estimate?.estimateToken,
+      estimateExpiresAt: estimate?.expiresAt,
       idempotencyKey: idempotencyKey ?? createRequestId('cmp')
     },
     schema: comparisonSubmitSchema

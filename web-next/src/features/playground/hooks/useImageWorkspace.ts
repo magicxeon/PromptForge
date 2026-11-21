@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useWorkspaceCredits } from "../../../lib/workspaceConfig";
 import {
   useActor,
   getIdentitySnapshot,
@@ -39,6 +40,7 @@ import {
 } from "../state/imageDraft";
 
 export function useImageWorkspace() {
+  const creditsEnabled = useWorkspaceCredits();
   const { actor, identityScope, isLoading } = useActor();
   const actorId = actor!.userId;
   const { t } = useTranslation();
@@ -123,7 +125,7 @@ export function useImageWorkspace() {
       item.provider.id === draft.provider && item.model.id === draft.model,
   );
   useEffect(() => {
-    if (draft.provider || !catalog.data) return;
+    if (draft.provider || !catalog.data || creditsEnabled === undefined) return;
     const choices = catalog.data.providers.flatMap((provider) =>
       provider.models
         .filter((model) => model.capabilities.imageGeneration)
@@ -134,8 +136,8 @@ export function useImageWorkspace() {
         (item) =>
           item.provider.id === catalog.data.defaultProvider &&
           item.model.id === item.provider.defaultModel &&
-          !imageModelUnavailableReason(item.model),
-      ) || choices.find((item) => !imageModelUnavailableReason(item.model));
+          !imageModelUnavailableReason(item.model, 0, null, creditsEnabled),
+      ) || choices.find((item) => !imageModelUnavailableReason(item.model, 0, null, creditsEnabled));
     if (first)
       setDraft((value) => ({
         ...value,
@@ -149,7 +151,7 @@ export function useImageWorkspace() {
           first.model.capabilities.resolutions?.[0] ||
           "",
       }));
-  }, [catalog.data, draft.provider]);
+  }, [catalog.data, draft.provider, creditsEnabled]);
   const request = useMemo<GenerationRequestDraft>(
     () => ({
       provider: draft.provider,
@@ -182,6 +184,7 @@ export function useImageWorkspace() {
       selected?.model,
       draft.references.length,
       draft.ratio,
+      creditsEnabled,
     ) ||
     (selected?.model.capabilities.resolutions?.length &&
     !selected.model.capabilities.resolutions.includes(draft.resolution)
@@ -199,7 +202,7 @@ export function useImageWorkspace() {
   const estimate = useQuery({
     queryKey: ["fe24-estimate", identityScope, settledKey],
     queryFn: () => estimateGeneration(JSON.parse(settledKey)),
-    enabled,
+    enabled: enabled && creditsEnabled === true,
     retry: false,
   });
   useEffect(() => {
@@ -294,6 +297,7 @@ export function useImageWorkspace() {
   }
   const unresolved = Boolean(intent && intent.status !== "accepted");
   const quoteCurrent =
+    creditsEnabled === true &&
     enabled &&
     !!estimate.data &&
     new Date(estimate.data.estimate.expiresAt).getTime() > Date.now() &&
@@ -306,18 +310,18 @@ export function useImageWorkspace() {
       !processing.isFetching &&
       !processing.error);
   const canGenerate =
-    quoteCurrent &&
+    enabled &&
+    (creditsEnabled === false || (quoteCurrent && estimate.data?.account.canAfford)) &&
     (actor?.role !== "admin" ||
       (!!preview.data && !preview.isFetching && !preview.error &&
         preview.data.promptBudget?.status !== "over_limit")) &&
     processingAccepted &&
-    estimate.data!.account.canAfford &&
     !busy &&
     !unresolved;
   async function generate() {
     if (!canGenerate || flight.current) return;
-    const quote = estimate.data!;
-    if (new Date(quote.estimate.expiresAt).getTime() <= Date.now()) {
+    const quote = creditsEnabled ? estimate.data : undefined;
+    if (quote && new Date(quote.estimate.expiresAt).getTime() <= Date.now()) {
       void estimate.refetch();
       setError(t("quoteError"));
       return;
@@ -328,7 +332,7 @@ export function useImageWorkspace() {
     const epoch = getIdentitySnapshot().epoch;
     const next: ImageIntent = {
       requestId: `fe24_${crypto.randomUUID()}`,
-      estimateId: quote.estimate.estimateId,
+      estimateId: quote?.estimate.estimateId || "",
       fingerprint: "",
       jobId: null,
       groupId: null,
@@ -348,7 +352,7 @@ export function useImageWorkspace() {
       sent = true;
       const result = await submitGeneration(
         request,
-        next.estimateId,
+        quote?.estimate.estimateId,
         next.requestId,
       );
       if (!current(epoch)) return;
@@ -462,6 +466,7 @@ export function useImageWorkspace() {
     incompatible,
     estimate,
     quoteCurrent,
+    creditsEnabled,
     processingAccepted,
     preview,
     processing,

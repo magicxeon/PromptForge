@@ -57,8 +57,9 @@ const { GenerationApplicationService } = await import('../server/domain/generati
 const { ComparisonOrchestrator } = await import('../server/domain/comparisons/ComparisonOrchestrator.js');
 const { ComparisonRepository } = await import('../server/repositories/comparisons/ComparisonRepository.js');
 const { compileGenerationContext } = await import('../server/domain/generation/generationRequestService.js');
+const { withWebNextCreditPolicy } = await import('../server/domain/credits/WorkspaceCreditPolicy.js');
 
-async function fixture(work, { balance = 200, count = 2, failEnqueue = 0, failPersistence = 0 } = {}) {
+async function fixture(work, { balance = 200, count = 2, failEnqueue = 0, failPersistence = 0, unmetered = false } = {}) {
   const parent = await fs.realpath(os.tmpdir()), root = await fs.mkdtemp(path.join(parent, 'mpf-comparison-atomic-'));
   try {
     const actor = { userId: 'fixture_actor', username: 'fixture_actor', role: 'user' };
@@ -83,9 +84,10 @@ async function fixture(work, { balance = 200, count = 2, failEnqueue = 0, failPe
     const queue = { subscribeLifecycle: () => () => {}, createJobId: () => `job_fixture_${jobSequence++}`, getJobStatus: id => jobs.get(id) || null,
       enqueue(providerId, modelId, prompt, options) {
         const wallet = JSON.parse(readFileSync(databaseFile, 'utf8'));
-        assert.equal(wallet.reservations.length, count, 'All slot reservations precede the first enqueue.');
+        assert.equal(wallet.reservations.length, unmetered ? 0 : count);
         const run = JSON.parse(readFileSync(comparisonsFile, 'utf8')).sets[0].runs[0];
-        assert.ok(run.slots.every(slot => slot.jobId && slot.reservationId), 'All durable slot bindings precede dispatch.');
+        assert.ok(run.slots.every(slot => slot.jobId && Boolean(slot.reservationId) === !unmetered),
+          'All durable slot bindings precede dispatch.');
         if (++enqueueSequence === failEnqueue) throw new Error('Injected pre-acceptance enqueue failure.');
         calls.push(options); jobs.set(options.jobId, { status: 'queued' }); return options.jobId;
       } };
@@ -110,6 +112,29 @@ async function fixture(work, { balance = 200, count = 2, failEnqueue = 0, failPe
     await fs.rm(root, { recursive: true });
   }
 }
+
+for (const failEnqueue of [0, 2]) test(`unmetered Comparison skips the wallet through submit, replay and recovery (failure ${failEnqueue})`, async () => {
+  await fixture(async ({ actor, payload, orchestrator, accountRepo, repository, calls, jobs }) => {
+    Object.assign(payload, { generationSurface: 'playground', generationMode: 'playground' });
+    delete payload.estimateToken;
+    delete payload.creditEstimates;
+    delete payload.estimateExpiresAt;
+    const initial = await accountRepo.readRaw();
+    await assert.rejects(orchestrator.create({ ...payload, billingMode: 'unmetered' }, actor), { code: 'estimate_changed' });
+    const marked = withWebNextCreditPolicy({ ...actor }, false);
+    if (failEnqueue) await assert.rejects(orchestrator.create(payload, marked), /enqueue failure/);
+    else await orchestrator.create(payload, marked);
+    assert.equal(calls.length, failEnqueue ? 1 : 2);
+    assert.ok(calls.every(call => call.billingMode === 'unmetered' && call.reservationId === null));
+    const replay = await orchestrator.create(payload, actor);
+    assert.equal(replay.idempotentReplay, true);
+    jobs.clear();
+    const recovered = await orchestrator.get(replay.setId, actor);
+    assert.equal(recovered.runs[0].status, 'failed');
+    assert.equal((await repository.readData()).sets.length, 1);
+    assert.deepEqual(await accountRepo.readRaw(), initial);
+  }, { balance: 0, unmetered: true, failEnqueue });
+});
 
 test('Comparison total affordability is atomic: wallet60, two50 quotes, zero enqueue and zero debit', async () => {
   await fixture(async ({ orchestrator, payload, actor, accountRepo, calls }) => {

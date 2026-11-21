@@ -25,6 +25,7 @@ try {
     const request=route.request(),url=new URL(request.url()),path=url.pathname;
     if(!path.startsWith("/api/"))return route.continue();
     const json=value=>route.fulfill({contentType:"application/json",body:JSON.stringify(value)});
+    if(path==="/api/web-next/config") return json({creditsEnabled:true});
     if(path==="/api/auth/config")return json({contractVersion:1,authMode:"development_bypass",methods:{password:false,emailOtp:false,google:false,facebook:false},csrfToken:"fixture",policy:{otpDigits:6,otpExpiresSeconds:300,resendSeconds:30,passwordMinLength:8,passwordMaxLength:128},legal:{termsVersion:null,privacyVersion:null}});
     if(path==="/api/me")return json({userId:actorId,username:actorId,displayName:actorId,role:"admin",authMode:"development_bypass",accountStatus:"active"});
     if(path==="/api/me/preferences")return json({confirmCreditUsage:false});

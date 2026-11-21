@@ -1,4 +1,5 @@
 import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
+import voicePolicy from "../../config/voice-studio/policy.v1.json" with { type: "json" };
 
 export const languages = ["th", "zh", "zh-CN", "zh-TW", "en"];
 export const fail = () => {
@@ -47,6 +48,24 @@ export async function speakerSettings(
   resolveCharacter,
 ) {
   const result = {};
+  const profiles = Object.entries(mapObject(input.speakerProfiles ?? project.speakerProfiles ?? {}));
+  if (profiles.length > 200) fail();
+  result.speakerProfiles = Object.create(null);
+  for (const [speaker, profile] of profiles) {
+    label(speaker, 120, true);
+    if (Object.hasOwn(Object.prototype, speaker) || speaker === "prototype") fail();
+    mapObject(profile);
+    if (!/^#[0-9a-f]{6}$/i.test(label(profile.color, 7))) fail();
+    const voiceNames = {};
+    for (const lang of targets) {
+      if (profile.voiceNames?.[lang]) voiceNames[lang] = label(profile.voiceNames[lang], 120);
+    }
+    result.speakerProfiles[speaker] = {
+      name: label(profile.name, 120, true), color: profile.color,
+      gender: choice(profile.gender, ["unknown", "female", "male", "other"]),
+      style: label(profile.style, 300), voiceNames,
+    };
+  }
   const checked = new Set();
   for (const field of ["characterMappings", "mixer"]) {
     const mapping = mapObject(input[field] ?? project[field] ?? {});
@@ -61,12 +80,13 @@ export async function speakerSettings(
           fail();
         if (field === "characterMappings") {
           const id = label(value, 160, true);
+            const bindingKey = JSON.stringify([lang, id]);
           if (
-            !checked.has(id) &&
+              !checked.has(bindingKey) &&
             project.characterMappings?.[lang]?.[name] !== id
           ) {
-            await resolveCharacter(id);
-            checked.add(id);
+              await resolveCharacter(id, lang);
+              checked.add(bindingKey);
           }
           output[lang][name] = id;
         } else {
@@ -137,6 +157,16 @@ export function tracksFor(input, targets) {
   return tracks;
 }
 
+export function normalizeDelivery(value) {
+  const object = mapObject(value);
+  const result = {};
+  for (const key of ["emotion", "intensity", "pace"]) {
+    if (object[key] !== undefined) result[key] = choice(object[key], ["", ...voicePolicy.stylePresets[key]]);
+  }
+  if (object.direction !== undefined) result.direction = label(object.direction, voicePolicy.maxStyleLength);
+  return result;
+}
+
 export async function normalizeCues(rows, project, resolveTake) {
   if (!Array.isArray(rows) || rows.length > 3000) fail();
   const ids = new Set();
@@ -179,6 +209,9 @@ export async function normalizeCues(rows, project, resolveTake) {
       voiceBindings: {},
     };
     for (const lang of project.targetLanguages) {
+      for (const field of ["suggestedDelivery", "deliveryOverrides"]) {
+        if (raw[field]?.[lang]) (cue[field] ??= {})[lang] = normalizeDelivery(raw[field][lang]);
+      }
       if (raw.translations?.[lang] !== undefined)
         cue.translations[lang] = label(raw.translations[lang], 4000);
       if (raw.translationOrigins?.[lang] !== undefined && cue.translations[lang]) {
@@ -190,6 +223,9 @@ export async function normalizeCues(rows, project, resolveTake) {
         label(binding.documentId, 160, true);
         label(binding.rowId, 160, true);
         cue.voiceBindings[lang] = {};
+        if (binding.operationId && Number.isSafeInteger(binding.operationRevision) && binding.operationRevision > 0)
+          cue.voiceBindings[lang].operationRevision = binding.operationRevision;
+        if (binding.usesCueDelivery === true) cue.voiceBindings[lang].usesCueDelivery = true;
         for (const key of [
           "documentId",
           "rowId",

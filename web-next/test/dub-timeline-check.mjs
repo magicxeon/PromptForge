@@ -35,6 +35,7 @@ try {
     const path = new URL(route.request().url()).pathname;
     if (!path.startsWith("/api/")) return route.continue();
     const json = value => route.fulfill({ contentType: "application/json", body: JSON.stringify(value) });
+    if (path === "/api/web-next/config") return json({ creditsEnabled: false });
     if (path === "/api/auth/config") return json({ contractVersion: 1, authMode: "development_bypass", methods: { password: false, emailOtp: false, google: false, facebook: false }, csrfToken: "fixture", policy: { otpDigits: 6, otpExpiresSeconds: 300, resendSeconds: 30, passwordMinLength: 8, passwordMaxLength: 128 }, legal: { termsVersion: null, privacyVersion: null } });
     if (path === "/api/me") return json({ userId: "fixture", username: "fixture", displayName: "Fixture", role: "admin", authMode: "development_bypass", accountStatus: "active" });
     if (path.endsWith("/peaks")) return json({ durationMs: duration, peaks: Array.from({ length: 10000 }, (_, i) => Math.abs(Math.sin(i / 30))) });

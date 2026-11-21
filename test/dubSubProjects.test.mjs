@@ -203,7 +203,7 @@ test('private local video, peaks, revision, subtitle export and byte ranges', as
   assert.equal(archived.archived,true); assert.equal((await service.list(actor,{})).items.length,0);
   assert.equal((await service.list(actor,{archived:'true'})).items.length,1);
   let checked=false;
-  service.voiceStudio.getDubCharacter=async(owner,id)=>{checked=true;assert.equal(owner,actor);assert.equal(id,'char-1');};
+  service.voiceStudio.getDubCharacter=async(owner,id,language)=>{checked=true;assert.equal(owner,actor);assert.equal(id,'char-1');assert.equal(language,'th');};
   const grouped = await service.update(actor,project.id,{revision:archived.revision,characterMappings:{th:{actor:'char-1'}},
     mixer:{th:{actor:{gain:0.25,mute:false,solo:true}}}});
   assert.equal(checked,true);assert.equal(grouped.characterMappings.th.actor,'char-1');assert.equal(grouped.mixer.th.actor.gain,0.25);

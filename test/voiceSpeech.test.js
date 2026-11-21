@@ -5,13 +5,52 @@ import os from 'node:os';
 import path from 'node:path';
 import { compileSpeechRequest } from '../server/domain/generation/SpeechRequestCompiler.js';
 import { loadSpeechCatalog } from '../server/domain/generation/SpeechCatalog.js';
-import { inspectWav, AudioAssetService } from '../server/domain/assets/AudioAssetService.js';
+import { inspectWav, normalizeSeedWav, AudioAssetService } from '../server/domain/assets/AudioAssetService.js';
 import { quoteSpeechPrice, settleSpeechPrice } from '../server/domain/credits/SpeechPricing.js';
 import { GeminiSpeechProvider } from '../server/providers/GeminiSpeechProvider.js';
 import { SeedSpeechProvider } from '../server/providers/SeedSpeechProvider.js';
+import { directSeedAudition } from '../server/domain/generation/SeedAuditionDirection.js';
+
+test('a rejected Luna request still prepares the original Thai audition for Seed', async () => {
+  const model = loadSpeechCatalog().models.find(m => m.id === 'dola-seed-audio');
+  const input = {name:'เสี่ยวเหมย', language:'th', voiceGender:'female', sourceType:'description',
+    description:'A soft, warm voice.', sampleText:'คุณชายผู้นั้น... เหตุใดข้าจึงเฝ้าคิดถึงแต่ท่านนะ'};
+  const snapshot = await directSeedAudition(input, model, {voiceDirection: async () => {
+    throw Object.assign(new Error('Access denied'), {isProviderError:true, status:403});
+  }}, async () => ({voiceProfile:input.description, scene:'Inside an inn.', actingDirection:'Speak softly.', durationSeconds:5}));
+  assert.equal(snapshot.directionSource, 'gemini');
+  assert.ok(snapshot.providerPrompt.includes(JSON.stringify(input.sampleText)));
+  assert.ok(snapshot.providerPrompt.includes(input.description));
+  assert.doesNotMatch(snapshot.providerPrompt.replace(JSON.stringify(input.sampleText), ''), /\p{Script=Thai}/u);
+  const unavailable = {voiceDirection: async () => {
+    throw Object.assign(new Error(), {isProviderError:true});
+  }};
+  const style = 'Professional Thai romantic-drama dubbing.';
+  const thaiInput = {...input, description:'เสียงนุ่ม ' + style};
+  const translated = await directSeedAudition(thaiInput, model, unavailable, async request => {
+    assert.equal(request.input.description, thaiInput.description);
+    assert.equal(request.input.sampleText, thaiInput.sampleText);
+    assert.equal(request.model, 'gemini-3.5-flash-lite');
+    return {voiceProfile:'A soft voice.', scene:'Inside an inn.', actingDirection:'Speak softly.', durationSeconds:5};
+  });
+  assert.equal(translated.directionSource, 'gemini');
+  assert.ok(translated.providerPrompt.endsWith('\n' + style));
+  const directed = await directSeedAudition(thaiInput, model, {voiceDirection: async () => ({
+    voiceProfile:'A warm voice.', scene:'A private chamber.', actingDirection:'Speak softly.', durationSeconds:5
+  })});
+  assert.ok(directed.providerPrompt.endsWith('\n' + style));
+  assert.ok(translated.providerPrompt.includes(JSON.stringify(input.sampleText)));
+  assert.doesNotMatch(translated.providerPrompt.replace(JSON.stringify(input.sampleText), ''), /\p{Script=Thai}/u);
+  await assert.rejects(directSeedAudition(thaiInput, model, unavailable, async () => { throw new Error('Unavailable'); }),
+    {code:'speech_direction_unavailable'});
+});
 import { SpeechGenerationService } from '../server/domain/generation/SpeechGenerationService.js';
 import { SpeechOperationRepository } from '../server/repositories/generation/SpeechOperationRepository.js';
+import { AssetRepository } from '../server/repositories/assets/AssetRepository.js';
+import { VoiceStudioApplicationService } from '../server/domain/voice-studio/VoiceStudioApplicationService.js';
+import { VoiceStudioRepository } from '../server/repositories/voice-studio/VoiceStudioRepository.js';
 import { CreditApplicationService } from '../server/domain/credits/CreditApplicationService.js';
+import { CreditReservationService } from '../server/domain/credits/CreditReservationService.js';
 import { CreditAccountRepository } from '../server/repositories/credits/CreditAccountRepository.js';
 
 const snapshot = { documentId: 'doc', rowId: 'row', modelId: 'gemini-3.8-flash-tts', voiceId: 'Kore', text: 'สวัสดี\n<gasp> จริงหรือ', delivery: { emotion: 'happy' }, language: 'th' };
@@ -37,7 +76,7 @@ test('Seed Audio directs the chosen speaker in the requested language and prices
     assert.equal(requests.at(-1).redirect,'error','credentialed requests must refuse all redirects');
     assert.deepEqual(request.references,[{speaker:s.voiceId}]);
     assert.ok(request.text_prompt.includes('@Audio1') && request.text_prompt.includes(s.text) && request.text_prompt.includes(s.delivery.emotion));
-    assert.equal(request.model,'seed-audio-1.0');
+    assert.equal(request.model,'seed-audio-1.0-multilingual');
     assert.equal(request.audio_config.format,'wav');
     assert.equal(result.usage.original_duration,7.5);
     assert.equal(result.timing[0].endMs,300);
@@ -70,6 +109,129 @@ function wav() {
   b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(24000, 24); b.writeUInt32LE(48000, 28);
   b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(4, 40); return b;
 }
+test('Seed design quotes freeze the source, sample text and voice type; confirmed drafts reuse owned audio for dubbing', async t => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'seed-presets-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const repository = new SpeechOperationRepository({ filename: path.join(root, 'operations.json') });
+  const queue = { jobs: new Map(), enqueueOperation(job) { this.jobs.set(job.id, job); } };
+  const samples = new Map(), calls = [], captures = [];
+  const service = new SpeechGenerationService({ repository, queue, available() {},
+    credits: {
+      async quoteSpeech(input) {
+        assert.equal(input.operation, 'speech'); assert.equal(input.originalSeconds, 120);
+        return { totalCredits: 5, expiresAt: new Date(Date.now() + 60000).toISOString() };
+      },
+      async reserveSpeech({operationId}) {
+        const record = await repository.get(operationId, actorContext.userId);
+        if (record.snapshot.sourceType) assert.equal((await service.read({actorContext,id:operationId})).status,'admitting');
+        return { reservation: { reservationId: 'reserved' } };
+      },
+      async captureSpeech(input) { captures.push(input); },
+    },
+    seedProvider: new SeedSpeechProvider({ apiKey: 'fixture', director: {voiceDirection: async ({input, model}) => {
+      assert.equal(model, 'gpt-6-luna');
+      return {voiceProfile: input.description || 'Follow the reference.', scene: 'A greeting.', actingDirection: 'Warmly.', durationSeconds: 5};
+    }}, fetchImpl: async (_url, input) => {
+      calls.push(JSON.parse(input.body)); return Response.json({ audio: wav().toString('base64'), original_duration: 1 });
+    } }),
+    assets: {
+      async register({bytes, jobId}) { samples.set(jobId, bytes); return { outputAssetId: jobId, outputUrl: '/test.wav', durationMs: 1 }; },
+      async referenceClip(actor, assetId) { assert.equal(actor.userId, actorContext.userId); return samples.get(assetId); },
+      async remove({assetId}) { samples.delete(assetId); },
+    },
+  });
+  const design = { modelId: 'dola-seed-audio', name: 'Narrator', description: 'A warm, calm voice.', sampleText: 'Welcome.',
+    language: 'en', voiceGender: 'female', sourceType: 'description' };
+  const perform = async (payload, operation) => {
+    const input = { actorContext, snapshot: payload, operation };
+    const q = await service.quote(input);
+    assert.equal(calls.length, captures.length, 'quoting does not send audio');
+    const request = { ...input, quoteId: q.id, requestId: 'test_' + q.id };
+    await assert.rejects(service.generate({ ...request, snapshot: { ...payload, [operation === 'voice_design' ? 'sampleText' : 'text']: 'Different.' } }),
+      { code: 'speech_quote_stale' });
+    await service.generate(request); await service.generate(request);
+    const done = await queue.jobs.get(q.id).execute();
+    assert.equal(done.status, 'succeeded'); assert.equal(captures.at(-1).usage.original_duration, 1);
+    return q.id;
+  };
+  await assert.rejects(service.quote({ actorContext, operation:'voice_design', snapshot: { ...design, sourceType:'reference', referenceAudio:'YWJj' } }),
+    { code:'speech_invalid_reference' });
+  const designed = await perform(design, 'voice_design');
+  assert.equal(calls[0].references, undefined); assert.match(calls[0].text_prompt, /A warm, calm voice/);
+  assert.ok(calls[0].text_prompt.includes('[0.3s:4.7s] Narrator: "Welcome."'));
+  const ref = wav().toString('base64');
+  const uploaded = await perform({ ...design, description: '', sourceType: 'reference', referenceAudio: ref }, 'voice_design');
+  assert.deepEqual(calls[1].references, [{ audio_data: ref }]); assert.match(calls[1].text_prompt, /@Audio1/);
+  assert.ok(!(await readFile(repository.file(), 'utf8')).includes(ref));
+  const line = { ...snapshot, text:'The next scene.', voiceKind:'custom', voiceId:designed, modelId:design.modelId,
+    language:design.language, customVoiceOperationId:designed };
+  await assert.rejects(service.quote({actorContext: { userId:'other' }, snapshot:line}), {code:'speech_custom_voice_unavailable'});
+  await perform(line, 'speech');
+  assert.deepEqual(calls[2].references, [{ audio_data: ref }]); assert.match(calls[2].text_prompt, /The next scene/);
+  assert.equal(calls.length, 3); assert.equal(captures.length, 3);
+  assert.equal(samples.has(uploaded + '-reference'), true);
+  const original = wav(); original.writeInt16LE(2222, 44);
+  const retained = await perform({ ...design, sourceType: 'reference', referenceAudio: original.toString('base64'), retainOriginal: true }, 'voice_design');
+  await perform({ ...line, voiceId:retained, customVoiceOperationId:retained }, 'speech');
+  assert.deepEqual(calls.at(-1).references, [{ audio_data: original.toString('base64') }]);
+  await service.deleteDesignedVoice({ actorContext, id: retained });
+  assert.equal(samples.has(retained + '-reference'), false); assert.equal(samples.has(retained), false);
+  await service.deleteDesignedVoice({ actorContext, id: uploaded });
+  assert.equal(samples.has(uploaded), false); assert.equal(samples.has(uploaded + '-reference'), false);
+});
+test('private Seed reference reads keep normalized WAV bounded and reject deleted or foreign assets', async t => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'seed-reference-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const repository = new AssetRepository({ assetsFile:path.join(root, 'assets.json') });
+  const assets = new AudioAssetService({ repository, outputsDirectory:root });
+  const audio = Buffer.concat([wav(), Buffer.alloc(96000)]);
+  audio.writeUInt32LE(audio.length - 8, 4); audio.writeUInt32LE(audio.length - 44, 40);
+  const { outputAssetId } = await assets.register({ actorContext, bytes:audio, jobId:'design' });
+  const clip = await assets.referenceClip(actorContext, outputAssetId, 1, 200000);
+  assert.equal(inspectWav(clip).durationMs, 1000);
+  await assert.rejects(assets.referenceClip({userId:'other'}, outputAssetId, 1, 200000), {code:'speech_invalid_reference'});
+  await assets.remove({ actorContext, assetId:outputAssetId });
+  await assert.rejects(assets.referenceClip(actorContext, outputAssetId, 1, 200000), {code:'speech_invalid_reference'});
+});
+
+test('confirmed Seed delete retires previous dubbing assignments after active jobs finish and preserves Takes', async t => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'seed-retire-'));
+  t.after(() => rm(root, { recursive:true, force:true }));
+  const files = Object.fromEntries(['documents','characters','takes','customVoices'].map(key => [key,path.join(root,key+'.json')]));
+  const repository = new VoiceStudioRepository({files});
+  const operations = new SpeechOperationRepository({filename:path.join(root,'operations.json')});
+  const assets = new AudioAssetService({repository:new AssetRepository({assetsFile:path.join(root,'assets.json')}), outputsDirectory:root});
+  const speech = new SpeechGenerationService({repository:operations, assets});
+  const voice = new VoiceStudioApplicationService({repository, generation:{speechCatalog:loadSpeechCatalog, deleteVoiceDesign:args=>speech.deleteDesignedVoice(args)}});
+  const register = jobId => assets.register({actorContext, jobId, bytes:wav()});
+  const original = await register('original'), preview = await register('preview'), take = await register('take');
+  const model = loadSpeechCatalog().models.find(m => m.adapterKey === 'seed-speech');
+  const design = { id:'voice-test', ownerUserId:actorContext.userId, createdAt:new Date().toISOString(), operation:'voice_design', status:'succeeded',
+    model, sourceAssetId:original.outputAssetId, ...preview, snapshot:{ name:'Narrator', modelId:model.id, language:'th', sourceType:'reference' } };
+  await operations.mutate(items => items.push(design,{id:'active', ownerUserId:actorContext.userId, status:'queued',snapshot:{customVoiceOperationId:design.id}}));
+  await voice.project(actorContext, speech.publicRecord(design));
+  await voice.updateCustomVoice(actorContext, design.id, {}, true);
+  const character = await voice.character(actorContext,{name:'Narrator', voiceId:design.id, voiceKind:'custom'});
+  const doc = await voice.createDocument(actorContext,{language:'th', modelId:model.id});
+  const assigned = await voice.updateDocument(actorContext,doc.id,{expectedRevision:doc.revision,rows:[{...doc.rows[0],characterPresetId:character.id}]});
+  await voice.updateDocument(actorContext,doc.id,{expectedRevision:assigned.revision,rows:[{...assigned.rows[0],characterPresetId:''}]});
+  const other = await repository.insert('characters','another',{name:'Unrelated', voiceKind:'custom', voiceId:design.id});
+  const request = { retireLinkedCharacters:true };
+  await assert.rejects(voice.deleteCustomVoice({userId:'another'},design.id,request), {code:'voice_record_not_found'});
+  await assert.rejects(voice.deleteCustomVoice(actorContext,design.id), {code:'voice_custom_in_use'});
+  await assert.rejects(voice.deleteCustomVoice(actorContext,design.id,request), {code:'speech_voice_in_use'});
+  assert.equal((await voice.customVoices.resolve(actorContext,design.id)).id, design.id);
+  assert.equal((await voice.getDubCharacter(actorContext,character.id)).id, character.id);
+  assert.deepEqual(await assets.referenceClip(actorContext,original.outputAssetId,30,1024),wav());
+  await operations.update('active',actorContext.userId,{status:'succeeded'});
+  await voice.deleteCustomVoice(actorContext,design.id,request);
+  assert.deepEqual(await voice.deleteCustomVoice(actorContext,design.id,request), {deleted:true});
+  await assert.rejects(voice.getDubCharacter(actorContext,character.id), {code:'voice_record_not_found'});
+  await assert.rejects(voice.archive('characters',actorContext,character.id,false), {code:'voice_custom_unavailable'});
+  assert.equal((await repository.get('characters',other.id,'another')).archivedAt, undefined);
+  for (const asset of [original,preview]) await assert.rejects(readFile(path.join(root,asset.outputUrl.replace('/outputs/',''))), {code:'ENOENT'});
+  assert.deepEqual(await readFile(path.join(root,take.outputUrl.replace('/outputs/',''))),wav());
+});
 test('speech compilation preserves exact transcript, separates style, rejects unsupported tags and voice', () => {
   const catalog = loadSpeechCatalog(), result = compileSpeechRequest(snapshot, catalog);
   assert.equal(result.snapshot.text, snapshot.text); assert.equal(result.snapshot.style, 'happy');
@@ -306,4 +468,98 @@ test('definitive provider rejection releases reservation and terminates failure'
   service.credits.refundForJob=async()=>{throw new Error('storage unavailable');};
   const pending=await service.execute(record,actorContext);
   assert.equal(pending.status,'reconciliation_required');assert.equal(pending.errorCode,'speech_refund_pending');
+});
+
+test('rejected Seed creation resumes private reference cleanup without generating again', async t => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'seed-rejected-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const repository = new SpeechOperationRepository({ filename: path.join(directory, 'operations.json') });
+  const model = loadSpeechCatalog().models.find(item => item.adapterKey === 'seed-speech');
+  const record = { id: 'seed-rejected', operation: 'voice_design', ownerUserId: 'actor', model, reservationId: 'r',
+    snapshot: { sourceType: 'reference' }, sourceAssetId: 'original' };
+  await repository.mutate(records => records.push(record));
+  let calls = 0, removals = 0;
+  const service = new SpeechGenerationService({ repository, available: () => {}, credits: { refundForJob: async () => {} },
+    assets: { referenceClip: async () => wav(), remove: async () => { if (++removals === 1) throw new Error('Disk unavailable'); } },
+    seedProvider: { generate: async () => { calls++; throw Object.assign(new Error(), { code: 'speech_provider_http_400' }); } } });
+  assert.equal((await service.execute(record, actorContext)).errorCode, 'speech_design_cleanup_pending');
+  assert.equal((await service.read({ actorContext, id:record.id })).errorCode, 'speech_provider_http_400');
+  assert.equal((await service.read({ actorContext, id:record.id })).status, 'failed');
+  assert.equal(removals, 2);
+  assert.equal(calls, 1);
+});
+
+test('Seed converts a complete 48 kHz WAV to the library format without changing its duration', async () => {
+  const original = Buffer.concat([wav().subarray(0, 44), Buffer.alloc(9600, 7)]);
+  original.writeUInt32LE(original.length - 8, 4); original.writeUInt32LE(9600, 40);
+  original.writeUInt32LE(48000, 24); original.writeUInt32LE(96000, 28);
+  const converted = await normalizeSeedWav(original, 16384);
+  assert.deepEqual(inspectWav(converted), {channels:1, sampleRateHz:24000, durationMs:100});
+  assert.ok(converted.subarray(44).some(value => value !== 0));
+  await assert.rejects(normalizeSeedWav(original.subarray(0, 50), 16384), {code:'speech_invalid_wav'});
+});
+
+test('unusable Seed previews release one hold after dispatch or on legacy status reads', async t => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'seed-wav-recovery-'));
+  t.after(() => rm(directory, { recursive:true, force:true }));
+  const repository = new SpeechOperationRepository({filename:path.join(directory,'ops.json')});
+  const databaseFile = path.join(directory,'credits.json');
+  await writeFile(databaseFile, JSON.stringify({schemaVersion:2, accounts:[{userId:'actor',availableCredits:100,reservedCredits:0,status:'active'}], estimates:[],reservations:[],ledgerEntries:[]}));
+  const accounts = new CreditAccountRepository({databaseFile,userRepository:{findById:async()=>null,findByUsername:async()=>null}});
+  const credits = new CreditApplicationService({accountRepository:accounts,reservationService:new CreditReservationService({accountRepo:accounts})});
+  let calls = 0;
+  const service = new SpeechGenerationService({repository, credits, available() {},
+    seedProvider:{generate:async () => { calls++; return {bytes:wav().subarray(0,44),usage:{original_duration:1},providerResponseId:'fixture'}; }}});
+  const model = loadSpeechCatalog().models.find(m => m.adapterKey === 'seed-speech');
+  for (const id of ['legacy','fresh','unknown','has-output','ordinary']) {
+    const {reservation} = await credits.reserveSpeech({userId:'actor',operationId:id,quote:{totalCredits:5,expiresAt:new Date(Date.now()+60000).toISOString()}});
+    const record = {id, ownerUserId:'actor',operation:id==='ordinary'?'speech':'voice_design',snapshot:{sourceType:'description'},model,
+      reservationId:reservation.reservationId,status:'reconciliation_required',errorCode:id==='unknown'?'speech_provider_outcome_unknown':'speech_invalid_wav',
+      outputAssetId:id==='has-output'?'asset':null};
+    await repository.mutate(rows => rows.push(record));
+    await assert.rejects(service.read({actorContext:{userId:'other'},id}),{code:'speech_not_found'});
+    if (id === 'fresh') {
+      assert.equal((await service.execute(record, actorContext)).status, 'failed');
+      assert.equal((await repository.get(id,'actor')).providerResponseId, 'fixture');
+    }
+    const results = await Promise.all([service.read({actorContext,id}),service.read({actorContext,id})]);
+    assert.ok(results.every(x=>x.status === (['legacy','fresh'].includes(id)?'failed':'reconciliation_required')));
+  }
+  const ledger = await accounts.readRaw();
+  assert.equal(ledger.ledgerEntries.filter(e=>e.reasonCode==='speech_unusable_preview').length, 2);
+  assert.equal(ledger.accounts[0].reservedCredits, 15);
+  assert.equal(ledger.accounts[0].availableCredits, 85);
+  assert.equal(calls, 1);
+});
+
+test('restart recovers private input and reservation by owner and job only before Seed dispatch', async t => {
+  const root = await mkdtemp(path.join(os.tmpdir(),'seed-interrupt-'));
+  t.after(() => rm(root, {recursive:true, force:true}));
+  const repository = new SpeechOperationRepository({filename:path.join(root,'ops.json')});
+  const assets = new AudioAssetService({repository:new AssetRepository({assetsFile:path.join(root,'assets.json')}),outputsDirectory:root});
+  const databaseFile = path.join(root, 'credits.json');
+  await writeFile(databaseFile,JSON.stringify({schemaVersion:2,accounts:[{userId:actorContext.userId,username:'actor',availableCredits:1000,reservedCredits:0,status:'active'}],estimates:[],reservations:[],ledgerEntries:[]}));
+  const accounts = new CreditAccountRepository({databaseFile,userRepository:{findById:async()=>null,findByUsername:async()=>null}});
+  const credits = new CreditApplicationService({accountRepository:accounts,reservationService:new CreditReservationService({accountRepo:accounts})});
+  const service = new SpeechGenerationService({repository,assets,credits,queue:{jobs:new Map()}});
+  const quote = {totalCredits:5,expiresAt:new Date(Date.now()+60000).toISOString()};
+  for (const status of ['admitting','queued','dispatching']) {
+    const id = 'seed-' + status;
+    const original = await assets.register({actorContext,bytes:wav(),jobId:id+'-reference'});
+    await credits.reserveSpeech({userId:actorContext.userId,operationId:id,quote});
+    await repository.mutate(records => records.push({id,status,ownerUserId:actorContext.userId,
+      operation:'voice_design',admissionProcessId:'previous',snapshot:{sourceType:'reference',retainOriginal:true}}));
+    await assert.rejects(service.read({actorContext:{userId:'other'},id}),{code:'speech_not_found'});
+    const op = await service.read({actorContext,id});
+    assert.equal(op.status, status === 'dispatching' ? 'reconciliation_required' : 'failed');
+    const filename = path.join(root,original.outputUrl.replace('/outputs/',''));
+    if (status === 'dispatching') assert.deepEqual(await readFile(filename),wav());
+    else {
+      await assert.rejects(readFile(filename),{code:'ENOENT'});
+      assert.equal((await service.read({actorContext,id})).status,'failed');
+    }
+  }
+  const account = (await accounts.readRaw()).accounts[0];
+  assert.equal(account.availableCredits,995);
+  assert.equal(account.reservedCredits,5);
 });

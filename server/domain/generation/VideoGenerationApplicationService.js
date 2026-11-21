@@ -3,6 +3,7 @@ import { promptMaximumCharacters, validateGenerationPrompt } from './GenerationP
 
 import { isStoryboardCompositionReference } from '../cinematic/CinematicStoryboardRenderStyle.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
+import { UNMETERED, workspaceCreditDecision } from '../credits/WorkspaceCreditPolicy.js';
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
 import { characterLookService } from '../character-profiles/CharacterLookService.js';
 import { resolveReferenceForProvider } from './referenceUtils.js';
@@ -234,7 +235,13 @@ export class VideoGenerationApplicationService {
       developmentPocUnverified: request.developmentPocUnverified === true,
       developmentPocCredits: request.developmentPocCredits
     };
-    const financialAuthorization = await this.creditService.validateAndReserveForRequest({
+    const { creditsDisabled } = workspaceCreditDecision(actorContext, 'video', {
+      capability:workflow.capability, commercialOperation:request.commercialOperation
+    });
+    if (creditsDisabled && await this.creditService.hasJobReservation(actorContext.userId, taskId))
+      throw videoError('video_request_reconciliation_required', 'Check the original video request before starting another.', 409);
+    const financialAuthorization = creditsDisabled ? { billingStatus: UNMETERED }
+      : await this.creditService.validateAndReserveForRequest({
       userId: actorContext.userId,
       estimateId: input.estimateId,
       generationRequest,
@@ -259,12 +266,13 @@ export class VideoGenerationApplicationService {
         referenceTransports: source.referenceTransports || [],
         characterAttributions: source.characterAttributions,
         requestFingerprint: request.requestFingerprint,
-        pricingFingerprint: financialAuthorization.estimate.estimateId,
+        pricingFingerprint: financialAuthorization.estimate?.estimateId || null,
         reservationId: financialAuthorization.reservation?.reservationId || null,
         qualificationAuthorizationId: financialAuthorization.authorization?.authorizationId || null,
         billingStatus: financialAuthorization.billingStatus || (financialAuthorization.reservation ? 'reserved' : null),
-        chargeMode: financialAuthorization.estimate.chargeMode || null,
-        estimateId: financialAuthorization.estimate.estimateId,
+        chargeMode: financialAuthorization.estimate?.chargeMode || null,
+        estimateId: financialAuthorization.estimate?.estimateId || null,
+        estimatedCredits: financialAuthorization.estimate?.estimatedCredits ?? null,
         correlationId: taskId,
         projectId: workflow.projectId,
         sceneId: workflow.sceneId,
@@ -305,10 +313,12 @@ export class VideoGenerationApplicationService {
       return this.taskRepository.update(taskId, draft => { draft.billingStatus = 'refunded'; });
     }
     return this.taskRepository.update(taskId, draft => {
+      // The durable provider task already owns its admission terms, including a concurrent settlement.
+      if (draft.billingStatus) return;
       draft.reservationId = financialAuthorization.reservation?.reservationId || null;
       draft.qualificationAuthorizationId = financialAuthorization.authorization?.authorizationId || null;
-      draft.estimateId = financialAuthorization.estimate.estimateId;
-      draft.estimatedCredits = financialAuthorization.estimate.estimatedCredits;
+      draft.estimateId = financialAuthorization.estimate?.estimateId || null;
+      draft.estimatedCredits = financialAuthorization.estimate?.estimatedCredits ?? null;
       draft.developmentPocUnverified = request.developmentPocUnverified === true;
       draft.developmentPocCredits = request.developmentPocCredits;
       draft.developmentPocWarningCode = request.developmentPocWarningCode;

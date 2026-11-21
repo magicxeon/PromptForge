@@ -12,6 +12,7 @@ export default z
   .object({
     version: z.literal(1),
     compactWidth: count,
+    speakerColors: z.array(z.string().regex(/^#[0-9a-f]{6}$/i)).nonempty(),
     transcriptRowPx: count,
     transcriptWindowRows: count.max(100),
     languages: z.array(z.string().min(2)).nonempty(),

@@ -13,7 +13,7 @@ export class VoiceStudioApplicationService {
     this.repo = repository; this.generation = generation; this.audioAssets = audioAssets;
     this.customVoices = new CustomVoiceService({ repository, generation });
     // Serialize commands that validate references across document/Take files.
-    for (const method of ['createDocument', 'character', 'updateDocument', 'updateTake', 'deleteTake', 'withDubTakePins', 'generate', 'createCustomVoice', 'updateCustomVoice', 'deleteCustomVoice']) {
+    for (const method of ['createDocument', 'character', 'updateDocument', 'updateTake', 'deleteTake', 'withDubTakePins', 'generate', 'createCustomVoice', 'listCustomVoices', 'updateCustomVoice', 'deleteCustomVoice']) {
       const execute = this[method].bind(this);
       this[method] = (actor,...args) => {
         const key = owner(actor), previous = actorCommands.get(key) || Promise.resolve();
@@ -29,7 +29,7 @@ export class VoiceStudioApplicationService {
   quoteCustomVoice(actor, body) { return this.customVoices.quote(actor, body); }
   createCustomVoice(actor, body) { return this.customVoices.create(actor, body); }
   updateCustomVoice(actor, id, body, save = false) { return this.customVoices.update(actor, id, body, save); }
-  deleteCustomVoice(actor, id) { return this.customVoices.remove(actor, id); }
+  deleteCustomVoice(actor, id, options) { return this.customVoices.remove(actor, id, options); }
   async list(kind, actor, query = {}) {
     const {policy} = await this.catalog(actor);
     let records = await this.repo.list(kind, owner(actor));
@@ -97,7 +97,12 @@ export class VoiceStudioApplicationService {
       record.rows = rows.map(r => ({ id: r.id, enabled: r.enabled, characterPresetId: r.characterPresetId || '', text: r.text, delivery: structuredClone(r.delivery), selectedTakeId: r.selectedTakeId || null }));
     });
   }
-  archive(kind, actor, id, archived = true) { return this.repo.update(kind,id,owner(actor),undefined,r => { r.archivedAt = archived ? new Date().toISOString() : null; }); }
+  archive(kind, actor, id, archived = true) {
+    return this.repo.update(kind,id,owner(actor),undefined,r => {
+      if (!archived && r.voiceRetiredAt) throw voiceError('voice_custom_unavailable',409);
+      r.archivedAt = archived ? new Date().toISOString() : null;
+    });
+  }
   async character(actor, body, id) {
     const catalog = await this.catalog(actor);
     const previous = id ? await this.repo.get('characters',id,owner(actor)) : {};
@@ -109,7 +114,10 @@ export class VoiceStudioApplicationService {
     if (voiceKind === 'custom') await this.customVoices.resolve(actor, voiceId, { selection: previous.voiceKind !== 'custom' || previous.voiceId !== voiceId });
     else if (!catalog.voices.some(v => v.id === voiceId)) throw voiceError('voice_unavailable');
     const values = { name: string(body.name ?? previous.name, catalog.policy.maxTitleLength || 120), color: string(body.color || previous.color || '#8b5cf6', 30), voiceId, voiceKind, schemaVersion: 2 };
-    return id ? this.repo.update('characters',id,owner(actor),body.expectedRevision,r => Object.assign(r,values)) : this.repo.insert('characters',owner(actor),{...values,archivedAt:null});
+    return id ? this.repo.update('characters',id,owner(actor),body.expectedRevision,r => {
+      if (r.voiceRetiredAt && (voiceId !== r.voiceId || voiceKind !== r.voiceKind)) delete r.voiceRetiredAt;
+      Object.assign(r, values);
+    }) : this.repo.insert('characters',owner(actor),{...values,archivedAt:null});
   }
   async snapshot(actor, id, rowId, revision) {
     const document = await this.getDocument(actor,id);
@@ -141,9 +149,13 @@ export class VoiceStudioApplicationService {
     return {...op,jobId:op.id,take:take.deletedAt || take.deletingAt ? null : take};
   }
   async takes(actor,id,rowId) { await this.getDocument(actor,id); return {items:(await this.repo.list('takes',owner(actor))).filter(t => t.documentId === id && t.rowId === rowId && !t.deletingAt)}; }
-  async getDubCharacter(actor,id) {
+  async getDubCharacter(actor,id,language) {
     const character = await this.repo.get('characters',id,owner(actor));
     if (character.archivedAt) throw voiceError('voice_record_not_found',404);
+    if (language && character.voiceKind === 'custom') {
+      const preset = await this.customVoices.resolve(actor, character.voiceId, { selection: true });
+      if (preset.modelId === 'dola-seed-audio' && preset.language !== language) throw voiceError('voice_language_mismatch', 400);
+    }
     return {id:character.id,name:character.name};
   }
   async getDubTake(actor,id) {

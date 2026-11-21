@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "voice-studio-2026-11-20-v3",
+  "catalogVersion": "voice-studio-2026-11-21-v5",
   "defaultModelId": "gemini-3.8-flash-tts",
   "models": [{
     "id": "gemini-3.8-flash-tts", "providerId": "gemini", "adapterKey": "gemini-speech",
@@ -10,9 +10,11 @@
     "defaults": {"language": "th", "format": "wav", "sampleRateHz": 24000}
   }, {
     "id": "dola-seed-audio", "providerId": "byteplus-seed-speech", "adapterKey": "seed-speech",
-    "providerModelId": "seed-audio-1.0", "displayName": "Dola Seed Audio 1.0", "enabled": true,
-    "capabilities": {"singleSpeaker": true, "turnStyle": true, "inlineVocalEvents": false, "voiceDesign": false, "customVoiceSynthesis": false, "languages": ["th", "zh", "zh-CN", "zh-TW", "en"], "outputFormats": ["wav"], "sampleRatesHz": [24000]},
-    "limits": {"promptCharacters": 3000, "originalSeconds": 120},
+    "providerModelId": "seed-audio-1.0-multilingual", "displayName": "Dola Seed Audio 1.0 Multilingual", "enabled": true,
+    "designDirectorModel": "gpt-6-luna",
+    "directionTranslationModel": "gemini-3.5-flash-lite",
+    "capabilities": {"singleSpeaker": true, "turnStyle": true, "inlineVocalEvents": false, "voiceDesign": true, "customVoiceSynthesis": true, "designSources": ["description", "reference"], "languages": ["th", "zh", "zh-CN", "zh-TW", "en"], "outputFormats": ["wav"], "sampleRatesHz": [24000]},
+    "limits": {"promptCharacters": 3000, "originalSeconds": 120, "referenceSeconds": 30},
     "defaults": {"language": "th", "format": "wav", "sampleRateHz": 24000}
   }]
 }

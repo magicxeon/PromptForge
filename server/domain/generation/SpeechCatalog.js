@@ -13,7 +13,7 @@ export function loadSpeechCatalog() {
       || !models.models.some(item => item.id === models.defaultModelId)
       || !['maxRows', 'maxTextLength', 'maxStyleLength', 'maxAudioBytes', 'maxDocuments', 'maxCharacters', 'maxTakes', 'maxTitleLength', 'maxTags', 'maxTagLength', 'maxPageSize', 'pageSize', 'maxConcurrentPerActor'].every(key => Number.isSafeInteger(policy[key]) && policy[key] > 0)
       || !Array.isArray(policy.inlineTags)) throw new Error('Invalid speech catalog');
-    if (!['maxDesignLength', 'maxCustomVoices', 'maxDesignCandidates', 'maxProjectVoices'].every(key => Number.isSafeInteger(policy[key]) && policy[key] > 0)
+    if (!['maxDesignLength', 'maxCustomVoices', 'maxDesignCandidates', 'maxProjectVoices', 'seedDraftLifetimeHours'].every(key => Number.isSafeInteger(policy[key]) && policy[key] > 0)
       || policy.maxProjectVoices > 200 || policy.maxDesignCandidates > policy.maxCustomVoices
       || !Array.isArray(policy.eventGroups) || !Array.isArray(policy.eventToolbarTags)
       || !policy.eventToolbarTags.every(tag => policy.inlineTags.includes(tag))
@@ -24,6 +24,9 @@ export function loadSpeechCatalog() {
       && positive(model.limits?.inputTokens) && positive(model.limits?.outputTokens)
       || model.adapterKey === 'seed-speech' && model.providerId === 'byteplus-seed-speech'
       && typeof model.providerModelId === 'string' && positive(model.limits?.promptCharacters)
+      && positive(model.limits?.referenceSeconds) && model.limits.referenceSeconds <= 30
+      && Array.isArray(model.capabilities?.designSources) && model.capabilities.designSources.includes('description')
+      && model.capabilities.designSources.includes('reference')
       && positive(model.limits?.originalSeconds) && model.limits.originalSeconds <= 120)
       || typeof model.id !== 'string' || !/^[a-z0-9._-]+$/.test(model.id) || typeof model.displayName !== 'string'
       || typeof model.enabled !== 'boolean' || !Array.isArray(model.capabilities?.languages) || !model.capabilities.languages.length) throw new Error('Invalid model');

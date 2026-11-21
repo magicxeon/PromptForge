@@ -1,9 +1,59 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { GenerationGroupRepository } from '../server/repositories/generation/GenerationGroupRepository.js';
+import { withWebNextCreditPolicy } from '../server/domain/credits/WorkspaceCreditPolicy.js';
 import {
   GenerationApplicationService,
   assertSupportedOutputCount
 } from '../server/domain/generation/GenerationApplicationService.js';
+
+for (const count of [1, 3]) test(`web-next admits and recovers ${count} unmetered image outputs once`, async t => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'mpf-unmetered-image-'));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const groups = new GenerationGroupRepository({ groupsFile: path.join(directory, 'groups.json') });
+  const jobs = new Map();
+  let seq = 0;
+  const actor = { userId: 'image_owner', username: 'owner' };
+  const marked = withWebNextCreditPolicy({ ...actor }, false);
+  const noQuote = () => { throw Object.assign(new Error('Missing quote'), { code: 'credit_estimate_stale' }); };
+  const service = new GenerationApplicationService({
+    providerRegistry: {
+      resolveSelection: () => ({ provider: { id: 'fixture' }, model: { id: 'image', capabilities: {}, defaults: {} } }),
+      validateRequest() {}, assertRuntimeAvailable() {}, shouldStream: () => false, getConfigVersion: () => 1
+    },
+    queueManager: {
+      createJobId: () => `job_${++seq}`,
+      enqueue(_provider, _model, _prompt, options) {
+        assert.equal(options.billingMode, 'unmetered');
+        assert.equal(options.reservationId, null);
+        assert.equal(options.payerUserId, actor.userId);
+        jobs.set(options.jobId, { status: 'queued' });
+      },
+      getJobStatusForUser: async id => jobs.get(id)
+    },
+    generationGroupRepository: groups,
+    creditService: {
+      findImageRequestMappings: async () => [], validateAndReserveForRequest: noQuote, reserveGenerationGroup: noQuote
+    },
+    castingExportService: { validateGenerationContext() {} },
+    promptRefinementService: { refine: async ({ prompt }) => ({ prompt }) }
+  });
+  const body = { provider: 'fixture', submodel: 'image', generationSurface: 'playground', generationMode: 'playground',
+    outputCount: count, requestId: 'fixture_image_request', sceneBuilder: { authoringMode: 'manual', manualPromptText: 'A still life.' } };
+  const submit = (context, extra) => service.submit({ body: { ...body, ...extra }, userRole: 'user', actorContext: context });
+  await assert.rejects(submit({ ...actor, webNextCreditsEnabled: false }, { billingMode: 'unmetered' }), { code: 'credit_estimate_stale' });
+  await assert.rejects(submit(marked, { outputCount: 5 }), { code: 'generation_output_count_invalid' });
+  const [first, second] = await Promise.all([submit(marked), submit(marked)]);
+  assert.equal(first.groupId, second.groupId);
+  assert.equal(jobs.size, count);
+  assert.equal((await groups.findById(first.groupId)).billingMode, 'unmetered');
+  assert.equal((await service.getImageRequestStatus(body.requestId, actor)).groupId, first.groupId);
+  assert.equal((await submit(actor)).groupId, first.groupId);
+  assert.equal(jobs.size, count);
+});
 
 test('Generation Group reserves once and enqueues one child Job per output', async () => {
   let nextJob = 0;

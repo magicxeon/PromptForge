@@ -3,13 +3,14 @@ import type { ProviderCatalog } from './schemas/generationSchemas';
 export function imageModelUnavailableReason(
   model: ProviderCatalog['providers'][number]['models'][number] | undefined,
   requiredReferenceCount = 0,
-  aspectRatio: string | null = null
+  aspectRatio: string | null = null,
+  requirePricing = true
 ) {
   if (!model) return 'model_unavailable';
   if (model.paidRoutingEnabled === false && model.testingRoutingEnabled !== true) {
     return model.unavailableReason || 'provider_not_released';
   }
-  if (model.pricingStatus === 'unavailable') return 'pricing_unavailable';
+  if (requirePricing && model.pricingStatus === 'unavailable') return 'pricing_unavailable';
   if (model.qualificationStatus === 'unqualified') return 'model_unqualified';
   if (requiredReferenceCount > 0 && model.capabilities.imageReferences !== true) {
     return 'references_unsupported';

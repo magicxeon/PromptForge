@@ -136,6 +136,9 @@ export const customVoiceSchema = z.object({
   name: z.string(),
   displayDescription: z.string(),
   designPrompt: z.string(),
+  sourceType: z.enum(["description", "reference"]).optional(),
+  voiceGender: z.enum(["female", "male", "unspecified"]).optional(),
+  sampleText: z.string().optional(),
   modelId: z.string(),
   providerId: z.string(),
   language: z.string(),
@@ -158,6 +161,7 @@ export const operationSchema = z.object({
   customVoice: customVoiceSchema.nullable().optional(),
   snapshot: z
     .object({
+      providerPrompt: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
       modelId: z.string().optional(),

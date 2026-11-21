@@ -1,4 +1,7 @@
 {
+  "ai": "AI",
+  "edited": "Edited",
+  "editPerformance": "Edit voice performance for this line",
   "model": "Speech model",
   "selectionUnavailable": "Selected voice unavailable for this line",
   "character": "Dubbing voice",
@@ -11,6 +14,10 @@
   "direction": "Performance notes",
   "default": "Default",
   "quote": "Estimate take",
+  "generateTake": "Generate take",
+  "requestMissing": "This take request could not be found.",
+  "retryTake": "Retry the saved request",
+  "editTake": "Return to voice settings",
   "generate": "Generate take · up to {{credits}} Credits",
   "check": "Check status",
   "listen": "Listen",

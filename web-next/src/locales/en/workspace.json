@@ -1,4 +1,7 @@
 {
+  "loadingSettings": "Loading workspace settings…",
+  "settingsUnavailable": "Workspace settings could not be loaded. Generation is paused.",
+  "previewUnavailable": "The prompt preview is unavailable. Review your inputs and retry.",
   "primaryMenu": "Main menu",
   "playgroundName": "Playground",
   "dubStudioName": "Dub & Sub Studio",

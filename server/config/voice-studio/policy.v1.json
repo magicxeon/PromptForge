@@ -5,6 +5,7 @@
   "pageSize": 20, "maxPageSize": 50, "maxAudioBytes": 33554432,
   "maxConcurrentPerActor": 1,
   "maxDesignLength": 1000, "maxCustomVoices": 30, "maxDesignCandidates": 5, "maxProjectVoices": 180,
+  "seedDraftLifetimeHours": 24,
   "eventGroups": [
     {"id":"reactions","labelKey":"eventGroup.reactions","tags":["<gasp>","<laugh>","<sob>"]},
     {"id":"breathing","labelKey":"eventGroup.breathing","tags":["<sigh>","<breath>"]},

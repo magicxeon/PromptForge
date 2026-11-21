@@ -10,7 +10,7 @@ export function registerVoiceStudioRoutes(app, { voiceStudio }) {
   route('post','/custom-voices',(a,p,b)=>voiceStudio.createCustomVoice(a,b));
   route('patch','/custom-voices/:id',(a,p,b)=>voiceStudio.updateCustomVoice(a,p.id,b));
   route('post','/custom-voices/:id/save',(a,p,b)=>voiceStudio.updateCustomVoice(a,p.id,b,true));
-  route('delete','/custom-voices/:id',(a,p)=>voiceStudio.deleteCustomVoice(a,p.id));
+  route('delete','/custom-voices/:id',(a,p,b)=>voiceStudio.deleteCustomVoice(a,p.id,b));
   route('get','/documents',(a,p,b,q)=>voiceStudio.list('documents',a,q));
   route('post','/documents',(a,p,b)=>voiceStudio.createDocument(a,b));
   route('get','/documents/:id',(a,p)=>voiceStudio.getDocument(a,p.id));

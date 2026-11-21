@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Pause, Play, Redo2, Undo2, PanelsTopLeft, SlidersHorizontal, Mic } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,6 +30,7 @@ import { ExportDialog } from "./ExportDialog";
 import { Dialog } from "./Dialog";
 import { SceneTranscription } from "./SceneTranscription";
 import { useDubDraft } from "./useDubDraft";
+import { SpeakerReview } from "./SpeakerReview";
 const Voice = lazy(() =>
   import("./DubVoice").then((m) => ({ default: m.DubVoice })),
 );
@@ -71,6 +72,9 @@ function Work({ initial }: { initial: Project }) {
   const [createdPreview, setCreatedPreview] = useState(() =>
     client.getQueryData<ScenePreview>(scenePreviewKey(identityScope, initial.id)));
   const [sceneOpen, setSceneOpen] = useState(!!createdPreview);
+  const navigate = useNavigate();
+  const inVoiceSetup = loc.pathname.endsWith("/setup/voices");
+  const [casting, setCasting] = useState(inVoiceSetup);
   function closeScene() {
     setSceneOpen(false);
     setCreatedPreview(undefined);
@@ -306,7 +310,15 @@ function Work({ initial }: { initial: Project }) {
     };
   }, [playing]);
   return (
-    <section className="dub-editor">
+    <>
+    {(casting || inVoiceSetup) && <SpeakerReview project={p}
+      language={p.targetLanguages.includes(lang) ? lang : p.targetLanguages[0]}
+      setup={inVoiceSetup} openSetup={() => navigate("/dub-sub/projects/" + p.id + "/setup/voices")}
+      returnToEditor={() => navigate("/dub-sub/projects/" + p.id, { replace: true })}
+      onClose={() => setCasting(false)} onSave={async (speakerProfiles, characterMappings) => {
+        edit({ speakerProfiles, characterMappings }); await model.save();
+      }} />}
+    <section hidden={inVoiceSetup} className={inVoiceSetup ? "dub-editor-away" : "dub-editor"}>
       <header className="dub-bar">
         <Link to="/dub-sub"><span aria-hidden="true">‹ </span>{t("projects")}</Link>
         <input
@@ -319,6 +331,9 @@ function Work({ initial }: { initial: Project }) {
         <small role="status">
           {t(model.saving ? "saving" : model.dirty ? "unsaved" : "saved")}
         </small>
+        <button disabled={!!busy || !p.cues.length} onClick={() => {
+          video.current?.pause(); setCasting(true);
+        }}>{t("casting.title")}</button>
         {compact && (
           <button className="dub-open-inspector" aria-expanded={inspectorOpen}
             aria-label={t("editCue") + " · " + t("tracks")}
@@ -421,6 +436,7 @@ function Work({ initial }: { initial: Project }) {
           following={follow}
           reveal={timelineSelection}
           onSelect={select}
+          onDirect={c => { video.current?.pause(); select(c); setPanel("voice"); setInspectorOpen(true); }}
           onUpdate={update}
           onLanguage={(l) => {
             setLang(l);
@@ -830,6 +846,9 @@ function Work({ initial }: { initial: Project }) {
                   projectId={p.id}
                   cueId={cue.id}
                   targetMs={cue.endMs - cue.startMs}
+                  suggestedDelivery={cue.suggestedDelivery?.[lang]}
+                  overrides={cue.deliveryOverrides?.[lang]}
+                  onDeliveryChange={value => update({ ...cue, deliveryOverrides: { ...cue.deliveryOverrides, [lang]: value } })}
                   speaker={cue.speaker || ""}
                   language={lang}
                   defaultCharacterId={
@@ -998,6 +1017,7 @@ function Work({ initial }: { initial: Project }) {
             setLang(language);
             select(cues[0]);
             closeScene();
+            if (cues.some(row => row.speaker?.trim())) setCasting(true);
           }}
           close={closeScene} />
       )}
@@ -1062,5 +1082,6 @@ function Work({ initial }: { initial: Project }) {
         </footer>
       )}
     </section>
+    </>
   );
 }

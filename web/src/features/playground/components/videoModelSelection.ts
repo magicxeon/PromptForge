@@ -19,8 +19,15 @@ export function filterVideoModelsForOperation(
 }
 
 export function canQuoteVideoModel(model: VideoModelCapability | null | undefined) {
+  return Boolean(model && model.pricingStatus !== 'unavailable' && hasVideoSettings(model));
+}
+
+export function canSubmitUnmeteredVideoModel(model: VideoModelCapability | null | undefined) {
+  return Boolean(model && (model.paidRoutingEnabled || model.testingRoutingEnabled) && hasVideoSettings(model));
+}
+
+function hasVideoSettings(model: VideoModelCapability | null | undefined) {
   return Boolean(model
-    && model.pricingStatus !== 'unavailable'
     && model.durations.length
     && model.resolutions.length
     && model.aspectRatios.length

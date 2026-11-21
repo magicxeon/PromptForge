@@ -11,6 +11,7 @@ export function DialogueList({
   following,
   reveal,
   onSelect,
+  onDirect,
   onUpdate,
   onLanguage,
   onAdd,
@@ -28,6 +29,7 @@ export function DialogueList({
   following: boolean;
   reveal?: { id: string };
   onSelect: (c: Cue) => void;
+  onDirect: (c: Cue) => void;
   onUpdate: (c: Cue) => void;
   onLanguage: (l: string) => void;
   onAdd: () => void;
@@ -137,9 +139,16 @@ export function DialogueList({
               onBlur={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget)) setEditingId("");
               }}>
-              <button type="button" onClick={() => onSelect(c)} title={c.speaker || undefined}>
+              <div className="dub-line-heading"><button type="button" onClick={() => onSelect(c)} title={c.speaker || undefined}>
                 {timeLabel(c.startMs)} – {timeLabel(c.endMs)} {c.speaker}
               </button>
+              {(c.suggestedDelivery?.[language] || c.deliveryOverrides?.[language]) &&
+                <button className="dub-line-emotion" type="button" onClick={() => onDirect(c)}
+                  title={t("dubVoice:editPerformance")}>
+                  {t("dubVoice:" + ((c.deliveryOverrides?.[language]?.emotion ?? c.suggestedDelivery?.[language]?.emotion) || "default"))}
+                  {" · "}{t(c.deliveryOverrides?.[language] ? "dubVoice:edited" : "dubVoice:ai")}
+                </button>}
+              </div>
               {["source", ...(languages.length ? [language] : [])].map((key) => {
                 const original = key === "source";
                 const label = original ? t("original") : t("lang." + key);

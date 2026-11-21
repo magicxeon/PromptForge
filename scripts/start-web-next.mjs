@@ -111,8 +111,12 @@ try {
     await ensureBackend();
     console.log(`Starting Image Playground at http://localhost:${port} (API: port 6500).`);
     // Explicit absolute markers let the next invocation identify this exact workspace's listener.
+    const envFile = path.join(root, '.env');
+    const proxySecret = process.env.WEB_NEXT_PROXY_SECRET ??
+      (existsSync(envFile) ? dotenv.parse(readFileSync(envFile)).WEB_NEXT_PROXY_SECRET : undefined);
     const child = spawn(process.execPath, [vite, '--config', config, '--host', '127.0.0.1', '--port', String(port), '--strictPort'], {
-      cwd: path.join(root, 'web-next'), stdio: 'inherit', windowsHide: true
+      cwd: path.join(root, 'web-next'), stdio: 'inherit', windowsHide: true,
+      env: { ...process.env, ...(proxySecret ? { WEB_NEXT_PROXY_SECRET: proxySecret } : {}) }
     });
     const stop = () => { if (child.exitCode === null) child.kill('SIGTERM'); };
     process.once('SIGINT', stop);

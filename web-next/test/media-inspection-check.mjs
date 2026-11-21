@@ -14,6 +14,7 @@ await page.route('**/outputs/**',route=>failImage&&route.request().url().endsWit
 await page.route('**/api/**',route=>{
   const url=new URL(route.request().url()),p=url.pathname;if(!p.startsWith('/api/'))return route.continue();
   const json=value=>route.fulfill({contentType:'application/json',body:JSON.stringify(value)});
+  if(p==='/api/web-next/config')return json({creditsEnabled:false});
   if(p==='/api/auth/config')return json({contractVersion:1,authMode:'development_bypass',methods:{password:false,emailOtp:false,google:false,facebook:false},csrfToken:'fixture',policy:{otpDigits:6,otpExpiresSeconds:300,resendSeconds:30,passwordMinLength:8,passwordMaxLength:128},legal:{termsVersion:null,privacyVersion:null}});
   if(p==='/api/me')return json({userId:'fixture',username:'fixture',displayName:'fixture',role:'admin',authMode:'development_bypass',accountStatus:'active'});
   if(p==='/api/providers')return json({defaultProvider:'fixture',providers:[{id:'fixture',displayName:'Fixture',defaultModel:'image',models:[{id:'image',displayName:'Image',capabilities:{imageGeneration:true,imageReferences:true,maxReferenceImages:6,aspectRatios:['1:1','16:9']}}]}]});

@@ -1,6 +1,13 @@
 # คู่มือ BytePlus Seed Audio สำหรับ Dub & Sub Studio
 
-คู่มือการเชื่อมต่อและทดลองสำหรับผู้พัฒนา ลำดับการใช้งานใน Studio เป็นแบบที่กำหนดสำหรับการพัฒนา ชื่อในแอปใช้ `dola-seed-audio` ส่วนค่า model ใน request คือ `seed-audio-1.0` เป็น HTTP API สร้างเสียงแบบ non-streaming รองรับภาษาไทยและจีน [BytePlus Audio 1.0](https://docs.byteplus.com/en/docs/byteplusvoice/seedaudio-01?lang=en)
+Dub & Sub Studio ใช้รหัสภายใน `dola-seed-audio` สำหรับ preset และส่ง `model: "seed-audio-1.0-multilingual"` สำหรับงานใหม่ตาม payload ที่ตรวจจากหน้า Dola ค่านี้ตั้งใน `server/config/voice-studio/models.v1.json` และใช้ทั้งตอนสร้างเสียงตัวอย่างและพากย์บท รายละเอียด HTTP API อยู่ใน [BytePlus Audio 1.0](https://docs.byteplus.com/en/docs/byteplusvoice/seedaudio-01?lang=en)
+
+## เตรียมเสียงพากย์ใน Dub & Sub Studio
+
+1. เปิด **Dub & Sub Studio → ตั้งค่า → เสียงพากย์** ที่ `/dub-sub/setup/voices` แล้วเลือกสร้างเสียงจากคำอธิบายหรือคลิปต้นแบบ เลือกภาษา ตั้งชื่อ และใส่ประโยคสำหรับลองฟัง
+2. กรณีใช้ต้นแบบ ให้อัปโหลดคลิปเสียงที่มีสิทธิ์ใช้ ระบบเก็บเสียงที่แปลงเป็น WAV เป็นไฟล์ส่วนตัวของเจ้าของ preset จนลบ preset กรณีสร้างจากคำอธิบาย ระบบใช้ตัวอย่างสังเคราะห์ที่เลือกอ้างอิงสำหรับประโยคใหม่
+3. ตรวจราคา ยืนยันสร้างตัวอย่าง แล้วกดฟัง เมื่อพอใจให้กดบันทึก เสียงจึงจะปรากฏในรายการ การเล่นตัวอย่างซ้ำใช้ไฟล์เดิม
+4. ใน Editor เปิดหน้าต่างจับคู่ผู้พูด เลือกภาษาพากย์ กำหนดเสียงให้แต่ละคนแล้วบันทึก หากต้องสร้างเสียงเพิ่ม ให้เปิดหน้าตั้งค่าจากหน้าต่างนี้แล้วกลับมาตรวจรายการต่อ
 
 ## ลองสร้างเสียงหนึ่งประโยคด้วย PowerShell
 
@@ -14,7 +21,7 @@ $headers = @{
   'X-Api-Request-Id' = [guid]::NewGuid().ToString()
 }
 $payload = @{
-  model = 'seed-audio-1.0'
+  model = 'seed-audio-1.0-multilingual'
   text_prompt = 'ผู้หญิงพูดภาษาไทยด้วยน้ำเสียงสงสัยเบา ๆ ว่า “คนในโรงเตี๊ยมนี้หายไปไหนกันหมด”'
   audio_config = @{ format = 'wav'; sample_rate = 24000; enable_subtitle = $true }
 } | ConvertTo-Json -Depth 5

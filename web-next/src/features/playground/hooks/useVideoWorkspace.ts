@@ -18,7 +18,8 @@ import {
   getVideoRequestStatus,
   type VideoGenerationInput,
 } from "../../../../../web/src/features/generation/api/videoGenerationApi";
-import { canQuoteVideoModel } from "../../../../../web/src/features/playground/components/videoModelSelection";
+import { canQuoteVideoModel, canSubmitUnmeteredVideoModel } from "../../../../../web/src/features/playground/components/videoModelSelection";
+import { useWorkspaceCredits } from "../../../lib/workspaceConfig";
 import { useCreditConfirmation } from "../../../../../web/src/components/generation/useCreditConfirmation";
 import { outputStorageKey } from "../state/imageDraft";
 import {
@@ -34,6 +35,8 @@ import {
 } from "../state/videoDraft";
 
 export function useVideoWorkspace() {
+  const creditsEnabled = useWorkspaceCredits();
+  const modelAvailable = creditsEnabled === false ? canSubmitUnmeteredVideoModel : canQuoteVideoModel;
   const { actor, identityScope, isLoading } = useActor();
   const actorId = actor!.userId;
   const { t } = useTranslation("video");
@@ -108,9 +111,9 @@ export function useVideoWorkspace() {
       (item) => `${item.providerId}:${item.modelId}` === draft.providerModelKey,
     ) || null;
   useEffect(() => {
-    if (draft.providerModelKey || !catalog.data?.models.length) return;
+    if (draft.providerModelKey || !catalog.data?.models.length || creditsEnabled === undefined) return;
     const first =
-      catalog.data.models.find(canQuoteVideoModel) || catalog.data.models[0];
+      catalog.data.models.find(modelAvailable) || catalog.data.models[0];
     setDraft((value) => ({
       ...value,
       providerModelKey: `${first.providerId}:${first.modelId}`,
@@ -119,11 +122,13 @@ export function useVideoWorkspace() {
       resolution: first.resolutions[0] || "",
       audioMode: first.audioModes[0] || "none",
     }));
-  }, [catalog.data, draft.providerModelKey]);
+  }, [catalog.data, draft.providerModelKey, creditsEnabled, modelAvailable]);
   const plan = useMemo(() => videoReferencePlan(draft, model), [draft, model]);
   const valid = Boolean(
     model &&
-    canQuoteVideoModel(model) &&
+    modelAvailable(model) &&
+    (creditsEnabled !== false || (model.inputModes.includes(plan.inputMode)
+      && model.commercialOperations.includes("playground_video"))) &&
     plan.ready &&
     draft.prompt.trim() &&
     Array.from(draft.prompt).length <=
@@ -185,7 +190,7 @@ export function useVideoWorkspace() {
   const quote = useQuery({
     queryKey: ["video-quote", identityScope, signature],
     queryFn: () => quoteVideoGeneration(input!),
-    enabled: !isLoading && valid && signature === debounced,
+    enabled: creditsEnabled === true && !isLoading && valid && signature === debounced,
     retry: false,
     staleTime: 15000,
   });
@@ -236,7 +241,7 @@ export function useVideoWorkspace() {
     if (!task.data || !terminalVideoStates.has(task.data.status)) return;
     void recent.refetch();
     void jobs.refetch();
-    void client.invalidateQueries({ queryKey: ["credits"] });
+    if (creditsEnabled) void client.invalidateQueries({ queryKey: ["credits"] });
   }, [task.data?.id, task.data?.status]);
   function persistIntent(value: VideoIntent) {
     writeActorScopedDraft({
@@ -248,6 +253,7 @@ export function useVideoWorkspace() {
     setIntent(value);
   }
   const quoteReady =
+    creditsEnabled === true &&
     valid &&
     signature === debounced &&
     !!quote.data &&
@@ -258,14 +264,13 @@ export function useVideoWorkspace() {
   const active =
     !!taskId && (!task.data || !terminalVideoStates.has(task.data.status));
   const canGenerate =
-    quoteReady &&
-    quote.data!.account.canAfford &&
+    (creditsEnabled === false ? valid : quoteReady && quote.data?.account.canAfford) &&
     !busy &&
     !unresolved &&
     !active &&
     !isLoading;
   const consent = useCreditConfirmation({
-    actorId,
+    actorId: creditsEnabled ? actorId : "",
     requestKey: JSON.stringify([signature, quote.data?.estimate.estimateId]),
     estimatedCredits:
       quote.data?.estimate.billingStatus === "qualification_no_charge"
@@ -278,7 +283,7 @@ export function useVideoWorkspace() {
     ]
       .filter(Boolean)
       .join(" / "),
-    ready: canGenerate,
+    ready: creditsEnabled === true && canGenerate,
   });
   async function generate() {
     if (!canGenerate || flight.current) return;
@@ -286,10 +291,10 @@ export function useVideoWorkspace() {
     const epoch = getIdentitySnapshot().epoch;
     let sent = false;
     try {
-      if (!(await consent.request()) || !current(epoch) || !consent.isCurrent())
+      if (creditsEnabled && (!(await consent.request()) || !current(epoch) || !consent.isCurrent()))
         return;
-      const priced = quote.data!;
-      if (Date.parse(priced.estimate.expiresAt) <= Date.now()) {
+      const priced = creditsEnabled ? quote.data : undefined;
+      if (priced && Date.parse(priced.estimate.expiresAt) <= Date.now()) {
         void quote.refetch();
         return;
       }
@@ -297,8 +302,8 @@ export function useVideoWorkspace() {
       setError("");
       const next: VideoIntent = {
         requestId: `fe24_video_${crypto.randomUUID()}`,
-        estimateId: priced.estimate.estimateId,
-        fingerprint: priced.requestFingerprint || "",
+        estimateId: priced?.estimate.estimateId || "",
+        fingerprint: priced?.requestFingerprint || "",
         taskId: null,
         status: "unknown",
         snapshot: persistentVideoDraft(draft),
@@ -307,8 +312,8 @@ export function useVideoWorkspace() {
       sent = true;
       const result = await submitVideoGeneration({
         ...input!,
-        requestFingerprint: priced.requestFingerprint,
-        estimateId: next.estimateId,
+        requestFingerprint: priced?.requestFingerprint,
+        estimateId: priced?.estimate.estimateId,
         idempotencyKey: next.requestId,
       });
       if (!current(epoch)) return;
@@ -318,7 +323,7 @@ export function useVideoWorkspace() {
       setInspectedTaskId(null);
       void jobs.refetch();
       void recent.refetch();
-      void client.invalidateQueries({ queryKey: ["credits"] });
+      if (creditsEnabled) void client.invalidateQueries({ queryKey: ["credits"] });
     } catch (reason) {
       if (!current(epoch)) return;
       // A task may already exist even when submission returns an HTTP error.
@@ -452,6 +457,7 @@ export function useVideoWorkspace() {
     valid,
     quote,
     quoteReady,
+    creditsEnabled,
     canGenerate,
     generate,
     consent,

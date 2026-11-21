@@ -69,6 +69,7 @@ await page.route("**/api/**", async (route) => {
     if (delayIdentity) await new Promise((resolve) => setTimeout(resolve, 650));
     return json(config);
   }
+  if (path === "/api/web-next/config") return json({ creditsEnabled: true });
   if (path === "/api/me")
     return json({
       userId: "fixture",

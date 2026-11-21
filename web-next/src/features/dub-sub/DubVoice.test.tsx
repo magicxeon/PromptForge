@@ -7,8 +7,10 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { DubVoice } from "./DubVoice";
+import { useState } from "react";
+import type { CueDelivery } from "./projectApi";
 
 const api = vi.hoisted(() => ({
   catalog: vi.fn(),
@@ -36,10 +38,13 @@ vi.mock("../../lib/canonical", () => ({
   ProcessingSpinner: () => null,
 }));
 const privateMedia = vi.hoisted(() => ({ url: "" }));
+const policy = vi.hoisted(() => ({ creditsEnabled: true }));
+vi.mock("../../lib/workspaceConfig", () => ({ useWorkspaceCredits: () => policy.creditsEnabled }));
 vi.mock("../../components/media/MediaImage", () => ({
   usePrivateImage: () => privateMedia,
 }));
 afterEach(cleanup);
+beforeEach(() => { vi.clearAllMocks(); policy.creditsEnabled = true; });
 
 it("resolves a returned saved voice beyond the first page and rejects an unavailable choice", async () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
@@ -56,7 +61,7 @@ it("resolves a returned saved voice beyond the first page and rejects an unavail
   const inspect = (voice: string) => (
     <QueryClientProvider client={client}>
       <DubVoice key={voice} projectId="p" cueId="c" text="test" language="th" speaker=""
-        initialSelection={"custom/" + voice} onBind={() => {}} onUse={() => {}} />
+        initialSelection={"custom/" + voice} onBind={() => {}} onUse={() => {}} onDeliveryChange={() => {}} />
     </QueryClientProvider>
   );
   const view = render(inspect("voice42"));
@@ -67,7 +72,8 @@ it("resolves a returned saved voice beyond the first page and rejects an unavail
   expect((screen.getByText("quote") as HTMLButtonElement).disabled).toBe(true);
 });
 
-it("quotes first, sends the directed cue once, and keeps placing and saving a take independent", async () => {
+it.each([true, false])("sends the directed cue once and preserves take actions with creditsEnabled=%s", async (creditsEnabled) => {
+  policy.creditsEnabled = creditsEnabled;
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   });
@@ -119,7 +125,9 @@ it("quotes first, sends the directed cue once, and keeps placing and saving a ta
     revision: 3,
   });
   api.saveTake.mockResolvedValue({ ...take, savedAt: "now" });
-  render(
+  function DirectedCue() {
+    const [overrides, setOverrides] = useState<CueDelivery>({});
+    return (
     <QueryClientProvider client={queryClient}>
       <DubVoice
         projectId="p"
@@ -127,25 +135,39 @@ it("quotes first, sends the directed cue once, and keeps placing and saving a ta
         language="th"
         text="สวัสดี"
         speaker="Hero"
+        suggestedDelivery={{direction:"A soft greeting."}}
+        overrides={overrides} onDeliveryChange={setOverrides}
         binding={{ documentId: "doc", rowId: "row" }}
         onBind={() => {}}
         onUse={onUse}
         onAudition={onAudition}
       />
-    </QueryClientProvider>,
-  );
+    </QueryClientProvider>
+    );
+  }
+  render(<DirectedCue />);
   fireEvent.change(await screen.findByLabelText("emotion"), {
     target: { value: "happy" },
   });
-  fireEvent.click(screen.getByText("quote"));
-  const generate = await screen.findByText("generate");
   expect(api.generate).not.toHaveBeenCalled();
+  if (creditsEnabled) {
+    fireEvent.click(screen.getByText("quote"));
+    fireEvent.click(await screen.findByText("generate"));
+  } else {
+    expect(screen.queryByText("quote")).toBeNull();
+    fireEvent.click(screen.getByText("generateTake"));
+  }
+  await waitFor(() => expect(api.generate).toHaveBeenCalledTimes(1));
+  expect(api.quote).toHaveBeenCalledTimes(creditsEnabled ? 1 : 0);
+  if (!creditsEnabled) {
+    const [, , , operationId, requestId] = api.generate.mock.calls[0];
+    expect(operationId).toBe(`speech_${requestId}`);
+  }
   expect(api.saveDocument.mock.calls[0][0].rows[0]).toMatchObject({
     text: "สวัสดี",
     characterPresetId: "hero",
-    delivery: { emotion: "happy" },
+    delivery: { emotion: "happy", direction: "A soft greeting." },
   });
-  fireEvent.click(generate);
   fireEvent.click(await screen.findByText("listen"));
   expect(onAudition).toHaveBeenCalledWith(take);
   fireEvent.click(screen.getByText("use"));
@@ -160,6 +182,39 @@ it("quotes first, sends the directed cue once, and keeps placing and saving a ta
   fireEvent.click(await screen.findByText("save"));
   await waitFor(() => expect(api.saveTake).toHaveBeenCalledWith("op"));
   expect(api.generate).toHaveBeenCalledTimes(1);
+});
+
+it.each(["original", "edited"])("recovers a missing direct operation with %s cue text", async (text) => {
+  policy.creditsEnabled = false;
+  const requestId = crypto.randomUUID();
+  const id = "speech_" + requestId;
+  const binding = {documentId:"doc", rowId:"row", characterId:"hero", operationId:id, operationRevision:2};
+  const onBind = vi.fn();
+  api.catalog.mockResolvedValue({
+    models: [{id:"seed", capabilities:{languages:["en"]}}],
+    voices: [{id:"speaker", modelIds:["seed"], languages:["en"]}], policy:{},
+  });
+  api.characters.mockResolvedValue({items:[{id:"hero", name:"Hero", voiceId:"speaker", voiceKind:"prebuilt"}]});
+  api.customVoices.mockResolvedValue({items:[]});
+  api.document.mockResolvedValue({id:"doc", modelId:"seed", language:"en", revision:2,
+    rows:[{id:"row", characterPresetId:"hero", text:"original", delivery:{}, enabled:true}]});
+  api.operation.mockRejectedValue(Object.assign(new Error("missing"), {status:404}));
+  api.takes.mockResolvedValue({items:[]});
+  const client = new QueryClient({defaultOptions:{queries:{retry:false, gcTime:0}}});
+  render(<QueryClientProvider client={client}><DubVoice projectId="p" cueId="c" text={text} language="en" speaker="Hero"
+    binding={binding} onBind={onBind} onUse={() => {}} onDeliveryChange={() => {}} /></QueryClientProvider>);
+  await screen.findByText("requestMissing");
+  expect(api.generate).not.toHaveBeenCalled();
+  if (text === "original") {
+    fireEvent.click(screen.getByText("retryTake"));
+    await waitFor(() => expect(api.generate).toHaveBeenCalledWith("doc", "row", 2, id, requestId));
+    expect(api.quote).not.toHaveBeenCalled();
+  } else {
+    expect(screen.queryByText("retryTake")).toBeNull();
+    fireEvent.click(screen.getByText("editTake"));
+    await waitFor(() => expect(onBind).toHaveBeenCalledWith({...binding, operationId:undefined, operationRevision:undefined}));
+    expect(api.generate).not.toHaveBeenCalled();
+  }
 });
 
 it("stops and detaches the private preview when the inspector closes", async () => {
@@ -185,6 +240,7 @@ it("stops and detaches the private preview when the inspector closes", async () 
           language="th"
           text="line"
           speaker="A"
+          onDeliveryChange={() => {}}
           onBind={() => {}}
           onUse={() => {}}
         />

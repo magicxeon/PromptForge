@@ -457,6 +457,10 @@ export class OpenAITextProvider {
     return { ...result, responseId: payload?.id || null, usage: payload?.usage || null };
   }
 
+  async voiceDirection(options) {
+    return parseJsonOutput(await this.requestStructured(options), options.errorPrefix);
+  }
+
   async requestStructured({
     model,
     instructions,

@@ -4,6 +4,7 @@ import {
 import { aggregateRunStatus, ComparisonValidator, stripPrivateConfig, IMAGE_COMPARISON_POLICY } from './ComparisonValidator.js';
 import { ComparisonError, ComparisonRepository } from '../../repositories/comparisons/ComparisonRepository.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
+import { isUnmetered, UNMETERED, workspaceCreditDecision } from '../credits/WorkspaceCreditPolicy.js';
 import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
 import { prepareGenerationReferences } from '../generation/prepareGenerationReferences.js';
 import { GenerationApplicationService } from '../generation/GenerationApplicationService.js';
@@ -107,21 +108,17 @@ export class ComparisonOrchestrator {
       ...context,
       mediaType: payload.mediaType
     });
-    const clientEstimates = new Map((payload.creditEstimates || []).map(item => [item.slotId, item]));
-    const pricedSlots = slots.map(slot => {
-      const clientEstimate = clientEstimates.get(slot.id);
-      if (!clientEstimate?.estimateId || !Number.isInteger(Number(clientEstimate.estimatedCredit))) {
-        throw new ComparisonError('estimate_changed', 'Every comparison slot requires a current server estimate.');
+    const { eligible: playground, creditsDisabled } = workspaceCreditDecision(actor, 'comparison', {context, templateExecution});
+    if (playground && !creditsDisabled && !payload.estimateToken) {
+      const prior = await this.repository.findRequestForActor(idempotencyKey, actor);
+      if (prior?.setId && prior.runId) {
+        const set = await this.repository.get(prior.setId, actor);
+        const run = set.runs.find(row => row.id === prior.runId);
+        if (isUnmetered(run)) return this.createResponse(set, run, true);
       }
-      return { ...slot, estimateId: clientEstimate.estimateId, estimatedCredit: Number(clientEstimate.estimatedCredit), estimateExpiresAt: clientEstimate.estimateExpiresAt || null };
-    });
-    const confirmedEstimate = {
-      slots: pricedSlots.map(stripPrivateConfig),
-      estimatedTotalCredit: pricedSlots.reduce((total, slot) => total + slot.estimatedCredit, 0),
-      providerConfigVersion: this.providerRegistry.getConfigVersion(),
-      expiresAt: Number(payload.estimateExpiresAt || 0)
-    };
-    this.validator.verifyEstimate(payload.estimateToken, confirmedEstimate, context, userId);
+    }
+    const pricedSlots = creditsDisabled ? slots.map(slot => ({ ...slot, estimatedCredit: 0 }))
+      : this.confirmSlotEstimates(payload, slots, context, userId);
     const promptExecution = await this.generationApplicationService.compilePromptForExecution(
       context,
       { requestId: idempotencyKey }
@@ -134,7 +131,8 @@ export class ComparisonOrchestrator {
       status: 'queued',
       sourcePrompt: compiledPrompt,
       configurationSnapshot: createConfigurationSnapshot(context),
-      estimatedTotalCredit: confirmedEstimate.estimatedTotalCredit,
+      estimatedTotalCredit: pricedSlots.reduce((total, slot) => total + slot.estimatedCredit, 0),
+      ...(creditsDisabled ? { billingMode: UNMETERED } : {}),
       actualTotalCredit: 0,
       providerConfigVersion: this.providerRegistry.getConfigVersion(),
       promptCompilerVersion: 1,
@@ -233,6 +231,7 @@ export class ComparisonOrchestrator {
         }));
       reservedOperations = await this.generationApplicationService.reservePreparedOperations({
         payerUserId: userId,
+        creditsDisabled,
         planId: `comparison:${setId}:${runId}`,
         quoteId: runId,
         idempotencyKey: `comparison:${userId}:${idempotencyKey}`,
@@ -244,7 +243,7 @@ export class ComparisonOrchestrator {
         for (const operation of reservedOperations) {
           const targetSlot = targetRun.slots.find(slot => slot.id === operation.operationId);
           targetSlot.jobId = operation.jobId;
-          targetSlot.reservationId = operation.reservation.reservationId;
+          targetSlot.reservationId = operation.reservation?.reservationId || null;
         }
       });
       for (const operation of reservedOperations) {
@@ -255,7 +254,7 @@ export class ComparisonOrchestrator {
         const enqueuedSlot = {
           slotId: operation.operationId,
           jobId: submitted.jobId,
-          reservationId: submitted.reservation.reservationId,
+          reservationId: submitted.reservation?.reservationId || null,
           providerStreaming: submitted.providerStreaming
         };
         enqueuedSlots.push(enqueuedSlot);
@@ -263,7 +262,7 @@ export class ComparisonOrchestrator {
           const targetSlot = targetRun.slots.find(item => item.id === operation.operationId);
           if (!targetSlot) return;
           targetSlot.jobId ||= submitted.jobId;
-          targetSlot.reservationId ||= submitted.reservation.reservationId;
+          targetSlot.reservationId ||= submitted.reservation?.reservationId || null;
         });
       }
       const run = await this.repository.updateRun(setId, runId, targetRun => {
@@ -276,7 +275,8 @@ export class ComparisonOrchestrator {
     } catch (error) {
       const accepted = new Set(enqueuedSlots.map(slot => slot.slotId));
       const unaccepted = reservedOperations.filter(operation => !accepted.has(operation.operationId));
-      const compensation = await Promise.allSettled(unaccepted.map(operation => this.creditReservation.refundForJob({
+      const refundable = unaccepted.filter(operation => operation.reservation?.reservationId);
+      const compensation = await Promise.allSettled(refundable.map(operation => this.creditReservation.refundForJob({
         userId,
         reservationId: operation.reservation.reservationId,
         jobId: operation.jobId,
@@ -286,7 +286,7 @@ export class ComparisonOrchestrator {
       for (const refund of compensation) if (refund.status === 'rejected') {
         console.warn('[Comparison] Unaccepted slot refund requires reconciliation:', refund.reason?.code || 'credit_service_unavailable');
       }
-      const pendingRefunds = new Set(unaccepted.filter((_operation, index) => compensation[index].status === 'rejected')
+      const pendingRefunds = new Set(refundable.filter((_operation, index) => compensation[index].status === 'rejected')
         .map(operation => operation.operationId));
       await this.repository.updateRun(setId, runId, targetRun => {
         targetRun.status = enqueuedSlots.length > 0 ? 'partially_completed' : 'failed';
@@ -294,7 +294,7 @@ export class ComparisonOrchestrator {
           const operation = unaccepted.find(item => item.operationId === slot.id);
           if (operation) {
             slot.jobId = operation.jobId;
-            slot.reservationId = operation.reservation.reservationId;
+            slot.reservationId = operation.reservation?.reservationId || null;
           }
           slot.status = 'failed';
           slot.error = { code: pendingRefunds.has(slot.id) ? 'comparison_refund_pending' : 'enqueue_failed',
@@ -309,6 +309,24 @@ export class ComparisonOrchestrator {
 
   async list(actor, query = {}) {
     return this.repository.listPage(actor, query);
+  }
+
+  confirmSlotEstimates(payload, slots, context, userId) {
+    const clientEstimates = new Map((payload.creditEstimates || []).map(item => [item.slotId, item]));
+    const pricedSlots = slots.map(slot => {
+      const clientEstimate = clientEstimates.get(slot.id);
+      if (!clientEstimate?.estimateId || !Number.isInteger(Number(clientEstimate.estimatedCredit))) {
+        throw new ComparisonError('estimate_changed', 'Every comparison slot requires a current server estimate.');
+      }
+      return { ...slot, estimateId: clientEstimate.estimateId, estimatedCredit: Number(clientEstimate.estimatedCredit), estimateExpiresAt: clientEstimate.estimateExpiresAt || null };
+    });
+    this.validator.verifyEstimate(payload.estimateToken, {
+      slots: pricedSlots.map(stripPrivateConfig),
+      estimatedTotalCredit: pricedSlots.reduce((total, slot) => total + slot.estimatedCredit, 0),
+      providerConfigVersion: this.providerRegistry.getConfigVersion(),
+      expiresAt: Number(payload.estimateExpiresAt || 0)
+    }, context, userId);
+    return pricedSlots;
   }
 
   async get(setId, actor) {
@@ -442,7 +460,8 @@ export class ComparisonOrchestrator {
       }).then(() => refundedSlots.add(slot.id))
         .catch(error => console.warn(`[Comparison] Lost-job refund failed for ${slot.jobId}:`, error.message));
     }));
-    const costs = await this.creditManager.getNetJobCosts(run.slots.map(slot => slot.jobId).filter(Boolean));
+    const costs = isUnmetered(run) ? new Map()
+      : await this.creditManager.getNetJobCosts(run.slots.map(slot => slot.jobId).filter(Boolean));
     await this.repository.updateRun(setId, run.id, targetRun => {
       targetRun.slots.forEach((slot, index) => {
         const status = statuses[index];
@@ -492,7 +511,7 @@ export class ComparisonOrchestrator {
     const slotId = job.options?.comparisonSlotId;
     if (!setId || !runId || !slotId) return;
     try {
-      const costs = await this.creditManager.getNetJobCosts([job.id]);
+      const costs = isUnmetered(job.options) ? new Map() : await this.creditManager.getNetJobCosts([job.id]);
       await this.repository.updateRun(setId, runId, run => {
         const slot = run.slots.find(item => item.id === slotId);
         if (!slot) return;

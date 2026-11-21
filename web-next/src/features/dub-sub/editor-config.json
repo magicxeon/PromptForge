@@ -1,6 +1,7 @@
 {
   "version": 1,
   "compactWidth": 970,
+  "speakerColors": ["#28735a", "#465da0", "#96502b", "#804682", "#346878", "#785d24"],
   "transcriptRowPx": 80,
   "transcriptWindowRows": 22,
   "languages": ["th", "zh", "zh-CN", "zh-TW", "en"],

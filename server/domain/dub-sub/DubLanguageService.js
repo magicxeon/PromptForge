@@ -7,9 +7,17 @@ import { PostProcessingServiceClient } from "../../providers/PostProcessingServi
 import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { mediaCommand, videoInput } from "./DubMediaService.js";
 import { sceneTranscriptionPolicy, SceneTranscriptionService } from "../generation/SceneTranscriptionService.js";
-import { languages, normalizeCues } from "./projectFields.js";
+import { languages, normalizeCues, normalizeDelivery } from "./projectFields.js";
 
 const run = promisify(execFile);
+function suggestedDelivery(value) {
+  try {
+    const result = normalizeDelivery(value);
+    if (result.emotion && result.pace && result.intensity && typeof result.direction === "string" && result.direction.length <= 200)
+      return result;
+  } catch { /* Map invalid provider data to the scene response error. */ }
+  throw dubError("dub_scene_invalid_response", 502);
+}
 const ocrLanguages = {
   th: "tha",
   zh: "chi_sim",
@@ -17,6 +25,24 @@ const ocrLanguages = {
   "zh-TW": "chi_tra",
   en: "eng",
 };
+
+// Fresh transcription has new IDs. Transfer actor direction only across unambiguous cue matches.
+function retainDeliveryOverrides(rows, previous) {
+  const matches = new Map();
+  for (const old of previous) {
+    if (!old.deliveryOverrides) continue;
+    const candidates = rows.filter(row => {
+      const overlap = Math.min(row.endMs, old.endMs) - Math.max(row.startMs, old.startMs);
+      return overlap > 0 && (row.text.trim() === old.text.trim() ||
+        overlap >= 0.8 * Math.max(row.endMs - row.startMs, old.endMs - old.startMs));
+    });
+    if (candidates.length === 1) {
+      const next = candidates[0];
+      matches.set(next, matches.has(next) ? null : old.deliveryOverrides);
+    }
+  }
+  for (const [row, overrides] of matches) if (overrides) row.deliveryOverrides = overrides;
+}
 
 export class DubLanguageService {
   constructor({
@@ -63,8 +89,10 @@ export class DubLanguageService {
         lastStart = cue.startMs;
         return { id: randomUUID(), startMs: cue.startMs, endMs: cue.endMs, text: cue.original.trim(), sourceOrigin: "gemini",
           speaker: cue.speaker.trim(), translations: { [targetLanguage]: cue.translation.trim() },
+          suggestedDelivery: { [targetLanguage]: suggestedDelivery(cue.delivery) },
           translationOrigins: { [targetLanguage]: "gemini" } };
       });
+      retainDeliveryOverrides(rows, project.cues || []);
       const cues = await normalizeCues(rows, project).catch(() => { throw dubError("dub_scene_invalid_response", 502); });
       const result = { cues, language: project.sourceLanguage === "auto" ? detected : project.sourceLanguage };
       if (Buffer.byteLength(JSON.stringify(result)) > policy.maxPreviewBytes)
@@ -129,7 +157,7 @@ export class DubLanguageService {
       if (!row || !expected.delete(row.id) || typeof row.translation !== "string" ||
           !row.translation.trim() || row.translation.length > 4000 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(row.translation))
         throw dubError("dub_scene_invalid_response", 502);
-      return { id: row.id, translation: row.translation.trim() };
+      return { id: row.id, translation: row.translation.trim(), delivery: suggestedDelivery(row.delivery) };
     });
   }
 

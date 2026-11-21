@@ -32,6 +32,14 @@ export default defineConfig({
     }
   },
   server: {
+    // Media and actor data must be served through the authenticated API.
+    fs: { allow: [
+      "./index.html",
+      "./src",
+      "./node_modules",
+      "../node_modules",
+      "../client/i18n",
+    ].map(source => fileURLToPath(new URL(source, import.meta.url))) },
     host: '127.0.0.1',
     port: 5173,
     strictPort: true,

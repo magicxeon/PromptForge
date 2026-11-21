@@ -6,6 +6,7 @@ export class CustomVoiceService {
   actor(actor) { if (!actor?.userId) throw voiceError('actor_required', 401); return actor.userId; }
   state(record) {
     if (record.deletingAt) return 'delete_pending';
+    if (!record.savedAt && record.candidateExpiresAt && Date.parse(record.candidateExpiresAt) <= Date.now()) return 'expired';
     if (record.expiresAt && Date.parse(record.expiresAt) <= Date.now()) return 'expired';
     return record.archivedAt ? 'archived' : 'ready';
   }
@@ -16,6 +17,8 @@ export class CustomVoiceService {
     const record = await this.repo.insert('customVoices', this.actor(actor), {
       id: operation.id, operationId: operation.id, name: s.name, displayDescription: s.description,
       designPrompt: s.description, modelId: s.modelId, providerId: s.providerId, language: s.language,
+      ...(s.sourceType ? { sourceType: s.sourceType, voiceGender: s.voiceGender, sampleText: s.sampleText, retainOriginal: s.retainOriginal === true,
+        candidateExpiresAt: new Date(Date.parse(operation.createdAt) + this.generation.speechCatalog().policy.seedDraftLifetimeHours * 3600000).toISOString() } : {}),
       previewAssetId: operation.outputAssetId, audioUrl: operation.outputUrl, durationMs: operation.durationMs,
       savedAt: null, archivedAt: null, expiresAt: operation.expiresAt || null
     });
@@ -30,8 +33,17 @@ export class CustomVoiceService {
       catch (error) { if (error.code !== 'voice_record_not_found') throw error; await this.project(actor, op); }
     }
     let records = await this.repo.list('customVoices', userId);
+    const discarded = new Set();
+    for (const record of records) {
+      if (record.savedAt || !record.candidateExpiresAt || Date.parse(record.candidateExpiresAt) > Date.now()) continue;
+      await this.remove(actor, record.id);
+      discarded.add(record.id);
+    }
+    records = records.filter(record => !discarded.has(record.id));
     const search = String(query.search || '').toLowerCase().slice(0, 200);
     records = records.filter(r => (query.archived === 'true' || !r.archivedAt)
+      && (!query.voiceGender || r.voiceGender === query.voiceGender)
+      && (!query.modelId || r.modelId === query.modelId)
       && (!query.saved || (query.saved === 'true' ? !!r.savedAt : !r.savedAt))
       && (!search || `${r.name} ${r.displayDescription}`.toLowerCase().includes(search)));
     records.sort((a,b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
@@ -78,14 +90,28 @@ export class CustomVoiceService {
     });
     return this.view(record);
   }
-  async remove(actor, id) {
+  async remove(actor, id, { retireLinkedCharacters = false } = {}) {
     const userId = this.actor(actor);
     const record = await this.repo.get('customVoices', id, userId, { includeDeleted: true });
     if (record.deletedAt) return { deleted: true };
-    // Archived presets still bind the voice and must be reassigned before deletion.
-    if ((await this.repo.list('characters', userId)).some(c => c.voiceKind === 'custom' && c.voiceId === id)) throw voiceError('voice_custom_in_use', 409);
-    await this.repo.update('customVoices', id, userId, undefined, r => { r.deletingAt ||= new Date().toISOString(); });
-    await this.generation.deleteVoiceDesign({ actorContext: actor, id: record.operationId });
+    const seed = !!record.sourceType;
+    const retire = seed && (record.retireLinkedCharacters === true || retireLinkedCharacters === true);
+    const linked = (await this.repo.list('characters', userId)).filter(c => c.voiceKind === 'custom' && c.voiceId === id);
+    if (linked.length && !retire) throw voiceError('voice_custom_in_use', 409);
+    const markDeleting = () => this.repo.update('customVoices', id, userId, undefined, r => {
+      r.deletingAt ||= new Date().toISOString();
+      if (retire) r.retireLinkedCharacters = true;
+    });
+    // Generation checks for active jobs and atomically closes admission before changing usable Seed bindings.
+    if (!seed) await markDeleting();
+    await this.generation.deleteVoiceDesign({ actorContext: actor, id: record.operationId, ...(seed ? { beforeDelete: markDeleting } : {}) });
+    for (const character of linked) {
+      if (character.voiceRetiredAt) continue;
+      await this.repo.update('characters', character.id, userId, undefined, r => {
+        r.voiceRetiredAt = new Date().toISOString();
+        r.archivedAt ||= r.voiceRetiredAt;
+      });
+    }
     await this.repo.update('customVoices', id, userId, undefined, r => { r.deletedAt = new Date().toISOString(); });
     return { deleted: true };
   }

@@ -38,6 +38,15 @@
   border-bottom: 2px solid #267455;
   color: #165638;
 }
+.dub-studio dialog:has(.dub-casting) { width: min(51rem, calc(100vw - 2rem)); max-height: 85dvh; overflow: auto; }
+.dub-casting { display: grid; gap: .85rem; }
+.dub-casting h2, .dub-casting p { margin: 0; }
+.dub-casting fieldset { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: .6rem; min-width: 0; border: 1px solid #cfdcd3; border-radius: .6rem; padding: .7rem; }
+.dub-casting legend i { display: inline-block; width: .8em; height: .8em; border-radius: 50%; }
+.dub-cast-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem; }
+.dub-casting audio[controls] { max-width: 100%; }
+.dub-editor-away[hidden] { display: none; }
+.dub-cast-badge { pointer-events: none; position: absolute; inset: 0 3px auto auto; max-width: 60%; overflow: hidden; text-overflow: ellipsis; border-left: 4px solid; border-radius: .3rem; padding: 0 2px; background: #fff; color: #19332c; font-size: 9px; }
 .dub-bar {
   margin-bottom: 1rem;
 }
@@ -638,6 +647,12 @@
   text-overflow: ellipsis;
 }
 .dub-editor .dub-line textarea { resize: none; font-size: 14px; }
+.dub-line-heading { display: flex; min-width: 0; align-items: center; gap: 4px; }
+.dub-line-heading > button { overflow: hidden; }
+.dub-editor .dub-line .dub-line-emotion {
+  flex: 0 0 auto; width: auto; max-width: 48%; padding-inline: 6px; border-radius: 8px;
+  background: #e8f0eb; color: #29553d; font-size: 11px;
+}
 .dub-editor .dub-line textarea:last-child { font-weight: 600; }
 .dub-editor .dub-line textarea:not([readonly]):is(:hover, :focus) {
   background: #fff;

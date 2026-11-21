@@ -1,3 +1,4 @@
+import { UNMETERED } from '../credits/WorkspaceCreditPolicy.js';
 import { compilePromptOnServer } from './promptCompiler.js';
 import { isLookSheetDocumentEnabled } from '../../config/lookSheetDocumentPolicy.js';
 import { normalizeLookSheetDefinition, compileLookSheetPrompt } from '../character-profiles/LookSheetDefinitionService.js';
@@ -495,6 +496,7 @@ export function createQueueOptions(context, {
   imageResolution = null,
   comparison = null,
   reservationId = null,
+  creditsDisabled = false,
   pricingSnapshot = null,
   routingSnapshot = null,
   payerUserId = null,
@@ -599,6 +601,7 @@ export function createQueueOptions(context, {
     providerConfigVersion,
     creditCost,
     reservationId,
+    ...(creditsDisabled ? { billingMode: UNMETERED } : {}),
     pricingSnapshot,
     routingSnapshot,
     payerUserId: payerUserId || username || 'usr_demo',

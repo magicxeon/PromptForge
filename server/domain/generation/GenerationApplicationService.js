@@ -1,5 +1,6 @@
 import { characterCastingExportService } from '../character-profiles/CharacterCastingExportService.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
+import { isUnmetered, UNMETERED, workspaceCreditDecision } from '../credits/WorkspaceCreditPolicy.js';
 import { performanceTelemetry } from '../observability/PerformanceTelemetry.js';
 import { speechGenerationService } from './SpeechGenerationService.js';
 import { validateGenerationPrompt } from './GenerationPromptBudget.js';
@@ -44,6 +45,7 @@ export class GenerationApplicationService {
     this.telemetry = telemetry;
     this.promptRefinementService = promptRefinementService;
     this.generationGroupRepository = generationGroupRepository;
+    this.playgroundAdmissions = new Map();
     this.queueManager.subscribeLifecycle?.(event => this.handleGroupLifecycle(event));
   }
 
@@ -98,7 +100,26 @@ export class GenerationApplicationService {
     return lookSheetEnhancementService.read(id, actorContext.userId);
   }
 
-  async submit({
+  async submit(input) {
+    const { actorContext, body, internalGroupContext } = input;
+    const requestId = body.requestId || input.requestId;
+    if (!actorContext?.userId || !isRecoveryId(requestId) || internalGroupContext || body.templateUseSessionId
+      || body.generationSurface !== 'playground' || body.generationMode !== 'playground') {
+      return this.#submit(input);
+    }
+    // Both frontends use this service. Bind simultaneous admissions to the first request's terms.
+    const key = JSON.stringify([actorContext.userId, requestId]);
+    const prior = this.playgroundAdmissions.get(key);
+    if (prior) return prior;
+    if (this.playgroundAdmissions.size >= 128) {
+      throw Object.assign(new Error('Image submission capacity is busy.'), { statusCode: 429, code: 'generation_admission_busy' });
+    }
+    const admission = this.#submit(input).finally(() => this.playgroundAdmissions.delete(key));
+    this.playgroundAdmissions.set(key, admission);
+    return admission;
+  }
+
+  async #submit({
     body,
     actorContext,
     userRole,
@@ -147,6 +168,19 @@ export class GenerationApplicationService {
         imageResolution: context.imageResolution || model.defaults?.resolution || null
       });
       const operationRequestId = body.requestId || requestId;
+      const { eligible: playground, creditsDisabled } = workspaceCreditDecision(actorContext, 'image', {
+        context, templateExecution, internalGroupContext
+      });
+      if (creditsDisabled && !isRecoveryId(operationRequestId)) {
+        throw Object.assign(new Error('Invalid request ID.'), { statusCode: 400, code: 'generation_request_id_invalid' });
+      }
+      if (playground && !creditsDisabled && context.outputCount === 1) {
+        const priorGroup = await this.generationGroupRepository.findByRequest(payerUserId, operationRequestId);
+        if (isUnmetered(priorGroup)) {
+          finish('ok', { jobId: priorGroup.childJobIds[0], groupId: priorGroup.id });
+          return groupAdmission(priorGroup);
+        }
+      }
       const promptExecution = await this.compilePromptForExecution(context, {
         requestId: operationRequestId
       });
@@ -155,7 +189,8 @@ export class GenerationApplicationService {
       const operation = {
         providerId: provider.id,
         modelId: model.id,
-        estimateId: body.estimateId,
+        creditsDisabled,
+        estimateId: creditsDisabled ? null : body.estimateId,
         requestId: operationRequestId,
         payerUserId,
         payerUsername,
@@ -211,7 +246,7 @@ export class GenerationApplicationService {
         promptRefinementAudit: promptExecution.audit,
         jobId: internalJobId
       };
-      const result = context.outputCount > 1
+      const result = creditsDisabled || context.outputCount > 1
         ? await this.submitPreparedGroup(operation)
         : await this.submitPreparedOperation(operation);
       finish('ok', { jobId: result.jobId, groupId: result.groupId || null });
@@ -490,6 +525,7 @@ export class GenerationApplicationService {
     requestId,
     payerUserId,
     payerUsername,
+    creditsDisabled = false,
     context,
     compiledPrompt,
     streamRequested = true,
@@ -507,13 +543,22 @@ export class GenerationApplicationService {
       requestId
     );
     if (existing) {
-      return {
-        groupId: existing.id,
-        jobId: existing.childJobIds[0] || null,
-        status: existing.status,
-        requestedOutputCount: existing.requestedOutputCount,
-        childJobIds: [...existing.childJobIds]
-      };
+      return groupAdmission(existing);
+    }
+    if (creditsDisabled) {
+      // A single Image admitted before the switch has only a reservation-to-Job mapping.
+      const mappings = await this.creditService.findImageRequestMappings({ userId: payerUserId, requestId });
+      if (mappings.length) {
+        const [mapping] = mappings;
+        if (mappings.length === 1 && !mapping.grouped && mapping.userId === payerUserId
+          && mapping.requestId === requestId && isRecoveryId(mapping.jobId)) {
+          const job = await this.queueManager.getJobStatusForUser(mapping.jobId, payerUsername, { userId: payerUserId, isMockActor: false });
+          if (job) return { jobId: mapping.jobId, status: job.status };
+        }
+        throw Object.assign(new Error('This image request needs reconciliation.'), {
+          statusCode: 409, code: 'generation_job_reconciliation_required'
+        });
+      }
     }
     this.providerRegistry.assertRuntimeAvailable(providerId, modelId, {
       generationSurface: context.generationSurface,
@@ -529,23 +574,24 @@ export class GenerationApplicationService {
       outputIndex,
       jobId: this.queueManager.createJobId()
     }));
-    const reservationResult = await this.creditService.reserveGenerationGroup({
+    const reservations = creditsDisabled ? [] : (await this.creditService.reserveGenerationGroup({
       userId: payerUserId,
       estimateId,
       generationRequest,
       groupId,
       children,
       metadata: reservationMetadata
-    });
+    })).reservations;
     const now = new Date().toISOString();
     try {
-      await this.generationGroupRepository.create({
+      const admitted = await this.generationGroupRepository.create({
         schemaVersion: 1,
         id: groupId,
         actorUserId: payerUserId,
         actorUsername: payerUsername,
         requestId,
         estimateId,
+        ...(creditsDisabled ? { billingMode: UNMETERED } : {}),
         requestedOutputCount,
         generationSurface: context.generationSurface || null,
         generationMode: generationRequest.generationMode || null,
@@ -564,8 +610,9 @@ export class GenerationApplicationService {
         updatedAt: now,
         completedAt: null
       });
+      if (admitted.id !== groupId) return groupAdmission(admitted);
     } catch (error) {
-      await Promise.allSettled(reservationResult.reservations.map(reservation =>
+      await Promise.allSettled(reservations.map(reservation =>
         this.creditService.refundForJob({
           userId: payerUserId,
           reservationId: reservation.reservationId,
@@ -576,12 +623,12 @@ export class GenerationApplicationService {
       throw error;
     }
     const reservationsByJobId = new Map(
-      reservationResult.reservations.map(reservation => [reservation.jobId, reservation])
+      reservations.map(reservation => [reservation.jobId, reservation])
     );
     const enqueueFailures = [];
     for (const child of children) {
       const reservation = reservationsByJobId.get(child.jobId);
-      if (!reservation) {
+      if (!creditsDisabled && !reservation) {
         enqueueFailures.push({
           jobId: child.jobId,
           outputIndex: child.outputIndex,
@@ -604,6 +651,7 @@ export class GenerationApplicationService {
           modelConfig,
           providerConfig,
           reservation,
+          creditsDisabled,
           estimateId,
           requestId: `${requestId}:output:${child.outputIndex}`,
           streamRequested,
@@ -643,19 +691,16 @@ export class GenerationApplicationService {
       status: enqueueFailures.length === children.length ? 'failed' : 'queued',
       requestedOutputCount,
       childJobIds: children.map(child => child.jobId),
-      reservation: {
-        amountCredits: reservationResult.reservations.reduce(
-          (sum, reservation) => sum + Number(reservation.amountCredits || 0),
-          0
-        )
-      }
+      ...(!creditsDisabled ? { reservation: {
+        amountCredits: reservations.reduce((sum, reservation) => sum + Number(reservation.amountCredits || 0), 0)
+      } } : {})
     };
   }
 
   // Comparison reserves the complete accepted quote before Queue sees any slot.
   // Job IDs and provider preflight remain owned by Generation; Credits owns the
   // single atomic wallet mutation and immutable per-operation price snapshots.
-  async reservePreparedOperations({ payerUserId, planId, quoteId, idempotencyKey, operations }) {
+  async reservePreparedOperations({ payerUserId, planId, quoteId, idempotencyKey, operations, creditsDisabled = false }) {
     if (!Array.isArray(operations) || operations.length < 2 || operations.length > 4) {
       throw Object.assign(new Error('Comparison requires two to four prepared operations.'), { code: 'invalid_slot_count' });
     }
@@ -672,6 +717,7 @@ export class GenerationApplicationService {
       this.providerRegistry.shouldStream(operation.providerConfig, operation.modelConfig, operation.streamRequested);
       return { ...operation, jobId: this.queueManager.createJobId() };
     });
+    if (creditsDisabled) return prepared.map(operation => ({ ...operation, reservation: null, creditsDisabled }));
     const result = await this.creditService.reservePlan({
       userId: payerUserId, planId, quoteId, idempotencyKey, planKind: 'comparison',
       operations: prepared.map(operation => ({ operationId: operation.operationId,
@@ -692,6 +738,7 @@ export class GenerationApplicationService {
     modelConfig,
     providerConfig,
     reservation,
+    creditsDisabled = false,
     estimateId = null,
     requestId = null,
     streamRequested = true,
@@ -724,8 +771,9 @@ export class GenerationApplicationService {
           stream,
           modelConfig,
           providerConfigVersion: this.providerRegistry.getConfigVersion(),
-          reservationId: reservation.reservationId,
-          pricingSnapshot: reservation.pricingSnapshot,
+          reservationId: reservation?.reservationId || null,
+          pricingSnapshot: reservation?.pricingSnapshot || null,
+          creditsDisabled,
           payerUserId,
           estimateId,
           requestId,
@@ -738,7 +786,7 @@ export class GenerationApplicationService {
       }
       return { jobId, providerStreaming: stream, reservation };
     } catch (error) {
-      if (refundOnFailure) {
+      if (refundOnFailure && reservation?.reservationId) {
         await this.creditService.refundForJob({
           userId: payerUserId,
           reservationId: reservation.reservationId,
@@ -973,6 +1021,16 @@ function createGenerationRequestPayload(body, userRole, templateExecution) {
 
 function isRecoveryId(value) {
   return typeof value === 'string' && /^[A-Za-z0-9:_-]{1,160}$/.test(value);
+}
+
+function groupAdmission(group) {
+  return {
+    groupId: group.id,
+    jobId: group.childJobIds[0] || null,
+    status: group.status,
+    requestedOutputCount: group.requestedOutputCount,
+    childJobIds: [...group.childJobIds]
+  };
 }
 
 function batchSubmissionResult(group) {

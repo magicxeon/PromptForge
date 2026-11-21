@@ -15,7 +15,8 @@ import { DubProjectRepository } from "../server/repositories/dub-sub/DubProjectR
 
 const actor = { userId: "test-operator", role: "admin", authMode: "development_bypass" };
 const runtime = { enabled: true, actorId: actor.userId, role: "admin", liveGeneration: true };
-const cue = { startMs: 0, endMs: 900, original: "Hello", translation: "สวัสดี", speaker: "A" };
+const delivery = { emotion:"calm", intensity:"subtle", pace:"slow", direction:"ลดเสียงช่วงท้าย" };
+const cue = { startMs: 0, endMs: 900, original: "Hello", translation: "สวัสดี", speaker: "A", delivery };
 const context = { storyContext: "Friends meeting", languageStyle: "casual", sourceLanguage: "auto" };
 const request = { method: "gemini-scene", preview: true, confirmed: true, requestId: "request_123", language: "th" };
 
@@ -76,6 +77,7 @@ test("confirmed scene preview sends only extracted audio and project context onc
   assert.deepEqual(duplicate, preview);
   assert.equal(preview.language, "en");
   const [row] = preview.cues;
+  assert.deepEqual(row.suggestedDelivery, { th:delivery });
   assert.equal(row.sourceOrigin, "gemini");
   assert.deepEqual(row.translationOrigins, { th: "gemini" });
   assert.deepEqual([row.startMs, row.endMs, row.text, row.speaker, row.translations, row.takes],
@@ -167,6 +169,18 @@ test("invalid output is never applied and a transport failure cannot re-dispatch
   assert.deepEqual((await fs.readdir(f.directory)).sort(), ["scene-previews.json", "source"]);
 });
 
+test("retranscription retains the director's override on the matching spoken line", async t => {
+  const f = await fixture(t, async () => Response.json({status:"completed", output_text:JSON.stringify({language:"en", cues:[cue]})}));
+  const edited = await f.repo.mutate(actor, f.project.id, f.body.revision, project => {
+    project.cues = [{id:"old-cue", startMs:20, endMs:870, text:cue.original,
+      deliveryOverrides:{th:{emotion:"sad", direction:""}}}];
+  });
+  const result = await f.run({revision:edited.revision});
+  assert.notEqual(result.cues[0].id, "old-cue");
+  assert.deepEqual(result.cues[0].suggestedDelivery.th, delivery);
+  assert.deepEqual(result.cues[0].deliveryOverrides.th, {emotion:"sad", direction:""});
+});
+
 test("a new server process can resume an interrupted pre-dispatch preparation", async t => {
   let calls = 0;
   const f = await fixture(t, async () => {
@@ -218,11 +232,12 @@ test("Gemini translates saved cue text only, keeps all other cue data and proven
     assert.deepEqual(JSON.parse(payload.input[0].text), { ...context, sourceLanguage: "en", targetLanguage: "th",
       cues: [{ id: "second", text: "edited source" }] });
     return Response.json({ status: "completed", output_text: JSON.stringify({
-      cues: [{ id: "second", translation: "คำแปล" }],
+      cues: [{ id: "second", translation: "คำแปล", delivery }],
     }) });
   });
   const second = { id: "second", text: "edited source", speaker: "B", startMs: 250, endMs: 780, dubText: "private dub",
-    translations: { zh: "手动翻译" }, takes: { th: { id: "existing-private-take" } }, selectedTakeId: "existing-private-take" };
+    translations: { zh: "手动翻译" }, deliveryOverrides: { th:{emotion:"angry"} },
+    takes: { th: { id: "existing-private-take" } }, selectedTakeId: "existing-private-take" };
   const p = await f.repo.mutate(actor, f.project.id, f.body.revision, project => {
     project.cues = [{ id: "first", text: "manual source", startMs: 10, endMs: 230, translations: { th: "manual target" } }, second];
     project.detectedLanguage = "en";
@@ -243,7 +258,7 @@ test("Gemini translates saved cue text only, keeps all other cue data and proven
   assert.equal(saved.revision, p.revision + 1);
   assert.deepEqual(saved.cues[0], p.cues[0]);
   assert.deepEqual(saved.cues[1], { ...second, translations: { ...second.translations, th: "คำแปล" },
-    translationOrigins: { th: "gemini" } });
+    translationOrigins: { th: "gemini" }, suggestedDelivery: { th:delivery } });
   assert.deepEqual((await send({}, undefined, f.makeService())).cues, saved.cues);
   await assert.rejects(send({ overwrite: true }), { code: "dub_scene_request_conflict" });
   assert.equal(calls, 1);
@@ -278,7 +293,7 @@ test("selected and full overwrites match returned IDs, including out-of-order Ge
     const { cues } = JSON.parse(JSON.parse(options.body).input[0].text);
     requests.push(cues.map(cue => cue.id));
     return Response.json({ status: "completed", output_text: JSON.stringify({
-      cues: cues.toReversed().map(cue => ({ id: cue.id, translation: cue.id + requests.length })),
+      cues: cues.toReversed().map(cue => ({ id: cue.id, translation: cue.id + requests.length, delivery })),
     }) });
   });
   const initial = await f.repo.mutate(actor, f.project.id, f.body.revision, project => {
@@ -305,7 +320,7 @@ test("reloading during translation exposes running work and waits for the saved 
     calls++;
     started();
     await hold;
-    return Response.json({ status: "completed", output_text: JSON.stringify({ cues: [{ id: "c", translation: "out" }] }) });
+    return Response.json({ status: "completed", output_text: JSON.stringify({ cues: [{ id: "c", translation: "out", delivery }] }) });
   });
   const draft = await f.service.create(actor, { name: "Text-only project", sourceLanguage: "en", targetLanguages: ["th"] });
   const p = await f.repo.mutate(actor, draft.id, draft.revision, project => {

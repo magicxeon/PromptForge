@@ -68,6 +68,7 @@ export class DubProjectService {
       delete data.tracks;
       delete data.cues;
       delete data.characterMappings;
+      delete data.speakerProfiles;
       delete data.mixer;
     }
     return {
@@ -249,7 +250,7 @@ export class DubProjectService {
       previous,
       body,
       targets,
-      (character) => this.voiceStudio.getDubCharacter(actor, character),
+      (character, language) => this.voiceStudio.getDubCharacter(actor, character, language),
     );
     const rows = body.cues ?? (body.targetLanguages ? previous.cues : null);
     const source = body.sourceLanguage ?? previous.sourceLanguage;
@@ -649,12 +650,14 @@ export class DubProjectService {
     }, false);
     try {
       const translations = await this.executeScene(actor, project, requestId, language, verify, translation);
-      const byId = new Map(translations.map(row => [row.id, row.translation]));
+      const byId = new Map(translations.map(row => [row.id, row]));
       const saved = await this.repo.mutate(actor, id, revision, async current => {
         await verify(false);
         for (const cue of current.cues) {
-          if (!byId.has(cue.id)) continue;
-          cue.translations[language] = byId.get(cue.id);
+          const row = byId.get(cue.id);
+          if (!row) continue;
+          cue.translations[language] = row.translation;
+          if (row.delivery) (cue.suggestedDelivery ??= {})[language] = row.delivery;
           (cue.translationOrigins ??= {})[language] = "gemini";
         }
         current.status = current.media ? "ready" : "draft";

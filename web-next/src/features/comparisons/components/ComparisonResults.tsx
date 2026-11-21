@@ -7,6 +7,7 @@ import { ImageViewer } from "../../../components/media/ImageViewer";
 import { GenerationResultMetadata } from "../../../../../web/src/components/generation/GenerationResultMetadata";
 import { ComparisonExportDialog } from "../../../../../web/src/components/media/ComparisonExportDialog";
 import { DetailCompare } from "./DetailCompare";
+import { useWorkspaceCredits } from "../../../lib/workspaceConfig";
 import {
   useActor,
   ProcessingSpinner,
@@ -58,6 +59,7 @@ export function ComparisonResults({
 }) {
   const { t, i18n } = useTranslation("comparison");
   const { identityScope } = useActor();
+  const creditsEnabled = useWorkspaceCredits();
   const { t: common } = useTranslation();
   const navigate = useNavigate();
   const [runId, chooseRun] = useState("");
@@ -237,8 +239,8 @@ export function ComparisonResults({
                     requestedAspectRatio={
                       run.configurationSnapshot?.aspectRatio
                     }
-                    actualCredit={slot.actualCredit}
-                    estimatedCredit={slot.estimatedCredit}
+                    actualCredit={creditsEnabled ? slot.actualCredit : undefined}
+                    estimatedCredit={creditsEnabled ? slot.estimatedCredit : undefined}
                     mimeType={slot.result?.mimeType}
                   />
                   {slot.error && (

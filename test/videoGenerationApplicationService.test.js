@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { VideoGenerationApplicationService } from '../server/domain/generation/VideoGenerationApplicationService.js';
 import { VideoCapabilityRegistry } from '../server/domain/generation/VideoCapabilityRegistry.js';
+import { withWebNextCreditPolicy } from '../server/domain/credits/WorkspaceCreditPolicy.js';
 import { createStoryboardSourceFingerprint } from '../server/domain/assets/CinematicStoryboardAssetService.js';
 import { generatedCastSourceFingerprint } from '../server/domain/generation/TrustedGeneratedSourceService.js';
 
@@ -230,7 +231,7 @@ test('video quote rejects an empty prompt before pricing', async () => {
   );
 });
 
-test('Playground video rejects prompts above 10000 characters before pricing', async () => {
+test('Playground video enforces the configured prompt limit before pricing or unmetered dispatch', async () => {
   let estimates = 0;
   const service = createService({
     creditService: {
@@ -238,13 +239,14 @@ test('Playground video rejects prompts above 10000 characters before pricing', a
       async getAccount() { return { availableCredits: 100 }; }
     }
   });
-  await assert.rejects(
-    service.quote({ ...input, prompt: 'x'.repeat(10001) }, actor),
-    error => error.code === 'generation_prompt_too_long'
-      && error.details?.applicationMaximumCharacters === 10000
-  );
+  const limit = service.getCatalog().promptMaximumCharacters;
+  const long = { ...input, prompt: 'x'.repeat(limit + 1) };
+  const rejected = error => error.code === 'generation_prompt_too_long'
+    && error.details?.applicationMaximumCharacters === limit;
+  await assert.rejects(service.quote(long, actor), rejected);
+  await assert.rejects(service.submit(long, withWebNextCreditPolicy({ ...actor }, false)), rejected);
   assert.equal(estimates, 0);
-  await service.quote({ ...input, prompt: 'x'.repeat(10000) }, actor);
+  await service.quote({ ...input, prompt: 'x'.repeat(limit) }, actor);
   assert.equal(estimates, 1);
 });
 
@@ -596,6 +598,55 @@ test('qualification authorization is persisted on the provider task without a re
   assert.equal(dispatched.qualificationAuthorizationId, 'vqual_test');
   assert.equal(task.billingStatus, 'qualification_no_charge');
   assert.equal(task.qualificationAuthorizationId, 'vqual_test');
+});
+
+for (const outcome of ['completed', 'failed']) test(`unmetered video ${outcome} stays unmetered on replay and repeated settlement`, async () => {
+  const tasks = new Map();
+  const repo = repositoryStub(tasks);
+  repo.findByIdempotencyKey = async (owner, key) => [...tasks.values()].find(task => task.ownerUserId === owner && task.idempotencyKey === key);
+  const marked = withWebNextCreditPolicy({ ...actor }, false);
+  let dispatches = 0;
+  const service = createService({
+    taskRepository: repo,
+    creditService: {hasJobReservation:async () => false},
+    providerTaskService: {
+      async submitTask(request) {
+        dispatches++;
+        assert.equal(request.billingStatus, 'unmetered');
+        assert.equal(request.reservationId, null);
+        assert.equal(request.estimateId, null);
+        const task = { id: request.id, idempotencyKey: request.idempotencyKey, ownerUserId: actor.userId,
+          status: outcome, providerError: outcome === 'failed' ? { providerBillableState: 'not_billable' } : null };
+        tasks.set(task.id, task);
+        return task;
+      }
+    }
+  });
+  const request = { ...input, idempotencyKey: 'webnext-unmetered-video' };
+  await assert.rejects(service.submit({ ...request, prompt: '' }, marked), { code: 'video_prompt_required' });
+  const [a, b] = await Promise.all([service.submit(request, marked), service.submit(request, marked)]);
+  assert.equal(a.id, b.id);
+  assert.equal(a.billingStatus, 'unmetered');
+  assert.equal((await service.submit(request, actor)).id, a.id);
+  for (let i = 0; i < 2; i++) assert.equal((await service.getAndPoll(a.id, actor)).status, outcome);
+  assert.equal(dispatches, 1);
+});
+
+test('free Video refuses replay of a paid reservation even when the task was never persisted', async () => {
+  for (const status of ['reserved', 'refunded']) {
+    const key = 'orphaned-paid-video-' + status;
+    const service = createService({
+      taskRepository: repositoryStub(new Map()),
+      creditService: {hasJobReservation: async (owner, id) => {
+        assert.equal(owner, actor.userId);
+        assert.ok(id);
+        return true;
+      }},
+      providerTaskService: {submitTask: async () => assert.fail('duplicate provider dispatch')}
+    });
+    await assert.rejects(service.submit({...input,idempotencyKey:key},withWebNextCreditPolicy({...actor},false)),
+      {code:'video_request_reconciliation_required'});
+  }
 });
 
 test('development POC marker and Credit value remain bound through reservation and dispatch', async () => {

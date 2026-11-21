@@ -91,7 +91,9 @@ export function useDubDraft(initial: Project) {
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [dirty]);
-  const blocker = useBlocker(dirty);
+  const editorPath = "/dub-sub/projects/" + initial.id;
+  const blocker = useBlocker(({ nextLocation }) => dirty &&
+    nextLocation.pathname !== editorPath && nextLocation.pathname !== editorPath + "/setup/voices");
   return {
     draft,
     edit,
