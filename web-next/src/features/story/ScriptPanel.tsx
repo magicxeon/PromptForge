@@ -9,7 +9,7 @@ import {updateCinematicChapter} from "../../../../web/src/features/cinematic/api
 import {readStoryFile} from "../../../../web/src/features/cinematic/components/CinematicStoryFileImport";
 import {chapterRecoverySchema,useCinematicTextRecovery} from "../../../../web/src/features/cinematic/state/useCinematicTextRecovery";
 import type {CinematicProject} from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
-import type {RunWriting} from "./StoryEditor";
+import type {RunWriting} from "./data/useStoryWorkspace";
 import config from "./story-config.json";
 type Workflow=NonNullable<Awaited<ReturnType<typeof getCinematicAuthoringManifest>>["rewamp"]>["workflow"];
 
@@ -58,14 +58,15 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
     let saved:CinematicProject|undefined;
     await run(async()=>{
       const ai=generated?.fullStory===draft.story ? generated : null;
-      const result=full&&owner?await saveCinematicFullStoryRevision(owner.id,{expectedVersion:owner.version,content:draft.story,
-        source:ai?"ai":"manual",...(ai?{provenance:ai.provenance,revisionInstruction:writingBrief}: {})})
-        :(await updateCinematicChapter(project.id,project.version,draft.title,draft.story,ai?{source:"ai",revisionInstruction:writingBrief}:{})).project;
+      const update=full&&owner?{project:await saveCinematicFullStoryRevision(owner.id,{expectedVersion:owner.version,content:draft.story,
+        source:ai?"ai":"manual",...(ai?{provenance:ai.provenance,revisionInstruction:writingBrief}: {})})}
+        :await updateCinematicChapter(project.id,project.version,draft.title,draft.story,ai?{source:"ai",revisionInstruction:writingBrief}:{});
+      const result=update.project;
       saved=result;
       recovery.markSaved(draft,{...draft,story:full?result.fullStoryVersions.find(v=>v.id===result.activeFullStoryVersionId)?.content||draft.story:result.chapterStory},
         (full?result.activeFullStoryVersionId:result.activeChapterVersionId)||"");
       if(leaveAfterSave.current){leaveAfterSave.current=false;blocker.proceed?.();}
-      return result;
+      return update;
     });
     if(next==="scenes" && saved)await requestScenes(saved,true);
   }

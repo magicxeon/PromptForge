@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
-import { useActor } from "../../lib/canonical";
+import type { RunWriting } from "./data/useStoryWorkspace";
 import type { CinematicProject } from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {
   confirmCinematicFullStoryRevision, generateCinematicFullStoryChapters,
@@ -11,14 +10,12 @@ import { chapterOutlineIsStale } from "../../../../web/src/features/cinematic/co
 
 type Props = {
   project: CinematicProject;
-  run: (job: () => Promise<CinematicProject | void>) => Promise<void>;
+  run: RunWriting;
   goChapter: (id: string) => void;
 };
 
 export function FullStoryPlan({ project, run, goChapter }: Props) {
   const { t } = useTranslation("storyPlan");
-  const { identityScope } = useActor();
-  const cache = useQueryClient();
   const revision = project.fullStoryVersions.find(v => v.id === project.activeFullStoryVersionId);
   if (!revision) return null;
   const confirmed = project.confirmedFullStoryVersionId === revision.id;
@@ -29,26 +26,24 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
   async function generateOrReview(action: "generate" | "apply" | "discard") {
     await run(async () => {
       if (action !== "generate" && !pending) return;
-      const result = action === "generate"
-        ? await generateCinematicFullStoryChapters(project.id, project.version)
-        : await (action === "apply" ? applyCinematicChapterProposal : discardCinematicChapterProposal)(project.id, pending!.id);
-      cache.setQueryData(["story-series", identityScope, project.id], result.workspace);
-      return result.project;
+      return action === "generate"
+        ? generateCinematicFullStoryChapters(project.id, project.version)
+        : (action === "apply" ? applyCinematicChapterProposal : discardCinematicChapterProposal)(project.id, pending!.id);
     });
   }
   return <section className="story-panel" aria-label={t("heading")}>
     <h2>{t("heading")}</h2>
-    {!confirmed && <button onClick={() => void run(() => confirmCinematicFullStoryRevision(project.id, project.version, revision.id))}>
+    {!confirmed && <button onClick={() => void run(async () => ({project: await confirmCinematicFullStoryRevision(project.id, project.version, revision.id)}))}>
       {t("confirmRevision",{version:revision.version})}</button>}
     {confirmed && (!current || !plan) && !pending && <>
       {plan && <p>{t("outdated")}</p>}
-      <button onClick={() => void run(() => proposeCinematicChapterOutline(project.id, project.version))}>{t("proposeOutline")}</button>
+      <button onClick={() => void run(async () => ({project: await proposeCinematicChapterOutline(project.id, project.version)}))}>{t("proposeOutline")}</button>
     </>}
     {confirmed && current && plan && !pending && <>
       <ol>{plan.chapters.map((row,i) => <li key={i}><strong>{row.title}</strong><p>{row.synopsis}</p></li>)}</ol>
       {plan.status === "proposed" ? <div className="story-actions">
-        {(["approve","discard"] as const).map(action => <button key={action} onClick={() => void run(() =>
-          reviewCinematicChapterOutline(project.id,{expectedVersion:project.version, outlineId:plan.id, action}))}>{t(action+"Outline")}</button>)}
+        {(["approve","discard"] as const).map(action => <button key={action} onClick={() => void run(async () => ({
+          project: await reviewCinematicChapterOutline(project.id,{expectedVersion:project.version, outlineId:plan.id, action})}))}>{t(action+"Outline")}</button>)}
       </div> : <button onClick={() => void generateOrReview("generate")}>{t("writeChapters")}</button>}
     </>}
     {pending && <>

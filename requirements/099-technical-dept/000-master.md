@@ -4,6 +4,8 @@
 
 Web-next story authoring is owned by `web-next/src/features/story/` at `/story` and `/story/:id`. It uses Cinematic's existing identity-aware project, series, revision, proposal and writing-quote clients. The Cinematic project library supplies saved scene and shot counts. Display settings belong to `web-next/src/features/story/story-config.json`. See [Story & Shots](../024-frontend-rebuild/013-story-scene-shot.md).
 
+Within that feature, `StoryStudio.tsx` owns the project library and loads `StoryEditor.tsx` when a project opens. The `data/` directory owns actor-scoped query keys and writing-result updates. The `scenes/` directory owns the shot list and the scene/shot editing dialog.
+
 This directory tracks refactoring tasks, technical debt payments, and modularization requirements designed to keep the codebase maintainable, performant, and clean.
 
 ## Agent Start Here

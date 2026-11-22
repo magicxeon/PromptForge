@@ -1,63 +1,37 @@
 import {useRef, useState} from "react";
-import {useQuery,useQueryClient} from "@tanstack/react-query";
 import {Link,useNavigate,useParams,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
-import {ProcessingSpinner,useActor} from "../../lib/canonical";
-import {getCinematicProject,getCinematicAuthoringManifest} from "../../../../web/src/features/cinematic/api/cinematicApi";
+import {ProcessingSpinner} from "../../lib/canonical";
 import * as series from "../../../../web/src/features/cinematic/api/cinematicSeriesApi";
 import type {CinematicProject} from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
-import {CinematicWritingCancelled} from "../../../../web/src/features/cinematic/api/cinematicWritingBilling";
+import {useStoryWorkspace} from "./data/useStoryWorkspace";
 import {ScriptPanel} from "./ScriptPanel";
-import {ScenePanel} from "./ScenePanel";
+import {ScenePanel} from "./scenes/ScenePanel";
 import {ProposalReview} from "./ProposalReview";
 import {FullStoryPlan} from "./FullStoryPlan";
 import {WritingSettings} from "./WritingSettings";
 import {BookOpen,Clapperboard,Layers,NotebookPen,ChevronRight,Plus} from "lucide-react";
 
-export type RunWriting = (job:()=>Promise<CinematicProject|void>)=>Promise<void>;
-export function StoryEditor() {
+export default function StoryEditor() {
   const {id=""}=useParams();
   return <ProjectWorkspace key={id} id={id}/>;
 }
 function ProjectWorkspace({id}:{id:string}) {
-  const {t}=useTranslation("story"), {identityScope}=useActor();
-  const cache=useQueryClient(), navigate=useNavigate();
+  const {t}=useTranslation("story");
+  const navigate=useNavigate();
   const [params,setParams]=useSearchParams();
   const [drawer,setDrawer]=useState(false);
   const [full,setFull]=useState(false);
   const lastScene=useRef("");
-  const [busy,setBusy]=useState(false), lock=useRef(false);
-  const [error,setError]=useState("");
   const [review,setReview]=useState<"scene"|"shot"|null>(null);
-  const key=["story-project",identityScope,id];
-  const query=useQuery({queryKey:key,queryFn:()=>getCinematicProject(id),refetchOnWindowFocus:false});
-  const seriesKey=["story-series",identityScope,id];
-  const chapters=useQuery({queryKey:seriesKey,queryFn:()=>series.getCinematicSeriesWorkspace(id)});
-  const manifest=useQuery({queryKey:["story-manifest",identityScope],queryFn:getCinematicAuthoringManifest});
+  const {query,chapters,manifest,storyRoot,fullStoryOwner,busy,error,setError,run}=useStoryWorkspace(id);
   const project=query.data;
-  const fullStoryOwner=chapters.data?.productionProject.storyProjectId || project?.chapterOrigin?.projectId || id;
-  const storyRoot=useQuery({queryKey:["story-project",identityScope,fullStoryOwner],queryFn:()=>getCinematicProject(fullStoryOwner),
-    enabled:fullStoryOwner!==id,refetchOnWindowFocus:false});
   const owner=fullStoryOwner===id?project:storyRoot.data;
   function selectScene(sceneId?:string) {
     if(sceneId)lastScene.current=sceneId;
     setParams(sceneId?{scene:sceneId}:{});
     setDrawer(false);setReview(null);setError("");
   }
-  const run:RunWriting=async(job)=>{
-    if(lock.current)return;
-    lock.current=true;setBusy(true);setError("");
-    try {
-      const next=await job();
-      if(next)cache.setQueryData(["story-project",identityScope,next.id],next);
-      await Promise.all([cache.invalidateQueries({queryKey:seriesKey}),cache.invalidateQueries({queryKey:["story-library",identityScope]})]);
-    } catch(e){
-      if(!(e instanceof CinematicWritingCancelled)){
-        setError((e as Error).message || t("failed"));
-        await query.refetch();
-      }
-    } finally {lock.current=false;setBusy(false);}
-  };
   if(!project)return <main className="story-workspace"><Link to="/story">{t("projects")}</Link>
     {query.error?<p role="alert">{query.error.message} <button onClick={()=>void query.refetch()}>{t("retry")}</button></p>:<ProcessingSpinner/>}</main>;
   const scenes=[...project.scenes].sort((a,b)=>a.orderKey-b.orderKey);
@@ -77,7 +51,7 @@ function ProjectWorkspace({id}:{id:string}) {
     if(source.sceneProposals.some(p=>p.status==="pending_review" && (!afterSave || p.sourceChapterRevisionId===source.activeChapterVersionId))){
       setReview("scene");return;
     }
-    await run(async()=>{const r=await series.proposeCinematicScenes(id,source.version);setReview("scene");return r.project;});
+    await run(async()=>{const r=await series.proposeCinematicScenes(id,source.version);setReview("scene");return r;});
   }
   async function requestShots(targetShotId?:string,instruction?:string){
     if(!scene)return false;
@@ -85,13 +59,13 @@ function ProjectWorkspace({id}:{id:string}) {
     let opened=false;
     await run(async()=>{
       const r=await series.proposeCinematicShots(id,scene.id,project!.version,targetShotId?{targetShotId,instruction:instruction||""}:undefined);
-      opened=true;setReview("shot");return r.project;
+      opened=true;setReview("shot");return r;
     });
     return opened;
   }
   async function addScene(){
     await run(async()=>{const r=await series.createCinematicManualScene(id,project!.version,crypto.randomUUID());
-      if(r.scene)selectScene(r.scene.id);return r.project;});
+      if(r.scene)selectScene(r.scene.id);return r;});
   }
   const workflow=manifest.data?.rewamp?.workflow;
   const stages=[

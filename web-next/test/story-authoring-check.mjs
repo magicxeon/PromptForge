@@ -52,8 +52,10 @@ facade.executeWriting = async (id,{operation,sceneId,input},owner)=>{
 const app = express();
 const failures = [];
 let expectShotConflict=false;
+let seriesReads=0;
 app.use(express.json(),(req,res,next)=>{
   req.actorContext=actor;
+  if(req.method==="GET" && req.path.endsWith("/series")) seriesReads++;
   res.on("finish",()=>{
     const expected=expectShotConflict && req.method==="PATCH" && req.path.endsWith("/document") && res.statusCode===409;
     if (!expected && req.path.startsWith("/api/") && res.statusCode>=400) failures.push(req.method+" "+req.path+" "+res.statusCode);
@@ -85,6 +87,8 @@ try {
   const button=name=>page.getByRole("button",{name,exact:true});
   await page.goto(origin+"/story");
   await page.locator(".story-workspace h1").waitFor();
+  const editorLoaded=()=>page.evaluate(()=>performance.getEntriesByType("resource").some(entry=>new URL(entry.name).pathname.endsWith("/StoryEditor.tsx")));
+  assert.equal(await editorLoaded(),false,"the library does not load the editor");
   await page.locator(".story-bar button.primary").click();
   const dialog=page.getByRole("dialog");
   for (const width of [390,820,1440]) {
@@ -105,6 +109,7 @@ try {
   assert.equal(writingRequests.length,0,"creating a project is manual");
   const openSettings=()=>page.getByRole("button",{name:/Writing AI/}).click();
   await openSettings();
+  assert.equal(await editorLoaded(),true,"opening a project loads the editor");
   await dialog.getByRole("combobox").selectOption("gpt-6.2-sol");
   await dialog.getByRole("checkbox").first().check();
   for(const width of [390,820,1440]) {
@@ -126,11 +131,14 @@ try {
   const destination=page.locator(".story-script [aria-pressed]");
   const importFile=page.locator(".story-script input[type=file]");
   const content=Buffer.from(script);
+  const beforeDraft=seriesReads;
   await button("Draft with AI").click();
   await dialog.getByRole("textbox").fill("A traveller returns to the inn.");
   await dialog.getByRole("button",{name:"Generate draft"}).click();
   await page.waitForFunction(()=>document.querySelector(".story-script textarea")?.value==="A traveller returns at midnight.");
   assert.equal((await persisted()).chapterStory,"","AI prose stays editable until saved");
+  await page.locator("fieldset.story-layout:not([disabled])").waitFor();
+  assert.equal(seriesReads-beforeDraft,0,"an unsaved AI draft does not refetch the chapter list");
   await importFile.setInputFiles({name:"chapter.md",mimeType:"text/markdown",buffer:content});
   await page.waitForFunction(expected=>document.querySelector(".story-script textarea")?.value===expected,script);
   await importFile.setInputFiles({name:"invalid.png",mimeType:"image/png",buffer:content});
@@ -142,8 +150,11 @@ try {
   await destination.first().click();
   assert.equal(await prose.inputValue(),script,"returning to chapter preserves prose");
   const savedChapter=page.waitForResponse(r=>r.request().method()==="PATCH" && r.url().endsWith("/chapter"));
+  const beforeSave=seriesReads;
   await page.locator(".story-script textarea + .story-actions button").first().click();
   assert.ok((await savedChapter).ok());
+  await page.locator("fieldset.story-layout:not([disabled])").waitFor();
+  assert.equal(seriesReads-beforeSave,0,"saving uses the chapter list returned by the mutation");
   await page.reload();
   await page.waitForFunction(expected=>document.querySelector(".story-script textarea")?.value===expected,script);
   assert.equal((await persisted()).chapterStory,script);
@@ -266,6 +277,8 @@ try {
   await stages.getByRole("button",{name:/Script/}).click();
   assert.equal(await prose.inputValue(),"A full story about the travelling letter.");
   assert.deepEqual(writingRequests,["manuscript","scenes","scenes","shots"]);
+  await page.getByRole("link",{name:/projects/i}).click();
+  await page.locator(".story-projects a").filter({hasText:"Letters from the inn"}).waitFor();
   assert.deepEqual(failures,[]);
   console.log("Story & Shots: saved chapter, proposals, manual scene/shot, edit recovery, refresh and six viewport/locale combinations passed.");
 } catch(error) {

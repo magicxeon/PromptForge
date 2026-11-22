@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Settings2 } from "lucide-react";
+import { storyKeys } from "./data/storyQueryKeys";
 import { Dialog } from "../dub-sub/Dialog";
 import { ProcessingSpinner, useActor } from "../../lib/canonical";
 import { getCinematicProject, updateCinematicWritingSettings } from "../../../../web/src/features/cinematic/api/cinematicApi";
@@ -32,7 +33,7 @@ function SettingsDialog({project,catalog,close}:Omit<Props,"disabled"> & {close:
   const previous=base.writingSettings ?? defaults;
   const changed=draft.modelId!==previous.modelId || draft.skillIds.length!==previous.skillIds.length ||
     draft.skillIds.some(id=>!previous.skillIds.includes(id));
-  const cacheKey=["story-project",identityScope,project.id];
+  const cacheKey=storyKeys.project(identityScope,project.id);
   const save=useMutation({
     mutationFn:()=>updateCinematicWritingSettings(project.id,base.version,draft),
     onSuccess:updated=>{cache.setQueryData(cacheKey,updated);close();},

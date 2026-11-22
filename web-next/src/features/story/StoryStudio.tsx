@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Route, Routes, useNavigate } from "react-router-dom";
 import { ArrowRight, BookOpen, Feather, Plus } from "lucide-react";
@@ -8,28 +8,30 @@ import { Dialog } from "../dub-sub/Dialog";
 import { createCinematicProject, listCinematicProjectPage } from "../../../../web/src/features/cinematic/api/cinematicApi";
 import { createCinematicSetupDraft } from "../../../../web/src/features/cinematic/state/cinematicDraftStorage";
 import { registerCinematicWritingConsent, type WritingConsentRequest } from "../../../../web/src/features/cinematic/api/cinematicWritingBilling";
-import { StoryEditor } from "./StoryEditor";
+import { storyKeys } from "./data/storyQueryKeys";
 import settings from "./story-config.json";
 import "./story.css";
 import "./translations";
+
+const StoryEditor = lazy(() => import("./StoryEditor"));
 
 function Projects() {
   const { t } = useTranslation("story");
   const { identityScope } = useActor();
   const cache = useQueryClient(), navigate = useNavigate();
-  const projects = useInfiniteQuery({ queryKey:["story-library",identityScope],initialPageParam:undefined as string|undefined,
+  const projects = useInfiniteQuery({ queryKey:storyKeys.library(identityScope),initialPageParam:undefined as string|undefined,
     queryFn:({pageParam})=>listCinematicProjectPage(settings.projectsPerPage,pageParam),getNextPageParam:last=>last.nextCursor??undefined });
   const items=projects.data?.pages.flatMap(page=>page.items);
   const [name,setName] = useState(""), [creating,setCreating] = useState(false);
   const [busy,setBusy] = useState(false), [error,setError] = useState("");
-  const draft = useRef(createCinematicSetupDraft());
+  const [draft] = useState(() => createCinematicSetupDraft());
   async function create() {
     if (busy || !name.trim()) return;
     setBusy(true); setError("");
     try {
-      const result = await createCinematicProject({...draft.current,projectName:name.trim()});
-      cache.setQueryData(["story-project",identityScope,result.id],result);
-      await cache.invalidateQueries({queryKey:["story-library",identityScope]});
+      const result = await createCinematicProject({...draft,projectName:name.trim()});
+      cache.setQueryData(storyKeys.project(identityScope,result.id),result);
+      await cache.invalidateQueries({queryKey:storyKeys.library(identityScope),refetchType:"none"});
       navigate(result.id);
     } catch(e) {setError((e as Error).message);}
     finally {setBusy(false);}
@@ -75,5 +77,7 @@ function WritingConsent() {
 }
 
 export default function StoryStudio() {
-  return <><Routes><Route index element={<Projects/>}/><Route path=":id" element={<StoryEditor/>}/></Routes><WritingConsent/></>;
+  return <><Routes><Route index element={<Projects/>}/><Route path=":id" element={
+    <Suspense fallback={<ProcessingSpinner/>}><StoryEditor/></Suspense>
+  }/></Routes><WritingConsent/></>;
 }

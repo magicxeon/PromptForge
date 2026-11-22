@@ -4,7 +4,7 @@ import type {CinematicProject,CinematicScene,CinematicSceneProposal,CinematicSho
 import {applyCinematicSceneProposal,discardCinematicSceneProposal,applyCinematicShotProposal,discardCinematicShotProposal} from "../../../../web/src/features/cinematic/api/cinematicSeriesApi";
 import {Dialog} from "../dub-sub/Dialog";
 import {ProcessingSpinner} from "../../lib/canonical";
-import type {RunWriting} from "./StoryEditor";
+import type {RunWriting} from "./data/useStoryWorkspace";
 
 export function ProposalReview({project,scene,proposal,busy,error,run,close,onApplied}:{
   project:CinematicProject;scene?:CinematicScene;proposal:CinematicSceneProposal|CinematicShotProposal;
@@ -25,7 +25,7 @@ export function ProposalReview({project,scene,proposal,busy,error,run,close,onAp
   const submit=(apply:boolean)=>void run(async()=>{
     const result=shot?await (apply?applyCinematicShotProposal:discardCinematicShotProposal)(project.id,proposal.sceneId,proposal.id,project.version)
       :await (apply?applyCinematicSceneProposal:discardCinematicSceneProposal)(project.id,proposal.id,project.version);
-    if(apply)onApplied();else close();return result.project;
+    if(apply)onApplied();else close();return result;
   });
   return <Dialog label={title} onClose={()=>{if(!busy)close();}}>
     <div className="story-review"><header className="story-bar"><h2>{title} · {scene?.title||project.chapterTitle||project.title}</h2>
