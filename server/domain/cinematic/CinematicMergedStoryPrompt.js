@@ -3,7 +3,7 @@ import templates from '../../config/cinematic/story-shot-templates.v1.json' with
 import {resolveWritingPreferences, storySpokenLanguage} from '../../config/storyWritingSettings.js';
 import {projectVideoDirection} from './CinematicProjectVideoDirection.js';
 import {compileCinematicShotDocument, parseDialogueClock} from './CinematicShotDocumentCompiler.js';
-import {storyPromptPeople, storyPromptReferences, storyReferenceText} from './CinematicStoryPromptPacket.js';
+import {storyPromptPeople, storyPromptReferences, storyVideoFrameDirection, storyVideoReferenceMapping} from './CinematicStoryPromptPacket.js';
 
 const lines = (...values) => values.filter(Boolean).join('\n');
 const seconds = ms => ms / 1000;
@@ -102,7 +102,7 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     }
     fields.SCENE.push(scoped(part.scene));
     fields.CAMERA.push(scoped(part.camera));
-    fields['PRESERVE EXACTLY'].push(scoped(part.continuity));
+    fields.CONTINUITY.push(scoped(part.continuity));
     const events = part.timeline.map(event => ({ms:startMs + event.startMs,
       text:`${span(startMs + event.startMs, startMs + event.endMs)} — ${event.description}`}));
     for (const cue of part.cues) {
@@ -125,10 +125,9 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     findings.push(...part.findings.map(finding => ({...finding,shotId:shot.id})));
   }
   const frame = references.some(ref => ref.role === 'opening');
-  const header = template === 'flow' ? templates.flow.opening : lines(
-    references.length && `[REFERENCE NOTE]\n${templates.seedance.referenceNote}`,
-    frame ? templates.seedance.withFrame : templates.seedance.withoutFrame);
-  fields['PRESERVE EXACTLY'].unshift(storyReferenceText(references), templates.video.preserve);
+  const header = storyVideoFrameDirection(template, frame);
+  fields['REFERENCE MAPPING'].push(storyVideoReferenceMapping(references));
+  fields.CONTINUITY.unshift(templates.video.continuity);
   fields.PERFORMANCE.push(templates.video.performance);
   fields.VOICE.unshift(`Spoken language: ${spokenLanguage}.`, 'Speak only the supplied dialogue. Preserve the pauses between cues.');
   fields.AUDIO.push('No music.');

@@ -441,6 +441,17 @@ test('Story prompt variants survive a reload independently and only save against
   });
   await repository.mutateForActor(project.id, actor, record => {
     record.scenes[0].approvedEnvironmentSource = {assetId:'harbour-image', imageUrl:'/example/harbour.png'};
+    record.scenes[0].shots[0].shotDocument += '\nCONTINUITY AND CONSTRAINTS\nHold the flashlight in the right hand.';
+    return record;
+  });
+  const locationOnly = await packet('seedance');
+  assert.deepEqual(locationOnly.references.map(ref=>ref.role), ['location']);
+  assert.match(locationOnly.text, /Compose a new opening view from the starting state/);
+  assert.match(locationOnly.text, /Compose the closing frame from the final action and end state/);
+  assert.match(locationOnly.text, /\[REFERENCE MAPPING\]\n[^\n]+\nReference 1 — Harbour: set geometry, materials and light direction\./);
+  assert.match(locationOnly.text, /\[CONTINUITY\]\n[^\n]+\nHold the flashlight in the right hand/);
+  assert.doesNotMatch(locationOnly.text, /exact opening frame|\[PRESERVE EXACTLY\]/i);
+  await repository.mutateForActor(project.id, actor, record => {
     record.scenes[0].shots[0].approvedStoryboardSource = {assetId:'opening-image', imageUrl:'/example/opening.png'};
     return record;
   });
@@ -448,9 +459,13 @@ test('Story prompt variants survive a reload independently and only save against
   assert.equal(framed.ready,true);
   assert.deepEqual(framed.references.map(({number,role,assetId})=>[number,role,assetId]),
     [[1,'opening','opening-image'], [2,'location','harbour-image']]);
-  assert.equal((framed.text.match(/^\[(?!WRITING DIRECTION\])[A-Z ]+\]$/gm)||[]).length,11);
+  assert.equal((framed.text.match(/^\[(?!WRITING DIRECTION\])[A-Z ]+\]$/gm)||[]).length,12);
   assert.doesNotMatch(framed.text, /\[REFERENCE NOTE\]/);
-  assert.deepEqual((await packet('still')).references.map(ref=>ref.role),['location']);
+  assert.match(framed.text, /Use the supplied image as the EXACT opening frame/);
+  assert.match(framed.text, /Reference 1 — [^\n]+: opening frame, pose and framing\./);
+  const stillWithReference = await packet('still');
+  assert.deepEqual(stillWithReference.references.map(ref=>ref.role),['location']);
+  assert.match(stillWithReference.text, /\[PRESERVE\]/);
   const stored = await save(second, framed, 'Start from Reference 1.');
   assert.deepEqual(stored.shot.storyPromptVariants.flow.references,
     framed.references.map(({number,name,role,assetId})=>({number,name,role,assetId})));

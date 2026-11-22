@@ -65,6 +65,7 @@ test('one ordered 3/4/3 timeline retains cue ranges, timed pauses, cuts, speakin
 test('omitting the middle Shot compresses time, and later frames cannot satisfy Flow readiness', () => {
   const {scene,project,shots} = fixture();
   delete shots[0].approvedStoryboardSource;
+  shots[2].shotDocument += '\nCONTINUITY AND CONSTRAINTS\nKeep the flashlight in the right hand.';
   const result = compileMergedStoryPrompt(project,scene,['s3','s1'],'flow');
   assert.equal(result.ready,false);
   assert.match(result.text,/Duration: 6 seconds/);
@@ -75,7 +76,13 @@ test('omitting the middle Shot compresses time, and later frames cannot satisfy 
   const seedance = compileMergedStoryPrompt(project,scene,['s1','s3'],'seedance');
   assert.equal(seedance.ready,true);
   assert.match(seedance.text,/Compose a new opening view/);
+  assert.match(seedance.text,/Compose the closing frame from the final action and end state/);
+  assert.match(seedance.text,/\[REFERENCE MAPPING\]\n[^\n]+\nReference 1 — Station: set geometry, materials and light direction\.\nReference 2 — Kai: this character’s face, hair and wardrobe\./);
+  assert.match(seedance.text,/Never insert them as frames unless explicitly assigned the opening-frame role/);
+  assert.match(seedance.text,/\[CONTINUITY\]\n[^\n]+\n3–6s — Keep the flashlight in the right hand/);
+  assert.doesNotMatch(seedance.text,/exact opening frame|\[PRESERVE EXACTLY\]/i);
   assert.equal(compileMergedStoryPrompt(project,scene,['s3','s2'],'flow').references[0].assetId,'frame1');
+  assert.match(compileMergedStoryPrompt(project,scene,['s3','s2'],'seedance').text,/Use Reference 1 as the exact opening frame/);
 });
 
 test('legacy structured timelines, fractions, offscreen dialogue and audio retain their source timing', () => {

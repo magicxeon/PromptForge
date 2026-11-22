@@ -2,8 +2,9 @@ import templates from '../../config/cinematic/story-shot-templates.v1.json' with
 
 const templateLines = new Set(Object.values(templates).flatMap(group =>
   Object.values(group).filter(value => typeof value === 'string')));
-const headings = new Set([...templates.video.sections, ...templates.still.sections, 'REFERENCE NOTE',
-  'WRITING DIRECTION','DIALOGUE','PERFORMANCE','CHARACTERS','ACTION','CONTINUITY','OPENING']);
+const headings = new Set([...templates.video.sections, ...templates.still.sections,
+  'REFERENCE NOTE','PRESERVE EXACTLY','WRITING DIRECTION','DIALOGUE','PERFORMANCE','CHARACTERS','ACTION','OPENING']);
+const referenceRoleSuffixes = Object.values(templates.referenceRoles).map(role => `: ${role}.`);
 
 // Keep template layout and cue boundaries in code. The writer translates only the text slots.
 export function planStoryPromptLanguage(text, cues, findings = []) {
@@ -30,6 +31,13 @@ export function planStoryPromptLanguage(text, cues, findings = []) {
     const prefix = line.match(/^(?:\[[\d:s.\s–-]+\]\s*|(?:\d+(?:\.\d+)?[–-]\d+(?:\.\d+)?s — )|Reference \d+ — |(?:- )?Character \d+: |Duration: [\d.]+ seconds\.\s*|Starting state: )/)?.[0] || '';
     parts.push(prefix);
     const body = line.slice(prefix.length);
+    const referenceRole = section === 'REFERENCE MAPPING' && prefix.startsWith('Reference ')
+      && referenceRoleSuffixes.find(role => body.endsWith(role));
+    if (referenceRole) {
+      slot(body.slice(0, -referenceRole.length), 'direction');
+      parts.push(referenceRole);
+      continue;
+    }
     const spoken = section === 'ACTION TIMELINE' && body.match(/^(.+?): “(.+)”$/u);
     const legacy = section === 'DIALOGUE' && body.match(/^(.+?): (.+)$/u);
     const unbound = section === 'PERFORMANCE' && body.match(/^([^:()]+?)(\s*\([^)]*\))?:\s*(.+)$/u);

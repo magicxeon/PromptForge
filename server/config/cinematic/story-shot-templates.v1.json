@@ -6,19 +6,26 @@
     "avoid": "Avoid duplicated props, mismatched perspective and unreadable silhouettes."
   },
   "video": {
-    "sections": ["PRESERVE EXACTLY", "CHARACTER IDENTIFICATION", "SCENE", "CAMERA", "ACTION TIMELINE", "PERFORMANCE", "VOICE", "AUDIO", "LIGHTING", "ENVIRONMENT MOVEMENT", "NEGATIVE"],
-    "preserve": "Preserve spatial relationships, fixed landmarks, wardrobe, prop contact and screen direction.",
+    "sections": ["REFERENCE MAPPING", "CONTINUITY", "CHARACTER IDENTIFICATION", "SCENE", "CAMERA", "ACTION TIMELINE", "PERFORMANCE", "VOICE", "AUDIO", "LIGHTING", "ENVIRONMENT MOVEMENT", "NEGATIVE"],
+    "referenceNote": "Use each reference only for its listed role.",
+    "visualReferences": "Use location and character entries as visual guidance only. Never insert them as frames unless explicitly assigned the opening-frame role.",
+    "withoutOpening": "Compose a new opening view from the starting state.",
+    "closing": "Compose the closing frame from the final action and end state.",
+    "continuity": "Preserve spatial relationships, fixed landmarks, wardrobe, prop contact and screen direction.",
     "performance": "Give the listener a visible response to the action or the key spoken phrase.",
     "environmentMovement": "Keep fixed landmarks steady. Limit background movement to physical responses motivated by the scene.",
     "negative": "Avoid reversed eyelines, an early reaction and duplicated props. No subtitles or interface elements."
+  },
+  "referenceRoles": {
+    "opening": "opening frame, pose and framing",
+    "location": "set geometry, materials and light direction",
+    "character": "this character’s face, hair and wardrobe"
   },
   "flow": {
     "opening": "Use the supplied image as the EXACT opening frame.",
     "camera": "One continuous take."
   },
   "seedance": {
-    "withFrame": "Use Reference 1 as the exact opening frame.",
-    "withoutFrame": "Compose a new opening view from the starting state.",
-    "referenceNote": "Follow each supplied reference only for its assigned role."
+    "withFrame": "Use Reference 1 as the exact opening frame."
   }
 }

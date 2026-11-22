@@ -32,11 +32,19 @@ export function storyPromptReferences(scene, shot, people, includeOpening) {
   return references;
 }
 
-export function storyReferenceText(references) {
-  return references.map(ref => `Reference ${ref.number} — ${ref.name}: ${{
-    opening: 'opening frame, pose and framing', location: 'set geometry, materials and light direction',
-    character: 'this character’s face, hair and wardrobe'
-  }[ref.role]}.`).join('\n');
+function storyReferenceText(references) {
+  return references.map(ref => `Reference ${ref.number} — ${ref.name}: ${templates.referenceRoles[ref.role]}.`).join('\n');
+}
+
+export function storyVideoReferenceMapping(references) {
+  if (!references.length) return '';
+  return joined(templates.video.referenceNote, storyReferenceText(references),
+    references.some(ref => ref.role === 'location' || ref.role === 'character') && templates.video.visualReferences);
+}
+
+export function storyVideoFrameDirection(kind, hasOpeningFrame) {
+  const opening = kind === 'flow' ? templates.flow.opening : templates.seedance.withFrame;
+  return joined(hasOpeningFrame ? opening : templates.video.withoutOpening, templates.video.closing);
 }
 
 // A portable authoring packet describes the exact ordered files the user should attach externally.
@@ -45,7 +53,6 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
   if (!storyPromptKind(kind)) throw new TypeError('Unknown story prompt template');
   const people = storyPromptPeople(project, scene, shot);
   const references = storyPromptReferences(scene, shot, people, kind !== 'still');
-  const referenceText = storyReferenceText(references);
   const characters = people.map(({person, visible}, i) =>
     `Character ${i + 1}: ${person.displayName}. ${person.storyRole || ''} ${visible ? '' : 'Voice only, off-screen.'}`.trim()).join('\n');
   const {sections, opening, timeline, dialogue} = prepared;
@@ -65,7 +72,7 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
       SUBJECT: joined(sections.opening || shot.continuityEntry || shot.visibleMoment || shot.blocking || sections.scene?.split('\n')[0],
         people.filter(p => p.visible).map(p => p.person.displayName).join(', ')) || scene.synopsis || shot.title,
       CAMERA: camera || 'Keep the focal subject clear and leave space for the intended movement.',
-      LIGHT: light, 'MATERIAL AND CONTACT': templates.still.material, PRESERVE: referenceText, AVOID: templates.still.avoid
+      LIGHT: light, 'MATERIAL AND CONTACT': templates.still.material, PRESERVE: storyReferenceText(references), AVOID: templates.still.avoid
     };
     prompt = [templates.still.opening, aspect, ...templates.still.sections.map(title => block(title, fields[title]))];
   } else {
@@ -80,7 +87,8 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
       events.push({time:cue.startOffsetMs, text:`${clock}${speaker || 'Speaker'}: “${cue.text}”`});
     }
     const fields = {
-      'PRESERVE EXACTLY': joined(referenceText, templates.video.preserve, sections.continuity),
+      'REFERENCE MAPPING': storyVideoReferenceMapping(references),
+      CONTINUITY: joined(templates.video.continuity, sections.continuity),
       'CHARACTER IDENTIFICATION': characters || 'No assigned characters. Preserve the subjects described in the scene.',
       SCENE: location || shot.title,
       CAMERA: joined(sections.camera || joined(camera, shot.cameraMovement), shot.gaze) || 'Keep the focal action readable.',
@@ -91,9 +99,7 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
       AUDIO: joined(scene.audioIntent, sections.audio || shot.audioIntent || (!scene.audioIntent && 'Keep location ambience low.'), 'No music.'),
       LIGHTING: light, 'ENVIRONMENT MOVEMENT': templates.video.environmentMovement, NEGATIVE: templates.video.negative
     };
-    const header = kind === 'flow' ? joined(templates.flow.opening, templates.flow.camera)
-      : joined(references.length && block('REFERENCE NOTE', templates.seedance.referenceNote),
-        frame ? templates.seedance.withFrame : templates.seedance.withoutFrame);
+    const header = joined(storyVideoFrameDirection(kind, frame), kind === 'flow' && templates.flow.camera);
     prompt = [header, `Duration: ${duration} seconds. ${aspect || ''}`.trim(),
       start && `Starting state: ${start}`, ...templates.video.sections.map(title => block(title, fields[title])),
       projectVideoDirection(project), kind === 'seedance' && aspect];

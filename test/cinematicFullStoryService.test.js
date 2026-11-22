@@ -41,11 +41,13 @@ test('a Thai setting keeps English directions while only the dialogue follows th
         ? source : translations[source] || source})).reverse()
     })})
   });
-  const source = '[SCENE]\nตลาดน้ำ\n\n[ACTION TIMELINE]\n[1.5s] มะลิ: “เจอกันพรุ่งนี้”';
+  const source = '[REFERENCE MAPPING]\nReference 1 — ตลาดน้ำ: set geometry, materials and light direction.\n\n'
+    + '[SCENE]\nตลาดน้ำ\n\n[ACTION TIMELINE]\n[1.5s] มะลิ: “เจอกันพรุ่งนี้”';
   for (const spokenLanguage of ['Thai','English']) {
     const settings={modelId:null,skillIds:[],direction:{...storyDirection.defaults,country:'thailand',spokenLanguage}};
     const {text}=await service.translateStoryPrompt(source,[],settings);
-    assert.equal(text,'[SCENE]\nfloating market\n\n[ACTION TIMELINE]\n[1.5s] Mali: “'+
+    assert.equal(text,'[REFERENCE MAPPING]\nReference 1 — floating market: set geometry, materials and light direction.\n\n'
+      + '[SCENE]\nfloating market\n\n[ACTION TIMELINE]\n[1.5s] Mali: “'+
       (spokenLanguage==='Thai'?'เจอกันพรุ่งนี้':'See you tomorrow.')+'”');
     await assert.rejects(service.translateStoryPrompt('[CAMERA]\nเคลื่อนกล้องช้า ๆ',[],settings),
       {code:'cinematic_prompt_translation_invalid'});
