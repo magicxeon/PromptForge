@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import {cleanup, fireEvent, render, screen, waitFor} from "@testing-library/react";
+import {cleanup, fireEvent, render, screen, waitFor, within} from "@testing-library/react";
 import {afterEach, expect, it, vi} from "vitest";
 import type {CinematicProject} from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {FullStoryPlan} from "./FullStoryPlan";
@@ -58,7 +58,11 @@ it("uses the confirmed full story revision for the outline and applies only the 
   series.discardCinematicChapterProposal.mockResolvedValue({project:confirmed,workspace:{chapters:[]}});
   fireEvent.click(screen.getByText("discardChapters"));
   await waitFor(()=>expect(series.discardCinematicChapterProposal).toHaveBeenCalledWith("project","proposal"));
-  page.rerender(view({...confirmed,chapterProposals:[{...proposal,status:"applied",appliedProjectIds:["chapter-1"]}]}));
-  fireEvent.click(screen.getByText("openChapter"));
+  page.rerender(view({...confirmed,chapterOutline:{...outline,status:"approved"},
+    chapterProposals:[{...proposal,status:"applied",appliedProjectIds:["chapter-1"]}]}));
+  const saved = screen.getByRole("region",{name:"savedChapters"});
+  expect(within(saved).queryByRole("button",{name:"writeChapters"})).toBeNull();
+  fireEvent.click(within(saved).getByRole("button",{name:"openChapter"}));
   expect(open).toHaveBeenCalledWith("chapter-1");
+  expect(api.generateCinematicFullStoryChapters).toHaveBeenCalledTimes(1);
 });

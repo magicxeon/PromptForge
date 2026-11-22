@@ -5,9 +5,12 @@
   "proposeOutline": "เสนอการแบ่งตอน",
   "approveOutline": "ใช้โครงตอนนี้",
   "discardOutline": "ทิ้งโครงที่เสนอ",
-  "writeChapters": "เขียนบทตอนจากโครงนี้",
+  "writeChapters": "ให้ AI ร่างบททุกตอน",
+  "writeChaptersHint": "AI จะเขียนบทจากโครงด้านบน ให้คุณตรวจและยืนยันก่อนนำไปใช้",
   "reviewChapters": "ตรวจบทตอนที่เสนอ",
   "applyChapters": "ใช้บทตอนทั้งชุด",
   "discardChapters": "ทิ้งบทตอนที่เสนอ",
-  "openChapter": "เปิดตอน {{name}}"
+  "savedChapters": "บทตอนที่บันทึกแล้ว",
+  "openScript": "เปิดบท",
+  "openChapter": "เปิดบทตอน {{name}}"
 }

@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { ChevronRight, Sparkles } from "lucide-react";
 import type { RunWriting } from "./data/useStoryWorkspace";
 import type { CinematicProject } from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {
@@ -31,7 +32,7 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
         : (action === "apply" ? applyCinematicChapterProposal : discardCinematicChapterProposal)(project.id, pending!.id);
     }, action === "generate" ? "chapters" : undefined);
   }
-  return <section className="story-panel" aria-label={t("heading")}>
+  return <section className="story-panel story-chapter-plan" aria-label={t("heading")}>
     <h2>{t("heading")}</h2>
     {!confirmed && <button onClick={() => void run(async () => ({project: await confirmCinematicFullStoryRevision(project.id, project.version, revision.id)}))}>
       {t("confirmRevision",{version:revision.version})}</button>}
@@ -40,7 +41,7 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
       <button onClick={() => void run(async () => ({project: await proposeCinematicChapterOutline(project.id, project.version)}), "outline")}>{t("proposeOutline")}</button>
     </>}
     {confirmed && current && plan && !pending && <>
-      <ol>{plan.chapters.map((row,i) => <li key={i}><strong>{row.title}</strong><p>{row.synopsis}</p></li>)}</ol>
+      <ol className="story-chapter-outline">{plan.chapters.map((row,i) => <li key={i}><strong>{row.title}</strong><p>{row.synopsis}</p></li>)}</ol>
       {plan.status === "proposed" ? <div className="story-actions">
         {(["approve","discard"] as const).map(action => <button key={action} onClick={() => void run(async () => ({
           project: await reviewCinematicChapterOutline(project.id,{
@@ -50,7 +51,12 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
             ...(action === "approve" ? {chapters:plan.chapters} : {})
           })
         }))}>{t(action+"Outline")}</button>)}
-      </div> : <button onClick={() => void generateOrReview("generate")}>{t("writeChapters")}</button>}
+      </div> : <div className="story-chapter-draft-action">
+        <button type="button" className="primary-button" onClick={() => void generateOrReview("generate")}>
+          <Sparkles size={16} aria-hidden/>{t("writeChapters")}
+        </button>
+        <p>{t("writeChaptersHint")}</p>
+      </div>}
     </>}
     {pending && <>
       <h3>{t("reviewChapters")}</h3>
@@ -61,7 +67,15 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
         <button onClick={() => void generateOrReview("discard")}>{t("discardChapters")}</button>
       </div>
     </>}
-    {applied?.appliedProjectIds?.map((id,i) => <button key={id} onClick={() => goChapter(id)}>
-      {t("openChapter",{name:applied.chapters[i]?.title || i+1})}</button>)}
+    {!!applied?.appliedProjectIds?.length && <section className="story-saved-chapters" aria-label={t("savedChapters")}>
+      <h3>{t("savedChapters")}</h3>
+      <ul>{applied.appliedProjectIds.map((id,index) => {
+        const title = applied.chapters[index]?.title || String(index+1);
+        return <li key={id}><button type="button" aria-label={t("openChapter",{name:title})} onClick={() => goChapter(id)}>
+          <span>{title}</span>
+          <span className="story-open-chapter">{t("openScript")}<ChevronRight size={15} aria-hidden/></span>
+        </button></li>;
+      })}</ul>
+    </section>}
   </section>;
 }

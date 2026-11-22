@@ -18,6 +18,22 @@
 .story-index small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .story-index button[aria-current],.story-actions button[aria-pressed=true] { background: #e9f3ed; border-color: #3e795e; }
 .story-reader,.story-script,.story-dialog fieldset { display: grid; gap: .8rem; }
+.story-chapter-outline {display:grid;gap:.8rem;margin-block:.8rem 1rem;padding-inline-start:1.5rem;}
+.story-chapter-outline p {margin:.2rem 0 0;}
+.story-chapter-draft-action {display:flex;flex-wrap:wrap;align-items:center;gap:.45rem .8rem;}
+.story-chapter-draft-action p {margin:0;color:#475c50;}
+.story-saved-chapters {margin-top:1.2rem;padding-top:.75rem;border-top:1px solid #d4dfd7;}
+.story-saved-chapters ul {list-style:none;display:grid;gap:.4rem;margin:.55rem 0 0;padding:0;}
+.story-saved-chapters button {
+  width:100%;
+  justify-content:space-between;
+  gap:1rem;
+  min-height:3.15rem;
+  text-align:start;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.story-open-chapter {display:flex;flex:none;align-items:center;gap:.25rem;color:#436457;font-weight:500;}
 .story-reader label,.story-dialog label { display: grid; gap: .35rem; }
 .story-reader textarea,.story-dialog textarea,.story-expanded textarea { width: 100%; line-height: 1.65; }
 .story-prose { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }

@@ -5,9 +5,12 @@
   "proposeOutline": "Propose chapter outline",
   "approveOutline": "Use this outline",
   "discardOutline": "Discard proposed outline",
-  "writeChapters": "Write chapters from this outline",
+  "writeChapters": "Draft all chapters with AI",
+  "writeChaptersHint": "AI drafts scripts from the outline above. Review and confirm the drafts to use them.",
   "reviewChapters": "Review proposed chapters",
   "applyChapters": "Use this set of chapters",
   "discardChapters": "Discard proposed chapters",
-  "openChapter": "Open chapter {{name}}"
+  "savedChapters": "Saved chapter scripts",
+  "openScript": "Open script",
+  "openChapter": "Open script for {{name}}"
 }

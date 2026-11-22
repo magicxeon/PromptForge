@@ -751,6 +751,48 @@ try {
       if (width === 390) assert.ok(layout.pickerAboveActions,"the episode picker has its own row on mobile");
     }
   }
+  await page.route(`**/api/cinematic/projects/${projectId}`, async route=>{
+    const response = await route.fetch();
+    const project = await response.json();
+    const {setup,writingSettings,activeFullStoryVersionId} = project;
+    const savedAt = "2026-11-22T12:00:00.000Z";
+    const title = "ตามหาแมวในคืนที่ฝนตก และจดหมายที่ไม่มีชื่อผู้ส่ง";
+    project.confirmedFullStoryVersionId = activeFullStoryVersionId;
+    project.chapterOutline = {
+      id:"layout-outline",sourceRevisionId:activeFullStoryVersionId,sourceKey:"layout",status:"approved",
+      settings:{format:setup.format,storyFormat:writingSettings.direction?.format,
+        durationSeconds:writingSettings.direction?.targetSeconds ?? setup.durationSeconds,
+        seasonEnabled:setup.seasonEnabled,seasonCount:setup.seasonEnabled?setup.seasonCount:1},
+      chapters:[{title,synopsis:"Search for the owner of the letter.",seasonNumber:1}],
+      rationale:"",warnings:[],createdAt:savedAt
+    };
+    project.chapterProposals = [{
+      id:"layout-chapters",providerProposalId:"fixture",scope:"all",status:"applied",
+      sourceFullStoryRevisionId:activeFullStoryVersionId,targetProjectId:projectId,instruction:"",
+      baseChapterVersions:[],chapters:[{projectId,order:1,title,story:"The search begins."}],
+      warnings:[],provenance:null,createdAt:savedAt,appliedAt:savedAt,discardedAt:null,appliedProjectIds:[projectId]
+    }];
+    await route.fulfill({response,json:project});
+  });
+  await page.goto(projectUrl+"?step=chapters");
+  for (const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    for (const language of ["th","en"]) {
+      await page.locator(".header-actions select").selectOption(language);
+      const plan = page.locator(".story-chapter-plan");
+      const draft = plan.getByRole("button",{name:language==="th"?"ให้ AI ร่างบททุกตอน":"Draft all chapters with AI"});
+      const saved = plan.getByRole("region",{name:language==="th"?"บทตอนที่บันทึกแล้ว":"Saved chapter scripts"});
+      await draft.waitFor();
+      assert.ok(await saved.getByRole("button").isVisible());
+      assert.ok(await plan.evaluate(el=>el.scrollWidth<=el.clientWidth+1 &&
+        el.querySelector(".story-chapter-draft-action").getBoundingClientRect().bottom <
+        el.querySelector(".story-saved-chapters").getBoundingClientRect().top));
+    }
+  }
+  const writingCount = writes.length;
+  await page.getByRole("region",{name:"Saved chapter scripts"}).getByRole("button").click();
+  await page.locator(".story-script").waitFor();
+  assert.equal(writes.length,writingCount,"opening the saved script does not submit writing work");
   assert.deepEqual(failures,[]);
   console.log("Story & Shots: authoring, saved prompts, merged shot selection, retry, opening frame, persistence, stale sources and responsive checks passed.");
 } catch(error) {
