@@ -9,6 +9,7 @@ import { createServer } from "vite";
 import { CinematicApplicationService } from "../../server/domain/cinematic/CinematicApplicationService.js";
 import { CinematicProjectRepository } from "../../server/repositories/cinematic/CinematicProjectRepository.js";
 import { registerCinematicRoutes } from "../../server/app/routes/cinematicRoutes.js";
+import { ReferenceAssetService } from "../../server/domain/assets/ReferenceAssetService.js";
 
 const actor = {userId:"story-fixture", username:"story-fixture", displayName:"Story fixture",
   role:"admin", accountStatus:"active", authMode:"development_bypass"};
@@ -16,15 +17,31 @@ const script = "แขกเข้ามาถึงโรงเตี๊ยม 
 const dialogue = "หญิงเจ้าของร้าน: จดหมายฉบับนี้เดินทางมาไกลนัก เก็บมันไว้ให้ดีนะ\nTraveller: I shall protect it.";
 const directory = await fs.mkdtemp(path.join(os.tmpdir(),"mpf-story-authoring-"));
 const projects = new CinematicProjectRepository({projectsFile:path.join(directory,"projects.json")});
+const assets = new Map();
+const assetRepository = {
+  async create(input, owner) {
+    const asset = {...input, id: crypto.randomUUID(), status:"active", ownerUserId:owner.userId};
+    assets.set(asset.id, asset);
+    return asset;
+  },
+  async findByIdForOwner(id, owner) {
+    const asset = assets.get(id);
+    return asset?.ownerUserId === owner ? asset : null;
+  },
+};
+const references = new ReferenceAssetService({repository: assetRepository, outputsDirectory: directory});
 const writingRequests = [];
 const proposedScenes = ["Inn at twilight","Letter at sunrise"];
 const proposedShot = "Breaking the seal";
+let releaseDraft;
+const draftGate = new Promise(resolve => {releaseDraft=resolve;});
 const service = new CinematicApplicationService({
-  repository:projects, videoGenerationService:{},
+  repository:projects, videoGenerationService:{}, assetRepository,
   fullStoryService:{
     async propose(input) {
       assert.equal(input.revisionInstruction,"A traveller returns to the inn.");
       writingRequests.push("manuscript");
+      await draftGate;
       return {proposalId:"fixture-prose",fullStory:"A traveller returns at midnight.",characters:[],warnings:[],
         provenance:{provider:"fixture",model:"fixture",responseId:null},billingStatus:"free"};
     },
@@ -41,7 +58,8 @@ const service = new CinematicApplicationService({
 // Expose only fixture-backed read and authoring actions. Any attempted media generation fails locally.
 const permitted = ["listProjects","createProject","getProject","getSeriesWorkspace","getAuthoringManifest",
   "proposeFullStory","updateWritingSettings","updateSeriesChapter","saveFullStoryRevision","confirmFullStoryRevision","createManualScene","updateSceneOutline","createManualShot","updateShotDocument",
-  "applySceneProposal","discardSceneProposal","applyShotProposal","discardShotProposal"];
+  "applySceneProposal","discardSceneProposal","applyShotProposal","discardShotProposal","upsertSharedCharacterDossier",
+  "prepareShotWriter","setChapterCharacters"];
 const facade = Object.fromEntries(permitted.map(key=>[key,service[key].bind(service)]));
 facade.quoteWriting = async (_project,{operation})=>({id:null,operation,credits:0,expiresAt:null,billingStatus:"free"});
 facade.executeWriting = async (id,{operation,sceneId,input},owner)=>{
@@ -68,6 +86,11 @@ app.get("/api/auth/config",(_req,res)=>res.json({contractVersion:1,authMode:acto
 app.get("/api/me",(_req,res)=>res.json(actor));
 app.get("/api/web-next/config",(_req,res)=>res.json({creditsEnabled:false}));
 registerCinematicRoutes(app,{cinematicService:facade});
+app.post("/api/references",async (req,res)=>{
+  try {res.json(await references.storeReference(req.body,actor));}
+  catch (error) {res.status(error.statusCode || 500).json({error:error.message});}
+});
+app.use("/outputs",express.static(directory));
 app.use("/api",(_req,res)=>res.status(404).json({error:"Offline fixture endpoint"}));
 const vite=await createServer({root:"web-next",cacheDir:path.join(directory,"vite-cache"),configFile:false,
   server:{middlewareMode:true,hmr:false,fs:{allow:[process.cwd()]}}, logLevel:"warn"});
@@ -133,8 +156,15 @@ try {
   const content=Buffer.from(script);
   const beforeDraft=seriesReads;
   await button("Draft with AI").click();
+  assert.match(await dialog.innerText(),/Writing skills · Story structure/);
   await dialog.getByRole("textbox").fill("A traveller returns to the inn.");
   await dialog.getByRole("button",{name:"Generate draft"}).click();
+  const progress=page.getByRole("dialog",{name:"AI is drafting the script…"});
+  await progress.waitFor();
+  await page.emulateMedia({reducedMotion:"reduce"});
+  assert.equal(await progress.locator("svg.lucide-pen-line").evaluate(node=>getComputedStyle(node).animationName),"none");
+  await page.emulateMedia({reducedMotion:"no-preference"});
+  releaseDraft();
   await page.waitForFunction(()=>document.querySelector(".story-script textarea")?.value==="A traveller returns at midnight.");
   assert.equal((await persisted()).chapterStory,"","AI prose stays editable until saved");
   await page.locator("fieldset.story-layout:not([disabled])").waitFor();
@@ -203,6 +233,13 @@ try {
   await dialog.getByText(proposedShot,{exact:false}).first().waitFor();
   assert.equal(writingRequests.filter(r=>r==="shots").length,1,"reviewing a saved proposal does not submit again");
   await acceptSet();
+  await button("Shot prompt for "+proposedShot).click();
+  await dialog.getByRole("button",{name:"Build prompt"}).click();
+  await dialog.getByLabel("Prompt text").waitFor();
+  assert.match(await dialog.getByLabel("Prompt text").inputValue(), /4.5-second/);
+  assert.equal(await dialog.getByText("This shot has no selected characters.").count(),1);
+  await page.keyboard.press("Escape");
+  await page.getByRole("dialog",{name:"Save your edits before leaving?"}).getByRole("button",{name:"Discard edits"}).click();
   const shotRow=page.locator(".story-shots button").filter({hasText:proposedShot});
   await shotRow.focus();
   await page.keyboard.press("Enter");
@@ -276,16 +313,86 @@ try {
   assert.match(await stages.locator("[aria-current=step]").innerText(),/Chapter plan/);
   await stages.getByRole("button",{name:/Script/}).click();
   assert.equal(await prose.inputValue(),"A full story about the travelling letter.");
+  await button("Characters").click();
+  const reference = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aKw0AAAAASUVORK5CYII=", "base64");
+  for (const [name, role] of [["Lalin","Innkeeper"],["Kin","Traveller"]]) {
+    await button("Add character").click();
+    await dialog.getByLabel("Name",{exact:true}).fill(name);
+    await dialog.getByLabel("Role in the story").fill(role);
+    await dialog.getByLabel("Reference image").setInputFiles({name:"reference.png",mimeType:"image/png",buffer:reference});
+    await dialog.getByRole("button",{name:"Save character"}).click();
+    await dialog.waitFor({state:"hidden"});
+  }
+  await page.reload();
+  await page.locator(".story-character-list li img").last().waitFor();
+  const characterRecords = (await persisted()).castAssignments;
+  assert.equal(new Set(characterRecords.map(record=>record.storyReference.assetId)).size,2);
+  await stages.getByRole("button",{name:/Scenes/}).click();
+  await secondScene.click();
+  await button("Edit scene").click();
+  await dialog.getByText("Characters in this scene",{exact:true}).click();
+  await dialog.getByRole("checkbox",{name:/Lalin/}).check();
+  await dialog.getByRole("checkbox",{name:/Kin/}).check();
+  await dialog.getByRole("button",{name:"Save scene"}).click();
+  await dialog.waitFor({state:"hidden"});
+  await shotRow.click();
+  await dialog.locator("fieldset details").first().locator("summary").click();
+  for (const name of ["Lalin","Kin"]) {
+    const selected = dialog.getByRole("checkbox",{name:new RegExp(name)});
+    if (!(await selected.isChecked())) await selected.check();
+  }
+  const saveShot = dialog.getByRole("button",{name:"Save shot"});
+  if (await saveShot.isEnabled()) await saveShot.click();
+  else await dialog.getByRole("button",{name:"Close",exact:true}).click();
+  await dialog.waitFor({state:"hidden"});
+  await button("Shot prompt for "+proposedShot).click();
+  await dialog.getByText("Innkeeper",{exact:true}).waitFor();
+  await dialog.locator(".story-character-list img").last().waitFor();
+  for (const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    assert.ok(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth+1 && el.getBoundingClientRect().right<=innerWidth));
+  }
+  await dialog.getByRole("button",{name:"Build prompt"}).click();
+  const promptText = dialog.getByLabel("Prompt text");
+  await promptText.waitFor();
+  assert.match(await promptText.inputValue(),/Character 1: Lalin.*Innkeeper/);
+  assert.match(await promptText.inputValue(),/Character 2: Kin.*Traveller/);
+  assert.match(await promptText.inputValue(),/Build a causal chain/);
+  const customPrompt = (await promptText.inputValue())+"\nHold on the seal.";
+  await promptText.fill(customPrompt);
+  await dialog.getByRole("button",{name:"Save prompt"}).click();
+  await dialog.waitFor({state:"hidden"});
+  await page.reload();
+  await button("Shot prompt for "+proposedShot).click();
+  assert.equal(await promptText.inputValue(), customPrompt);
+  await page.keyboard.press("Escape");
+  await shotRow.click();
+  await dialog.locator("fieldset details").first().locator("summary").click();
+  const kin = dialog.locator(".story-cast").filter({hasText:"Kin"});
+  await kin.getByRole("checkbox").last().uncheck();
+  await dialog.getByRole("button",{name:"Save shot"}).click();
+  await dialog.waitFor({state:"hidden"});
+  await button("Shot prompt for "+proposedShot).click();
+  await dialog.getByRole("button",{name:"Edit saved prompt"}).click();
+  await dialog.getByRole("alert").filter({hasText:"Rebuild it from the current shot"}).waitFor();
+  assert.ok(await dialog.getByRole("button",{name:"Save prompt"}).isDisabled());
+  await dialog.getByRole("button",{name:"Rebuild from shot"}).click();
+  await page.waitForFunction(()=>document.querySelector(".story-prompt-dialog textarea")?.value.includes("Voice only, off-screen."));
+  assert.match(await promptText.inputValue(),/Kin.*Voice only, off-screen/);
+  assert.equal(await dialog.locator(".story-character-list li").last().locator("img").count(),0);
+  await page.keyboard.press("Escape");
+  await page.getByRole("dialog",{name:"Save your edits before leaving?"}).getByRole("button",{name:"Discard edits"}).click();
   assert.deepEqual(writingRequests,["manuscript","scenes","scenes","shots"]);
   await page.getByRole("link",{name:/projects/i}).click();
   await page.locator(".story-projects a").filter({hasText:"Letters from the inn"}).waitFor();
   assert.deepEqual(failures,[]);
-  console.log("Story & Shots: saved chapter, proposals, manual scene/shot, edit recovery, refresh and six viewport/locale combinations passed.");
+  console.log("Story & Shots: script, proposals and edit recovery, writing progress, private cast and saved prompt, stale prompt, and responsive checks passed.");
 } catch(error) {
   if (failures.length) console.error("API / browser failures", failures);
   if(page && !page.isClosed()) console.error((await page.locator("body").innerText()).slice(0,3000));
   throw error;
 } finally {
+  releaseDraft();
   await browser?.close();
   await vite.close();
   await new Promise(resolve=>server.close(resolve));

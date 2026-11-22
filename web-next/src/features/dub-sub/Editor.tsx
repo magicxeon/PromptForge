@@ -25,6 +25,7 @@ import config from "./editorConfig";
 import { useTakePlayback } from "./useTakePlayback";
 import { SpeakerMixer } from "./SpeakerMixer";
 import { SubtitleCaption, SubtitleInspector } from "./SubtitleInspector";
+import { subtitleLanguage } from "../../../../server/domain/dub-sub/subtitleFonts.js";
 import { DialogueList } from "./DialogueList";
 import { takePlacement } from "../../../../server/domain/dub-sub/takePlacement.js";
 import { dubBatchApi, type TimingLine } from "./dubBatchApi";
@@ -74,6 +75,9 @@ function Work({ initial }: { initial: Project }) {
     p = model.draft,
     client = useQueryClient(),
     loc = useLocation();
+  const sourceSubtitleLanguage = useMemo(() => subtitleLanguage({
+    sourceLanguage: p.sourceLanguage, detectedLanguage: p.detectedLanguage, cues: p.cues,
+  }, "source"), [p.sourceLanguage, p.detectedLanguage, p.cues]);
   const { identityScope, actor, config: auth } = useActor();
   const sceneAvailable = actor?.role === "admin" && auth?.authMode === "development_bypass" && auth.development?.liveGeneration;
   const [createdPreview, setCreatedPreview] = useState(() =>
@@ -573,7 +577,7 @@ function Work({ initial }: { initial: Project }) {
                     s.visible &&
                     text && (
                       <SubtitleCaption key={l} track={s} language={l} text={text} disabled={!!busy} aspectRatio={ratio}
-                        script={l === "source" ? String(p.detectedLanguage || p.sourceLanguage) : l}
+                        script={l === "source" ? sourceSubtitleLanguage : l}
                         changeY={(y) => setStyle(l, { y })} />
                     )
                   );
@@ -862,7 +866,7 @@ function Work({ initial }: { initial: Project }) {
               language={styleLang}
               script={
                 styleLang === "source"
-                  ? String(p.detectedLanguage || p.sourceLanguage)
+                  ? sourceSubtitleLanguage
                   : styleLang
               }
               style={style}

@@ -352,6 +352,7 @@ export const cinematicCastAssignmentSchema = z.object({
   characterProfileId: z.string().min(1).nullable(),
   characterProfileVersionId: z.string().min(1).nullable(),
   portraitUrl: z.string().nullable().optional(),
+  storyReference: z.object({ assetId: z.string().min(1), imageUrl: z.string().startsWith('/outputs/references/') }).optional(),
   displayName: z.string().min(1),
   storyRole: z.string(),
   storyRoleSlotId: z.string().nullable().optional(),

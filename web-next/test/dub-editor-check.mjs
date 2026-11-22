@@ -252,6 +252,16 @@ try {
     .getByRole("button", { name: "Subtitle style" })
     .nth(1)
     .click();
+  const fontPicker = inspector.getByLabel("Font family");
+  assert.equal(await fontPicker.inputValue(), "sans");
+  await fontPicker.selectOption("serif");
+  assert.match(await caption.evaluate(el => el.style.fontFamily), /^"Dub Noto Serif Thai"/);
+  const loadedFaces = await page.evaluate(async () => {
+    const faces = await document.fonts.load('32px "Dub Noto Serif Thai"', "สวัสดี");
+    return faces.map(face => face.status);
+  });
+  assert.deepEqual(loadedFaces, ["loaded"]);
+  await fontPicker.selectOption("sans");
   await inspector.getByLabel("Text color").selectOption("yellow");
   assert.deepEqual(await inspector.getByRole("slider").evaluateAll(sliders=>sliders.map(slider=>slider.value)), ["32","29"]);
   assert.equal(await inspector.getByRole("slider").count(), 2);

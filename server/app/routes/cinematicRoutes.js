@@ -251,7 +251,8 @@ export function registerCinematicRoutes(app, {
   app.get('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/writer-preparation', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
-      res.json(await cinematicService.prepareShotWriter(req.params.projectId, req.params.sceneId, req.params.shotId, req.actorContext));
+      res.json(await cinematicService.prepareShotWriter(req.params.projectId, req.params.sceneId, req.params.shotId, req.actorContext,
+        { storyPrompt: req.query.view === 'story' }));
     } catch (error) { sendCinematicError(res, error); }
   });
 

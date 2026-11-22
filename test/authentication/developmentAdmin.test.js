@@ -130,6 +130,8 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
   assert.equal((await request('/api/dub-sub/projects')).status, 403);
   const storyProposal = '/api/cinematic/projects/fixture/full-story/proposals';
   const writingSettings = '/api/cinematic/projects/fixture/writing-settings';
+  const characterWrites = ['/api/cinematic/projects/fixture/shared-characters/new', '/api/cinematic/projects/fixture/chapter-characters'];
+  for (const url of characterWrites) assert.equal((await request(url, 'PUT', headers)).status, 403);
   assert.equal((await request(writingSettings, 'PATCH', headers)).status, 403);
   assert.equal((await request(storyProposal, 'POST', headers)).status, 403);
   runtime = qualifyAuthRuntime({ ...env, PORT: String(port), AUTH_DEV_BYPASS_GENERATION_ENABLED: 'true' }, f.project);
@@ -138,6 +140,12 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
   const liveHeaders = { cookie: liveConfig.headers['set-cookie'][0].split(';')[0], 'x-csrf-token': liveConfig.body.csrfToken };
   assert.equal((await request(storyProposal, 'POST', liveHeaders)).status, 200);
   assert.equal((await request(writingSettings, 'PATCH', liveHeaders)).status, 200);
+  for (const url of characterWrites) {
+    assert.equal((await request(url, 'PUT', liveHeaders)).status, 200);
+    assert.equal((await request(url, 'PUT')).status, 403);
+    assert.equal((await request(url, 'POST', liveHeaders)).status, 403);
+    assert.equal((await request(url, 'PUT', { ...liveHeaders, origin: 'https://untrusted.invalid' })).status, 403);
+  }
   assert.equal((await request(writingSettings, 'PATCH')).status, 403);
   assert.equal((await request(writingSettings, 'PATCH', { ...liveHeaders, origin: 'https://untrusted.invalid' })).status, 403);
   assert.equal((await request(writingSettings, 'POST', liveHeaders)).status, 403);

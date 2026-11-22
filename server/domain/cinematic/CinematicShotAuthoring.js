@@ -133,6 +133,19 @@ export function createManualShot(project, sceneId, { maximumShots = 20 } = {}, n
   return { scene, shot };
 }
 
+export function writeShotPromptOverride(shot, value) {
+  if (value === null) {
+    shot.videoPromptOverride = null;
+    return;
+  }
+  if (typeof value?.text !== 'string' || !value.text.trim()
+    || value.text.length > cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters
+    || !/^[a-f0-9]{64}$/.test(value.sourceFingerprint || '')) {
+    fail('cinematic_video_prompt_invalid', 'Video Prompt or its source revision is invalid.');
+  }
+  shot.videoPromptOverride = { text: value.text, sourceFingerprint: value.sourceFingerprint };
+}
+
 export function updateShotDocument(project, sceneId, shotId, input, now = new Date().toISOString()) {
   ensureShotAuthoring(project);
   const scene = findScene(project, sceneId);
@@ -170,18 +183,7 @@ export function updateShotDocument(project, sceneId, shotId, input, now = new Da
       castAssignmentId: id, alias: (project.castAssignments || []).find(item => item.id === id)?.displayName || id, visible: true
     }));
   }
-  if (input.videoPromptOverride !== undefined) {
-    if (input.videoPromptOverride === null) shot.videoPromptOverride = null;
-    else {
-      const value = input.videoPromptOverride;
-      if (typeof value.text !== 'string' || !value.text.trim()
-        || value.text.length > cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters
-        || !/^[a-f0-9]{64}$/.test(value.sourceFingerprint || '')) {
-        fail('cinematic_video_prompt_invalid', 'Video Prompt or its source revision is invalid.');
-      }
-      shot.videoPromptOverride = { text: value.text, sourceFingerprint: value.sourceFingerprint };
-    }
-  }
+  if (input.videoPromptOverride !== undefined) writeShotPromptOverride(shot, input.videoPromptOverride);
   shot.title = title;
   shot.durationMs = integer(input?.durationMs, 500, 20000, Number(shot.durationMs) || 5000);
   shot.shotDocument = shotDocument;

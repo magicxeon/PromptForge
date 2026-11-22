@@ -323,3 +323,7 @@ This correction used one implementer and sequential UX/QA review; earlier
 independent reviews above do not claim review of this new change. No paid
 generation or live export mutation was performed. Existing build chunk warning
 remains; no required history-correction work remains.
+
+## Playground route loading
+
+The default Image route starts with the main bundle. Comparison and Video load their own route modules when opened, with the existing processing indicator during loading. Production build entry size dropped from 951.25 kB to 844.00 kB before gzip and from 283.44 kB to 253.37 kB after gzip. The Vite large-chunk warning remains. The browser fixture covers direct route access, tab navigation, draft handoffs, and Image, Comparison and Video operations.

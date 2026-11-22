@@ -1,6 +1,7 @@
 import { z } from "zod";
 import values from "./editor-config.json";
 import subtitleDefaults from "../../../../server/config/dub-subtitle-defaults.json";
+import { defaultSubtitleFont, subtitleFontIds } from "../../../../server/domain/dub-sub/subtitleFonts.js";
 const count = z.number().int().positive();
 const range = (min: number, max: number) =>
   z
@@ -36,15 +37,14 @@ export default z
     defaultStyle: z.object({
       visible: z.boolean(),
       locked: z.boolean(),
-      font: z.enum(["sans", "serif"]),
+      font: z.string().refine(id => subtitleFontIds.includes(id)),
       color: z.enum(["white", "yellow"]),
       size: count,
       x: z.number().min(0).max(100),
       y: z.number().min(0).max(100),
       maxChars: count,
     }),
-    fonts: z.object({ sans: z.string(), serif: z.string() }),
     colors: z.object({ white: z.string(), yellow: z.string() }),
     formats: z.array(z.enum(["mp4", "wav", "vtt", "srt"])).nonempty(),
   })
-  .parse({ ...values, defaultStyle: { ...values.defaultStyle, ...subtitleDefaults } });
+  .parse({ ...values, defaultStyle: { ...values.defaultStyle, ...subtitleDefaults, font: defaultSubtitleFont } });

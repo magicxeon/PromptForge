@@ -4,14 +4,18 @@ import type {CinematicProject,CinematicScene} from "../../../../../web/src/featu
 import {createCinematicManualShot} from "../../../../../web/src/features/cinematic/api/cinematicSeriesApi";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {SceneShotEditDialog} from "./SceneShotEditDialog";
+import {ShotPromptDialog} from "./ShotPromptDialog";
 
-export function ScenePanel({project,scene,index,run,back,pending,requestShots,shotLimit,error}:{
+export function ScenePanel({project,scene,index,run,back,pending,requestShots,shotLimit,error,skills}:{
   project:CinematicProject;scene:CinematicScene;index:number;run:RunWriting;back:()=>void;pending:boolean;
   requestShots:(id?:string,instruction?:string)=>Promise<boolean>;shotLimit?:number;error:string;
+  skills: string[];
 }){
   const {t}=useTranslation("story"),[edit,setEdit]=useState<string|null>(null);
+  const [promptId, setPromptId] = useState<string>();
   const shots=[...scene.shots].sort((a,b)=>a.orderKey-b.orderKey);
   const shot=shots.find(s=>s.id===edit);
+  const promptShot = shots.find(s=>s.id===promptId);
   const buttons=useRef(new Map<string,HTMLButtonElement>());
   const close=()=>{const id=edit;setEdit(null);requestAnimationFrame(()=>buttons.current.get(id||"")?.focus());};
   const actions=<div className="story-actions"><button className="primary" onClick={()=>void requestShots()}>{t(pending?"reviewShots":"proposeShots")}</button>
@@ -25,14 +29,41 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
     <div className="story-bar"><h3>{t("shotCount",{count:shots.length})}</h3>
       {shots.length>0 && !pending && <details><summary>{t("sceneActions")}</summary>{actions}</details>}</div>
     {(!shots.length || pending) && actions}
-    <ol className="story-shots">{shots.map((s,i)=><li key={s.id}>
-      <button ref={el=>{if(el)buttons.current.set(s.id,el);}} onClick={()=>setEdit(s.id)}>
-        <strong>{t("shotTitle",{index:i+1,name:s.title})}</strong><span>{t("seconds",{n:s.durationMs/1000})}</span>
-        <p>{s.visibleMoment||s.subjectAction||s.purpose}</p>
-        {s.shotDocument?<p className="story-prose">{s.shotDocument}</p>:s.dialogueCues?.map((line,n)=><p key={n}>{line.offscreenVoiceRole||s.speakerBindings?.find(b=>b.castAssignmentId===line.speakerCastAssignmentId)?.alias||project.castAssignments.find(c=>c.id===line.speakerCastAssignmentId)?.displayName} {line.text}</p>)}
-        {s.shotPlanningStatus==="review_required" && <small>{t("sourceChanged")}</small>}
-      </button></li>)}</ol>
+    <ol className="story-shots">{shots.map((shot, shotIndex) => {
+      const action = shot.visibleMoment || shot.subjectAction || shot.purpose;
+      const camera = [shot.framing, shot.cameraAngle, shot.cameraMovement, shot.lensIntent].filter(Boolean).join(" · ");
+      const dialogue = shot.dialogueCues?.filter(line => line.text.trim()) ?? [];
+      return <li className="story-shot-card" key={shot.id}>
+        <h4><button ref={node => {
+          if (node) buttons.current.set(shot.id, node);
+          else buttons.current.delete(shot.id);
+        }} onClick={() => setEdit(shot.id)}>
+          <strong>{t("shotTitle", {index: shotIndex + 1, name: shot.title})}</strong>
+          <span>{t("seconds", {n: shot.durationMs / 1000})} · {t("editShot")}</span>
+        </button></h4>
+        <div className="story-shot-content">
+          {shot.shotPlanningStatus === "review_required" && <small>{t("sourceChanged")}</small>}
+          {action && <section className="story-shot-action"><h5>{t("shotAction")}</h5><p>{action}</p></section>}
+          {camera && <section className="story-shot-camera"><h5>{t("shotCamera")}</h5><p>{camera}</p></section>}
+          {dialogue.length > 0 && <section className="story-shot-dialogue"><h5>{t("shotDialogue")}</h5>
+            {dialogue.map((line, index) => {
+              const speaker = line.offscreenVoiceRole
+                || shot.speakerBindings?.find(binding => binding.castAssignmentId === line.speakerCastAssignmentId)?.alias
+                || project.castAssignments.find(member => member.id === line.speakerCastAssignmentId)?.displayName;
+              return <p className="story-prose" key={index}>{speaker && <strong>{speaker} · </strong>}{line.text}</p>;
+            })}
+          </section>}
+          {shot.shotDocument && <details open={!dialogue.length}>
+            <summary>{t("shotDocument")}</summary><p className="story-prose">{shot.shotDocument}</p>
+          </details>}
+          <div className="story-shot-tools"><button onClick={() => setPromptId(shot.id)}
+            aria-label={t("shotPromptFor", {name: shot.title})}>{t("shotPrompt")}</button></div>
+        </div>
+      </li>;
+    })}</ol>
     {(edit==="scene"||shot) && <SceneShotEditDialog key={edit} project={project} scene={scene} shot={shot} run={run} close={close} error={error}
       requestRevision={async instruction=>{if(await requestShots(shot?.id,instruction))close();}} max={shotLimit}/>}
+    {promptShot && <ShotPromptDialog project={project} scene={scene} shot={promptShot} skills={skills} run={run}
+      error={error} close={() => setPromptId(undefined)}/>}
   </article>;
 }

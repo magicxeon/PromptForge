@@ -420,6 +420,7 @@ export class CinematicSeriesService {
             || assignment?.portraitUrl
             || null
           : assignment?.portraitUrl || null,
+        ...(input.storyReference ? { storyReference: input.storyReference } : {}),
         displayName: validTitle(input.displayName || authorizedCharacter?.displayNameSnapshot),
         storyRole: String(input.storyRole || '').trim().slice(0, 240) || 'Supporting',
         storyRoleSlotId: String(input.storyRoleSlotId || '').trim() || createPrefixedId('cinerole'),
@@ -473,6 +474,7 @@ export class CinematicSeriesService {
         assignment = dossier;
         source.castAssignments.push(assignment);
       }
+      if (characterSource) delete assignment.storyReference;
       if (dossier.storyImportance === 'protagonist') {
         source.castAssignments.forEach(item => {
           if (item.id !== assignmentId && item.storyImportance === 'protagonist') item.storyImportance = 'supporting';

@@ -13,9 +13,9 @@ import type {RunWriting} from "./data/useStoryWorkspace";
 import config from "./story-config.json";
 type Workflow=NonNullable<Awaited<ReturnType<typeof getCinematicAuthoringManifest>>["rewamp"]>["workflow"];
 
-export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,requestScenes,pending}:{
+export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,requestScenes,pending,skills}:{
   project:CinematicProject;owner?:CinematicProject;full:boolean;setFull:(value:boolean)=>void;workflow?:Workflow;run:RunWriting;
-  openPlan:()=>void;requestScenes:(source:CinematicProject,afterSave?:boolean)=>Promise<void>;pending:boolean;
+  openPlan:()=>void;requestScenes:(source:CinematicProject,afterSave?:boolean)=>Promise<void>;pending:boolean;skills:string[];
 }){
   const {t}=useTranslation("story"),{identityScope}=useActor();
   const [confirm,setConfirm]=useState<"save"|"scenes"|null>(null);
@@ -51,7 +51,7 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
       const result=await proposeCinematicFullStory(target.id,target.version,writingBrief.trim());
       setGenerated(result);
       recovery.setValue(v=>({...v,story:result.fullStory}));
-    });
+    }, "draft");
   }
   async function save(next:"save"|"scenes"="save") {
     setConfirm(null);
@@ -107,7 +107,9 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
     <details><summary>{t("revisions")}</summary>{(full?owner?.fullStoryVersions||[]:project.chapterVersions).slice().reverse().map(v=>
       <details key={v.id}><summary>{v.version} · {new Date(v.createdAt).toLocaleString()}</summary><p className="story-prose">{"content" in v?v.content:v.story}</p></details>)}</details>
     {showBrief && <Dialog label={t("draftWithAI")} onClose={()=>setShowBrief(false)}><form className="story-create" onSubmit={e=>{e.preventDefault();void draftWithAI();}}>
-      <h2>{t("draftWithAI")}</h2><label>{t("writingBrief")}<textarea autoFocus rows={5} value={writingBrief}
+      <h2>{t("draftWithAI")}</h2>
+      {skills.length > 0 && <p>{t("promptSkills", {skills: skills.join(" · ")})}</p>}
+      <label>{t("writingBrief")}<textarea autoFocus rows={5} value={writingBrief}
         maxLength={workflow?.authoring.fullStoryInstructionMaximumCharacters||2000} placeholder={t("briefExample")}
         onChange={e=>setWritingBrief(e.target.value)}/></label>
       <footer><button type="button" onClick={()=>setShowBrief(false)}>{t("cancel")}</button>

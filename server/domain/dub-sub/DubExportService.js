@@ -5,6 +5,7 @@ import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { DUB_SUB_FONTS_DIR } from "../../config/paths.js";
 import { boundedCopy, mediaCommand, videoInput } from "./DubMediaService.js";
 import { wrapSubtitle } from "./subtitleLayout.js";
+import { subtitleFontFaces, subtitleLanguage } from "./subtitleFonts.js";
 import { sceneAudioFile } from "./sceneAudio.js";
 
 function clock(ms, separator) {
@@ -56,29 +57,9 @@ export function textSubtitles(rows, format) {
     "\n"
   );
 }
-function fontFamily(project, language) {
-  let lang =
-    language === "source"
-      ? project.detectedLanguage || project.sourceLanguage
-      : language;
-  if (lang === "auto")
-    lang = project.cues.some((cue) => /\p{Script=Han}/u.test(cue.text))
-      ? "zh"
-      : "th";
-  return (
-    "Noto " +
-    (project.tracks[language].font === "serif" ? "Serif" : "Sans") +
-    (lang.startsWith("zh") ? (lang === "zh-TW" ? " TC" : " SC") : " Thai")
-  );
-}
-function ass(project, language, rows) {
+function ass(project, language, script, family, rows) {
   const style = project.tracks[language];
   const { width, height } = project.media;
-  const lang =
-    language === "source"
-      ? project.detectedLanguage || project.sourceLanguage
-      : language;
-  const family = fontFamily(project, language);
   const size = Math.round((style.size * height) / 1080);
   const pos =
     "{\\pos(" +
@@ -87,7 +68,7 @@ function ass(project, language, rows) {
     Math.round((style.y * height) / 100) +
     ")}";
   const time = (ms) => clock(ms, ".").slice(0, -1);
-  const wrap = (text) => wrapSubtitle(text, lang, style, width / height)
+  const wrap = (text) => wrapSubtitle(text, script, style, width / height)
     .replace(/[{}\\]/g, char => ({ "{": "｛", "}": "｝", "\\": "＼" })[char])
     .replaceAll("\n", "\\N");
   return [
@@ -126,17 +107,15 @@ function ass(project, language, rows) {
 }
 
 async function writeAss(project, languages, dir, fontsDir, preview = false) {
+  const tracks = languages.map(language => {
+    const script = subtitleLanguage(project, language);
+    const faces = subtitleFontFaces(project.tracks[language].font, script);
+    return { language, script, faces };
+  });
   const target = path.join(dir, "fonts");
   await fs.mkdir(target);
-  const families = new Set(
-    languages.flatMap((language) => {
-      const style =
-        project.tracks[language].font === "serif" ? "Noto Serif" : "Noto Sans";
-      return [fontFamily(project, language), style + " Thai", style + " SC"];
-    }),
-  );
-  for (const family of families) {
-    const filename = family.replaceAll(" ", "") + ".ttf";
+  const files = new Set(tracks.flatMap(track => track.faces.map(face => face.file)));
+  for (const filename of files) {
     const src = path.join(fontsDir, filename);
     const dest = path.join(target, filename);
     try {
@@ -148,8 +127,8 @@ async function writeAss(project, languages, dir, fontsDir, preview = false) {
       throw dubError("dub_font_unavailable", 503);
     }
   }
-  const blocks = languages.map((lang) =>
-    ass(project, lang, subtitles(project, lang, preview)).split("\n"),
+  const blocks = tracks.map(({ language, script, faces }) =>
+    ass(project, language, script, faces[0].family, subtitles(project, language, preview)).split("\n"),
   );
   const first = blocks[0];
   const eventsIndex = first.indexOf("[Events]");

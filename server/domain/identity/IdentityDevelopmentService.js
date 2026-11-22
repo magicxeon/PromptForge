@@ -71,6 +71,7 @@ const liveWrites = [
   ['POST', /^\/api\/cinematic\/projects\/[\w-]+\/(?:scene|chapter)-proposals\/[\w-]+\/(?:apply|discard)$/],
   ['POST', /^\/api\/cinematic\/projects\/[\w-]+\/scenes\/[\w-]+\/(?:manual-shots|shot-proposals(?:\/[\w-]+\/(?:apply|discard))?)$/],
   ['PATCH', /^\/api\/cinematic\/projects\/[\w-]+\/(?:writing-settings|chapter|scenes\/[\w-]+(?:\/shots\/[\w-]+\/document)?)$/],
+  ['PUT', /^\/api\/cinematic\/projects\/[\w-]+\/(?:chapter-characters|shared-characters\/[\w-]+)$/],
   ['POST', /^\/api\/voice-studio\/custom-voices\/description-suggestion$/],
   ['POST', new RegExp('^/api/dub-sub/projects/' + projectUuid + '/(?:dubbing-timing-review|cue-rhythm)$')],
   ['POST', new RegExp('^' + dubBatchPath + '(?:/' + projectUuid + '/advance)?$')],

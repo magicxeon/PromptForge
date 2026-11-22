@@ -3,6 +3,27 @@
   "requirement": "requirements/024-frontend-rebuild/000-master.md",
   "tasks": [
     {
+      "id":"FE24-STORY-REFERENCES",
+      "title":"Connect private Character references and saved Shot prompts",
+      "complexity":"complex",
+      "reason":"Character reference binding crosses private Asset ownership, local request authorization, shared Cinematic records and the web-next writer.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root",
+      "capabilities":["cinematic","identity","frontend-experience"],
+      "risks":["security","privacy","shared-contract","user-facing"],
+      "dependsOn":["FE24-STORY-WRITER"],
+      "writeScope":["server/app/routes/cinematicRoutes.js","server/domain/cinematic/","server/domain/identity/IdentityDevelopmentService.js","web/src/features/cinematic/","web-next/src/features/story/","web-next/src/locales/","web-next/test/story-authoring-check.mjs","test/authentication/developmentAdmin.test.js","test/cinematicFullStory.test.js","requirements/024-frontend-rebuild/"],
+      "status":"complete",
+      "acceptance":["Only the owner's active Character reference asset can be attached. A saved Shot prompt uses the selected cast and skills, checks both revisions and reopens with the user's edits."],
+      "reviewers":["security-reviewer","qa-release-engineer","ux-ui-product-designer"],
+      "reviews":[
+        {"role":"security-reviewer","agentId":"/root/story_reference_review","result":"passed","reference":"requirements/024-frontend-rebuild/013-story-scene-shot.md"},
+        {"role":"qa-release-engineer","agentId":"/root/story_requirements_qa","result":"passed","reference":"test/cinematicFullStory.test.js"},
+        {"role":"ux-ui-product-designer","agentId":"/root/story_requirements_qa","result":"passed","reference":"web-next/test/story-authoring-check.mjs"}
+      ],
+      "evidence":[{"check":"Only the owner's active Character reference asset can be attached. A saved Shot prompt uses the selected cast and skills, checks both revisions and reopens with the user's edits.","result":"passed","reference":"requirements/024-frontend-rebuild/013-story-scene-shot.md"}],
+      "handoff":"Cinematic owns the character dossier and saved prompt. Reference Assets own upload and guarded delivery. Browser and authorization validation use isolated fixtures."
+    },
+    {
       "id":"FE24-STORY-WRITER","title":"Project writing preferences shared by every chapter","complexity":"complex",
       "reason":"Project persistence, authoring manifest, trusted writes and model dispatch must agree.",
       "owner":"backend-platform-architect","ownerAgentId":"/root/story_settings","capabilities":["cinematic","identity","generation","frontend-experience"],"risks":["security","shared-contract"],

@@ -9,6 +9,7 @@ import type {CinematicProject,CinematicScene,CinematicShot} from "../../../../..
 import {prepareCinematicShotWriter,updateCinematicShotDocument,updateCinematicSceneOutline} from "../../../../../web/src/features/cinematic/api/cinematicSeriesApi";
 import {useCinematicTextRecovery} from "../../../../../web/src/features/cinematic/state/useCinematicTextRecovery";
 import type {RunWriting} from "../data/useStoryWorkspace";
+import {StoryCharacterIdentity} from "../characters/StoryCharacters";
 
 const editSchema=z.object({title:z.string().max(120),body:z.string().max(50000),location:z.string().max(240),
   time:z.string().max(160),seconds:z.number().finite(),characterIds:z.array(z.string()).max(24),
@@ -75,7 +76,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
             if(!shot)editor.setValue({...draft,characterIds:e.target.checked?[...draft.characterIds,person.id]:draft.characterIds.filter(id=>id!==person.id)});
             else editor.setValue({...draft,speakers:e.target.checked?[...draft.speakers,{castAssignmentId:person.id,alias:person.displayName,visible:true}]:
               draft.speakers.filter(s=>s.castAssignmentId!==person.id)});
-          }}/>{person.displayName}</label>
+          }}/><StoryCharacterIdentity person={person}/></label>
           {shot&&binding&&<><label>{t("speakerAlias")}<input value={binding.alias} maxLength={120} onChange={e=>editor.setValue({...draft,
             speakers:draft.speakers.map(s=>s===binding?{...s,alias:e.target.value}:s)})}/></label><label><input type="checkbox" checked={binding.visible}
              onChange={e=>editor.setValue({...draft,speakers:draft.speakers.map(s=>s===binding?{...s,visible:e.target.checked}:s)})}/>{t("visible")}</label></>}

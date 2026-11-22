@@ -79,6 +79,21 @@ export function compileCinematicShotDocument(shot, scene = {}, cast = []) {
   };
 }
 
+export function compileStoryShotPrompt(project, scene, shot, document, compiled, skillInstructions) {
+  const castIds = shot.speakerBindings?.map(binding => binding.castAssignmentId) ?? resolveShotCastIds(scene, shot);
+  const cast = (project.castAssignments || []).filter(person => person.active !== false && castIds.includes(person.id));
+  const characters = cast.map((person, index) => {
+    const role = person.storyRole ? ` — ${person.storyRole}` : '';
+    const offscreen = shot.speakerBindings?.find(binding => binding.castAssignmentId === person.id)?.visible === false;
+    const direction = offscreen ? ' Voice only, off-screen.'
+      : person.storyReference ? ' Use this character’s reference only for their appearance.' : '';
+    return `- Character ${index + 1}: ${person.displayName}${role}.${direction}`;
+  });
+  const source = compiled.includes('\n\n') ? compiled : [compiled, document].filter(Boolean).join('\n\n');
+  return [source, characters.length && `CHARACTERS\n${characters.join('\n')}`,
+    skillInstructions.length && `WRITING DIRECTION\n${skillInstructions.join('\n')}`].filter(Boolean).join('\n\n');
+}
+
 export function shotPromptSourceFingerprint(project, scene, shot) {
   const ids = new Set([...(shot.speakerBindings || []).map(item => item.castAssignmentId), ...resolveShotCastIds(scene, shot)]);
   return crypto.createHash('sha256').update(JSON.stringify(stableValue({
@@ -89,7 +104,8 @@ export function shotPromptSourceFingerprint(project, scene, shot) {
     })), visibleCast: resolveShotCastIds(scene, shot),
     characters: (project.castAssignments || []).filter(item => ids.has(item.id)).map(item => ({
       id: item.id, name: item.displayName, active: item.active, voice: item.dialogueStyle,
-      looks: item.looks, generatedSheet: item.generatedSheet, profileVersion: item.characterProfileVersionId
+      looks: item.looks, generatedSheet: item.generatedSheet, profileVersion: item.characterProfileVersionId,
+      ...(item.storyReference ? { storyReference: item.storyReference.assetId, storyRole: item.storyRole } : {})
     })),
     looks: shot.wardrobeLookIds, sceneLooks: scene.wardrobeLookIds,
     scene: [scene.location, scene.time, scene.weather, scene.lighting, scene.castMode, scene.castAssignmentIds],

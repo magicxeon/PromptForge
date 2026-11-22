@@ -1,8 +1,23 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { wrapSubtitle } from "../server/domain/dub-sub/subtitleLayout.js";
+import { defaultSubtitleFont, subtitleFontFaces, subtitleLanguage } from "../server/domain/dub-sub/subtitleFonts.js";
 
 const style = { font: "sans", x: 50, size: 48, maxChars: 14 };
+
+test("subtitle font selection shares configured primary faces and fallbacks for each script", () => {
+  const source = { sourceLanguage: "auto", cues: [{ text: "這是一段字幕" }] };
+  assert.equal(subtitleLanguage(source, "source"), "zh");
+  assert.equal(subtitleLanguage({ ...source, detectedLanguage: "zh-TW" }, "source"), "zh-TW");
+  assert.equal(subtitleLanguage({ ...source, cues: [{ text: "คำบรรยาย" }] }, "source"), "th");
+  assert.equal(subtitleLanguage(source, "th"), "th");
+  assert.equal(defaultSubtitleFont, "sans");
+  assert.deepEqual(subtitleFontFaces("sans", subtitleLanguage(source, "source")).map(face => face.file),
+    ["NotoSansSC.ttf", "NotoSansThai.ttf"]);
+  assert.deepEqual(subtitleFontFaces("serif", "zh-TW").map(face => face.file),
+    ["NotoSerifTC.ttf", "NotoSerifThai.ttf", "NotoSerifSC.ttf"]);
+  assert.equal(subtitleFontFaces("retired-font", "th")[0].family, "Noto Sans Thai");
+});
 
 test("Thai soft breaks use dictionary words and retain hard breaks", () => {
   const text = "คนในโรงเตี๊ยมนี้หายไปไหนกันหมด?\n\nท่านพี่";

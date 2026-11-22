@@ -10,21 +10,23 @@ import {ScenePanel} from "./scenes/ScenePanel";
 import {ProposalReview} from "./ProposalReview";
 import {FullStoryPlan} from "./FullStoryPlan";
 import {WritingSettings} from "./WritingSettings";
-import {BookOpen,Clapperboard,Layers,NotebookPen,ChevronRight,Plus} from "lucide-react";
+import {BookOpen,Clapperboard,Layers,NotebookPen,ChevronRight,Plus,PenLine} from "lucide-react";
+import {Dialog} from "../dub-sub/Dialog";
+import {StoryCharacters} from "./characters/StoryCharacters";
 
 export default function StoryEditor() {
   const {id=""}=useParams();
   return <ProjectWorkspace key={id} id={id}/>;
 }
 function ProjectWorkspace({id}:{id:string}) {
-  const {t}=useTranslation("story");
+  const {t,i18n}=useTranslation("story");
   const navigate=useNavigate();
   const [params,setParams]=useSearchParams();
   const [drawer,setDrawer]=useState(false);
   const [full,setFull]=useState(false);
   const lastScene=useRef("");
   const [review,setReview]=useState<"scene"|"shot"|null>(null);
-  const {query,chapters,manifest,storyRoot,fullStoryOwner,busy,error,setError,run}=useStoryWorkspace(id);
+  const {query,chapters,manifest,storyRoot,fullStoryOwner,busy,activity,error,setError,run}=useStoryWorkspace(id);
   const project=query.data;
   const owner=fullStoryOwner===id?project:storyRoot.data;
   function selectScene(sceneId?:string) {
@@ -36,7 +38,8 @@ function ProjectWorkspace({id}:{id:string}) {
     {query.error?<p role="alert">{query.error.message} <button onClick={()=>void query.refetch()}>{t("retry")}</button></p>:<ProcessingSpinner/>}</main>;
   const scenes=[...project.scenes].sort((a,b)=>a.orderKey-b.orderKey);
   const scene=scenes.find(s=>s.id===params.get("scene"));
-  const step=scene?"shots":params.get("step")==="scenes"?"scenes":params.get("step")==="chapters"?"chapters":"script";
+  const selectedStep = params.get("step");
+  const step=scene?"shots":selectedStep==="scenes"?"scenes":selectedStep==="chapters"?"chapters":selectedStep==="characters"?"characters":"script";
   const fullPath=full||step==="chapters"||!!project.chapterOrigin||!!owner?.activeFullStoryVersionId;
   function goStage(stage:string) {
     if(scene)lastScene.current=scene.id;
@@ -51,7 +54,7 @@ function ProjectWorkspace({id}:{id:string}) {
     if(source.sceneProposals.some(p=>p.status==="pending_review" && (!afterSave || p.sourceChapterRevisionId===source.activeChapterVersionId))){
       setReview("scene");return;
     }
-    await run(async()=>{const r=await series.proposeCinematicScenes(id,source.version);setReview("scene");return r;});
+    await run(async()=>{const r=await series.proposeCinematicScenes(id,source.version);setReview("scene");return r;}, "scenes");
   }
   async function requestShots(targetShotId?:string,instruction?:string){
     if(!scene)return false;
@@ -60,7 +63,7 @@ function ProjectWorkspace({id}:{id:string}) {
     await run(async()=>{
       const r=await series.proposeCinematicShots(id,scene.id,project!.version,targetShotId?{targetShotId,instruction:instruction||""}:undefined);
       opened=true;setReview("shot");return r;
-    });
+    }, "shots");
     return opened;
   }
   async function addScene(){
@@ -68,13 +71,16 @@ function ProjectWorkspace({id}:{id:string}) {
       if(r.scene)selectScene(r.scene.id);return r;});
   }
   const workflow=manifest.data?.rewamp?.workflow;
+  const locale = i18n.language.startsWith("th") ? "th" : "en";
+  const skillLabels = (manifest.data?.writingSettings?.skills ?? [])
+    .filter(skill => owner?.writingSettings?.skillIds.includes(skill.id)).map(skill => skill.label[locale]);
   const stages=[
     {key:"script",label:"script",icon:NotebookPen,available:true},
     ...(fullPath?[{key:"chapters",label:"planStage",icon:BookOpen,available:!!owner?.activeFullStoryVersionId}]:[]),
     {key:"scenes",label:"scenes",icon:Layers,available:true},
     {key:"shots",label:"shotsStage",icon:Clapperboard,available:scenes.length>0},
   ];
-  const guide=step==="chapters"?"guidePlan":step==="scenes"?(scenes.length?"guidePickScene":"guideNoScenes"):
+  const guide=step==="characters"?"guideCharacters":step==="chapters"?"guidePlan":step==="scenes"?(scenes.length?"guidePickScene":"guideNoScenes"):
     step==="shots"?(scene?.shots.length?"guideEditShot":"guideMakeShots"):
     full?(owner?.activeFullStoryVersionId?"guideReadyPlan":"guideFull"):(project.activeChapterVersionId?"guideReadyScenes":"guideScript");
   return <main className="story-workspace">
@@ -83,6 +89,8 @@ function ProjectWorkspace({id}:{id:string}) {
       {chapters.data && chapters.data.chapters.length>1 && <label>{t("chapter")}<select disabled={busy} value={id}
         onChange={e=>navigate("/story/"+encodeURIComponent(e.target.value))}>{chapters.data.chapters.map(c=><option key={c.projectId} value={c.projectId}>{c.title}</option>)}</select></label>}
       {chapters.data&&owner&&manifest.data?.writingSettings&&<WritingSettings project={owner} catalog={manifest.data.writingSettings} disabled={busy}/>}
+      {owner&&<button type="button" aria-pressed={step==="characters"} disabled={busy}
+        onClick={()=>goStage(step==="characters"?"script":"characters")}>{t("characters")}</button>}
       </div>
     </header>
     <nav className="story-stage-nav" aria-label={t("stages")}><ol>{stages.map(({key,label,icon:Icon,available},i)=>
@@ -90,18 +98,17 @@ function ProjectWorkspace({id}:{id:string}) {
         onClick={()=>{if(step!==key)goStage(key);}}><Icon size={17} aria-hidden/><span>{i+1}. {t(label)}</span></button>
         {i<stages.length-1&&<ChevronRight className="story-stage-arrow" size={14} aria-hidden/>}</li>)}</ol>
       <p>{t(guide)}</p></nav>
-    {busy && <p role="status"><ProcessingSpinner/> {t("processing")}</p>}
     {error && <p className="story-error" role="alert">{error}</p>}
     {chapters.error && <p role="alert">{chapters.error.message} <button onClick={()=>void chapters.refetch()}>{t("retry")}</button></p>}
     {manifest.error && <p role="alert">{manifest.error.message} <button onClick={()=>void manifest.refetch()}>{t("retry")}</button></p>}
     {storyRoot.error&&fullStoryOwner!==id&&<p role="alert">{storyRoot.error.message} <button onClick={()=>void storyRoot.refetch()}>{t("retry")}</button></p>}
-    {step!=="scenes"&&scenes.length>0&&<button className="story-index-toggle" aria-expanded={drawer} onClick={()=>setDrawer(!drawer)}>{t("sceneIndex")} ({scenes.length})</button>}
-    <fieldset disabled={busy} className="story-layout" data-stage={step} data-sidebar={scenes.length>0}><legend className="sr-only">{t("workspace")}</legend>
-      {(step==="scenes"||scenes.length>0)&&<aside className="story-index" data-open={step==="scenes"||drawer}>
+    {step!=="scenes"&&step!=="characters"&&scenes.length>0&&<button className="story-index-toggle" aria-expanded={drawer} onClick={()=>setDrawer(!drawer)}>{t("sceneIndex")} ({scenes.length})</button>}
+    <fieldset disabled={busy} className="story-layout" data-stage={step} data-sidebar={step!=="characters"&&scenes.length>0}><legend className="sr-only">{t("workspace")}</legend>
+      {step!=="characters"&&(step==="scenes"||scenes.length>0)&&<aside className="story-index" data-open={step==="scenes"||drawer}>
         <header><h2>{t("sceneIndex")}</h2><span>{scenes.length}</span></header>
         <ol>{scenes.map((s,i)=><li key={s.id}><button aria-current={scene?.id===s.id?"page":undefined} onClick={()=>selectScene(s.id)}>
           <span className="story-scene-num">{i+1}</span><span className="story-scene-copy"><strong>{s.title}</strong>
-          {(s.synopsis||s.storyChange)&&<small>{s.synopsis||s.storyChange}</small>}
+          {(s.synopsis||s.storyChange)&&<span className="story-scene-synopsis">{s.synopsis||s.storyChange}</span>}
           <span className="story-scene-meta">{t("shotCount",{count:s.shots.length})}{s.planningStatus==="review_required" && <> · {t("sourceChanged")}</>}</span></span>
           <ChevronRight size={15} aria-hidden/></button></li>)}</ol>
         {step==="scenes"&&project.activeChapterVersionId&&<button onClick={()=>void requestScenes(project)}>{t(sceneProposal?"reviewScenes":"proposeScenes")}</button>}
@@ -109,16 +116,26 @@ function ProjectWorkspace({id}:{id:string}) {
       </aside>
       }
       {step!=="scenes"&&<section className="story-reader">
-        {scene?<ScenePanel key={scene.id} project={project} scene={scene} index={scenes.indexOf(scene)+1} run={run} error={error}
+        {step==="characters" ? owner && <StoryCharacters project={project} owner={owner} run={run} error={error}/>
+        :scene?<ScenePanel key={scene.id} project={project} scene={scene} index={scenes.indexOf(scene)+1} run={run} error={error}
           back={()=>goStage("scenes")} requestShots={requestShots} pending={!!shotProposal}
-          shotLimit={workflow?.authoring.shotDocumentMaximumCharacters}/>
+          shotLimit={workflow?.authoring.shotDocumentMaximumCharacters}
+          skills={skillLabels}/>
         :step==="chapters"?(owner?.activeFullStoryVersionId?<FullStoryPlan project={owner} run={run} goChapter={chapterId=>{
           setFull(false);navigate("/story/"+encodeURIComponent(chapterId));
         }}/>:<button onClick={()=>{setFull(true);goStage("script");}}>{t("fullScript")}</button>):
         <ScriptPanel project={project} owner={owner} full={full} setFull={setFull} workflow={workflow} run={run}
-          openPlan={()=>goStage("chapters")} requestScenes={requestScenes} pending={!!sceneProposal}/>}
+          openPlan={()=>goStage("chapters")} requestScenes={requestScenes} pending={!!sceneProposal} skills={skillLabels}/>}
       </section>}
     </fieldset>
+    {busy && !activity && <div className="story-saving" role="status"><ProcessingSpinner/> {t("processing")}</div>}
+    {activity && !(activity==="scenes"&&review==="scene"&&sceneProposal) && !(activity==="shots"&&review==="shot"&&shotProposal) &&
+      <Dialog label={t("writingActivity."+activity)} onClose={()=>{}}>
+      <div className="story-writing-progress" role="status">
+        <PenLine aria-hidden="true"/>
+        <p>{t("writingActivity."+activity)}</p>
+      </div>
+    </Dialog>}
     {review==="scene"&&sceneProposal && <ProposalReview key={sceneProposal.id} project={project} proposal={sceneProposal} busy={busy} error={error} run={run}
       close={()=>setReview(null)} onApplied={()=>goStage("scenes")}/>}
     {review==="shot"&&shotProposal&&scene && <ProposalReview key={shotProposal.id} project={project} proposal={shotProposal} scene={scene}

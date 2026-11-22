@@ -3,17 +3,14 @@ import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { subtitleFontCatalog } from "../server/domain/dub-sub/subtitleFonts.js";
 const directory = fileURLToPath(
   new URL("../client/assets/dub-sub/fonts/", import.meta.url),
 );
-const families = [
-  "NotoSansThai",
-  "NotoSerifThai",
-  "NotoSansSC",
-  "NotoSerifSC",
-  "NotoSansTC",
-  "NotoSerifTC",
-];
+const fonts = new Map(Object.values(subtitleFontCatalog.presets)
+  .flatMap(preset => Object.values(preset.variants))
+  .filter(face => face.googleSource)
+  .map(face => [face.file, face.googleSource]));
 await mkdir(directory, { recursive: true });
 const read = async (url) => {
   const response = await fetch(url, {
@@ -23,24 +20,25 @@ const read = async (url) => {
   if (!response.ok) throw new Error(response.status + " " + url);
   return response;
 };
-const revision = "cc5661d43cd4f9aad5567033a8e15ca28dc35c86";
+const revision = subtitleFontCatalog.googleFontsRevision;
 if (!/^[a-f0-9]{40}$/.test(revision))
   throw new Error("Invalid font source revision");
-for (const family of families) {
-  const dst = path.join(directory, family + ".ttf");
+for (const [file, source] of fonts) {
+  if (!/^[a-z0-9_-]+$/i.test(source.directory))
+    throw new Error("Invalid font source directory");
+  const family = path.basename(file, ".ttf");
+  const dst = path.join(directory, file);
   const base =
     "https://raw.githubusercontent.com/google/fonts/" +
     revision +
     "/ofl/" +
-    family.toLowerCase() +
+    source.directory +
     "/";
-  const filename =
-    family + (family.endsWith("Thai") ? "[wdth,wght].ttf" : "[wght].ttf");
   const license = await (await read(base + "OFL.txt")).text();
   if (!license.includes("SIL OPEN FONT LICENSE"))
     throw new Error("Missing license for " + family);
   const font = Buffer.from(
-    await (await read(base + encodeURIComponent(filename))).arrayBuffer(),
+    await (await read(base + encodeURIComponent(source.file))).arrayBuffer(),
   );
   if (font.readUInt32BE() !== 0x00010000)
     throw new Error("Invalid TrueType font for " + family);
@@ -56,6 +54,6 @@ for (const family of families) {
 }
 await writeFile(
   path.join(directory, "source.json"),
-  JSON.stringify({ repository: "google/fonts", revision, families }, null, 2) +
+  JSON.stringify({ repository: "google/fonts", revision, families: [...fonts.keys()].map(file => path.basename(file, ".ttf")) }, null, 2) +
     "\n",
 );

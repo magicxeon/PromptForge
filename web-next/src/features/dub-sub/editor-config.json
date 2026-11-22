@@ -26,10 +26,6 @@
     "x": 50,
     "y": 85
   },
-  "fonts": {
-    "sans": "Noto Sans",
-    "serif": "Noto Serif"
-  },
   "colors": {
     "white": "#ffffff",
     "yellow": "#ffdf44"

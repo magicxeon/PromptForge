@@ -1,6 +1,7 @@
 import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { takePlacement } from "./takePlacement.js";
 import subtitleDefaults from "../../config/dub-subtitle-defaults.json" with { type: "json" };
+import { defaultSubtitleFont, subtitleFontIds } from "./subtitleFonts.js";
 import voicePolicy from "../../config/voice-studio/policy.v1.json" with { type: "json" };
 
 export const languages = ["th", "zh", "zh-CN", "zh-TW", "en"];
@@ -148,7 +149,7 @@ export function tracksFor(input, targets) {
     tracks[key] = {
       visible: v.visible === undefined ? index > 0 : Boolean(v.visible),
       locked: Boolean(v.locked ?? subtitleDefaults.locked),
-      font: choice(v.font ?? subtitleDefaults.font, ["sans", "serif"]),
+      font: choice(v.font ?? defaultSubtitleFont, subtitleFontIds),
       color: choice(v.color ?? subtitleDefaults.color, ["white", "yellow"]),
       size: number(v.size ?? subtitleDefaults.size, 8, 200),
       x: number(v.x ?? 50, 0, 100),

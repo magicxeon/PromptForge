@@ -1,10 +1,19 @@
-import "./subtitle-fonts.css";
-import config from "./editorConfig";
-export function subtitleFamily(preset: string, language: string) {
-  const family = preset === "serif" ? config.fonts.serif : config.fonts.sans;
-  const script =
-    language === "zh-TW" ? "TC" : language.startsWith("zh") ? "SC" : "Thai";
-  return (
-    '"Dub ' + family + " " + script + '", "' + family + ' Thai", sans-serif'
-  );
+import { useEffect } from "react";
+import { subtitleFontFaces } from "../../../../server/domain/dub-sub/subtitleFonts.js";
+
+const registeredFonts = new Set<string>();
+
+export function useSubtitleFamily(preset: string, language: string) {
+  useEffect(() => {
+    for (const {family, file, weight} of subtitleFontFaces(preset, language)) {
+      if (registeredFonts.has(family)) continue;
+      const face = new FontFace("Dub " + family, `url("/assets/dub-sub/fonts/${file}") format("truetype")`, {
+        weight, display: "swap",
+      });
+      document.fonts.add(face);
+      registeredFonts.add(family);
+    }
+  }, [preset, language]);
+
+  return [...subtitleFontFaces(preset, language).map(face => `"Dub ${face.family}"`), "sans-serif"].join(", ");
 }

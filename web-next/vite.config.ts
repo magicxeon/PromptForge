@@ -36,6 +36,8 @@ export default defineConfig({
       "../web/node_modules",
       "../client/i18n",
       "../server/domain/dub-sub/subtitleLayout.js",
+      "../server/domain/dub-sub/subtitleFonts.js",
+      "../server/config/dub-subtitle-fonts.json",
       "../server/config/dub-subtitle-defaults.json",
       "../server/domain/dub-sub/takePlacement.js",
     ].map(source => fileURLToPath(new URL(source, import.meta.url))) },

@@ -6,11 +6,13 @@ Web-next story authoring is owned by `web-next/src/features/story/` at `/story` 
 
 Within that feature, `StoryStudio.tsx` owns the project library and loads `StoryEditor.tsx` when a project opens. The `data/` directory owns actor-scoped query keys and writing-result updates. The `scenes/` directory owns the shot list and the scene/shot editing dialog.
 
+Story character management lives in `web-next/src/features/story/characters/`. The Cinematic shared dossier stores the owned reference Asset ID and its guarded media URL. The existing Asset upload and delivery services own the image file. Cinematic Shot Writer preparation provides the Story prompt draft and the existing Shot document mutation stores the reviewed prompt. The app loads the Comparison and Video route modules when their routes open.
+
 This directory tracks refactoring tasks, technical debt payments, and modularization requirements designed to keep the codebase maintainable, performant, and clean.
 
 ## Agent Start Here
 
-Dub & Sub resolves new subtitle track typography and lock defaults from [dub-subtitle-defaults.json](../../server/config/dub-subtitle-defaults.json). The Editor uses the same values when resetting a track.
+Dub & Sub resolves the default font, configured presets, language mapping, font files and wrapping metrics from [dub-subtitle-fonts.json](../../server/config/dub-subtitle-fonts.json) through the shared `subtitleFonts.js` resolver. The Editor and export use that catalog. Other track typography and lock defaults come from [dub-subtitle-defaults.json](../../server/config/dub-subtitle-defaults.json) and apply on track reset.
 
 Dub & Sub export uses `server/domain/dub-sub/sceneAudio.js` and `separateScene.py` for local BandIt v2 inference. Shared model assets resolve through `BANDIT_RUNTIME_DIR` in server configuration. The derived `scene-bandit-v2.wav` belongs to the existing private, immutable project media folder and shares its lifecycle. [Export setup](../024-frontend-rebuild/011-dub-sub-operations.md)
 

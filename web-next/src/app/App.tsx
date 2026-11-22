@@ -8,8 +8,8 @@ const StoryStudio = lazy(() => import("../features/story/StoryStudio"));
 import { useActor, ProcessingSpinner } from "../lib/canonical";
 import { ImageWorkspace } from "../features/playground/routes/ImageWorkspace";
 import { Link, Navigate, Route, Routes } from "react-router-dom";
-import { ComparisonWorkspace } from "../features/comparisons/routes/ComparisonWorkspace";
-import { VideoWorkspace } from "../features/playground/routes/VideoWorkspace";
+const ComparisonWorkspace = lazy(() => import("../features/comparisons/routes/ComparisonWorkspace").then(module => ({default: module.ComparisonWorkspace})));
+const VideoWorkspace = lazy(() => import("../features/playground/routes/VideoWorkspace").then(module => ({default: module.VideoWorkspace})));
 export const legacyUrl = (path = "/playground") =>
   `${location.protocol}//${location.hostname}:6500${path}`;
 export function App() {
@@ -62,8 +62,8 @@ export function App() {
           <WorkspaceConfig identityScope={identityScope} key={identityScope}><Routes>
             <Route path="/" element={<Navigate to="/image" replace />} />
             <Route path="/image" element={<ImageWorkspace />} />
-            <Route path="/comparison" element={<ComparisonWorkspace />} />
-            <Route path="/video" element={<VideoWorkspace />} />
+            <Route path="/comparison" element={<Suspense fallback={<ProcessingSpinner />}><ComparisonWorkspace /></Suspense>} />
+            <Route path="/video" element={<Suspense fallback={<ProcessingSpinner />}><VideoWorkspace /></Suspense>} />
             <Route path="/story/*" element={<Suspense fallback={<ProcessingSpinner />}><StoryStudio /></Suspense>} />
             <Route path="/dub-sub/*" element={<Suspense fallback={<ProcessingSpinner />}><DubStudio /></Suspense>} />
             <Route path="*" element={<Navigate to="/image" replace />} />

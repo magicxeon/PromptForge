@@ -13,6 +13,7 @@ export const cinematicShotWriterPreparationSchema = z.object({
   shotDocument: z.string(), sourceFingerprint: z.string(), generatedPrompt: z.string(),
   projectVideoDirection: z.string().optional(),
   overrideStale: z.boolean(), maximumPromptCharacters: z.number().int().positive(),
+  storyPrompt: z.string().optional(),
   dialogue: z.object({
     cues: z.array(z.object({ speakerCastAssignmentId: z.string(), offscreenVoiceRole: z.string(), text: z.string(),
       delivery: z.string(), startOffsetMs: z.number(), estimatedDurationMs: z.number(), speakerVisible: z.boolean() })),

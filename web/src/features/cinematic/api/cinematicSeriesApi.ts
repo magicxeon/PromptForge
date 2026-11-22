@@ -150,20 +150,25 @@ export function createCinematicManualShot(projectId: string, sceneId: string, ex
 export function updateCinematicShotDocument(projectId: string, sceneId: string, shotId: string, input: {
   expectedVersion: number;
   expectedShotVersion: number;
+} & ({
+  promptOnly: true;
+  videoPromptOverride: { text: string; sourceFingerprint: string };
+} | {
+  promptOnly?: false;
   title: string;
   durationMs: number;
   shotDocument: string;
   speakerBindings?: { alias: string; castAssignmentId: string; visible: boolean }[];
   videoPromptOverride?: { text: string; sourceFingerprint: string } | null;
   source?: 'manual' | 'ai_proposal' | 'restored' | 'legacy';
-}) {
+})) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/document`, {
     method: 'PATCH', body: input, schema: cinematicShotDocumentMutationSchema
   });
 }
 
-export function prepareCinematicShotWriter(projectId: string, sceneId: string, shotId: string) {
-  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/writer-preparation`, {
+export function prepareCinematicShotWriter(projectId: string, sceneId: string, shotId: string, view?: 'story') {
+  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/writer-preparation${view ? '?view=story' : ''}`, {
     schema: cinematicShotWriterPreparationSchema, cache: 'no-store'
   });
 }
@@ -185,6 +190,10 @@ export function upsertCinematicSharedCharacter(projectId: string, assignmentId: 
   storyRoleSlotId?: string;
   storyImportance?: 'protagonist' | 'supporting';
   objective?: string;
+  motivation?: string;
+  pressure?: string;
+  personalityTraits?: string[];
+  storyReferenceAssetId?: string;
 }) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/shared-characters/${encodeURIComponent(assignmentId || 'new')}`, {
     method: 'PUT', body: input, schema: cinematicSharedCharacterMutationSchema

@@ -29,7 +29,7 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
       return action === "generate"
         ? generateCinematicFullStoryChapters(project.id, project.version)
         : (action === "apply" ? applyCinematicChapterProposal : discardCinematicChapterProposal)(project.id, pending!.id);
-    });
+    }, action === "generate" ? "chapters" : undefined);
   }
   return <section className="story-panel" aria-label={t("heading")}>
     <h2>{t("heading")}</h2>
@@ -37,7 +37,7 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
       {t("confirmRevision",{version:revision.version})}</button>}
     {confirmed && (!current || !plan) && !pending && <>
       {plan && <p>{t("outdated")}</p>}
-      <button onClick={() => void run(async () => ({project: await proposeCinematicChapterOutline(project.id, project.version)}))}>{t("proposeOutline")}</button>
+      <button onClick={() => void run(async () => ({project: await proposeCinematicChapterOutline(project.id, project.version)}), "outline")}>{t("proposeOutline")}</button>
     </>}
     {confirmed && current && plan && !pending && <>
       <ol>{plan.chapters.map((row,i) => <li key={i}><strong>{row.title}</strong><p>{row.synopsis}</p></li>)}</ol>

@@ -2,8 +2,9 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import config from "./editorConfig";
 import type { Track } from "./projectApi";
-import { subtitleFamily } from "./subtitleFonts";
+import { useSubtitleFamily } from "./subtitleFonts";
 import { wrapSubtitle } from "../../../../server/domain/dub-sub/subtitleLayout.js";
+import { subtitleFontCatalog } from "../../../../server/domain/dub-sub/subtitleFonts.js";
 
 export function SubtitleCaption({ language, track, script, text, changeY, disabled, aspectRatio }: {
   language: string;
@@ -20,6 +21,7 @@ export function SubtitleCaption({ language, track, script, text, changeY, disabl
   const locked = track.locked || disabled;
   const y = locked ? track.y : preview ?? track.y;
   const { size, x, font, maxChars } = track;
+  const fontFamily = useSubtitleFamily(font, script);
   const caption = useMemo(() => wrapSubtitle(text, script, { size, x, font, maxChars }, aspectRatio),
     [text, script, size, x, font, maxChars, aspectRatio]);
   function bounds(element: HTMLElement) {
@@ -42,7 +44,7 @@ export function SubtitleCaption({ language, track, script, text, changeY, disabl
     aria-orientation="vertical" aria-valuemin={0} aria-valuemax={100} aria-valuenow={y}
     style={{ left: track.x + "%", top: y + "%", fontSize: track.size / 10.8 + "cqh",
       color: track.color === "yellow" ? config.colors.yellow : config.colors.white,
-      fontFamily: subtitleFamily(track.font, script), maxWidth: "96%" }}
+      fontFamily, maxWidth: "96%" }}
     onPointerDown={(e) => {
       if (locked || !e.isPrimary || e.button !== 0) return;
       const box = bounds(e.currentTarget);
@@ -112,9 +114,11 @@ export function SubtitleInspector({
           disabled={style.locked}
           onChange={(e) => change({ font: e.target.value })}
         >
-          {Object.entries(config.fonts).map(([id, family]) => (
+          {Object.entries(subtitleFontCatalog.presets)
+            .filter(([id, preset]) => preset.selectable !== false || id === style.font)
+            .map(([id, preset]) => (
             <option key={id} value={id}>
-              {family}
+              {preset.label}
             </option>
           ))}
         </select>

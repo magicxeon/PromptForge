@@ -296,6 +296,53 @@ test('Shot writer saves a custom prompt, preserves it on revision and rejects an
   await assert.rejects(() => service.prepareShotWriter(project.id, manual.scene.id, manual.shot.id, { userId: 'other', role: 'user' }), /not found/i);
 });
 
+test('saving only a Story prompt preserves legacy shot duration, storyboard and source revision', async t => {
+  const { service, project, repository } = await fixture(t);
+  const scene = await service.createManualScene(project.id, { expectedVersion: project.version, idempotencyKey: 'legacy-scene' }, actor);
+  const manual = await service.createManualShot(project.id, scene.scene.id, { expectedVersion: scene.project.version, idempotencyKey: 'legacy-shot' }, actor);
+  const legacy = await repository.mutateForActor(project.id, actor, record => {
+    const shot = record.scenes[0].shots[0];
+    delete shot.shotDocument;
+    shot.durationMs = 27000;
+    shot.manualStoryboard = true;
+    return record;
+  });
+  const prepared = await service.prepareShotWriter(project.id, scene.scene.id, manual.shot.id, actor, { storyPrompt: true });
+  assert.match(prepared.storyPrompt, /27-second/);
+  assert.doesNotMatch(prepared.storyPrompt, /WRITING DIRECTION/);
+  const input = { expectedVersion: legacy.version, expectedShotVersion: manual.shot.version, promptOnly: true,
+    videoPromptOverride: { text: prepared.storyPrompt, sourceFingerprint: prepared.sourceFingerprint } };
+  const saved = await service.updateShotDocument(project.id, scene.scene.id, manual.shot.id, input, actor);
+  assert.equal(saved.shot.durationMs, 27000);
+  assert.equal(saved.shot.manualStoryboard, true);
+  assert.equal(saved.shot.shotDocument, legacy.scenes[0].shots[0].shotDocument);
+  assert.equal(saved.scene.version, legacy.scenes[0].version);
+  assert.equal((await service.prepareShotWriter(project.id, scene.scene.id, manual.shot.id, actor)).overrideStale, false);
+  await assert.rejects(() => service.updateShotDocument(project.id, scene.scene.id, manual.shot.id, {
+    ...input, expectedVersion: saved.project.version
+  }, actor), /changed/i);
+});
+
+test('Story dossier accepts only owner assets uploaded from its Character form', async t => {
+  const baseAsset = { status: 'active', assetType: 'generation_reference', publicUrl: '/outputs/references/writer/photo.png' };
+  const assetRepository = {
+    async findByIdForOwner(id, owner) {
+      if (owner !== actor.userId || !['story-photo', 'playground-photo'].includes(id)) return null;
+      return { ...baseAsset, id, metadata: { role: 'character_reference', sourceMode: id === 'story-photo' ? 'story-character' : 'upload' } };
+    }
+  };
+  const { service, project } = await fixture(t, { assetRepository });
+  const input = { expectedProjectVersion: project.version, expectedStoryProjectVersion: project.version,
+    displayName: 'Lalin', storyRole: 'Florist' };
+  await assert.rejects(() => service.upsertSharedCharacterDossier(project.id, {
+    ...input, storyReferenceAssetId: 'playground-photo'
+  }, actor), { code: 'cinematic_story_reference_unavailable' });
+  const saved = await service.upsertSharedCharacterDossier(project.id, {
+    ...input, storyReferenceAssetId: 'story-photo'
+  }, actor);
+  assert.deepEqual(saved.project.castAssignments[0].storyReference, { assetId: 'story-photo', imageUrl: baseAsset.publicUrl });
+});
+
 test('shared voice edits preserve Character identity and reject stale versions', async t => {
   const { service, project } = await fixture(t);
   const created = await service.upsertSharedCharacterDossier(project.id, {

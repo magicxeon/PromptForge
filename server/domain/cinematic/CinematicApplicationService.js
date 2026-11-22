@@ -38,7 +38,7 @@ import {
   filmReadinessNotEvaluated
 } from './StoryPlanFilmReadiness.js';
 import { normalizeDialogueReview } from './CinematicDialogueTiming.js';
-import { compileCinematicShotDocument, shotPromptSourceFingerprint } from './CinematicShotDocumentCompiler.js';
+import { compileCinematicShotDocument, compileStoryShotPrompt, shotPromptSourceFingerprint } from './CinematicShotDocumentCompiler.js';
 import { cinematicDataLineageService } from './CinematicDataLineageService.js';
 import { cinematicFieldManifestService } from './CinematicFieldManifestService.js';
 import { cinematicAuthoringStateService, cinematicFieldKey } from './CinematicAuthoringStateService.js';
@@ -69,7 +69,8 @@ import {
   discardShotProposal as discardShotAuthoringProposal,
   ensureShotAuthoring,
   resolveShotDocument,
-  updateShotDocument as updateShotAuthoringDocument
+  updateShotDocument as updateShotAuthoringDocument,
+  writeShotPromptOverride
 } from './CinematicShotAuthoring.js';
 
 const STAGES = ['setup', 'cast', 'story-plan', 'storyboard', 'produce', 'finish'];
@@ -270,6 +271,19 @@ export class CinematicApplicationService {
   }
   async upsertSharedCharacterDossier(projectId, input, actor) {
     const sourceType = input?.sourceType === 'character' ? 'character' : 'dossier';
+    let storyReference;
+    if (input?.storyReferenceAssetId !== undefined) {
+      if (!actor?.userId || sourceType !== 'dossier' || typeof input.storyReferenceAssetId !== 'string') {
+        throw new CinematicError('cinematic_story_reference_invalid', 'Select an owned character reference image.', 400);
+      }
+      const asset = await this.assetRepository.findByIdForOwner(input.storyReferenceAssetId, actor.userId);
+      if (!asset || asset.status !== 'active' || asset.assetType !== 'generation_reference'
+        || asset.metadata?.role !== 'character_reference' || asset.metadata?.sourceMode !== 'story-character'
+        || !asset.publicUrl?.startsWith('/outputs/references/')) {
+        throw new CinematicError('cinematic_story_reference_unavailable', 'Character reference image is unavailable.', 404);
+      }
+      storyReference = { assetId: asset.id, imageUrl: asset.publicUrl };
+    }
     const authorizedCharacter = sourceType === 'character'
       ? await this.characterAuthorizationService.validateGenerationContext({
         purpose: 'character_usage',
@@ -283,7 +297,8 @@ export class CinematicApplicationService {
     const result = await this.seriesService.upsertSharedDossier(projectId, {
       ...input,
       sourceType,
-      authorizedCharacter
+      authorizedCharacter,
+      storyReference
     }, actor);
     return {
       ...result,
@@ -950,7 +965,7 @@ export class CinematicApplicationService {
     });
   }
 
-  async prepareShotWriter(projectId, sceneId, shotId, actorContext) {
+  async prepareShotWriter(projectId, sceneId, shotId, actorContext, { storyPrompt = false } = {}) {
     const project = await this.getProject(projectId, actorContext);
     const located = findShot(project, shotId);
     if (!located || located.scene.id !== sceneId) throw new CinematicError('cinematic_shot_not_found', 'Shot not found.', 404);
@@ -962,7 +977,9 @@ export class CinematicApplicationService {
       projectVideoDirection: projectVideoDirection(project),
       overrideStale: Boolean(shot.videoPromptOverride && shot.videoPromptOverride.sourceFingerprint !== sourceFingerprint),
       dialogue: prepared.dialogue, timing: prepared.timing,
-      maximumPromptCharacters: cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters };
+      maximumPromptCharacters: cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters,
+      ...(storyPrompt ? { storyPrompt: compileStoryShotPrompt(project, scene, shot, shotDocument, prepared.creatorPrompt,
+        resolveWritingPreferences(project.writingSettings).skillInstructions) } : {}) };
   }
 
   async exportShotWriter(projectId, sceneId, shotId, input, actorContext) {
@@ -1022,6 +1039,18 @@ export class CinematicApplicationService {
       const previousOverride = JSON.stringify(located.shot.videoPromptOverride || null);
       if (input.videoPromptOverride && input.videoPromptOverride.sourceFingerprint !== previousPromptFingerprint) {
         throw new CinematicError('cinematic_video_prompt_source_changed', 'The Shot source changed. Refresh and review your Video Prompt.', 409);
+      }
+      if (input.promptOnly === true) {
+        const { scene, shot } = located;
+        assertExpectedVersion(shot, input.expectedShotVersion);
+        writeShotPromptOverride(shot, input.videoPromptOverride);
+        if (previousOverride !== JSON.stringify(shot.videoPromptOverride)) {
+          markVideoPacketChanged(project, shot);
+          shot.version += 1;
+          shot.updatedAt = new Date().toISOString();
+          project.version += 1;
+        }
+        return { project, scene, shot };
       }
       const previousKeyframeFingerprint = this.keyframeContractCompiler.compile({
         project, scene: located.scene, shot: located.shot

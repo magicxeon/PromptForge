@@ -38,6 +38,8 @@
 | โมเดลภาษา | `post-processing-service/requirements-dub-language.txt` และ `post-processing-service/scripts/install_dub_language_models.py` ใช้กับ Python environment ของ Post-processing บน Windows ค่าเริ่มต้นสำหรับโมเดลแปลและ OCR คือ `D:\applications\momelo-post-processing\models\dub-sub` เปลี่ยนด้วย `DUB_LANGUAGE_MODELS` |
 | การแปลและ OCR | Gemini รับบทต้นฉบับ ภาษาที่เลือก ยุคสมัยและเรื่องย่อเมื่อสั่งแปล แก้ภาษาปลายทางบน cue เดิม การอ่านซับฝังในภาพใช้ Tesseract และตั้ง CLI ผ่าน `TESSERACT_PATH` ได้ |
 
+เพิ่ม preset ใต้ `presets` ใน [การตั้งค่าฟอนต์ซับ](../../server/config/dub-subtitle-fonts.json) ระบุ `label`, `family` ตามชื่อจริงในไฟล์, `file`, `weight` และตาราง `advances` สำหรับตัดบรรทัด วางไฟล์ TTF ในโฟลเดอร์ฟอนต์ หรือระบุ `googleSource` ให้สคริปต์ติดตั้งจาก revision ที่กำหนด ใช้ `defaultPreset` เปลี่ยนค่าตั้งต้น และ `selectable: false` เพื่อซ่อนฟอนต์จากตัวเลือกใหม่โดยให้แทร็กเดิมยังเปิดได้ เมื่อแก้ JSON ให้โหลด frontend ใหม่และรีสตาร์ต API เพื่อให้ Editor และ Export ใช้ค่าชุดเดียวกัน
+
 ## ผลการตรวจและขอบเขต
 
 - หน้า Editor ที่ 1366×768 เคยเริ่มพื้นที่คลื่นเสียงที่ y=764 หลังรวมแถบเครื่องมือและจัดความสูงตาม viewport เริ่มที่ y=599 และเห็นทั้งคลื่นเสียง ซับต้นฉบับ และซับไทย ความสูงเอกสารเท่ากับหน้าจอ ตรวจเพิ่มที่ 1440×900, 820×768 และ 390×844 ทดลองเล่นวิดีโอจริงข้ามประโยค เลื่อนไปประโยคท้าย และข้ามไปช่วงเงียบเพื่อยืนยันการติดตามแถวซ้าย
