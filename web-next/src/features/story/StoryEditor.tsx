@@ -137,7 +137,7 @@ function ProjectWorkspace({id}:{id:string}) {
     {activity && !(activity==="scenes"&&review==="scene"&&sceneProposal) && !(activity==="shots"&&review==="shot"&&shotProposal) &&
       <Dialog label={t("writingActivity."+activity)} onClose={()=>{}}>
       <div className="story-writing-progress" role="status">
-        <PenLine aria-hidden="true"/>
+        <PenLine className="story-writing-pen" aria-hidden="true"/>
         <p>{t("writingActivity."+activity)}</p>
       </div>
     </Dialog>}

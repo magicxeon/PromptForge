@@ -21,16 +21,21 @@ export function SceneRangeReview({proposal,paragraphs,ranges,onChange,disabled,e
     const scene=proposal.scenes[range.origins[0]];
     const text=paragraphs.slice(range.start-1,end);
     const continued=index>0 && ranges[index-1].origins.includes(range.origins[0]);
+    const title=continued?t("brief.splitTitle",{title:scene.title}):scene.title;
+    const oldTitles=continued?"":range.origins.map(origin=>existing[origin]?.title).filter(Boolean).join(" + ");
+    const canSplit=text.length>1 && ranges.length<24;
+    const canMerge=index+1<ranges.length;
     return <li key={range.start}>
-      <strong>{!continued && range.origins.map(origin=>existing[origin]?.title).filter(Boolean).join(" + ")}
-        {!continued && existing[range.origins[0]] && " → "}{continued?t("brief.splitTitle",{title:scene.title}):scene.title}</strong>
+      <strong>{oldTitles && oldTitles!==title && <>{oldTitles} → </>}{title}</strong>
       {!continued && existing[range.origins[0]] && <small>{t("shotCount",{count:existing[range.origins[0]].shots.length})}</small>}
       <p>{range.origins.length===1 && !continued && scene.sourceStartParagraph===range.start && scene.sourceEndParagraph===end?scene.synopsis:text.join(" ")}</p>
       <details><summary>{t("brief.source")} · {range.start}–{end}</summary>
         {text.map((paragraph,i)=><p key={i}><small>{range.start+i}</small> {paragraph}</p>)}
       </details>
-      <div className="story-range-tools">
-        {text.length>1 && ranges.length<24 && <label>{t("brief.split")}
+      {(canSplit || canMerge) && <details className="story-range-adjust">
+        <summary>{t("brief.rangeTools")}</summary>
+        <div className="story-range-tools">
+        {canSplit && <label>{t("brief.split")}
           <select disabled={disabled} value="" onChange={event=>{
             const start=Number(event.target.value);
             const bounds=initialRanges(proposal,paragraphs.length);
@@ -41,11 +46,12 @@ export function SceneRangeReview({proposal,paragraphs,ranges,onChange,disabled,e
           }}><option value="" disabled>{t("brief.selectBoundary")}</option>
             {text.slice(1).map((_,i)=><option key={i} value={range.start+i+1}>{t("brief.paragraph",{n:range.start+i+1})}</option>)}
           </select></label>}
-        {index+1<ranges.length && <button disabled={disabled} onClick={()=>{
+        {canMerge && <button disabled={disabled} onClick={()=>{
           const origins=[...new Set([...range.origins,...ranges[index+1].origins])];
           onChange([...ranges.slice(0,index),{...range,origins},...ranges.slice(index+2)]);
         }}>{t("brief.merge")}</button>}
-      </div>
+        </div>
+      </details>}
     </li>;
   })}{existing.slice(proposal.scenes.length).map(row=><li key={row.id}>{row.title} · {t("retained")}</li>)}</ol>;
 }

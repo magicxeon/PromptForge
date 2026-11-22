@@ -2,7 +2,7 @@ import {useState} from "react";
 import {useQuery} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
 import {useBlocker} from "react-router-dom";
-import {X} from "lucide-react";
+import {PenLine,X} from "lucide-react";
 import {ProcessingSpinner, useActor} from "../../../lib/canonical";
 import {MediaImage} from "../../../components/media/MediaImage";
 import {Dialog} from "../../dub-sub/Dialog";
@@ -171,7 +171,10 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
           setCopyState(undefined);
         }}/></label>}
       {excess > 0 && <p id="merge-text-limit" role="status">{t("merge.tooLong", {length:text.length, limit, excess})}</p>}
-      {operation && <p role="status"><ProcessingSpinner/> {t("merge." + operation + "Busy")}</p>}
+      {operation && <p className="story-merged-progress" role="status">
+        {operation === "build" ? <PenLine className="story-writing-pen" size={18} aria-hidden="true"/> : <ProcessingSpinner/>}
+        {t("merge." + operation + "Busy")}
+      </p>}
       {reviewError && <p role="alert">{review.error.message} <button disabled={busy || checking} onClick={() => void review.refetch()}>{t("retry")}</button></p>}
       {showError && error && !changedElsewhere && <p role="alert">{error}</p>}
       {copyState === "copyFailed" && <p role="status">{t(copyState)}</p>}

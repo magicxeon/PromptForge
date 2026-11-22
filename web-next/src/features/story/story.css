@@ -113,6 +113,65 @@ dialog:has(> .story-save-confirmation)::backdrop {background:#12271e65;}
 .story-save-confirmation .story-discard-edits {color:#91382c;}
 .story-save-confirmation .story-discard-edits:hover:not(:disabled) {background:#fff2ef;border-color:#cca39b;}
 .story-save-status {display:flex;align-items:center;gap:.5rem;color:#265d46;}
+dialog:has(> .story-scene-review) {
+  width:min(68rem,calc(100vw - 1.5rem));
+  padding:0;
+  overflow:hidden;
+}
+dialog:has(> .story-scene-review)::backdrop {background:#12271e65;}
+.story-review.story-scene-review {
+  width:100%;
+  max-height:calc(90dvh - 2px);
+  display:grid;
+  grid-template-rows:auto auto minmax(0,1fr) auto;
+}
+.story-scene-review > header,.story-scene-review > footer,.story-scene-review .story-proposal-toolbar {
+  padding:.8rem clamp(.8rem,3vw,1.5rem);
+  overflow-wrap:anywhere;
+}
+.story-proposal-heading,.story-proposal-toolbar,.story-proposal-actions {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.65rem;
+  flex-wrap:wrap;
+}
+.story-proposal-heading h2 {margin:0;font-size:1.35rem;}
+.story-proposal-heading p {color:#486451;}
+.story-scene-review .story-proposal-toolbar {background:#f0f5f2;border-block:1px solid #dce5db;}
+.story-proposal-impact {color:#36584a;font-weight:600;}
+.story-scene-review .story-compare {display:grid;grid-template-rows:minmax(0,1fr);min-height:0;gap:0;}
+.story-scene-review :is(.story-source,.story-proposals) {
+  max-height:none;
+  min-height:0;
+  overflow:auto;
+  padding:.9rem clamp(.8rem,3vw,1.5rem);
+  overscroll-behavior:contain;
+}
+.story-scene-review .story-source {background:#f5f8f6;}
+.story-scene-review .story-proposals ol {margin:0;gap:.7rem;padding-inline-start:1.65rem;}
+.story-scene-review .story-proposals > button {margin-block-end:.65rem;}
+.story-scene-review .story-proposals li {
+  padding:.85rem 1rem;
+  border:1px solid #dce5db;
+  border-radius:.65rem;
+  overflow-wrap:anywhere;
+}
+.story-scene-review .story-proposals li::marker {color:#486451;font-weight:600;}
+.story-scene-review .story-proposals li > strong {font-size:1.08rem;}
+.story-scene-review .story-proposals li > small {color:#53695b;}
+.story-scene-review .story-proposals li > p {margin-block:.4rem .55rem;}
+.story-scene-review details {margin-block-start:.5rem;}
+.story-scene-review details > summary {cursor:pointer;color:#36584a;}
+.story-scene-review .story-range-adjust {border:0;padding:0;}
+.story-scene-review .story-range-tools {background:#f5f8f6;border-radius:.5rem;padding:.65rem;margin-block-end:0;}
+.story-scene-review > footer {border-block-start:1px solid #dce5db;background:#fff;}
+.story-scene-review > footer > p {margin-block-end:.5rem;color:#91382c;}
+.story-scene-review .story-proposal-actions .primary-button {width:auto;min-height:36px;}
+.story-scene-review button {white-space:normal;}
+@media(max-width:40rem) {
+  .story-scene-review .story-compare[data-source=true] {display:grid;grid-template-columns:minmax(0,1fr);}
+}
 @media(max-width:32rem) {
   .story-save-confirmation footer button {flex:1 1 auto;}
   .story-save-confirmation footer .primary-button {flex-basis:100%;margin:0;}
@@ -213,9 +272,10 @@ dialog:has(.story-writing-progress) {width:min(24rem,calc(100vw - 2rem));box-siz
 .story-writing-progress {display:grid;justify-items:center;gap:.7rem;text-align:center;color:#265d46;}
 .story-writing-progress p {margin:0;}
 .story-saving {position:fixed;z-index:2;inset:auto 1rem 1rem auto;display:flex;align-items:center;gap:.55rem;padding:.55rem .85rem;background:#f1f7f3;border:1px solid #c9d7cb;border-radius:.55rem;pointer-events:none;}
-.story-writing-progress>svg.lucide-pen-line {width:1.8rem;height:1.8rem;animation:story-writing .95s ease-in-out infinite alternate;}
+.story-writing-progress > .story-writing-pen {width:1.8rem;height:1.8rem;}
+.story-writing-pen {animation:story-writing .95s ease-in-out infinite alternate;}
 @keyframes story-writing {from {transform:translate(-.2rem,.12rem) rotate(-14deg);} to {transform:translate(.23rem,-.12rem) rotate(4deg);}}
-@media(prefers-reduced-motion:reduce) {.story-writing-progress>svg.lucide-pen-line {animation:none;}}
+@media(prefers-reduced-motion:reduce) {.story-writing-pen {animation:none;}}
 .story-index>button {display:inline-flex;align-items:center;justify-content:flex-start;}
 @media(max-width:58rem) {
  .story-layout,.story-index-toggle {display:block;}

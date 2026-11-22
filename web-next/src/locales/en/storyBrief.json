@@ -24,6 +24,7 @@
   "script": "An existing script",
   "source": "Source passage",
   "merge": "Merge with next scene",
+  "rangeTools": "Split or merge scene",
   "split": "Split before this paragraph",
   "paragraph": "Paragraph {{n}}",
   "selectBoundary": "Choose a split point",

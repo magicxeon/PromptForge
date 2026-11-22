@@ -235,6 +235,25 @@ try {
   await dialog.getByRole("button",{name:"View source"}).click();
   assert.equal(await dialog.locator(".story-source p").innerText(),revisedScript);
   await dialog.getByRole("button",{name:"Show proposal"}).click();
+  await dialog.getByRole("button",{name:"Review suggested paragraph ranges"}).click();
+  const sceneCards=dialog.locator(".story-range-review > li");
+  assert.equal(await sceneCards.count(),2);
+  const mergeAdjacent=sceneCards.first().getByRole("button",{name:"Merge with next scene"});
+  assert.equal(await mergeAdjacent.isVisible(),false);
+  await sceneCards.first().getByText("Split or merge scene",{exact:true}).click();
+  await mergeAdjacent.click();
+  assert.equal(await sceneCards.count(),1);
+  for(const width of [390,820,1440]){
+    await page.setViewportSize({width,height:520});
+    assert.ok(await dialog.locator(".story-scene-review").evaluate(el=>{
+      const box=el.parentElement.getBoundingClientRect();
+      const footer=el.querySelector("footer").getBoundingClientRect();
+      const list=el.querySelector(".story-proposals").getBoundingClientRect();
+      return box.right<=innerWidth+1 && Math.abs(box.right-footer.right)<=2 &&
+        footer.bottom<=innerHeight && list.bottom<=footer.top+1;
+    }), "scene review actions remain visible at "+width);
+  }
+  await page.setViewportSize({width:1440,height:900});
   await dialog.getByRole("button",{name:"Discard proposal"}).click();
   await dialog.waitFor({state:"hidden"});
   assert.equal((await persisted()).scenes.length,0);
@@ -581,6 +600,11 @@ try {
   }, {times:1});
   await merged.getByRole("button",{name:"Build merged prompt"}).click();
   await merged.getByRole("status").filter({hasText:"Building the merged prompt"}).waitFor();
+  const mergedWritingPen=merged.getByRole("status").locator(".story-writing-pen");
+  assert.equal(await mergedWritingPen.evaluate(node=>getComputedStyle(node).animationName),"story-writing");
+  await page.emulateMedia({reducedMotion:"reduce"});
+  assert.equal(await mergedWritingPen.evaluate(node=>getComputedStyle(node).animationName),"none");
+  await page.emulateMedia({reducedMotion:"no-preference"});
   assert.ok(await merged.getByRole("button",{name:"Build merged prompt"}).isDisabled());
   releaseFirstBuild();
   const mergeResponse = page.waitForResponse(response => response.url().endsWith("/shot-proposals") && response.ok());

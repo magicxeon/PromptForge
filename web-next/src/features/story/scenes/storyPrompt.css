@@ -19,6 +19,8 @@
 .story-merge-saved button { display:flex; flex-wrap:wrap; justify-content:flex-start; text-align:start; white-space:normal; }
 .story-merged-dialog { display:grid; gap:.8rem; }
 .story-merged-dialog h3 { margin:0; }
+.story-merged-progress {display:flex;align-items:center;gap:.5rem;}
+.story-merged-progress .story-writing-pen {flex:none;color:#265d46;}
 .story-merge-timeline { margin:.4rem 0; padding-inline-start:1.7rem; }
 .story-merge-timeline span { margin-inline-start:.3rem; white-space:nowrap; }
 .story-merged-dialog .story-actions button { white-space:normal; }
