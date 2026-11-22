@@ -197,6 +197,15 @@ try {
     preview,
   );
   await page.locator(".dub-picture video").waitFor();
+  await page.waitForFunction(() => document.querySelector(".dub-picture video")?.readyState >= 2);
+  await page.evaluate(() => document.activeElement?.blur());
+  await page.keyboard.down("Space");
+  await page.waitForFunction(() => !document.querySelector(".dub-picture video").paused);
+  await page.keyboard.down("Space");
+  assert.equal(await page.locator(".dub-picture video").evaluate(el => el.paused), false);
+  await page.keyboard.up("Space");
+  await page.keyboard.press("Space");
+  await page.waitForFunction(() => document.querySelector(".dub-picture video").paused);
   await page.getByRole("button", { name: "Add cue" }).click();
   const inspector = page.locator(".dub-inspector");
   const line = page.locator(".dub-line.selected");
@@ -244,6 +253,7 @@ try {
     .nth(1)
     .click();
   await inspector.getByLabel("Text color").selectOption("yellow");
+  assert.deepEqual(await inspector.getByRole("slider").evaluateAll(sliders=>sliders.map(slider=>slider.value)), ["32","29"]);
   assert.equal(await inspector.getByRole("slider").count(), 2);
   await inspector.getByLabel("Lock track").check();
   assert.equal(await caption.getAttribute("aria-disabled"), "true");

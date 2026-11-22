@@ -128,10 +128,23 @@ test('local admin HTTP uses fixed role, valid CSRF for isolated commands, bounde
   assert.equal((await request('/api/voice-studio/custom-voices')).status, 403);
   assert.equal((await request('/api/voice-studio/custom-voices', 'POST', headers)).status, 403);
   assert.equal((await request('/api/dub-sub/projects')).status, 403);
+  const storyProposal = '/api/cinematic/projects/fixture/full-story/proposals';
+  const writingSettings = '/api/cinematic/projects/fixture/writing-settings';
+  assert.equal((await request(writingSettings, 'PATCH', headers)).status, 403);
+  assert.equal((await request(storyProposal, 'POST', headers)).status, 403);
   runtime = qualifyAuthRuntime({ ...env, PORT: String(port), AUTH_DEV_BYPASS_GENERATION_ENABLED: 'true' }, f.project);
   middleware = new IdentityDevelopmentService({ runtime, userRepository: f.repo }).middleware();
   const liveConfig = await request('/api/auth/config');
   const liveHeaders = { cookie: liveConfig.headers['set-cookie'][0].split(';')[0], 'x-csrf-token': liveConfig.body.csrfToken };
+  assert.equal((await request(storyProposal, 'POST', liveHeaders)).status, 200);
+  assert.equal((await request(writingSettings, 'PATCH', liveHeaders)).status, 200);
+  assert.equal((await request(writingSettings, 'PATCH')).status, 403);
+  assert.equal((await request(writingSettings, 'PATCH', { ...liveHeaders, origin: 'https://untrusted.invalid' })).status, 403);
+  assert.equal((await request(writingSettings, 'POST', liveHeaders)).status, 403);
+  assert.equal((await request(storyProposal, 'POST')).status, 403);
+  assert.equal((await request(storyProposal, 'POST', { ...liveHeaders, origin: 'https://untrusted.invalid' })).status, 403);
+  assert.equal((await request(storyProposal, 'GET', liveHeaders)).status, 403);
+  assert.equal((await request(storyProposal + '/dispatch', 'POST', liveHeaders)).status, 403);
   for (const previewOrigin of ['http://localhost:6502', 'http://127.0.0.1:6502']) {
     assert.equal((await request('/api/generation/requests/fixture', 'GET', { origin: previewOrigin })).status, 200);
   }

@@ -1,6 +1,31 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { CinematicFullStoryService } from '../server/domain/generation/CinematicFullStoryService.js';
+import { resolveWritingPreferences } from '../server/config/storyWritingSettings.js';
+
+test('the selected project writer receives the selected skill instructions and is recorded in provenance', async () => {
+  const calls = [];
+  const service = new CinematicFullStoryService({
+    policyLoader: () => ({ enabled: true, provider: 'openai', model: 'previous-default', reasoningEffort: 'none' }),
+    availabilityPolicy: { assertAvailable() {} },
+    providerFactory: () => ({ generateCinematicFullStory: async input => {
+      calls.push(input);
+      return { fullStory: 'The draft.' };
+    } })
+  });
+  for (const modelId of ['gpt-6.2-astra', 'gpt-6.2-sol', 'gpt-6-luna']) {
+    const writingSettings = { modelId, skillIds: ['story-structure'] };
+    const result = await service.propose({ storyBrief: 'An innkeeper finds a letter.', writingSettings });
+    const submitted = calls.at(-1);
+    assert.equal(submitted.model, modelId);
+    assert.equal(submitted.reasoningEffort, modelId === 'gpt-6-luna' ? 'none' : 'low');
+    assert.deepEqual(submitted.context.editorialInstructions, resolveWritingPreferences(writingSettings).skillInstructions);
+    assert.equal(result.provenance.model, modelId);
+  }
+  await service.propose({ storyBrief: 'Another story.' });
+  assert.equal(calls.at(-1).model, 'previous-default');
+  assert.equal(calls.at(-1).context.editorialInstructions, undefined);
+});
 
 test('Full Story AI normalizes revision and Chapter proposals through the configured text provider', async () => {
   const calls = [];
@@ -103,4 +128,6 @@ test('Full Story AI requires an instruction only when revising an existing story
     { code: 'cinematic_full_story_revision_instruction_required' }
   );
   assert.equal((await service.propose({ storyBrief: 'Brief.', currentFullStory: '' })).fullStory, 'Generated.');
+  assert.equal((await service.propose({ revisionInstruction: 'A traveller returns to the family inn.' })).fullStory, 'Generated.');
+  await assert.rejects(service.propose({ revisionInstruction: ' ' }), {code:'cinematic_full_story_source_required'});
 });

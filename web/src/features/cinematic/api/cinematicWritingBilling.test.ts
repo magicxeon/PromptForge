@@ -5,7 +5,7 @@ import { webcrypto } from 'node:crypto';
 import { CinematicWritingCancelled, cinematicWritingQuoteSchema, registerCinematicWritingConsent, withCinematicWritingConsentScope, withCinematicWritingQuote } from './cinematicWritingBilling';
 
 const state = vi.hoisted(() => ({ actor: 'writer', request: vi.fn() }));
-vi.mock('../../../lib/auth/actorStore', () => ({ getActiveActorId: () => state.actor }));
+vi.mock('../../../lib/auth/actorStore', () => ({ getActiveActorId: () => state.actor, getIdentitySnapshot: () => ({ authMode: 'session' }) }));
 vi.mock('../../../lib/api/apiClient', () => ({ apiRequest: (...args: unknown[]) => state.request(...args) }));
 vi.mock('../../../lib/i18n/i18n', () => ({ i18n: { t: (key: string) => key } }));
 const quote = () => ({ id: 'cw_one', operation: 'chapters' as const, credits: 35, billingStatus: 'paid' as const, expiresAt: new Date(Date.now() + 60000).toISOString() });
@@ -145,7 +145,7 @@ describe('Cinematic writing authorization', () => {
     const input = { instruction: 'Private story text', expectedVersion: 5 };
     const execute = vi.fn().mockRejectedValue(new TypeError('POST response lost'));
     await expect(withCinematicWritingQuote({ projectId: 'p', operation: 'chapters', input, resultSchema: z.object({ story: z.string() }) }, execute)).rejects.toThrow('Status offline');
-    const stored = localStorage.getItem('mpf.react.draft:cinematic-writing-recovery:writer')!;
+    const stored = localStorage.getItem('mpf.react.draft:session:cinematic-writing-recovery:writer')!;
     expect(stored).toContain('cw_one'); expect(stored).not.toContain('Private story text'); expect(stored).not.toContain('instruction');
     vi.resetModules();
     const resumed = await import('./cinematicWritingBilling');
@@ -173,7 +173,7 @@ describe('Cinematic writing authorization', () => {
     state.request.mockResolvedValueOnce(quote()).mockResolvedValue({ ...quote(), status: 'delivered', result: { story: 'Usable', billingStatus: 'settlement_pending' } });
     const execute = vi.fn().mockRejectedValue(new TypeError('POST response lost'));
     expect(await withCinematicWritingQuote({ projectId: 'p', operation: 'chapters', input: {}, resultSchema: z.object({ story: z.string(), billingStatus: z.literal('settlement_pending') }) }, execute)).toEqual({ story: 'Usable', billingStatus: 'settlement_pending' });
-    expect(localStorage.getItem('mpf.react.draft:cinematic-writing-recovery:writer')).toContain('cw_one');
+    expect(localStorage.getItem('mpf.react.draft:session:cinematic-writing-recovery:writer')).toContain('cw_one');
   });
   it('fails closed before POST when browser receipt storage cannot be written', async () => {
     unregister = registerCinematicWritingConsent(async () => true);
@@ -194,7 +194,7 @@ describe('Cinematic writing authorization', () => {
     await withCinematicWritingQuote({ projectId: 'p', operation: 'chapters', input: {}, resultSchema: z.object({ story: z.string() }) }, second);
     expect(state.request).toHaveBeenCalledOnce();
     expect(state.request.mock.calls[0]?.[0]).toContain('/quotes');
-    expect(localStorage.getItem('mpf.react.draft:cinematic-writing-recovery:writer')).toContain('cw_one');
+    expect(localStorage.getItem('mpf.react.draft:session:cinematic-writing-recovery:writer')).toContain('cw_one');
     expect(second).toHaveBeenCalledOnce();
   });
   it('reuses an unaccepted quote after a proxy failure instead of creating a fresh quote', async () => {
@@ -213,7 +213,7 @@ describe('Cinematic writing authorization', () => {
     state.request.mockResolvedValueOnce(quote()).mockResolvedValue({ ...quote(), status: 'quoted' });
     const execute = vi.fn().mockRejectedValue(new ApiError({ status: 409, code: 'enhancement_stale', message: 'Source changed' }));
     await expect(withCinematicWritingQuote({ projectId: 'p', operation: 'chapters', input: {}, resultSchema: z.object({ story: z.string() }) }, execute)).rejects.toThrow('expired');
-    expect(localStorage.getItem('mpf.react.draft:cinematic-writing-recovery:writer')).not.toContain('cw_one');
+    expect(localStorage.getItem('mpf.react.draft:session:cinematic-writing-recovery:writer')).not.toContain('cw_one');
   });
   it.each(['succeeded', 'delivered'] as const)('offers explicit previous-result recovery after reload with a changed project version (%s)', async status => {
     const consent = vi.fn().mockResolvedValue(true);
@@ -227,7 +227,7 @@ describe('Cinematic writing authorization', () => {
       result: { story: 'Previous result', billingStatus: status === 'delivered' ? 'settlement_pending' : 'paid' } });
     const retry = vi.fn(), options = { projectId: 'p', operation: 'chapters' as const, input: { expectedVersion: 2 }, resultSchema: schema };
     await expect(withCinematicWritingQuote(options, retry)).rejects.toBeInstanceOf(CinematicWritingCancelled);
-    expect(localStorage.getItem('mpf.react.draft:cinematic-writing-recovery:writer')).toContain('cw_one');
+    expect(localStorage.getItem('mpf.react.draft:session:cinematic-writing-recovery:writer')).toContain('cw_one');
     await expect(withCinematicWritingQuote(options, retry)).rejects.toBeInstanceOf(CinematicWritingCancelled);
     expect(consent).toHaveBeenLastCalledWith(expect.objectContaining({ mandatory: true, recovery: { status, artifactExpiresAt: expect.any(String), result: { story: 'Previous result', billingStatus: status === 'delivered' ? 'settlement_pending' : 'paid' } }, quote: expect.objectContaining({ id: 'cw_one' }) }));
     expect(retry).not.toHaveBeenCalled();
@@ -236,6 +236,6 @@ describe('Cinematic writing authorization', () => {
       state.request.mockReset().mockResolvedValue(quote()); retry.mockResolvedValue({ story: 'New result', billingStatus: 'paid' });
       expect(await withCinematicWritingQuote(options, retry)).toEqual({ story: 'New result', billingStatus: 'paid' });
       expect(state.request.mock.calls[0]?.[0]).toContain('/quotes');
-    } else expect(localStorage.getItem('mpf.react.draft:cinematic-writing-recovery:writer')).toContain('cw_one');
+    } else expect(localStorage.getItem('mpf.react.draft:session:cinematic-writing-recovery:writer')).toContain('cw_one');
   });
 });

@@ -1,4 +1,5 @@
 {
+  "takeNumber": "Take {{number}}",
   "deleteTake":"Delete take",
   "deleteConfirm":"Permanently delete the take for {{name}} ({{seconds}} seconds)?",
   "deleteInUse":"This take is in use. Replace it before deleting.",
@@ -31,6 +32,7 @@
   "selected": "On timeline",
   "duration": "{{seconds}} s",
   "overrun": "{{seconds}} s over cue",
+  "confirmOverrun": "This take runs {{seconds}} seconds past the cue. Use this take?",
   "error": "Could not complete this action. {{code}}",
   "loading": "Loading voices…",
   "pending": "Generating take…",

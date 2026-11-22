@@ -2,9 +2,13 @@
 **ID**: 099-technical-dept-master
 **Application**: `ModelPromptForge`
 
+Web-next story authoring is owned by `web-next/src/features/story/` at `/story` and `/story/:id`. It uses Cinematic's existing identity-aware project, series, revision, proposal and writing-quote clients. The Cinematic project library supplies saved scene and shot counts. Display settings belong to `web-next/src/features/story/story-config.json`. See [Story & Shots](../024-frontend-rebuild/013-story-scene-shot.md).
+
 This directory tracks refactoring tasks, technical debt payments, and modularization requirements designed to keep the codebase maintainable, performant, and clean.
 
 ## Agent Start Here
+
+Dub & Sub resolves new subtitle track typography and lock defaults from [dub-subtitle-defaults.json](../../server/config/dub-subtitle-defaults.json). The Editor uses the same values when resetting a track.
 
 Dub & Sub export uses `server/domain/dub-sub/sceneAudio.js` and `separateScene.py` for local BandIt v2 inference. Shared model assets resolve through `BANDIT_RUNTIME_DIR` in server configuration. The derived `scene-bandit-v2.wav` belongs to the existing private, immutable project media folder and shares its lifecycle. [Export setup](../024-frontend-rebuild/011-dub-sub-operations.md)
 
@@ -77,6 +81,8 @@ stays in `features/playground/` and shared `components/media/` per
 [FE24-VID](../024-frontend-rebuild/007-video-workspace.md). Navigation order is Image, Comparison,
 Video. [Web-next credit policy](../../server/config/web-next.json) controls billing at this frontend's trusted ingress.
 [WorkspaceCreditPolicy](../../server/domain/credits/WorkspaceCreditPolicy.js) owns workflow eligibility and the unmetered admission marker. Financial operations continue through [CreditApplicationService](../../server/domain/credits/CreditApplicationService.js).
+Story & Shots applies this policy to chapter planning, chapter writing, scene proposals and shot proposals. Cinematic Writing keeps the actor-bound execution receipt and source revision check in both billing modes.
+The root Cinematic project owns writing model and skill selections for its chapters. The authoring manifest exposes the public [writing catalog](../../server/config/cinematic/story-writing.v1.json). Cinematic resolves selected skill IDs into editorial instructions for Generation and includes the effective writer in the writing quote source.
 `GET /api/web-next/config` projects the effective policy. Vite's server proxy and
 `server/middleware/webNextCreditPolicy.js` identify requests at the backend; browser inputs carry no billing authority.
 The local proxy credential lives in an OS user temp directory scoped to this checkout.

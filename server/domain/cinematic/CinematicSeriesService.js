@@ -115,7 +115,8 @@ export class CinematicSeriesService {
     const castAssignments = source.id === target.id || !selected.size ? null : (source.castAssignments || [])
       .filter(item => item.active !== false && selected.has(item.id))
       .map(item => structuredClone(item));
-    return { castAssignments, videoDirection: String(source.setup?.videoDirection || '') };
+    return { castAssignments, videoDirection: String(source.setup?.videoDirection || ''),
+      writingSettings: source.writingSettings ?? { modelId: null, skillIds: [] } };
   }
 
   async mutateWithCharacterProjection(projectId, actor, operation) {

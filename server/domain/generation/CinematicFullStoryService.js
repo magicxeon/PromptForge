@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { resolveWritingPreferences } from '../../config/storyWritingSettings.js';
 import { cinematicWorkflowPolicy } from '../../config/cinematicRewampConfiguration.js';
 import { getCinematicStoryEnhancementPolicy } from '../../config/cinematic-story-enhancement-policy.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
@@ -29,10 +30,10 @@ export class CinematicFullStoryService {
   }
 
   async propose(input = {}) {
-    const policy = this.#policy();
+    const policy = this.#policy(input.writingSettings);
     const context = normalizeStoryInput(input);
     const result = await this.providerFactory(policy).generateCinematicFullStory({
-      context,
+      context: { ...context, ...policy.skillContext },
       model: policy.model,
       reasoningEffort: policy.reasoningEffort,
       maxOutputTokens: policy.maxOutputTokens,
@@ -77,7 +78,7 @@ export class CinematicFullStoryService {
   }
 
   async proposeChapters(input = {}) {
-    const policy = this.#policy();
+    const policy = this.#policy(input.writingSettings);
     const fullStory = boundedText(input.fullStory, cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters);
     if (!fullStory) fail('cinematic_full_story_required', 'Confirm a Full Story before generating Chapters.');
     const maxChapters = Math.min(
@@ -92,6 +93,7 @@ export class CinematicFullStoryService {
         targetDurationSeconds: Math.max(1, Number(input.targetDurationSeconds) || 60),
         maxChapters,
         expectedChapterCount,
+        ...policy.skillContext,
         chapterPlan: normalizeChapterPlan(input.chapterPlan, maxChapters),
         scope: input.scope === 'selected' ? 'selected' : 'all',
         instruction: boundedText(input.instruction, cinematicWorkflowPolicy.authoring.fullStoryInstructionMaximumCharacters),
@@ -126,7 +128,7 @@ export class CinematicFullStoryService {
 
   async estimateChapterPlanning(input = {}) {
     let policy;
-    try { policy = this.#policy(); }
+    try { policy = this.#policy(input.writingSettings); }
     catch { return { estimates: { chapter_outline: null, chapters: null }, billingStatus: 'qualification_no_charge' }; }
     const inputBytes = Buffer.byteLength(JSON.stringify(input), 'utf8');
     const estimates = {};
@@ -141,10 +143,11 @@ export class CinematicFullStoryService {
   }
 
   async proposeChapterOutline(input = {}) {
-    const policy = this.#policy();
+    const { writingSettings, ...context } = input;
+    const policy = this.#policy(writingSettings);
     const started = Date.now();
     const result = await this.providerFactory(policy).generateCinematicChapterOutline({
-      context: { ...input, maximumChapters: Math.min(cinematicWorkflowPolicy.authoring.generatedChapterMaximum,
+      context: { ...context, ...policy.skillContext, maximumChapters: Math.min(cinematicWorkflowPolicy.authoring.generatedChapterMaximum,
         cinematicWorkflowPolicy.projectCreation.maximumChapterCount),
         synopsisMaximumCharacters: cinematicWorkflowPolicy.authoring.chapterOutlineSynopsisMaximumCharacters },
       model: policy.model, reasoningEffort: policy.reasoningEffort,
@@ -159,7 +162,7 @@ export class CinematicFullStoryService {
   }
 
   async proposeScenes(input = {}) {
-    const policy = this.#policy();
+    const policy = this.#policy(input.writingSettings);
     const chapterStory = boundedText(input.chapterStory, cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters);
     if (!chapterStory) fail('cinematic_chapter_story_required', 'Save Chapter prose before generating Scenes.');
     const maximumScenes = Math.min(
@@ -179,6 +182,7 @@ export class CinematicFullStoryService {
         },
         characters: normalizeCharacterList(input.characters, 24),
         currentScenes: normalizeSceneList(input.currentScenes, maximumScenes),
+        ...policy.skillContext,
         continuity: input.continuity || null,
         maximumScenes
       },
@@ -200,7 +204,7 @@ export class CinematicFullStoryService {
   }
 
   async proposeShots(input = {}) {
-    const policy = this.#policy();
+    const policy = this.#policy(input.writingSettings);
     const scene = normalizeShotScene(input.scene);
     if (!scene.synopsis && !scene.objective) fail('cinematic_scene_direction_required', 'Save the Scene situation before generating Shots.');
     const maximumShots = Math.min(
@@ -212,6 +216,7 @@ export class CinematicFullStoryService {
         project: { title: boundedText(input.projectTitle, 120), aspectRatio: boundedText(input.aspectRatio, 20) },
         chapter: { title: boundedText(input.chapterTitle, 120), story: boundedText(input.chapterStory, 10000) },
         scene,
+        ...policy.skillContext,
         adjacentScenes: {
           previous: normalizeAdjacentScene(input.previousScene),
           next: normalizeAdjacentScene(input.nextScene)
@@ -296,8 +301,17 @@ export class CinematicFullStoryService {
     };
   }
 
-  #policy() {
-    const policy = this.policyLoader();
+  #policy(writingSettings) {
+    const policy = { ...this.policyLoader() };
+    if (writingSettings) {
+      const { modelId, skillInstructions } = resolveWritingPreferences(writingSettings);
+      if (modelId) {
+        policy.model = modelId;
+        policy.fallback = { ...policy.fallback, enabled: false };
+        if (modelId.startsWith('gpt-6.2-') && policy.reasoningEffort === 'none') policy.reasoningEffort = 'low';
+      }
+      if (skillInstructions.length) policy.skillContext = { editorialInstructions: skillInstructions };
+    }
     if (!policy.enabled) fail(
       policy.requestedEnabled ? 'cinematic_story_enhancement_provider_unavailable' : 'cinematic_story_enhancement_disabled',
       'Cinematic story generation is not enabled.',
@@ -309,9 +323,10 @@ export class CinematicFullStoryService {
 }
 
 function normalizeStoryInput(input) {
-  const brief = boundedText(input.storyBrief, 10000);
   const currentFullStory = boundedText(input.currentFullStory, cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters);
   const revisionInstruction = boundedText(input.revisionInstruction, cinematicWorkflowPolicy.authoring.fullStoryInstructionMaximumCharacters);
+  // A new project may start from a writing brief entered directly in the manuscript editor.
+  const brief = boundedText(input.storyBrief, 10000) || (!currentFullStory ? revisionInstruction : '');
   if (!brief && !currentFullStory) fail('cinematic_full_story_source_required', 'Add a Project Brief or current Full Story first.');
   if (currentFullStory && !revisionInstruction) {
     fail('cinematic_full_story_revision_instruction_required', 'Add a revision instruction before revising the Full Story.');

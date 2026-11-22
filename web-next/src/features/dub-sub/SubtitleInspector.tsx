@@ -146,7 +146,7 @@ export function SubtitleInspector({
           />
         </label>
       ))}
-      <label>
+      <label className="dub-track-lock">
         <input
           type="checkbox"
           checked={style.locked}

@@ -23,13 +23,8 @@
   },
   "defaultStyle": {
     "visible": true,
-    "locked": false,
-    "font": "sans",
-    "color": "white",
-    "size": 48,
     "x": 50,
-    "y": 85,
-    "maxChars": 42
+    "y": 85
   },
   "fonts": {
     "sans": "Noto Sans",

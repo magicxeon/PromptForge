@@ -316,6 +316,7 @@ export const cinematicProjectSummarySchema = z.object({
 });
 
 export const cinematicProjectLibrarySummarySchema = cinematicProjectSummarySchema.extend({
+  sceneCount: z.number().int().nonnegative().optional(),
   productionProjectId: z.string().min(1),
   chapterId: z.string().min(1),
   productionUnitId: z.string().min(1),
@@ -1109,7 +1110,20 @@ const cinematicRewampSchema = z.object({
     referencePriority: z.array(z.enum(['composition', 'character-look', 'hero-prop', 'expression', 'environment'])).length(5)
   })
 });
+const writingLocaleText = z.object({th:z.string().min(1),en:z.string().min(1)});
+export const cinematicWritingSettingsCatalogSchema = z.object({
+  defaultModelId: z.string().nullable(),
+  maxSkills: z.number().int().positive().max(5),
+  models: z.array(z.object({id:z.string().min(1),label:z.string().min(1)})),
+  skills: z.array(z.object({id:z.string().min(1),label:writingLocaleText,description:writingLocaleText})),
+});
+const cinematicWritingSettingsSchema = z.object({
+  modelId:z.string().nullable(),skillIds:z.array(z.string().min(1)).max(5)
+});
+export type CinematicWritingSettings = z.infer<typeof cinematicWritingSettingsSchema>;
+export type CinematicWritingSettingsCatalog = z.infer<typeof cinematicWritingSettingsCatalogSchema>;
 export const cinematicAuthoringManifestSchema = z.object({
+  writingSettings: cinematicWritingSettingsCatalogSchema.optional(),
   storyAuthoring: cinematicStoryAuthoringSchema.optional(),
   rewamp: cinematicRewampSchema.optional(),
   schemaVersion: z.literal(1),
@@ -1210,6 +1224,7 @@ export type CinematicChapterOutlineRow = z.infer<typeof cinematicChapterOutlineR
 export type CinematicChapterPlanningEstimate = z.infer<typeof cinematicChapterPlanningEstimateSchema>;
 
 export const cinematicProjectSchema = z.object({
+  writingSettings: cinematicWritingSettingsSchema.optional(),
   billingStatus: z.enum(['paid', 'settlement_pending', 'free']).optional(),
   writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional(),
   seriesMembership: cinematicSeriesMembershipSchema.optional(),
@@ -1474,7 +1489,6 @@ export type CinematicCastAssignment = z.infer<typeof cinematicCastAssignmentSche
 export type CinematicScene = z.infer<typeof cinematicSceneSchema>;
 export type CinematicShot = z.infer<typeof cinematicShotSchema>;
 export type CinematicStoryboardGenerationContext = z.infer<typeof cinematicStoryboardGenerationContextSchema>;
-export type CinematicStoryboardKeyframeContract = z.infer<typeof cinematicStoryboardKeyframeContractSchema>;
 export type CinematicVideoPacket = z.infer<typeof cinematicVideoPacketSchema>;
 export type CinematicStoryBeat = z.infer<typeof cinematicStoryBeatSchema>;
 export type CinematicStoryPlanDraft = z.infer<typeof cinematicStoryPlanDraftSchema>;

@@ -104,10 +104,14 @@ export async function withCinematicWritingQuote<T>({ projectId, operation, input
       assertActor();
       if (receipt.id !== id || receipt.operation !== operation) throw billingError('pending');
       if (['succeeded', 'delivered'].includes(receipt.status) && receipt.result != null) {
-        if (receipt.status === 'succeeded') await notifySettled(id, 'succeeded');
+        if (receipt.status === 'succeeded' && receipt.billingStatus === 'paid') await notifySettled(id, 'succeeded');
         assertActor();
         if (!resultSchema) throw billingError('pending');
         if (expectedFingerprint !== fingerprint) {
+          if (receipt.billingStatus === 'free') {
+            removeCinematicWritingReceipt(actorId, id);
+            throw billingError('previousRequest');
+          }
           if (!handler) throw billingError('consentUnavailable');
           if (!await handler({ actorId, projectId, quote: cinematicWritingQuoteSchema.parse(receipt), mandatory: true, trigger,
             recovery: { status: receipt.status as 'succeeded' | 'delivered', artifactExpiresAt: receipt.artifactExpiresAt, result: receipt.result }, signal: scope?.signal })) {
@@ -121,7 +125,7 @@ export async function withCinematicWritingQuote<T>({ projectId, operation, input
         return { result: resultSchema.parse(receipt.result) };
       }
       if (receipt.status === 'failed') {
-        await notifySettled(id, 'failed');
+        if (receipt.billingStatus === 'paid') await notifySettled(id, 'failed');
         assertActor();
         removeCinematicWritingReceipt(actorId, id);
         throw billingError('failed');
@@ -153,24 +157,28 @@ export async function withCinematicWritingQuote<T>({ projectId, operation, input
       if (!await handler({ actorId, projectId, quote, mandatory, ...scope, trigger })) throw new CinematicWritingCancelled();
     }
     assertCurrent();
-    if (quote.billingStatus === 'paid' && quote.id && fingerprint) {
+    if (quote.id && fingerprint) {
       try { saveCinematicWritingReceipt(actorId, { id: quote.id, fingerprint, projectId, operation, sceneId: sceneId || null, assignmentId: assignmentId || null }); }
       catch { throw billingError('storageUnavailable'); }
     }
     try {
       const result = await execute({ ...snapshot, ...(quote.id ? { writingQuoteId: quote.id } : {}) });
       assertActor();
-      if (quote.billingStatus === 'paid' && quote.id) {
+      if (quote.id) {
         const settlement = z.object({ billingStatus: z.string().optional() }).passthrough().safeParse(result);
         if (settlement.data?.billingStatus !== 'settlement_pending') {
-          await notifySettled(quote.id, settlement.data?.billingStatus === 'free' ? 'refunded' : 'succeeded');
+          if (quote.billingStatus === 'paid') await notifySettled(quote.id, settlement.data?.billingStatus === 'free' ? 'refunded' : 'succeeded');
           assertActor();
           removeCinematicWritingReceipt(actorId, quote.id);
         }
       }
       return result;
     } catch (error) {
-      if (quote.billingStatus !== 'paid' || !quote.id) throw error;
+      if (!quote.id) throw error;
+      if (error instanceof ApiError && error.code === 'cinematic_writing_quote_required') {
+        removeCinematicWritingReceipt(actorId, quote.id);
+        throw error;
+      }
       const recovered = await recover(quote.id, fingerprint);
       if ('result' in recovered) return recovered.result;
       if (error instanceof ApiError && error.code === 'enhancement_stale') {
@@ -193,9 +201,9 @@ export function getCinematicWritingOperation<TSchema extends z.ZodType>(projectI
     cache: 'no-store', schema: z.object({
       id: z.string().min(1), operation: cinematicWritingOperationSchema,
       status: z.enum(['quoted', 'accepted', 'dispatching', 'delivered', 'succeeded', 'refund_pending', 'failed', 'reconciliation_required']),
-      billingStatus: z.literal('paid'), credits: z.number().int().positive(),
+      billingStatus: z.enum(['paid','free']), credits: z.number().int().nonnegative(),
       expiresAt: z.iso.datetime(), artifactExpiresAt: z.iso.datetime(), errorCode: z.string().nullable(),
       result: resultSchema.nullable().optional()
-    })
+    }).refine(receipt => receipt.billingStatus === 'free' ? receipt.credits === 0 : receipt.credits > 0)
   });
 }

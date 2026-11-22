@@ -161,7 +161,7 @@ export class VoiceStudioApplicationService {
       displayTitle:s.text.slice(0,80),tags:[],savedAt:null,metadataRevision:1});
     return {...op,jobId:op.id,take:take.deletedAt || take.deletingAt ? null : take};
   }
-  async takes(actor,id,rowId) { await this.getDocument(actor,id); return {items:(await this.repo.list('takes',owner(actor))).filter(t => t.documentId === id && t.rowId === rowId && !t.deletingAt)}; }
+  async takes(actor,id,rowId) { await this.getDocument(actor,id); return {items:await this.repo.rowTakes(owner(actor),id,rowId)}; }
   async getDubCharacter(actor,id,language) {
     const character = await this.repo.get('characters',id,owner(actor));
     if (character.archivedAt) throw voiceError('voice_record_not_found',404);

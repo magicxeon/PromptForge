@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { resolveWritingPreferences, validateWritingSettings } from '../../config/storyWritingSettings.js';
 import { cinematicStoryboardPromptComposer } from './CinematicStoryboardPromptComposer.js';
 import { createManualStoryboardScene, normalizeManualStoryboard } from './CinematicManualStoryboard.js';
 import { normalizeStoryboardRenderStyle } from './CinematicStoryboardRenderStyle.js';
@@ -139,6 +140,16 @@ export class CinematicApplicationService {
     return this.repository.listForActor(actorContext, query);
   }
 
+  async projectWritingSettings(project, actor, workspace) {
+    if (!project.seriesMembership && !project.chapterOrigin) return project.writingSettings;
+    const series = workspace || await this.seriesService.getWorkspace(project.id, actor);
+    const rootId = series.productionProject.storyProjectId;
+    if (rootId === project.id) return project.writingSettings;
+    const root = await this.repository.findForActor(rootId, actor);
+    if (!root) throw new CinematicError('cinematic_project_not_found', 'Full Story Project not found.', 404);
+    return root.writingSettings;
+  }
+
   async writingSource(projectId, { operation, input = {}, sceneId, assignmentId }, actor) {
     if (!actor?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actor);
@@ -167,7 +178,10 @@ export class CinematicApplicationService {
         projectId: item.projectId, version: item.version, activeChapterVersionId: item.activeChapterVersionId,
         seasonId: item.seasonId, order: item.order, title: item.title, story: item.storyBrief
       })) : [];
-    return { model: policy.model, maxOutputTokens, source: {
+    const writingPreferences = ['full_story','chapters','chapter_outline','scenes','shots'].includes(operation) && root.writingSettings
+      ? resolveWritingPreferences(root.writingSettings) : null;
+    const model = writingPreferences?.modelId || policy.model;
+    return { model, maxOutputTokens, source: {
       projectId, projectVersion: project.version, rootId, rootVersion: root.version,
       title: project.title, settings: project.setup, fullStory: story?.content || '',
       chapterStory: project.chapterStory || '', chapterRevisionId: project.activeChapterVersionId,
@@ -176,7 +190,8 @@ export class CinematicApplicationService {
           objective: item.objective, traits: item.personalityTraits, voice: item.voice })),
       scenes: scene ? [scene] : (project.scenes || []).map(item => ({ id: item.id, title: item.title,
         setting: item.setting, synopsis: item.synopsis, objective: item.objective })),
-      assignment, continuity, repairBudget, provider: policy.provider, model: policy.model, maxOutputTokens
+      assignment, continuity, repairBudget, provider: policy.provider, model, maxOutputTokens,
+      ...(writingPreferences ? { writingPreferences } : {})
     } };
   }
 
@@ -189,7 +204,7 @@ export class CinematicApplicationService {
     const prepared = await this.writingSource(projectId, request, actor);
     if (payload.operation === 'full_story') return { id: null, operation: 'full_story', credits: 0, billingStatus: 'free',
       expiresAt: null, status: 'free' };
-    return this.writingOperationService.quote({ userId: actor.userId, projectId, operation: payload.operation,
+    return this.writingOperationService.quote({ userId: actor.userId, actor, projectId, operation: payload.operation,
       request, ...prepared });
   }
 
@@ -210,7 +225,7 @@ export class CinematicApplicationService {
         default: throw new CinematicError('cinematic_writing_operation_invalid', 'Unsupported writing operation.', 400);
       }
     };
-    return this.writingOperationService.execute({ userId: actor?.userId, projectId, operation,
+    return this.writingOperationService.execute({ userId: actor?.userId, actor, projectId, operation,
       id: payload.input?.writingQuoteId, request, loadSource: async () => (await this.writingSource(projectId, request, actor)).source, run });
   }
 
@@ -318,12 +333,25 @@ export class CinematicApplicationService {
     return this.dataLineageService.build(project, scope || {});
   }
 
+  async updateWritingSettings(projectId, input, actorContext) {
+    await this.seriesService.mutateWithCharacterProjection(projectId, actorContext, (project, root) => {
+      if (root.id !== project.id) throw new CinematicError('cinematic_writing_settings_root_required', 'Update writing settings on the story project.', 409);
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      project.writingSettings = validateWritingSettings(input);
+      project.version += 1;
+      return project;
+    });
+    return this.getProject(projectId, actorContext);
+  }
+
   async getProject(projectId, actorContext) {
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
     const shared = project.seriesMembership || project.chapterOrigin
       ? await this.seriesService.getChapterContextProjection(projectId, actorContext) : null;
     if (shared?.castAssignments) project.castAssignments = shared.castAssignments;
+    if (shared?.writingSettings) project.writingSettings = shared.writingSettings;
     project.videoDirection = shared?.videoDirection ?? String(project.setup?.videoDirection || '');
     const summaries = this.videoGenerationService.getStoredTaskSummaries
       ? await this.videoGenerationService.getStoredTaskSummaries(
@@ -378,6 +406,7 @@ export class CinematicApplicationService {
       : this.fullStoryService.propose.bind(this.fullStoryService);
     await beforeDispatch?.();
     return propose({
+      writingSettings: input?.purpose === 'characters' ? undefined : await this.projectWritingSettings(project, actorContext),
       projectTitle: project.title,
       storyBrief: project.setup?.storyBrief,
       currentFullStory: active?.content || '',
@@ -511,7 +540,7 @@ export class CinematicApplicationService {
       throw new CinematicError('cinematic_full_story_confirmation_required', 'Confirm the current Full Story before planning Chapters.', 409);
     }
     if (pendingChapterProposal(project)) throw new CinematicError('cinematic_chapter_proposal_pending', 'Review or discard the pending Chapter proposal first.', 409);
-    return { project, context: { fullStory: story.content, settings: chapterOutlineSettings(project.setup),
+    return { project, context: { fullStory: story.content, settings: chapterOutlineSettings(project.setup), writingSettings: project.writingSettings,
       targetDurationSeconds: project.setup.durationSeconds,
       reviewedOutline: project.chapterOutline?.chapters || [],
       characters: (project.castAssignments || []).filter(item => item.active !== false).slice(0, 24)
@@ -606,6 +635,7 @@ export class CinematicApplicationService {
       : approvedChapterOutline(source) || plannedChapterSequence(source.setup);
     await beforeDispatch?.();
     const proposal = await this.fullStoryService.proposeChapters({
+      writingSettings: source.writingSettings,
       fullStory: confirmed.content,
       format: source.setup?.format,
       targetDurationSeconds: source.setup?.durationSeconds,
@@ -665,9 +695,12 @@ export class CinematicApplicationService {
       role: item.storyRole || '',
       dossier: [item.objective, item.motivation, item.pressure, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
     }));
-    const continuity = buildAuthoringContinuity((await this.seriesService.getWorkspace(projectId, actorContext)).chapters, projectId);
+    const workspace = await this.seriesService.getWorkspace(projectId, actorContext);
+    const continuity = buildAuthoringContinuity(workspace.chapters, projectId);
+    const writingSettings = await this.projectWritingSettings(project, actorContext, workspace);
     await beforeDispatch?.();
     const generated = await this.fullStoryService.proposeScenes({
+      writingSettings,
       continuity,
       projectTitle: project.title,
       chapterTitle: revision.title || project.chapterTitle,
@@ -811,8 +844,10 @@ export class CinematicApplicationService {
       dossier: [item.objective, item.motivation, item.pressure, item.performanceDirection, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
     }));
     const revision = (project.chapterVersions || []).find(item => item.id === project.activeChapterVersionId);
+    const writingSettings = await this.projectWritingSettings(project, actorContext);
     await beforeDispatch?.();
     const generated = await this.fullStoryService.proposeShots({
+      writingSettings,
       projectTitle: project.title,
       aspectRatio: project.aspectRatio,
       chapterTitle: revision?.title || project.chapterTitle,

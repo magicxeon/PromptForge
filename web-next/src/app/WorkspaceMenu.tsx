@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 export function WorkspaceMenu() {
   const { t } = useTranslation();
   const inStudio = !!useMatch("/dub-sub/*");
+  const inStory = !!useMatch("/story/*");
   const { key } = useLocation();
   const [open, setOpen] = useState(false);
   const nav = useRef<HTMLElement>(null);
@@ -44,10 +45,12 @@ export function WorkspaceMenu() {
         {open ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}
       </button>
       <div id="workspace-links" className="workspace-links" data-open={open}>
-        <Link to="/image" aria-current={!inStudio ? "location" : undefined}
+        <Link to="/image" aria-current={!inStudio && !inStory ? "location" : undefined}
           onClick={() => setOpen(false)}>{t("playgroundName")}</Link>
         <Link to="/dub-sub" aria-current={inStudio ? "location" : undefined}
           onClick={() => setOpen(false)}>{t("dubStudioName")}</Link>
+        <Link to="/story" aria-current={inStory ? "location" : undefined}
+          onClick={() => setOpen(false)}>{t("storyStudioName")}</Link>
       </div>
     </nav>
   );

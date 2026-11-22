@@ -10,6 +10,7 @@ import { ProcessingSpinner } from "../../lib/canonical";
 import { speakerGain } from "./SpeakerMixer";
 import { Dialog } from "./Dialog";
 import config from "./editorConfig";
+import { canExportTake, takePlacement } from "../../../../server/domain/dub-sub/takePlacement.js";
 export function ExportDialog({
   p,
   language,
@@ -80,8 +81,8 @@ export function ExportDialog({
         ((format === "wav" || (format === "mp4" && withVoice)) &&
           audible.includes(c) &&
           (!c.takes[lang] ||
-            c.startMs + (c.offsetMs || 0) + c.takes[lang].durationMs >
-              c.endMs + 25)),
+            !canExportTake(takePlacement(c,c.takes[lang].durationMs,p.durationMs ?? undefined),
+              c.takes[lang].durationMs,c.takes[lang].confirmedOverrunMs))),
     );
   async function run(preview: boolean) {
     if (busy) return;

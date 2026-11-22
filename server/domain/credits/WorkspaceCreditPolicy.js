@@ -29,6 +29,9 @@ export function workspaceCreditDecision(actor, workflow, { context, templateExec
     case 'voice_design':
       eligible = true;
       break;
+    case 'cinematic_writing':
+      eligible = ['chapter_outline', 'chapters', 'scenes', 'shots'].includes(commercialOperation);
+      break;
   }
   return { eligible, creditsDisabled: eligible && webNextCreditsDisabled(actor) };
 }

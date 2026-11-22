@@ -18,6 +18,7 @@ const binding = z.object({
   usesSpeakerMapping: z.boolean().optional(),
 });
 const take = z.object({
+  confirmedOverrunMs: z.number().int().positive().optional(),
   internalPausesAccepted: z.boolean().optional(),
   id: z.string(),
   durationMs: z.number(),
@@ -160,8 +161,8 @@ export const projectsApi = {
       },
     ),
   read: (id: string) => apiRequest(projectUrl(id), { schema: project }),
-  useTakeBoundaries: (p:Project, language:string, cueId:string, takeId:string) =>
-    apiRequest(projectUrl(p.id),{method:"PATCH",body:{revision:p.revision,takeTiming:{language,cueId,takeId}},schema:project}),
+  useTakeBoundaries: (p:Project, language:string, cueId:string, takeId:string, confirmedOverrunMs?:number) =>
+    apiRequest(projectUrl(p.id),{method:"PATCH",body:{revision:p.revision,takeTiming:{language,cueId,takeId,confirmedOverrunMs}},schema:project}),
   create: (body: Record<string, unknown>) =>
     apiRequest(base, { method: "POST", body, schema: project }),
   upload: (id: string, file: File, signal?: AbortSignal) =>

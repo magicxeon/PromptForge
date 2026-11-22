@@ -236,6 +236,24 @@ test("free speech placement uses only the cue length, never the source waveform"
   assert.equal(saved.cues[1].offsetMs,0);
 });
 
+test("manual selection of a take 40 ms over its cue requires the exact confirmed excess",async t=>{
+  const f=await fixture(t);
+  const p=await f.repo.mutate(f.actor,f.project.id,f.project.revision,project=>{
+    project.durationMs=6000;
+    project.cues[1].voiceBindings.th={documentId:"doc",rowId:"row"};
+  });
+  const take={id:"long",documentId:"doc",rowId:"row",audioUrl:"/long.wav",durationMs:2040};
+  f.service.voiceStudio.getDubTake=async()=>take;
+  const select=confirmedOverrunMs=>f.service.batches.useTakeBoundaries(f.actor,p.id,{
+    revision:p.revision,language:"th",cueId:"cue1",takeId:take.id,confirmedOverrunMs
+  },f.noop);
+  await assert.rejects(select(41),{code:"dub_take_exceeds_window"});
+  await select(40);
+  const saved=await f.repo.get(f.actor,p.id);
+  assert.equal(saved.cues[1].takes.th.confirmedOverrunMs,40);
+  assert.equal(saved.cues[1].endMs,p.cues[1].endMs);
+});
+
 test("manual take acceptance checks the bound voice row and expires after changing cue timing",async t=>{
   const f=await fixture(t);
   const p=await f.repo.mutate(f.actor,f.project.id,f.project.revision,p=>{

@@ -12,6 +12,7 @@ import { quoteCinematicWriting } from '../server/domain/credits/CinematicWriting
 import { CinematicApplicationService } from '../server/domain/cinematic/CinematicApplicationService.js';
 import { registerCinematicRoutes } from '../server/app/routes/cinematicRoutes.js';
 import { CinematicSeriesService } from '../server/domain/cinematic/CinematicSeriesService.js';
+import { withWebNextCreditPolicy } from '../server/domain/credits/WorkspaceCreditPolicy.js';
 
 const policy = {
   policyVersion: 'fixture-policy', pricingFxThbPerUsd: 35, creditsPerThbAssumption: 10,
@@ -90,6 +91,41 @@ test('writing rejects absent, foreign, changed input/source and expired quotes w
   await assert.rejects(f.service.execute({ ...f.args, run }));
   assert.equal(calls, 0);
   assert.equal((await f.credits.getAccount('a')).availableCredits, 200);
+});
+
+test('trusted Story receipts bind billing mode and inputs and never touch Credits, including failure and replay', async t => {
+  const {repository,service:meteredService} = await fixture(t, 0);
+  const creditsCalls = [];
+  const service = new CinematicWritingOperationService({repository, credits:new Proxy({}, {
+    get(_, method) { creditsCalls.push(method); throw new Error('Unexpected Credits call'); }
+  })});
+  const actor = withWebNextCreditPolicy({userId:'a'}, false);
+  const base = {userId:'a',actor,projectId:'p1',operation:'chapters',request:{...request,operation:'chapters'},source,model:'fixture-model',maxOutputTokens:1800};
+  await assert.rejects(service.quote({...base,source:{fullStory:'ก'.repeat(175000)}}),
+    {code:'cinematic_writing_input_too_large',statusCode:413});
+  const quote = await service.quote(base);
+  assert.ok(quote.id);
+  assert.equal(quote.credits, 0);
+  assert.equal(quote.billingStatus, 'free');
+  let generated = 0;
+  const args = {...base,id:quote.id,loadSource:async()=>source, run:async()=>{generated++;return {chapters:[]};}};
+  const meteredQuote = await meteredService.quote({...base,actor:{userId:'a'}});
+  await assert.rejects(service.execute({...args,id:meteredQuote.id}),{code:'cinematic_writing_quote_required'});
+  for (const change of [{actor:{userId:'a',webNextCreditsEnabled:false}},{userId:'other'},{projectId:'other'},
+    {request:{...base.request,input:{expectedVersion:10}}},{loadSource:async()=>({...source,projectVersion:2})}]) {
+    await assert.rejects(service.execute({...args,...change}));
+  }
+  assert.equal(generated,0);
+  const result = await service.execute(args);
+  assert.equal(result.billingStatus,'free');
+  assert.equal(result.chargedCredits,0);
+  assert.deepEqual(await service.execute(args),result);
+  assert.equal(generated,1);
+  const failed = await service.quote(base);
+  await assert.rejects(service.execute({...args,id:failed.id,run:async()=>{throw new Error('fixture failure');}}));
+  assert.equal((await repository.get(failed.id,'a')).status,'failed');
+  await service.recover();
+  assert.deepEqual(creditsCalls,[]);
 });
 
 test('writing insufficient funds and invalid AI result never retain a charge', async t => {

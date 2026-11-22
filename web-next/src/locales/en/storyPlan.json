@@ -1,0 +1,13 @@
+{
+  "heading": "Plan chapters from the full story",
+  "confirmRevision": "Use full story revision {{version}}",
+  "outdated": "The story or chapter settings changed. Request a new outline.",
+  "proposeOutline": "Propose chapter outline",
+  "approveOutline": "Use this outline",
+  "discardOutline": "Discard proposed outline",
+  "writeChapters": "Write chapters from this outline",
+  "reviewChapters": "Review proposed chapters",
+  "applyChapters": "Use this set of chapters",
+  "discardChapters": "Discard proposed chapters",
+  "openChapter": "Open chapter {{name}}"
+}

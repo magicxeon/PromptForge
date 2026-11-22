@@ -49,6 +49,25 @@ test('only the authenticated workspace proxy selects the configured billing mode
   assert.deepEqual(admission({token:'private-test-key',url:'/api/admin/credits'}), {status:200,free:false});
 });
 
+test('only Story authoring POST endpoints and supported operations can be unmetered', () => {
+  const paths = ['writing/quotes','chapter-outline/proposals','full-story/chapters','chapter-proposals','scene-proposals','scenes/s1/shot-proposals'];
+  for (const name of paths) {
+    const url = '/api/cinematic/projects/p1/' + name;
+    assert.deepEqual(admission({url,token:'private-test-key'}),{status:200,free:true});
+    assert.deepEqual(admission({url,token:'wrong'}),{status:403,free:false});
+    assert.deepEqual(admission({url}),{status:200,free:false});
+    assert.deepEqual(admission({url,token:'private-test-key',enabled:true}),{status:200,free:false});
+  }
+  for (const suffix of ['full-story/proposals','scene-proposals/proposal1/apply','writing/quotes/extra','scenes/s1/storyboard']) {
+    assert.equal(admission({url:'/api/cinematic/projects/p1/'+suffix,token:'private-test-key'}).free,false);
+  }
+  const actor = withWebNextCreditPolicy({userId:'test'},false);
+  for (const operation of ['chapter_outline','chapters','scenes','shots','characters','wardrobe','story_plan','scene_direction','brief','full_story','unknown']) {
+    assert.equal(workspaceCreditDecision(actor,'cinematic_writing',{commercialOperation:operation}).creditsDisabled,
+      ['chapter_outline','chapters','scenes','shots'].includes(operation), operation);
+  }
+});
+
 test('web-next speech at zero balance uses no Credits calls and retains original mode on replay and status reads', async t => {
   const directory = await mkdtemp(path.join(os.tmpdir(),'web-next-credits-'));
   t.after(() => rm(directory,{force:true,recursive:true}));

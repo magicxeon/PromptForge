@@ -4,6 +4,7 @@ import { lazy, Suspense } from "react";
 import { WorkspaceMenu } from "./WorkspaceMenu";
 import { WorkspaceConfig } from "../lib/workspaceConfig";
 const DubStudio = lazy(() => import("../features/dub-sub/DubStudio"));
+const StoryStudio = lazy(() => import("../features/story/StoryStudio"));
 import { useActor, ProcessingSpinner } from "../lib/canonical";
 import { ImageWorkspace } from "../features/playground/routes/ImageWorkspace";
 import { Link, Navigate, Route, Routes } from "react-router-dom";
@@ -63,6 +64,7 @@ export function App() {
             <Route path="/image" element={<ImageWorkspace />} />
             <Route path="/comparison" element={<ComparisonWorkspace />} />
             <Route path="/video" element={<VideoWorkspace />} />
+            <Route path="/story/*" element={<Suspense fallback={<ProcessingSpinner />}><StoryStudio /></Suspense>} />
             <Route path="/dub-sub/*" element={<Suspense fallback={<ProcessingSpinner />}><DubStudio /></Suspense>} />
             <Route path="*" element={<Navigate to="/image" replace />} />
           </Routes></WorkspaceConfig>

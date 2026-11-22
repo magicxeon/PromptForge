@@ -241,6 +241,13 @@
 .dub-studio dialog[open]:has(.dub-project-details) {
   width: min(94vw, 44rem);
 }
+.dub-inspector label.dub-track-lock {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: fit-content;
+  cursor: pointer;
+}
 .dub-project-details textarea {
   min-height: 5rem;
   resize: vertical;

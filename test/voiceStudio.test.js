@@ -50,6 +50,22 @@ async function fixture(t) {
   return {service,repository,calls};
 }
 const actor = {userId:'a',username:'actor-a'};
+test('row take numbers survive deletion, retries and reload, with newest first', async t => {
+  const {repository} = await fixture(t);
+  const add = (id, rowId='line', owner=actor.userId) =>
+    repository.insert('takes', owner, {id, documentId:'th', rowId});
+  await add('one');
+  assert.equal((await add('unrelated','another-line')).takeNumber,1);
+  assert.equal((await add('other-owner','line','other')).takeNumber,1);
+  await add('two');
+  await add('three');
+  await repository.update('takes','three',actor.userId,undefined,take=>{take.deletedAt='deleted';});
+  assert.equal((await add('four')).takeNumber,4);
+  assert.equal((await add('two')).takeNumber,2);
+  const reopened = new VoiceStudioRepository({files:repository.files});
+  const takes = await reopened.rowTakes(actor.userId,'th','line');
+  assert.deepEqual(takes.map(take=>[take.id,take.takeNumber]),[['four',4],['two',2],['one',1]]);
+});
 test('new Seed casting assignments respect the saved language', async t => {
   const {service, repository} = await fixture(t);
   const preset = await repository.insert('customVoices', actor.userId, {

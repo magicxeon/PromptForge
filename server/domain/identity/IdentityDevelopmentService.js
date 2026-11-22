@@ -44,6 +44,8 @@ const adminWrites = [
 const projectUuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const dubBatchPath = '/api/dub-sub/projects/' + projectUuid + '/dubbing-batches';
 const liveReads = [
+  /^\/api\/cinematic\/projects\/[\w-]+\/scenes\/[\w-]+\/shots\/[\w-]+\/writer-preparation$/,
+  /^\/api\/cinematic\/(?:authoring-manifest|projects(?:\/[\w-]+(?:\/series|\/writing\/operations\/[\w-]+)?)?)$/,
   new RegExp('^' + dubBatchPath + '$'),
   /^\/api\/dub-sub\/projects(?:\/[\w-]+(?:\/(?:media|poster|peaks|exports\/[\w-]+))?)?$/,
   /^\/api\/voice-studio\/custom-voices$/,
@@ -64,6 +66,11 @@ const liveReads = [
   /^\/api\/credits\/ledger$/,
 ];
 const liveWrites = [
+  ['POST', /^\/api\/cinematic\/projects$/],
+  ['POST', /^\/api\/cinematic\/projects\/[\w-]+\/(?:writing\/quotes|full-story\/(?:proposals|revisions|confirm|chapters)|chapter-outline\/(?:proposals|approve)|scene-proposals|manual-scenes)$/],
+  ['POST', /^\/api\/cinematic\/projects\/[\w-]+\/(?:scene|chapter)-proposals\/[\w-]+\/(?:apply|discard)$/],
+  ['POST', /^\/api\/cinematic\/projects\/[\w-]+\/scenes\/[\w-]+\/(?:manual-shots|shot-proposals(?:\/[\w-]+\/(?:apply|discard))?)$/],
+  ['PATCH', /^\/api\/cinematic\/projects\/[\w-]+\/(?:writing-settings|chapter|scenes\/[\w-]+(?:\/shots\/[\w-]+\/document)?)$/],
   ['POST', /^\/api\/voice-studio\/custom-voices\/description-suggestion$/],
   ['POST', new RegExp('^/api/dub-sub/projects/' + projectUuid + '/(?:dubbing-timing-review|cue-rhythm)$')],
   ['POST', new RegExp('^' + dubBatchPath + '(?:/' + projectUuid + '/advance)?$')],

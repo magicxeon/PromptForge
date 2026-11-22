@@ -1,5 +1,6 @@
 import { z } from "zod";
 import values from "./editor-config.json";
+import subtitleDefaults from "../../../../server/config/dub-subtitle-defaults.json";
 const count = z.number().int().positive();
 const range = (min: number, max: number) =>
   z
@@ -46,4 +47,4 @@ export default z
     colors: z.object({ white: z.string(), yellow: z.string() }),
     formats: z.array(z.enum(["mp4", "wav", "vtt", "srt"])).nonempty(),
   })
-  .parse(values);
+  .parse({ ...values, defaultStyle: { ...values.defaultStyle, ...subtitleDefaults } });

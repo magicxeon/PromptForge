@@ -1,5 +1,6 @@
 import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { takePlacement } from "./takePlacement.js";
+import subtitleDefaults from "../../config/dub-subtitle-defaults.json" with { type: "json" };
 import voicePolicy from "../../config/voice-studio/policy.v1.json" with { type: "json" };
 
 export const languages = ["th", "zh", "zh-CN", "zh-TW", "en"];
@@ -146,13 +147,13 @@ export function tracksFor(input, targets) {
     const v = input?.[key] || {};
     tracks[key] = {
       visible: v.visible === undefined ? index > 0 : Boolean(v.visible),
-      locked: Boolean(v.locked),
-      font: choice(v.font ?? "sans", ["sans", "serif"]),
-      color: choice(v.color ?? "white", ["white", "yellow"]),
-      size: number(v.size ?? 48, 8, 200),
+      locked: Boolean(v.locked ?? subtitleDefaults.locked),
+      font: choice(v.font ?? subtitleDefaults.font, ["sans", "serif"]),
+      color: choice(v.color ?? subtitleDefaults.color, ["white", "yellow"]),
+      size: number(v.size ?? subtitleDefaults.size, 8, 200),
       x: number(v.x ?? 50, 0, 100),
       y: number(v.y ?? (index === 1 ? 85 : index === 2 ? 70 : 55), 0, 100),
-      maxChars: Math.round(number(v.maxChars ?? 42, 4, 200)),
+      maxChars: Math.round(number(v.maxChars ?? subtitleDefaults.maxChars, 4, 200)),
     };
   }
   return tracks;
@@ -261,6 +262,9 @@ export async function normalizeCues(rows, project, resolveTake) {
         const previousId = previous?.takes?.[lang]?.id ||
           (lang === project.targetLanguages[0] && previous?.selectedTakeId);
         const accepted = id===previousId && previous?.takes?.[lang]?.internalPausesAccepted;
+        const confirmedOverrunMs = id===previousId && previous?.startMs===cue.startMs &&
+          previous.endMs===cue.endMs && (previous.offsetMs??0)===cue.offsetMs &&
+          previous.takes?.[lang]?.confirmedOverrunMs;
         if (accepted && (previous.startMs!==cue.startMs || previous.endMs!==cue.endMs ||
             (previous.offsetMs??0)!==cue.offsetMs)) continue;
         if (id !== previousId && !takePlacement(cue,take.durationMs,project.durationMs).fits)
@@ -270,6 +274,7 @@ export async function normalizeCues(rows, project, resolveTake) {
           audioUrl: take.audioUrl,
           durationMs: take.durationMs,
           ...(accepted && {internalPausesAccepted:true}),
+          ...(confirmedOverrunMs && {confirmedOverrunMs}),
         };
       }
     }

@@ -52,7 +52,7 @@ type Props = {
   binding?: Binding;
   onBind: (binding: Binding) => void | Promise<void>;
   onUse: (take: SelectedTake) => void | Promise<void>;
-  onUseBoundaries?: (takeId:string) => Promise<void>;
+  onUseBoundaries?: (takeId:string, confirmedOverrunMs?:number) => Promise<void>;
   onAudition?: (take: VoiceTake) => void;
   usedTakeId?: string;
   internalPausesAccepted?: boolean;
@@ -206,6 +206,7 @@ function VoiceInspector({
   const newest = operation.data?.take;
   const items = [...(takes.data?.items || [])];
   if (newest && !items.some((i) => i.id === newest.id)) items.push(newest);
+  items.sort((a,b) => (b.takeNumber ?? 0) - (a.takeNumber ?? 0));
   const usableQuote = creditsEnabled && quote?.signature === signature ? quote : null;
   const run = async (action: () => Promise<void>) => {
     if (lock.current) return;
@@ -431,6 +432,7 @@ function VoiceInspector({
         return (
         <div key={item.id} className="dub-take">
           <span>
+            {item.takeNumber && <strong>{t("takeNumber",{number:item.takeNumber})} · </strong>}
             {item.inputSnapshot.characterName} ·{" "}
             {t("duration", { seconds: (item.durationMs / 1000).toFixed(1) })}
           </span>
@@ -455,8 +457,17 @@ function VoiceInspector({
           {usedTakeId===item.id && internalPausesAccepted && <span role="status">{t("dub:boundaryTimingApplied")}</span>}
           <button
             type="button"
-            disabled={busy || !b || placement?.fits === false}
-            onClick={() =>
+            disabled={busy || !b || usedTakeId===item.id || (placement && !placement.fits ? placement.start<0 || !onUseBoundaries : false)}
+            onClick={() => {
+              if (placement && !placement.fits && onUseBoundaries) {
+                const excess = item.durationMs - placement.availableMs;
+                confirmation.ask({
+                  action:t("use"),
+                  message:t("confirmOverrun",{seconds:Number((excess/1000).toFixed(3))}),
+                  proceed:()=>void run(()=>onUseBoundaries(item.id,excess)),
+                });
+                return;
+              }
               void run(async () => {
                 if (item.inputSnapshot.boundaryTimingOnly && onUseBoundaries) {
                   await onUseBoundaries(item.id);
@@ -475,8 +486,8 @@ function VoiceInspector({
                   durationMs: item.durationMs,
                   audioUrl: item.audioUrl,
                 });
-              })
-            }
+              });
+            }}
           >
             {t(usedTakeId === item.id ? "selected" : "use")}
           </button>

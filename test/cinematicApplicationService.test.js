@@ -62,6 +62,32 @@ const setup = {
   endingIntent: 'resolved', mode: 'simple'
 };
 
+test('Story writing settings persist on the root, validate the catalog and respect ownership and revision', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const root = await service.createProject({ ...setup, format: 'mini-series' }, alice);
+  const catalog = service.getAuthoringManifest().writingSettings;
+  assert.deepEqual(root.writingSettings, { modelId: null, skillIds: [] });
+  assert.deepEqual(catalog.models.map(m => m.id), ['gpt-6.2-astra', 'gpt-6.2-sol', 'gpt-6-luna']);
+  assert.ok(catalog.skills.every(s => s.label.th && s.label.en && !('instruction' in s)));
+  const params = { expectedVersion: root.version, modelId: 'gpt-6.2-astra', skillIds: catalog.skills.slice(0, 5).map(s => s.id) };
+  for (const invalid of [{ skillIds: catalog.skills.map(s => s.id) }, { skillIds: ['dialogue', 'dialogue'] }, { skillIds: ['unknown'] }, { modelId: 'unlisted' }]) {
+    await assert.rejects(service.updateWritingSettings(root.id, { ...params, ...invalid }, alice), { code: 'cinematic_writing_settings_invalid' });
+  }
+  await assert.rejects(service.updateWritingSettings(root.id, params, { userId: 'usr_other', username: 'other' }), { code: 'cinematic_project_not_found' });
+  const saved = await service.updateWritingSettings(root.id, params, alice);
+  assert.deepEqual(saved.writingSettings, { modelId: params.modelId, skillIds: params.skillIds });
+  await assert.rejects(service.updateWritingSettings(root.id, params, alice), { code: 'cinematic_version_conflict' });
+  const info = await service.getSeriesWorkspace(root.id, alice);
+  const childResult = await service.seriesService.addChapter(root.seriesMembership.seriesId, {
+    expectedVersion: info.series.version, sourceProjectId: root.id, expectedProjectVersion: saved.version,
+    seasonId: root.seriesMembership.seasonId, title: 'Second chapter', storyBrief: 'A new discovery.', copyCast: false
+  }, alice);
+  const child = await service.getProject(childResult.project.id, alice);
+  assert.deepEqual(child.writingSettings, saved.writingSettings);
+  await assert.rejects(service.updateWritingSettings(child.id, { ...params, expectedVersion: child.version }, alice), { code: 'cinematic_writing_settings_root_required' });
+});
+
 test('Shot document enables First Frame context and keeps stale production evidence after revision', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));

@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { promptEnhancementRepository } from '../../repositories/generation/PromptEnhancementRepository.js';
 import { creditApplicationService } from '../credits/CreditApplicationService.js';
+import { workspaceCreditDecision, isUnmetered, UNMETERED } from '../credits/WorkspaceCreditPolicy.js';
 
 const error = (code, message, statusCode = 409, details = {}) => Object.assign(new Error(message), { code, statusCode, details });
 export const writingFingerprint = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -12,10 +13,17 @@ export class CinematicWritingOperationService {
     this.credits = credits;
   }
 
-  async quote({ userId, projectId, operation, request, source, model, maxOutputTokens }) {
-    const quote = await this.credits.quoteWriting({ operation, model, maxOutputTokens,
-      inputBytes: Buffer.byteLength(JSON.stringify({ request, source }), 'utf8') });
+  async quote({ userId, actor, projectId, operation, request, source, model, maxOutputTokens }) {
+    const { creditsDisabled } = workspaceCreditDecision(actor, 'cinematic_writing', { commercialOperation: operation });
+    const inputBytes = Buffer.byteLength(JSON.stringify({ request, source }), 'utf8');
+    if (creditsDisabled && inputBytes > 512 * 1024) {
+      throw error('cinematic_writing_input_too_large', 'The writing context exceeds 512 KiB. Shorten the manuscript or split it into chapters.', 413);
+    }
+    const quote = creditsDisabled ? { totalCredits: 0, expiresAt: new Date(Date.now() + 15 * 60_000).toISOString() }
+      : await this.credits.quoteWriting({ operation, model, maxOutputTokens,
+      inputBytes });
     const record = { id: `cw_${randomUUID()}`, kind: 'cinematic_text', userId, projectId, operation,
+      ...(creditsDisabled ? { billingMode: UNMETERED } : {}),
       requestFingerprint: writingFingerprint(request), fingerprint: writingFingerprint({ request, source }),
       status: 'quoted', quote, createdAt: new Date().toISOString(),
       artifactExpiresAt: new Date(Date.now() + 7 * 86400000).toISOString() };
@@ -23,10 +31,11 @@ export class CinematicWritingOperationService {
     return this.publicRecord(record);
   }
 
-  async execute({ userId, projectId, operation, id, request, loadSource, run }) {
+  async execute({ userId, actor, projectId, operation, id, request, loadSource, run }) {
     const record = id ? await this.repository.get(id, userId) : null;
+    const { creditsDisabled } = workspaceCreditDecision(actor, 'cinematic_writing', { commercialOperation: operation });
     if (!record || record.kind !== 'cinematic_text' || record.projectId !== projectId || record.operation !== operation
-      || record.requestFingerprint !== writingFingerprint(request)) {
+      || isUnmetered(record) !== creditsDisabled || record.requestFingerprint !== writingFingerprint(request)) {
       throw error('cinematic_writing_quote_required', 'Confirm a current writing Credit quote before requesting AI.', 409);
     }
     if (record.status === 'succeeded' || record.status === 'delivered') {
@@ -41,8 +50,8 @@ export class CinematicWritingOperationService {
     if (!accepted) throw error('cinematic_writing_processing', 'This writing operation is already processing.', 409, { operationId: id });
     let operationRecord = claimed;
     try {
-      const reserved = await this.credits.reserveWriting({ userId, operationId: id, quote: claimed.quote });
-      operationRecord = await this.repository.update(id, userId, { status: 'dispatching', reservationId: reserved.reservation.reservationId });
+      const reserved = isUnmetered(claimed) ? null : await this.credits.reserveWriting({ userId, operationId: id, quote: claimed.quote });
+      operationRecord = await this.repository.update(id, userId, { status: 'dispatching', reservationId: reserved?.reservation.reservationId ?? null });
     } catch (cause) {
       await this.fail(operationRecord, cause.code || 'cinematic_writing_reservation_failed');
       throw cause;
@@ -80,6 +89,7 @@ export class CinematicWritingOperationService {
   }
 
   async settle(record) {
+    if (isUnmetered(record)) return this.repository.update(record.id, record.userId, { status: 'succeeded' });
     try {
       await this.credits.captureForJob({ userId: record.userId, reservationId: record.reservationId,
         metadata: { kind: 'cinematic_text', operationId: record.id, operation: record.operation,
@@ -90,6 +100,7 @@ export class CinematicWritingOperationService {
   }
 
   async fail(record, errorCode) {
+    if (isUnmetered(record)) return this.repository.update(record.id, record.userId, { status: 'failed', errorCode });
     const reservation = await this.credits.findWritingReservation(record.userId, record.id);
     const pending = await this.repository.update(record.id, record.userId, { status: 'refund_pending', errorCode,
       reservationId: reservation?.reservationId || record.reservationId || null });
@@ -123,13 +134,13 @@ export class CinematicWritingOperationService {
     if (Date.parse(record.artifactExpiresAt) <= Date.now() || !record.result) {
       throw error('cinematic_writing_result_expired', 'The writing recovery result has expired.', 410);
     }
-    return { ...record.result, billingStatus: record.status === 'succeeded' ? 'paid' : 'settlement_pending',
+    return { ...record.result, billingStatus: isUnmetered(record) ? 'free' : record.status === 'succeeded' ? 'paid' : 'settlement_pending',
       writingOperationId: record.id, chargedCredits: record.status === 'succeeded' ? record.quote.totalCredits : 0 };
   }
 
   publicRecord(record) {
     return { id: record.id, operation: record.operation, status: record.status,
-      billingStatus: 'paid', credits: record.quote.totalCredits, expiresAt: record.quote.expiresAt,
+      billingStatus: isUnmetered(record) ? 'free' : 'paid', credits: record.quote.totalCredits, expiresAt: record.quote.expiresAt,
       artifactExpiresAt: record.artifactExpiresAt, errorCode: record.errorCode || null,
       ...(['succeeded', 'delivered'].includes(record.status) && Date.parse(record.artifactExpiresAt) > Date.now() && record.result
         ? { result: this.result(record) } : {}) };

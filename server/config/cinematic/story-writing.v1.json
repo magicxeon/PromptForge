@@ -1,0 +1,47 @@
+{
+  "defaultModelId": null,
+  "maxSkills": 5,
+  "models": [
+    { "id": "gpt-6.2-astra", "label": "GPT-6.2 Astra" },
+    { "id": "gpt-6.2-sol", "label": "GPT-6.2 Sol" },
+    { "id": "gpt-6-luna", "label": "GPT-6 Luna" }
+  ],
+  "skills": [
+    {
+      "id": "story-structure",
+      "label": { "th": "วางโครงเรื่อง", "en": "Story structure" },
+      "description": { "th": "เชื่อมเหตุการณ์กับการตัดสินใจและผลที่ตามมา", "en": "Connect events through decisions and consequences." },
+      "instruction": "Build a causal chain. Give each major turn a decision that changes the protagonist's options, then pay off the setup in a later beat."
+    },
+    {
+      "id": "character-arc",
+      "label": { "th": "พัฒนาตัวละคร", "en": "Character arcs" },
+      "description": { "th": "ให้แรงจูงใจและความขัดแย้งผลักดันตัวละคร", "en": "Ground character choices in motivation and conflict." },
+      "instruction": "Show what each principal character wants, what they fear losing, and how pressure changes their decisions. Express growth through choices the audience can observe."
+    },
+    {
+      "id": "dialogue",
+      "label": { "th": "เขียนบทสนทนา", "en": "Dialogue" },
+      "description": { "th": "แยกน้ำเสียงของผู้พูดและสื่อความหมายแฝง", "en": "Give speakers distinct voices and subtext." },
+      "instruction": "Write speakable lines in the requested language. Distinguish speakers by register and rhythm, and let a pause or indirect answer reveal the intention behind a line."
+    },
+    {
+      "id": "visual-storytelling",
+      "label": { "th": "เล่าเรื่องด้วยภาพ", "en": "Visual storytelling" },
+      "description": { "th": "ถ่ายทอดความคิดผ่านการกระทำและสิ่งที่เห็นในฉาก", "en": "Convey meaning through action and visible details." },
+      "instruction": "Express important information through observable behavior, spatial relationships and purposeful details. Choose one legible visual focus for each beat."
+    },
+    {
+      "id": "pacing",
+      "label": { "th": "กำกับจังหวะ", "en": "Pacing" },
+      "description": { "th": "จัดช่วงเร่งและช่วงพักให้เหมาะกับความยาวของเรื่อง", "en": "Balance tension and breathing room against the running time." },
+      "instruction": "Vary beat length with dramatic pressure. Enter scenes near their point of change, give pivotal reactions breathing room, and trim repeated information."
+    },
+    {
+      "id": "continuity",
+      "label": { "th": "ความต่อเนื่อง", "en": "Continuity" },
+      "description": { "th": "รักษาลำดับเวลา ข้อมูลที่ตัวละครรู้ และรายละเอียดระหว่างซีน", "en": "Track chronology, character knowledge and details between scenes." },
+      "instruction": "Carry forward established time, locations, objects and character knowledge. Show transitions that explain a change and respect approved story facts."
+    }
+  ]
+}

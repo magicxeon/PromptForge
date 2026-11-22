@@ -29,7 +29,7 @@ vi.mock("../../../../web/src/features/voice-studio/api/voiceStudioApi", () => ({
   voiceApi: api,
 }));
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({ t: (key: string, options?:{number?:number}) => key==="takeNumber" ? "Take "+options?.number : key }),
 }));
 vi.mock("../../lib/canonical", () => ({
   useActor: () => ({ identityScope: "session:a" }),
@@ -227,6 +227,24 @@ it.each(["original", "edited"])("recovers a missing direct operation with %s cue
     await waitFor(() => expect(onBind).toHaveBeenCalledWith({...binding, operationId:undefined, operationRevision:undefined}));
     expect(api.generate).not.toHaveBeenCalled();
   }
+});
+
+it("puts the completed take above existing takes and keeps the timeline marker on its own row", async () => {
+  const take = (n:number) => ({id:"take"+n, takeNumber:n, durationMs:1000, audioUrl:"/outputs/t"+n+".wav",
+    inputSnapshot:{characterName:"Hero"}});
+  api.catalog.mockResolvedValue({models:[], voices:[], policy:{}});
+  api.characters.mockResolvedValue({items:[]});
+  api.customVoices.mockResolvedValue({items:[]});
+  api.document.mockResolvedValue({id:"doc", rows:[{id:"row",delivery:{}}]});
+  api.takes.mockResolvedValue({items:[take(2),take(1)]});
+  api.operation.mockResolvedValue({id:"op",status:"succeeded",take:take(3)});
+  const client=new QueryClient({defaultOptions:{queries:{retry:false,gcTime:0}}});
+  const view=render(<QueryClientProvider client={client}><DubVoice projectId="p" cueId="c" text="line" language="en" speaker="Hero"
+    binding={{documentId:"doc",rowId:"row",operationId:"op"}} usedTakeId="take1"
+    onBind={()=>{}} onUse={()=>{}} onDeliveryChange={()=>{}} /></QueryClientProvider>);
+  await waitFor(()=>expect(Array.from(view.container.querySelectorAll(".dub-take strong"),node=>node.textContent))
+    .toEqual(["Take 3 · ","Take 2 · ","Take 1 · "]));
+  expect(screen.getByText("selected").closest(".dub-take")?.querySelector("strong")?.textContent).toBe("Take 1 · ");
 });
 
 it("stops and detaches the private preview when the inspector closes", async () => {

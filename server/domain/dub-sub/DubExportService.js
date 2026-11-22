@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { takePlacement } from "./takePlacement.js";
+import { canExportTake, takePlacement } from "./takePlacement.js";
 import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { DUB_SUB_FONTS_DIR } from "../../config/paths.js";
 import { boundedCopy, mediaCommand, videoInput } from "./DubMediaService.js";
@@ -228,8 +228,9 @@ async function mix(project, language, dir, openTake) {
       }
     }
     const { dest, durationMs } = files.get(id);
-    const {start,end,fits} = takePlacement(cue,durationMs,project.durationMs);
-    if (!fits)
+    const placement = takePlacement(cue,durationMs,project.durationMs);
+    const {start,end} = placement;
+    if (!canExportTake(placement,durationMs,cue.takes[language].confirmedOverrunMs))
       throw dubError("dub_take_overrun", 422);
     clips.push({
       start,

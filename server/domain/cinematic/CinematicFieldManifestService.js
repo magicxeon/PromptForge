@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { storyWritingManifest } from '../../config/storyWritingSettings.js';
 import { storyAuthoringConfiguration } from '../../config/cinematicStoryConfiguration.js';
 import { getPublicCinematicRewampConfiguration } from '../../config/cinematicRewampConfiguration.js';
 import fs from 'node:fs';
@@ -51,6 +52,7 @@ export class CinematicFieldManifestService {
       fingerprint: this.fingerprint,
       fields: this.manifest.fields,
       storyAuthoring: storyAuthoringConfiguration,
+      writingSettings: storyWritingManifest(),
       rewamp: getPublicCinematicRewampConfiguration(),
       readiness: this.readinessPolicy.stages
     });

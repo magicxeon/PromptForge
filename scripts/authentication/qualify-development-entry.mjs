@@ -177,6 +177,9 @@ if (process.argv.includes('--isolated-child')) {
         'x-csrf-token': JSON.parse(liveConfig.text).csrfToken };
       assert.equal(JSON.parse(liveConfig.text).development.liveGeneration, true);
       const call = (pathname, body, headers = liveHeaders) => request(proxyPort, pathname, { method: 'POST', headers, body });
+      assert.equal((await request(proxyPort, '/api/cinematic/projects', {headers:{origin}})).status,200);
+      assert.equal((await call('/api/cinematic/projects',{}, {origin})).status,403);
+      assert.equal((await call('/api/cinematic/projects/fixture/simple-scenes',{})).status,403);
       const localVideoQuote = await call('/api/generation/video/quote', { providerId: 'gemini',
         modelId: 'veo-3.1-lite-generate-preview', operation: 'text_to_video', prompt: 'Local configured-price test.',
         aspectRatio: '9:16', resolution: '720p', durationSeconds: 4, audioMode: 'generated' });

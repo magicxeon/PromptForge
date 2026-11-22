@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { workspaceCreditDecision } from "../credits/WorkspaceCreditPolicy.js";
 import { fitTakeOffset } from "./fitTakeOffset.js";
+import { takePlacement } from "./takePlacement.js";
 
 const modelId = "dola-seed-audio";
 const fingerprint = (value) =>
@@ -255,7 +256,7 @@ export class DubBatchService {
       return view(batch);
     });
   }
-  async useTakeBoundaries(actor,id,{revision,language,cueId,takeId},verify) {
+  async useTakeBoundaries(actor,id,{revision,language,cueId,takeId,confirmedOverrunMs},verify) {
     return this.exclusive(actor,id,async project=>{
       if (typeof cueId!=="string" || typeof takeId!=="string" || !takeId || takeId.length>160)
         throw dubError("dub_invalid_input",422);
@@ -272,20 +273,33 @@ export class DubBatchService {
       const take=await voice.getDubTake(actor,takeId);
       if (take.rowId!==binding.rowId || take.documentId!==binding.documentId)
         throw dubError("dub_batch_changed",409);
-      let candidate=take;
-      if (!(take.inputSnapshot?.boundaryTimingOnly && !take.inputSnapshot.speechWindows)) {
-        const rhythms=await this.projects.analyzeSourceRhythms(this.projects,actor,project,[cue],verify);
-        candidate={...take,inputSnapshot:{...take.inputSnapshot,speechWindows:rhythms.get(cueId)}};
+      const freeTiming=take.inputSnapshot?.boundaryTimingOnly && !take.inputSnapshot.speechWindows;
+      let offsetMs=freeTiming ? 0 : cue.offsetMs ?? 0;
+      const explicitOverrun=confirmedOverrunMs!==undefined;
+      if (explicitOverrun) {
+        const placement=takePlacement({...cue,offsetMs},take.durationMs,project.durationMs);
+        if (placement.start<0 || placement.fits || !(confirmedOverrunMs>0) ||
+            take.durationMs-placement.availableMs!==confirmedOverrunMs)
+          throw dubError("dub_take_exceeds_window",422);
+      } else {
+        let candidate=take;
+        if (!freeTiming) {
+          const rhythms=await this.projects.analyzeSourceRhythms(this.projects,actor,project,[cue],verify);
+          candidate={...take,inputSnapshot:{...take.inputSnapshot,speechWindows:rhythms.get(cueId)}};
+        }
+        const fit=await fitTakeOffset(project,cue,language,candidate,voice,actor,false,true);
+        if (fit.errorCode) throw dubError(fit.errorCode,422);
+        offsetMs=fit.offsetMs;
       }
-      const fit=await fitTakeOffset(project,cue,language,candidate,voice,actor,false,true);
-      if (fit.errorCode) throw dubError(fit.errorCode,422);
       await verify();
-      const cues=project.cues.map(c=>c.id===cueId ? place(c,language,take,fit.offsetMs,project.targetLanguages[0],true) : c);
+      const placed=place(cue,language,take,offsetMs,project.targetLanguages[0],!explicitOverrun);
+      if (explicitOverrun) placed.takes[language].confirmedOverrunMs=confirmedOverrunMs;
+      const cues=project.cues.map(c=>c.id===cueId ? placed : c);
       const committed=await this.projects.commitCues(actor,id,cues,()=>this.projects.repo.mutate(actor,id,revision,p=>{
         p.cues=cues;
         const b=p.dubBatches?.[language];
         const item=b?.items.find(i=>i.cueId===cueId && i.operationId===take.id && hasCandidate(i));
-        if (item) {item.status="done"; delete item.errorCode; item.internalPausesAccepted=true; b.status=summarize(b);}
+        if (item) {item.status="done"; delete item.errorCode; item.internalPausesAccepted=!explicitOverrun; b.status=summarize(b);}
       }));
       return this.projects.view(committed);
     });

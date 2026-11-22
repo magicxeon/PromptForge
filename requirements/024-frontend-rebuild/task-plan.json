@@ -3,6 +3,43 @@
   "requirement": "requirements/024-frontend-rebuild/000-master.md",
   "tasks": [
     {
+      "id":"FE24-STORY-WRITER","title":"Project writing preferences shared by every chapter","complexity":"complex",
+      "reason":"Project persistence, authoring manifest, trusted writes and model dispatch must agree.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root/story_settings","capabilities":["cinematic","identity","generation","frontend-experience"],"risks":["security","shared-contract"],
+      "dependsOn":["FE24-STORY-CREDITS"],"writeScope":["server/config/","server/domain/cinematic/","server/domain/generation/","server/app/routes/cinematicRoutes.js","server/domain/identity/","web/src/features/cinematic/","web-next/src/features/story/","test/"],
+      "status":"complete","acceptance":["Root-owned settings accept listed models and at most five distinct skills; scoped mutation and source revision are checked before writing."],
+      "reviewers":["security-reviewer","qa-release-engineer"],
+      "reviews":[{"role":"security-reviewer","agentId":"/root/story","result":"passed","reference":"test/authentication/developmentAdmin.test.js"},{"role":"qa-release-engineer","agentId":"/root","result":"passed","reference":"test/cinematicFullStoryService.test.js"}],
+      "evidence":[{"check":"Root-owned settings accept listed models and at most five distinct skills; scoped mutation and source revision are checked before writing.","result":"passed","reference":"requirements/024-frontend-rebuild/013-story-scene-shot.md"}],
+      "handoff":"Server catalog and mutation by story_settings; frontend by story; dispatch, billing source and integration by root."
+    },
+    {
+      "id":"FE24-STORY-CREDITS","title":"Respect workspace billing mode through Story and Shots",
+      "complexity":"complex","reason":"Cinematic authoring crosses trusted proxy admission and durable financial receipts.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root","capabilities":["credits","cinematic","generation"],"risks":["financial","security","shared-contract"],
+      "dependsOn":["FE24-CREDIT-MODE"],"writeScope":["server/config/webNextProxy.js","server/domain/credits/","server/domain/cinematic/","server/domain/generation/","web/src/features/cinematic/api/","test/"],
+      "status":"complete","acceptance":["Trusted unmetered Story operations retain owner, input-size, revision and replay checks without ledger calls; metered work stays protected."],
+      "reviewers":["backend-platform-architect","commercial-financial-integrity","security-reviewer","qa-release-engineer"],
+      "reviews":[
+        {"role":"backend-platform-architect","agentId":"/root/access_review","result":"passed","reference":"test/cinematicWritingBilling.test.js"},
+        {"role":"commercial-financial-integrity","agentId":"/root/access_review","result":"passed","reference":"test/cinematicWritingBilling.test.js"},
+        {"role":"security-reviewer","agentId":"/root/access_review","result":"passed","reference":"test/webNextCreditPolicy.test.js"},
+        {"role":"qa-release-engineer","agentId":"/root/access_review","result":"passed","reference":"test/cinematicWritingBilling.test.js"}],
+      "evidence":[{"check":"Trusted unmetered Story operations retain owner, input-size, revision and replay checks without ledger calls; metered work stays protected.","result":"passed","reference":"test/cinematicWritingBilling.test.js"}],
+      "handoff":"Story editor navigation and responsive evidence are tracked in requirement 013."
+    },
+    {
+      "id":"FE24-STORY-AUTH","title":"Admit the Story & Shots authoring endpoints in the local live-admin workspace",
+      "complexity":"complex","reason":"The authoring workspace needs method-scoped access through the local identity policy.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root","capabilities":["identity","cinematic"],"risks":["security","shared-contract"],
+      "dependsOn":[],"writeScope":["server/domain/identity/IdentityDevelopmentService.js","scripts/authentication/qualify-development-entry.mjs"],
+      "status":"complete","acceptance":["Local live-admin can author stories via existing actor-scoped handlers. Existing origin, CSRF, media-operation and writing settlement boundaries hold."],
+      "reviewers":["security-reviewer","qa-release-engineer"],
+      "reviews":[{"role":"security-reviewer","agentId":"/root/story_review","result":"passed","reference":"server/domain/identity/IdentityDevelopmentService.js"},{"role":"qa-release-engineer","agentId":"/root/story_review","result":"passed","reference":"scripts/authentication/qualify-development-entry.mjs"}],
+      "evidence":[{"check":"Local live-admin can author stories via existing actor-scoped handlers. Existing origin, CSRF, media-operation and writing settlement boundaries hold.","result":"passed","reference":"scripts/authentication/qualify-development-entry.mjs"}],
+      "handoff":"The chapter, scene and shot operations use existing writing quote and settlement contracts. Review interactive consent separately in the Story UI."
+    },
+    {
       "id": "FE24-CREDIT-MODE", "title": "Server-owned credit-free mode for the new workspace",
       "complexity":"complex", "reason":"Authenticated frontend proxy requests and durable Generation admission affect settlement and UI across Image, Comparison, Video and Speech.",
       "owner":"backend-platform-architect", "ownerAgentId":"/root", "capabilities":["frontend-experience","generation","credits"],

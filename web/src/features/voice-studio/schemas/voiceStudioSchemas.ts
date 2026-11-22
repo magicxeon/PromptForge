@@ -40,6 +40,7 @@ export const characterSchema = z.object({
   archivedAt: z.string().nullable().optional(),
 });
 export const takeSchema = z.object({
+  takeNumber: z.number().int().positive().optional(),
   id: z.string(),
   documentId: z.string(),
   rowId: z.string(),

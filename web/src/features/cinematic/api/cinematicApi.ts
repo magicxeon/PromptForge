@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { cinematicLookRemovalImpactSchema } from '../schemas/cinematicSchemas';
 import {
-  cinematicArchiveResponseSchema,
   cinematicClipBundleSchema,
   cinematicPromptPreflightSchema,
   cinematicProjectSchema,
@@ -23,14 +22,14 @@ import {
   cinematicSceneEnvironmentProposalSchema,
   cinematicSceneEnvironmentImagesSchema,
   cinematicStoryboardBatchResponseSchema,
-  cinematicAuthoringManifestSchema,
-  cinematicDataLineageSchema
+  cinematicAuthoringManifestSchema
 } from '../schemas/cinematicSchemas';
 import { cinematicChapterProposalMutationSchema } from '../schemas/cinematicSeriesSchemas';
 import { apiRequest, apiRequestWithProgress } from '../../../lib/api/apiClient';
 import { withCinematicWritingQuote } from './cinematicWritingBilling';
 import type {
   CinematicSetupDraft,
+  CinematicWritingSettings,
   CinematicFullStoryProposal,
   CinematicChapterOutlineRow,
   CinematicStoryEnhancement,
@@ -60,13 +59,7 @@ export function removeCinematicWardrobeLook(projectId: string, characterId: stri
     { method: 'DELETE', body: input, schema: cinematicProjectSchema });
 }
 
-export const cinematicApiSchemas = {
-  project: cinematicProjectSchema,
-  projectList: cinematicProjectListResponseSchema
-} as const;
-
 export type CinematicProjectSummary = z.infer<typeof cinematicProjectLibrarySummarySchema>;
-export type CinematicProjectListResponse = z.infer<typeof cinematicProjectListResponseSchema>;
 export type CinematicStoryPreparationContext = Pick<
   CinematicStoryEnhancement,
   'enhancementId' | 'provenance' | 'billingStatus'
@@ -74,6 +67,12 @@ export type CinematicStoryPreparationContext = Pick<
 
 export function listCinematicProjects() {
   return apiRequest(cinematicApiPaths.projects, { schema: cinematicProjectListResponseSchema });
+}
+
+export function listCinematicProjectPage(limit:number, cursor?:string) {
+  const query = new URLSearchParams({ limit:String(limit) });
+  if (cursor) query.set('cursor', cursor);
+  return apiRequest(cinematicApiPaths.projects+'?'+query, { schema:cinematicProjectListResponseSchema });
 }
 
 export function getCinematicClipBundleManifest(projectId: string, signal?: AbortSignal) {
@@ -91,6 +90,12 @@ export function getCinematicProject(projectId: string) {
   return apiRequest(cinematicApiPaths.project(projectId), { schema: cinematicProjectSchema });
 }
 
+export function updateCinematicWritingSettings(projectId:string, expectedVersion:number, settings:CinematicWritingSettings) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/writing-settings`, {
+    method:'PATCH', body:{expectedVersion,...settings}, schema:cinematicProjectSchema,
+  });
+}
+
 export function getCinematicPromptPreflight(projectId: string) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/prompt-preflight`, { schema: cinematicPromptPreflightSchema });
 }
@@ -98,17 +103,6 @@ export function getCinematicPromptPreflight(projectId: string) {
 export function getCinematicAuthoringManifest() {
   return apiRequest('/api/cinematic/authoring-manifest', {
     schema: cinematicAuthoringManifestSchema,
-    cache: 'no-store'
-  });
-}
-
-export function getCinematicDataLineage(projectId: string, scope: { sceneId?: string; shotId?: string } = {}) {
-  const query = new URLSearchParams();
-  if (scope.sceneId) query.set('sceneId', scope.sceneId);
-  if (scope.shotId) query.set('shotId', scope.shotId);
-  const suffix = query.size ? `?${query.toString()}` : '';
-  return apiRequest(`${cinematicApiPaths.project(projectId)}/data-lineage${suffix}`, {
-    schema: cinematicDataLineageSchema,
     cache: 'no-store'
   });
 }
@@ -259,14 +253,6 @@ export function upsertCinematicWardrobeLook(projectId: string, assignmentId: str
   });
 }
 
-export function archiveCinematicProject(projectId: string, expectedVersion: number) {
-  return apiRequest(cinematicApiPaths.project(projectId), {
-    method: 'DELETE',
-    body: { expectedVersion },
-    schema: cinematicArchiveResponseSchema
-  });
-}
-
 export type StoryPlanInput = {
   contractVersion?: 'story-plan-v2' | 'story-plan-v3';
   authoringMode?: 'simple' | 'advanced';
@@ -341,36 +327,6 @@ export function prepareCinematicPreviousVideoFrame(projectId: string, sceneId: s
   expectedShotVersion: number;
 }) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/previous-video-frame`, {
-    method: 'POST', body: input, schema: cinematicApprovedStoryboardSourceSchema, cache: 'no-store'
-  });
-}
-
-export function getCinematicFacelessPrevisCapability() {
-  return apiRequest('/api/cinematic/faceless-previs/capabilities', {
-    schema: z.object({
-      available: z.boolean(),
-      reason: z.string().nullable().optional(),
-      policyVersion: z.string().optional(),
-      modelHash: z.string().nullable().optional(),
-      maxBytes: z.number().optional(),
-      maxPixels: z.number().optional(),
-      maxFaces: z.number().optional()
-    }),
-    cache: 'no-store'
-  });
-}
-
-export function prepareCinematicFacelessPrevis(projectId: string, sceneId: string, shotId: string, input: {
-  expectedVersion: number;
-  expectedShotVersion: number;
-  sourceType: 'generation_job' | 'previous_video_last_frame';
-  jobId?: string;
-  frameAssetId?: string;
-  expectedFaces: number;
-}) {
-  const url = cinematicApiPaths.project(projectId) + '/scenes/' + encodeURIComponent(sceneId)
-    + '/shots/' + encodeURIComponent(shotId) + '/faceless-previs';
-  return apiRequest(url, {
     method: 'POST', body: input, schema: cinematicApprovedStoryboardSourceSchema, cache: 'no-store'
   });
 }

@@ -11,15 +11,3 @@ export function isCinematicFieldVisible(
   return field.visibility === 'simple' || mode === 'advanced';
 }
 
-export function cinematicFieldsForGroup(
-  manifest: CinematicAuthoringManifest | undefined,
-  entity: 'scene' | 'shot',
-  group: string,
-  mode: 'simple' | 'advanced'
-) {
-  return (manifest?.fields || []).filter(field => (
-    field.path.startsWith(`${entity}.`)
-    && field.group === group
-    && isCinematicFieldVisible(manifest, field.path, mode)
-  ));
-}

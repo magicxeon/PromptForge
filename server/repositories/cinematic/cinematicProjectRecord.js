@@ -63,6 +63,7 @@ export function createCinematicProjectRecord(input, actor) {
 
 export function normalizeCinematicAuthoringEnvelope(project, { newRecord = false } = {}) {
   if (!project || typeof project !== 'object') return project;
+  project.writingSettings ??= { modelId: null, skillIds: [] };
   if (project.authoringContractVersion !== CINEMATIC_AUTHORING_CONTRACT_VERSION) {
     project.authoringContractVersion = CINEMATIC_AUTHORING_CONTRACT_VERSION;
   }

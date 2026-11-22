@@ -342,6 +342,27 @@ function Work({ initial }: { initial: Project }) {
       cancelAnimationFrame(frame);
     };
   }, [playing]);
+  function togglePlayback() {
+    const el = video.current;
+    if (!el) return;
+    if (el.paused) void el.play().catch((e) => setError(e.message));
+    else el.pause();
+  }
+  useEffect(() => {
+    function handleSpace(event: KeyboardEvent) {
+      if (event.code !== "Space" || event.defaultPrevented || event.isComposing ||
+          event.ctrlKey || event.metaKey || event.altKey || event.shiftKey ||
+          document.querySelector('dialog[open], [aria-modal="true"]') ||
+          (event.target instanceof Element && event.target.closest(
+            'input, textarea, button, select, a[href], summary, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="slider"]'
+          ))) return;
+      if (!video.current) return;
+      event.preventDefault();
+      if (!event.repeat) togglePlayback();
+    }
+    window.addEventListener("keydown", handleSpace);
+    return () => window.removeEventListener("keydown", handleSpace);
+  }, []);
   return (
     <>
     {(casting || inVoiceSetup) && <SpeakerReview key={lang} project={p}
@@ -576,11 +597,7 @@ function Work({ initial }: { initial: Project }) {
               className="dub-play-toggle"
               aria-label={t(playing ? "pause" : "play")}
               title={t(playing ? "pause" : "play")}
-              onClick={() =>
-                playing
-                  ? video.current?.pause()
-                  : void video.current?.play().catch((e) => setError(e.message))
-              }
+              onClick={togglePlayback}
             >
               {playing ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
             </button>
@@ -947,9 +964,9 @@ function Work({ initial }: { initial: Project }) {
                   }}
                   usedTakeId={cue.takes[lang]?.id}
                   internalPausesAccepted={cue.takes[lang]?.internalPausesAccepted}
-                  onUseBoundaries={async takeId=>{
+                  onUseBoundaries={async (takeId,confirmedOverrunMs)=>{
                     const saved=await model.save();
-                    model.accept(await projectsApi.useTakeBoundaries(saved,lang,cue.id,takeId));
+                    model.accept(await projectsApi.useTakeBoundaries(saved,lang,cue.id,takeId,confirmedOverrunMs));
                   }}
                   onTakeDeleted={id=>{
                     if (audition?.id===id) {video.current?.pause();setAudition(null);}

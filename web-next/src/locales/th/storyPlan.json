@@ -1,0 +1,13 @@
+{
+  "heading": "วางโครงตอนจากเรื่องเต็ม",
+  "confirmRevision": "ใช้เรื่องเต็มฉบับที่ {{version}} เป็นต้นฉบับ",
+  "outdated": "ต้นฉบับหรือการตั้งค่าตอนเปลี่ยนแล้ว กรุณาเสนอโครงตอนใหม่",
+  "proposeOutline": "เสนอการแบ่งตอน",
+  "approveOutline": "ใช้โครงตอนนี้",
+  "discardOutline": "ทิ้งโครงที่เสนอ",
+  "writeChapters": "เขียนบทตอนจากโครงนี้",
+  "reviewChapters": "ตรวจบทตอนที่เสนอ",
+  "applyChapters": "ใช้บทตอนทั้งชุด",
+  "discardChapters": "ทิ้งบทตอนที่เสนอ",
+  "openChapter": "เปิดตอน {{name}}"
+}

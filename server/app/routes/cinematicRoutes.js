@@ -341,6 +341,11 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.patch('/api/cinematic/projects/:projectId/writing-settings', async (req, res) => {
+    try { res.set('Cache-Control', 'private, no-store').json(await cinematicService.updateWritingSettings(req.params.projectId, req.body, req.actorContext)); }
+    catch (error) { sendCinematicError(res, error); }
+  });
+
   app.patch('/api/cinematic/projects/:projectId/setup', async (req, res) => {
     try {
       res.json(await cinematicService.updateSetup(req.params.projectId, req.body, req.actorContext));
