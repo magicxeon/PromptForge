@@ -710,6 +710,47 @@ try {
   assert.equal(movedProject.scenes[2].mergedPrompts[0].text,finalMerge);
   await page.getByRole("link",{name:/projects/i}).click();
   await page.locator(".story-projects a").filter({hasText:"Letters from the inn"}).waitFor();
+  // Exercise the project header with a long selected chapter at each workspace width.
+  await page.route(`**/api/cinematic/projects/${projectId}/series`, async route=>{
+    const response = await route.fetch();
+    const workspace = await response.json();
+    const chapter = workspace.chapters[0];
+    workspace.chapters = [
+      {...chapter,title:"ตามหาแมวในคืนที่ฝนตก และจดหมายที่ไม่มีชื่อผู้ส่ง"},
+      {...chapter,projectId:"chapter-fixture",title:"The following morning"}
+    ];
+    await route.fulfill({response,json:workspace});
+  });
+  await page.goto(projectUrl);
+  const projectHeader = page.locator(".story-project-header");
+  await projectHeader.getByRole("combobox").waitFor();
+  for (const width of [390,820,1155,1440]) {
+    await page.setViewportSize({width,height:900});
+    for (const language of ["th","en"]) {
+      await page.locator(".header-actions select").selectOption(language);
+      await projectHeader.getByRole("button",{name:language==="th"?"ตัวละคร":"Characters",exact:true}).waitFor();
+      const layout = await projectHeader.evaluate(header=>{
+        const bounds = header.getBoundingClientRect();
+        const title = header.querySelector("h1").getBoundingClientRect();
+        const workflow = header.nextElementSibling.getBoundingClientRect();
+        const controls = [...header.querySelectorAll("select, .story-project-controls > button")];
+        const boxes = controls.map(control=>control.getBoundingClientRect());
+        return {
+          fits:header.scrollWidth<=header.clientWidth+1 &&
+            header.nextElementSibling.scrollWidth<=header.nextElementSibling.clientWidth+1 &&
+            boxes.every(box=>box.left>=bounds.left-1 && box.right<=bounds.right+1),
+          alignedEdges:Math.abs(bounds.left-workflow.left)<1 && Math.abs(bounds.right-workflow.right)<1,
+          alignedRow:boxes.every(box=>Math.abs(box.top-boxes[0].top)<1 && Math.abs(box.height-boxes[0].height)<1),
+          belowTitle:boxes[0].top>=title.bottom,
+          pickerAboveActions:boxes[0].bottom<boxes[1].top
+        };
+      });
+      assert.ok(layout.fits && layout.alignedEdges,`story header fits at ${width} in ${language}`);
+      if (width >= 1155) assert.ok(layout.alignedRow,`header controls line up at ${width} in ${language}`);
+      else assert.ok(layout.belowTitle,`header controls sit below the project title at ${width}`);
+      if (width === 390) assert.ok(layout.pickerAboveActions,"the episode picker has its own row on mobile");
+    }
+  }
   assert.deepEqual(failures,[]);
   console.log("Story & Shots: authoring, saved prompts, merged shot selection, retry, opening frame, persistence, stale sources and responsive checks passed.");
 } catch(error) {

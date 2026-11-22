@@ -86,13 +86,20 @@ function ProjectWorkspace({id}:{id:string}) {
     step==="staging"?"stage.guide":step==="shots"?(scene?.shots.length?"guideEditShot":"guideMakeShots"):
     full?(owner?.activeFullStoryVersionId?"guideReadyPlan":"guideFull"):(project.activeChapterVersionId?"guideReadyScenes":"guideScript");
   return <main className="story-workspace">
-    <header className="story-bar"><div><Link to="/story">‹ {t("projects")}</Link><h1>{chapters.data?.productionProject.title || project.title}</h1></div>
-      <div className="story-actions">
-      {chapters.data && chapters.data.chapters.length>1 && <label>{t(owner?.writingSettings?.direction?.format==="series"?"brief.episode":owner?.writingSettings?.direction?.format==="feature"?"brief.chapter":"chapter")}<select disabled={busy} value={id}
-        onChange={e=>navigate("/story/"+encodeURIComponent(e.target.value))}>{chapters.data.chapters.map(c=><option key={c.projectId} value={c.projectId}>{c.title}</option>)}</select></label>}
-      {chapters.data&&owner&&manifest.data?.writingSettings&&<WritingSettings project={owner} sourceScript={full?owner.fullStoryVersions.find(v=>v.id===owner.activeFullStoryVersionId)?.content:project.chapterStory} catalog={manifest.data.writingSettings} disabled={busy}/>}
-      {owner&&<button type="button" aria-pressed={step==="characters"} disabled={busy}
-        onClick={()=>goStage(step==="characters"?"script":"characters")}>{t("characters")}</button>}
+    <header className="story-project-header">
+      <Link className="story-project-back" to="/story"><ChevronRight size={14} aria-hidden/>{t("projects")}</Link>
+      <h1>{chapters.data?.productionProject.title || project.title}</h1>
+      <div className="story-project-controls">
+        {chapters.data && chapters.data.chapters.length > 1 && <label className="story-chapter-picker">
+          <span>{t(owner?.writingSettings?.direction?.format === "series" ? "brief.episode"
+            : owner?.writingSettings?.direction?.format === "feature" ? "brief.chapter" : "chapter")}</span>
+          <select disabled={busy} value={id} onChange={event=>navigate("/story/"+encodeURIComponent(event.target.value))}>
+            {chapters.data.chapters.map(chapter=><option key={chapter.projectId} value={chapter.projectId}>{chapter.title}</option>)}
+          </select>
+        </label>}
+        {chapters.data&&owner&&manifest.data?.writingSettings&&<WritingSettings project={owner} sourceScript={full?owner.fullStoryVersions.find(v=>v.id===owner.activeFullStoryVersionId)?.content:project.chapterStory} catalog={manifest.data.writingSettings} disabled={busy}/>}
+        {owner&&<button type="button" aria-pressed={step==="characters"} disabled={busy}
+          onClick={()=>goStage(step==="characters"?"script":"characters")}>{t("characters")}</button>}
       </div>
     </header>
     <nav className="story-stage-nav" aria-label={t("stages")}><ol>{stages.map(({key,label,icon:Icon,available},i)=>
