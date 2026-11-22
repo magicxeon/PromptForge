@@ -24,12 +24,14 @@ export function compileSpeechRequest(snapshot, catalog, customVoice = null) {
     const target = normalized.targetDurationMs;
     if (target !== undefined && (!Number.isSafeInteger(target) || target <= 0)) throw speechError('speech_invalid_input');
     const windows = normalized.speechWindows;
-    if (!validSpeechWindows(windows,target)) throw speechError('speech_invalid_input');
+    if (!validSpeechWindows(windows,target) || (normalized.boundaryTimingOnly && !target)) throw speechError('speech_invalid_input');
     const slot = target === undefined ? '' : `[0.0s:${target / 1000}s] `;
     normalized.providerPrompt = [`Speak in ${normalized.language} with the voice of @Audio1.`, style,
       target !== undefined && `DURATION: ${target / 1000} seconds. ${windows ? 'Speak naturally' : 'Start promptly, speak naturally'}, and finish the entire line within this time window. Dialogue only.`,
       normalized.boundaryTimingOnly && windows ?
         `[${windows[0].startMs/1000}s:${windows.at(-1).endMs/1000}s] Start and finish speaking at these times. Allow natural pauses. Say exactly: ${JSON.stringify(text)}` :
+        normalized.boundaryTimingOnly ?
+          `Begin speaking immediately. Use natural conversational pacing. You may finish early. Say exactly: ${JSON.stringify(text)}` :
         windows ? timedSpeechDirection(text,normalized.language,windows) : `${slot}Say exactly: ${JSON.stringify(text)}`].filter(Boolean).join('\n');
     if ([...normalized.providerPrompt].length > model.limits.promptCharacters) throw speechError('speech_invalid_input');
   }

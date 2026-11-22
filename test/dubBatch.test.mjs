@@ -217,6 +217,25 @@ test("explicit performance acceptance survives resume, accepts a pause mismatch 
   assert.equal((await f.step(batch.id)).items[1].errorCode,"dub_take_overlap");
 });
 
+test("free speech placement uses only the cue length, never the source waveform",async t=>{
+  const f=await fixture(t);
+  const project=await f.repo.mutate(f.actor,f.project.id,f.project.revision,p=>{
+    p.durationMs=6000;
+    p.cues[1].voiceBindings.th={documentId:"doc",rowId:"row"};
+    p.cues[1].offsetMs=300;
+  });
+  f.service.analyzeSourceRhythms=async()=>assert.fail("must not analyze source");
+  f.service.voiceStudio.measureDubTake=async()=>assert.fail("must not match wave spikes");
+  f.service.voiceStudio.getDubTake=async(_,id)=>({id,documentId:"doc",rowId:"row",audioUrl:"/take.wav",
+    durationMs:id==="short"?700:2400,inputSnapshot:{boundaryTimingOnly:true}});
+  const use=takeId=>f.service.batches.useTakeBoundaries(f.actor,project.id,{revision:project.revision,language:"th",cueId:"cue1",takeId},f.noop);
+  await assert.rejects(use("long"),{code:/dub_take_(exceeds_window|overlap)/});
+  await use("short");
+  const saved=await f.repo.get(f.actor,project.id);
+  assert.equal(saved.cues[1].takes.th.id,"short");
+  assert.equal(saved.cues[1].offsetMs,0);
+});
+
 test("manual take acceptance checks the bound voice row and expires after changing cue timing",async t=>{
   const f=await fixture(t);
   const p=await f.repo.mutate(f.actor,f.project.id,f.project.revision,p=>{

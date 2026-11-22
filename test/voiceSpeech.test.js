@@ -144,6 +144,11 @@ test('Seed directs approved wording into source speech windows and rejects inval
   assert.ok(relaxed.providerPrompt.includes('[0.2s:1.7s]'));
   assert.ok(relaxed.providerPrompt.includes(JSON.stringify(text)));
   assert.ok(!relaxed.providerPrompt.includes('[1s:1.7s]'));
+  const free=compileSpeechRequest({...base,boundaryTimingOnly:true},catalog).snapshot;
+  assert.match(free.providerPrompt,/DURATION: 1\.8 seconds/);
+  assert.match(free.providerPrompt,/Begin speaking immediately.*finish early/);
+  assert.ok(!free.providerPrompt.includes('s:'));
+  assert.ok(free.providerPrompt.includes(JSON.stringify(text)));
   assert.match(providerPrompt,/\[0.2s:0.6s\]/);
   assert.match(providerPrompt,/\[1s:1.7s\]/);
   assert.equal([...providerPrompt.matchAll(/Say exactly: (".*")/g)].map(m=>JSON.parse(m[1])).join(''),text);

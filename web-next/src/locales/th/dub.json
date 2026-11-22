@@ -1,6 +1,6 @@
 {
-  "boundaryTimingOption": "เทียบเฉพาะต้น–ท้าย",
-  "boundaryTimingHint": "ให้เสียงเริ่มและจบใกล้ต้นฉบับ เว้นจังหวะระหว่างคำได้อิสระ",
+  "boundaryTimingOption": "พูดอิสระในช่วงบท",
+  "boundaryTimingHint": "เริ่มพูดได้ทันที จบก่อนหมดช่วงบทได้",
   "boundaryTimingApplied": "ใช้เทคนี้แล้ว · ข้ามการเทียบช่วงพัก",
   "useBoundaryTiming": "ใช้เทคนี้ถ้าเวลาเริ่มและจบตรง",
   "timed": {

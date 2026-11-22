@@ -84,7 +84,7 @@ export class VoiceStudioApplicationService {
       if (row.targetDurationMs !== undefined && (!Number.isSafeInteger(row.targetDurationMs) || row.targetDurationMs <= 0)) throw voiceError('voice_invalid_rows');
       if (!validSpeechWindows(row.speechWindows,row.targetDurationMs)) throw voiceError('voice_invalid_rows');
       if (row.boundaryTimingOnly !== undefined && (typeof row.boundaryTimingOnly !== 'boolean' ||
-          (row.boundaryTimingOnly && !row.speechWindows?.length))) throw voiceError('voice_invalid_rows');
+          (row.boundaryTimingOnly && !row.targetDurationMs))) throw voiceError('voice_invalid_rows');
       if (row.characterPresetId && !characters.some(c => c.id === row.characterPresetId)) throw voiceError('voice_character_not_found');
       if (!row.delivery || typeof row.delivery !== 'object' || Array.isArray(row.delivery)) throw voiceError('voice_invalid_delivery');
       for (const [k,v] of Object.entries(row.delivery)) { if (!['emotion','intensity','pace','method','direction'].includes(k)) throw voiceError('voice_invalid_delivery'); string(v, policy.maxStyleLength || 400, true); }

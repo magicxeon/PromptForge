@@ -175,7 +175,7 @@ try {
     await voice.selectOption(seed.id);
     const performance=page.locator(".dub-performance-settings");
     await performance.locator("summary").click();
-    const boundaryMode=performance.getByRole("checkbox",{name:/Match start and end only/});
+    const boundaryMode=performance.getByRole("checkbox",{name:/Speak freely within the cue/});
     assert.equal(await boundaryMode.isChecked(),false);
     await boundaryMode.check();
     assert.ok(await performance.evaluate(el=>el.scrollWidth<=el.clientWidth+1));

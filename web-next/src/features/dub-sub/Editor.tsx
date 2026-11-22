@@ -779,7 +779,7 @@ function Work({ initial }: { initial: Project }) {
                   <small className="dub-cue-range">{timeLabel(cue.startMs)} – {timeLabel(cue.endMs)}</small>
                   <p className="dub-cue-excerpt">{cue.translations[lang]?.trim() || cue.text}</p>
                   <div className="dub-tools">
-                    <button onClick={() => setPanel("voice")}>
+                    <button className="primary" onClick={() => setPanel("voice")}>
                       <Mic size={16} aria-hidden="true" /> {t("chooseVoice")}
                     </button>
                       <button disabled={!sceneAvailable || track(lang).locked || !cue.text.trim()}

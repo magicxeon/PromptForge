@@ -1,6 +1,6 @@
 {
-  "boundaryTimingOption": "Match start and end only",
-  "boundaryTimingHint": "Match the original speech boundaries and allow natural pauses between words.",
+  "boundaryTimingOption": "Speak freely within the cue",
+  "boundaryTimingHint": "Start speaking immediately and finish any time before the cue ends.",
   "boundaryTimingApplied": "Take placed · internal pauses accepted",
   "useBoundaryTiming": "Use this take if the start and end match",
   "timed": {

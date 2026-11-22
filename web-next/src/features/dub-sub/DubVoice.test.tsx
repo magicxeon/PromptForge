@@ -127,6 +127,7 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
     revision: 3,
   });
   api.saveTake.mockResolvedValue({ ...take, savedAt: "now" });
+  const loadWindows=vi.fn(async()=>[{startMs:120,endMs:1650}]);
   function DirectedCue() {
     const [overrides, setOverrides] = useState<CueDelivery>({});
     return (
@@ -138,7 +139,7 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
         text="สวัสดี"
         speaker="Hero"
         targetMs={2400}
-        loadSpeechWindows={async()=>[{startMs:120,endMs:1650}]}
+        loadSpeechWindows={loadWindows}
         defaultCharacterId="hero"
         suggestedDelivery={{direction:"A soft greeting."}}
         overrides={overrides} onDeliveryChange={setOverrides}
@@ -152,6 +153,7 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
   }
   render(<DirectedCue />);
   fireEvent.click(await screen.findByText("editPerformance"));
+  if (!creditsEnabled) fireEvent.click(screen.getByRole("checkbox"));
   fireEvent.change(await screen.findByLabelText("emotion"), {
     target: { value: "happy" },
   });
@@ -171,12 +173,14 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
   }
   expect(api.saveDocument.mock.calls[0][0].rows[0]).toMatchObject({
     targetDurationMs: 2400,
-    speechWindows:[{startMs:120,endMs:1650}],
+    speechWindows:creditsEnabled ? [{startMs:120,endMs:1650}] : undefined,
+    boundaryTimingOnly:!creditsEnabled,
     text: "สวัสดี",
     characterPresetId: "hero",
     delivery: { emotion: "happy", direction: "A soft greeting." },
   });
   fireEvent.click(await screen.findByText("listen"));
+  expect(loadWindows).toHaveBeenCalledTimes(creditsEnabled ? 1 : 0);
   expect(onAudition).toHaveBeenCalledWith(take);
   fireEvent.click(screen.getByText("use"));
   await waitFor(() =>

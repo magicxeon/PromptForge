@@ -230,11 +230,7 @@ function VoiceInspector({
     if (creditsEnabled === undefined || !model || !available || !text.trim() || active) return;
     const { epoch } = getIdentitySnapshot();
     if (!selectedVoice) return;
-    const speechWindows = await loadSpeechWindows?.();
-    if (boundaryTimingOnly && !speechWindows?.length) {
-      setError(t("dub:errors.dub_take_rhythm_unmeasurable"));
-      return;
-    }
+    const speechWindows = boundaryTimingOnly ? undefined : await loadSpeechWindows?.();
     assertIdentityEpoch(epoch);
     const character = (mapped?.voiceId === selection ? mapped : undefined)
       || characters.find(c => c.voiceKind === "custom" && c.voiceId === selection)
@@ -429,7 +425,8 @@ function VoiceInspector({
       )}
       {items.map((item) => {
         const placement = targetMs === undefined ? null : takePlacement({
-          startMs:cueStartMs,endMs:cueStartMs+targetMs,offsetMs:cueOffsetMs
+          startMs:cueStartMs,endMs:cueStartMs+targetMs,
+          offsetMs:item.inputSnapshot.boundaryTimingOnly && !item.inputSnapshot.speechWindows && usedTakeId!==item.id ? 0 : cueOffsetMs
         },item.durationMs,projectDurationMs);
         return (
         <div key={item.id} className="dub-take">

@@ -272,9 +272,12 @@ export class DubBatchService {
       const take=await voice.getDubTake(actor,takeId);
       if (take.rowId!==binding.rowId || take.documentId!==binding.documentId)
         throw dubError("dub_batch_changed",409);
-      const rhythms=await this.projects.analyzeSourceRhythms(this.projects,actor,project,[cue],verify);
-      const measured={...take,inputSnapshot:{...take.inputSnapshot,speechWindows:rhythms.get(cueId)}};
-      const fit=await fitTakeOffset(project,cue,language,measured,voice,actor,false,true);
+      let candidate=take;
+      if (!(take.inputSnapshot?.boundaryTimingOnly && !take.inputSnapshot.speechWindows)) {
+        const rhythms=await this.projects.analyzeSourceRhythms(this.projects,actor,project,[cue],verify);
+        candidate={...take,inputSnapshot:{...take.inputSnapshot,speechWindows:rhythms.get(cueId)}};
+      }
+      const fit=await fitTakeOffset(project,cue,language,candidate,voice,actor,false,true);
       if (fit.errorCode) throw dubError(fit.errorCode,422);
       await verify();
       const cues=project.cues.map(c=>c.id===cueId ? place(c,language,take,fit.offsetMs,project.targetLanguages[0],true) : c);

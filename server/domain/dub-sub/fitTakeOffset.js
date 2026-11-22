@@ -32,6 +32,15 @@ export async function fitTakeOffset(project, cue, language, take, voice, actor, 
     } else if (!limit(-Infinity,start - cue.startMs - take.durationMs)) return reject("dub_take_overlap");
   }
   const expected = take.inputSnapshot?.speechWindows;
+  if (take.inputSnapshot?.boundaryTimingOnly && !expected) {
+    // Other languages share this offset. Preserve their position if already placed.
+    const shared = Object.entries(cue.takes ?? {}).some(([lang,audio])=>lang!==language && audio?.id);
+    const offsetMs = shared ? current : 0;
+    const slot = takePlacement({...cue,offsetMs},take.durationMs,projectEnd);
+    if (offsetMs<0 || !slot.fits) return reject("dub_take_exceeds_window");
+    if (offsetMs<lower || offsetMs>upper) return reject("dub_take_overlap");
+    return {offsetMs,errorCode:null,targetMs:slot.availableMs};
+  }
   // A director can accept the performance at its existing position. Capture
   // physical limits before narrowing the interval to match speech boundaries.
   const canKeepPosition = acceptRhythmMismatch && placement.fits && current >= lower && current <= upper;
