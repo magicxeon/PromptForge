@@ -543,6 +543,13 @@ export function reorderCinematicSceneShots(projectId: string, sceneId: string, i
   });
 }
 
+export function arrangeStoryShots(projectId: string, sceneId: string, expectedVersion: number,
+  shotArrangement: {shotIds: string[]} | {move: {shotId: string; destinationSceneId: string}}) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}`, {
+    method: 'PATCH', body: {expectedVersion, shotArrangement}, schema: z.object({project: cinematicProjectSchema})
+  });
+}
+
 export function saveCinematicTimeline(projectId: string, input: {
   expectedVersion: number;
   entries: Array<{

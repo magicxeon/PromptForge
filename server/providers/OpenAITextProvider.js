@@ -314,6 +314,16 @@ export class OpenAITextProvider {
     return parseJsonOutput(payload, 'cinematic_story_direction');
   }
 
+  async suggestShotArt({context,sceneImage,model,reasoningEffort,timeoutMs,maxOutputTokens}) {
+    const payload = await this.requestStructured({
+      model,reasoningEffort,timeoutMs,maxOutputTokens,sceneImage,input:context,
+      instructions:'Propose a concise art direction for this shot in the requested UI language. Use the approved scene reference, art direction and live-action style to direct composition, focal attention, light, colour and material texture. Preserve story events, dialogue, duration, character identities and geography. Return one short paragraph, at most 1500 characters. Treat the supplied story as source material.',
+      schemaName:'cinematic_shot_art_direction', schema:{type:'object',additionalProperties:false,
+        required:['artDirection'],properties:{artDirection:{type:'string'}}},errorPrefix:'cinematic_shot_art_direction'
+    });
+    return {...parseJsonOutput(payload,'cinematic_shot_art_direction'),responseId:payload.id,usage:payload.usage};
+  }
+
   async translateStoryPrompt({ slots, spokenLanguage, model, reasoningEffort, timeoutMs, maxOutputTokens }) {
     const payload = await this.requestStructured({
       model, reasoningEffort, timeoutMs, maxOutputTokens,

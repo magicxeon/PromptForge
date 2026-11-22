@@ -56,6 +56,7 @@ export function applyShotProposal(project, sceneId, proposalId, now = new Date()
     const current = scene.shots.find(item => item.id === proposal.targetShotId);
     if (!current || current.version !== proposal.sourceShotVersion) fail('cinematic_shot_proposal_stale', 'The Shot changed after this revision was proposed.', 409);
     updateShotDocument(project, sceneId, current.id, { ...proposal.shots[0], expectedShotVersion: current.version, source: 'ai_proposal' }, now);
+    current.summary = proposal.shots[0].summary;
     current.sourceShotProposalId = proposal.id;
     proposal.status = 'applied'; proposal.appliedAt = now;
     return { proposal, scene };
@@ -186,6 +187,7 @@ export function updateShotDocument(project, sceneId, shotId, input, now = new Da
   if (input.videoPromptOverride !== undefined) writeShotPromptOverride(shot, input.videoPromptOverride);
   shot.title = title;
   shot.durationMs = integer(input?.durationMs, 500, 20000, Number(shot.durationMs) || 5000);
+  if (shotDocument !== shot.shotDocument) delete shot.summary;
   shot.shotDocument = shotDocument;
   shot.manualStoryboard = false;
   shot.shotDocumentVersion = Number(shot.shotDocumentVersion || 0) + 1;
@@ -267,6 +269,7 @@ function shotDocumentFields(outline, index, proposal) {
     orderKey: index + 1,
     title: outline.title,
     purpose: outline.purpose,
+    summary: outline.summary,
     durationMs: outline.durationMs,
     shotDocument: outline.shotDocument,
     source: 'ai_proposal',
@@ -284,6 +287,8 @@ function normalizeShotOutline(value, index, allowedCharacterIds) {
   return {
     title: text(value?.title, 120) || `Shot ${index + 1}`,
     purpose: text(value?.purpose, 1000),
+    summary: value?.summary?.th && value?.summary?.en
+      ? {th:text(value.summary.th,600),en:text(value.summary.en,600)} : undefined,
     durationMs,
     shotDocument,
     characterIds: [...new Set((Array.isArray(value?.characterIds) ? value.characterIds : [])

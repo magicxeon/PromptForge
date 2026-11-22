@@ -12,6 +12,7 @@ export function loadSpeechCatalog() {
       || new Set(voices.voices.map(item => item.id)).size !== voices.voices.length
       || !models.models.some(item => item.id === models.defaultModelId)
       || !['maxRows', 'maxTextLength', 'maxStyleLength', 'maxAudioBytes', 'maxDocuments', 'maxCharacters', 'maxTakes', 'maxTitleLength', 'maxTags', 'maxTagLength', 'maxPageSize', 'pageSize', 'maxConcurrentPerActor'].every(key => Number.isSafeInteger(policy[key]) && policy[key] > 0)
+      || !Number.isSafeInteger(policy.maxPauseAfterMs) || policy.maxPauseAfterMs < 0
       || !Array.isArray(policy.inlineTags)) throw new Error('Invalid speech catalog');
     if (!['maxDesignLength', 'maxCustomVoices', 'maxDesignCandidates', 'maxProjectVoices', 'seedDraftLifetimeHours'].every(key => Number.isSafeInteger(policy[key]) && policy[key] > 0)
       || policy.maxProjectVoices > 200 || policy.maxDesignCandidates > policy.maxCustomVoices
@@ -30,6 +31,14 @@ export function loadSpeechCatalog() {
       && positive(model.limits?.originalSeconds) && model.limits.originalSeconds <= 120)
       || typeof model.id !== 'string' || !/^[a-z0-9._-]+$/.test(model.id) || typeof model.displayName !== 'string'
       || typeof model.enabled !== 'boolean' || !Array.isArray(model.capabilities?.languages) || !model.capabilities.languages.length) throw new Error('Invalid model');
+    for (const model of models.models) {
+      for (const [key, control] of Object.entries(model.capabilities.audioControls || {})) {
+        if (model.adapterKey !== 'seed-speech' || !['speech_rate','loudness_rate','pitch_rate'].includes(key)
+          || ![control.min,control.max,control.step,control.default].every(Number.isSafeInteger)
+          || control.step < 1 || control.min > control.default || control.default > control.max
+          || (control.default - control.min) % control.step !== 0) throw new Error('Invalid audio control');
+      }
+    }
     for (const voice of voices.voices) if (typeof voice.id !== 'string' || !/^[A-Za-z0-9_-]+$/.test(voice.id)
       || typeof voice.displayName !== 'string' || !Array.isArray(voice.modelIds) || !voice.modelIds.length
       || !voice.modelIds.every(id => models.models.some(model => model.id === id))) throw new Error('Invalid voice');

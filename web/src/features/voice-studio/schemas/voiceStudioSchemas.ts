@@ -7,6 +7,14 @@ export const deliverySchema = z.object({
   method: z.string().optional(),
   direction: z.string().optional(),
 });
+const audioConfigSchema = z.object({
+  speech_rate: z.number().int().optional(),
+  loudness_rate: z.number().int().optional(),
+  pitch_rate: z.number().int().optional(),
+});
+const audioControlSchema = z.object({
+  min: z.number().int(), max: z.number().int(), step: z.number().int().positive(), default: z.number().int(),
+});
 export const rowSchema = z.object({
   id: z.string(),
   enabled: z.boolean(),
@@ -17,10 +25,14 @@ export const rowSchema = z.object({
   speechWindows: z.array(z.object({startMs:z.number().int().nonnegative(), endMs:z.number().int().positive()})).min(1).max(12).optional(),
   delivery: deliverySchema,
   selectedTakeId: z.string().nullable(),
+  selectedTakeCurrent: z.boolean().optional(),
+  pauseAfterMs: z.number().int().nonnegative().optional(),
+  audioConfig: audioConfigSchema.optional(),
   activeOperationId: z.string().nullable().optional(),
 });
 export const documentSchema = z.object({
   id: z.string(),
+  kind: z.literal("audio-script").optional(),
   title: z.string(),
   modelId: z.string(),
   language: z.string(),
@@ -53,6 +65,7 @@ export const takeSchema = z.object({
       voiceId: z.string(),
       characterName: z.string(),
       modelId: z.string(),
+      audioConfig: audioConfigSchema.optional(),
       documentRevision: z.number().optional(),
     })
     .passthrough(),
@@ -85,6 +98,11 @@ export const catalogSchema = z.object({
         .object({
           voiceDesign: z.boolean().optional(),
           customVoiceSynthesis: z.boolean().optional(),
+          audioControls: z.object({
+            speech_rate: audioControlSchema.optional(),
+            loudness_rate: audioControlSchema.optional(),
+            pitch_rate: audioControlSchema.optional(),
+          }).optional(),
           languages: z.array(z.string()).optional(),
         })
         .passthrough(),
@@ -104,6 +122,7 @@ export const catalogSchema = z.object({
   policy: z
     .object({
       maxRows: z.number(),
+      maxPauseAfterMs: z.number().int().nonnegative().optional(),
       maxTextLength: z.number(),
       maxStyleLength: z.number(),
       inlineTags: z.array(z.string()),

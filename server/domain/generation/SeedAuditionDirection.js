@@ -9,7 +9,7 @@ const properties = {
 };
 const schema = { type: 'object', properties, required: Object.keys(properties), additionalProperties: false };
 // Reject untranslated script in directions. Dialogue is inserted separately and verbatim.
-const latinDirection = value => typeof value === 'string' && /[a-z]/i.test(value)
+export const latinDirection = value => typeof value === 'string' && /[a-z]/i.test(value)
   && !Array.from(value).some(char => /\p{L}/u.test(char) && !/\p{Script=Latin}/u.test(char));
 
 export async function directSeedAudition(snapshot, model, director, translateDirections) {

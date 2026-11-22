@@ -66,6 +66,91 @@ import { CreditAccountRepository } from '../server/repositories/credits/CreditAc
 
 const snapshot = { documentId: 'doc', rowId: 'row', modelId: 'gemini-3.8-flash-tts', voiceId: 'Kore', text: 'สวัสดี\n<gasp> จริงหรือ', delivery: { emotion: 'happy' }, language: 'th' };
 const actorContext = { userId: 'actor', username: 'actor' };
+test('Seed multilingual script keeps dialogue separate from direction and sends qualified controls with the private voice reference',async()=>{
+  const catalog = loadSpeechCatalog();
+  const model = catalog.models.find(m=>m.adapterKey==='seed-speech');
+  const reference = {model,snapshot:{language:'th'}};
+  const input = {...snapshot, documentKind:'audio-script', modelId:model.id, voiceId:'saved-character', voiceKind:'custom',
+    text:'จริงหรือ “คุณชาย”', delivery:{emotion:'surprised',intensity:'strong',method:'gentle',direction:'Begin hesitantly.'},
+    audioConfig:{speech_rate:-12,loudness_rate:15,pitch_rate:2}};
+  const compiled = compileSpeechRequest(input,catalog,reference);
+  const requests=[];
+  const provider = new SeedSpeechProvider({apiKey:'fixture',fetchImpl:async(_url,request)=>{
+    requests.push(JSON.parse(request.body)); return Response.json({audio:wav().toString('base64')});
+  }});
+  const privateVoice = Buffer.from('synthetic reference');
+  await provider.generate(compiled.snapshot,model,1024,'fixture',privateVoice);
+  const [payload]=requests;
+  assert.equal(payload.model,'seed-audio-1.0-multilingual');
+  assert.deepEqual(payload.references,[{audio_data:privateVoice.toString('base64')}]);
+  assert.deepEqual(payload.audio_config,{format:'wav',sample_rate:24000,enable_subtitle:true,...input.audioConfig});
+  assert.match(payload.text_prompt, /vocal identity.*@Audio1/);
+  assert.match(payload.text_prompt,/Emotion: surprised/);
+  assert.match(payload.text_prompt,/Emotional intensity: strong/);
+  assert.match(payload.text_prompt,/Speaking style: gentle/);
+  assert.match(payload.text_prompt,/Performance note \(silent direction\): "Begin hesitantly\."/);
+  assert.ok(payload.text_prompt.endsWith(`Say exactly: ${JSON.stringify(input.text)}`));
+  assert.notEqual(compileSpeechRequest({...input,audioConfig:{pitch_rate:1}},catalog,reference).requestHash, compiled.requestHash);
+  for (const audioConfig of [{unknown:1},{pitch_rate:13},{speech_rate:-51},{loudness_rate:101},{pitch_rate:0.5},{pitch_rate:'1'}]) {
+    assert.throws(()=>compileSpeechRequest({...input,audioConfig},catalog,reference),{code:'speech_invalid_audio_config'});
+  }
+});
+test('script quote previews reuse live receipts and trim only expired unclaimed previews; accepted speech translates direction once',async t=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),'script-quote-'));
+  t.after(()=>rm(root,{recursive:true,force:true}));
+  const repository=new SpeechOperationRepository({filename:path.join(root,'ops.json')});
+  const catalog=loadSpeechCatalog(), model=catalog.models.find(m=>m.adapterKey==='seed-speech');
+  catalog.policy.maxTakes=3;
+  const owner=actorContext.userId;
+  await repository.mutate(records=>records.push(
+    {id:'voice',ownerUserId:owner,operation:'voice_design',status:'succeeded',model,snapshot:{language:'th'},outputAssetId:'private-reference'},
+    {id:'accepted',ownerUserId:owner,operation:'speech',status:'succeeded',snapshot:{documentKind:'audio-script'},requestId:'keep',quote:{expiresAt:'2000-01-01'}},
+    {id:'foreign',ownerUserId:'other',operation:'speech',status:'quoted',snapshot:{documentKind:'audio-script'},quote:{expiresAt:'2000-01-01'}},
+  ));
+  const queue={jobs:new Map(),enqueueOperation(job){this.jobs.set(job.id,job);}};
+  const requests=[], translations=[];
+  const seedProvider=new SeedSpeechProvider({apiKey:'fixture',fetchImpl:async(_url,body)=>{
+    requests.push(JSON.parse(body.body));return Response.json({audio:wav().toString('base64'),original_duration:1});
+  }});
+  const note='เริ่มลังเล แล้วค่อยมั่นใจ';
+  seedProvider.translateDirections=async request=>{
+    translations.push(request);
+    assert.deepEqual(request.input,{direction:note});
+    return {direction:'Start hesitantly, then grow confident.'};
+  };
+  const speech=new SpeechGenerationService({repository,seedProvider,queue,catalog:()=>catalog,available(){},
+    credits:{quoteSpeech:async()=>({totalCredits:8,expiresAt:new Date(Date.now()+900000).toISOString()}),
+      reserveSpeech:async()=>({reservation:{reservationId:'r'}}),captureSpeech:async()=>{}},
+    assets:{referenceClip:async()=>wav(),register:async()=>({outputAssetId:'audio',outputUrl:'/outputs/test.wav',durationMs:1})}});
+  const input={actorContext,snapshot:{...snapshot,documentKind:'audio-script',modelId:model.id,text:'คุณชาย “จริงหรือ”',
+    voiceId:'voice',voiceKind:'custom',customVoiceOperationId:'voice',delivery:{emotion:'surprised',direction:note}}};
+  const [quote,same]=await Promise.all([speech.quote(input),speech.quote(input)]);
+  assert.equal(same.id,quote.id);
+  assert.equal(translations.length,0);
+  assert.equal(requests.length,0);
+  await repository.update(quote.id,owner,{quote:{totalCredits:8,expiresAt:'2000-01-01'}});
+  const fresh=await speech.quote(input);
+  assert.notEqual(fresh.id,quote.id);
+  assert.equal(await repository.get(quote.id,owner),null);
+  assert.ok(await repository.get('foreign','other'));
+  assert.ok(await repository.get('accepted',owner));
+  const command={...input,quoteId:fresh.id,requestId:'request-script-take'};
+  await speech.generate(command);
+  await speech.generate(command);
+  assert.equal(translations.length,0);
+  const result=await queue.jobs.get(fresh.id).execute();
+  assert.equal(result.status,'succeeded');
+  assert.equal(translations.length,1);
+  assert.equal(requests.length,1);
+  assert.equal(result.snapshot.delivery.direction,note);
+  assert.equal(requests[0].text_prompt.includes(note),false);
+  assert.ok(requests[0].text_prompt.includes('Start hesitantly, then grow confident.'));
+  assert.ok(requests[0].text_prompt.endsWith('Say exactly: '+JSON.stringify(input.snapshot.text)));
+  assert.deepEqual(await seedProvider.prepareScript({...result.snapshot,delivery:{emotion:'calm'}},model,catalog.policy.stylePresets),
+    {...result.snapshot,delivery:{emotion:'calm'}});
+  seedProvider.translateDirections=async()=>({direction:note});
+  await assert.rejects(seedProvider.prepareScript(input.snapshot,model,catalog.policy.stylePresets),{code:'speech_direction_translation_unavailable'});
+});
 test('Seed Audio directs the chosen speaker in the requested language and prices original duration', async () => {
   const catalog = loadSpeechCatalog();
   const seedModel = catalog.models.find(m=>m.id==='dola-seed-audio');

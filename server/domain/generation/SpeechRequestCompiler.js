@@ -3,6 +3,32 @@ import dubbingGenres from '../../config/voice-studio/dubbing-genres.json' with {
 import { inspectWav } from '../assets/AudioAssetService.js';
 import { validSpeechWindows, timedSpeechDirection } from './speechWindows.js';
 export const speechError = (code, statusCode = 400) => Object.assign(new Error('Speech request could not be completed.'), { code, statusCode });
+export function speechAudioConfig(input = {}, model) {
+  const controls = model?.capabilities.audioControls || {};
+  if (!input || typeof input !== 'object' || Array.isArray(input) ||
+      Object.keys(input).some(key => !Object.hasOwn(controls, key))) throw speechError('speech_invalid_audio_config');
+  return Object.fromEntries(Object.entries(controls).map(([key, control]) => {
+    const value = Object.hasOwn(input, key) ? input[key] : control.default;
+    if (!Number.isSafeInteger(value) || value < control.min || value > control.max ||
+        (value - control.min) % control.step !== 0) throw speechError('speech_invalid_audio_config');
+    return [key, value];
+  }));
+}
+
+export function scriptPerformancePrompt({language, text, delivery}) {
+  return [
+    `Record a clean, single-speaker dialogue take in ${language}. Match the vocal identity, accent and timbre of @Audio1 throughout the line.`,
+    'Use natural phrasing, clear diction and breaths appropriate to the performance. Keep the recording free of music, sound effects and additional voices.',
+    delivery.emotion && `Emotion: ${delivery.emotion}.`,
+    delivery.intensity && `Emotional intensity: ${delivery.intensity}.`,
+    delivery.method && `Speaking style: ${delivery.method}.`,
+    delivery.pace && `Phrasing: ${delivery.pace}.`,
+    delivery.direction && `Performance note (silent direction): ${JSON.stringify(delivery.direction)}`,
+    'Speak only the following dialogue verbatim. Keep directions, labels and commentary out of the recording.',
+    `Say exactly: ${JSON.stringify(text)}`,
+  ].filter(Boolean).join('\n');
+}
+
 export function compileSpeechRequest(snapshot, catalog, customVoice = null) {
   const model = catalog.models.find(item => item.id === snapshot?.modelId && item.enabled);
   const voice = snapshot?.voiceKind === 'custom'
@@ -20,13 +46,16 @@ export function compileSpeechRequest(snapshot, catalog, customVoice = null) {
   for (const tag of text.match(/<[^>]*>/g) || []) if (model.capabilities.inlineVocalEvents === false || !policy.inlineTags.includes(tag)) throw speechError('speech_unknown_tag');
   const normalized = JSON.parse(JSON.stringify({ ...snapshot, text, style, delivery: delivery || {}, language: snapshot.language || 'th',
     providerId: model.providerId, catalogVersion: catalog.catalogVersion, compilerVersion: 'speech-v1' }));
+  if (snapshot.audioConfig !== undefined || snapshot.documentKind === 'audio-script') {
+    normalized.audioConfig = speechAudioConfig(snapshot.audioConfig, model);
+  }
   if (model.adapterKey === 'seed-speech') {
     const target = normalized.targetDurationMs;
     if (target !== undefined && (!Number.isSafeInteger(target) || target <= 0)) throw speechError('speech_invalid_input');
     const windows = normalized.speechWindows;
     if (!validSpeechWindows(windows,target) || (normalized.boundaryTimingOnly && !target)) throw speechError('speech_invalid_input');
     const slot = target === undefined ? '' : `[0.0s:${target / 1000}s] `;
-    normalized.providerPrompt = [`Speak in ${normalized.language} with the voice of @Audio1.`, style,
+    normalized.providerPrompt = normalized.documentKind === 'audio-script' ? scriptPerformancePrompt(normalized) : [`Speak in ${normalized.language} with the voice of @Audio1.`, style,
       target !== undefined && `DURATION: ${target / 1000} seconds. ${windows ? 'Speak naturally' : 'Start promptly, speak naturally'}, and finish the entire line within this time window. Dialogue only.`,
       normalized.boundaryTimingOnly && windows ?
         `[${windows[0].startMs/1000}s:${windows.at(-1).endMs/1000}s] Start and finish speaking at these times. Allow natural pauses. Say exactly: ${JSON.stringify(text)}` :

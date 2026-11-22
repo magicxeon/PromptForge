@@ -54,7 +54,7 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
   const location = joined(scene.location, scene.time, scene.weather, scene.environmentPrompt, scene.synopsis || scene.storyChange, sections.scene);
   const start = joined(shot.continuityEntry, opening || shot.visibleMoment || shot.blocking);
   const end = joined(shot.continuityExit, shot.transitionToNext);
-  const light = joined(shot.lighting || scene.lighting, scene.artDirection) || 'Match the established direction of light and preserve visible shadow detail.';
+  const light = joined(shot.lighting || scene.lighting, scene.artDirection, shot.artDirection) || 'Match the established direction of light and preserve visible shadow detail.';
   const camera = joined(shot.framing, shot.cameraAngle, shot.lensIntent);
   const cues = dialogue.cues.length || sections.dialoguePerformance ? dialogue.cues : (shot.dialogueCues || []);
   const duration = seconds(shot.durationMs);

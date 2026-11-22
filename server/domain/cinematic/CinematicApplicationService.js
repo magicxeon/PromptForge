@@ -851,6 +851,11 @@ export class CinematicApplicationService {
 
   updateSceneOutline(projectId, sceneId, input, actorContext) {
     if (Object.hasOwn(input,'mergedPrompt')) return this.saveMergedStoryPrompt(projectId,sceneId,input,actorContext);
+    if (Object.hasOwn(input, 'shotArrangement')) {
+      return this.reorderSceneShots(projectId, sceneId, {
+        ...input.shotArrangement, expectedVersion: input.expectedVersion
+      }, actorContext).then(project => ({project, scene: project.scenes.find(item => item.id === sceneId)}));
+    }
     return this.repository.mutateForActor(projectId, actorContext, project => {
       assertExpectedVersion(project, input?.expectedVersion);
       assertEditable(project);
@@ -897,6 +902,19 @@ export class CinematicApplicationService {
     assertExpectedVersion(project, input?.expectedVersion);
     assertEditable(project);
     ensureShotAuthoring(project);
+    if (input.purpose === 'shot_art_direction') {
+      const scene = project.scenes.find(item => item.id === sceneId);
+      const shot = scene?.shots.find(item => item.id === input.targetShotId);
+      if (!shot) throw new CinematicError('cinematic_shot_not_found','Shot not found in this Scene.',404);
+      if (input.draft !== undefined && (typeof input.draft !== 'string' || input.draft.length > 1500)) {
+        throw new CinematicError('cinematic_art_direction_invalid','Use up to 1500 characters for shot art direction.',400);
+      }
+      const sceneImage = scene.environmentReferenceEnabled !== false && scene.approvedEnvironmentSource
+        ? await this.storyboardAssetService.sceneImageForShotPlanning(scene.approvedEnvironmentSource, actorContext) : undefined;
+      await beforeDispatch?.();
+      return this.fullStoryService.proposeShotArt({scene,shot:{...shot,artDirection:input.draft ?? shot.artDirection},sceneImage,writingSettings:project.writingSettings,
+        language:input.language === 'th' ? 'Thai' : 'English'});
+    }
     if (input.purpose === 'merge_shot_prompt') {
       const scene = project.scenes.find(item => item.id === sceneId);
       if (!scene) throw new CinematicError('cinematic_scene_not_found','Scene not found.',404);
@@ -1157,6 +1175,21 @@ export class CinematicApplicationService {
         throw new CinematicError('cinematic_shot_not_found', 'Shot not found.', 404);
       }
       const previousDocument = String(located.shot.shotDocument || '');
+      if (input.artDirection !== undefined) {
+        const {scene,shot} = located;
+        assertExpectedVersion(shot,input.expectedShotVersion);
+        if (typeof input.artDirection !== 'string' || input.artDirection.trim().length > 1500) {
+          throw new CinematicError('cinematic_art_direction_invalid','Use up to 1500 characters for shot art direction.',400);
+        }
+        const direction = input.artDirection.trim();
+        if ((shot.artDirection || '') !== direction) {
+          shot.artDirection = direction;
+          shot.version += 1;
+          shot.updatedAt = new Date().toISOString();
+          project.version += 1;
+        }
+        return {project:{...project,writingSettings:storyProject.writingSettings},scene,shot};
+      }
       const previousDurationMs = Number(located.shot.durationMs || 0);
       const previousSource = located.shot.approvedStoryboardSource || null;
       const previousPromptFingerprint = shotPromptSourceFingerprint(project, located.scene, located.shot);
@@ -1181,8 +1214,9 @@ export class CinematicApplicationService {
           }
           const saved = validatedShotPrompt(input.storyPrompt);
           const previous = shot.storyPromptVariants?.[input.storyTemplate];
-          if (previous?.text !== saved.text || previous?.sourceFingerprint !== saved.sourceFingerprint) {
-            shot.storyPromptVariants = {...shot.storyPromptVariants, [input.storyTemplate]: saved};
+          if (previous?.text !== saved.text || previous?.sourceFingerprint !== saved.sourceFingerprint || !previous?.references) {
+            const references = packet.references.map(({number, role, name, assetId}) => ({number, role, name, assetId}));
+            shot.storyPromptVariants = {...shot.storyPromptVariants, [input.storyTemplate]: {...saved, references}};
             shot.version += 1;
             shot.updatedAt = new Date().toISOString();
             project.version += 1;
@@ -2933,35 +2967,94 @@ export class CinematicApplicationService {
     });
   }
 
-  reorderSceneShots(projectId, sceneId, input, actorContext) {
-    return this.repository.mutateForActor(projectId, actorContext, project => {
+  async reorderSceneShots(projectId, sceneId, input, actorContext) {
+    await this.seriesService.mutateWithCharacterProjection(projectId, actorContext, project => {
       assertExpectedVersion(project, input.expectedVersion);
       assertEditable(project);
       const scene = project.scenes.find(item => item.id === sceneId);
       if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Storyboard Scene not found.', 404);
-      const requestedOrder = Array.isArray(input.shotIds) ? input.shotIds.map(String) : [];
-      const currentIds = scene.shots.map(shot => shot.id);
-      if (requestedOrder.length !== currentIds.length
-        || new Set(requestedOrder).size !== currentIds.length
-        || requestedOrder.some(id => !currentIds.includes(id))) {
-        throw new CinematicError('cinematic_shot_order_invalid', 'Shot order must contain every Scene Shot exactly once.');
+      const touched = [scene];
+      if (input.move) {
+        const ordered = [...project.scenes].sort((a, b) => a.orderKey - b.orderKey);
+        const destination = ordered.find(item => item.id === input.move.destinationSceneId);
+        const distance = destination ? ordered.indexOf(destination) - ordered.indexOf(scene) : 0;
+        if (Math.abs(distance) !== 1 || input.shotIds !== undefined) {
+          throw new CinematicError('cinematic_shot_order_invalid', 'Choose the previous or next Scene.');
+        }
+        const shot = scene.shots.find(item => item.id === input.move.shotId);
+        if (!shot) throw new CinematicError('cinematic_shot_not_found', 'Shot not found in this Scene.', 404);
+        if (destination.shots.length >= cinematicWorkflowPolicy.authoring.generatedShotMaximumPerScene) {
+          throw new CinematicError('cinematic_shot_limit', 'The destination Scene has reached its Shot limit.', 409);
+        }
+        const cast = resolveShotCastIds(scene, shot);
+        const looksFor = (parent, item) => {
+          const visible = new Set(resolveShotCastIds(parent, item));
+          const allowed = new Set(project.castAssignments.filter(member => visible.has(member.id))
+            .flatMap(member => (member.looks || []).map(look => look.id)));
+          return resolveShotLookIds(parent, item).filter(id => allowed.has(id));
+        };
+        shot.wardrobeLookIds = looksFor(scene, shot);
+        shot.inheritSceneLooks = false;
+        shot.castAssignmentIds = cast;
+        shot.castMode = cast.length ? 'selected' : 'none';
+        const requiredCast = [...cast, ...(shot.speakerBindings || []).map(item => item.castAssignmentId)];
+        const currentCast = destination.castMode === 'none' ? [] : destination.castAssignmentIds || [];
+        const currentLooks = destination.wardrobeLookIds || [];
+        if (shot.wardrobeLookIds.some(id => !currentLooks.includes(id))) {
+          for (const other of destination.shots) {
+            if (!other.wardrobeLookIds?.length && !other.manualStoryboard && other.inheritSceneLooks !== false) {
+              other.wardrobeLookIds = looksFor(destination, other);
+              other.inheritSceneLooks = false;
+            }
+          }
+          destination.wardrobeLookIds = [...new Set([...currentLooks, ...shot.wardrobeLookIds])];
+        }
+        if (requiredCast.some(id => !currentCast.includes(id))) {
+          // A new Scene member must not appear in existing Shots through inheritance.
+          for (const other of destination.shots) {
+            const existing = resolveShotCastIds(destination, other);
+            other.castAssignmentIds = existing;
+            other.castMode = existing.length ? 'selected' : 'none';
+          }
+          destination.castAssignmentIds = [...new Set([...currentCast, ...requiredCast])];
+          destination.castMode = 'selected';
+        }
+        scene.shots = scene.shots.filter(item => item.id !== shot.id).sort((a,b) => a.orderKey - b.orderKey);
+        destination.shots.sort((a,b) => a.orderKey - b.orderKey);
+        if (distance > 0) destination.shots.unshift(shot);
+        else destination.shots.push(shot);
+        shot.version = Number(shot.version || 1) + 1;
+        shot.shotPlanningStatus = 'review_required';
+        markVideoPacketChanged(project, shot);
+        touched.push(destination);
+      } else {
+        const requested = input.shotIds;
+        const byId = new Map(scene.shots.map(shot => [shot.id, shot]));
+        if (!Array.isArray(requested) || requested.length !== byId.size ||
+          new Set(requested).size !== byId.size || requested.some(id => !byId.has(id))) {
+          throw new CinematicError('cinematic_shot_order_invalid', 'Shot order must contain every Scene Shot exactly once.');
+        }
+        scene.shots = requested.map(id => byId.get(id));
       }
-      const byId = new Map(scene.shots.map(shot => [shot.id, shot]));
-      scene.shots = requestedOrder.map((id, index) => ({ ...byId.get(id), orderKey: index + 1 }));
-      scene.shotOrder = [...requestedOrder];
-      for (let index = 0; index < scene.shots.length; index += 1) {
-        const candidate = scene.shots[index];
-        const source = candidate.approvedStoryboardSource;
-        if (previousVideoOrigin(source)
-          && previousVideoOrigin(source).shotId !== previousVideoFrameEligibility(project, scene, candidate).shot?.id) {
-          invalidateStoryboardFrameShot(project, candidate);
+      for (const updated of touched) {
+        updated.shots.forEach((shot, index) => { shot.orderKey = index + 1; });
+        updated.shotOrder = updated.shots.map(shot => shot.id);
+        updated.version = Number(updated.version || 1) + 1;
+        updated.durationMs = updated.shots.reduce((total, shot) => total + shot.durationMs, 0);
+      }
+      // The first Shot of a following Scene may also depend on the previous Scene's final frame.
+      for (const current of project.scenes) {
+        for (const candidate of current.shots) {
+          const origin = previousVideoOrigin(candidate.approvedStoryboardSource);
+          if (origin && origin.shotId !== previousVideoFrameEligibility(project, current, candidate).shot?.id) {
+            invalidateStoryboardFrameShot(project, candidate);
+          }
         }
       }
-      scene.version = Number(scene.version || 1) + 1;
-      scene.durationMs = scene.shots.reduce((total, shot) => total + shot.durationMs, 0);
       project.version += 1;
       return project;
     });
+    return this.getProject(projectId, actorContext);
   }
 
   saveTimeline(projectId, input, actorContext) {

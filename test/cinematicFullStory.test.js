@@ -74,6 +74,49 @@ async function fixture(t, serviceOverrides = {}) {
   return { service, project, repository };
 }
 
+test('shot art stays in review until accepted and updates just its shot in single and merged prompts', async t => {
+  const {default:catalog}=await import('../server/config/cinematic/story-direction.v1.json',{with:{type:'json'}});
+  const {service,project}=await fixture(t,{fullStoryService:{
+    proposeShotArt:async ({shot,language,writingSettings})=>{
+      assert.equal(shot.artDirection,'Dark silhouette'); assert.equal(language,'Thai');
+      assert.equal(writingSettings.direction.visualStyle,'korean');
+      return {artDirection:'Rim light on the glass.'};
+    },
+    translateStoryPrompt:async text=>({text})
+  }});
+  const configured=await service.updateWritingSettings(project.id,{expectedVersion:project.version,modelId:null,skillIds:[],
+    direction:{...catalog.defaults,country:'thailand',spokenLanguage:'Thai',visualStyle:'korean'}},actor);
+  assert.equal(configured.writingSettings.direction.country,'thailand');
+  const created=await service.createManualScene(project.id,{expectedVersion:configured.version,idempotencyKey:'art-scene'},actor);
+  const sceneId=created.scene.id;
+  const first=await service.createManualShot(project.id,sceneId,{expectedVersion:created.project.version,idempotencyKey:'art-1'},actor);
+  const second=await service.createManualShot(project.id,sceneId,{expectedVersion:first.project.version,idempotencyKey:'art-2'},actor);
+  const ids=[project.id,sceneId,first.shot.id];
+  const packet=async template=>(await service.prepareShotWriter(...ids,actor,{storyPrompt:true,template})).storyPacket;
+  const original=await packet('still');
+  const saved=await service.updateShotDocument(...ids,{expectedVersion:second.project.version,expectedShotVersion:first.shot.version,
+    promptOnly:true,storyTemplate:'still',storyPrompt:{sourceFingerprint:original.sourceFingerprint,text:'Earlier accepted prompt.'}},actor);
+  const draft=await service.proposeShots(project.id,sceneId,{expectedVersion:saved.project.version,purpose:'shot_art_direction',
+    targetShotId:first.shot.id,language:'th',draft:'Dark silhouette'},actor);
+  assert.equal((await service.getProject(project.id,actor)).version,saved.project.version);
+  const accepted=await service.updateShotDocument(...ids,{expectedVersion:saved.project.version,expectedShotVersion:saved.shot.version,
+    artDirection:draft.artDirection},actor);
+  assert.equal(accepted.shot.shotDocument,first.shot.shotDocument);
+  assert.equal(accepted.shot.durationMs,first.shot.durationMs);
+  assert.equal(accepted.shot.storyPromptVariants.still.text,'Earlier accepted prompt.');
+  assert.deepEqual(await service.storyPromptStatus(project.id,sceneId,actor),{outdated:[{shotId:first.shot.id,templates:['still']}]});
+  for(const format of ['flow','still','seedance']){
+    const revised=await packet(format);
+    assert.ok(revised.text.includes(catalog.visualStyles.korean.instruction));
+    assert.ok(revised.text.includes(draft.artDirection));
+  }
+  const merged=await service.proposeShots(project.id,sceneId,{expectedVersion:accepted.project.version,purpose:'merge_shot_prompt',
+    template:'seedance',shotIds:[first.shot.id,second.shot.id]},actor);
+  assert.ok(merged.text.includes(draft.artDirection));
+  assert.equal(merged.text.split(draft.artDirection).length,2);
+  assert.ok(merged.text.includes(catalog.visualStyles.korean.instruction));
+});
+
 test('merged prompts are scene-owned and saved separately with stale and concurrent edit checks', async t => {
   let translations = 0;
   const {service, project, repository} = await fixture(t,{fullStoryService:{
@@ -385,6 +428,7 @@ test('Story prompt variants survive a reload independently and only save against
   const reloaded = (await service.getProject(project.id, actor)).scenes[0].shots[0];
   assert.equal(reloaded.storyPromptVariants.still.text, 'Keep the paper grain.');
   assert.equal(reloaded.storyPromptVariants.seedance.text, 'Follow the actor.');
+  assert.deepEqual(reloaded.storyPromptVariants.seedance.references, []);
   assert.ok(!reloaded.videoPromptOverride);
   assert.deepEqual(await service.storyPromptStatus(project.id, scene.scene.id, actor), {outdated:[]});
   await repository.mutateForActor(project.id, actor, record => {
@@ -407,6 +451,9 @@ test('Story prompt variants survive a reload independently and only save against
   assert.equal((framed.text.match(/^\[(?!WRITING DIRECTION\])[A-Z ]+\]$/gm)||[]).length,11);
   assert.doesNotMatch(framed.text, /\[REFERENCE NOTE\]/);
   assert.deepEqual((await packet('still')).references.map(ref=>ref.role),['location']);
+  const stored = await save(second, framed, 'Start from Reference 1.');
+  assert.deepEqual(stored.shot.storyPromptVariants.flow.references,
+    framed.references.map(({number,name,role,assetId})=>({number,name,role,assetId})));
 });
 
 test('Shot proposal uses only the enabled saved scene looksheet and resolves it before dispatch', async t => {

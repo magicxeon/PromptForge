@@ -1,4 +1,5 @@
 import { apiRequest } from '../../../lib/api/apiClient';
+import {z} from 'zod';
 import { mergedStoryWritingResultSchema } from '../schemas/cinematicSchemas';
 import { withCinematicWritingQuote } from './cinematicWritingBilling';
 import { cinematicChapterProposalMutationSchema, cinematicManualSceneMutationSchema, cinematicManualShotMutationSchema, cinematicSceneProposalMutationSchema, cinematicSeriesMutationSchema, cinematicSeriesWorkspaceSchema, cinematicSharedCharacterMutationSchema, cinematicShotDocumentMutationSchema, cinematicShotProposalMutationSchema } from '../schemas/cinematicSeriesSchemas';
@@ -158,6 +159,8 @@ export function updateCinematicShotDocument(projectId: string, sceneId: string, 
   expectedVersion: number;
   expectedShotVersion: number;
 } & ({
+  artDirection:string;
+} | {
   promptOnly: true;
   videoPromptOverride: { text: string; sourceFingerprint: string };
 } | {
@@ -198,6 +201,14 @@ export function buildMergedStoryPrompt(projectId:string,sceneId:string,shotIds:s
   return withCinematicWritingQuote({projectId, sceneId, operation:'shots', input, resultSchema:mergedStoryWritingResultSchema},
     body => apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`,
       {method:'POST', body, schema:mergedStoryWritingResultSchema}));
+}
+
+const shotArtProposalSchema = z.object({artDirection:z.string().trim().min(1).max(1500)});
+export function proposeShotArt(projectId:string, sceneId:string, shotId:string, expectedVersion:number,language:'en'|'th',draft?:string) {
+  const input = {purpose:'shot_art_direction',targetShotId:shotId,expectedVersion,language,...(draft!==undefined ? {draft} : {})};
+  return withCinematicWritingQuote({projectId,sceneId,operation:'shots',input,resultSchema:shotArtProposalSchema},
+    body => apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`,
+      {method:'POST',body,schema:shotArtProposalSchema}));
 }
 
 export function saveMergedStoryPrompt(projectId:string,sceneId:string,expectedVersion:number,

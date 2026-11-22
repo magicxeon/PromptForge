@@ -3,6 +3,18 @@
   "requirement": "requirements/024-frontend-rebuild/000-master.md",
   "tasks": [
     {
+      "id":"FE24-STORY-SHOT-DESK","title":"Arrange shots across scenes and review art, text and attachments together",
+      "complexity":"complex","reason":"Scene ordering, project direction and versioned prompt sources share a persisted authoring contract.",
+      "owner":"product-requirement-architect","ownerAgentId":"/root","dependsOn":["FE24-STORY-MERGE"],
+      "capabilities":["cinematic","frontend-experience"],"risks":["shared-contract","user-facing"],
+      "writeScope":["server/domain/cinematic/","server/app/routes/","server/config/","web/src/features/cinematic/","web-next/src/","web-next/test/","test/","requirements/024-frontend-rebuild/","requirements/099-technical-dept/"],
+      "status":"complete","acceptance":["A writer can move a shot without losing its identity, review its art and ordered references, and copy the current prompt in either view."],
+      "reviewers":["ux-ui-product-designer","qa-release-engineer"],
+      "evidence":[{"check":"A writer can move a shot without losing its identity, review its art and ordered references, and copy the current prompt in either view.","result":"passed","reference":"requirements/024-frontend-rebuild/013-story-scene-shot.md"}],
+      "reviews":[{"role":"ux-ui-product-designer","agentId":"/root/shotdesk_review","result":"passed","reference":"web-next/test/story-authoring-check.mjs"},{"role":"qa-release-engineer","agentId":"/root/shotdesk_review","result":"passed","reference":"test/cinematicApplicationService.test.js"}],
+      "handoff":"shot_moves owns scene arrangement and the Seedance advisory. shot_art owns project style, per-shot art direction and compiler inputs. Root owns the prompt review dialog, saved reference manifest and integration checks."
+    },
+    {
       "id":"FE24-STORY-MERGE","title":"Compose a scene-owned video prompt from multiple saved shots",
       "complexity":"complex","reason":"The selection, compiler and saved scene document share ordered shot IDs, clip times and source fingerprints.",
       "owner":"backend-platform-architect","ownerAgentId":"/root","dependsOn":["FE24-STORY-STAGING"],

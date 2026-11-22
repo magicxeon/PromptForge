@@ -50,6 +50,99 @@ async function fixture(t) {
   return {service,repository,calls};
 }
 const actor = {userId:'a',username:'actor-a'};
+test('audio script lists filter owned documents before pagination and keep existing documents readable', async t => {
+  const {service} = await fixture(t);
+  service.generation.speechCatalog = loadSpeechCatalog;
+  const create = title => service.createDocument(actor, {kind:'audio-script', title, language:'th'});
+  const one = await create('A');
+  const legacy = await service.createDocument(actor, {title:'B'});
+  const two = await create('C');
+  await service.createDocument({userId:'other'}, {kind:'audio-script', title:'D', language:'en'});
+  const query = {kind:'audio-script', sort:'name', limit:1};
+  const page = await service.list('documents', actor, query);
+  assert.deepEqual(page.items.map(d => d.id), [one.id]);
+  assert.equal(page.nextCursor, one.id);
+  const next = await service.list('documents', actor, {...query, cursor:page.nextCursor});
+  assert.deepEqual(next.items.map(d => d.id), [two.id]);
+  assert.equal(next.nextCursor, null);
+  assert.equal((await service.getDocument(actor, legacy.id)).kind, undefined);
+  assert.equal(one.modelId, 'dola-seed-audio');
+  assert.equal(one.rows[0].pauseAfterMs, 0);
+  assert.equal(one.rows[0].selectedTakeCurrent, false);
+  await assert.rejects(service.createDocument(actor,{kind:'audio-script',language:'unsupported'}),{code:'voice_model_unavailable'});
+  await assert.rejects(service.createDocument(actor,{kind:'wrong'}),{code:'voice_invalid_document_kind'});
+  await assert.rejects(service.archive('documents',actor,one.id,true,one.revision+1),{code:'voice_revision_conflict'});
+  await service.archive('documents',actor,one.id,true,one.revision);
+  assert.deepEqual((await service.list('documents',actor,query)).items.map(d=>d.id), [two.id]);
+});
+
+test('audio script edits retain takes, require explicit reacceptance and recover an active row by ID', async t => {
+  const {service, repository} = await fixture(t);
+  service.generation.speechCatalog = loadSpeechCatalog;
+  const createPreset = async name => {
+    const preset = await repository.insert('customVoices', actor.userId, {name, modelId:'dola-seed-audio', language:'th',
+      operationId:`saved-${name}`, savedAt:new Date().toISOString()});
+    return service.character(actor,{name,voiceKind:'custom',voiceId:preset.id});
+  };
+  const narrator = await createPreset('Narrator');
+  const hero = await createPreset('Hero');
+  const guest = await createPreset('Guest');
+  let doc = await service.createDocument(actor,{kind:'audio-script',title:'Encounter',language:'th'});
+  const row = doc.rows[0];
+  const save = async rows => { doc = await service.updateDocument(actor, doc.id, {expectedRevision:doc.revision, rows}); };
+  await save([narrator,hero,guest].map((speaker,i) => ({...row,id:speaker.id,characterPresetId:speaker.id,
+    text:['The door opens.', 'Who goes there?', 'You?'][i],delivery:{emotion:i === 2 ? 'surprised' : 'neutral'},
+    pauseAfterMs:i*150,audioConfig:{speech_rate:-10,loudness_rate:20,pitch_rate:2}})));
+  const originalInput = await service.snapshot(actor,doc.id,guest.id,doc.revision);
+  const take = await repository.insert('takes',actor.userId,{documentId:doc.id,rowId:guest.id,inputSnapshot:originalInput});
+  const select = async () => { doc = await service.select(actor,doc.id,guest.id,{expectedRevision:doc.revision,takeId:take.id}); };
+  doc = await service.select(actor,doc.id,guest.id,{expectedRevision:doc.revision,takeId:take.id,matchingInputOnly:true});
+  const guestRow = () => doc.rows.find(r => r.id === guest.id);
+  assert.equal(guestRow().selectedTakeCurrent,true);
+  assert.equal(guestRow().acceptedInputKey, undefined);
+  await save([guestRow(),...doc.rows.slice(0,2)].map(r=>({...r,pauseAfterMs:1000})));
+  assert.equal(guestRow().selectedTakeCurrent,true);
+  const quote = await service.quote(actor,doc.id,guest.id,{expectedRevision:doc.revision});
+  assert.equal(quote.snapshot.voiceId,guest.voiceId);
+  assert.equal(quote.snapshot.customVoiceOperationId,'saved-Guest');
+  assert.equal(quote.snapshot.documentKind,'audio-script');
+  assert.deepEqual(quote.snapshot.audioConfig, guestRow().audioConfig);
+  assert.equal(quote.snapshot.pauseAfterMs, undefined);
+  for (const edit of [
+    {text:'Really?'}, {delivery:{emotion:'calm'}}, {audioConfig:{pitch_rate:-3}}, {characterPresetId:hero.id},
+  ]) {
+    const oldRevision=doc.revision;
+    await save(doc.rows.map(r=>r.id===guest.id ? {...r,...edit,selectedTakeCurrent:true} : r));
+    assert.equal(guestRow().selectedTakeId,take.id);
+    assert.equal(guestRow().selectedTakeCurrent,false);
+    await assert.rejects(service.select(actor,doc.id,guest.id,{takeId:take.id,expectedRevision:oldRevision}),{code:'voice_revision_conflict'});
+    await select();
+    assert.equal(guestRow().selectedTakeCurrent,true);
+  }
+  service.generation.listSpeechOperations = () => [{id:'pending-hero',status:'queued',snapshot:{documentId:doc.id,rowId:hero.id}}];
+  doc = await service.getDocument(actor,doc.id);
+  assert.deepEqual(doc.rows.map(r=>r.id),[guest.id,narrator.id,hero.id]);
+  assert.equal(doc.rows[2].activeOperationId,'pending-hero');
+  assert.equal(guestRow().selectedTakeCurrent,true);
+  await assert.rejects(save(doc.rows.slice(0,2)),{code:'voice_row_has_active_job'});
+  await assert.rejects(save(doc.rows.map(r=>({...r,pauseAfterMs:10001}))),{code:'voice_invalid_pause'});
+  await assert.rejects(save(doc.rows.map(r=>({...r,audioConfig:{pitch_rate:-13}}))),{code:'speech_invalid_audio_config'});
+  await assert.rejects(service.select(actor,doc.id,narrator.id,{expectedRevision:doc.revision,takeId:take.id}),{code:'voice_invalid_take'});
+  await service.character(actor,{expectedRevision:hero.revision,voiceId:narrator.voiceId},hero.id);
+  assert.equal((await service.getDocument(actor,doc.id)).rows[0].selectedTakeCurrent,false);
+  await assert.rejects(service.select(actor,doc.id,guest.id,{expectedRevision:doc.revision,takeId:take.id,matchingInputOnly:true}),{code:'voice_take_stale'});
+  await select();
+  assert.equal(guestRow().selectedTakeCurrent,true);
+  const revision = doc.revision;
+  const generate = () => service.generate(actor,doc.id,guest.id,{expectedRevision:revision});
+  for (const [change,code] of [[{archivedAt:'archived'},'voice_custom_unavailable'],
+    [{archivedAt:null,language:'en'},'dub_voice_required'],[{language:'th',modelId:'gemini-3.8-flash-tts'},'dub_voice_required']]) {
+    await repository.update('customVoices',narrator.voiceId,actor.userId,undefined,r=>Object.assign(r,change));
+    await assert.rejects(generate(),{code});
+  }
+  await repository.update('characters',hero.id,actor.userId,undefined,r=>Object.assign(r,{voiceId:'Kore',voiceKind:'prebuilt'}));
+  await assert.rejects(generate(),{code:'dub_voice_required'});
+});
 test('row take numbers survive deletion, retries and reload, with newest first', async t => {
   const {repository} = await fixture(t);
   const add = (id, rowId='line', owner=actor.userId) =>

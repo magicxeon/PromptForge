@@ -271,10 +271,13 @@ export const CINEMATIC_SCENE_SHOTS_SCHEMA = Object.freeze({
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['title', 'purpose', 'durationMs', 'shotDocument', 'characterIds'],
+        required: ['title', 'purpose', 'summary', 'durationMs', 'shotDocument', 'characterIds'],
         properties: {
           title: { type: 'string' },
           purpose: { type: 'string' },
+          summary: { type: 'object', additionalProperties:false, required:['th','en'],
+            description:'One or two sentences on who does what, where, and what the viewer should notice. Write the same account in Thai and English.',
+            properties:{th:{type:'string'},en:{type:'string'}} },
           durationMs: { type: 'integer', minimum: 500, maximum: 20000 },
           shotDocument: { type: 'string' },
           characterIds: { type: 'array', maxItems: 24, items: { type: 'string' } }

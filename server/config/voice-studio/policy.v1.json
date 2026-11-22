@@ -4,6 +4,7 @@
   "maxDocuments": 500, "maxCharacters": 500, "maxTakes": 5000,
   "pageSize": 20, "maxPageSize": 50, "maxAudioBytes": 33554432,
   "maxConcurrentPerActor": 1,
+  "maxPauseAfterMs": 10000,
   "maxDesignLength": 1000, "maxCustomVoices": 30, "maxDesignCandidates": 5, "maxProjectVoices": 180,
   "seedDraftLifetimeHours": 24,
   "eventGroups": [

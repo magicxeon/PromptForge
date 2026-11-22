@@ -1,7 +1,9 @@
 import {useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
+import {ChevronLeft, Pencil, Plus, Sparkles} from "lucide-react";
 import type {CinematicProject,CinematicScene} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {createCinematicManualShot} from "../../../../../web/src/features/cinematic/api/cinematicSeriesApi";
+import {arrangeStoryShots} from "../../../../../web/src/features/cinematic/api/cinematicApi";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {SceneShotEditDialog} from "./SceneShotEditDialog";
 import {ShotPromptDialog} from "./ShotPromptDialog";
@@ -10,43 +12,86 @@ import {StoryPromptStatus} from "./StoryPromptStatus";
 import {MergedStoryShots} from "./MergedStoryShots";
 import "./staging.css";
 
-export function ScenePanel({project,scene,index,run,back,pending,requestShots,shotLimit,error,skills,stage,showStage,aspectRatio,mergeTemplate}:{
+export function ScenePanel({project,scene,index,run,back,pending,requestShots,shotLimit,error,skills,stage,showStage,openScene,aspectRatio,mergeTemplate}:{
   project:CinematicProject;scene:CinematicScene;index:number;run:RunWriting;back:()=>void;pending:boolean;
   requestShots:(id?:string,instruction?:string)=>Promise<boolean>;shotLimit?:number;error:string;
   skills: string[];
   stage:"staging"|"shots";showStage:(stage:"staging"|"shots")=>void;
+  openScene:(id:string)=>void;
   aspectRatio:string;
   mergeTemplate?:"flow"|"seedance";
 }){
   const {t}=useTranslation("story"),[edit,setEdit]=useState<string|null>(null);
+  const {t: labels} = useTranslation("storyPrompt");
+  const scenes = [...project.scenes].sort((a,b) => a.orderKey-b.orderKey);
+  const [moved, setMoved] = useState<{name:string; destination:CinematicScene}>();
   const [promptId, setPromptId] = useState<string>();
   const shots=[...scene.shots].sort((a,b)=>a.orderKey-b.orderKey);
+  async function reorderShot(from:number, to:number) {
+    const movingId = shots[from].id;
+    const ids = shots.map(item => item.id);
+    ids.splice(to, 0, ids.splice(from, 1)[0]);
+    await run(async () => {
+      const result = await arrangeStoryShots(project.id, scene.id, project.version, {shotIds: ids});
+      setMoved(undefined);
+      return result;
+    });
+    requestAnimationFrame(()=>buttons.current.get(movingId)?.focus({preventScroll:true}));
+  }
+  function moveShot(shot:typeof shots[number], destination:CinematicScene) {
+    void run(async () => {
+      const result = await arrangeStoryShots(project.id, scene.id, project.version,
+        {move: {shotId: shot.id, destinationSceneId: destination.id}});
+      setMoved({name:shot.title, destination});
+      return result;
+    });
+  }
   const shot=shots.find(s=>s.id===edit);
   const promptShot = shots.find(s=>s.id===promptId);
   const buttons=useRef(new Map<string,HTMLButtonElement>());
   const close=()=>{const id=edit;setEdit(null);requestAnimationFrame(()=>buttons.current.get(id||"")?.focus());};
-  const actions=<div className="story-actions"><button className="primary" onClick={()=>void requestShots()}>{t(pending?"reviewShots":"proposeShots")}</button>
-    <button onClick={()=>void run(async()=>{const r=await createCinematicManualShot(project.id,scene.id,project.version,crypto.randomUUID());
-      if(r.shot)setEdit(r.shot.id);return r;})}>{t("addShot")}</button></div>;
-  return <article><button onClick={back}>‹ {t("sceneIndex")}</button>
-    <header className="story-bar"><h2>{t("sceneTitle",{index,name:scene.title})}</h2>
-      <button ref={el=>{if(el)buttons.current.set("scene",el);}} onClick={()=>setEdit("scene")}>{t("editScene")}</button></header>
+  const needsProposal = !shots.length || pending;
+  const propose = <button className={needsProposal ? "primary-button" : undefined} onClick={()=>void requestShots()}>
+    <Sparkles size={15} aria-hidden/>{t(pending?"reviewShots":"proposeShots")}
+  </button>;
+  const add = <button className={needsProposal ? undefined : "primary-button"} onClick={()=>void run(async()=>{
+    const result = await createCinematicManualShot(project.id,scene.id,project.version,crypto.randomUUID());
+    if (result.shot) {
+      if (stage !== "shots") showStage("shots");
+      setEdit(result.shot.id);
+    }
+    return result;
+  })}><Plus size={16} aria-hidden/>{t("addShot")}</button>;
+  return <article>
+    <header className="story-scene-header">
+      <button className="story-scene-back" onClick={back}><ChevronLeft size={16} aria-hidden/>{t("stage.backToScenes")}</button>
+      <div className="story-scene-heading">
+        <h2>{t("sceneTitle",{index,name:scene.title})}</h2>
+        <button ref={el=>{if(el)buttons.current.set("scene",el);}} onClick={()=>setEdit("scene")}>
+          <Pencil size={14} aria-hidden/>{t("stage.editDetails")}
+        </button>
+      </div>
+      <nav className="story-scene-views" aria-label={t("stage.sceneViews")}>
+        <button aria-current={stage==="staging"?"page":undefined} onClick={()=>{if(stage!=="staging")showStage("staging");}}>
+          {t("stage.setup")}
+        </button>
+        <button aria-current={stage==="shots"?"page":undefined} onClick={()=>{if(stage!=="shots")showStage("shots");}}>
+          {t("stage.shotList")}
+        </button>
+      </nav>
+    </header>
     {scene.sourceChapterRevisionId&&scene.sourceChapterRevisionId!==project.activeChapterVersionId && <p role="status">{t("sourceChanged")}</p>}
     {stage==="staging"?<>
       <SceneStage project={project} scene={scene} run={run} aspectRatio={aspectRatio}/>
       <StoryPromptStatus project={project} scene={scene}/>
-      <div className="story-actions">
-        {shots.length>0 && !pending?<button className="primary" onClick={()=>showStage("shots")}>{t("stage.openShots",{count:shots.length})}</button>:
-        <button className="primary" onClick={()=>void requestShots()}>{t(pending?"reviewShots":"stage.propose")}</button>}
-        {!shots.length&&<button onClick={()=>void run(async()=>{const r=await createCinematicManualShot(project.id,scene.id,project.version,crypto.randomUUID());
-          if(r.shot){showStage("shots");setEdit(r.shot.id);}return r;})}>{t("addShot")}</button>}
-      </div>
+      {needsProposal && <div className="story-actions">{propose}{!shots.length&&add}</div>}
     </>:<>
-    <button onClick={()=>showStage("staging")}>{t("stage.backToSetup")}</button>
-    <div className="story-bar"><h3>{t("shotCount",{count:shots.length})} <small>{t("stage.total",{seconds:shots.reduce((sum,s)=>sum+s.durationMs,0)/1000})}</small></h3>
-      {shots.length>0 && !pending && <details><summary>{t("sceneActions")}</summary>{actions}</details>}</div>
-    {(!shots.length || pending) && actions}
-    <MergedStoryShots project={project} scene={scene} shots={shots} run={run} error={error} defaultTemplate={mergeTemplate ?? "seedance"}>
+    {moved && <div className="story-actions" role="status">
+      <span>{labels("arrange.moved", {shot:moved.name, scene:moved.destination.title})}</span>
+      <button onClick={() => openScene(moved.destination.id)}>{labels("arrange.open")}</button>
+    </div>}
+    <MergedStoryShots project={project} scene={scene} shots={shots} run={run} error={error} defaultTemplate={mergeTemplate ?? "seedance"}
+      shotActions={needsProposal?<>{propose}{add}</>:<>{add}{propose}</>}>
     <ol className="story-shots">{shots.map((shot, shotIndex) => {
       const action = shot.visibleMoment || shot.subjectAction || shot.purpose;
       const camera = [shot.framing, shot.cameraAngle, shot.cameraMovement, shot.lensIntent].filter(Boolean).join(" · ");
@@ -57,7 +102,10 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
           else buttons.current.delete(shot.id);
         }} onClick={() => setEdit(shot.id)}>
           <strong>{t("shotTitle", {index: shotIndex + 1, name: shot.title})}</strong>
-          <span>{t("seconds", {n: shot.durationMs / 1000})} · {t("editShot")}</span>
+          <span className="story-shot-card-meta">
+            {t("seconds", {n: shot.durationMs / 1000})}
+            <span className="story-shot-edit-label"><Pencil size={14} aria-hidden/>{t("editShot")}</span>
+          </span>
         </button></h4>
         <div className="story-shot-content">
           {shot.shotPlanningStatus === "review_required" && <small>{t("sourceChanged")}</small>}
@@ -77,7 +125,25 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
           </details>}
           {(shot.continuityExit||shot.transitionToNext) && <section><h5>{t("stage.end")}</h5><p>{[shot.continuityExit,shot.transitionToNext].filter(Boolean).join(" · ")}</p></section>}
           <div className="story-shot-tools"><button onClick={() => setPromptId(shot.id)}
-            aria-label={t("shotPromptFor", {name: shot.title})}>{t("shotPrompt")}</button></div>
+            aria-label={t("shotPromptFor", {name: shot.title})}>{t("shotPrompt")}</button>
+            <details className="story-arrange"><summary>{labels("arrange.title")}</summary>
+              <div className="story-arrange-body">
+                <div className="story-arrange-group" role="group" aria-label={labels("arrange.withinScene")}>
+                  <span aria-hidden="true">{labels("arrange.withinScene")}</span>
+                  <div className="story-arrange-buttons">
+                    <button disabled={shotIndex === 0} onClick={() => reorderShot(shotIndex,shotIndex-1)}>{labels("arrange.up")}</button>
+                    <button disabled={shotIndex === shots.length-1} onClick={() => reorderShot(shotIndex,shotIndex+1)}>{labels("arrange.down")}</button>
+                  </div>
+                </div>
+                <div className="story-arrange-group" role="group" aria-label={labels("arrange.acrossScenes")}>
+                  <span aria-hidden="true">{labels("arrange.acrossScenes")}</span>
+                  <div className="story-arrange-buttons">
+                    <button disabled={!scenes[index-2]} onClick={() => moveShot(shot,scenes[index-2])}>{labels("arrange.previous")}</button>
+                    <button disabled={!scenes[index]} onClick={() => moveShot(shot,scenes[index])}>{labels("arrange.next")}</button>
+                  </div>
+                </div>
+              </div>
+            </details></div>
         </div>
       </li>;
     })}</ol></MergedStoryShots></>}

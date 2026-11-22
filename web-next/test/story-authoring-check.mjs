@@ -57,7 +57,8 @@ const service = new CinematicApplicationService({
     },
     async proposeShots() {
       writingRequests.push("shots");
-      return {shots:[{title:proposedShot,durationMs:4500,shotDocument:dialogue}]};
+      return {shots:[{title:proposedShot,durationMs:4500,shotDocument:dialogue,
+        summary:{en:"The innkeeper gives the traveller a letter.",th:"เจ้าของโรงเตี๊ยมส่งจดหมายให้ผู้เดินทาง"}}]};
     },
     async translateStoryPrompt(text, _cues, settings) {
       assert.equal(settings.direction.spokenLanguage,"English");
@@ -258,17 +259,17 @@ try {
     }
   }
   const firstSaved=structuredClone((await persisted()).scenes[0]);
-  const sceneActions=page.locator(".story-reader article > .story-actions");
-  await sceneActions.locator("button.primary").click();
+  await button("Suggest shots with AI").click();
   await dialog.getByText(proposedShot,{exact:false}).first().waitFor();
   assert.equal(writingRequests.filter(r=>r==="shots").length,1);
   await page.keyboard.press("Escape");
   await page.reload();
-  await sceneActions.locator("button.primary").click();
+  await button("Review shot proposal").click();
   await dialog.getByText(proposedShot,{exact:false}).first().waitFor();
   assert.equal(writingRequests.filter(r=>r==="shots").length,1,"reviewing a saved proposal does not submit again");
   await acceptSet();
   await button("Shot prompt for "+proposedShot).click();
+  await dialog.locator(".story-shot-summary").getByText("The innkeeper gives the traveller a letter.").waitFor();
   await dialog.getByRole("button",{name:"Build prompt"}).click();
   await dialog.getByLabel("Prompt text").waitFor();
   assert.match(await dialog.getByLabel("Prompt text").inputValue(), /Duration: 4.5 seconds/);
@@ -285,8 +286,11 @@ try {
   const leave=page.getByRole("dialog").last();
   await leave.getByRole("button",{name:/keep editing|continue editing/i}).click();
   assert.equal(await shotText.inputValue(),revised,"continue editing keeps the unsaved dialogue");
-  await dialog.locator("fieldset > footer button.primary").click();
-  await dialog.waitFor({state:"hidden"});
+  await page.keyboard.press("Escape");
+  const saveConfirmation = page.getByRole("dialog",{name:"Save your edits before leaving?"});
+  await saveConfirmation.getByRole("button",{name:"Save and close"}).click();
+  await saveConfirmation.waitFor({state:"hidden"});
+  await page.getByRole("dialog",{name:"Edit shot"}).waitFor({state:"hidden"});
   await page.reload();
   await shotRow.waitFor();
   assert.deepEqual((await persisted()).scenes[0],firstSaved,"editing scene two leaves scene one unchanged");
@@ -303,11 +307,28 @@ try {
       await dialog.waitFor();
       assert.equal(await shotText.inputValue(),revised);
       assert.equal(await dialog.getAttribute("aria-label"),language==="en"?"Edit shot":"แก้ช็อต");
+      const shotHeading = dialog.locator(".story-shot-edit > header");
+      assert.equal(await shotHeading.locator("p").innerText(),proposedShot);
+      assert.equal(await shotHeading.getByRole("heading").innerText(),language==="en"?"Edit shot":"แก้ช็อต");
+      assert.ok(await dialog.locator(".story-shot-edit > fieldset > footer").evaluate(el=>parseFloat(getComputedStyle(el).columnGap)>0));
       assert.ok(await page.evaluate(()=>{
         const d=document.querySelector("dialog[open]"), box=d?.getBoundingClientRect();
         return document.documentElement.scrollWidth<=innerWidth+1 && box && box.left>=-1 &&
           box.right<=innerWidth+1 && d.scrollWidth<=d.clientWidth+1;
       }),"shot and actions fit at "+width+" / "+language);
+      await shotText.fill(revised+"\nUnsaved.");
+      await page.keyboard.press("Escape");
+      const confirmation = page.locator("dialog:has(> .story-save-confirmation)");
+      assert.ok(await confirmation.getByRole("button",{name:language==="en"?"Save and close":"บันทึกแล้วปิด"}).isEnabled());
+      assert.ok(await confirmation.evaluate(el=>{
+        const box=el.getBoundingClientRect();
+        return box.left>=0 && box.right<=innerWidth+1 && el.scrollWidth<=el.clientWidth+1
+          && [...el.querySelectorAll("button")].every(button=>button.scrollWidth<=button.clientWidth+1);
+      }), "save confirmation fits at "+width+" / "+language);
+      await page.keyboard.press("Escape");
+      await confirmation.waitFor({state:"hidden"});
+      assert.equal(await shotText.inputValue(),revised+"\nUnsaved.");
+      await shotText.fill(revised);
       await page.keyboard.press("Escape");
       await dialog.waitFor({state:"hidden"});
       assert.ok(await shotRow.evaluate(el=>el===document.activeElement),"returns focus to the originating shot");
@@ -334,7 +355,7 @@ try {
   // Manual creation remains available for scenes and shots even after accepting AI suggestions.
   await page.locator(".story-index > button").last().click();
   await page.locator(".story-reader h2").filter({hasText:/3/}).waitFor();
-  await sceneActions.getByRole("button").last().click();
+  await button("Add shot").click();
   await dialog.waitFor();
   assert.equal((await persisted()).scenes.length,3);
   assert.equal((await persisted()).scenes[2].shots.length,1);
@@ -364,13 +385,15 @@ try {
   assert.equal(new Set(characterRecords.map(record=>record.storyReference.assetId)).size,2);
   await stages.getByRole("button",{name:/Scenes/}).click();
   await secondScene.click();
-  await button("Edit scene").click();
+  await button("Edit scene details").click();
   await dialog.getByText("Characters in this scene",{exact:true}).click();
   await dialog.getByRole("checkbox",{name:/Lalin/}).check();
   await dialog.getByRole("checkbox",{name:/Kin/}).check();
   await dialog.getByRole("button",{name:"Save scene"}).click();
   await dialog.waitFor({state:"hidden"});
-  await button("Open shot list (1)").click();
+  const sceneViews = page.getByRole("navigation",{name:"Scene views"});
+  await sceneViews.getByRole("button",{name:"Shot list",exact:true}).click();
+  await sceneViews.locator("[aria-current=page]").filter({hasText:"Shot list"}).waitFor();
   await shotRow.click();
   await dialog.locator("fieldset details").first().locator("summary").click();
   for (const name of ["Lalin","Kin"]) {
@@ -395,12 +418,33 @@ try {
   assert.match(await promptText.inputValue(),/Character 2: Kin.*Traveller/);
   assert.match(await promptText.inputValue(),/Build a causal chain/);
   const customPrompt = (await promptText.inputValue())+"\nHold on the seal.";
+  await context.grantPermissions(["clipboard-read","clipboard-write"],{origin});
+  await dialog.getByRole("button",{name:"Expand prompt"}).click();
+  for(const width of [390,820,1440]){
+    await page.setViewportSize({width,height:900});
+    assert.ok(await dialog.evaluate(el=>Math.abs(el.getBoundingClientRect().width-innerWidth)<2 && el.scrollWidth<=el.clientWidth+1));
+    if(width===390){
+      await dialog.getByRole("button",{name:"Show attachments"}).click();
+      assert.ok(await dialog.locator(".story-ref-content").isVisible());
+    }else {
+      const left=await dialog.locator(".story-text-pane").boundingBox();
+      const right=await dialog.locator(".story-ref-pane").boundingBox();
+      assert.ok(left.x+left.width<=right.x+1);
+    }
+  }
   await promptText.fill(customPrompt);
+  await dialog.getByRole("button",{name:"Copy prompt"}).click();
+  assert.equal((await page.evaluate(()=>navigator.clipboard.readText())).replaceAll("\r\n","\n"),customPrompt);
+  await page.keyboard.press("Escape");
+  assert.equal(await promptText.inputValue(),customPrompt);
+  assert.ok(await dialog.getByRole("button",{name:"Expand prompt"}).evaluate(el=>el===document.activeElement));
   await dialog.getByRole("button",{name:"Save prompt"}).click();
   await dialog.waitFor({state:"hidden"});
   await page.reload();
   await button("Shot prompt for "+proposedShot).click();
   assert.equal(await promptText.inputValue(), customPrompt);
+  await dialog.locator(".story-prompt-references li").first().waitFor();
+  assert.ok(await dialog.getByRole("button",{name:"Copy prompt"}).isEnabled());
   await dialog.getByRole("button",{name:"Close",exact:true}).click();
   await shotRow.click();
   await dialog.locator("fieldset details").first().locator("summary").click();
@@ -418,7 +462,8 @@ try {
   assert.equal(await dialog.locator(".story-character-list li").last().locator("img").count(),0);
   await dialog.getByRole("button",{name:"Close",exact:true}).click();
   await page.getByRole("dialog",{name:"Save your edits before leaving?"}).getByRole("button",{name:"Discard edits"}).click();
-  await button("Back to scene setup").click();
+  await sceneViews.getByRole("button",{name:"Scene setup",exact:true}).click();
+  await sceneViews.locator("[aria-current=page]").filter({hasText:"Scene setup"}).waitFor();
   await page.getByLabel("Upload setting image").setInputFiles({name:"inn.png",mimeType:"image/png",buffer:reference});
   await page.locator(".story-stage-image").waitFor();
   const uploaded=(await persisted()).scenes[1];
@@ -594,6 +639,43 @@ try {
   assert.ok(await merged.getByRole("button",{name:"Save prompt"}).isDisabled());
   assert.ok(await merged.getByRole("button",{name:"Rebuild from selected shots"}).isEnabled());
   await merged.getByRole("button",{name:"Close"}).click();
+  const firstCard = page.locator(".story-shot-card").first();
+  for (const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    const shotToolbar = page.locator(".story-scene-shot-toolbar");
+    for (const language of ["th","en"]) {
+      await page.locator(".header-actions select").selectOption(language);
+      await shotToolbar.getByRole("button",{name:language==="en"?"Add shot":"เพิ่มช็อต",exact:true}).waitFor();
+      assert.equal(await shotToolbar.getByRole("button").count(),3);
+      assert.ok(await shotToolbar.locator(".story-scene-shot-actions").evaluate(el=>parseFloat(getComputedStyle(el).columnGap)>0));
+      for (const section of [shotToolbar,page.locator(".story-scene-header")]) {
+        assert.ok(await section.evaluate(el=>el.scrollWidth<=el.clientWidth+1 &&
+          el.getBoundingClientRect().right<=innerWidth+1));
+      }
+    }
+    await firstCard.getByText("Arrange shot",{exact:true}).click();
+    const withinScene = firstCard.getByRole("group",{name:"Within this scene"});
+    const acrossScenes = firstCard.getByRole("group",{name:"Across scenes"});
+    assert.ok(await withinScene.getByRole("button",{name:"Move up",exact:true}).isDisabled());
+    assert.ok(await acrossScenes.getByRole("button",{name:"Move to start of next scene"}).isDisabled());
+    assert.ok(await firstCard.locator(".story-arrange").evaluate(el => el.scrollWidth <= el.clientWidth + 1 &&
+      el.getBoundingClientRect().right <= innerWidth + 1 &&
+      [...el.querySelectorAll("button")].every(button=>button.scrollWidth<=button.clientWidth+1)));
+    await firstCard.getByText("Arrange shot",{exact:true}).click();
+    assert.equal(await withinScene.isVisible(),false);
+  }
+  const exitCard = page.locator(".story-shot-card").filter({has:page.locator("h4", {hasText:"Exit"})});
+  await exitCard.getByText("Arrange shot",{exact:true}).click();
+  await exitCard.getByRole("button",{name:"Move up",exact:true}).click();
+  await page.waitForFunction(() => /Exit/.test(document.querySelectorAll(".story-shot-card h4")[1]?.textContent || ""));
+  await page.waitForFunction(()=>document.activeElement===document.querySelectorAll(".story-shot-card h4 button")[1]);
+  await exitCard.getByRole("button",{name:"Move to end of previous scene"}).click();
+  await page.getByRole("button",{name:"Open destination scene"}).click();
+  await page.locator(".story-shot-card").last().getByText(/Exit/).first().waitFor();
+  const movedProject = await persisted();
+  assert.equal(movedProject.scenes[1].shots.at(-1).id, framed[2].id);
+  assert.equal(movedProject.scenes[2].shots.length,2);
+  assert.equal(movedProject.scenes[2].mergedPrompts[0].text,finalMerge);
   await page.getByRole("link",{name:/projects/i}).click();
   await page.locator(".story-projects a").filter({hasText:"Letters from the inn"}).waitFor();
   assert.deepEqual(failures,[]);

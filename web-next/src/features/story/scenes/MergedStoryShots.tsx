@@ -3,14 +3,15 @@ import {useTranslation} from "react-i18next";
 import type {CinematicProject, CinematicScene, CinematicShot} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {MergedStoryPromptDialog} from "./MergedStoryPromptDialog";
+import {SeedancePacingNote} from "./SeedancePacingNote";
 import "./promptTranslations";
 
 type Format = "flow" | "seedance";
 type Editor = {shotIds: string[]; template: Format};
 
-export function MergedStoryShots({project, scene, shots, run, error, defaultTemplate, children}: {
+export function MergedStoryShots({project, scene, shots, run, error, defaultTemplate, shotActions, children}: {
   project: CinematicProject; scene: CinematicScene; shots: CinematicShot[]; run: RunWriting;
-  error: string; defaultTemplate: Format; children: ReactNode;
+  error: string; defaultTemplate: Format; shotActions: ReactNode; children: ReactNode;
 }) {
   const {t} = useTranslation("storyPrompt");
   const {t: story} = useTranslation("story");
@@ -19,6 +20,7 @@ export function MergedStoryShots({project, scene, shots, run, error, defaultTemp
   const startButton = useRef<HTMLButtonElement>(null);
   const selected = shots.filter(shot => selection?.includes(shot.id));
   const seconds = selected.reduce((total, shot) => total + shot.durationMs, 0) / 1000;
+  const totalSeconds = shots.reduce((total, shot) => total + shot.durationMs, 0) / 1000;
 
   function cancelSelection() {
     setSelection(null);
@@ -26,8 +28,18 @@ export function MergedStoryShots({project, scene, shots, run, error, defaultTemp
   }
 
   return <>
+    <div className="story-scene-shot-toolbar">
+      <div className="story-scene-shot-count">
+        <h3>{story("shotCount",{count:shots.length})}</h3>
+        {shots.length>0 && <small>{story("stage.total",{seconds:totalSeconds})}</small>}
+      </div>
+      <div className="story-scene-shot-actions">
+        {shotActions}
+        {selection === null && shots.length >= 2 &&
+          <button ref={startButton} type="button" onClick={() => setSelection([])}>{t("merge.select")}</button>}
+      </div>
+    </div>
     {selection === null ? <>
-      {shots.length >= 2 && <button ref={startButton} type="button" onClick={() => setSelection([])}>{t("merge.select")}</button>}
       {children}
     </> : <fieldset className="story-merge-selection">
       <legend>{t("merge.select")}</legend>
@@ -43,6 +55,7 @@ export function MergedStoryShots({project, scene, shots, run, error, defaultTemp
           </label>
         </li>)}
       </ol>
+      {defaultTemplate === "seedance" && <SeedancePacingNote count={selected.length} seconds={seconds}/>}
       <footer className="story-actions">
         <span role="status">{t("merge.selected", {count: selected.length, seconds})}</span>
         <button className="primary" disabled={selected.length < 2} onClick={() => {

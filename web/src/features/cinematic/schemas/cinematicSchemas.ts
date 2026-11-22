@@ -611,6 +611,12 @@ export const cinematicStoryboardBatchResponseSchema = z.object({
   }))
 });
 
+const savedStoryPromptSchema = z.object({
+  text: z.string(), sourceFingerprint: z.string(),
+  references: z.array(z.object({number:z.number().int().positive(), role:z.enum(['opening','location','character']),
+    name:z.string(), assetId:z.string()})).optional()
+});
+
 export const cinematicShotSchema = z.object({
   manualStoryboard: z.boolean().optional(),
   manualStillAuthority: z.boolean().optional(),
@@ -625,13 +631,15 @@ export const cinematicShotSchema = z.object({
   id: z.string().min(1),
   version: z.number().int().positive(),
   shotDocument: z.string().max(50000).optional(),
+  summary: z.object({th:z.string(),en:z.string()}).optional(),
+  artDirection: z.string().max(1500).optional(),
   shotDocumentVersion: z.number().int().positive().optional(),
   speakerBindings: z.array(z.object({ alias: z.string(), castAssignmentId: z.string(), visible: z.boolean() })).max(24).optional(),
   videoPromptOverride: z.object({ text: z.string().max(50000), sourceFingerprint: z.string() }).nullable().optional(),
   storyPromptVariants: z.object({
-    still: z.object({text: z.string(), sourceFingerprint: z.string()}).optional(),
-    flow: z.object({text: z.string(), sourceFingerprint: z.string()}).optional(),
-    seedance: z.object({text: z.string(), sourceFingerprint: z.string()}).optional()
+    still: savedStoryPromptSchema.optional(),
+    flow: savedStoryPromptSchema.optional(),
+    seedance: savedStoryPromptSchema.optional()
   }).optional(),
   source: z.enum(['manual', 'ai_proposal', 'restored', 'legacy']).optional(),
   sourceShotProposalId: z.string().nullable().optional(),
@@ -681,6 +689,7 @@ export const cinematicShotSchema = z.object({
   })).optional(),
   castAssignmentIds: z.array(z.string()),
   wardrobeLookIds: z.array(z.string()),
+  inheritSceneLooks: z.boolean().optional(),
   continuityNotes: z.array(z.string()),
   storyboardStatus: z.string(),
   approvedStoryboardSource: cinematicApprovedStoryboardSourceSchema.optional(),
@@ -1138,7 +1147,8 @@ const writingLocaleText = z.object({th:z.string().min(1),en:z.string().min(1)});
 export const storyDirectionSchema = z.object({
   country:z.string(), period:z.string(), genre:z.string(), tone:z.string(), format:z.enum(['standalone','feature','series']),
   targetSeconds:z.number().int().positive(), aspectRatio:z.enum(['9:16','16:9','1:1']),
-  destination:z.enum(['flow','seedance']), spokenLanguage:z.string().trim().min(1).max(80)
+  destination:z.enum(['flow','seedance']), spokenLanguage:z.string().trim().min(1).max(80),
+  visualStyle:z.string().optional()
 });
 export type StoryDirection = z.infer<typeof storyDirectionSchema>;
 export const cinematicWritingSettingsCatalogSchema = z.object({

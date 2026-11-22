@@ -23,8 +23,9 @@
   "returnScene": "กลับไปที่ซีน",
   "imageFor": "ภาพฉากสำหรับ {{scene}}",
   "useResult": "ใช้ภาพที่กำลังดูเป็นภาพฉาก",
-  "openShots": "เปิดรายการช็อต ({{count}})",
-  "propose": "แตกช็อตจากฉากนี้",
-  "backToSetup": "กลับไปวางฉาก",
+  "backToScenes": "กลับไปรายการซีน",
+  "editDetails": "แก้ข้อมูลซีน",
+  "sceneViews": "มุมมองซีน",
+  "shotList": "รายการช็อต",
   "total": "รวม {{seconds}} วินาที"
 }

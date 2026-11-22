@@ -52,7 +52,7 @@ function completeScene(value, sceneIndex, completions) {
       completions.push(shotCompletion(scene, sceneIndex, shot, index, 'castAssignmentIds', 'inherited'));
     }
     if (!resolveShotCastIds(scene, shot).length) shot.wardrobeLookIds = [];
-    else if (!Array.isArray(shot.wardrobeLookIds) || !shot.wardrobeLookIds.length) {
+    else if (shot.inheritSceneLooks !== false && (!Array.isArray(shot.wardrobeLookIds) || !shot.wardrobeLookIds.length)) {
       shot.wardrobeLookIds = [...(scene.wardrobeLookIds || [])];
       completions.push(shotCompletion(scene, sceneIndex, shot, index, 'wardrobeLookIds', 'inherited'));
     }

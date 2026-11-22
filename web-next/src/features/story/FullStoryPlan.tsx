@@ -43,7 +43,13 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
       <ol>{plan.chapters.map((row,i) => <li key={i}><strong>{row.title}</strong><p>{row.synopsis}</p></li>)}</ol>
       {plan.status === "proposed" ? <div className="story-actions">
         {(["approve","discard"] as const).map(action => <button key={action} onClick={() => void run(async () => ({
-          project: await reviewCinematicChapterOutline(project.id,{expectedVersion:project.version, outlineId:plan.id, action})}))}>{t(action+"Outline")}</button>)}
+          project: await reviewCinematicChapterOutline(project.id,{
+            expectedVersion:project.version,
+            outlineId:plan.id,
+            action,
+            ...(action === "approve" ? {chapters:plan.chapters} : {})
+          })
+        }))}>{t(action+"Outline")}</button>)}
       </div> : <button onClick={() => void generateOrReview("generate")}>{t("writeChapters")}</button>}
     </>}
     {pending && <>

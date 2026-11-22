@@ -7,6 +7,8 @@ import "./studio.css";
 
 const Editor = lazy(() => import("./Editor"));
 const Setup = lazy(() => import("./DubbingVoiceSetup"));
+const AudioScripts = lazy(() => import("./audio-scripts/AudioScripts"));
+const AudioScriptEditor = lazy(() => import("./audio-scripts/AudioScriptEditor"));
 
 export default function DubStudio() {
   const { t } = useTranslation("dub");
@@ -15,11 +17,14 @@ export default function DubStudio() {
     <main className="dub-studio">
       {!inEditor && <nav aria-label={t("workspace")}>
         <NavLink end to="/dub-sub">{t("projects")}</NavLink>
+        <NavLink to="/dub-sub/audio-scripts">{t("audioScripts:title")}</NavLink>
         <NavLink to="/dub-sub/setup/voices">{t("casting.setup")}</NavLink>
       </nav>}
       <Suspense fallback={<ProcessingSpinner />}>
         <Routes>
           <Route index element={<Projects />} />
+          <Route path="audio-scripts" element={<AudioScripts />} />
+          <Route path="audio-scripts/:id/*" element={<AudioScriptEditor />} />
           <Route path="projects/:id/*" element={<Editor />} />
           <Route path="setup/voices" element={<Setup />} />
           <Route path="voice" element={<Navigate replace to="/dub-sub" />} />

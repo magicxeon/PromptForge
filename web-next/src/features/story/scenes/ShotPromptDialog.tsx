@@ -1,5 +1,6 @@
-import {useState} from "react";
-import {X} from "lucide-react";
+import {useRef, useState} from "react";
+import {Copy, Maximize2, Minimize2, X} from "lucide-react";
+import {useQuery} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
 import {useBlocker,useNavigate} from "react-router-dom";
 import {ProcessingSpinner,useActor} from "../../../lib/canonical";
@@ -12,6 +13,7 @@ import {CinematicWritingCancelled} from "../../../../../web/src/features/cinemat
 import {approveCinematicStoryboardSource, getCinematicProject} from "../../../../../web/src/features/cinematic/api/cinematicApi";
 import {MediaImage} from "../../../components/media/MediaImage";
 import {OpeningFramePicker} from "./OpeningFramePicker";
+import {ShotArtDirection} from "./ShotArtDirection";
 import {outputStorageKey} from "../../playground/state/imageDraft";
 import "./promptTranslations";
 import "./storyPrompt.css";
@@ -22,7 +24,7 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
   project: CinematicProject; scene: CinematicScene; shot: CinematicShot; skills: string[];
   run: RunWriting; error: string; close: () => void;
 }) {
-  const {t} = useTranslation("story");
+  const {t,i18n} = useTranslation("story");
   const {t: label} = useTranslation("storyPrompt");
   const navigate = useNavigate();
   const {identityScope} = useActor();
@@ -40,7 +42,29 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
   const [localError, setLocalError] = useState("");
   const [leaving, setLeaving] = useState(false);
   const [saving, setSaving] = useState(false);
-  const blocker = useBlocker(text !== savedText);
+  const [expanded,setExpanded] = useState(false);
+  const [showMobileRefs,setShowMobileRefs] = useState(false);
+  const [artChanged,setArtChanged] = useState(false);
+  const [artDirty,setArtDirty] = useState(false);
+  const expandButton = useRef<HTMLButtonElement>(null);
+  const blocker = useBlocker(text !== savedText || artDirty);
+  const current = useQuery({
+    queryKey:["story-shot-attachments",identityScope,project.id,project.version,scene.id,shot.id,format],
+    queryFn:()=>prepareCinematicShotWriter(project.id,scene.id,shot.id,"story", format === "legacy" ? undefined : format),
+    enabled:format !== "legacy", refetchOnWindowFocus:false, retry:false
+  });
+  const packet = prepared?.storyPacket || current.data?.storyPacket;
+  const savedVariant = format === "legacy" ? undefined : shot.storyPromptVariants?.[format];
+  const outdated = !prepared && Boolean(savedVariant && packet && savedVariant.sourceFingerprint !== packet.sourceFingerprint);
+  const savedRefs = prepared ? undefined : savedVariant?.references;
+  const listedRefs = savedRefs?.map(ref=>({...ref, imageUrl:packet?.references.find(image=>image.assetId===ref.assetId)?.imageUrl}))
+    ?? (!prepared && savedText ? undefined : packet?.references);
+  const language = i18n.language.startsWith("th") ? "th" : "en";
+  const sourceOutline = shot.shotDocument?.match(/^OPENING(?: FRAME)?[ \t]*\r?\n([^\r\n]+)/im)?.[1]
+    || shot.visibleMoment || shot.subjectAction || shot.purpose
+    || shot.shotDocument?.split(/\r?\n/).map(line=>line.trim()).find(line=>line && !/^[A-Z &]+$|^#|^\d+(?:\.\d+)? seconds?$|^\[/.test(line));
+  const summary = shot.summary?.[language] || (sourceOutline && [...new Intl.Segmenter(language,{granularity:"sentence"})
+    .segment(sourceOutline)].slice(0,2).map(part=>part.segment).join("").trim());
   const castIds = shot.speakerBindings?.map(binding => binding.castAssignmentId)
     ?? (shot.castMode === "none" || scene.castMode === "none" ? []
       : shot.castMode === "inherit" || (shot.castMode !== "selected" && !shot.castAssignmentIds.length)
@@ -53,7 +77,7 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
   function selectFormat(next: Format) {
     setFormat(next);
     setText((next === "legacy" ? shot.videoPromptOverride : shot.storyPromptVariants?.[next])?.text || "");
-    setPrepared(undefined); setCopied(false); setLocalError(""); setNewFormat(null); setLeaving(false);
+    setPrepared(undefined); setCopied(false); setLocalError(""); setNewFormat(null); setLeaving(false); setSourceVersion(project.version);
   }
   const discard = () => { if (blocker.state === "blocked") blocker.proceed(); else if (newFormat) selectFormat(newFormat); else close(); };
   function requestFormat(next: Format) {
@@ -125,27 +149,55 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
 
   function requestClose() {
     if (saving || preparing) return;
-    if (text !== savedText) setLeaving(true);
+    if (text !== savedText || artDirty) setLeaving(true);
     else close();
   }
 
-  return <Dialog label={t("shotPrompt")} onClose={requestClose}>
-    <div className="story-dialog story-prompt-dialog">
+  function toggleExpanded() {
+    setExpanded(!expanded);
+    expandButton.current?.focus({preventScroll:true});
+  }
+  return <Dialog label={t("shotPrompt")} onClose={expanded ? toggleExpanded : requestClose}>
+    <div className="story-dialog story-prompt-dialog" data-expanded={expanded}>
       <header className="story-prompt-heading">
         <h2>{t("shotPrompt")} · {shot.title}</h2>
+        <button className="story-copy" disabled={!text.trim()} onClick={async () => {
+          try { await navigator.clipboard.writeText(text); setCopied(true); }
+          catch { setLocalError(label("copyFailed")); }
+        }}><Copy size={16}/>{label(copied ? "copied" : "copy")}</button>
         <button type="button" aria-label={t("close")} title={t("close")} disabled={saving || preparing} onClick={requestClose}>
           <X size={20} aria-hidden="true"/>
         </button>
       </header>
+      <section className="story-shot-summary"><strong>{label("summary")}</strong><p>{summary || label("summaryEmpty")}</p></section>
       <div className="story-prompt-formats" role="group" aria-label={label("destination")}>
         {(["still","flow","seedance",...(shot.videoPromptOverride ? ["legacy"] : [])] as Format[])
           .map(id => <button key={id} disabled={saving || preparing} aria-pressed={format===id}
             onClick={() => { if (id !== format) requestFormat(id); }}>{label(id)}</button>)}
       </div>
+      <div className="story-prompt-panes">
+      <fieldset className="story-art-pane" disabled={preparing || saving || text !== savedText}>
+        <ShotArtDirection project={project} scene={scene} shot={shot} run={run} onDirtyChange={setArtDirty}
+          onSaved={version=>{setArtChanged(true);setSourceVersion(version);setPrepared(undefined);}}/>
+      </fieldset>
+      <section className="story-ref-pane">
+      <h3>{label("attachments")}{listedRefs && <> · {listedRefs.length}</>}</h3>
+      <button className="story-mobile-refs" aria-expanded={showMobileRefs} onClick={()=>setShowMobileRefs(!showMobileRefs)}>
+        {label(showMobileRefs ? "hideRefs" : "showRefs")}</button>
+      <div className="story-ref-content" data-open={showMobileRefs}>
+      {outdated && <p role="status">{label("refsChanged")}</p>}
+      {listedRefs?.length ? <ol className="story-prompt-references">{listedRefs.map(ref => <li key={ref.number}>
+        {ref.imageUrl ? <MediaImage src={ref.imageUrl} alt=""/> : <small>{label(current.isPending ? "loadingRefs" : "imageUnavailable")}</small>}
+        <span><small>{label("referenceNumber",{number:ref.number})} · {label(ref.role)}</small><strong>{ref.name}</strong></span>
+      </li>)}</ol> : <p>{format === "legacy" || !prepared && savedText && !savedRefs ? label("unknownRefs") :
+        listedRefs ? label("noRefs") : current.isError ? label("refsError") : label("loadingRefs")}</p>}
+      {current.isError && <button onClick={()=>void current.refetch()}>{label("retry")}</button>}
       {needsFrame && <p>{label("needFrame")} <button onClick={() => requestFormat("still")}>{label("prepareFrame")}</button></p>}
       {(format === "flow" || format === "seedance") && <button disabled={saving || preparing || text!==savedText || stale}
         onClick={() => setPicker(true)}>{label(shot.approvedStoryboardSource ? "replaceFrame" : "chooseFrame")}</button>}
-      <h3>{t("characters")}</h3>
+      </div></section>
+      <div className="story-text-pane">
+      <details className="story-prompt-context" open={!expanded || undefined}><summary>{t("characters")}</summary>
       {members.length ? <ul className="story-character-list">{members.map((person, index) => {
         const offscreen = shot.speakerBindings?.find(binding => binding.castAssignmentId === person.id)?.visible === false;
         return <li key={person.id}>
@@ -155,29 +207,27 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
       })}</ul>
         : <p>{t("noShotCharacters")}</p>}
       {skills.length > 0 && <p>{t("promptSkills", {skills: skills.join(" · ")})}</p>}
-      {!!prepared?.storyPacket?.references.length && <section><h3>{label("attachments")}</h3>
-        <ol className="story-prompt-references">{prepared.storyPacket.references.map(ref => <li key={ref.number}>
-          <MediaImage src={ref.imageUrl} alt=""/>{label(ref.role)} · {ref.name}</li>)}</ol></section>}
+      </details>
       {stale && <p role="alert">{t("promptSourceChanged")}</p>}
       {(localError || error) && <p role="alert">{localError || error}</p>}
-      {(text || prepared) && <label>{t("promptText")}<textarea rows={10} readOnly={!prepared || saving || stale}
-        value={text} onChange={event => {setText(event.target.value); setCopied(false);}}/></label>}
+      <div className="story-prompt-text-heading"><label htmlFor="shot-prompt-text">{t("promptText")}</label>
+        <button ref={expandButton} onClick={toggleExpanded} aria-expanded={expanded}>
+          {expanded ? <Minimize2 size={16}/> : <Maximize2 size={16}/>} {label(expanded ? "shrink" : "expand")}</button></div>
+      {(text || prepared) ? <textarea id="shot-prompt-text" rows={10} readOnly={!prepared || saving || stale || artDirty}
+        value={text} onChange={event => {setText(event.target.value); setCopied(false);}}/> : <p>{label("emptyPrompt")}</p>}
       {prepared && text.length > prepared.maximumPromptCharacters && <p role="alert">{t("promptTooLong", {max: prepared.maximumPromptCharacters})}</p>}
       <footer className="story-actions">
         {savedText && !prepared && !stale && <button disabled={preparing} onClick={() => void prepare(false)}>{t("editSavedPrompt")}</button>}
-        <button disabled={preparing || saving || stale || needsFrame || Boolean(prepared)} onClick={() => void prepare()}>
-          {preparing && <ProcessingSpinner/>}{savedText ? t("regeneratePrompt") : t("generatePrompt")}
+        <button disabled={preparing || saving || artDirty || stale || needsFrame || Boolean(prepared)} onClick={() => void prepare()}>
+          {preparing && <ProcessingSpinner/>}{artChanged ? label("rebuildArt") : savedText ? t("regeneratePrompt") : t("generatePrompt")}
         </button>
-        {text && <button disabled={!prepared || stale || needsFrame} onClick={async () => {
-          try { await navigator.clipboard.writeText(text); setCopied(true); }
-          catch { setLocalError(label("copyFailed")); }
-        }}>{label(copied ? "copied" : "copy")}</button>}
-        <button className="primary" disabled={!prepared || preparing || saving || stale || !text.trim() || text.length > prepared.maximumPromptCharacters}
+        <button className="primary" disabled={!prepared || preparing || saving || artDirty || stale || !text.trim() || text.length > prepared.maximumPromptCharacters}
           onClick={() => void save()}>{t("savePrompt")}</button>
-        {format==="still" && prepared && canUseImageWorkspace && <button disabled={preparing || saving || stale || !text.trim() || text.length>prepared.maximumPromptCharacters}
+        {format==="still" && prepared && canUseImageWorkspace && <button disabled={artDirty || preparing || saving || stale || !text.trim() || text.length>prepared.maximumPromptCharacters}
           onClick={()=>void save(true)}>{label("openImage")}</button>}
       </footer>
       {format==="still" && prepared && !canUseImageWorkspace && <p>{label("externalStill")}</p>}
+      </div></div>
     </div>
     {picker && <OpeningFramePicker pending={saving} error={error} choose={jobId => void chooseFrame(jobId)} close={() => setPicker(false)}/>}
     {(leaving || blocker.state === "blocked") && <Dialog label={t("unsaved")} onClose={() => { setLeaving(false); setNewFormat(null); blocker.reset?.(); }}>

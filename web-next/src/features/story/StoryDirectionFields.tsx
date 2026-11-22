@@ -18,6 +18,7 @@ export function StoryDirectionFields({value,onChange}:{value:StoryDirection;onCh
   const locale=i18n.language.startsWith("th")?"th":"en";
   const options = {
     country:authoring.countryStyles.options.map(o=>[o.id,t("brief.countryStyleOptions."+o.id)]),
+    visualStyle:Object.entries(catalog.visualStyles).map(([id,item])=>[id,item[locale]]),
     period:authoring.periods.options.map(o=>[o.id,t("brief.periodOptions."+o.id)]),
     genre:Object.entries(catalog.genres).map(([id,item])=>[id,item[locale]]),
     tone:authoring.choices.audienceFeelings.ids.map(id=>[id,t("brief.feelingOptions."+id)]),
@@ -33,7 +34,7 @@ export function StoryDirectionFields({value,onChange}:{value:StoryDirection;onCh
     {(Object.keys(options) as (keyof typeof options)[]).map(key=><label key={key}>{t("brief."+key)}
       <select value={value[key]} onChange={e=>onChange({...value,[key]:e.target.value})}>
         {options[key].map(([id,label])=><option key={id} value={id}>{label}</option>)}
-      </select></label>)}
+      </select>{key==="visualStyle" && <small>{catalog.visualStyles[(value.visualStyle || catalog.defaults.visualStyle) as keyof typeof catalog.visualStyles]?.description[locale]}</small>}</label>)}
     <label>{t(value.format==="series"?"brief.targetEpisode":"brief.targetFilm")}
       <input required type="number" min={1} max={catalog.maxTargetSeconds} value={value.targetSeconds||""}
         onChange={e=>onChange({...value,targetSeconds:Number(e.target.value)})}/></label>

@@ -1,4 +1,5 @@
 {
   "imageTypes": ["image/png", "image/jpeg", "image/webp"],
-  "maximumUploadBytes": 12582912
+  "maximumUploadBytes": 12582912,
+  "seedancePacing": {"shots": 3, "seconds": 10}
 }

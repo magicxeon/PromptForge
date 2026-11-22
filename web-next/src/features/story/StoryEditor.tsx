@@ -120,7 +120,7 @@ function ProjectWorkspace({id}:{id:string}) {
       {step!=="scenes"&&<section className="story-reader">
         {step==="characters" ? owner && <StoryCharacters project={project} owner={owner} run={run} error={error}/>
         :scene?<ScenePanel key={scene.id} project={project} scene={scene} index={scenes.indexOf(scene)+1} run={run} error={error}
-          stage={step==="shots"?"shots":"staging"} showStage={stage=>selectScene(scene.id,stage)}
+          stage={step==="shots"?"shots":"staging"} showStage={stage=>selectScene(scene.id,stage)} openScene={id=>selectScene(id,"shots")}
           aspectRatio={owner?.writingSettings?.direction?.aspectRatio??project.aspectRatio}
           mergeTemplate={owner?.writingSettings?.direction?.destination === "flow" ? "flow" : "seedance"}
           back={()=>goStage("scenes")} requestShots={requestShots} pending={!!shotProposal}

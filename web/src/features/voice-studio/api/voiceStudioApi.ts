@@ -35,17 +35,17 @@ export const voiceApi = {
   suggestDescription: (input: {role:string; name:string; genre:string; language:string; voiceGender:VoiceDesignInput["voiceGender"]; locale:string}) =>
     apiRequest(`${root}/custom-voices/description-suggestion`, {method:"POST", body:input, schema:z.object({description:z.string().trim().min(1),sampleText:z.string().trim().min(1)})}),
   catalog: () => apiRequest(`${root}/catalog`, { schema: catalogSchema }),
-  documents: (cursor?: string) =>
+  documents: (cursor?: string, kind?: "audio-script") =>
     apiRequest(
-      `${root}/documents?archived=true&limit=20${cursor ? `&cursor=${key(cursor)}` : ""}`,
+      `${root}/documents?archived=true&limit=20${kind ? `&kind=${kind}` : ""}${cursor ? `&cursor=${key(cursor)}` : ""}`,
       { schema: documentsSchema },
     ),
   document: (id: string) =>
     apiRequest(`${root}/documents/${key(id)}`, { schema: documentSchema }),
-  createDocument: () =>
+  createDocument: (input?: {kind: "audio-script"; title: string; language: string; modelId?: string}) =>
     apiRequest(`${root}/documents`, {
       method: "POST",
-      body: {},
+      body: input ?? {},
       schema: documentSchema,
     }),
   saveDocument: (doc: VoiceDocument) =>
@@ -112,10 +112,10 @@ export const voiceApi = {
     }),
   operation: (id: string) =>
     apiRequest(`${root}/generations/${key(id)}`, { schema: operationSchema }),
-  select: (doc: string, row: string, takeId: string | null, revision: number) =>
+  select: (doc: string, row: string, takeId: string | null, revision: number, matchingInputOnly = false) =>
     apiRequest(`${rowPath(doc, row)}/selected-take`, {
       method: "PUT",
-      body: { takeId, expectedRevision: revision },
+      body: { takeId, expectedRevision: revision, ...(matchingInputOnly && {matchingInputOnly:true}) },
       schema: documentSchema,
     }),
   saveTake: (id: string) =>

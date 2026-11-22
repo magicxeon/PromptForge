@@ -23,8 +23,9 @@
   "returnScene": "Return to scene",
   "imageFor": "Setting image for {{scene}}",
   "useResult": "Use the displayed image for this scene",
-  "openShots": "Open shot list ({{count}})",
-  "propose": "Plan shots from this scene",
-  "backToSetup": "Back to scene setup",
+  "backToScenes": "Back to scenes",
+  "editDetails": "Edit scene details",
+  "sceneViews": "Scene views",
+  "shotList": "Shot list",
   "total": "{{seconds}} seconds total"
 }

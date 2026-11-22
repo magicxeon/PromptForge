@@ -13,6 +13,7 @@ import {buildMergedStoryPrompt, saveMergedStoryPrompt} from "../../../../../web/
 import {approveCinematicStoryboardSource, getCinematicProject} from "../../../../../web/src/features/cinematic/api/cinematicApi";
 import {CinematicWritingCancelled} from "../../../../../web/src/features/cinematic/api/cinematicWritingBilling";
 import {OpeningFramePicker} from "./OpeningFramePicker";
+import {SeedancePacingNote} from "./SeedancePacingNote";
 import "./promptTranslations";
 import "./storyPrompt.css";
 
@@ -152,6 +153,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
         <ol className="story-merge-timeline">{timeline.map(shot => <li key={shot.id}>
           <strong>{shot.title}</strong> <span>{t("merge.range", {start: shot.startMs / 1000, end: shot.endMs / 1000})}</span>
         </li>)}</ol>
+        {template === "seedance" && <SeedancePacingNote count={timeline.length} seconds={(timeline.at(-1)?.endMs ?? 0)/1000}/>}
       </section>
       {needsFrame && !missing && <div><p>{t("merge.needFrame", {name: first.title})}</p>
         <button disabled={busy} onClick={() => setPicker(true)}>{t("chooseFrame")}</button></div>}

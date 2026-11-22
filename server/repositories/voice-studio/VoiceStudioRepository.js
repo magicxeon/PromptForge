@@ -14,7 +14,9 @@ function rowHistory(records, owner, documentId, rowId) {
 // All mutable Voice Studio metadata passes through this actor-scoped repository.
 export class VoiceStudioRepository {
   constructor({ files } = {}) { this.files = files || Object.fromEntries(Object.entries(keys).map(([k,v]) => [k, resolveDataFile(v)])); }
-  async list(kind, owner) { return (await readJsonFile(this.files[kind], [])).filter(r => r.ownerUserId === owner && !r.deletedAt); }
+  async list(kind, owner, {includeDeleted = false} = {}) {
+    return (await readJsonFile(this.files[kind], [])).filter(r => r.ownerUserId === owner && (includeDeleted || !r.deletedAt));
+  }
   async rowTakes(owner, documentId, rowId) {
     const history = rowHistory(await readJsonFile(this.files.takes, []), owner, documentId, rowId);
     return history.map((take, index) => ({ ...take, takeNumber: index + 1 }))
@@ -40,7 +42,7 @@ export class VoiceStudioRepository {
     });
   }
   async get(kind, id, owner, { includeDeleted = false } = {}) {
-    const values = includeDeleted ? (await readJsonFile(this.files[kind], [])).filter(r => r.ownerUserId === owner) : await this.list(kind, owner);
+    const values = await this.list(kind, owner, {includeDeleted});
     const value = values.find(r => r.id === id);
     if (!value) throw voiceError('voice_record_not_found', 404);
     return structuredClone(value);

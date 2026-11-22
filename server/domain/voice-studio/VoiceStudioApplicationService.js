@@ -1,7 +1,8 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { VoiceStudioRepository, voiceError } from '../../repositories/voice-studio/VoiceStudioRepository.js';
 import { CustomVoiceService } from './CustomVoiceService.js';
 import { validSpeechWindows } from '../generation/speechWindows.js';
+import { speechAudioConfig } from '../generation/SpeechRequestCompiler.js';
 
 const owner = actor => { if (!actor?.userId) throw voiceError('actor_required', 401); return actor.userId; };
 const string = (v, max, allowEmpty = false) => {
@@ -9,6 +10,33 @@ const string = (v, max, allowEmpty = false) => {
   return v;
 };
 const actorCommands = new Map();
+const audioScript = 'audio-script';
+function scriptModel(catalog, modelId, language) {
+  const model = catalog.models.find(m => m.adapterKey === 'seed-speech' && (!modelId || m.id === modelId));
+  if (!model || !model.capabilities.languages.includes(language)) throw voiceError('voice_model_unavailable');
+  return model;
+}
+function rowInputKey(document, row, character) {
+  const fields = object => Object.keys(object || {}).sort().filter(k => object[k] !== '').map(k => [k, object[k]]);
+  const input = [document.modelId, document.language, row.characterPresetId, character?.voiceKind, character?.voiceId,
+    row.text, fields(row.delivery), fields(row.audioConfig)];
+  return createHash('sha256').update(JSON.stringify(input)).digest('hex');
+}
+function publicScript(document, characters) {
+  if (document.kind !== audioScript) return document;
+  return {...document, rows: document.rows.map(({acceptedInputKey, ...row}) => ({
+    ...row, selectedTakeCurrent: Boolean(row.selectedTakeId && acceptedInputKey === rowInputKey(document, row, characters.get(row.characterPresetId))),
+  }))};
+}
+const characterMap = characters => new Map(characters.map(c => [c.id, c]));
+function activeRowOperations(documentId, operations) {
+  return new Map(operations.filter(op => op.snapshot?.documentId === documentId &&
+    ['admitting','queued','dispatching','delivered','reconciliation_required'].includes(op.status))
+    .map(op => [op.snapshot.rowId, op.id]));
+}
+function withActiveRows(document, active) {
+  return {...document, rows:document.rows.map(row => active.has(row.id) ? {...row,activeOperationId:active.get(row.id)} : row)};
+}
 export class VoiceStudioApplicationService {
   constructor({ repository = new VoiceStudioRepository(), generation, audioAssets } = {}) {
     this.repo = repository; this.generation = generation; this.audioAssets = audioAssets;
@@ -35,6 +63,10 @@ export class VoiceStudioApplicationService {
   async list(kind, actor, query = {}) {
     const {policy} = await this.catalog(actor);
     let records = await this.repo.list(kind, owner(actor));
+    if (kind === 'documents' && query.kind !== undefined) {
+      if (query.kind !== audioScript) throw voiceError('voice_invalid_document_kind');
+      records = records.filter(record => record.kind === query.kind);
+    }
     const search = String(query.search || '').toLowerCase().slice(0, 200);
     if (query.archived !== 'true' && kind !== 'takes') records = records.filter(r => !r.archivedAt);
     if (kind === 'takes') {
@@ -47,70 +79,108 @@ export class VoiceStudioApplicationService {
     const limit = Math.max(1, Math.min(policy.maxPageSize || 50, Number(query.limit) || policy.pageSize || 20));
     const index = query.cursor ? records.findIndex(r => r.id === query.cursor) + 1 : 0;
     const items = records.slice(index, index + limit);
-    return { items, nextCursor: index + limit < records.length ? items.at(-1).id : null };
+    const characters = kind === 'documents' && items.some(item => item.kind === audioScript)
+      ? characterMap(await this.repo.list('characters', owner(actor))) : null;
+    return { items: characters ? items.map(item => publicScript(item, characters)) : items,
+      nextCursor: index + limit < records.length ? items.at(-1).id : null };
   }
   async createDocument(actor, body) {
     const catalog = await this.catalog(actor);
     if ((await this.repo.list('documents',owner(actor))).length >= (catalog.policy.maxDocuments || 500)) throw voiceError('voice_document_limit',409);
-    const modelId = body.modelId || catalog.defaultModelId;
+    if (body.kind !== undefined && body.kind !== audioScript) throw voiceError('voice_invalid_document_kind');
+    const language = string(body.language || 'th',30);
+    const model = body.kind === audioScript ? scriptModel(catalog, body.modelId, language) : null;
+    const modelId = model?.id || body.modelId || catalog.defaultModelId;
     if (!catalog.models.some(m => m.id === modelId)) throw voiceError('voice_model_unavailable');
-    return this.repo.insert('documents', owner(actor), { title: string(body.title || 'Untitled', catalog.policy.maxTitleLength || 120), modelId, language: string(body.language || 'th',30), archivedAt: null,
-      rows: [{ id: randomUUID(), enabled: true, characterPresetId: '', text: '', delivery: {}, selectedTakeId: null }] });
+    const document = await this.repo.insert('documents', owner(actor), { title: string(body.title || 'Untitled', catalog.policy.maxTitleLength || 120), modelId, language, archivedAt: null,
+      ...(model && {kind:audioScript}),
+      rows: [{ id: randomUUID(), enabled: true, characterPresetId: '', text: '', delivery: {}, selectedTakeId: null,
+        ...(model && {pauseAfterMs:0, audioConfig:speechAudioConfig({}, model)}) }] });
+    return publicScript(document, new Map());
   }
   async getDocument(actor, id) {
     const document = await this.repo.get('documents', id, owner(actor));
     const operations = await this.generation.listSpeechOperations?.(actor) || [];
-    for (const op of operations.filter(op => op.snapshot?.documentId === id && op.status === 'succeeded')) {
-      try { await this.repo.get('takes',op.id,owner(actor),{includeDeleted:true}); }
-      catch (error) { if (error.code !== 'voice_record_not_found') throw error; await this.project(actor,op); }
+    const succeeded = operations.filter(op => op.snapshot?.documentId === id && op.status === 'succeeded');
+    if (succeeded.length) {
+      const existing = new Set((await this.repo.list('takes', owner(actor), {includeDeleted:true})).map(t => t.id));
+      for (const op of succeeded) if (!existing.has(op.id)) await this.project(actor,op);
     }
-    return {...document,rows:document.rows.map(row => {
-      const active = operations.find(op => op.snapshot?.documentId === id && op.snapshot?.rowId === row.id
-        && ['admitting','queued','dispatching','delivered','reconciliation_required'].includes(op.status));
-      return {...row,...(active ? {activeOperationId:active.id} : {})};
-    })};
+    const result = withActiveRows(document, activeRowOperations(id, operations));
+    return document.kind === audioScript ? publicScript(result, characterMap(await this.repo.list('characters', owner(actor)))) : result;
   }
-  async updateDocument(actor, id, body) {
+  async updateDocument(actor, id, body, selectionRowId, matchingInputOnly = false) {
     const catalog = await this.catalog(actor);
     const policy = catalog.policy;
     if (!Number.isInteger(body.expectedRevision)) throw voiceError('voice_revision_required');
-    const previous = await this.getDocument(actor, id);
+    const previous = await this.repo.get('documents', id, owner(actor));
+    if (previous.revision !== body.expectedRevision) throw voiceError('voice_revision_conflict',409);
+    const model = previous.kind === audioScript
+      ? scriptModel(catalog, body.modelId ?? previous.modelId, body.language ?? previous.language) : null;
     const rows = body.rows ?? previous.rows;
     if (!Array.isArray(rows) || rows.length > (policy.maxRows || 100) || new Set(rows.map(r => r.id)).size !== rows.length) throw voiceError('voice_invalid_rows');
     const characters = await this.repo.list('characters', owner(actor));
+    const charactersById = characterMap(characters);
+    const previousRows = new Map(previous.rows.map(row => [row.id,row]));
+    const audioConfigs = new Map();
+    const takesById = rows.some(row => row.selectedTakeId)
+      ? new Map((await this.repo.list('takes', owner(actor))).map(t => [t.id, t])) : new Map();
     for (const row of rows) {
       string(row.id, 100); string(row.text, policy.maxTextLength || 2000, true);
       if (typeof row.enabled !== 'boolean') throw voiceError('voice_invalid_rows');
+      if (model) {
+        if (row.targetDurationMs !== undefined || row.speechWindows !== undefined || row.boundaryTimingOnly) throw voiceError('voice_invalid_rows');
+        if (row.pauseAfterMs !== undefined && (!Number.isSafeInteger(row.pauseAfterMs) || row.pauseAfterMs < 0 ||
+            row.pauseAfterMs > policy.maxPauseAfterMs)) throw voiceError('voice_invalid_pause');
+        audioConfigs.set(row.id,speechAudioConfig(row.audioConfig,model));
+        if ((row.selectedTakeId ?? null) !== (previousRows.get(row.id)?.selectedTakeId ?? null) &&
+            row.id !== selectionRowId) throw voiceError('voice_invalid_take');
+      }
       if (row.targetDurationMs !== undefined && (!Number.isSafeInteger(row.targetDurationMs) || row.targetDurationMs <= 0)) throw voiceError('voice_invalid_rows');
       if (!validSpeechWindows(row.speechWindows,row.targetDurationMs)) throw voiceError('voice_invalid_rows');
       if (row.boundaryTimingOnly !== undefined && (typeof row.boundaryTimingOnly !== 'boolean' ||
           (row.boundaryTimingOnly && !row.targetDurationMs))) throw voiceError('voice_invalid_rows');
-      if (row.characterPresetId && !characters.some(c => c.id === row.characterPresetId)) throw voiceError('voice_character_not_found');
+      if (row.characterPresetId && !charactersById.has(row.characterPresetId)) throw voiceError('voice_character_not_found');
       if (!row.delivery || typeof row.delivery !== 'object' || Array.isArray(row.delivery)) throw voiceError('voice_invalid_delivery');
       for (const [k,v] of Object.entries(row.delivery)) { if (!['emotion','intensity','pace','method','direction'].includes(k)) throw voiceError('voice_invalid_delivery'); string(v, policy.maxStyleLength || 400, true); }
       if (row.selectedTakeId) {
-        const take = await this.repo.get('takes', row.selectedTakeId, owner(actor));
+        const take = takesById.get(row.selectedTakeId);
+        if (!take) throw voiceError('voice_record_not_found',404);
         if (take.rowId !== row.id || take.documentId !== id || take.deletingAt) throw voiceError('voice_invalid_take');
+        if (model && matchingInputOnly && selectionRowId === row.id) {
+          const input = take.inputSnapshot;
+          if (!input || rowInputKey(input, input, input) !== rowInputKey(previous, row, charactersById.get(row.characterPresetId)))
+            throw voiceError('voice_take_stale',409);
+        }
       }
     }
     const operations = await this.generation.listSpeechOperations?.(actor) || [];
-    if (operations.some(op => op.snapshot?.documentId === id && ['admitting','queued','dispatching','delivered','reconciliation_required'].includes(op.status)
-      && !rows.some(r => r.id === op.snapshot.rowId))) throw voiceError('voice_row_has_active_job', 409);
-    return this.repo.update('documents', id, owner(actor), body.expectedRevision, record => {
+    const active = activeRowOperations(id, operations);
+    if ([...active.keys()].some(id => !rows.some(row => row.id === id))) throw voiceError('voice_row_has_active_job', 409);
+    const result = await this.repo.update('documents', id, owner(actor), body.expectedRevision, record => {
       record.title = string(body.title ?? record.title, policy.maxTitleLength || 120);
       record.modelId = string(body.modelId ?? record.modelId, 160);
       record.language = string(body.language ?? record.language, 30);
+      const storedRows = new Map(record.rows.map(row => [row.id,row]));
       record.rows = rows.map(r => ({ id: r.id, enabled: r.enabled, characterPresetId: r.characterPresetId || '', text: r.text, delivery: structuredClone(r.delivery),
+        ...(model && {pauseAfterMs:r.pauseAfterMs ?? 0, audioConfig:audioConfigs.get(r.id)}),
         ...(r.targetDurationMs !== undefined && { targetDurationMs: r.targetDurationMs }),
         ...(r.boundaryTimingOnly && {boundaryTimingOnly:true}),
         ...(r.speechWindows && {speechWindows:structuredClone(r.speechWindows)}), selectedTakeId: r.selectedTakeId || null }));
+      if (model) for (const row of record.rows) {
+        if (row.selectedTakeId) row.acceptedInputKey = row.id === selectionRowId
+          ? rowInputKey(record, row, charactersById.get(row.characterPresetId)) : storedRows.get(row.id)?.acceptedInputKey;
+      }
     });
+    return publicScript(withActiveRows(result, active), charactersById);
   }
-  archive(kind, actor, id, archived = true) {
-    return this.repo.update(kind,id,owner(actor),undefined,r => {
+  async archive(kind, actor, id, archived = true, expectedRevision) {
+    const result = await this.repo.update(kind,id,owner(actor),expectedRevision,r => {
+      if (r.kind === audioScript && !Number.isInteger(expectedRevision)) throw voiceError('voice_revision_required');
       if (!archived && r.voiceRetiredAt) throw voiceError('voice_custom_unavailable',409);
       r.archivedAt = archived ? new Date().toISOString() : null;
     });
+    return result.kind === audioScript ? publicScript(result, characterMap(await this.repo.list('characters',owner(actor)))) : result;
   }
   async character(actor, body, id) {
     const catalog = await this.catalog(actor);
@@ -135,8 +205,13 @@ export class VoiceStudioApplicationService {
     if (!row || !row.enabled || !row.text.trim()) throw voiceError('voice_invalid_row');
     const character = await this.repo.get('characters',row.characterPresetId,owner(actor));
     if (character.archivedAt) throw voiceError('voice_character_archived');
-    const custom = character.voiceKind === 'custom' ? await this.customVoices.resolve(actor, character.voiceId) : null;
+    const script = document.kind === audioScript;
+    const custom = character.voiceKind === 'custom'
+      ? await this.customVoices.resolve(actor, character.voiceId, {selection:script}) : null;
+    if (script && (!custom || custom.language !== document.language || custom.modelId !== document.modelId))
+      throw voiceError('dub_voice_required',422);
     return { documentId:id,rowId,text:row.text,delivery:row.delivery,voiceId:character.voiceId,modelId:document.modelId,language:document.language,
+      ...(document.kind === audioScript && {documentKind:audioScript, audioConfig:row.audioConfig}),
       ...(row.targetDurationMs !== undefined && { targetDurationMs: row.targetDurationMs }),
       ...(row.speechWindows && {speechWindows:row.speechWindows}),
       ...(row.boundaryTimingOnly && {boundaryTimingOnly:true}),
@@ -211,7 +286,7 @@ export class VoiceStudioApplicationService {
     const document = await this.getDocument(actor,id);
     const row = document.rows.find(r => r.id === rowId); if (!row) throw voiceError('voice_record_not_found',404);
     row.selectedTakeId = body.takeId;
-    return this.updateDocument(actor,id,{...document,expectedRevision:body.expectedRevision,rows:document.rows});
+    return this.updateDocument(actor,id,{...document,expectedRevision:body.expectedRevision,rows:document.rows},rowId,body.matchingInputOnly === true);
   }
   async updateTake(actor,id,body,save = false) {
     const {policy} = await this.catalog(actor);

@@ -1,5 +1,22 @@
 {
+  "summary":"What happens in this shot","summaryEmpty":"Add an action to the shot to see its summary.",
+  "expand":"Expand prompt","shrink":"Return to compact view","referenceNumber":"Reference {{number}}",
+  "showRefs":"Show attachments","hideRefs":"Hide attachments","unknownRefs":"This version has no recorded attachment list.",
+  "noRefs":"This prompt needs no images.","refsError":"Could not load the attachment list.","loadingRefs":"Loading attachments…",
+  "refsChanged":"The shot has changed. Review the attachments before rebuilding this prompt.","imageUnavailable":"Image unavailable",
+  "emptyPrompt":"Build a prompt from the shot when you are ready.","rebuildArt":"Rebuild prompt from this art direction",
+  "art":{"title":"Shot art direction","direction":"Art direction","edit":"Edit direction","save":"Save direction","cancel":"Cancel","suggest":"Suggest with AI","proposed":"Suggested direction","accept":"Use this direction","keep":"Keep my version","working":"Preparing art direction…","failed":"Could not prepare a suggestion."},
   "destination": "Prepare for", "still": "First-frame image", "flow": "Google Flow", "seedance": "Seedance", "legacy": "Earlier saved prompt",
+  "arrange": {
+    "title": "Arrange shot", "up": "Move up", "down": "Move down",
+    "withinScene": "Within this scene", "acrossScenes": "Across scenes",
+    "previous": "Move to end of previous scene", "next": "Move to start of next scene",
+    "moved": "“{{shot}}” moved to “{{scene}}”.", "open": "Open destination scene"
+  },
+  "pacing": {
+    "guide": "Seedance editing guide: aim for up to {{shots}} shots in about {{seconds}} seconds.",
+    "redistribute": "Consider selecting fewer shots or moving one to a neighboring scene."
+  },
   "merge": {
     "select": "Combine shots into one prompt",
     "selected_one": "{{count}} shot selected · {{seconds}} sec",

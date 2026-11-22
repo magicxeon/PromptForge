@@ -75,11 +75,24 @@ export class SpeechGenerationService {
     const pricingOperation = prepared.model.adapterKey === 'seed-speech' ? 'speech' : operation;
     const quote = await this.credits.quoteSpeech({ operation: pricingOperation, modelId: prepared.model.id, ...prepared.model.limits });
     const record = { id: `speech_${randomUUID()}`, operation, ownerUserId: actorContext.userId, status: 'quoted', ...prepared, quote, createdAt: new Date().toISOString() };
-    await this.repository.mutate(records => {
+    const quoted = await this.repository.mutate(records => {
+      if (snapshot.documentKind === 'audio-script' && operation === 'speech') {
+        for (let i = records.length - 1; i >= 0; i--) {
+          const candidate = records[i];
+          if (candidate.ownerUserId !== actorContext.userId || candidate.operation !== 'speech' ||
+              candidate.status !== 'quoted' || candidate.snapshot?.documentKind !== 'audio-script' ||
+              candidate.requestId || candidate.reservationId) continue;
+          if (Date.parse(candidate.quote.expiresAt) <= Date.now()) records.splice(i, 1);
+        }
+        const live = records.find(item => item.ownerUserId === actorContext.userId && item.status === 'quoted' &&
+          item.operation === 'speech' && item.requestHash === record.requestHash && Date.parse(item.quote.expiresAt) > Date.now());
+        if (live) return live;
+      }
       if (records.filter(item => item.ownerUserId === actorContext.userId).length >= this.catalog().policy.maxTakes) throw speechError('speech_operation_quota', 409);
       records.push(record);
+      return record;
     });
-    return { id: record.id, totalCredits: quote.totalCredits, expiresAt: quote.expiresAt, costBasis: quote.costBasis };
+    return { id: quoted.id, totalCredits: quoted.quote.totalCredits, expiresAt: quoted.quote.expiresAt, costBasis: quoted.quote.costBasis };
   }
   async generate({ actorContext, snapshot, quoteId, requestId, operation = 'speech' }) {
     this.actor(actorContext);
@@ -165,6 +178,10 @@ export class SpeechGenerationService {
       if (record.operation === 'voice_design' && record.model.designDirectorModel && this.seedProvider.prepareDesign) {
         const snapshot = await this.seedProvider.prepareDesign(record.snapshot, record.model);
         record = await this.repository.update(record.id, actorContext.userId, { snapshot });
+      }
+      if (record.operation === 'speech' && record.snapshot.documentKind === 'audio-script') {
+        const snapshot = await this.seedProvider.prepareScript(record.snapshot, record.model, this.catalog().policy.stylePresets);
+        if (snapshot !== record.snapshot) record = await this.repository.update(record.id, actorContext.userId, {snapshot});
       }
       await this.repository.update(record.id, actorContext.userId, { status: 'dispatching' });
       dispatched = true;

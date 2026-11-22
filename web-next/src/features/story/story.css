@@ -85,6 +85,38 @@ dialog:has(.story-create .story-brief-grid) {width:min(40rem,calc(100vw - 1.5rem
 .story-script>.story-actions[role=group] {margin:0;}
 .story-script>details {border-top:1px solid #e0e7e1;padding-top:.75rem;}
 dialog:has(.story-expanded),dialog:has(.story-dialog),dialog:has(.story-review) {border:1px solid #c9d7cb;border-radius:.85rem;padding:clamp(.9rem,2vw,1.5rem);box-shadow:0 1rem 4rem #18322928;}
+dialog:has(> .story-save-confirmation) {
+  width:min(34rem,calc(100vw - 2rem));
+  max-height:90dvh;
+  overflow:auto;
+  padding:clamp(1rem,3vw,1.6rem);
+  border:1px solid #c9d7cb;
+  border-radius:.85rem;
+  color:#263238;
+  background:#fff;
+  box-shadow:0 1rem 4rem #18322936;
+}
+dialog:has(> .story-save-confirmation)::backdrop {background:#12271e65;}
+.story-save-confirmation {display:grid;gap:.85rem;overflow-wrap:anywhere;}
+.story-save-confirmation h2 {margin:0 0 .35rem;font-size:1.25rem;}
+.story-save-confirmation header p {color:#486451;}
+.story-save-confirmation footer {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:.5rem;
+  padding-block-start:.85rem;
+  border-block-start:1px solid #dce5db;
+}
+.story-save-confirmation footer button {min-height:40px;white-space:normal;}
+.story-save-confirmation footer .primary-button {margin-inline-start:auto;}
+.story-save-confirmation .story-discard-edits {color:#91382c;}
+.story-save-confirmation .story-discard-edits:hover:not(:disabled) {background:#fff2ef;border-color:#cca39b;}
+.story-save-status {display:flex;align-items:center;gap:.5rem;color:#265d46;}
+@media(max-width:32rem) {
+  .story-save-confirmation footer button {flex:1 1 auto;}
+  .story-save-confirmation footer .primary-button {flex-basis:100%;margin:0;}
+}
 .story-expanded {display:grid;gap:.75rem;width:min(88vw,82rem);}
 .story-expanded textarea {height:clamp(12rem,66dvh,60rem);}
 .story-expanded>button {justify-self:end;}
@@ -121,6 +153,44 @@ dialog:has(.story-expanded),dialog:has(.story-dialog),dialog:has(.story-review) 
 .story-shot-card h4 button:hover {background:#e0eee4;}
 .story-shot-card h4 button:focus-visible {outline-offset:-3px;}
 .story-shot-card h4 span {color:#36584a;font-size:.83rem;font-weight:500;}
+.story-shot-card-meta {display:inline-flex;align-items:center;flex-wrap:wrap;gap:.35rem .85rem;}
+.story-shot-card h4 .story-shot-edit-label {
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  padding:.2rem .45rem;
+  border-radius:.35rem;
+  background:#dcece2;
+  color:#204e3d;
+  font-size:1rem;
+  font-weight:600;
+}
+.story-shot-edit > header {margin-block-end:1.25rem;}
+.story-shot-edit > header h2 {margin:0;font-size:1.5rem;line-height:1.35;}
+.story-shot-edit > header p {margin-block-start:.3rem;color:#486451;overflow-wrap:anywhere;}
+.story-shot-edit > fieldset {row-gap:1rem;}
+.story-shot-edit > fieldset > details {
+  padding:.65rem .75rem;
+  border:1px solid #dce5db;
+  border-radius:.55rem;
+}
+.story-shot-edit > fieldset > details > summary {font-weight:600;cursor:pointer;}
+.story-shot-edit > fieldset > details > label {margin-block-start:.65rem;}
+.story-shot-edit > fieldset > details > button {margin-block-start:.65rem;}
+.story-shot-edit > fieldset > footer {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:.75rem;
+  padding-block-start:1rem;
+  border-block-start:1px solid #dce5db;
+}
+.story-shot-edit > fieldset > footer button {
+  width:auto;
+  min-height:40px;
+  padding-inline:1rem;
+  white-space:normal;
+}
 .story-shot-content {display:grid;gap:.65rem;padding:.85rem;line-height:1.7;overflow-wrap:anywhere;}
 .story-shot-content section {border-inline-start:3px solid;padding:.55rem .75rem;border-radius:.25rem;}
 .story-shot-content h5 {font-size:.84rem;}

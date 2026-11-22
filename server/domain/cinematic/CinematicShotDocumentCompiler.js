@@ -90,7 +90,7 @@ export function compileStoryShotPrompt(project, scene, shot, document, compiled,
     return `- Character ${index + 1}: ${person.displayName}${role}.${direction}`;
   });
   const source = compiled.includes('\n\n') ? compiled : [compiled, document].filter(Boolean).join('\n\n');
-  return [source, characters.length && `CHARACTERS\n${characters.join('\n')}`,
+  return [source, shot.artDirection && `ART DIRECTION\n${shot.artDirection}`, characters.length && `CHARACTERS\n${characters.join('\n')}`,
     skillInstructions.length && `WRITING DIRECTION\n${skillInstructions.join('\n')}`].filter(Boolean).join('\n\n');
 }
 
@@ -99,6 +99,8 @@ export function shotPromptSourceFingerprint(project, scene, shot) {
   return crypto.createHash('sha256').update(JSON.stringify(stableValue({
     ...(projectVideoDirection(project) ? { projectVideoDirection: projectVideoDirection(project) } : {}),
     document: shot.shotDocument || '', durationMs: shot.durationMs,
+    ...(shot.artDirection ? {artDirection:shot.artDirection} : {}),
+    ...(project.writingSettings?.direction?.visualStyle ? {visualStyle:project.writingSettings.direction.visualStyle} : {}),
     bindings: shot.speakerBindings || resolveShotCastIds(scene, shot).map(id => ({
       castAssignmentId: id, alias: (project.castAssignments || []).find(item => item.id === id)?.displayName || id, visible: true
     })), visibleCast: resolveShotCastIds(scene, shot),

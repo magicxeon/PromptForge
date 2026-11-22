@@ -1,0 +1,8 @@
+.story-shot-art {padding:.85rem 1rem;border-inline-start:3px solid #907246;border-radius:.4rem;background:#f8f5ef;display:grid;gap:.5rem;}
+.story-shot-art header {display:flex;align-items:baseline;flex-wrap:wrap;gap:.5rem 1rem;}
+.story-shot-art header span {color:#665337;font-size:.86rem;}
+.story-shot-art h3,.story-shot-art p {margin:0;}
+.story-shot-art p {white-space:pre-wrap;overflow-wrap:anywhere;}
+.story-shot-art textarea {width:100%;}
+.story-shot-art .story-actions {display:flex;flex-wrap:wrap;gap:.4rem;}
+.story-art-proposal {border:1px solid #d2c9b6;border-radius:.4rem;padding:.7rem;display:grid;gap:.5rem;background:white;}

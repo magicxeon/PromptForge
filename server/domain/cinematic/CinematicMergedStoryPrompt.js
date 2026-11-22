@@ -48,7 +48,7 @@ function prepareShot(project, scene, shot, first) {
     findings:document?.dialogue.findings || [],
     performance:document ? document.dialogue.performance : lines(shot.performanceCue || shot.performance, shot.emotionalTarget, shot.gaze),
     audio:document ? sections.audio : shot.audioIntent, audioCues:document ? [] : shot.audioCues || [],
-    light:shot.lighting, continuity:document ? sections.continuity : lines(...(shot.continuityNotes || [])),
+    light:shot.artDirection ? lines(shot.lighting,shot.artDirection) : shot.lighting, continuity:document ? sections.continuity : lines(...(shot.continuityNotes || [])),
     exit:document ? '' : lines(shot.continuityExit, shot.transitionToNext),
     people:people.map(({person,visible}) => ({name:person.displayName, role:person.storyRole, visible,
       referenceId:visible && person.storyReference?.assetId})),

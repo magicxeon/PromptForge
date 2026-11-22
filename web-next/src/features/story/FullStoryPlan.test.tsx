@@ -29,11 +29,19 @@ it("uses the confirmed full story revision for the outline and applies only the 
   fireEvent.click(screen.getByText("proposeOutline"));
   expect(api.proposeCinematicChapterOutline).toHaveBeenCalledWith("project",4);
   const outline={id:"outline",sourceRevisionId:"draft",settings:{...base.setup,seasonCount:1},
-    chapters:[{title:"Arrival",synopsis:"A stranger enters the inn"}],status:"proposed"};
+    chapters:["Arrival","Search","Return"].map((title,index)=>({
+      title,synopsis:`Part ${index+1} of the story`,seasonNumber:1,chapterNumber:index+1
+    })),status:"proposed"};
   page.rerender(view({...confirmed,chapterOutline:outline}));
   expect(screen.queryByText("writeChapters")).toBeNull();
   fireEvent.click(screen.getByText("approveOutline"));
-  expect(api.reviewCinematicChapterOutline).toHaveBeenCalledWith("project",{expectedVersion:4,outlineId:"outline",action:"approve"});
+  expect(api.reviewCinematicChapterOutline).toHaveBeenCalledWith("project",{
+    expectedVersion:4,outlineId:"outline",action:"approve",chapters:outline.chapters
+  });
+  fireEvent.click(screen.getByText("discardOutline"));
+  expect(api.reviewCinematicChapterOutline).toHaveBeenLastCalledWith("project",{
+    expectedVersion:4,outlineId:"outline",action:"discard"
+  });
   api.generateCinematicFullStoryChapters.mockResolvedValue({project:confirmed,workspace:{chapters:[]}});
   page.rerender(view({...confirmed,chapterOutline:{...outline,status:"approved"}}));
   fireEvent.click(screen.getByText("writeChapters"));

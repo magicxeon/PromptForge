@@ -3,6 +3,7 @@ import { storyAuthoringConfiguration as authoring } from './cinematicStoryConfig
 
 const directionCatalog = JSON.parse(readFileSync(new URL('./cinematic/story-direction.v1.json', import.meta.url), 'utf8'));
 export const storySpokenLanguage = settings => settings?.direction?.spokenLanguage || directionCatalog.defaults.spokenLanguage;
+export const storyVisualStyle = settings => directionCatalog.visualStyles[settings?.direction?.visualStyle || directionCatalog.defaults.visualStyle];
 export const briefSuggestionChoices = {
   country: authoring.countryStyles.options.map(item => item.id),
   period: authoring.periods.options.map(item => item.id),
@@ -22,10 +23,12 @@ export function chapterTargetSeconds(direction, chapterCount, fallback) {
     ? Math.max(1,Math.round(direction.targetSeconds/Math.max(1,chapterCount||1))) : direction.targetSeconds;
 }
 export function validateStoryDirection(value) {
+  if (value) value = {visualStyle:directionCatalog.defaults.visualStyle,...value};
   const valid = value && authoring.countryStyles.options.some(item => item.id === value.country)
     && authoring.periods.options.some(item => item.id === value.period)
     && Object.hasOwn(directionCatalog.genres, value.genre) && authoring.choices.audienceFeelings.ids.includes(value.tone)
     && Object.hasOwn(directionCatalog.formats, value.format) && directionCatalog.ratios.includes(value.aspectRatio)
+    && Object.hasOwn(directionCatalog.visualStyles,value.visualStyle)
     && Object.hasOwn(directionCatalog.destinations, value.destination) && Number.isInteger(value.targetSeconds)
     && value.targetSeconds > 0 && value.targetSeconds <= directionCatalog.maxTargetSeconds
     && typeof value.spokenLanguage === 'string' && value.spokenLanguage.trim() && value.spokenLanguage.length <= 80;
@@ -57,6 +60,7 @@ export function validateWritingSettings(input) {
 export function resolveWritingPreferences(settings) {
   const { modelId, skillIds, direction } = validateWritingSettings(settings ?? { modelId: catalog.defaultModelId, skillIds: [] });
   const skillInstructions = skillIds.map(id => skills.get(id).instruction);
+  if (settings?.direction?.visualStyle) skillInstructions.unshift(storyVisualStyle(settings).instruction);
   if (direction) {
     const {country,period,genre,tone,format,targetSeconds,aspectRatio,spokenLanguage} = direction;
     skillInstructions.unshift(

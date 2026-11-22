@@ -10,6 +10,13 @@
   },
   "formats": {"standalone":{"th":"ตอนเดียวจบ","en":"Standalone"},"feature":{"th":"ภาพยนตร์แบ่ง Chapter","en":"Feature with chapters"},"series":{"th":"ซีรีส์แบ่ง EP","en":"Episodic series"}},
   "ratios":["9:16","16:9","1:1"],
+  "visualStyles": {
+    "neutral":{"en":"Natural live action","th":"สมจริงตามฉาก","description":{"en":"Practical light, natural colour and true-to-life materials.","th":"แสงจากสถานที่จริง สีเป็นธรรมชาติ และพื้นผิวตามจริง"},"instruction":"Use photorealistic live-action cinematography, motivated lighting, natural colour and tactile materials."},
+    "korean":{"en":"Korean live action","th":"ภาพสมจริงสไตล์เกาหลี","description":{"en":"Soft light, restrained pastels and fine skin texture.","th":"แสงนุ่ม สีพาสเทลอ่อน และผิวคนที่เห็นรายละเอียด"},"instruction":"Use a Korean live-action drama look: soft directional light, restrained pastel colours and finely resolved natural skin texture."},
+    "chinese":{"en":"Chinese live action","th":"ภาพสมจริงสไตล์จีน","description":{"en":"Layered depth, rich colour accents and textured materials.","th":"จัดระยะภาพเป็นชั้น เน้นสีเข้มเฉพาะจุดและผิววัสดุ"},"instruction":"Use a Chinese live-action cinema look: layered depth, sculpted side light, rich colour accents and tactile set materials."},
+    "japanese":{"en":"Japanese live action","th":"ภาพสมจริงสไตล์ญี่ปุ่น","description":{"en":"Diffused daylight, muted colours and subtle grain.","th":"แสงธรรมชาติกระจาย สีลดความอิ่ม และเกรนละเอียด"},"instruction":"Use a Japanese live-action cinema look: diffuse daylight, muted colours, fine grain and quiet negative space."},
+    "thai":{"en":"Thai live action","th":"ภาพสมจริงสไตล์ไทย","description":{"en":"Warm practical light, textured shadows and lifelike skin.","th":"แสงจริงโทนอุ่น เงามีรายละเอียด และสีผิวเป็นธรรมชาติ"},"instruction":"Use a Thai live-action cinema look: warm practical lighting, textured shadows and lifelike skin tones."}
+  },
   "spokenLanguages":{
     "Thai":{"th":"ไทย","en":"Thai"},
     "English":{"th":"อังกฤษ","en":"English"},
@@ -18,6 +25,6 @@
     "Korean":{"th":"เกาหลี","en":"Korean"}
   },
   "destinations":{"seedance":"Seedance","flow":"Google Flow"},
-  "defaults":{"country":"none","period":"contemporary","genre":"drama","tone":"moved","format":"standalone","targetSeconds":60,"aspectRatio":"9:16","destination":"seedance","spokenLanguage":"Thai"},
+  "defaults":{"country":"none","period":"contemporary","genre":"drama","tone":"moved","format":"standalone","targetSeconds":60,"aspectRatio":"9:16","destination":"seedance","spokenLanguage":"Thai","visualStyle":"neutral"},
   "maxTargetSeconds":14400
 }

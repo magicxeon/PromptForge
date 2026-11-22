@@ -1,0 +1,11 @@
+{
+  "priceChanged": "The estimate changed. Request a new estimate for this line before generating.",
+  "error": "Could not finish. Please try again ({{code}}).",
+  "invalid": "Enter the dialogue and select a speaker for line {{n}}.",
+  "missing": "Choose a current take for line {{n}}.",
+  "empty": "Add a spoken line first.",
+  "pending": "This take is still being checked. Check the existing request again.",
+  "stale": "The script changed. Review the latest version before generating.",
+  "failed": "The take failed ({{code}}). You can retry this line.",
+  "takes": "Take history could not be loaded. Retry to see previous takes."
+}

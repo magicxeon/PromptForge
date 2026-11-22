@@ -62,6 +62,68 @@ const setup = {
   endingIntent: 'resolved', mode: 'simple'
 };
 
+test('Story shot arrangement reorders, transfers at adjacent boundaries and retains authored material and saved merge history', async t => {
+  const {directory,service} = await fixture();
+  t.after(() => fs.rm(directory,{recursive:true,force:true}));
+  const root = await service.createProject({...setup,format:'mini-series'},alice);
+  const info = await service.getSeriesWorkspace(root.id,alice);
+  const {project:created} = await service.seriesService.addChapter(info.series.id,{
+    expectedVersion:info.series.version,expectedProjectVersion:root.version,sourceProjectId:root.id,
+    seasonId:root.seriesMembership.seasonId,title:'A new arrival',storyBrief:'',copyCast:false},alice);
+  const makeShot = id => ({id,title:id,durationMs:3000,subjectAction:'Look up'});
+  const planned = await service.saveStoryPlan(created.id,{expectedVersion:created.version,scenes:[
+    {id:'s1',title:'Platform',shots:[makeShot('a'),makeShot('b')]},
+    {id:'s2',title:'Concourse',shots:[makeShot('c')]},
+    {id:'s3',title:'Exit',shots:[makeShot('d')]}
+  ]},alice);
+  await service.repository.mutateForActor(root.id,alice,project=>{
+    project.castAssignments.push({id:'actor-wardrobe',displayName:'Traveller',active:true,looks:[{id:'red-coat'}]});
+    return project;
+  });
+  const seeded = await service.repository.mutateForActor(created.id,alice,project => {
+    const scene = project.scenes[0];
+    const shot = scene.shots[1];
+    project.chapterCharacterIds=['actor-wardrobe'];
+    for (const parent of project.scenes.slice(0,2)) {
+      parent.castMode='selected'; parent.castAssignmentIds=['actor-wardrobe'];
+      for (const item of parent.shots) item.castMode='inherit';
+    }
+    scene.wardrobeLookIds=['red-coat'];
+    shot.shotDocument = 'Preserve this dialogue and camera direction';
+    shot.storyPromptVariants = {seedance:{text:'My edited text',sourceFingerprint:'existing'}};
+    scene.mergedPrompts = [{template:'seedance',text:'Saved combined prompt',sourceFingerprint:'existing',references:[],
+      shots:scene.shots.map(item => ({id:item.id,title:item.title,sourceFingerprint:'existing'}))}];
+    project.version++;
+    return project;
+  });
+  const arrange = (scene,expectedVersion,shotArrangement,actor=alice) =>
+    service.updateSceneOutline(created.id,scene,{expectedVersion,shotArrangement},actor);
+  const reorder = await arrange('s1',seeded.version,{shotIds:['b','a']});
+  assert.deepEqual(reorder.scene.shotOrder,['b','a']);
+  const move = {move:{shotId:'b',destinationSceneId:'s2'}};
+  await assert.rejects(arrange('s1',planned.version,move),{code:'cinematic_version_conflict'});
+  await assert.rejects(arrange('s1',reorder.project.version,{move:{shotId:'b',destinationSceneId:'s3'}}),{code:'cinematic_shot_order_invalid'});
+  await assert.rejects(arrange('s1',reorder.project.version,move,{...alice,userId:'usr_bob'}),{statusCode:404});
+  const moved = await arrange('s1',reorder.project.version,move);
+  assert.deepEqual(moved.scene.shotOrder,['a']);
+  assert.equal(moved.scene.durationMs,3000);
+  assert.deepEqual(moved.scene.mergedPrompts[0].outdatedShotIds,['b']);
+  assert.equal(moved.scene.mergedPrompts[0].text,'Saved combined prompt');
+  const target = moved.project.scenes[1];
+  assert.deepEqual(target.shotOrder,['b','c']);
+  assert.deepEqual(target.shots.map(item => item.orderKey),[1,2]);
+  assert.equal(target.durationMs,6000);
+  assert.deepEqual(target.wardrobeLookIds,['red-coat']);
+  assert.deepEqual(target.shots[0].wardrobeLookIds,['red-coat']);
+  assert.deepEqual(target.shots[1].wardrobeLookIds,[]);
+  assert.equal(target.shots[1].inheritSceneLooks,false);
+  assert.equal(target.shots[0].shotDocument,'Preserve this dialogue and camera direction');
+  assert.equal(target.shots[0].storyPromptVariants.seedance.text,'My edited text');
+  await arrange('s2',moved.project.version,{move:{shotId:'b',destinationSceneId:'s1'}});
+  const reloaded = await service.getProject(created.id,alice);
+  assert.deepEqual(reloaded.scenes.map(item => item.shotOrder),[['a','b'],['c'],['d']]);
+});
+
 test('Story writing settings persist on the root, validate the catalog and respect ownership and revision', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));

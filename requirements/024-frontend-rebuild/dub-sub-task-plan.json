@@ -4,6 +4,18 @@
   "requirement": "requirements/024-frontend-rebuild/008-dub-sub-studio.md",
   "tasks": [
     {
+      "id":"DS-AUDIO-SCRIPTS","title":"Author and export standalone spoken dialogue",
+      "complexity":"complex","reason":"Coordinate document kinds, saved voices, row synthesis and ordered audio export.",
+      "owner":"product-requirement-architect","ownerAgentId":"/root","dependsOn":[],
+      "capabilities":["dub-sub","voice-studio"],"risks":["user-facing","shared-contract"],
+      "writeScope":["web-next/","web/src/features/voice-studio/","server/app/routes/voiceStudioRoutes.js","server/repositories/voice-studio/","server/domain/voice-studio/","server/config/voice-studio/","server/domain/generation/","server/providers/","test/","requirements/024-frontend-rebuild/","requirements/099-technical-dept/"],
+      "status":"in_progress","acceptance":["A director can cast, edit, generate, audition, reopen and export selected dialogue takes as an ordered WAV with authored silence."],
+      "reviewers":["ux-ui-product-designer","qa-release-engineer"],
+      "evidence":[{"check":"A director can cast, edit, generate, audition, reopen and export selected dialogue takes as an ordered WAV with authored silence.","result":"passed","reference":"web-next/test/audio-scripts-check.mjs"}],
+      "reviews":[{"role":"ux-ui-product-designer","agentId":"/root/audio_design","result":"passed","reference":"web-next/src/features/dub-sub/audio-scripts/AudioScriptEditor.tsx"},{"role":"qa-release-engineer","agentId":"/root/audio_qa","result":"pending","reference":"requirements/024-frontend-rebuild/008-dub-sub-studio.md"}],
+      "handoff":"Implemented and deployed to local development. Three-viewport browser fixtures and 42 backend tests passed. Independent QA verified the fixes for recovered operations, casting revisions, unused quotes and translated acting notes. External verification of nondefault control values on the multilingual alias remains open."
+    },
+    {
       "id":"DS-TAKE-BOUNDARIES","title":"Accept internal pause differences for one measured take",
       "complexity":"complex","reason":"Coordinate the per-take placement action, editor controls, pending feedback and confirmations.",
       "owner":"backend-platform-architect","ownerAgentId":"/root","capabilities":["dub-sub"],

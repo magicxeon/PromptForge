@@ -16,7 +16,7 @@ export function registerVoiceStudioRoutes(app, { voiceStudio }) {
   route('post','/documents',(a,p,b)=>voiceStudio.createDocument(a,b));
   route('get','/documents/:id',(a,p)=>voiceStudio.getDocument(a,p.id));
   route('patch','/documents/:id',(a,p,b)=>voiceStudio.updateDocument(a,p.id,b));
-  route('post','/documents/:id/archive',(a,p,b)=>voiceStudio.archive('documents',a,p.id,b.archived !== false));
+  route('post','/documents/:id/archive',(a,p,b)=>voiceStudio.archive('documents',a,p.id,b.archived !== false,b.expectedRevision));
   route('get','/characters',(a,p,b,q)=>voiceStudio.list('characters',a,q));
   route('post','/characters',(a,p,b)=>voiceStudio.character(a,b));
   route('patch','/characters/:id',(a,p,b)=>voiceStudio.character(a,b,p.id));

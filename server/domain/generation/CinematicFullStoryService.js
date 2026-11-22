@@ -55,6 +55,20 @@ export class CinematicFullStoryService {
       model:policy.model,responseId:result?.responseId || null,usage:normalizeWritingUsage(result?.usage)}};
   }
 
+  async proposeShotArt({scene,shot,sceneImage,writingSettings,language}) {
+    const policy = this.#policy(writingSettings);
+    const context = {language, ...policy.skillContext,
+      scene:{location:scene.location, time:scene.time, lighting:scene.lighting, art:scene.artDirection, environment:scene.environmentPrompt},
+      shot:{title:shot.title, purpose:shot.purpose, opening:shot.visibleMoment, action:shot.subjectAction,
+        document:shot.shotDocument, camera:shot.framing, movement:shot.cameraMovement, lighting:shot.lighting,
+        durationMs:shot.durationMs, currentArt:shot.artDirection}};
+    const result = await this.providerFactory(policy).suggestShotArt({context,sceneImage,model:policy.model,
+      reasoningEffort:policy.reasoningEffort,timeoutMs:policy.timeoutMs,maxOutputTokens:policy.maxOutputTokens});
+    const artDirection = typeof result?.artDirection === 'string' && result.artDirection.trim();
+    if (!artDirection || artDirection.length > 1500) fail('cinematic_art_direction_invalid','The writing model returned an unusable art direction.',502);
+    return {artDirection,provenance:{provider:policy.provider,model:policy.model,responseId:result.responseId||null,usage:normalizeWritingUsage(result.usage)}};
+  }
+
   async propose(input = {}) {
     const policy = this.#policy(input.writingSettings);
     const context = normalizeStoryInput(input);
