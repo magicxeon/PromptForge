@@ -4,6 +4,22 @@ import {compileMergedStoryPrompt} from '../server/domain/cinematic/CinematicMerg
 import {planStoryPromptLanguage} from '../server/domain/cinematic/StoryPromptLanguage.js';
 
 const image = assetId => ({assetId, imageUrl:`/owned/${assetId}`});
+test('both destinations reuse saved lighting and scene sound after an art override',()=>{
+  const {project,scene,shots}=fixture();
+  scene.audioIntent='Rain on the station roof.';
+  shots[0].shotDocument+='\nVISUAL STYLE & LIGHTING\nWarm lantern.';
+  shots[1].shotDocument+='\nAUDIO\n[0:01–0:02] Door creaks.';
+  for(const kind of ['seedance','flow']){
+    delete shots[0].artDirection;
+    assert.match(compileMergedStoryPrompt(project,scene,['s1','s2'],kind).text,/Warm lantern/);
+    shots[0].artDirection='Cool window light.';
+    const packet=compileMergedStoryPrompt(project,scene,['s1','s2'],kind);
+    assert.match(packet.text,/Cool window light/);
+    assert.match(packet.text,/Rain on the station roof/);
+    assert.match(packet.text,/\[4–5s\] Door creaks/);
+    assert.doesNotMatch(packet.text,/Warm lantern/);
+  }
+});
 const names = ['Approach', 'Answer', 'Departure'];
 function fixture() {
   const shots = names.map((title,i) => ({

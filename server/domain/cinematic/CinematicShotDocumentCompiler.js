@@ -10,6 +10,7 @@ const SECTION_ALIASES = Object.freeze({
   'OPENING FRAME': 'opening',
   'FIRST FRAME': 'opening',
   CAMERA: 'camera',
+  'VISUAL STYLE & LIGHTING': 'lighting',
   'PERFORMANCE AND TIMELINE': 'timeline',
   'DIALOGUE AND FACIAL PERFORMANCE': 'dialoguePerformance',
   AUDIO: 'audio',
@@ -46,6 +47,7 @@ export function compileCinematicShotDocument(shot, scene = {}, cast = []) {
       sections.scene && `SCENE\n${sections.scene}`,
       opening && `OPENING\n${opening}`,
       sections.camera && `CAMERA\n${sections.camera}`,
+      sections.lighting && `VISUAL STYLE & LIGHTING\n${sections.lighting}`,
       sections.timeline && `ACTION\n${sections.timeline}`,
       dialogue.cues.length && `DIALOGUE\n${dialogue.cues.map(cue => {
         const person = cast.find(item => item.id === cue.speakerCastAssignmentId);
@@ -65,6 +67,7 @@ export function compileCinematicShotDocument(shot, scene = {}, cast = []) {
       performanceCue: '',
       gaze: '',
       cameraMovement: compact(sections.camera),
+      lighting: shot.artDirection || sections.lighting || shot.lighting || scene.lighting,
       audioIntent,
       audioDirectionVersion: 1,
       dialogueCues: dialogue.cues,

@@ -20,6 +20,8 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## Agent Start Here
 
+The [cinematic directing skill library](../../server/config/cinematic/story-directing-skills.v1.json) holds authoring instructions and task, event and destination rules. [Story directing skills](../../server/config/storyDirectingSkills.js) selects them for existing scene, environment, shot and art proposals. The story direction catalog owns event IDs and localized labels. Accepted events, lighting and sound live on the scene. The saved shot document carries shot-specific direction into each provider template.
+
 Dub & Sub resolves the default font, configured presets, language mapping, font files and wrapping metrics from [dub-subtitle-fonts.json](../../server/config/dub-subtitle-fonts.json) through the shared `subtitleFonts.js` resolver. The Editor and export use that catalog. Other track typography and lock defaults come from [dub-subtitle-defaults.json](../../server/config/dub-subtitle-defaults.json) and apply on track reset.
 
 Dub & Sub export uses `server/domain/dub-sub/sceneAudio.js` and `separateScene.py` for local BandIt v2 inference. Shared model assets resolve through `BANDIT_RUNTIME_DIR` in server configuration. The derived `scene-bandit-v2.wav` belongs to the existing private, immutable project media folder and shares its lifecycle. [Export setup](../024-frontend-rebuild/011-dub-sub-operations.md)

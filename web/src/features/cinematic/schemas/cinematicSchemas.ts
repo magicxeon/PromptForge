@@ -178,6 +178,7 @@ export type CinematicChapterRevision = z.infer<typeof cinematicChapterRevisionSc
 export type CinematicChapterProposal = z.infer<typeof cinematicChapterProposalSchema>;
 
 export const cinematicSceneOutlineSchema = z.object({
+  sceneEvents:z.array(z.string()).optional(), lighting:z.string().optional(), audioIntent:z.string().optional(),
   sourceStartParagraph:z.number().int().positive().optional(),sourceEndParagraph:z.number().int().positive().optional(),
   title: z.string().min(1).max(120),
   synopsis: z.string().max(4000),
@@ -733,6 +734,7 @@ export const mergedStoryWritingResultSchema = mergedStoryPromptSchema.extend({
 });
 
 export const cinematicSceneSchema = z.object({
+  sceneEvents:z.array(z.string()).optional(),
   mergedPrompts:z.array(mergedStoryPromptSchema).optional(),
   sourceStartParagraph:z.number().int().positive().optional(),sourceEndParagraph:z.number().int().positive().optional(),
   environmentPrompt: z.string().max(2500).optional(),

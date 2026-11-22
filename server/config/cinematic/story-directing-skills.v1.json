@@ -1,0 +1,11 @@
+{
+  "principles": "Honor author edits, approved dialogue, event order and assigned reference roles. Use country and period for the setting, visual style for photography, genre and audience feeling for performance. Choose details the camera or microphone can capture. Report contradictions between supplied sources in warnings when available. Preserve the script while a conflict awaits review.",
+  "skills": [
+    {"id":"production-art","tasks":["scene","environment","art"],"instruction":"Carry the location layout, era-appropriate materials, wardrobe, props and practical light sources across views. Give each relevant object a consistent position. Base this on the script and available location reference."},
+    {"id":"image-emotion","tasks":["scene","environment","art","shots"],"instruction":"Choose a focal subject and motivated light direction, softness and contrast appropriate to this moment. Let the photorealistic style shape the light and colour of the existing location. Inherit the accepted lighting unless the shot calls for a visible change."},
+    {"id":"cinematic-shots","tasks":["shots"],"instruction":"Cover scripted beats in order with framing, focus and camera choices motivated by what the audience needs to see. Connect the exit composition and eyelines to the next opening. Budget action within each shot's duration."},
+    {"id":"professional-motion","tasks":["shots"],"instruction":"Give each performed beat an observable change of gaze, expression, gesture or delivery. Maintain prop contact and screen direction. Bind approved words to the right speaker and place audible cues at their scripted causes. Use silence where appropriate."},
+    {"id":"martial-arts-coverage","tasks":["shots"],"event":"fight","instruction":"During staged fight beats only, establish screen geography, keep performers distinguishable, show reactions and preserve direction across cuts. Synchronize staged sound effects with visible action. Use ordinary dialogue or reaction coverage outside the fight."},
+    {"id":"seedance-fight-timing","tasks":["shots"],"event":"fight","destination":"seedance","instruction":"For Seedance fight coverage, fit each readable performance beat and its reaction into a feasible local shot interval. Keep starting poses and exits compatible with the supplied reference roles."}
+  ]
+}

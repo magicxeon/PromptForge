@@ -38,6 +38,10 @@ dialog:has(.story-review),dialog:has(.story-expanded),dialog:has(.story-dialog) 
 .story-cast { display:grid; gap:.6rem; padding:.6rem 0; }
 .story-cast label:has(input[type=checkbox]) { display:flex; align-items:center; gap:.5rem; }
 .story-cast input[type=checkbox] { width:1rem; }
+.story-dialog .story-scene-events { display:flex;flex-wrap:wrap;gap:.5rem 1rem;margin-block:.75rem; }
+.story-scene-events legend { margin-bottom:.4rem; }
+.story-dialog .story-scene-events label { display:inline-flex;align-items:center;gap:.35rem; }
+.story-dialog .story-scene-events input { width:1rem;min-height:0;margin:0; }
 .story-library {max-width:74rem;}
 .story-entrance {padding:clamp(1.5rem,4vw,3.5rem);background:#e8efe9;color:#173e31;border:1px solid #c9dacd;border-radius:1rem;gap:1.25rem;}
 .story-entrance h1 {font-size:clamp(1.9rem,4vw,3rem);line-height:1.24;margin:.6rem 0;}

@@ -2096,8 +2096,10 @@ export class CinematicApplicationService {
       throw new CinematicError('cinematic_scene_version_conflict', 'The Scene changed. Refresh before generating its description.', 409);
     }
     const activeFullStory = project.fullStoryVersions?.find(item => item.id === project.activeFullStoryVersionId) || null;
+    const writingSettings = await this.projectWritingSettings(project, actorContext);
     await beforeDispatch?.();
     return this.fullStoryService.proposeSceneEnvironment({
+      writingSettings,
       projectTitle: project.title,
       aspectRatio: project.aspectRatio,
       storyBrief: project.setup?.storyBrief,
@@ -3509,6 +3511,8 @@ function normalizeStoryPlan(input = {}, project, contractVersion = normalizeStor
       id: sceneId,
       version: Number(existingScene?.version || 1),
       ...(existingScene?.environmentPrompt !== undefined ? { environmentPrompt: existingScene.environmentPrompt } : {}),
+      ...(existingScene?.sceneEvents ? {sceneEvents:existingScene.sceneEvents} : {}),
+      ...(existingScene?.authorDirectedFields ? {authorDirectedFields:existingScene.authorDirectedFields} : {}),
       ...(existingScene?.approvedEnvironmentSource ? { approvedEnvironmentSource: structuredClone(existingScene.approvedEnvironmentSource) } : {}),
       ...(existingScene?.environmentReferenceEnabled !== undefined ? { environmentReferenceEnabled: existingScene.environmentReferenceEnabled } : {}),
       orderKey: sceneIndex + 1,

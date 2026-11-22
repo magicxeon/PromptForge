@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import {SceneDirectionSummary} from "./SceneDirectionSummary";
 import type { CinematicScene,CinematicSceneProposal } from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 
 export type SourceRange = {start:number; origins:number[]};
@@ -32,6 +33,7 @@ export function SceneRangeReview({proposal,paragraphs,ranges,onChange,disabled,e
       <details><summary>{t("brief.source")} · {range.start}–{end}</summary>
         {text.map((paragraph,i)=><p key={i}><small>{range.start+i}</small> {paragraph}</p>)}
       </details>
+      <SceneDirectionSummary scene={{...scene,sceneEvents:range.origins.flatMap(i=>proposal.scenes[i].sceneEvents??[])}}/>
       {(canSplit || canMerge) && <details className="story-range-adjust">
         <summary>{t("brief.rangeTools")}</summary>
         <div className="story-range-tools">

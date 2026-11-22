@@ -1,5 +1,9 @@
 {
   "useImageForPlanning":"ให้ AI ใช้ภาพฉากนี้เมื่อแตกช็อต",
+  "sceneEvents":"เหตุการณ์ในซีน",
+  "sceneDirection":"คำกำกับซีน",
+  "lighting":"สไตล์ภาพและแสง",
+  "audioIntent":"เสียงในซีน",
   "setup": "วางฉาก",
   "sourceRange": "อ่านบทต้นฉบับ ย่อหน้า {{start}}–{{end}}",
   "guide": "ตรวจเหตุการณ์และภาพฉาก แล้วแตกเป็นช็อต",

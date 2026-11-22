@@ -54,7 +54,7 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
   const location = joined(scene.location, scene.time, scene.weather, scene.environmentPrompt, scene.synopsis || scene.storyChange, sections.scene);
   const start = joined(shot.continuityEntry, opening || shot.visibleMoment || shot.blocking);
   const end = joined(shot.continuityExit, shot.transitionToNext);
-  const light = joined(shot.lighting || scene.lighting, scene.artDirection, shot.artDirection) || 'Match the established direction of light and preserve visible shadow detail.';
+  const light = joined(scene.artDirection, scene.lighting, shot.artDirection || sections.lighting || shot.lighting) || 'Match the established direction of light and preserve visible shadow detail.';
   const camera = joined(shot.framing, shot.cameraAngle, shot.lensIntent);
   const cues = dialogue.cues.length || sections.dialoguePerformance ? dialogue.cues : (shot.dialogueCues || []);
   const duration = seconds(shot.durationMs);
@@ -88,7 +88,7 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
       PERFORMANCE: joined(dialogue.performance, shot.performanceCue || shot.performance, shot.emotionalTarget, templates.video.performance),
       VOICE: cues.length ? joined(`Spoken language: ${storySpokenLanguage(project.writingSettings)}.`,
         ...cues.map(cue => cue.delivery), 'Speak only the supplied dialogue verbatim.') : 'Preserve any supplied dialogue verbatim. Add no new speech or narration.',
-      AUDIO: joined(sections.audio || shot.audioIntent || 'Keep location ambience low.', 'No music.'),
+      AUDIO: joined(scene.audioIntent, sections.audio || shot.audioIntent || (!scene.audioIntent && 'Keep location ambience low.'), 'No music.'),
       LIGHTING: light, 'ENVIRONMENT MOVEMENT': templates.video.environmentMovement, NEGATIVE: templates.video.negative
     };
     const header = kind === 'flow' ? joined(templates.flow.opening, templates.flow.camera)

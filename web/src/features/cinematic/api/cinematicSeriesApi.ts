@@ -97,6 +97,9 @@ export function createCinematicManualScene(projectId: string, expectedVersion: n
 }
 
 export function updateCinematicSceneOutline(projectId: string, sceneId: string, input: {
+  sceneEvents?: string[];
+  lighting?: string;
+  audioIntent?: string;
   expectedVersion: number;
   expectedSceneVersion: number;
   title: string;

@@ -1,4 +1,5 @@
 import { loadPromptRecipe } from '../config/prompt-recipes/loadPromptRecipe.js';
+import {sceneEventIds} from '../config/storyDirectingSkills.js';
 import { storyAuthoringConfiguration } from '../config/cinematicStoryConfiguration.js';
 import {
   CINEMATIC_SCENE_ENVIRONMENT_SCHEMA,
@@ -141,7 +142,8 @@ const CINEMATIC_CHAPTER_SCENES_SCHEMA = Object.freeze({
         required: [
           'title', 'synopsis', 'purpose', 'objective', 'location', 'time', 'weather',
           'environment', 'entryState', 'exitState', 'emotionalStart', 'emotionalEnd',
-          'transitionIntent', 'targetDurationSeconds', 'dialogueTargetPercent', 'characterIds','sourceStartParagraph'
+          'transitionIntent', 'targetDurationSeconds', 'dialogueTargetPercent', 'characterIds','sourceStartParagraph',
+          'sceneEvents', 'lighting', 'audioIntent'
         ],
         properties: {
           title: { type: 'string' },
@@ -151,6 +153,9 @@ const CINEMATIC_CHAPTER_SCENES_SCHEMA = Object.freeze({
           location: { type: 'string' },
           time: { type: 'string' },
           weather: { type: 'string' },
+          sceneEvents: {type:'array', maxItems:sceneEventIds.length, items:{type:'string',enum:sceneEventIds}},
+          lighting: {type:'string'},
+          audioIntent: {type:'string'},
           environment: { type: 'string' },
           entryState: { type: 'string' },
           exitState: { type: 'string' },

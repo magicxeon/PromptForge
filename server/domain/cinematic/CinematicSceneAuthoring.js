@@ -1,4 +1,5 @@
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
+import {normalizeSceneEvents} from '../../config/storyDirectingSkills.js';
 
 const PURPOSES = new Set(['dialogue', 'action', 'montage', 'establishing', 'atmosphere', 'transition', 'dramatic']);
 
@@ -51,9 +52,13 @@ export function applySceneProposal(project, proposalId, now = new Date().toISOSt
     const current = original===null?null:existing[original];
     if (!current) return sceneFromOutline(outline, index, proposal, now);
     const hasProduction = (current.shots || []).length > 0;
+    const reviewed = sceneOutlineFields(outline, index, proposal);
+    for (const key of current.authorDirectedFields || []) {
+      if (['lighting','audioIntent','sceneEvents'].includes(key)) reviewed[key] = current[key];
+    }
     return {
       ...current,
-      ...sceneOutlineFields(outline, index, proposal),
+      ...reviewed,
       sourceStartParagraph: outline.sourceStartParagraph,
       sourceEndParagraph: outline.sourceEndParagraph,
       id: current.id,
@@ -119,6 +124,7 @@ function reviewSourceRanges(project, proposal, ranges, existing) {
         title: repeated ? paragraphs[start-1].slice(0,120) : first.title,
         synopsis: exact ? first.synopsis : paragraphs.slice(start-1,end).join('\n').slice(0,4000),
         exitState:last.exitState, emotionalEnd:last.emotionalEnd, transitionIntent:last.transitionIntent,
+        sceneEvents:normalizeSceneEvents(origins.flatMap(origin=>originals[origin].sceneEvents || [])),
         characterIds:[...new Set(origins.flatMap(origin=>originals[origin].characterIds))],
         targetDurationSeconds:integer(seconds,5,120,15)}
     };
@@ -177,6 +183,9 @@ export function updateSceneOutline(project, sceneId, input, now = new Date().toI
     title: input?.title,
     synopsis: input?.synopsis,
     purpose: input?.purpose,
+    sceneEvents: input?.sceneEvents ?? scene.sceneEvents,
+    lighting: input?.lighting ?? scene.lighting,
+    audioIntent: input?.audioIntent ?? scene.audioIntent,
     objective: input?.objective,
     location: input?.location,
     time: input?.time,
@@ -191,6 +200,9 @@ export function updateSceneOutline(project, sceneId, input, now = new Date().toI
     dialogueTargetPercent: input?.dialogueTargetPercent,
     characterIds: input?.characterIds
   }, Math.max(0, Number(scene.orderKey || 1) - 1), allowedCharacterIds);
+  const edits = ['sceneEvents','lighting','audioIntent'].filter(key => input[key] !== undefined
+    && JSON.stringify(outline[key]) !== JSON.stringify(scene[key] ?? (key === 'sceneEvents' ? [] : '')));
+  if (edits.length) scene.authorDirectedFields = [...new Set([...(scene.authorDirectedFields || []),...edits])];
   Object.assign(scene, sceneOutlineFields(outline, Math.max(0, Number(scene.orderKey || 1) - 1), {
     id: scene.sourceSceneProposalId,
     sourceChapterRevisionId: project.activeChapterVersionId
@@ -222,13 +234,12 @@ function sceneFromOutline(outline, index, proposal, now) {
   return {
     id: createPrefixedId('cinescene'),
     version: 1,
+    lighting: '', audioIntent: '',
     ...sceneOutlineFields(outline, index, proposal),
     beatId: '',
     wardrobeLookIds: [],
     blocking: '',
-    lighting: '',
     performance: '',
-    audioIntent: '',
     continuityNotes: [],
     shots: [],
     shotOrder: [],
@@ -251,6 +262,9 @@ function sceneOutlineFields(outline, index, proposal) {
     time: outline.time,
     weather: outline.weather,
     environmentPrompt: outline.environment,
+    ...(outline.sceneEvents !== undefined && {sceneEvents:outline.sceneEvents}),
+    ...(outline.lighting !== undefined && {lighting:outline.lighting}),
+    ...(outline.audioIntent !== undefined && {audioIntent:outline.audioIntent}),
     entryState: outline.entryState,
     exitState: outline.exitState,
     emotionalStart: outline.emotionalStart,
@@ -276,6 +290,9 @@ function normalizeOutline(value, index, allowedCharacterIds) {
     time: text(value?.time, 160),
     weather: text(value?.weather, 160),
     environment: text(value?.environment, 2500),
+    sceneEvents: normalizeSceneEvents(value?.sceneEvents),
+    lighting: text(value?.lighting,500),
+    audioIntent: text(value?.audioIntent,500),
     entryState: text(value?.entryState, 1000),
     exitState: text(value?.exitState, 1000),
     emotionalStart: text(value?.emotionalStart, 500),

@@ -9,6 +9,7 @@ import type {CinematicProject,CinematicScene} from "../../../../../web/src/featu
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {uploadStorySceneImage} from "./uploadStorySceneImage";
 import settings from "./staging-config.json";
+import {SceneDirectionSummary} from "./SceneDirectionSummary";
 
 export function SceneStage({project,scene,run,aspectRatio}:{project:CinematicProject;scene:CinematicScene;run:RunWriting;aspectRatio:string}) {
   const {t} = useTranslation("story");
@@ -54,6 +55,7 @@ export function SceneStage({project,scene,run,aspectRatio}:{project:CinematicPro
         <p className="story-prose">{excerpt}</p></details>}
       {direction&&<><h4>{t("stage.direction")}</h4><p className="story-prose">{direction}</p></>}
       {continuity.length>0&&<dl>{continuity.map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>}
+      <SceneDirectionSummary scene={scene}/>
     </div>
     <div className="story-looksheet"><h3>{t("stage.looksheet")}</h3>
       {image?<MediaImage className="story-stage-image" src={image.thumbnailUrl||image.imageUrl} alt={scene.title}/>:

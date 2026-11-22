@@ -56,7 +56,8 @@ export function applyShotProposal(project, sceneId, proposalId, now = new Date()
     const current = scene.shots.find(item => item.id === proposal.targetShotId);
     if (!current || current.version !== proposal.sourceShotVersion) fail('cinematic_shot_proposal_stale', 'The Shot changed after this revision was proposed.', 409);
     updateShotDocument(project, sceneId, current.id, { ...proposal.shots[0], expectedShotVersion: current.version, source: 'ai_proposal' }, now);
-    current.summary = proposal.shots[0].summary;
+    if (proposal.shots[0].summary) current.summary = proposal.shots[0].summary;
+    else delete current.summary;
     current.sourceShotProposalId = proposal.id;
     proposal.status = 'applied'; proposal.appliedAt = now;
     return { proposal, scene };
@@ -66,8 +67,9 @@ export function applyShotProposal(project, sceneId, proposalId, now = new Date()
   const accepted = proposal.shots.map((outline, index) => {
     const current = existing[index];
     if (!current) return shotFromOutline(outline, index, proposal, scene, now);
+    const {summary: priorSummary, ...retainedFields} = current;
     return {
-      ...current,
+      ...retainedFields,
       ...shotDocumentFields(outline, index, proposal),
       id: current.id,
       version: Number(current.version || 1) + 1,
@@ -241,6 +243,7 @@ export function createShotDocumentTemplate(scene, durationMs) {
     'SCENE', text(scene?.synopsis || scene?.storyChange, 4000), '',
     'OPENING', '', '',
     'CAMERA', '', '',
+    'VISUAL STYLE & LIGHTING', '', '',
     'PERFORMANCE AND TIMELINE', `[0.0-${duration} sec]`, '', '',
     'DIALOGUE AND FACIAL PERFORMANCE', '', '',
     'AUDIO', '', '',
@@ -269,7 +272,7 @@ function shotDocumentFields(outline, index, proposal) {
     orderKey: index + 1,
     title: outline.title,
     purpose: outline.purpose,
-    summary: outline.summary,
+    ...(outline.summary && {summary:outline.summary}),
     durationMs: outline.durationMs,
     shotDocument: outline.shotDocument,
     source: 'ai_proposal',

@@ -48,7 +48,7 @@ function prepareShot(project, scene, shot, first) {
     findings:document?.dialogue.findings || [],
     performance:document ? document.dialogue.performance : lines(shot.performanceCue || shot.performance, shot.emotionalTarget, shot.gaze),
     audio:document ? sections.audio : shot.audioIntent, audioCues:document ? [] : shot.audioCues || [],
-    light:shot.artDirection ? lines(shot.lighting,shot.artDirection) : shot.lighting, continuity:document ? sections.continuity : lines(...(shot.continuityNotes || [])),
+    light:shot.artDirection || sections.lighting || shot.lighting, continuity:document ? sections.continuity : lines(...(shot.continuityNotes || [])),
     exit:document ? '' : lines(shot.continuityExit, shot.transitionToNext),
     people:people.map(({person,visible}) => ({name:person.displayName, role:person.storyRole, visible,
       referenceId:visible && person.storyReference?.assetId})),
@@ -56,8 +56,8 @@ function prepareShot(project, scene, shot, first) {
   };
 }
 
-function timedPerformance(performance, startMs) {
-  return performance.split('\n').map(line => {
+function rebaseCueLines(text, startMs) {
+  return text.split('\n').map(line => {
     const match = line.match(/^\[([^\]]+)\]\s*(.*)$/u);
     if (!match) return line;
     const range = parseDialogueClock(match[1]);
@@ -78,6 +78,7 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
   const shots = [], references = [], cues = [], findings = [];
   const fields = Object.fromEntries(templates.video.sections.map(name => [name, []]));
   if (setting) fields.SCENE.push(setting);
+  if (scene.audioIntent) fields.AUDIO.push(scene.audioIntent);
   let cursorMs = 0;
   for (const [index, shot] of ordered.entries()) {
     const part = prepareShot(project, scene, shot, index === 0);
@@ -86,7 +87,7 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     const interval = span(startMs,endMs);
     const scoped = body => body && `${interval} — ${body}`;
     const sourceFingerprint = hash(['merged-story-v1', template, spokenLanguage, skillInstructions, direction, aspect,
-      setting, scene.lighting, scene.artDirection, shot.shotDocument, {...part,
+      setting, scene.lighting, scene.artDirection, ...(scene.audioIntent ? [scene.audioIntent] : []), shot.shotDocument, {...part,
         references:part.references.map(r => [r.role, r.assetId, r.name])}]);
     shots.push({id:shot.id, title:shot.title, startMs, endMs, version:shot.version || 1, sourceFingerprint});
     for (const ref of part.references) {
@@ -114,8 +115,9 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     }
     fields['ACTION TIMELINE'].push(scoped(shot.title || `Shot ${index + 1}`),
       part.opening && `Starting state: ${part.opening}`, ...events.sort((a,b) => a.ms - b.ms).map(event => event.text), part.exit);
-    if (part.performance) fields.PERFORMANCE.push(scoped(shot.title), timedPerformance(part.performance,startMs));
-    fields.AUDIO.push(scoped(part.audio));
+    if (part.performance) fields.PERFORMANCE.push(scoped(shot.title), rebaseCueLines(part.performance,startMs));
+    if (part.audio) fields.AUDIO.push(...rebaseCueLines(part.audio,startMs).split('\n').map(line =>
+      /^\[\d/.test(line) ? line : scoped(line)));
     for (const cue of part.audioCues) {
       if (cue.description) fields.AUDIO.push(`[${seconds(startMs + (cue.startOffsetMs || 0))}s] ${cue.description}`);
     }

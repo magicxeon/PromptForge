@@ -4,6 +4,33 @@ import { CinematicFullStoryService } from '../server/domain/generation/Cinematic
 import { resolveWritingPreferences } from '../server/config/storyWritingSettings.js';
 import storyDirection from '../server/config/cinematic/story-direction.v1.json' with {type:'json'};
 
+test('the shot writer receives directing skills by approved events and destination independently of the writing skill quota', async () => {
+  let context;
+  const service = new CinematicFullStoryService({
+    policyLoader:()=>({enabled:true,provider:'openai',model:'fixture'}),
+    availabilityPolicy:{assertAvailable(){}},
+    providerFactory:()=>({generateCinematicSceneShots:async request=>{
+      context=request.context;
+      return {shots:[{title:'Opening',shotDocument:'OPENING\nAt the door.'}]};
+    }})
+  });
+  for (const [events,destination,fight,timed] of [
+    [undefined,'seedance',false,false],[['dialogue'],'seedance',false,false],
+    [['fight','dialogue'],'flow',true,false],[['fight'],'seedance',true,true]
+  ]) {
+    const direction={...storyDirection.defaults,visualStyle:'korean',destination};
+    await service.proposeShots({scene:{synopsis:'An encounter',lighting:'Practical window',audioIntent:'Quiet',sceneEvents:events},
+      writingSettings:{modelId:null,skillIds:[],direction}});
+    assert.equal(context.scene.lighting,'Practical window');
+    assert.equal(context.scene.audioIntent,'Quiet');
+    assert.equal(context.directing.setup.visualStyle,'korean');
+    const ids=context.directing.skills.map(rule=>rule.id);
+    assert.ok(ids.includes('professional-motion'));
+    assert.equal(ids.includes('martial-arts-coverage'),fight);
+    assert.equal(ids.includes('seedance-fight-timing'),timed);
+  }
+});
+
 test('a Thai setting keeps English directions while only the dialogue follows the project language', async () => {
   const translations = {'ตลาดน้ำ':'floating market','มะลิ':'Mali','เจอกันพรุ่งนี้':'See you tomorrow.'};
   const service = new CinematicFullStoryService({

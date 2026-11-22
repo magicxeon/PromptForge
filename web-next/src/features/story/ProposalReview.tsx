@@ -1,5 +1,6 @@
 import {useState} from "react";
 import {initialRanges,SceneRangeReview,type SourceRange} from "./scenes/SceneRangeReview";
+import {SceneDirectionSummary} from "./scenes/SceneDirectionSummary";
 import {useTranslation} from "react-i18next";
 import type {CinematicProject,CinematicScene,CinematicSceneProposal,CinematicShotProposal} from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {applyCinematicSceneProposal,discardCinematicSceneProposal,applyCinematicShotProposal,discardCinematicShotProposal} from "../../../../web/src/features/cinematic/api/cinematicSeriesApi";
@@ -67,7 +68,8 @@ export function ProposalReview({project,scene,proposal,busy,error,run,close,onAp
           {!shot && ranges.length>0 ? <SceneRangeReview proposal={proposal} paragraphs={paragraphs} ranges={ranges}
             existing={project.scenes.slice().sort((a,b)=>a.orderKey-b.orderKey)} disabled={busy||stale} onChange={setRanges}/> : <ol>{next.map((n,i)=><li key={i}><strong>{ordered[i]&&(shot||ordered[i].title!==n.title)?ordered[i].title+" → ":""}{n.title}</strong>
             {ordered[i]&&"shots" in ordered[i]&&<small>{t("shotCount",{count:ordered[i].shots.length})}</small>}
-            <p className="story-prose">{"shotDocument" in n?n.shotDocument:n.synopsis}</p></li>)}
+            <p className="story-prose">{"shotDocument" in n?n.shotDocument:n.synopsis}</p>
+            {"synopsis" in n && <SceneDirectionSummary scene={n}/>}</li>)}
           {ordered.slice(next.length).map(old=><li key={old.id}>{old.title} · {t("retained")}</li>)}</ol>}
           {proposal.warnings.map(w=><p key={w}>{w}</p>)}
           {shot && actions}

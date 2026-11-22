@@ -1,5 +1,9 @@
 {
   "useImageForPlanning":"Use this scene image when planning shots",
+  "sceneEvents":"Scene events",
+  "sceneDirection":"Scene direction",
+  "lighting":"Visual style & lighting",
+  "audioIntent":"Scene sound",
   "setup": "Scene setup",
   "guide": "Review the action and setting, then plan the shots.",
   "description": "Scene description",

@@ -1,4 +1,12 @@
 {
+  "sceneEvents": {
+    "dialogue":{"en":"Dialogue","th":"สนทนา"},
+    "search":{"en":"Search or discovery","th":"ค้นหาหรือค้นพบ"},
+    "fight":{"en":"Staged fight","th":"ต่อสู้"},
+    "movement":{"en":"Movement or travel","th":"เคลื่อนที่หรือเดินทาง"},
+    "reaction":{"en":"Silent reaction","th":"ปฏิกิริยาไร้บทพูด"},
+    "establishing":{"en":"Establish the setting","th":"เปิดสถานที่"}
+  },
   "genres": {
     "romance": {"th":"โรแมนติกดราม่า","en":"Romantic drama","instruction":"Stage the changing distance between the characters, their eyelines and the silence after an important line."},
     "comedy": {"th":"คอเมดี้ / ฟีลกู๊ด","en":"Feel-good comedy","instruction":"Set up an expectation in the frame, time its reversal and hold for the listener's reaction."},

@@ -10,8 +10,10 @@ import {prepareCinematicShotWriter,updateCinematicShotDocument,updateCinematicSc
 import {useCinematicTextRecovery} from "../../../../../web/src/features/cinematic/state/useCinematicTextRecovery";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {StoryCharacterIdentity} from "../characters/StoryCharacters";
+import catalog from "../../../../../server/config/cinematic/story-direction.v1.json";
 
 const editSchema=z.object({title:z.string().max(120),body:z.string().max(50000),location:z.string().max(240),
+  sceneEvents:z.array(z.string()).optional(), lighting:z.string().max(500).optional(), audioIntent:z.string().max(500).optional(),
   time:z.string().max(160),environment:z.string().max(2500).optional(),entryState:z.string().max(1000).optional(),
   exitState:z.string().max(1000).optional(),emotionalStart:z.string().max(500).optional(),emotionalEnd:z.string().max(500).optional(),
   seconds:z.number().finite(),characterIds:z.array(z.string()).max(24),
@@ -20,7 +22,8 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
   project:CinematicProject;scene:CinematicScene;shot?:CinematicShot;run:RunWriting;close:()=>void;
   requestRevision:(instruction:string)=>Promise<void>;max?:number;error:string;
 }){
-  const {identityScope}=useActor(), {t}=useTranslation("story");
+  const {identityScope}=useActor(), {t,i18n}=useTranslation("story");
+  const locale=i18n.language.startsWith("th")?"th":"en";
   const confirmationDescriptionId = useId();
   const [leaving,setLeaving]=useState(false),[instruction,setInstruction]=useState(""),[saving,setSaving]=useState(false);
   const legacy=useQuery({queryKey:["story-shot-source",identityScope,project.id,scene.id,shot?.id,shot?.version],
@@ -31,6 +34,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
     location:scene.location,time:scene.time,seconds:(shot?.durationMs??scene.durationMs)/1000,characterIds:scene.castAssignmentIds,
     environment:scene.environmentPrompt||"",entryState:scene.entryState||"",exitState:scene.exitState||"",
     emotionalStart:scene.emotionalStart,emotionalEnd:scene.emotionalEnd,
+    sceneEvents:scene.sceneEvents??[],lighting:scene.lighting??"",audioIntent:scene.audioIntent??"",
     speakers:shot?.speakerBindings??(shot?effectiveIds.map(id=>({castAssignmentId:id,alias:cast.find(c=>c.id===id)?.displayName||id,visible:true})):[])};
   const revision=String(shot?.version??scene.version);
   const editor=useCinematicTextRecovery({actorId:identityScope,projectId:project.id,documentId:"next:"+(shot?.id??scene.id),
@@ -62,6 +66,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
         location:draft.location,time:draft.time,weather:scene.weather||"",environment:draft.environment??scene.environmentPrompt??"",
         entryState:draft.entryState??scene.entryState??"",exitState:draft.exitState??scene.exitState??"",
         emotionalStart:draft.emotionalStart??scene.emotionalStart,emotionalEnd:draft.emotionalEnd??scene.emotionalEnd,
+        sceneEvents:draft.sceneEvents,lighting:draft.lighting,audioIntent:draft.audioIntent,
         transitionIntent:scene.transitionIntent,targetDurationSeconds:Math.min(120,Math.max(5,Math.round(draft.seconds))),
         dialogueTargetPercent:scene.dialogueTargetPercent??0,characterIds:draft.characterIds
       });
@@ -100,6 +105,15 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
         <button disabled={editor.dirty||!instruction.trim()} onClick={()=>void requestRevision(instruction)}>{t("proposeRevision")}</button></details>
         :<details><summary>{t("setting")}</summary><label>{t("location")}<input value={draft.location} maxLength={240} onChange={e=>editor.setValue({...draft,location:e.target.value})}/></label>
         <label>{t("time")}<input value={draft.time} maxLength={160} onChange={e=>editor.setValue({...draft,time:e.target.value})}/></label>
+        <fieldset className="story-scene-events"><legend>{t("stage.sceneEvents")}</legend>
+          {Object.entries(catalog.sceneEvents).map(([id,label])=>{
+            const selected=draft.sceneEvents??scene.sceneEvents??[];
+            return <label key={id}><input type="checkbox" checked={selected.includes(id)} onChange={e=>
+              editor.setValue({...draft,sceneEvents:e.target.checked?[...selected,id]:selected.filter(item=>item!==id)})}/>{label[locale]}</label>;
+          })}
+        </fieldset>
+        {(["lighting","audioIntent"] as const).map(key=><label key={key}>{t("stage."+key)}
+          <textarea rows={2} maxLength={500} value={draft[key]??scene[key]??""} onChange={e=>editor.setValue({...draft,[key]:e.target.value})}/></label>)}
         <label>{t("stage.direction")}<textarea rows={3} maxLength={2500} value={draft.environment??scene.environmentPrompt??""}
           onChange={e=>editor.setValue({...draft,environment:e.target.value})}/></label>
         {([["entryState","start",1000],["exitState","end",1000],["emotionalStart","emotionStart",500],["emotionalEnd","emotionEnd",500]] as const).map(([key,label,maxLength])=>

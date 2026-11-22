@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import {directingContext,normalizeSceneEvents} from '../../config/storyDirectingSkills.js';
 import { resolveWritingPreferences, briefSuggestionChoices, storySpokenLanguage } from '../../config/storyWritingSettings.js';
 import { planStoryPromptLanguage } from '../cinematic/StoryPromptLanguage.js';
 import { cinematicWorkflowPolicy } from '../../config/cinematicRewampConfiguration.js';
@@ -58,6 +59,7 @@ export class CinematicFullStoryService {
   async proposeShotArt({scene,shot,sceneImage,writingSettings,language}) {
     const policy = this.#policy(writingSettings);
     const context = {language, ...policy.skillContext,
+      directing: directingContext('art',writingSettings),
       scene:{location:scene.location, time:scene.time, lighting:scene.lighting, art:scene.artDirection, environment:scene.environmentPrompt},
       shot:{title:shot.title, purpose:shot.purpose, opening:shot.visibleMoment, action:shot.subjectAction,
         document:shot.shotDocument, camera:shot.framing, movement:shot.cameraMovement, lighting:shot.lighting,
@@ -223,6 +225,7 @@ export class CinematicFullStoryService {
         },
         characters: normalizeCharacterList(input.characters, 24),
         currentScenes: normalizeSceneList(input.currentScenes, maximumScenes),
+        directing: directingContext('scene',input.writingSettings),
         ...policy.skillContext,
         continuity: input.continuity || null,
         maximumScenes
@@ -259,6 +262,7 @@ export class CinematicFullStoryService {
         chapter: { title: boundedText(input.chapterTitle, 120), story: boundedText(input.chapterStory, 10000) },
         scene,
         ...policy.skillContext,
+        directing: directingContext('shots',input.writingSettings,scene.sceneEvents),
         adjacentScenes: {
           previous: normalizeAdjacentScene(input.previousScene),
           next: normalizeAdjacentScene(input.nextScene)
@@ -300,6 +304,8 @@ export class CinematicFullStoryService {
     }
     const result = await this.providerFactory(policy).generateCinematicSceneEnvironment({
       context: {
+        editorialInstructions: resolveWritingPreferences(input.writingSettings).skillInstructions,
+        directing: directingContext('environment',input.writingSettings),
         project: {
           title: boundedText(input.projectTitle, 120),
           aspectRatio: boundedText(input.aspectRatio, 20),
@@ -447,7 +453,10 @@ function normalizeSceneList(value, maximum) {
     location: boundedText(item?.location, 240),
     time: boundedText(item?.time, 160),
     durationSeconds: Math.max(0, Math.round(Number(item?.durationMs || 0) / 1000)),
-    shotCount: Array.isArray(item?.shots) ? item.shots.length : 0
+    shotCount: Array.isArray(item?.shots) ? item.shots.length : 0,
+    sceneEvents: normalizeSceneEvents(item?.sceneEvents),
+    lighting: boundedText(item?.lighting,500),
+    audioIntent: boundedText(item?.audioIntent,500)
   }));
 }
 function normalizeShotScene(value) {
@@ -462,6 +471,10 @@ function normalizeShotScene(value) {
     time: boundedText(scene.time, 160),
     weather: boundedText(scene.weather, 160),
     environment: boundedText(scene.environmentPrompt, 2500),
+    sceneEvents: normalizeSceneEvents(scene.sceneEvents),
+    lighting: boundedText(scene.lighting,500),
+    audioIntent: boundedText(scene.audioIntent,500),
+    artDirection: boundedText(scene.artDirection,1000),
     entryState: boundedText(scene.entryState, 1000),
     exitState: boundedText(scene.exitState, 1000),
     emotionalStart: boundedText(scene.emotionalStart, 500),

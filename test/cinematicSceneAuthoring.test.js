@@ -2,6 +2,27 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { applySceneProposal, createSceneProposal, scenePlanningProjection, updateSceneOutline } from '../server/domain/cinematic/CinematicSceneAuthoring.js';
 
+test('scene direction can be corrected manually and survives a later AI outline',()=>{
+  const project={activeChapterVersionId:'rev',sceneProposals:[],scenes:[]};
+  const propose=()=>{
+    const p=createSceneProposal({sourceChapterRevisionId:'rev',scenes:[{
+      title:'Doorway',lighting:'Side light',audioIntent:'Wind',sceneEvents:['dialogue','fight','unknown','fight']
+    }]});
+    project.sceneProposals.push(p);
+    applySceneProposal(project,p.id);
+    return project.scenes[0];
+  };
+  const first=propose();
+  assert.deepEqual(first.sceneEvents,['dialogue','fight']);
+  assert.equal(first.audioIntent,'Wind');
+  updateSceneOutline(project,first.id,{expectedSceneVersion:1,title:'At the doorway',lighting:'Lantern',
+    sceneEvents:['dialogue'],audioIntent:''});
+  const second=propose();
+  assert.equal(second.lighting,'Lantern');
+  assert.equal(second.audioIntent,'');
+  assert.deepEqual(second.sceneEvents,['dialogue']);
+});
+
 test('paragraph review splits and merges in the saved revision and protects existing scene media', () => {
   const proposal = createSceneProposal({sourceChapterRevisionId:'rev',paragraphCount:4,
     scenes:[{title:'One',sourceStartParagraph:1},{title:'Two',sourceStartParagraph:3}]});
