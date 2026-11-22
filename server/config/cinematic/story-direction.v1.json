@@ -1,0 +1,23 @@
+{
+  "genres": {
+    "romance": {"th":"โรแมนติกดราม่า","en":"Romantic drama","instruction":"Stage the changing distance between the characters, their eyelines and the silence after an important line."},
+    "comedy": {"th":"คอเมดี้ / ฟีลกู๊ด","en":"Feel-good comedy","instruction":"Set up an expectation in the frame, time its reversal and hold for the listener's reaction."},
+    "drama": {"th":"ดราม่าครอบครัว / ชีวิต","en":"Family and life drama","instruction":"Reveal relationships through seating, routines, shared objects and what remains unsaid."},
+    "thriller": {"th":"สืบสวน / ระทึกขวัญ","en":"Mystery and suspense","instruction":"Sequence visible clues, control what is outside the frame and distinguish what the audience knows from what the characters know."},
+    "adventure": {"th":"แอ็กชัน / ผจญภัย","en":"Action and adventure","instruction":"Establish geography, screen direction, distance to the obstacle and an action match for the cut."},
+    "horror": {"th":"สยองขวัญ / ลึกลับ","en":"Horror and the uncanny","instruction":"Use negative space, an identifiable source of sound and a deliberate delay before the reveal."},
+    "fantasy": {"th":"แฟนตาซี / เหนือธรรมชาติ","en":"Fantasy and the supernatural","instruction":"Establish a rule of the world through its visible physical effect and maintain it across shots."}
+  },
+  "formats": {"standalone":{"th":"ตอนเดียวจบ","en":"Standalone"},"feature":{"th":"ภาพยนตร์แบ่ง Chapter","en":"Feature with chapters"},"series":{"th":"ซีรีส์แบ่ง EP","en":"Episodic series"}},
+  "ratios":["9:16","16:9","1:1"],
+  "spokenLanguages":{
+    "Thai":{"th":"ไทย","en":"Thai"},
+    "English":{"th":"อังกฤษ","en":"English"},
+    "Mandarin Chinese":{"th":"จีนกลาง","en":"Mandarin Chinese"},
+    "Japanese":{"th":"ญี่ปุ่น","en":"Japanese"},
+    "Korean":{"th":"เกาหลี","en":"Korean"}
+  },
+  "destinations":{"seedance":"Seedance","flow":"Google Flow"},
+  "defaults":{"country":"none","period":"contemporary","genre":"drama","tone":"moved","format":"standalone","targetSeconds":60,"aspectRatio":"9:16","destination":"seedance","spokenLanguage":"Thai"},
+  "maxTargetSeconds":14400
+}

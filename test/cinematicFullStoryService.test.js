@@ -2,6 +2,28 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { CinematicFullStoryService } from '../server/domain/generation/CinematicFullStoryService.js';
 import { resolveWritingPreferences } from '../server/config/storyWritingSettings.js';
+import storyDirection from '../server/config/cinematic/story-direction.v1.json' with {type:'json'};
+
+test('a Thai setting keeps English directions while only the dialogue follows the project language', async () => {
+  const translations = {'ตลาดน้ำ':'floating market','มะลิ':'Mali','เจอกันพรุ่งนี้':'See you tomorrow.'};
+  const service = new CinematicFullStoryService({
+    policyLoader:()=>({enabled:true,provider:'openai',model:'fixture'}),
+    availabilityPolicy:{assertAvailable(){}},
+    providerFactory:()=>({translateStoryPrompt:async ({slots,spokenLanguage})=>({
+      translations:slots.map(({id,role,source})=>({id,text:role==='dialogue' && spokenLanguage==='Thai'
+        ? source : translations[source] || source})).reverse()
+    })})
+  });
+  const source = '[SCENE]\nตลาดน้ำ\n\n[ACTION TIMELINE]\n[1.5s] มะลิ: “เจอกันพรุ่งนี้”';
+  for (const spokenLanguage of ['Thai','English']) {
+    const settings={modelId:null,skillIds:[],direction:{...storyDirection.defaults,country:'thailand',spokenLanguage}};
+    const {text}=await service.translateStoryPrompt(source,[],settings);
+    assert.equal(text,'[SCENE]\nfloating market\n\n[ACTION TIMELINE]\n[1.5s] Mali: “'+
+      (spokenLanguage==='Thai'?'เจอกันพรุ่งนี้':'See you tomorrow.')+'”');
+    await assert.rejects(service.translateStoryPrompt('[CAMERA]\nเคลื่อนกล้องช้า ๆ',[],settings),
+      {code:'cinematic_prompt_translation_invalid'});
+  }
+});
 
 test('the selected project writer receives the selected skill instructions and is recorded in provenance', async () => {
   const calls = [];
@@ -84,6 +106,7 @@ test('Full Story AI normalizes revision and Chapter proposals through the config
   const scenes = await service.proposeScenes({ chapterTitle: 'Arrival', chapterStory: chapters.chapters[0].story,
     projectTitle: 'Rain Letters', targetDurationSeconds: 60, characters: [{ id: 'lalin', name: 'Lalin', role: 'Lead', dossier: 'A florist.' }] });
   const shots = await service.proposeShots({ projectTitle: 'Rain Letters', chapterTitle: 'Arrival', chapterStory: chapters.chapters[0].story,
+    sceneImage:{mimeType:'image/jpeg', data:'cGhvdG8='},
     scene: { id: 'scene-1', title: 'Flower shop', synopsis: 'Lalin reaches down.', durationMs: 8000, castAssignmentIds: ['lalin'] },
     characters: [{ id: 'lalin', name: 'Lalin', role: 'Lead', dossier: 'A florist.' }] });
   const environment = await service.proposeSceneEnvironment({ projectTitle: 'Rain Letters', aspectRatio: '9:16',
@@ -105,6 +128,8 @@ test('Full Story AI normalizes revision and Chapter proposals through the config
   assert.equal(calls[2][1].context.characters[0].id, 'lalin');
   assert.equal(calls[2][1].timeoutMs, 120000);
   assert.equal(shots.shots.length, 1);
+  assert.deepEqual(calls[3][1].sceneImage,{mimeType:'image/jpeg',data:'cGhvdG8='});
+  assert.doesNotMatch(JSON.stringify(calls[3][1].context), /cGhvdG8=/);
   assert.equal(calls[3][1].context.scene.title, 'Flower shop');
   assert.equal(calls[3][1].context.characters[0].id, 'lalin');
   assert.equal(calls[3][1].timeoutMs, 120000);

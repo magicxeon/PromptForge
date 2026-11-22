@@ -63,9 +63,14 @@ const liveReads = [
   /^\/api\/character-profiles\/[^/]+\/looks\/[^/]+\/versions\/[^/]+\/media\/sheet$/,
   /^\/api\/history\/[^/]+(?:\/presentations\/[^/]+)?$/,
   /^\/api\/references\/processing-policy$/,
+  /^\/api\/cinematic\/projects\/[\w-]+\/scenes\/[\w-]+\/environment$/,
+  /^\/api\/cinematic\/projects\/[\w-]+\/scenes\/[\w-]+\/story-prompt-status$/,
   /^\/api\/credits\/ledger$/,
 ];
 const liveWrites = [
+  ['POST', /^\/api\/cinematic\/projects\/[\w-]+\/scenes\/[\w-]+\/environment\/approve$/],
+  ['PATCH', /^\/api\/cinematic\/projects\/[\w-]+\/scenes\/[\w-]+\/environment$/],
+  ['PUT', /^\/api\/cinematic\/projects\/[\w-]+\/shots\/[\w-]+\/storyboard-source$/],
   ['POST', /^\/api\/cinematic\/projects$/],
   ['POST', /^\/api\/cinematic\/projects\/[\w-]+\/(?:writing\/quotes|full-story\/(?:proposals|revisions|confirm|chapters)|chapter-outline\/(?:proposals|approve)|scene-proposals|manual-scenes)$/],
   ['POST', /^\/api\/cinematic\/projects\/[\w-]+\/(?:scene|chapter)-proposals\/[\w-]+\/(?:apply|discard)$/],

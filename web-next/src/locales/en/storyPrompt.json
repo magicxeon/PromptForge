@@ -1,0 +1,31 @@
+{
+  "destination": "Prepare for", "still": "First-frame image", "flow": "Google Flow", "seedance": "Seedance", "legacy": "Earlier saved prompt",
+  "merge": {
+    "select": "Combine shots into one prompt",
+    "selected_one": "{{count}} shot selected · {{seconds}} sec",
+    "selected_other": "{{count}} shots selected · {{seconds}} sec",
+    "create": "Build merged prompt",
+    "title": "Merged video prompt",
+    "saved": "Saved merged prompts",
+    "timeline": "Selected shots",
+    "range": "{{start}}–{{end}} sec",
+    "needFrame": "Choose an opening frame for “{{name}}” to start this Flow clip.",
+    "changed": "Review these shots before rebuilding the prompt: {{shots}}.",
+    "missing": "A source shot was removed. Close this prompt and select the shots for a new clip.",
+    "saveConflict": "Another edit was saved while you were working. Copy your draft, then close and reopen the saved prompt to review the latest text.",
+    "tooLong": "{{length}} of {{limit}} characters. Remove {{excess}} to save.",
+    "rebuild": "Rebuild from selected shots",
+    "buildBusy": "Building the merged prompt…",
+    "saveBusy": "Saving the merged prompt…",
+    "frameBusy": "Saving the opening frame…"
+  },
+  "reviewChanged":"The source has changed. Review these saved shot prompts.",
+  "attachments": "Attach images in this order", "opening": "Opening frame", "location": "Location", "character": "Character",
+  "needFrame": "This Flow template starts from an exact opening frame. Select an image, or write its image prompt first.",
+  "prepareFrame": "Write first-frame prompt", "chooseFrame": "Select opening frame", "replaceFrame": "Change opening frame",
+  "noImages": "There are no generated images to choose from yet.", "next": "Load more images", "retry": "Try again",
+  "copy": "Copy prompt", "copied": "Copied", "copyFailed": "Select the prompt text and copy it manually.",
+  "framePicker": "Choose a generated image to use as the opening frame",
+  "openImage":"Save and open Image Playground", "frameFor":"Opening frame for {{title}}", "useResult":"Use this image as the opening frame",
+  "externalStill":"This image has several character references. Copy the prompt and attach the listed images in your image tool."
+}

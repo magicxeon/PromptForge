@@ -1,7 +1,9 @@
 import crypto from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import sharp from 'sharp';
 import { OUTPUTS_DIR } from '../../config/paths.js';
+import { cinematicWorkflowPolicy } from '../../config/cinematicRewampConfiguration.js';
 import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
 import { normalizeProviderOutputProvenance } from '../generation/ProviderOutputProvenance.js';
@@ -26,17 +28,44 @@ export class CinematicStoryboardAssetService {
     this.clock = clock;
   }
 
-  async resolveSceneReference(value, actorContext) {
+  async #sceneAsset(value, actorContext) {
     const binding = normalizeCinematicSceneReference(value);
     if (!binding) return null;
     if (!actorContext?.userId) throw sourceError('actor_required', 'An active actor is required.', 401);
     const asset = await this.assetRepository.findByIdForOwner(binding.assetId, actorContext.userId);
-    if (!asset || asset.status === 'deleted' || asset.assetType !== 'cinematic_storyboard_source'
-      || asset.metadata?.immutable !== true || asset.metadata.contentHash !== binding.contentHash || !asset.publicUrl) {
+    if (!asset || asset.status === 'deleted' || !(asset.assetType === 'cinematic_storyboard_source' && asset.metadata?.immutable === true
+        || isStorySceneUpload(asset, actorContext.userId))
+      || asset.metadata?.contentHash !== binding.contentHash || !asset.publicUrl) {
       throw sourceError('cinematic_scene_source_unavailable', 'The approved Scene reference is unavailable.', 409);
     }
+    return {binding,asset};
+  }
+
+  async resolveSceneReference(value, actorContext) {
+    const approved = await this.#sceneAsset(value, actorContext);
+    if (!approved) return null;
+    const {binding, asset} = approved;
     await verifyStoryboardAssetContent(asset, { outputsDirectory: this.outputsDirectory });
     return { ...binding, referenceValue: asset.publicUrl };
+  }
+
+  async sceneImageForShotPlanning(value, actorContext) {
+    const limits = cinematicWorkflowPolicy.authoring.sceneLooksheetForWriting;
+    const approved = await this.#sceneAsset(value, actorContext);
+    if (!approved) throw sourceError('cinematic_scene_source_unavailable','Review the approved Scene image.',409);
+    const content = await loadVerifiedStoryboardAssetContent(approved.asset, {
+      outputsDirectory:this.outputsDirectory, maximumBytes:limits.maximumSourceBytes
+    });
+    try {
+      const input = sharp(content.bytes,{limitInputPixels:limits.maximumPixels,failOn:'error'});
+      const metadata = await input.metadata();
+      if (!['png','jpeg','webp'].includes(metadata.format)) throw new Error();
+      const preview = await input.rotate().resize({width:limits.maximumSide,height:limits.maximumSide,fit:'inside',withoutEnlargement:true})
+        .flatten({background:'#ffffff'}).jpeg({quality:limits.jpegQuality}).toBuffer();
+      return {mimeType:'image/jpeg',data:preview.toString('base64')};
+    } catch {
+      throw sourceError('cinematic_scene_source_unavailable','The approved Scene image could not be read for Shot planning.',409);
+    }
   }
 
   async getGenerationPreview(jobId, actorContext) {
@@ -46,6 +75,16 @@ export class CinematicStoryboardAssetService {
       : await this.generationResults.findStoryboardSourceForOwner(jobId, actorContext);
     if (!result || result.username !== actorContext.username || !result.imageUrl) return null;
     return { jobId, imageUrl: result.imageUrl, thumbnailUrl: result.thumbnailUrl || result.imageUrl };
+  }
+
+  async approveSceneUpload(assetId, actorContext) {
+    if (!actorContext?.userId || typeof assetId !== 'string' || !assetId || assetId.length>160) {
+      throw sourceError('cinematic_scene_source_unavailable','Select an uploaded scene image.',404);
+    }
+    const asset = await this.assetRepository.findByIdForOwner(assetId,actorContext.userId);
+    if (!isStorySceneUpload(asset,actorContext.userId)) throw sourceError('cinematic_scene_source_unavailable','The scene image is unavailable.',404);
+    await verifyStoryboardAssetContent(asset,{outputsDirectory:this.outputsDirectory});
+    return {...toApprovedSource(asset),sourceJobId:null};
   }
 
   async approveGenerationResult({ jobId }, actorContext) {
@@ -110,6 +149,15 @@ export class CinematicStoryboardAssetService {
   }
 }
 
+function isStorySceneUpload(asset, userId) {
+  const prefix = 'references/' + encodeURIComponent(userId) + '/';
+  return asset?.assetType === 'generation_reference' && asset.status === 'active' &&
+    asset.metadata?.sourceMode === 'story-scene' && asset.metadata?.role === 'style_reference' &&
+    typeof asset.storageKey === 'string' && asset.storageKey.startsWith(prefix) &&
+    /^[\w.-]+\.(png|jpe?g|webp)$/i.test(asset.storageKey.slice(prefix.length)) &&
+    asset.publicUrl === '/outputs/' + asset.storageKey && /^[a-f0-9]{64}$/.test(asset.metadata.contentHash);
+}
+
 function toApprovedSource(asset) {
   const contentHash = String(asset.metadata?.contentHash || '');
   return {
@@ -142,7 +190,7 @@ export async function verifyStoryboardAssetContent(asset, {
 }
 
 export async function loadVerifiedStoryboardAssetContent(asset, {
-  outputsDirectory = OUTPUTS_DIR
+  outputsDirectory = OUTPUTS_DIR, maximumBytes
 } = {}) {
   const storageKey = String(asset?.storageKey || '').replace(/\\/g, '/');
   const expectedHash = String(asset?.metadata?.contentHash || '').trim();
@@ -163,7 +211,22 @@ export async function loadVerifiedStoryboardAssetContent(asset, {
   }
   let buffer;
   try {
-    buffer = await fs.readFile(absolutePath);
+    if (maximumBytes) {
+      const [root, actual] = await Promise.all([fs.realpath(outputsDirectory),fs.realpath(absolutePath)]);
+      if (!isWithin(actual,root)) throw new Error();
+      let size=0;
+      const chunks=[];
+      const file=await fs.open(actual,'r');
+      try {
+        if (!(await file.stat()).isFile()) throw new Error();
+        for await (const chunk of file.createReadStream({autoClose:false,end:maximumBytes})) {
+          size+=chunk.length;
+          if (size>maximumBytes) throw new Error();
+          chunks.push(chunk);
+        }
+        buffer=Buffer.concat(chunks,size);
+      } finally { await file.close(); }
+    } else buffer = await fs.readFile(absolutePath);
   } catch {
     throw sourceError(
       'cinematic_storyboard_source_content_unavailable',

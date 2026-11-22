@@ -48,12 +48,13 @@ export class GeminiCinematicTextProvider {
   }
 
   async generateCinematicSceneShots({
-    context, recipe, model, reasoningEffort, maxOutputTokens, timeoutMs
+    context, sceneImage, recipe, model, reasoningEffort, maxOutputTokens, timeoutMs
   }) {
     return this.requestStructured({
       model,
       instructions: recipe?.instruction || loadPromptRecipe('cinematic/scene-shots.v1.json').instruction,
       input: context,
+      sceneImage,
       reasoningEffort,
       schema: CINEMATIC_SCENE_SHOTS_SCHEMA,
       maxOutputTokens,
@@ -66,6 +67,7 @@ export class GeminiCinematicTextProvider {
     model,
     instructions,
     input,
+    sceneImage,
     reasoningEffort,
     schema,
     maxOutputTokens,
@@ -85,7 +87,10 @@ export class GeminiCinematicTextProvider {
           model,
           store: false,
           system_instruction: instructions,
-          input: JSON.stringify(input),
+          input: sceneImage ? [
+            {type:'text',text:JSON.stringify(input)},
+            {type:'image',mime_type:sceneImage.mimeType,data:sceneImage.data}
+          ] : JSON.stringify(input),
           response_format: {
             type: 'text',
             mime_type: 'application/json',
@@ -102,7 +107,7 @@ export class GeminiCinematicTextProvider {
       if (!response.ok) {
         const error = createProviderError(
           `${errorPrefix}_provider_error`,
-          payload?.error?.message || `Gemini Interactions API returned HTTP ${response.status}.`
+          (!sceneImage && payload?.error?.message) || `Gemini Interactions API returned HTTP ${response.status}.`
         );
         error.status = response.status;
         error.requestId = response.headers?.get?.('x-request-id')

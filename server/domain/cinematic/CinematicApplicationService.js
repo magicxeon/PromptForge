@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { resolveWritingPreferences, validateWritingSettings } from '../../config/storyWritingSettings.js';
+import {resolveWritingPreferences, validateWritingSettings, validateStoryDirection, directionSetup, chapterTargetSeconds } from '../../config/storyWritingSettings.js';
 import { cinematicStoryboardPromptComposer } from './CinematicStoryboardPromptComposer.js';
 import { createManualStoryboardScene, normalizeManualStoryboard } from './CinematicManualStoryboard.js';
 import { normalizeStoryboardRenderStyle } from './CinematicStoryboardRenderStyle.js';
@@ -39,6 +39,8 @@ import {
 } from './StoryPlanFilmReadiness.js';
 import { normalizeDialogueReview } from './CinematicDialogueTiming.js';
 import { compileCinematicShotDocument, compileStoryShotPrompt, shotPromptSourceFingerprint } from './CinematicShotDocumentCompiler.js';
+import {compileStoryPromptPacket, storyPromptKind} from './CinematicStoryPromptPacket.js';
+import {compileMergedStoryPrompt} from './CinematicMergedStoryPrompt.js';
 import { cinematicDataLineageService } from './CinematicDataLineageService.js';
 import { cinematicFieldManifestService } from './CinematicFieldManifestService.js';
 import { cinematicAuthoringStateService, cinematicFieldKey } from './CinematicAuthoringStateService.js';
@@ -70,6 +72,7 @@ import {
   ensureShotAuthoring,
   resolveShotDocument,
   updateShotDocument as updateShotAuthoringDocument,
+  validatedShotPrompt,
   writeShotPromptOverride
 } from './CinematicShotAuthoring.js';
 
@@ -189,7 +192,7 @@ export class CinematicApplicationService {
       characters: (project.castAssignments || []).filter(item => item.active !== false).slice(0, 24)
         .map(item => ({ id: item.id, name: item.displayName, role: item.storyRole,
           objective: item.objective, traits: item.personalityTraits, voice: item.voice })),
-      scenes: scene ? [scene] : (project.scenes || []).map(item => ({ id: item.id, title: item.title,
+      scenes: scene ? [{...scene, mergedPrompts:undefined}] : (project.scenes || []).map(item => ({ id: item.id, title: item.title,
         setting: item.setting, synopsis: item.synopsis, objective: item.objective })),
       assignment, continuity, repairBudget, provider: policy.provider, model, maxOutputTokens,
       ...(writingPreferences ? { writingPreferences } : {})
@@ -353,7 +356,12 @@ export class CinematicApplicationService {
       if (root.id !== project.id) throw new CinematicError('cinematic_writing_settings_root_required', 'Update writing settings on the story project.', 409);
       assertExpectedVersion(project, input?.expectedVersion);
       assertEditable(project);
-      project.writingSettings = validateWritingSettings(input);
+      project.writingSettings = validateWritingSettings({ ...input, direction: input.direction ?? project.writingSettings?.direction });
+      if (project.writingSettings.direction) {
+        const direction = project.writingSettings.direction;
+        Object.assign(project.setup,directionSetup(direction));
+        project.aspectRatio = direction.aspectRatio;
+      }
       project.version += 1;
       return project;
     });
@@ -368,6 +376,24 @@ export class CinematicApplicationService {
     if (shared?.castAssignments) project.castAssignments = shared.castAssignments;
     if (shared?.writingSettings) project.writingSettings = shared.writingSettings;
     project.videoDirection = shared?.videoDirection ?? String(project.setup?.videoDirection || '');
+    for (const scene of project.scenes) {
+      for (const saved of scene.mergedPrompts || []) {
+        saved.maximumPromptCharacters = cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters;
+        const ids = saved.shots.map(shot => shot.id);
+        const unavailable = ids.filter(id => {
+          const shot = scene.shots.find(item => item.id === id);
+          return !shot || !Number.isSafeInteger(shot.durationMs) || shot.durationMs < 1;
+        });
+        if (unavailable.length) {
+          saved.outdatedShotIds = unavailable;
+          continue;
+        }
+        const current = compileMergedStoryPrompt(project,scene,ids,saved.template);
+        saved.outdatedShotIds = current.shots.filter((shot,index) => shot.id !== ids[index] ||
+          shot.sourceFingerprint !== saved.shots[index].sourceFingerprint).map(shot => shot.id);
+        if (!saved.outdatedShotIds.length && current.sourceFingerprint !== saved.sourceFingerprint) saved.outdatedShotIds = ids;
+      }
+    }
     const summaries = this.videoGenerationService.getStoredTaskSummaries
       ? await this.videoGenerationService.getStoredTaskSummaries(
         project.generationAttempts.map(item => item.generationJobId).filter(id => id?.startsWith('videotask_')), actorContext) : [];
@@ -383,6 +409,7 @@ export class CinematicApplicationService {
   createProject(input, actorContext) {
     const imported = input?.storyImport == null ? null : normalizeStoryImport(input.storyImport);
     const setup = normalizeSetup(input, { allowEmptyStory: Boolean(imported) || input?.creationIntent === 'draft' });
+    if (input.storyDirection) setup.storyDirection = validateStoryDirection(input.storyDirection);
     if (imported) setup.initialFullStory = createImportedFullStoryRevision(imported);
     return this.seriesService.createProductionProject(setup, actorContext);
   }
@@ -416,19 +443,25 @@ export class CinematicApplicationService {
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
     assertExpectedVersion(project, input?.expectedVersion);
     const active = project.fullStoryVersions.find(item => item.id === project.activeFullStoryVersionId) || null;
+    if (input?.purpose === 'story_direction') {
+      assertEditable(project);
+      return this.fullStoryService.suggestDirection(input.script, await this.projectWritingSettings(project, actorContext));
+    }
     const propose = input?.purpose === 'characters'
       ? this.fullStoryService.proposeCharacters.bind(this.fullStoryService)
       : this.fullStoryService.propose.bind(this.fullStoryService);
     await beforeDispatch?.();
+    const writingSettings = await this.projectWritingSettings(project, actorContext);
+    const setup = {...project.setup,...directionSetup(writingSettings?.direction)};
     return propose({
-      writingSettings: input?.purpose === 'characters' ? undefined : await this.projectWritingSettings(project, actorContext),
+      writingSettings: input?.purpose === 'characters' ? undefined : writingSettings,
       projectTitle: project.title,
       storyBrief: project.setup?.storyBrief,
       currentFullStory: active?.content || '',
       revisionInstruction: input?.revisionInstruction,
-      format: project.setup?.format,
-      targetDurationSeconds: project.setup?.durationSeconds,
-      storySettings: normalizeStoryIntent(project.setup || {}),
+      format: setup.format,
+      targetDurationSeconds: writingSettings?.direction?.targetSeconds ?? setup.durationSeconds,
+      storySettings: normalizeStoryIntent(setup),
       existingCharacters: (project.castAssignments || []).filter(item => item.active !== false).map(item => ({
         id: item.id,
         displayName: item.displayName,
@@ -555,8 +588,8 @@ export class CinematicApplicationService {
       throw new CinematicError('cinematic_full_story_confirmation_required', 'Confirm the current Full Story before planning Chapters.', 409);
     }
     if (pendingChapterProposal(project)) throw new CinematicError('cinematic_chapter_proposal_pending', 'Review or discard the pending Chapter proposal first.', 409);
-    return { project, context: { fullStory: story.content, settings: chapterOutlineSettings(project.setup), writingSettings: project.writingSettings,
-      targetDurationSeconds: project.setup.durationSeconds,
+    return { project, context: { fullStory: story.content, settings: chapterOutlineSettings(project.setup,project.writingSettings?.direction), writingSettings: project.writingSettings,
+      targetDurationSeconds: project.writingSettings?.direction?.targetSeconds ?? project.setup.durationSeconds,
       reviewedOutline: project.chapterOutline?.chapters || [],
       characters: (project.castAssignments || []).filter(item => item.active !== false).slice(0, 24)
         .map(item => ({ name: item.displayName, role: item.storyRole })) } };
@@ -578,7 +611,7 @@ export class CinematicApplicationService {
       current.chapterOutlineHistory = [...(current.chapterOutlineHistory || []), ...(current.chapterOutline ? [current.chapterOutline] : [])]
         .slice(-cinematicWorkflowPolicy.authoring.storyRevisionHistoryLimit);
       current.chapterOutline = { id: createPrefixedId('cineoutline'), sourceRevisionId: project.confirmedFullStoryVersionId,
-        sourceKey: chapterOutlineSourceKey(project), settings: chapterOutlineSettings(project.setup), status: 'proposed',
+        sourceKey: chapterOutlineSourceKey(project), settings: chapterOutlineSettings(project.setup,project.writingSettings?.direction), status: 'proposed',
         limits: { maximumChapters: Math.min(cinematicWorkflowPolicy.authoring.generatedChapterMaximum, cinematicWorkflowPolicy.projectCreation.maximumChapterCount),
           synopsisMaximumCharacters: cinematicWorkflowPolicy.authoring.chapterOutlineSynopsisMaximumCharacters },
         limits: { maximumChapters: Math.min(cinematicWorkflowPolicy.authoring.generatedChapterMaximum, cinematicWorkflowPolicy.projectCreation.maximumChapterCount),
@@ -653,7 +686,7 @@ export class CinematicApplicationService {
       writingSettings: source.writingSettings,
       fullStory: confirmed.content,
       format: source.setup?.format,
-      targetDurationSeconds: source.setup?.durationSeconds,
+      targetDurationSeconds: chapterTargetSeconds(source.writingSettings?.direction,source.setup?.chapterCount,source.setup?.durationSeconds),
       maxChapters: scope === 'selected' ? 1 : chapterPlan.length,
       chapterPlan,
       scope,
@@ -720,8 +753,8 @@ export class CinematicApplicationService {
       projectTitle: project.title,
       chapterTitle: revision.title || project.chapterTitle,
       chapterStory: revision.story || project.chapterStory,
-      targetDurationSeconds: Math.max(5, Math.round(project.durationTargetMs / 1000)),
-      storySettings: normalizeStoryIntent(project.setup || {}),
+      targetDurationSeconds: chapterTargetSeconds(writingSettings?.direction,workspace.chapters.length,Math.max(5, Math.round(project.durationTargetMs / 1000))),
+      storySettings: normalizeStoryIntent({...project.setup,...directionSetup(writingSettings?.direction)}),
       characters,
       currentScenes: project.scenes,
       maximumScenes: cinematicWorkflowPolicy.authoring.generatedSceneMaximum
@@ -739,6 +772,7 @@ export class CinematicApplicationService {
         sourceChapterRevisionId: revision.id,
         baseProjectVersion: current.version,
         scenes: generated.scenes,
+        paragraphCount:(revision.story || current.chapterStory).split(/\r?\n/).filter(line=>line.trim()).length,
         warnings: generated.warnings,
         provenance: generated.provenance,
         allowedCharacterIds: characters.map(item => item.id),
@@ -781,7 +815,7 @@ export class CinematicApplicationService {
         || (pending.sceneOrderSourceKey && pending.sceneOrderSourceKey !== continuitySourceKey(project.scenes.slice().sort((a, b) => a.orderKey - b.orderKey))))) {
         throw new CinematicError('cinematic_scene_proposal_stale', 'Chapter context or Scene order changed. Generate a new proposal.', 409);
       }
-      const proposal = applySceneAuthoringProposal(project, proposalId);
+      const proposal = applySceneAuthoringProposal(project, proposalId, undefined, input.sourceRanges);
       project.version += 1;
       return { project, proposal };
     });
@@ -816,6 +850,7 @@ export class CinematicApplicationService {
   }
 
   updateSceneOutline(projectId, sceneId, input, actorContext) {
+    if (Object.hasOwn(input,'mergedPrompt')) return this.saveMergedStoryPrompt(projectId,sceneId,input,actorContext);
     return this.repository.mutateForActor(projectId, actorContext, project => {
       assertExpectedVersion(project, input?.expectedVersion);
       assertEditable(project);
@@ -825,6 +860,36 @@ export class CinematicApplicationService {
     });
   }
 
+  async saveMergedStoryPrompt(projectId, sceneId, input, actor) {
+    const {shotIds,template} = input.mergedPrompt || {};
+    const edited = validatedShotPrompt(input.mergedPrompt);
+    await this.seriesService.mutateWithCharacterProjection(projectId,actor,(project,root) => {
+      assertExpectedVersion(project,input.expectedVersion);
+      assertEditable(project);
+      const scene = project.scenes.find(item => item.id === sceneId);
+      if (!scene) throw new CinematicError('cinematic_scene_not_found','Scene not found.',404);
+      const source = {...project,writingSettings:root.writingSettings,videoDirection:String(root.setup?.videoDirection || '')};
+      const packet = compileMergedStoryPrompt(source,scene,shotIds,template);
+      if (!packet.ready || edited.sourceFingerprint !== packet.sourceFingerprint) {
+        throw new CinematicError('cinematic_video_prompt_source_changed','The shots changed. Review a new merged prompt.',409);
+      }
+      const saved = scene.mergedPrompts ||= [];
+      const selected = new Set(shotIds);
+      const index = saved.findIndex(item => item.template === template && item.shots.length === selected.size &&
+        item.shots.every(shot => selected.has(shot.id)));
+      if (index >= 0 && saved[index].sourceFingerprint === edited.sourceFingerprint && saved[index].text === edited.text) return;
+      if ((saved[index]?.text ?? null) !== input.mergedPrompt.expectedSavedText) {
+        throw new CinematicError('cinematic_merged_prompt_changed','The saved prompt changed. Reopen the latest version before saving.',409);
+      }
+      const entry = {template,shots:packet.shots,references:packet.references,...edited};
+      if (index < 0) saved.push(entry);
+      else saved[index] = entry;
+      project.version += 1;
+    });
+    const project = await this.getProject(projectId,actor);
+    return {project,scene:project.scenes.find(scene => scene.id === sceneId)};
+  }
+
   async proposeShots(projectId, sceneId, input, actorContext, { beforeDispatch } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.getProject(projectId, actorContext);
@@ -832,6 +897,32 @@ export class CinematicApplicationService {
     assertExpectedVersion(project, input?.expectedVersion);
     assertEditable(project);
     ensureShotAuthoring(project);
+    if (input.purpose === 'merge_shot_prompt') {
+      const scene = project.scenes.find(item => item.id === sceneId);
+      if (!scene) throw new CinematicError('cinematic_scene_not_found','Scene not found.',404);
+      const packet = compileMergedStoryPrompt(project,scene,input.shotIds,input.template);
+      if (!packet.ready) throw new CinematicError('cinematic_opening_frame_required','Choose an opening frame for the first selected shot.',400);
+      await beforeDispatch?.();
+      const {text,provenance} = await this.fullStoryService.translateStoryPrompt(packet.text,packet.cues,project.writingSettings,packet.findings);
+      return {template:packet.template,shots:packet.shots,references:packet.references,sourceFingerprint:packet.sourceFingerprint,
+        maximumPromptCharacters:cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters,text,provenance};
+    }
+    if (input.purpose === 'translate_shot_prompt') {
+      if (input.template !== 'legacy' && !storyPromptKind(input.template)) {
+        throw new CinematicError('cinematic_story_template_invalid','Select a shot prompt template.',400);
+      }
+      const prepared = await this.prepareShotWriter(projectId, sceneId, input.targetShotId, actorContext,
+        {storyPrompt:true,template:input.template === 'legacy' ? undefined : input.template});
+      if (prepared.storyPacket && !prepared.storyPacket.ready) {
+        throw new CinematicError('cinematic_opening_frame_required','Choose an opening frame first.',400);
+      }
+      await beforeDispatch?.();
+      const {text,provenance} = await this.fullStoryService.translateStoryPrompt(
+        prepared.storyPacket?.text ?? prepared.storyPrompt, prepared.dialogue.cues, project.writingSettings, prepared.dialogue.findings);
+      if (prepared.storyPacket) prepared.storyPacket.text = text;
+      else prepared.storyPrompt = text;
+      return {...prepared,provenance};
+    }
     const scene = project.scenes.find(item => item.id === sceneId);
     if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
     if (scene.sourceChapterRevisionId && scene.sourceChapterRevisionId !== project.activeChapterVersionId) {
@@ -860,11 +951,15 @@ export class CinematicApplicationService {
     }));
     const revision = (project.chapterVersions || []).find(item => item.id === project.activeChapterVersionId);
     const writingSettings = await this.projectWritingSettings(project, actorContext);
+    const sceneImage = scene.environmentReferenceEnabled !== false && scene.approvedEnvironmentSource
+      ? await this.storyboardAssetService.sceneImageForShotPlanning(scene.approvedEnvironmentSource, actorContext)
+      : undefined;
     await beforeDispatch?.();
     const generated = await this.fullStoryService.proposeShots({
       writingSettings,
+      sceneImage,
       projectTitle: project.title,
-      aspectRatio: project.aspectRatio,
+      aspectRatio: writingSettings?.direction?.aspectRatio ?? project.aspectRatio,
       chapterTitle: revision?.title || project.chapterTitle,
       chapterStory: revision?.story || project.chapterStory,
       scene,
@@ -899,6 +994,7 @@ export class CinematicApplicationService {
         maximumShots: cinematicWorkflowPolicy.authoring.generatedShotMaximumPerScene
       });
       proposal.continuitySourceKey = continuitySourceKey(shotContinuityItems(project, targetShot?.id));
+      proposal.environmentSourceKey = shotPlanningEnvironmentKey(scene);
       current.shotProposals.push(proposal);
       current.shotProposals = current.shotProposals.slice(-cinematicWorkflowPolicy.authoring.shotProposalHistoryLimit);
       current.version += 1;
@@ -913,6 +1009,10 @@ export class CinematicApplicationService {
       const pending = project.shotProposals?.find(item => item.id === proposalId && item.status === 'pending_review');
       if (pending?.continuitySourceKey && pending.continuitySourceKey !== continuitySourceKey(shotContinuityItems(project, pending.targetShotId))) {
         throw new CinematicError('cinematic_shot_proposal_stale', 'Shot continuity changed. Generate a new proposal.', 409);
+      }
+      const scene = project.scenes.find(item => item.id === sceneId);
+      if (pending?.environmentSourceKey && scene && pending.environmentSourceKey !== shotPlanningEnvironmentKey(scene)) {
+        throw new CinematicError('cinematic_shot_proposal_stale', 'The Scene environment changed. Generate a new Shot proposal.', 409);
       }
       const oldShot = project.scenes.find(item => item.id === sceneId)?.shots.find(item =>
         item.id === project.shotProposals?.find(proposal => proposal.id === proposalId)?.targetShotId);
@@ -965,7 +1065,27 @@ export class CinematicApplicationService {
     });
   }
 
-  async prepareShotWriter(projectId, sceneId, shotId, actorContext, { storyPrompt = false } = {}) {
+  async storyPromptStatus(projectId, sceneId, actorContext) {
+    const project = await this.getProject(projectId, actorContext);
+    const scene = project.scenes.find(item => item.id === sceneId);
+    if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+    const instructions = resolveWritingPreferences(project.writingSettings).skillInstructions;
+    const outdated = [];
+    for (const shot of scene.shots) {
+      if (!shot.storyPromptVariants) continue;
+      const shotDocument = resolveShotDocument(shot, scene, project.castAssignments);
+      const prepared = compileCinematicShotDocument({...shot, manualStoryboard:false, shotDocument}, scene, project.castAssignments);
+      const templates = Object.entries(shot.storyPromptVariants).filter(([kind, saved]) => {
+        if (!saved || !storyPromptKind(kind)) return false;
+        const packet = compileStoryPromptPacket(project, scene, shot, prepared, kind, instructions);
+        return !packet.ready || saved.sourceFingerprint !== packet.sourceFingerprint;
+      }).map(([kind]) => kind);
+      if (templates.length) outdated.push({shotId:shot.id, templates});
+    }
+    return {outdated};
+  }
+
+  async prepareShotWriter(projectId, sceneId, shotId, actorContext, { storyPrompt = false, template } = {}) {
     const project = await this.getProject(projectId, actorContext);
     const located = findShot(project, shotId);
     if (!located || located.scene.id !== sceneId) throw new CinematicError('cinematic_shot_not_found', 'Shot not found.', 404);
@@ -973,11 +1093,15 @@ export class CinematicApplicationService {
     const shotDocument = resolveShotDocument(shot, scene, project.castAssignments);
     const prepared = compileCinematicShotDocument({ ...shot, manualStoryboard: false, shotDocument }, scene, project.castAssignments);
     const sourceFingerprint = shotPromptSourceFingerprint(project, scene, shot);
+    if (template && !storyPromptKind(template)) throw new CinematicError('cinematic_story_template_invalid', 'Unknown prompt template.', 400);
+    const packet = storyPrompt && template ? compileStoryPromptPacket(project, scene, shot, prepared, template,
+      resolveWritingPreferences(project.writingSettings).skillInstructions) : null;
     return { shotDocument, sourceFingerprint, generatedPrompt: prepared.creatorPrompt,
       projectVideoDirection: projectVideoDirection(project),
       overrideStale: Boolean(shot.videoPromptOverride && shot.videoPromptOverride.sourceFingerprint !== sourceFingerprint),
       dialogue: prepared.dialogue, timing: prepared.timing,
       maximumPromptCharacters: cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters,
+      ...(packet ? {storyPacket: packet} : {}),
       ...(storyPrompt ? { storyPrompt: compileStoryShotPrompt(project, scene, shot, shotDocument, prepared.creatorPrompt,
         resolveWritingPreferences(project.writingSettings).skillInstructions) } : {}) };
   }
@@ -1025,7 +1149,7 @@ export class CinematicApplicationService {
   }
 
   async updateShotDocument(projectId, sceneId, shotId, input, actorContext) {
-    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, project => {
+    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, (project, storyProject) => {
       assertExpectedVersion(project, input?.expectedVersion);
       assertEditable(project);
       const located = findShot(project, shotId);
@@ -1043,6 +1167,28 @@ export class CinematicApplicationService {
       if (input.promptOnly === true) {
         const { scene, shot } = located;
         assertExpectedVersion(shot, input.expectedShotVersion);
+        if (input.storyTemplate !== undefined) {
+          if (!storyPromptKind(input.storyTemplate) || input.videoPromptOverride !== undefined) {
+            throw new CinematicError('cinematic_story_template_invalid', 'Invalid prompt destination.', 400);
+          }
+          const document = resolveShotDocument(shot, scene, project.castAssignments);
+          const prepared = compileCinematicShotDocument({...shot, manualStoryboard: false, shotDocument: document}, scene, project.castAssignments);
+          const projected = {...project,writingSettings:storyProject.writingSettings};
+          const packet = compileStoryPromptPacket(projected, scene, shot, prepared, input.storyTemplate,
+            resolveWritingPreferences(projected.writingSettings).skillInstructions);
+          if (!packet.ready || input.storyPrompt?.sourceFingerprint !== packet.sourceFingerprint) {
+            throw new CinematicError('cinematic_video_prompt_source_changed', 'Refresh and review the shot and its references.', 409);
+          }
+          const saved = validatedShotPrompt(input.storyPrompt);
+          const previous = shot.storyPromptVariants?.[input.storyTemplate];
+          if (previous?.text !== saved.text || previous?.sourceFingerprint !== saved.sourceFingerprint) {
+            shot.storyPromptVariants = {...shot.storyPromptVariants, [input.storyTemplate]: saved};
+            shot.version += 1;
+            shot.updatedAt = new Date().toISOString();
+            project.version += 1;
+          }
+          return {project:{...project,writingSettings:projected.writingSettings}, scene, shot};
+        }
         writeShotPromptOverride(shot, input.videoPromptOverride);
         if (previousOverride !== JSON.stringify(shot.videoPromptOverride)) {
           markVideoPacketChanged(project, shot);
@@ -1970,7 +2116,7 @@ export class CinematicApplicationService {
       }
       if (input.environmentPrompt !== undefined) scene.environmentPrompt = input.environmentPrompt.trim();
       if (input.referenceEnabled !== undefined) scene.environmentReferenceEnabled = input.referenceEnabled;
-      // Environment preparation changes future still inputs, not authored video direction.
+      // Shot proposals compare the environment separately so edits preserve existing authored Shots.
       project.version += 1;
       return project;
     });
@@ -1979,6 +2125,29 @@ export class CinematicApplicationService {
   async approveSceneEnvironment(projectId, sceneId, input, actorContext) {
     const current = await this.getProject(projectId, actorContext);
     const scene = current.scenes.find(item => item.id === sceneId);
+    if (input.referenceAssetId !== undefined || input.reuseSceneId !== undefined) {
+      assertExpectedVersion(current,input.expectedVersion);
+      assertEditable(current);
+      if (!scene || [input.jobId,input.referenceAssetId,input.reuseSceneId].filter(id=>id!==undefined).length !== 1) {
+        throw new CinematicError('cinematic_scene_source_unavailable','Select one scene image.',400);
+      }
+      const source = input.referenceAssetId !== undefined
+        ? await this.storyboardAssetService.approveSceneUpload(input.referenceAssetId,actorContext)
+        : current.scenes.find(item=>item.id===input.reuseSceneId)?.approvedEnvironmentSource;
+      if (!source) throw new CinematicError('cinematic_scene_source_unavailable','The selected scene has no approved image.',404);
+      if (input.reuseSceneId !== undefined) await this.storyboardAssetService.resolveSceneReference(source,actorContext);
+      return this.repository.mutateForActor(projectId,actorContext,project=>{
+        assertExpectedVersion(project,input.expectedVersion);
+        assertEditable(project);
+        const target=project.scenes.find(item=>item.id===sceneId);
+        if (!target) throw new CinematicError('cinematic_scene_not_found','Scene not found.',404);
+        target.approvedEnvironmentSource=structuredClone(source);
+        target.environmentReferenceEnabled=true;
+        target.version=(target.version||1)+1;
+        project.version++;
+        return project;
+      });
+    }
     const attempt = current.generationAttempts?.find(item => item.operation === 'cinematic_scene_environment'
       && (input.reuse === true || item.sceneId === sceneId) && item.generationJobId === input.jobId);
     if (!scene || !attempt) throw new CinematicError('cinematic_scene_source_unavailable', 'This Scene source is unavailable.', 404);
@@ -2873,6 +3042,13 @@ export class CinematicApplicationService {
       return { success: true, projectId };
     });
   }
+}
+
+function shotPlanningEnvironmentKey(scene) {
+  const source = scene.environmentReferenceEnabled !== false && scene.approvedEnvironmentSource;
+  return crypto.createHash('sha256').update(JSON.stringify([
+    scene.environmentPrompt || '', source?.assetId || null, source?.contentHash || null
+  ])).digest('hex');
 }
 
 function writingRequest(payload) {

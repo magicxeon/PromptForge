@@ -39,6 +39,8 @@ export default defineConfig({
       "../server/domain/dub-sub/subtitleFonts.js",
       "../server/config/dub-subtitle-fonts.json",
       "../server/config/dub-subtitle-defaults.json",
+        "../server/config/cinematic/story-direction.v1.json",
+        "../server/config/cinematic/story-authoring.v1.json",
       "../server/domain/dub-sub/takePlacement.js",
     ].map(source => fileURLToPath(new URL(source, import.meta.url))) },
     host: "127.0.0.1",

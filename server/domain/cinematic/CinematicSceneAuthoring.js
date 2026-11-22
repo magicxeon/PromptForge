@@ -13,6 +13,10 @@ export function createSceneProposal(input, now = new Date().toISOString()) {
   const scenes = (Array.isArray(input.scenes) ? input.scenes : []).slice(0, input.maximumScenes || 24)
     .map((scene, index) => normalizeOutline(scene, index, allowedCharacterIds));
   if (!scenes.length) fail('cinematic_scenes_invalid', 'At least one complete Scene proposal is required.');
+  const starts=input.scenes.slice(0,scenes.length).map(s=>s.sourceStartParagraph);
+  if (starts[0]===1 && starts.every((n,i)=>Number.isInteger(n) && n<=input.paragraphCount && (!i||n>starts[i-1]))) {
+    scenes.forEach((s,i)=>{s.sourceStartParagraph=starts[i];s.sourceEndParagraph=(starts[i+1]??input.paragraphCount+1)-1;});
+  }
   return {
     id: createPrefixedId('cinesceneproposal'),
     providerProposalId: text(input.providerProposalId, 160),
@@ -28,7 +32,7 @@ export function createSceneProposal(input, now = new Date().toISOString()) {
   };
 }
 
-export function applySceneProposal(project, proposalId, now = new Date().toISOString()) {
+export function applySceneProposal(project, proposalId, now = new Date().toISOString(), reviewedRanges) {
   ensureSceneAuthoring(project);
   const proposal = project.sceneProposals.find(item => item.id === proposalId);
   if (!proposal) fail('cinematic_scene_proposal_not_found', 'Scene proposal not found.', 404);
@@ -39,13 +43,19 @@ export function applySceneProposal(project, proposalId, now = new Date().toISOSt
   }
 
   const existing = [...project.scenes].sort((a, b) => Number(a.orderKey) - Number(b.orderKey));
-  const accepted = proposal.scenes.map((outline, index) => {
-    const current = existing[index];
+  const originals = proposal.scenes;
+  const rows = reviewedRanges === undefined
+    ? originals.map((outline, original) => ({outline, original}))
+    : reviewSourceRanges(project, proposal, reviewedRanges, existing);
+  const accepted = rows.map(({outline,original}, index) => {
+    const current = original===null?null:existing[original];
     if (!current) return sceneFromOutline(outline, index, proposal, now);
     const hasProduction = (current.shots || []).length > 0;
     return {
       ...current,
       ...sceneOutlineFields(outline, index, proposal),
+      sourceStartParagraph: outline.sourceStartParagraph,
+      sourceEndParagraph: outline.sourceEndParagraph,
       id: current.id,
       version: Number(current.version || 1) + 1,
       shots: current.shots || [],
@@ -54,14 +64,67 @@ export function applySceneProposal(project, proposalId, now = new Date().toISOSt
       updatedAt: now
     };
   });
-  for (const retained of existing.slice(proposal.scenes.length)) {
+  for (const retained of existing.slice(originals.length)) {
     accepted.push({ ...retained, orderKey: accepted.length + 1, planningStatus: 'review_required' });
   }
   project.scenes = accepted;
+  proposal.scenes=rows.map(row=>row.outline);
   proposal.status = 'applied';
   proposal.appliedAt = now;
   project.status = 'planning';
   return proposal;
+}
+
+function reviewSourceRanges(project, proposal, ranges, existing) {
+  const originals = proposal.scenes;
+  const revision = project.chapterVersions?.find(item => item.id === proposal.sourceChapterRevisionId);
+  const paragraphs = String(revision?.story || project.chapterStory || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const retainedCount = Math.max(0, existing.length - originals.length);
+  function invalid() { fail('cinematic_scene_range_invalid', 'Review the source paragraph ranges.'); }
+  if (!Array.isArray(ranges) || !ranges.length || ranges.length + retainedCount > 24 || ranges[0]?.start !== 1) invalid();
+
+  let lastOrigin = -1;
+  const used = new Set();
+  const rows = ranges.map((range, index) => {
+    const start = range?.start;
+    const end = (ranges[index + 1]?.start ?? paragraphs.length + 1) - 1;
+    const origins = range?.origins;
+    if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start || end > paragraphs.length) invalid();
+    if (!Array.isArray(origins) || !origins.length || origins.length > originals.length) invalid();
+    for (const [i, origin] of origins.entries()) {
+      if (!Number.isInteger(origin) || !originals[origin]) invalid();
+      if (i ? origin !== lastOrigin + 1 : origin < lastOrigin || origin > lastOrigin + 1) invalid();
+      lastOrigin = origin;
+    }
+    for (const origin of origins.slice(1)) {
+      const scene = existing[origin];
+      if (scene && (scene.shots?.length || scene.approvedEnvironmentSource || project.generationAttempts?.some(a=>a.sceneId===scene.id))) {
+        fail('cinematic_scene_range_in_use', 'A scene in this merge already has production work. Keep it separate.', 409);
+      }
+    }
+    const first = originals[origins[0]];
+    const last = originals[lastOrigin];
+    const repeated = used.has(origins[0]);
+    origins.forEach(origin => used.add(origin));
+    const exact = origins.length === 1 && first.sourceStartParagraph === start && first.sourceEndParagraph === end;
+    const seconds = origins.reduce((total, origin) => {
+      const scene = originals[origin];
+      const overlap = Math.min(end, scene.sourceEndParagraph) - Math.max(start, scene.sourceStartParagraph) + 1;
+      const share = scene.sourceStartParagraph ? Math.max(0, overlap)/(scene.sourceEndParagraph-scene.sourceStartParagraph+1) : 1;
+      return total + scene.targetDurationSeconds * share;
+    }, 0);
+    return {
+      original: repeated ? null : origins[0],
+      outline: {...first, sourceStartParagraph:start, sourceEndParagraph:end,
+        title: repeated ? paragraphs[start-1].slice(0,120) : first.title,
+        synopsis: exact ? first.synopsis : paragraphs.slice(start-1,end).join('\n').slice(0,4000),
+        exitState:last.exitState, emotionalEnd:last.emotionalEnd, transitionIntent:last.transitionIntent,
+        characterIds:[...new Set(origins.flatMap(origin=>originals[origin].characterIds))],
+        targetDurationSeconds:integer(seconds,5,120,15)}
+    };
+  });
+  if (used.size !== originals.length) invalid();
+  return rows;
 }
 
 export function discardSceneProposal(project, proposalId, now = new Date().toISOString()) {
@@ -177,6 +240,7 @@ function sceneFromOutline(outline, index, proposal, now) {
 
 function sceneOutlineFields(outline, index, proposal) {
   return {
+    ...(outline.sourceStartParagraph ? {sourceStartParagraph:outline.sourceStartParagraph,sourceEndParagraph:outline.sourceEndParagraph} : {}),
     orderKey: index + 1,
     title: outline.title,
     purpose: outline.purpose,

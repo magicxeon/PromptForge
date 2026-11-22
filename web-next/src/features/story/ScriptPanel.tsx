@@ -19,7 +19,7 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
 }){
   const {t}=useTranslation("story"),{identityScope}=useActor();
   const [confirm,setConfirm]=useState<"save"|"scenes"|null>(null);
-  const [writingBrief,setWritingBrief]=useState(""),[showBrief,setShowBrief]=useState(false);
+  const [writingBrief,setWritingBrief]=useState(""),[showBrief,setShowBrief]=useState(()=>new URLSearchParams(window.location.search).get("start")==="idea" && !project.chapterStory);
   const [generated,setGenerated]=useState<Awaited<ReturnType<typeof proposeCinematicFullStory>>|null>(null);
   const [expanded,setExpanded]=useState(false),[fileError,setFileError]=useState("");
   const active=owner?.fullStoryVersions.find(v=>v.id===owner.activeFullStoryVersionId);

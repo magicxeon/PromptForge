@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
-import { resolveWritingPreferences } from '../../config/storyWritingSettings.js';
+import { resolveWritingPreferences, briefSuggestionChoices, storySpokenLanguage } from '../../config/storyWritingSettings.js';
+import { planStoryPromptLanguage } from '../cinematic/StoryPromptLanguage.js';
 import { cinematicWorkflowPolicy } from '../../config/cinematicRewampConfiguration.js';
 import { getCinematicStoryEnhancementPolicy } from '../../config/cinematic-story-enhancement-policy.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
@@ -27,6 +28,31 @@ export class CinematicFullStoryService {
         || (providerFactory === createOpenAIProvider ? createShotProvider : providerFactory),
       availabilityPolicy, pricingService
     });
+  }
+
+  async suggestDirection(story, settings) {
+    const limit = cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters;
+    if (typeof story !== 'string' || !story.trim() || story.length > limit) fail('cinematic_chapter_story_required','Supply a script within the authoring limit.');
+    const policy = this.#policy(settings);
+    const result = await this.providerFactory(policy).suggestStoryDirection({
+      story, choices:briefSuggestionChoices, model:policy.model, reasoningEffort:policy.reasoningEffort, timeoutMs:policy.timeoutMs
+    });
+    if (Object.entries(briefSuggestionChoices).some(([key,choices]) => !choices.includes(result?.[key]))) {
+      fail('cinematic_story_direction_invalid','The proposed story direction is incomplete.',502);
+    }
+    return Object.fromEntries(Object.keys(briefSuggestionChoices).map(key => [key,result[key]]));
+  }
+
+  async translateStoryPrompt(text, cues, settings, findings) {
+    const {slots,render} = planStoryPromptLanguage(text,cues,findings);
+    const policy = this.#policy(settings);
+    const spokenLanguage = storySpokenLanguage(settings);
+    const result = await this.providerFactory(policy).translateStoryPrompt({
+      slots, spokenLanguage, model:policy.model, reasoningEffort:policy.reasoningEffort,
+      maxOutputTokens:policy.maxOutputTokens, timeoutMs:policy.longFormTimeoutMs || policy.timeoutMs
+    });
+    return {text:render(result?.translations,spokenLanguage), provenance:{provider:policy.provider,
+      model:policy.model,responseId:result?.responseId || null,usage:normalizeWritingUsage(result?.usage)}};
   }
 
   async propose(input = {}) {
@@ -174,6 +200,7 @@ export class CinematicFullStoryService {
         chapter: {
           title: boundedText(input.chapterTitle, 120),
           story: chapterStory,
+          paragraphStarts: chapterStory.split(/\r?\n/).map(line=>line.trim()).filter(Boolean).map((line,i)=>[i+1,line.slice(0,64)]),
           targetDurationSeconds: Math.max(5, Number(input.targetDurationSeconds) || 60)
         },
         project: {
@@ -212,6 +239,7 @@ export class CinematicFullStoryService {
       Math.max(1, Number(input.maximumShots) || cinematicWorkflowPolicy.authoring.generatedShotMaximumPerScene)
     );
     const result = await this.shotProviderFactory(policy).generateCinematicSceneShots({
+      sceneImage: input.sceneImage,
       context: {
         project: { title: boundedText(input.projectTitle, 120), aspectRatio: boundedText(input.aspectRatio, 20) },
         chapter: { title: boundedText(input.chapterTitle, 120), story: boundedText(input.chapterStory, 10000) },

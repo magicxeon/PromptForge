@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { enhanceCinematicStory, generateCinematicFullStoryChapters, generateCinematicSceneDirection, generateCinematicStoryPlan, proposeCinematicChapterOutline, proposeCinematicFullStory, proposeCinematicSceneEnvironment, suggestCinematicWardrobe } from './cinematicApi';
 import { proposeCinematicChapters, proposeCinematicScenes, proposeCinematicShots } from './cinematicSeriesApi';
 import { createCinematicSetupDraft } from '../state/cinematicDraftStorage';
-import { cinematicProjectSchema, cinematicStoryPlanProposalSchema } from '../schemas/cinematicSchemas';
+import { cinematicProjectSchema, cinematicStoryPlanProposalSchema, mergedStoryWritingResultSchema } from '../schemas/cinematicSchemas';
 import { cinematicSeriesMutationSchema, cinematicSceneProposalMutationSchema, cinematicShotProposalMutationSchema } from '../schemas/cinematicSeriesSchemas';
 
 const client = vi.hoisted(() => ({ request: vi.fn(), quote: vi.fn(), stream: vi.fn() }));
@@ -16,7 +16,7 @@ beforeEach(() => {
 });
 
 describe('Writing API quote coverage', () => {
-  it.each([cinematicProjectSchema, cinematicSeriesMutationSchema, cinematicSceneProposalMutationSchema, cinematicShotProposalMutationSchema])('preserves settlement metadata on writing mutations', schema => {
+  it.each([cinematicProjectSchema, cinematicSeriesMutationSchema, cinematicSceneProposalMutationSchema, cinematicShotProposalMutationSchema, mergedStoryWritingResultSchema])('preserves settlement metadata on writing mutations', schema => {
     const receipt = { billingStatus: 'settlement_pending', writingOperationId: 'cw_one', chargedCredits: 0 };
     expect(z.object({ billingStatus: schema.shape.billingStatus, writingOperationId: schema.shape.writingOperationId,
       chargedCredits: schema.shape.chargedCredits }).parse(receipt)).toEqual(receipt);

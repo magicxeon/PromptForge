@@ -134,16 +134,16 @@ export function createManualShot(project, sceneId, { maximumShots = 20 } = {}, n
 }
 
 export function writeShotPromptOverride(shot, value) {
-  if (value === null) {
-    shot.videoPromptOverride = null;
-    return;
-  }
+  shot.videoPromptOverride = value === null ? null : validatedShotPrompt(value);
+}
+
+export function validatedShotPrompt(value) {
   if (typeof value?.text !== 'string' || !value.text.trim()
     || value.text.length > cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters
     || !/^[a-f0-9]{64}$/.test(value.sourceFingerprint || '')) {
     fail('cinematic_video_prompt_invalid', 'Video Prompt or its source revision is invalid.');
   }
-  shot.videoPromptOverride = { text: value.text, sourceFingerprint: value.sourceFingerprint };
+  return { text: value.text, sourceFingerprint: value.sourceFingerprint };
 }
 
 export function updateShotDocument(project, sceneId, shotId, input, now = new Date().toISOString()) {

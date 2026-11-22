@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { OpenAITextProvider } from '../server/providers/OpenAITextProvider.js';
+import { GeminiCinematicTextProvider } from '../server/providers/GeminiCinematicTextProvider.js';
 import {
   CinematicTextProviderRouter,
   isEligibleFallbackFailure
@@ -16,6 +18,31 @@ function policy(overrides = {}) {
     ...overrides
   };
 }
+
+test('Shot writer supplies verified image as image input on primary and fallback', async () => {
+  const requests=[];
+  const router=new CinematicTextProviderRouter(policy(),{
+    primaryProviderFactory:key=>new OpenAITextProvider(key,{fetchImpl:async (_,options)=>{
+      requests.push(JSON.parse(options.body));
+      return {ok:false,status:429,json:async()=>({error:{message:'private-image-echo'}})};
+    }}),
+    fallbackProviderFactory:key=>new GeminiCinematicTextProvider(key,{fetchImpl:async (_,options)=>{
+      requests.push(JSON.parse(options.body));
+      return {ok:true,json:async()=>({output_text:'{"shots":[]}'})};
+    }})
+  });
+  const sceneImage={mimeType:'image/jpeg',data:Buffer.from('fixture').toString('base64')};
+  const args={context:{scene:{location:'Inn'}},model:'gpt-5.6-terra',maxOutputTokens:500,timeoutMs:1000};
+  await router.generateCinematicSceneShots({...args,sceneImage});
+  assert.deepEqual(requests[0].input[0].content,[
+    {type:'input_text',text:JSON.stringify(args.context)},
+    {type:'input_image',image_url:'data:image/jpeg;base64,'+sceneImage.data}]);
+  assert.deepEqual(requests[1].input,[{type:'text',text:JSON.stringify(args.context)},
+    {type:'image',mime_type:'image/jpeg',data:sceneImage.data}]);
+  await router.generateCinematicSceneShots(args);
+  assert.equal(requests[2].input, JSON.stringify(args.context));
+  assert.ok(requests.every(request=>request.store===false));
+});
 
 test('Cinematic text router keeps Terra when the primary request succeeds', async () => {
   let fallbackCalls = 0;

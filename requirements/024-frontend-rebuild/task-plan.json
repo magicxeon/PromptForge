@@ -3,6 +3,37 @@
   "requirement": "requirements/024-frontend-rebuild/000-master.md",
   "tasks": [
     {
+      "id":"FE24-STORY-MERGE","title":"Compose a scene-owned video prompt from multiple saved shots",
+      "complexity":"complex","reason":"The selection, compiler and saved scene document share ordered shot IDs, clip times and source fingerprints.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root","dependsOn":["FE24-STORY-STAGING"],
+      "capabilities":["cinematic","frontend-experience"],"risks":["shared-contract","user-facing"],
+      "writeScope":["server/domain/cinematic/","web/src/features/cinematic/","web-next/src/features/story/","web-next/src/locales/","web-next/test/","test/","requirements/024-frontend-rebuild/","requirements/099-technical-dept/"],
+      "status":"complete","acceptance":["Selected shots build a single reviewable clip with rebased cues and scene-owned, revision-checked persistence."],
+      "reviewers":["ux-ui-product-designer","qa-release-engineer"],
+      "reviews":[
+        {"role":"ux-ui-product-designer","agentId":"/root/merged_review","result":"passed","reference":"web-next/test/story-authoring-check.mjs"},
+        {"role":"qa-release-engineer","agentId":"/root/merged_review","result":"passed","reference":"test/cinematicFullStory.test.js"}
+      ],
+      "evidence":[{"check":"Selected shots build a single reviewable clip with rebased cues and scene-owned, revision-checked persistence.","result":"passed","reference":"requirements/024-frontend-rebuild/013-story-scene-shot.md"}],
+      "handoff":"Root owns integration and fixture journey. /root/merged_ui owns selection, review, recovery and locale files. /root/merged_compiler owns deterministic composition and compiler checks. QA reviews integrated behavior."
+    },
+    {
+      "id":"FE24-STORY-STAGING","title":"Story direction, scene staging and destination-specific shot delivery",
+      "complexity":"complex","reason":"Cinematic authoring connects project direction, private environment images and shot prompt review.",
+      "owner":"product-requirement-architect","ownerAgentId":"/root","dependsOn":["FE24-STORY-REFERENCES"],
+      "capabilities":["cinematic","frontend-experience","assets","identity"],"risks":["shared-contract","privacy","user-facing"],
+      "writeScope":["web-next/src/features/story/","web-next/src/features/playground/","web/src/features/cinematic/","server/domain/","server/config/","requirements/024-frontend-rebuild/","test/"],
+      "status":"complete","acceptance":["A writer can go from a script to staged scenes, revise source boundaries and prepare still, Flow and Seedance prompt drafts with owner-scoped references."],
+      "reviewers":["ux-ui-product-designer","security-reviewer","qa-release-engineer"],
+      "evidence":[{"check":"A writer can go from a script to staged scenes, revise source boundaries and prepare still, Flow and Seedance prompt drafts with owner-scoped references.","result":"passed","reference":"requirements/024-frontend-rebuild/013-story-scene-shot.md"}],
+      "reviews":[
+        {"role":"ux-ui-product-designer","agentId":"/root/story_layout","result":"passed","reference":"web-next/test/story-authoring-check.mjs"},
+        {"role":"security-reviewer","agentId":"/root/staging_access","result":"passed","reference":"test/cinematicSceneEnvironment.test.js"},
+        {"role":"qa-release-engineer","agentId":"/root/staging_qa","result":"passed","reference":"requirements/024-frontend-rebuild/013-story-scene-shot.md"}
+      ],
+      "handoff":"Root owns project brief, proposals and asset authority. story_layout owns staging, navigation and UX checks. story_delivery owns shot compilation and saved variants. See S1-S7 in requirement 013."
+    },
+    {
       "id":"FE24-STORY-REFERENCES",
       "title":"Connect private Character references and saved Shot prompts",
       "complexity":"complex",

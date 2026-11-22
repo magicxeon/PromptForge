@@ -2,6 +2,27 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { applySceneProposal, createSceneProposal, scenePlanningProjection, updateSceneOutline } from '../server/domain/cinematic/CinematicSceneAuthoring.js';
 
+test('paragraph review splits and merges in the saved revision and protects existing scene media', () => {
+  const proposal = createSceneProposal({sourceChapterRevisionId:'rev',paragraphCount:4,
+    scenes:[{title:'One',sourceStartParagraph:1},{title:'Two',sourceStartParagraph:3}]});
+  const project = {activeChapterVersionId:'rev',chapterVersions:[{id:'rev',story:'A\n\nB\nC\nD'}],
+    scenes:[{id:'one',orderKey:1,shots:[]},{id:'two',orderKey:2,approvedEnvironmentSource:{assetId:'keep'}}],
+    sceneProposals:[proposal]};
+  assert.throws(()=>applySceneProposal(project,proposal.id,undefined,[{start:1,origins:[0,1]}]),{code:'cinematic_scene_range_in_use'});
+  assert.throws(()=>applySceneProposal(project,proposal.id,undefined,[{start:1,origins:[1]}]),{code:'cinematic_scene_range_invalid'});
+  assert.equal(proposal.status,'pending_review');
+  applySceneProposal(project,proposal.id,undefined,[{start:1,origins:[0]},{start:2,origins:[0]},{start:3,origins:[1]}]);
+  assert.deepEqual(project.scenes.map(row=>[row.sourceStartParagraph,row.sourceEndParagraph]),[[1,1],[2,2],[3,4]]);
+  assert.equal(project.scenes[1].synopsis,'B');
+  assert.equal(project.scenes[2].id,'two');
+  const merged=createSceneProposal({sourceChapterRevisionId:'rev',paragraphCount:4,
+    scenes:[{title:'First',sourceStartParagraph:1},{title:'Next',sourceStartParagraph:3}]});
+  project.sceneProposals.push(merged);
+  applySceneProposal(project,merged.id,undefined,[{start:1,origins:[0,1]}]);
+  assert.equal(project.scenes[0].synopsis,'A\nB\nC\nD');
+  assert.equal(project.scenes[1].approvedEnvironmentSource.assetId,'keep');
+});
+
 test('Scene regeneration preserves stable Scene and Shot production evidence', () => {
   const project = {
     activeChapterVersionId: 'chapter-rev-2',

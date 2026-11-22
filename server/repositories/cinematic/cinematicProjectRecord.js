@@ -6,7 +6,7 @@ export function createCinematicProjectRecord(input, actor) {
   const now = new Date().toISOString();
   const id = createPrefixedId('cineproj');
   const storySourceId = createPrefixedId('cinesrc');
-  const { storyPreparation = null, initialFullStory = null, ...setup } = input;
+  const { storyPreparation = null, initialFullStory = null, storyDirection, ...setup } = input;
   const project = normalizeCinematicAuthoringEnvelope({
     id,
     projectId: id,
@@ -22,6 +22,7 @@ export function createCinematicProjectRecord(input, actor) {
     activeStage: initialFullStory ? 'cast' : 'setup',
     status: 'draft',
     setup: structuredClone(setup),
+    ...(storyDirection ? {writingSettings: {modelId:null, skillIds:[], direction:structuredClone(storyDirection)}} : {}),
     storySourceVersions: [{
       id: storySourceId,
       version: 1,

@@ -108,7 +108,7 @@ export function getCinematicAuthoringManifest() {
 }
 
 export function createCinematicProject(
-  draft: CinematicSetupDraft,
+  draft: CinematicSetupDraft & {storyDirection?: CinematicWritingSettings['direction']},
   creationIntent: 'draft' | 'prepare-story' = 'draft',
   storyPreparation?: CinematicStoryPreparationContext,
   storyImport?: { fileName: string; content: string }
@@ -117,6 +117,13 @@ export function createCinematicProject(
     method: 'POST',
     body: { ...draft, creationIntent, ...(storyPreparation ? { storyPreparation } : {}), ...(storyImport ? { storyImport } : {}) },
     schema: cinematicProjectSchema
+  });
+}
+
+export function suggestStoryDirection(projectId:string, expectedVersion:number, script:string) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/proposals`, {
+    method:'POST', body:{expectedVersion,purpose:'story_direction',script},
+    schema:z.object({country:z.string(),period:z.string(),genre:z.string(),tone:z.string()})
   });
 }
 
@@ -402,7 +409,9 @@ export function listCinematicSceneEnvironmentImages(projectId: string, sceneId: 
   const query = new URLSearchParams({ limit: '12', ...(cursor ? { cursor } : {}) });
   return apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/images?${query}`, { schema: cinematicSceneEnvironmentImagesSchema });
 }
-export function approveCinematicSceneEnvironment(projectId: string, sceneId: string, input: { expectedVersion: number; jobId: string; reuse?: boolean }) {
+export function approveCinematicSceneEnvironment(projectId: string, sceneId: string, input: { expectedVersion: number } & (
+  {jobId: string; reuse?: boolean} | {referenceAssetId: string} | {reuseSceneId: string}
+)) {
   return apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/approve`, { method: 'POST', body: input, schema: cinematicProjectSchema });
 }
 

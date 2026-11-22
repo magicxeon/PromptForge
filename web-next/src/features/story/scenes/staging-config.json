@@ -1,0 +1,4 @@
+{
+  "imageTypes": ["image/png", "image/jpeg", "image/webp"],
+  "maximumUploadBytes": 12582912
+}

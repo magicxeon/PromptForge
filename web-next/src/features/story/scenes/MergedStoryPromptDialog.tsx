@@ -1,0 +1,201 @@
+import {useState} from "react";
+import {useQuery} from "@tanstack/react-query";
+import {useTranslation} from "react-i18next";
+import {useBlocker} from "react-router-dom";
+import {X} from "lucide-react";
+import {ProcessingSpinner, useActor} from "../../../lib/canonical";
+import {MediaImage} from "../../../components/media/MediaImage";
+import {Dialog} from "../../dub-sub/Dialog";
+import {storyKeys} from "../data/storyQueryKeys";
+import type {RunWriting} from "../data/useStoryWorkspace";
+import type {CinematicProject, CinematicScene} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
+import {buildMergedStoryPrompt, saveMergedStoryPrompt} from "../../../../../web/src/features/cinematic/api/cinematicSeriesApi";
+import {approveCinematicStoryboardSource, getCinematicProject} from "../../../../../web/src/features/cinematic/api/cinematicApi";
+import {CinematicWritingCancelled} from "../../../../../web/src/features/cinematic/api/cinematicWritingBilling";
+import {OpeningFramePicker} from "./OpeningFramePicker";
+import "./promptTranslations";
+import "./storyPrompt.css";
+
+type Format = "flow" | "seedance";
+type Packet = Awaited<ReturnType<typeof buildMergedStoryPrompt>>;
+
+export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplate, run, error, close}: {
+  project: CinematicProject; scene: CinematicScene; shotIds: string[]; initialTemplate: Format;
+  run: RunWriting; error: string; close: () => void;
+}) {
+  const {t} = useTranslation("storyPrompt");
+  const {t: story} = useTranslation("story");
+  const {identityScope} = useActor();
+  const [template, setTemplate] = useState(initialTemplate);
+  const saved = scene.mergedPrompts?.find(prompt => prompt.template === template && prompt.shots.length === shotIds.length
+    && prompt.shots.every(shot => shotIds.includes(shot.id)));
+  const review = useQuery({queryKey: storyKeys.project(identityScope, project.id), queryFn: () => getCinematicProject(project.id),
+    enabled: Boolean(saved), refetchOnMount: "always", refetchOnWindowFocus: false});
+  const [built, setBuilt] = useState<Packet>();
+  const [edit, setEdit] = useState<string>();
+  const [baseText, setBaseText] = useState<string | null>();
+  const [saveConflict, setSaveConflict] = useState(false);
+  const [operation, setOperation] = useState<"build" | "frame" | "save">();
+  const [picker, setPicker] = useState(false);
+  const [copyState, setCopyState] = useState<"copied" | "copyFailed">();
+  const [failedBuild, setFailedBuild] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [discardAction, setDiscardAction] = useState<(() => void) | null>(null);
+  const packet = built ?? saved;
+  const text = edit ?? packet?.text ?? "";
+  const limit = packet?.maximumPromptCharacters;
+  const excess = limit === undefined ? 0 : Math.max(0, text.length - limit);
+  const dirty = Boolean(packet && (text !== saved?.text || packet.sourceFingerprint !== saved?.sourceFingerprint));
+  const blocker = useBlocker(dirty || Boolean(operation));
+  const selected = scene.shots.filter(shot => shotIds.includes(shot.id)).sort((a, b) => a.orderKey - b.orderKey);
+  let duration = 0;
+  const timeline = packet?.shots ?? selected.map(shot => {
+    const startMs = duration;
+    duration += shot.durationMs;
+    return {id: shot.id, title: shot.title, startMs, endMs: duration};
+  });
+  const first = selected[0];
+  const missing = selected.length !== shotIds.length;
+  const needsFrame = template === "flow" && !first?.approvedStoryboardSource;
+  const outdated = packet?.shots.filter(shot => !selected.some(current => current.id === shot.id)
+    || (built && selected.find(current => current.id === shot.id)?.version !== shot.version)
+    || (packet.sourceFingerprint === saved?.sourceFingerprint && saved.outdatedShotIds.includes(shot.id))) ?? [];
+  const checking = Boolean(saved && review.isFetching);
+  const reviewError = saved && review.isError;
+  const busy = Boolean(operation);
+  const changedElsewhere = saveConflict || (baseText !== undefined && baseText !== (saved?.text ?? null));
+
+  function confirmDiscard(action: () => void, confirm = dirty) {
+    if (busy) return;
+    if (confirm) setDiscardAction(() => action);
+    else action();
+  }
+  function changeTemplate(next: Format) {
+    setTemplate(next);
+    setBuilt(undefined);
+    setEdit(undefined);
+    setBaseText(undefined);
+    setSaveConflict(false);
+    setFailedBuild(false);
+    setShowError(false);
+    setCopyState(undefined);
+  }
+  async function build() {
+    if (busy || missing || needsFrame) return;
+    setOperation("build");
+    setShowError(true);
+    setFailedBuild(false);
+    setCopyState(undefined);
+    try {
+      await run(async () => {
+        try {
+          const result = await buildMergedStoryPrompt(project.id, scene.id, selected.map(shot => shot.id), project.version, template);
+          setBaseText(previous => previous === undefined ? saved?.text ?? null : previous);
+          setBuilt(result);
+          setEdit(undefined);
+        } catch (cause) {
+          if (!(cause instanceof CinematicWritingCancelled)) setFailedBuild(true);
+          throw cause;
+        }
+      });
+    } finally { setOperation(undefined); }
+  }
+  async function save() {
+    if (busy || !packet || !text.trim() || excess || outdated.length || missing || checking || reviewError || changedElsewhere) return;
+    setOperation("save");
+    setShowError(true);
+    try {
+      await run(async () => {
+        try {
+          const result = await saveMergedStoryPrompt(project.id, scene.id, project.version, {
+            shotIds: packet.shots.map(shot => shot.id), template, text, sourceFingerprint: packet.sourceFingerprint,
+            expectedSavedText: baseText === undefined ? saved?.text ?? null : baseText
+          });
+          close();
+          return result;
+        } catch (cause) {
+          if ((cause as {code?: string})?.code === "cinematic_merged_prompt_changed") setSaveConflict(true);
+          throw cause;
+        }
+      });
+    } finally { setOperation(undefined); }
+  }
+  async function chooseFrame(jobId: string) {
+    if (busy || !first) return;
+    setOperation("frame");
+    setShowError(true);
+    try {
+      await run(async () => {
+        await approveCinematicStoryboardSource(project.id, first.id, {expectedVersion: project.version,
+          expectedShotVersion: first.version, idempotencyKey: crypto.randomUUID(), jobId});
+        const updated = await getCinematicProject(project.id);
+        setPicker(false);
+        return {project: updated};
+      });
+    } finally { setOperation(undefined); }
+  }
+  function keepEditing() {
+    setDiscardAction(null);
+    blocker.reset?.();
+  }
+  return <Dialog label={t("merge.title")} onClose={() => confirmDiscard(close)}>
+    <div className="story-dialog story-merged-dialog">
+      <header className="story-prompt-heading"><h2>{t("merge.title")}</h2>
+        <button type="button" disabled={busy} aria-label={story("close")} onClick={() => confirmDiscard(close)}><X size={20} aria-hidden/></button>
+      </header>
+      <div className="story-prompt-formats" role="group" aria-label={t("destination")}>
+        {(["flow", "seedance"] as const).map(format => <button key={format} aria-pressed={template === format} disabled={busy}
+          onClick={() => {if (format !== template) confirmDiscard(() => changeTemplate(format));}}>{t(format)}</button>)}
+      </div>
+      <section>
+        <h3>{t("merge.timeline")} · {story("seconds", {n: (timeline.at(-1)?.endMs ?? 0) / 1000})}</h3>
+        <ol className="story-merge-timeline">{timeline.map(shot => <li key={shot.id}>
+          <strong>{shot.title}</strong> <span>{t("merge.range", {start: shot.startMs / 1000, end: shot.endMs / 1000})}</span>
+        </li>)}</ol>
+      </section>
+      {needsFrame && !missing && <div><p>{t("merge.needFrame", {name: first.title})}</p>
+        <button disabled={busy} onClick={() => setPicker(true)}>{t("chooseFrame")}</button></div>}
+      {outdated.length > 0 && <p role="status">{t("merge.changed", {shots: outdated.map(shot => shot.title).join(", ")})}</p>}
+      {changedElsewhere && <p role="alert">{t("merge.saveConflict")}</p>}
+      {missing && <p role="alert">{t("merge.missing")}</p>}
+      {!!packet?.references.length && <section><h3>{t("attachments")}</h3>
+        <ol className="story-prompt-references">{packet.references.map(ref => <li key={ref.number} value={ref.number}>
+          <MediaImage src={ref.imageUrl} alt=""/>{t(ref.role)} · {ref.name}</li>)}</ol></section>}
+      {packet && <label>{story("promptText")}<textarea rows={10} value={text} readOnly={busy || !!outdated.length || missing || changedElsewhere}
+        aria-invalid={excess > 0 || undefined} aria-describedby={excess ? "merge-text-limit" : undefined}
+        onChange={event => {
+          if (baseText === undefined) setBaseText(saved?.text ?? null);
+          setEdit(event.target.value);
+          setCopyState(undefined);
+        }}/></label>}
+      {excess > 0 && <p id="merge-text-limit" role="status">{t("merge.tooLong", {length:text.length, limit, excess})}</p>}
+      {operation && <p role="status"><ProcessingSpinner/> {t("merge." + operation + "Busy")}</p>}
+      {reviewError && <p role="alert">{review.error.message} <button disabled={busy || checking} onClick={() => void review.refetch()}>{t("retry")}</button></p>}
+      {showError && error && !changedElsewhere && <p role="alert">{error}</p>}
+      {copyState === "copyFailed" && <p role="status">{t(copyState)}</p>}
+      <footer className="story-actions">
+        <button className={packet ? undefined : "primary"} disabled={busy || missing || needsFrame || checking || changedElsewhere}
+          onClick={() => confirmDiscard(() => void build(), edit !== undefined && edit !== packet?.text)}>
+          {failedBuild ? t("retry") : t(packet ? "merge.rebuild" : "merge.create")}
+        </button>
+        {packet && <>
+          <button disabled={!text.trim()} onClick={async () => {
+            try { await navigator.clipboard.writeText(text); setCopyState("copied"); }
+            catch { setCopyState("copyFailed"); }
+          }}>{t(copyState === "copied" ? "copied" : "copy")}</button>
+          <button className="primary" disabled={busy || !text.trim() || excess > 0 || !!outdated.length || missing || checking || !!reviewError || changedElsewhere || !dirty}
+            onClick={() => void save()}>{story("savePrompt")}</button>
+        </>}
+      </footer>
+    </div>
+    {picker && <OpeningFramePicker pending={busy} error={showError ? error : ""} choose={id => void chooseFrame(id)} close={() => setPicker(false)}/>}
+    {(discardAction || blocker.state === "blocked") && <Dialog label={story("unsaved")} onClose={keepEditing}>
+      <h2>{busy ? story("processing") : story("unsaved")}</h2>
+      <footer className="story-actions"><button onClick={keepEditing}>{story("keepEditing")}</button>
+        <button disabled={busy} onClick={() => {
+          if (blocker.state === "blocked") blocker.proceed();
+          else { setDiscardAction(null); discardAction?.(); }
+        }}>{story("discardDraft")}</button></footer>
+    </Dialog>}
+  </Dialog>;
+}

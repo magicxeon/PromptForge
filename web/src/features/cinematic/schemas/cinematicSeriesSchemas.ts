@@ -9,11 +9,20 @@ export const cinematicPortableShotSchema = z.object({
     purpose: z.string(), source: z.string(), imageUrl: z.string().min(1) })).max(25)
 });
 
+export const cinematicStoryPromptStatusSchema = z.object({outdated:z.array(z.object({
+  shotId:z.string(), templates:z.array(z.enum(['still','flow','seedance']))
+}))});
+
 export const cinematicShotWriterPreparationSchema = z.object({
   shotDocument: z.string(), sourceFingerprint: z.string(), generatedPrompt: z.string(),
   projectVideoDirection: z.string().optional(),
   overrideStale: z.boolean(), maximumPromptCharacters: z.number().int().positive(),
   storyPrompt: z.string().optional(),
+  storyPacket: z.object({
+    kind: z.enum(['still','flow','seedance']), text: z.string(), sourceFingerprint: z.string(), ready: z.boolean(),
+    references: z.array(z.object({number: z.number().int().positive(), role: z.enum(['opening','location','character']),
+      name: z.string(), assetId: z.string(), imageUrl: z.string()}))
+  }).optional(),
   dialogue: z.object({
     cues: z.array(z.object({ speakerCastAssignmentId: z.string(), offscreenVoiceRole: z.string(), text: z.string(),
       delivery: z.string(), startOffsetMs: z.number(), estimatedDurationMs: z.number(), speakerVisible: z.boolean() })),

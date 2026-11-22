@@ -4,9 +4,15 @@
 
 Web-next story authoring is owned by `web-next/src/features/story/` at `/story` and `/story/:id`. It uses Cinematic's existing identity-aware project, series, revision, proposal and writing-quote clients. The Cinematic project library supplies saved scene and shot counts. Display settings belong to `web-next/src/features/story/story-config.json`. See [Story & Shots](../024-frontend-rebuild/013-story-scene-shot.md).
 
-Within that feature, `StoryStudio.tsx` owns the project library and loads `StoryEditor.tsx` when a project opens. The `data/` directory owns actor-scoped query keys and writing-result updates. The `scenes/` directory owns the shot list and the scene/shot editing dialog.
+Within that feature, `StoryStudio.tsx` owns the project library and loads `StoryEditor.tsx` when a project opens. The `data/` directory owns actor-scoped query keys and writing-result updates. The `scenes/` directory owns paragraph review, scene staging, the shot list and prompt dialogs. [Story direction](../../server/config/cinematic/story-direction.v1.json) holds genres, formats, ratios and destinations. Cinematic stores shared direction in the root project's writing settings, paragraph ranges on scenes and reviewed prompt variants on shots.
+
+[Story prompt templates](../../server/config/cinematic/story-shot-templates.v1.json) feed the [Cinematic shot compiler](../../server/domain/cinematic/CinematicStoryPromptPacket.js). Cinematic checks saved variants through the per-scene `story-prompt-status` read. Reference Assets own private uploaded scene images and the Cinematic storyboard asset service verifies file ownership and content for visual shot planning. Image Playground returns a selected result to a specific scene or shot through its existing image workflow.
 
 Story character management lives in `web-next/src/features/story/characters/`. The Cinematic shared dossier stores the owned reference Asset ID and its guarded media URL. The existing Asset upload and delivery services own the image file. Cinematic Shot Writer preparation provides the Story prompt draft and the existing Shot document mutation stores the reviewed prompt. The app loads the Comparison and Video route modules when their routes open.
+
+The Story direction catalog also owns the spoken-language selector. Explicit prompt builds use the existing Cinematic shots writing operation and the selected project writer. [Story prompt language](../../server/domain/cinematic/StoryPromptLanguage.js) separates dialogue from English directions and reassembles the template. Opening an existing draft uses read-only writer preparation.
+
+[Merged video prompts](../../server/domain/cinematic/CinematicMergedStoryPrompt.js) combine selected shots of one scene on a millisecond timeline. The existing shots writing operation builds and translates one packet. The existing scene PATCH saves the reviewed text and its ordered source snapshots under `scene.mergedPrompts` in the Cinematic project repository. The project read identifies changed or removed source shots.
 
 This directory tracks refactoring tasks, technical debt payments, and modularization requirements designed to keep the codebase maintainable, performant, and clean.
 

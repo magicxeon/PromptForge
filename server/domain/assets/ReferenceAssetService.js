@@ -165,7 +165,9 @@ export class ReferenceAssetService {
         metadata: {
           ...metadata,
           role,
-          sourceMode: String(sourceMode || 'upload')
+          sourceMode: String(sourceMode || 'upload'),
+          ...(sourceMode === 'story-scene' && role === 'style_reference'
+            ? {contentHash:crypto.createHash('sha256').update(buffer).digest('hex')} : {})
         }
       }, actorContext);
     } catch (error) {

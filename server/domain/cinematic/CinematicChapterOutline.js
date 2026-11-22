@@ -1,14 +1,15 @@
 import crypto from 'node:crypto';
 import { cinematicWorkflowPolicy } from '../../config/cinematicRewampConfiguration.js';
 
-export function chapterOutlineSettings(setup) {
-  return { format: setup.format, durationSeconds: setup.durationSeconds,
+export function chapterOutlineSettings(setup,direction) {
+  return { format: setup.format, durationSeconds: direction?.targetSeconds ?? setup.durationSeconds,
+    ...(direction ? {storyFormat:direction.format} : {}),
     seasonEnabled: Boolean(setup.seasonEnabled), seasonCount: setup.seasonEnabled ? setup.seasonCount : 1 };
 }
 
 export function chapterOutlineSourceKey(project) {
   return crypto.createHash('sha256').update(JSON.stringify({ revision: project.confirmedFullStoryVersionId,
-    settings: chapterOutlineSettings(project.setup) })).digest('hex');
+    settings: chapterOutlineSettings(project.setup,project.writingSettings?.direction) })).digest('hex');
 }
 
 export function normalizeChapterOutlineRows(rows, setup) {

@@ -1,0 +1,24 @@
+{
+  "still": {
+    "sections": ["SCENE", "SUBJECT", "CAMERA", "LIGHT", "MATERIAL AND CONTACT", "PRESERVE", "AVOID"],
+    "opening": "Create one photographic first frame. Compose the instant before the opening action.",
+    "material": "Show the weight and contact of visible objects. Match highlights and contact shadows to the actual light sources.",
+    "avoid": "Avoid duplicated props, mismatched perspective and unreadable silhouettes."
+  },
+  "video": {
+    "sections": ["PRESERVE EXACTLY", "CHARACTER IDENTIFICATION", "SCENE", "CAMERA", "ACTION TIMELINE", "PERFORMANCE", "VOICE", "AUDIO", "LIGHTING", "ENVIRONMENT MOVEMENT", "NEGATIVE"],
+    "preserve": "Preserve spatial relationships, fixed landmarks, wardrobe, prop contact and screen direction.",
+    "performance": "Give the listener a visible response to the action or the key spoken phrase.",
+    "environmentMovement": "Keep fixed landmarks steady. Limit background movement to physical responses motivated by the scene.",
+    "negative": "Avoid reversed eyelines, an early reaction and duplicated props. No subtitles or interface elements."
+  },
+  "flow": {
+    "opening": "Use the supplied image as the EXACT opening frame.",
+    "camera": "One continuous take."
+  },
+  "seedance": {
+    "withFrame": "Use Reference 1 as the exact opening frame.",
+    "withoutFrame": "Compose a new opening view from the starting state.",
+    "referenceNote": "Follow each supplied reference only for its assigned role."
+  }
+}

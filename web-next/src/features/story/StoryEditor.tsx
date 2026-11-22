@@ -10,7 +10,8 @@ import {ScenePanel} from "./scenes/ScenePanel";
 import {ProposalReview} from "./ProposalReview";
 import {FullStoryPlan} from "./FullStoryPlan";
 import {WritingSettings} from "./WritingSettings";
-import {BookOpen,Clapperboard,Layers,NotebookPen,ChevronRight,Plus,PenLine} from "lucide-react";
+import {BookOpen,Clapperboard,Layers,NotebookPen,ChevronRight,Plus,PenLine,MapPin} from "lucide-react";
+import "./scenes/stagingTranslations";
 import {Dialog} from "../dub-sub/Dialog";
 import {StoryCharacters} from "./characters/StoryCharacters";
 
@@ -29,9 +30,9 @@ function ProjectWorkspace({id}:{id:string}) {
   const {query,chapters,manifest,storyRoot,fullStoryOwner,busy,activity,error,setError,run}=useStoryWorkspace(id);
   const project=query.data;
   const owner=fullStoryOwner===id?project:storyRoot.data;
-  function selectScene(sceneId?:string) {
+  function selectScene(sceneId?:string, stage = "staging") {
     if(sceneId)lastScene.current=sceneId;
-    setParams(sceneId?{scene:sceneId}:{});
+    setParams(sceneId?{scene:sceneId,step:stage}:{});
     setDrawer(false);setReview(null);setError("");
   }
   if(!project)return <main className="story-workspace"><Link to="/story">{t("projects")}</Link>
@@ -39,11 +40,11 @@ function ProjectWorkspace({id}:{id:string}) {
   const scenes=[...project.scenes].sort((a,b)=>a.orderKey-b.orderKey);
   const scene=scenes.find(s=>s.id===params.get("scene"));
   const selectedStep = params.get("step");
-  const step=scene?"shots":selectedStep==="scenes"?"scenes":selectedStep==="chapters"?"chapters":selectedStep==="characters"?"characters":"script";
+  const step=scene?(selectedStep==="shots"?"shots":"staging"):selectedStep==="scenes"?"scenes":selectedStep==="chapters"?"chapters":selectedStep==="characters"?"characters":"script";
   const fullPath=full||step==="chapters"||!!project.chapterOrigin||!!owner?.activeFullStoryVersionId;
   function goStage(stage:string) {
     if(scene)lastScene.current=scene.id;
-    if(stage==="shots"){selectScene(scenes.find(s=>s.id===lastScene.current)?.id||scenes[0]?.id);return;}
+    if(stage==="shots"||stage==="staging"){selectScene(scenes.find(s=>s.id===lastScene.current)?.id||scenes[0]?.id,stage);return;}
     if(step==="chapters"&&stage==="script")setFull(true);
     setParams(stage==="script"?{}:{step:stage});
     setReview(null);setDrawer(false);setError("");
@@ -78,17 +79,18 @@ function ProjectWorkspace({id}:{id:string}) {
     {key:"script",label:"script",icon:NotebookPen,available:true},
     ...(fullPath?[{key:"chapters",label:"planStage",icon:BookOpen,available:!!owner?.activeFullStoryVersionId}]:[]),
     {key:"scenes",label:"scenes",icon:Layers,available:true},
+    {key:"staging",label:"stage.setup",icon:MapPin,available:scenes.length>0},
     {key:"shots",label:"shotsStage",icon:Clapperboard,available:scenes.length>0},
   ];
   const guide=step==="characters"?"guideCharacters":step==="chapters"?"guidePlan":step==="scenes"?(scenes.length?"guidePickScene":"guideNoScenes"):
-    step==="shots"?(scene?.shots.length?"guideEditShot":"guideMakeShots"):
+    step==="staging"?"stage.guide":step==="shots"?(scene?.shots.length?"guideEditShot":"guideMakeShots"):
     full?(owner?.activeFullStoryVersionId?"guideReadyPlan":"guideFull"):(project.activeChapterVersionId?"guideReadyScenes":"guideScript");
   return <main className="story-workspace">
     <header className="story-bar"><div><Link to="/story">‹ {t("projects")}</Link><h1>{chapters.data?.productionProject.title || project.title}</h1></div>
       <div className="story-actions">
-      {chapters.data && chapters.data.chapters.length>1 && <label>{t("chapter")}<select disabled={busy} value={id}
+      {chapters.data && chapters.data.chapters.length>1 && <label>{t(owner?.writingSettings?.direction?.format==="series"?"brief.episode":owner?.writingSettings?.direction?.format==="feature"?"brief.chapter":"chapter")}<select disabled={busy} value={id}
         onChange={e=>navigate("/story/"+encodeURIComponent(e.target.value))}>{chapters.data.chapters.map(c=><option key={c.projectId} value={c.projectId}>{c.title}</option>)}</select></label>}
-      {chapters.data&&owner&&manifest.data?.writingSettings&&<WritingSettings project={owner} catalog={manifest.data.writingSettings} disabled={busy}/>}
+      {chapters.data&&owner&&manifest.data?.writingSettings&&<WritingSettings project={owner} sourceScript={full?owner.fullStoryVersions.find(v=>v.id===owner.activeFullStoryVersionId)?.content:project.chapterStory} catalog={manifest.data.writingSettings} disabled={busy}/>}
       {owner&&<button type="button" aria-pressed={step==="characters"} disabled={busy}
         onClick={()=>goStage(step==="characters"?"script":"characters")}>{t("characters")}</button>}
       </div>
@@ -118,6 +120,9 @@ function ProjectWorkspace({id}:{id:string}) {
       {step!=="scenes"&&<section className="story-reader">
         {step==="characters" ? owner && <StoryCharacters project={project} owner={owner} run={run} error={error}/>
         :scene?<ScenePanel key={scene.id} project={project} scene={scene} index={scenes.indexOf(scene)+1} run={run} error={error}
+          stage={step==="shots"?"shots":"staging"} showStage={stage=>selectScene(scene.id,stage)}
+          aspectRatio={owner?.writingSettings?.direction?.aspectRatio??project.aspectRatio}
+          mergeTemplate={owner?.writingSettings?.direction?.destination === "flow" ? "flow" : "seedance"}
           back={()=>goStage("scenes")} requestShots={requestShots} pending={!!shotProposal}
           shotLimit={workflow?.authoring.shotDocumentMaximumCharacters}
           skills={skillLabels}/>
@@ -139,6 +144,6 @@ function ProjectWorkspace({id}:{id:string}) {
     {review==="scene"&&sceneProposal && <ProposalReview key={sceneProposal.id} project={project} proposal={sceneProposal} busy={busy} error={error} run={run}
       close={()=>setReview(null)} onApplied={()=>goStage("scenes")}/>}
     {review==="shot"&&shotProposal&&scene && <ProposalReview key={shotProposal.id} project={project} proposal={shotProposal} scene={scene}
-      busy={busy} error={error} run={run} close={()=>setReview(null)} onApplied={()=>setReview(null)}/>}
+      busy={busy} error={error} run={run} close={()=>setReview(null)} onApplied={()=>selectScene(scene.id,"shots")}/>}
   </main>;
 }

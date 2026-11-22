@@ -71,6 +71,12 @@ dialog:has(.story-ai-settings) {width:min(34rem,calc(100vw - 1.5rem));max-height
 .story-skill-list label:has(:checked) {border-color:#86ac93;background:#f0f6f1;}
 .story-skill-list input {width:1rem;height:1rem;min-height:0;margin:.2rem 0 0;flex-shrink:0;}
 .story-ai-settings footer {display:flex;justify-content:flex-end;gap:.5rem;}
+.story-brief-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr));gap:.75rem;margin:.8rem 0;}
+.story-brief-grid label,.story-range-tools label {display:grid;align-content:start;gap:.35rem;min-width:0;}
+.story-brief-grid select,.story-brief-grid input {min-width:0;width:100%;box-sizing:border-box;}
+dialog:has(.story-create .story-brief-grid) {width:min(40rem,calc(100vw - 1.5rem));max-height:90dvh;overflow:auto;}
+.story-range-tools {display:flex;gap:.65rem;align-items:end;flex-wrap:wrap;margin:.6rem 0;}
+.story-range-review details {border-inline-start:2px solid #a2bbac;padding-inline-start:.8rem;}
 .story-library .story-projects a {border-inline-start:4px solid #83a08d;}
 .story-layout .story-index {background:#f8faf7;}
 .story-index button {padding:.55rem .7rem;}

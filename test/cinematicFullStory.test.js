@@ -74,6 +74,43 @@ async function fixture(t, serviceOverrides = {}) {
   return { service, project, repository };
 }
 
+test('merged prompts are scene-owned and saved separately with stale and concurrent edit checks', async t => {
+  let translations = 0;
+  const {service, project, repository} = await fixture(t,{fullStoryService:{
+    translateStoryPrompt:async text => { translations++; return {text,provenance:{provider:'fixture'}}; }
+  }});
+  const {scene,project:initial} = await service.createManualScene(project.id,{expectedVersion:project.version,idempotencyKey:'merge-scene'},actor);
+  const first = await service.createManualShot(project.id,scene.id,{expectedVersion:initial.version,idempotencyKey:'merge-first'},actor);
+  const second = await service.createManualShot(project.id,scene.id,{expectedVersion:first.project.version,idempotencyKey:'merge-second'},actor);
+  const shots = second.scene.shots;
+  const input = {purpose:'merge_shot_prompt',template:'seedance',shotIds:[second.shot.id,first.shot.id],expectedVersion:second.project.version};
+  const built = await service.proposeShots(project.id,scene.id,input,actor);
+  assert.equal(translations,1);
+  assert.deepEqual(built.shots.map(s=>s.id),shots.map(s=>s.id));
+  const mergedPrompt = {shotIds:input.shotIds,template:input.template,text:built.text+'\nHold the final frame.',sourceFingerprint:built.sourceFingerprint,expectedSavedText:null};
+  const command = {expectedVersion:input.expectedVersion,mergedPrompt};
+  const saved = await service.updateSceneOutline(project.id,scene.id,command,actor);
+  assert.deepEqual(saved.scene.shots,shots);
+  assert.deepEqual(saved.scene.mergedPrompts[0].outdatedShotIds,[]);
+  await assert.rejects(service.updateSceneOutline(project.id,scene.id,command,actor),{code:'cinematic_version_conflict'});
+  const revised = await service.updateSceneOutline(project.id,scene.id,{expectedVersion:saved.project.version,
+    mergedPrompt:{...mergedPrompt,expectedSavedText:mergedPrompt.text,text:'Reviewed prompt'}},actor);
+  assert.equal(revised.scene.mergedPrompts.length,1);
+  await assert.rejects(service.updateSceneOutline(project.id,scene.id,{expectedVersion:revised.project.version,
+    mergedPrompt:{...mergedPrompt,expectedSavedText:mergedPrompt.text,text:'From another tab'}},actor),{code:'cinematic_merged_prompt_changed'});
+  await repository.mutateForActor(project.id,actor,p=>{
+    const changed = p.scenes.find(s=>s.id===scene.id).shots[1];
+    changed.title='A new ending'; changed.shotDocument+='\nA lantern goes dark.'; changed.version++; p.version++;
+  });
+  const reloaded=await service.getProject(project.id,actor);
+  const stored=reloaded.scenes.find(s=>s.id===scene.id).mergedPrompts[0];
+  assert.equal(stored.text,'Reviewed prompt');
+  assert.deepEqual(stored.outdatedShotIds,[second.shot.id]);
+  await assert.rejects(service.updateSceneOutline(project.id,scene.id,{expectedVersion:reloaded.version,mergedPrompt},actor),
+    {code:'cinematic_video_prompt_source_changed'});
+  assert.equal(translations,1,'opening or saving a merged text never dispatches writing');
+});
+
 test('Authoring continuity revises only the selected Chapter and preserves its Season and production', async t => {
   const { service, project, repository } = await fixture(t);
   const saved = await service.saveFullStoryRevision(project.id, { expectedVersion: project.version, content: 'A complete story of a storm and a promise.', source: 'manual' }, actor);
@@ -321,6 +358,96 @@ test('saving only a Story prompt preserves legacy shot duration, storyboard and 
   await assert.rejects(() => service.updateShotDocument(project.id, scene.scene.id, manual.shot.id, {
     ...input, expectedVersion: saved.project.version
   }, actor), /changed/i);
+});
+
+test('Story prompt variants survive a reload independently and only save against matching sources', async t => {
+  const { service, project, repository } = await fixture(t);
+  const scene = await service.createManualScene(project.id, { expectedVersion: project.version, idempotencyKey: 'template-scene' }, actor);
+  const manual = await service.createManualShot(project.id, scene.scene.id, { expectedVersion: scene.project.version, idempotencyKey: 'template-shot' }, actor);
+  const ids = [project.id, scene.scene.id, manual.shot.id];
+  const packet = async template => (await service.prepareShotWriter(...ids, actor, {storyPrompt:true, template})).storyPacket;
+  const still = await packet('still');
+  const seedance = await packet('seedance');
+  const flow = await packet('flow');
+  assert.equal(still.ready, true);
+  assert.equal(seedance.ready, true);
+  assert.equal(flow.ready, false);
+  assert.match(still.text, /photographic first frame/);
+  assert.doesNotMatch(still.text, /ACTION TIMELINE/);
+  assert.match(seedance.text, /\[ACTION TIMELINE\]/);
+  const save = (result, source, text) => service.updateShotDocument(...ids, {
+    expectedVersion:result.project.version, expectedShotVersion:result.shot.version, promptOnly:true,
+    storyTemplate:source.kind, storyPrompt:{text, sourceFingerprint:source.sourceFingerprint}
+  }, actor);
+  await assert.rejects(() => save(manual, flow, 'missing frame'), {code:'cinematic_video_prompt_source_changed'});
+  const first = await save(manual, still, 'Keep the paper grain.');
+  const second = await save(first, seedance, 'Follow the actor.');
+  const reloaded = (await service.getProject(project.id, actor)).scenes[0].shots[0];
+  assert.equal(reloaded.storyPromptVariants.still.text, 'Keep the paper grain.');
+  assert.equal(reloaded.storyPromptVariants.seedance.text, 'Follow the actor.');
+  assert.ok(!reloaded.videoPromptOverride);
+  assert.deepEqual(await service.storyPromptStatus(project.id, scene.scene.id, actor), {outdated:[]});
+  await repository.mutateForActor(project.id, actor, record => {
+    record.scenes[0].location = 'Harbour';
+    return record;
+  });
+  await assert.rejects(() => save(second, still, 'Obsolete draft.'), {code:'cinematic_video_prompt_source_changed'});
+  assert.deepEqual(await service.storyPromptStatus(project.id, scene.scene.id, actor), {
+    outdated:[{shotId:manual.shot.id, templates:['still', 'seedance']}]
+  });
+  await repository.mutateForActor(project.id, actor, record => {
+    record.scenes[0].approvedEnvironmentSource = {assetId:'harbour-image', imageUrl:'/example/harbour.png'};
+    record.scenes[0].shots[0].approvedStoryboardSource = {assetId:'opening-image', imageUrl:'/example/opening.png'};
+    return record;
+  });
+  const framed = await packet('flow');
+  assert.equal(framed.ready,true);
+  assert.deepEqual(framed.references.map(({number,role,assetId})=>[number,role,assetId]),
+    [[1,'opening','opening-image'], [2,'location','harbour-image']]);
+  assert.equal((framed.text.match(/^\[(?!WRITING DIRECTION\])[A-Z ]+\]$/gm)||[]).length,11);
+  assert.doesNotMatch(framed.text, /\[REFERENCE NOTE\]/);
+  assert.deepEqual((await packet('still')).references.map(ref=>ref.role),['location']);
+});
+
+test('Shot proposal uses only the enabled saved scene looksheet and resolves it before dispatch', async t => {
+  const {service,project,repository} = await fixture(t);
+  const created = await service.createManualScene(project.id,{expectedVersion:project.version,idempotencyKey:'visual-scene'},actor);
+  const binding = {assetId:'fixture',contentHash:'f'.repeat(64)};
+  const image = {mimeType:'image/jpeg',data:'cGhvdG8='};
+  const inputs=[];
+  let resolves=0,dispatches=0;
+  const original = service.fullStoryService.proposeShots;
+  service.fullStoryService.proposeShots=async input=>{ inputs.push(input.sceneImage); return original(input); };
+  service.storyboardAssetService={async sceneImageForShotPlanning(source, requester){
+    assert.deepEqual(source,binding);
+    assert.equal(requester,actor);
+    resolves++;
+    return image;
+  }};
+  for(const [source,enabled] of [[null,true],[binding,false],[binding,true]]) {
+    const updated = await repository.mutateForActor(project.id,actor,current=>{
+      current.scenes[0].approvedEnvironmentSource=source;
+      current.scenes[0].environmentReferenceEnabled=enabled;
+      current.shotProposals=[];
+      return current;
+    });
+    await service.proposeShots(project.id,created.scene.id,{
+      expectedVersion:updated.version,sceneImage:{data:'client-supplied'}},actor,{beforeDispatch:()=>dispatches++});
+  }
+  assert.deepEqual(inputs,[undefined,undefined,image]);
+  assert.equal(resolves,1);
+  const toggled = await repository.mutateForActor(project.id,actor,current=>{
+    current.scenes[0].environmentReferenceEnabled=false;
+    return current;
+  });
+  await assert.rejects(service.applyShotProposal(project.id,created.scene.id,toggled.shotProposals[0].id,
+    {expectedVersion:toggled.version},actor),{code:'cinematic_shot_proposal_stale'});
+  const current = await repository.mutateForActor(project.id,actor,value=>{value.shotProposals=[];return value;});
+  await repository.mutateForActor(project.id,actor,value=>{value.scenes[0].environmentReferenceEnabled=true;return value;});
+  service.storyboardAssetService.sceneImageForShotPlanning = async()=>{throw new Error('content changed');};
+  await assert.rejects(service.proposeShots(project.id,created.scene.id,{expectedVersion:current.version},actor,
+    {beforeDispatch:()=>dispatches++}),/content changed/);
+  assert.equal(dispatches,3);
 });
 
 test('Story dossier accepts only owner assets uploaded from its Character form', async t => {

@@ -13,7 +13,8 @@ export function chapterOutlineIsStale(project: CinematicProject) {
   const setup = project.setup;
   return plan.sourceRevisionId !== project.confirmedFullStoryVersionId
     || project.activeFullStoryVersionId !== project.confirmedFullStoryVersionId
-    || plan.settings.format !== setup.format || plan.settings.durationSeconds !== setup.durationSeconds
+    || plan.settings.format !== setup.format || plan.settings.storyFormat !== project.writingSettings?.direction?.format
+    || plan.settings.durationSeconds !== (project.writingSettings?.direction?.targetSeconds ?? setup.durationSeconds)
     || plan.settings.seasonEnabled !== setup.seasonEnabled
     || plan.settings.seasonCount !== (setup.seasonEnabled ? setup.seasonCount : 1);
 }

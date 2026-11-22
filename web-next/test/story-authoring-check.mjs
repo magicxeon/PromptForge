@@ -10,6 +10,7 @@ import { CinematicApplicationService } from "../../server/domain/cinematic/Cinem
 import { CinematicProjectRepository } from "../../server/repositories/cinematic/CinematicProjectRepository.js";
 import { registerCinematicRoutes } from "../../server/app/routes/cinematicRoutes.js";
 import { ReferenceAssetService } from "../../server/domain/assets/ReferenceAssetService.js";
+import { CinematicStoryboardAssetService } from "../../server/domain/assets/CinematicStoryboardAssetService.js";
 
 const actor = {userId:"story-fixture", username:"story-fixture", displayName:"Story fixture",
   role:"admin", accountStatus:"active", authMode:"development_bypass"};
@@ -20,13 +21,16 @@ const projects = new CinematicProjectRepository({projectsFile:path.join(director
 const assets = new Map();
 const assetRepository = {
   async create(input, owner) {
-    const asset = {...input, id: crypto.randomUUID(), status:"active", ownerUserId:owner.userId};
+    const asset = {...input, id: crypto.randomUUID(), createdAt:new Date().toISOString(), status:"active", ownerUserId:owner.userId};
     assets.set(asset.id, asset);
     return asset;
   },
   async findByIdForOwner(id, owner) {
     const asset = assets.get(id);
     return asset?.ownerUserId === owner ? asset : null;
+  },
+  async findBySourceJobIdForOwner(jobId, owner, type) {
+    return [...assets.values()].find(asset => asset.sourceJobId === jobId && asset.ownerUserId === owner && asset.assetType === type);
   },
 };
 const references = new ReferenceAssetService({repository: assetRepository, outputsDirectory: directory});
@@ -37,6 +41,8 @@ let releaseDraft;
 const draftGate = new Promise(resolve => {releaseDraft=resolve;});
 const service = new CinematicApplicationService({
   repository:projects, videoGenerationService:{}, assetRepository,
+  storyboardAssetService:new CinematicStoryboardAssetService({assetRepository,outputsDirectory:directory,
+    generationHistory:{getById: async id => id === "still-fixture" ? {username:actor.username,imageUrl:"/outputs/test-set.png"} : null}}),
   fullStoryService:{
     async propose(input) {
       assert.equal(input.revisionInstruction,"A traveller returns to the inn.");
@@ -53,13 +59,19 @@ const service = new CinematicApplicationService({
       writingRequests.push("shots");
       return {shots:[{title:proposedShot,durationMs:4500,shotDocument:dialogue}]};
     },
+    async translateStoryPrompt(text, _cues, settings) {
+      assert.equal(settings.direction.spokenLanguage,"English");
+      assert.equal(settings.direction.country,"thailand");
+      return {text:text.replaceAll("จดหมายฉบับนี้เดินทางมาไกลนัก เก็บมันไว้ให้ดีนะ","This letter has travelled far. Keep it safe."),
+        provenance:{provider:"fixture",model:settings.modelId}};
+    },
   }
 });
 // Expose only fixture-backed read and authoring actions. Any attempted media generation fails locally.
 const permitted = ["listProjects","createProject","getProject","getSeriesWorkspace","getAuthoringManifest",
   "proposeFullStory","updateWritingSettings","updateSeriesChapter","saveFullStoryRevision","confirmFullStoryRevision","createManualScene","updateSceneOutline","createManualShot","updateShotDocument",
   "applySceneProposal","discardSceneProposal","applyShotProposal","discardShotProposal","upsertSharedCharacterDossier",
-  "prepareShotWriter","setChapterCharacters"];
+  "prepareShotWriter","storyPromptStatus","setChapterCharacters","getSceneEnvironmentContext","approveSceneEnvironment","approveStoryboardSource"];
 const facade = Object.fromEntries(permitted.map(key=>[key,service[key].bind(service)]));
 facade.quoteWriting = async (_project,{operation})=>({id:null,operation,credits:0,expiresAt:null,billingStatus:"free"});
 facade.executeWriting = async (id,{operation,sceneId,input},owner)=>{
@@ -70,12 +82,14 @@ facade.executeWriting = async (id,{operation,sceneId,input},owner)=>{
 const app = express();
 const failures = [];
 let expectShotConflict=false;
+let expectMergedConflict=false;
 let seriesReads=0;
 app.use(express.json(),(req,res,next)=>{
   req.actorContext=actor;
   if(req.method==="GET" && req.path.endsWith("/series")) seriesReads++;
   res.on("finish",()=>{
-    const expected=expectShotConflict && req.method==="PATCH" && req.path.endsWith("/document") && res.statusCode===409;
+    const expected=req.method==="PATCH" && res.statusCode===409 && (expectShotConflict && req.path.endsWith("/document")
+      || expectMergedConflict && /\/scenes\/[^/]+$/.test(req.path));
     if (!expected && req.path.startsWith("/api/") && res.statusCode>=400) failures.push(req.method+" "+req.path+" "+res.statusCode);
   });
   next();
@@ -85,6 +99,13 @@ app.get("/api/auth/config",(_req,res)=>res.json({contractVersion:1,authMode:acto
   policy:{otpDigits:6,otpExpiresSeconds:300,resendSeconds:30,passwordMinLength:8,passwordMaxLength:128},legal:{termsVersion:null,privacyVersion:null}}));
 app.get("/api/me",(_req,res)=>res.json(actor));
 app.get("/api/web-next/config",(_req,res)=>res.json({creditsEnabled:false}));
+app.get("/api/providers",(_req,res)=>res.json({defaultProvider:"fixture",providers:[{id:"fixture",displayName:"Fixture",defaultModel:"image",models:[{
+  id:"image",displayName:"Image",capabilities:{imageGeneration:true,imageReferences:true,maxReferenceImages:6,aspectRatios:["1:1","16:9","9:16"]}
+}]}]}));
+app.get("/api/history",(_req,res)=>res.json({items:[{id:"still-fixture",prompt:"Fixture set",imageUrl:"/outputs/test-set.png",
+  timestamp:Date.now(),provider:"fixture",submodel:"image",mode:"normal",width:1,height:1}],hasMore:false,nextCursor:null}));
+app.get("/api/generation/job-center",(_req,res)=>res.json({items:[],activeCount:0,terminalCount:0,polledAt:new Date().toISOString()}));
+app.post("/api/generation/prompt-preview",(_req,res)=>res.json({compiledPrompt:"Fixture preview"}));
 registerCinematicRoutes(app,{cinematicService:facade});
 app.post("/api/references",async (req,res)=>{
   try {res.json(await references.storeReference(req.body,actor));}
@@ -122,7 +143,7 @@ try {
     });
     assert.ok(fits,"create dialog fits at "+width);
   }
-  await dialog.locator("input").fill("Letters from the inn");
+  await dialog.getByRole("textbox",{name:"Story title"}).fill("Letters from the inn");
   await dialog.getByRole("button").last().click();
   await page.waitForURL(/\/story\/[^/?#]+$/);
   const projectUrl=page.url();
@@ -130,10 +151,12 @@ try {
   const persisted=()=>projects.findForActor(projectId,actor);
   assert.equal((await persisted()).title,"Letters from the inn");
   assert.equal(writingRequests.length,0,"creating a project is manual");
-  const openSettings=()=>page.getByRole("button",{name:/Writing AI/}).click();
+  const openSettings=()=>page.getByRole("button",{name:/Story settings/}).click();
   await openSettings();
   assert.equal(await editorLoaded(),true,"opening a project loads the editor");
-  await dialog.getByRole("combobox").selectOption("gpt-6.2-sol");
+  await dialog.getByLabel("Writing model").selectOption("gpt-6.2-sol");
+  await dialog.getByLabel("Dialogue language").selectOption("English");
+  await dialog.getByLabel("Drama tradition").selectOption("thailand");
   await dialog.getByRole("checkbox").first().check();
   for(const width of [390,820,1440]) {
     await page.setViewportSize({width,height:900});
@@ -141,10 +164,13 @@ try {
   }
   await dialog.getByRole("button",{name:"Save settings"}).click();
   await dialog.waitFor({state:"hidden"});
-  assert.deepEqual((await persisted()).writingSettings,{modelId:"gpt-6.2-sol",skillIds:["story-structure"]});
+  const settings=(await persisted()).writingSettings;
+  assert.equal(settings.modelId,"gpt-6.2-sol");
+  assert.deepEqual(settings.skillIds,["story-structure"]);
+  assert.equal(settings.direction.spokenLanguage,"English");
   await page.reload();
   await openSettings();
-  assert.equal(await dialog.getByRole("combobox").inputValue(),"gpt-6.2-sol");
+  assert.equal(await dialog.getByLabel("Writing model").inputValue(),"gpt-6.2-sol");
   assert.equal(await dialog.getByRole("checkbox").first().isChecked(),true);
   await dialog.getByRole("button",{name:"Cancel"}).click();
   const prose=page.locator(".story-script textarea");
@@ -221,7 +247,16 @@ try {
   await secondScene.focus();
   await page.keyboard.press("Enter");
   await page.locator(".story-reader h2").filter({hasText:proposedScenes[1]}).waitFor();
-  assert.match(await stages.locator("[aria-current=step]").innerText(),/Shots/);
+  assert.match(await stages.locator("[aria-current=step]").innerText(),/Scene setup/);
+  await page.getByRole("heading",{name:"Scene description"}).waitFor();
+  for(const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    for(const language of ["th","en"]) {
+      await page.locator(".header-actions select").selectOption(language);
+      assert.ok(await page.locator(".story-staging").evaluate(el=>el.scrollWidth<=el.clientWidth+1 && el.getBoundingClientRect().right<=innerWidth));
+      assert.ok(await page.locator(".story-stage-placeholder").isVisible());
+    }
+  }
   const firstSaved=structuredClone((await persisted()).scenes[0]);
   const sceneActions=page.locator(".story-reader article > .story-actions");
   await sceneActions.locator("button.primary").click();
@@ -236,7 +271,7 @@ try {
   await button("Shot prompt for "+proposedShot).click();
   await dialog.getByRole("button",{name:"Build prompt"}).click();
   await dialog.getByLabel("Prompt text").waitFor();
-  assert.match(await dialog.getByLabel("Prompt text").inputValue(), /4.5-second/);
+  assert.match(await dialog.getByLabel("Prompt text").inputValue(), /Duration: 4.5 seconds/);
   assert.equal(await dialog.getByText("This shot has no selected characters.").count(),1);
   await page.keyboard.press("Escape");
   await page.getByRole("dialog",{name:"Save your edits before leaving?"}).getByRole("button",{name:"Discard edits"}).click();
@@ -335,6 +370,7 @@ try {
   await dialog.getByRole("checkbox",{name:/Kin/}).check();
   await dialog.getByRole("button",{name:"Save scene"}).click();
   await dialog.waitFor({state:"hidden"});
+  await button("Open shot list (1)").click();
   await shotRow.click();
   await dialog.locator("fieldset details").first().locator("summary").click();
   for (const name of ["Lalin","Kin"]) {
@@ -365,7 +401,7 @@ try {
   await page.reload();
   await button("Shot prompt for "+proposedShot).click();
   assert.equal(await promptText.inputValue(), customPrompt);
-  await page.keyboard.press("Escape");
+  await dialog.getByRole("button",{name:"Close",exact:true}).click();
   await shotRow.click();
   await dialog.locator("fieldset details").first().locator("summary").click();
   const kin = dialog.locator(".story-cast").filter({hasText:"Kin"});
@@ -380,13 +416,188 @@ try {
   await page.waitForFunction(()=>document.querySelector(".story-prompt-dialog textarea")?.value.includes("Voice only, off-screen."));
   assert.match(await promptText.inputValue(),/Kin.*Voice only, off-screen/);
   assert.equal(await dialog.locator(".story-character-list li").last().locator("img").count(),0);
-  await page.keyboard.press("Escape");
+  await dialog.getByRole("button",{name:"Close",exact:true}).click();
   await page.getByRole("dialog",{name:"Save your edits before leaving?"}).getByRole("button",{name:"Discard edits"}).click();
+  await button("Back to scene setup").click();
+  await page.getByLabel("Upload setting image").setInputFiles({name:"inn.png",mimeType:"image/png",buffer:reference});
+  await page.locator(".story-stage-image").waitFor();
+  const uploaded=(await persisted()).scenes[1];
+  assert.ok(uploaded.approvedEnvironmentSource.assetId);
+  await stages.getByRole("button",{name:/Scenes/}).click();
+  await page.locator(".story-index button").filter({hasText:proposedScenes[0]}).click();
+  await page.getByLabel("Reuse a setting from another scene").selectOption(uploaded.id);
+  await page.locator(".story-stage-image").waitFor();
+  const reused=(await persisted()).scenes[0];
+  assert.equal(reused.approvedEnvironmentSource.assetId,uploaded.approvedEnvironmentSource.assetId);
+  await fs.writeFile(path.join(directory,"test-set.png"),reference);
+  await button("Design with AI").click();
+  await page.waitForURL("**/image");
+  await page.locator(".handoff-panel").first().getByRole("button").first().click();
+  const returnImage=button("Use the displayed image for this scene");
+  await returnImage.waitFor();
+  assert.ok((await page.locator("#prompt").inputValue()).length>10);
+  await page.reload();
+  await returnImage.waitFor();
+  const separate=await context.newPage();
+  await separate.goto(origin+"/image");
+  await separate.locator(".result-thumb").first().waitFor();
+  assert.equal(await separate.getByRole("button",{name:"Use the displayed image for this scene"}).count(),0);
+  await separate.close();
+  await returnImage.click();
+  await page.waitForURL(url=>url.pathname.endsWith("/"+projectId)&&url.searchParams.get("scene")===reused.id);
+  await page.locator(".story-stage-image").waitFor();
+  const returned=await persisted();
+  assert.notEqual(returned.scenes[0].approvedEnvironmentSource.assetId,reused.approvedEnvironmentSource.assetId);
+  assert.equal(returned.scenes[1].approvedEnvironmentSource.assetId,uploaded.approvedEnvironmentSource.assetId);
+  assert.ok(!returned.scenes[2].approvedEnvironmentSource);
   assert.deepEqual(writingRequests,["manuscript","scenes","scenes","shots"]);
+
+  const mergeScene = returned.scenes[2];
+  const sceneUrl = projectUrl + "?scene=" + mergeScene.id + "&step=shots";
+  let mergeProject = returned;
+  const names = ["Arrival", "Reply", "Exit"];
+  for (let index = 0; index < names.length; index++) {
+    let target = mergeScene.shots[0];
+    if (index > 0) {
+      const created = await service.createManualShot(projectId, mergeScene.id,
+        {expectedVersion:mergeProject.version, idempotencyKey:crypto.randomUUID()}, actor);
+      mergeProject = created.project;
+      target = created.shot;
+    }
+    const result = await service.updateShotDocument(projectId, mergeScene.id, target.id, {
+      expectedVersion:mergeProject.version, expectedShotVersion:target.version, title:names[index],
+      durationMs:[3000,4000,3000][index],shotDocument:["The rider opens the door.", "The host answers quietly.", "Cut to the empty road."][index]
+    },actor);
+    mergeProject = result.project;
+  }
+  await page.goto(sceneUrl);
+  const combine = button("Combine shots into one prompt");
+  const build = button("Build merged prompt");
+  const merged = page.getByRole("dialog", {name:"Merged video prompt"});
+  const choices = page.locator(".story-merge-selection input");
+  const writes = [];
+  page.on("request", request => {
+    if (request.method() !== "GET" && new URL(request.url()).pathname.startsWith("/api/")) writes.push(request.url());
+  });
+  for (const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    await combine.click();
+    assert.ok(await build.isDisabled());
+    await choices.nth(2).check();
+    assert.ok(await build.isDisabled());
+    await choices.nth(1).check();
+    await choices.nth(0).focus();
+    await page.keyboard.press("Space");
+    assert.match(await page.locator(".story-merge-selection [role=status]").innerText(), /3 shots selected · 10 sec/);
+    await build.click();
+    assert.deepEqual(await merged.locator(".story-merge-timeline li").allInnerTexts(), ["Arrival 0–3 sec","Reply 3–7 sec","Exit 7–10 sec"]);
+    assert.ok(await merged.evaluate(el => document.documentElement.scrollWidth <= innerWidth + 1
+      && el.getBoundingClientRect().right <= innerWidth + 1 && el.scrollWidth <= el.clientWidth + 1));
+    await merged.getByRole("button",{name:"Close"}).click();
+    await page.locator(".story-shot-card h4 button").first().waitFor();
+    if (width === 390) {
+      await page.locator(".header-actions select").selectOption("th");
+      await button("รวมช็อตเป็น 1 พรอมป์").click();
+      await choices.nth(0).check();
+      await choices.nth(2).check();
+      assert.equal(await page.locator(".story-merge-selection [role=status]").innerText(), "เลือก 2 ช็อต · 6 วินาที");
+      await button("สร้างพรอมป์รวม").click();
+      const thaiDialog = page.getByRole("dialog",{name:"พรอมป์วิดีโอรวม"});
+      assert.equal(await thaiDialog.locator(".story-merge-timeline li").last().innerText(),"Exit 3–6 วินาที");
+      assert.ok(await thaiDialog.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+      await page.keyboard.press("Escape");
+      await thaiDialog.waitFor({state:"hidden"});
+      await page.locator(".header-actions select").selectOption("en");
+    }
+  }
+  assert.equal(writes.length,0,"selection, timeline and new dialog opening are local");
+  await combine.click();
+  for (const index of [2,1,0]) await choices.nth(index).check();
+  await choices.nth(1).uncheck();
+  assert.match(await page.locator(".story-merge-selection [role=status]").innerText(), /2 shots selected · 6 sec/);
+  await build.click();
+  assert.deepEqual(await merged.locator(".story-merge-timeline li").allInnerTexts(), ["Arrival 0–3 sec","Exit 3–6 sec"]);
+  await merged.getByRole("button",{name:"Google Flow"}).click();
+  assert.ok(await merged.getByRole("button",{name:"Build merged prompt"}).isDisabled());
+  await merged.getByRole("button",{name:"Select opening frame"}).click();
+  await page.locator(".story-frame-options button").first().click();
+  await page.locator(".story-frame-options").waitFor({state:"hidden"});
+  const framed = (await persisted()).scenes[2].shots;
+  assert.ok(framed[0].approvedStoryboardSource);
+  assert.ok(!framed[2].approvedStoryboardSource);
+  assert.ok(await merged.getByRole("button",{name:"Build merged prompt"}).isEnabled());
+  await merged.getByRole("button",{name:"Seedance"}).click();
+  // Hold one offline request to observe duplicate prevention, then inject a recoverable network error.
+  let releaseFirstBuild;
+  const firstBuildGate = new Promise(resolve => {releaseFirstBuild = resolve;});
+  await page.route("**/shot-proposals", async route => {
+    await firstBuildGate;
+    await route.fulfill({status:503,json:{error:"Fixture temporary failure"}});
+  }, {times:1});
+  await merged.getByRole("button",{name:"Build merged prompt"}).click();
+  await merged.getByRole("status").filter({hasText:"Building the merged prompt"}).waitFor();
+  assert.ok(await merged.getByRole("button",{name:"Build merged prompt"}).isDisabled());
+  releaseFirstBuild();
+  const mergeResponse = page.waitForResponse(response => response.url().endsWith("/shot-proposals") && response.ok());
+  await merged.getByRole("button",{name:"Try again"}).click();
+  const mergedText = merged.getByLabel("Prompt text");
+  await mergedText.waitFor();
+  assert.doesNotMatch(await mergedText.inputValue(), /The host answers quietly/);
+  const editedMerge = (await mergedText.inputValue()) + "\nHold at the end.";
+  const {maximumPromptCharacters} = await (await mergeResponse).json();
+  assert.ok(maximumPromptCharacters > 0);
+  await mergedText.fill("x".repeat(maximumPromptCharacters + 5));
+  assert.match(await merged.locator("#merge-text-limit").innerText(), /Remove 5 to save/);
+  assert.ok(await merged.getByRole("button",{name:"Copy prompt"}).isEnabled());
+  assert.ok(await merged.getByRole("button",{name:"Save prompt"}).isDisabled());
+  await mergedText.fill(editedMerge);
+  await context.grantPermissions(["clipboard-read","clipboard-write"], {origin});
+  await merged.getByRole("button",{name:"Copy prompt"}).click();
+  await merged.getByRole("button",{name:"Copied"}).waitFor();
+  const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+  assert.equal(clipboardText.replaceAll("\r\n","\n"), editedMerge);
+  await merged.getByRole("button",{name:"Save prompt"}).click();
+  await merged.waitFor({state:"hidden"});
+  const mergedSaved = (await persisted()).scenes[2];
+  assert.deepEqual(mergedSaved.shots, framed);
+  assert.equal(mergedSaved.mergedPrompts[0].text, editedMerge);
+  await page.reload();
+  const beforeReopen = writes.length;
+  await page.locator(".story-merge-saved button").click();
+  assert.equal(await mergedText.inputValue(), editedMerge);
+  assert.equal(writes.length, beforeReopen);
+  const parallelWriter = await context.newPage();
+  await parallelWriter.goto(sceneUrl);
+  await parallelWriter.locator(".story-merge-saved button").click();
+  const parallelPrompt = parallelWriter.getByRole("dialog",{name:"Merged video prompt"});
+  const recoveredText = editedMerge + "\nAnother ending.";
+  await parallelPrompt.getByLabel("Prompt text").fill(recoveredText);
+  const finalMerge = editedMerge + "\nKeep the shot wide.";
+  await mergedText.fill(finalMerge);
+  await merged.getByRole("button",{name:"Save prompt"}).click();
+  await merged.waitFor({state:"hidden"});
+  expectMergedConflict = true;
+  await parallelPrompt.getByRole("button",{name:"Save prompt"}).click();
+  await parallelPrompt.getByRole("alert").filter({hasText:"Another edit was saved"}).waitFor();
+  expectMergedConflict = false;
+  assert.equal(await parallelPrompt.getByLabel("Prompt text").inputValue(), recoveredText);
+  assert.ok(await parallelPrompt.getByRole("button",{name:"Save prompt"}).isDisabled());
+  assert.equal((await persisted()).scenes[2].mergedPrompts[0].text, finalMerge);
+  await parallelWriter.close();
+  await page.locator(".story-shot-card h4 button").last().click();
+  await shotText.fill("Cut to the rider waiting on the road.");
+  await dialog.getByRole("button",{name:"Save shot"}).click();
+  await dialog.waitFor({state:"hidden"});
+  await page.locator(".story-merge-saved button").click();
+  await merged.getByRole("status").filter({hasText:/Review these shots.*Exit/}).waitFor();
+  assert.equal(await mergedText.inputValue(), finalMerge);
+  assert.ok(await merged.getByRole("button",{name:"Save prompt"}).isDisabled());
+  assert.ok(await merged.getByRole("button",{name:"Rebuild from selected shots"}).isEnabled());
+  await merged.getByRole("button",{name:"Close"}).click();
   await page.getByRole("link",{name:/projects/i}).click();
   await page.locator(".story-projects a").filter({hasText:"Letters from the inn"}).waitFor();
   assert.deepEqual(failures,[]);
-  console.log("Story & Shots: script, proposals and edit recovery, writing progress, private cast and saved prompt, stale prompt, and responsive checks passed.");
+  console.log("Story & Shots: authoring, saved prompts, merged shot selection, retry, opening frame, persistence, stale sources and responsive checks passed.");
 } catch(error) {
   if (failures.length) console.error("API / browser failures", failures);
   if(page && !page.isClosed()) console.error((await page.locator("body").innerText()).slice(0,3000));

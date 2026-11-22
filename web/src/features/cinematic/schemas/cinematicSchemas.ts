@@ -178,6 +178,7 @@ export type CinematicChapterRevision = z.infer<typeof cinematicChapterRevisionSc
 export type CinematicChapterProposal = z.infer<typeof cinematicChapterProposalSchema>;
 
 export const cinematicSceneOutlineSchema = z.object({
+  sourceStartParagraph:z.number().int().positive().optional(),sourceEndParagraph:z.number().int().positive().optional(),
   title: z.string().min(1).max(120),
   synopsis: z.string().max(4000),
   purpose: z.enum(['dialogue', 'action', 'montage', 'establishing', 'atmosphere', 'transition', 'dramatic']),
@@ -627,6 +628,11 @@ export const cinematicShotSchema = z.object({
   shotDocumentVersion: z.number().int().positive().optional(),
   speakerBindings: z.array(z.object({ alias: z.string(), castAssignmentId: z.string(), visible: z.boolean() })).max(24).optional(),
   videoPromptOverride: z.object({ text: z.string().max(50000), sourceFingerprint: z.string() }).nullable().optional(),
+  storyPromptVariants: z.object({
+    still: z.object({text: z.string(), sourceFingerprint: z.string()}).optional(),
+    flow: z.object({text: z.string(), sourceFingerprint: z.string()}).optional(),
+    seedance: z.object({text: z.string(), sourceFingerprint: z.string()}).optional()
+  }).optional(),
   source: z.enum(['manual', 'ai_proposal', 'restored', 'legacy']).optional(),
   sourceShotProposalId: z.string().nullable().optional(),
   shotPlanningStatus: z.enum(['draft', 'ready', 'review_required']).optional(),
@@ -702,7 +708,24 @@ export const cinematicStoryBeatSchema = z.object({
   sceneIds: z.array(z.string()).optional().default([])
 });
 
+export const mergedStoryPromptSchema = z.object({
+  maximumPromptCharacters:z.number().int().positive().optional(),
+  template:z.enum(['flow','seedance']), text:z.string(), sourceFingerprint:z.string(),
+  shots:z.array(z.object({id:z.string(),title:z.string(),version:z.number(),sourceFingerprint:z.string(),
+    startMs:z.number(),endMs:z.number()})),
+  references:z.array(z.object({number:z.number(),role:z.enum(['opening','character','location']),name:z.string(),assetId:z.string(),imageUrl:z.string()})),
+  outdatedShotIds:z.array(z.string()).default([])
+});
+
+export const mergedStoryWritingResultSchema = mergedStoryPromptSchema.extend({
+  billingStatus: z.enum(['paid', 'settlement_pending', 'free', 'qualification_no_charge']).optional(),
+  writingOperationId: z.string().optional(),
+  chargedCredits: z.number().nonnegative().optional()
+});
+
 export const cinematicSceneSchema = z.object({
+  mergedPrompts:z.array(mergedStoryPromptSchema).optional(),
+  sourceStartParagraph:z.number().int().positive().optional(),sourceEndParagraph:z.number().int().positive().optional(),
   environmentPrompt: z.string().max(2500).optional(),
   approvedEnvironmentSource: cinematicApprovedStoryboardSourceSchema.nullable().optional(),
   environmentReferenceEnabled: z.boolean().optional(),
@@ -1112,6 +1135,12 @@ const cinematicRewampSchema = z.object({
   })
 });
 const writingLocaleText = z.object({th:z.string().min(1),en:z.string().min(1)});
+export const storyDirectionSchema = z.object({
+  country:z.string(), period:z.string(), genre:z.string(), tone:z.string(), format:z.enum(['standalone','feature','series']),
+  targetSeconds:z.number().int().positive(), aspectRatio:z.enum(['9:16','16:9','1:1']),
+  destination:z.enum(['flow','seedance']), spokenLanguage:z.string().trim().min(1).max(80)
+});
+export type StoryDirection = z.infer<typeof storyDirectionSchema>;
 export const cinematicWritingSettingsCatalogSchema = z.object({
   defaultModelId: z.string().nullable(),
   maxSkills: z.number().int().positive().max(5),
@@ -1119,7 +1148,7 @@ export const cinematicWritingSettingsCatalogSchema = z.object({
   skills: z.array(z.object({id:z.string().min(1),label:writingLocaleText,description:writingLocaleText})),
 });
 const cinematicWritingSettingsSchema = z.object({
-  modelId:z.string().nullable(),skillIds:z.array(z.string().min(1)).max(5)
+  modelId:z.string().nullable(),skillIds:z.array(z.string().min(1)).max(5), direction:storyDirectionSchema.optional()
 });
 export type CinematicWritingSettings = z.infer<typeof cinematicWritingSettingsSchema>;
 export type CinematicWritingSettingsCatalog = z.infer<typeof cinematicWritingSettingsCatalogSchema>;
@@ -1207,7 +1236,7 @@ export const cinematicChapterOutlineRowSchema = z.object({
 });
 export const cinematicChapterOutlineSchema = z.object({
   id: z.string(), sourceRevisionId: z.string(), sourceKey: z.string(),
-  settings: z.object({ format: z.string(), durationSeconds: z.number(), seasonEnabled: z.boolean(), seasonCount: z.number() }),
+  settings: z.object({ format: z.string(), storyFormat:z.string().optional(), durationSeconds: z.number(), seasonEnabled: z.boolean(), seasonCount: z.number() }),
   limits: z.object({ maximumChapters: z.number().int().positive().max(24), synopsisMaximumCharacters: z.number().int().positive().max(2000) }).optional(),
   status: z.enum(['proposed', 'approved']), chapters: z.array(cinematicChapterOutlineRowSchema).min(1).max(24),
   rationale: z.string(), warnings: z.array(z.string()), createdAt: z.string(), approvedAt: z.string().optional()

@@ -12,7 +12,9 @@ import type {RunWriting} from "../data/useStoryWorkspace";
 import {StoryCharacterIdentity} from "../characters/StoryCharacters";
 
 const editSchema=z.object({title:z.string().max(120),body:z.string().max(50000),location:z.string().max(240),
-  time:z.string().max(160),seconds:z.number().finite(),characterIds:z.array(z.string()).max(24),
+  time:z.string().max(160),environment:z.string().max(2500).optional(),entryState:z.string().max(1000).optional(),
+  exitState:z.string().max(1000).optional(),emotionalStart:z.string().max(500).optional(),emotionalEnd:z.string().max(500).optional(),
+  seconds:z.number().finite(),characterIds:z.array(z.string()).max(24),
   speakers:z.array(z.object({castAssignmentId:z.string(),alias:z.string().max(120),visible:z.boolean()})).max(24)});
 export function SceneShotEditDialog({project,scene,shot,run,close,requestRevision,max,error}:{
   project:CinematicProject;scene:CinematicScene;shot?:CinematicShot;run:RunWriting;close:()=>void;
@@ -26,6 +28,8 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
   const effectiveIds=shot?.castMode==="none"||scene.castMode==="none"?[]:shot?.castMode==="selected"||shot?.castAssignmentIds.length?shot.castAssignmentIds:scene.castAssignmentIds;
   const original={title:shot?.title??scene.title,body:shot?(shot.shotDocument||legacy.data?.shotDocument||""):(scene.synopsis||scene.storyChange||""),
     location:scene.location,time:scene.time,seconds:(shot?.durationMs??scene.durationMs)/1000,characterIds:scene.castAssignmentIds,
+    environment:scene.environmentPrompt||"",entryState:scene.entryState||"",exitState:scene.exitState||"",
+    emotionalStart:scene.emotionalStart,emotionalEnd:scene.emotionalEnd,
     speakers:shot?.speakerBindings??(shot?effectiveIds.map(id=>({castAssignmentId:id,alias:cast.find(c=>c.id===id)?.displayName||id,visible:true})):[])};
   const revision=String(shot?.version??scene.version);
   const editor=useCinematicTextRecovery({actorId:identityScope,projectId:project.id,documentId:"next:"+(shot?.id??scene.id),
@@ -49,8 +53,9 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
       }):await updateCinematicSceneOutline(project.id,scene.id,{
         expectedVersion:project.version,expectedSceneVersion:scene.version,title:draft.title,synopsis:draft.body,
         purpose:scene.purpose as Parameters<typeof updateCinematicSceneOutline>[2]["purpose"],objective:scene.objective||"",
-        location:draft.location,time:draft.time,weather:scene.weather||"",environment:scene.environmentPrompt||"",
-        entryState:scene.entryState||"",exitState:scene.exitState||"",emotionalStart:scene.emotionalStart,emotionalEnd:scene.emotionalEnd,
+        location:draft.location,time:draft.time,weather:scene.weather||"",environment:draft.environment??scene.environmentPrompt??"",
+        entryState:draft.entryState??scene.entryState??"",exitState:draft.exitState??scene.exitState??"",
+        emotionalStart:draft.emotionalStart??scene.emotionalStart,emotionalEnd:draft.emotionalEnd??scene.emotionalEnd,
         transitionIntent:scene.transitionIntent,targetDurationSeconds:Math.min(120,Math.max(5,Math.round(draft.seconds))),
         dialogueTargetPercent:scene.dialogueTargetPercent??0,characterIds:draft.characterIds
       });
@@ -85,7 +90,12 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
       {shot?<details><summary>{t("aiRevision")}</summary><label>{t("instructions")}<textarea value={instruction} maxLength={2000} onChange={e=>setInstruction(e.target.value)}/></label>
         <button disabled={editor.dirty||!instruction.trim()} onClick={()=>void requestRevision(instruction)}>{t("proposeRevision")}</button></details>
         :<details><summary>{t("setting")}</summary><label>{t("location")}<input value={draft.location} maxLength={240} onChange={e=>editor.setValue({...draft,location:e.target.value})}/></label>
-        <label>{t("time")}<input value={draft.time} maxLength={160} onChange={e=>editor.setValue({...draft,time:e.target.value})}/></label></details>}
+        <label>{t("time")}<input value={draft.time} maxLength={160} onChange={e=>editor.setValue({...draft,time:e.target.value})}/></label>
+        <label>{t("stage.direction")}<textarea rows={3} maxLength={2500} value={draft.environment??scene.environmentPrompt??""}
+          onChange={e=>editor.setValue({...draft,environment:e.target.value})}/></label>
+        {([["entryState","start",1000],["exitState","end",1000],["emotionalStart","emotionStart",500],["emotionalEnd","emotionEnd",500]] as const).map(([key,label,maxLength])=>
+          <label key={key}>{t("stage."+label)}<input value={draft[key]??scene[key]??""} maxLength={maxLength}
+            onChange={e=>editor.setValue({...draft,[key]:e.target.value})}/></label>)}</details>}
       <footer><button onClick={dismiss}>{t("close")}</button><button className="primary" disabled={!valid||!editor.dirty} onClick={()=>void save()}>{t(shot?"saveShot":"saveScene")}</button></footer>
     </fieldset>
     {(leaving||blocker.state==="blocked") && <Dialog label={t("unsaved")} onClose={()=>{setLeaving(false);blocker.reset?.();}}><h2>{t("unsaved")}</h2><footer>

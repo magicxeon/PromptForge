@@ -147,11 +147,11 @@ function compileDialogue(value, shot, scene, cast) {
       performance.push(raw);
       continue;
     }
-    const times = range?.replace(/\s*(sec|seconds|s)\s*$/iu, '').split(/\s*[-\u2013\u2014]\s*/u);
-    const startOffsetMs = times ? timeMs(times[0]) : cursorMs;
+    const times = range ? parseDialogueClock(range) : null;
+    const startOffsetMs = times ? times[0] : cursorMs;
     const effectiveDelivery = [person.dialogueStyle, delivery].filter(Boolean).join('; ');
     const estimate = estimateDialogueSpeech(words, { delivery: effectiveDelivery });
-    const endMs = times?.[1] ? timeMs(times[1]) : startOffsetMs + estimate.maximumMs;
+    const endMs = times?.[1] ?? startOffsetMs + estimate.maximumMs;
     if (!Number.isFinite(startOffsetMs) || !Number.isFinite(endMs) || endMs <= startOffsetMs) {
       findings.push({ code: 'cinematic_dialogue_timing_invalid', line: index + 1, speaker: alias });
       performance.push(raw); continue;
@@ -197,6 +197,10 @@ function parseTimeline(value, durationMs) {
     && event.startMs >= 0 && event.endMs > event.startMs && event.description);
   if (valid.length || !compact(value)) return valid;
   return [{ startMs: 0, endMs: Math.max(500, durationMs || 5000), description: compact(value) }];
+}
+
+export function parseDialogueClock(range) {
+  return range.split(/\s*[-\u2013\u2014]\s*/u).map(part => timeMs(part.replace(/\s*(seconds|sec|s)\s*$/iu, '')));
 }
 
 function timeMs(value) {

@@ -1,8 +1,15 @@
 import { apiRequest } from '../../../lib/api/apiClient';
+import { mergedStoryWritingResultSchema } from '../schemas/cinematicSchemas';
 import { withCinematicWritingQuote } from './cinematicWritingBilling';
 import { cinematicChapterProposalMutationSchema, cinematicManualSceneMutationSchema, cinematicManualShotMutationSchema, cinematicSceneProposalMutationSchema, cinematicSeriesMutationSchema, cinematicSeriesWorkspaceSchema, cinematicSharedCharacterMutationSchema, cinematicShotDocumentMutationSchema, cinematicShotProposalMutationSchema } from '../schemas/cinematicSeriesSchemas';
 import type { SeriesCommand } from '../schemas/cinematicSeriesSchemas';
-import { cinematicShotWriterPreparationSchema, cinematicPortableShotSchema } from '../schemas/cinematicSeriesSchemas';
+import { cinematicShotWriterPreparationSchema, cinematicPortableShotSchema, cinematicStoryPromptStatusSchema } from '../schemas/cinematicSeriesSchemas';
+
+export function getStoryPromptStatus(projectId:string, sceneId:string) {
+  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/story-prompt-status`, {
+    schema: cinematicStoryPromptStatusSchema, cache: 'no-store'
+  });
+}
 
 export function exportCinematicShotWriter(projectId: string, sceneId: string, shotId: string, expectedVersion: number) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/writer-export`, {
@@ -70,9 +77,9 @@ export function proposeCinematicScenes(projectId: string, expectedVersion: numbe
     }));
 }
 
-export function applyCinematicSceneProposal(projectId: string, proposalId: string, expectedVersion: number) {
+export function applyCinematicSceneProposal(projectId: string, proposalId: string, expectedVersion: number, sourceRanges?: {start:number; origins:number[]}[]) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scene-proposals/${encodeURIComponent(proposalId)}/apply`, {
-    method: 'POST', body: { expectedVersion }, schema: cinematicSceneProposalMutationSchema
+    method: 'POST', body: { expectedVersion, sourceRanges }, schema: cinematicSceneProposalMutationSchema
   });
 }
 
@@ -154,6 +161,10 @@ export function updateCinematicShotDocument(projectId: string, sceneId: string, 
   promptOnly: true;
   videoPromptOverride: { text: string; sourceFingerprint: string };
 } | {
+  promptOnly: true;
+  storyTemplate: 'still' | 'flow' | 'seedance';
+  storyPrompt: {text: string; sourceFingerprint: string};
+} | {
   promptOnly?: false;
   title: string;
   durationMs: number;
@@ -167,9 +178,32 @@ export function updateCinematicShotDocument(projectId: string, sceneId: string, 
   });
 }
 
-export function prepareCinematicShotWriter(projectId: string, sceneId: string, shotId: string, view?: 'story') {
-  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/writer-preparation${view ? '?view=story' : ''}`, {
+export function prepareCinematicShotWriter(projectId: string, sceneId: string, shotId: string, view?: 'story', template?: 'still' | 'flow' | 'seedance') {
+  const query = view ? '?view=story' + (template ? '&template=' + template : '') : '';
+  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/writer-preparation${query}`, {
     schema: cinematicShotWriterPreparationSchema, cache: 'no-store'
+  });
+}
+
+export function buildCinematicStoryPrompt(projectId: string, sceneId: string, shotId: string, expectedVersion: number,
+  template: 'still' | 'flow' | 'seedance' | 'legacy') {
+  return withCinematicWritingQuote({projectId, sceneId, operation:'shots',
+    input:{purpose:'translate_shot_prompt', targetShotId:shotId, expectedVersion, template}, resultSchema:cinematicShotWriterPreparationSchema},
+    body => apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`,
+      {method:'POST', body, schema:cinematicShotWriterPreparationSchema}));
+}
+
+export function buildMergedStoryPrompt(projectId:string,sceneId:string,shotIds:string[],expectedVersion:number,template:'flow'|'seedance') {
+  const input = {purpose:'merge_shot_prompt', template, shotIds, expectedVersion, targetShotId:shotIds[0]};
+  return withCinematicWritingQuote({projectId, sceneId, operation:'shots', input, resultSchema:mergedStoryWritingResultSchema},
+    body => apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`,
+      {method:'POST', body, schema:mergedStoryWritingResultSchema}));
+}
+
+export function saveMergedStoryPrompt(projectId:string,sceneId:string,expectedVersion:number,
+  input:{shotIds:string[]; template:'flow'|'seedance'; text:string; sourceFingerprint:string; expectedSavedText:string|null}) {
+  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}`, {
+    method:'PATCH', body:{expectedVersion,mergedPrompt:input},schema:cinematicManualSceneMutationSchema
   });
 }
 

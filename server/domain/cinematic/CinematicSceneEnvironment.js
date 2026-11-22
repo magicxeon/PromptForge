@@ -3,7 +3,7 @@ import { cinematicKeyframeConfigurationService } from './CinematicKeyframeConfig
 
 export function sceneEnvironmentContext(project, scene) {
   const policy = cinematicKeyframeConfigurationService.getCompilerConfiguration().providerPromptPolicy;
-  const environmentPrompt = scene.environmentPrompt ?? [scene.location, scene.time,
+  const environmentPrompt = scene.environmentPrompt?.trim() || [scene.location, scene.time, scene.synopsis,
     scene.artDirection, scene.lighting, scene.weather].filter(value => typeof value === 'string' && value.trim()).join('\n');
   const compiledPrompt = `${policy.environmentInstruction}\n\n${environmentPrompt}`;
   return { projectId: project.id, projectVersion: project.version, sceneId: scene.id,

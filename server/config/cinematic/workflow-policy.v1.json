@@ -46,6 +46,7 @@
     "generatedSceneMaximum": 24,
     "sceneProposalHistoryLimit": 10,
     "generatedShotMaximumPerScene": 20,
+    "sceneLooksheetForWriting": {"maximumSourceBytes":12582912,"maximumPixels":40000000,"maximumSide":1280,"jpegQuality":82},
     "shotProposalHistoryLimit": 10,
     "shotDocumentMaximumCharacters": 12000,
     "videoPromptMaximumCharacters": 18000,

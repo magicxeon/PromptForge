@@ -10,6 +10,7 @@ import { createCinematicSetupDraft } from "../../../../web/src/features/cinemati
 import { registerCinematicWritingConsent, type WritingConsentRequest } from "../../../../web/src/features/cinematic/api/cinematicWritingBilling";
 import { storyKeys } from "./data/storyQueryKeys";
 import settings from "./story-config.json";
+import {StoryDirectionFields,initialDirection} from "./StoryDirectionFields";
 import "./story.css";
 import "./translations";
 
@@ -25,14 +26,19 @@ function Projects() {
   const [name,setName] = useState(""), [creating,setCreating] = useState(false);
   const [busy,setBusy] = useState(false), [error,setError] = useState("");
   const [draft] = useState(() => createCinematicSetupDraft());
+  const [direction,setDirection] = useState(initialDirection);
+  const [start,setStart] = useState("script");
   async function create() {
     if (busy || !name.trim()) return;
     setBusy(true); setError("");
     try {
-      const result = await createCinematicProject({...draft,projectName:name.trim()});
+      const result = await createCinematicProject({...draft,projectName:name.trim(),storyDirection:direction,
+        format:direction.format==="standalone"?"short-film":"mini-series",aspectRatio:direction.aspectRatio,
+        storyCountryStyle:direction.country,storyPeriod:direction.period,genre:direction.genre,genres:[direction.genre],
+        audienceFeeling:direction.tone,audienceFeelings:[direction.tone]});
       cache.setQueryData(storyKeys.project(identityScope,result.id),result);
       await cache.invalidateQueries({queryKey:storyKeys.library(identityScope),refetchType:"none"});
-      navigate(result.id);
+      navigate(result.id+(start==="idea"?"?start=idea":""));
     } catch(e) {setError((e as Error).message);}
     finally {setBusy(false);}
   }
@@ -54,6 +60,9 @@ function Projects() {
     {creating && <Dialog label={t("createProject")} onClose={()=>{if(!busy)setCreating(false);}}>
       <form className="story-create" onSubmit={e=>{e.preventDefault();void create();}}><Feather aria-hidden="true"/><h2>{t("createProject")}</h2>
       <label>{t("projectName")}<input autoFocus maxLength={120} required value={name} onChange={e=>setName(e.target.value)}/></label>
+      <label>{t("brief.start")}<select value={start} onChange={e=>setStart(e.target.value)}>
+        <option value="script">{t("brief.script")}</option><option value="idea">{t("brief.idea")}</option></select></label>
+      <details><summary>{t("brief.heading")}</summary><StoryDirectionFields value={direction} onChange={setDirection}/></details>
       {error && <p role="alert">{error}</p>}<footer><button type="button" disabled={busy} onClick={()=>setCreating(false)}>{t("cancel")}</button>
       <button className="primary" disabled={busy||!name.trim()}>{busy && <ProcessingSpinner/>}{t("createProject")}</button></footer></form></Dialog>}
   </main>;

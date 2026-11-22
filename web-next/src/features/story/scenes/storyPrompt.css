@@ -1,0 +1,24 @@
+.story-prompt-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:.75rem; }
+.story-prompt-heading button { display:grid; place-items:center; flex:0 0 2.75rem; height:2.75rem; padding:0; }
+.story-prompt-formats { display:flex; flex-wrap:wrap; gap:.4rem; }
+.story-prompt-formats button[aria-pressed="true"] { background:var(--accent-soft, #e9f1eb); border-color:var(--accent, #347052); }
+.story-prompt-references { display:grid; gap:.45rem; padding-inline-start:1.7rem; }
+.story-prompt-references img { width:3.5rem; height:2.5rem; object-fit:contain; vertical-align:middle; margin-inline-end:.55rem; }
+.story-frame-options { display:grid; grid-template-columns:repeat(auto-fill,minmax(7rem,1fr)); gap:.5rem; }
+.story-frame-options button { padding:.2rem; }
+.story-frame-options img { width:100%; height:5rem; object-fit:cover; }
+.story-merge-selection legend, .story-merge-saved h3 { font-size:1rem; font-weight:650; }
+.story-merge-options, .story-merge-saved ul { display:grid; list-style:none; padding:0; gap:.45rem; }
+.story-reader .story-merge-options label {
+  display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:.7rem;
+  min-height:44px; padding:.55rem .75rem; border:1px solid #d4dfd7; border-radius:.55rem; cursor:pointer;
+}
+.story-merge-options label:has(:checked) { background:#edf4ef; border-color:#428163; }
+.story-merge-options input { width:1.15rem; height:1.15rem; margin:0; accent-color:#347052; }
+.story-merge-options strong, .story-merge-saved button, .story-merge-timeline strong { overflow-wrap:anywhere; }
+.story-merge-saved button { display:flex; flex-wrap:wrap; justify-content:flex-start; text-align:start; white-space:normal; }
+.story-merged-dialog { display:grid; gap:.8rem; }
+.story-merged-dialog h3 { margin:0; }
+.story-merge-timeline { margin:.4rem 0; padding-inline-start:1.7rem; }
+.story-merge-timeline span { margin-inline-start:.3rem; white-space:nowrap; }
+.story-merged-dialog .story-actions button { white-space:normal; }

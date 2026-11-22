@@ -248,11 +248,18 @@ export function registerCinematicRoutes(app, {
     catch (error) { sendCinematicError(res, error); }
   });
 
+  app.get('/api/cinematic/projects/:projectId/scenes/:sceneId/story-prompt-status', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.storyPromptStatus(req.params.projectId, req.params.sceneId, req.actorContext));
+    } catch (error) { sendCinematicError(res, error); }
+  });
+
   app.get('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/writer-preparation', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
       res.json(await cinematicService.prepareShotWriter(req.params.projectId, req.params.sceneId, req.params.shotId, req.actorContext,
-        { storyPrompt: req.query.view === 'story' }));
+        { storyPrompt: req.query.view === 'story', template: req.query.template }));
     } catch (error) { sendCinematicError(res, error); }
   });
 

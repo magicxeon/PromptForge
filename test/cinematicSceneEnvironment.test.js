@@ -3,6 +3,7 @@ import test from 'node:test';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import sharp from 'sharp';
 import { CinematicApplicationService } from '../server/domain/cinematic/CinematicApplicationService.js';
 import { CinematicProjectRepository } from '../server/repositories/cinematic/CinematicProjectRepository.js';
 import { normalizeCinematicSceneReference } from '../server/domain/cinematic/CinematicSceneEnvironment.js';
@@ -195,13 +196,19 @@ test('Owned immutable environment bytes are verified before use', async t => {
   const assetRepository = { findBySourceJobIdForOwner: async () => null,
     create: async (value, owner) => { const asset = { ...value, id: 'asset_scene', ownerUserId: owner.userId }; assets.push(asset); return asset; },
     findByIdForOwner: async (id, userId) => assets.find(value => value.id === id && value.ownerUserId === userId) };
-  await fs.writeFile(path.join(directory, 'job_scene.jpg'), 'scene-image-fixture');
+  await sharp({create:{width:1600,height:800,channels:3,background:'#452105'}})
+    .jpeg().toFile(path.join(directory, 'job_scene.jpg'));
   const service = new CinematicStoryboardAssetService({ assetRepository, outputsDirectory: directory,
     generationHistory: { getById: async () => ({ username: actor.username, imageUrl: '/outputs/job_scene.jpg' }) } });
   const approved = await service.approveGenerationResult({ jobId: 'job_scene' }, actor);
   assert.equal((await service.resolveSceneReference(approved, actor)).referenceValue, '/outputs/job_scene.jpg');
+  const visual = await service.sceneImageForShotPlanning({...approved,imageUrl:'https://ignored.invalid/'},actor);
+  const meta = await sharp(Buffer.from(visual.data, 'base64')).metadata();
+  assert.deepEqual([visual.mimeType,meta.width,meta.height],['image/jpeg',1280,640]);
+  await assert.rejects(service.sceneImageForShotPlanning(approved,{...actor,userId:'other'}),{code:'cinematic_scene_source_unavailable'});
   await assert.rejects(service.resolveSceneReference(approved, { ...actor, userId: 'other' }), { code: 'cinematic_scene_source_unavailable' });
   await fs.writeFile(path.join(directory, 'job_scene.jpg'), 'changed');
+  await assert.rejects(service.sceneImageForShotPlanning(approved,actor),{code:'cinematic_storyboard_source_content_changed'});
   await assert.rejects(service.resolveSceneReference(approved, actor), { code: 'cinematic_storyboard_source_content_changed' });
 });
 

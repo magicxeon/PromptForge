@@ -15,19 +15,19 @@ afterEach(()=>{cleanup();vi.clearAllMocks();});
 
 it("saves the catalog model and at most five skills on the owning project's version; cancel leaves the project untouched",async()=>{
   const client=new QueryClient();
-  const project={id:"story-root",version:9,writingSettings:{modelId:null,skillIds:[]}} as unknown as CinematicProject;
+  const project={id:"story-root",version:9,setup:{storyPeriod:"contemporary",genre:"drama",audienceFeeling:"moved",aspectRatio:"9:16"},durationTargetMs:60000,fullStoryVersions:[],writingSettings:{modelId:null,skillIds:[]}} as unknown as CinematicProject;
   const catalog={defaultModelId:null,maxSkills:5,models:[{id:"test-model",label:"Fixture model"}],
     skills:Array.from({length:6},(_,i)=>({id:"skill"+i,label:{en:"Skill "+i,th:"ทักษะ "+i},description:{en:"Direction",th:"คำกำกับ"}}))};
   api.updateCinematicWritingSettings.mockResolvedValue({...project,version:10});
   render(<QueryClientProvider client={client}><WritingSettings project={project} catalog={catalog} disabled={false}/></QueryClientProvider>);
   const button=(name:string)=>screen.getByRole("button",{name});
-  fireEvent.click(button("writingSettings"));
-  fireEvent.change(screen.getByRole("combobox"),{target:{value:"test-model"}});
+  fireEvent.click(button("brief.settings"));
+  fireEvent.change(screen.getByRole("combobox",{name:"writingModel"}),{target:{value:"test-model"}});
   fireEvent.click(button("cancel"));
   expect(api.updateCinematicWritingSettings).not.toHaveBeenCalled();
-  fireEvent.click(button("writingSettings"));
-  expect((screen.getByRole("combobox") as HTMLSelectElement).value).toBe("");
-  fireEvent.change(screen.getByRole("combobox"),{target:{value:"test-model"}});
+  fireEvent.click(button("brief.settings"));
+  expect((screen.getByRole("combobox",{name:"writingModel"}) as HTMLSelectElement).value).toBe("");
+  fireEvent.change(screen.getByRole("combobox",{name:"writingModel"}),{target:{value:"test-model"}});
   const skills=screen.getAllByRole("checkbox") as HTMLInputElement[];
   skills.slice(0,5).forEach(skill=>fireEvent.click(skill));
   expect(skills[5].disabled).toBe(true);
