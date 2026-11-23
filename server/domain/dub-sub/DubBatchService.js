@@ -10,7 +10,7 @@ const fingerprint = (value) =>
 
 function hasCandidate(item) {
   return item.status === "needs_listen" || (item.status === "failed" &&
-    (item.errorCode === "dub_take_exceeds_window" || item.errorCode?.startsWith("dub_take_rhythm_")));
+    (["dub_take_exceeds_window","dub_take_overlap"].includes(item.errorCode) || item.errorCode?.startsWith("dub_take_rhythm_")));
 }
 
 async function castStillMatches(voice,actor,item,language) {
@@ -26,6 +26,13 @@ function place(cue, language, take, offsetMs, primaryLanguage, internalPausesAcc
   return {...cue,offsetMs,takes:{...cue.takes,[language]:{
     id:take.id,audioUrl:take.audioUrl,durationMs:take.durationMs,...(internalPausesAccepted && {internalPausesAccepted:true})
   }},...(language===primaryLanguage && {selectedTakeId:take.id})};
+}
+
+function placeBatchTake(cue, language, take, offsetMs, project, internalPausesAccepted = false) {
+  const placed = place(cue,language,take,offsetMs,project.targetLanguages[0],internalPausesAccepted);
+  const overrunMs = takePlacement(placed,take.durationMs,project.durationMs).end - cue.endMs;
+  if (overrunMs > 0) placed.takes[language].confirmedOverrunMs = overrunMs;
+  return placed;
 }
 
 function lineInput(project, cue, language) {
@@ -208,7 +215,7 @@ export class DubBatchService {
             characterPresetId: input.characterId,
             text: input.text,
             targetDurationMs: input.end - input.start,
-            ...(rhythms.has(cueId) && {speechWindows:rhythms.get(cueId)}),
+            ...(rhythms.has(cueId) && {speechWindows:rhythms.get(cueId),boundaryTimingOnly:true}),
             delivery: input.delivery,
             selectedTakeId: null,
           })),
@@ -346,12 +353,12 @@ export class DubBatchService {
           const rhythms=await this.projects.analyzeSourceRhythms(this.projects,actor,project,[cue],verify);
           take={...take,inputSnapshot:{...take.inputSnapshot,speechWindows:rhythms.get(cue.id)}};
         }
-        const fit = await fitTakeOffset({...project,cues},cue,batch.language,take,voice,actor,false,!!pauseException);
+        const fit = await fitTakeOffset({...project,cues},cue,batch.language,take,voice,actor,false,!!pauseException,true);
         if (fit.errorCode) {
           item.status="needs_listen"; item.errorCode=fit.errorCode;
           if (fit.errorCode==="dub_take_exceeds_window") Object.assign(item,{durationMs:take.durationMs,targetMs:fit.targetMs});
         } else {
-          cues[index]=place(cue,batch.language,take,fit.offsetMs,project.targetLanguages[0],!!pauseException);
+          cues[index]=placeBatchTake(cue,batch.language,take,fit.offsetMs,project,!!pauseException);
           if (pauseException) item.internalPausesAccepted = true;
           item.status="done"; delete item.errorCode;
         }
@@ -486,13 +493,13 @@ export class DubBatchService {
         return setStatus("failed", "dub_batch_changed");
       const take = op.take;
       const {offsetMs,errorCode,targetMs} = await fitTakeOffset(
-        project,cue,batch.language,take,voice,actor,batch.acceptRhythmMismatch === true,
+        project,cue,batch.language,take,voice,actor,batch.acceptRhythmMismatch === true,false,true,
       );
       const cues = project.cues.map((row) =>
         row.id !== cue.id
           ? row
           : {
-              ...(errorCode ? row : place(row,batch.language,take,offsetMs,project.targetLanguages[0])),
+              ...(errorCode ? row : placeBatchTake(row,batch.language,take,offsetMs,project)),
               voiceBindings: {
                 ...row.voiceBindings,
                 [batch.language]: {

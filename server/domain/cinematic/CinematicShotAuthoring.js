@@ -115,7 +115,7 @@ export function createManualShot(project, sceneId, { maximumShots = 20 } = {}, n
   const scene = findScene(project, sceneId);
   if (scene.shots.length >= maximumShots) fail('cinematic_shot_limit', `A Scene supports at most ${maximumShots} Shots.`, 409);
   const index = scene.shots.length;
-  const durationMs = Math.min(20000, Math.max(1000, Math.round(Number(scene.durationMs || 5000) / Math.max(1, index + 1))));
+  const durationMs = wholeShotDuration(Number(scene.durationMs || 5000) / (index + 1));
   const outline = normalizeShotOutline({
     title: `Shot ${index + 1}`,
     purpose: scene.objective || scene.synopsis || scene.storyChange || '',
@@ -158,7 +158,8 @@ export function updateShotDocument(project, sceneId, shotId, input, now = new Da
     fail('cinematic_shot_version_conflict', 'The Shot changed in another session.', 409);
   }
   const title = text(input?.title, 120);
-  const shotDocument = checkedShotDocument(input?.shotDocument);
+  const durationMs = wholeShotDuration(input?.durationMs ?? shot.durationMs);
+  const shotDocument = withShotDuration(checkedShotDocument(input?.shotDocument), durationMs);
   if (!title) fail('cinematic_shot_title_required', 'Shot title is required.');
   if (!shotDocument.trim()) fail('cinematic_shot_document_required', 'Shot direction is required.');
   if (input.speakerBindings !== undefined) {
@@ -188,7 +189,7 @@ export function updateShotDocument(project, sceneId, shotId, input, now = new Da
   }
   if (input.videoPromptOverride !== undefined) writeShotPromptOverride(shot, input.videoPromptOverride);
   shot.title = title;
-  shot.durationMs = integer(input?.durationMs, 500, 20000, Number(shot.durationMs) || 5000);
+  shot.durationMs = durationMs;
   if (shotDocument !== shot.shotDocument) delete shot.summary;
   shot.shotDocument = shotDocument;
   shot.manualStoryboard = false;
@@ -268,13 +269,14 @@ function shotFromOutline(outline, index, proposal, scene, now) {
 }
 
 function shotDocumentFields(outline, index, proposal) {
+  const durationMs = wholeShotDuration(outline.durationMs);
   return {
     orderKey: index + 1,
     title: outline.title,
     purpose: outline.purpose,
     ...(outline.summary && {summary:outline.summary}),
-    durationMs: outline.durationMs,
-    shotDocument: outline.shotDocument,
+    durationMs,
+    shotDocument: withShotDuration(outline.shotDocument, durationMs),
     source: 'ai_proposal',
     sourceShotProposalId: proposal.id || null,
     castAssignmentIds: outline.characterIds
@@ -285,8 +287,8 @@ function normalizeShotOutline(value, index, allowedCharacterIds) {
   if ((value?.characterIds || []).some(id => !allowedCharacterIds.has(id))) {
     fail('cinematic_shot_cast_invalid', 'The proposed Shot includes a Character outside this Scene.');
   }
-  const durationMs = integer(value?.durationMs, 500, 20000, 5000);
-  const shotDocument = checkedShotDocument(value?.shotDocument) || `SHOT DURATION\n${formatSeconds(durationMs)} seconds`;
+  const durationMs = wholeShotDuration(value?.durationMs);
+  const shotDocument = withShotDuration(checkedShotDocument(value?.shotDocument), durationMs) || `SHOT DURATION\n${durationMs / 1000} seconds`;
   return {
     title: text(value?.title, 120) || `Shot ${index + 1}`,
     purpose: text(value?.purpose, 1000),
@@ -326,6 +328,16 @@ function normalizeProvenance(value) {
     fallbackUsed: Boolean(value.fallbackUsed),
     fallbackReason: nullableId(value.fallbackReason)
   };
+}
+function wholeShotDuration(value) {
+  const durationMs = Number(value);
+  return Number.isFinite(durationMs) && durationMs > 0
+    ? Math.min(20000, Math.ceil(durationMs / 1000) * 1000)
+    : 5000;
+}
+function withShotDuration(document, durationMs) {
+  return document.replace(/^(SHOT DURATION(?:[ \t]*:[ \t]*|[ \t]*\r?\n[ \t]*))\d+(?:\.\d+)?(?=[ \t]*(?:s(?:ec(?:onds?)?)?\b|วินาที|$))/im,
+    (_, heading) => heading + durationMs / 1000);
 }
 function formatSeconds(durationMs) { return (Math.round(durationMs / 100) / 10).toFixed(durationMs % 1000 === 0 ? 0 : 1); }
 function requiredId(value, message) { const id = nullableId(value); if (!id) fail('cinematic_scene_required', message, 409); return id; }

@@ -328,8 +328,14 @@ try {
   await shotRow.focus();
   await page.keyboard.press("Enter");
   const shotText=dialog.locator("fieldset > label textarea");
+  const shotDuration=dialog.locator('input[type="number"]');
+  assert.equal(await shotDuration.inputValue(),"5","fractional AI proposals are rounded up");
   const revised=dialogue+"\nแขกถือจดหมายออกเดินทาง";
   await shotText.fill(revised);
+  await shotDuration.fill("4.5");
+  assert.equal(await shotDuration.getAttribute("aria-invalid"),"true");
+  assert.ok(await dialog.locator("fieldset > footer button").last().isDisabled());
+  await shotDuration.fill("5");
   await dialog.locator("fieldset > footer button").first().click();
   const leave=page.getByRole("dialog").last();
   await leave.getByRole("button",{name:/keep editing|continue editing/i}).click();
@@ -343,7 +349,7 @@ try {
   await shotRow.waitFor();
   assert.deepEqual((await persisted()).scenes[0],firstSaved,"editing scene two leaves scene one unchanged");
   assert.equal((await persisted()).scenes[1].shots[0].shotDocument,revised);
-  assert.equal((await persisted()).scenes[1].shots[0].durationMs,4500);
+  assert.equal((await persisted()).scenes[1].shots[0].durationMs,5000);
 
   for(const width of [390,820,1440]) {
     await page.setViewportSize({width,height:width===390?844:900});

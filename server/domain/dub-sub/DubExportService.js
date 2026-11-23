@@ -215,6 +215,7 @@ async function mix(project, language, dir, openTake) {
       start,
       end,
       dest,
+      confirmedOverrun:cue.takes[language].confirmedOverrunMs > 0,
       gain: cue.gain * (channel?.gain ?? 1),
     });
   }
@@ -235,7 +236,8 @@ async function mix(project, language, dir, openTake) {
     return silence;
   }
   clips.sort((a, b) => a.start - b.start);
-  if (clips.some((clip, i) => i && clip.start < clips[i - 1].end - 25))
+  if (clips.some((clip, i) => i && clip.start < clips[i - 1].end -
+    (clip.confirmedOverrun || clips[i - 1].confirmedOverrun ? 0 : 25)))
     throw dubError("dub_takes_overlap", 422);
   // Keep the number of decoder inputs and OS command length bounded.
   const parts = [];

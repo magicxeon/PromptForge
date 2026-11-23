@@ -31,7 +31,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
   const cast=project.castAssignments.filter(c=>c.active!==false&&(!shot||scene.castMode!=="none"&&scene.castAssignmentIds.includes(c.id)));
   const effectiveIds=shot?.castMode==="none"||scene.castMode==="none"?[]:shot?.castMode==="selected"||shot?.castAssignmentIds.length?shot.castAssignmentIds:scene.castAssignmentIds;
   const original={title:shot?.title??scene.title,body:shot?(shot.shotDocument||legacy.data?.shotDocument||""):(scene.synopsis||scene.storyChange||""),
-    location:scene.location,time:scene.time,seconds:(shot?.durationMs??scene.durationMs)/1000,characterIds:scene.castAssignmentIds,
+    location:scene.location,time:scene.time,seconds:shot?Math.ceil(shot.durationMs/1000):scene.durationMs/1000,characterIds:scene.castAssignmentIds,
     environment:scene.environmentPrompt||"",objective:scene.objective||"",entryState:scene.entryState||"",exitState:scene.exitState||"",
     emotionalStart:scene.emotionalStart,emotionalEnd:scene.emotionalEnd,
     sceneEvents:scene.sceneEvents??[],lighting:scene.lighting??"",audioIntent:scene.audioIntent??"",
@@ -44,7 +44,8 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
   const stale=baseVersion!==(shot?.version??scene.version);
   const aliases=draft.speakers.map(b=>b.alias.trim());
   const validSpeakers=aliases.every(Boolean)&&new Set(aliases).size===aliases.length;
-  const valid=!!draft.title.trim()&&(!shot||!!draft.body.trim()&&draft.seconds>=0.5&&draft.seconds<=20&&validSpeakers)&&!editor.pending&&!stale;
+  const validShotDuration=Number.isInteger(draft.seconds)&&draft.seconds>=1&&draft.seconds<=20;
+  const valid=!!draft.title.trim()&&(!shot||!!draft.body.trim()&&validShotDuration&&validSpeakers)&&!editor.pending&&!stale;
   const blocker=useBlocker(editor.dirty);
   const finish=()=>{if(blocker.state==="blocked")blocker.proceed();else close();};
   const dismiss=()=>{if(saving)return;if(editor.dirty){setLeaving(true);return;}close();};
@@ -58,7 +59,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
     setSaving(true);
     try{await run(async()=>{
       const r=shot?await updateCinematicShotDocument(project.id,scene.id,shot.id,{
-        expectedVersion:project.version,expectedShotVersion:shot.version,title:draft.title,durationMs:Math.round(draft.seconds*1000),
+        expectedVersion:project.version,expectedShotVersion:shot.version,title:draft.title,durationMs:draft.seconds*1000,
         shotDocument:draft.body,speakerBindings:draft.speakers,source:"manual",
       }):await updateCinematicSceneOutline(project.id,scene.id,{
         expectedVersion:project.version,expectedSceneVersion:scene.version,title:draft.title,synopsis:draft.body,
@@ -89,7 +90,8 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
       <label>{t(shot?"shotDocument":"synopsis")}<textarea rows={8} maxLength={shot?max:4000} value={draft.body} onChange={e=>editor.setValue({...draft,body:e.target.value})}/></label>
       {!shot&&<label>{t("stage.lighting")}<textarea rows={3} maxLength={500} value={draft.lighting??scene.lighting??""}
         onChange={e=>editor.setValue({...draft,lighting:e.target.value})}/></label>}
-      <label>{t("duration")}<input type="number" step={shot?0.1:1} min={shot?0.5:5} max={shot?20:120} value={draft.seconds} onChange={e=>editor.setValue({...draft,seconds:Number(e.target.value)})}/></label>
+      <label>{t("duration")}<input type="number" step={1} min={shot?1:5} max={shot?20:120} value={draft.seconds}
+        aria-invalid={shot&&!validShotDuration||undefined} onChange={e=>editor.setValue({...draft,seconds:Number(e.target.value)})}/></label>
       {cast.length>0&&<details><summary>{t(shot?"speakers":"cast")}</summary>{!validSpeakers&&<p role="alert">{t("uniqueAliases")}</p>}{cast.map(person=>{
         const binding=draft.speakers.find(s=>s.castAssignmentId===person.id);
         return <div key={person.id} className="story-cast"><label><input type="checkbox"

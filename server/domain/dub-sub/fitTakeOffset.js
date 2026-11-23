@@ -7,13 +7,16 @@ const policy = config.timedDialogue.alignment;
 
 // Intersect the acceptable offset range for each measured boundary. If the
 // ranges do not intersect, moving the entire waveform cannot fix the cadence.
-export async function fitTakeOffset(project, cue, language, take, voice, actor, acceptRhythmMismatch = false, skipInternalPauses = false) {
+export async function fitTakeOffset(project, cue, language, take, voice, actor, acceptRhythmMismatch = false, skipInternalPauses = false, batchTiming = false) {
   const current = cue.offsetMs ?? 0;
   const projectEnd = project.durationMs ?? cue.endMs;
   const placement = takePlacement(cue,take.durationMs,projectEnd);
   const reject = errorCode => ({offsetMs:current,errorCode,targetMs:placement.availableMs});
   let lower = -cue.startMs;
-  let upper = Math.min(cue.endMs,projectEnd) + endToleranceMs - cue.startMs - take.durationMs;
+  const latestEnd = batchTiming
+    ? Math.min(cue.endMs + policy.batchTailAllowanceMs,projectEnd)
+    : Math.min(cue.endMs,projectEnd) + endToleranceMs;
+  let upper = latestEnd - cue.startMs - take.durationMs;
   const limit = (lo,hi) => {
     lower = Math.max(lower,Math.ceil(lo));
     upper = Math.min(upper,Math.floor(hi));
@@ -37,20 +40,22 @@ export async function fitTakeOffset(project, cue, language, take, voice, actor, 
     const shared = Object.entries(cue.takes ?? {}).some(([lang,audio])=>lang!==language && audio?.id);
     const offsetMs = shared ? current : 0;
     const slot = takePlacement({...cue,offsetMs},take.durationMs,projectEnd);
-    if (offsetMs<0 || !slot.fits) return reject("dub_take_exceeds_window");
+    if (offsetMs<0 || (batchTiming ? slot.end > latestEnd : !slot.fits)) return reject("dub_take_exceeds_window");
     if (offsetMs<lower || offsetMs>upper) return reject("dub_take_overlap");
     return {offsetMs,errorCode:null,targetMs:slot.availableMs};
   }
   // A director can accept the performance at its existing position. Capture
   // physical limits before narrowing the interval to match speech boundaries.
-  const canKeepPosition = acceptRhythmMismatch && placement.fits && current >= lower && current <= upper;
+  const fitsCurrent = batchTiming ? placement.start >= 0 && placement.end <= latestEnd : placement.fits;
+  const canKeepPosition = acceptRhythmMismatch && fitsCurrent && current >= lower && current <= upper;
   const rhythmMismatch = reason => reject(canKeepPosition ? null : "dub_take_rhythm_" + reason);
   if (!expected) {
     if (skipInternalPauses) return reject("dub_take_rhythm_unmeasurable");
-    if (!placement.fits) return reject("dub_take_exceeds_window");
+    if (!fitsCurrent) return reject("dub_take_exceeds_window");
     if (current < lower || current > upper) return reject("dub_take_overlap");
-    const reason = take.rhythmReview?.reasons?.[0];
-    if (reason && take.rhythmReview.reasons.every(r => ["onset","ending","pause"].includes(r)))
+    const reasons = (take.rhythmReview?.reasons ?? []).filter(reason => !batchTiming || reason !== "pause");
+    const reason = reasons[0];
+    if (reason && reasons.every(r => ["onset","ending","pause"].includes(r)))
       return rhythmMismatch(reason);
     return reject(reason ? "dub_take_rhythm_" + reason : null);
   }
@@ -68,8 +73,9 @@ export async function fitTakeOffset(project, cue, language, take, voice, actor, 
     return rhythmMismatch("onset");
   if (!matchBoundary(expected.at(-1).endMs,actual.at(-1).endMs,policy.endingToleranceMs))
     return rhythmMismatch("ending");
-  const wantedPauses = skipInternalPauses ? [] : significantPauses(expected);
-  const measuredPauses = skipInternalPauses ? [] : significantPauses(actual);
+  const checkPauses = !batchTiming && !skipInternalPauses;
+  const wantedPauses = checkPauses ? significantPauses(expected) : [];
+  const measuredPauses = checkPauses ? significantPauses(actual) : [];
   if (wantedPauses.length !== measuredPauses.length) return rhythmMismatch("pause");
   for (const [i, wanted] of wantedPauses.entries()) {
     const measured = measuredPauses[i];

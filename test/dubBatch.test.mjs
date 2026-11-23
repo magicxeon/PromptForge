@@ -7,7 +7,7 @@ import { DubProjectRepository } from "../server/repositories/dub-sub/DubProjectR
 import { DubProjectService } from "../server/domain/dub-sub/DubProjectService.js";
 import { withWebNextCreditPolicy } from "../server/domain/credits/WorkspaceCreditPolicy.js";
 import { webNextCreditRoute } from "../server/config/webNextProxy.js";
-import { takePlacement } from "../server/domain/dub-sub/takePlacement.js";
+import { canExportTake, takePlacement } from "../server/domain/dub-sub/takePlacement.js";
 import { normalizeCues } from "../server/domain/dub-sub/projectFields.js";
 
 async function fixture(t, { free = true } = {}) {
@@ -180,18 +180,27 @@ test("a take exceeding its slot reports measured time and preserves the previous
   assert.equal((await f.repo.get(f.actor,f.project.id)).cues[0].takes.th.id,"original");
 });
 
-test("a missing performance pause leaves a candidate for audition, retains the pinned take and continues the batch", async t => {
+test("a batch accepts a different pause and uses a safe tail through save and export validation", async t => {
   const f = await fixture(t);
+  await f.repo.mutate(f.actor,f.project.id,f.project.revision,p=>{
+    p.durationMs=6200;
+    p.cues[1].startMs=2250;
+  });
   const batch = await f.prepare("all");
   await f.step(batch.id);
   const opId=f.requests[0].quoteId;
-  f.jobs.set(opId,{status:"succeeded",take:{id:"offbeat",audioUrl:"/offbeat.wav",durationMs:1800,
+  f.jobs.set(opId,{status:"succeeded",take:{id:"offbeat",audioUrl:"/offbeat.wav",durationMs:2200,
     rhythmReview:{status:"review",reasons:["pause"]}}});
   const result=await f.step(batch.id);
-  assert.equal(result.items[0].errorCode,"dub_take_rhythm_pause");
-  const stored=(await f.repo.get(f.actor,f.project.id)).cues[0];
-  assert.equal(stored.takes.th.id,"original");
+  assert.equal(result.items[0].status,"done");
+  const project=await f.repo.get(f.actor,f.project.id);
+  const stored=project.cues[0];
+  assert.equal(stored.takes.th.id,"offbeat");
   assert.equal(stored.voiceBindings.th.operationId,opId);
+  const normalized=await normalizeCues(project.cues,project,async()=>stored.takes.th);
+  const take=normalized[0].takes.th;
+  assert.equal(take.confirmedOverrunMs,200);
+  assert.ok(canExportTake(takePlacement(normalized[0],take.durationMs,project.durationMs),take.durationMs,take.confirmedOverrunMs));
   await f.step(batch.id);
   assert.equal(f.requests.length,2);
 });
@@ -328,7 +337,7 @@ test("retime an old partial batch using saved takes only; preserve chosen cues a
   });
   f.service.voiceStudio.getDubTake=async(actor,id)=>{assert.equal(actor,f.actor);return takes.get(id)};
   f.service.voiceStudio.measureDubTake=async(_,id)=>id===first.operationId
-    ? [{startMs:290,endMs:1550}] : [{startMs:100,endMs:500},{startMs:880,endMs:1500}];
+    ? [{startMs:290,endMs:1550}] : [{startMs:100,endMs:500},{startMs:660,endMs:1010}];
   const retime=revision=>f.service.batches.advance(f.actor,p.id,batch.id,{retime:true,revision},f.noop);
   await assert.rejects(retime(p.revision-1),{code:"dub_revision_conflict"});
   // The selected take in cue0 reserves only the portion it occupies.
@@ -339,7 +348,7 @@ test("retime an old partial batch using saved takes only; preserve chosen cues a
   assert.equal(saved.cues[0].takes.th.id,"original");
   assert.equal(saved.cues[1].takes.th.id,first.operationId);
   assert.ok(saved.cues[1].offsetMs<0);
-  assert.equal(result.items[1].errorCode,"dub_take_rhythm_pause");
+  assert.equal(result.items[1].errorCode,"dub_take_rhythm_ending");
   await retime(saved.revision);
   assert.equal((await f.repo.get(f.actor,p.id)).revision,saved.revision);
   const retry=await f.prepare("missing");

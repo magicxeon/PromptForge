@@ -193,11 +193,18 @@ test('private local video, peaks, revision, subtitle export and byte ranges', as
   const dubbed = await service.update(actor,project.id,{revision:edited.revision,cues:[
     {...edited.cues[0],takes:{th:{id:'take1',audioUrl:'untrusted',durationMs:1}}}]});
   assert.deepEqual(dubbed.cues[0].takes.th,{id:'take1',audioUrl:'/outputs/private.wav',durationMs:500});
-  const wav = await service.perform(actor,project.id,'exports',{format:'wav',language:'th',revision:dubbed.revision,sourceGain:0.15});
+  const withTail = await service.repo.mutate(actor,project.id,dubbed.revision,p=>{
+    p.cues[0].endMs=400;
+    p.cues[0].takes.th.confirmedOverrunMs=150;
+  });
+  const wav = await service.perform(actor,project.id,'exports',{format:'wav',language:'th',revision:withTail.revision,sourceGain:0});
   const mixed = (await service.file(actor,project.id,'export',wav.id)).path;
   const duration = await promisify(execFile)('ffprobe',['-v','error','-show_entries','format=duration','-of','csv=p=0',mixed]);
   assert.ok(Math.abs(Number(duration.stdout)-1) < 0.02);
-  const locked = await service.update(actor,project.id,{revision:dubbed.revision,tracks:{...dubbed.tracks,th:{...dubbed.tracks.th,locked:true}}});
+  const {stdout: samples} = await promisify(execFile)('ffmpeg',['-v','error','-ss','0.46','-i',mixed,
+    '-t','0.04','-f','s16le','pipe:1'],{encoding:'buffer'});
+  assert.ok(samples.some(byte=>byte!==0),'the exported dub still has audible samples beyond the cue end');
+  const locked = await service.update(actor,project.id,{revision:withTail.revision,tracks:{...withTail.tracks,th:{...withTail.tracks.th,locked:true}}});
   await assert.rejects(service.update(actor,project.id,{revision:locked.revision,cues:[]}),{code:'dub_track_locked'});
   const archived = await service.update(actor,project.id,{revision:locked.revision,archived:true});
   assert.equal(archived.archived,true); assert.equal((await service.list(actor,{})).items.length,0);

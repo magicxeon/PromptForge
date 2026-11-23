@@ -3,15 +3,25 @@ import test from "node:test";
 import {fitTakeOffset} from "../server/domain/dub-sub/fitTakeOffset.js";
 
 const spans = pairs => pairs.map(([startMs,endMs])=>({startMs,endMs}));
-function fit({goal=[[102,1982]], measured=[[320,1970]], offsetMs=0, peer, otherTake, duration=2080, startMs=1058, windowMs=2080,acceptRhythmMismatch=false,skipInternalPauses=false}={}) {
+function fit({goal=[[102,1982]], measured=[[320,1970]], offsetMs=0, peer, otherTake, duration=2080, startMs=1058, windowMs=2080,acceptRhythmMismatch=false,skipInternalPauses=false,batchTiming=false,projectEnd=6000}={}) {
   const cue = {id:"one",startMs,endMs:startMs+windowMs,offsetMs,takes:otherTake ? {en:otherTake} : {}};
-  const project = {durationMs:6000,cues:[cue,...(peer?[peer]:[])]};
+  const project = {durationMs:projectEnd,cues:[cue,...(peer?[peer]:[])]};
   const take = {id:"fixture",durationMs:duration,inputSnapshot:{speechWindows:spans(goal)}};
   const actor = {userId:"owner"};
   return fitTakeOffset(project,cue,"th",take,{measureDubTake:async (user,id)=>{
     assert.equal(user,actor); assert.equal(id,take.id); return spans(measured);
-  }},actor,acceptRhythmMismatch,skipInternalPauses);
+  }},actor,acceptRhythmMismatch,skipInternalPauses,batchTiming);
 }
+
+test("batch keeps natural internal pauses and a 250 ms tail while respecting hard boundaries",async()=>{
+  const sample={startMs:0,windowMs:2000,duration:2250,goal:[[30,800],[1100,1950]],measured:[[30,2100]],batchTiming:true};
+  assert.deepEqual(await fit(sample),{offsetMs:0,errorCode:null,targetMs:2000});
+  assert.equal((await fit({...sample,duration:2251})).errorCode,"dub_take_exceeds_window");
+  assert.equal((await fit({...sample,projectEnd:2249})).errorCode,"dub_take_exceeds_window");
+  assert.equal((await fit({...sample,peer:{id:"next",startMs:2249,endMs:3200}})).errorCode,"dub_take_overlap");
+  assert.equal((await fit({...sample,measured:[[200,2100]]})).errorCode,"dub_take_rhythm_onset");
+  assert.equal((await fit({...sample,measured:[[30,2150]]})).errorCode,"dub_take_rhythm_ending");
+});
 
 test("a single pause exception requires measured endpoints, a common offset and room between cues",async()=>{
   const sample={goal:[[100,700],[1200,1900]],measured:[[100,1900]],skipInternalPauses:true};
