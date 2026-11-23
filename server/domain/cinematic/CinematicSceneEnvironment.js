@@ -1,11 +1,17 @@
 import crypto from 'node:crypto';
+import { storyVisualStyle } from '../../config/storyWritingSettings.js';
 import { cinematicKeyframeConfigurationService } from './CinematicKeyframeConfigurationService.js';
 
 export function sceneEnvironmentContext(project, scene) {
   const policy = cinematicKeyframeConfigurationService.getCompilerConfiguration().providerPromptPolicy;
   const environmentPrompt = scene.environmentPrompt?.trim() || [scene.location, scene.time, scene.synopsis,
     scene.artDirection, scene.lighting, scene.weather].filter(value => typeof value === 'string' && value.trim()).join('\n');
-  const compiledPrompt = `${policy.environmentInstruction}\n\n${environmentPrompt}`;
+  const treatment = scene.lighting?.trim();
+  const style = project.writingSettings?.direction?.visualStyle && storyVisualStyle(project.writingSettings);
+  const compiledPrompt = [policy.environmentInstruction, style?.instruction, environmentPrompt,
+    treatment && !environmentPrompt.includes(treatment)
+      ? `Scene atmosphere (apply to the setting and light): ${treatment}` : ''
+  ].filter(Boolean).join('\n\n');
   return { projectId: project.id, projectVersion: project.version, sceneId: scene.id,
     sceneVersion: scene.version || 1, environmentPrompt, compiledPrompt,
     promptFingerprint: crypto.createHash('sha256').update(compiledPrompt).digest('hex'),

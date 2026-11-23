@@ -82,7 +82,7 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
     </header>
     {scene.sourceChapterRevisionId&&scene.sourceChapterRevisionId!==project.activeChapterVersionId && <p role="status">{t("sourceChanged")}</p>}
     {stage==="staging"?<>
-      <SceneStage project={project} scene={scene} run={run} aspectRatio={aspectRatio}/>
+      <SceneStage project={project} scene={scene} run={run} aspectRatio={aspectRatio} editTreatment={()=>setEdit("scene")}/>
       <StoryPromptStatus project={project} scene={scene}/>
       {needsProposal && <div className="story-actions">{propose}{!shots.length&&add}</div>}
     </>:<>

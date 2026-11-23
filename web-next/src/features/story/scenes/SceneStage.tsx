@@ -11,7 +11,7 @@ import {uploadStorySceneImage} from "./uploadStorySceneImage";
 import settings from "./staging-config.json";
 import {SceneDirectionSummary} from "./SceneDirectionSummary";
 
-export function SceneStage({project,scene,run,aspectRatio}:{project:CinematicProject;scene:CinematicScene;run:RunWriting;aspectRatio:string}) {
+export function SceneStage({project,scene,run,aspectRatio,editTreatment}:{project:CinematicProject;scene:CinematicScene;run:RunWriting;aspectRatio:string;editTreatment:()=>void}) {
   const {t} = useTranslation("story");
   const navigate = useNavigate();
   const {identityScope} = useActor();
@@ -55,7 +55,12 @@ export function SceneStage({project,scene,run,aspectRatio}:{project:CinematicPro
         <p className="story-prose">{excerpt}</p></details>}
       {direction&&<><h4>{t("stage.direction")}</h4><p className="story-prose">{direction}</p></>}
       {continuity.length>0&&<dl>{continuity.map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>}
-      <SceneDirectionSummary scene={scene}/>
+      <section className="story-scene-treatment">
+        <h4>{t("stage.lighting")}</h4>
+        {scene.lighting&&<p className="story-prose">{scene.lighting}</p>}
+        <button type="button" onClick={editTreatment}>{t("stage.editTreatment")}</button>
+      </section>
+      <SceneDirectionSummary scene={{sceneEvents:scene.sceneEvents,audioIntent:scene.audioIntent}}/>
     </div>
     <div className="story-looksheet"><h3>{t("stage.looksheet")}</h3>
       {image?<MediaImage className="story-stage-image" src={image.thumbnailUrl||image.imageUrl} alt={scene.title}/>:

@@ -87,6 +87,8 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
     {legacy.error && <p role="alert">{legacy.error.message} <button onClick={()=>void legacy.refetch()}>{t("retry")}</button></p>}
     <fieldset disabled={saving||(!!shot&&!shot.shotDocument&&!legacy.data)}><label>{t("name")}<input maxLength={120} value={draft.title} onChange={e=>editor.setValue({...draft,title:e.target.value})}/></label>
       <label>{t(shot?"shotDocument":"synopsis")}<textarea rows={8} maxLength={shot?max:4000} value={draft.body} onChange={e=>editor.setValue({...draft,body:e.target.value})}/></label>
+      {!shot&&<label>{t("stage.lighting")}<textarea rows={3} maxLength={500} value={draft.lighting??scene.lighting??""}
+        onChange={e=>editor.setValue({...draft,lighting:e.target.value})}/></label>}
       <label>{t("duration")}<input type="number" step={shot?0.1:1} min={shot?0.5:5} max={shot?20:120} value={draft.seconds} onChange={e=>editor.setValue({...draft,seconds:Number(e.target.value)})}/></label>
       {cast.length>0&&<details><summary>{t(shot?"speakers":"cast")}</summary>{!validSpeakers&&<p role="alert">{t("uniqueAliases")}</p>}{cast.map(person=>{
         const binding=draft.speakers.find(s=>s.castAssignmentId===person.id);
@@ -112,8 +114,8 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
               editor.setValue({...draft,sceneEvents:e.target.checked?[...selected,id]:selected.filter(item=>item!==id)})}/>{label[locale]}</label>;
           })}
         </fieldset>
-        {(["lighting","audioIntent"] as const).map(key=><label key={key}>{t("stage."+key)}
-          <textarea rows={2} maxLength={500} value={draft[key]??scene[key]??""} onChange={e=>editor.setValue({...draft,[key]:e.target.value})}/></label>)}
+        <label>{t("stage.audioIntent")}<textarea rows={2} maxLength={500} value={draft.audioIntent??scene.audioIntent??""}
+          onChange={e=>editor.setValue({...draft,audioIntent:e.target.value})}/></label>
         <label>{t("stage.direction")}<textarea rows={3} maxLength={2500} value={draft.environment??scene.environmentPrompt??""}
           onChange={e=>editor.setValue({...draft,environment:e.target.value})}/></label>
         {([["entryState","start",1000],["exitState","end",1000],["emotionalStart","emotionStart",500],["emotionalEnd","emotionEnd",500]] as const).map(([key,label,maxLength])=>

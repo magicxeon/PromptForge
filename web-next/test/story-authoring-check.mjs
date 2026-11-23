@@ -404,10 +404,10 @@ try {
   assert.equal(new Set(characterRecords.map(record=>record.storyReference.assetId)).size,2);
   await stages.getByRole("button",{name:/Scenes/}).click();
   await secondScene.click();
-  await button("Edit scene details").click();
+  await button("Edit scene tone").click();
   await dialog.getByText("Scene setting",{exact:true}).click();
   await dialog.getByRole("checkbox",{name:"Staged fight",exact:true}).check();
-  await dialog.getByLabel("Visual style & lighting",{exact:true}).fill("Lantern above the door.");
+  await dialog.getByLabel("Scene tone and atmosphere",{exact:true}).fill("Lantern above the door.");
   await dialog.getByLabel("Scene sound",{exact:true}).fill("Wind in the courtyard.");
   await dialog.getByText("Characters in this scene",{exact:true}).click();
   await dialog.getByRole("checkbox",{name:/Lalin/}).check();
@@ -419,6 +419,7 @@ try {
   assert.ok(directed.sceneEvents.includes("fight"));
   assert.equal(directed.audioIntent,"Wind in the courtyard.");
   assert.equal(directed.lighting,"Lantern above the door.");
+  await page.locator(".story-scene-treatment").getByText(directed.lighting,{exact:true}).waitFor();
   await sceneViews.getByRole("button",{name:"Shot list",exact:true}).click();
   await sceneViews.locator("[aria-current=page]").filter({hasText:"Shot list"}).waitFor();
   await shotRow.click();

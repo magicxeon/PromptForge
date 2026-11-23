@@ -12,7 +12,7 @@
     "withoutOpening": "Compose a new opening view from the starting state.",
     "closing": "Compose the closing frame from the final action and end state.",
     "continuity": "Preserve spatial relationships, fixed landmarks, wardrobe, prop contact and screen direction.",
-    "performance": "Give the listener a visible response to the action or the key spoken phrase.",
+    "performance": "Let the scripted action register through a gesture readable in this framing, or through voice or a pause when the performer is off-screen. Time any listener reaction to its cause.",
     "environmentMovement": "Keep fixed landmarks steady. Limit background movement to physical responses motivated by the scene.",
     "negative": "Avoid reversed eyelines, an early reaction and duplicated props. No subtitles or interface elements."
   },
