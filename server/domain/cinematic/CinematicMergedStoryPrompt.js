@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto';
 import templates from '../../config/cinematic/story-shot-templates.v1.json' with {type:'json'};
 import {resolveWritingPreferences, storySpokenLanguage} from '../../config/storyWritingSettings.js';
+import {formatStoryPromptWholeSeconds} from './StoryPromptFormatting.js';
 import {projectVideoDirection} from './CinematicProjectVideoDirection.js';
 import {compileCinematicShotDocument, parseDialogueClock} from './CinematicShotDocumentCompiler.js';
 import {storyPromptPeople, storyPromptReferences, storyVideoFrameDirection, storyVideoReferenceMapping} from './CinematicStoryPromptPacket.js';
@@ -138,8 +139,8 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     const body = lines(...fields[title]);
     return body && `[${title}]\n${body}`;
   });
-  const text = [header, `Duration: ${seconds(cursorMs)} seconds. ${aspect || ''}`.trim(), ...sections, direction,
-    skillInstructions.length && `[WRITING DIRECTION]\n${lines(...skillInstructions)}`].filter(Boolean).join('\n\n');
+  const text = formatStoryPromptWholeSeconds([header, `Duration: ${seconds(cursorMs)} seconds. ${aspect || ''}`.trim(), ...sections, direction,
+    skillInstructions.length && `[WRITING DIRECTION]\n${lines(...skillInstructions)}`].filter(Boolean).join('\n\n'));
   return {template, text, ready:template !== 'flow' || frame,
     sourceFingerprint:hash([text, shots.map(s => [s.id,s.sourceFingerprint])]), shots, references, cues, findings};
 }

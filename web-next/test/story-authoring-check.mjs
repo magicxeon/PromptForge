@@ -291,7 +291,7 @@ try {
   await dialog.locator(".story-shot-summary").getByText("The innkeeper gives the traveller a letter.").waitFor();
   await dialog.getByRole("button",{name:"Build prompt"}).click();
   await dialog.getByLabel("Prompt text").waitFor();
-  assert.match(await dialog.getByLabel("Prompt text").inputValue(), /Duration: 4.5 seconds/);
+  assert.match(await dialog.getByLabel("Prompt text").inputValue(), /Duration: 5 seconds/);
   assert.equal(await dialog.getByText("This shot has no selected characters.").count(),1);
   await page.keyboard.press("Escape");
   await page.getByRole("dialog",{name:"Save your edits before leaving?"}).getByRole("button",{name:"Discard edits"}).click();
@@ -616,10 +616,20 @@ try {
   await page.emulateMedia({reducedMotion:"no-preference"});
   assert.ok(await merged.getByRole("button",{name:"Build merged prompt"}).isDisabled());
   releaseFirstBuild();
+  await page.route("**/shot-proposals", async route => {
+    const response = await route.fetch();
+    const result = await response.json();
+    const withoutMapping = result.text.replace(/^\[REFERENCE MAPPING\]\n[\s\S]*?(?=^\[[A-Z][A-Z &_-]+\]|(?![\s\S]))/m, "");
+    result.text = "[PRESERVE EXACTLY]\r\nReference 1 — Wi: face and hair.\r\n0–3.3s — Hold the glance.\r\n\r\n" + withoutMapping;
+    await route.fulfill({response,json:result});
+  }, {times:1});
   const mergeResponse = page.waitForResponse(response => response.url().endsWith("/shot-proposals") && response.ok());
   await merged.getByRole("button",{name:"Try again"}).click();
   const mergedText = merged.getByLabel("Prompt text");
   await mergedText.waitFor();
+  assert.match(await mergedText.inputValue(), /\[REFERENCE MAPPING\]/);
+  assert.doesNotMatch(await mergedText.inputValue(), /\[PRESERVE EXACTLY\]/);
+  assert.match(await mergedText.inputValue(), /0–3s — Hold the glance/);
   assert.doesNotMatch(await mergedText.inputValue(), /The host answers quietly/);
   const editedMerge = (await mergedText.inputValue()) + "\nHold at the end.";
   const {maximumPromptCharacters} = await (await mergeResponse).json();
@@ -641,12 +651,15 @@ try {
   assert.equal(mergedSaved.mergedPrompts[0].text, editedMerge);
   await page.reload();
   const beforeReopen = writes.length;
-  await page.locator(".story-merge-saved button").click();
+  await page.locator(".story-merge-saved").getByRole("button",{name:"Delete saved prompt"}).click();
+  await page.getByRole("dialog",{name:"Delete saved prompt"}).getByRole("button",{name:"Cancel"}).click();
+  assert.equal((await persisted()).scenes[2].mergedPrompts[0].text, editedMerge);
+  await page.locator(".story-merge-saved button").first().click();
   assert.equal(await mergedText.inputValue(), editedMerge);
   assert.equal(writes.length, beforeReopen);
   const parallelWriter = await context.newPage();
   await parallelWriter.goto(sceneUrl);
-  await parallelWriter.locator(".story-merge-saved button").click();
+  await parallelWriter.locator(".story-merge-saved button").first().click();
   const parallelPrompt = parallelWriter.getByRole("dialog",{name:"Merged video prompt"});
   const recoveredText = editedMerge + "\nAnother ending.";
   await parallelPrompt.getByLabel("Prompt text").fill(recoveredText);
@@ -666,7 +679,7 @@ try {
   await shotText.fill("Cut to the rider waiting on the road.");
   await dialog.getByRole("button",{name:"Save shot"}).click();
   await dialog.waitFor({state:"hidden"});
-  await page.locator(".story-merge-saved button").click();
+  await page.locator(".story-merge-saved button").first().click();
   await merged.getByRole("status").filter({hasText:/Review these shots.*Exit/}).waitFor();
   assert.equal(await mergedText.inputValue(), finalMerge);
   assert.ok(await merged.getByRole("button",{name:"Save prompt"}).isDisabled());
@@ -709,6 +722,12 @@ try {
   assert.equal(movedProject.scenes[1].shots.at(-1).id, framed[2].id);
   assert.equal(movedProject.scenes[2].shots.length,2);
   assert.equal(movedProject.scenes[2].mergedPrompts[0].text,finalMerge);
+  await page.goto(sceneUrl);
+  await page.locator(".story-merge-saved").getByRole("button",{name:"Delete saved prompt"}).click();
+  const removeDialog=page.getByRole("dialog",{name:"Delete saved prompt"});
+  await removeDialog.getByRole("button",{name:"Delete saved prompt"}).click();
+  await removeDialog.waitFor({state:"hidden"});
+  assert.deepEqual((await persisted()).scenes[2].mergedPrompts,[]);
   await page.getByRole("link",{name:/projects/i}).click();
   await page.locator(".story-projects a").filter({hasText:"Letters from the inn"}).waitFor();
   // Exercise the project header with a long selected chapter at each workspace width.

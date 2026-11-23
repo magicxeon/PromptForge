@@ -17,6 +17,7 @@
 .story-merge-options input { width:1.15rem; height:1.15rem; margin:0; accent-color:#347052; }
 .story-merge-options strong, .story-merge-saved button, .story-merge-timeline strong { overflow-wrap:anywhere; }
 .story-merge-saved button { display:flex; flex-wrap:wrap; justify-content:flex-start; text-align:start; white-space:normal; }
+.story-merge-saved-actions { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:.5rem; }
 .story-merged-dialog { display:grid; gap:.8rem; }
 .story-merged-dialog h3 { margin:0; }
 .story-merged-progress {display:flex;align-items:center;gap:.5rem;}

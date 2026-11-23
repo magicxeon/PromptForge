@@ -2,6 +2,8 @@
 **ID**: 099-technical-dept-master
 **Application**: `ModelPromptForge`
 
+The [Story prompt formatter](../../server/domain/cinematic/StoryPromptFormatting.js) owns whole-second display and legacy merged reference formatting for Cinematic and the web-next prompt dialogs.
+
 Web-next story authoring is owned by `web-next/src/features/story/` at `/story` and `/story/:id`. It uses Cinematic's existing identity-aware project, series, revision, proposal and writing-quote clients. The Cinematic project library supplies saved scene and shot counts. Display settings belong to `web-next/src/features/story/story-config.json`. See [Story & Shots](../024-frontend-rebuild/013-story-scene-shot.md).
 
 Within that feature, `StoryStudio.tsx` owns the project library and loads `StoryEditor.tsx` when a project opens. The `data/` directory owns actor-scoped query keys and writing-result updates. The `scenes/` directory owns paragraph review, scene staging, the shot list and prompt dialogs. [Story direction](../../server/config/cinematic/story-direction.v1.json) holds genres, formats, ratios and destinations. Cinematic stores shared direction in the root project's writing settings, paragraph ranges on scenes and reviewed prompt variants on shots.

@@ -149,7 +149,25 @@ test('merged prompts are scene-owned and saved separately with stale and concurr
   const stored=reloaded.scenes.find(s=>s.id===scene.id).mergedPrompts[0];
   assert.equal(stored.text,'Reviewed prompt');
   assert.deepEqual(stored.outdatedShotIds,[second.shot.id]);
-  await assert.rejects(service.updateSceneOutline(project.id,scene.id,{expectedVersion:reloaded.version,mergedPrompt},actor),
+  await repository.mutateForActor(project.id,actor,p=>{
+    const record = p.scenes.find(item=>item.id===scene.id);
+    record.mergedPrompts[0].text='[PRESERVE EXACTLY]\nReference 1 — Wi: face and hair.\nHold the flashlight.\n\n[SCENE]\nNight.';
+    record.mergedPrompts.push({...record.mergedPrompts[0],template:'flow'});
+    p.version++;
+  });
+  const current=await service.getProject(project.id,actor);
+  const currentScene=current.scenes.find(item=>item.id===scene.id);
+  assert.match(currentScene.mergedPrompts[0].text,/\[REFERENCE MAPPING\][\s\S]+Reference 1 — Wi: face and hair\.[\s\S]+\[CONTINUITY\]\nHold the flashlight\./);
+  assert.doesNotMatch(currentScene.mergedPrompts[0].text,/PRESERVE EXACTLY/);
+  const removeMergedPrompt={shotIds:input.shotIds,template:'seedance'};
+  await assert.rejects(service.updateSceneOutline(project.id,scene.id,{expectedVersion:current.version,removeMergedPrompt},
+    {...actor,userId:'another-writer'}),{code:'cinematic_project_not_found'});
+  await assert.rejects(service.updateSceneOutline(project.id,scene.id,{expectedVersion:reloaded.version,removeMergedPrompt},actor),
+    {code:'cinematic_version_conflict'});
+  const removed=await service.updateSceneOutline(project.id,scene.id,{expectedVersion:current.version,removeMergedPrompt},actor);
+  assert.deepEqual(removed.scene.mergedPrompts.map(item=>item.template),['flow']);
+  assert.deepEqual(removed.scene.shots,currentScene.shots);
+  await assert.rejects(service.updateSceneOutline(project.id,scene.id,{expectedVersion:removed.project.version,mergedPrompt},actor),
     {code:'cinematic_video_prompt_source_changed'});
   assert.equal(translations,1,'opening or saving a merged text never dispatches writing');
 });

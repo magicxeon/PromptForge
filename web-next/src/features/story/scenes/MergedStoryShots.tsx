@@ -1,5 +1,8 @@
 import {useRef, useState, type ReactNode} from "react";
 import {useTranslation} from "react-i18next";
+import {Trash2} from "lucide-react";
+import {Dialog} from "../../dub-sub/Dialog";
+import {removeMergedStoryPrompt} from "../../../../../web/src/features/cinematic/api/cinematicSeriesApi";
 import type {CinematicProject, CinematicScene, CinematicShot} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {MergedStoryPromptDialog} from "./MergedStoryPromptDialog";
@@ -17,6 +20,8 @@ export function MergedStoryShots({project, scene, shots, run, error, defaultTemp
   const {t: story} = useTranslation("story");
   const [selection, setSelection] = useState<string[] | null>(null);
   const [editor, setEditor] = useState<Editor | null>(null);
+  const [removal, setRemoval] = useState<(Editor & {version:number; title:string}) | null>(null);
+  const [removing, setRemoving] = useState(false);
   const startButton = useRef<HTMLButtonElement>(null);
   const selected = shots.filter(shot => selection?.includes(shot.id));
   const seconds = selected.reduce((total, shot) => total + shot.durationMs, 0) / 1000;
@@ -67,14 +72,40 @@ export function MergedStoryShots({project, scene, shots, run, error, defaultTemp
     {Boolean(scene.mergedPrompts?.length) && <section className="story-merge-saved">
       <h3>{t("merge.saved")}</h3>
       <ul>{scene.mergedPrompts!.map(prompt => <li key={JSON.stringify([prompt.template, prompt.shots.map(shot => shot.id)])}>
-        <button onClick={() => setEditor({shotIds: prompt.shots.map(shot => shot.id), template: prompt.template})}>
+        <div className="story-merge-saved-actions"><button onClick={() => setEditor({shotIds: prompt.shots.map(shot => shot.id), template: prompt.template})}>
           <strong>{t(prompt.template)}</strong>
           <span>{prompt.shots.map(shot => shot.title).join(" · ")}</span>
           <small>{story("seconds", {n: (prompt.shots.at(-1)?.endMs ?? 0) / 1000})}</small>
         </button>
+        <button type="button" aria-label={t("merge.remove")} title={t("merge.remove")} onClick={() => setRemoval({
+          template:prompt.template, shotIds:prompt.shots.map(shot => shot.id), version:project.version,
+          title:prompt.shots.map(shot => shot.title).join(" · ")
+        })}><Trash2 size={16} aria-hidden/></button></div>
         {!!prompt.outdatedShotIds?.length && <small>{t("merge.changed", {shots: prompt.shots.filter(shot => prompt.outdatedShotIds.includes(shot.id)).map(shot => shot.title).join(", ")})}</small>}
       </li>)}</ul>
     </section>}
+    {removal && <Dialog label={t("merge.remove")} onClose={() => { if (!removing) setRemoval(null); }}>
+      <div className="story-dialog">
+        <h2>{t("merge.remove")}</h2>
+        <p>{t("merge.removeConfirm", {template:t(removal.template), shots:removal.title})}</p>
+        {error && <p role="alert">{error}</p>}
+        <footer className="story-actions">
+          <button autoFocus disabled={removing} onClick={() => setRemoval(null)}>{story("cancel")}</button>
+          <button disabled={removing} onClick={async () => {
+            setRemoving(true);
+            try {
+              await run(async () => {
+                const result = await removeMergedStoryPrompt(project.id, scene.id, removal.version, {
+                  template:removal.template, shotIds:removal.shotIds
+                });
+                setRemoval(null);
+                return result;
+              });
+            } finally { setRemoving(false); }
+          }}>{t("merge.remove")}</button>
+        </footer>
+      </div>
+    </Dialog>}
     {editor && <MergedStoryPromptDialog project={project} scene={scene} shotIds={editor.shotIds} initialTemplate={editor.template}
       run={run} error={error} close={() => {
         setEditor(null);

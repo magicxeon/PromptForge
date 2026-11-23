@@ -3,6 +3,7 @@ import templates from '../../config/cinematic/story-shot-templates.v1.json' with
 import { resolveShotCastIds } from './CinematicCastCoverage.js';
 import { projectVideoDirection } from './CinematicProjectVideoDirection.js';
 import { storySpokenLanguage } from '../../config/storyWritingSettings.js';
+import {formatStoryPromptWholeSeconds} from './StoryPromptFormatting.js';
 
 const joined = (...parts) => parts.filter(part => typeof part === 'string' && part.trim()).join('\n');
 const block = (title, text) => text ? `[${title}]\n${text}` : '';
@@ -104,7 +105,8 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
       start && `Starting state: ${start}`, ...templates.video.sections.map(title => block(title, fields[title])),
       projectVideoDirection(project), kind === 'seedance' && aspect];
   }
-  const text = [...prompt, skillInstructions.length && block('WRITING DIRECTION', skillInstructions.join('\n'))].filter(Boolean).join('\n\n');
+  const rendered = [...prompt, skillInstructions.length && block('WRITING DIRECTION', skillInstructions.join('\n'))].filter(Boolean).join('\n\n');
+  const text = kind === 'still' ? rendered : formatStoryPromptWholeSeconds(rendered);
   const sourceFingerprint = createHash('sha256').update(JSON.stringify(['english-directions-v1', storySpokenLanguage(project.writingSettings), kind, text, references.map(r => r.assetId)])).digest('hex');
   return {kind, text, sourceFingerprint, references, ready: kind !== 'flow' || references.some(r => r.role === 'opening')};
 }

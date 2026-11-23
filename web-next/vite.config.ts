@@ -40,6 +40,8 @@ export default defineConfig({
       "../server/config/dub-subtitle-fonts.json",
       "../server/config/dub-subtitle-defaults.json",
         "../server/config/cinematic/story-direction.v1.json",
+      "../server/config/cinematic/story-shot-templates.v1.json",
+      "../server/domain/cinematic/StoryPromptFormatting.js",
         "../server/config/cinematic/story-authoring.v1.json",
       "../server/domain/dub-sub/takePlacement.js",
     ].map(source => fileURLToPath(new URL(source, import.meta.url))) },

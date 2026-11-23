@@ -1,4 +1,5 @@
 import {useRef, useState} from "react";
+import {formatStoryPromptWholeSeconds} from "../../../../../server/domain/cinematic/StoryPromptFormatting.js";
 import {Copy, Maximize2, Minimize2, X} from "lucide-react";
 import {useQuery} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
@@ -31,7 +32,7 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
   const [format, setFormat] = useState<Format>(shot.videoPromptOverride && !shot.storyPromptVariants ? "legacy" :
     project.writingSettings?.direction?.destination === "flow" ? "flow" : "seedance");
   const saved = format === "legacy" ? shot.videoPromptOverride : shot.storyPromptVariants?.[format];
-  const savedText = saved?.text || "";
+  const savedText = format === "still" ? saved?.text || "" : formatStoryPromptWholeSeconds(saved?.text || "");
   const [text, setText] = useState(savedText);
   const [sourceVersion, setSourceVersion] = useState(project.version);
   const [newFormat, setNewFormat] = useState<Format | null>(null);
@@ -76,7 +77,8 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
   const canUseImageWorkspace = frameReferences.filter(ref=>ref.role==="character").length <= 1;
   function selectFormat(next: Format) {
     setFormat(next);
-    setText((next === "legacy" ? shot.videoPromptOverride : shot.storyPromptVariants?.[next])?.text || "");
+    const nextText = (next === "legacy" ? shot.videoPromptOverride : shot.storyPromptVariants?.[next])?.text || "";
+    setText(next === "still" ? nextText : formatStoryPromptWholeSeconds(nextText));
     setPrepared(undefined); setCopied(false); setLocalError(""); setNewFormat(null); setLeaving(false); setSourceVersion(project.version);
   }
   const discard = () => { if (blocker.state === "blocked") blocker.proceed(); else if (newFormat) selectFormat(newFormat); else close(); };
@@ -110,7 +112,7 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
       if (packet && !packet.ready) throw new Error(label("needFrame"));
       if (!rebuild && (packet ? saved?.sourceFingerprint !== packet.sourceFingerprint : result.overrideStale)) throw new Error(t("rebuildStalePrompt"));
       setPrepared(result);
-      if (rebuild) setText(draft);
+      if (rebuild) setText(format === "still" ? draft : formatStoryPromptWholeSeconds(draft));
     } catch (cause) {
       if (!(cause instanceof CinematicWritingCancelled)) setLocalError((cause as Error).message || t("promptUnavailable"));
     } finally {
@@ -162,7 +164,7 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
       <header className="story-prompt-heading">
         <h2>{t("shotPrompt")} · {shot.title}</h2>
         <button className="story-copy" disabled={!text.trim()} onClick={async () => {
-          try { await navigator.clipboard.writeText(text); setCopied(true); }
+          try { await navigator.clipboard.writeText(format === "still" ? text : formatStoryPromptWholeSeconds(text)); setCopied(true); }
           catch { setLocalError(label("copyFailed")); }
         }}><Copy size={16}/>{label(copied ? "copied" : "copy")}</button>
         <button type="button" aria-label={t("close")} title={t("close")} disabled={saving || preparing} onClick={requestClose}>

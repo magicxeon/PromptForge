@@ -221,6 +221,13 @@ export function saveMergedStoryPrompt(projectId:string,sceneId:string,expectedVe
   });
 }
 
+export function removeMergedStoryPrompt(projectId:string,sceneId:string,expectedVersion:number,
+  input:{shotIds:string[];template:'flow'|'seedance'}) {
+  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}`, {
+    method:'PATCH', body:{expectedVersion,removeMergedPrompt:input},schema:cinematicManualSceneMutationSchema
+  });
+}
+
 export function restoreCinematicChapterRevision(projectId: string, revisionId: string, expectedProjectVersion: number) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/chapter-revisions/${encodeURIComponent(revisionId)}/restore`, {
     method: 'POST', body: { expectedProjectVersion }, schema: cinematicSeriesMutationSchema

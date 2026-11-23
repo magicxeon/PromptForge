@@ -3,6 +3,7 @@ import {useQuery} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
 import {useBlocker} from "react-router-dom";
 import {PenLine,X} from "lucide-react";
+import {formatStoryPromptWholeSeconds, normalizeMergedStoryReferences} from "../../../../../server/domain/cinematic/StoryPromptFormatting.js";
 import {ProcessingSpinner, useActor} from "../../../lib/canonical";
 import {MediaImage} from "../../../components/media/MediaImage";
 import {Dialog} from "../../dub-sub/Dialog";
@@ -19,6 +20,7 @@ import "./storyPrompt.css";
 
 type Format = "flow" | "seedance";
 type Packet = Awaited<ReturnType<typeof buildMergedStoryPrompt>>;
+const displayPrompt = (text: string) => formatStoryPromptWholeSeconds(normalizeMergedStoryReferences(text));
 
 export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplate, run, error, close}: {
   project: CinematicProject; scene: CinematicScene; shotIds: string[]; initialTemplate: Format;
@@ -43,10 +45,11 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
   const [showError, setShowError] = useState(false);
   const [discardAction, setDiscardAction] = useState<(() => void) | null>(null);
   const packet = built ?? saved;
-  const text = edit ?? packet?.text ?? "";
+  const savedDisplayText = saved && displayPrompt(saved.text);
+  const text = edit ?? displayPrompt(packet?.text ?? "");
   const limit = packet?.maximumPromptCharacters;
   const excess = limit === undefined ? 0 : Math.max(0, text.length - limit);
-  const dirty = Boolean(packet && (text !== saved?.text || packet.sourceFingerprint !== saved?.sourceFingerprint));
+  const dirty = Boolean(packet && (text !== savedDisplayText || packet.sourceFingerprint !== saved?.sourceFingerprint));
   const blocker = useBlocker(dirty || Boolean(operation));
   const selected = scene.shots.filter(shot => shotIds.includes(shot.id)).sort((a, b) => a.orderKey - b.orderKey);
   let duration = 0;
@@ -185,7 +188,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
         </button>
         {packet && <>
           <button disabled={!text.trim()} onClick={async () => {
-            try { await navigator.clipboard.writeText(text); setCopyState("copied"); }
+            try { await navigator.clipboard.writeText(displayPrompt(text)); setCopyState("copied"); }
             catch { setCopyState("copyFailed"); }
           }}>{t(copyState === "copied" ? "copied" : "copy")}</button>
           <button className="primary" disabled={busy || !text.trim() || excess > 0 || !!outdated.length || missing || checking || !!reviewError || changedElsewhere || !dirty}

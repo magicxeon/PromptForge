@@ -41,6 +41,7 @@ import { normalizeDialogueReview } from './CinematicDialogueTiming.js';
 import { compileCinematicShotDocument, compileStoryShotPrompt, shotPromptSourceFingerprint } from './CinematicShotDocumentCompiler.js';
 import {compileStoryPromptPacket, storyPromptKind} from './CinematicStoryPromptPacket.js';
 import {compileMergedStoryPrompt} from './CinematicMergedStoryPrompt.js';
+import {normalizeMergedStoryReferences} from './StoryPromptFormatting.js';
 import { cinematicDataLineageService } from './CinematicDataLineageService.js';
 import { cinematicFieldManifestService } from './CinematicFieldManifestService.js';
 import { cinematicAuthoringStateService, cinematicFieldKey } from './CinematicAuthoringStateService.js';
@@ -378,6 +379,7 @@ export class CinematicApplicationService {
     project.videoDirection = shared?.videoDirection ?? String(project.setup?.videoDirection || '');
     for (const scene of project.scenes) {
       for (const saved of scene.mergedPrompts || []) {
+        saved.text = normalizeMergedStoryReferences(saved.text);
         saved.maximumPromptCharacters = cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters;
         const ids = saved.shots.map(shot => shot.id);
         const unavailable = ids.filter(id => {
@@ -850,6 +852,7 @@ export class CinematicApplicationService {
   }
 
   updateSceneOutline(projectId, sceneId, input, actorContext) {
+    if (Object.hasOwn(input,'removeMergedPrompt')) return this.removeMergedStoryPrompt(projectId,sceneId,input,actorContext);
     if (Object.hasOwn(input,'mergedPrompt')) return this.saveMergedStoryPrompt(projectId,sceneId,input,actorContext);
     if (Object.hasOwn(input, 'shotArrangement')) {
       return this.reorderSceneShots(projectId, sceneId, {
@@ -867,7 +870,8 @@ export class CinematicApplicationService {
 
   async saveMergedStoryPrompt(projectId, sceneId, input, actor) {
     const {shotIds,template} = input.mergedPrompt || {};
-    const edited = validatedShotPrompt(input.mergedPrompt);
+    const submitted = validatedShotPrompt(input.mergedPrompt);
+    const edited = validatedShotPrompt({...submitted, text:normalizeMergedStoryReferences(submitted.text)});
     await this.seriesService.mutateWithCharacterProjection(projectId,actor,(project,root) => {
       assertExpectedVersion(project,input.expectedVersion);
       assertEditable(project);
@@ -883,7 +887,9 @@ export class CinematicApplicationService {
       const index = saved.findIndex(item => item.template === template && item.shots.length === selected.size &&
         item.shots.every(shot => selected.has(shot.id)));
       if (index >= 0 && saved[index].sourceFingerprint === edited.sourceFingerprint && saved[index].text === edited.text) return;
-      if ((saved[index]?.text ?? null) !== input.mergedPrompt.expectedSavedText) {
+      const previousText = saved[index]?.text;
+      if ((previousText ?? null) !== input.mergedPrompt.expectedSavedText &&
+          (previousText == null || normalizeMergedStoryReferences(previousText) !== input.mergedPrompt.expectedSavedText)) {
         throw new CinematicError('cinematic_merged_prompt_changed','The saved prompt changed. Reopen the latest version before saving.',409);
       }
       const entry = {template,shots:packet.shots,references:packet.references,...edited};
@@ -893,6 +899,28 @@ export class CinematicApplicationService {
     });
     const project = await this.getProject(projectId,actor);
     return {project,scene:project.scenes.find(scene => scene.id === sceneId)};
+  }
+
+  async removeMergedStoryPrompt(projectId, sceneId, input, actor) {
+    const {shotIds, template} = input.removeMergedPrompt ?? {};
+    if (!['flow', 'seedance'].includes(template) || !Array.isArray(shotIds) || shotIds.length < 2 ||
+        shotIds.some(id => typeof id !== 'string' || !id) || new Set(shotIds).size !== shotIds.length) {
+      throw new CinematicError('cinematic_merged_prompt_invalid', 'Select a saved merged prompt.', 400);
+    }
+    const selected = new Set(shotIds);
+    await this.repository.mutateForActor(projectId, actor, project => {
+      assertExpectedVersion(project, input.expectedVersion);
+      assertEditable(project);
+      const scene = project.scenes.find(item => item.id === sceneId);
+      if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+      const index = scene.mergedPrompts?.findIndex(item => item.template === template &&
+        item.shots.length === selected.size && item.shots.every(shot => selected.has(shot.id))) ?? -1;
+      if (index < 0) throw new CinematicError('cinematic_merged_prompt_changed', 'The saved prompt is no longer available.', 409);
+      scene.mergedPrompts.splice(index, 1);
+      project.version += 1;
+    });
+    const project = await this.getProject(projectId, actor);
+    return {project, scene:project.scenes.find(scene => scene.id === sceneId)};
   }
 
   async proposeShots(projectId, sceneId, input, actorContext, { beforeDispatch } = {}) {
@@ -923,7 +951,8 @@ export class CinematicApplicationService {
       await beforeDispatch?.();
       const {text,provenance} = await this.fullStoryService.translateStoryPrompt(packet.text,packet.cues,project.writingSettings,packet.findings);
       return {template:packet.template,shots:packet.shots,references:packet.references,sourceFingerprint:packet.sourceFingerprint,
-        maximumPromptCharacters:cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters,text,provenance};
+        maximumPromptCharacters:cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters,
+        text:normalizeMergedStoryReferences(text),provenance};
     }
     if (input.purpose === 'translate_shot_prompt') {
       if (input.template !== 'legacy' && !storyPromptKind(input.template)) {

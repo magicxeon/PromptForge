@@ -24,6 +24,8 @@
     "create": "Build merged prompt",
     "title": "Merged video prompt",
     "saved": "Saved merged prompts",
+    "remove": "Delete saved prompt",
+    "removeConfirm": "Delete the saved {{template}} prompt for {{shots}}?",
     "timeline": "Selected shots",
     "range": "{{start}}–{{end}} sec",
     "needFrame": "Choose an opening frame for “{{name}}” to start this Flow clip.",

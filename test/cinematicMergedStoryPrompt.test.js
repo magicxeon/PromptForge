@@ -45,7 +45,7 @@ test('one ordered 3/4/3 timeline retains cue ranges, timed pauses, cuts, speakin
     ]);
     assert.equal(result.text.match(/Duration:/g).length,1);
     assert.match(result.text,/Duration: 10 seconds/);
-    assert.match(result.text,/3\.25–4\.5s — The hand moves/);
+    assert.match(result.text,/3–5s — The hand moves/);
     assert.match(result.text,/3–7s — Cut to the window/);
     assert.match(result.text,/\[4–5s\] Kai \(off-screen\): “รอก่อน”/);
     assert.match(result.text,/\[4–5s\] Kai \(off-screen\) — Quiet; whisper/);
@@ -85,7 +85,7 @@ test('omitting the middle Shot compresses time, and later frames cannot satisfy 
   assert.match(compileMergedStoryPrompt(project,scene,['s3','s2'],'seedance').text,/Use Reference 1 as the exact opening frame/);
 });
 
-test('legacy structured timelines, fractions, offscreen dialogue and audio retain their source timing', () => {
+test('merged prompts round displayed seconds and retain precise source timing', () => {
   const {scene,project,shots} = fixture();
   shots[0].durationMs = 2555;
   delete shots[1].shotDocument;
@@ -96,10 +96,13 @@ test('legacy structured timelines, fractions, offscreen dialogue and audio retai
     audioCues:[{description:'Buzzer.',startOffsetMs:3456}]
   });
   const result = compileMergedStoryPrompt(project,scene,['s1','s2'],'seedance');
-  assert.match(result.text,/Duration: 6\.555 seconds/);
-  assert.match(result.text,/2\.656–3\.557s — Rings the bell/);
-  assert.match(result.text,/\[3\.575–5\.375s\] Announcer \(off-screen\): “Last call!”/);
-  assert.match(result.text,/\[6\.011s\] Buzzer/);
+  assert.match(result.text,/Duration: 7 seconds/);
+  assert.match(result.text,/3–4s — Rings the bell/);
+  assert.match(result.text,/\[4–5s\] Announcer \(off-screen\): “Last call!”/);
+  assert.match(result.text,/\[6s\] Buzzer/);
+  assert.equal(result.shots[1].startMs,2555);
+  assert.equal(result.shots[1].endMs,6555);
+  assert.equal(result.cues[0].startOffsetMs,3575);
   assert.match(result.text,/Tilt down/);
   assert.match(result.text,/Cut to black/);
 });
