@@ -731,6 +731,17 @@ try {
   assert.equal(mergedSaved.mergedPrompts[0].text, editedMerge);
   await page.reload();
   const beforeReopen = writes.length;
+  const savedMergeSection = page.locator(".story-merge-saved");
+  await savedMergeSection.waitFor();
+  for (const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    assert.ok(await savedMergeSection.evaluate(section => {
+      const toolbar = section.nextElementSibling;
+      return toolbar?.classList.contains("story-scene-shot-toolbar")
+        && section.getBoundingClientRect().bottom <= toolbar.getBoundingClientRect().top
+        && section.scrollWidth <= section.clientWidth + 1;
+    }));
+  }
   await page.locator(".story-merge-saved").getByRole("button",{name:"Delete saved prompt"}).click();
   await page.getByRole("dialog",{name:"Delete saved prompt"}).getByRole("button",{name:"Cancel"}).click();
   assert.equal((await persisted()).scenes[2].mergedPrompts[0].text, editedMerge);

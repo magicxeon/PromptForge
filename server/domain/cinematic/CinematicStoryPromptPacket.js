@@ -54,6 +54,11 @@ export function storyVideoFrameDirection(kind, hasOpeningFrame) {
   return joined(hasOpeningFrame ? opening : templates.video.withoutOpening, templates.video.closing);
 }
 
+export function withStoryVideoReferenceNote(prompt) {
+  const note = block('REFERENCE NOTE', templates.video.fictionalCharacterNote);
+  return [note, prompt, note].join('\n\n');
+}
+
 // A portable authoring packet describes the exact ordered files the user should attach externally.
 // Provider dispatch and its identity/eligibility checks remain behind the production workflow.
 export function compileStoryPromptPacket(project, scene, shot, prepared, kind, skillInstructions = []) {
@@ -114,7 +119,7 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
       projectVideoDirection(project), kind === 'seedance' && aspect];
   }
   const rendered = [...prompt, kind !== 'seedance' && skillInstructions.length && block('WRITING DIRECTION', skillInstructions.join('\n'))].filter(Boolean).join('\n\n');
-  const text = kind === 'still' ? rendered : formatStoryPromptWholeSeconds(rendered);
+  const text = kind === 'still' ? rendered : withStoryVideoReferenceNote(formatStoryPromptWholeSeconds(rendered));
   const context = kind === 'seedance' ? [scene.entryState,scene.objective,scene.exitState,scene.synopsis,scene.lighting,scene.audioIntent] : undefined;
   const sourceFingerprint = createHash('sha256').update(JSON.stringify(['english-directions-v1', storySpokenLanguage(project.writingSettings), kind, text, references.map(r => r.assetId), ...(context ? [context] : [])])).digest('hex');
   return {kind, text, sourceFingerprint, references, ready: kind !== 'flow' || references.some(r => r.role === 'opening')};

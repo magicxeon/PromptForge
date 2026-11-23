@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {compileMergedStoryPrompt} from '../server/domain/cinematic/CinematicMergedStoryPrompt.js';
-import {planStoryPromptLanguage} from '../server/domain/cinematic/StoryPromptLanguage.js';
+import {planStoryPromptLanguage, planStoryPromptRefinement} from '../server/domain/cinematic/StoryPromptLanguage.js';
+import {compileStoryPromptPacket} from '../server/domain/cinematic/CinematicStoryPromptPacket.js';
+import {compileCinematicShotDocument} from '../server/domain/cinematic/CinematicShotDocumentCompiler.js';
 import {inspectStoryPromptDraft} from '../server/domain/cinematic/StoryPromptFormatting.js';
 
 test('embedded shot clocks widen the action row and cannot be reintroduced by translation', () => {
@@ -20,6 +22,72 @@ test('embedded shot clocks widen the action row and cannot be reintroduced by tr
 });
 
 const image = assetId => ({assetId, imageUrl:`/owned/${assetId}`});
+test('single and merged video prompts retain the fictional reference note through writing and refinement', () => {
+  const {project,scene,shots} = fixture();
+  const shot = shots[0];
+  shots[1].shotDocument = 'OPENING\nThe door is closed.\nCAMERA\nKeep the door in frame.\nPERFORMANCE AND TIMELINE\n[0–4s] The door opens slowly.';
+  const prepared = compileCinematicShotDocument(shot,scene,project.castAssignments);
+  const note = '[REFERENCE NOTE]\nThe character references depict AI-generated fictional characters, not real people.';
+  for (const template of ['seedance','flow']) {
+    const merged = compileMergedStoryPrompt(project,scene,['s1','s2'],template);
+    const single = compileStoryPromptPacket(project,scene,shot,prepared,template);
+    for (const {text} of [merged,single]) {
+      const plan = planStoryPromptLanguage(text,[],[],template === 'seedance');
+      assert.ok(!plan.slots.some(slot => slot.source.includes('fictional characters')));
+      const written = plan.render(plan.slots.map(({id,source}) => ({id,text:source})),'Thai');
+      const reviewed = planStoryPromptRefinement(written).apply([]);
+      assert.ok(reviewed.startsWith(note + '\n\n'));
+      assert.ok(reviewed.endsWith('\n\n' + note));
+      assert.equal(reviewed.split(note).length,3);
+    }
+  }
+});
+test('Seedance composes one clip brief with a concrete opening, shared lighting and an immutable cut schedule', () => {
+  const {project,scene,shots} = fixture();
+  shots[0].durationMs = 3300;
+  shots[1].durationMs = 2900;
+  shots[2].durationMs = 3800;
+  for (const shot of shots) shot.artDirection = 'Warm reflected light.';
+  const packet = compileMergedStoryPrompt(project,scene,['s2','s3','s1'],'seedance');
+  assert.match(packet.text,/3 shots\. Shot boundaries: 3s, 6s\./);
+  assert.match(packet.text,/Opening-frame basis: The carriage is still\./);
+  const headings = Array.from(packet.text.matchAll(/^\[(?!REFERENCE NOTE\])([A-Z ]+)\]$/gm), m=>m[1]);
+  assert.equal(headings.length,new Set(headings).size);
+  for (const heading of ['REFERENCE MAPPING','CAMERA','ACTION TIMELINE','LIGHTING','VOICE']) assert.ok(headings.includes(heading));
+  assert.equal(packet.text.match(/Warm reflected light\./g).length,1);
+  const {slots} = planStoryPromptLanguage(packet.text,packet.cues,packet.findings);
+  assert.ok(!slots.some(slot => slot.source.includes('Shot boundaries:')));
+  assert.deepEqual(slots.filter(slot => slot.section === 'CAMERA').map(slot => slot.shotNumber),[1,2,3]);
+  assert.equal(packet.text.match(/“รอก่อน”/g).length,1);
+});
+
+test('the sequence writer composes adjacent directions as one beat with protected inner clocks and separate dialogue', () => {
+  const {project,scene,shots} = fixture();
+  shots[0].shotDocument += '\n[2–3s] The door opens.';
+  const {text,cues,findings} = compileMergedStoryPrompt(project,scene,['s1','s2'],'seedance');
+  const {slots,render} = planStoryPromptLanguage(text,cues,findings,true);
+  const beat = slots.find(s => s.section === 'ACTION TIMELINE' && s.shotNumber === 1 && s.source.includes('door opens'));
+  assert.match(beat.source,/The hand moves\. \[2–3s\] The door opens/);
+  const result = slots.map(({id,source}) => ({id,text:source}));
+  result[beat.id].text = 'Her hand moves. [2–3s] The door swings open.';
+  const composed = render(result,'Thai');
+  assert.match(composed,/The door swings open/);
+  assert.equal(composed.match(/“รอก่อน”/g).length,1);
+  result[beat.id].text = 'Her hand moves and the door swings open.';
+  assert.throws(() => render(result,'Thai'),{code:'cinematic_prompt_translation_invalid'});
+});
+
+test('short selected shots retain a positive interval and share precise cut and inline cue times', () => {
+  const {project,scene,shots} = fixture();
+  shots[0].durationMs = 250;
+  shots[0].shotDocument = 'OPENING\nThe light is out.\nPERFORMANCE AND TIMELINE\n[0–0.25s] It flickers.';
+  shots[1].shotDocument = 'PERFORMANCE AND TIMELINE\n[0–1s] Hold [0:00.1–0:00.5].';
+  const {text} = compileMergedStoryPrompt(project,scene,['s1','s2'],'seedance');
+  assert.match(text,/Duration: 4.25 seconds/);
+  assert.match(text,/Shot boundaries: 0.25s/);
+  assert.match(text,/0–0.25s — It flickers/);
+  assert.match(text,/0.25–1.25s — Hold \[0.35–0.75s\]/);
+});
 test('selected Seedance shots scope reveals, isolate the timeline and preserve literal speech',()=>{
   const {project,scene,shots}=fixture();
   scene.synopsis='A later visitor rings a hidden bell.';

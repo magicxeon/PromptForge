@@ -20,6 +20,7 @@ export function planStoryPromptRefinement(draft) {
   const editable = new Map();
   let section = '';
   for (const [lineId,line] of lines.entries()) {
+    if (/^Shot \d+$/.test(line)) continue;
     if (/^(?:\[[A-Z &_-]+\]|[A-Z][A-Z &_-]+|Shot \d+)$/.test(line)) {
       section = line.replace(/^\[|\]$/g, '');
     } else if (editableSections.has(section) && line.trim() && !templateLines.has(line)
@@ -49,8 +50,33 @@ export function planStoryPromptRefinement(draft) {
   }};
 }
 
-// Keep template layout and cue boundaries in code. The writer translates only the text slots.
-export function planStoryPromptLanguage(text, cues, findings = []) {
+// Give the sequence writer whole beats to compose. A spoken line, cut or change of
+// department ends the paragraph. Internal event clocks remain protected markers.
+function sequenceWritingLines(text) {
+  const output = [];
+  let section = '', paragraph = [];
+  function flush() {
+    if (paragraph.length > 1) {
+      output.push(paragraph.map(line => line
+        .replace(/^([\d.]+(?:[–-][\d.]+)?s) — /, '[$1] ')
+        .replace(/^Starting state: /, 'At the cut, ')).join(' '));
+    } else output.push(...paragraph);
+    paragraph = [];
+  }
+  for (const line of text.split('\n')) {
+    const heading = /^\[([A-Z &_-]+)\]$/.exec(line);
+    if (heading) section = heading[1];
+    const groupable = ['ACTION TIMELINE','CAMERA','SCENE','LIGHTING','CONTINUITY'].includes(section)
+      && line.trim() && !heading && !/^Shot \d+$/.test(line) && !templateLines.has(line)
+      && !/["“”]/.test(line);
+    if (groupable) paragraph.push(line);
+    else { flush(); output.push(line); }
+  }
+  flush();
+  return output;
+}
+
+export function planStoryPromptLanguage(text, cues, findings = [], composeSequence = false) {
   const slots = [];
   const parts = [];
   const words = new Set(cues.map(cue => cue.text));
@@ -58,17 +84,19 @@ export function planStoryPromptLanguage(text, cues, findings = []) {
   let section = '';
   let shotNumber;
   let linePrefix;
+  const sequence = /^\d+ shots\. Shot boundaries:/m.test(text);
   function slot(source, role) {
     if (!source || !/\p{L}/u.test(source)) { parts.push(source); return; }
     const id = slots.length;
     slots.push({id, role, source, section, shotNumber, linePrefix});
     parts.push(id);
   }
-  for (const line of text.split('\n')) {
+  for (const line of composeSequence && sequence ? sequenceWritingLines(text) : text.split('\n')) {
     if (parts.length) parts.push('\n');
     const heading = line.replace(/^\[|\]$/g, '');
     if (headings.has(heading)) {
       section = heading;
+      if (sequence) shotNumber = undefined;
       parts.push(line);
       continue;
     }
@@ -78,8 +106,14 @@ export function planStoryPromptLanguage(text, cues, findings = []) {
       parts.push(line);
       continue;
     }
-    if (templateLines.has(line)) { parts.push(line); continue; }
+    if (templateLines.has(line) || /^\d+ shots\. Shot boundaries: [\d.,s ]+\.$/.test(line)) { parts.push(line); continue; }
     const prefix = line.match(/^(?:\[[\d:s.\s–-]+\]\s*|(?:\d+(?:\.\d+)?(?:[–-]\d+(?:\.\d+)?)?s — )|Reference \d+ — |(?:- )?Character \d+: |Duration: [\d.]+ seconds\.\s*|Starting state: )/)?.[0] || '';
+    if (sequence && line.startsWith('Opening-frame basis: ')) {
+      linePrefix = 'Opening-frame basis: ';
+      parts.push(linePrefix);
+      slot(line.slice(linePrefix.length), 'direction');
+      continue;
+    }
     linePrefix = prefix || undefined;
     parts.push(prefix);
     const body = line.slice(prefix.length);

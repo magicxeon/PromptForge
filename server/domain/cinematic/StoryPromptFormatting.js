@@ -11,7 +11,12 @@ function clockMilliseconds(value) {
 
 // Documents use shot-local timestamps inside stage directions.
 // Run during compilation only, before absolute cue lines and speech are inserted.
-export function rebaseDirectionClocks(direction, startMs = 0, onClock = () => {}) {
+export function mergedSequenceClock(shots) {
+  const precise = shots.some(({startMs,endMs}) => Math.round(startMs / 1000) === Math.round(endMs / 1000));
+  return {precise, seconds:ms => precise ? ms / 1000 : Math.round(ms / 1000)};
+}
+
+export function rebaseDirectionClocks(direction, startMs = 0, onClock = () => {}, precise = false) {
   return (direction || '').replace(/“[^”]*”|"[^"]*"|\[[^\]\r\n]+\]/g, value => {
     const match = [...value.matchAll(storyDirectionClockPattern)][0];
     if (!match || match[0] !== value) return value;
@@ -19,8 +24,8 @@ export function rebaseDirectionClocks(direction, startMs = 0, onClock = () => {}
     const first = clockMilliseconds(match[1]);
     const last = match[2] ? clockMilliseconds(match[2]) : first;
     onClock(first,last);
-    const start = Math.round((startMs + first) / 1000);
-    const end = Math.round((startMs + last) / 1000);
+    const start = precise ? (startMs + first) / 1000 : Math.round((startMs + first) / 1000);
+    const end = precise ? (startMs + last) / 1000 : Math.round((startMs + last) / 1000);
     return start === end ? `[${start}s]` : `[${start}–${end}s]`;
   });
 }
@@ -43,8 +48,9 @@ export function inspectStoryPromptDraft(text, references, durationMs, generated 
   const cited = new Set();
   const mapped = new Set();
   const wanted = new Set(references.map(ref => ref.number));
-  const duration = Math.max(1, Math.round(durationMs / 1000));
+  const duration = Math.max(durationMs / 1000, Math.round(durationMs / 1000));
   const lines = text.split(/\r?\n/);
+  const sequence = /^\d+ shots\. Shot boundaries:/m.test(text);
   let shotNumber;
   let legacyShotNumber = 0;
   let inActionTimeline = false;
@@ -53,6 +59,7 @@ export function inspectStoryPromptDraft(text, references, durationMs, generated 
     if (heading) shotNumber = Number(heading[1]);
     else if (/^\[[A-Z &_-]+\]$/.test(line)) {
       inActionTimeline = line === '[ACTION TIMELINE]';
+      if (sequence) shotNumber = undefined;
       legacyShotNumber = 0;
     } else if (inActionTimeline && /^\d+(?:\.\d+)?(?:[–-]\d+(?:\.\d+)?)?s — /.test(line) && /^Starting state:/.test(lines[index+1] || '')) {
       legacyShotNumber++;

@@ -41,7 +41,7 @@ import { normalizeDialogueReview } from './CinematicDialogueTiming.js';
 import { compileCinematicShotDocument, compileStoryShotPrompt, shotPromptSourceFingerprint } from './CinematicShotDocumentCompiler.js';
 import {compileStoryPromptPacket, storyPromptKind} from './CinematicStoryPromptPacket.js';
 import {compileMergedStoryPrompt} from './CinematicMergedStoryPrompt.js';
-import {normalizeMergedStoryReferences} from './StoryPromptFormatting.js';
+import {mergedSequenceClock, normalizeMergedStoryReferences} from './StoryPromptFormatting.js';
 import { cinematicDataLineageService } from './CinematicDataLineageService.js';
 import { cinematicFieldManifestService } from './CinematicFieldManifestService.js';
 import { cinematicAuthoringStateService, cinematicFieldKey } from './CinematicAuthoringStateService.js';
@@ -925,6 +925,12 @@ export class CinematicApplicationService {
 
   async writeStoryPrompt(input,project,scene,shots,source,cues,findings,beforeDispatch) {
     const context = scenePromptContext(scene,shots,input.language);
+    if (shots.length > 1 && input.template === 'seedance') {
+      const clock = mergedSequenceClock(shots);
+      context.sequenceFormat = 'director-brief';
+      context.selectedTiming = context.selectedTiming.map(({position,startMs,endMs},index) =>
+        ({position,shotNumber:index+1,startSeconds:clock.seconds(startMs),endSeconds:clock.seconds(endMs)}));
+    }
     if (input.refineDraft !== undefined) {
       const limit = cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters;
       if (typeof input.refineDraft !== 'string' || !input.refineDraft.trim() || input.refineDraft.length > 2 * limit) {

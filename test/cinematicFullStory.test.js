@@ -477,8 +477,8 @@ test('Story prompt variants survive a reload independently and only save against
   assert.equal(framed.ready,true);
   assert.deepEqual(framed.references.map(({number,role,assetId})=>[number,role,assetId]),
     [[1,'opening','opening-image'], [2,'location','harbour-image']]);
-  assert.equal((framed.text.match(/^\[(?!WRITING DIRECTION\])[A-Z ]+\]$/gm)||[]).length,12);
-  assert.doesNotMatch(framed.text, /\[REFERENCE NOTE\]/);
+  assert.equal((framed.text.match(/^\[(?!(?:WRITING DIRECTION|REFERENCE NOTE)\])[A-Z ]+\]$/gm)||[]).length,12);
+  assert.equal((framed.text.match(/^\[REFERENCE NOTE\]$/gm)||[]).length,2);
   assert.match(framed.text, /Use the supplied image as the EXACT opening frame/);
   assert.match(framed.text, /Reference 1 — [^\n]+: opening frame, pose and framing\./);
   const stillWithReference = await packet('still');

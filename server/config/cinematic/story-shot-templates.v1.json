@@ -8,6 +8,7 @@
   "video": {
     "sections": ["REFERENCE MAPPING", "CONTINUITY", "CHARACTER IDENTIFICATION", "SCENE", "CAMERA", "ACTION TIMELINE", "PERFORMANCE", "VOICE", "AUDIO", "LIGHTING", "ENVIRONMENT MOVEMENT", "NEGATIVE"],
     "referenceNote": "Use each reference only for its listed role.",
+    "fictionalCharacterNote": "The character references depict AI-generated fictional characters, not real people.",
     "visualReferences": "Use location and character entries as visual guidance only. Never insert them as frames unless explicitly assigned the opening-frame role.",
     "withoutOpening": "Compose a new opening view from the starting state.",
     "closing": "Compose the closing frame from the final action and end state.",
@@ -26,6 +27,7 @@
     "camera": "One continuous take."
   },
   "seedance": {
+    "editing": "Cut to the next camera setup at each listed boundary. Use the transition specified for that shot when provided.",
     "withFrame": "Use Reference 1 as the exact opening frame."
   }
 }

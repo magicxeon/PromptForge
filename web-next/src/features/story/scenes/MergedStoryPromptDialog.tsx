@@ -3,7 +3,7 @@ import {useQuery} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
 import {useBlocker} from "react-router-dom";
 import {Maximize2,Minimize2,X} from "lucide-react";
-import {formatStoryPromptWholeSeconds, inspectStoryPromptDraft, normalizeMergedStoryReferences} from "../../../../../server/domain/cinematic/StoryPromptFormatting.js";
+import {formatStoryPromptWholeSeconds, inspectStoryPromptDraft, mergedSequenceClock, normalizeMergedStoryReferences} from "../../../../../server/domain/cinematic/StoryPromptFormatting.js";
 import {ProcessingSpinner, useActor} from "../../../lib/canonical";
 import {MediaImage} from "../../../components/media/MediaImage";
 import {Dialog} from "../../dub-sub/Dialog";
@@ -21,7 +21,12 @@ import "./storyPrompt.css";
 
 type Format = "flow" | "seedance";
 type Packet = Awaited<ReturnType<typeof buildMergedStoryPrompt>>;
-const displayPrompt = (text: string) => formatStoryPromptWholeSeconds(normalizeMergedStoryReferences(text));
+function displayPrompt(packet?: Pick<Packet,"text"|"shots"|"template">) {
+  if (!packet) return "";
+  const normalized = normalizeMergedStoryReferences(packet.text);
+  return packet.template === "seedance" && mergedSequenceClock(packet.shots).precise
+    ? normalized : formatStoryPromptWholeSeconds(normalized);
+}
 
 export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplate, run, error, close}: {
   project: CinematicProject; scene: CinematicScene; shotIds: string[]; initialTemplate: Format;
@@ -48,8 +53,8 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
   const [showError, setShowError] = useState(false);
   const [discardAction, setDiscardAction] = useState<(() => void) | null>(null);
   const packet = built ?? saved;
-  const savedDisplayText = saved && displayPrompt(saved.text);
-  const text = edit ?? displayPrompt(packet?.text ?? "");
+  const savedDisplayText = saved && displayPrompt(saved);
+  const text = edit ?? displayPrompt(packet);
   const limit = packet?.maximumPromptCharacters;
   const excess = limit === undefined ? 0 : Math.max(0, text.length - limit);
   const dirty = Boolean(packet && (text !== savedDisplayText || packet.sourceFingerprint !== saved?.sourceFingerprint));
@@ -62,7 +67,8 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
     return {id: shot.id, title: shot.title, startMs, endMs: duration};
   });
   const totalMs = timeline.at(-1)?.endMs ?? 0;
-  const issues = template === "seedance" && packet ? inspectStoryPromptDraft(text,packet.references,totalMs,displayPrompt(packet.text)) : [];
+  const clockSeconds = template === "seedance" ? mergedSequenceClock(timeline).seconds : (ms:number) => ms / 1000;
+  const issues = template === "seedance" && packet ? inspectStoryPromptDraft(text,packet.references,totalMs,displayPrompt(packet)) : [];
   const clockIssues = issues.filter(issue => issue.key === "reviewClock");
   const otherIssues = issues.filter(issue => issue.key !== "reviewClock");
   const first = selected[0];
@@ -179,12 +185,12 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
       </div>
       <section className="story-merge-schedule">
         <header><h3>{t("merge.timeline")}</h3>
-          <span>{story("seconds", {n: totalMs / 1000})}</span></header>
+          <span>{story("seconds", {n: clockSeconds(totalMs)})}</span></header>
         {totalMs > 0 && <div className="story-merge-track" aria-hidden="true">{timeline.map(shot =>
           <span key={shot.id} style={{flexGrow: shot.endMs - shot.startMs}}/>)}</div>}
         <ol className="story-merge-timeline">{timeline.map((shot,index) => <li key={shot.id}>
           <span aria-hidden="true">{index + 1}</span><strong>{shot.title}</strong>
-          <time>{t("merge.range", {start: shot.startMs / 1000, end: shot.endMs / 1000})}</time>
+          <time>{t("merge.range", {start: clockSeconds(shot.startMs), end: clockSeconds(shot.endMs)})}</time>
         </li>)}</ol>
       </section>
       {template === "seedance" && <SeedancePacingNote count={timeline.length} seconds={totalMs / 1000}/>}

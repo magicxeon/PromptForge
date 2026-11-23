@@ -1,6 +1,6 @@
 import {useRef, useState, type ReactNode} from "react";
 import {useTranslation} from "react-i18next";
-import {Trash2} from "lucide-react";
+import {ChevronRight, Files, Trash2} from "lucide-react";
 import {Dialog} from "../../dub-sub/Dialog";
 import {removeMergedStoryPrompt} from "../../../../../web/src/features/cinematic/api/cinematicSeriesApi";
 import type {CinematicProject, CinematicScene, CinematicShot} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
@@ -33,6 +33,31 @@ export function MergedStoryShots({project, scene, shots, run, error, defaultTemp
   }
 
   return <>
+    {Boolean(scene.mergedPrompts?.length) && <section className="story-merge-saved" aria-label={t("merge.saved")}>
+      <h3><Files size={18} aria-hidden/>{t("merge.saved")}</h3>
+      <ul>{scene.mergedPrompts!.map(prompt => {
+        const shotIds = prompt.shots.map(shot => shot.id);
+        const title = prompt.shots.map(shot => shot.title).join(" · ");
+        return <li key={JSON.stringify([prompt.template, shotIds])}>
+          <div className="story-merge-saved-actions">
+            <button className="story-merge-saved-open" type="button" onClick={() => setEditor({shotIds, template:prompt.template})}>
+              <span className="story-merge-saved-copy">
+                <strong>{title}</strong>
+                <span className="story-merge-saved-meta">
+                  <span>{t(prompt.template)}</span>
+                  <small>{story("seconds", {n: (prompt.shots.at(-1)?.endMs ?? 0) / 1000})}</small>
+                </span>
+              </span>
+              <ChevronRight size={18} aria-hidden/>
+            </button>
+            <button className="story-merge-saved-remove" type="button" aria-label={t("merge.remove")} title={t("merge.remove")} onClick={() => setRemoval({
+              template:prompt.template, shotIds, version:project.version, title
+            })}><Trash2 size={16} aria-hidden/></button>
+          </div>
+          {!!prompt.outdatedShotIds?.length && <small className="story-merge-saved-warning">{t("merge.changed", {shots: prompt.shots.filter(shot => prompt.outdatedShotIds.includes(shot.id)).map(shot => shot.title).join(", ")})}</small>}
+        </li>;
+      })}</ul>
+    </section>}
     <div className="story-scene-shot-toolbar">
       <div className="story-scene-shot-count">
         <h3>{story("shotCount",{count:shots.length})}</h3>
@@ -69,21 +94,6 @@ export function MergedStoryShots({project, scene, shots, run, error, defaultTemp
         <button onClick={cancelSelection}>{story("cancel")}</button>
       </footer>
     </fieldset>}
-    {Boolean(scene.mergedPrompts?.length) && <section className="story-merge-saved">
-      <h3>{t("merge.saved")}</h3>
-      <ul>{scene.mergedPrompts!.map(prompt => <li key={JSON.stringify([prompt.template, prompt.shots.map(shot => shot.id)])}>
-        <div className="story-merge-saved-actions"><button onClick={() => setEditor({shotIds: prompt.shots.map(shot => shot.id), template: prompt.template})}>
-          <strong>{t(prompt.template)}</strong>
-          <span>{prompt.shots.map(shot => shot.title).join(" · ")}</span>
-          <small>{story("seconds", {n: (prompt.shots.at(-1)?.endMs ?? 0) / 1000})}</small>
-        </button>
-        <button type="button" aria-label={t("merge.remove")} title={t("merge.remove")} onClick={() => setRemoval({
-          template:prompt.template, shotIds:prompt.shots.map(shot => shot.id), version:project.version,
-          title:prompt.shots.map(shot => shot.title).join(" · ")
-        })}><Trash2 size={16} aria-hidden/></button></div>
-        {!!prompt.outdatedShotIds?.length && <small>{t("merge.changed", {shots: prompt.shots.filter(shot => prompt.outdatedShotIds.includes(shot.id)).map(shot => shot.title).join(", ")})}</small>}
-      </li>)}</ul>
-    </section>}
     {removal && <Dialog label={t("merge.remove")} onClose={() => { if (!removing) setRemoval(null); }}>
       <div className="story-dialog">
         <h2>{t("merge.remove")}</h2>
