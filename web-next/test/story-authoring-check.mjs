@@ -66,6 +66,11 @@ const service = new CinematicApplicationService({
       return {text:text.replaceAll("จดหมายฉบับนี้เดินทางมาไกลนัก เก็บมันไว้ให้ดีนะ","This letter has travelled far. Keep it safe."),
         provenance:{provider:"fixture",model:settings.modelId}};
     },
+    async refineStoryPrompt(draft,source,settings,context) {
+      assert.ok(source.length && draft.length);
+      assert.ok(context.selectedTiming.length);
+      return {text:draft,reviewNotes:[],provenance:{provider:"fixture",model:settings.modelId}};
+    },
   }
 });
 // Expose only fixture-backed read and authoring actions. Any attempted media generation fails locally.
@@ -289,8 +294,32 @@ try {
   await acceptSet();
   await button("Shot prompt for "+proposedShot).click();
   await dialog.locator(".story-shot-summary").getByText("The innkeeper gives the traveller a letter.").waitFor();
+  let releaseReview;
+  const reviewGate = new Promise(resolve=>{releaseReview=resolve;});
+  let firstShotDraft;
+  const failShotReview = async route=>{
+    const body=route.request().postDataJSON();
+    if (body.refineDraft === undefined) return route.fallback();
+    firstShotDraft=body.refineDraft;
+    await reviewGate;
+    return route.fulfill({status:503,json:{error:"Fixture review unavailable"}});
+  };
+  await page.route("**/shot-proposals",failShotReview);
   await dialog.getByRole("button",{name:"Build prompt"}).click();
+  const reviewing=page.getByRole("dialog",{name:"Reviewing and refining the prompt…",exact:true});
+  await reviewing.waitFor();
+  for (const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    assert.ok(await reviewing.evaluate(el=>{
+      const rect=el.getBoundingClientRect();
+      return Math.abs(rect.x+rect.width/2-innerWidth/2)<2 && Math.abs(rect.y+rect.height/2-innerHeight/2)<2;
+    }));
+  }
+  releaseReview();
+  await button("Use first draft").click();
+  await page.unroute("**/shot-proposals",failShotReview);
   await dialog.getByLabel("Prompt text").waitFor();
+  assert.equal(await dialog.getByLabel("Prompt text").inputValue(),firstShotDraft);
   assert.match(await dialog.getByLabel("Prompt text").inputValue(), /Duration: 5 seconds/);
   assert.equal(await dialog.getByText("This shot has no selected characters.").count(),1);
   await page.keyboard.press("Escape");
@@ -409,6 +438,7 @@ try {
   await dialog.getByRole("checkbox",{name:"Staged fight",exact:true}).check();
   await dialog.getByLabel("Scene tone and atmosphere",{exact:true}).fill("Lantern above the door.");
   await dialog.getByLabel("Scene sound",{exact:true}).fill("Wind in the courtyard.");
+  await dialog.getByLabel("Audience focus or turning point",{exact:true}).fill("The seal draws attention.");
   await dialog.getByText("Characters in this scene",{exact:true}).click();
   await dialog.getByRole("checkbox",{name:/Lalin/}).check();
   await dialog.getByRole("checkbox",{name:/Kin/}).check();
@@ -418,6 +448,7 @@ try {
   const directed=(await persisted()).scenes.find(item=>item.title===proposedScenes[1]);
   assert.ok(directed.sceneEvents.includes("fight"));
   assert.equal(directed.audioIntent,"Wind in the courtyard.");
+  assert.equal(directed.objective,"The seal draws attention.");
   assert.equal(directed.lighting,"Lantern above the door.");
   await page.locator(".story-scene-treatment").getByText(directed.lighting,{exact:true}).waitFor();
   await sceneViews.getByRole("button",{name:"Shot list",exact:true}).click();
@@ -442,9 +473,9 @@ try {
   await dialog.getByRole("button",{name:"Build prompt"}).click();
   const promptText = dialog.getByLabel("Prompt text");
   await promptText.waitFor();
-  assert.match(await promptText.inputValue(),/Character 1: Lalin.*Innkeeper/);
-  assert.match(await promptText.inputValue(),/Character 2: Kin.*Traveller/);
-  assert.match(await promptText.inputValue(),/Build a causal chain/);
+  assert.match(await promptText.inputValue(),/Character 1: Lalin/);
+  assert.match(await promptText.inputValue(),/Character 2: Kin/);
+  assert.doesNotMatch(await promptText.inputValue(),/Character 1: Lalin.*Innkeeper|Build a causal chain/);
   const customPrompt = (await promptText.inputValue())+"\nHold on the seal.";
   await context.grantPermissions(["clipboard-read","clipboard-write"],{origin});
   await dialog.getByRole("button",{name:"Expand prompt"}).click();
@@ -460,7 +491,11 @@ try {
       assert.ok(left.x+left.width<=right.x+1);
     }
   }
+  await promptText.fill(customPrompt+"\nReference 99");
+  const missingImage = dialog.getByText("Check Reference 99 against the attachment list.",{exact:true});
+  await missingImage.waitFor();
   await promptText.fill(customPrompt);
+  await missingImage.waitFor({state:"hidden"});
   await dialog.getByRole("button",{name:"Copy prompt"}).click();
   assert.equal((await page.evaluate(()=>navigator.clipboard.readText())).replaceAll("\r\n","\n"),customPrompt);
   await page.keyboard.press("Escape");
@@ -563,7 +598,8 @@ try {
     await page.keyboard.press("Space");
     assert.match(await page.locator(".story-merge-selection [role=status]").innerText(), /3 shots selected · 10 sec/);
     await build.click();
-    assert.deepEqual(await merged.locator(".story-merge-timeline li").allInnerTexts(), ["Arrival 0–3 sec","Reply 3–7 sec","Exit 7–10 sec"]);
+    assert.deepEqual(await merged.locator(".story-merge-timeline strong").allInnerTexts(), ["Arrival","Reply","Exit"]);
+    assert.deepEqual(await merged.locator(".story-merge-timeline time").allInnerTexts(), ["0–3 sec","3–7 sec","7–10 sec"]);
     assert.ok(await merged.evaluate(el => document.documentElement.scrollWidth <= innerWidth + 1
       && el.getBoundingClientRect().right <= innerWidth + 1 && el.scrollWidth <= el.clientWidth + 1));
     await merged.getByRole("button",{name:"Close"}).click();
@@ -576,7 +612,7 @@ try {
       assert.equal(await page.locator(".story-merge-selection [role=status]").innerText(), "เลือก 2 ช็อต · 6 วินาที");
       await button("สร้างพรอมป์รวม").click();
       const thaiDialog = page.getByRole("dialog",{name:"พรอมป์วิดีโอรวม"});
-      assert.equal(await thaiDialog.locator(".story-merge-timeline li").last().innerText(),"Exit 3–6 วินาที");
+      assert.equal(await thaiDialog.locator(".story-merge-timeline time").last().innerText(),"3–6 วินาที");
       assert.ok(await thaiDialog.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
       await page.keyboard.press("Escape");
       await thaiDialog.waitFor({state:"hidden"});
@@ -589,7 +625,8 @@ try {
   await choices.nth(1).uncheck();
   assert.match(await page.locator(".story-merge-selection [role=status]").innerText(), /2 shots selected · 6 sec/);
   await build.click();
-  assert.deepEqual(await merged.locator(".story-merge-timeline li").allInnerTexts(), ["Arrival 0–3 sec","Exit 3–6 sec"]);
+  assert.deepEqual(await merged.locator(".story-merge-timeline strong").allInnerTexts(), ["Arrival","Exit"]);
+  assert.deepEqual(await merged.locator(".story-merge-timeline time").allInnerTexts(), ["0–3 sec","3–6 sec"]);
   await merged.getByRole("button",{name:"Google Flow"}).click();
   assert.ok(await merged.getByRole("button",{name:"Build merged prompt"}).isDisabled());
   await merged.getByRole("button",{name:"Select opening frame"}).click();
@@ -608,13 +645,14 @@ try {
     await route.fulfill({status:503,json:{error:"Fixture temporary failure"}});
   }, {times:1});
   await merged.getByRole("button",{name:"Build merged prompt"}).click();
-  await merged.getByRole("status").filter({hasText:"Building the merged prompt"}).waitFor();
-  const mergedWritingPen=merged.getByRole("status").locator(".story-writing-pen");
+  const writingStatus=page.getByRole("dialog",{name:"Writing the prompt…",exact:true}).getByRole("status");
+  await writingStatus.waitFor();
+  const mergedWritingPen=writingStatus.locator(".story-writing-pen");
   assert.equal(await mergedWritingPen.evaluate(node=>getComputedStyle(node).animationName),"story-writing");
   await page.emulateMedia({reducedMotion:"reduce"});
   assert.equal(await mergedWritingPen.evaluate(node=>getComputedStyle(node).animationName),"none");
   await page.emulateMedia({reducedMotion:"no-preference"});
-  assert.ok(await merged.getByRole("button",{name:"Build merged prompt"}).isDisabled());
+  assert.ok(await page.locator(".story-merged-dialog footer button").first().isDisabled());
   releaseFirstBuild();
   await page.route("**/shot-proposals", async route => {
     const response = await route.fetch();
@@ -623,15 +661,57 @@ try {
     result.text = "[PRESERVE EXACTLY]\r\nReference 1 — Wi: face and hair.\r\n0–3.3s — Hold the glance.\r\n\r\n" + withoutMapping;
     await route.fulfill({response,json:result});
   }, {times:1});
+  let draftCalls=0;
+  const reviewAttempts=[];
+  await page.route("**/shot-proposals",async route=>{
+    const body=route.request().postDataJSON();
+    if (body.refineDraft === undefined) draftCalls++;
+    else {
+      reviewAttempts.push(body.refineDraft);
+      if (reviewAttempts.length===1) return route.fulfill({status:503,json:{error:"Fixture review unavailable"}});
+    }
+    return route.fallback();
+  });
   const mergeResponse = page.waitForResponse(response => response.url().endsWith("/shot-proposals") && response.ok());
   await merged.getByRole("button",{name:"Try again"}).click();
+  const recovery=page.getByRole("dialog",{name:"Review incomplete. Your first draft is ready."});
+  await recovery.getByRole("button",{name:"Retry review"}).click();
   const mergedText = merged.getByLabel("Prompt text");
   await mergedText.waitFor();
+  assert.equal(draftCalls,1);
+  assert.equal(reviewAttempts.length,2);
+  assert.equal(reviewAttempts[0],reviewAttempts[1]);
   assert.match(await mergedText.inputValue(), /\[REFERENCE MAPPING\]/);
   assert.doesNotMatch(await mergedText.inputValue(), /\[PRESERVE EXACTLY\]/);
   assert.match(await mergedText.inputValue(), /0–3s — Hold the glance/);
   assert.doesNotMatch(await mergedText.inputValue(), /The host answers quietly/);
+  const tracks = merged.locator(".story-merge-track span");
+  assert.equal(await tracks.count(), 2);
+  for (const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    assert.ok(await merged.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+    assert.ok(await merged.locator(".story-merge-timeline time").last().isVisible());
+  }
   const editedMerge = (await mergedText.inputValue()) + "\nHold at the end.";
+  const expandMerge=merged.getByRole("button",{name:"Expand prompt"});
+  await expandMerge.click();
+  const focusPrompt=page.getByRole("dialog",{name:"Expand prompt",exact:true});
+  await focusPrompt.getByLabel("Prompt text").fill(editedMerge);
+  for (const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    assert.ok(await focusPrompt.evaluate(el=>Math.abs(el.getBoundingClientRect().width-innerWidth)<2 &&
+      Math.abs(el.getBoundingClientRect().height-innerHeight)<2 && el.scrollWidth<=el.clientWidth+1));
+    assert.ok(await focusPrompt.getByRole("button",{name:"Copy prompt"}).isVisible());
+  }
+  await page.keyboard.press("Escape");
+  assert.equal(await mergedText.inputValue(),editedMerge);
+  assert.ok(await expandMerge.evaluate(el=>el===document.activeElement));
+  await mergedText.fill(editedMerge + "\nShot 2\nHold [0:01.2] and wait [0:02.7].");
+  const clockReview = merged.locator(".story-merge-clock-review");
+  assert.equal(await clockReview.locator("summary").textContent(), "Check 2 cue times");
+  assert.equal(await clockReview.getAttribute("open"), null);
+  await clockReview.locator("summary").click();
+  assert.match(await clockReview.getByRole("listitem").first().innerText(), /Shot 2.*0:01\.2/);
   const {maximumPromptCharacters} = await (await mergeResponse).json();
   assert.ok(maximumPromptCharacters > 0);
   await mergedText.fill("x".repeat(maximumPromptCharacters + 5));

@@ -1,4 +1,8 @@
 {
+  "refinement":{"writing":"Writing the prompt…","refining":"Reviewing and refining the prompt…","recovery":"Review incomplete. Your first draft is ready.","useDraft":"Use first draft","retry":"Retry review"},
+  "reviewReference":"Check Reference {{value}} against the attachment list.",
+  "reviewClock":"Check the cue time {{value}} against the clip duration.",
+  "reviewCue":"Review the changed or missing dialogue cue at {{value}}.",
   "summary":"What happens in this shot","summaryEmpty":"Add an action to the shot to see its summary.",
   "expand":"Expand prompt","shrink":"Return to compact view","referenceNumber":"Reference {{number}}",
   "showRefs":"Show attachments","hideRefs":"Hide attachments","unknownRefs":"This version has no recorded attachment list.",
@@ -27,6 +31,9 @@
     "remove": "Delete saved prompt",
     "removeConfirm": "Delete the saved {{template}} prompt for {{shots}}?",
     "timeline": "Selected shots",
+    "clockReview_one": "Check {{count}} cue time",
+    "clockReview_other": "Check {{count}} cue times",
+    "shotNumber": "Shot {{n}}",
     "range": "{{start}}–{{end}} sec",
     "needFrame": "Choose an opening frame for “{{name}}” to start this Flow clip.",
     "changed": "Review these shots before rebuilding the prompt: {{shots}}.",

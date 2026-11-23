@@ -53,7 +53,7 @@ async function ensureBackend() {
     console.log(`Starting existing API on port 6500. Startup log: ${apiLog}`);
     const log = openSync(apiLog, 'a');
     try {
-      // Keep the shared API alive across frontend restarts. .env/auth policy are still server-owned.
+      // Keep the shared API alive when the frontend terminal closes.
       apiChild = spawn(process.execPath, [path.join(root, 'scripts', 'start-web-next-api.mjs')], {
         cwd: root, env, detached: true, windowsHide: true, stdio: ['ignore', log, log]
       });
@@ -77,37 +77,42 @@ async function ensureBackend() {
   throw new Error(`API on port 6500 is not ready; frontend was not started. ${apiChild ? `Inspect ${apiLog}.` : 'Inspect the existing backend terminal.'}`);
 }
 
-async function clearPreviousFrontend() {
-  if (await portAvailable()) return;
+async function clearPreviousListener(targetPort) {
+  if (await portAvailable(targetPort)) return;
   if (process.platform !== 'win32') {
-    throw new Error(`Port ${port} is busy. Close the existing frontend terminal before starting again.`);
+    throw new Error(`Port ${targetPort} is busy. Close the existing service terminal before starting again.`);
   }
   const result = spawnSync('powershell.exe', [
     '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
-    '-File', path.join(root, 'scripts', 'stop-web-next-port.ps1')
+    '-File', path.join(root, 'scripts', 'stop-web-next-port.ps1'), '-Port', String(targetPort)
   ], {
     windowsHide: true,
     stdio: 'inherit',
-    env: { ...process.env, MPF_WEB_NEXT_NODE: process.execPath, MPF_WEB_NEXT_VITE: vite, MPF_WEB_NEXT_CONFIG: config }
+    env: { ...process.env, MPF_WEB_NEXT_NODE: process.execPath, MPF_WEB_NEXT_VITE: vite, MPF_WEB_NEXT_CONFIG: config,
+      MPF_WEB_NEXT_API: path.join(root, 'scripts', 'start-web-next-api.mjs') }
   });
   if (result.error) throw result.error;
-  if (result.status !== 0) throw new Error('Port cleanup was refused or failed. No new frontend was started.');
+  if (result.status !== 0) throw new Error(`Port ${targetPort} cleanup was refused or failed. No new frontend was started.`);
   const deadline = Date.now() + 10_000;
-  while (!await portAvailable()) {
-    if (Date.now() >= deadline) throw new Error(`Port ${port} is still busy after stopping the previous frontend.`);
+  while (!await portAvailable(targetPort)) {
+    if (Date.now() >= deadline) throw new Error(`Port ${targetPort} is still busy after stopping the previous service.`);
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 }
 
 try {
-  if (process.argv.slice(2).some(arg => arg !== '--stop')) throw new Error('Usage: node scripts/start-web-next.mjs [--stop]');
+  if (process.argv.slice(2).some(arg => !['--stop','--restart-api'].includes(arg))) {
+    throw new Error('Usage: node scripts/start-web-next.mjs [--stop | --restart-api]');
+  }
   if (!process.argv.includes('--stop') && (!existsSync(vite) || !existsSync(config))) {
     throw new Error('Frontend dependencies/config are missing. Run npm.cmd install from the repository root.');
   }
-  await clearPreviousFrontend();
   if (process.argv.includes('--stop')) {
+    await clearPreviousListener(port);
     console.log(`Port ${port} is clear. API port 6500 was not touched.`);
   } else {
+    await clearPreviousListener(port);
+    if (process.argv.includes('--restart-api')) await clearPreviousListener(apiPort);
     await ensureBackend();
     console.log(`Starting Image Playground at http://localhost:${port} (API: port 6500).`);
     // Explicit absolute markers let the next invocation identify this exact workspace's listener.

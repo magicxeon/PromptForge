@@ -116,6 +116,10 @@ Architecture map updated for the new scripts-owned launcher; no runtime data pat
 
 ### Launcher correction — refused API connection
 
+**Windows BAT restart.** `scripts/start-web-next.bat` now passes `--restart-api`. The launcher replaces an API on 6500 only after identifying this repository's exact local Web Next API command and rechecking process creation time. It waits for API health and auth configuration before opening Vite. The npm command without the flag still reuses a healthy backend. Run the BAT after active jobs finish.
+
+Validation covered Node and PowerShell syntax, simulated acceptance of the workspace API and rejection of an unrelated listener, and read-only identification of the existing development API. The running API was left in place.
+
 The prior launcher started Vite only, leaving `/api/auth/config` proxied to a stopped
 API6500. Case C: restore the intended one-command local startup. The launcher now reuses
 healthy API6500, or starts canonical `server/server.js` when the port is free, using

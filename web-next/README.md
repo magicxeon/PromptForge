@@ -8,16 +8,16 @@ npm.cmd run dev:web-next
 
 Open **http://localhost:6502** (or http://127.0.0.1:6502). On Windows you can also
 double-click `scripts/start-web-next.bat` (the old `web-next/start-dev.bat` forwards to it).
-The launcher clears port6502 only when its listener is this workspace's explicitly marked
-Vite process. It reuses the existing API6500, or starts `server/server.js` with the existing
-`.env` and canonical development environment when6500 is free. It waits for both
+The Windows BAT restarts the existing local API on port 6500 when it belongs to this
+workspace's API launcher. Run it after active jobs finish. Root `npm.cmd run dev:web-next`
+reuses a healthy API by default. Both start an API when the port is free and clear
+port 6502 only when the listener belongs to this workspace's Vite. They wait for both
 `/api/health` and `/api/auth/config` before starting Vite, failing visibly instead of
 opening a frontend with a refused proxy connection. API startup logs are written to the
 temporary log path printed by the launcher.
 
-The shared API stays running across frontend restarts and `stop:web-next`; no automatic
-backend restart or auth bypass is introduced. It never stops the old frontend or an
-unidentified application. The previous npm launcher is also recognized only when its
+The shared API stays running across frontend-only restarts and `stop:web-next`.
+The previous npm launcher is recognized only when its
 Vite path belongs to this repository and its process ancestry explicitly names `web-next`.
 Other untracked listeners must be closed from their own terminal.
 

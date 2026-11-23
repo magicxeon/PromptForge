@@ -923,6 +923,24 @@ export class CinematicApplicationService {
     return {project, scene:project.scenes.find(scene => scene.id === sceneId)};
   }
 
+  async writeStoryPrompt(input,project,scene,shots,source,cues,findings,beforeDispatch) {
+    const context = scenePromptContext(scene,shots,input.language);
+    if (input.refineDraft !== undefined) {
+      const limit = cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters;
+      if (typeof input.refineDraft !== 'string' || !input.refineDraft.trim() || input.refineDraft.length > 2 * limit) {
+        throw new CinematicError('cinematic_prompt_refinement_input','Supply a first draft within the review size limit.',400);
+      }
+      await beforeDispatch?.();
+      return this.fullStoryService.refineStoryPrompt(input.refineDraft,source,project.writingSettings,{
+        ...context,template:input.template, scope:shots.length > 1 ? 'sequence' : 'shot',
+        artDirection:shots.map(({id}) => scene.shots.find(shot => shot.id === id)?.artDirection || '')
+      });
+    }
+    await beforeDispatch?.();
+    return this.fullStoryService.translateStoryPrompt(source,cues,project.writingSettings,findings,
+      input.template === 'seedance' ? context : undefined);
+  }
+
   async proposeShots(projectId, sceneId, input, actorContext, { beforeDispatch } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.getProject(projectId, actorContext);
@@ -948,11 +966,11 @@ export class CinematicApplicationService {
       if (!scene) throw new CinematicError('cinematic_scene_not_found','Scene not found.',404);
       const packet = compileMergedStoryPrompt(project,scene,input.shotIds,input.template);
       if (!packet.ready) throw new CinematicError('cinematic_opening_frame_required','Choose an opening frame for the first selected shot.',400);
-      await beforeDispatch?.();
-      const {text,provenance} = await this.fullStoryService.translateStoryPrompt(packet.text,packet.cues,project.writingSettings,packet.findings);
+      const {text,provenance,reviewNotes} = await this.writeStoryPrompt(input,project,scene,packet.shots,
+        packet.text,packet.cues,packet.findings,beforeDispatch);
       return {template:packet.template,shots:packet.shots,references:packet.references,sourceFingerprint:packet.sourceFingerprint,
         maximumPromptCharacters:cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters,
-        text:normalizeMergedStoryReferences(text),provenance};
+        text:normalizeMergedStoryReferences(text),provenance,reviewNotes};
     }
     if (input.purpose === 'translate_shot_prompt') {
       if (input.template !== 'legacy' && !storyPromptKind(input.template)) {
@@ -963,10 +981,9 @@ export class CinematicApplicationService {
       if (prepared.storyPacket && !prepared.storyPacket.ready) {
         throw new CinematicError('cinematic_opening_frame_required','Choose an opening frame first.',400);
       }
-      await beforeDispatch?.();
-      const {text,provenance} = await this.fullStoryService.translateStoryPrompt(
-        prepared.storyPacket?.text ?? prepared.storyPrompt, prepared.dialogue.cues, project.writingSettings, prepared.dialogue.findings);
-      if (prepared.storyPacket) prepared.storyPacket.text = text;
+      const {text,provenance,reviewNotes} = await this.writeStoryPrompt(input,project,project.scenes.find(item=>item.id===sceneId),
+        [{id:input.targetShotId}],prepared.storyPacket?.text ?? prepared.storyPrompt,prepared.dialogue.cues,prepared.dialogue.findings,beforeDispatch);
+      if (prepared.storyPacket) Object.assign(prepared.storyPacket,{text,reviewNotes});
       else prepared.storyPrompt = text;
       return {...prepared,provenance};
     }
@@ -3166,6 +3183,22 @@ export class CinematicApplicationService {
       return { success: true, projectId };
     });
   }
+}
+
+function scenePromptContext(scene, selected, language) {
+  const ids = new Set(selected.map(shot=>shot.id));
+  const ordered = [...scene.shots].sort((a,b)=>a.orderKey-b.orderKey);
+  return {
+    reviewLanguage:language === 'en' ? 'English' : 'Thai',
+    scene:{opening:scene.entryState,focus:scene.objective,ending:scene.exitState,story:scene.synopsis,
+      light:scene.lighting,sound:scene.audioIntent},
+    sequence:ordered.map((shot,index)=>({position:index+1,selected:ids.has(shot.id),title:shot.title,
+      opening:shot.continuityEntry,ending:shot.continuityExit})),
+    selectedTiming:selected.map(({id,startMs,endMs}) => {
+      const index = ordered.findIndex(shot => shot.id === id);
+      return {position:index + 1,startMs:startMs ?? 0,endMs:endMs ?? ordered[index]?.durationMs};
+    })
+  };
 }
 
 function shotPlanningEnvironmentKey(scene) {

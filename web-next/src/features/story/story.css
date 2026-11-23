@@ -322,7 +322,7 @@ dialog:has(> .story-scene-review)::backdrop {background:#12271e65;}
 .story-prompt-dialog {display:grid;gap:.7rem;}
 .story-prompt-dialog p {margin:0;}
 .story-character-form footer {display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap;}
-dialog:has(.story-writing-progress) {width:min(24rem,calc(100vw - 2rem));box-sizing:border-box;border:1px solid #c9d7cb;border-radius:.85rem;padding:1.6rem;}
+dialog:has(> .story-writing-progress) {width:min(24rem,calc(100vw - 2rem));box-sizing:border-box;border:1px solid #c9d7cb;border-radius:.85rem;padding:1.6rem;}
 .story-writing-progress {display:grid;justify-items:center;gap:.7rem;text-align:center;color:#265d46;}
 .story-writing-progress p {margin:0;}
 .story-saving {position:fixed;z-index:2;inset:auto 1rem 1rem auto;display:flex;align-items:center;gap:.55rem;padding:.55rem .85rem;background:#f1f7f3;border:1px solid #c9d7cb;border-radius:.55rem;pointer-events:none;}

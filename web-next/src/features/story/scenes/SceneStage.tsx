@@ -26,7 +26,7 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment}:{projec
     ? revision.story.split(/\r?\n/).map(line=>line.trim()).filter(Boolean)
       .slice(scene.sourceStartParagraph-1,scene.sourceEndParagraph).join("\n\n") : "";
   const continuity = [
-    [t("stage.start"),scene.entryState], [t("stage.end"),scene.exitState],
+    [t("stage.start"),scene.entryState], [t("stage.beatFocus"),scene.objective], [t("stage.end"),scene.exitState],
     [t("stage.emotion"),[scene.emotionalStart,scene.emotionalEnd].filter(Boolean).join(" → ")],
     [t("stage.cast"),cast.map(person=>person.displayName).join(", ")]
   ].filter(([,value])=>Boolean(value));

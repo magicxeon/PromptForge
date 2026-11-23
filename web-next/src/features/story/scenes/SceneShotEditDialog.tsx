@@ -13,7 +13,7 @@ import {StoryCharacterIdentity} from "../characters/StoryCharacters";
 import catalog from "../../../../../server/config/cinematic/story-direction.v1.json";
 
 const editSchema=z.object({title:z.string().max(120),body:z.string().max(50000),location:z.string().max(240),
-  sceneEvents:z.array(z.string()).optional(), lighting:z.string().max(500).optional(), audioIntent:z.string().max(500).optional(),
+  objective:z.string().max(1000).optional(), sceneEvents:z.array(z.string()).optional(), lighting:z.string().max(500).optional(), audioIntent:z.string().max(500).optional(),
   time:z.string().max(160),environment:z.string().max(2500).optional(),entryState:z.string().max(1000).optional(),
   exitState:z.string().max(1000).optional(),emotionalStart:z.string().max(500).optional(),emotionalEnd:z.string().max(500).optional(),
   seconds:z.number().finite(),characterIds:z.array(z.string()).max(24),
@@ -32,7 +32,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
   const effectiveIds=shot?.castMode==="none"||scene.castMode==="none"?[]:shot?.castMode==="selected"||shot?.castAssignmentIds.length?shot.castAssignmentIds:scene.castAssignmentIds;
   const original={title:shot?.title??scene.title,body:shot?(shot.shotDocument||legacy.data?.shotDocument||""):(scene.synopsis||scene.storyChange||""),
     location:scene.location,time:scene.time,seconds:(shot?.durationMs??scene.durationMs)/1000,characterIds:scene.castAssignmentIds,
-    environment:scene.environmentPrompt||"",entryState:scene.entryState||"",exitState:scene.exitState||"",
+    environment:scene.environmentPrompt||"",objective:scene.objective||"",entryState:scene.entryState||"",exitState:scene.exitState||"",
     emotionalStart:scene.emotionalStart,emotionalEnd:scene.emotionalEnd,
     sceneEvents:scene.sceneEvents??[],lighting:scene.lighting??"",audioIntent:scene.audioIntent??"",
     speakers:shot?.speakerBindings??(shot?effectiveIds.map(id=>({castAssignmentId:id,alias:cast.find(c=>c.id===id)?.displayName||id,visible:true})):[])};
@@ -62,7 +62,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
         shotDocument:draft.body,speakerBindings:draft.speakers,source:"manual",
       }):await updateCinematicSceneOutline(project.id,scene.id,{
         expectedVersion:project.version,expectedSceneVersion:scene.version,title:draft.title,synopsis:draft.body,
-        purpose:scene.purpose as Parameters<typeof updateCinematicSceneOutline>[2]["purpose"],objective:scene.objective||"",
+        purpose:scene.purpose as Parameters<typeof updateCinematicSceneOutline>[2]["purpose"],objective:draft.objective??scene.objective??"",
         location:draft.location,time:draft.time,weather:scene.weather||"",environment:draft.environment??scene.environmentPrompt??"",
         entryState:draft.entryState??scene.entryState??"",exitState:draft.exitState??scene.exitState??"",
         emotionalStart:draft.emotionalStart??scene.emotionalStart,emotionalEnd:draft.emotionalEnd??scene.emotionalEnd,
@@ -118,7 +118,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
           onChange={e=>editor.setValue({...draft,audioIntent:e.target.value})}/></label>
         <label>{t("stage.direction")}<textarea rows={3} maxLength={2500} value={draft.environment??scene.environmentPrompt??""}
           onChange={e=>editor.setValue({...draft,environment:e.target.value})}/></label>
-        {([["entryState","start",1000],["exitState","end",1000],["emotionalStart","emotionStart",500],["emotionalEnd","emotionEnd",500]] as const).map(([key,label,maxLength])=>
+        {([["entryState","start",1000],["objective","beatFocus",1000],["exitState","end",1000],["emotionalStart","emotionStart",500],["emotionalEnd","emotionEnd",500]] as const).map(([key,label,maxLength])=>
           <label key={key}>{t("stage."+label)}<input value={draft[key]??scene[key]??""} maxLength={maxLength}
             onChange={e=>editor.setValue({...draft,[key]:e.target.value})}/></label>)}</details>}
       <footer>

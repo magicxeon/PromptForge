@@ -2,8 +2,37 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {compileMergedStoryPrompt} from '../server/domain/cinematic/CinematicMergedStoryPrompt.js';
 import {planStoryPromptLanguage} from '../server/domain/cinematic/StoryPromptLanguage.js';
+import {inspectStoryPromptDraft} from '../server/domain/cinematic/StoryPromptFormatting.js';
+
+test('embedded shot clocks widen the action row and cannot be reintroduced by translation', () => {
+  const {project,scene,shots} = fixture();
+  shots[1].shotDocument = 'PERFORMANCE AND TIMELINE\n[0–1s] The passenger lowers the letter. They stop [0:00.9-0:02.2] and listen [3s].';
+  const {text,cues,findings} = compileMergedStoryPrompt(project,scene,['s1','s2'],'seedance');
+  assert.match(text,/3–6s — The passenger lowers the letter\. They stop \[4–5s\] and listen \[6s\]/);
+  assert.doesNotMatch(text,/\[0:|\[WRITING DIRECTION\]/);
+  const {slots,render} = planStoryPromptLanguage(text,cues,findings);
+  const translations = slots.map(({id,source}) => ({id,text:source}));
+  assert.equal(render(translations,'English'),text);
+  const slot = translations.find(row => row.text.includes('lowers the letter'));
+  slot.text += ' Pause [0:00.9-0:02.2].';
+  assert.throws(() => render(translations,'English'), {code:'cinematic_prompt_translation_invalid'});
+  assert.ok(inspectStoryPromptDraft('Pause [0:00.9-0:02.2].', [], 10000).some(issue => issue.key === 'reviewClock'));
+});
 
 const image = assetId => ({assetId, imageUrl:`/owned/${assetId}`});
+test('selected Seedance shots scope reveals, isolate the timeline and preserve literal speech',()=>{
+  const {project,scene,shots}=fixture();
+  scene.synopsis='A later visitor rings a hidden bell.';
+  scene.audioIntent='The final bell rings.';
+  shots[1].shotDocument+='\nAUDIO\nSteam rises [0:00.9-0:02.2].';
+  const packet=compileMergedStoryPrompt(project,scene,['s2','s1'],'seedance');
+  assert.doesNotMatch(packet.text,/hidden bell|final bell|WRITING DIRECTION|0:00\.9/);
+  assert.match(packet.text,/Steam rises \[4–5s\]/);
+  assert.ok(packet.text.indexOf('Shot 1') < packet.text.indexOf('Shot 2'));
+  const changed=packet.text.replace('“รอก่อน”','').concat('\nReference 99\n[10s] Hold.');
+  const issues=inspectStoryPromptDraft(changed,packet.references,7000,packet.text);
+  assert.deepEqual(new Set(issues.map(issue=>issue.key)),new Set(['reviewClock','reviewReference','reviewCue']));
+});
 test('both destinations reuse saved lighting and scene sound after an art override',()=>{
   const {project,scene,shots}=fixture();
   scene.audioIntent='Rain on the station roof.';
@@ -13,12 +42,21 @@ test('both destinations reuse saved lighting and scene sound after an art overri
     delete shots[0].artDirection;
     assert.match(compileMergedStoryPrompt(project,scene,['s1','s2'],kind).text,/Warm lantern/);
     shots[0].artDirection='Cool window light.';
-    const packet=compileMergedStoryPrompt(project,scene,['s1','s2'],kind);
+    const packet=compileMergedStoryPrompt(project,scene,['s1','s2','s3'],kind);
     assert.match(packet.text,/Cool window light/);
     assert.match(packet.text,/Rain on the station roof/);
     assert.match(packet.text,/\[4–5s\] Door creaks/);
     assert.doesNotMatch(packet.text,/Warm lantern/);
   }
+});
+test('a silent insert with no shot cast does not import a scene cast portrait', () => {
+  const {project,scene,shots} = fixture();
+  scene.castAssignmentIds = ['c'];
+  for (const shot of [shots[0],shots[2]]) delete shot.speakerBindings;
+  const packet = compileMergedStoryPrompt(project,scene,['s1','s3'],'seedance');
+  assert.equal(packet.references.some(ref => ref.role === 'character'), false);
+  assert.doesNotMatch(packet.text,/Kai|CHARACTER IDENTIFICATION/);
+  assert.deepEqual(packet.cues,[]);
 });
 const names = ['Approach', 'Answer', 'Departure'];
 function fixture() {

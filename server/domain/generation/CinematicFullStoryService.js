@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import {directingContext,normalizeSceneEvents} from '../../config/storyDirectingSkills.js';
 import { resolveWritingPreferences, briefSuggestionChoices, storySpokenLanguage } from '../../config/storyWritingSettings.js';
-import { planStoryPromptLanguage } from '../cinematic/StoryPromptLanguage.js';
+import { planStoryPromptLanguage, planStoryPromptRefinement } from '../cinematic/StoryPromptLanguage.js';
 import { cinematicWorkflowPolicy } from '../../config/cinematicRewampConfiguration.js';
 import { getCinematicStoryEnhancementPolicy } from '../../config/cinematic-story-enhancement-policy.js';
 import { OpenAITextProvider } from '../../providers/OpenAITextProvider.js';
@@ -44,16 +44,29 @@ export class CinematicFullStoryService {
     return Object.fromEntries(Object.keys(briefSuggestionChoices).map(key => [key,result[key]]));
   }
 
-  async translateStoryPrompt(text, cues, settings, findings) {
+  async translateStoryPrompt(text, cues, settings, findings, sceneContext) {
     const {slots,render} = planStoryPromptLanguage(text,cues,findings);
     const policy = this.#policy(settings);
     const spokenLanguage = storySpokenLanguage(settings);
     const result = await this.providerFactory(policy).translateStoryPrompt({
-      slots, spokenLanguage, model:policy.model, reasoningEffort:policy.reasoningEffort,
+      slots, spokenLanguage, sceneContext:sceneContext && {...sceneContext, projectDirection:settings?.direction},
+      model:policy.model, reasoningEffort:policy.reasoningEffort,
       maxOutputTokens:policy.maxOutputTokens, timeoutMs:policy.longFormTimeoutMs || policy.timeoutMs
     });
-    return {text:render(result?.translations,spokenLanguage), provenance:{provider:policy.provider,
+    return {text:render(result?.translations,spokenLanguage), reviewNotes:sceneContext ? result?.reviewNotes : undefined, provenance:{provider:policy.provider,
       model:policy.model,responseId:result?.responseId || null,usage:normalizeWritingUsage(result?.usage)}};
+  }
+
+  async refineStoryPrompt(draft, source, settings, context) {
+    const plan = planStoryPromptRefinement(draft);
+    const policy = this.#policy(settings);
+    const result = await this.providerFactory(policy).refineStoryPrompt({
+      lines:plan.lines, source, context:{...context, projectDirection:settings?.direction},
+      model:policy.model, reasoningEffort:policy.reasoningEffort, maxOutputTokens:policy.maxOutputTokens,
+      timeoutMs:policy.longFormTimeoutMs || policy.timeoutMs
+    });
+    return {text:plan.apply(result?.edits),reviewNotes:result.reviewNotes,provenance:{provider:policy.provider,
+      model:policy.model,responseId:result.responseId || null,usage:normalizeWritingUsage(result.usage)}};
   }
 
   async proposeShotArt({scene,shot,sceneImage,writingSettings,language}) {

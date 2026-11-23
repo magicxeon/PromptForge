@@ -2,8 +2,8 @@ import {useState} from "react";
 import {useQuery} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
 import {useBlocker} from "react-router-dom";
-import {PenLine,X} from "lucide-react";
-import {formatStoryPromptWholeSeconds, normalizeMergedStoryReferences} from "../../../../../server/domain/cinematic/StoryPromptFormatting.js";
+import {Maximize2,Minimize2,X} from "lucide-react";
+import {formatStoryPromptWholeSeconds, inspectStoryPromptDraft, normalizeMergedStoryReferences} from "../../../../../server/domain/cinematic/StoryPromptFormatting.js";
 import {ProcessingSpinner, useActor} from "../../../lib/canonical";
 import {MediaImage} from "../../../components/media/MediaImage";
 import {Dialog} from "../../dub-sub/Dialog";
@@ -15,6 +15,7 @@ import {approveCinematicStoryboardSource, getCinematicProject} from "../../../..
 import {CinematicWritingCancelled} from "../../../../../web/src/features/cinematic/api/cinematicWritingBilling";
 import {OpeningFramePicker} from "./OpeningFramePicker";
 import {SeedancePacingNote} from "./SeedancePacingNote";
+import {StoryPromptReviewDialog,useStoryPromptReview} from "./StoryPromptReview";
 import "./promptTranslations";
 import "./storyPrompt.css";
 
@@ -26,7 +27,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
   project: CinematicProject; scene: CinematicScene; shotIds: string[]; initialTemplate: Format;
   run: RunWriting; error: string; close: () => void;
 }) {
-  const {t} = useTranslation("storyPrompt");
+  const {t,i18n} = useTranslation("storyPrompt");
   const {t: story} = useTranslation("story");
   const {identityScope} = useActor();
   const [template, setTemplate] = useState(initialTemplate);
@@ -36,9 +37,11 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
     enabled: Boolean(saved), refetchOnMount: "always", refetchOnWindowFocus: false});
   const [built, setBuilt] = useState<Packet>();
   const [edit, setEdit] = useState<string>();
+  const [expanded,setExpanded] = useState(false);
   const [baseText, setBaseText] = useState<string | null>();
   const [saveConflict, setSaveConflict] = useState(false);
   const [operation, setOperation] = useState<"build" | "frame" | "save">();
+  const promptReview = useStoryPromptReview<Packet>();
   const [picker, setPicker] = useState(false);
   const [copyState, setCopyState] = useState<"copied" | "copyFailed">();
   const [failedBuild, setFailedBuild] = useState(false);
@@ -50,7 +53,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
   const limit = packet?.maximumPromptCharacters;
   const excess = limit === undefined ? 0 : Math.max(0, text.length - limit);
   const dirty = Boolean(packet && (text !== savedDisplayText || packet.sourceFingerprint !== saved?.sourceFingerprint));
-  const blocker = useBlocker(dirty || Boolean(operation));
+  const blocker = useBlocker(dirty || Boolean(operation) || Boolean(promptReview.stage));
   const selected = scene.shots.filter(shot => shotIds.includes(shot.id)).sort((a, b) => a.orderKey - b.orderKey);
   let duration = 0;
   const timeline = packet?.shots ?? selected.map(shot => {
@@ -58,6 +61,10 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
     duration += shot.durationMs;
     return {id: shot.id, title: shot.title, startMs, endMs: duration};
   });
+  const totalMs = timeline.at(-1)?.endMs ?? 0;
+  const issues = template === "seedance" && packet ? inspectStoryPromptDraft(text,packet.references,totalMs,displayPrompt(packet.text)) : [];
+  const clockIssues = issues.filter(issue => issue.key === "reviewClock");
+  const otherIssues = issues.filter(issue => issue.key !== "reviewClock");
   const first = selected[0];
   const missing = selected.length !== shotIds.length;
   const needsFrame = template === "flow" && !first?.approvedStoryboardSource;
@@ -66,7 +73,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
     || (packet.sourceFingerprint === saved?.sourceFingerprint && saved.outdatedShotIds.includes(shot.id))) ?? [];
   const checking = Boolean(saved && review.isFetching);
   const reviewError = saved && review.isError;
-  const busy = Boolean(operation);
+  const busy = Boolean(operation) || Boolean(promptReview.stage);
   const changedElsewhere = saveConflict || (baseText !== undefined && baseText !== (saved?.text ?? null));
 
   function confirmDiscard(action: () => void, confirm = dirty) {
@@ -93,10 +100,13 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
     try {
       await run(async () => {
         try {
-          const result = await buildMergedStoryPrompt(project.id, scene.id, selected.map(shot => shot.id), project.version, template);
-          setBaseText(previous => previous === undefined ? saved?.text ?? null : previous);
-          setBuilt(result);
-          setEdit(undefined);
+          const write = (draft?:string) => buildMergedStoryPrompt(project.id, scene.id, selected.map(shot => shot.id), project.version, template,
+            i18n.language.startsWith("th") ? "th" : "en", draft);
+          await promptReview.build(()=>write(), result=>write(result.text), result=>{
+            setBaseText(previous => previous === undefined ? saved?.text ?? null : previous);
+            setBuilt(result);
+            setEdit(undefined);
+          });
         } catch (cause) {
           if (!(cause instanceof CinematicWritingCancelled)) setFailedBuild(true);
           throw cause;
@@ -142,6 +152,22 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
     setDiscardAction(null);
     blocker.reset?.();
   }
+  const referenceList = !!packet?.references.length && <ol className="story-prompt-references">{packet.references.map(ref =>
+    <li key={ref.number} value={ref.number}><MediaImage src={ref.imageUrl} alt=""/>{t(ref.role)} · {ref.name}</li>
+  )}</ol>;
+  function promptEditor(id:string) {
+    return <textarea id={id} rows={10} value={text} readOnly={busy || !!outdated.length || missing || changedElsewhere}
+      aria-invalid={excess > 0 || undefined} aria-describedby={excess ? id+"-limit" : undefined}
+      onChange={event=>{
+        if (baseText === undefined) setBaseText(saved?.text ?? null);
+        setEdit(event.target.value);
+        setCopyState(undefined);
+      }}/>;
+  }
+  const copyButton = <button disabled={!text.trim()} onClick={async () => {
+    try { await navigator.clipboard.writeText(text); setCopyState("copied"); }
+    catch { setCopyState("copyFailed"); }
+  }}>{t(copyState === "copied" ? "copied" : "copy")}</button>;
   return <Dialog label={t("merge.title")} onClose={() => confirmDiscard(close)}>
     <div className="story-dialog story-merged-dialog">
       <header className="story-prompt-heading"><h2>{t("merge.title")}</h2>
@@ -151,31 +177,40 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
         {(["flow", "seedance"] as const).map(format => <button key={format} aria-pressed={template === format} disabled={busy}
           onClick={() => {if (format !== template) confirmDiscard(() => changeTemplate(format));}}>{t(format)}</button>)}
       </div>
-      <section>
-        <h3>{t("merge.timeline")} · {story("seconds", {n: (timeline.at(-1)?.endMs ?? 0) / 1000})}</h3>
-        <ol className="story-merge-timeline">{timeline.map(shot => <li key={shot.id}>
-          <strong>{shot.title}</strong> <span>{t("merge.range", {start: shot.startMs / 1000, end: shot.endMs / 1000})}</span>
+      <section className="story-merge-schedule">
+        <header><h3>{t("merge.timeline")}</h3>
+          <span>{story("seconds", {n: totalMs / 1000})}</span></header>
+        {totalMs > 0 && <div className="story-merge-track" aria-hidden="true">{timeline.map(shot =>
+          <span key={shot.id} style={{flexGrow: shot.endMs - shot.startMs}}/>)}</div>}
+        <ol className="story-merge-timeline">{timeline.map((shot,index) => <li key={shot.id}>
+          <span aria-hidden="true">{index + 1}</span><strong>{shot.title}</strong>
+          <time>{t("merge.range", {start: shot.startMs / 1000, end: shot.endMs / 1000})}</time>
         </li>)}</ol>
-        {template === "seedance" && <SeedancePacingNote count={timeline.length} seconds={(timeline.at(-1)?.endMs ?? 0)/1000}/>}
       </section>
+      {template === "seedance" && <SeedancePacingNote count={timeline.length} seconds={totalMs / 1000}/>}
       {needsFrame && !missing && <div><p>{t("merge.needFrame", {name: first.title})}</p>
         <button disabled={busy} onClick={() => setPicker(true)}>{t("chooseFrame")}</button></div>}
       {outdated.length > 0 && <p role="status">{t("merge.changed", {shots: outdated.map(shot => shot.title).join(", ")})}</p>}
       {changedElsewhere && <p role="alert">{t("merge.saveConflict")}</p>}
       {missing && <p role="alert">{t("merge.missing")}</p>}
-      {!!packet?.references.length && <section><h3>{t("attachments")}</h3>
-        <ol className="story-prompt-references">{packet.references.map(ref => <li key={ref.number} value={ref.number}>
-          <MediaImage src={ref.imageUrl} alt=""/>{t(ref.role)} · {ref.name}</li>)}</ol></section>}
-      {packet && <label>{story("promptText")}<textarea rows={10} value={text} readOnly={busy || !!outdated.length || missing || changedElsewhere}
-        aria-invalid={excess > 0 || undefined} aria-describedby={excess ? "merge-text-limit" : undefined}
-        onChange={event => {
-          if (baseText === undefined) setBaseText(saved?.text ?? null);
-          setEdit(event.target.value);
-          setCopyState(undefined);
-        }}/></label>}
+      {packet?.reviewNotes?.map((note,i)=><p role="status" key={i}>{note}</p>)}
+      {clockIssues.length > 0 && <details className="story-merge-clock-review">
+        <summary>{t("merge.clockReview", {count:clockIssues.length})}</summary>
+        <ul>{clockIssues.map((issue,index) => <li key={index}>
+          {issue.shotNumber && <strong>{t("merge.shotNumber",{n:issue.shotNumber})} · </strong>}
+          {t(issue.key,{value:issue.value})}
+        </li>)}</ul>
+      </details>}
+      {otherIssues.map((issue,i)=><p role="status" key={i}>{t(issue.key,{value:issue.value})}</p>)}
+      {referenceList && <section><h3>{t("attachments")}</h3>{referenceList}</section>}
+      {packet && <section>
+        <div className="story-prompt-text-heading"><label htmlFor="merge-text">{story("promptText")}</label>
+          <button type="button" aria-haspopup="dialog" onClick={()=>setExpanded(true)}><Maximize2 size={16}/>{t("expand")}</button></div>
+        {promptEditor("merge-text")}
+      </section>}
       {excess > 0 && <p id="merge-text-limit" role="status">{t("merge.tooLong", {length:text.length, limit, excess})}</p>}
-      {operation && <p className="story-merged-progress" role="status">
-        {operation === "build" ? <PenLine className="story-writing-pen" size={18} aria-hidden="true"/> : <ProcessingSpinner/>}
+      {operation && operation !== "build" && <p className="story-merged-progress" role="status">
+        <ProcessingSpinner/>
         {t("merge." + operation + "Busy")}
       </p>}
       {reviewError && <p role="alert">{review.error.message} <button disabled={busy || checking} onClick={() => void review.refetch()}>{t("retry")}</button></p>}
@@ -187,15 +222,23 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
           {failedBuild ? t("retry") : t(packet ? "merge.rebuild" : "merge.create")}
         </button>
         {packet && <>
-          <button disabled={!text.trim()} onClick={async () => {
-            try { await navigator.clipboard.writeText(displayPrompt(text)); setCopyState("copied"); }
-            catch { setCopyState("copyFailed"); }
-          }}>{t(copyState === "copied" ? "copied" : "copy")}</button>
+          {copyButton}
           <button className="primary" disabled={busy || !text.trim() || excess > 0 || !!outdated.length || missing || checking || !!reviewError || changedElsewhere || !dirty}
             onClick={() => void save()}>{story("savePrompt")}</button>
         </>}
       </footer>
     </div>
+    <StoryPromptReviewDialog {...promptReview}/>
+    {expanded && <Dialog label={t("expand")} onClose={()=>setExpanded(false)}>
+      <section className="story-merge-focus">
+        <header className="story-prompt-text-heading"><label htmlFor="merge-expanded">{story("promptText")}</label>
+          {copyButton}<button type="button" onClick={()=>setExpanded(false)}><Minimize2 size={16}/>{t("shrink")}</button></header>
+        <div className="story-merge-focus-body">{promptEditor("merge-expanded")}
+          {referenceList && <aside className="story-ref-pane"><h3>{t("attachments")}</h3>{referenceList}</aside>}</div>
+        {excess > 0 && <p id="merge-expanded-limit" role="status">{t("merge.tooLong",{length:text.length,limit,excess})}</p>}
+        {copyState === "copyFailed" && <p role="status">{t(copyState)}</p>}
+      </section>
+    </Dialog>}
     {picker && <OpeningFramePicker pending={busy} error={showError ? error : ""} choose={id => void chooseFrame(id)} close={() => setPicker(false)}/>}
     {(discardAction || blocker.state === "blocked") && <Dialog label={story("unsaved")} onClose={keepEditing}>
       <h2>{busy ? story("processing") : story("unsaved")}</h2>

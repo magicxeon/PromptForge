@@ -1,7 +1,7 @@
 import {createHash} from 'node:crypto';
 import templates from '../../config/cinematic/story-shot-templates.v1.json' with {type:'json'};
-import {resolveWritingPreferences, storySpokenLanguage} from '../../config/storyWritingSettings.js';
-import {formatStoryPromptWholeSeconds} from './StoryPromptFormatting.js';
+import {resolveWritingPreferences, storySpokenLanguage, storyVisualStyle} from '../../config/storyWritingSettings.js';
+import {formatStoryPromptWholeSeconds, rebaseDirectionClocks} from './StoryPromptFormatting.js';
 import {projectVideoDirection} from './CinematicProjectVideoDirection.js';
 import {compileCinematicShotDocument, parseDialogueClock} from './CinematicShotDocumentCompiler.js';
 import {storyPromptPeople, storyPromptReferences, storyVideoFrameDirection, storyVideoReferenceMapping} from './CinematicStoryPromptPacket.js';
@@ -29,14 +29,14 @@ function selectShots(scene, ids) {
   return shots.sort((a,b) => a.orderKey - b.orderKey);
 }
 
-function prepareShot(project, scene, shot, first) {
+function prepareShot(project, scene, shot, first, shotOnly) {
   const document = compileCinematicShotDocument({...shot, manualStoryboard:false}, scene, project.castAssignments);
-  const people = storyPromptPeople(project, scene, shot);
+  const cues = document?.dialogue.cues ?? shot.dialogueCues ?? [];
+  const people = storyPromptPeople(project, scene, shot, shotOnly, cues);
   const sections = document?.sections || {};
   const camera = document ? sections.camera : lines(shot.framing, shot.cameraAngle, shot.lensIntent, shot.cameraMovement);
   const timeline = document?.timeline ?? shot.videoActionTimeline ?? [];
   const fallbackAction = !document && (lines(shot.subjectAction, shot.blocking, shot.prompt) || shot.visibleMoment || shot.purpose);
-  const cues = document?.dialogue.cues ?? shot.dialogueCues ?? [];
   return {
     id:shot.id, title:shot.title, orderKey:shot.orderKey, durationMs:shot.durationMs,
     scene:sections.scene, opening:document ? sections.opening : shot.continuityEntry || shot.visibleMoment,
@@ -57,15 +57,27 @@ function prepareShot(project, scene, shot, first) {
   };
 }
 
-function rebaseCueLines(text, startMs) {
+function rebaseCueLines(text, startMs, embedded = false) {
+  const direction = body => embedded ? rebaseDirectionClocks(body,startMs) : body;
   return text.split('\n').map(line => {
     const match = line.match(/^\[([^\]]+)\]\s*(.*)$/u);
-    if (!match) return line;
+    if (!match) return direction(line);
     const range = parseDialogueClock(match[1]);
     if (range.length > 2 || !range.every(Number.isFinite)) return line;
     const clock = range.length === 2 ? span(startMs + range[0], startMs + range[1]) : `${seconds(startMs + range[0])}s`;
-    return `[${clock}] ${match[2]}`;
+    return `[${clock}] ${direction(match[2])}`;
   }).join('\n');
+}
+
+function seedanceAction(event, offset, duration) {
+  let first = event.startMs, last = event.endMs;
+  const description = rebaseDirectionClocks(event.description, offset, (start, end) => {
+    if (start <= end && end <= duration) {
+      first = Math.min(first, start);
+      last = Math.max(last, end);
+    }
+  });
+  return {ms:offset + first, text:`${span(offset + first, offset + last)} — ${description}`};
 }
 
 export function compileMergedStoryPrompt(project, scene, shotIds, template) {
@@ -75,20 +87,26 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
   const {skillInstructions} = resolveWritingPreferences(project.writingSettings);
   const direction = projectVideoDirection(project);
   const aspect = project.writingSettings?.direction?.aspectRatio || project.aspectRatio || project.setup?.aspectRatio;
-  const setting = lines(scene.location, scene.time, scene.weather, scene.environmentPrompt, scene.synopsis || scene.storyChange);
+  const seedance = template === 'seedance';
+  const setting = seedance ? lines(scene.location,scene.time,scene.weather)
+    : lines(scene.location, scene.time, scene.weather, scene.environmentPrompt, scene.synopsis || scene.storyChange);
   const shots = [], references = [], cues = [], findings = [];
-  const fields = Object.fromEntries(templates.video.sections.map(name => [name, []]));
+  const emptyFields = () => Object.fromEntries(templates.video.sections.map(name => [name, []]));
+  const globalFields = emptyFields();
+  const blocks = [];
+  const fields = globalFields;
   if (setting) fields.SCENE.push(setting);
-  if (scene.audioIntent) fields.AUDIO.push(scene.audioIntent);
+  if (scene.audioIntent && (!seedance || ordered.length === scene.shots.length)) fields.AUDIO.push(scene.audioIntent);
   let cursorMs = 0;
   for (const [index, shot] of ordered.entries()) {
-    const part = prepareShot(project, scene, shot, index === 0);
+    const fields = seedance ? emptyFields() : globalFields;
+    const part = prepareShot(project, scene, shot, index === 0, seedance);
     const startMs = cursorMs, endMs = startMs + part.durationMs;
     cursorMs = endMs;
     const interval = span(startMs,endMs);
     const scoped = body => body && `${interval} — ${body}`;
     const sourceFingerprint = hash(['merged-story-v1', template, spokenLanguage, skillInstructions, direction, aspect,
-      setting, scene.lighting, scene.artDirection, ...(scene.audioIntent ? [scene.audioIntent] : []), shot.shotDocument, {...part,
+      setting, scene.lighting, scene.artDirection, ...(seedance ? [scene.entryState,scene.objective,scene.exitState,scene.synopsis] : []), ...(scene.audioIntent ? [scene.audioIntent] : []), shot.shotDocument, {...part,
         references:part.references.map(r => [r.role, r.assetId, r.name])}]);
     shots.push({id:shot.id, title:shot.title, startMs, endMs, version:shot.version || 1, sourceFingerprint});
     for (const ref of part.references) {
@@ -98,14 +116,15 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     }
     for (const person of part.people) {
       const ref = references.find(r => r.role === 'character' && r.assetId === person.referenceId);
-      fields['CHARACTER IDENTIFICATION'].push(scoped([person.name, person.role, ref && `Reference ${ref.number}`,
+      fields['CHARACTER IDENTIFICATION'].push(scoped([person.name, !seedance && person.role, ref && `Reference ${ref.number}`,
         !person.visible && 'Voice only, off-screen.'].filter(Boolean).join(' — ')));
     }
     fields.SCENE.push(scoped(part.scene));
     fields.CAMERA.push(scoped(part.camera));
     fields.CONTINUITY.push(scoped(part.continuity));
-    const events = part.timeline.map(event => ({ms:startMs + event.startMs,
-      text:`${span(startMs + event.startMs, startMs + event.endMs)} — ${event.description}`}));
+    const events = part.timeline.map(event => seedance ? seedanceAction(event,startMs,part.durationMs) : ({
+      ms:startMs + event.startMs, text:`${span(startMs + event.startMs, startMs + event.endMs)} — ${event.description}`
+    }));
     for (const cue of part.cues) {
       const ms = startMs + (cue.startOffsetMs || 0);
       const clock = cue.estimatedDurationMs > 0 ? span(ms, ms + cue.estimatedDurationMs) : `${seconds(ms)}s`;
@@ -116,31 +135,40 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     }
     fields['ACTION TIMELINE'].push(scoped(shot.title || `Shot ${index + 1}`),
       part.opening && `Starting state: ${part.opening}`, ...events.sort((a,b) => a.ms - b.ms).map(event => event.text), part.exit);
-    if (part.performance) fields.PERFORMANCE.push(scoped(shot.title), rebaseCueLines(part.performance,startMs));
-    if (part.audio) fields.AUDIO.push(...rebaseCueLines(part.audio,startMs).split('\n').map(line =>
+    if (part.performance) fields.PERFORMANCE.push(scoped(shot.title), rebaseCueLines(part.performance,startMs,seedance));
+    if (part.audio) fields.AUDIO.push(...rebaseCueLines(part.audio,startMs,seedance).split('\n').map(line =>
       /^\[\d/.test(line) ? line : scoped(line)));
     for (const cue of part.audioCues) {
       if (cue.description) fields.AUDIO.push(`[${seconds(startMs + (cue.startOffsetMs || 0))}s] ${cue.description}`);
     }
     fields.LIGHTING.push(scoped(part.light));
+    if (seedance) {
+      if (fields.CONTINUITY.length) fields.CONTINUITY.unshift(templates.video.continuity);
+      const orderedSections = ['SCENE','CHARACTER IDENTIFICATION','CAMERA','ACTION TIMELINE','PERFORMANCE','VOICE','AUDIO','LIGHTING','CONTINUITY'];
+      blocks.push(lines(`Shot ${index + 1}`, ...orderedSections.filter(key => lines(...fields[key]))
+        .map(key => `[${key}]\n${lines(...fields[key])}`)));
+    }
     findings.push(...part.findings.map(finding => ({...finding,shotId:shot.id})));
   }
   const frame = references.some(ref => ref.role === 'opening');
   const header = storyVideoFrameDirection(template, frame);
   fields['REFERENCE MAPPING'].push(storyVideoReferenceMapping(references));
-  fields.CONTINUITY.unshift(templates.video.continuity);
-  fields.PERFORMANCE.push(templates.video.performance);
+  if (!seedance) {
+    fields.CONTINUITY.unshift(templates.video.continuity);
+    fields.PERFORMANCE.push(templates.video.performance);
+  }
   fields.VOICE.unshift(`Spoken language: ${spokenLanguage}.`, 'Speak only the supplied dialogue. Preserve the pauses between cues.');
-  fields.AUDIO.push('No music.');
-  fields.LIGHTING.unshift(scene.lighting, scene.artDirection);
+  if (!seedance || (!fields.AUDIO.length && !blocks.some(block => block.includes('[AUDIO]')))) fields.AUDIO.push('No music.');
+  if (!seedance || ordered.length === scene.shots.length) fields.LIGHTING.unshift(scene.lighting, scene.artDirection);
+  if (seedance && project.writingSettings?.direction?.visualStyle) fields.LIGHTING.push(storyVisualStyle(project.writingSettings).instruction);
   fields['ENVIRONMENT MOVEMENT'].push(templates.video.environmentMovement);
   fields.NEGATIVE.push(templates.video.negative);
   const sections = templates.video.sections.map(title => {
     const body = lines(...fields[title]);
     return body && `[${title}]\n${body}`;
   });
-  const text = formatStoryPromptWholeSeconds([header, `Duration: ${seconds(cursorMs)} seconds. ${aspect || ''}`.trim(), ...sections, direction,
-    skillInstructions.length && `[WRITING DIRECTION]\n${lines(...skillInstructions)}`].filter(Boolean).join('\n\n'));
+  const text = formatStoryPromptWholeSeconds([header, `Duration: ${seconds(cursorMs)} seconds. ${aspect || ''}`.trim(), ...sections, direction, ...blocks,
+    !seedance && skillInstructions.length && `[WRITING DIRECTION]\n${lines(...skillInstructions)}`].filter(Boolean).join('\n\n'));
   return {template, text, ready:template !== 'flow' || frame,
     sourceFingerprint:hash([text, shots.map(s => [s.id,s.sourceFingerprint])]), shots, references, cues, findings};
 }

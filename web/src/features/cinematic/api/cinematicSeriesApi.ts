@@ -192,15 +192,16 @@ export function prepareCinematicShotWriter(projectId: string, sceneId: string, s
 }
 
 export function buildCinematicStoryPrompt(projectId: string, sceneId: string, shotId: string, expectedVersion: number,
-  template: 'still' | 'flow' | 'seedance' | 'legacy') {
+  template: 'still' | 'flow' | 'seedance' | 'legacy', language?: 'th'|'en', refineDraft?:string) {
   return withCinematicWritingQuote({projectId, sceneId, operation:'shots',
-    input:{purpose:'translate_shot_prompt', targetShotId:shotId, expectedVersion, template}, resultSchema:cinematicShotWriterPreparationSchema},
+    input:{purpose:'translate_shot_prompt', targetShotId:shotId, expectedVersion, template, language, ...(refineDraft !== undefined && {refineDraft})}, resultSchema:cinematicShotWriterPreparationSchema},
     body => apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`,
       {method:'POST', body, schema:cinematicShotWriterPreparationSchema}));
 }
 
-export function buildMergedStoryPrompt(projectId:string,sceneId:string,shotIds:string[],expectedVersion:number,template:'flow'|'seedance') {
-  const input = {purpose:'merge_shot_prompt', template, shotIds, expectedVersion, targetShotId:shotIds[0]};
+export function buildMergedStoryPrompt(projectId:string,sceneId:string,shotIds:string[],expectedVersion:number,template:'flow'|'seedance',language?:'th'|'en',refineDraft?:string) {
+  const input = {purpose:'merge_shot_prompt', template, shotIds, expectedVersion, targetShotId:shotIds[0], language,
+    ...(refineDraft !== undefined && {refineDraft})};
   return withCinematicWritingQuote({projectId, sceneId, operation:'shots', input, resultSchema:mergedStoryWritingResultSchema},
     body => apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`,
       {method:'POST', body, schema:mergedStoryWritingResultSchema}));

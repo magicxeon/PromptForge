@@ -719,6 +719,7 @@ export const cinematicStoryBeatSchema = z.object({
 });
 
 export const mergedStoryPromptSchema = z.object({
+  reviewNotes:z.array(z.string()).optional(),
   maximumPromptCharacters:z.number().int().positive().optional(),
   template:z.enum(['flow','seedance']), text:z.string(), sourceFingerprint:z.string(),
   shots:z.array(z.object({id:z.string(),title:z.string(),version:z.number(),sourceFingerprint:z.string(),

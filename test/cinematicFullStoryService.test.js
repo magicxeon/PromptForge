@@ -4,6 +4,35 @@ import { CinematicFullStoryService } from '../server/domain/generation/Cinematic
 import { resolveWritingPreferences } from '../server/config/storyWritingSettings.js';
 import storyDirection from '../server/config/cinematic/story-direction.v1.json' with {type:'json'};
 
+test('refinement patches direction only and can return the original draft verbatim', async () => {
+  const draft = ['[REFERENCE MAPPING]','Reference 1 — location.','Shot 1','[ACTION TIMELINE]',
+    '0–3s — Hold still. [2s] Listen.','[1s] Host: “Welcome.”','[CONTINUITY]','Keep the door closed.'].join('\n');
+  const source = 'The host listens at a closed door.';
+  const settings = {modelId:'gpt-6-luna',skillIds:[],direction:storyDirection.defaults};
+  const context = {scope:'sequence',selectedTiming:[{startMs:0,endMs:3000}]};
+  let edits = [];
+  const service = new CinematicFullStoryService({
+    policyLoader:()=>({enabled:true,provider:'openai',model:'fixture'}),availabilityPolicy:{assertAvailable(){}},
+    providerFactory:()=>({refineStoryPrompt:async request=>{
+      assert.equal(request.source,source);
+      assert.equal(request.model,settings.modelId);
+      assert.deepEqual(request.context.selectedTiming,context.selectedTiming);
+      assert.deepEqual(request.lines.filter(line=>line.editable).map(line=>line.id),[4,7]);
+      return {edits,reviewNotes:[]};
+    }})
+  });
+  const review = () => service.refineStoryPrompt(draft,source,settings,context);
+  assert.equal((await review()).text,draft);
+  edits = [{id:4,text:'0–3s — Hold the close-up. [2s] Listen.'}];
+  assert.equal((await review()).text,draft.replace('Hold still','Hold the close-up'));
+  for (const invalid of [[{id:5,text:'New dialogue'}],[{id:1,text:'New reference'}],[{id:2,text:'Shot 2'}],
+    [{id:4,text:'0–4s — Hold still. [2s] Listen.'}],[{id:4,text:'0–3s — Hold still. [1s] Listen.'}],
+    [{id:7,text:'See Reference 3.'}], [{id:7,text:'Hold.\nShot 4'}]]) {
+    edits = invalid;
+    await assert.rejects(review(),{code:'cinematic_prompt_refinement_invalid'});
+  }
+});
+
 test('the shot writer receives directing skills by approved events and destination independently of the writing skill quota', async () => {
   let context;
   const service = new CinematicFullStoryService({

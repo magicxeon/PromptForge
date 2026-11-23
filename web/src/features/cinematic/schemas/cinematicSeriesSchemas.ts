@@ -19,6 +19,7 @@ export const cinematicShotWriterPreparationSchema = z.object({
   overrideStale: z.boolean(), maximumPromptCharacters: z.number().int().positive(),
   storyPrompt: z.string().optional(),
   storyPacket: z.object({
+    reviewNotes:z.array(z.string()).optional(),
     kind: z.enum(['still','flow','seedance']), text: z.string(), sourceFingerprint: z.string(), ready: z.boolean(),
     references: z.array(z.object({number: z.number().int().positive(), role: z.enum(['opening','location','character']),
       name: z.string(), assetId: z.string(), imageUrl: z.string()}))

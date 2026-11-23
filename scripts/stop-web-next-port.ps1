@@ -1,5 +1,20 @@
 # Internal helper for start-web-next.mjs. Never stop a process solely because it holds a port.
+param([ValidateSet(6500, 6502)][int]$Port = 6502)
+
 $ErrorActionPreference = 'Stop'
+
+function Test-ApiOwner($Candidate) {
+    if (-not $Candidate -or $Candidate.Name -ne 'node.exe' -or $Candidate.ExecutablePath -ine $env:MPF_WEB_NEXT_NODE) { return $false }
+    $tokens = @([regex]::Matches([string]$Candidate.CommandLine, '"([^"]*)"|([^\s"]+)') | ForEach-Object {
+        if ($_.Groups[1].Success) { $_.Groups[1].Value } else { $_.Groups[2].Value }
+    })
+    return $tokens.Count -eq 2 -and $tokens[1] -ieq $env:MPF_WEB_NEXT_API
+}
+
+function Test-ListenerOwner($Candidate) {
+    if ($Port -eq 6500) { return Test-ApiOwner $Candidate }
+    return Test-FrontendOwner $Candidate
+}
 
 function Test-FrontendOwner($Candidate) {
     if (-not $Candidate -or $Candidate.Name -ne 'node.exe') { return $false }
@@ -34,17 +49,20 @@ function Test-FrontendOwner($Candidate) {
 }
 
 try {
-    if (-not $env:MPF_WEB_NEXT_NODE -or -not $env:MPF_WEB_NEXT_VITE -or -not $env:MPF_WEB_NEXT_CONFIG) {
-        throw 'Use node scripts/start-web-next.mjs --stop to clear the frontend port.'
+    if (-not $env:MPF_WEB_NEXT_NODE -or ($Port -eq 6500 -and -not $env:MPF_WEB_NEXT_API) -or
+        ($Port -eq 6502 -and (-not $env:MPF_WEB_NEXT_VITE -or -not $env:MPF_WEB_NEXT_CONFIG))) {
+        throw 'Use scripts/start-web-next.bat to run the workspace launcher.'
     }
-    $listeners = @(Get-NetTCPConnection -State Listen -LocalPort 6502 -ErrorAction Stop)
-    if (-not $listeners.Count) { throw 'Cannot identify the port6502 listener. No process was stopped.' }
+    $listeners = @(Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction Stop)
+    if ($Port -eq 6500 -and ($listeners | Where-Object LocalAddress -ne '127.0.0.1')) {
+        throw 'API port 6500 has a non-loopback listener. Stop it from its own terminal if appropriate.'
+    }
     $owners = @($listeners.OwningProcess | Sort-Object -Unique)
     $checked = @()
     foreach ($ownerId in $owners) {
         $candidate = Get-CimInstance Win32_Process -Filter "ProcessId = $ownerId"
-        if (-not (Test-FrontendOwner $candidate)) {
-            throw "Port6502 belongs to an untracked process (PID $ownerId). Close that terminal first; automatic cleanup only stops this workspace's marked frontend."
+        if (-not (Test-ListenerOwner $candidate)) {
+            throw "Port $Port belongs to an untracked process (PID $ownerId). Stop it from its own terminal if appropriate. Automatic cleanup only stops this workspace's launcher."
         }
         $checked += $candidate
     }
@@ -52,10 +70,10 @@ try {
         # Recheck identity/start time immediately before stopping to guard against PID reuse.
         $current = Get-CimInstance Win32_Process -Filter "ProcessId = $($candidate.ProcessId)"
         if (-not $current) { continue }
-        if (-not (Test-FrontendOwner $current) -or $current.CreationDate -ne $candidate.CreationDate) {
+        if (-not (Test-ListenerOwner $current) -or $current.CreationDate -ne $candidate.CreationDate) {
             throw 'Process ownership changed during cleanup. No replacement process was stopped.'
         }
-        Write-Host "Stopping previous Image Playground PID $($current.ProcessId) on port6502..."
+        Write-Host "Stopping previous workspace process PID $($current.ProcessId) on port $Port..."
         Stop-Process -Id $current.ProcessId -Force -Confirm:$false -ErrorAction Stop
     }
 } catch {

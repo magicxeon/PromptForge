@@ -5,7 +5,8 @@ import { loadPromptRecipe } from '../server/config/prompt-recipes/loadPromptReci
 test('Chapter Scene recipe loads through the canonical recipe contract', () => {
   const recipe = loadPromptRecipe('cinematic/chapter-scenes.v1.json');
   assert.equal(recipe.id, 'cinematic-chapter-scenes');
-  assert.equal(recipe.version, 2);
+  assert.equal(recipe.version, 3);
+  assert.match(recipe.instruction, /entryState/);
   assert.match(recipe.instruction, /sceneEvents/);
   assert.match(recipe.instruction, /Scene outlines only/i);
   assert.match(recipe.instruction, /continuous location and time/i);
@@ -14,7 +15,7 @@ test('Chapter Scene recipe loads through the canonical recipe contract', () => {
 test('Scene Shot recipe produces provider-independent timeline documents', () => {
   const recipe = loadPromptRecipe('cinematic/scene-shots.v1.json');
   assert.equal(recipe.id, 'cinematic-scene-shots');
-  assert.equal(recipe.version, 5);
+  assert.equal(recipe.version, 6);
   assert.match(recipe.instruction, /VISUAL STYLE & LIGHTING/);
   assert.match(recipe.instruction, /one readable provider-independent shotDocument/i);
   assert.match(recipe.instruction, /OPENING must describe only the visible state at time zero/i);
