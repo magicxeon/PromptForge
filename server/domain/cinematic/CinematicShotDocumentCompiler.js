@@ -145,7 +145,14 @@ function compileDialogue(value, shot, scene, cast) {
       performance.push(raw); continue;
     }
     const matches = bindings.filter(item => item.alias === alias);
-    const binding = matches.length === 1 ? matches[0] : null;
+    const sceneMatches = !matches.length && scene.castMode !== 'none' && shot.castMode !== 'none' ? cast.filter(item =>
+      item.active !== false && scene.castAssignmentIds?.includes(item.id)
+      && [item.displayName, ...(item.storyCharacterDetails?.aliases || [])].includes(alias)) : [];
+    const binding = matches.length === 1 ? matches[0] : sceneMatches.length === 1 ? {
+      castAssignmentId: sceneMatches[0].id,
+      visible: bindings.find(item => item.castAssignmentId === sceneMatches[0].id)?.visible !== false
+        && !/off[- ]?screen|voice[- ]?over|นอก(?:จอ|เฟรม|ภาพ)/iu.test(delivery)
+    } : null;
     const person = cast.find(item => item.id === binding?.castAssignmentId && item.active !== false);
     if (!person) {
       findings.push({ code: 'cinematic_dialogue_speaker_unresolved', line: index + 1, speaker: alias });

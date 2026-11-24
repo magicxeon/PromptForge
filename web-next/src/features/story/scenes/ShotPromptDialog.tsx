@@ -74,7 +74,9 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
     ?? (shot.castMode === "none" || scene.castMode === "none" ? []
       : shot.castMode === "inherit" || (shot.castMode !== "selected" && !shot.castAssignmentIds.length)
         ? scene.castAssignmentIds : shot.castAssignmentIds);
-  const members = project.castAssignments.filter(person => person.active !== false && castIds.includes(person.id));
+  const resolvedCues = (prepared || current.data)?.dialogue.cues || [];
+  const members = project.castAssignments.filter(person => person.active !== false &&
+    (castIds.includes(person.id) || resolvedCues.some(cue=>cue.speakerCastAssignmentId===person.id)));
   const stale = project.version !== sourceVersion;
   const needsFrame = format === "flow" && !shot.approvedStoryboardSource;
   const frameReferences = prepared?.storyPacket?.references ?? [];

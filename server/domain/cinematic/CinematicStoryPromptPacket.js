@@ -30,14 +30,15 @@ export function storyPromptKind(value) {
 
 export function storyPromptPeople(project, scene, shot, shotOnly = false, cues = []) {
   const bindings = shot.speakerBindings;
-  const ids = bindings?.map(item => item.castAssignmentId) ?? (shotOnly
-    ? [...(shot.castAssignmentIds || []), ...cues.map(cue => cue.speakerCastAssignmentId)]
-    : resolveShotCastIds(scene, shot));
+  const ids = [
+    ...(bindings?.map(item => item.castAssignmentId) ?? (shotOnly ? shot.castAssignmentIds || [] : resolveShotCastIds(scene, shot))),
+    ...cues.map(cue => cue.speakerCastAssignmentId)
+  ];
   return (project.castAssignments || []).filter(person => person.active !== false && ids.includes(person.id))
     .map(person => {
       const binding = bindings?.find(item => item.castAssignmentId === person.id);
       const spoken = cues.filter(cue => cue.speakerCastAssignmentId === person.id);
-      return {person, visible:binding ? binding.visible !== false : !shotOnly || !spoken.length || spoken.some(cue => cue.speakerVisible !== false)};
+      return {person, visible:binding ? binding.visible !== false : !spoken.length || spoken.some(cue => cue.speakerVisible !== false)};
     });
 }
 

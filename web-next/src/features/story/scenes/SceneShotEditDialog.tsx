@@ -1,4 +1,4 @@
-import {useId,useState} from "react";
+import {useId,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useBlocker} from "react-router-dom";
 import {useQuery} from "@tanstack/react-query";
@@ -18,14 +18,16 @@ const editSchema=z.object({title:z.string().max(120),body:z.string().max(50000),
   exitState:z.string().max(1000).optional(),emotionalStart:z.string().max(500).optional(),emotionalEnd:z.string().max(500).optional(),
   seconds:z.number().finite(),characterIds:z.array(z.string()).max(24),
   speakers:z.array(z.object({castAssignmentId:z.string(),alias:z.string().max(120),visible:z.boolean()})).max(24)});
-export function SceneShotEditDialog({project,scene,shot,run,close,requestRevision,max,error}:{
+export function SceneShotEditDialog({project,scene,shot,run,close,requestRevision,reviewPendingRevision,max,error}:{
   project:CinematicProject;scene:CinematicScene;shot?:CinematicShot;run:RunWriting;close:()=>void;
-  requestRevision:(instruction:string)=>Promise<void>;max?:number;error:string;
+  requestRevision:(instruction:string)=>Promise<void>;reviewPendingRevision?:()=>void;max?:number;error:string;
 }){
   const {identityScope}=useActor(), {t,i18n}=useTranslation("story");
   const locale=i18n.language.startsWith("th")?"th":"en";
   const confirmationDescriptionId = useId();
   const [leaving,setLeaving]=useState(false),[instruction,setInstruction]=useState(""),[saving,setSaving]=useState(false);
+  const [revisionState,setRevisionState]=useState<"pending"|"requested">();
+  const revisionLock=useRef(false);
   const legacy=useQuery({queryKey:["story-shot-source",identityScope,project.id,scene.id,shot?.id,shot?.version],
     queryFn:()=>prepareCinematicShotWriter(project.id,scene.id,shot!.id), enabled:!!shot&&!shot.shotDocument,retry:false});
   const cast=project.castAssignments.filter(c=>c.active!==false&&(!shot||scene.castMode!=="none"&&scene.castAssignmentIds.includes(c.id)));
@@ -48,7 +50,18 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
   const valid=!!draft.title.trim()&&(!shot||!!draft.body.trim()&&validShotDuration&&validSpeakers)&&!editor.pending&&!stale;
   const blocker=useBlocker(editor.dirty);
   const finish=()=>{if(blocker.state==="blocked")blocker.proceed();else close();};
-  const dismiss=()=>{if(saving)return;if(editor.dirty){setLeaving(true);return;}close();};
+  const dismiss=()=>{if(saving||revisionLock.current)return;if(editor.dirty){setLeaving(true);return;}close();};
+  async function proposeRevision() {
+    if (revisionLock.current || reviewPendingRevision || stale || editor.dirty || editor.pending || !instruction.trim()) return;
+    revisionLock.current=true;
+    setRevisionState("pending");
+    try {
+      await requestRevision(instruction.trim());
+    } finally {
+      revisionLock.current=false;
+      setRevisionState("requested");
+    }
+  }
   function keepEditing() {
     if (saving) return;
     setLeaving(false);
@@ -81,12 +94,12 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
     </header> : <h2>{t("editScene")} · {scene.title}</h2>}
     {editor.pending&&<p className="story-note">{t(editor.stale?"staleDraft":"recoverDraft")} <button onClick={()=>editor.restore(true)}>{t("restore")}</button>
       <button onClick={()=>editor.discard()}>{t("discardDraft")}</button></p>}
-    {error && <p className="story-error" role="alert">{error}</p>}
+    {error && !revisionState && <p className="story-error" role="alert">{error}</p>}
     {stale && <section className="story-note"><p role="alert">{t("staleDraft")}</p>
       <details><summary>{t("latestVersion")}</summary><strong>{original.title}</strong><p className="story-prose">{original.body}</p></details>
       <button onClick={()=>setBaseVersion(shot?.version??scene.version)}>{t("keepMyEdits")}</button></section>}
     {legacy.error && <p role="alert">{legacy.error.message} <button onClick={()=>void legacy.refetch()}>{t("retry")}</button></p>}
-    <fieldset disabled={saving||(!!shot&&!shot.shotDocument&&!legacy.data)}><label>{t("name")}<input maxLength={120} value={draft.title} onChange={e=>editor.setValue({...draft,title:e.target.value})}/></label>
+    <fieldset disabled={saving||revisionState==="pending"||(!!shot&&!shot.shotDocument&&!legacy.data)}><label>{t("name")}<input maxLength={120} value={draft.title} onChange={e=>editor.setValue({...draft,title:e.target.value})}/></label>
       <label>{t(shot?"shotDocument":"synopsis")}<textarea rows={8} maxLength={shot?max:4000} value={draft.body} onChange={e=>editor.setValue({...draft,body:e.target.value})}/></label>
       {!shot&&<label>{t("stage.lighting")}<textarea rows={3} maxLength={500} value={draft.lighting??scene.lighting??""}
         onChange={e=>editor.setValue({...draft,lighting:e.target.value})}/></label>}
@@ -105,8 +118,17 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
              onChange={e=>editor.setValue({...draft,speakers:draft.speakers.map(s=>s===binding?{...s,visible:e.target.checked}:s)})}/>{t("visible")}</label></>}
         </div>;
       })}</details>}
-      {shot?<details><summary>{t("aiRevision")}</summary><label>{t("instructions")}<textarea value={instruction} maxLength={2000} onChange={e=>setInstruction(e.target.value)}/></label>
-        <button disabled={editor.dirty||!instruction.trim()} onClick={()=>void requestRevision(instruction)}>{t("proposeRevision")}</button></details>
+      {shot?<details><summary>{t("aiRevision")}</summary><label>{t("instructions")}<textarea aria-label={t("instructions")} value={instruction} maxLength={2000} onChange={e=>setInstruction(e.target.value)}/></label>
+        <button type="button" className="primary-button" disabled={Boolean(reviewPendingRevision)||stale||editor.pending||editor.dirty||!instruction.trim()||revisionState==="pending"}
+          onClick={()=>void proposeRevision()}>{t("proposeRevision")}</button>
+        {reviewPendingRevision && revisionState!=="pending" && <div className="story-note">
+          <p>{t("shotRevisionPendingProposal")}</p>
+          <button type="button" onClick={reviewPendingRevision}>{t("openPendingShotProposal")}</button>
+        </div>}
+        {revisionState==="pending" && <p className="story-save-status" role="status"><ProcessingSpinner size={16}/> {t("shotRevisionPending")}</p>}
+        {revisionState==="requested" && error && !reviewPendingRevision && <p className="story-error" role="alert">{error}</p>}
+        {(editor.dirty || editor.pending || stale) && <p>{t("shotRevisionNeedsSaved")}</p>}
+      </details>
         :<details><summary>{t("setting")}</summary><label>{t("location")}<input value={draft.location} maxLength={240} onChange={e=>editor.setValue({...draft,location:e.target.value})}/></label>
         <label>{t("time")}<input value={draft.time} maxLength={160} onChange={e=>editor.setValue({...draft,time:e.target.value})}/></label>
         <fieldset className="story-scene-events"><legend>{t("stage.sceneEvents")}</legend>

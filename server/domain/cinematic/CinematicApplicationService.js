@@ -1054,14 +1054,13 @@ export class CinematicApplicationService {
     if (pending) throw new CinematicError('cinematic_shot_proposal_pending', 'Review or discard the pending Shot proposal before generating another.', 409);
     const orderedScenes = [...project.scenes].sort((left, right) => Number(left.orderKey) - Number(right.orderKey));
     const sceneIndex = orderedScenes.findIndex(item => item.id === sceneId);
-    const characterIds = new Set(targetShot
-      ? [...resolveShotCastIds(scene, targetShot), ...(targetShot.speakerBindings || []).map(item => item.castAssignmentId)]
-      : scene.castAssignmentIds || []);
+    const characterIds = new Set(scene.castAssignmentIds || []);
     const characters = (project.castAssignments || []).filter(item => (
       item.active !== false && scene.castMode !== 'none' && characterIds.has(item.id)
     )).slice(0, 24).map(item => ({
       id: item.id,
       name: item.displayName || '',
+      aliases: item.storyCharacterDetails?.aliases || [],
       role: item.storyRole || '',
       dialogueStyle: item.dialogueStyle || '',
       dossier: [item.objective, item.motivation, item.pressure, item.performanceDirection, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
@@ -1120,7 +1119,7 @@ export class CinematicApplicationService {
   }
 
   applyShotProposal(projectId, sceneId, proposalId, input, actorContext) {
-    return this.repository.mutateForActor(projectId, actorContext, project => {
+    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, project => {
       assertExpectedVersion(project, input?.expectedVersion);
       assertEditable(project);
       const pending = project.shotProposals?.find(item => item.id === proposalId && item.status === 'pending_review');

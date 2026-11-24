@@ -10,7 +10,7 @@ import type {CinematicSeriesWorkspace} from "../../../../../web/src/features/cin
 import {storyKeys} from "./storyQueryKeys";
 
 type WritingUpdate = {project: CinematicProject; storyProject?: CinematicProject; workspace?: CinematicSeriesWorkspace};
-type WritingActivity = "draft" | "outline" | "chapters" | "scenes" | "shots";
+type WritingActivity = "draft" | "outline" | "chapters" | "scenes" | "shots" | "shotRevision";
 export type RunWriting = (job: () => Promise<WritingUpdate | void>, activity?: WritingActivity) => Promise<void>;
 
 export function useStoryWorkspace(id: string) {

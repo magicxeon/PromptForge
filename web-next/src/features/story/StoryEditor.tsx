@@ -60,12 +60,12 @@ function ProjectWorkspace({id}:{id:string}) {
   }
   async function requestShots(targetShotId?:string,instruction?:string){
     if(!scene)return false;
-    if(shotProposal){setReview("shot");return true;}
+    if(shotProposal && !targetShotId){setError("");setReview("shot");return true;}
     let opened=false;
     await run(async()=>{
       const r=await series.proposeCinematicShots(id,scene.id,project!.version,targetShotId?{targetShotId,instruction:instruction||""}:undefined);
       opened=true;setReview("shot");return r;
-    }, "shots");
+    }, targetShotId ? "shotRevision" : "shots");
     return opened;
   }
   async function addScene(){
@@ -142,7 +142,7 @@ function ProjectWorkspace({id}:{id:string}) {
       </section>}
     </fieldset>
     {busy && !activity && <div className="story-saving" role="status"><ProcessingSpinner/> {t("processing")}</div>}
-    {activity && !(activity==="scenes"&&review==="scene"&&sceneProposal) && !(activity==="shots"&&review==="shot"&&shotProposal) &&
+    {activity && activity!=="shotRevision" && !(activity==="scenes"&&review==="scene"&&sceneProposal) && !(activity==="shots"&&review==="shot"&&shotProposal) &&
       <Dialog label={t("writingActivity."+activity)} onClose={()=>{}}>
       <div className="story-writing-progress" role="status">
         <PenLine className="story-writing-pen" aria-hidden="true"/>

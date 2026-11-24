@@ -55,7 +55,16 @@ export function applyShotProposal(project, sceneId, proposalId, now = new Date()
   if (proposal.targetShotId) {
     const current = scene.shots.find(item => item.id === proposal.targetShotId);
     if (!current || current.version !== proposal.sourceShotVersion) fail('cinematic_shot_proposal_stale', 'The Shot changed after this revision was proposed.', 409);
-    updateShotDocument(project, sceneId, current.id, { ...proposal.shots[0], expectedShotVersion: current.version, source: 'ai_proposal' }, now);
+    const outline = proposal.shots[0];
+    const speakerBindings = outline.characterIds?.length ? [
+      ...outline.characterIds.map(id => {
+        const existing = current.speakerBindings?.find(binding => binding.castAssignmentId === id);
+        const person = project.castAssignments.find(item => item.id === id);
+        return existing || {castAssignmentId:id,alias:person?.displayName || id,visible:true};
+      }),
+      ...(current.speakerBindings || []).filter(binding => !binding.visible && !outline.characterIds.includes(binding.castAssignmentId))
+    ] : undefined;
+    updateShotDocument(project, sceneId, current.id, { ...outline, speakerBindings, expectedShotVersion: current.version, source: 'ai_proposal' }, now);
     if (proposal.shots[0].summary) current.summary = proposal.shots[0].summary;
     else delete current.summary;
     current.sourceShotProposalId = proposal.id;

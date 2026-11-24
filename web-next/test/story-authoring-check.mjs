@@ -379,6 +379,39 @@ try {
   assert.equal((await persisted()).scenes[1].shots[0].shotDocument,revised);
   assert.equal((await persisted()).scenes[1].shots[0].durationMs,5000);
 
+  await shotRow.click();
+  const shotEditor=page.getByRole("dialog",{name:"Edit shot"});
+  await shotEditor.getByText("Revise this shot with AI",{exact:true}).click();
+  await shotEditor.getByLabel("Direction",{exact:true}).fill("Keep the conversation between two characters.");
+  let releaseShotRevision;
+  const shotRevisionGate=new Promise(resolve=>{releaseShotRevision=resolve;});
+  await page.route("**/shot-proposals",async route=>{
+    const request=route.request().postDataJSON();
+    assert.equal(request.targetShotId,(await persisted()).scenes[1].shots[0].id);
+    assert.equal(request.instruction,"Keep the conversation between two characters.");
+    await shotRevisionGate;
+    await route.fulfill({response:await route.fetch()});
+  },{times:1});
+  await shotEditor.getByRole("button",{name:"Request revision"}).click();
+  await shotEditor.getByRole("status").filter({hasText:"AI is drafting a revision for this shot"}).waitFor();
+  assert.ok(await shotEditor.getByRole("button",{name:"Request revision"}).isDisabled());
+  releaseShotRevision();
+  const shotRevision=page.getByRole("dialog",{name:"Review this shot revision"});
+  await shotRevision.getByRole("button",{name:"Close",exact:true}).click();
+  await shotRevision.waitFor({state:"hidden"});
+  await shotRow.click();
+  await shotEditor.getByText("Revise this shot with AI",{exact:true}).click();
+  const nextDirection=shotEditor.locator("details").filter({hasText:"Revise this shot with AI"}).locator("textarea");
+  await nextDirection.fill("Keep the blocking as written.");
+  assert.ok(await shotEditor.getByRole("button",{name:"Request revision"}).isDisabled());
+  await shotEditor.getByRole("button",{name:"Review pending proposal"}).click();
+  await shotRevision.getByRole("button",{name:"Discard proposal"}).click();
+  await shotRevision.waitFor({state:"hidden"});
+  assert.equal(await nextDirection.inputValue(),"Keep the blocking as written.");
+  assert.ok(await shotEditor.getByRole("button",{name:"Request revision"}).isEnabled());
+  await shotEditor.getByRole("button",{name:"Close",exact:true}).click();
+  assert.equal((await persisted()).scenes[1].shots[0].shotDocument,revised);
+
   for(const width of [390,820,1440]) {
     await page.setViewportSize({width,height:width===390?844:900});
     for(const language of ["th","en"]) {
@@ -630,7 +663,7 @@ try {
   assert.notEqual(returned.scenes[0].approvedEnvironmentSource.assetId,reused.approvedEnvironmentSource.assetId);
   assert.equal(returned.scenes[1].approvedEnvironmentSource.assetId,uploaded.approvedEnvironmentSource.assetId);
   assert.ok(!returned.scenes[2].approvedEnvironmentSource);
-  assert.deepEqual(writingRequests,["manuscript","scenes","scenes","shots"]);
+  assert.deepEqual(writingRequests,["manuscript","scenes","scenes","shots","shots"]);
 
   const mergeScene = returned.scenes[2];
   const sceneUrl = projectUrl + "?scene=" + mergeScene.id + "&step=shots";

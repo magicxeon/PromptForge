@@ -148,6 +148,7 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
       </li>;
     })}</ol></MergedStoryShots></>}
     {(edit==="scene"||shot) && <SceneShotEditDialog key={edit} project={project} scene={scene} shot={shot} run={run} close={close} error={error}
+      reviewPendingRevision={shot && pending ? ()=>{void requestShots();} : undefined}
       requestRevision={async instruction=>{if(await requestShots(shot?.id,instruction))close();}} max={shotLimit}/>}
     {promptShot && <ShotPromptDialog project={project} scene={scene} shot={promptShot} skills={skills} run={run}
       error={error} close={() => setPromptId(undefined)}/>}

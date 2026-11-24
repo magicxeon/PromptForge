@@ -4,6 +4,7 @@ import {compileMergedStoryPrompt} from '../server/domain/cinematic/CinematicMerg
 import {planStoryPromptLanguage, planStoryPromptRefinement} from '../server/domain/cinematic/StoryPromptLanguage.js';
 import {compileStoryPromptPacket} from '../server/domain/cinematic/CinematicStoryPromptPacket.js';
 import {compileCinematicShotDocument} from '../server/domain/cinematic/CinematicShotDocumentCompiler.js';
+import {applyShotProposal, createShotProposal} from '../server/domain/cinematic/CinematicShotAuthoring.js';
 import {inspectStoryPromptDraft} from '../server/domain/cinematic/StoryPromptFormatting.js';
 
 test('embedded shot clocks widen the action row and cannot be reintroduced by translation', () => {
@@ -22,6 +23,34 @@ test('embedded shot clocks widen the action row and cannot be reintroduced by tr
 });
 
 const image = assetId => ({assetId, imageUrl:`/owned/${assetId}`});
+test('an accepted shot revision updates its cast and earlier revisions recover a uniquely named scene speaker', () => {
+  const {project,scene,shots} = fixture();
+  const shot = shots[0];
+  project.castAssignments.push({id:'jai',displayName:'ชายอาบน้ำ',storyCharacterDetails:{aliases:['ใจ']},storyReference:image('jai')});
+  scene.castAssignmentIds = ['c','jai'];
+  shot.castMode = 'selected';
+  shot.castAssignmentIds = ['c'];
+  const document = shot.shotDocument + '\nDIALOGUE AND FACIAL PERFORMANCE\n[1–2s] ใจ (สะดุ้ง): ว้าย!';
+  const before = {...shot,shotDocument:document};
+  const compiled = compileCinematicShotDocument(before,scene,project.castAssignments);
+  const packet = compileStoryPromptPacket(project,scene,before,compiled,'seedance');
+  assert.equal(compiled.dialogue.cues[0].speakerCastAssignmentId,'jai');
+  assert.ok(packet.references.some(ref=>ref.assetId==='jai'));
+  assert.ok(!compileMergedStoryPrompt(project,scene,['s1','s3'],'seedance').references.some(ref=>ref.assetId==='jai'));
+  const proposal = createShotProposal({sceneId:scene.id,targetShotId:shot.id,sourceShotVersion:shot.version,
+    shots:[{title:shot.title,durationMs:shot.durationMs,shotDocument:document,characterIds:['c','jai']}],
+    allowedCharacterIds:scene.castAssignmentIds});
+  project.shotProposals = [proposal];
+  applyShotProposal(project,scene.id,proposal.id);
+  assert.deepEqual(shot.castAssignmentIds,['c','jai']);
+  assert.equal(shot.speakerBindings[0].alias,'Conductor');
+  assert.ok(compileMergedStoryPrompt(project,scene,['s1','s3'],'seedance').references.some(ref=>ref.assetId==='jai'));
+  shot.speakerBindings[1].visible = false;
+  const offscreen = compileMergedStoryPrompt(project,scene,['s1','s3'],'seedance');
+  assert.equal(offscreen.cues[0].speakerVisible,false);
+  assert.ok(!offscreen.references.some(ref=>ref.assetId==='jai'));
+});
+
 test('visual target survives writing and references follow scene, character name and opening order', () => {
   const {project,scene,shots} = fixture();
   project.castAssignments.push({id:'a',displayName:'Alpha',storyReference:image('alpha')});

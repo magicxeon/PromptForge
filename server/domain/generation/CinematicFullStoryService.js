@@ -478,6 +478,7 @@ function normalizeCharacterList(value, maximum) {
   return (Array.isArray(value) ? value : []).slice(0, maximum).map(item => ({
     id: boundedText(item?.id, 160),
     name: boundedText(item?.name, 120),
+    aliases: boundedList(item?.aliases, 12, 120),
     role: boundedText(item?.role, 240),
     dossier: boundedText(item?.dossier, 1200),
     dialogueStyle: boundedText(item?.dialogueStyle, 500)
