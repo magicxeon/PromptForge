@@ -551,6 +551,13 @@ export function arrangeStoryShots(projectId: string, sceneId: string, expectedVe
   });
 }
 
+export function setStoryShotCompletion(projectId: string, sceneId: string, expectedVersion: number,
+  shotCompletion: {shotId: string; completed: boolean}) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}`, {
+    method: 'PATCH', body: {expectedVersion, shotCompletion}, schema: z.object({project: cinematicProjectSchema})
+  });
+}
+
 export function saveCinematicTimeline(projectId: string, input: {
   expectedVersion: number;
   entries: Array<{

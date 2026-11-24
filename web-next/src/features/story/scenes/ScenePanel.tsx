@@ -1,9 +1,9 @@
 import {useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
-import {ChevronLeft, Pencil, Plus, Sparkles} from "lucide-react";
+import {Check, ChevronLeft, CircleCheck, Pencil, Plus, Sparkles} from "lucide-react";
 import type {CinematicProject,CinematicScene} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {createCinematicManualShot} from "../../../../../web/src/features/cinematic/api/cinematicSeriesApi";
-import {arrangeStoryShots} from "../../../../../web/src/features/cinematic/api/cinematicApi";
+import {arrangeStoryShots, setStoryShotCompletion} from "../../../../../web/src/features/cinematic/api/cinematicApi";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {SceneShotEditDialog} from "./SceneShotEditDialog";
 import {ShotPromptDialog} from "./ShotPromptDialog";
@@ -11,6 +11,10 @@ import {SceneStage} from "./SceneStage";
 import {StoryPromptStatus} from "./StoryPromptStatus";
 import {MergedStoryShots} from "./MergedStoryShots";
 import "./staging.css";
+
+export function isSceneComplete(scene: CinematicScene) {
+  return scene.shots.length > 0 && scene.shots.every(shot => shot.completed === true);
+}
 
 export function ScenePanel({project,scene,index,run,back,pending,requestShots,shotLimit,error,skills,stage,showStage,openScene,aspectRatio,mergeTemplate}:{
   project:CinematicProject;scene:CinematicScene;index:number;run:RunWriting;back:()=>void;pending:boolean;
@@ -65,8 +69,9 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
   return <article>
     <header className="story-scene-header">
       <button className="story-scene-back" onClick={back}><ChevronLeft size={16} aria-hidden/>{t("stage.backToScenes")}</button>
-      <div className="story-scene-heading">
-        <h2>{t("sceneTitle",{index,name:scene.title})}</h2>
+      <div className="story-scene-heading" data-completed={isSceneComplete(scene)}>
+        <h2>{t("sceneTitle",{index,name:scene.title})}{isSceneComplete(scene) &&
+          <span className="story-completion-badge"><Check size={14} aria-hidden/>{t("completion.done")}</span>}</h2>
         <button ref={el=>{if(el)buttons.current.set("scene",el);}} onClick={()=>setEdit("scene")}>
           <Pencil size={14} aria-hidden/>{t("stage.editDetails")}
         </button>
@@ -96,8 +101,9 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
       const action = shot.visibleMoment || shot.subjectAction || shot.purpose;
       const camera = [shot.framing, shot.cameraAngle, shot.cameraMovement, shot.lensIntent].filter(Boolean).join(" · ");
       const dialogue = shot.dialogueCues?.filter(line => line.text.trim()) ?? [];
-      return <li className="story-shot-card" key={shot.id}>
-        <h4><button ref={node => {
+      const completed = shot.completed === true;
+      return <li className="story-shot-card" data-completed={completed} key={shot.id}>
+        <header className="story-shot-header"><h4><button ref={node => {
           if (node) buttons.current.set(shot.id, node);
           else buttons.current.delete(shot.id);
         }} onClick={() => setEdit(shot.id)}>
@@ -107,6 +113,14 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
             <span className="story-shot-edit-label"><Pencil size={14} aria-hidden/>{t("editShot")}</span>
           </span>
         </button></h4>
+        <button className="story-shot-completion" type="button"
+          aria-label={t("completion.markShot", {name: shot.title})} aria-pressed={completed}
+          title={t(completed ? "completion.undo" : "completion.mark")}
+          onClick={() => void run(() => setStoryShotCompletion(project.id, scene.id, project.version,
+            {shotId: shot.id, completed: !completed}))}>
+          {completed ? <Check size={16} aria-hidden/> : <CircleCheck size={16} aria-hidden/>}
+          {t(completed ? "completion.done" : "completion.mark")}
+        </button></header>
         <div className="story-shot-content">
           {shot.shotPlanningStatus === "review_required" && <small>{t("sourceChanged")}</small>}
           {shot.continuityEntry && <section><h5>{t("stage.start")}</h5><p>{shot.continuityEntry}</p></section>}

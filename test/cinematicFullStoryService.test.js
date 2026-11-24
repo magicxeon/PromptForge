@@ -61,14 +61,14 @@ test('the shot writer receives directing skills by approved events and destinati
 });
 
 test('a Thai setting keeps English directions while only the dialogue follows the project language', async () => {
-  const translations = {'ตลาดน้ำ':'floating market','มะลิ':'Mali','เจอกันพรุ่งนี้':'See you tomorrow.'};
+  const translations = {'ตลาดน้ำ':'floating\n market','มะลิ':'Mali','เจอกันพรุ่งนี้':'See you tomorrow.'};
   const service = new CinematicFullStoryService({
     policyLoader:()=>({enabled:true,provider:'openai',model:'fixture'}),
     availabilityPolicy:{assertAvailable(){}},
-    providerFactory:()=>({translateStoryPrompt:async ({slots,spokenLanguage})=>({
-      translations:slots.map(({id,role,source})=>({id,text:role==='dialogue' && spokenLanguage==='Thai'
-        ? source : translations[source] || source})).reverse()
-    })})
+    providerFactory:()=>({translateStoryPrompt:async ({slots,spokenLanguage})=>{
+      if (spokenLanguage === 'Thai') assert.ok(slots.every(slot => slot.role !== 'dialogue'));
+      return {translations:slots.map(({id,source})=>({id,text:translations[source] || source})).reverse()};
+    }})
   });
   const source = '[REFERENCE MAPPING]\nReference 1 — ตลาดน้ำ: set geometry, materials and light direction.\n\n'
     + '[SCENE]\nตลาดน้ำ\n\n[ACTION TIMELINE]\n[1.5s] มะลิ: “เจอกันพรุ่งนี้”';

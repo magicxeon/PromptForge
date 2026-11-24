@@ -899,6 +899,25 @@ export class CinematicApplicationService {
   }
 
   updateSceneOutline(projectId, sceneId, input, actorContext) {
+    if (Object.hasOwn(input, 'shotCompletion')) {
+      return this.repository.mutateForActor(projectId, actorContext, project => {
+        assertExpectedVersion(project, input.expectedVersion);
+        assertEditable(project);
+        const {shotId, completed} = input.shotCompletion ?? {};
+        if (typeof shotId !== 'string' || !shotId || typeof completed !== 'boolean') {
+          throw new CinematicError('cinematic_shot_completion_invalid', 'Choose a Shot and a completion status.');
+        }
+        const scene = project.scenes.find(item => item.id === sceneId);
+        if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+        const shot = scene.shots.find(item => item.id === shotId);
+        if (!shot) throw new CinematicError('cinematic_shot_not_found', 'Shot not found in this Scene.', 404);
+        if ((shot.completed === true) !== completed) {
+          shot.completed = completed;
+          project.version += 1;
+        }
+      }).then(() => this.getProject(projectId, actorContext))
+        .then(project => ({project, scene: project.scenes.find(item => item.id === sceneId)}));
+    }
     if (Object.hasOwn(input,'removeMergedPrompt')) return this.removeMergedStoryPrompt(projectId,sceneId,input,actorContext);
     if (Object.hasOwn(input,'mergedPrompt')) return this.saveMergedStoryPrompt(projectId,sceneId,input,actorContext);
     if (Object.hasOwn(input, 'shotArrangement')) {

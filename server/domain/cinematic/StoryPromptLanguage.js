@@ -9,6 +9,8 @@ const referenceRoleSuffixes = Object.values(templates.referenceRoles).map(role =
 const directionMarkers = new RegExp(`\\bReference \\d+\\b|${storyDirectionClockPattern.source}`, 'gi');
 const markers = line => (line.match(directionMarkers) || []).join('|').toLowerCase();
 const hasNonLatinLetters = text => [...text].some(char => /\p{L}/u.test(char) && !/\p{Script=Latin}/u.test(char));
+const isThaiDialogue = (source, role, language) => role === 'dialogue' && language === 'Thai'
+  && /\p{Script=Thai}/u.test(source) && !/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(source);
 const timeLiterals = text => (text.match(/\b\d+(?:\.\d+)?(?:\s*[–-]\s*\d+(?:\.\d+)?)?\s*(?:s|seconds?)\b/gi) || []).join('|');
 
 // Only prose in directing sections can change. All other lines, including speech,
@@ -76,7 +78,7 @@ function sequenceWritingLines(text) {
   return output;
 }
 
-export function planStoryPromptLanguage(text, cues, findings = [], composeSequence = false) {
+export function planStoryPromptLanguage(text, cues, findings = [], composeSequence = false, spokenLanguage) {
   const slots = [];
   const parts = [];
   const words = new Set(cues.map(cue => cue.text));
@@ -86,7 +88,7 @@ export function planStoryPromptLanguage(text, cues, findings = [], composeSequen
   let linePrefix;
   const sequence = /^\d+ shots\. Shot boundaries:/m.test(text);
   function slot(source, role) {
-    if (!source || !/\p{L}/u.test(source)) { parts.push(source); return; }
+    if (!source || !/\p{L}/u.test(source) || isThaiDialogue(source, role, spokenLanguage)) { parts.push(source); return; }
     const id = slots.length;
     slots.push({id, role, source, section, shotNumber, linePrefix});
     parts.push(id);
@@ -143,14 +145,12 @@ export function planStoryPromptLanguage(text, cues, findings = [], composeSequen
     const values = new Map();
     for (const row of translations) {
       const item = slots[row?.id];
-      const value = typeof row?.text === 'string' && row.text.trim();
-      if (!item || item.id !== row.id || values.has(item.id) || !value || /[\r\n]/.test(value)) throw invalid();
+      const value = typeof row?.text === 'string' && row.text.trim().replace(/[^\S\r\n]*[\r\n]+\s*/g, ' ');
+      if (!item || item.id !== row.id || values.has(item.id) || !value) throw invalid();
       const english = item.role === 'direction' || spokenLanguage === 'English';
       if (english && hasNonLatinLetters(value)) throw invalid();
       if (item.role === 'direction' && markers(value) !== markers(item.source)) throw invalid();
-      const keepThai = item.role === 'dialogue' && spokenLanguage === 'Thai' && /\p{Script=Thai}/u.test(item.source)
-        && !/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(item.source);
-      values.set(item.id, keepThai ? item.source : value);
+      values.set(item.id, isThaiDialogue(item.source, item.role, spokenLanguage) ? item.source : value);
     }
     return parts.map(part => typeof part === 'number' ? values.get(part) : part).join('');
   }};

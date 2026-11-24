@@ -6,11 +6,11 @@ import * as series from "../../../../web/src/features/cinematic/api/cinematicSer
 import type {CinematicProject} from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {useStoryWorkspace} from "./data/useStoryWorkspace";
 import {ScriptPanel} from "./ScriptPanel";
-import {ScenePanel} from "./scenes/ScenePanel";
+import {isSceneComplete, ScenePanel} from "./scenes/ScenePanel";
 import {ProposalReview} from "./ProposalReview";
 import {FullStoryPlan} from "./FullStoryPlan";
 import {WritingSettings} from "./WritingSettings";
-import {BookOpen,Clapperboard,Layers,NotebookPen,ChevronRight,Plus,PenLine,MapPin} from "lucide-react";
+import {BookOpen,Check,Clapperboard,Layers,NotebookPen,ChevronRight,Plus,PenLine,MapPin} from "lucide-react";
 import "./scenes/stagingTranslations";
 import {Dialog} from "../dub-sub/Dialog";
 import {StoryCharacters} from "./characters/StoryCharacters";
@@ -116,10 +116,11 @@ function ProjectWorkspace({id}:{id:string}) {
     <fieldset disabled={busy} className="story-layout" data-stage={step} data-sidebar={step!=="characters"&&scenes.length>0}><legend className="sr-only">{t("workspace")}</legend>
       {step!=="characters"&&(step==="scenes"||scenes.length>0)&&<aside className="story-index" data-open={step==="scenes"||drawer}>
         <header><h2>{t("sceneIndex")}</h2><span>{scenes.length}</span></header>
-        <ol>{scenes.map((s,i)=><li key={s.id}><button aria-current={scene?.id===s.id?"page":undefined} onClick={()=>selectScene(s.id)}>
+        <ol>{scenes.map((s,i)=><li key={s.id}><button data-completed={isSceneComplete(s)} aria-current={scene?.id===s.id?"page":undefined} onClick={()=>selectScene(s.id)}>
           <span className="story-scene-num">{i+1}</span><span className="story-scene-copy"><strong>{s.title}</strong>
           {(s.synopsis||s.storyChange)&&<span className="story-scene-synopsis">{s.synopsis||s.storyChange}</span>}
-          <span className="story-scene-meta">{t("shotCount",{count:s.shots.length})}{s.planningStatus==="review_required" && <> · {t("sourceChanged")}</>}</span></span>
+          <span className="story-scene-meta">{t("shotCount",{count:s.shots.length})}{s.planningStatus==="review_required" && <> · {t("sourceChanged")}</>}</span>
+          {isSceneComplete(s) && <span className="story-completion-badge"><Check size={14} aria-hidden/>{t("completion.done")}</span>}</span>
           <ChevronRight size={15} aria-hidden/></button></li>)}</ol>
         {step==="scenes"&&project.activeChapterVersionId&&<button onClick={()=>void requestScenes(project)}>{t(sceneProposal?"reviewScenes":"proposeScenes")}</button>}
         <button onClick={()=>void addScene()}><Plus size={16} aria-hidden/>{t("addScene")}</button>

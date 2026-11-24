@@ -651,6 +651,7 @@ export const cinematicShotSchema = z.object({
   summary: z.object({th:z.string(),en:z.string()}).optional(),
   artDirection: z.string().max(1500).optional(),
   shotDocumentVersion: z.number().int().positive().optional(),
+  completed: z.boolean().optional(),
   speakerBindings: z.array(z.object({ alias: z.string(), castAssignmentId: z.string(), visible: z.boolean() })).max(24).optional(),
   videoPromptOverride: z.object({ text: z.string().max(50000), sourceFingerprint: z.string() }).nullable().optional(),
   storyPromptVariants: z.object({

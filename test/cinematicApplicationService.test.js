@@ -98,7 +98,15 @@ test('Story shot arrangement reorders, transfers at adjacent boundaries and reta
   });
   const arrange = (scene,expectedVersion,shotArrangement,actor=alice) =>
     service.updateSceneOutline(created.id,scene,{expectedVersion,shotArrangement},actor);
-  const reorder = await arrange('s1',seeded.version,{shotIds:['b','a']});
+  const mark = (scene,expectedVersion,shotId,completed) =>
+    service.updateSceneOutline(created.id,scene,{expectedVersion,shotCompletion:{shotId,completed}},alice);
+  await assert.rejects(mark('s1',seeded.version,'b','true'), {code:'cinematic_shot_completion_invalid'});
+  await assert.rejects(mark('s2',seeded.version,'b',true), {code:'cinematic_shot_not_found'});
+  const marked = await mark('s1',seeded.version,'b',true);
+  assert.deepEqual(marked.scene.shots[1], {...seeded.scenes[0].shots[1],completed:true});
+  await assert.rejects(mark('s1',seeded.version,'b',false), {code:'cinematic_version_conflict'});
+  assert.equal((await mark('s1',marked.project.version,'b',true)).project.version, marked.project.version);
+  const reorder = await arrange('s1',marked.project.version,{shotIds:['b','a']});
   assert.deepEqual(reorder.scene.shotOrder,['b','a']);
   const move = {move:{shotId:'b',destinationSceneId:'s2'}};
   await assert.rejects(arrange('s1',planned.version,move),{code:'cinematic_version_conflict'});
@@ -119,9 +127,13 @@ test('Story shot arrangement reorders, transfers at adjacent boundaries and reta
   assert.equal(target.shots[1].inheritSceneLooks,false);
   assert.equal(target.shots[0].shotDocument,'Preserve this dialogue and camera direction');
   assert.equal(target.shots[0].storyPromptVariants.seedance.text,'My edited text');
+  assert.equal(target.shots[0].completed,true);
   await arrange('s2',moved.project.version,{move:{shotId:'b',destinationSceneId:'s1'}});
   const reloaded = await service.getProject(created.id,alice);
   assert.deepEqual(reloaded.scenes.map(item => item.shotOrder),[['a','b'],['c'],['d']]);
+  assert.equal(reloaded.scenes[0].shots[1].completed,true);
+  const reopened = await mark('s1',reloaded.version,'b',false);
+  assert.equal(reopened.scene.shots[1].completed,false);
 });
 
 test('Story writing settings persist on the root, validate the catalog and respect ownership and revision', async t => {

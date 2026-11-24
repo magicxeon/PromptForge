@@ -45,9 +45,9 @@ export class CinematicFullStoryService {
   }
 
   async translateStoryPrompt(text, cues, settings, findings, sceneContext) {
-    const {slots,render} = planStoryPromptLanguage(text,cues,findings,sceneContext?.sequenceFormat === 'director-brief');
-    const policy = this.#policy(settings);
     const spokenLanguage = storySpokenLanguage(settings);
+    const {slots,render} = planStoryPromptLanguage(text,cues,findings,sceneContext?.sequenceFormat === 'director-brief',spokenLanguage);
+    const policy = this.#policy(settings);
     const result = await this.providerFactory(policy).translateStoryPrompt({
       slots, spokenLanguage, sceneContext:sceneContext && {...sceneContext, projectDirection:settings?.direction},
       model:policy.model, reasoningEffort:policy.reasoningEffort,

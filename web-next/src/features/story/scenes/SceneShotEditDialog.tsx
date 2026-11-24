@@ -2,6 +2,7 @@ import {useId,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useBlocker} from "react-router-dom";
 import {useQuery} from "@tanstack/react-query";
+import {Maximize2,Minimize2} from "lucide-react";
 import {z} from "zod";
 import {ProcessingSpinner,useActor} from "../../../lib/canonical";
 import {Dialog} from "../../dub-sub/Dialog";
@@ -25,6 +26,8 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
   const {identityScope}=useActor(), {t,i18n}=useTranslation("story");
   const locale=i18n.language.startsWith("th")?"th":"en";
   const confirmationDescriptionId = useId();
+  const shotDocumentId = useId();
+  const [expanded,setExpanded] = useState(false);
   const [leaving,setLeaving]=useState(false),[instruction,setInstruction]=useState(""),[saving,setSaving]=useState(false);
   const [revisionState,setRevisionState]=useState<"pending"|"requested">();
   const revisionLock=useRef(false);
@@ -100,7 +103,17 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
       <button onClick={()=>setBaseVersion(shot?.version??scene.version)}>{t("keepMyEdits")}</button></section>}
     {legacy.error && <p role="alert">{legacy.error.message} <button onClick={()=>void legacy.refetch()}>{t("retry")}</button></p>}
     <fieldset disabled={saving||revisionState==="pending"||(!!shot&&!shot.shotDocument&&!legacy.data)}><label>{t("name")}<input maxLength={120} value={draft.title} onChange={e=>editor.setValue({...draft,title:e.target.value})}/></label>
-      <label>{t(shot?"shotDocument":"synopsis")}<textarea rows={8} maxLength={shot?max:4000} value={draft.body} onChange={e=>editor.setValue({...draft,body:e.target.value})}/></label>
+      {shot ? <div className="story-shot-document">
+        <div className="story-shot-document-toolbar">
+          <label htmlFor={shotDocumentId}>{t("shotDocument")}</label>
+          <button type="button" aria-haspopup="dialog" onClick={()=>setExpanded(true)}>
+            <Maximize2 size={16} aria-hidden/>{t("expand")}
+          </button>
+        </div>
+        <textarea id={shotDocumentId} rows={8} maxLength={max} value={draft.body}
+          onChange={e=>editor.setValue({...draft,body:e.target.value})}/>
+      </div> : <label>{t("synopsis")}<textarea rows={8} maxLength={4000} value={draft.body}
+        onChange={e=>editor.setValue({...draft,body:e.target.value})}/></label>}
       {!shot&&<label>{t("stage.lighting")}<textarea rows={3} maxLength={500} value={draft.lighting??scene.lighting??""}
         onChange={e=>editor.setValue({...draft,lighting:e.target.value})}/></label>}
       <label>{t("duration")}<input type="number" step={1} min={shot?1:5} max={shot?20:120} value={draft.seconds}
@@ -151,6 +164,18 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
           onClick={()=>void save()}>{t(shot?"saveShot":"saveScene")}</button>
       </footer>
     </fieldset>
+    {shot && expanded && <Dialog label={t("shotDocument")} onClose={()=>setExpanded(false)}>
+      <div className="story-shot-writing">
+        <header className="story-shot-document-toolbar">
+          <div><h2>{t("shotDocument")}</h2><p>{draft.title}</p></div>
+          <button type="button" onClick={()=>setExpanded(false)}>
+            <Minimize2 size={16} aria-hidden/>{t("exitShotFocus")}
+          </button>
+        </header>
+        <textarea aria-label={t("shotDocument")} autoFocus maxLength={max} value={draft.body}
+          onChange={e=>editor.setValue({...draft,body:e.target.value})}/>
+      </div>
+    </Dialog>}
     {(leaving||blocker.state==="blocked") && <Dialog label={t("unsaved")} descriptionId={confirmationDescriptionId} onClose={keepEditing}>
       <div className="story-save-confirmation">
         <header>

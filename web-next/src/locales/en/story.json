@@ -183,7 +183,14 @@
   "seconds": "{{n}} sec",
   "editScene": "Edit scene",
   "editShot": "Edit shot",
+  "completion": {
+    "mark": "Mark done",
+    "markShot": "Mark done · {{name}}",
+    "undo": "Mark as unfinished",
+    "done": "Done"
+  },
   "shotDocument": "Shot action, dialogue and speaker",
+  "exitShotFocus": "Back to shot editing",
   "synopsis": "Scene summary",
   "duration": "Duration (seconds)",
   "aiRevision": "Revise this shot with AI",

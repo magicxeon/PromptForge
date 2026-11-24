@@ -2,6 +2,25 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { OpenAITextProvider } from '../server/providers/OpenAITextProvider.js';
 
+test('prompt translation requires exactly the supplied slot keys in the provider schema', async () => {
+  const provider = new OpenAITextProvider('fixture-key');
+  provider.requestStructured = async ({schema, input}) => {
+    assert.deepEqual(schema.properties.translations, {
+      type:'object', additionalProperties:false, required:['slot_0','slot_1'],
+      properties:{slot_0:{type:'string'},slot_1:{type:'string'}}
+    });
+    assert.deepEqual(Object.keys(input.slots),['slot_0','slot_1']);
+    return {id:'fixture-response',output:[{content:[{type:'output_text',text:JSON.stringify({
+      translations:{slot_1:'Mali',slot_0:'At the floating market'},reviewNotes:[]
+    })}]}]};
+  };
+  const result = await provider.translateStoryPrompt({spokenLanguage:'Thai',sceneContext:{},slots:[
+    {id:0,role:'direction',source:'ตลาดน้ำ'}, {id:1,role:'direction',source:'มะลิ'}
+  ]});
+  assert.deepEqual(result.translations,[{id:1,text:'Mali'},{id:0,text:'At the floating market'}]);
+  assert.deepEqual(result.reviewNotes,[]);
+});
+
 test('OpenAI text provider sends a non-stored structured Responses API request', async () => {
   let request = null;
   const provider = new OpenAITextProvider('test-key', {

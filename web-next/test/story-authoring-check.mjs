@@ -355,7 +355,7 @@ try {
   const shotRow=page.locator(".story-shots button").filter({hasText:proposedShot});
   await shotRow.focus();
   await page.keyboard.press("Enter");
-  const shotText=dialog.locator("fieldset > label textarea");
+  const shotText=page.locator(".story-shot-document textarea");
   const shotDuration=dialog.locator('input[type="number"]');
   assert.equal(await shotDuration.inputValue(),"5","fractional AI proposals are rounded up");
   const revised=dialogue+"\nแขกถือจดหมายออกเดินทาง";
@@ -431,7 +431,21 @@ try {
         return document.documentElement.scrollWidth<=innerWidth+1 && box && box.left>=-1 &&
           box.right<=innerWidth+1 && d.scrollWidth<=d.clientWidth+1;
       }),"shot and actions fit at "+width+" / "+language);
-      await shotText.fill(revised+"\nUnsaved.");
+      const expandShot = page.locator(".story-shot-document-toolbar button[aria-haspopup=dialog]");
+      await expandShot.click();
+      const writing = page.locator("dialog:has(> .story-shot-writing)");
+      const fullText = writing.getByRole("textbox");
+      assert.equal(await fullText.inputValue(),revised);
+      assert.ok(await writing.evaluate(el=>{
+        const box=el.getBoundingClientRect();
+        return box.width>=innerWidth-1 && box.height>=innerHeight-1 && el.scrollWidth<=el.clientWidth+1;
+      }),"writing mode fits at "+width+" / "+language);
+      await fullText.fill(revised+"\nUnsaved.");
+      if (language==="en") await writing.getByRole("button",{name:"Back to shot editing"}).click();
+      else await page.keyboard.press("Escape");
+      await writing.waitFor({state:"hidden"});
+      assert.equal(await shotText.inputValue(),revised+"\nUnsaved.");
+      assert.ok(await expandShot.evaluate(el=>el===document.activeElement));
       await page.keyboard.press("Escape");
       const confirmation = page.locator("dialog:has(> .story-save-confirmation)");
       assert.ok(await confirmation.getByRole("button",{name:language==="en"?"Save and close":"บันทึกแล้วปิด"}).isEnabled());
@@ -455,7 +469,7 @@ try {
   await other.locator(".story-shots button").filter({hasText:proposedShot}).click();
   const otherEditor=other.getByRole("dialog");
   await shotRow.click();
-  await otherEditor.locator("fieldset > label textarea").fill(revised+"\nSecond tab draft");
+  await otherEditor.getByRole("textbox",{name:"Shot action, dialogue and speaker"}).fill(revised+"\nSecond tab draft");
   await shotText.fill(revised+"\nFirst tab saved");
   await dialog.locator("fieldset > footer button.primary").click();
   await dialog.waitFor({state:"hidden"});
@@ -464,7 +478,7 @@ try {
   await otherEditor.locator("fieldset > footer button.primary").click();
   assert.equal((await conflict).status(),409);
   expectShotConflict=false;
-  assert.equal(await otherEditor.locator("fieldset > label textarea").inputValue(),revised+"\nSecond tab draft");
+  assert.equal(await otherEditor.getByRole("textbox",{name:"Shot action, dialogue and speaker"}).inputValue(),revised+"\nSecond tab draft");
   assert.equal((await persisted()).scenes[1].shots[0].shotDocument,revised+"\nFirst tab saved");
   await other.close();
   // Manual creation remains available for scenes and shots even after accepting AI suggestions.
@@ -902,6 +916,23 @@ try {
   assert.ok(await merged.getByRole("button",{name:"Rebuild from selected shots"}).isEnabled());
   await merged.getByRole("button",{name:"Close"}).click();
   const firstCard = page.locator(".story-shot-card").first();
+  const completion = page.locator(".story-shot-completion");
+  const sceneHeading = page.locator(".story-scene-heading");
+  const currentSceneRow = page.locator(".story-index button[aria-current=page]");
+  await completion.first().press("Space");
+  await completion.first().and(page.locator('[aria-pressed="true"]')).waitFor();
+  assert.equal(await sceneHeading.locator(".story-completion-badge").count(),0);
+  for (let index=1; index<await completion.count(); index++) {
+    await completion.nth(index).click();
+    await completion.nth(index).and(page.locator('[aria-pressed="true"]')).waitFor();
+  }
+  await sceneHeading.getByText("Done",{exact:true}).waitFor();
+  assert.equal(await currentSceneRow.getAttribute("data-completed"),"true");
+  await page.reload();
+  await sceneHeading.getByText("Done",{exact:true}).waitFor();
+  await completion.first().click();
+  await sceneHeading.getByText("Done",{exact:true}).waitFor({state:"hidden"});
+  assert.equal(await currentSceneRow.getAttribute("data-completed"),"false");
   for (const width of [390,820,1440]) {
     await page.setViewportSize({width,height:900});
     const shotToolbar = page.locator(".story-scene-shot-toolbar");
@@ -910,7 +941,7 @@ try {
       await shotToolbar.getByRole("button",{name:language==="en"?"Add shot":"เพิ่มช็อต",exact:true}).waitFor();
       assert.equal(await shotToolbar.getByRole("button").count(),3);
       assert.ok(await shotToolbar.locator(".story-scene-shot-actions").evaluate(el=>parseFloat(getComputedStyle(el).columnGap)>0));
-      for (const section of [shotToolbar,page.locator(".story-scene-header")]) {
+      for (const section of [shotToolbar,page.locator(".story-scene-header"),firstCard.locator(".story-shot-header")]) {
         assert.ok(await section.evaluate(el=>el.scrollWidth<=el.clientWidth+1 &&
           el.getBoundingClientRect().right<=innerWidth+1));
       }
@@ -934,6 +965,7 @@ try {
   await exitCard.getByRole("button",{name:"Move to end of previous scene"}).click();
   await page.getByRole("button",{name:"Open destination scene"}).click();
   await page.locator(".story-shot-card").last().getByText(/Exit/).first().waitFor();
+  assert.equal(await completion.last().getAttribute("aria-pressed"),"true");
   const movedProject = await persisted();
   assert.equal(movedProject.scenes[1].shots.at(-1).id, framed[2].id);
   assert.equal(movedProject.scenes[2].shots.length,2);
@@ -944,6 +976,13 @@ try {
   await removeDialog.getByRole("button",{name:"Delete saved prompt"}).click();
   await removeDialog.waitFor({state:"hidden"});
   assert.deepEqual((await persisted()).scenes[2].mergedPrompts,[]);
+  await completion.first().click();
+  await sceneHeading.getByText("Done",{exact:true}).waitFor();
+  await page.locator(".story-scene-shot-toolbar").getByRole("button",{name:"Add shot",exact:true}).click();
+  await dialog.getByRole("button",{name:"Close",exact:true}).click();
+  await sceneHeading.getByText("Done",{exact:true}).waitFor({state:"hidden"});
+  assert.equal(await completion.last().getAttribute("aria-pressed"),"false");
+  assert.equal(await currentSceneRow.getAttribute("data-completed"),"false");
   await page.getByRole("link",{name:/projects/i}).click();
   await page.locator(".story-projects a").filter({hasText:"Letters from the inn"}).waitFor();
   // Exercise the project header with a long selected chapter at each workspace width.
