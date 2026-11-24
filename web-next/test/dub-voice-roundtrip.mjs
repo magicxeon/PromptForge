@@ -125,9 +125,24 @@ try {
       }
       return json({ items: [] });
     });
-    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/dub-sub/projects/roundtrip`);
+    const projectUrl = `http://127.0.0.1:${server.httpServer.address().port}/dub-sub/projects/roundtrip`;
+    draft.cues[0].takes = {en: {id:"existing-take", durationMs:1000, audioUrl:"/outputs/voice-studio/sample.wav"}};
+    await page.goto(projectUrl);
     await page.getByRole("button", {name:"Export", exact:true}).first().click();
     const exportDialog = page.getByRole("dialog", {name:"Export",exact:true});
+    const subtitleTracks = exportDialog.getByRole("group", {name:"Subtitle tracks",exact:true});
+    const selectedTracks = subtitleTracks.locator(".dub-export-choices input:checked");
+    assert.ok(await exportDialog.getByLabel("Dubbing from timeline").isChecked());
+    assert.equal(await exportDialog.getByLabel("Dubbing language").inputValue(),"en");
+    assert.equal(await selectedTracks.count(),0);
+    await subtitleTracks.getByRole("checkbox").first().check();
+    assert.equal(await selectedTracks.count(),1);
+
+    draft = structuredClone(project);
+    await page.reload();
+    await page.getByRole("button", {name:"Export", exact:true}).first().click();
+    assert.ok(await exportDialog.getByLabel("Original soundtrack").isChecked());
+    assert.equal(await selectedTracks.count(),1);
     await exportDialog.getByLabel("Dubbing from timeline").check();
     assert.ok(await exportDialog.getByLabel("Dubbing language").isVisible());
     assert.ok(await exportDialog.getByLabel("Keep original music and sound effects").isChecked());

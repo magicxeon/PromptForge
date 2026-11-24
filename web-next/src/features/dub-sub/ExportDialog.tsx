@@ -32,14 +32,15 @@ export function ExportDialog({
   sourceGain?: number;
   dubGain?: number;
 }) {
+  const defaultDubLanguage =
+    p.targetLanguages.find((target) => target === language && p.cues.some((cue) => cue.takes[target])) ??
+    p.targetLanguages.find((target) => p.cues.some((cue) => cue.takes[target]));
   const { t } = useTranslation("dub"),
     [format, setFormat] = useState("mp4"),
-    [lang, setLang] = useState(language),
-    [captions, setCaptions] = useState([language]),
+    [lang, setLang] = useState(defaultDubLanguage ?? language),
+    [captions, setCaptions] = useState<string[]>(defaultDubLanguage ? [] : [language]),
     [burn, setBurn] = useState(true);
-  const [withVoice, setVoice] = useState(
-      !!p.cues.some((c) => c.takes[language]),
-    ),
+  const [withVoice, setVoice] = useState(Boolean(defaultDubLanguage)),
     [keepScene, setKeepScene] = useState(true),
     [error, setError] = useState(""),
     [pending, setPending] = useState<"frame" | "export" | null>(null),
@@ -93,7 +94,7 @@ export function ExportDialog({
         body = {
           format,
           language: lang,
-          burnIn: burn,
+          burnIn: burn && captions.length > 0,
           includeDubbing: withVoice,
           captionLanguages: captions,
           sceneAudio: p.hasAudio !== false && keepScene && (format === "wav" || (format === "mp4" && withVoice)),
