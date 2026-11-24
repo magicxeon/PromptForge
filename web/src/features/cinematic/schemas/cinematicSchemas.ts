@@ -550,7 +550,7 @@ export const cinematicStoryboardKeyframeContractSchema = z.object({
 
 export const cinematicSceneEnvironmentContextSchema = z.object({
   projectId: z.string(), projectVersion: z.number().int().positive(), sceneId: z.string(), sceneVersion: z.number().int().positive(),
-  environmentPrompt: z.string(), compiledPrompt: z.string(), promptFingerprint: z.string(),
+  environmentPrompt: z.string(), compiledPrompt: z.string(), looksheetPrompt: z.string(), promptFingerprint: z.string(),
   approvedSource: cinematicApprovedStoryboardSourceSchema.nullable(),
   referenceEnabled: z.boolean().optional().default(true)
 });

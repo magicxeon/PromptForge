@@ -8,12 +8,14 @@ export function sceneEnvironmentContext(project, scene) {
     scene.artDirection, scene.lighting, scene.weather].filter(value => typeof value === 'string' && value.trim()).join('\n');
   const treatment = scene.lighting?.trim();
   const style = project.writingSettings?.direction?.visualStyle && storyVisualStyle(project.writingSettings);
-  const compiledPrompt = [policy.environmentInstruction, style?.instruction, environmentPrompt,
+  const directions = [style?.instruction, environmentPrompt,
     treatment && !environmentPrompt.includes(treatment)
       ? `Scene atmosphere (apply to the setting and light): ${treatment}` : ''
-  ].filter(Boolean).join('\n\n');
+  ].filter(Boolean);
+  const compiledPrompt = [policy.environmentInstruction, ...directions].filter(Boolean).join('\n\n');
+  const looksheetPrompt = [policy.environmentLooksheetInstruction, ...directions].filter(Boolean).join('\n\n');
   return { projectId: project.id, projectVersion: project.version, sceneId: scene.id,
-    sceneVersion: scene.version || 1, environmentPrompt, compiledPrompt,
+    sceneVersion: scene.version || 1, environmentPrompt, compiledPrompt, looksheetPrompt,
     promptFingerprint: crypto.createHash('sha256').update(compiledPrompt).digest('hex'),
     approvedSource: scene.approvedEnvironmentSource || null,
     referenceEnabled: scene.environmentReferenceEnabled !== false };

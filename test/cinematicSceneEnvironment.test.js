@@ -85,6 +85,9 @@ test('Scene image context/save/approve preserve all Shot media and feed only fut
   const context = await service.getSceneEnvironmentContext(project.id, sceneId, actor);
   assert.match(context.compiledPrompt, /No people/);
   assert.match(context.compiledPrompt, /Flower shop.*\nRainy night/);
+  assert.match(context.looksheetPrompt, /production environment looksheet.*clean 2 × 2 grid/);
+  assert.match(context.looksheetPrompt, /Flower shop.*\nRainy night/);
+  assert.doesNotMatch(context.looksheetPrompt, /empty-location reference plate/);
   const saved = await service.saveSceneEnvironment(project.id, sceneId, { expectedVersion: before.version,
     expectedSceneVersion: context.sceneVersion, environmentPrompt: 'A wet flower shop and amber practical lights.' }, actor);
   const next = await service.getSceneEnvironmentContext(project.id, sceneId, actor);

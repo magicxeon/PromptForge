@@ -39,25 +39,30 @@ import {
   type ImageIntent,
 } from "../state/imageDraft";
 
-export function useImageWorkspace(session?: {scope:string; initialDraft:ImageDraft; replaceReferenceOutfit?:boolean}) {
+export function useImageWorkspace(session?: {scope:string; initialDraft:ImageDraft; replaceReferenceOutfit?:boolean;
+  saveDraft?:boolean; sourceVersion?:string; restorePrompt?:(prompt:string)=>string}) {
   const creditsEnabled = useWorkspaceCredits();
   const { actor, identityScope, isLoading } = useActor();
   const actorId = actor!.userId;
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const intentFeature = session ? `fe24-image-intent:${session.scope}` : "fe24-image-intent";
+  const draftFeature = session
+    ? session.saveDraft && `fe24-image-draft:${session.scope}`
+    : "fe24-image";
   const replaceReferenceOutfit = session?.replaceReferenceOutfit === true;
-  const [draft, setDraft] = useState<ImageDraft>(
-    () =>
-      session?.initialDraft || draftSchema.safeParse(
+  const [draft, setDraft] = useState<ImageDraft>(() => {
+    const initial = session?.initialDraft || emptyDraft;
+    const restored = (draftFeature && draftSchema.safeParse(
         readActorScopedDraft({
           actorId,
-          feature: "fe24-image",
+          feature: draftFeature,
           schemaVersion: 1,
-          fallback: emptyDraft,
+          fallback: initial,
         }),
-      ).data || emptyDraft,
-  );
+      ).data) || initial;
+    return session?.restorePrompt ? {...restored,prompt:session.restorePrompt(restored.prompt)} : restored;
+  });
   const [intent, setIntent] = useState<ImageIntent | null>(
     () =>
       intentSchema.safeParse(
@@ -95,18 +100,18 @@ export function useImageWorkspace(session?: {scope:string; initialDraft:ImageDra
     getIdentitySnapshot().ready &&
     getIdentitySnapshot().epoch === epoch;
   useEffect(() => {
-    if (isLoading || session) return;
+    if (isLoading || !draftFeature) return;
     try {
       writeActorScopedDraft({
         actorId,
-        feature: "fe24-image",
+        feature: draftFeature,
         schemaVersion: 1,
         payload: persistentDraft(draft),
       });
     } catch {
       setError(t("storageError"));
     }
-  }, [actorId, draft, isLoading, session, t]);
+  }, [actorId, draft, isLoading, draftFeature, t]);
   const catalog = useQuery({
     queryKey: ["fe24-catalog", identityScope],
     queryFn: () =>
@@ -145,9 +150,11 @@ export function useImageWorkspace(session?: {scope:string; initialDraft:ImageDra
         ...value,
         provider: first.provider.id,
         model: first.model.id,
-        ratio: first.model.capabilities.aspectRatios.includes("1:1")
-          ? "1:1"
-          : first.model.capabilities.aspectRatios[0] || "1:1",
+        ratio: first.model.capabilities.aspectRatios.includes(value.ratio)
+          ? value.ratio
+          : first.model.capabilities.aspectRatios.includes("1:1")
+            ? "1:1"
+            : first.model.capabilities.aspectRatios[0] || "1:1",
         resolution:
           first.model.defaults?.resolution ||
           first.model.capabilities.resolutions?.[0] ||
@@ -274,6 +281,11 @@ export function useImageWorkspace(session?: {scope:string; initialDraft:ImageDra
     });
     setIntent(next);
   }
+  function clearCompletedIntent() {
+    if (!terminal) return;
+    removeActorScopedDraft(actorId, intentFeature);
+    setIntent(null);
+  }
   async function check() {
     if (!intent || checking || isLoading) return;
     const epoch = getIdentitySnapshot().epoch;
@@ -339,6 +351,7 @@ export function useImageWorkspace(session?: {scope:string; initialDraft:ImageDra
       fingerprint: "",
       jobId: null,
       groupId: null,
+      sourceVersion: session?.sourceVersion,
       status: "unknown",
     };
     let sent = false;
@@ -481,6 +494,7 @@ export function useImageWorkspace(session?: {scope:string; initialDraft:ImageDra
     status,
     terminal,
     intent,
+    clearCompletedIntent,
     unresolved,
     check,
     checking,

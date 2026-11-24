@@ -215,6 +215,11 @@
   "reviewRevision": "Review this shot revision",
   "applyRevision": "Apply to this shot",
   "applyShots": "Use these shots",
+  "shotConfirmation": {
+    "update": "Update",
+    "add": "Add",
+    "keep": "Keep for review"
+  },
   "applyScenes": "Use these scenes",
   "proposal": "Show proposal",
   "source": "View source",

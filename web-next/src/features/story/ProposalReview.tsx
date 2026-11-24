@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {Clapperboard} from "lucide-react";
 import {initialRanges,SceneRangeReview,type SourceRange} from "./scenes/SceneRangeReview";
 import {SceneDirectionSummary} from "./scenes/SceneDirectionSummary";
 import {useTranslation} from "react-i18next";
@@ -77,10 +78,20 @@ export function ProposalReview({project,scene,proposal,busy,error,run,close,onAp
       {!shot && actions}
     </div>
     {confirm&&<Dialog label={acceptLabel} onClose={()=>setConfirm(false)}>
-      <div className={shot?undefined:"story-save-confirmation"}>
-        <header><h2>{acceptLabel}</h2><p>{t("impact",counts)}</p></header>
+      <div className={shot?"story-save-confirmation story-shot-confirmation":"story-save-confirmation"}>
+        {shot ? <>
+          <header>
+            <span className="story-shot-confirmation-icon"><Clapperboard size={20} aria-hidden/></span>
+            <div><h2>{acceptLabel}</h2><p>{contextTitle}</p></div>
+          </header>
+          <dl className="story-shot-confirmation-impact">
+            {(["update","add","keep"] as const).map(key=><div key={key}>
+              <dt>{t(`shotConfirmation.${key}`)}</dt><dd>{counts[key]}</dd>
+            </div>)}
+          </dl>
+        </> : <header><h2>{acceptLabel}</h2><p>{t("impact",counts)}</p></header>}
         <footer><button onClick={()=>setConfirm(false)}>{t("cancel")}</button>
-          <button className={shot?"primary":"primary-button"} onClick={()=>{setConfirm(false);submit(true);}}>{acceptLabel}</button></footer>
+          <button className="primary-button" onClick={()=>{setConfirm(false);submit(true);}}>{acceptLabel}</button></footer>
       </div>
     </Dialog>}
   </Dialog>;

@@ -7,6 +7,27 @@ import {compileCinematicShotDocument} from '../server/domain/cinematic/Cinematic
 import {applyShotProposal, createShotProposal} from '../server/domain/cinematic/CinematicShotAuthoring.js';
 import {inspectStoryPromptDraft} from '../server/domain/cinematic/StoryPromptFormatting.js';
 
+test('reference label translation keeps canonical numbers and roles when the writer repeats the entry format', () => {
+  const source = '[REFERENCE MAPPING]\nReference 1 — ถนน: set geometry, materials and light direction.\n'
+    + 'Reference 2 — วิ: this character’s face, hair and wardrobe.';
+  const {slots,render} = planStoryPromptLanguage(source,[]);
+  assert.ok(slots.every(slot => slot.role === 'reference_label' && slot.linePrefix === undefined));
+  assert.deepEqual(slots.map(slot => slot.source),['ถนน','วิ']);
+  const translations = [
+    {id:0,text:'Reference 1 — Residential lane: set geometry, materials and light direction.'},
+    {id:1,text:'Wi (Image 2)'}
+  ];
+  assert.equal(render(translations,'Thai'),
+    '[REFERENCE MAPPING]\nReference 1 — Residential lane: set geometry, materials and light direction.\n'
+    + 'Reference 2 — Wi: this character’s face, hair and wardrobe.');
+  for (const text of ['Reference 2 — Residential lane','Image 2: Residential lane','Residential lane [4s]']) {
+    assert.throws(() => render([{id:0,text},translations[1]],'Thai'), {
+      code:'cinematic_prompt_translation_invalid',
+      details:{reason:'changed_markers',slotId:0,section:'REFERENCE MAPPING',role:'reference_label'}
+    });
+  }
+});
+
 test('embedded shot clocks widen the action row and cannot be reintroduced by translation', () => {
   const {project,scene,shots} = fixture();
   shots[1].shotDocument = 'PERFORMANCE AND TIMELINE\n[0–1s] The passenger lowers the letter. They stop [0:00.9-0:02.2] and listen [3s].';

@@ -411,7 +411,7 @@ export function listCinematicSceneEnvironmentImages(projectId: string, sceneId: 
   return apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/images?${query}`, { schema: cinematicSceneEnvironmentImagesSchema });
 }
 export function approveCinematicSceneEnvironment(projectId: string, sceneId: string, input: { expectedVersion: number } & (
-  {jobId: string; reuse?: boolean} | {referenceAssetId: string} | {reuseSceneId: string}
+  {jobId: string; reuse?: boolean} | {referenceAssetId: string; preserveReferenceSetting?: true} | {reuseSceneId: string}
 )) {
   return apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/approve`, { method: 'POST', body: input, schema: cinematicProjectSchema });
 }

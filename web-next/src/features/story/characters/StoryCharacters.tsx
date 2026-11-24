@@ -8,9 +8,11 @@ import {setCinematicChapterCharacters, upsertCinematicSharedCharacter} from "../
 import {cinematicFullStoryProposalSchema, type CinematicFullStoryProposal, type CinematicProject, type StoryCharacterDetails} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {proposeCinematicFullStory} from "../../../../../web/src/features/cinematic/api/cinematicApi";
 import type {RunWriting} from "../data/useStoryWorkspace";
+import {saveCharacterReference} from "./CharacterImageReturn";
+import {emptyDraft, outputStorageKey} from "../../playground/state/imageDraft";
 
 type Member = CinematicProject["castAssignments"][number];
-const CharacterLooksheetDialog=lazy(()=>import("./CharacterLooksheetDialog").then(module=>({default:module.CharacterLooksheetDialog})));
+const StoryLooksheetDialog=lazy(()=>import("../StoryLooksheetDialog").then(module=>({default:module.StoryLooksheetDialog})));
 const imageTypes = ["image/png", "image/jpeg", "image/webp"];
 const maximumBytes = 12 * 1024 * 1024;
 
@@ -179,10 +181,27 @@ export function StoryCharacters({project, owner, run, error, busy}: {
       })}/>}
     {editing && <CharacterForm project={project} owner={owner} person={editing === "new" ? undefined : editing}
       run={run} close={() => setEditing(null)} error={error}/>}
-    {looksheet && <Suspense fallback={<ProcessingSpinner/>}><CharacterLooksheetDialog
-      target={{projectId:project.id,ownerId:owner.id,characterId:looksheet.person.id,name:looksheet.person.displayName,updatedAt:looksheet.person.updatedAt}}
-      prompt={looksheet.prompt} outfit={looksheet.outfit} reference={looksheet.person.storyReference}
-      close={()=>setLooksheet(undefined)} run={run} saveError={error}/></Suspense>}
+    {looksheet && <Suspense fallback={<ProcessingSpinner/>}><StoryLooksheetDialog
+      name={looksheet.person.displayName} title={t("storyCast.looksheetFor",{name:looksheet.person.displayName})}
+      subtitle={looksheet.outfit} reference={looksheet.person.storyReference}
+      session={{
+        scope:JSON.stringify(["looksheet",owner.id,looksheet.person.id,looksheet.person.updatedAt]),
+        replaceReferenceOutfit:Boolean(looksheet.outfit),
+        initialDraft:{...emptyDraft,prompt:looksheet.prompt,references:looksheet.person.storyReference ? [{
+          id:looksheet.person.storyReference.assetId,role:"character_reference",name:looksheet.person.displayName,status:"ready",
+          storageKey:outputStorageKey(looksheet.person.storyReference.imageUrl)
+        }] : []}
+      }}
+      close={()=>setLooksheet(undefined)} saveError={error} save={async image=>{
+        let saved=false;
+        await run(async()=>{
+          const result=await saveCharacterReference({projectId:project.id,ownerId:owner.id,characterId:looksheet.person.id,
+            name:looksheet.person.displayName,updatedAt:looksheet.person.updatedAt},image,t("storyCast.changed"));
+          saved=Boolean(result);
+          return result;
+        });
+        return saved;
+      }}/></Suspense>}
   </section>;
 }
 

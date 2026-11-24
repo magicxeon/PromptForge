@@ -2295,7 +2295,9 @@ export class CinematicApplicationService {
         const target=project.scenes.find(item=>item.id===sceneId);
         if (!target) throw new CinematicError('cinematic_scene_not_found','Scene not found.',404);
         target.approvedEnvironmentSource=structuredClone(source);
-        target.environmentReferenceEnabled=true;
+        if (input.preserveReferenceSetting !== true || input.referenceAssetId === undefined) {
+          target.environmentReferenceEnabled=true;
+        }
         target.version=(target.version||1)+1;
         project.version++;
         return project;

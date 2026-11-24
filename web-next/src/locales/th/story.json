@@ -215,6 +215,11 @@
   "reviewRevision": "ตรวจฉบับแก้ของช็อตนี้",
   "applyRevision": "ใช้ฉบับนี้กับช็อตที่เลือก",
   "applyShots": "ใช้ชุดช็อตนี้",
+  "shotConfirmation": {
+    "update": "ปรับช็อต",
+    "add": "เพิ่มช็อต",
+    "keep": "เก็บไว้ทบทวน"
+  },
   "applyScenes": "ใช้ชุดซีนนี้",
   "proposal": "ดูข้อเสนอ",
   "source": "ดูบทต้นทาง",

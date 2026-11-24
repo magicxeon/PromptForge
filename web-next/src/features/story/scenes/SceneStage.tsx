@@ -1,22 +1,26 @@
 import {useTranslation} from "react-i18next";
-import {useState} from "react";
+import {lazy, Suspense, useState} from "react";
 import {ImagePlus, MapPin, Sun, WandSparkles} from "lucide-react";
 import {MediaImage} from "../../../components/media/MediaImage";
-import {useNavigate} from "react-router-dom";
-import {ProcessingSpinner, useActor} from "../../../lib/canonical";
-import {approveCinematicSceneEnvironment, getCinematicSceneEnvironment, saveCinematicSceneEnvironment} from "../../../../../web/src/features/cinematic/api/cinematicApi";
+import {apiMediaBlob, getIdentitySnapshot, ProcessingSpinner} from "../../../lib/canonical";
+import {approveCinematicSceneEnvironment, getCinematicSceneEnvironment, proposeCinematicSceneEnvironment, saveCinematicSceneEnvironment} from "../../../../../web/src/features/cinematic/api/cinematicApi";
 import type {CinematicProject,CinematicScene} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {uploadStorySceneImage} from "./uploadStorySceneImage";
 import settings from "./staging-config.json";
 import {SceneDirectionSummary} from "./SceneDirectionSummary";
+import {emptyDraft} from "../../playground/state/imageDraft";
 
-export function SceneStage({project,scene,run,aspectRatio,editTreatment}:{project:CinematicProject;scene:CinematicScene;run:RunWriting;aspectRatio:string;editTreatment:()=>void}) {
+const StoryLooksheetDialog=lazy(()=>import("../StoryLooksheetDialog").then(module=>({default:module.StoryLooksheetDialog})));
+type SceneEnvironment = Awaited<ReturnType<typeof getCinematicSceneEnvironment>>;
+
+export function SceneStage({project,scene,run,aspectRatio,editTreatment,error}:{project:CinematicProject;scene:CinematicScene;run:RunWriting;aspectRatio:string;editTreatment:()=>void;error:string}) {
   const {t} = useTranslation("story");
-  const navigate = useNavigate();
-  const {identityScope} = useActor();
   const [uploading,setUploading] = useState(false);
   const [fileError,setFileError] = useState("");
+  const [preparing,setPreparing]=useState(false);
+  const [design,setDesign]=useState<SceneEnvironment>();
+  const [changed,setChanged]=useState<SceneEnvironment>();
   const image = scene.approvedEnvironmentSource;
   const alternatives = project.scenes.filter(item=>item.id!==scene.id && item.approvedEnvironmentSource && item.approvedEnvironmentSource.assetId!==image?.assetId);
   const cast = project.castAssignments.filter(person=>person.active!==false && scene.castAssignmentIds.includes(person.id));
@@ -30,6 +34,39 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment}:{projec
     [t("stage.emotion"),[scene.emotionalStart,scene.emotionalEnd].filter(Boolean).join(" → ")],
     [t("stage.cast"),cast.map(person=>person.displayName).join(", ")]
   ].filter(([,value])=>Boolean(value));
+  const fileErrorMessage=t("stage.fileError",{mb:settings.maximumUploadBytes/1024/1024});
+
+  async function openDesign() {
+    if (preparing) return;
+    const epoch=getIdentitySnapshot().epoch;
+    setPreparing(true);setFileError("");
+    try {
+      const context=await getCinematicSceneEnvironment(project.id,scene.id);
+      if (getIdentitySnapshot().epoch===epoch) setDesign(context);
+    } catch (cause) {setFileError((cause as Error).message);}
+    finally {setPreparing(false);}
+  }
+
+  async function saveDesign(url:string) {
+    if (!design) return false;
+    const epoch=getIdentitySnapshot().epoch;
+    const latest=await getCinematicSceneEnvironment(project.id,scene.id);
+    if (getIdentitySnapshot().epoch!==epoch) return false;
+    if (latest.sceneVersion!==design.sceneVersion || latest.promptFingerprint!==design.promptFingerprint
+        || latest.approvedSource?.assetId!==design.approvedSource?.assetId) {
+      setChanged(latest);
+      return false;
+    }
+    const blob=await apiMediaBlob(url);
+    let saved=false;
+    await run(async()=>{
+      const updated=await uploadStorySceneImage(blob,{projectId:project.id,sceneId:scene.id,
+        expectedVersion:latest.projectVersion,preserveReferenceSetting:true},fileErrorMessage,epoch);
+      saved=true;
+      return {project:updated};
+    });
+    return saved;
+  }
 
   async function upload(file?:File) {
     if (!file || uploading) return;
@@ -76,13 +113,10 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment}:{projec
           <input type="file" accept={settings.imageTypes.join(",")} disabled={uploading} onChange={event=>{
             const file=event.target.files?.[0];event.target.value="";void upload(file);
           }}/></label>
-        <button type="button" onClick={()=>void run(async()=>{
-          const context = await getCinematicSceneEnvironment(project.id,scene.id);
-          navigate("/image",{state:{identityScope,
-            imageSettings:{prompt:context.compiledPrompt,ratio:aspectRatio},
-            storyScene:{projectId:project.id,sceneId:scene.id,expectedVersion:context.projectVersion,title:scene.title}
-          }});
-        })}><WandSparkles aria-hidden size={16}/>{t("stage.generateImage")}</button>
+        <button type="button" disabled={preparing || uploading} onClick={()=>void openDesign()}>
+          {preparing?<ProcessingSpinner size={16}/>:<WandSparkles aria-hidden size={16}/>}
+          {t(preparing?"stage.preparingSetting":"stage.generateImage")}
+        </button>
       </div>
       {uploading&&<span role="status"><ProcessingSpinner/>{t("stage.uploading")}</span>}
       {fileError&&<p role="alert">{fileError}</p>}
@@ -92,5 +126,28 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment}:{projec
       }}><option value="">{t("stage.chooseScene")}</option>
         {alternatives.map(source=><option key={source.id} value={source.id}>{source.title}</option>)}</select></label>}
     </div>
+    {design && <Suspense fallback={<span role="status"><ProcessingSpinner/> {t("stage.preparingSetting")}</span>}>
+      <StoryLooksheetDialog name={scene.title} title={t("stage.imageFor",{scene:scene.title})}
+        reference={(changed ?? design).approvedSource ?? undefined}
+        session={{scope:JSON.stringify(["scene-looksheet",project.id,scene.id]),saveDraft:true,
+          sourceVersion:JSON.stringify([(changed ?? design).sceneVersion,(changed ?? design).promptFingerprint,
+            (changed ?? design).approvedSource?.assetId]),
+          initialDraft:{...emptyDraft,prompt:design.looksheetPrompt,ratio:aspectRatio},
+          restorePrompt:prompt=>{
+            const [previousInstruction]=design.compiledPrompt.split("\n\n",1);
+            const [looksheetInstruction]=design.looksheetPrompt.split("\n\n",1);
+            return previousInstruction && (prompt===previousInstruction || prompt.startsWith(previousInstruction+"\n\n"))
+              ? looksheetInstruction+prompt.slice(previousInstruction.length) : prompt;
+          }}}
+        close={()=>{setDesign(undefined);setChanged(undefined);}}
+        save={saveDesign} saveError={error}
+        sceneTools={{useImageLabel:t("stage.useResult"), refreshRequired:Boolean(changed),
+          reviewLatest:()=>{if(changed){setDesign(changed);setChanged(undefined);}},
+          suggest:async prompt=>{
+            const result=await proposeCinematicSceneEnvironment(project.id,scene.id,{expectedVersion:project.version,
+              expectedSceneVersion:scene.version ?? 1,currentDirection:prompt.slice(0,2500)});
+            return result.environmentPrompt;
+          }}}/>
+    </Suspense>}
   </section>;
 }

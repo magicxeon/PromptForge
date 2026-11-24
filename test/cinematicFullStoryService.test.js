@@ -83,6 +83,35 @@ test('a Thai setting keeps English directions while only the dialogue follows th
   }
 });
 
+test('quoted dialogue echoed in art direction is translated as a cue reference and only spoken once', async () => {
+  const cue = 'ขอโทษค่ะ';
+  const source = `[REFERENCE MAPPING]\nReference 1 — ซอย: set geometry, materials and light direction.\n\n[ACTION TIMELINE]\n[4s] วิ: “${cue}”\n\n[LIGHTING]\nค้างแสงเดิมขณะวิพูด “${cue}”`;
+  let echoThaiInDirection = false;
+  const service = new CinematicFullStoryService({
+    policyLoader:()=>({enabled:true,provider:'openai',model:'fixture'}),
+    availabilityPolicy:{assertAvailable() {}},
+    providerFactory:()=>({translateStoryPrompt:async ({slots})=>({
+      translations:slots.map(({id,section,source})=>{
+        assert.ok(!source.includes(cue));
+        const text = section === 'REFERENCE MAPPING' ? 'Lane' :
+          section === 'ACTION TIMELINE' ? 'Wi' :
+          (assert.match(source,/the scripted line/), echoThaiInDirection ? 'แสงเดิม' : 'Hold the light while Wi delivers the scripted line.');
+        return {id,text};
+      })
+    })})
+  });
+  const settings = {modelId:null,skillIds:[],direction:{...storyDirection.defaults,spokenLanguage:'Thai'}};
+  const {text}=await service.translateStoryPrompt(source,[{text:cue}],settings);
+  assert.match(text,/Reference 1 — Lane: set geometry/);
+  assert.ok(text.includes(`[4s] Wi: “${cue}”`));
+  assert.equal(text.split(cue).length,2);
+  echoThaiInDirection = true;
+  await assert.rejects(service.translateStoryPrompt(source,[{text:cue}],settings), {
+    code:'cinematic_prompt_translation_invalid',
+    details:{reason:'unexpected_script',slotId:2,section:'LIGHTING',role:'direction'}
+  });
+});
+
 test('the selected project writer receives the selected skill instructions and is recorded in provenance', async () => {
   const calls = [];
   const service = new CinematicFullStoryService({

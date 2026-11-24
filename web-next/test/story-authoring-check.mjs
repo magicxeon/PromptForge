@@ -89,13 +89,15 @@ const service = new CinematicApplicationService({
 const permitted = ["listProjects","createProject","getProject","getSeriesWorkspace","getAuthoringManifest",
   "proposeFullStory","updateWritingSettings","updateSeriesChapter","saveFullStoryRevision","confirmFullStoryRevision","createManualScene","updateSceneOutline","createManualShot","updateShotDocument",
   "applySceneProposal","discardSceneProposal","applyShotProposal","discardShotProposal","upsertSharedCharacterDossier",
-  "prepareShotWriter","storyPromptStatus","setChapterCharacters","getSceneEnvironmentContext","approveSceneEnvironment","approveStoryboardSource"];
+  "prepareShotWriter","storyPromptStatus","setChapterCharacters","getSceneEnvironmentContext","saveSceneEnvironment","approveSceneEnvironment","approveStoryboardSource"];
 const facade = Object.fromEntries(permitted.map(key=>[key,service[key].bind(service)]));
 facade.quoteWriting = async (_project,{operation})=>({id:null,operation,credits:0,expiresAt:null,billingStatus:"free"});
 facade.executeWriting = async (id,{operation,sceneId,input},owner)=>{
   if (operation==="scenes") return service.proposeScenes(id,input,owner);
   if (operation==="shots") return service.proposeShots(id,sceneId,input,owner);
   if (operation==="characters") return service.proposeFullStory(id,input,owner);
+  if (operation==="environment") return {proposalId:"fixture-environment",environmentPrompt:"Warm practical lanterns beside a carved door.",
+    warnings:[],provenance:{provider:"fixture",model:"fixture",responseId:null},billingStatus:"qualification_no_charge"};
   throw new Error("Unexpected fixture writing operation "+operation);
 };
 const app = express();
@@ -131,7 +133,16 @@ app.post("/api/references/processing-plan",(_req,res)=>res.json({
   effectiveSelections:{},providerPlan:{referenceCount:1,executionMode:"single_stage"}
 }));
 let looksheetRequests=0;
+let sceneImageRequests=0;
+let sceneImageReady=false;
 app.post("/api/generate",(req,res)=>{
+  if (req.body.sceneBuilder.manualPromptText.includes("production environment looksheet")) {
+    assert.match(req.body.sceneBuilder.manualPromptText,/Warm practical lanterns/);
+    assert.match(req.body.styleReferenceImageA,/^\/outputs\/references\//);
+    sceneImageRequests++;
+    res.json({jobId:"setting-fixture",status:"queued"});
+    return;
+  }
   assert.match(req.body.sceneBuilder.manualPromptText,/character looksheet for Lalin/);
   assert.match(req.body.characterReferenceImageA,/^\/outputs\/references\//);
   looksheetRequests++;
@@ -140,6 +151,9 @@ app.post("/api/generate",(req,res)=>{
 app.get("/api/jobs/looksheet-fixture",(_req,res)=>res.json({
   status:"completed",result:{imageUrl:"/outputs/character-looksheet.png"}
 }));
+app.get("/api/jobs/setting-fixture",(_req,res)=>res.json(sceneImageReady
+  ? {status:"completed",result:{imageUrl:"/outputs/test-set.png"}}
+  : {status:"queued"}));
 registerCinematicRoutes(app,{cinematicService:facade});
 app.post("/api/references",async (req,res)=>{
   try {res.json(await references.storeReference(req.body,actor));}
@@ -405,6 +419,20 @@ try {
   await nextDirection.fill("Keep the blocking as written.");
   assert.ok(await shotEditor.getByRole("button",{name:"Request revision"}).isDisabled());
   await shotEditor.getByRole("button",{name:"Review pending proposal"}).click();
+  const acceptRevision=shotRevision.getByRole("button",{name:"Apply to this shot"});
+  await acceptRevision.click();
+  const confirmRevision=page.getByRole("dialog",{name:"Apply to this shot",exact:true});
+  assert.deepEqual(await confirmRevision.locator("dd").allTextContents(),["1","0","0"]);
+  for (const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    assert.ok(await confirmRevision.evaluate(el=>{
+      const box=el.getBoundingClientRect();
+      return box.left>=0 && box.right<=innerWidth && el.scrollWidth<=el.clientWidth+1;
+    }));
+  }
+  await confirmRevision.getByRole("button",{name:"Cancel",exact:true}).click();
+  await confirmRevision.waitFor({state:"hidden"});
+  assert.ok(await shotRevision.isVisible());
   await shotRevision.getByRole("button",{name:"Discard proposal"}).click();
   await shotRevision.waitFor({state:"hidden"});
   assert.equal(await nextDirection.inputValue(),"Keep the blocking as written.");
@@ -646,6 +674,12 @@ try {
   await page.getByRole("dialog",{name:"Save your edits before leaving?"}).getByRole("button",{name:"Discard edits"}).click();
   await sceneViews.getByRole("button",{name:"Scene setup",exact:true}).click();
   await sceneViews.locator("[aria-current=page]").filter({hasText:"Scene setup"}).waitFor();
+  await button("Design with AI").click();
+  const settingModal = page.locator("dialog:has(> .story-looksheet-dialog)");
+  await settingModal.getByText("No reference image",{exact:true}).waitFor();
+  assert.match(await settingModal.locator("textarea").inputValue(),/production environment looksheet.*2 × 2 grid/);
+  await page.keyboard.press("Escape");
+  await settingModal.waitFor({state:"hidden"});
   await page.getByLabel("Upload setting image").setInputFiles({name:"inn.png",mimeType:"image/png",buffer:reference});
   await page.locator(".story-stage-image").waitFor();
   const uploaded=(await persisted()).scenes[1];
@@ -656,25 +690,64 @@ try {
   await page.locator(".story-stage-image").waitFor();
   const reused=(await persisted()).scenes[0];
   assert.equal(reused.approvedEnvironmentSource.assetId,uploaded.approvedEnvironmentSource.assetId);
+  const useForPlanning=page.getByLabel("Use this scene image when planning shots");
+  await useForPlanning.click();
+  await useForPlanning.and(page.locator(":not(:checked)")).waitFor();
   await fs.writeFile(path.join(directory,"test-set.png"),reference);
+  const settingUrl=page.url();
+  const legacySetting=await service.getSceneEnvironmentContext(projectId,reused.id,actor);
+  const draftFeature='fe24-image-draft:'+JSON.stringify(["scene-looksheet",projectId,reused.id]);
+  await page.evaluate(({feature,prompt,userId,authMode})=>{
+    localStorage.setItem(`mpf.react.draft:${authMode}:${feature}:${userId}`,JSON.stringify({
+      actorId:userId,authMode,feature,schemaVersion:1,payload:{
+        prompt:prompt+"\n\nKeep the stone steps.",negative:"",provider:"",model:"",ratio:"9:16",resolution:"",count:1,references:[]
+      }
+    }));
+  },{feature:draftFeature,prompt:legacySetting.compiledPrompt,userId:actor.userId,authMode:actor.authMode});
   await button("Design with AI").click();
-  await page.waitForURL("**/image");
-  await page.locator(".handoff-panel").first().getByRole("button").first().click();
-  const returnImage=button("Use the displayed image for this scene");
-  await returnImage.waitFor();
-  assert.ok((await page.locator("#prompt").inputValue()).length>10);
+  const migratedSetting=await settingModal.locator("textarea").inputValue();
+  assert.match(migratedSetting,/production environment looksheet/);
+  assert.match(migratedSetting,/Keep the stone steps\./);
+  assert.doesNotMatch(migratedSetting,/empty-location reference plate/);
+  await settingModal.getByRole("button",{name:"Suggest setting details with AI"}).click();
+  await settingModal.getByRole("button",{name:"Add to prompt"}).click();
+  const settingPrompt=await settingModal.locator("textarea").inputValue();
+  assert.match(settingPrompt,/Warm practical lanterns/);
+  await settingModal.getByRole("button",{name:"Use current image as input"}).click();
+  await settingModal.getByRole("button",{name:"Generate image",exact:true}).click();
+  await settingModal.getByRole("button",{name:"Close",exact:true}).click();
+  assert.equal((await persisted()).scenes[0].approvedEnvironmentSource.assetId,reused.approvedEnvironmentSource.assetId);
+  const beforeConflict=await persisted();
+  await service.saveSceneEnvironment(projectId,reused.id,{expectedVersion:beforeConflict.version,
+    expectedSceneVersion:beforeConflict.scenes[0].version,environmentPrompt:"A revised door and lantern position."},actor);
   await page.reload();
+  await button("Design with AI").click();
+  assert.equal(await settingModal.locator("textarea").inputValue(),settingPrompt);
+  sceneImageReady=true;
+  const returnImage=settingModal.getByRole("button",{name:"Use the displayed image for this scene"});
   await returnImage.waitFor();
+  assert.equal(sceneImageRequests,1);
+  for (const width of [390,820,1440]) {
+    await page.setViewportSize({width,height:900});
+    assert.ok(await settingModal.evaluate(el=>el.scrollWidth<=el.clientWidth+1 && el.getBoundingClientRect().right<=innerWidth+1));
+  }
   const separate=await context.newPage();
   await separate.goto(origin+"/image");
   await separate.locator(".result-thumb").first().waitFor();
   assert.equal(await separate.getByRole("button",{name:"Use the displayed image for this scene"}).count(),0);
   await separate.close();
+  const reviewSetting=settingModal.getByRole("button",{name:"Keep this result after review"});
+  await reviewSetting.waitFor();
+  assert.ok(await returnImage.isDisabled());
+  assert.equal((await persisted()).scenes[0].approvedEnvironmentSource.assetId,reused.approvedEnvironmentSource.assetId);
+  await reviewSetting.click();
   await returnImage.click();
-  await page.waitForURL(url=>url.pathname.endsWith("/"+projectId)&&url.searchParams.get("scene")===reused.id);
+  await settingModal.waitFor({state:"hidden"});
+  assert.equal(page.url(),settingUrl);
   await page.locator(".story-stage-image").waitFor();
   const returned=await persisted();
   assert.notEqual(returned.scenes[0].approvedEnvironmentSource.assetId,reused.approvedEnvironmentSource.assetId);
+  assert.equal(returned.scenes[0].environmentReferenceEnabled,false);
   assert.equal(returned.scenes[1].approvedEnvironmentSource.assetId,uploaded.approvedEnvironmentSource.assetId);
   assert.ok(!returned.scenes[2].approvedEnvironmentSource);
   assert.deepEqual(writingRequests,["manuscript","scenes","scenes","shots","shots"]);

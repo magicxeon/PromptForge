@@ -9,7 +9,7 @@ export const sceneImageTargetSchema=z.object({
   shot:z.object({id:z.string().regex(/^[\w-]+$/).max(160),version:z.number().int().positive()}).optional()
 });
 
-export async function uploadStorySceneImage(blob:Blob,target:Omit<z.infer<typeof sceneImageTargetSchema>,"title">,fileError:string,epoch=getIdentitySnapshot().epoch) {
+export async function uploadStorySceneImage(blob:Blob,target:Omit<z.infer<typeof sceneImageTargetSchema>,"title"> & {preserveReferenceSetting?:true},fileError:string,epoch=getIdentitySnapshot().epoch) {
   function checkIdentity() {
     const identity=getIdentitySnapshot();
     if(!identity.ready||identity.epoch!==epoch)throw new DOMException("Identity changed","AbortError");
@@ -25,5 +25,6 @@ export async function uploadStorySceneImage(blob:Blob,target:Omit<z.infer<typeof
   checkIdentity();
   const ref=await uploadGenerationReference(data,"style_reference","story-scene");
   checkIdentity();
-  return approveCinematicSceneEnvironment(target.projectId,target.sceneId,{expectedVersion:target.expectedVersion,referenceAssetId:ref.referenceId});
+  return approveCinematicSceneEnvironment(target.projectId,target.sceneId,{expectedVersion:target.expectedVersion,
+    referenceAssetId:ref.referenceId,preserveReferenceSetting:target.preserveReferenceSetting});
 }

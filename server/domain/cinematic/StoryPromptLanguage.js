@@ -81,17 +81,21 @@ function sequenceWritingLines(text) {
 export function planStoryPromptLanguage(text, cues, findings = [], composeSequence = false, spokenLanguage) {
   const slots = [];
   const parts = [];
-  const words = new Set(cues.map(cue => cue.text));
+  const referenceLabels = new Map();
+  const words = new Set(cues.map(cue => cue.text.trim()));
   const unresolved = new Set(findings.map(item => item.speaker));
   let section = '';
   let shotNumber;
   let linePrefix;
   const sequence = /^\d+ shots\. Shot boundaries:/m.test(text);
+  const directionProse = source => source.replace(/“([^”]+)”|"([^"]+)"/gu, (quoted, curly, straight) =>
+    words.has((curly ?? straight).trim()) ? 'the scripted line' : quoted);
   function slot(source, role) {
     if (!source || !/\p{L}/u.test(source) || isThaiDialogue(source, role, spokenLanguage)) { parts.push(source); return; }
     const id = slots.length;
     slots.push({id, role, source, section, shotNumber, linePrefix});
     parts.push(id);
+    return id;
   }
   for (const line of composeSequence && sequence ? sequenceWritingLines(text) : text.split('\n')) {
     if (parts.length) parts.push('\n');
@@ -114,7 +118,7 @@ export function planStoryPromptLanguage(text, cues, findings = [], composeSequen
     if (sequence && line.startsWith('Opening-frame basis: ')) {
       linePrefix = 'Opening-frame basis: ';
       parts.push(linePrefix);
-      slot(line.slice(linePrefix.length), 'direction');
+      slot(directionProse(line.slice(linePrefix.length)), 'direction');
       continue;
     }
     linePrefix = prefix || undefined;
@@ -123,7 +127,10 @@ export function planStoryPromptLanguage(text, cues, findings = [], composeSequen
     const referenceRole = section === 'REFERENCE MAPPING' && prefix.startsWith('Reference ')
       && referenceRoleSuffixes.find(role => body.endsWith(role));
     if (referenceRole) {
-      slot(body.slice(0, -referenceRole.length), 'direction');
+      const number = Number(prefix.match(/\d+/)[0]);
+      linePrefix = undefined;
+      const id = slot(body.slice(0, -referenceRole.length), 'reference_label');
+      if (id !== undefined) referenceLabels.set(id,{number,suffix:referenceRole});
       parts.push(referenceRole);
       continue;
     }
@@ -136,20 +143,40 @@ export function planStoryPromptLanguage(text, cues, findings = [], composeSequen
     } else if (spoken || (legacy && words.has(legacy[2]))) {
       const [,speaker,dialogue] = spoken || legacy;
       slot(speaker, 'direction'); parts.push(': “'); slot(dialogue, 'dialogue'); parts.push('”');
-    } else slot(body, 'direction');
+    } else slot(directionProse(body), 'direction');
   }
   return {slots, render(translations, spokenLanguage) {
-    const invalid = () => Object.assign(new Error('The writing model returned an incomplete prompt translation. Try building the prompt again.'),
-      {code:'cinematic_prompt_translation_invalid',statusCode:502});
-    if (!Array.isArray(translations) || translations.length !== slots.length) throw invalid();
+    const invalid = (reason, item) => Object.assign(new Error({
+      slot_count:'The writing model returned an incomplete prompt translation.',
+      slot_invalid:'The writing model returned an invalid or empty translation slot.',
+      unexpected_script:'The writing model left non-Latin text in a slot that requires English.',
+      changed_markers:'The writing model changed protected time or reference markers.'
+    }[reason]), {code:'cinematic_prompt_translation_invalid',statusCode:502,
+      details:{reason,...(item && {slotId:item.id,section:item.section,role:item.role})}});
+    if (!Array.isArray(translations) || translations.length !== slots.length) throw invalid('slot_count');
     const values = new Map();
     for (const row of translations) {
       const item = slots[row?.id];
-      const value = typeof row?.text === 'string' && row.text.trim().replace(/[^\S\r\n]*[\r\n]+\s*/g, ' ');
-      if (!item || item.id !== row.id || values.has(item.id) || !value) throw invalid();
-      const english = item.role === 'direction' || spokenLanguage === 'English';
-      if (english && hasNonLatinLetters(value)) throw invalid();
-      if (item.role === 'direction' && markers(value) !== markers(item.source)) throw invalid();
+      let value = typeof row?.text === 'string' && row.text.trim().replace(/[^\S\r\n]*[\r\n]+\s*/g, ' ');
+      if (!item || item.id !== row.id || values.has(item.id) || !value) throw invalid('slot_invalid',item);
+      const reference = referenceLabels.get(item.id);
+      if (reference) {
+        // The compiler owns the number and role. Accept a formatting echo of the same entry.
+        const numberLabel = `(?:Reference|Image|Ref\\.)\\s*#?\\s*0*${reference.number}\\b`;
+        value = value
+          .replace(new RegExp(`^(?:\\[?\\s*${numberLabel}\\s*\\]?|\\[0*${reference.number}\\])\\s*(?:[—–:-]\\s*)?`, 'i'), '')
+          .replace(new RegExp(`\\s*\\(${numberLabel}\\)\\s*\\.?$`, 'i'), '');
+        if (value.toLowerCase().endsWith(reference.suffix.toLowerCase())) {
+          value = value.slice(0, -reference.suffix.length).trim();
+        }
+        if (!value) throw invalid('slot_invalid',item);
+        if (/^(?:\[?\s*(?:Reference|Image|Ref\.)\s*#?\s*\d+\b|\[\d+\])/i.test(value)) {
+          throw invalid('changed_markers',item);
+        }
+      }
+      const english = item.role !== 'dialogue' || spokenLanguage === 'English';
+      if (english && hasNonLatinLetters(value)) throw invalid('unexpected_script',item);
+      if (item.role !== 'dialogue' && markers(value) !== markers(item.source)) throw invalid('changed_markers',item);
       values.set(item.id, isThaiDialogue(item.source, item.role, spokenLanguage) ? item.source : value);
     }
     return parts.map(part => typeof part === 'number' ? values.get(part) : part).join('');

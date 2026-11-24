@@ -43,6 +43,7 @@ export const intentSchema = z.object({
   fingerprint: z.string(),
   jobId: z.string().nullable(),
   groupId: z.string().nullable(),
+  sourceVersion: z.string().optional(),
   status: z.enum(["unknown", "accepted", "reconciliation_required"]),
 });
 export type ImageIntent = z.infer<typeof intentSchema>;
