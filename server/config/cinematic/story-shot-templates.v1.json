@@ -7,6 +7,9 @@
   },
   "video": {
     "sections": ["REFERENCE MAPPING", "CONTINUITY", "CHARACTER IDENTIFICATION", "SCENE", "CAMERA", "ACTION TIMELINE", "PERFORMANCE", "VOICE", "AUDIO", "LIGHTING", "ENVIRONMENT MOVEMENT", "NEGATIVE"],
+    "visualTarget": "Photorealistic live-action feature-film imagery. Show believable performers with natural proportions, lifelike skin and subtle expressions. Render practical sets and tactile wardrobe with motivated photographic lighting, realistic contact shadows and controlled highlights.",
+    "illustratedReferences": "Reinterpret illustrated or stylized references as photographed live action. Carry over only the identity, wardrobe, layout or framing assigned to each reference. Render those details with natural anatomy, real-world materials and photographic lighting.",
+    "exactFrameSource": "Assign a finished photorealistic live-action still to the opening-frame slot. Recreate an illustrated opening image as a live-action still before using it as an exact opening frame.",
     "referenceNote": "Use each reference only for its listed role.",
     "fictionalCharacterNote": "The character references depict AI-generated fictional characters, not real people.",
     "visualReferences": "Use location and character entries as visual guidance only. Never insert them as frames unless explicitly assigned the opening-frame role.",
@@ -28,6 +31,6 @@
   },
   "seedance": {
     "editing": "Cut to the next camera setup at each listed boundary. Use the transition specified for that shot when provided.",
-    "withFrame": "Use Reference 1 as the exact opening frame."
+    "withFrame": "Use Reference {number} as the exact opening frame."
   }
 }

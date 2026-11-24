@@ -4,7 +4,7 @@ import {storyDirectionClockPattern} from './StoryPromptFormatting.js';
 const templateLines = new Set(Object.values(templates).flatMap(group =>
   Object.values(group).filter(value => typeof value === 'string')));
 const headings = new Set([...templates.video.sections, ...templates.still.sections,
-  'REFERENCE NOTE','PRESERVE EXACTLY','WRITING DIRECTION','DIALOGUE','PERFORMANCE','CHARACTERS','ACTION','OPENING']);
+  'REFERENCE NOTE','VISUAL TARGET','PRESERVE EXACTLY','WRITING DIRECTION','DIALOGUE','PERFORMANCE','CHARACTERS','ACTION','OPENING']);
 const referenceRoleSuffixes = Object.values(templates.referenceRoles).map(role => `: ${role}.`);
 const directionMarkers = new RegExp(`\\bReference \\d+\\b|${storyDirectionClockPattern.source}`, 'gi');
 const markers = line => (line.match(directionMarkers) || []).join('|').toLowerCase();
@@ -106,7 +106,8 @@ export function planStoryPromptLanguage(text, cues, findings = [], composeSequen
       parts.push(line);
       continue;
     }
-    if (templateLines.has(line) || /^\d+ shots\. Shot boundaries: [\d.,s ]+\.$/.test(line)) { parts.push(line); continue; }
+    if (templateLines.has(line) || /^(?:Use Reference \d+ as the exact opening frame|Assign Reference \d+ to the opening-frame slot)\.$/.test(line)
+      || /^\d+ shots\. Shot boundaries: [\d.,s ]+\.$/.test(line)) { parts.push(line); continue; }
     const prefix = line.match(/^(?:\[[\d:s.\s–-]+\]\s*|(?:\d+(?:\.\d+)?(?:[–-]\d+(?:\.\d+)?)?s — )|Reference \d+ — |(?:- )?Character \d+: |Duration: [\d.]+ seconds\.\s*|Starting state: )/)?.[0] || '';
     if (sequence && line.startsWith('Opening-frame basis: ')) {
       linePrefix = 'Opening-frame basis: ';

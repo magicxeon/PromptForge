@@ -16,6 +16,7 @@ export function OpeningFramePicker({choose, close, pending, error}: {
   const images = history.data?.pages.flatMap(page => page.items).filter(image => image.imageUrl);
   return <Dialog label={t("framePicker")} onClose={() => {if (!pending) close();}}>
     <div className="story-dialog"><h2>{t("framePicker")}</h2>
+      <p>{t("liveActionFrameHint")}</p>
       {(history.isFetching || pending) && <ProcessingSpinner/>}
       {history.error && <p role="alert">{history.error.message} <button onClick={() => void history.refetch()}>{t("retry")}</button></p>}
       {error && <p role="alert">{error}</p>}

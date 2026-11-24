@@ -22,6 +22,26 @@ test('embedded shot clocks widen the action row and cannot be reintroduced by tr
 });
 
 const image = assetId => ({assetId, imageUrl:`/owned/${assetId}`});
+test('visual target survives writing and references follow scene, character name and opening order', () => {
+  const {project,scene,shots} = fixture();
+  project.castAssignments.push({id:'a',displayName:'Alpha',storyReference:image('alpha')});
+  shots[2].speakerBindings.push({alias:'Alpha',castAssignmentId:'a',visible:true});
+  for (const packet of [
+    compileMergedStoryPrompt(project,scene,['s1','s3'],'seedance'),
+    compileStoryPromptPacket(project,scene,shots[2],compileCinematicShotDocument(shots[2],scene,project.castAssignments),'seedance')
+  ]) {
+    assert.deepEqual(packet.references.map(ref=>ref.role),['location','character','character','opening']);
+    assert.deepEqual(packet.references.slice(1,3).map(ref=>ref.name),['Alpha','Kai']);
+    assert.match(packet.text,/Use Reference 4 as the exact opening frame/);
+    assert.ok(packet.text.indexOf('[VISUAL TARGET]') < packet.text.indexOf('[REFERENCE MAPPING]'));
+    const language = planStoryPromptLanguage(packet.text,packet.cues || [],packet.findings);
+    assert.ok(!language.slots.some(slot=>/Photorealistic live-action|exact opening frame/.test(slot.source)));
+    const refinement = planStoryPromptRefinement(packet.text);
+    assert.ok(refinement.lines.filter(line=>/Photorealistic live-action|exact opening frame/.test(line.text))
+      .every(line=>!line.editable));
+  }
+});
+
 test('single and merged video prompts retain the fictional reference note through writing and refinement', () => {
   const {project,scene,shots} = fixture();
   const shot = shots[0];
@@ -162,7 +182,7 @@ test('one ordered 3/4/3 timeline retains cue ranges, timed pauses, cuts, speakin
     assert.deepEqual(planStoryPromptLanguage(result.text,result.cues,result.findings).slots
       .filter(s => s.role === 'dialogue').map(s => s.source), ['รอก่อน','ลาก่อน']);
     assert.deepEqual(result.references.map(r => [r.number,r.role,r.assetId]),[
-      [1,'opening','station'],[2,'location','station'],[3,'character','kai']
+      [1,'location','station'],[2,'character','kai'],[3,'opening','station']
     ]);
   }
   assert.deepEqual(project,before);
@@ -187,8 +207,9 @@ test('omitting the middle Shot compresses time, and later frames cannot satisfy 
   assert.match(seedance.text,/Never insert them as frames unless explicitly assigned the opening-frame role/);
   assert.match(seedance.text,/\[CONTINUITY\]\n[^\n]+\n3–6s — Keep the flashlight in the right hand/);
   assert.doesNotMatch(seedance.text,/exact opening frame|\[PRESERVE EXACTLY\]/i);
-  assert.equal(compileMergedStoryPrompt(project,scene,['s3','s2'],'flow').references[0].assetId,'frame1');
-  assert.match(compileMergedStoryPrompt(project,scene,['s3','s2'],'seedance').text,/Use Reference 1 as the exact opening frame/);
+  const framed = compileMergedStoryPrompt(project,scene,['s3','s2'],'seedance');
+  assert.equal(framed.references.at(-1).assetId,'frame1');
+  assert.match(framed.text,/Use Reference 3 as the exact opening frame/);
 });
 
 test('merged prompts round displayed seconds and retain precise source timing', () => {

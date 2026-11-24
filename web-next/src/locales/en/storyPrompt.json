@@ -1,4 +1,5 @@
 {
+  "liveActionFrameHint": "Choose a photorealistic live-action still. If the source is illustrated, create a live-action version before selecting it here.",
   "refinement":{"writing":"Writing the prompt…","refining":"Reviewing and refining the prompt…","recovery":"Review incomplete. Your first draft is ready.","useDraft":"Use first draft","retry":"Retry review","invalidFallback":"The proposed edits could not be applied. Your first draft is ready to edit, copy, or save."},
   "reviewReference":"Check Reference {{value}} against the attachment list.",
   "reviewClock":"Check the cue time {{value}} against the clip duration.",

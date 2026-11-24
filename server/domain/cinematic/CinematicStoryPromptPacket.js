@@ -8,6 +8,21 @@ import {formatStoryPromptWholeSeconds, rebaseDirectionClocks} from './StoryPromp
 const joined = (...parts) => parts.filter(part => typeof part === 'string' && part.trim()).join('\n');
 const block = (title, text) => text ? `[${title}]\n${text}` : '';
 const seconds = milliseconds => Number((milliseconds / 1000).toFixed(3));
+const referenceRoleOrder = ['location','character','opening'];
+const referenceNames = new Intl.Collator('th', {sensitivity:'base', numeric:true});
+
+export function orderStoryPromptReferences(references) {
+  const seen = new Set();
+  return [...references].sort((first, second) =>
+    referenceRoleOrder.indexOf(first.role) - referenceRoleOrder.indexOf(second.role)
+    || referenceNames.compare(first.name,second.name) || referenceNames.compare(first.assetId,second.assetId))
+    .filter(ref => {
+      const key = `${ref.role}:${ref.assetId}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).map((ref,index)=>({...ref,number:index+1}));
+}
 
 export function storyPromptKind(value) {
   return ['still', 'flow', 'seedance'].includes(value);
@@ -30,13 +45,13 @@ export function storyPromptReferences(scene, shot, people, includeOpening) {
   const references = [];
   function add(role, name, media) {
     if (media?.assetId && media.imageUrl) references.push({
-      number: references.length + 1, role, name, assetId: media.assetId, imageUrl: media.imageUrl
+      role, name, assetId: media.assetId, imageUrl: media.imageUrl
     });
   }
   if (includeOpening) add('opening', shot.title, shot.approvedStoryboardSource);
   if (scene.environmentReferenceEnabled !== false) add('location', scene.location || scene.title, scene.approvedEnvironmentSource);
   for (const {person, visible} of people) if (visible) add('character', person.displayName, person.storyReference);
-  return references;
+  return orderStoryPromptReferences(references);
 }
 
 function storyReferenceText(references) {
@@ -49,9 +64,17 @@ export function storyVideoReferenceMapping(references) {
     references.some(ref => ref.role === 'location' || ref.role === 'character') && templates.video.visualReferences);
 }
 
-export function storyVideoFrameDirection(kind, hasOpeningFrame) {
-  const opening = kind === 'flow' ? templates.flow.opening : templates.seedance.withFrame;
-  return joined(hasOpeningFrame ? opening : templates.video.withoutOpening, templates.video.closing);
+export function storyVisualTarget(references) {
+  return block('VISUAL TARGET', joined(templates.video.visualTarget,
+    references.some(ref=>ref.role !== 'opening') && templates.video.illustratedReferences));
+}
+
+export function storyVideoFrameDirection(kind, openingFrame) {
+  const opening = openingFrame && (kind === 'flow'
+    ? joined(templates.flow.opening, `Assign Reference ${openingFrame.number} to the opening-frame slot.`)
+    : templates.seedance.withFrame.replace('{number}',openingFrame.number));
+  return joined(opening || templates.video.withoutOpening,
+    openingFrame && templates.video.exactFrameSource, templates.video.closing);
 }
 
 export function withStoryVideoReferenceNote(prompt) {
@@ -86,9 +109,9 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
       CAMERA: camera || 'Keep the focal subject clear and leave space for the intended movement.',
       LIGHT: light, 'MATERIAL AND CONTACT': templates.still.material, PRESERVE: storyReferenceText(references), AVOID: templates.still.avoid
     };
-    prompt = [templates.still.opening, aspect, ...templates.still.sections.map(title => block(title, fields[title]))];
+    prompt = [storyVisualTarget(references), templates.still.opening, aspect, ...templates.still.sections.map(title => block(title, fields[title]))];
   } else {
-    const frame = references.some(ref => ref.role === 'opening');
+    const frame = references.find(ref => ref.role === 'opening');
     const beats = timeline.length ? timeline : (shot.videoActionTimeline || []);
     const events = beats.map(event => ({time:event.startMs, text:kind === 'flow' ? event.description
       : `${seconds(event.startMs)}–${seconds(event.endMs)}s — ${rebaseDirectionClocks(event.description)}`}));
@@ -114,7 +137,7 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
       'ENVIRONMENT MOVEMENT': templates.video.environmentMovement, NEGATIVE: templates.video.negative
     };
     const header = joined(storyVideoFrameDirection(kind, frame), kind === 'flow' && templates.flow.camera);
-    prompt = [header, `Duration: ${duration} seconds. ${aspect || ''}`.trim(),
+    prompt = [storyVisualTarget(references), header, `Duration: ${duration} seconds. ${aspect || ''}`.trim(),
       start && `Starting state: ${start}`, ...templates.video.sections.map(title => block(title, fields[title])),
       projectVideoDirection(project), kind === 'seedance' && aspect];
   }
