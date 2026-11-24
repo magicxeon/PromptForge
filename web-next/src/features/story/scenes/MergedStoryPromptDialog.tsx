@@ -199,6 +199,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
       {outdated.length > 0 && <p role="status">{t("merge.changed", {shots: outdated.map(shot => shot.title).join(", ")})}</p>}
       {changedElsewhere && <p role="alert">{t("merge.saveConflict")}</p>}
       {missing && <p role="alert">{t("merge.missing")}</p>}
+      {promptReview.usedFirstDraft && <p role="status">{t("refinement.invalidFallback")}</p>}
       {packet?.reviewNotes?.map((note,i)=><p role="status" key={i}>{note}</p>)}
       {clockIssues.length > 0 && <details className="story-merge-clock-review">
         <summary>{t("merge.clockReview", {count:clockIssues.length})}</summary>

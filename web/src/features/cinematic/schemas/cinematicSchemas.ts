@@ -111,6 +111,17 @@ export const cinematicFullStoryRevisionSchema = z.object({
   createdAt: z.string().datetime()
 });
 
+const characterEvidenceSchema = z.object({sourceIndex:z.number().int().nonnegative(), title:z.string(), quote:z.string()});
+const storyCharacterDetailsSchema = z.object({
+  aliases:z.array(z.string()).max(12),
+  appearance:z.string().max(2000),
+  wardrobe:z.string().max(2000),
+  development:z.string().max(2000),
+  mentionedOnly:z.boolean(),
+  evidence:z.array(characterEvidenceSchema).max(6)
+});
+export type StoryCharacterDetails = z.infer<typeof storyCharacterDetailsSchema>;
+
 export const cinematicFullStoryProposalSchema = z.object({
   proposalId: z.string().min(1),
   fullStory: z.string().min(1).max(50000),
@@ -125,9 +136,13 @@ export const cinematicFullStoryProposalSchema = z.object({
     personalityTraits: z.array(z.string().max(120)).max(6),
     emotionalBaseline: z.string().max(500),
     dialogueStyle: z.string().max(500),
-    performanceDirection: z.string().max(1000)
+    performanceDirection: z.string().max(1000),
+    ...storyCharacterDetailsSchema.partial().shape,
+    suggestedAppearance:z.string().max(1000).optional()
   })).max(24).default([]),
   warnings: z.array(z.string()).max(8),
+  sourceKey:z.string().optional(),
+  sourceTitles:z.array(z.string()).optional(),
   provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
   billingStatus: z.enum(['qualification_no_charge', 'free', 'paid', 'settlement_pending']),
   writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional()
@@ -355,6 +370,7 @@ export const cinematicCastAssignmentSchema = z.object({
   characterProfileVersionId: z.string().min(1).nullable(),
   portraitUrl: z.string().nullable().optional(),
   storyReference: z.object({ assetId: z.string().min(1), imageUrl: z.string().startsWith('/outputs/references/') }).optional(),
+  storyCharacterDetails:storyCharacterDetailsSchema.optional(),
   displayName: z.string().min(1),
   storyRole: z.string(),
   storyRoleSlotId: z.string().nullable().optional(),

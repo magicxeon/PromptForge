@@ -178,6 +178,8 @@ export class CinematicApplicationService {
     const maxOutputTokens = repairBudget?.maxOutputTokens ?? (operation === 'chapter_outline'
       ? cinematicWorkflowPolicy.authoring.chapterOutlineMaximumOutputTokens
       : operation === 'environment' ? Math.min(policy.maxOutputTokens, 2500) : policy.maxOutputTokens);
+    const characterSources = operation === 'characters' && input.scope === 'whole_story'
+      ? await this.storyCharacterSources(root, workspace, actor) : undefined;
     const continuity = ['chapters', 'scenes', 'shots'].includes(operation)
       ? workspace.chapters.map(item => ({
         projectId: item.projectId, version: item.version, activeChapterVersionId: item.activeChapterVersionId,
@@ -195,7 +197,7 @@ export class CinematicApplicationService {
           objective: item.objective, traits: item.personalityTraits, voice: item.voice })),
       scenes: scene ? [{...scene, mergedPrompts:undefined}] : (project.scenes || []).map(item => ({ id: item.id, title: item.title,
         setting: item.setting, synopsis: item.synopsis, objective: item.objective })),
-      assignment, continuity, repairBudget, provider: policy.provider, model, maxOutputTokens,
+      assignment, continuity, characterSources, repairBudget, provider: policy.provider, model, maxOutputTokens,
       ...(writingPreferences ? { writingPreferences } : {})
     } };
   }
@@ -274,6 +276,14 @@ export class CinematicApplicationService {
     return { ...result, project: await this.getProject(result.project.id, actor) };
   }
   async upsertSharedCharacterDossier(projectId, input, actor) {
+    if (input?.characterSourceKey) {
+      const workspace = await this.seriesService.getWorkspace(projectId, actor);
+      const root = await this.repository.findForActor(workspace.productionProject.storyProjectId, actor);
+      const sources = await this.storyCharacterSources(root, workspace, actor);
+      if (characterSourcesKey(sources) !== input.characterSourceKey) {
+        throw new CinematicError('cinematic_character_sources_changed', 'The saved story changed. Check the cast again.', 409);
+      }
+    }
     const sourceType = input?.sourceType === 'character' ? 'character' : 'dossier';
     let storyReference;
     if (input?.storyReferenceAssetId !== undefined) {
@@ -444,6 +454,24 @@ export class CinematicApplicationService {
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
     assertExpectedVersion(project, input?.expectedVersion);
+    if (input?.purpose === 'characters' && input.scope === 'whole_story') {
+      assertEditable(project);
+      const workspace = await this.seriesService.getWorkspace(projectId, actorContext);
+      const root = await this.repository.findForActor(workspace.productionProject.storyProjectId, actorContext);
+      const sources = await this.storyCharacterSources(root, workspace, actorContext);
+      const sourceKey = characterSourcesKey(sources);
+      await beforeDispatch?.();
+      const result = await this.fullStoryService.proposeCharacters({
+        sources, existingCharacters: root.castAssignments.filter(item => item.active !== false),
+        selectedCharacterIds: input.selectedCharacterIds
+      });
+      const latestWorkspace = await this.seriesService.getWorkspace(projectId, actorContext);
+      const latestRoot = await this.repository.findForActor(root.id, actorContext);
+      if (sourceKey !== characterSourcesKey(await this.storyCharacterSources(latestRoot, latestWorkspace, actorContext))) {
+        throw new CinematicError('cinematic_character_sources_changed', 'The saved story changed. Check the cast again.', 409);
+      }
+      return { ...result, sourceKey, sourceTitles: sources.map(source => source.title) };
+    }
     const active = project.fullStoryVersions.find(item => item.id === project.activeFullStoryVersionId) || null;
     if (input?.purpose === 'story_direction') {
       assertEditable(project);
@@ -472,6 +500,25 @@ export class CinematicApplicationService {
         personalityTraits: item.personalityTraits
       }))
     });
+  }
+
+  async storyCharacterSources(root, workspace, actor) {
+    if (!root) throw new CinematicError('cinematic_project_not_found', 'Full Story Project not found.', 404);
+    const full = root.fullStoryVersions.find(item => item.id === root.activeFullStoryVersionId);
+    const chapters = await Promise.all(workspace.chapters.map(chapter =>
+      chapter.projectId === root.id ? root : this.repository.findForActor(chapter.projectId, actor)));
+    const sources = full?.content?.trim()
+      ? [{ id: full.id, title: root.title, kind: 'full_story', text: full.content.trim() }] : [];
+    for (const [index, chapter] of chapters.entries()) {
+      if (!chapter) throw new CinematicError('cinematic_character_source_unavailable',
+        `Could not read ${workspace.chapters[index].title}. Try again.`, 409);
+      const revision = chapter.chapterVersions?.find(item => item.id === chapter.activeChapterVersionId);
+      const text = String(revision?.story || chapter.chapterStory || '').trim();
+      if (text && !sources.some(source => source.text === text)) sources.push({
+        id: revision?.id || chapter.id, title: chapter.chapterTitle || chapter.title, kind: 'chapter', text
+      });
+    }
+    return sources;
   }
 
   saveFullStoryRevision(projectId, input, actorContext) {
@@ -3212,6 +3259,10 @@ function shotPlanningEnvironmentKey(scene) {
   return crypto.createHash('sha256').update(JSON.stringify([
     scene.environmentPrompt || '', source?.assetId || null, source?.contentHash || null
   ])).digest('hex');
+}
+
+function characterSourcesKey(sources) {
+  return crypto.createHash('sha256').update(JSON.stringify(sources)).digest('hex');
 }
 
 function writingRequest(payload) {

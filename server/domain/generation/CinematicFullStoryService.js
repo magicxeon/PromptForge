@@ -109,22 +109,35 @@ export class CinematicFullStoryService {
 
   async proposeCharacters(input = {}) {
     const policy = this.#policy();
-    const fullStory = String(input.currentFullStory || '').trim();
+    const sources = input.sources;
+    const fullStory = String(sources?.[0]?.text || input.currentFullStory || '').trim();
     if (!fullStory || fullStory.length > cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters) {
       fail('cinematic_full_story_required', 'Save the Full Story before extracting Characters.');
     }
     const existingCharacters = normalizeExistingCharacters(input.existingCharacters);
     const result = await this.providerFactory(policy).extractCinematicStoryCharacters({
-      context: { fullStory, existingCharacters },
+      context: sources ? { sources: sources.map(({kind,title,text},index) => ({index,kind,title,text})),
+        existingCharacters, selectedCharacterIds: input.selectedCharacterIds || [] } : { fullStory, existingCharacters },
       model: policy.model, reasoningEffort: policy.reasoningEffort,
       maxOutputTokens: policy.maxOutputTokens,
       timeoutMs: policy.longFormTimeoutMs || policy.timeoutMs
     });
     if (!Array.isArray(result?.characters)) fail('cinematic_full_story_invalid_response', 'Character extraction returned invalid data.', 502);
+    const characters = normalizeGeneratedCharacters(result.characters, existingCharacters);
+    if (sources) {
+      for (const character of characters) {
+        character.evidence = character.evidence.flatMap(({sourceIndex, quote}) => {
+          const source = sources[sourceIndex];
+          return source?.text.includes(quote) ? [{sourceIndex, title:source.title, quote}] : [];
+        });
+      }
+    }
     return {
       proposalId: `cinefull_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`,
       fullStory,
-      characters: normalizeGeneratedCharacters(result.characters, existingCharacters),
+      characters: input.selectedCharacterIds?.length
+        ? characters.filter(character => input.selectedCharacterIds.includes(character.existingCharacterId))
+        : characters,
       warnings: boundedList(result.warnings, 8, 500),
       provenance: { provider: policy.provider, model: policy.model, responseId: result.responseId || null,
         usage: normalizeWritingUsage(result?.usage) },
@@ -410,7 +423,8 @@ function normalizeExistingCharacters(value) {
     displayName: boundedText(item?.displayName, 120),
     storyRole: boundedText(item?.storyRole, 240),
     objective: boundedText(item?.objective, 1000),
-    personalityTraits: boundedList(item?.personalityTraits, 6, 120)
+    personalityTraits: boundedList(item?.personalityTraits, 6, 120),
+    aliases: boundedList(item?.storyCharacterDetails?.aliases, 12, 120)
   })).filter(item => item.id && item.displayName);
 }
 
@@ -427,7 +441,19 @@ function normalizeGeneratedCharacters(value, existing = []) {
     personalityTraits: boundedList(item?.personalityTraits, 6, 120),
     emotionalBaseline: boundedText(item?.emotionalBaseline, 500),
     dialogueStyle: boundedText(item?.dialogueStyle, 500),
-    performanceDirection: boundedText(item?.performanceDirection, 1000)
+    performanceDirection: boundedText(item?.performanceDirection, 1000),
+    aliases: boundedList(item?.aliases, 12, 120),
+    appearance: boundedText(item?.appearance, 2000),
+    suggestedAppearance: boundedText(item?.suggestedAppearance, 1000),
+    suggestedAppearance: boundedText(item?.suggestedAppearance, 1000),
+    wardrobe: boundedText(item?.wardrobe, 2000),
+    development: boundedText(item?.development, 2000),
+    mentionedOnly: item?.mentionedOnly === true,
+    evidence: (Array.isArray(item?.evidence) ? item.evidence : []).slice(0, 6).flatMap(entry => {
+      const quote = boundedText(entry?.quote, 360);
+      return Number.isInteger(entry?.sourceIndex) && entry.sourceIndex >= 0 && quote
+        ? [{sourceIndex:entry.sourceIndex, quote}] : [];
+    })
   })).filter(item => item.displayName);
 }
 

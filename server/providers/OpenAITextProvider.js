@@ -362,7 +362,7 @@ export class OpenAITextProvider {
         'For multiple shots, read them together. Check cut order, continuous global time, eyelines, prop contact, sound bridges and matching end/start states. Keep unseen characters and later reveals offscreen.',
         ...(context?.sequenceFormat === 'director-brief' ? ['Check the first visible frame, both sides of each cut, and the final hold. Check that the camera shows each selected action at its assigned beat and that lighting and reactions support it. The selectedTiming schedule is already the output clock.'] : []),
         'Keep intentional pauses, spoken words, shot boundaries, references, actors and art direction. Prefer concise, observable English. Do not invent events, cuts or light sources. Report conflicts requiring an author decision in reviewNotes in the requested review language.',
-        'Return only necessary replacements for editable line IDs. Each replacement is the complete single line with its original timing prefix, inline time markers and reference numbers. Return an empty edits array when the draft already works.'
+        'Return only necessary replacements for lines marked editable. Use each line ID at most once. Copy the timing prefix, every inline time, and each reference number exactly in the same order. Write one line of English prose without quotation marks, new headings or speaker cues. If an edit would change a locked line or marker, leave the line and explain the issue in reviewNotes. Return an empty edits array when the draft already works.'
       ].join(' '),
       input:{lines, approvedSource:source, context}, schemaName:'cinematic_prompt_refinement',
       schema:{type:'object',additionalProperties:false,required:['edits','reviewNotes'],properties:{
@@ -420,6 +420,16 @@ export class OpenAITextProvider {
   }
 
   async extractCinematicStoryCharacters({ context, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const characters = CINEMATIC_FULL_STORY_SCHEMA.properties.characters;
+    const details = {
+      aliases: {type:'array', items:{type:'string'}},
+      appearance: {type:'string'}, wardrobe: {type:'string'}, development: {type:'string'},
+      suggestedAppearance:{type:'string'},
+      suggestedAppearance:{type:'string'},
+      mentionedOnly: {type:'boolean'},
+      evidence: {type:'array', items:{type:'object', additionalProperties:false,
+        required:['sourceIndex','quote'], properties:{sourceIndex:{type:'integer'}, quote:{type:'string'}}}}
+    };
     const payload = await this.requestStructured({
       model, input: context, reasoningEffort, maxOutputTokens, timeoutMs,
       instructions: loadPromptRecipe('cinematic/full-story-characters.v1.json').instruction,
@@ -427,7 +437,9 @@ export class OpenAITextProvider {
       schema: {
         type: 'object', additionalProperties: false, required: ['characters', 'warnings'],
         properties: {
-          characters: CINEMATIC_FULL_STORY_SCHEMA.properties.characters,
+          characters: context.sources ? {...characters, items:{...characters.items,
+            required:[...characters.items.required,...Object.keys(details)],
+            properties:{...characters.items.properties,...details}}} : characters,
           warnings: CINEMATIC_FULL_STORY_SCHEMA.properties.warnings
         }
       },

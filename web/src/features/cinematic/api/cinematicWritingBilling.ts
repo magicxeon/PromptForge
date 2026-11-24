@@ -128,6 +128,12 @@ export async function withCinematicWritingQuote<T>({ projectId, operation, input
         if (receipt.billingStatus === 'paid') await notifySettled(id, 'failed');
         assertActor();
         removeCinematicWritingReceipt(actorId, id);
+        if (operation === 'shots' && expectedFingerprint === fingerprint
+          && receipt.errorCode === 'cinematic_prompt_refinement_invalid') {
+          throw new ApiError({
+            status: 502, code: receipt.errorCode, message: 'The prompt review returned an invalid edit.'
+          });
+        }
         throw billingError('failed');
       }
       if (receipt.status === 'quoted') {

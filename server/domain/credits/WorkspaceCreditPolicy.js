@@ -14,7 +14,7 @@ export function withWebNextCreditPolicy(actor, creditsEnabled) {
 export function webNextCreditsDisabled(actor) { return creditFreeActors.has(actor); }
 
 // Only normalized server workflow inputs belong here. Unknown workflows retain metered admission.
-export function workspaceCreditDecision(actor, workflow, { context, templateExecution, internalGroupContext, capability, commercialOperation } = {}) {
+export function workspaceCreditDecision(actor, workflow, { context, templateExecution, internalGroupContext, capability, commercialOperation, writingScope } = {}) {
   let eligible = false;
   switch (workflow) {
     case 'image':
@@ -30,7 +30,8 @@ export function workspaceCreditDecision(actor, workflow, { context, templateExec
       eligible = true;
       break;
     case 'cinematic_writing':
-      eligible = ['chapter_outline', 'chapters', 'scenes', 'shots'].includes(commercialOperation);
+      eligible = ['chapter_outline', 'chapters', 'scenes', 'shots'].includes(commercialOperation)
+        || (commercialOperation === 'characters' && writingScope === 'whole_story');
       break;
   }
   return { eligible, creditsDisabled: eligible && webNextCreditsDisabled(actor) };

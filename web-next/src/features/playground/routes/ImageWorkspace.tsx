@@ -22,6 +22,7 @@ import {
 import { referenceSchema, referenceUrl } from "../state/imageDraft";
 
 const SceneImageReturn=lazy(()=>import("../../story/scenes/SceneImageReturn").then(module=>({default:module.SceneImageReturn})));
+const CharacterImageReturn=lazy(()=>import("../../story/characters/CharacterImageReturn").then(module=>({default:module.CharacterImageReturn})));
 
 const oldUrl = (path: string) =>
   `${location.protocol}//${location.hostname}:6500${path}`;
@@ -38,9 +39,10 @@ export function ImageWorkspace() {
   const [activity, setActivity] = useState(false);
   const [handoff, setHandoff] = useState<{ prompt?: string; provider?: string; model?: string; ratio?: string; resolution?: string } | null>(location.state?.identityScope === identityScope ? location.state?.imageSettings || null : null);
   const storyScene=location.state?.identityScope===identityScope?location.state?.storyScene:null;
+  const storyCharacter=location.state?.identityScope===identityScope?location.state?.storyCharacter:null;
   useEffect(() => {
-    if (location.state?.imageSettings && !storyScene) navigate(location.pathname, { replace: true, state: null });
-  }, [location.state, location.pathname, navigate, storyScene]);
+    if (location.state?.imageSettings && !storyScene && !storyCharacter) navigate(location.pathname, { replace: true, state: null });
+  }, [location.state, location.pathname, navigate, storyScene, storyCharacter]);
   const label = (value: string | Record<string, string>) =>
     typeof value === "string"
       ? value
@@ -85,11 +87,11 @@ export function ImageWorkspace() {
         <p>{[handoff.provider, handoff.model, handoff.ratio, handoff.resolution].filter(Boolean).join(" · ")}</p>
         <button onClick={() => {
           const frameReferences=referenceSchema.array().max(6).safeParse(location.state?.frameReferences || []);
-          if(storyScene?.shot && !frameReferences.success)return;
-          setDraft(value => ({ ...value, ...handoff, ...(storyScene?{references:storyScene.shot&&frameReferences.success?frameReferences.data:[],negative:"",count:1}:{}) })); setHandoff(null);
-          if(storyScene)navigate(location.pathname,{replace:true,state:{identityScope,storyScene}});
+          if((storyScene?.shot || storyCharacter) && !frameReferences.success)return;
+          setDraft(value => ({ ...value, ...handoff, ...(storyScene || storyCharacter ? {references:(storyScene?.shot || storyCharacter)&&frameReferences.success?frameReferences.data:[],negative:"",count:1}:{}) })); setHandoff(null);
+          if(storyScene || storyCharacter)navigate(location.pathname,{replace:true,state:{identityScope,storyScene,storyCharacter}});
         }}>{t("replace")}</button>
-        <button onClick={() => {setHandoff(null);if(storyScene)navigate(location.pathname,{replace:true,state:null});}}>{t("cancel")}</button>
+        <button onClick={() => {setHandoff(null);if(storyScene || storyCharacter)navigate(location.pathname,{replace:true,state:null});}}>{t("cancel")}</button>
       </section>}
       <div className="mobile-tabs">
         <button
@@ -369,6 +371,7 @@ export function ImageWorkspace() {
         <section className="results-panel" aria-label={t("results")}>
           <ImageViewer item={selectedResult} />
           {storyScene&&!handoff&&<Suspense fallback={<ProcessingSpinner/>}><SceneImageReturn target={storyScene} item={selectedResult}/></Suspense>}
+          {storyCharacter&&!handoff&&<Suspense fallback={<ProcessingSpinner/>}><CharacterImageReturn target={storyCharacter} item={selectedResult}/></Suspense>}
           {selectedResult && <ImageResultActions key={selectedResult.id} item={selectedResult}
             onPrompt={prompt => { update("prompt", prompt); setTab("create"); }}
             onReference={(item, role) => { workspace.useReference(item, role); setTab("create"); }} />}

@@ -14,7 +14,9 @@ export class CinematicWritingOperationService {
   }
 
   async quote({ userId, actor, projectId, operation, request, source, model, maxOutputTokens }) {
-    const { creditsDisabled } = workspaceCreditDecision(actor, 'cinematic_writing', { commercialOperation: operation });
+    const { creditsDisabled } = workspaceCreditDecision(actor, 'cinematic_writing', {
+      commercialOperation: operation, writingScope: request.input?.scope
+    });
     const inputBytes = Buffer.byteLength(JSON.stringify({ request, source }), 'utf8');
     if (creditsDisabled && inputBytes > 512 * 1024) {
       throw error('cinematic_writing_input_too_large', 'The writing context exceeds 512 KiB. Shorten the manuscript or split it into chapters.', 413);
@@ -33,7 +35,9 @@ export class CinematicWritingOperationService {
 
   async execute({ userId, actor, projectId, operation, id, request, loadSource, run }) {
     const record = id ? await this.repository.get(id, userId) : null;
-    const { creditsDisabled } = workspaceCreditDecision(actor, 'cinematic_writing', { commercialOperation: operation });
+    const { creditsDisabled } = workspaceCreditDecision(actor, 'cinematic_writing', {
+      commercialOperation: operation, writingScope: request.input?.scope
+    });
     if (!record || record.kind !== 'cinematic_text' || record.projectId !== projectId || record.operation !== operation
       || isUnmetered(record) !== creditsDisabled || record.requestFingerprint !== writingFingerprint(request)) {
       throw error('cinematic_writing_quote_required', 'Confirm a current writing Credit quote before requesting AI.', 409);

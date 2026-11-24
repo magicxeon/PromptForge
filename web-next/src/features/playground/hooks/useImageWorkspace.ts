@@ -39,15 +39,17 @@ import {
   type ImageIntent,
 } from "../state/imageDraft";
 
-export function useImageWorkspace() {
+export function useImageWorkspace(session?: {scope:string; initialDraft:ImageDraft; replaceReferenceOutfit?:boolean}) {
   const creditsEnabled = useWorkspaceCredits();
   const { actor, identityScope, isLoading } = useActor();
   const actorId = actor!.userId;
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const intentFeature = session ? `fe24-image-intent:${session.scope}` : "fe24-image-intent";
+  const replaceReferenceOutfit = session?.replaceReferenceOutfit === true;
   const [draft, setDraft] = useState<ImageDraft>(
     () =>
-      draftSchema.safeParse(
+      session?.initialDraft || draftSchema.safeParse(
         readActorScopedDraft({
           actorId,
           feature: "fe24-image",
@@ -61,7 +63,7 @@ export function useImageWorkspace() {
       intentSchema.safeParse(
         readActorScopedDraft({
           actorId,
-          feature: "fe24-image-intent",
+          feature: intentFeature,
           schemaVersion: 1,
           fallback: null,
         }),
@@ -93,7 +95,7 @@ export function useImageWorkspace() {
     getIdentitySnapshot().ready &&
     getIdentitySnapshot().epoch === epoch;
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || session) return;
     try {
       writeActorScopedDraft({
         actorId,
@@ -104,7 +106,7 @@ export function useImageWorkspace() {
     } catch {
       setError(t("storageError"));
     }
-  }, [actorId, draft, isLoading, t]);
+  }, [actorId, draft, isLoading, session, t]);
   const catalog = useQuery({
     queryKey: ["fe24-catalog", identityScope],
     queryFn: () =>
@@ -136,8 +138,8 @@ export function useImageWorkspace() {
         (item) =>
           item.provider.id === catalog.data.defaultProvider &&
           item.model.id === item.provider.defaultModel &&
-          !imageModelUnavailableReason(item.model, 0, null, creditsEnabled),
-      ) || choices.find((item) => !imageModelUnavailableReason(item.model, 0, null, creditsEnabled));
+          !imageModelUnavailableReason(item.model, draft.references.length, null, creditsEnabled),
+      ) || choices.find((item) => !imageModelUnavailableReason(item.model, draft.references.length, null, creditsEnabled));
     if (first)
       setDraft((value) => ({
         ...value,
@@ -151,7 +153,7 @@ export function useImageWorkspace() {
           first.model.capabilities.resolutions?.[0] ||
           "",
       }));
-  }, [catalog.data, draft.provider, creditsEnabled]);
+  }, [catalog.data, draft.provider, draft.references.length, creditsEnabled]);
   const request = useMemo<GenerationRequestDraft>(
     () => ({
       provider: draft.provider,
@@ -165,13 +167,14 @@ export function useImageWorkspace() {
       outputCount: draft.count,
       generationMode: "playground",
       generationSurface: "playground",
+      ...(replaceReferenceOutfit ? {characterReferenceOutfitBehavior:"replaceable" as const} : {}),
       references: Object.fromEntries(
         draft.references
           .filter((ref) => ref.status === "ready")
           .map((ref) => [ref.role, referenceUrl(ref)]),
       ),
     }),
-    [draft, selected?.model],
+    [draft, selected?.model, replaceReferenceOutfit],
   );
   const requestKey = JSON.stringify(request);
   const [settledKey, setSettledKey] = useState(requestKey);
@@ -235,7 +238,7 @@ export function useImageWorkspace() {
     queryFn: ({ pageParam }) => listHistory(pageParam),
     getNextPageParam: (page) => (page.hasMore ? page.nextCursor : undefined),
     maxPages: 4,
-    enabled: !isLoading,
+    enabled: !isLoading && !session,
   });
   const jobs = useGenerationJobCenter();
   const job = useGenerationJob(intent?.groupId ? null : intent?.jobId || null);
@@ -265,7 +268,7 @@ export function useImageWorkspace() {
   function persistIntent(next: ImageIntent) {
     writeActorScopedDraft({
       actorId,
-      feature: "fe24-image-intent",
+      feature: intentFeature,
       schemaVersion: 1,
       payload: next,
     });
@@ -367,7 +370,7 @@ export function useImageWorkspace() {
       if (!current(epoch)) return;
       const httpStatus = Number((reason as { status?: number })?.status || 0);
       if (sent && [400, 402, 403, 422, 429].includes(httpStatus)) {
-        removeActorScopedDraft(actorId, "fe24-image-intent");
+        removeActorScopedDraft(actorId, intentFeature);
         setIntent(null);
       }
       setError(

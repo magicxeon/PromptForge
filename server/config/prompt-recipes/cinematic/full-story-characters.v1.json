@@ -6,6 +6,9 @@
     "Return every recurring or narratively important Character supported by the story. Do not invent new people, events or biographical facts. Leave unknown attributes empty.",
     "Match existingCharacterId to the supplied existing Character only when it is clearly the same person. Otherwise return null. Never swap identities or duplicate a person under different names.",
     "Use the source story's language for names and dossier text. Preserve the supplied names. Return an empty characters array if the story has no identifiable Characters.",
+    "When given indexed sources, read all of them. Current saved chapters override overlapping material in the full manuscript. Include exact short quotes with their source indexes. Note aliases, visible appearance, wardrobe by chapter (one selectable outfit and its chapter on each line), and personality development separately from one-scene emotions. Mark characters who are only mentioned. Leave unspecified visual facts empty. When selectedCharacterIds is nonempty, only revise those existing dossiers.",
+    "If the schema includes suggestedAppearance, it can contain a concise optional visual concept for details missing from the script. Keep this suggestion separate from sourced appearance, and never contradict established story details.",
+    "If the schema includes suggestedAppearance, it can contain a concise optional visual concept for details missing from the script. Keep this suggestion separate from sourced appearance, and never contradict established story details.",
     "Return only the requested structured Character dossiers and warnings. Do not rewrite, summarize or output the Full Story. Do not create Chapters, images or Look Sheets."
   ]
 }

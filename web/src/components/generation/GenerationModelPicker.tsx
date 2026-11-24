@@ -14,11 +14,12 @@ export type GenerationModelOption = {
 const optionKey = (option: { providerId: string; modelId: string }) =>
   JSON.stringify([option.providerId, option.modelId]);
 
-export function GenerationModelPicker({ options, providerId, modelId, onChange, labelAction }: {
+export function GenerationModelPicker({ options, providerId, modelId, onChange, labelAction, portalContainer }: {
   options: GenerationModelOption[];
   providerId: string;
   modelId: string;
   labelAction?: ReactNode;
+  portalContainer?: HTMLElement | null;
   onChange: (selection: { providerId: string; modelId: string }) => void;
 }) {
   const { t } = useTranslation('playground');
@@ -75,7 +76,7 @@ export function GenerationModelPicker({ options, providerId, modelId, onChange, 
         </span>
         <ChevronDown aria-hidden="true" />
       </DropdownMenu.Trigger>
-      <DropdownMenu.Portal>
+      <DropdownMenu.Portal container={portalContainer}>
         <DropdownMenu.Content ref={contentRef} className="generation-model-picker__menu"
           align="start" sideOffset={6} collisionPadding={12}
           onFocus={event => {

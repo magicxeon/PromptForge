@@ -1,7 +1,7 @@
 import {useRef, useState} from "react";
 import {Link,useNavigate,useParams,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
-import {ProcessingSpinner} from "../../lib/canonical";
+import {ProcessingSpinner,useActor} from "../../lib/canonical";
 import * as series from "../../../../web/src/features/cinematic/api/cinematicSeriesApi";
 import type {CinematicProject} from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {useStoryWorkspace} from "./data/useStoryWorkspace";
@@ -20,6 +20,7 @@ export default function StoryEditor() {
   return <ProjectWorkspace key={id} id={id}/>;
 }
 function ProjectWorkspace({id}:{id:string}) {
+  const {identityScope}=useActor();
   const {t,i18n}=useTranslation("story");
   const navigate=useNavigate();
   const [params,setParams]=useSearchParams();
@@ -125,7 +126,7 @@ function ProjectWorkspace({id}:{id:string}) {
       </aside>
       }
       {step!=="scenes"&&<section className="story-reader">
-        {step==="characters" ? owner && <StoryCharacters project={project} owner={owner} run={run} error={error}/>
+        {step==="characters" ? owner && <StoryCharacters key={JSON.stringify([identityScope,owner.id])} project={project} owner={owner} run={run} error={error} busy={busy}/>
         :scene?<ScenePanel key={scene.id} project={project} scene={scene} index={scenes.indexOf(scene)+1} run={run} error={error}
           stage={step==="shots"?"shots":"staging"} showStage={stage=>selectScene(scene.id,stage)} openScene={id=>selectScene(id,"shots")}
           aspectRatio={owner?.writingSettings?.direction?.aspectRatio??project.aspectRatio}

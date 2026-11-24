@@ -55,6 +55,18 @@ const service = new CinematicApplicationService({
       writingRequests.push("scenes");
       return {scenes:proposedScenes.map(title=>({title,synopsis:"The guests gather.",purpose:"dialogue",targetDurationSeconds:15}))};
     },
+    async proposeCharacters({sources,existingCharacters}) {
+      assert.ok(sources.some(source=>source.kind==="full_story" && source.text.includes("travelling letter")));
+      assert.ok(sources.some(source=>source.kind==="chapter"));
+      const lalin = existingCharacters.find(character=>character.displayName==="Lalin");
+      return {proposalId:"fixture-cast",fullStory:sources[0].text,warnings:[],billingStatus:"free",
+        provenance:{provider:"fixture",model:"fixture",responseId:null}, characters:[{
+          existingCharacterId:lalin.id,displayName:lalin.displayName,storyRole:lalin.storyRole,
+          storyImportance:lalin.storyImportance,objective:"",motivation:"",pressure:"",
+          personalityTraits:["Observant"],emotionalBaseline:"",dialogueStyle:"",performanceDirection:"",
+          appearance:"Dark hair",aliases:[],wardrobe:"",development:"",mentionedOnly:false,evidence:[]
+        }]};
+    },
     async proposeShots() {
       writingRequests.push("shots");
       return {shots:[{title:proposedShot,durationMs:4500,shotDocument:dialogue,
@@ -83,6 +95,7 @@ facade.quoteWriting = async (_project,{operation})=>({id:null,operation,credits:
 facade.executeWriting = async (id,{operation,sceneId,input},owner)=>{
   if (operation==="scenes") return service.proposeScenes(id,input,owner);
   if (operation==="shots") return service.proposeShots(id,sceneId,input,owner);
+  if (operation==="characters") return service.proposeFullStory(id,input,owner);
   throw new Error("Unexpected fixture writing operation "+operation);
 };
 const app = express();
@@ -112,6 +125,21 @@ app.get("/api/history",(_req,res)=>res.json({items:[{id:"still-fixture",prompt:"
   timestamp:Date.now(),provider:"fixture",submodel:"image",mode:"normal",width:1,height:1}],hasMore:false,nextCursor:null}));
 app.get("/api/generation/job-center",(_req,res)=>res.json({items:[],activeCount:0,terminalCount:0,polledAt:new Date().toISOString()}));
 app.post("/api/generation/prompt-preview",(_req,res)=>res.json({compiledPrompt:"Fixture preview"}));
+app.post("/api/references/processing-plan",(_req,res)=>res.json({
+  status:"accepted",policyVersion:"fixture",planFingerprint:"fixture",
+  publicAuthorityProjection:{schemaVersion:1,policyVersion:"fixture",planFingerprint:"fixture"},
+  effectiveSelections:{},providerPlan:{referenceCount:1,executionMode:"single_stage"}
+}));
+let looksheetRequests=0;
+app.post("/api/generate",(req,res)=>{
+  assert.match(req.body.sceneBuilder.manualPromptText,/character looksheet for Lalin/);
+  assert.match(req.body.characterReferenceImageA,/^\/outputs\/references\//);
+  looksheetRequests++;
+  res.json({jobId:"looksheet-fixture",status:"queued"});
+});
+app.get("/api/jobs/looksheet-fixture",(_req,res)=>res.json({
+  status:"completed",result:{imageUrl:"/outputs/character-looksheet.png"}
+}));
 registerCinematicRoutes(app,{cinematicService:facade});
 app.post("/api/references",async (req,res)=>{
   try {res.json(await references.storeReference(req.body,actor));}
@@ -437,6 +465,44 @@ try {
   await page.locator(".story-character-list li img").last().waitFor();
   const characterRecords = (await persisted()).castAssignments;
   assert.equal(new Set(characterRecords.map(record=>record.storyReference.assetId)).size,2);
+  await button("Check characters from story").click();
+  await page.getByRole("dialog",{name:"Review character"}).getByLabel("Personality").fill("Observant, patient");
+  await page.getByRole("button",{name:"Save and continue"}).click();
+  await page.getByRole("dialog",{name:"Review character"}).waitFor({state:"hidden"});
+  const revisedCast = (await persisted()).castAssignments;
+  assert.equal(revisedCast.length,2);
+  assert.deepEqual(revisedCast.find(record=>record.displayName==="Lalin").personalityTraits,["Observant","patient"]);
+  await button("Select multiple to review").click();
+  await page.getByRole("checkbox",{name:"Select Lalin for revision"}).check();
+  await button("Review selected characters (1)").waitFor();
+  await button("Exit multiple selection").click();
+  await button("Lalin").click();
+  await button("Edit Lalin").click();
+  const editCast=page.getByRole("dialog",{name:"Edit Lalin"});
+  await editCast.locator(".story-cast-edit-image img").waitFor();
+  await editCast.getByRole("button",{name:"View reference at full size"}).click();
+  await page.getByRole("dialog",{name:"View reference at full size"}).getByRole("button").click();
+  await page.keyboard.press("Escape");
+  const playgroundDraft=await page.evaluate(()=>localStorage.getItem("mpf.react.draft:development_bypass:fe24-image:story-fixture"));
+  await fs.writeFile(path.join(directory,"character-looksheet.png"),reference);
+  await button("Create looksheet").click();
+  const mini=page.getByRole("dialog",{name:"Looksheet for Lalin"});
+  await mini.waitFor();
+  assert.match(await mini.locator("textarea").inputValue(),/character looksheet for Lalin/);
+  await mini.locator(".generation-model-picker__trigger").click();
+  await mini.getByRole("menu").waitFor();
+  await page.keyboard.press("Escape");
+  for (const width of [820,390,1440]) {
+    await page.setViewportSize({width,height:900});
+    assert.ok(await mini.evaluate(node=>node.scrollWidth<=node.clientWidth+2));
+  }
+  await mini.getByRole("button",{name:"Generate image",exact:true}).click();
+  await mini.getByRole("button",{name:"Use as character reference"}).click();
+  await mini.waitFor({state:"hidden"});
+  assert.equal(looksheetRequests,1);
+  assert.notEqual((await persisted()).castAssignments.find(record=>record.displayName==="Lalin").storyReference.assetId,
+    revisedCast.find(record=>record.displayName==="Lalin").storyReference.assetId);
+  assert.equal(await page.evaluate(()=>localStorage.getItem("mpf.react.draft:development_bypass:fe24-image:story-fixture")),playgroundDraft);
   await stages.getByRole("button",{name:/Scenes/}).click();
   await secondScene.click();
   await button("Edit scene tone").click();
@@ -502,7 +568,7 @@ try {
   await missingImage.waitFor();
   await promptText.fill(customPrompt);
   await missingImage.waitFor({state:"hidden"});
-  await dialog.getByRole("button",{name:"Copy prompt"}).click();
+  await dialog.locator("footer").getByRole("button",{name:"Copy prompt"}).click();
   assert.equal((await page.evaluate(()=>navigator.clipboard.readText())).replaceAll("\r\n","\n"),customPrompt);
   await page.keyboard.press("Escape");
   assert.equal(await promptText.inputValue(),customPrompt);
@@ -669,12 +735,31 @@ try {
   }, {times:1});
   let draftCalls=0;
   const reviewAttempts=[];
+  const invalidReviewReceipt = {
+    id:"cw_invalid_review",operation:"shots",credits:0,billingStatus:"free",
+    expiresAt:new Date(Date.now()+60000).toISOString()
+  };
+  await page.route("**/writing/quotes",async route=>{
+    if (reviewAttempts.length===1 && route.request().postDataJSON().input?.refineDraft !== undefined)
+      return route.fulfill({json:invalidReviewReceipt});
+    return route.fallback();
+  });
+  await page.route("**/writing/operations/cw_invalid_review",route=>route.fulfill({json:{
+    ...invalidReviewReceipt,status:"failed",artifactExpiresAt:invalidReviewReceipt.expiresAt,
+    errorCode:"cinematic_prompt_refinement_invalid"
+  }}));
   await page.route("**/shot-proposals",async route=>{
     const body=route.request().postDataJSON();
     if (body.refineDraft === undefined) draftCalls++;
     else {
       reviewAttempts.push(body.refineDraft);
       if (reviewAttempts.length===1) return route.fulfill({status:503,json:{error:"Fixture review unavailable"}});
+      if (reviewAttempts.length===2) {
+        assert.equal(body.writingQuoteId,invalidReviewReceipt.id);
+        return route.fulfill({status:502,json:{error:{
+          code:"cinematic_prompt_refinement_invalid",message:"The prompt review returned an invalid edit."
+        }}});
+      }
     }
     return route.fallback();
   });
@@ -684,6 +769,7 @@ try {
   await recovery.getByRole("button",{name:"Retry review"}).click();
   const mergedText = merged.getByLabel("Prompt text");
   await mergedText.waitFor();
+  await merged.getByText("The proposed edits could not be applied. Your first draft is ready to edit, copy, or save.").waitFor();
   assert.equal(draftCalls,1);
   assert.equal(reviewAttempts.length,2);
   assert.equal(reviewAttempts[0],reviewAttempts[1]);

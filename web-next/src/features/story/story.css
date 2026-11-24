@@ -322,6 +322,83 @@ dialog:has(> .story-scene-review)::backdrop {background:#12271e65;}
 .story-prompt-dialog {display:grid;gap:.7rem;}
 .story-prompt-dialog p {margin:0;}
 .story-character-form footer {display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap;}
+.story-cast-workspace {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;align-items:start;}
+.story-cast-detail,.story-cast-field {padding:.75rem;border:1px solid #d4dfd7;border-radius:.6rem;overflow-wrap:anywhere;}
+.story-cast-detail dd {margin:0 0 .65rem;white-space:pre-wrap;}
+.story-cast-detail dt {font-weight:600;}
+.story-cast-images {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;}
+.story-cast-images figure {margin:0;}
+.story-cast-images img {width:100%;max-height:45dvh;object-fit:contain;}
+.story-cast-back {display:none;}
+.story-cast-detail select {max-width:100%;}
+.story-cast-toolbar {margin-block:.6rem;}
+.story-cast-workspace:has(.story-cast-detail) {grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);}
+.story-cast-workspace:not(:has(.story-cast-detail)) {grid-template-columns:minmax(0,1fr);}
+.story-cast-cards {grid-template-columns:repeat(auto-fill,minmax(min(100%,9.5rem),1fr));align-items:start;}
+.story-character-list.story-cast-cards > li {display:grid;padding:0;gap:.2rem;align-items:stretch;}
+.story-cast-cards > li > .story-actions:not(:empty) {padding:.25rem .5rem .5rem;}
+.story-cast-card {display:grid;gap:.45rem;justify-items:stretch;width:100%;padding:.45rem;border:1px solid transparent;border-radius:.6rem;}
+.story-cast-card[aria-pressed="true"] {background:#e9f3ed;border-color:#3e795e;}
+.story-cast-card strong {overflow-wrap:anywhere;text-align:left;padding-inline:.2rem;}
+.story-cast-card-image {aspect-ratio:4/3;background:#f1f4f2;border-radius:.4rem;display:grid;place-items:center;overflow:hidden;}
+.story-cast-card-image img {width:100%;height:100%;object-fit:contain;}
+.story-cast-heading h2 {font-size:1.35rem;}
+.story-cast-scan,.story-cast-roster,.story-cast-detail {border-radius:.85rem;}
+.story-cast-scan {margin-block:.85rem 1.15rem;padding:.85rem 1rem;background:#edf5f3;border:1px solid #c3d9d3;border-inline-start:.25rem solid #387565;color:#214e44;overflow-wrap:anywhere;}
+.story-cast-scan h3,.story-cast-roster-heading h3 {margin:0 0 .25rem;}
+.story-cast-scan p {margin:.3rem 0;}
+.story-cast-scan-status {border-radius:2rem;background:#d9ebe4;padding:.25rem .65rem;font-size:.85rem;}
+.story-cast-notes,.story-cast-evidence {padding:.6rem .75rem;border-radius:.55rem;}
+.story-cast-notes {margin-top:.5rem;background:#f7f0e1;color:#60471e;}
+.story-cast-notes summary,.story-cast-evidence summary {cursor:pointer;font-weight:600;}
+.story-cast-notes ul,.story-cast-evidence ul {padding-inline-start:1.15rem;margin:.5rem 0 0;}
+.story-cast-notes li+li,.story-cast-evidence li+li {margin-top:.35rem;}
+.story-cast-roster {padding:.8rem;background:#f0f3f2;border:1px solid #d6dfda;}
+.story-cast-roster-heading {margin-bottom:.65rem;}
+.story-cast-roster .story-cast-toolbar {margin:0;}
+.story-character-list.story-cast-cards > li {background:#fff;overflow:hidden;}
+.story-cast-card {border-radius:.55rem;}
+.story-cast-card[aria-pressed="true"] {background:#dceee5;border-color:#317554;}
+.story-cast-card-image {grid-template:minmax(0,1fr) / minmax(0,1fr);}
+.story-cast-card-image img {min-height:0;}
+.story-cast-detail {padding:0;background:#fff;}
+.story-cast-profile-heading {padding:.85rem 1rem;background:#1e5040;color:#fff;border-radius:.8rem .8rem 0 0;}
+.story-cast-profile-heading h3 {margin:0;font-size:1.15rem;}
+.story-cast-profile-body {display:grid;gap:.7rem;padding:.8rem;}
+.story-cast-profile-group {padding:.7rem .85rem;border:1px solid #dbe5df;border-radius:.55rem;background:#f4f7f5;}
+.story-cast-profile-visual {background:#f6f1e8;border-color:#e6dac5;}
+.story-cast-profile-group h4 {margin:0 0 .55rem;color:#244f42;}
+.story-cast-profile-visual h4 {color:#60471e;}
+.story-cast-profile-group dl {margin:0;}
+.story-cast-profile-group dd:last-child {margin-bottom:0;}
+.story-cast-profile-group dt {font-size:.88rem;}
+.story-cast-evidence {background:#edf3f8;color:#264a63;}
+.story-cast-profile-actions {display:grid;gap:.55rem;padding:.8rem;background:#f5f8f6;border-top:1px solid #dbe5df;border-radius:0 0 .8rem .8rem;}
+.story-cast-profile-actions label {display:grid;gap:.3rem;}
+.story-characters button.primary {background:#245b46;color:#fff;border-color:#245b46;}
+.story-characters button.primary:disabled {opacity:.6;}
+.story-cast-edit,.story-looksheet-dialog {width:min(86vw,70rem);}
+.story-dialog .story-cast-edit-grid,.story-looksheet-grid {display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:1.2rem;align-items:start;}
+.story-cast-fields,.story-cast-edit-image,.story-looksheet-previews {display:grid;gap:.7rem;}
+.story-cast-edit-image {position:sticky;top:0;padding:.8rem;background:#f1f4f2;border-radius:.65rem;}
+.story-cast-edit-image h3,.story-looksheet-previews figure {margin:0;}
+.story-full-preview {width:100%;display:grid;place-items:center;overflow:hidden;padding:.35rem;background:#f1f4f2;}
+.story-full-preview img {display:block;width:100%;max-height:52dvh;object-fit:contain;}
+.story-cast-edit footer {margin-top:1rem;}
+.story-looksheet-previews figcaption {font-weight:600;margin-bottom:.35rem;}
+.story-looksheet-previews figure > .primary {margin-top:.45rem;}
+.story-image-zoom {display:grid;justify-items:end;gap:.65rem;}
+.story-image-zoom img {width:100%;max-height:74dvh;object-fit:contain;}
+@media(max-width:760px){
+  .story-cast-workspace:has(.story-cast-detail),.story-dialog .story-cast-edit-grid,.story-looksheet-grid {grid-template-columns:minmax(0,1fr);}
+  .story-cast-edit-image {position:static;grid-row:1;}
+  .story-cast-edit-image .story-full-preview img {max-height:34dvh;}
+}
+@media(max-width:760px){
+  .story-cast-workspace{grid-template-columns:minmax(0,1fr);}
+  .story-cast-workspace[data-detail="true"] > .story-cast-roster {display:none;}
+  .story-cast-back {display:inline-block;margin:.6rem .8rem;}
+}
 dialog:has(> .story-writing-progress) {width:min(24rem,calc(100vw - 2rem));box-sizing:border-box;border:1px solid #c9d7cb;border-radius:.85rem;padding:1.6rem;}
 .story-writing-progress {display:grid;justify-items:center;gap:.7rem;text-align:center;color:#265d46;}
 .story-writing-progress p {margin:0;}

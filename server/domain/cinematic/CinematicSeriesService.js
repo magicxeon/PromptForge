@@ -421,6 +421,15 @@ export class CinematicSeriesService {
             || null
           : assignment?.portraitUrl || null,
         ...(input.storyReference ? { storyReference: input.storyReference } : {}),
+        ...(input.storyCharacterDetails && !characterSource ? {storyCharacterDetails: {
+          aliases: Array.isArray(input.storyCharacterDetails.aliases) ? input.storyCharacterDetails.aliases.slice(0,12).map(value=>String(value).trim().slice(0,120)).filter(Boolean) : [],
+          appearance: String(input.storyCharacterDetails.appearance || '').trim().slice(0,2000),
+          wardrobe: String(input.storyCharacterDetails.wardrobe || '').trim().slice(0,2000),
+          development: String(input.storyCharacterDetails.development || '').trim().slice(0,2000),
+          mentionedOnly: input.storyCharacterDetails.mentionedOnly === true,
+          evidence: Array.isArray(input.storyCharacterDetails.evidence) ? input.storyCharacterDetails.evidence.slice(0,6).filter(item=>Number.isInteger(item?.sourceIndex) && item.sourceIndex >= 0)
+            .map(item=>({sourceIndex:item.sourceIndex,title:String(item.title || '').slice(0,240),quote:String(item.quote || '').slice(0,360)})) : []
+        }} : {}),
         displayName: validTitle(input.displayName || authorizedCharacter?.displayNameSnapshot),
         storyRole: String(input.storyRole || '').trim().slice(0, 240) || 'Supporting',
         storyRoleSlotId: String(input.storyRoleSlotId || '').trim() || createPrefixedId('cinerole'),
@@ -481,7 +490,7 @@ export class CinematicSeriesService {
         });
       }
       ensureChapterAuthoring(target);
-      if (!target.chapterCharacterIds.includes(assignmentId)) target.chapterCharacterIds.push(assignmentId);
+      if (!input.storyOnly && !target.chapterCharacterIds.includes(assignmentId)) target.chapterCharacterIds.push(assignmentId);
       source.version += 1;
       source.updatedAt = now;
       if (target.id !== source.id) {

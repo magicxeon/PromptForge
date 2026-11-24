@@ -1,6 +1,7 @@
 import { apiRequest } from '../../../lib/api/apiClient';
 import {z} from 'zod';
 import { mergedStoryWritingResultSchema } from '../schemas/cinematicSchemas';
+import type {StoryCharacterDetails} from '../schemas/cinematicSchemas';
 import { withCinematicWritingQuote } from './cinematicWritingBilling';
 import { cinematicChapterProposalMutationSchema, cinematicManualSceneMutationSchema, cinematicManualShotMutationSchema, cinematicSceneProposalMutationSchema, cinematicSeriesMutationSchema, cinematicSeriesWorkspaceSchema, cinematicSharedCharacterMutationSchema, cinematicShotDocumentMutationSchema, cinematicShotProposalMutationSchema } from '../schemas/cinematicSeriesSchemas';
 import type { SeriesCommand } from '../schemas/cinematicSeriesSchemas';
@@ -250,6 +251,9 @@ export function upsertCinematicSharedCharacter(projectId: string, assignmentId: 
   pressure?: string;
   personalityTraits?: string[];
   storyReferenceAssetId?: string;
+  storyCharacterDetails?: StoryCharacterDetails;
+  storyOnly?: boolean;
+  characterSourceKey?: string;
 }) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/shared-characters/${encodeURIComponent(assignmentId || 'new')}`, {
     method: 'PUT', body: input, schema: cinematicSharedCharacterMutationSchema

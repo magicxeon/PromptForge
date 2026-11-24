@@ -178,10 +178,6 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
     <div className="story-dialog story-prompt-dialog" data-expanded={expanded}>
       <header className="story-prompt-heading">
         <h2>{t("shotPrompt")} · {shot.title}</h2>
-        <button className="story-copy" disabled={!text.trim()} onClick={async () => {
-          try { await navigator.clipboard.writeText(text); setCopied(true); }
-          catch { setLocalError(label("copyFailed")); }
-        }}><Copy size={16}/>{label(copied ? "copied" : "copy")}</button>
         <button type="button" aria-label={t("close")} title={t("close")} disabled={saving || preparing} onClick={requestClose}>
           <X size={20} aria-hidden="true"/>
         </button>
@@ -227,6 +223,7 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
       </details>
       {stale && <p role="alert">{t("promptSourceChanged")}</p>}
       {(localError || error) && <p role="alert">{localError || error}</p>}
+      {review.usedFirstDraft && <p role="status">{label("refinement.invalidFallback")}</p>}
       {prepared?.storyPacket?.reviewNotes?.map((note,i)=><p role="status" key={i}>{note}</p>)}
       {format==="seedance" && text && listedRefs && inspectStoryPromptDraft(text,listedRefs,shot.durationMs,reviewBase)
         .map((issue,i)=><p role="status" key={i}>{label(issue.key,{value:issue.value})}</p>)}
@@ -241,6 +238,10 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
         <button disabled={preparing || saving || artDirty || stale || needsFrame || Boolean(prepared)} onClick={() => void prepare()}>
           {preparing && <ProcessingSpinner/>}{artChanged ? label("rebuildArt") : savedText ? t("regeneratePrompt") : t("generatePrompt")}
         </button>
+        <button type="button" className="story-copy" disabled={!text.trim()} onClick={async () => {
+          try { await navigator.clipboard.writeText(text); setCopied(true); }
+          catch { setLocalError(label("copyFailed")); }
+        }}><Copy size={16}/>{label(copied ? "copied" : "copy")}</button>
         <button className="primary" disabled={!prepared || preparing || saving || artDirty || stale || !text.trim() || text.length > prepared.maximumPromptCharacters}
           onClick={() => void save()}>{t("savePrompt")}</button>
         {format==="still" && prepared && canUseImageWorkspace && <button disabled={artDirty || preparing || saving || stale || !text.trim() || text.length>prepared.maximumPromptCharacters}

@@ -69,7 +69,7 @@
 .story-merged-dialog .story-actions button { white-space:normal; }
 .story-prompt-heading { align-items:center; }
 .story-prompt-heading h2 { flex:1; }
-.story-prompt-heading .story-copy, .story-prompt-text-heading button { display:inline-flex; align-items:center; gap:.45rem; flex:0 0 auto; padding:.45rem .7rem; }
+.story-prompt-dialog footer .story-copy, .story-prompt-text-heading button { display:inline-flex; align-items:center; gap:.45rem; flex:0 0 auto; padding:.45rem .7rem; }
 .story-shot-summary { background:#edf3ef; border-inline-start:3px solid #43775b; padding:.65rem .9rem; line-height:1.55; }
 .story-prompt-panes,.story-text-pane { display:grid; gap:1rem; min-width:0; align-content:start; }
 .story-ref-pane { background:#f6f8f5; border:1px solid #d8e1da; border-radius:.7rem; padding:.8rem; }

@@ -1,16 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Expand, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useActor } from "../../../lib/canonical";
 
-export function PromptEditor({ value, onChange, hardLimit }: {
+export function PromptEditor({ value, onChange, hardLimit, compact = false }: {
   value: string;
   onChange: (value: string) => void;
   hardLimit?: number | null;
+  compact?: boolean;
 }) {
   const { t } = useTranslation();
   const { isLoading } = useActor();
+  const fieldId = useId();
   const [expanded, setExpanded] = useState(false);
   const inline = useRef<HTMLTextAreaElement>(null);
   const modal = useRef<HTMLTextAreaElement>(null);
@@ -20,7 +22,7 @@ export function PromptEditor({ value, onChange, hardLimit }: {
     if (node) selection.current = { start: node.selectionStart, end: node.selectionEnd };
   };
   const footer = <div className="prompt-foot">
-    <span>{t("savedDraft")}</span>
+    {!compact && <span>{t("savedDraft")}</span>}
     <span>{Array.from(value).length.toLocaleString()}{hardLimit ? ` / ${hardLimit.toLocaleString()}` : ""}</span>
   </div>;
   return <Dialog.Root open={expanded && !isLoading} onOpenChange={open => {
@@ -29,13 +31,13 @@ export function PromptEditor({ value, onChange, hardLimit }: {
   }}>
     <div className="prompt-control">
       <div className="prompt-heading">
-        <label htmlFor="prompt">{t("prompt")}</label>
-        <Dialog.Trigger asChild>
+        <label htmlFor={compact ? fieldId : "prompt"}>{t("prompt")}</label>
+        {!compact && <Dialog.Trigger asChild>
           <button type="button" aria-label={t("expandPrompt")} title={t("expandPrompt")}><Expand size={16} /></button>
-        </Dialog.Trigger>
+        </Dialog.Trigger>}
       </div>
-      <textarea ref={inline} id="prompt" placeholder={t("promptPlaceholder")}
-        value={value} onChange={event => onChange(event.target.value)} rows={7} />
+      <textarea ref={inline} id={compact ? fieldId : "prompt"} placeholder={t("promptPlaceholder")}
+        value={value} onChange={event => onChange(event.target.value)} rows={compact ? 5 : 7} />
       {footer}
     </div>
     {expanded && !isLoading && <Dialog.Portal>

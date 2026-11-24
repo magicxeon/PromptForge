@@ -50,7 +50,7 @@ test('only the authenticated workspace proxy selects the configured billing mode
 });
 
 test('only Story authoring POST endpoints and supported operations can be unmetered', () => {
-  const paths = ['writing/quotes','chapter-outline/proposals','full-story/chapters','chapter-proposals','scene-proposals','scenes/s1/shot-proposals'];
+  const paths = ['writing/quotes','chapter-outline/proposals','full-story/chapters','full-story/proposals','chapter-proposals','scene-proposals','scenes/s1/shot-proposals'];
   for (const name of paths) {
     const url = '/api/cinematic/projects/p1/' + name;
     assert.deepEqual(admission({url,token:'private-test-key'}),{status:200,free:true});
@@ -58,7 +58,7 @@ test('only Story authoring POST endpoints and supported operations can be unmete
     assert.deepEqual(admission({url}),{status:200,free:false});
     assert.deepEqual(admission({url,token:'private-test-key',enabled:true}),{status:200,free:false});
   }
-  for (const suffix of ['full-story/proposals','scene-proposals/proposal1/apply','writing/quotes/extra','scenes/s1/storyboard']) {
+  for (const suffix of ['scene-proposals/proposal1/apply','writing/quotes/extra','scenes/s1/storyboard']) {
     assert.equal(admission({url:'/api/cinematic/projects/p1/'+suffix,token:'private-test-key'}).free,false);
   }
   const actor = withWebNextCreditPolicy({userId:'test'},false);
@@ -66,6 +66,10 @@ test('only Story authoring POST endpoints and supported operations can be unmete
     assert.equal(workspaceCreditDecision(actor,'cinematic_writing',{commercialOperation:operation}).creditsDisabled,
       ['chapter_outline','chapters','scenes','shots'].includes(operation), operation);
   }
+  const scope = {commercialOperation:'characters',writingScope:'whole_story'};
+  assert.equal(workspaceCreditDecision(actor,'cinematic_writing',scope).creditsDisabled,true);
+  assert.equal(workspaceCreditDecision({userId:'test'},'cinematic_writing',scope).creditsDisabled,false);
+  assert.equal(workspaceCreditDecision(actor,'cinematic_writing',{...scope,commercialOperation:'full_story'}).creditsDisabled,false);
 });
 
 test('web-next speech at zero balance uses no Credits calls and retains original mode on replay and status reads', async t => {

@@ -9,12 +9,14 @@ type Stage = "writing" | "refining" | "recovery";
 export function useStoryPromptReview<T>() {
   const [stage,setStage] = useState<Stage>();
   const [reason,setReason] = useState("");
+  const [usedFirstDraft,setUsedFirstDraft] = useState(false);
   const recovery = useRef<{retry:()=>Promise<void>; useDraft:()=>void} | null>(null);
   const locked = useRef(false);
 
   async function build(write:()=>Promise<T>, refine:(draft:T)=>Promise<T>, accept:(result:T)=>void) {
     if (locked.current || recovery.current) return;
     locked.current = true;
+    setUsedFirstDraft(false);
     setStage("writing");
     let draft:T;
     try {
@@ -35,8 +37,13 @@ export function useStoryPromptReview<T>() {
         const result = await refine(draft);
         finish(result);
       } catch (error) {
-        setReason(error instanceof Error && !(error instanceof CinematicWritingCancelled) ? error.message : "");
-        setStage("recovery");
+        if (error instanceof Error && "code" in error && error.code === "cinematic_prompt_refinement_invalid") {
+          setUsedFirstDraft(true);
+          finish(draft);
+        } else {
+          setReason(error instanceof Error && !(error instanceof CinematicWritingCancelled) ? error.message : "");
+          setStage("recovery");
+        }
       } finally {
         locked.current = false;
       }
@@ -49,7 +56,7 @@ export function useStoryPromptReview<T>() {
     locked.current = true;
     void recovery.current.retry();
   }
-  return {stage,reason,build,retry,useDraft:()=>{if (!locked.current) recovery.current?.useDraft();}};
+  return {stage,reason,usedFirstDraft,build,retry,useDraft:()=>{if (!locked.current) recovery.current?.useDraft();}};
 }
 
 export function StoryPromptReviewDialog({stage,reason,retry,useDraft}:{

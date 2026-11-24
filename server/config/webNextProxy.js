@@ -9,7 +9,7 @@ export function webNextCreditRoute(method, pathname) {
   if (method === 'GET' && pathname === '/api/web-next/config') return 'config';
   if (method === 'GET' && pathname === '/api/generation/video/capabilities') return 'catalog';
   if (method !== 'POST') return null;
-  if (/^\/api\/cinematic\/projects\/[\w-]+\/(?:writing\/quotes|chapter-outline\/proposals|full-story\/chapters|chapter-proposals|scene-proposals|scenes\/[\w-]+\/shot-proposals)$/.test(pathname)) return 'submit';
+  if (/^\/api\/cinematic\/projects\/[\w-]+\/(?:writing\/quotes|chapter-outline\/proposals|full-story\/(?:chapters|proposals)|chapter-proposals|scene-proposals|scenes\/[\w-]+\/shot-proposals)$/.test(pathname)) return 'submit';
   if (/^\/api\/dub-sub\/projects\/[\w-]+\/dubbing-batches(?:\/[\w-]+\/advance)?$/.test(pathname)) return 'submit';
   if (submissions.has(pathname) || /^\/api\/voice-studio\/documents\/[\w-]+\/rows\/[\w-]+\/generations$/.test(pathname)) return 'submit';
   if (estimates.has(pathname) || /^\/api\/voice-studio\/documents\/[\w-]+\/rows\/[\w-]+\/quotes$/.test(pathname)) return 'estimate';

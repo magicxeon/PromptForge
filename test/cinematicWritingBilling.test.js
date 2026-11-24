@@ -128,6 +128,30 @@ test('trusted Story receipts bind billing mode and inputs and never touch Credit
   assert.deepEqual(creditsCalls,[]);
 });
 
+test('whole-story character quotes and execution share trusted unmetered admission', async t => {
+  const {repository} = await fixture(t, 0);
+  const service = new CinematicWritingOperationService({repository, credits:new Proxy({}, {
+    get(_, method) { assert.fail('Unexpected Credits call: ' + String(method)); }
+  })});
+  const actor = withWebNextCreditPolicy({userId:'a'}, false);
+  const input = {expectedVersion:1,purpose:'characters',scope:'whole_story',selectedCharacterIds:['cast-1']};
+  const base = {userId:'a',actor,projectId:'p1',operation:'characters',request:{...request,input},
+    source,model:'fixture-model',maxOutputTokens:1800};
+  const quote = await service.quote(base);
+  assert.equal(quote.billingStatus,'free');
+  assert.equal(quote.credits,0);
+  let calls = 0;
+  const execute = {...base,id:quote.id,loadSource:async()=>source,run:async()=>{
+    calls++;
+    return {characters:[]};
+  }};
+  await assert.rejects(service.execute({...execute,actor:{userId:'a'}}),{code:'cinematic_writing_quote_required'});
+  await assert.rejects(service.execute({...execute,request}),{code:'cinematic_writing_quote_required'});
+  assert.equal((await service.execute(execute)).chargedCredits,0);
+  assert.equal((await service.execute(execute)).billingStatus,'free');
+  assert.equal(calls,1);
+});
+
 test('writing insufficient funds and invalid AI result never retain a charge', async t => {
   const low = await fixture(t, 10);
   let calls = 0;
