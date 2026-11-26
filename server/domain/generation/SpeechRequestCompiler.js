@@ -38,9 +38,14 @@ export function compileSpeechRequest(snapshot, catalog, customVoice = null) {
   const policy = catalog.policy;
   const text = snapshot?.text;
   const delivery = snapshot?.delivery;
-  const style = typeof delivery === 'string' ? delivery : Object.values(delivery || {}).filter(value => typeof value === 'string' && value.trim()).join(', ');
+  const styleParts = typeof delivery === 'string' ? [delivery] :
+    Object.values(delivery || {}).filter(value => typeof value === 'string' && value.trim());
+  const style = styleParts.join(', ');
+  const styleTooLong = snapshot?.documentKind === 'audio-script'
+    ? styleParts.some(value => [...value].length > policy.maxStyleLength)
+    : [...style].length > policy.maxStyleLength;
   if (!model || !voice || typeof text !== 'string' || !text.trim()
-    || [...text].length > policy.maxTextLength || [...style].length > policy.maxStyleLength
+    || [...text].length > policy.maxTextLength || styleTooLong
     || !model.capabilities.languages.includes(snapshot.language || 'th')) throw speechError('speech_invalid_input');
   if (voice.languages && !voice.languages.includes(snapshot.language || 'th')) throw speechError('speech_invalid_voice_language');
   for (const tag of text.match(/<[^>]*>/g) || []) if (model.capabilities.inlineVocalEvents === false || !policy.inlineTags.includes(tag)) throw speechError('speech_unknown_tag');

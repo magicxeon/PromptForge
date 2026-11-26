@@ -31,6 +31,8 @@ CSS ของ feature จำกัดขอบเขต ใช้ CSS Modules �
 
 ## 2. ขอบเขต reuse ที่ต้องสรุปก่อน implementation
 
+- หน้าต่างที่ใช้ `Dialog` กลางของ Web Next เรียกการปิดแบบเดียวกับ Esc เมื่อคลิกฉากหลัง หน้าต่างซ้อนรับคำสั่งปิดเฉพาะชั้นบนสุด พื้นที่ในกรอบและการลากจากในหน้าต่างออกไปไม่เรียกการปิด การเตือนฉบับแก้ค้างและการล็อกระหว่างทำงานให้ขึ้นกับหน้าต่างเจ้าของเดิม
+
 | ปัจจุบัน | สัญญาที่ต้อง reuse / ทางย้าย |
 |---|---|
 | `web/src/lib/api/apiClient.ts`, `lib/auth/actorStore.ts` และ ActorProvider lifecycle | Credentials, CSRF, identity readiness/epoch, cross-tab invalidation, media URL policy; ห้ามสร้าง fetch bypass |

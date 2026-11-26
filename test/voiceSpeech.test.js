@@ -90,6 +90,15 @@ test('Seed multilingual script keeps dialogue separate from direction and sends 
   assert.match(payload.text_prompt,/Speaking style: gentle/);
   assert.match(payload.text_prompt,/Performance note \(silent direction\): "Begin hesitantly\."/);
   assert.ok(payload.text_prompt.endsWith(`Say exactly: ${JSON.stringify(input.text)}`));
+  const fullDirection = 'a'.repeat(catalog.policy.maxStyleLength);
+  const combinedDelivery = {...input.delivery,direction:fullDirection};
+  const fullScript = compileSpeechRequest({...input,delivery:combinedDelivery},catalog,reference);
+  assert.ok(fullScript.snapshot.providerPrompt.includes(fullDirection));
+  assert.ok(fullScript.snapshot.style.length > catalog.policy.maxStyleLength);
+  assert.throws(()=>compileSpeechRequest({...input,delivery:{...combinedDelivery,direction:fullDirection+'a'}},catalog,reference),
+    {code:'speech_invalid_input'});
+  assert.throws(()=>compileSpeechRequest({...input,documentKind:undefined,delivery:combinedDelivery},catalog,reference),
+    {code:'speech_invalid_input'});
   assert.notEqual(compileSpeechRequest({...input,audioConfig:{pitch_rate:1}},catalog,reference).requestHash, compiled.requestHash);
   for (const audioConfig of [{unknown:1},{pitch_rate:13},{speech_rate:-51},{loudness_rate:101},{pitch_rate:0.5},{pitch_rate:'1'}]) {
     assert.throws(()=>compileSpeechRequest({...input,audioConfig},catalog,reference),{code:'speech_invalid_audio_config'});

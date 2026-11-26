@@ -336,6 +336,18 @@ try {
   await acceptSet();
   await button("Shot prompt for "+proposedShot).click();
   await dialog.locator(".story-shot-summary").getByText("The innkeeper gives the traveller a letter.").waitFor();
+  const shotSummary=dialog.locator(".story-shot-summary");
+  const summaryBox=await shotSummary.boundingBox();
+  await page.mouse.move(summaryBox.x+8,summaryBox.y+8);
+  await page.mouse.down();
+  await page.mouse.move(2,2,{steps:5});
+  await page.mouse.up();
+  assert.ok(await shotSummary.isVisible(),"dragging out of the dialog keeps it open");
+  await shotSummary.click();
+  assert.ok(await shotSummary.isVisible(),"clicking inside keeps the dialog open");
+  await page.mouse.click(2,2);
+  await shotSummary.waitFor({state:"hidden"});
+  await button("Shot prompt for "+proposedShot).click();
   let releaseReview;
   const reviewGate = new Promise(resolve=>{releaseReview=resolve;});
   let firstShotDraft;
@@ -350,6 +362,8 @@ try {
   await dialog.getByRole("button",{name:"Build prompt"}).click();
   const reviewing=page.getByRole("dialog",{name:"Reviewing and refining the prompt…",exact:true});
   await reviewing.waitFor();
+  await page.mouse.click(2,2);
+  assert.ok(await reviewing.isVisible(),"clicking outside respects the busy dialog guard");
   for (const width of [390,820,1440]) {
     await page.setViewportSize({width,height:900});
     assert.ok(await reviewing.evaluate(el=>{
@@ -364,8 +378,14 @@ try {
   assert.equal(await dialog.getByLabel("Prompt text").inputValue(),firstShotDraft);
   assert.match(await dialog.getByLabel("Prompt text").inputValue(), /Duration: 5 seconds/);
   assert.equal(await dialog.getByText("This shot has no selected characters.").count(),1);
-  await page.keyboard.press("Escape");
-  await page.getByRole("dialog",{name:"Save your edits before leaving?"}).getByRole("button",{name:"Discard edits"}).click();
+  await page.mouse.click(2,2);
+  const promptConfirmation=page.getByRole("dialog",{name:"Save your edits before leaving?"});
+  await promptConfirmation.waitFor();
+  await page.mouse.click(2,2);
+  await promptConfirmation.waitFor({state:"hidden"});
+  assert.equal(await dialog.getByLabel("Prompt text").inputValue(),firstShotDraft);
+  await page.mouse.click(2,2);
+  await promptConfirmation.getByRole("button",{name:"Discard edits"}).click();
   const shotRow=page.locator(".story-shots button").filter({hasText:proposedShot});
   await shotRow.focus();
   await page.keyboard.press("Enter");
