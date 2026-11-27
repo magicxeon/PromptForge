@@ -1,7 +1,7 @@
 import { significantPauses } from "../assets/AudioAssetService.js";
 import { validSpeechWindows } from "../generation/speechWindows.js";
 import config from "../../config/dub-scene-transcription.json" with {type:"json"};
-import { endToleranceMs, takePlacement } from "./takePlacement.js";
+import { endToleranceMs, speechHorizonMs, takePlacement } from "./takePlacement.js";
 
 const policy = config.timedDialogue.alignment;
 
@@ -13,7 +13,11 @@ export async function fitTakeOffset(project, cue, language, take, voice, actor, 
   const placement = takePlacement(cue,take.durationMs,projectEnd);
   const reject = errorCode => ({offsetMs:current,errorCode,targetMs:placement.availableMs});
   let lower = -cue.startMs;
-  const latestEnd = batchTiming
+  const tail = Math.min(policy.speechTailMs,take.inputSnapshot?.speechTailMs ?? 0);
+  const lastSpike = take.inputSnapshot?.speechWindows?.at(-1)?.endMs;
+  const latestEnd = tail && Number.isFinite(lastSpike)
+    ? Math.min(projectEnd,cue.startMs+speechHorizonMs(project,cue,language),Math.max(cue.endMs,cue.startMs+lastSpike+tail))
+    : batchTiming
     ? Math.min(cue.endMs + policy.batchTailAllowanceMs,projectEnd)
     : Math.min(cue.endMs,projectEnd) + endToleranceMs;
   let upper = latestEnd - cue.startMs - take.durationMs;
@@ -71,7 +75,8 @@ export async function fitTakeOffset(project, cue, language, take, voice, actor, 
   const matchBoundary = (wanted, measured, tolerance) => limit(wanted-measured-tolerance,wanted-measured+tolerance);
   if (!matchBoundary(expected[0].startMs,actual[0].startMs,policy.onsetToleranceMs))
     return rhythmMismatch("onset");
-  if (!matchBoundary(expected.at(-1).endMs,actual.at(-1).endMs,policy.endingToleranceMs))
+  const endDelta = expected.at(-1).endMs-actual.at(-1).endMs;
+  if (!limit(endDelta-policy.endingToleranceMs,endDelta+tail+policy.endingToleranceMs))
     return rhythmMismatch("ending");
   const checkPauses = !batchTiming && !skipInternalPauses;
   const wantedPauses = checkPauses ? significantPauses(expected) : [];

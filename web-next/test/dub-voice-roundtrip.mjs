@@ -190,9 +190,11 @@ try {
     await voice.selectOption(seed.id);
     const performance=page.locator(".dub-performance-settings");
     await performance.locator("summary").click();
-    const boundaryMode=performance.getByRole("checkbox",{name:/Speak freely within the cue/});
-    assert.equal(await boundaryMode.isChecked(),false);
-    await boundaryMode.check();
+    const timing=page.getByLabel("Timing for this line");
+    assert.equal(await timing.inputValue(),"source");
+    await timing.selectOption("full");
+    assert.equal(await timing.inputValue(),"full");
+    await timing.selectOption("within");
     assert.ok(await performance.evaluate(el=>el.scrollWidth<=el.clientWidth+1));
     await performance.locator("summary").click();
     await page.waitForFunction(() => document.querySelector("video")?.duration === 5);

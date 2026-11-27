@@ -70,7 +70,7 @@ export function significantPauses(spans) {
     ? [{startMs:spans[i].endMs,endMs:s.startMs}] : []);
 }
 
-export async function alignCueSpeech(bytes, windows, maxBytes, detect=detectSpeechIntervals, boundaryTimingOnly=false) {
+export async function alignCueSpeech(bytes, windows, maxBytes, detect=detectSpeechIntervals, boundaryTimingOnly=false, tailMs=0) {
   inspectWav(bytes);
   const offset = singleDataOffset(bytes);
   const pcmStart = offset === null ? 0 : offset + 8;
@@ -102,7 +102,8 @@ export async function alignCueSpeech(bytes, windows, maxBytes, detect=detectSpee
   const actualStartMs = Math.round(spans[0].startMs), actualEndMs = Math.round(spans.at(-1).endMs);
   const reasons = [];
   if (Math.abs(actualStartMs-windows[0].startMs)>alignment.onsetToleranceMs) reasons.push('onset');
-  if (Math.abs(actualEndMs-windows.at(-1).endMs)>alignment.endingToleranceMs) reasons.push('ending');
+  const endDelta = actualEndMs - windows.at(-1).endMs;
+  if (endDelta < -alignment.endingToleranceMs || endDelta > tailMs + alignment.endingToleranceMs) reasons.push('ending');
   const expected = significantPauses(windows), actual = significantPauses(spans);
   // Pauses are ordered. Check both added and missing pauses as well as shifted boundaries.
   const pausesMatch = expected.length === actual.length && expected.every((gap,index)=>{

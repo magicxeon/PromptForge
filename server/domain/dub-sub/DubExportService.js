@@ -209,13 +209,12 @@ async function mix(project, language, dir, openTake) {
     const { dest, durationMs } = files.get(id);
     const placement = takePlacement(cue,durationMs,project.durationMs);
     const {start,end} = placement;
-    if (!canExportTake(placement,durationMs,cue.takes[language].confirmedOverrunMs))
+    if (!canExportTake(placement))
       throw dubError("dub_take_overrun", 422);
     clips.push({
       start,
       end,
       dest,
-      confirmedOverrun:cue.takes[language].confirmedOverrunMs > 0,
       gain: cue.gain * (channel?.gain ?? 1),
     });
   }
@@ -236,80 +235,31 @@ async function mix(project, language, dir, openTake) {
     return silence;
   }
   clips.sort((a, b) => a.start - b.start);
-  if (clips.some((clip, i) => i && clip.start < clips[i - 1].end -
-    (clip.confirmedOverrun || clips[i - 1].confirmedOverrun ? 0 : 25)))
-    throw dubError("dub_takes_overlap", 422);
-  // Keep the number of decoder inputs and OS command length bounded.
-  const parts = [];
-  for (let start = 0; start < clips.length; start += 16) {
-    const chunk = clips.slice(start, start + 16);
-    const origin = start ? chunk[0].start : 0;
-    const until = clips[start + 16]?.start ?? project.durationMs;
-    const args = [];
-    const filters = [];
-    const labels = [];
-    chunk.forEach((clip, i) => {
-      args.push("-f", "wav", "-i", clip.dest);
-      filters.push(
-        "[" +
-          i +
-          ":a]aresample=48000,volume=" +
-          clip.gain +
-          ",adelay=" +
-          (clip.start - origin) +
-          ":all=1[a" +
-          i +
-          "]",
-      );
-      labels.push("[a" + i + "]");
-    });
-    filters.push(
-      labels.join("") +
-        "amix=inputs=" +
-        labels.length +
-        ":normalize=0,apad[out]",
-    );
-    const filename = "mix-" + start + ".wav";
-    await mediaCommand([
-      ...args,
-      "-filter_complex",
-      filters.join(";"),
-      "-map",
-      "[out]",
-      "-t",
-      String((until - origin) / 1000),
-      "-ac",
-      "2",
-      "-ar",
-      "48000",
-      "-c:a",
-      "pcm_s16le",
-      path.join(dir, filename),
-    ]);
-    parts.push(filename);
+  // Intermediate mixes keep their original timeline origin, including tails
+  // that extend past the first cue of the next group.
+  let layer = clips;
+  let sequence = 0;
+  for (;;) {
+    const final = layer.length <= 16;
+    const parts = [];
+    for (let i = 0; i < layer.length; i += 16) {
+      const group = layer.slice(i, i + 16);
+      const origin = final ? 0 : group[0].start;
+      const end = final ? project.durationMs : Math.max(...group.map(clip => clip.end));
+      const dest = path.join(dir, "mix-" + sequence++ + ".wav");
+      const inputs = group.flatMap(clip => ["-f", "wav", "-i", clip.dest]);
+      const filters = group.map((clip, index) =>
+        `[${index}:a]aresample=48000,volume=${clip.gain},adelay=${clip.start-origin}:all=1[a${index}]`);
+      const labels = group.map((_, index) => `[a${index}]`).join("");
+      filters.push(`${labels}amix=inputs=${group.length}:normalize=0,apad[out]`);
+      await mediaCommand([...inputs, "-filter_complex", filters.join(";"), "-map", "[out]",
+        "-t", String((end-origin)/1000), "-ac", "2", "-ar", "48000", "-c:a",
+        final ? "pcm_s16le" : "pcm_f32le", dest]);
+      if (final) return dest;
+      parts.push({start:origin, end, dest, gain:1});
+    }
+    layer = parts;
   }
-  if (parts.length === 1) return path.join(dir, parts[0]);
-  await fs.writeFile(
-    path.join(dir, "parts.txt"),
-    parts.map((name) => "file " + name).join("\n") + "\n",
-  );
-  await mediaCommand(
-    [
-      "-f",
-      "concat",
-      "-safe",
-      "1",
-      "-protocol_whitelist",
-      "file",
-      "-i",
-      "parts.txt",
-      "-c:a",
-      "copy",
-      "dub.wav",
-    ],
-    { cwd: dir },
-  );
-  return path.join(dir, "dub.wav");
 }
 
 export async function renderExport({

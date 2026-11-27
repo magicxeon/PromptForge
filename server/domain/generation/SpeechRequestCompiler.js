@@ -59,14 +59,17 @@ export function compileSpeechRequest(snapshot, catalog, customVoice = null) {
     if (target !== undefined && (!Number.isSafeInteger(target) || target <= 0)) throw speechError('speech_invalid_input');
     const windows = normalized.speechWindows;
     if (!validSpeechWindows(windows,target) || (normalized.boundaryTimingOnly && !target)) throw speechError('speech_invalid_input');
+    const tail = normalized.speechTailMs ?? 0;
+    if (!Number.isSafeInteger(tail) || tail < 0 || (tail && (!windows || windows.at(-1).endMs + tail > target))) throw speechError('speech_invalid_input');
     const slot = target === undefined ? '' : `[0.0s:${target / 1000}s] `;
     normalized.providerPrompt = normalized.documentKind === 'audio-script' ? scriptPerformancePrompt(normalized) : [`Speak in ${normalized.language} with the voice of @Audio1.`, style,
       target !== undefined && `DURATION: ${target / 1000} seconds. ${windows ? 'Speak naturally' : 'Start promptly, speak naturally'}, and finish the entire line within this time window. Dialogue only.`,
+      tail > 0 && `The last word has up to ${tail/1000} extra seconds to finish naturally. Keep the original onset and do not stretch the line to fill the window.`,
       normalized.boundaryTimingOnly && windows ?
-        `[${windows[0].startMs/1000}s:${windows.at(-1).endMs/1000}s] Start and finish speaking at these times. Allow natural pauses. Say exactly: ${JSON.stringify(text)}` :
+        `[${windows[0].startMs/1000}s:${(windows.at(-1).endMs+tail)/1000}s] ${tail ? "Start at the indicated onset and finish by the end." : "Start and finish speaking at these times."} Allow natural pauses. Say exactly: ${JSON.stringify(text)}` :
         normalized.boundaryTimingOnly ?
           `Begin speaking immediately. Use natural conversational pacing. You may finish early. Say exactly: ${JSON.stringify(text)}` :
-        windows ? timedSpeechDirection(text,normalized.language,windows) : `${slot}Say exactly: ${JSON.stringify(text)}`].filter(Boolean).join('\n');
+        windows ? timedSpeechDirection(text,normalized.language,windows,tail) : `${slot}Say exactly: ${JSON.stringify(text)}`].filter(Boolean).join('\n');
     if ([...normalized.providerPrompt].length > model.limits.promptCharacters) throw speechError('speech_invalid_input');
   }
   const stable = value => value && typeof value === 'object' && !Array.isArray(value)

@@ -74,7 +74,7 @@ it("resolves a returned saved voice beyond the first page and rejects an unavail
   expect((screen.getByText("quote") as HTMLButtonElement).disabled).toBe(true);
 });
 
-it.each([true, false])("sends the directed cue once and preserves take actions with creditsEnabled=%s", async (creditsEnabled) => {
+it.each([[true,"source",0], [false,"within",0], [false,"full",0], [false,"full",8.5]] as const)("sends the directed cue once with creditsEnabled=%s, timing=%s and target seconds=%s", async (creditsEnabled,timing,seconds) => {
   policy.creditsEnabled = creditsEnabled;
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
@@ -153,7 +153,14 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
   }
   render(<DirectedCue />);
   fireEvent.click(await screen.findByText("editPerformance"));
-  if (!creditsEnabled) fireEvent.click(screen.getByRole("checkbox"));
+  fireEvent.change(screen.getByLabelText("timing"), { target: { value: timing } });
+  if (timing === "full") {
+    const duration = screen.getByRole("spinbutton", {name:/fullDuration/});
+    expect((duration as HTMLInputElement).value).toBe("0");
+    fireEvent.change(duration, {target:{value:"-1"}});
+    expect((screen.getByText("generateTake") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(duration, {target:{value:String(seconds)}});
+  }
   fireEvent.change(await screen.findByLabelText("emotion"), {
     target: { value: "happy" },
   });
@@ -172,9 +179,9 @@ it.each([true, false])("sends the directed cue once and preserves take actions w
     expect(operationId).toBe(`speech_${requestId}`);
   }
   expect(api.saveDocument.mock.calls[0][0].rows[0]).toMatchObject({
-    targetDurationMs: 2400,
+    targetDurationMs: timing === "full" ? seconds * 1000 || undefined : 2400,
     speechWindows:creditsEnabled ? [{startMs:120,endMs:1650}] : undefined,
-    boundaryTimingOnly:!creditsEnabled,
+    boundaryTimingOnly:timing === "within" || seconds > 0,
     text: "สวัสดี",
     characterPresetId: "hero",
     delivery: { emotion: "happy", direction: "A soft greeting." },

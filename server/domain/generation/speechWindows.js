@@ -32,8 +32,8 @@ function phrasesFor(text, language, windows) {
   return phrases;
 }
 
-export function timedSpeechDirection(text, language, windows) {
-  const ranges = windows.map(w=>`[${w.startMs/1000}s:${w.endMs/1000}s]`);
+export function timedSpeechDirection(text, language, windows, tailMs=0) {
+  const ranges = windows.map((w,i)=>`[${w.startMs/1000}s:${(w.endMs + (i===windows.length-1 ? tailMs : 0))/1000}s]`);
   const phrases = phrasesFor(text,language,windows);
   const rule = 'Times are relative to the start of this audio. Speak only inside the indicated speech windows. Keep silence before onset, during the intervening pauses, and after the last word. No added words or sounds.';
   if (!phrases) return `${rule}\nSpeech windows: ${ranges.join(', ')}\nSay exactly: ${JSON.stringify(text)}`;

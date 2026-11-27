@@ -21,7 +21,7 @@ import config from "./dubbing-voice-config.json";
 import { createSpeechRequest } from "./speechRequest";
 import { useWorkspaceCredits } from "../../lib/workspaceConfig";
 import type { CueDelivery } from "./projectApi";
-import { takePlacement } from "../../../../server/domain/dub-sub/takePlacement.js";
+import { bufferedTiming, takePlacement } from "../../../../server/domain/dub-sub/takePlacement.js";
 
 type Binding = {
   documentId: string;
@@ -40,6 +40,7 @@ type Props = {
   language: string;
   speaker: string;
   targetMs?: number;
+  speechHorizon?: number;
   cueStartMs?:number;
   cueOffsetMs?:number;
   projectDurationMs?:number;
@@ -110,6 +111,7 @@ function VoiceInspector({
   defaultCharacterId,
   initialSelection,
   targetMs,
+  speechHorizon,
   cueStartMs=0, cueOffsetMs, projectDurationMs, loadSpeechWindows,
   suggestedDelivery, overrides, onDeliveryChange,
 }: Props & { scope: string }) {
@@ -126,7 +128,13 @@ function VoiceInspector({
   const choices = useQuery({ queryKey: choicesKey, queryFn: () => loadDubbingChoices(language) });
   const [chosenVoice, setVoice] = useState(initialSelection?.replace(/^custom\//, "") || "");
   const [localBinding, setLocalBinding] = useState(binding);
-  const [boundaryTimingOnly,setBoundaryTimingOnly] = useState(false);
+  const [timing, setTiming] = useState<"source" | "within" | "full">("source");
+  const [fullSeconds, setFullSeconds] = useState("0");
+  const customMs = Math.round(Number(fullSeconds) * 1000);
+  const invalidDuration = timing === "full" && (fullSeconds.trim() === "" || Number(fullSeconds) < 0 ||
+    !Number.isSafeInteger(customMs) || (Number(fullSeconds) > 0 && customMs === 0));
+  const generationTargetMs = timing === "full" ? customMs || undefined : targetMs;
+  const boundaryTimingOnly = timing === "within" || (timing === "full" && customMs > 0);
   const b = localBinding ?? binding;
   const documentKey = [...prefix, "document", b?.documentId];
   const doc = useQuery({
@@ -156,7 +164,8 @@ function VoiceInspector({
       model?.id,
       targetMs,
       cueStartMs,
-      boundaryTimingOnly,
+      timing,
+      generationTargetMs,
       voice,
       delivery.emotion,
       delivery.intensity,
@@ -193,7 +202,8 @@ function VoiceInspector({
     ? /^speech_([0-9a-f-]{36})$/i.exec(operationId || "")?.[1] : undefined;
   const canRetry = Boolean(missingRequestId && available && b?.operationRevision && row && doc.data &&
     doc.data.revision === b.operationRevision && doc.data.language === language && doc.data.modelId === model?.id &&
-    row.text === text && row.targetDurationMs === targetMs && row.characterPresetId === b.characterId && mapped?.id === b.characterId && selection === mapped?.voiceId &&
+    row.text === text && (row.targetDurationMs === undefined || row.targetDurationMs === bufferedTiming(row.speechWindows,targetMs,speechHorizon ?? targetMs ?? 0).targetDurationMs ||
+      (row.boundaryTimingOnly && !row.speechWindows)) && row.characterPresetId === b.characterId && mapped?.id === b.characterId && selection === mapped?.voiceId &&
     (["emotion", "intensity", "pace", "method", "direction"] as const)
       .every(key => (row.delivery[key] || "") === (delivery[key] || "")));
   const takes = useQuery({
@@ -228,10 +238,10 @@ function VoiceInspector({
     await onBind(next);
   }
   async function prepareTake() {
-    if (creditsEnabled === undefined || !model || !available || !text.trim() || active) return;
+    if (creditsEnabled === undefined || !model || !available || !text.trim() || active || invalidDuration) return;
     const { epoch } = getIdentitySnapshot();
     if (!selectedVoice) return;
-    const speechWindows = boundaryTimingOnly ? undefined : await loadSpeechWindows?.();
+    const speechWindows = timing === "source" ? await loadSpeechWindows?.() : undefined;
     assertIdentityEpoch(epoch);
     const character = (mapped?.voiceId === selection ? mapped : undefined)
       || characters.find(c => c.voiceKind === "custom" && c.voiceId === selection)
@@ -264,7 +274,8 @@ function VoiceInspector({
               ...r,
               enabled: true,
               text,
-              targetDurationMs: targetMs,
+              speechTailMs: undefined,
+              ...bufferedTiming(speechWindows,generationTargetMs,speechHorizon ?? targetMs ?? 0),
               boundaryTimingOnly,
               speechWindows: speechWindows?.length ? speechWindows : undefined,
               characterPresetId: character.id,
@@ -376,11 +387,19 @@ function VoiceInspector({
               onChange={(e) => changeDelivery("direction", e.target.value)}
             />
           </label>
-          {loadSpeechWindows && <label className="dub-timing-mode">
-            <input type="checkbox" checked={boundaryTimingOnly} onChange={e=>{setBoundaryTimingOnly(e.target.checked);setQuote(null);}}/>
-            <span>{t("dub:boundaryTimingOption")}<small>{t("dub:boundaryTimingHint")}</small></span>
-          </label>}
         </details>
+        {loadSpeechWindows && <label>{t("timing")}
+          <select value={timing} onChange={e => { setTiming(e.target.value as typeof timing); setQuote(null); }}>
+            <option value="source">{t("sourceTiming")}</option>
+            <option value="within">{t("dub:boundaryTimingOption")}</option>
+            <option value="full">{t("finishLine")}</option>
+          </select>
+        </label>}
+        {timing === "full" && <label>{t("fullDuration")}
+          <input type="number" min="0" step="any" value={fullSeconds} aria-invalid={invalidDuration}
+            onChange={e => { setFullSeconds(e.target.value); setQuote(null); }} />
+          <small>{t(invalidDuration ? "fullDurationInvalid" : "fullDurationHint")}</small>
+        </label>}
         {usableQuote ? (
           <button type="button" onClick={() => void run(() => submitTake(usableQuote))}>
             {t("generate", { credits: usableQuote.totalCredits })}
@@ -388,7 +407,7 @@ function VoiceInspector({
         ) : (
           <button
             type="button"
-            disabled={creditsEnabled === undefined || !text.trim() || !available}
+            disabled={creditsEnabled === undefined || !text.trim() || !available || invalidDuration}
             onClick={() => void run(prepareTake)}
           >
             {t(creditsEnabled ? "quote" : "generateTake")}
@@ -429,6 +448,8 @@ function VoiceInspector({
           startMs:cueStartMs,endMs:cueStartMs+targetMs,
           offsetMs:item.inputSnapshot.boundaryTimingOnly && !item.inputSnapshot.speechWindows && usedTakeId!==item.id ? 0 : cueOffsetMs
         },item.durationMs,projectDurationMs);
+        const withinTail = !!item.inputSnapshot.speechTailMs && placement && placement.start >= 0 &&
+          item.durationMs <= Math.min(Number(item.inputSnapshot.targetDurationMs),speechHorizon ?? 0);
         return (
         <div key={item.id} className="dub-take">
           <span>
@@ -436,7 +457,7 @@ function VoiceInspector({
             {item.inputSnapshot.characterName} ·{" "}
             {t("duration", { seconds: (item.durationMs / 1000).toFixed(1) })}
           </span>
-          {placement && !placement.fits && (
+          {placement && !placement.fits && !withinTail && (
             <span>
               {placement.start < 0 ? t("dub:errors.dub_take_exceeds_window") : t("overrun", {
                 seconds: ((item.durationMs - placement.availableMs) / 1000).toFixed(2),
@@ -460,6 +481,7 @@ function VoiceInspector({
             disabled={busy || !b || usedTakeId===item.id || (placement && !placement.fits ? placement.start<0 || !onUseBoundaries : false)}
             onClick={() => {
               if (placement && !placement.fits && onUseBoundaries) {
+                if (withinTail) { void run(()=>onUseBoundaries(item.id)); return; }
                 const excess = item.durationMs - placement.availableMs;
                 confirmation.ask({
                   action:t("use"),

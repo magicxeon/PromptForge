@@ -2,7 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { workspaceCreditDecision } from "../credits/WorkspaceCreditPolicy.js";
 import { fitTakeOffset } from "./fitTakeOffset.js";
-import { takePlacement } from "./takePlacement.js";
+import { bufferedTiming, speechHorizonMs, takePlacement } from "./takePlacement.js";
 
 const modelId = "dola-seed-audio";
 const fingerprint = (value) =>
@@ -136,7 +136,7 @@ export class DubBatchService {
       if (
         previous?.status === "prepared" &&
         previous.timed === true &&
-        previous.rhythmVersion === 1 &&
+        previous.rhythmVersion === 2 &&
         previous.revision === revision &&
         previous.mode === mode &&
         (previous.acceptRhythmMismatch === true) === acceptRhythmMismatch &&
@@ -189,7 +189,7 @@ export class DubBatchService {
       const batch = {
         id: randomUUID(),
         timed: true,
-        rhythmVersion: 1,
+        rhythmVersion: 2,
         acceptRhythmMismatch,
         mode,
         language,
@@ -214,7 +214,7 @@ export class DubBatchService {
             enabled: true,
             characterPresetId: input.characterId,
             text: input.text,
-            targetDurationMs: input.end - input.start,
+            ...bufferedTiming(rhythms.get(cueId), input.end - input.start, speechHorizonMs(project,project.cues.find(c=>c.id===cueId),language)),
             ...(rhythms.has(cueId) && {speechWindows:rhythms.get(cueId),boundaryTimingOnly:true}),
             delivery: input.delivery,
             selectedTakeId: null,
@@ -290,16 +290,16 @@ export class DubBatchService {
           throw dubError("dub_take_exceeds_window",422);
       } else {
         let candidate=take;
-        if (!freeTiming) {
+        if (!freeTiming && !take.inputSnapshot?.speechTailMs) {
           const rhythms=await this.projects.analyzeSourceRhythms(this.projects,actor,project,[cue],verify);
           candidate={...take,inputSnapshot:{...take.inputSnapshot,speechWindows:rhythms.get(cueId)}};
         }
-        const fit=await fitTakeOffset(project,cue,language,candidate,voice,actor,false,true);
+        const fit=await fitTakeOffset(project,cue,language,candidate,voice,actor,false,!take.inputSnapshot?.speechTailMs || !!take.inputSnapshot.boundaryTimingOnly);
         if (fit.errorCode) throw dubError(fit.errorCode,422);
         offsetMs=fit.offsetMs;
       }
       await verify();
-      const placed=place(cue,language,take,offsetMs,project.targetLanguages[0],!explicitOverrun);
+      const placed=placeBatchTake(cue,language,take,offsetMs,project,!explicitOverrun && (!take.inputSnapshot?.speechTailMs || !!take.inputSnapshot.boundaryTimingOnly));
       if (explicitOverrun) placed.takes[language].confirmedOverrunMs=confirmedOverrunMs;
       const cues=project.cues.map(c=>c.id===cueId ? placed : c);
       const committed=await this.projects.commitCues(actor,id,cues,()=>this.projects.repo.mutate(actor,id,revision,p=>{

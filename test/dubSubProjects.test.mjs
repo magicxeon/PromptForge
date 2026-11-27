@@ -26,6 +26,30 @@ async function compareFrame(t,root,video,png) {
   t.diagnostic('same-time preview vs encoded video SSIM '+score);
 }
 
+test('WAV export keeps both audible takes where two mixer groups overlap', async t => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(),'dub-overlap-'));
+  t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+  const tone = path.join(dir,'tone.wav'), output = path.join(dir,'export.wav');
+  await promisify(execFile)('ffmpeg',['-v','error','-f','lavfi','-i',
+    'sine=frequency=400:sample_rate=48000:duration=0.2',tone]);
+  const cues = Array.from({length:17},(_,i)=>{
+    const startMs = i < 15 ? i : (i-14)*100;
+    return {startMs:startMs+10,offsetMs:-10,endMs:startMs+100,gain:i<15?0:1,takes:{th:{id:'tone'}}};
+  });
+  await renderExport({project:{durationMs:500,cues,media:{hasAudio:false}},language:'th',
+    format:'wav',sourceGain:0,dubGain:1,dir,output,
+    openTake:async()=>({handle:await fs.open(tone),durationMs:200,reauthorize:async()=>{}})});
+  const {stdout} = await promisify(execFile)('ffmpeg',['-v','error','-i',output,'-ac','1','-f','f32le','-'],{encoding:'buffer'});
+  const peak = ms => {
+    let max=0;
+    for(let i=ms*48;i<(ms+20)*48;i++) max=Math.max(max,Math.abs(stdout.readFloatLE(i*4)));
+    return max;
+  };
+  assert.equal(stdout.length,500*48*4);
+  assert.ok(peak(150)>0.05 && peak(350)>0.05);
+  assert.ok(Math.abs(peak(250)/peak(150)-2)<0.01);
+});
+
 test('confirmed project deletion reauthorizes its owner and removes only private files and its take pins', async t => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'dub-delete-'));
   t.after(() => fs.rm(root, {recursive:true, force:true}));

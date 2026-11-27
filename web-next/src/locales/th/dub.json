@@ -1,4 +1,8 @@
 {
+  "exportCueTailTitle": "เสียงพากย์ยาวกว่าช่วงบท",
+  "exportCueTailMessage": "เทคที่ {{time}} มีเสียงต่อหลังจบช่วงบท ส่งออกได้เต็มเทคตามตำแหน่งบนไทม์ไลน์",
+  "exportOverlapTitle": "มีเสียงพากย์ซ้อนกัน",
+  "exportOverlapMessage": "เริ่มซ้อนที่ {{time}} ส่งออกได้ตามปกติ โดยจะได้ยินทั้งสองเสียงพร้อมกันตามไทม์ไลน์",
   "boundaryTimingOption": "พูดอิสระในช่วงบท",
   "boundaryTimingHint": "เริ่มพูดได้ทันที จบก่อนหมดช่วงบทได้",
   "boundaryTimingApplied": "ใช้เทคนี้แล้ว · ข้ามการเทียบช่วงพัก",

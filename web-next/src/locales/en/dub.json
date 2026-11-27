@@ -1,4 +1,8 @@
 {
+  "exportCueTailTitle": "Dubbing extends past a cue",
+  "exportCueTailMessage": "The take at {{time}} continues beyond its cue. Export will include the full take at its timeline position.",
+  "exportOverlapTitle": "Dubbing takes overlap",
+  "exportOverlapMessage": "The first overlap starts at {{time}}. You can export with both voices playing together as placed on the timeline.",
   "boundaryTimingOption": "Speak freely within the cue",
   "boundaryTimingHint": "Start speaking immediately and finish any time before the cue ends.",
   "boundaryTimingApplied": "Take placed · internal pauses accepted",

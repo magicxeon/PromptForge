@@ -27,7 +27,7 @@ import { SpeakerMixer } from "./SpeakerMixer";
 import { SubtitleCaption, SubtitleInspector } from "./SubtitleInspector";
 import { subtitleLanguage } from "../../../../server/domain/dub-sub/subtitleFonts.js";
 import { DialogueList } from "./DialogueList";
-import { canExportTake, takePlacement } from "../../../../server/domain/dub-sub/takePlacement.js";
+import { canExportTake, speechHorizonMs, takePlacement } from "../../../../server/domain/dub-sub/takePlacement.js";
 import { dubBatchApi, type TimingLine } from "./dubBatchApi";
 import { TimingReview } from "./TimingReview";
 import { Timeline } from "./Timeline";
@@ -941,6 +941,7 @@ function Work({ initial }: { initial: Project }) {
                   projectId={p.id}
                   cueId={cue.id}
                   targetMs={cue.endMs - cue.startMs}
+                  speechHorizon={speechHorizonMs(p,cue,lang)}
                   cueStartMs={cue.startMs}
                   cueOffsetMs={cue.offsetMs} projectDurationMs={p.durationMs ?? undefined}
                   loadSpeechWindows={async()=>{
@@ -1076,8 +1077,7 @@ function Work({ initial }: { initial: Project }) {
                 {cue.takes[lang] && (
                   <p>
                     {timeLabel(cue.takes[lang].durationMs)}{" "}
-                    {!canExportTake(takePlacement(cue,cue.takes[lang].durationMs,p.durationMs ?? undefined),
-                      cue.takes[lang].durationMs,cue.takes[lang].confirmedOverrunMs) &&
+                    {!canExportTake(takePlacement(cue,cue.takes[lang].durationMs,p.durationMs ?? undefined)) &&
                       t("overrun")}
                   </p>
                 )}

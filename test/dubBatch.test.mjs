@@ -7,8 +7,18 @@ import { DubProjectRepository } from "../server/repositories/dub-sub/DubProjectR
 import { DubProjectService } from "../server/domain/dub-sub/DubProjectService.js";
 import { withWebNextCreditPolicy } from "../server/domain/credits/WorkspaceCreditPolicy.js";
 import { webNextCreditRoute } from "../server/config/webNextProxy.js";
-import { canExportTake, takePlacement } from "../server/domain/dub-sub/takePlacement.js";
+import { bufferedTiming, speechHorizonMs, canExportTake, takePlacement } from "../server/domain/dub-sub/takePlacement.js";
 import { normalizeCues } from "../server/domain/dub-sub/projectFields.js";
+
+test("last spike can release into available silence up to the next cue or media end", () => {
+  const cue = {id:"a",startMs:1000,endMs:3000};
+  const windows = [{startMs:100,endMs:1950}];
+  for (const [next,end,tail] of [[4000,5000,500],[3100,5000,150],[4000,3000,50],[2950,5000,0]]) {
+    const project={durationMs:end,cues:[cue,{id:"b",startMs:next,endMs:next+500}]};
+    assert.deepEqual(bufferedTiming(windows,2000,speechHorizonMs(project,cue,"th")),
+      {targetDurationMs:Math.max(2000,1950+tail),speechTailMs:tail});
+  }
+});
 
 async function fixture(t, { free = true } = {}) {
   const dir = await mkdtemp(path.join(tmpdir(), "dub-batch-"));

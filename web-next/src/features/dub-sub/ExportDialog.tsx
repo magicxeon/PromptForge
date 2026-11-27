@@ -6,7 +6,7 @@ import {
   type Project,
   type Export,
 } from "./projectApi";
-import { ProcessingSpinner } from "../../lib/canonical";
+import { ProcessingSpinner, StatusNotice } from "../../lib/canonical";
 import { speakerGain } from "./SpeakerMixer";
 import { Dialog } from "./Dialog";
 import config from "./editorConfig";
@@ -67,12 +67,9 @@ export function ExportDialog({
           }))
           .sort((a, b) => a.start - b.start)
       : [];
-  const clash = voiceTracks.find(
-    (clip, i) =>
-      clip.start < 0 || (i > 0 && clip.start < voiceTracks[i - 1].end - 25),
-  );
+  const clash = voiceTracks.find((clip, i) => i > 0 && clip.start < voiceTracks[i - 1].end);
+  const overrun = voiceTracks.find(clip => clip.end > clip.cue.endMs);
   const issue =
-    clash?.cue ||
     p.cues.find(
       (c) =>
         (format !== "wav" &&
@@ -82,8 +79,7 @@ export function ExportDialog({
         ((format === "wav" || (format === "mp4" && withVoice)) &&
           audible.includes(c) &&
           (!c.takes[lang] ||
-            !canExportTake(takePlacement(c,c.takes[lang].durationMs,p.durationMs ?? undefined),
-              c.takes[lang].durationMs,c.takes[lang].confirmedOverrunMs))),
+            !canExportTake(takePlacement(c,c.takes[lang].durationMs,p.durationMs ?? undefined)))),
     );
   async function run(preview: boolean) {
     if (busy) return;
@@ -258,6 +254,16 @@ export function ExportDialog({
           {t("export")}
         </button>}
       </footer>
+      {clash && !result && !pending && (
+        <StatusNotice tone="warning" title={t("exportOverlapTitle")}>
+          {t("exportOverlapMessage", {time:timeLabel(clash.start)})}
+        </StatusNotice>
+      )}
+      {!clash && overrun && !issue && !result && !pending && (
+        <StatusNotice tone="warning" title={t("exportCueTailTitle")}>
+          {t("exportCueTailMessage",{time:timeLabel(overrun.cue.startMs)})}
+        </StatusNotice>
+      )}
       {error && (
         <p role="alert">{t("errors." + error, { defaultValue: error })}</p>
       )}

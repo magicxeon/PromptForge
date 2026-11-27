@@ -138,6 +138,8 @@ export class VoiceStudioApplicationService {
       }
       if (row.targetDurationMs !== undefined && (!Number.isSafeInteger(row.targetDurationMs) || row.targetDurationMs <= 0)) throw voiceError('voice_invalid_rows');
       if (!validSpeechWindows(row.speechWindows,row.targetDurationMs)) throw voiceError('voice_invalid_rows');
+      if (row.speechTailMs !== undefined && (!Number.isSafeInteger(row.speechTailMs) || row.speechTailMs < 0 ||
+          !row.speechWindows?.length || row.speechWindows.at(-1).endMs + row.speechTailMs > row.targetDurationMs)) throw voiceError('voice_invalid_rows');
       if (row.boundaryTimingOnly !== undefined && (typeof row.boundaryTimingOnly !== 'boolean' ||
           (row.boundaryTimingOnly && !row.targetDurationMs))) throw voiceError('voice_invalid_rows');
       if (row.characterPresetId && !charactersById.has(row.characterPresetId)) throw voiceError('voice_character_not_found');
@@ -165,6 +167,7 @@ export class VoiceStudioApplicationService {
       record.rows = rows.map(r => ({ id: r.id, enabled: r.enabled, characterPresetId: r.characterPresetId || '', text: r.text, delivery: structuredClone(r.delivery),
         ...(model && {pauseAfterMs:r.pauseAfterMs ?? 0, audioConfig:audioConfigs.get(r.id)}),
         ...(r.targetDurationMs !== undefined && { targetDurationMs: r.targetDurationMs }),
+        ...(r.speechTailMs && {speechTailMs:r.speechTailMs}),
         ...(r.boundaryTimingOnly && {boundaryTimingOnly:true}),
         ...(r.speechWindows && {speechWindows:structuredClone(r.speechWindows)}), selectedTakeId: r.selectedTakeId || null }));
       if (model) for (const row of record.rows) {
@@ -214,6 +217,7 @@ export class VoiceStudioApplicationService {
       ...(document.kind === audioScript && {documentKind:audioScript, audioConfig:row.audioConfig}),
       ...(row.targetDurationMs !== undefined && { targetDurationMs: row.targetDurationMs }),
       ...(row.speechWindows && {speechWindows:row.speechWindows}),
+      ...(row.speechTailMs && {speechTailMs:row.speechTailMs}),
       ...(row.boundaryTimingOnly && {boundaryTimingOnly:true}),
       ...(custom ? { voiceKind: 'custom', customVoiceOperationId: custom.operationId, customVoiceRevision: custom.revision } : {}),
       characterName:character.name,characterPresetId:character.id,documentRevision:document.revision,characterRevision:character.revision };
