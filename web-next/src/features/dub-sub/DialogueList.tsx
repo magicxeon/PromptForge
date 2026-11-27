@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Mic } from "lucide-react";
+import { Captions, Mic, AudioLines } from "lucide-react";
 import config from "./editorConfig";
 import { timeLabel, type Cue, type Project } from "./projectApi";
 export function DialogueList({
@@ -102,7 +102,7 @@ export function DialogueList({
   return (
     <section className="dub-script">
       <header>
-        <h2>{t("script")}</h2>
+        <h2 className="dub-script-title"><Captions size={19} aria-hidden="true" />{t("script")}</h2>
         <select
           aria-label={t("target")}
           value={language}
@@ -115,13 +115,13 @@ export function DialogueList({
           ))}
         </select>
       </header>
-      {(originLabel || onTranscribe) && <div className="dub-transcript-actions">
+      {cues.length > 0 && (originLabel || onTranscribe) && <div className="dub-transcript-actions">
         {originLabel && <small>{originLabel}</small>}
         {onTranscribe && <button type="button" disabled={!canTranscribe} onClick={onTranscribe}>
           {t(cues.length ? "scene.again" : "scene.title")}
         </button>}
       </div>}
-      <input
+      {cues.length > 0 && <input
         aria-label={t("search")}
         placeholder={t("search")}
         value={search}
@@ -130,12 +130,18 @@ export function DialogueList({
           if (container.current) container.current.scrollTop = 0;
           setSearch(e.target.value);
         }}
-      />
+      />}
       <div
         className="dub-rows"
         ref={container}
         onScroll={(e) => setScroll(e.currentTarget.scrollTop)}
       >
+        {!cues.length && <div className="dub-script-empty">
+          <AudioLines size={28} aria-hidden="true" />
+          <strong>{t("scene.emptyDialogue")}</strong>
+          {onTranscribe && <button type="button" className="dub-start-transcription" disabled={!canTranscribe} onClick={onTranscribe}>{t("scene.title")}</button>}
+        </div>}
+        {cues.length > 0 && !filtered.length && <p role="status">{t("scene.noMatches")}</p>}
         <div className="dub-row-window" style={{ height: filtered.length * height }}>
           {visible.map(({ cue: c, index }) => (
             <div key={c.id} className={"dub-line" + (c.id === selected ? " selected" : "")}

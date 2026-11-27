@@ -11,6 +11,7 @@ export {
   removeActorScopedDraft,
 } from "../../../web/src/lib/persistence/actorScopedStorage";
 export { ProcessingSpinner } from "../../../web/src/components/ui/ProcessingSpinner";
+export { StatusNotice } from "../../../web/src/components/ui/StatusNotice";
 export { GenerationModelPicker } from "../../../web/src/components/generation/GenerationModelPicker";
 export {
   getProviderCatalog,

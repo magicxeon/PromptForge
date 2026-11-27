@@ -572,6 +572,26 @@
 }
 .dub-editor .dub-script { overflow: hidden; }
 .dub-editor .dub-script header { flex-wrap: nowrap; }
+.dub-script header { padding-bottom: .4rem; border-bottom: 1px solid #dce5df; }
+.dub-script-title { display: flex; align-items: center; gap: .45rem; }
+.dub-script-title svg { color: #276b51; flex: none; }
+.dub-script-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100%; box-sizing: border-box; gap: .65rem; padding: .9rem;
+  text-align: center; border-radius: .75rem; background: #f0f6f2; color: #284b3d;
+}
+.dub-editor .dub-rows .dub-start-transcription {
+  display: inline-flex; justify-content: center; width: auto; max-width: 100%;
+  color: white; background: #226247; border-color: #226247; padding: .5rem .8rem;
+}
+.dub-project-details .status-notice {
+  display: flex; align-items: flex-start; gap: .65rem; padding: .8rem 1rem;
+  border: 1px solid; border-radius: .6rem;
+}
+.dub-project-details .status-notice--warning { background: #fff6df; border-color: #dfbd73; color: #674610; }
+.dub-project-details .status-notice--error { background: #fff0ed; border-color: #e1aca4; color: #852f28; }
+.dub-project-details .status-notice__icon { width: 1.15rem; height: 1.15rem; flex: none; margin-top: .15rem; }
+.dub-project-details .status-notice__description { margin-top: .2rem; line-height: 1.55; }
 .dub-transcript-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .25rem .5rem; }
 .dub-transcript-actions small { color: #51635a; }
 .dub-transcript-actions button { padding: .25rem .5rem; min-height: 28px; }

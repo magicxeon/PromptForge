@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ProcessingSpinner } from "../../lib/canonical";
+import { ProcessingSpinner, StatusNotice } from "../../lib/canonical";
 import { Dialog } from "./Dialog";
 import config from "./editorConfig";
 import { requestScenePreview, timeLabel, type Cue, type Project, type ScenePreview } from "./projectApi";
@@ -21,7 +21,7 @@ export function SceneTranscription({ project, language, locked, initialPreview, 
   const [era, setEra] = useState(project.languageStyle);
   const [story, setStory] = useState(project.storyContext);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<{code: string; limit?: number}>();
   const [result, setResult] = useState<ScenePreview | undefined>(initialPreview);
   const running = useRef(false);
   const intent = useRef<{ key: string; id: string } | null>(null);
@@ -30,7 +30,7 @@ export function SceneTranscription({ project, language, locked, initialPreview, 
     if (running.current || locked || !target) return;
     running.current = true;
     setBusy(true);
-    setError("");
+    setError(undefined);
     try {
       const saved = await prepare(era.trim(), story.trim());
       const key = JSON.stringify([saved.id, saved.revision, target]);
@@ -38,7 +38,9 @@ export function SceneTranscription({ project, language, locked, initialPreview, 
       setResult(await requestScenePreview(saved, target, intent.current.id));
     } catch (cause) {
       const code = cause && typeof cause === "object" && "code" in cause ? String(cause.code) : "";
-      setError(t("scene.errors." + code, { defaultValue: t("scene.failed") }));
+      const details = cause && typeof cause === "object" && "details" in cause ? cause.details : null;
+      const limit = details && typeof details === "object" && "revisionLimit" in details ? details.revisionLimit : null;
+      setError({code, limit: typeof limit === "number" ? limit : undefined});
     } finally {
       running.current = false;
       setBusy(false);
@@ -60,7 +62,7 @@ export function SceneTranscription({ project, language, locked, initialPreview, 
           </li>)}
         </ol>
         {project.cues.length > 0 && <p>{t("scene.replace")}</p>}
-        {stale && <p role="alert">{t("scene.stale")}</p>}
+        {stale && <StatusNotice tone="warning" title={t("scene.warningHeading")}>{t("scene.stale")}</StatusNotice>}
       </> : <>
         <p>{t("scene.sendInfo")}</p>
         <label>{t("scene.target")}<select value={target} disabled={busy} onChange={e => setTarget(e.target.value)}>
@@ -71,7 +73,10 @@ export function SceneTranscription({ project, language, locked, initialPreview, 
         <label>{t("storyContext")}<textarea value={story} maxLength={config.storyContextMaxLength}
           placeholder={t("storyContextHint")} disabled={busy} onChange={e => setStory(e.target.value)} /></label>
       </>}
-      {error && <p role="alert">{error}</p>}
+      {error && <StatusNotice tone={error.code === "dub_scene_request_limit" ? "warning" : "error"}
+        title={t(error.code === "dub_scene_request_limit" ? "scene.warningHeading" : "scene.errorHeading")}>
+        {error.limit ? t("scene.revisionLimit", { limit: error.limit }) : t("scene.errors." + error.code, { defaultValue: t("scene.failed") })}
+      </StatusNotice>}
       {busy && <p role="status"><ProcessingSpinner /> {t("scene.working")}</p>}
       <footer>
         <button disabled={busy} onClick={close}>{t("cancel")}</button>

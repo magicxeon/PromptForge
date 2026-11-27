@@ -242,6 +242,17 @@ test("scene HTTP admission rejects missing consent, malformed intents, foreign a
   assert.equal(calls, 0);
 });
 
+test("scene preview assembles split final text and sorts complete cues by their original timestamps", async t => {
+  const json = JSON.stringify({ language: "en", cues: [
+    { ...cue, startMs: 500, endMs: 900 }, { ...cue, startMs: 0, endMs: 400 },
+  ] });
+  const f = await fixture(t, async () => Response.json({ status: "completed", output_text: "", steps: [
+    { type: "model_output", content: [{ type: "text", text: json.slice(0, 32) }] },
+    { type: "model_output", content: [{ type: "text", text: json.slice(32) }] },
+  ] }));
+  assert.deepEqual((await f.run()).cues.map(row => row.startMs), [0, 500]);
+});
+
 test("invalid output is never applied and a transport failure cannot re-dispatch the same scene", async t => {
   let calls = 0;
   const f = await fixture(t, async () => {
@@ -289,6 +300,22 @@ test("a new server process can resume an interrupted pre-dispatch preparation", 
     assert.deepEqual(await f.run({ requestId: "duplicate_" + index }), preview);
   await assert.rejects(f.run({ requestId: "overflow_alias" }), { code: "dub_scene_request_limit" });
   assert.deepEqual(await f.run({ requestId: "reopened_dialog" }), preview);
+  assert.equal(calls, 1);
+});
+
+test("failed attempts allow a fresh transcription up to the configured revision limit", async t => {
+  let calls = 0;
+  const f = await fixture(t, async () => {
+    calls++;
+    return Response.json({ status: "completed", output_text: JSON.stringify({ language: "en", cues: [cue] }) });
+  });
+  const limit = sceneTranscriptionPolicy.maxRequestsPerRevision;
+  await f.repo.sceneReceipts(actor, f.project.id, records => {
+    for (let index = 1; index < limit; index++)
+      records.push({ requestId: "failed_" + index, revision: f.body.revision, language: "th", status: "failed" });
+  });
+  assert.equal((await f.run()).cues.length, 1);
+  await assert.rejects(f.run({ requestId: "next_language", language: "zh" }), { code: "dub_scene_request_limit" });
   assert.equal(calls, 1);
 });
 

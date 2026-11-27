@@ -54,6 +54,7 @@ behavior is owned by
   active/focused state.
 - Brand/action gradients are reserved for primary action or selected emphasis.
 - Success, warning, danger, and focus colors use their semantic tokens.
+- Across project screens and dialogs, show actionable warnings and failed operations in a shared inline alert box near the affected action. Give warnings and errors distinct icons, localized headings, and semantic background and border colors. State what happened and the available next step. Announce newly displayed errors to assistive technology and keep form input visible.
 
 Generation settings use Momelo's static yellow render signature: one outer border
 and restrained glow, owned by shared `generation-options.css` and the dedicated

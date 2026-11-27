@@ -13,8 +13,8 @@
   "maxPreviewBytes": 131072,
   "maxOutputTokens": 16384,
   "maxCues": 400,
-  "maxRequestsPerRevision": 4,
-  "maxRetainedRequestsPerProject": 64,
+  "maxRequestsPerRevision": 99,
+  "maxRetainedRequestsPerProject": 128,
   "maxReplayIdsPerRequest": 32,
   "timeoutMs": 180000
 }

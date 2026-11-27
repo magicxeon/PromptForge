@@ -264,6 +264,11 @@
     "complete": "Exported"
   },
   "scene": {
+    "emptyDialogue": "No dialogue yet",
+    "noMatches": "No matching dialogue",
+    "warningHeading": "Please note",
+    "errorHeading": "Transcription failed",
+    "revisionLimit": "This revision has used all {{limit}} requests. Save a project edit to start a new revision before transcribing again.",
     "create": "Create and transcribe with Gemini",
     "createManual": "Create project only",
     "createInfo": "Gemini receives the clip’s audio and story context to transcribe and translate into {{language}}. Google API charges apply.",

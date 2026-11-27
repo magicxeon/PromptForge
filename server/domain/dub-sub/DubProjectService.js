@@ -804,7 +804,7 @@ export class DubProjectService {
       if (timing && reservedCalls + records.filter(r=>r.revision===revision).reduce((n,r)=>n+(r.reservedCalls || 0),0)
           > sceneTranscriptionPolicy.timedDialogue.maxCallsPerRevision) throw dubError("dub_scene_request_limit",429);
       if (records.filter(record => record.revision === revision).length >= sceneTranscriptionPolicy.maxRequestsPerRevision)
-        throw dubError("dub_scene_request_limit", 429);
+        throw Object.assign(dubError("dub_scene_request_limit", 429), { revisionLimit: sceneTranscriptionPolicy.maxRequestsPerRevision });
       while (records.length >= sceneTranscriptionPolicy.maxRetainedRequestsPerProject) {
         const oldestStale = records.findIndex(record => record.revision < revision);
         if (oldestStale < 0) throw dubError("dub_scene_request_limit", 429);
@@ -842,6 +842,8 @@ export class DubProjectService {
       await update({ status: "succeeded", preview });
       return preview;
     } catch (error) {
+      if (!translation && error.code === "dub_scene_invalid_response")
+        console.warn("[DubTranscription] preview rejected", { requestId: claim.requestId, reason: error.reason || "invalid_scene_response" });
       // A timing review may already have completed other groups before this one failed.
       const rejectedFirstGroup = timing && dispatchCount === 1 &&
         ["dub_luna_access","dub_luna_quota","dub_luna_rejected","dub_scene_provider_unavailable"].includes(error.code);

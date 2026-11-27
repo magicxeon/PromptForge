@@ -197,6 +197,13 @@ try {
     preview,
   );
   await page.locator(".dub-picture video").waitFor();
+  for (const width of [390, 820, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const empty = page.locator(".dub-script-empty");
+    await empty.getByText("No dialogue yet").waitFor();
+    assert.ok(await empty.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+    assert.equal(await page.locator(".dub-script input").count(), 0);
+  }
   await page.waitForFunction(() => document.querySelector(".dub-picture video")?.readyState >= 2);
   await page.evaluate(() => document.activeElement?.blur());
   await page.keyboard.down("Space");
@@ -339,6 +346,11 @@ try {
   });
   await sceneButton.click();
   const sceneDialog = page.getByRole("dialog", { name: "Transcribe and translate with Gemini" });
+  await page.route("**/api/dub-sub/projects/*/transcribe", route => route.fulfill({
+    status: 429, json: { code: "dub_scene_request_limit", details: {revisionLimit: 77} },
+  }), {times: 1});
+  await sceneDialog.getByRole("button", {name: "Send audio to Gemini"}).click();
+  await sceneDialog.getByRole("alert").getByText(/77 requests/).waitFor();
   assert.equal(await sceneDialog.getByLabel(/Story or scene context/).inputValue(), context);
   await sceneDialog.getByRole("button", { name: "Cancel" }).click();
   assert.equal(sends, 0);

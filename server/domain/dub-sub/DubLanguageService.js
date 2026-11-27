@@ -16,7 +16,7 @@ function suggestedDelivery(value) {
     if (result.emotion && result.pace && result.intensity && typeof result.direction === "string" && result.direction.length <= 200)
       return result;
   } catch { /* Map invalid provider data to the scene response error. */ }
-  throw dubError("dub_scene_invalid_response", 502);
+  throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "invalid_delivery" });
 }
 const ocrLanguages = {
   th: "tha",
@@ -75,18 +75,16 @@ export class DubLanguageService {
       if (!data || typeof data.language !== "string" || !/^[a-z]{2,3}(-[A-Za-z0-9]{2,8}){0,2}$/.test(data.language) ||
           !Array.isArray(data.cues) || data.cues.length > policy.maxCues ||
           (project.sourceLanguage !== "auto" && data.language.split("-")[0] !== project.sourceLanguage.split("-")[0]))
-        throw dubError("dub_scene_invalid_response", 502);
+        throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "invalid_language_or_cue_list" });
       if (!data.cues.length) throw dubError("dub_no_speech", 422);
       const detected = languages.includes(data.language) ? data.language : data.language.split("-")[0];
       if (project.sourceLanguage === "auto" && !languages.includes(detected))
         throw dubError("dub_scene_language_unsupported", 422);
-      let lastStart = -1;
       const rows = data.cues.map(cue => {
         if (!cue || typeof cue.original !== "string" || !cue.original.trim() ||
             typeof cue.translation !== "string" || !cue.translation.trim() || typeof cue.speaker !== "string" ||
-            !Number.isInteger(cue.startMs) || cue.startMs < lastStart)
-          throw dubError("dub_scene_invalid_response", 502);
-        lastStart = cue.startMs;
+            !Number.isInteger(cue.startMs))
+          throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "invalid_cue_fields" });
         return { id: randomUUID(), startMs: cue.startMs, endMs: cue.endMs, text: cue.original.trim(), sourceOrigin: "gemini",
           speaker: cue.speaker.trim(), translations: { [targetLanguage]: cue.translation.trim() },
           ...(cue.speakerVoiceType ? {speakerVoiceType:cue.speakerVoiceType} : {}),
@@ -94,10 +92,14 @@ export class DubLanguageService {
           translationOrigins: { [targetLanguage]: "gemini" } };
       });
       retainDeliveryOverrides(rows, project.cues || []);
-      const cues = await normalizeCues(rows, project).catch(() => { throw dubError("dub_scene_invalid_response", 502); });
+      const cues = await normalizeCues(rows, project).catch(error => {
+        throw Object.assign(dubError("dub_scene_invalid_response", 502), {
+          reason: error.code === "dub_invalid_timing" ? "cue_outside_timeline" : "invalid_cue_fields",
+        });
+      });
       const result = { cues, language: project.sourceLanguage === "auto" ? detected : project.sourceLanguage };
       if (Buffer.byteLength(JSON.stringify(result)) > policy.maxPreviewBytes)
-        throw dubError("dub_scene_invalid_response", 502);
+        throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "preview_size_limit" });
       return result;
     } finally {
       await fs.rm(temp, { recursive: true, force: true });

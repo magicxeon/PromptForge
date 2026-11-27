@@ -14,7 +14,8 @@ function fail(res, error) {
             ? 404
             : 500),
     )
-    .json({ code, error: code });
+    .json({ code, error: code, ...(code === "dub_scene_request_limit" && Number.isSafeInteger(error.revisionLimit)
+      ? { details: { revisionLimit: error.revisionLimit } } : {}) });
 }
 function verifyIdentity(req) {
   return async () => {
