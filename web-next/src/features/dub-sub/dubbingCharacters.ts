@@ -3,6 +3,25 @@ import type { CustomVoice, VoiceCharacter } from "../../../../web/src/features/v
 import config from "./dubbing-voice-config.json";
 import { assertIdentityEpoch } from "../../../../web/src/lib/auth/actorStore";
 import { getIdentitySnapshot } from "../../lib/canonical";
+import type { Project } from "./projectApi";
+
+export function dubbingReadiness(project: Project, language: string,
+  choices: Awaited<ReturnType<typeof loadDubbingChoices>>, draftVoices = new Map<string, string | undefined>()) {
+  const available = new Set(choices.voices.map(voice => voice.id));
+  const characterVoices = new Map(choices.characters.filter(c => c.voiceKind === "custom").map(c => [c.id, c.voiceId]));
+  const mappedVoice = (speaker: string) => draftVoices.get(speaker) ??
+    characterVoices.get(project.characterMappings[language]?.[speaker]);
+  const issues = project.cues.flatMap(cue => {
+    const binding = cue.voiceBindings[language];
+    const voice = binding?.characterId && !binding.usesSpeakerMapping
+      ? characterVoices.get(binding.characterId) : mappedVoice(cue.speaker || "");
+    const script = binding?.dubText ?? cue.translations[language] ?? (project.sourceLanguage === language ? cue.text : "");
+    const needsScript = !script.trim();
+    const needsVoice = !voice || !available.has(voice);
+    return needsScript || needsVoice ? [{cue, needsScript, needsVoice}] : [];
+  });
+  return {issues, mappedVoice};
+}
 
 export async function activeCharacters() {
   const characters: VoiceCharacter[] = [];

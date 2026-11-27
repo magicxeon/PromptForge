@@ -2,6 +2,8 @@
 **ID**: 099-technical-dept-master
 **Application**: `ModelPromptForge`
 
+Dub & Sub scene transcription keeps validated part results in the actor-private project receipt file `scene-previews.json`. The project transcription endpoint accepts an optional `range` with project-relative `startMs` and `endMs`. The project service validates the uncovered interval and scopes its receipts separately from whole-clip requests. GET `/api/dub-sub/projects/:id/transcribe/:requestId/progress` exposes counts and status. The Dub language service owns audio clipping, speech analysis and offset mapping. Generation owns Gemini dispatch. [Workflow and acceptance](../024-frontend-rebuild/008-dub-sub-studio.md)
+
 The [Story prompt formatter](../../server/domain/cinematic/StoryPromptFormatting.js) owns the shared Seedance sequence clock, whole-second display and legacy merged reference formatting for Cinematic and the web-next prompt dialogs. A sequence retains millisecond precision when rounding would erase a selected shot.
 
 Web-next story authoring is owned by `web-next/src/features/story/` at `/story` and `/story/:id`. It uses Cinematic's existing identity-aware project, series, revision, proposal and writing-quote clients. The Cinematic project library supplies saved scene and shot counts. Display settings belong to `web-next/src/features/story/story-config.json`. See [Story & Shots](../024-frontend-rebuild/013-story-scene-shot.md).

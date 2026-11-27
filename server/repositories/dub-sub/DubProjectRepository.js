@@ -40,7 +40,7 @@ export class DubProjectRepository {
     return source;
   }
 
-  async sceneReceipts(actor, id, apply) {
+  async sceneReceiptFile(actor, id) {
     const directory = await this.checkedRemovalDirectory(actor, id);
     const file = path.join(directory, "scene-previews.json");
     const stat = await fs.lstat(file).catch(error => {
@@ -48,7 +48,15 @@ export class DubProjectRepository {
       return null;
     });
     if (stat && !stat.isFile()) throw dubError("dub_storage_unavailable", 503);
-    return mutateJsonFile(file, [], apply);
+    return file;
+  }
+
+  async sceneReceipts(actor, id, apply) {
+    return mutateJsonFile(await this.sceneReceiptFile(actor, id), [], apply);
+  }
+
+  async readSceneReceipts(actor, id) {
+    return readJsonFile(await this.sceneReceiptFile(actor, id), []);
   }
 
   async get(actor, id, { includePendingDeletion = false } = {}) {

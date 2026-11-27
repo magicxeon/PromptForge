@@ -221,7 +221,10 @@ export const projectsApi = {
     apiRequest(projectUrl(id) + "/" + step, {
       method: "POST",
       body,
-      schema: z.object({ cues: z.array(cue), language: z.string() }),
+      schema: z.object({
+        cues: z.array(cue), language: z.string(),
+        range: z.object({startMs: z.number().int().nonnegative(), endMs: z.number().int().positive()}).optional(),
+      }),
     }),
   frame: async (id: string, body: Record<string, unknown>) => {
     const blob = await apiRequest(projectUrl(id) + "/preview", {
@@ -233,12 +236,33 @@ export const projectsApi = {
     return blob;
   },
 };
-export type ScenePreview = { revision: number; target: string; language: string; cues: Cue[] };
+export type SceneRange = Pick<Cue, "startMs" | "endMs">;
+export type ScenePreview = { revision: number; target: string; language: string; cues: Cue[]; range?: SceneRange };
 
-export async function requestScenePreview(project: Project, target: string, requestId: string): Promise<ScenePreview> {
-  const response = await projectsApi.detect(project.id, "transcribe", {
-    revision: project.revision, language: target, requestId, confirmed: true, preview: true, method: "gemini-scene",
+export function readSceneProgress(projectId: string, requestId: string, signal: AbortSignal) {
+  return apiRequest(projectUrl(projectId) + "/transcribe/" + encodeURIComponent(requestId) + "/progress", {
+    signal,
+    schema: z.object({ done: z.number().int().nonnegative(), total: z.number().int().nonnegative(), status: z.string() }),
   });
+}
+
+export async function requestScenePreview(project: Project, target: string, requestId: string, range?: SceneRange): Promise<ScenePreview> {
+  const response = await projectsApi.detect(project.id, "transcribe", {
+    revision: project.revision, language: target, requestId, confirmed: true, preview: true,
+    method: range ? "gemini-scene-gap" : "gemini-scene",
+    ...(range && { range }),
+  });
+  if (range) {
+    const ids = new Set(project.cues.map(cue => cue.id));
+    const valid = response.range?.startMs === range.startMs && response.range.endMs === range.endMs &&
+      response.cues.every(cue => {
+        if (ids.has(cue.id) || !Number.isInteger(cue.startMs) || !Number.isInteger(cue.endMs) ||
+          cue.startMs < range.startMs || cue.startMs >= cue.endMs || cue.endMs > range.endMs) return false;
+        ids.add(cue.id);
+        return true;
+      });
+    if (!valid) throw Object.assign(new Error("dub_scene_invalid_response"), {code: "dub_scene_invalid_response"});
+  }
   return { ...response, revision: project.revision, target };
 }
 

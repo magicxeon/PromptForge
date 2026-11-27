@@ -8,6 +8,7 @@ import { dubError } from "../../repositories/dub-sub/DubProjectRepository.js";
 import { mediaCommand, videoInput } from "./DubMediaService.js";
 import { sceneTranscriptionPolicy, SceneTranscriptionService } from "../generation/SceneTranscriptionService.js";
 import { languages, normalizeCues, normalizeDelivery } from "./projectFields.js";
+import { chunkWav, mergeSceneParts, planSceneChunks, sceneSpeechIntervals } from "./sceneSpeechChunks.js";
 
 const run = promisify(execFile);
 function suggestedDelivery(value) {
@@ -53,57 +54,118 @@ export class DubLanguageService {
     this.sceneGeneration = sceneGeneration;
   }
 
-  async transcribeScene(project, source, targetLanguage, beforeDispatch) {
+  async transcribeScene(project, source, targetLanguage, beforeDispatch, hooks = {}) {
     const policy = sceneTranscriptionPolicy;
-    const directory = path.dirname(path.dirname(source));
-    const temp = await fs.mkdtemp(path.join(directory, "scene-"));
-    try {
-      const wav = path.join(temp, "audio.wav");
-      await mediaCommand([
-        ...videoInput(source), "-map", "0:a:0", "-vn", "-sn", "-dn", "-map_metadata", "-1",
-        "-t", String(project.durationMs / 1000), "-ac", "1", "-af", "aresample=16000:async=1:first_pts=0", "-c:a", "pcm_s16le",
-        "-fs", String(policy.maxAudioBytes), wav,
-      ], { timeout: policy.timeoutMs });
-      const { size } = await fs.stat(wav);
-      if (size <= 44 || size >= policy.maxAudioBytes) throw dubError("dub_scene_audio_limit", 413);
-      const audio = await fs.readFile(wav);
-      const actor = await beforeDispatch();
-      const data = await this.sceneGeneration.transcribe(actor, audio, {
-        sourceLanguage: project.sourceLanguage, targetLanguage, durationMs: project.durationMs,
-        storyContext: project.storyContext || "", languageStyle: project.languageStyle || "",
+    const {targetMs, maxMs, paddingMs, concurrency, skipPauseMs, maxParts} = policy.chunking;
+    if (![targetMs, maxMs, paddingMs, concurrency, skipPauseMs, maxParts].every(Number.isSafeInteger) ||
+        paddingMs < 0 || targetMs < 1 || maxMs - 2 * paddingMs < targetMs || skipPauseMs < 1 ||
+        maxParts < 1 || maxParts > 50 || concurrency < 1 || concurrency > 2) throw dubError("dub_scene_provider_unavailable", 503);
+    const offsetMs = hooks.range?.startMs ?? 0;
+    const durationMs = (hooks.range?.endMs ?? project.durationMs) - offsetMs;
+    if (!(durationMs > 0 && durationMs <= policy.maxDurationMs)) throw dubError("dub_scene_audio_limit", 413);
+    const filters = ["aresample=16000:async=1:first_pts=0"];
+    if (hooks.range) filters.push(`atrim=start_sample=${offsetMs * 16}:end_sample=${hooks.range.endMs * 16}`, "asetpts=PTS-STARTPTS");
+    const { stdout: pcm } = await mediaCommand([
+      ...videoInput(source), "-map", "0:a:0", "-vn", "-sn", "-dn", "-t", String(durationMs / 1000),
+      "-ac", "1", "-af", filters.join(","), "-c:a", "pcm_s16le", "-f", "s16le", "pipe:1",
+    ], { encoding: "buffer", timeout: policy.timeoutMs, maxBuffer: policy.maxAudioBytes });
+    if (!pcm.length && hooks.range) throw dubError("dub_no_speech", 422);
+    if (!pcm.length || pcm.length + 44 >= policy.maxAudioBytes) throw dubError("dub_scene_audio_limit", 413);
+    const chunks = durationMs <= policy.chunking.maxMs
+      ? [{startMs:0, endMs:durationMs}]
+      : planSceneChunks(await sceneSpeechIntervals(pcm), durationMs, policy.chunking);
+    if (chunks.length > maxParts) throw dubError("dub_scene_audio_limit", 413);
+    await hooks.onPlan?.(chunks.length);
+    if (!chunks.length) throw dubError("dub_no_speech", 422);
+    const knownSpeakers = Object.entries(project.speakerProfiles || {}).map(([speaker, profile]) =>
+      ({speaker, name:profile.name, style:profile.style}));
+    const parts = new Array(chunks.length);
+    let next = 0, failure;
+    const worker = async () => {
+      while (!failure && next < chunks.length) {
+        const index = next++;
+        const {startMs, endMs} = chunks[index];
+        const cached = hooks.cachedParts?.[index];
+        if (cached && cached.startMs === offsetMs + startMs && cached.endMs === offsetMs + endMs) {
+          parts[index] = cached;
+          continue;
+        }
+        try {
+          const actor = await beforeDispatch(index);
+          if (failure) return;
+          const data = await this.sceneGeneration.transcribe(actor, chunkWav(pcm, startMs, endMs), {
+            sourceLanguage: project.sourceLanguage, targetLanguage, durationMs: endMs - startMs,
+            storyContext: project.storyContext || "", languageStyle: project.languageStyle || "",
+            ...(knownSpeakers.length > 0 && {knownSpeakers}),
+          });
+          const part = await this.scenePart(project, targetLanguage, data, offsetMs + startMs, offsetMs + endMs);
+          if (hooks.range || chunks.length > 1) {
+            for (const cue of part.cues) {
+              // Numbered speaker IDs assigned inside one request have no cross-part identity.
+              if (!Object.hasOwn(project.speakerProfiles || {}, cue.speaker) &&
+                  /^(?:speaker|voice|person|พูด|ผู้พูด|เสียง|说话人|说话者|說話人|說話者)[\s#:_-]*(?:[\dA-Z]+|[一二三四五六七八九十]+)$/iu.test(cue.speaker))
+                cue.speaker = "";
+            }
+          }
+          // The provider has completed. A lost checkpoint must block re-dispatch, even
+          // when a different worker concurrently returns an ordinary rejection.
+          try {
+            await hooks.onPart?.(index, part);
+          } catch {
+            throw dubError("dub_scene_outcome_unknown", 502);
+          }
+          parts[index] = part;
+        } catch (error) {
+          if (!failure || error.code === "dub_scene_outcome_unknown") failure = error;
+        }
+      }
+    };
+    await Promise.all(Array.from({length:Math.min(parts.length, policy.chunking.concurrency)}, worker));
+    if (failure) throw failure;
+    const cues = mergeSceneParts(parts);
+    if (!cues.length) throw dubError("dub_no_speech", 422);
+    if (cues.length > policy.maxCues) throw Object.assign(dubError("dub_scene_invalid_response", 502), {reason:"invalid_language_or_cue_list"});
+    retainDeliveryOverrides(cues, project.cues || []);
+    const result = {cues, language:parts.find(part => part.cues.length).language,
+      ...(hooks.range && {range:hooks.range})};
+    if (Buffer.byteLength(JSON.stringify(result)) > policy.maxPreviewBytes)
+      throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "preview_size_limit" });
+    return result;
+  }
+
+  async scenePart(project, targetLanguage, data, startMs, endMs) {
+    const policy = sceneTranscriptionPolicy;
+    if (!data || typeof data.language !== "string" || !/^[a-z]{2,3}(-[A-Za-z0-9]{2,8}){0,2}$/.test(data.language) ||
+        !Array.isArray(data.cues) || data.cues.length > policy.maxCues ||
+        (project.sourceLanguage !== "auto" && data.language.split("-")[0] !== project.sourceLanguage.split("-")[0]))
+      throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "invalid_language_or_cue_list" });
+    const detected = languages.includes(data.language) ? data.language : data.language.split("-")[0];
+    if (project.sourceLanguage === "auto" && !languages.includes(detected))
+      throw dubError("dub_scene_language_unsupported", 422);
+    const rows = data.cues.map(cue => {
+      if (!cue || typeof cue.original !== "string" || !cue.original.trim() ||
+          typeof cue.translation !== "string" || !cue.translation.trim() || typeof cue.speaker !== "string" ||
+          !Number.isInteger(cue.startMs))
+        throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "invalid_cue_fields" });
+      return { id: randomUUID(), startMs: cue.startMs, endMs: cue.endMs, text: cue.original.trim(), sourceOrigin: "gemini",
+        speaker: cue.speaker.trim(), translations: { [targetLanguage]: cue.translation.trim() },
+        ...(cue.speakerVoiceType ? {speakerVoiceType:cue.speakerVoiceType} : {}),
+        suggestedDelivery: { [targetLanguage]: suggestedDelivery(cue.delivery) },
+        translationOrigins: { [targetLanguage]: "gemini" } };
+    });
+    const cues = await normalizeCues(rows, {...project, durationMs:endMs-startMs}).catch(error => {
+      throw Object.assign(dubError("dub_scene_invalid_response", 502), {
+        reason: error.code === "dub_invalid_timing" ? "cue_outside_timeline" : "invalid_cue_fields",
       });
-      if (!data || typeof data.language !== "string" || !/^[a-z]{2,3}(-[A-Za-z0-9]{2,8}){0,2}$/.test(data.language) ||
-          !Array.isArray(data.cues) || data.cues.length > policy.maxCues ||
-          (project.sourceLanguage !== "auto" && data.language.split("-")[0] !== project.sourceLanguage.split("-")[0]))
-        throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "invalid_language_or_cue_list" });
-      if (!data.cues.length) throw dubError("dub_no_speech", 422);
-      const detected = languages.includes(data.language) ? data.language : data.language.split("-")[0];
-      if (project.sourceLanguage === "auto" && !languages.includes(detected))
-        throw dubError("dub_scene_language_unsupported", 422);
-      const rows = data.cues.map(cue => {
-        if (!cue || typeof cue.original !== "string" || !cue.original.trim() ||
-            typeof cue.translation !== "string" || !cue.translation.trim() || typeof cue.speaker !== "string" ||
-            !Number.isInteger(cue.startMs))
-          throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "invalid_cue_fields" });
-        return { id: randomUUID(), startMs: cue.startMs, endMs: cue.endMs, text: cue.original.trim(), sourceOrigin: "gemini",
-          speaker: cue.speaker.trim(), translations: { [targetLanguage]: cue.translation.trim() },
-          ...(cue.speakerVoiceType ? {speakerVoiceType:cue.speakerVoiceType} : {}),
-          suggestedDelivery: { [targetLanguage]: suggestedDelivery(cue.delivery) },
-          translationOrigins: { [targetLanguage]: "gemini" } };
-      });
-      retainDeliveryOverrides(rows, project.cues || []);
-      const cues = await normalizeCues(rows, project).catch(error => {
-        throw Object.assign(dubError("dub_scene_invalid_response", 502), {
-          reason: error.code === "dub_invalid_timing" ? "cue_outside_timeline" : "invalid_cue_fields",
-        });
-      });
-      const result = { cues, language: project.sourceLanguage === "auto" ? detected : project.sourceLanguage };
-      if (Buffer.byteLength(JSON.stringify(result)) > policy.maxPreviewBytes)
-        throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "preview_size_limit" });
-      return result;
-    } finally {
-      await fs.rm(temp, { recursive: true, force: true });
+    });
+    for (const cue of cues) {
+      cue.startMs += startMs;
+      cue.endMs += startMs;
     }
+    const result = { startMs, endMs, cues, language: project.sourceLanguage === "auto" ? detected : project.sourceLanguage };
+    if (Buffer.byteLength(JSON.stringify(result)) > policy.maxPreviewBytes)
+      throw Object.assign(dubError("dub_scene_invalid_response", 502), { reason: "preview_size_limit" });
+    return result;
   }
 
   async localRequest(route, body, code) {

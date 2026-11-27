@@ -1122,15 +1122,29 @@ function Work({ initial }: { initial: Project }) {
         locked={!!busy || timingLocked}
       />
       {sceneOpen && sceneAvailable && (
-        <SceneTranscription project={p} language={p.targetLanguages.includes(lang) ? lang : p.targetLanguages[0]}
+        <SceneTranscription project={p} playheadMs={time} language={p.targetLanguages.includes(lang) ? lang : p.targetLanguages[0]}
           locked={timingLocked || !!busy} initialPreview={createdPreview}
+          repair={(cue, target, action) => {
+            video.current?.pause();
+            setLang(target);
+            select(cue);
+            closeScene();
+            if (action === "translate") translate(target, false, cue);
+            else {
+              setPanel("voice");
+              setInspectorOpen(true);
+            }
+          }}
           prepare={(languageStyle, storyContext) => {
             if (p.languageStyle !== languageStyle || p.storyContext !== storyContext) edit({ languageStyle, storyContext });
             return model.save();
           }}
-          apply={(cues, language, detectedLanguage) => {
-            edit({ cues, ...(p.sourceLanguage === "auto" ? { detectedLanguage } : {}) });
-            setLang(language);
+          apply={({ cues, target, language: detectedLanguage, range }) => {
+            edit({
+              cues: range ? [...p.cues, ...cues].sort((a, b) => a.startMs - b.startMs) : cues,
+              ...(p.sourceLanguage === "auto" && (!range || !p.detectedLanguage) ? { detectedLanguage } : {}),
+            });
+            setLang(target);
             select(cues[0]);
             closeScene();
             if (cues.some(row => row.speaker?.trim())) setCasting(true);

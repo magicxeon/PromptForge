@@ -15,7 +15,7 @@ function fail(res, error) {
             : 500),
     )
     .json({ code, error: code, ...(code === "dub_scene_request_limit" && Number.isSafeInteger(error.revisionLimit)
-      ? { details: { revisionLimit: error.revisionLimit } } : {}) });
+      ? { details: { revisionLimit: error.revisionLimit } } : error.retryable === true ? { details: { retryable: true } } : {}) });
 }
 function verifyIdentity(req) {
   return async () => {
@@ -122,6 +122,8 @@ export function registerDubSubRoutes(app, { projects }) {
     projects.create(actor, body, verifyIdentity(req)),
   );
   route("get", "/:id", (req, actor, id) => projects.get(actor, id));
+  route("get", "/:id/transcribe/:requestId/progress", (req, actor, id) =>
+    projects.sceneProgress(actor, id, req.params.requestId));
   route("post", "/:id/dubbing-timing-review", (req, actor, id, body) =>
     projects.timingReview(actor,id,body,verifyIdentity(req)));
   route("post", "/:id/cue-rhythm", (req, actor, id, body) =>

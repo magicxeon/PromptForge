@@ -28,6 +28,15 @@ import { sceneTranscriptionPolicy } from "../generation/SceneTranscriptionServic
 const prefix = "/api/dub-sub/projects/";
 // A preparation from an earlier local server process has never reached dispatch.
 const sceneProcessId = randomUUID();
+function transcriptionRange(project, range) {
+  if (range === undefined) return undefined;
+  if (!range || !Number.isSafeInteger(range.startMs) || !Number.isSafeInteger(range.endMs) ||
+      range.startMs < 0 || range.endMs <= range.startMs || range.endMs > project.durationMs ||
+      !project.cues.length ||
+      project.cues.some(cue => cue.startMs < range.endMs && cue.endMs > range.startMs))
+    throw dubError("dub_invalid_timing", 422);
+  return { startMs: range.startMs, endMs: range.endMs };
+}
 function selectedCaptions(project, body, language, allowEmpty = false) {
   const requested = body.captionLanguages ?? body.languages ?? [language];
   if (
@@ -554,7 +563,8 @@ export class DubProjectService {
       throw dubError("dub_revision_conflict", 409);
     if (!p.media) throw dubError("dub_media_missing", 409);
     if (kind === "transcribe") {
-      if (body.method !== "gemini-scene" || body.preview !== true) fail();
+      const expectedMethod = body.range === undefined ? "gemini-scene" : "gemini-scene-gap";
+      if (body.method !== expectedMethod || body.preview !== true) fail();
       const preview = await this.reviewScene(actor, p, body, reauthorize);
       // Earlier private Gemini receipts predate the optional origin fields.
       return { ...preview, cues: preview.cues.map(cue => ({ ...cue, sourceOrigin: "gemini",
@@ -736,10 +746,13 @@ export class DubProjectService {
     if (body.confirmed !== true) throw dubError("dub_scene_confirmation_required", 400);
     if (typeof requestId !== "string" || !/^[A-Za-z0-9_-]{8,128}$/.test(requestId) ||
         !project.targetLanguages.includes(language)) fail();
+    const range = !translation ? transcriptionRange(project, body.range) : undefined;
+    const scope = range ? `gap:${range.startMs}-${range.endMs}` : translation?.scope;
     if (!translation) {
       if (!project.media?.hasAudio) throw dubError("dub_audio_missing", 422);
       if (!Number.isSafeInteger(project.durationMs) || project.durationMs <= 0 ||
-          project.durationMs > sceneTranscriptionPolicy.maxDurationMs) throw dubError("dub_scene_audio_limit", 413);
+          (range ? range.endMs - range.startMs : project.durationMs) > sceneTranscriptionPolicy.maxDurationMs)
+        throw dubError("dub_scene_audio_limit", 413);
       if (Object.values(project.tracks).some(track => track.locked)) throw dubError("dub_track_locked", 409);
     }
     this.languageService.sceneGeneration.assertAccess(actor);
@@ -749,7 +762,7 @@ export class DubProjectService {
       return current;
     };
     await verify();
-    const key = JSON.stringify([id, "gemini-scene", actor.userId, revision, language, requestId, translation?.scope]);
+    const key = JSON.stringify([id, "gemini-scene", actor.userId, revision, language, requestId, scope]);
     if (this.running.has(key)) {
       const cached = await this.running.get(key);
       await verify(!translation || translation.timing);
@@ -759,7 +772,7 @@ export class DubProjectService {
       throw dubError("dub_operation_busy", 429);
     const task = translation && !translation.timing
       ? this.executeTranslation(actor, project, body, verify, translation, key)
-      : this.executeScene(actor, project, requestId, language, verify, translation);
+      : this.executeScene(actor, project, requestId, language, verify, translation, scope, range);
     this.running.set(key, task);
     try {
       const result = await task;
@@ -770,14 +783,27 @@ export class DubProjectService {
     }
   }
 
-  async executeScene(actor, project, requestId, language, verify, translation) {
+  async sceneProgress(actor, id, requestId) {
+    this.languageService.sceneGeneration.assertAccess(actor);
+    const project = await this.repo.get(actor, id);
+    const records = await this.repo.readSceneReceipts(actor, id);
+    const record = records.find(r => (!r.scope || r.scope.startsWith("gap:")) && r.revision === project.revision &&
+      (r.requestId === requestId || r.replayIds?.includes(requestId)));
+    if (!record) throw dubError("dub_scene_request_missing", 404);
+    const uncertain = record.code === "dub_scene_outcome_unknown" ||
+      (record.status === "dispatching" && record.processId !== sceneProcessId);
+    return { total: record.totalParts || 0, done: record.doneParts || 0,
+      status: uncertain ? "unknown" : record.status };
+  }
+
+  async executeScene(actor, project, requestId, language, verify, translation, scope, range) {
     const { id, revision } = project;
     const source = translation ? null : await this.repo.sceneSource(actor, project);
-    const scope = translation?.scope;
     const timing = translation?.timing;
     const luna = timing && translation.director !== "gemini";
     const assertAvailable = () => luna ? this.languageService.sceneGeneration.timedDirector() : this.languageService.sceneGeneration.assertAvailable();
     const receipt = apply => this.repo.sceneReceipts(actor, id, apply);
+    const partPolicy = translation ? null : JSON.stringify(sceneTranscriptionPolicy);
     const claim = await receipt(records => {
       const duplicate = records.find(record => record.requestId === requestId || record.replayIds?.includes(requestId));
       if (duplicate && (duplicate.revision !== revision || duplicate.language !== language || duplicate.scope !== scope))
@@ -795,9 +821,9 @@ export class DubProjectService {
         if (replay.status === "preparing" && replay.processId !== sceneProcessId) {
           assertAvailable();
           replay.processId = sceneProcessId;
-          return { requestId: replay.requestId };
+          return { requestId: replay.requestId, parts: replay.parts };
         }
-        return { code: replay.code || "dub_scene_outcome_unknown", statusCode: replay.statusCode || 409 };
+        return { code: replay.code || "dub_scene_outcome_unknown", statusCode: replay.statusCode || 409, retryable: replay.retryable };
       }
       assertAvailable();
       const reservedCalls = timing ? Math.ceil(translation.context.cues.length / sceneTranscriptionPolicy.timedDialogue.linesPerRequest) : 0;
@@ -810,14 +836,21 @@ export class DubProjectService {
         if (oldestStale < 0) throw dubError("dub_scene_request_limit", 429);
         records.splice(oldestStale, 1);
       }
-      for (const record of records) if (record.revision !== revision) delete record.preview;
+      for (const record of records) if (record.revision !== revision) {
+        delete record.preview;
+        delete record.parts;
+      }
+      const prior = !translation && matching.findLast(r => r.retryable && r.parts && r.partPolicy === partPolicy);
+      const parts = prior ? prior.parts : {};
+      if (prior) delete prior.parts;
       records.push({ requestId, revision, language, scope, ...(timing && {reservedCalls}), model: luna ? sceneTranscriptionPolicy.timedDialogue.model : sceneTranscriptionPolicy.model,
+        ...(!translation && { parts, partPolicy, totalParts: prior?.totalParts || 0, doneParts: Object.keys(parts).length }),
         confirmedAt: new Date().toISOString(), status: "preparing", processId: sceneProcessId });
-      return { requestId };
+      return { requestId, parts };
     });
     if (claim.code) {
       if (timing) console.info("[DubTiming] retained_request", {requestId,director:translation.director,code:claim.code});
-      throw dubError(claim.code, claim.statusCode);
+      throw Object.assign(dubError(claim.code, claim.statusCode), { retryable: claim.retryable });
     }
     if (claim.preview) return claim.preview;
     const update = change => receipt(records => {
@@ -827,6 +860,24 @@ export class DubProjectService {
     });
     let dispatching = false;
     let dispatchCount = 0;
+    let totalParts = 0;
+    const completedParts = new Set(Object.keys(claim.parts || {}).map(Number));
+    const hooks = {
+      range,
+      cachedParts: claim.parts || {},
+      onPlan: async total => {
+        totalParts = total;
+        await update({ totalParts: total });
+      },
+      onPart: (index, result) => receipt(records => {
+        const record = records.find(r => r.requestId === claim.requestId);
+        if (!record || record.processId !== sceneProcessId) throw dubError("dub_scene_request_conflict", 409);
+        record.parts ??= {};
+        record.parts[index] = result;
+        record.doneParts = Object.keys(record.parts).length;
+        completedParts.add(index);
+      }),
+    };
     try {
       const beforeDispatch = async () => {
         await update({ status: "dispatching" });
@@ -838,8 +889,8 @@ export class DubProjectService {
       const preview = timing ? await proposeTimedDialogue(translation.context,beforeDispatch,
         (current,input)=>this.languageService.sceneGeneration.shorten(current,input,translation.director)) : translation
         ? await this.languageService.translate(translation.context, beforeDispatch)
-        : await this.languageService.transcribeScene(project, source, language, beforeDispatch);
-      await update({ status: "succeeded", preview });
+        : await this.languageService.transcribeScene(project, source, language, beforeDispatch, hooks);
+      await update({ status: "succeeded", preview, parts: undefined });
       return preview;
     } catch (error) {
       if (!translation && error.code === "dub_scene_invalid_response")
@@ -848,7 +899,11 @@ export class DubProjectService {
       const rejectedFirstGroup = timing && dispatchCount === 1 &&
         ["dub_luna_access","dub_luna_quota","dub_luna_rejected","dub_scene_provider_unavailable"].includes(error.code);
       const unknown = dispatching && !rejectedFirstGroup && (timing || !error.code?.startsWith("dub_") || error.code === "dub_scene_outcome_unknown");
+      const retryable = !translation && totalParts > completedParts.size && !unknown &&
+        ["dub_scene_invalid_response", "dub_scene_provider_unavailable", "dub_scene_provider_rejected"].includes(error.code);
+      if (retryable) error.retryable = true;
       await update({ status: unknown ? "dispatching" : "failed",
+        retryable, ...(!retryable && { parts: undefined }),
         code: unknown ? "dub_scene_outcome_unknown" : publicDubError(error), statusCode: error.statusCode || 500 });
       throw error;
     }

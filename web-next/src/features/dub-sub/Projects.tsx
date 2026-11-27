@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { MoreHorizontal } from "lucide-react";
 import { listRecentVideoTasks } from "../../../../web/src/features/generation/api/videoGenerationApi";
 import { Dialog } from "./Dialog";
+import { SceneProgress } from "./SceneProgress";
 import {
   useActor,
   ProcessingSpinner,
@@ -109,7 +110,7 @@ export function Projects() {
   const controller = useRef<AbortController | null>(null),
     pendingProject = useRef<string | null>(null);
   const geminiAvailable = actor?.role === "admin" && auth?.authMode === "development_bypass" && auth.development?.liveGeneration;
-  const [listening, setListening] = useState(false);
+  const [listening, setListening] = useState<{ projectId: string; requestId: string } | null>(null);
   const [archived, setArchived] = useState(false);
   const projects = useInfiniteQuery({
     queryKey: ["dub-projects", identityScope, archived],
@@ -167,9 +168,10 @@ export function Projects() {
       });
       let sceneError: string | undefined;
       if (sendAudio && !abort.signal.aborted) {
-        setListening(true);
+        const requestId = crypto.randomUUID();
+        setListening({projectId: id, requestId});
         try {
-          const preview = await requestScenePreview(project, project.targetLanguages[0], crypto.randomUUID());
+          const preview = await requestScenePreview(project, project.targetLanguages[0], requestId);
           if (abort.signal.aborted) return;
           client.setQueryData(scenePreviewKey(identityScope, id), preview);
         } catch (cause) {
@@ -183,7 +185,7 @@ export function Projects() {
     } finally {
       controller.current = null;
       setBusy(false);
-      setListening(false);
+      setListening(null);
     }
   }
   return (
@@ -463,10 +465,11 @@ export function Projects() {
                 {t("errors." + error, { defaultValue: error })}
               </p>
             )}
+            {listening && <SceneProgress {...listening} />}
             <footer>
               <button
                 type="button"
-                disabled={listening}
+                disabled={!!listening}
                 onClick={() => {
                   controller.current?.abort();
                   if (!busy) showForm(false);
@@ -475,7 +478,7 @@ export function Projects() {
                 {t("cancel")}
               </button>
               {geminiAvailable && <button type="submit" value="gemini" className="primary" disabled={busy || !targets.length}>
-                {busy && <ProcessingSpinner />} {t(listening ? "scene.working" : "scene.create")}
+                {busy && !listening && <ProcessingSpinner />} {t("scene.create")}
               </button>}
               <button type="submit" value="manual" disabled={busy || !targets.length} className={geminiAvailable ? undefined : "primary"}>
                 {t(geminiAvailable ? "scene.createManual" : "create")}

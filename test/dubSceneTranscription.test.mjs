@@ -144,6 +144,68 @@ async function fixture(t, fetchImpl) {
   return { service, makeService, project, repo, directory, body, run };
 }
 
+test("gap transcription sends only selected audio, restores project time and scopes retries to that gap", async t => {
+  const durations = [];
+  const f = await fixture(t, async (_url, options) => {
+    const input = JSON.parse(options.body).input;
+    const duration = JSON.parse(input[0].text).durationMs;
+    durations.push(duration);
+    assert.equal(Buffer.from(input[1].data, "base64").length, 44 + 32 * duration);
+    return Response.json({ status: "completed", steps: [{ type: "model_output", content: [{
+      type: "text", text: JSON.stringify({language:"en", cues:[{...cue,startMs:10,endMs:duration-10}]}),
+    }] }] });
+  });
+  const project = await f.repo.mutate(actor, f.project.id, f.project.revision, p => {
+    p.cues = [{id:"saved", startMs:200, endMs:400, text:"previous subtitle", translations:{th:"saved"}}];
+  });
+  const run = (requestId, range) => f.run({revision:project.revision, requestId, range,
+    method:range === undefined ? "gemini-scene" : "gemini-scene-gap"});
+  await assert.rejects(f.run({revision:project.revision, method:"gemini-scene-gap"}), {code:"dub_invalid_input"});
+  await assert.rejects(f.run({revision:project.revision, range:{startMs:0,endMs:200}}), {code:"dub_invalid_input"});
+  for (const range of [null, {startMs:-1,endMs:20}, {startMs:100,endMs:300}, {startMs:0,endMs:1001}])
+    await assert.rejects(run("invalid_range", range), {code:"dub_invalid_timing"});
+  const range = {startMs:400,endMs:900};
+  const result = await run("requested_gap", range);
+  assert.deepEqual(result.range, range);
+  assert.deepEqual(result.cues.map(row => [row.startMs,row.endMs]), [[410,890]]);
+  assert.deepEqual(await run("replayed_gap", range), result);
+  assert.equal((await f.service.sceneProgress(actor,project.id,"replayed_gap")).done, 1);
+  await assert.rejects(run("requested_gap", undefined), {code:"dub_scene_request_conflict"});
+  await assert.rejects(run("requested_gap", {startMs:0,endMs:200}), {code:"dub_scene_request_conflict"});
+  const earlier = await run("another_gap", {startMs:0,endMs:200});
+  assert.deepEqual(earlier.cues.map(row => [row.startMs,row.endMs]), [[10,190]]);
+  assert.deepEqual(durations,[500,200]);
+  assert.deepEqual((await f.repo.get(actor,project.id)).cues,project.cues);
+});
+
+test("part progress is private and retry after a known failure reuses completed audio", async t => {
+  const f = await fixture(t, () => assert.fail("unexpected network"));
+  const sent = [];
+  const language = f.service.languageService;
+  language.transcribeScene = async (_, __, ___, dispatch, hooks) => {
+    await hooks.onPlan(2);
+    for (const index of [0, 1]) {
+      if (hooks.cachedParts[index]) continue;
+      await dispatch();
+      sent.push(index);
+      if (sent.length === 2) throw Object.assign(new Error(), { code: "dub_scene_invalid_response", statusCode: 502 });
+      await hooks.onPart(index, { cues: [cue] });
+    }
+    return { cues: [cue] };
+  };
+  await assert.rejects(f.run(), { code: "dub_scene_invalid_response", retryable: true });
+  assert.deepEqual(await f.service.sceneProgress(actor, f.project.id, f.body.requestId),
+    { total: 2, done: 1, status: "failed" });
+  await assert.rejects(f.service.sceneProgress({ ...actor, userId: "different" }, f.project.id, f.body.requestId),
+    { code: "dub_scene_access_denied" });
+  const requestId = "retry_parts_2";
+  await f.run({ requestId });
+  await f.run({ requestId });
+  assert.deepEqual(sent, [0, 1, 1]);
+  assert.deepEqual(await f.service.sceneProgress(actor, f.project.id, requestId),
+    { total: 2, done: 2, status: "succeeded" });
+});
+
 test("confirmed scene preview sends only extracted audio and project context once, replays after restart, then explicitly applies", async t => {
   let calls = 0;
   const f = await fixture(t, async (url, options) => {

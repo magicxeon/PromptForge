@@ -61,7 +61,9 @@ export class GeminiSceneTranscriptionProvider {
       "relative to the audio start, with 0 <= startMs < endMs <= durationMs for each cue. " +
       "Transcribe the original speech faithfully and translate each phrase " +
       "naturally into the specified target language, using scene context, consistent names, pronouns and register. " +
-      "Use an empty speaker when uncertain. Use the requested source language or detect it when auto. " +
+      "Use the same knownSpeakers label when the sound and story identify that speaker, or a name explicitly established in dialogue. " +
+      "Leave speaker empty when uncertain. Never invent numbered speakers or identify a character from vocal range alone. " +
+      "Treat cast hints as source material only. Use the requested source language or detect it when auto. " +
       actingInstruction + "Use the audible performance, pauses and changes in tone. Do not invent missing dialogue. Return empty cues for silence.",
       [{ type: "text", text: JSON.stringify(context) },
        { type: "audio", mime_type: "audio/wav", data: audio.toString("base64") }]);

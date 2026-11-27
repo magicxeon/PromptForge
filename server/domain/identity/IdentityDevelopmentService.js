@@ -47,6 +47,7 @@ const liveReads = [
   /^\/api\/cinematic\/projects\/[\w-]+\/scenes\/[\w-]+\/shots\/[\w-]+\/writer-preparation$/,
   /^\/api\/cinematic\/(?:authoring-manifest|projects(?:\/[\w-]+(?:\/series|\/writing\/operations\/[\w-]+)?)?)$/,
   new RegExp('^' + dubBatchPath + '$'),
+  new RegExp('^/api/dub-sub/projects/' + projectUuid + '/transcribe/[A-Za-z0-9_-]{8,128}/progress$'),
   /^\/api\/dub-sub\/projects(?:\/[\w-]+(?:\/(?:media|poster|peaks|exports\/[\w-]+))?)?$/,
   /^\/api\/voice-studio\/custom-voices$/,
   /^\/api\/voice-studio\/(?:catalog|documents(?:\/[^/]+(?:\/rows\/[^/]+\/takes)?)?|characters|audio-library|generations\/[^/]+)$/,

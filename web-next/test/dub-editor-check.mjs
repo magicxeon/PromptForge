@@ -335,17 +335,26 @@ try {
   const currentVideo = await page.locator(".dub-picture video").elementHandle();
   const sceneButton = page.getByRole("button", { name: "Transcribe again with Gemini" });
   let sends = 0;
+  let interrupted;
   await page.route("**/api/dub-sub/projects/*/transcribe", async route => {
     const body = route.request().postDataJSON();
     if (body.method !== "gemini-scene") return route.continue();
     assert.equal(body.confirmed, true);
     assert.equal(body.language, "th");
     sends++;
+    if (sends === 1) {
+      assert.equal(body.revision, interrupted.revision);
+      assert.notEqual(body.requestId, interrupted.requestId);
+    }
     await route.fulfill({ json: { language: "zh", cues: [{ id: "scene_line_1", startMs: 500, endMs: 1800,
       text: "客栈在哪儿？", speaker: "Guest", sourceOrigin: "gemini", translations: { th: "โรงเตี๊ยมอยู่ที่ใด" }, translationOrigins: {th: "gemini"} }] } });
   });
   await sceneButton.click();
   const sceneDialog = page.getByRole("dialog", { name: "Transcribe and translate with Gemini" });
+  assert.equal(await sceneDialog.getByLabel("Audio to transcribe").inputValue(), "auto");
+  await sceneDialog.getByRole("button", {name:"Edit script or choose voice"}).first().waitFor();
+  assert.equal(await sceneDialog.getByRole("button", {name:"Send audio to Gemini"}).count(), 0);
+  await sceneDialog.getByLabel("Audio to transcribe").selectOption("whole");
   await page.route("**/api/dub-sub/projects/*/transcribe", route => route.fulfill({
     status: 429, json: { code: "dub_scene_request_limit", details: {revisionLimit: 77} },
   }), {times: 1});
@@ -355,9 +364,28 @@ try {
   await sceneDialog.getByRole("button", { name: "Cancel" }).click();
   assert.equal(sends, 0);
   await sceneButton.click();
+  let failPart;
+  await sceneDialog.getByLabel("Audio to transcribe").selectOption("whole");
+  let progressReads = 0;
+  await page.route("**/api/dub-sub/projects/*/transcribe/*/progress", route => {
+    progressReads++;
+    return route.fulfill(progressReads === 1 ? {status: 404, json: {code: "dub_not_found"}} :
+      {json: {done: 1, total: 3, status: "dispatching"}});
+  });
+  await page.route("**/api/dub-sub/projects/*/transcribe", async route => {
+    interrupted = route.request().postDataJSON();
+    await new Promise(resolve => { failPart = resolve; });
+    await route.fulfill({status: 502, json: {code: "dub_scene_invalid_response", details: {retryable: true}}});
+  }, {times: 1});
   await sceneDialog.getByRole("button", { name: "Send audio to Gemini" }).click();
+  await sceneDialog.getByRole("status").filter({hasText: "1 of 3 parts completed"}).waitFor();
+  failPart();
+  await sceneDialog.getByRole("button", {name: "Retry unfinished parts"}).click();
   await sceneDialog.getByText("โรงเตี๊ยมอยู่ที่ใด").waitFor();
   assert.equal(await line.getByRole("textbox", { name: "Thai" }).inputValue(), "สวัสดี");
+  const proposedSpeaker = sceneDialog.getByRole("textbox", {name: "Speaker", exact: true});
+  assert.equal(await proposedSpeaker.inputValue(), "Guest");
+  await proposedSpeaker.fill("Traveler");
   for (const width of [390, 820, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     assert.ok(await sceneDialog.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
@@ -365,6 +393,7 @@ try {
   await sceneDialog.getByRole("button", { name: "Use these subtitles" }).click();
   const speakerDialog = page.getByRole("dialog", { name: "Dub project" });
   await speakerDialog.locator(".dub-cast-row summary").click();
+  assert.equal(await speakerDialog.getByLabel("Character name").inputValue(), "Traveler");
   await speakerDialog.getByLabel("Character name").fill("Inn guest");
   await speakerDialog.getByRole("button", { name: "Set up dubbing voices" }).click();
   await page.getByRole("heading", { name: "Dubbing voices", exact: true }).waitFor();
@@ -376,6 +405,42 @@ try {
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await page.getByText("Saved", { exact: true }).waitFor();
   assert.equal(sends, 1);
+  const projectEndpoint = origin + "/api" + new URL(page.url()).pathname;
+  const beforeGap = await (await page.request.get(projectEndpoint)).json();
+  await sceneButton.click();
+  await sceneDialog.getByLabel("Audio to transcribe").selectOption("gap");
+  const gapSelect = sceneDialog.getByLabel("Time range without subtitles");
+  // Use the trailing gap so these checks also cover clip-relative vs timeline timestamps.
+  const from = Math.max(...beforeGap.cues.map(cue => cue.endMs));
+  await gapSelect.selectOption(String(from));
+  for (const width of [390, 820, 1440]) {
+    await page.setViewportSize({width, height:900});
+    assert.ok(await sceneDialog.evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+  }
+  const gap = {startMs:from, endMs:beforeGap.durationMs};
+  const gapCue = {id:"gap_line", ...gap, text:"再见", translations:{th:"ลาก่อน"}};
+  let gapCalls = 0;
+  await page.route("**/api/dub-sub/projects/*/transcribe", async route => {
+    assert.equal(route.request().postDataJSON().method, "gemini-scene-gap");
+    assert.deepEqual(route.request().postDataJSON().range, gap);
+    gapCalls++;
+    const json = { language:"zh", cues:[gapCue] };
+    if (gapCalls === 2) json.range = gap;
+    await route.fulfill({json});
+  }, {times:2});
+  const sendGap = sceneDialog.getByRole("button", {name:"Send audio to Gemini"});
+  await sendGap.click();
+  await sceneDialog.getByRole("alert").waitFor();
+  assert.equal(await sceneDialog.getByRole("button", {name:"Add these lines to the timeline"}).count(), 0);
+  await sendGap.click();
+  await sceneDialog.getByRole("button", {name:"Add these lines to the timeline"}).click();
+  await page.waitForFunction(() => document.querySelector('.dub-line.selected textarea[aria-label="Thai"]')?.value === "ลาก่อน");
+  await page.getByText("Saved", {exact:true}).waitFor();
+  const afterGap = await (await page.request.get(projectEndpoint)).json();
+  assert.deepEqual(afterGap.cues.filter(cue => cue.id !== gapCue.id), beforeGap.cues);
+  assert.equal(afterGap.cues.at(-1).id, gapCue.id);
+  assert.deepEqual(afterGap.speakerProfiles, beforeGap.speakerProfiles);
+  assert.deepEqual(afterGap.characterMappings, beforeGap.characterMappings);
   await page
     .getByRole("link", { name: "Projects", exact: true })
     .first()
@@ -432,7 +497,14 @@ try {
   assert.equal((await projects.list(actor, {})).items.length, 0);
   await page.getByRole("button", { name: "Create", exact: true }).click();
   await form.locator('input[type="file"]').setInputFiles(path.join(root, "scene.mp4"));
+  let finishCreation;
+  await page.route("**/api/dub-sub/projects/*/transcribe", async route => {
+    await new Promise(resolve => { finishCreation = resolve; });
+    await route.fallback();
+  }, {times: 1});
   await form.getByRole("button", { name: "Create and transcribe with Gemini" }).click();
+  await form.getByRole("status").filter({hasText: "1 of 3 parts completed"}).waitFor();
+  finishCreation();
   await sceneDialog.getByText("New preview · Not applied").waitFor();
   assert.equal(sends, 2);
   await sceneDialog.getByRole("button", { name: "Use these subtitles" }).click();

@@ -4,6 +4,30 @@
   "requirement": "requirements/024-frontend-rebuild/008-dub-sub-studio.md",
   "tasks": [
     {
+      "id":"DS-SPEECH-GAP","title":"Transcribe and review one missing subtitle interval",
+      "complexity":"complex","reason":"The preview and provider request must use identical project-relative bounds.",
+      "owner":"product-requirement-architect","ownerAgentId":"/root","dependsOn":["DS-SPEECH-PARTS"],
+      "capabilities":["dub-sub","generation"],"risks":["shared-contract","privacy","user-facing"],
+      "writeScope":["server/domain/dub-sub/","test/","web-next/","requirements/024-frontend-rebuild/","requirements/099-technical-dept/"],
+      "status":"complete","acceptance":["Send only selected uncovered audio and insert its reviewed cues while retaining existing subtitles and dubbing."],
+      "reviewers":["qa-release-engineer","security-reviewer","ux-ui-product-designer"],
+      "reviews":[{"role":"security-reviewer","agentId":"/root/range_review","result":"passed","reference":"test/dubSceneTranscription.test.mjs"},{"role":"qa-release-engineer","agentId":"/root/range_review","result":"passed","reference":"test/dubSceneTranscription.test.mjs"},{"role":"ux-ui-product-designer","agentId":"/root/range_ui","result":"passed","reference":"web-next/test/dub-editor-check.mjs"}],
+      "evidence":[{"check":"Send only selected uncovered audio and insert its reviewed cues while retaining existing subtitles and dubbing.","result":"passed","reference":"web-next/test/dub-editor-check.mjs"}],
+      "handoff":"Range requests use a distinct method so older servers reject them before dispatch. Offline FFmpeg service checks and browser fixture cover scoped preview, replay and applying new rows. Live provider accuracy remains unverified."
+    },
+    {
+      "id":"DS-SPEECH-PARTS","title":"Review subtitles from speech-bearing audio parts in one timeline",
+      "complexity":"complex","reason":"Coordinate speech detection, resumable provider requests and review progress.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root","dependsOn":[],
+      "capabilities":["dub-sub","generation"],"risks":["shared-contract","privacy","user-facing"],
+      "writeScope":["server/domain/dub-sub/","server/repositories/dub-sub/","server/domain/identity/","server/app/routes/dubSubRoutes.js","server/providers/","server/config/","web-next/","test/","requirements/024-frontend-rebuild/","requirements/099-technical-dept/"],
+      "status":"complete","acceptance":["Retain successful parts on explicit retry and produce a single chronological speaker-review preview from speech-bearing windows."],
+      "reviewers":["security-reviewer","qa-release-engineer","ux-ui-product-designer"],
+      "reviews":[{"role":"security-reviewer","agentId":"/root/chunks","result":"passed","reference":"test/dubSceneTranscription.test.mjs"},{"role":"qa-release-engineer","agentId":"/root/progress_ui","result":"passed","reference":"test/dubSceneChunks.test.mjs"},{"role":"ux-ui-product-designer","agentId":"/root/progress_ui","result":"passed","reference":"web-next/test/dub-editor-check.mjs"}],
+      "evidence":[{"check":"Retain successful parts on explicit retry and produce a single chronological speaker-review preview from speech-bearing windows.","result":"passed","reference":"test/dubSceneChunks.test.mjs"}],
+      "handoff":"Offline audio and receipt tests cover retries, unknown outcomes, progress isolation and boundary duplicates. Browser journey covers project creation, speaker review and Apply. The 262.7s project audio produced seven windows locally. Live provider accuracy remains unmeasured."
+    },
+    {
       "id":"DS-AUDIO-SCRIPTS","title":"Author and export standalone spoken dialogue",
       "complexity":"complex","reason":"Coordinate document kinds, saved voices, row synthesis and ordered audio export.",
       "owner":"product-requirement-architect","ownerAgentId":"/root","dependsOn":[],

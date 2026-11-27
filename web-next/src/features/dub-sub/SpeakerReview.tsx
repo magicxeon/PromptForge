@@ -7,7 +7,7 @@ import { getIdentitySnapshot, ProcessingSpinner, useActor } from "../../lib/cano
 import { usePrivateImage } from "../../components/media/MediaImage";
 import { Dialog } from "./Dialog";
 import config from "./editorConfig";
-import { loadDubbingChoices } from "./dubbingCharacters";
+import { dubbingReadiness, loadDubbingChoices } from "./dubbingCharacters";
 import { BatchControls } from "./BatchControls";
 import { timeLabel, type Project } from "./projectApi";
 
@@ -52,15 +52,8 @@ export function SpeakerReview({ project, language, setup, openSetup, returnToEdi
   const [castVersion, setCastVersion] = useState(0);
   const blocked = busy || batchBusy || closing;
   const unassigned = project.cues.filter(c => !c.speaker?.trim());
-  const availableVoices = new Set(choices.data?.voices.map(v => v.id));
-  const characterVoices = new Map(choices.data?.characters.filter(c => c.voiceKind === "custom").map(c => [c.id,c.voiceId]));
-  const castVoices = new Map(rows.map(row => [row.speaker, row.voice ?? characterVoices.get(project.characterMappings[language]?.[row.speaker])]));
-  const missingInputs = project.cues.filter(c => {
-    const binding = c.voiceBindings[language];
-    const voice = binding?.characterId && !binding.usesSpeakerMapping ? characterVoices.get(binding.characterId) : castVoices.get(c.speaker || "");
-    const text = binding?.dubText ?? c.translations[language] ?? (project.sourceLanguage === language ? c.text : "");
-    return !text.trim() || !voice || !availableVoices.has(voice);
-  });
+  const readiness = choices.data && dubbingReadiness(project, language, choices.data, new Map(rows.map(r => [r.speaker,r.voice])));
+  const missingInputs = readiness?.issues.map(item => item.cue) ?? [];
   async function closeCasting() {
     if (closing || busy || (batchBusy && !canExitBatch)) return;
     if (canExitBatch) {
@@ -149,7 +142,7 @@ export function SpeakerReview({ project, language, setup, openSetup, returnToEdi
         }}>{project.targetLanguages.map(l => <option key={l} value={l}>{t("lang." + l)}</option>)}</select></label>
         <button disabled={blocked} onClick={() => {
           original.current?.pause(); setSample(null);
-          setEditing(rows.find(r => !castVoices.get(r.speaker))?.speaker || "");
+          setEditing(rows.find(r => !readiness?.mappedVoice(r.speaker))?.speaker || "");
           openSetup();
         }}>{t("casting.setup")}</button></div></header>
       {choices.isLoading && <ProcessingSpinner />}

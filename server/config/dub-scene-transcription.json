@@ -8,6 +8,14 @@
     "maxCallsPerRevision": 25
   },
   "maxDurationMs": 300000,
+  "chunking": {
+    "targetMs": 35000,
+    "maxMs": 45000,
+    "paddingMs": 500,
+    "skipPauseMs": 6000,
+    "maxParts": 50,
+    "concurrency": 2
+  },
   "maxAudioBytes": 12000000,
   "maxResponseBytes": 262144,
   "maxPreviewBytes": 131072,
