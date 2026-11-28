@@ -24,6 +24,8 @@ The Story direction catalog also owns the spoken-language selector. Explicit pro
 
 Story & Shots stores visual style in project direction and accepted art direction on the shot. The scene mutation owns moving and reordering shots. Saved single-shot variants include the ordered asset identifiers and roles produced by the prompt compiler. The prompt viewer resolves available thumbnails from actor-scoped preparation. The web-next staging configuration owns the Seedance shot-density guidance.
 
+Cinematic's shared character dossier owns named outfit references alongside the primary reference. Scene and shot mutations own the scoped selections. Story prompt preparation resolves a shot override first, then the scene selection, then the primary reference. Uploaded and generated images use the existing actor-owned reference storage.
+
 This directory tracks refactoring tasks, technical debt payments, and modularization requirements designed to keep the codebase maintainable, performant, and clean.
 
 Story & Shots runs its draft and refinement as separate requests through the existing shots writing operation. The Cinematic application rebuilds the approved source for each request. StoryPromptLanguage owns the editable direction-line contract. The web-next prompt dialogs keep the first draft for fallback and retry until the author saves or closes.

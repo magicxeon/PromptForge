@@ -14,17 +14,27 @@ import {readReference} from "./StoryCharacters";
 const targetSchema = z.object({projectId:z.string(),ownerId:z.string(),characterId:z.string(),name:z.string(),updatedAt:z.string()});
 export type CharacterImageTarget = z.infer<typeof targetSchema>;
 
-export async function saveCharacterReference(target:CharacterImageTarget,imageUrl:string,changedMessage:string) {
+export async function saveCharacterReference(target:CharacterImageTarget,image:string|Blob,changedMessage:string,outfit?:{id:string;name:string}) {
   const epoch = getIdentitySnapshot().epoch;
   const root = await getCinematicProject(target.ownerId);
   const project = root.id===target.projectId ? root : await getCinematicProject(target.projectId);
   const current = root.castAssignments.find(member=>member.id===target.characterId && member.active);
-  if (!current || current.sourceType!=="dossier" || current.updatedAt!==target.updatedAt) throw new Error(changedMessage);
-  const blob = await apiMediaBlob(imageUrl);
+  if (!current || (!outfit && current.sourceType!=="dossier") || current.updatedAt!==target.updatedAt ||
+      (outfit && !current.storyOutfits?.some(item=>item.id===outfit.id))) throw new Error(changedMessage);
+  const blob = typeof image==="string" ? await apiMediaBlob(image) : image;
   const data = await readReference(blob);
   if (getIdentitySnapshot().epoch!==epoch) return;
   const asset = await uploadGenerationReference(data,"character_reference","story-character");
   if (getIdentitySnapshot().epoch!==epoch) return;
+  if(outfit) {
+    const saved=await upsertCinematicSharedCharacter(project.id,current.id,{
+      expectedProjectVersion:project.version,expectedStoryProjectVersion:root.version,
+      displayName:current.displayName,storyRole:current.storyRole,
+      storyOutfit:{id:outfit.id,name:outfit.name,assetId:asset.referenceId}
+    });
+    if(getIdentitySnapshot().epoch===epoch)return saved;
+    return;
+  }
   const result = await upsertCinematicSharedCharacter(project.id,current.id,{
     sourceType:"dossier", storyRoleSlotId:current.storyRoleSlotId ?? undefined,
     displayName:current.displayName, storyRole:current.storyRole, storyImportance:current.storyImportance,

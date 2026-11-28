@@ -11,6 +11,7 @@ import settings from "./staging-config.json";
 import {useTakeStoryRunSkills, StoryRunSkillPicker} from "../StoryRunSkills";
 import {SceneDirectionSummary} from "./SceneDirectionSummary";
 import {SceneBlockingMap} from "./SceneBlockingMap";
+import {StoryWardrobePicker} from "./StoryWardrobePicker";
 import {emptyDraft} from "../../playground/state/imageDraft";
 
 const StoryLooksheetDialog=lazy(()=>import("../StoryLooksheetDialog").then(module=>({default:module.StoryLooksheetDialog})));
@@ -26,7 +27,7 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment,error}:{
   const [changed,setChanged]=useState<SceneEnvironment>();
   const image = scene.approvedEnvironmentSource;
   const alternatives = project.scenes.filter(item=>item.id!==scene.id && item.approvedEnvironmentSource && item.approvedEnvironmentSource.assetId!==image?.assetId);
-  const cast = project.castAssignments.filter(person=>person.active!==false && scene.castAssignmentIds.includes(person.id));
+  const cast = project.castAssignments.filter(person=>scene.castMode !== "none" && person.active!==false && scene.castAssignmentIds.includes(person.id));
   const direction = scene.environmentPrompt || scene.artDirection;
   const revision = project.chapterVersions.find(item=>item.id===scene.sourceChapterRevisionId);
   const excerpt = revision && scene.sourceStartParagraph && scene.sourceEndParagraph
@@ -95,6 +96,7 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment,error}:{
         <p className="story-prose">{excerpt}</p></details>}
       {direction&&<><h4>{t("stage.direction")}</h4><p className="story-prose">{direction}</p></>}
       {continuity.length>0&&<dl>{continuity.map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>}
+      <StoryWardrobePicker project={project} scene={scene} members={cast} run={run}/>
       <section className="story-scene-treatment">
         <h4>{t("blocking.map")}</h4>
         {scene.blockingMap ? <><p className="story-prose">{scene.blockingMap}</p><SceneBlockingMap value={scene.blockingMap}/></> :

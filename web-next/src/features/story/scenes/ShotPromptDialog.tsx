@@ -17,6 +17,7 @@ import {approveCinematicStoryboardSource, getCinematicProject} from "../../../..
 import {PromptReferenceImage,usePromptReferenceImages} from "./PromptReferenceImage";
 import {OpeningFramePicker} from "./OpeningFramePicker";
 import {ShotArtDirection} from "./ShotArtDirection";
+import {StoryWardrobePicker} from "./StoryWardrobePicker";
 import {StoryPromptReviewDialog,useStoryPromptReview} from "./StoryPromptReview";
 import {outputStorageKey} from "../../playground/state/imageDraft";
 import "./promptTranslations";
@@ -65,9 +66,9 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
   const missingCharacters = packet?.missingCharacters ?? [];
   const savedVariant = format === "legacy" ? undefined : shot.storyPromptVariants?.[format];
   const outdated = !prepared && Boolean(savedVariant && packet && savedVariant.sourceFingerprint !== packet.sourceFingerprint);
-  const savedRefs = prepared ? undefined : savedVariant?.references;
+  const savedRefs = prepared || outdated ? undefined : savedVariant?.references;
   const listedRefs = savedRefs?.map(ref=>({...ref, imageUrl:packet?.references.find(image=>image.assetId===ref.assetId)?.imageUrl}))
-    ?? (!prepared && savedText ? undefined : packet?.references);
+    ?? (!prepared && savedText && !outdated ? undefined : packet?.references);
   const referenceImages = usePromptReferenceImages(listedRefs);
   const language = i18n.language.startsWith("th") ? "th" : "en";
   const sourceOutline = shot.shotDocument?.match(/^OPENING(?: FRAME)?[ \t]*\r?\n([^\r\n]+)/im)?.[1]
@@ -82,6 +83,12 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
   const resolvedCues = (prepared || current.data)?.dialogue.cues || [];
   const members = project.castAssignments.filter(person => person.active !== false &&
     (castIds.includes(person.id) || resolvedCues.some(cue=>cue.speakerCastAssignmentId===person.id)));
+  const wardrobeMembers = project.castAssignments.filter(person=>{
+    if (person.active===false) return false;
+    if (packet?.references.some(ref=>ref.castAssignmentId===person.id)) return true;
+    if (missingCharacters.some(name=>name===person.displayName || name.startsWith(person.displayName+" · "))) return true;
+    return members.includes(person) && !shot.speakerBindings?.some(binding=>binding.castAssignmentId===person.id && binding.visible===false);
+  });
   const stale = project.version !== sourceVersion;
   const needsFrame = format === "flow" && !shot.approvedStoryboardSource;
   const frameReferences = prepared?.storyPacket?.references ?? [];
@@ -215,6 +222,10 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
       </li>)}</ol> : <p>{format === "legacy" || !prepared && savedText && !savedRefs ? label("unknownRefs") :
         listedRefs ? label("noRefs") : current.isError ? label("refsError") : label("loadingRefs")}</p>}
       {current.isError && <button onClick={()=>void current.refetch()}>{label("retry")}</button>}
+      {format!=="legacy" && <StoryWardrobePicker project={project} scene={scene} shot={shot}
+        members={wardrobeMembers}
+        run={run} disabled={preparing || saving || text!==savedText || artDirty || stale}
+        onSaved={version=>{setSourceVersion(version);setPrepared(undefined);setCopied(false);setLocalError("");}}/>}
       {needsFrame && <p>{label("needFrame")} <button onClick={() => requestFormat("still")}>{label("prepareFrame")}</button></p>}
       {(format === "flow" || format === "seedance") && <button disabled={saving || preparing || text!==savedText || stale}
         onClick={() => setPicker(true)}>{label(shot.approvedStoryboardSource ? "replaceFrame" : "chooseFrame")}</button>}
@@ -249,7 +260,7 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
         <button disabled={preparing || saving || artDirty || stale || needsFrame || !!missingCharacters.length || Boolean(prepared)} onClick={() => void prepare()}>
           {preparing && <ProcessingSpinner/>}{artChanged ? label("rebuildArt") : savedText ? t("regeneratePrompt") : t("generatePrompt")}
         </button>
-        <button type="button" className="story-copy" disabled={referenceImages.pending || !text.trim() || !!missingCharacters.length || outdated} onClick={async () => {
+        <button type="button" className="story-copy" disabled={referenceImages.pending || !text.trim() || !!missingCharacters.length || outdated || stale || (format!=="legacy" && !packet)} onClick={async () => {
           try { await navigator.clipboard.writeText(text); setCopied(true); }
           catch { setLocalError(label("copyFailed")); }
         }}><Copy size={16}/>{label(copied ? "copied" : "copy")}</button>

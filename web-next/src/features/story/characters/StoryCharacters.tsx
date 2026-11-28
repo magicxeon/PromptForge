@@ -1,4 +1,4 @@
-import {lazy, Suspense, useEffect, useState, type FormEvent} from "react";
+import {lazy, Suspense, useEffect, useRef, useState, type FormEvent} from "react";
 import {useTranslation} from "react-i18next";
 import {useSearchParams} from "react-router-dom";
 import {ProcessingSpinner, uploadGenerationReference, useActor} from "../../../lib/canonical";
@@ -13,6 +13,7 @@ import {saveCharacterReference} from "./CharacterImageReturn";
 import {emptyDraft, outputStorageKey} from "../../playground/state/imageDraft";
 
 type Member = CinematicProject["castAssignments"][number];
+type Outfit = NonNullable<Member["storyOutfits"]>[number];
 const StoryLooksheetDialog=lazy(()=>import("../StoryLooksheetDialog").then(module=>({default:module.StoryLooksheetDialog})));
 const imageTypes = ["image/png", "image/jpeg", "image/webp"];
 const maximumBytes = 12 * 1024 * 1024;
@@ -40,8 +41,7 @@ export function StoryCharacters({project, owner, catalog, run, error, busy}: {
   const [selected, setSelected] = useState<string[]>([]);
   const [batchMode,setBatchMode]=useState(false);
   const takeSkills=useTakeStoryRunSkills("full_story");
-  const [looksheet,setLooksheet]=useState<{person:Member;prompt:string;outfit:string;skills:{id:string;name:string;instruction:string;selected:boolean}[]}>();
-  const [outfit, setOutfit] = useState("");
+  const [looksheet,setLooksheet]=useState<{person:Member;prompt:string;outfit?:Outfit;skills:{id:string;name:string;instruction:string;selected:boolean}[]}>();
   const [reviewing, setReviewing] = useState(false);
   const [checking, setChecking] = useState(false);
   const key = JSON.stringify(["story-cast-review", identityScope, owner.id]);
@@ -84,7 +84,8 @@ export function StoryCharacters({project, owner, catalog, run, error, busy}: {
     setProposal(value => value && {...value, characters:value.characters.slice(1)});
     if (proposal?.characters.length === 1) setReviewing(false);
   }
-  function createLooksheet(person:Member, wardrobe:string) {
+  function createLooksheet(person:Member, outfit?:Outfit) {
+    const wardrobe=outfit?.name ?? "";
     const details = person.storyCharacterDetails;
     const direction = owner.writingSettings?.direction;
     const source={...person,description:[details?.appearance,wardrobe].filter(Boolean).join(" ")};
@@ -103,7 +104,14 @@ export function StoryCharacters({project, owner, catalog, run, error, busy}: {
       direction ? [direction.country,direction.period,direction.visualStyle].filter(Boolean).join(", ") : "",
       ...recommended.map(id=>skills.find(skill=>skill.id===id)?.instruction)
     ].filter(Boolean).join("\n");
-    setLooksheet({person,prompt,outfit:wardrobe,skills});
+    setLooksheet({person,prompt,outfit,skills});
+  }
+  function uploadPhoto(person:Member,file:File,outfit?:Outfit) {
+    void run(async()=>{
+      if(!imageTypes.includes(file.type) || file.size>maximumBytes)throw new Error(t("invalidCharacterPhoto"));
+      return saveCharacterReference({projectId:project.id,ownerId:owner.id,characterId:person.id,name:person.displayName,
+        updatedAt:person.updatedAt},file,t("storyCast.changed"),outfit);
+    });
   }
   function addToChapter(id: string) {
     void run(() => setCinematicChapterCharacters(project.id, project.version, [...chapterIds, id]));
@@ -117,23 +125,23 @@ export function StoryCharacters({project, owner, catalog, run, error, busy}: {
     </div>
     </header>
     <section className="story-cast-scan" aria-label={t("storyCast.scanTitle")}>
-    <h3>{t("storyCast.scanTitle")}</h3>
+    <details key={proposal?.proposalId || "initial"} open={checking || Boolean(proposal?.characters.length) || undefined}>
+    <summary>{t("storyCast.scanTitle")}{proposal && !proposal.characters.length && <span className="story-cast-scan-status">{t("storyCast.done")}</span>}</summary>
     <p>{t("storyCast.savedScope")}</p>
     {checking && <p role="status"><ProcessingSpinner/>{t("storyCast.reading")}</p>}
-    {error && !editing && !reviewing && <p role="alert">{error}</p>}
     {proposal && <div className="story-actions">
       <small>{t("storyCast.sources", {titles:proposal.sourceTitles?.join(" · ")})}</small>
-      {proposal.characters.length ? <>
+      {proposal.characters.length > 0 && <>
         <span>{t("storyCast.reviewCounts",counts)}</span>
         <button onClick={()=>setReviewing(true)}>{t("storyCast.resume",{count:proposal.characters.length})}</button>
-      </>
-        : <span className="story-cast-scan-status" role="status">{t("storyCast.done")}</span>}
+      </>}
     </div>}
     {!!proposal?.warnings.length && <details className="story-cast-notes">
       <summary>{t("storyCast.scanNotes")}</summary>
       <ul>{proposal.warnings.map((warning,index)=><li key={index}>{warning}</li>)}</ul>
     </details>}
-    </section>
+    </details></section>
+    {error && !editing && !reviewing && !looksheet && <p role="alert">{error}</p>}
     <div className="story-cast-workspace" data-detail={Boolean(focused) && !batchMode}>
     <section className="story-cast-roster" aria-label={t("storyCast.roster")}>
     <div className="story-bar story-cast-roster-heading"><h3>{t("storyCast.roster")}</h3>
@@ -148,18 +156,17 @@ export function StoryCharacters({project, owner, catalog, run, error, busy}: {
     </div>
     {members.length === 0 && <p>{t("noCharacters")}</p>}
     <ul className="story-character-list story-cast-cards">{members.map(person => <li key={person.id}>
-      <button className="story-cast-card" type="button" aria-pressed={batchMode ? selected.includes(person.id) : focused?.id===person.id} onClick={()=>{
+      <button className="story-cast-card" type="button" aria-label={person.displayName} aria-pressed={batchMode ? selected.includes(person.id) : focused?.id===person.id} onClick={()=>{
         if(batchMode){
           if(person.sourceType==="dossier")setSelected(ids=>ids.includes(person.id)?ids.filter(id=>id!==person.id):[...ids,person.id]);
           return;
         }
-        setOutfit("");
         setParams({step:"characters",character:person.id});
       }}>
         <span className="story-cast-card-image">{person.storyReference || person.portraitUrl
           ? <MediaImage src={person.storyReference?.imageUrl || person.portraitUrl || undefined} alt=""/>
           : <span aria-hidden="true">{Array.from(person.displayName)[0]}</span>}</span>
-        <strong>{person.displayName}</strong>
+        <span className="story-cast-card-label"><strong>{person.displayName}</strong><small>{person.storyRole}</small></span>
       </button>
       <div className="story-actions">
         {batchMode && person.sourceType === "dossier" && <input type="checkbox" aria-label={t("storyCast.select",{name:person.displayName})}
@@ -170,18 +177,33 @@ export function StoryCharacters({project, owner, catalog, run, error, busy}: {
     {focused && !batchMode && <section className="story-cast-detail">
       <button className="story-cast-back" onClick={()=>setParams({step:"characters"})}>{t("characters")}</button>
       <header className="story-cast-profile-heading"><h3>{focused.displayName}</h3></header>
+      {focused.sourceType==="dossier" && <div className="story-identity-reference">
+        <div className="story-identity-photo">{focused.storyReference || focused.portraitUrl
+          ? <MediaImage src={focused.storyReference?.imageUrl || focused.portraitUrl || undefined} alt={focused.displayName}/>
+          : <span>{t("storyCast.noImage")}</span>}</div>
+        <div><h4>{t("storyCast.outfitLibrary.identity")}</h4><div className="story-actions">
+          <PhotoPicker busy={busy} onFile={file=>uploadPhoto(focused,file)}/>
+          <button disabled={busy} onClick={()=>createLooksheet(focused)}>{t("storyCast.looksheet")}</button>
+        </div></div>
+      </div>}
+      <OutfitLibrary key={focused.id} person={focused} busy={busy} upload={(file,item)=>uploadPhoto(focused,file,item)}
+        generate={item=>createLooksheet(focused,item)} add={async name=>{
+          let saved=false;
+          await run(async()=>{
+            const result=await upsertCinematicSharedCharacter(project.id,focused.id,{
+              expectedProjectVersion:project.version,expectedStoryProjectVersion:owner.version,
+              displayName:focused.displayName,storyRole:focused.storyRole,storyOutfit:{name}
+            });
+            saved=true;
+            return result;
+          });
+          return saved;
+        }}/>
       <CharacterDetails person={focused}/>
       {focused.sourceType==="dossier" && <footer className="story-cast-profile-actions">
-      {focused.storyCharacterDetails?.wardrobe &&
-        <label>{t("storyCast.wardrobe")}<select value={outfit} onChange={event=>setOutfit(event.target.value)}>
-          <option value="">{t("storyCast.unspecified")}</option>
-          {focused.storyCharacterDetails.wardrobe.split("\n").filter(line=>line.trim()).map((line,index)=>
-            <option key={index} value={line}>{line}</option>)}
-        </select></label>}
       <div className="story-actions">
         <button onClick={()=>setEditing(focused)}>{t("editCharacter",{name:focused.displayName})}</button>
         <button disabled={busy} onClick={()=>void check([focused.id])}>{t("storyCast.revise")}</button>
-        <button className="primary" onClick={()=>createLooksheet(focused,outfit)}>{t("storyCast.looksheet")}</button>
       </div></footer>}
     </section>}</div>
     {reviewing && proposal && candidate && <CharacterReview key={`${proposal.proposalId}:${proposal.characters.length}`}
@@ -201,10 +223,11 @@ export function StoryCharacters({project, owner, catalog, run, error, busy}: {
       run={run} close={() => setEditing(null)} error={error}/>}
     {looksheet && <Suspense fallback={<ProcessingSpinner/>}><StoryLooksheetDialog
       name={looksheet.person.displayName} title={t("storyCast.looksheetFor",{name:looksheet.person.displayName})}
-      subtitle={looksheet.outfit} reference={looksheet.person.storyReference}
+      subtitle={looksheet.outfit?.name} reference={looksheet.outfit?.imageUrl?{imageUrl:looksheet.outfit.imageUrl}:looksheet.person.storyReference}
+      outfitMode={Boolean(looksheet.outfit)}
       skills={looksheet.skills}
       session={{
-        scope:JSON.stringify(["looksheet",owner.id,looksheet.person.id,looksheet.person.updatedAt]),
+        scope:JSON.stringify(["looksheet",owner.id,looksheet.person.id,looksheet.outfit?.id ?? "",looksheet.person.updatedAt]),
         replaceReferenceOutfit:Boolean(looksheet.outfit),
         initialDraft:{...emptyDraft,prompt:looksheet.prompt,references:looksheet.person.storyReference ? [{
           id:looksheet.person.storyReference.assetId,role:"character_reference",name:looksheet.person.displayName,status:"ready",
@@ -215,12 +238,55 @@ export function StoryCharacters({project, owner, catalog, run, error, busy}: {
         let saved=false;
         await run(async()=>{
           const result=await saveCharacterReference({projectId:project.id,ownerId:owner.id,characterId:looksheet.person.id,
-            name:looksheet.person.displayName,updatedAt:looksheet.person.updatedAt},image,t("storyCast.changed"));
+            name:looksheet.person.displayName,updatedAt:looksheet.person.updatedAt},image,t("storyCast.changed"),looksheet.outfit);
           saved=Boolean(result);
           return result;
         });
         return saved;
       }}/></Suspense>}
+  </section>;
+}
+
+function PhotoPicker({busy,onFile}:{busy:boolean;onFile:(file:File)=>void}) {
+  const {t}=useTranslation("story");
+  const input=useRef<HTMLInputElement>(null);
+  return <>
+    <input hidden ref={input} type="file" accept={imageTypes.join(",")} onChange={event=>{
+      const file=event.currentTarget.files?.[0];
+      event.currentTarget.value="";
+      if(file)onFile(file);
+    }}/>
+    <button type="button" disabled={busy} onClick={()=>input.current?.click()}>{t("storyCast.outfitLibrary.upload")}</button>
+  </>;
+}
+
+function OutfitLibrary({person,busy,add,upload,generate}:{
+  person:Member;busy:boolean;add:(name:string)=>Promise<boolean>;upload:(file:File,outfit:Outfit)=>void;generate:(outfit:Outfit)=>void;
+}) {
+  const {t}=useTranslation("story");
+  const [name,setName]=useState("");
+  const [adding,setAdding]=useState(false);
+  const outfits=person.storyOutfits ?? [];
+  const optionsId=`wardrobe-options-${person.id}`;
+  return <section className="story-wardrobe-library">
+    <div className="story-bar"><h4>{t("storyCast.outfitLibrary.title")}</h4>
+      {!adding && <button type="button" onClick={()=>setAdding(true)}>{t("storyCast.outfitLibrary.add")}</button>}
+    </div>
+    {adding && <form className="story-outfit-form" onSubmit={async event=>{
+      event.preventDefault();
+      if(name.trim() && await add(name.trim())){setName("");setAdding(false);}
+    }}>
+      <label>{t("storyCast.outfitLibrary.name")}<input autoFocus required maxLength={100} list={optionsId} value={name} onChange={event=>setName(event.target.value)}/></label>
+      <datalist id={optionsId}>{person.storyCharacterDetails?.wardrobe.split("\n").filter(Boolean).map((line,i)=><option key={i} value={line}/>)}</datalist>
+      <div className="story-actions"><button className="primary" disabled={busy || !name.trim()}>{t("storyCast.outfitLibrary.save")}</button>
+        <button type="button" disabled={busy} onClick={()=>setAdding(false)}>{t("cancel")}</button></div>
+    </form>}
+    {outfits.length ? <ul>{outfits.map(item=><li key={item.id}>
+      <span className="story-outfit-thumbnail">{item.imageUrl && <MediaImage src={item.imageUrl} alt={item.name}/>}</span>
+      <div><strong>{item.name}</strong>{!item.imageUrl && <small>{t("storyCast.noImage")}</small>}</div>
+      <div className="story-actions"><PhotoPicker busy={busy} onFile={file=>upload(file,item)}/>
+        <button disabled={busy} onClick={()=>generate(item)}>{t("storyCast.looksheet")}</button></div>
+    </li>)}</ul> : <p>{t("storyCast.outfitLibrary.empty")}</p>}
   </section>;
 }
 

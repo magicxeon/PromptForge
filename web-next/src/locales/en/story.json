@@ -1,4 +1,5 @@
 {
+  "wardrobePicker":{"scene":"Wardrobe in this scene","shot":"Wardrobe for this shot","inherit":"Use scene wardrobe · {{name}}","base":"Primary character reference","previous":"Use previous scene’s outfit · {{name}}","missing":"Add an image for {{name}} in Characters.","saving":"Saving wardrobe…"},
   "warningHeading": "Review notes",
   "scenePartsProgress": "Completed {{completed}} of {{total}} sections",
   "blocking": {
@@ -44,6 +45,17 @@
   "episodeSummaryCount": "{{used}} / {{limit}} characters",
   "episodeSummaryTooLong": "Shorten the previous episode summary to {{limit}} characters or fewer (currently {{used}}).",
   "storyCast": {
+    "outfitLibrary": {
+      "save": "Save outfit",
+      "title": "Character outfits",
+      "identity": "Character reference",
+      "upload": "Upload image",
+      "add": "Add outfit",
+      "name": "Outfit name",
+      "empty": "No outfits available for scenes yet.",
+      "useImage": "Use as outfit image",
+      "imageImpact": "This image will be assigned to the selected outfit."
+    },
     "scanTitle": "Story review",
     "scanNotes": "Review notes",
     "roster": "Cast list",

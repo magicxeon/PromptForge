@@ -44,6 +44,33 @@ test('embedded shot clocks widen the action row and cannot be reintroduced by tr
 });
 
 const image = assetId => ({assetId, imageUrl:`/owned/${assetId}`});
+test('wardrobe inheritance, special shots and missing images use the same reference rules in single and merged packets', () => {
+  const {project, scene, shots} = fixture();
+  project.castAssignments[0].storyOutfits = [
+    {id:'coat',name:'Coat',...image('coat-image')},
+    {id:'gown',name:'Gown',...image('gown-image')},
+    {id:'apron',name:'Apron'}
+  ];
+  scene.storyOutfitIds = {c:'coat'};
+  shots[2].storyOutfitIds = {c:'gown'};
+  const single = shot => compileStoryPromptPacket(project,scene,shot,
+    compileCinematicShotDocument(shot,scene,project.castAssignments),'seedance');
+  const merged = () => compileMergedStoryPrompt(project,scene,['s1','s3'],'seedance');
+  assert.equal(single(shots[0]).references[1].name, 'Kai · Coat');
+  const special = single(shots[2]);
+  assert.equal(special.references[1].assetId,'gown-image');
+  assert.deepEqual(merged().references.filter(ref=>ref.role==='character').map(ref=>ref.outfitId),['coat','gown']);
+  scene.storyOutfitIds.c = 'apron';
+  assert.equal(single(shots[2]).sourceFingerprint,special.sourceFingerprint);
+  for (const packet of [single(shots[0]),merged()]) {
+    assert.equal(packet.ready,false);
+    assert.deepEqual(packet.missingCharacters,['Kai · Apron']);
+    assert.ok(!packet.references.some(ref=>ref.assetId==='kai'));
+  }
+  shots[0].storyOutfitIds = {c:''};
+  assert.equal(single(shots[0]).references[1].assetId,'kai');
+  assert.equal(merged().ready,true);
+});
 test('saved spatial anchors and shot-specific optics reach single and merged Seedance packets', () => {
   const {project, scene, shots} = fixture();
   scene.blockingMap = 'The key light stays by the garden door.';

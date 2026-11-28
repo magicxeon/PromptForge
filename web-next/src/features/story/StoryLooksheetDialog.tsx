@@ -8,7 +8,8 @@ import {PromptEditor} from "../playground/components/PromptEditor";
 import {ReferenceEditor} from "../playground/components/ReferenceEditor";
 import {referenceUrl} from "../playground/state/imageDraft";
 
-export function StoryLooksheetDialog({name,title,session,reference,subtitle,close,save,saveError,sceneTools,skills=[]}:{
+export function StoryLooksheetDialog({name,title,session,reference,subtitle,close,save,saveError,sceneTools,outfitMode,skills=[]}:{
+  outfitMode?:boolean;
   skills?:{id:string;name:string;instruction:string;selected:boolean}[];
   name:string; title:string; session:NonNullable<Parameters<typeof useImageWorkspace>[0]>;
   reference?:{imageUrl:string}; subtitle?:string;
@@ -154,9 +155,9 @@ export function StoryLooksheetDialog({name,title,session,reference,subtitle,clos
                 sceneTools.reviewLatest();
               }}>{t("stage.keepResultAfterReview")}</button>
             </div>}
-            {!sceneTools && <small>{t("storyCast.imageImpact")}</small>}
+            {!sceneTools && <small>{t(outfitMode?"storyCast.outfitLibrary.imageImpact":"storyCast.imageImpact")}</small>}
             <button className="primary" disabled={locked || needsReview} onClick={()=>void apply()}>
-              {saving && <ProcessingSpinner/>}{sceneTools?.useImageLabel ?? t("storyCast.useImage")}
+              {saving && <ProcessingSpinner/>}{sceneTools?.useImageLabel ?? t(outfitMode?"storyCast.outfitLibrary.useImage":"storyCast.useImage")}
             </button>
           </figure>}
         </div>

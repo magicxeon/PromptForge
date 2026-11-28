@@ -1,0 +1,1 @@
+import{d as s,a7 as t}from"./index-DReXCjvX.js";function c(e,r="all",i){const a=new URLSearchParams({limit:"24",collectionId:r});return e&&a.set("cursor",e),s(`/api/history?${a}`,{schema:t})}export{c as l};

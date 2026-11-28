@@ -273,7 +273,7 @@
 - เมื่อ web-next ปิดเครดิต การตรวจตัวละครทั้งเรื่องและการทบทวนรายคนใช้ใบรับงานเครดิตศูนย์ผ่าน proxy ของเว็บใหม่ทั้งตอนขอใบรับและตอนส่งให้ AI ระบบตรวจผู้ใช้ โปรเจกต์ ขอบเขต และตัวละครที่เลือกตามใบรับเดิม โหมดเปิดเครดิตใช้กติกาขอราคาเดิม
 
 - เมนูตัวละครเพิ่มการอ่านบททั้งเรื่องในคำสั่ง Cinematic Writing `characters` เดิม ข้อเสนออ้างอิงข้อความที่ตรวจพบในบทที่ส่งไป การรับข้อเสนอใช้ทะเบียนตัวละครเดิมและตรวจฉบับต้นทางอีกครั้ง ผลที่เหลือเปิดกลับมาตรวจต่อได้ในเบราว์เซอร์แท็บเดิม
-- หน้าต่าง looksheet ใช้ระบบสร้างภาพเดิมด้วยรายละเอียดที่บันทึกและชุดที่เลือก การรับภาพใช้การอัปโหลดภาพอ้างอิงตัวละครเดิมพร้อมตรวจเจ้าของและฉบับข้อมูลของตัวละคร รูปชุดเฉพาะตอนยังเปิดได้จากผลสร้างภาพหากผู้ใช้เก็บภาพหลักเดิมไว้
+- หน้าต่าง looksheet ใช้ระบบสร้างภาพเดิมด้วยรายละเอียดที่บันทึกและชุดที่เลือก การรับภาพตรวจเจ้าของและฉบับข้อมูลของตัวละคร เมื่อสร้างจากรายการชุด ให้บันทึกผลในชุดที่เลือกเพื่อเรียกใช้ซ้ำในซีนและช็อต ส่วนภาพประจำตัวมีคำสั่งจัดการแยกต่างหาก
 - ตรวจขั้นรับข้อเสนอด้วย `web-next/test/story-authoring-check.mjs` ผ่าน API ของโปรเจกต์ทดสอบและผู้ให้บริการเขียนจำลอง ตรวจ typecheck ของ web-next และชุดทดสอบ Cinematic Full Story การตรวจคุณภาพการสกัดจากนิยายจริงและผล looksheet จากโมเดลภาพใช้การทดสอบกับผู้ให้บริการจริงแยกต่างหาก
 
 ##### หน้าตัวละครและหน้าต่างสร้าง looksheet
@@ -528,6 +528,14 @@ The writing stages are whole manuscript, episode planning, episode script, scene
 ### Manual scene completion
 
 The scene header offers a reversible “เสร็จแล้ว” checkbox, including for scenes with zero shots. Track the mark independently of shot counts. A manual mark or completion of every existing shot marks the scene complete for navigation, continuity and scene proposal retention.
+
+### Character wardrobe from cast library to shot delivery
+
+1. In Characters, browse consistent thumbnail-and-name rows. Opening a character exposes their primary reference and upload action. Keep the script audit collapsible. Save named outfits and their optional uploaded or generated looksheets separately from the primary identity.
+2. In scene staging, show each participating character with their current outfit name and thumbnail. Offer the immediately preceding scene's assigned outfit as an explicit choice. Editing one scene affects its inherited shots only.
+3. In the shot prompt, show the resolved attachment list in submission order (setting, alphabetically ordered visible characters, then any other applicable reference). Label a costumed character with both character and outfit. Allow a single shot to use a different outfit or the base character image, and to return to scene inheritance.
+4. When a selected outfit lacks an image, identify it explicitly before prompt delivery. Rebuilding must resolve current assignments. Previously saved text with changed references must be reviewed. Existing projects without outfit assignments continue using their character references.
+5. Verify changing a snow scene's cloak, a special shot and its sibling, missing-image handling, and re-opening the project. At narrow widths the selected character, outfit and upload controls must stay readable.
 
 ### Long episode scene proposals
 

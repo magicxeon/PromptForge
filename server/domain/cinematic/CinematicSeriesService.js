@@ -14,6 +14,10 @@ import {
 import { scenePlanningProjection } from './CinematicSceneAuthoring.js';
 import { assertSiblingOrder, continuitySourceKey, isChapterProductionComplete, markChapterContinuityChanges } from './CinematicAuthoringContinuity.js';
 
+export function isCinematicProjectEditable(project) {
+  return !['completed', 'archived'].includes(project.status);
+}
+
 export class CinematicSeriesService {
   constructor({ repository, normalizeSetup, invalidateCastSources }) {
     Object.assign(this, { repository, normalizeSetup, invalidateCastSources });
@@ -446,6 +450,42 @@ export class CinematicSeriesService {
       const assignmentId = String(input.assignmentId || '').trim() || createPrefixedId('cinecast');
       let assignment = (source.castAssignments || []).find(item => item.id === assignmentId);
       const now = new Date().toISOString();
+      if (Object.hasOwn(input, 'storyOutfit')) {
+        if (!isCinematicProjectEditable(target) || !isCinematicProjectEditable(source)) {
+          fail('cinematic_project_not_editable', 'This Cinematic Project is not editable.', 409);
+        }
+        if (!assignment || assignment.active === false || assignment.sourceType !== 'dossier') {
+          fail('cinematic_cast_assignment_not_found', 'Story character not found.', 404);
+        }
+        const outfit = input.storyOutfit;
+        if (!outfit || typeof outfit.name !== 'string' || !outfit.name.trim() || outfit.name.trim().length > 120) {
+          fail('cinematic_story_outfit_invalid', 'Enter an outfit name of up to 120 characters.');
+        }
+        const outfits = assignment.storyOutfits ||= [];
+        const existing = outfits.find(item => item.id === outfit.id);
+        if (outfit.id !== undefined && !existing) fail('cinematic_story_outfit_invalid', 'Outfit not found.', 404);
+        const name = outfit.name.trim();
+        if (outfits.some(item => item !== existing && item.name === name)) {
+          fail('cinematic_story_outfit_invalid', 'An outfit with this name already exists.', 409);
+        }
+        const value = {name, ...(input.storyReference || {})};
+        if (existing) Object.assign(existing, value);
+        else outfits.push({id:createPrefixedId('cineoutfit'), ...value});
+        assignment.updatedAt = now;
+        source.version += 1;
+        source.updatedAt = now;
+        for (const chapter of data.projects) {
+          if (chapter.id === source.id || !isCinematicProjectEditable(chapter) || findStoryProject(data, chapter).id !== source.id) continue;
+          const copy = chapter.castAssignments?.find(item => item.id === assignmentId);
+          if (copy) copy.storyOutfits = structuredClone(outfits);
+          if (copy || chapter.id === target.id || chapter.chapterCharacterIds?.includes(assignmentId)) {
+            chapter.version += 1;
+            chapter.updatedAt = now;
+          }
+        }
+        const series = source.seriesMembership ? findSeries(data, source.seriesMembership.seriesId) : null;
+        return {project:target, storyProject:source, characterId:assignmentId, workspace:workspace(data, series, target)};
+      }
       const characterSource = input.sourceType === 'character';
       const authorizedCharacter = characterSource ? input.authorizedCharacter : null;
       if (characterSource && (!authorizedCharacter?.identityPack?.characterProfileId

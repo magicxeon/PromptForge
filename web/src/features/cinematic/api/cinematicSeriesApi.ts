@@ -129,6 +129,14 @@ export function updateCinematicSceneOutline(projectId: string, sceneId: string, 
   });
 }
 
+export function updateCinematicSceneOutfits(projectId: string, sceneId: string, input: {
+  expectedVersion:number; expectedSceneVersion:number; storyOutfitIds:Record<string,string>;
+}) {
+  return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}`, {
+    method:'PATCH', body:input, schema:cinematicManualSceneMutationSchema
+  });
+}
+
 export function updateCinematicSceneLooks(projectId: string, sceneId: string, input: {
   expectedVersion: number; expectedSceneVersion: number; wardrobeLookIds: string[];
 }) {
@@ -167,6 +175,8 @@ export function updateCinematicShotDocument(projectId: string, sceneId: string, 
   expectedVersion: number;
   expectedShotVersion: number;
 } & ({
+  storyOutfitIds:Record<string,string>;
+} | {
   artDirection:string;
 } | {
   promptOnly: true;
@@ -244,6 +254,11 @@ export function restoreCinematicChapterRevision(projectId: string, revisionId: s
 export function upsertCinematicSharedCharacter(projectId: string, assignmentId: string | null, input: {
   expectedProjectVersion: number;
   expectedStoryProjectVersion: number;
+} & ({
+  storyOutfit:{id?:string;name:string;assetId?:string};
+  displayName?:string;
+  storyRole?:string;
+} | {
   sourceType?: 'dossier' | 'character';
   characterProfileId?: string;
   characterProfileVersionId?: string;
@@ -259,7 +274,7 @@ export function upsertCinematicSharedCharacter(projectId: string, assignmentId: 
   storyCharacterDetails?: StoryCharacterDetails;
   storyOnly?: boolean;
   characterSourceKey?: string;
-}) {
+})) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/shared-characters/${encodeURIComponent(assignmentId || 'new')}`, {
     method: 'PUT', body: input, schema: cinematicSharedCharacterMutationSchema
   });

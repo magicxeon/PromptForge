@@ -1,0 +1,9 @@
+.story-outfit-picker { display:grid; gap:.65rem; margin-block:.9rem; padding:.85rem; background:#f5f7f4; border:1px solid #d7e1da; border-radius:.7rem; min-width:0; }
+.story-outfit-picker h4 { display:flex; align-items:center; gap:.5rem; margin:0; }
+.story-outfit-row { display:grid; grid-template-columns:3.5rem minmax(0,1fr); gap:.75rem; align-items:start; }
+.story-outfit-row > img,.story-outfit-placeholder { width:3.5rem; height:4.2rem; border-radius:.45rem; background:#e3eae5; object-fit:contain; }
+.story-outfit-placeholder { display:grid; place-items:center; color:#597264; }
+.story-outfit-row label,.story-outfit-row > div { display:grid; gap:.3rem; min-width:0; }
+.story-outfit-row select { width:100%; min-width:0; }
+.story-outfit-row button { justify-self:start; }
+.story-outfit-missing { color:#754807; }

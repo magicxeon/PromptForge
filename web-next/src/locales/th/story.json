@@ -1,4 +1,5 @@
 {
+  "wardrobePicker":{"scene":"ชุดที่ใช้ในซีนนี้","shot":"ชุดที่ใช้เฉพาะช็อตนี้","inherit":"ตามซีน · {{name}}","base":"ภาพหลักของตัวละคร","previous":"ใช้ชุดจากซีนก่อน · {{name}}","missing":"ชุด {{name}} ยังไม่มีรูป เพิ่มรูปได้ที่เมนูตัวละคร","saving":"กำลังบันทึกชุด…"},
   "warningHeading": "ข้อควรตรวจสอบ",
   "scenePartsProgress": "เสนอซีนแล้ว {{completed}} จาก {{total}} ส่วน",
   "blocking": {
@@ -44,6 +45,17 @@
   "episodeSummaryCount": "{{used}} / {{limit}} ตัวอักษร",
   "episodeSummaryTooLong": "เรื่องย่อยาวเกินกำหนด กรุณาย่อให้เหลือไม่เกิน {{limit}} ตัวอักษร (ตอนนี้ {{used}})",
   "storyCast": {
+    "outfitLibrary": {
+      "save": "บันทึกชุด",
+      "title": "ชุดของตัวละคร",
+      "identity": "ภาพประจำตัวละคร",
+      "upload": "อัปโหลดรูป",
+      "add": "เพิ่มชุด",
+      "name": "ชื่อชุด",
+      "empty": "ยังไม่มีชุดสำหรับเลือกในซีน",
+      "useImage": "ใช้เป็นภาพชุดนี้",
+      "imageImpact": "ภาพนี้จะใช้กับชุดที่เลือก"
+    },
     "scanTitle": "ตรวจตัวละครจากบท",
     "scanNotes": "ข้อสังเกตจากการตรวจ",
     "roster": "รายชื่อตัวละคร",

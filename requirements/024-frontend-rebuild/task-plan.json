@@ -3,6 +3,18 @@
   "requirement": "requirements/024-frontend-rebuild/000-master.md",
   "tasks": [
     {
+      "id":"FE24-STORY-OUTFIT","title":"Choose character wardrobe at scene and shot scope",
+      "complexity":"complex","reason":"Cast reference ownership, scene assignments and compiled prompt attachments must agree.",
+      "owner":"product-requirement-architect","ownerAgentId":"/root","dependsOn":[],
+      "capabilities":["cinematic","frontend-experience"],"risks":["shared-contract","user-facing"],
+      "writeScope":["server/domain/cinematic/","web/src/features/cinematic/","web-next/src/features/story/","web-next/src/locales/","requirements/024-frontend-rebuild/","test/"],
+      "status":"complete","acceptance":["Use a named outfit across a scene and override a single shot. Show actual ordered references and missing images."],
+      "reviewers":["ux-ui-product-designer","qa-release-engineer","security-reviewer"],
+      "evidence":[{"check":"Use a named outfit across a scene and override a single shot. Show actual ordered references and missing images.","result":"passed","reference":"test/cinematicMergedStoryPrompt.test.js"},{"check":"Confirm previous-scene suggestion, override controls and missing-image feedback","result":"passed","reference":"web-next/src/features/story/scenes/StoryWardrobePicker.test.tsx"}],
+      "reviews":[{"role":"ux-ui-product-designer","agentId":"/root/wardrobe_qa","result":"passed","reference":"web-next/src/features/story/scenes/StoryWardrobePicker.tsx"},{"role":"qa-release-engineer","agentId":"/root/wardrobe_qa","result":"passed","reference":"test/cinematicFullStory.test.js"},{"role":"security-reviewer","agentId":"/root/outfit_review","result":"passed","reference":"server/domain/cinematic/CinematicSeriesService.js"}],
+      "handoff":"Cast owner handles roster and outfit assets, core owner handles persistence and compiler, root integrates staging and shot review."
+    },
+    {
       "id":"FE24-SCENE-SECTIONS","title":"Split long episode scene proposals and report completed sections",
       "complexity":"complex","reason":"Generation, quote budgeting and progress use the same section plan.",
       "owner":"backend-platform-architect","ownerAgentId":"/root","dependsOn":[],

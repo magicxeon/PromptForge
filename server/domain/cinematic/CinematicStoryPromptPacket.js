@@ -39,26 +39,32 @@ export function storyPromptPeople(project, scene, shot, shotOnly = false, cues =
     .map(person => {
       const binding = bindings?.find(item => item.castAssignmentId === person.id);
       const spoken = cues.filter(cue => cue.speakerCastAssignmentId === person.id);
-      return {person, visible:binding ? binding.visible !== false : !spoken.length || spoken.some(cue => cue.speakerVisible !== false)};
+      const outfitId = shot.storyOutfitIds?.[person.id] ?? scene.storyOutfitIds?.[person.id];
+      const outfit = outfitId ? person.storyOutfits?.find(item => item.id === outfitId) : null;
+      const reference = outfitId ? outfit : person.storyReference;
+      const referenceName = outfitId ? [person.displayName, outfit?.name || outfitId].join(' · ') : person.displayName;
+      return {person, reference, referenceName, outfitId, visible:binding ? binding.visible !== false : !spoken.length || spoken.some(cue => cue.speakerVisible !== false)};
     });
 }
 
 export function storyPromptReferences(scene, shot, people, includeOpening) {
   const references = [];
-  function add(role, name, media) {
+  function add(role, name, media, identity) {
     if (media?.assetId && media.imageUrl) references.push({
-      role, name, assetId: media.assetId, imageUrl: media.imageUrl
+      role, name, assetId: media.assetId, imageUrl: media.imageUrl, ...identity
     });
   }
   if (includeOpening) add('opening', shot.title, shot.approvedStoryboardSource);
   if (scene.environmentReferenceEnabled !== false) add('location', scene.location || scene.title, scene.approvedEnvironmentSource);
-  for (const {person, visible} of people) if (visible) add('character', person.displayName, person.storyReference);
+  for (const {person, referenceName, reference, outfitId, visible} of people) if (visible) {
+    add('character', referenceName, reference, {castAssignmentId:person.id, ...(outfitId && {outfitId})});
+  }
   return orderStoryPromptReferences(references);
 }
 
 export function missingCharacterReferences(people) {
-  return people.filter(({person,visible}) => visible && !(person.storyReference?.assetId && person.storyReference.imageUrl))
-    .map(({person}) => person.displayName);
+  return people.filter(({reference,visible}) => visible && !(reference?.assetId && reference.imageUrl))
+    .map(({referenceName}) => referenceName);
 }
 
 function storyReferenceText(references) {

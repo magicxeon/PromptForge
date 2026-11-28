@@ -51,8 +51,8 @@ function prepareShot(project, scene, shot, first, shotOnly) {
     audio:document ? sections.audio : shot.audioIntent, audioCues:document ? [] : shot.audioCues || [],
     light:shot.artDirection || sections.lighting || shot.lighting, continuity:document ? sections.continuity : lines(...(shot.continuityNotes || [])),
     exit:document ? '' : lines(shot.continuityExit, shot.transitionToNext),
-    people:people.map(({person,visible}) => ({name:person.displayName, role:person.storyRole, visible,
-      referenceId:visible && person.storyReference?.assetId})),
+    people:people.map(({person,visible,reference,referenceName,outfitId}) => ({name:person.displayName, role:person.storyRole, visible,
+      referenceId:visible && reference?.assetId, ...(outfitId && {referenceName,outfitId})})),
     missingCharacters:missingCharacterReferences(people),
     references:storyPromptReferences(scene, shot, people, first)
   };
@@ -139,7 +139,7 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
         references:part.references.map(r => [r.role, r.assetId, r.name])}]);
     shots.push({id:shot.id, title:shot.title, startMs, endMs, version:shot.version || 1, sourceFingerprint});
     for (const person of part.people) {
-      const ref = references.find(r => r.role === 'character' && r.assetId === person.referenceId && r.name === person.name);
+      const ref = references.find(r => r.role === 'character' && r.assetId === person.referenceId && r.name === (person.referenceName || person.name));
       addDirection('CHARACTER IDENTIFICATION',[person.name, !seedance && person.role, ref && `Reference ${ref.number}`,
         !person.visible && 'Voice only, off-screen.'].filter(Boolean).join(' — '),index);
     }

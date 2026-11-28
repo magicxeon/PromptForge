@@ -604,7 +604,7 @@ test('Story dossier accepts only owner assets uploaded from its Character form',
       return { ...baseAsset, id, metadata: { role: 'character_reference', sourceMode: id === 'story-photo' ? 'story-character' : 'upload' } };
     }
   };
-  const { service, project } = await fixture(t, { assetRepository });
+  const { service, project, repository } = await fixture(t, { assetRepository });
   const input = { expectedProjectVersion: project.version, expectedStoryProjectVersion: project.version,
     displayName: 'Lalin', storyRole: 'Florist' };
   await assert.rejects(() => service.upsertSharedCharacterDossier(project.id, {
@@ -614,6 +614,44 @@ test('Story dossier accepts only owner assets uploaded from its Character form',
     ...input, storyReferenceAssetId: 'story-photo'
   }, actor);
   assert.deepEqual(saved.project.castAssignments[0].storyReference, { assetId: 'story-photo', imageUrl: baseAsset.publicUrl });
+  const outfitCommand = {assignmentId:saved.characterId, expectedProjectVersion:saved.project.version,
+    expectedStoryProjectVersion:saved.storyProject.version};
+  for (const assetId of ['other-owner-photo','playground-photo']) {
+    await assert.rejects(service.upsertSharedCharacterDossier(project.id, {
+      ...outfitCommand,storyOutfit:{name:'Winter coat',assetId}
+    },actor),{code:'cinematic_story_reference_unavailable'});
+  }
+  const clothed = await service.upsertSharedCharacterDossier(project.id, {
+    ...outfitCommand,storyOutfit:{name:'Winter coat',assetId:'story-photo',imageUrl:'/untrusted/photo'}
+  },actor);
+  const [outfit] = clothed.project.castAssignments[0].storyOutfits;
+  assert.equal(outfit.imageUrl,baseAsset.publicUrl);
+  const created = await service.createManualScene(project.id,{expectedVersion:clothed.project.version,idempotencyKey:'winter-scene'},actor);
+  const scope = {expectedVersion:created.project.version,expectedSceneVersion:created.scene.version};
+  await assert.rejects(service.updateSceneOutline(project.id,created.scene.id,
+    {...scope,storyOutfitIds:{[saved.characterId]:'unknown'}},actor),{code:'cinematic_story_outfit_invalid'});
+  const selected = await service.updateSceneOutline(project.id,created.scene.id,
+    {...scope,storyOutfitIds:{[saved.characterId]:outfit.id}},actor);
+  assert.deepEqual(selected.scene.storyOutfitIds,{[saved.characterId]:outfit.id});
+  await assert.rejects(service.updateSceneOutline(project.id,created.scene.id,
+    {...scope,storyOutfitIds:{}},actor),{code:'cinematic_version_conflict'});
+  const first = await service.createManualShot(project.id,created.scene.id,
+    {expectedVersion:selected.project.version,idempotencyKey:'coat-shot'},actor);
+  const second = await service.createManualShot(project.id,created.scene.id,
+    {expectedVersion:first.project.version,idempotencyKey:'default-shot'},actor);
+  await service.updateShotDocument(project.id,created.scene.id,second.shot.id,{
+    expectedVersion:second.project.version,expectedShotVersion:second.shot.version,storyOutfitIds:{[saved.characterId]:''}
+  },actor);
+  const reloaded = await service.getProject(project.id,actor);
+  const reloadedScene = reloaded.scenes.find(scene=>scene.id===created.scene.id);
+  assert.deepEqual(reloadedScene.storyOutfitIds,{[saved.characterId]:outfit.id});
+  assert.equal(reloadedScene.shots.find(shot=>shot.id===first.shot.id).storyOutfitIds,undefined);
+  assert.deepEqual(reloadedScene.shots.find(shot=>shot.id===second.shot.id).storyOutfitIds,{[saved.characterId]:''});
+  await repository.mutateForActor(project.id,actor,current=>{current.status='completed';});
+  await assert.rejects(service.upsertSharedCharacterDossier(project.id,{
+    assignmentId:saved.characterId,expectedProjectVersion:reloaded.version,expectedStoryProjectVersion:reloaded.version,
+    storyOutfit:{id:outfit.id,name:'Renamed after completion'}
+  },actor),{code:'cinematic_project_not_editable'});
 });
 
 test('shared voice edits preserve Character identity and reject stale versions', async t => {

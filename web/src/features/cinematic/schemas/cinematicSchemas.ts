@@ -376,6 +376,8 @@ export const cinematicCastAssignmentSchema = z.object({
   characterProfileVersionId: z.string().min(1).nullable(),
   portraitUrl: z.string().nullable().optional(),
   storyReference: z.object({ assetId: z.string().min(1), imageUrl: z.string().startsWith('/outputs/references/') }).optional(),
+  storyOutfits: z.array(z.object({id:z.string().min(1), name:z.string().min(1),
+    assetId:z.string().optional(), imageUrl:z.string().startsWith('/outputs/references/').optional()})).optional(),
   storyCharacterDetails:storyCharacterDetailsSchema.optional(),
   displayName: z.string().min(1),
   storyRole: z.string(),
@@ -642,6 +644,7 @@ const savedStoryPromptSchema = z.object({
 });
 
 export const cinematicShotSchema = z.object({
+  storyOutfitIds: z.record(z.string(), z.string()).optional(),
   manualStoryboard: z.boolean().optional(),
   manualStillAuthority: z.boolean().optional(),
   storyboardFaceless: z.boolean().optional(),
@@ -751,7 +754,8 @@ export const mergedStoryPromptSchema = z.object({
   template:z.enum(['flow','seedance']), text:z.string(), sourceFingerprint:z.string(),
   shots:z.array(z.object({id:z.string(),title:z.string(),version:z.number(),sourceFingerprint:z.string(),
     startMs:z.number(),endMs:z.number()})),
-  references:z.array(z.object({number:z.number(),role:z.enum(['opening','character','location']),name:z.string(),assetId:z.string(),imageUrl:z.string()})),
+  references:z.array(z.object({number:z.number(),role:z.enum(['opening','character','location']),name:z.string(),assetId:z.string(),imageUrl:z.string(),
+    castAssignmentId:z.string().optional(),outfitId:z.string().optional()})),
   outdatedShotIds:z.array(z.string()).default([])
 });
 
@@ -762,6 +766,7 @@ export const mergedStoryWritingResultSchema = mergedStoryPromptSchema.extend({
 });
 
 export const cinematicSceneSchema = z.object({
+  storyOutfitIds: z.record(z.string(), z.string()).optional(),
   completedExternally: z.boolean().optional(),
   sceneEvents:z.array(z.string()).optional(),
   blockingMap:z.string().max(2000).optional(),

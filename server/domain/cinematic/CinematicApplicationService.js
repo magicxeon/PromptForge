@@ -55,7 +55,7 @@ import { fingerprintVideoReferencePlan } from '../generation/VideoReferencePlan.
 import { CinematicVideoReferencePlanService, cinematicVideoReferenceMode } from './CinematicVideoReferencePlanService.js';
 import { cinematicGeneratedCastService } from './CinematicGeneratedCastService.js';
 import { videoClipBundleService } from '../assets/VideoClipBundleService.js';
-import { CinematicSeriesService } from './CinematicSeriesService.js';
+import { CinematicSeriesService, isCinematicProjectEditable } from './CinematicSeriesService.js';
 import { pendingChapterProposal } from './CinematicChapterAuthoring.js';
 import {
   applySceneProposal as applySceneAuthoringProposal,
@@ -312,11 +312,12 @@ export class CinematicApplicationService {
     }
     const sourceType = input?.sourceType === 'character' ? 'character' : 'dossier';
     let storyReference;
-    if (input?.storyReferenceAssetId !== undefined) {
-      if (!actor?.userId || sourceType !== 'dossier' || typeof input.storyReferenceAssetId !== 'string') {
+    const assetId = Object.hasOwn(input, 'storyOutfit') ? input.storyOutfit?.assetId : input.storyReferenceAssetId;
+    if (assetId !== undefined) {
+      if (!actor?.userId || sourceType !== 'dossier' || typeof assetId !== 'string') {
         throw new CinematicError('cinematic_story_reference_invalid', 'Select an owned character reference image.', 400);
       }
-      const asset = await this.assetRepository.findByIdForOwner(input.storyReferenceAssetId, actor.userId);
+      const asset = await this.assetRepository.findByIdForOwner(assetId, actor.userId);
       if (!asset || asset.status !== 'active' || asset.assetType !== 'generation_reference'
         || asset.metadata?.role !== 'character_reference' || asset.metadata?.sourceMode !== 'story-character'
         || !asset.publicUrl?.startsWith('/outputs/references/')) {
@@ -957,6 +958,17 @@ export class CinematicApplicationService {
   }
 
   updateSceneOutline(projectId, sceneId, input, actorContext) {
+    if (Object.hasOwn(input, 'storyOutfitIds')) {
+      return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, (project, root) => {
+        assertExpectedVersion(project, input.expectedVersion);
+        assertEditable(project);
+        const scene = project.scenes.find(item => item.id === sceneId);
+        if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+        assertExpectedVersion(scene, input.expectedSceneVersion);
+        updateStoryOutfitSelection(project, scene, input.storyOutfitIds);
+        return {project:{...project,writingSettings:root.writingSettings}, scene};
+      });
+    }
     if (Object.hasOwn(input, 'completedExternally')) {
       return this.repository.mutateForActor(projectId, actorContext, project => {
         assertExpectedVersion(project, input.expectedVersion);
@@ -1393,6 +1405,11 @@ export class CinematicApplicationService {
         throw new CinematicError('cinematic_shot_not_found', 'Shot not found.', 404);
       }
       const previousDocument = String(located.shot.shotDocument || '');
+      if (Object.hasOwn(input, 'storyOutfitIds')) {
+        assertExpectedVersion(located.shot, input.expectedShotVersion);
+        updateStoryOutfitSelection(project, located.shot, input.storyOutfitIds);
+        return {project:{...project,writingSettings:storyProject.writingSettings}, ...located};
+      }
       if (input.artDirection !== undefined) {
         const {scene,shot} = located;
         assertExpectedVersion(shot,input.expectedShotVersion);
@@ -4788,8 +4805,27 @@ function assertExpectedVersion(project, expectedVersion) {
   }
 }
 
+function updateStoryOutfitSelection(project, target, selected) {
+  if (!selected || typeof selected !== 'object' || Array.isArray(selected)) {
+    throw new CinematicError('cinematic_story_outfit_invalid', 'Choose outfits for the project cast.', 400);
+  }
+  const choices = Object.entries(selected);
+  for (const [personId, outfitId] of choices) {
+    const person = project.castAssignments.find(item => item.id === personId && item.active !== false);
+    if (!person || typeof outfitId !== 'string' || (outfitId && !person.storyOutfits?.some(item => item.id === outfitId))) {
+      throw new CinematicError('cinematic_story_outfit_invalid', 'Choose an outfit belonging to this character.', 400);
+    }
+  }
+  if (choices.length === Object.keys(target.storyOutfitIds || {}).length
+    && choices.every(([id,value]) => target.storyOutfitIds?.[id] === value)) return;
+  target.storyOutfitIds = Object.fromEntries(choices);
+  target.version = (target.version || 1) + 1;
+  target.updatedAt = new Date().toISOString();
+  project.version += 1;
+}
+
 function assertEditable(project) {
-  if (['completed', 'archived'].includes(project.status)) {
+  if (!isCinematicProjectEditable(project)) {
     throw new CinematicError('cinematic_project_not_editable', 'This Cinematic Project is not editable.', 409);
   }
 }
