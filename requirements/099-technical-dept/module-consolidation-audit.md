@@ -15,8 +15,8 @@
 
 | Candidate | เหตุผล/เจ้าของที่ควรเก็บ | การยืนยันก่อนถอด |
 |---|---|---|
-| `web/src/features/profiles/components/CharacterLookDraftDialog.tsx` | re-export ชื่อเก่าของ `CharacterLookDialog`; ไม่พบ caller | Profile dialog tests, typecheck และค้น path ที่ dynamic จาก Web |
-| `web/src/components/templates/TemplateUseBanner.tsx` | UI ที่ไม่พบ importer; template surfaces ปัจจุบันใช้ component อื่น | Template/Studio visual smoke, เช็ก registry และ dynamic use |
+| `web/src/features/profiles/components/CharacterLookDraftDialog.tsx` | Removed unused re-export | Current owner is `CharacterLookDialog` |
+| `web/src/components/templates/TemplateUseBanner.tsx` | Removed unused component | No runtime or registry importer |
 | `server/domain/scene-templates/sceneTemplateVersioning.js` | stub คืน version 1 และ snapshot เดิม; ไม่พบ caller | ยืนยันกับ repository/migration owner ว่าไม่มี manual migration ใช้ |
 | `server/domain/scene-templates/sceneVariableResolver.js` | resolver รุ่นเก่าที่ไม่มี caller; current template flow เข้าผ่าน owner อื่น | ตรวจ template execution, locked variable/reference parity และ legacy snapshots |
 | `server/providers/SandboxVideoProvider.js` | simulated adapter ไม่มี import; อาจเป็น test fixture ที่จงใจพักไว้ | ให้ Video owner ตัดสินใจ: ลบได้ = ลด 1, ย้ายไป `test/fixtures` = ไม่ลดไฟล์ |

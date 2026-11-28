@@ -17,7 +17,7 @@ export function orderStoryPromptReferences(references) {
     referenceRoleOrder.indexOf(first.role) - referenceRoleOrder.indexOf(second.role)
     || referenceNames.compare(first.name,second.name) || referenceNames.compare(first.assetId,second.assetId))
     .filter(ref => {
-      const key = `${ref.role}:${ref.assetId}`;
+      const key = JSON.stringify([ref.role, ref.assetId, ref.role === 'character' ? ref.name : null]);
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -31,7 +31,8 @@ export function storyPromptKind(value) {
 export function storyPromptPeople(project, scene, shot, shotOnly = false, cues = []) {
   const bindings = shot.speakerBindings;
   const ids = [
-    ...(bindings?.map(item => item.castAssignmentId) ?? (shotOnly ? shot.castAssignmentIds || [] : resolveShotCastIds(scene, shot))),
+    ...(shotOnly || bindings?.length ? (shot.castMode === 'none' ? [] : shot.castAssignmentIds || []) : resolveShotCastIds(scene, shot)),
+    ...(bindings || []).map(item => item.castAssignmentId),
     ...cues.map(cue => cue.speakerCastAssignmentId)
   ];
   return (project.castAssignments || []).filter(person => person.active !== false && ids.includes(person.id))
@@ -53,6 +54,11 @@ export function storyPromptReferences(scene, shot, people, includeOpening) {
   if (scene.environmentReferenceEnabled !== false) add('location', scene.location || scene.title, scene.approvedEnvironmentSource);
   for (const {person, visible} of people) if (visible) add('character', person.displayName, person.storyReference);
   return orderStoryPromptReferences(references);
+}
+
+export function missingCharacterReferences(people) {
+  return people.filter(({person,visible}) => visible && !(person.storyReference?.assetId && person.storyReference.imageUrl))
+    .map(({person}) => person.displayName);
 }
 
 function storyReferenceText(references) {
@@ -146,5 +152,7 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
   const text = kind === 'still' ? rendered : withStoryVideoReferenceNote(formatStoryPromptWholeSeconds(rendered));
   const context = kind === 'seedance' ? [scene.entryState,scene.objective,scene.exitState,scene.synopsis,scene.lighting,scene.audioIntent] : undefined;
   const sourceFingerprint = createHash('sha256').update(JSON.stringify(['english-directions-v1', storySpokenLanguage(project.writingSettings), kind, text, references.map(r => r.assetId), ...(context ? [context] : [])])).digest('hex');
-  return {kind, text, sourceFingerprint, references, ready: kind !== 'flow' || references.some(r => r.role === 'opening')};
+  const missingCharacters = missingCharacterReferences(people);
+  return {kind, text, sourceFingerprint, references, missingCharacters,
+    ready: !missingCharacters.length && (kind !== 'flow' || references.some(r => r.role === 'opening'))};
 }

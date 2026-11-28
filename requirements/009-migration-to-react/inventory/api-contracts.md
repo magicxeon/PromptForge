@@ -108,8 +108,8 @@ Each item is a sanitized `communityPostPublicView`.
 | `POST /api/community/gallery/:itemId/use-template` | Handoff |
 | `GET /api/community/gallery/:itemId/:mediaKind` | Authorized media |
 
-Comparison, Collection and Scene Template publishing use their dedicated route
-modules and public media endpoints.
+Scene Template publishing uses the Community draft and publish endpoints above.
+Comparison and Collection publishing use their dedicated route modules.
 
 ## Creator and Character
 
@@ -136,8 +136,6 @@ modules and public media endpoints.
 
 | Method/path | Purpose |
 |---|---|
-| `POST /api/scene-templates/share-drafts` | Draft |
-| `POST .../:draftId/publish` | Publish |
 | `GET /api/scene-templates/shared` | Shared list |
 | `GET /api/scene-templates/shared/:postId` | Detail |
 | `GET .../:postId/:mediaKind` | Media |

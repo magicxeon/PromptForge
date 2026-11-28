@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+export const writingSkillTrace = {
+  selectedSkillVersions:z.record(z.string(),z.number().int().positive()).optional(),
+  selectionVersion:z.number().int().positive().optional()
+};
 export const cinematicLookRemovalImpactSchema = z.object({
   projectId: z.string(), projectVersion: z.number(), fingerprint: z.string(),
   items: z.array(z.object({ projectId: z.string(), title: z.string(), version: z.number(),
@@ -89,7 +93,7 @@ export const cinematicStoryEnhancementSchema = z.object({
   candidateScenes: z.array(z.string()).max(5),
   recommendedRoles: z.array(cinematicStoryRoleSlotSchema).max(4),
   warnings: z.array(z.string()),
-  provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
+  provenance: z.object({ ...writingSkillTrace, provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
   billingStatus: z.enum(['qualification_no_charge', 'paid', 'settlement_pending']),
   writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional()
 });
@@ -106,7 +110,7 @@ export const cinematicFullStoryRevisionSchema = z.object({
   importEdited: z.boolean().optional(),
   revisionInstruction: z.string().max(2000),
   status: z.enum(['active', 'confirmed', 'superseded']),
-  provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
+  provenance: z.object({ ...writingSkillTrace, provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
   characterIds: z.array(z.string()).max(24).optional(),
   createdAt: z.string().datetime()
 });
@@ -143,7 +147,7 @@ export const cinematicFullStoryProposalSchema = z.object({
   warnings: z.array(z.string()).max(8),
   sourceKey:z.string().optional(),
   sourceTitles:z.array(z.string()).optional(),
-  provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
+  provenance: z.object({ ...writingSkillTrace, provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
   billingStatus: z.enum(['qualification_no_charge', 'free', 'paid', 'settlement_pending']),
   writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional()
 });
@@ -161,7 +165,7 @@ export const cinematicChapterRevisionSchema = z.object({
   revisionInstruction: z.string().max(2000),
   sourceFullStoryRevisionId: z.string().nullable(),
   status: z.enum(['active', 'superseded']),
-  provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
+  provenance: z.object({ ...writingSkillTrace, provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
   createdAt: z.string().datetime()
 });
 
@@ -178,11 +182,11 @@ export const cinematicChapterProposalSchema = z.object({
   })).max(120),
   chapters: z.array(z.object({
     projectId: z.string().nullable(), order: z.number().int().positive(),
-    seasonNumber: z.number().int().positive().default(1), chapterNumber: z.number().int().positive().default(1),
+    seasonNumber: z.number().int().positive().default(1), chapterNumber: z.number().int().nonnegative().default(1),
     title: z.string().min(1), story: z.string().max(50000)
   })).min(1).max(120),
   warnings: z.array(z.string()).max(8),
-  provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
+  provenance: z.object({ ...writingSkillTrace, provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
   createdAt: z.string().datetime(),
   appliedAt: z.string().datetime().nullable(),
   discardedAt: z.string().datetime().nullable(),
@@ -221,7 +225,7 @@ export const cinematicSceneProposalSchema = z.object({
   baseProjectVersion: z.number().int().nonnegative(),
   scenes: z.array(cinematicSceneOutlineSchema).min(1).max(24),
   warnings: z.array(z.string()).max(8),
-  provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
+  provenance: z.object({ ...writingSkillTrace, provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
   createdAt: z.string().datetime(),
   appliedAt: z.string().datetime().nullable(),
   discardedAt: z.string().datetime().nullable()
@@ -249,7 +253,7 @@ export const cinematicShotProposalSchema = z.object({
   baseProjectVersion: z.number().int().nonnegative(),
   shots: z.array(cinematicShotOutlineSchema).min(1).max(24),
   warnings: z.array(z.string()).max(8),
-  provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
+  provenance: z.object({ ...writingSkillTrace, provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
   createdAt: z.string().datetime(),
   appliedAt: z.string().datetime().nullable(),
   discardedAt: z.string().datetime().nullable()
@@ -318,7 +322,7 @@ export const cinematicLifecycleEventSchema = z.object({
 });
 
 export const cinematicSeriesMembershipSchema = z.object({
-  seriesId: z.string().min(1), seasonId: z.string().min(1), chapterNumber: z.number().int().positive()
+  seriesId: z.string().min(1), seasonId: z.string().min(1), chapterNumber: z.number().int().nonnegative()
 });
 
 export const cinematicProjectSummarySchema = z.object({
@@ -559,7 +563,7 @@ export const cinematicSceneEnvironmentProposalSchema = z.object({
   proposalId: z.string().min(1),
   environmentPrompt: z.string().min(1).max(2500),
   warnings: z.array(z.string().max(500)).max(8),
-  provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
+  provenance: z.object({ ...writingSkillTrace, provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
   billingStatus: z.enum(['qualification_no_charge', 'paid', 'settlement_pending']),
   writingOperationId: z.string().optional(), chargedCredits: z.number().nonnegative().optional()
 });
@@ -629,6 +633,7 @@ export const cinematicStoryboardBatchResponseSchema = z.object({
 });
 
 const savedStoryPromptSchema = z.object({
+  provenance:z.object(writingSkillTrace).optional(),
   text: z.string(), sourceFingerprint: z.string(),
   references: z.array(z.object({number:z.number().int().positive(), role:z.enum(['opening','location','character']),
     name:z.string(), assetId:z.string()})).optional()
@@ -736,6 +741,8 @@ export const cinematicStoryBeatSchema = z.object({
 });
 
 export const mergedStoryPromptSchema = z.object({
+  provenance:z.object(writingSkillTrace).optional(),
+  missingCharacters:z.array(z.string()).optional(),
   reviewNotes:z.array(z.string()).optional(),
   maximumPromptCharacters:z.number().int().positive().optional(),
   template:z.enum(['flow','seedance']), text:z.string(), sourceFingerprint:z.string(),
@@ -873,6 +880,7 @@ export const cinematicStoryPlanDraftSchema = z.object({
 });
 
 const cinematicAiProvenanceSchema = z.object({
+  ...writingSkillTrace,
   provider: z.string(), model: z.string(), responseId: z.string().nullable(),
   recipeId: z.string(), recipeVersion: z.number().int(), recipeFingerprint: z.string(),
   fallbackUsed: z.boolean().optional(), fallbackReason: z.string().nullable().optional()
@@ -1173,12 +1181,15 @@ export const storyDirectionSchema = z.object({
 export type StoryDirection = z.infer<typeof storyDirectionSchema>;
 export const cinematicWritingSettingsCatalogSchema = z.object({
   defaultModelId: z.string().nullable(),
-  maxSkills: z.number().int().positive().max(5),
+  taskSkills: z.record(z.string(),z.array(z.string())).optional(),
+  recommendedSkillCount: z.number().int().positive().optional(),
   models: z.array(z.object({id:z.string().min(1),label:z.string().min(1)})),
-  skills: z.array(z.object({id:z.string().min(1),label:writingLocaleText,description:writingLocaleText})),
+  skills: z.array(z.object({id:z.string().min(1),label:writingLocaleText,description:writingLocaleText,instruction:z.string().optional()})),
 });
 const cinematicWritingSettingsSchema = z.object({
-  modelId:z.string().nullable(),skillIds:z.array(z.string().min(1)).max(5), direction:storyDirectionSchema.optional()
+  customSkills:z.array(z.object({id:z.string(),name:z.string(),instruction:z.string(),tasks:z.array(z.string()),version:z.number().int().positive(),
+    context:z.string().optional(),references:z.array(z.object({name:z.string(),text:z.string()})).optional()})).optional(),
+  modelId:z.string().nullable(),skillIds:z.array(z.string().min(1)), direction:storyDirectionSchema.optional()
 });
 export type CinematicWritingSettings = z.infer<typeof cinematicWritingSettingsSchema>;
 export type CinematicWritingSettingsCatalog = z.infer<typeof cinematicWritingSettingsCatalogSchema>;
@@ -1262,7 +1273,7 @@ export const cinematicDataLineageSchema = z.object({
 
 export const cinematicChapterOutlineRowSchema = z.object({
   title: z.string().min(1).max(120), synopsis: z.string().min(1).max(2000),
-  seasonNumber: z.number().int().min(1).max(8), chapterNumber: z.number().int().positive().optional()
+  seasonNumber: z.number().int().min(1).max(8), chapterNumber: z.number().int().nonnegative().optional()
 });
 export const cinematicChapterOutlineSchema = z.object({
   id: z.string(), sourceRevisionId: z.string(), sourceKey: z.string(),
@@ -1353,7 +1364,7 @@ export const cinematicProjectSchema = z.object({
   }).optional(),
   chapterGeneration: z.object({
     proposalId: z.string(), confirmedRevisionId: z.string(),
-    provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
+    provenance: z.object({ ...writingSkillTrace, provider: z.string(), model: z.string(), responseId: z.string().nullable() }).nullable(),
     createdAt: z.string().datetime()
   }).optional(),
   castAssignments: z.array(cinematicCastAssignmentSchema),

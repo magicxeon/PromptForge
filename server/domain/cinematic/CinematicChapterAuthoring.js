@@ -1,4 +1,5 @@
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
+import {storySkillProvenance} from './StorySkillProvenance.js';
 
 const SOURCES = new Set(['manual', 'ai', 'regenerate', 'restore', 'legacy']);
 
@@ -75,7 +76,7 @@ export function createChapterProposal(input, now = new Date().toISOString()) {
     projectId: nullableId(item.projectId),
     order: index + 1,
     seasonNumber: Math.max(1, Number(item.seasonNumber) || 1),
-    chapterNumber: Math.max(1, Number(item.chapterNumber) || index + 1),
+    chapterNumber: item.chapterNumber ?? index + 1,
     title: validTitle(item.title || `Chapter ${index + 1}`),
     story: validStory(item.story)
   }));
@@ -157,6 +158,7 @@ function normalizeProvenance(value) {
     .every(key => Number.isInteger(usage[key]) && usage[key] >= 0)
     && usage.cachedInputTokens <= usage.inputTokens && usage.reasoningTokens <= usage.outputTokens;
   return {
+    ...storySkillProvenance(value),
     provider: bounded(value.provider, 80),
     model: bounded(value.model, 120),
     responseId: nullableId(value.responseId),

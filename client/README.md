@@ -1,7 +1,7 @@
 # ModelPromptForge Retained Client Data and Legacy Source
 
-> **Current architecture:** `web/` is the canonical React + TypeScript + Vite
-> browser application. Do not add customer-facing routes, components, state, or
+> **Current architecture:** `web-next/` owns the current workspaces. `web/` supplies
+> shared React modules and compatibility screens. Do not add customer-facing routes, components, state, or
 > behavior to `client/`. Express serves only `client/assets/`, `client/i18n/`,
 > and `client/outputs/`; it does not serve this folder's legacy HTML, scripts,
 > or stylesheet.
@@ -18,12 +18,12 @@ client/i18n/                    retained locale manifest/catalogs
 client/outputs/                 local MVP generated/uploaded media
 ```
 
-All new frontend work belongs under `web/`. Never introduce another
+New workspace features belong under `web-next/`. Never introduce another
 `window.ModelPromptForge*` API or restore `window.state` as a React dependency.
 Uploaded references use `POST /api/references`; React stores the returned
 actor-owned `/outputs/...` URL rather than Base64.
 
-Physical removal of the remaining Vanilla files is gated by
+The Vanilla HTML, bootstrap, stylesheet and unused scripts have been retired. Remaining legacy fixtures and tooling are tracked in
 `requirements/009-migration-to-react/012-quality-security-performance-cutover-and-legacy-decommission.md`.
 Run `scripts\validate-react-migration.bat` before closing that gate.
 

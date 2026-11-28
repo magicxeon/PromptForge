@@ -1,7 +1,7 @@
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
 import { RepositoryContractError } from '../../repositories/repositoryContracts.js';
 import { createCinematicProjectRecord } from '../../repositories/cinematic/cinematicProjectRecord.js';
-import { normalizeLegacyProject, toProjectSummary } from '../../repositories/cinematic/CinematicProjectRepository.js';
+import { normalizeLegacyProject, toProjectSummary, toProjectLibraryRecords } from '../../repositories/cinematic/CinematicProjectRepository.js';
 import { cinematicWorkflowPolicy } from '../../config/cinematicRewampConfiguration.js';
 import {
   appendChapterRevision,
@@ -12,7 +12,7 @@ import {
   restoreChapterRevision
 } from './CinematicChapterAuthoring.js';
 import { scenePlanningProjection } from './CinematicSceneAuthoring.js';
-import { assertSiblingOrder, continuitySourceKey } from './CinematicAuthoringContinuity.js';
+import { assertSiblingOrder, continuitySourceKey, isChapterProductionComplete, markChapterContinuityChanges } from './CinematicAuthoringContinuity.js';
 
 export class CinematicSeriesService {
   constructor({ repository, normalizeSetup, invalidateCastSources }) {
@@ -36,7 +36,7 @@ export class CinematicSeriesService {
         createdAt: now,
         updatedAt: now
       };
-      project.seriesMembership = { seriesId: series.id, seasonId, chapterNumber: 1 };
+      project.seriesMembership = { seriesId: series.id, seasonId, chapterNumber: setup.startingEpisode ?? 1 };
       data.series.unshift(series);
       return project;
     });
@@ -48,6 +48,30 @@ export class CinematicSeriesService {
     return project.seriesMembership
       ? workspace(data, findSeries(data, project.seriesMembership.seriesId), project)
       : workspace(data, null, project);
+  }
+
+  deleteProductionProject(id, input, actor) {
+    if (input?.confirmed !== true || !input.expectedUpdatedAt || !Number.isInteger(input.expectedChapterCount)) {
+      fail('cinematic_delete_confirmation_required', 'Confirm the project before deleting it.', 400);
+    }
+    return this.repository.mutateSeriesWorkspaceForActor(actor, data => {
+      const series = data.series.find(item => item.id === id);
+      const members = data.projects.filter(project => series ? project.seriesMembership?.seriesId === id : project.id === id);
+      const visible = members.filter(project => project.status !== 'archived');
+      // A chapter ID must never be accepted as a standalone production project.
+      const libraryEntry = toProjectLibraryRecords(visible, data.series).find(record => record.id === id);
+      if (!libraryEntry) fail('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+      if (libraryEntry.updatedAt !== input.expectedUpdatedAt || visible.length !== input.expectedChapterCount) {
+        fail('cinematic_project_delete_stale', 'The project changed. Review it before confirming deletion.', 409);
+      }
+      if (members.some(project => project.generationAttempts?.some(attempt => attempt.status === 'preparing'))) {
+        fail('cinematic_project_busy', 'A generation request is being submitted. Try again after submission.', 409);
+      }
+      const deletedIds = new Set(members.map(project => project.id));
+      data.projects = data.projects.filter(project => !deletedIds.has(project.id));
+      if (series) data.series = data.series.filter(item => item.id !== id);
+      return { success: true, deletedProjectIds: [...deletedIds] };
+    });
   }
 
   async readCharacterWorkspace(projectId, actor) {
@@ -71,8 +95,9 @@ export class CinematicSeriesService {
       const root = findStoryProject(data, project);
       if (siblings.every((item, index) => item.id === input.chapterIds[index])) return { project, workspace: workspace(data, series, project) };
       const now = new Date().toISOString();
+      const firstNumber = siblings[0].seriesMembership.chapterNumber;
       for (const item of siblings) {
-        item.seriesMembership.chapterNumber = input.chapterIds.indexOf(item.id) + 1;
+        item.seriesMembership.chapterNumber = input.chapterIds.indexOf(item.id) + firstNumber;
         item.version += 1; item.updatedAt = now;
       }
       // Anchor the story root independently of production order, including legacy series.
@@ -87,11 +112,20 @@ export class CinematicSeriesService {
       const project = normalizeLegacyProject(findProject(data, projectId));
       const previousTitle = project.title;
       const previousDirection = project.setup?.videoDirection || '';
+      const previousCanon = project.confirmedFullStoryVersionId;
+      const previousSummary = project.setup?.priorEpisodeSummary || '';
       const result = await operation(project);
       project.updatedAt = new Date().toISOString();
-      if (project.seriesMembership && findStoryProject(data, project).id === project.id) {
-        const series = findSeries(data, project.seriesMembership.seriesId);
-        if (series.title !== project.title && (previousTitle !== project.title || project.setup?.format === 'mini-series')) {
+      if (findStoryProject(data, project).id === project.id) {
+        const series = project.seriesMembership ? findSeries(data, project.seriesMembership.seriesId) : null;
+        if (previousCanon !== project.confirmedFullStoryVersionId || previousSummary !== (project.setup?.priorEpisodeSummary || '')) {
+          for (const chapter of orderedChapterProjects(data,series,project)) {
+            if (!chapter.chapterStory?.trim() || isChapterProductionComplete(chapter)) continue;
+            chapter.continuityReviewRequired = true;
+            if (chapter.id !== project.id) { chapter.version += 1; chapter.updatedAt = project.updatedAt; }
+          }
+        }
+        if (series && series.title !== project.title && (previousTitle !== project.title || project.setup?.format === 'mini-series')) {
           series.title = project.title;
           touch(series);
         }
@@ -250,6 +284,7 @@ export class CinematicSeriesService {
       const project = findProject(data, projectId);
       assertVersion(project, input.expectedProjectVersion);
       const previousRevisionId = project.activeChapterVersionId || null;
+      const previousStory = project.chapterStory || '';
       const revision = appendChapterRevision(project, {
         title,
         story,
@@ -265,6 +300,7 @@ export class CinematicSeriesService {
       project.version += 1;
       project.updatedAt = new Date().toISOString();
       const series = project.seriesMembership ? findSeries(data, project.seriesMembership.seriesId) : null;
+      markChapterContinuityChanges(orderedChapterProjects(data, series, project), [{project, previousStory}], project.updatedAt);
       return { project, workspace: workspace(data, series, project) };
     });
   }
@@ -273,10 +309,12 @@ export class CinematicSeriesService {
     return this.repository.mutateSeriesWorkspaceForActor(actor, data => {
       const project = findProject(data, projectId);
       assertVersion(project, input.expectedProjectVersion);
+      const previousStory = project.chapterStory || '';
       restoreChapterRevision(project, revisionId, cinematicWorkflowPolicy.authoring.storyRevisionHistoryLimit);
       project.version += 1;
       project.updatedAt = new Date().toISOString();
       const series = project.seriesMembership ? findSeries(data, project.seriesMembership.seriesId) : null;
+      markChapterContinuityChanges(orderedChapterProjects(data, series, project), [{project, previousStory}], project.updatedAt);
       return { project, workspace: workspace(data, series, project) };
     });
   }
@@ -288,7 +326,7 @@ export class CinematicSeriesService {
       assertVersion(target, input.expectedTargetVersion);
       const source = findStoryProject(data, target);
       assertVersion(source, input.expectedSourceVersion);
-      if (source.confirmedFullStoryVersionId !== input.confirmedRevisionId) {
+      if ((source.confirmedFullStoryVersionId || null) !== input.confirmedRevisionId) {
         fail('cinematic_full_story_revision_stale', 'The confirmed Full Story changed before the Chapter proposal was saved.', 409);
       }
       ensureChapterAuthoring(source);
@@ -335,7 +373,7 @@ export class CinematicSeriesService {
       assertVersion(target, input.expectedTargetVersion);
       const source = findStoryProject(data, target);
       assertVersion(source, input.expectedSourceVersion);
-      if (source.confirmedFullStoryVersionId !== input.confirmedRevisionId) {
+      if ((source.confirmedFullStoryVersionId || null) !== input.confirmedRevisionId) {
         fail('cinematic_full_story_revision_stale', 'The confirmed Full Story changed before Chapters were created.', 409);
       }
       ensureChapterAuthoring(source);
@@ -651,7 +689,7 @@ function applyChapterProposalInData({ data, requested, source, proposal, actor, 
     return { project: findProject(data, proposal.targetProjectId || requested.id), proposal, workspace: workspace(data, series, requested) };
   }
   if (proposal.status !== 'pending_review') fail('cinematic_chapter_proposal_closed', 'This Chapter proposal is no longer available.', 409);
-  if (source.confirmedFullStoryVersionId !== proposal.sourceFullStoryRevisionId) {
+  if ((source.confirmedFullStoryVersionId || null) !== proposal.sourceFullStoryRevisionId) {
     fail('cinematic_full_story_revision_stale', 'The confirmed Full Story changed before this proposal was applied.', 409);
   }
   const existing = orderedChapterProjects(data, series, source);
@@ -664,9 +702,14 @@ function applyChapterProposalInData({ data, requested, source, proposal, actor, 
     }
   }
   const changedIds = new Set();
+  const changes = [];
   const appliedProjects = [];
   for (const [index, chapter] of proposal.chapters.entries()) {
     let project = chapter.projectId ? existing.find(item => item.id === chapter.projectId) : null;
+    if (project && isChapterProductionComplete(project)) {
+      appliedProjects.push(project);
+      continue;
+    }
     if (!project) {
       if (!series) fail('cinematic_movie_chapter_count_invalid', 'A Movie cannot create another Chapter.', 409);
       if (orderedChapterProjects(data, series, source).length >= 120) fail('cinematic_series_limit', 'A Series supports at most 120 Chapters.', 409);
@@ -674,7 +717,7 @@ function applyChapterProposalInData({ data, requested, source, proposal, actor, 
         || source.seriesMembership.seasonId || series.seasons[0]?.id;
       const setup = normalizeSetup({ ...source.setup, title: source.setup.title }, { allowEmptyStory: true });
       project = createCinematicProjectRecord(setup, actor);
-      project.seriesMembership = { seriesId: series.id, seasonId, chapterNumber: chapter.chapterNumber || index + 1 };
+      project.seriesMembership = { seriesId: series.id, seasonId, chapterNumber: chapter.chapterNumber ?? index + 1 };
       project.chapterOrigin = { projectId: source.id, projectVersion: source.version, copiedCast: true };
       project.castAssignments = (source.castAssignments || []).filter(item => item.active !== false).map(item => ({
         ...structuredClone(item), id: createPrefixedId('cinecast'), updatedAt: project.createdAt,
@@ -684,8 +727,9 @@ function applyChapterProposalInData({ data, requested, source, proposal, actor, 
     }
     if (series && project.seriesMembership) {
       project.seriesMembership.seasonId = series.seasons.find(item => item.number === (chapter.seasonNumber || 1))?.id || project.seriesMembership.seasonId;
-      project.seriesMembership.chapterNumber = chapter.chapterNumber || project.seriesMembership.chapterNumber;
+      project.seriesMembership.chapterNumber = chapter.chapterNumber ?? project.seriesMembership.chapterNumber;
     }
+    changes.push({project, previousStory: project.chapterStory || ''});
     appendChapterRevision(project, {
       title: chapter.title,
       story: chapter.story,
@@ -695,6 +739,7 @@ function applyChapterProposalInData({ data, requested, source, proposal, actor, 
       provenance: proposal.provenance
     }, cinematicWorkflowPolicy.authoring.storyRevisionHistoryLimit, now);
     project.chapterGeneration = chapterGeneration(proposal, proposal.sourceFullStoryRevisionId, now);
+    delete project.continuityReviewRequired;
     if (project.scenes?.length || project.generationAttempts?.length) {
       project.chapterReviewState = { required: true, reason: 'chapter_text_changed', proposalId: proposal.id, createdAt: now };
     }
@@ -703,7 +748,8 @@ function applyChapterProposalInData({ data, requested, source, proposal, actor, 
     changedIds.add(project.id);
     appliedProjects.push(project);
   }
-  if (series && proposal.scope === 'all') reorderAppliedChapters(existing, appliedProjects);
+  if (series && proposal.scope === 'all') reorderAppliedChapters(existing, appliedProjects, series.seasons[0].id, source.setup.startingEpisode ?? 1);
+  markChapterContinuityChanges(orderedChapterProjects(data, series, source), changes, now);
   proposal.status = 'applied';
   proposal.appliedAt = now;
   proposal.appliedProjectIds = appliedProjects.map(project => project.id);
@@ -749,9 +795,10 @@ function workspace(data, series, currentProject = null) {
       chapterId: project.id,
       productionUnitId: project.id,
       seasonId: project.seriesMembership?.seasonId || null,
-      order: project.seriesMembership?.chapterNumber || index + 1,
+      order: project.seriesMembership?.chapterNumber ?? index + 1,
       title: String(project.chapterTitle || project.title),
       storyBrief: String(project.chapterStory || ''),
+      continuityReviewRequired: project.continuityReviewRequired === true && !isChapterProductionComplete(project),
       ...chapterRevisionProjection(project),
       ...scenePlanningProjection(project)
     }))
@@ -794,14 +841,14 @@ function validateProposalBase(proposal, projects) {
   }
 }
 
-function reorderAppliedChapters(existing, applied) {
+function reorderAppliedChapters(existing, applied, firstSeasonId, startingEpisode) {
   const appliedIds = new Set(applied.map(project => project.id));
   const retained = existing.filter(project => !appliedIds.has(project.id));
   const seasonCounts = new Map();
   for (const project of [...applied, ...retained]) {
     if (!project.seriesMembership) continue;
     const seasonId = project.seriesMembership.seasonId;
-    const next = (seasonCounts.get(seasonId) || 0) + 1;
+    const next = (seasonCounts.get(seasonId) ?? (seasonId === firstSeasonId ? startingEpisode - 1 : 0)) + 1;
     seasonCounts.set(seasonId, next);
     project.seriesMembership.chapterNumber = next;
   }
@@ -820,7 +867,7 @@ function normalizeGeneratedChapters(value) {
     title: validTitle(item?.title || `Chapter ${index + 1}`),
     story: String(item?.story || '').trim().slice(0, 50000),
     seasonNumber: Math.max(1, Number(item?.seasonNumber) || 1),
-    chapterNumber: Math.max(1, Number(item?.chapterNumber) || index + 1)
+    chapterNumber: item?.chapterNumber ?? index + 1
   })).filter(item => item.story);
   if (!chapters.length) fail('cinematic_chapters_invalid', 'At least one generated Chapter is required.');
   return chapters;

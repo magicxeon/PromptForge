@@ -23,6 +23,32 @@ export function shotContinuityItems(project, selectedShotId) {
   return selectedShotId ? scenes.flatMap(scene => scene.shots.slice().sort((a, b) => a.orderKey - b.orderKey)) : scenes;
 }
 
+export function isChapterProductionComplete(project) {
+  return Boolean(project.scenes?.length && project.scenes.every(scene =>
+    scene.shots?.length && scene.shots.every(shot => shot.completed === true)));
+}
+
+// Persist the review queue with the same atomic series write as the source edit.
+// Derive both episode boundaries from the exact excerpts supplied to the writer.
+export function markChapterContinuityChanges(ordered, changes, now) {
+  const changedIds = new Set(changes.map(change => change.project.id));
+  const affected = new Set();
+  const limit = cinematicWorkflowPolicy.authoring.continuityExcerptCharacters;
+  for (const {project, previousStory} of changes) {
+    const text = project.chapterStory || '';
+    const index = ordered.findIndex(item => item.id === project.id);
+    if (index < 0 || previousStory === text) continue;
+    if (previousStory.slice(0, limit) !== text.slice(0, limit) && index > 0) affected.add(ordered[index - 1]);
+    for (const later of ordered.slice(index + 1)) affected.add(later);
+  }
+  for (const project of affected) {
+    if (changedIds.has(project.id) || !project.chapterStory?.trim() || isChapterProductionComplete(project)) continue;
+    project.continuityReviewRequired = true;
+    project.version += 1;
+    project.updatedAt = now;
+  }
+}
+
 export function buildAuthoringContinuity(items, targetId) {
   const limit = cinematicWorkflowPolicy.authoring.continuityExcerptCharacters;
   const index = items.findIndex(item => (item.id || item.projectId) === targetId);

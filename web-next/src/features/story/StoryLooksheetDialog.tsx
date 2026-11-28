@@ -8,7 +8,8 @@ import {PromptEditor} from "../playground/components/PromptEditor";
 import {ReferenceEditor} from "../playground/components/ReferenceEditor";
 import {referenceUrl} from "../playground/state/imageDraft";
 
-export function StoryLooksheetDialog({name,title,session,reference,subtitle,close,save,saveError,sceneTools}:{
+export function StoryLooksheetDialog({name,title,session,reference,subtitle,close,save,saveError,sceneTools,skills=[]}:{
+  skills?:{id:string;name:string;instruction:string;selected:boolean}[];
   name:string; title:string; session:NonNullable<Parameters<typeof useImageWorkspace>[0]>;
   reference?:{imageUrl:string}; subtitle?:string;
   close:()=>void; save:(image:string)=>Promise<boolean>; saveError?:string;
@@ -91,6 +92,12 @@ export function StoryLooksheetDialog({name,title,session,reference,subtitle,clos
           {workspace.catalog.isError && <button onClick={()=>void workspace.catalog.refetch()}>{labels("retry")}</button>}
           <PromptEditor compact value={draft.prompt} onChange={prompt=>setDraft(value=>({...value,prompt}))}
             hardLimit={workspace.preview.data?.promptBudget?.hardLimit}/>
+          {skills.length>0 && <details><summary>{t("skillsUsed")}</summary>{skills.map(skill=><label key={skill.id}>
+            <input type="checkbox" checked={draft.prompt.includes(skill.instruction)} onChange={e=>{
+              const checked=e.target.checked;
+              setDraft(value=>({...value,prompt:checked?[value.prompt,skill.instruction].filter(Boolean).join("\n"):
+                value.prompt.replace(skill.instruction,"").replace(/\n{3,}/g,"\n\n").trim()}));
+            }}/>{skill.name}</label>)}</details>}
           {sceneTools && <div className="story-actions">
             <button type="button" onClick={()=>void suggest()}>{t("stage.suggestSetting")}</button>
             {suggesting && <span role="status"><ProcessingSpinner/> {t("processing")}</span>}

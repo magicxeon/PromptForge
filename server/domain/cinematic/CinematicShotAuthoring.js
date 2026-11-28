@@ -1,4 +1,5 @@
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
+import {storySkillProvenance} from './StorySkillProvenance.js';
 import { cinematicWorkflowPolicy } from '../../config/cinematicRewampConfiguration.js';
 import { resolveShotCastIds } from './CinematicCastCoverage.js';
 
@@ -76,6 +77,7 @@ export function applyShotProposal(project, sceneId, proposalId, now = new Date()
   const accepted = proposal.shots.map((outline, index) => {
     const current = existing[index];
     if (!current) return shotFromOutline(outline, index, proposal, scene, now);
+    if (current.completed === true) return current;
     const {summary: priorSummary, ...retainedFields} = current;
     return {
       ...retainedFields,
@@ -88,6 +90,7 @@ export function applyShotProposal(project, sceneId, proposalId, now = new Date()
     };
   });
   for (const retained of existing.slice(proposal.shots.length)) {
+    if (retained.completed === true) { accepted.push(retained); continue; }
     accepted.push({
       ...retained,
       orderKey: accepted.length + 1,
@@ -155,7 +158,8 @@ export function validatedShotPrompt(value) {
     || !/^[a-f0-9]{64}$/.test(value.sourceFingerprint || '')) {
     fail('cinematic_video_prompt_invalid', 'Video Prompt or its source revision is invalid.');
   }
-  return { text: value.text, sourceFingerprint: value.sourceFingerprint };
+  const trace = storySkillProvenance(value.provenance);
+  return { text: value.text, sourceFingerprint: value.sourceFingerprint, ...(trace.selectionVersion && {provenance:trace}) };
 }
 
 export function updateShotDocument(project, sceneId, shotId, input, now = new Date().toISOString()) {
@@ -331,6 +335,7 @@ function dialogueText(cues, cast) {
 function normalizeProvenance(value) {
   if (!value || typeof value !== 'object') return null;
   return {
+    ...storySkillProvenance(value),
     provider: text(value.provider, 80),
     model: text(value.model, 120),
     responseId: nullableId(value.responseId),

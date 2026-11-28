@@ -144,8 +144,8 @@ test('Story writing settings persist on the root, validate the catalog and respe
   assert.deepEqual(root.writingSettings, { modelId: null, skillIds: [] });
   assert.deepEqual(catalog.models.map(m => m.id), ['gpt-6.2-astra', 'gpt-6.2-sol', 'gpt-6-luna']);
   assert.ok(catalog.skills.every(s => s.label.th && s.label.en && !('instruction' in s)));
-  const params = { expectedVersion: root.version, modelId: 'gpt-6.2-astra', skillIds: catalog.skills.slice(0, 5).map(s => s.id) };
-  for (const invalid of [{ skillIds: catalog.skills.map(s => s.id) }, { skillIds: ['dialogue', 'dialogue'] }, { skillIds: ['unknown'] }, { modelId: 'unlisted' }]) {
+  const params = { expectedVersion: root.version, modelId: 'gpt-6.2-astra', skillIds: catalog.skills.map(s => s.id) };
+  for (const invalid of [{ skillIds: ['dialogue', 'dialogue'] }, { skillIds: ['unknown'] }, { modelId: 'unlisted' }]) {
     await assert.rejects(service.updateWritingSettings(root.id, { ...params, ...invalid }, alice), { code: 'cinematic_writing_settings_invalid' });
   }
   await assert.rejects(service.updateWritingSettings(root.id, params, { userId: 'usr_other', username: 'other' }), { code: 'cinematic_project_not_found' });

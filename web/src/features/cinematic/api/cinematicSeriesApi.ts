@@ -32,7 +32,7 @@ export function updateCinematicSharedVoice(projectId: string, assignmentId: stri
 }
 
 export function updateCinematicChapter(projectId: string, expectedProjectVersion: number, title: string, story: string, input: {
-  source?: 'manual' | 'ai'; revisionInstruction?: string; sourceFullStoryRevisionId?: string | null;
+  source?: 'manual' | 'ai'; revisionInstruction?: string; sourceFullStoryRevisionId?: string | null;provenance?:{provider:string;model:string;responseId?:string|null};
 } = {}) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/chapter`, {
     method: 'PATCH', body: { expectedProjectVersion, title, story, ...input }, schema: cinematicSeriesMutationSchema
@@ -40,7 +40,7 @@ export function updateCinematicChapter(projectId: string, expectedProjectVersion
 }
 
 export function proposeCinematicChapters(projectId: string, input: {
-  expectedVersion: number; scope: 'all' | 'selected'; intent?: 'continuity'; instruction?: string; draftTitle?: string; draftStory?: string;
+  expectedVersion: number; scope: 'all' | 'selected'; skillIdsOverride?:string[]; intent?: 'continuity'; instruction?: string; draftTitle?: string; draftStory?: string;
 }) {
   return withCinematicWritingQuote({ projectId, operation: 'chapters', input, mandatory: input.scope === 'all', resultSchema: cinematicChapterProposalMutationSchema }, body =>
     apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/chapter-proposals`, {
@@ -72,8 +72,8 @@ export function discardCinematicChapterProposal(projectId: string, proposalId: s
   });
 }
 
-export function proposeCinematicScenes(projectId: string, expectedVersion: number) {
-  return withCinematicWritingQuote({ projectId, operation: 'scenes', input: { expectedVersion }, mandatory: true, resultSchema: cinematicSceneProposalMutationSchema }, body =>
+export function proposeCinematicScenes(projectId: string, expectedVersion: number, skillIdsOverride?:string[]) {
+  return withCinematicWritingQuote({ projectId, operation: 'scenes', input: { expectedVersion, ...(skillIdsOverride && {skillIdsOverride}) }, mandatory: true, resultSchema: cinematicSceneProposalMutationSchema }, body =>
     apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scene-proposals`, {
       method: 'POST', body, schema: cinematicSceneProposalMutationSchema
     }));
@@ -133,9 +133,9 @@ export function updateCinematicSceneLooks(projectId: string, sceneId: string, in
   });
 }
 
-export function proposeCinematicShots(projectId: string, sceneId: string, expectedVersion: number, revision?: { targetShotId: string; instruction: string }) {
+export function proposeCinematicShots(projectId: string, sceneId: string, expectedVersion: number, revision?: { targetShotId: string; instruction: string }, skillIdsOverride?:string[]) {
   return withCinematicWritingQuote({ projectId, operation: 'shots', sceneId,
-    input: { expectedVersion, ...revision }, mandatory: !revision, resultSchema: cinematicShotProposalMutationSchema }, body =>
+    input: { expectedVersion, ...revision, ...(skillIdsOverride && {skillIdsOverride}) }, mandatory: !revision, resultSchema: cinematicShotProposalMutationSchema }, body =>
     apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`, {
       method: 'POST', body, schema: cinematicShotProposalMutationSchema
     }));
@@ -170,7 +170,7 @@ export function updateCinematicShotDocument(projectId: string, sceneId: string, 
 } | {
   promptOnly: true;
   storyTemplate: 'still' | 'flow' | 'seedance';
-  storyPrompt: {text: string; sourceFingerprint: string};
+  storyPrompt: {text: string; sourceFingerprint: string;provenance?:{selectionVersion?:number;selectedSkillVersions?:Record<string,number>}};
 } | {
   promptOnly?: false;
   title: string;
@@ -193,31 +193,31 @@ export function prepareCinematicShotWriter(projectId: string, sceneId: string, s
 }
 
 export function buildCinematicStoryPrompt(projectId: string, sceneId: string, shotId: string, expectedVersion: number,
-  template: 'still' | 'flow' | 'seedance' | 'legacy', language?: 'th'|'en', refineDraft?:string) {
+  template: 'still' | 'flow' | 'seedance' | 'legacy', language?: 'th'|'en', refineDraft?:string,skillIdsOverride?:string[]) {
   return withCinematicWritingQuote({projectId, sceneId, operation:'shots',
-    input:{purpose:'translate_shot_prompt', targetShotId:shotId, expectedVersion, template, language, ...(refineDraft !== undefined && {refineDraft})}, resultSchema:cinematicShotWriterPreparationSchema},
+    input:{purpose:'translate_shot_prompt', targetShotId:shotId, expectedVersion, template, language, ...(skillIdsOverride && {skillIdsOverride}), ...(refineDraft !== undefined && {refineDraft})}, resultSchema:cinematicShotWriterPreparationSchema},
     body => apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`,
       {method:'POST', body, schema:cinematicShotWriterPreparationSchema}));
 }
 
-export function buildMergedStoryPrompt(projectId:string,sceneId:string,shotIds:string[],expectedVersion:number,template:'flow'|'seedance',language?:'th'|'en',refineDraft?:string) {
+export function buildMergedStoryPrompt(projectId:string,sceneId:string,shotIds:string[],expectedVersion:number,template:'flow'|'seedance',language?:'th'|'en',refineDraft?:string,skillIdsOverride?:string[]) {
   const input = {purpose:'merge_shot_prompt', template, shotIds, expectedVersion, targetShotId:shotIds[0], language,
-    ...(refineDraft !== undefined && {refineDraft})};
+    ...(skillIdsOverride && {skillIdsOverride}), ...(refineDraft !== undefined && {refineDraft})};
   return withCinematicWritingQuote({projectId, sceneId, operation:'shots', input, resultSchema:mergedStoryWritingResultSchema},
     body => apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`,
       {method:'POST', body, schema:mergedStoryWritingResultSchema}));
 }
 
 const shotArtProposalSchema = z.object({artDirection:z.string().trim().min(1).max(1500)});
-export function proposeShotArt(projectId:string, sceneId:string, shotId:string, expectedVersion:number,language:'en'|'th',draft?:string) {
-  const input = {purpose:'shot_art_direction',targetShotId:shotId,expectedVersion,language,...(draft!==undefined ? {draft} : {})};
+export function proposeShotArt(projectId:string, sceneId:string, shotId:string, expectedVersion:number,language:'en'|'th',draft?:string,skillIdsOverride?:string[]) {
+  const input = {purpose:'shot_art_direction',targetShotId:shotId,expectedVersion,language,...(skillIdsOverride && {skillIdsOverride}),...(draft!==undefined ? {draft} : {})};
   return withCinematicWritingQuote({projectId,sceneId,operation:'shots',input,resultSchema:shotArtProposalSchema},
     body => apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}/shot-proposals`,
       {method:'POST',body,schema:shotArtProposalSchema}));
 }
 
 export function saveMergedStoryPrompt(projectId:string,sceneId:string,expectedVersion:number,
-  input:{shotIds:string[]; template:'flow'|'seedance'; text:string; sourceFingerprint:string; expectedSavedText:string|null}) {
+  input:{shotIds:string[]; template:'flow'|'seedance'; text:string; sourceFingerprint:string; expectedSavedText:string|null;provenance?:{selectionVersion?:number;selectedSkillVersions?:Record<string,number>}}) {
   return apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scenes/${encodeURIComponent(sceneId)}`, {
     method:'PATCH', body:{expectedVersion,mergedPrompt:input},schema:cinematicManualSceneMutationSchema
   });

@@ -3,6 +3,7 @@ import {formatStoryPromptWholeSeconds,inspectStoryPromptDraft} from "../../../..
 import {Copy, Maximize2, Minimize2, X} from "lucide-react";
 import {useQuery} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
+import {StoryAppliedSkills,StoryRunSkillPicker,useTakeStoryRunSkills} from "../StoryRunSkills";
 import {useBlocker,useNavigate} from "react-router-dom";
 import {ProcessingSpinner,useActor} from "../../../lib/canonical";
 import {Dialog} from "../../dub-sub/Dialog";
@@ -12,7 +13,7 @@ import type {CinematicProject, CinematicScene, CinematicShot} from "../../../../
 import {buildCinematicStoryPrompt, prepareCinematicShotWriter, updateCinematicShotDocument} from "../../../../../web/src/features/cinematic/api/cinematicSeriesApi";
 import {CinematicWritingCancelled} from "../../../../../web/src/features/cinematic/api/cinematicWritingBilling";
 import {approveCinematicStoryboardSource, getCinematicProject} from "../../../../../web/src/features/cinematic/api/cinematicApi";
-import {MediaImage} from "../../../components/media/MediaImage";
+import {PromptReferenceImage,usePromptReferenceImages} from "./PromptReferenceImage";
 import {OpeningFramePicker} from "./OpeningFramePicker";
 import {ShotArtDirection} from "./ShotArtDirection";
 import {StoryPromptReviewDialog,useStoryPromptReview} from "./StoryPromptReview";
@@ -27,6 +28,7 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
   run: RunWriting; error: string; close: () => void;
 }) {
   const {t,i18n} = useTranslation("story");
+  const takeSkills = useTakeStoryRunSkills("shots");
   const {t: label} = useTranslation("storyPrompt");
   const navigate = useNavigate();
   const {identityScope} = useActor();
@@ -59,21 +61,23 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
     enabled:format !== "legacy", refetchOnWindowFocus:false, retry:false
   });
   const packet = prepared?.storyPacket || current.data?.storyPacket;
+  const missingCharacters = packet?.missingCharacters ?? [];
   const savedVariant = format === "legacy" ? undefined : shot.storyPromptVariants?.[format];
   const outdated = !prepared && Boolean(savedVariant && packet && savedVariant.sourceFingerprint !== packet.sourceFingerprint);
   const savedRefs = prepared ? undefined : savedVariant?.references;
   const listedRefs = savedRefs?.map(ref=>({...ref, imageUrl:packet?.references.find(image=>image.assetId===ref.assetId)?.imageUrl}))
     ?? (!prepared && savedText ? undefined : packet?.references);
+  const referenceImages = usePromptReferenceImages(listedRefs);
   const language = i18n.language.startsWith("th") ? "th" : "en";
   const sourceOutline = shot.shotDocument?.match(/^OPENING(?: FRAME)?[ \t]*\r?\n([^\r\n]+)/im)?.[1]
     || shot.visibleMoment || shot.subjectAction || shot.purpose
     || shot.shotDocument?.split(/\r?\n/).map(line=>line.trim()).find(line=>line && !/^[A-Z &]+$|^#|^\d+(?:\.\d+)? seconds?$|^\[/.test(line));
   const summary = shot.summary?.[language] || (sourceOutline && [...new Intl.Segmenter(language,{granularity:"sentence"})
     .segment(sourceOutline)].slice(0,2).map(part=>part.segment).join("").trim());
-  const castIds = shot.speakerBindings?.map(binding => binding.castAssignmentId)
-    ?? (shot.castMode === "none" || scene.castMode === "none" ? []
-      : shot.castMode === "inherit" || (shot.castMode !== "selected" && !shot.castAssignmentIds.length)
-        ? scene.castAssignmentIds : shot.castAssignmentIds);
+  const explicitCast = shot.castMode === "none" || scene.castMode === "none" ? [] : shot.castAssignmentIds;
+  const castIds = [...(shot.speakerBindings || []).map(binding => binding.castAssignmentId),
+    ...(format !== "seedance" && !shot.speakerBindings?.length && shot.castMode !== "none" && scene.castMode !== "none"
+      && (shot.castMode === "inherit" || (shot.castMode !== "selected" && !explicitCast.length)) ? scene.castAssignmentIds : explicitCast)];
   const resolvedCues = (prepared || current.data)?.dialogue.cues || [];
   const members = project.castAssignments.filter(person => person.active !== false &&
     (castIds.includes(person.id) || resolvedCues.some(cue=>cue.speakerCastAssignmentId===person.id)));
@@ -112,7 +116,8 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
       const packet = result.storyPacket;
       const draft = format === "legacy" ? result.storyPrompt : packet?.text;
       if (!draft) throw new Error(t("promptUnavailable"));
-      if (packet && !packet.ready) throw new Error(label("needFrame"));
+      if (packet && !packet.ready) throw new Error(packet.missingCharacters?.length
+        ? label("missingCharacters",{names:packet.missingCharacters.join(", ")}) : label("needFrame"));
       if (!rebuild && (packet ? saved?.sourceFingerprint !== packet.sourceFingerprint : result.overrideStale)) throw new Error(t("rebuildStalePrompt"));
       setPrepared(result);
       setReviewBase(rebuild ? formatStoryPromptWholeSeconds(draft) : savedText);
@@ -120,7 +125,8 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
     }
     try {
       if (rebuild) {
-        const write = (draft?:string) => buildCinematicStoryPrompt(project.id,scene.id,shot.id,project.version,format,language,draft);
+        const skillIdsOverride = takeSkills();
+        const write = (draft?:string) => buildCinematicStoryPrompt(project.id,scene.id,shot.id,project.version,format,language,draft,skillIdsOverride);
         await review.build(()=>write(), result=>{
           const draft = format === "legacy" ? result.storyPrompt : result.storyPacket?.text;
           if (!draft) throw new Error(t("promptUnavailable"));
@@ -146,7 +152,7 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
           expectedVersion: project.version, expectedShotVersion: shot.version,
           promptOnly: true,
           ...(format === "legacy" ? {videoPromptOverride: {text: text.trim(), sourceFingerprint: prepared.sourceFingerprint}} :
-            {storyTemplate: format, storyPrompt: {text: text.trim(), sourceFingerprint: prepared.storyPacket!.sourceFingerprint}})
+            {storyTemplate: format, storyPrompt: {text: text.trim(), sourceFingerprint: prepared.storyPacket!.sourceFingerprint,provenance:prepared.provenance ?? savedVariant?.provenance}})
         });
         if(openImageWorkspace){
           const references = frameReferences.map(ref=>({id:ref.assetId,role:ref.role==="character"?"character_reference":"style_reference",
@@ -197,12 +203,13 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
       </fieldset>
       <section className="story-ref-pane">
       <h3>{label("attachments")}{listedRefs && <> · {listedRefs.length}</>}</h3>
+      {!!missingCharacters.length && <p role="alert">{label("missingCharacters",{names:missingCharacters.join(", ")})}</p>}
       <button className="story-mobile-refs" aria-expanded={showMobileRefs} onClick={()=>setShowMobileRefs(!showMobileRefs)}>
         {label(showMobileRefs ? "hideRefs" : "showRefs")}</button>
       <div className="story-ref-content" data-open={showMobileRefs}>
       {outdated && <p role="status">{label("refsChanged")}</p>}
       {listedRefs?.length ? <ol className="story-prompt-references">{listedRefs.map(ref => <li key={ref.number}>
-        {ref.imageUrl ? <MediaImage src={ref.imageUrl} alt=""/> : <small>{label(current.isPending ? "loadingRefs" : "imageUnavailable")}</small>}
+        {ref.imageUrl ? <PromptReferenceImage src={ref.imageUrl} name={ref.name} report={referenceImages.report}/> : <small>{label(current.isPending ? "loadingRefs" : "imageUnavailable")}</small>}
         <span><small>{label("referenceNumber",{number:ref.number})} · {label(ref.role)}</small><strong>{ref.name}</strong></span>
       </li>)}</ol> : <p>{format === "legacy" || !prepared && savedText && !savedRefs ? label("unknownRefs") :
         listedRefs ? label("noRefs") : current.isError ? label("refsError") : label("loadingRefs")}</p>}
@@ -221,7 +228,8 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
         </li>;
       })}</ul>
         : <p>{t("noShotCharacters")}</p>}
-      {skills.length > 0 && <p>{t("promptSkills", {skills: skills.join(" · ")})}</p>}
+      {format === "legacy" ? skills.length > 0 && <p>{t("promptSkills", {skills: skills.join(" · ")})}</p> : <StoryRunSkillPicker task="shots"/>}
+      <StoryAppliedSkills trace={prepared?.provenance ?? savedVariant?.provenance}/>
       </details>
       {stale && <p role="alert">{t("promptSourceChanged")}</p>}
       {(localError || error) && <p role="alert">{localError || error}</p>}
@@ -237,16 +245,16 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
       {prepared && text.length > prepared.maximumPromptCharacters && <p role="alert">{t("promptTooLong", {max: prepared.maximumPromptCharacters})}</p>}
       <footer className="story-actions">
         {savedText && !prepared && !stale && <button disabled={preparing} onClick={() => void prepare(false)}>{t("editSavedPrompt")}</button>}
-        <button disabled={preparing || saving || artDirty || stale || needsFrame || Boolean(prepared)} onClick={() => void prepare()}>
+        <button disabled={preparing || saving || artDirty || stale || needsFrame || !!missingCharacters.length || Boolean(prepared)} onClick={() => void prepare()}>
           {preparing && <ProcessingSpinner/>}{artChanged ? label("rebuildArt") : savedText ? t("regeneratePrompt") : t("generatePrompt")}
         </button>
-        <button type="button" className="story-copy" disabled={!text.trim()} onClick={async () => {
+        <button type="button" className="story-copy" disabled={referenceImages.pending || !text.trim() || !!missingCharacters.length || outdated} onClick={async () => {
           try { await navigator.clipboard.writeText(text); setCopied(true); }
           catch { setLocalError(label("copyFailed")); }
         }}><Copy size={16}/>{label(copied ? "copied" : "copy")}</button>
-        <button className="primary" disabled={!prepared || preparing || saving || artDirty || stale || !text.trim() || text.length > prepared.maximumPromptCharacters}
+        <button className="primary" disabled={referenceImages.pending || !prepared || preparing || saving || artDirty || stale || !text.trim() || text.length > prepared.maximumPromptCharacters}
           onClick={() => void save()}>{t("savePrompt")}</button>
-        {format==="still" && prepared && canUseImageWorkspace && <button disabled={artDirty || preparing || saving || stale || !text.trim() || text.length>prepared.maximumPromptCharacters}
+        {format==="still" && prepared && canUseImageWorkspace && <button disabled={referenceImages.pending || artDirty || preparing || saving || stale || !text.trim() || text.length>prepared.maximumPromptCharacters}
           onClick={()=>void save(true)}>{label("openImage")}</button>}
       </footer>
       {format==="still" && prepared && !canUseImageWorkspace && <p>{label("externalStill")}</p>}

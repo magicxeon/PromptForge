@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { storyVisualStyle } from '../../config/storyWritingSettings.js';
+import { resolveWritingPreferences } from '../../config/storyWritingSettings.js';
 import { cinematicKeyframeConfigurationService } from './CinematicKeyframeConfigurationService.js';
 
 export function sceneEnvironmentContext(project, scene) {
@@ -7,8 +7,8 @@ export function sceneEnvironmentContext(project, scene) {
   const environmentPrompt = scene.environmentPrompt?.trim() || [scene.location, scene.time, scene.synopsis,
     scene.artDirection, scene.lighting, scene.weather].filter(value => typeof value === 'string' && value.trim()).join('\n');
   const treatment = scene.lighting?.trim();
-  const style = project.writingSettings?.direction?.visualStyle && storyVisualStyle(project.writingSettings);
-  const directions = [style?.instruction, environmentPrompt,
+  const preferences = resolveWritingPreferences(project.writingSettings,"environment",scene);
+  const directions = [...preferences.skillInstructions, environmentPrompt,
     treatment && !environmentPrompt.includes(treatment)
       ? `Scene atmosphere (apply to the setting and light): ${treatment}` : ''
   ].filter(Boolean);

@@ -1,5 +1,18 @@
 {
   "schemaVersion": 1,
+  "skillImport": {
+    "archiveBytes": 50331648, "markdownBytes": 131072, "totalMarkdownBytes": 2097152, "archiveEntries": 512, "maxReferences": 32,
+    "instructionCharacters": 65536, "referenceCharacters": 65536, "contextCharacters": 400, "promptCharacters": 6000,
+    "taskHints": {
+      "shots": ["shot", "motion", "video-prompt"],
+      "looksheet": ["looksheet", "production-art", "image-emotion"],
+      "environment": ["production-art", "image-emotion"],
+      "full_story": ["fiction", "story-architect"],
+      "chapter_outline": ["fiction", "story-architect"],
+      "chapters": ["fiction", "story-architect"],
+      "scenes": ["fiction", "cinematic-shots", "production-art"]
+    }
+  },
   "version": 4,
   "openingDirection": {
     "version": 2,
@@ -29,6 +42,7 @@
   },
   "limits": {
     "storyBrief": 600,
+    "priorEpisodeSummary": 10000,
     "creativeDirection": 800
   },
   "choices": {

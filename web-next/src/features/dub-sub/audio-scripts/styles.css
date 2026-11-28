@@ -66,7 +66,7 @@
 .dub-studio .as-casting button:enabled:hover { text-decoration: underline; }
 .dub-studio .as-performance { border: 1px solid #d4dce4; background: #eff3f7; border-radius: .6rem; padding: .75rem 1rem 0; }
 .as-performance h4 { display: flex; align-items: center; gap: .45rem; margin: 0; font-size: 1rem; color: #32495e; }
-.as-performance .as-delivery { grid-template-columns: minmax(8rem, .9fr) repeat(2, minmax(0, 1fr)); align-items: center; gap: .65rem 1.5rem; }
+.as-performance .as-delivery { grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); align-items: start; gap: .65rem 1.5rem; }
 .as-performance label { color: #40576b; }
 .as-details { margin-top: .65rem; border-top: 1px solid #ccd6de; }
 .as-details summary { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .65rem 0; cursor: pointer; color: #374e63; font-weight: 600; }

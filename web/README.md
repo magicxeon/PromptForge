@@ -1,6 +1,8 @@
 # ModelPromptForge React Web
 
-This workspace is the canonical React browser application.
+This workspace serves authentication, library details and other existing routes
+alongside the current browser workspace in `web-next/`. Web Next imports shared
+frontend modules from this workspace.
 The Express API, domain services, repositories, providers, and runtime data
 remain canonical and are not duplicated here.
 
@@ -14,7 +16,7 @@ those contracts without creating parallel generation pipelines.
 Run commands from the repository root:
 
 ```text
-npm run dev:web
+npm run dev:web:legacy
 npm run typecheck:web
 npm run lint:web
 npm run test:web
@@ -22,8 +24,9 @@ npm run test:web:e2e
 npm run build:web
 ```
 
-Vite runs on `http://localhost:5173` and proxies API/media/localization requests
-to `http://localhost:6500`.
+The legacy Vite server runs on `http://localhost:5173` and proxies API/media/localization
+requests to `http://localhost:6500`. Use `npm run dev:web` to launch Web Next on
+port 6502 and `npm run build:web-next` to build it separately.
 
 Uploaded generation references use `POST /api/references`. The browser keeps the
 returned actor-owned `/outputs/references/...` URL; only the server resolves the
@@ -41,7 +44,6 @@ Server-controlled feature exposure is consumed through
 - TanStack Query owns server-state cache and invalidation.
 - i18next and react-i18next consume the existing locale catalogs.
 - Zod validates API boundaries; server contracts remain authoritative.
-- React Hook Form is reserved for forms with validation and dirty-state needs.
 - Tailwind CSS uses the Momelo tokens in `src/styles/tokens.css`.
 - Radix supplies accessible interaction primitives where native HTML is not
   sufficient.

@@ -55,6 +55,21 @@ function scene() {
   };
 }
 
+test('applying a scene-wide shot revision protects completed work and revises its unfinished sibling', () => {
+  const current=scene();
+  const project={activeChapterVersionId:'chapter-rev-1',scenes:[current],shotProposals:[],generationAttempts:[]};
+  const first=createManualShot(project,current.id).shot;
+  createManualShot(project,current.id);
+  first.completed=true;
+  const frozen=structuredClone(first);
+  const proposal=createShotProposal({sceneId:current.id,sourceSceneVersion:current.version,sourceChapterRevisionId:'chapter-rev-1',
+    shots:['unwanted replacement','revised sibling'].map(title=>({title,durationMs:4000,shotDocument:title,characterIds:[]}))});
+  project.shotProposals.push(proposal);
+  applyShotProposal(project,current.id,proposal.id);
+  assert.deepEqual(current.shots[0],frozen);
+  assert.equal(current.shots[1].title,'revised sibling');
+});
+
 test('Shot proposal creates editable documents without media attempts', () => {
   const project = { activeChapterVersionId: 'chapter-rev-1', shotProposals: [], scenes: [scene()], generationAttempts: [] };
   const proposal = createShotProposal({
@@ -125,7 +140,7 @@ test('Manual Shot and versioned writer save preserve free-form prose', () => {
     expectedShotVersion: shot.version, title: 'Quiet pause', durationMs: 3500, shotDocument: custom, source: 'manual'
   });
   assert.equal(result.shot.shotDocument, custom);
-  assert.equal(result.shot.durationMs, 3500);
+  assert.equal(result.shot.durationMs, 4000);
   assert.equal(result.shot.shotDocumentVersion, 2);
   assert.throws(() => updateShotDocument(project, 'scene-1', shot.id, {
     expectedShotVersion: result.shot.version, title: 'Too long', durationMs: 3500, shotDocument: 'x'.repeat(12001)

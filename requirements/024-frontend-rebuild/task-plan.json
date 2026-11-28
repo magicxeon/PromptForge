@@ -3,6 +3,27 @@
   "requirement": "requirements/024-frontend-rebuild/000-master.md",
   "tasks": [
     {
+      "id":"FE24-STORY-DELETE","title":"Delete a confirmed Story production project from the library",
+      "complexity":"complex","reason":"Deletes series and chapter authoring records and admits a narrow local mutation.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root/project_delete","dependsOn":[],
+      "capabilities":["cinematic","frontend-experience","identity"],"risks":["destructive","security","user-facing"],
+      "writeScope":["server/domain/cinematic/","server/app/routes/","server/domain/identity/","server/repositories/cinematic/","web/src/features/cinematic/","web-next/src/","test/","requirements/024-frontend-rebuild/","requirements/099-technical-dept/"],
+      "status":"complete","acceptance":["Cancel preserves the project. Confirm deletes only the owner's displayed standalone project or complete series atomically. Stale confirmation and cross-owner requests fail."],
+      "reviewers":["security-reviewer","qa-release-engineer","ux-ui-product-designer"],"evidence":[{"check":"Cancel preserves the project. Confirm deletes only the owner's displayed standalone project or complete series atomically. Stale confirmation and cross-owner requests fail.","result":"passed","reference":"test/cinematicSeries.test.js"},{"check":"Cancel and confirm through the library on a disposable project","result":"passed","reference":"web-next/test/story-authoring-check.mjs"}],
+      "reviews":[{"role":"security-reviewer","agentId":"/root/sensitive_review","result":"passed","reference":"server/domain/cinematic/CinematicSeriesService.js"},{"role":"qa-release-engineer","agentId":"/root/sensitive_review","result":"passed","reference":"test/cinematicSeries.test.js"},{"role":"ux-ui-product-designer","agentId":"/root","result":"passed","reference":"web-next/test/story-authoring-check.mjs"}],
+      "handoff":"Use isolated fixture records for destructive tests. Shared media and generation or billing records retain their respective owners."
+    },
+    {
+      "id":"FE24-SERIES-CONTINUATION","title":"Continue an external series and review the impact of story changes",
+      "complexity":"complex","reason":"Episode numbering, series context, review state and prompt attachments cross the editor and Cinematic domain.",
+      "owner":"product-requirement-architect","ownerAgentId":"/root","dependsOn":[],
+      "capabilities":["cinematic","frontend-experience"],"risks":["shared-contract","user-facing"],
+      "writeScope":["server/domain/cinematic/","server/domain/generation/","server/repositories/cinematic/","server/config/","web/src/features/cinematic/","web-next/src/","test/","requirements/024-frontend-rebuild/","requirements/099-technical-dept/"],
+      "status":"review","acceptance":["Resume at the requested episode using confirmed canon and neighboring scripts.","Review affected unfinished work without overwriting completed shots.","Identify missing visible cast references before delivering a prompt."],
+      "reviewers":["ux-ui-product-designer","qa-release-engineer"],"evidence":[],"reviews":[],
+      "handoff":"Root owns numbering and context. Impact owns continuity review. References owns prompt attachment readiness and skill selection. Exercise with an isolated series before live author acceptance."
+    },
+    {
       "id":"FE24-STORY-SHOT-DESK","title":"Arrange shots across scenes and review art, text and attachments together",
       "complexity":"complex","reason":"Scene ordering, project direction and versioned prompt sources share a persisted authoring contract.",
       "owner":"product-requirement-architect","ownerAgentId":"/root","dependsOn":["FE24-STORY-MERGE"],

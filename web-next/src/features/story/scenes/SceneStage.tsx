@@ -8,6 +8,7 @@ import type {CinematicProject,CinematicScene} from "../../../../../web/src/featu
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {uploadStorySceneImage} from "./uploadStorySceneImage";
 import settings from "./staging-config.json";
+import {useTakeStoryRunSkills, StoryRunSkillPicker} from "../StoryRunSkills";
 import {SceneDirectionSummary} from "./SceneDirectionSummary";
 import {emptyDraft} from "../../playground/state/imageDraft";
 
@@ -16,6 +17,7 @@ type SceneEnvironment = Awaited<ReturnType<typeof getCinematicSceneEnvironment>>
 
 export function SceneStage({project,scene,run,aspectRatio,editTreatment,error}:{project:CinematicProject;scene:CinematicScene;run:RunWriting;aspectRatio:string;editTreatment:()=>void;error:string}) {
   const {t} = useTranslation("story");
+  const takeSkills=useTakeStoryRunSkills("environment");
   const [uploading,setUploading] = useState(false);
   const [fileError,setFileError] = useState("");
   const [preparing,setPreparing]=useState(false);
@@ -145,9 +147,10 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment,error}:{
           reviewLatest:()=>{if(changed){setDesign(changed);setChanged(undefined);}},
           suggest:async prompt=>{
             const result=await proposeCinematicSceneEnvironment(project.id,scene.id,{expectedVersion:project.version,
-              expectedSceneVersion:scene.version ?? 1,currentDirection:prompt.slice(0,2500)});
+              expectedSceneVersion:scene.version ?? 1,skillIdsOverride:takeSkills(),currentDirection:prompt.slice(0,2500)});
             return result.environmentPrompt;
           }}}/>
     </Suspense>}
+    <StoryRunSkillPicker task="environment"/>
   </section>;
 }

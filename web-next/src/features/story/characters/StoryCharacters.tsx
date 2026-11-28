@@ -6,6 +6,7 @@ import {MediaImage} from "../../../components/media/MediaImage";
 import {Dialog} from "../../dub-sub/Dialog";
 import {setCinematicChapterCharacters, upsertCinematicSharedCharacter} from "../../../../../web/src/features/cinematic/api/cinematicSeriesApi";
 import {cinematicFullStoryProposalSchema, type CinematicFullStoryProposal, type CinematicProject, type StoryCharacterDetails} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
+import {StoryRunSkillPicker,useTakeStoryRunSkills} from "../StoryRunSkills";
 import {proposeCinematicFullStory} from "../../../../../web/src/features/cinematic/api/cinematicApi";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {saveCharacterReference} from "./CharacterImageReturn";
@@ -25,15 +26,21 @@ export function readReference(file: Blob) {
   });
 }
 
-export function StoryCharacters({project, owner, run, error, busy}: {
+import authoring from "../../../../../server/config/cinematic/story-authoring.v1.json";
+import {selectStorySkills,skillPromptText} from "../../../../../server/config/cinematic/selectStorySkills.js";
+import type {CinematicWritingSettingsCatalog} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
+
+export function StoryCharacters({project, owner, catalog, run, error, busy}: {
+  catalog?:CinematicWritingSettingsCatalog;
   project: CinematicProject; owner: CinematicProject; run: RunWriting; error: string; busy: boolean;
 }) {
-  const {t} = useTranslation("story");
+  const {t,i18n} = useTranslation("story");
   const {identityScope} = useActor();
   const [params, setParams] = useSearchParams();
   const [selected, setSelected] = useState<string[]>([]);
   const [batchMode,setBatchMode]=useState(false);
-  const [looksheet,setLooksheet]=useState<{person:Member;prompt:string;outfit:string}>();
+  const takeSkills=useTakeStoryRunSkills("full_story");
+  const [looksheet,setLooksheet]=useState<{person:Member;prompt:string;outfit:string;skills:{id:string;name:string;instruction:string;selected:boolean}[]}>();
   const [outfit, setOutfit] = useState("");
   const [reviewing, setReviewing] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -67,7 +74,7 @@ export function StoryCharacters({project, owner, run, error, busy}: {
     try {
       await run(async () => {
         const result = await proposeCinematicFullStory(project.id, project.version, "", "characters",
-          {scope:"whole_story", selectedCharacterIds:ids});
+          {scope:"whole_story", selectedCharacterIds:ids},takeSkills());
         setProposal(result);
         setReviewing(Boolean(result.characters.length));
       }, "draft");
@@ -80,19 +87,30 @@ export function StoryCharacters({project, owner, run, error, busy}: {
   function createLooksheet(person:Member, wardrobe:string) {
     const details = person.storyCharacterDetails;
     const direction = owner.writingSettings?.direction;
+    const source={...person,description:[details?.appearance,wardrobe].filter(Boolean).join(" ")};
+    const recommended=catalog?selectStorySkills(catalog,owner.writingSettings,"looksheet",source):[];
+    const locale=i18n.language.startsWith("th")?"th":"en";
+    const skills=(owner.writingSettings?.skillIds??[]).flatMap(id=>{
+      const custom=owner.writingSettings?.customSkills?.find(skill=>skill.id===id);
+      const base=catalog?.skills.find(skill=>skill.id===id);
+      const instruction=custom?skillPromptText(custom,"looksheet",source,authoring.skillImport.promptCharacters):base?.instruction;
+      return instruction?[{id,name:custom?.name??base?.label[locale]??id,instruction,selected:recommended.includes(id)}]:[];
+    });
     const prompt = [
       `Create a production character looksheet for ${person.displayName}.`,
       "Use one consistent identity across full-body front and side views and a neutral face close-up, on a plain background.",
       person.storyRole, person.personalityTraits.join(", "), details?.appearance, wardrobe,
-      direction ? [direction.country,direction.period,direction.visualStyle].filter(Boolean).join(", ") : ""
+      direction ? [direction.country,direction.period,direction.visualStyle].filter(Boolean).join(", ") : "",
+      ...recommended.map(id=>skills.find(skill=>skill.id===id)?.instruction)
     ].filter(Boolean).join("\n");
-    setLooksheet({person,prompt,outfit:wardrobe});
+    setLooksheet({person,prompt,outfit:wardrobe,skills});
   }
   function addToChapter(id: string) {
     void run(() => setCinematicChapterCharacters(project.id, project.version, [...chapterIds, id]));
   }
 
   return <section className="story-characters">
+    <StoryRunSkillPicker task="full_story"/>
     <header className="story-bar story-cast-heading"><h2>{t("characters")}</h2><div className="story-actions">
       <button className="primary" disabled={busy || checking} onClick={() => void check()}>{t("storyCast.check")}</button>
       <button disabled={busy} onClick={() => setEditing("new")}>{t("addCharacter")}</button>
@@ -184,6 +202,7 @@ export function StoryCharacters({project, owner, run, error, busy}: {
     {looksheet && <Suspense fallback={<ProcessingSpinner/>}><StoryLooksheetDialog
       name={looksheet.person.displayName} title={t("storyCast.looksheetFor",{name:looksheet.person.displayName})}
       subtitle={looksheet.outfit} reference={looksheet.person.storyReference}
+      skills={looksheet.skills}
       session={{
         scope:JSON.stringify(["looksheet",owner.id,looksheet.person.id,looksheet.person.updatedAt]),
         replaceReferenceOutfit:Boolean(looksheet.outfit),

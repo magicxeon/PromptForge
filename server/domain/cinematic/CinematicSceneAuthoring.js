@@ -1,4 +1,5 @@
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
+import {storySkillProvenance} from './StorySkillProvenance.js';
 import {normalizeSceneEvents} from '../../config/storyDirectingSkills.js';
 
 const PURPOSES = new Set(['dialogue', 'action', 'montage', 'establishing', 'atmosphere', 'transition', 'dramatic']);
@@ -51,6 +52,7 @@ export function applySceneProposal(project, proposalId, now = new Date().toISOSt
   const accepted = rows.map(({outline,original}, index) => {
     const current = original===null?null:existing[original];
     if (!current) return sceneFromOutline(outline, index, proposal, now);
+    if (current.shots?.length && current.shots.every(shot => shot.completed === true)) return { ...current, orderKey: index + 1 };
     const hasProduction = (current.shots || []).length > 0;
     const reviewed = sceneOutlineFields(outline, index, proposal);
     for (const key of current.authorDirectedFields || []) {
@@ -70,7 +72,8 @@ export function applySceneProposal(project, proposalId, now = new Date().toISOSt
     };
   });
   for (const retained of existing.slice(originals.length)) {
-    accepted.push({ ...retained, orderKey: accepted.length + 1, planningStatus: 'review_required' });
+    const complete = retained.shots?.length && retained.shots.every(shot => shot.completed === true);
+    accepted.push({ ...retained, orderKey: accepted.length + 1, ...(complete ? {} : { planningStatus: 'review_required' }) });
   }
   project.scenes = accepted;
   proposal.scenes=rows.map(row=>row.outline);
@@ -307,7 +310,7 @@ function normalizeOutline(value, index, allowedCharacterIds) {
 
 function normalizeProvenance(value) {
   if (!value || typeof value !== 'object') return null;
-  return { provider: text(value.provider, 80), model: text(value.model, 120), responseId: nullableId(value.responseId) };
+  return { ...storySkillProvenance(value),provider: text(value.provider, 80), model: text(value.model, 120), responseId: nullableId(value.responseId) };
 }
 function requiredId(value, message) { const id = nullableId(value); if (!id) fail('cinematic_chapter_revision_required', message, 409); return id; }
 function nullableId(value) { const normalized = text(value, 180); return normalized || null; }

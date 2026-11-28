@@ -47,6 +47,8 @@
   "pitch": "Pitch",
   "volume": "Volume",
   "pause": "Silence after line (seconds)",
+  "targetDuration": "Target speaking time (seconds)",
+  "autoDuration": "0 = automatic",
   "draft": "Needs a take",
   "needsText": "Write the spoken text",
   "needsSpeaker": "Choose a speaker",

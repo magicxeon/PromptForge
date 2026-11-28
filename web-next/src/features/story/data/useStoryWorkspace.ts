@@ -53,12 +53,14 @@ export function useStoryWorkspace(id: string) {
         cache.setQueryData(rootKey, update.storyProject);
       }
       if (workspace) {
+        if (!update.storyProject && fullStoryOwner !== project.id) await cache.invalidateQueries({queryKey:storyKeys.project(identityScope,fullStoryOwner)});
         const savedSeriesKey = storyKeys.series(identityScope, project.id);
         await cache.cancelQueries({queryKey: savedSeriesKey, exact: true});
         cache.setQueryData(savedSeriesKey, workspace);
       }
       // Chapter planning can edit the story root while a different chapter is open.
       if (!workspace || project.id !== id) await cache.invalidateQueries({queryKey: seriesKey});
+      if (project.id !== id) await cache.invalidateQueries({queryKey:projectKey,exact:true});
       await cache.invalidateQueries({queryKey: storyKeys.library(identityScope)});
     } catch (cause) {
       if (!(cause instanceof CinematicWritingCancelled)) {

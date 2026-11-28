@@ -4,6 +4,9 @@ import { cinematicWorkflowPolicy } from '../../config/cinematicRewampConfigurati
 export function chapterOutlineSettings(setup,direction) {
   return { format: setup.format, durationSeconds: direction?.targetSeconds ?? setup.durationSeconds,
     ...(direction ? {storyFormat:direction.format} : {}),
+    ...(setup.requestedEpisodeCount ? {requestedEpisodeCount:setup.requestedEpisodeCount} : {}),
+    ...(setup.startingEpisode !== undefined && setup.startingEpisode !== 1 ? {startingEpisode:setup.startingEpisode} : {}),
+    ...(setup.priorEpisodeSummary ? {priorEpisodeSummary:setup.priorEpisodeSummary} : {}),
     seasonEnabled: Boolean(setup.seasonEnabled), seasonCount: setup.seasonEnabled ? setup.seasonCount : 1 };
 }
 
@@ -16,7 +19,8 @@ export function normalizeChapterOutlineRows(rows, setup) {
   const maximum = Math.min(cinematicWorkflowPolicy.authoring.generatedChapterMaximum,
     cinematicWorkflowPolicy.projectCreation.maximumChapterCount);
   const seasons = setup.seasonEnabled ? setup.seasonCount : 1;
-  if (!Array.isArray(rows) || !rows.length || rows.length > maximum || (setup.format === 'short-film' && rows.length !== 1)) {
+  if (!Array.isArray(rows) || !rows.length || rows.length > maximum || (setup.format === 'short-film' && rows.length !== 1)
+    || (setup.requestedEpisodeCount && rows.length !== setup.requestedEpisodeCount)) {
     fail('cinematic_chapter_outline_invalid', 'The Chapter plan has an invalid Chapter count.');
   }
   const counters = new Map();
@@ -30,7 +34,7 @@ export function normalizeChapterOutlineRows(rows, setup) {
       fail('cinematic_chapter_outline_invalid', 'Every Chapter needs a title, synopsis and ordered Season assignment.');
     }
     lastSeason = season;
-    counters.set(season, (counters.get(season) || 0) + 1);
+    counters.set(season, (counters.get(season) ?? (season === 1 ? (setup.startingEpisode ?? 1) - 1 : 0)) + 1);
     return { title, synopsis, seasonNumber: season, chapterNumber: counters.get(season) };
   });
   if (counters.size !== seasons || !counters.has(1)) fail('cinematic_chapter_outline_invalid', 'Include every configured Season in the Chapter plan.');

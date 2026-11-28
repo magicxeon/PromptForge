@@ -1,5 +1,6 @@
 import {useEffect,useState} from "react";
 import {useTranslation} from "react-i18next";
+import {useTakeStoryRunSkills} from "../StoryRunSkills";
 import {ProcessingSpinner} from "../../../lib/canonical";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import type {CinematicProject,CinematicScene,CinematicShot} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
@@ -14,6 +15,7 @@ type Props = {project:CinematicProject;scene:CinematicScene;shot:CinematicShot;r
 
 export function ShotArtDirection({project,scene,shot,run,onSaved,onDirtyChange}:Props) {
   const {t,i18n}=useTranslation("storyPrompt");
+  const takeSkills = useTakeStoryRunSkills("shots");
   const language = i18n.language.startsWith("th") ? "th" : "en";
   const style = catalog.visualStyles[(project.writingSettings?.direction?.visualStyle ?? catalog.defaults.visualStyle) as keyof typeof catalog.visualStyles] ?? catalog.visualStyles.neutral;
   const saved = shot.artDirection || "";
@@ -32,7 +34,7 @@ export function ShotArtDirection({project,scene,shot,run,onSaved,onDirtyChange}:
     if (draft===null) setBaseVersion(project.version);
     setWorking(true); setError("");
     try {
-      const result=await proposeShotArt(project.id,scene.id,shot.id,project.version,language,draft ?? undefined);
+      const result=await proposeShotArt(project.id,scene.id,shot.id,project.version,language,draft ?? undefined,takeSkills());
       setProposal(result.artDirection);
     } catch(cause) {
       if (!(cause instanceof CinematicWritingCancelled)) setError((cause as Error).message || t("art.failed"));

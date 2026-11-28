@@ -86,7 +86,7 @@ const service = new CinematicApplicationService({
   }
 });
 // Expose only fixture-backed read and authoring actions. Any attempted media generation fails locally.
-const permitted = ["listProjects","createProject","getProject","getSeriesWorkspace","getAuthoringManifest",
+const permitted = ["listProjects","createProject","deleteProductionProject","getProject","getSeriesWorkspace","getAuthoringManifest",
   "proposeFullStory","updateWritingSettings","updateSeriesChapter","saveFullStoryRevision","confirmFullStoryRevision","createManualScene","updateSceneOutline","createManualShot","updateShotDocument",
   "applySceneProposal","discardSceneProposal","applyShotProposal","discardShotProposal","upsertSharedCharacterDossier",
   "prepareShotWriter","storyPromptStatus","setChapterCharacters","getSceneEnvironmentContext","saveSceneEnvironment","approveSceneEnvironment","approveStoryboardSource"];
@@ -671,9 +671,22 @@ try {
   await dialog.getByRole("button",{name:"Save prompt"}).click();
   await dialog.waitFor({state:"hidden"});
   await page.reload();
+  const attachmentRoute = "**/outputs/references/**";
+  await page.route(attachmentRoute, route=>route.fulfill({status:404,body:"Missing fixture"}));
   await button("Shot prompt for "+proposedShot).click();
   assert.equal(await promptText.inputValue(), customPrompt);
   await dialog.locator(".story-prompt-references li").first().waitFor();
+  const retryImage = dialog.locator(".story-prompt-references button");
+  await retryImage.first().waitFor();
+  assert.equal(await dialog.getByRole("button",{name:"Copy prompt"}).isEnabled(),false);
+  await page.unroute(attachmentRoute);
+  await page.waitForFunction(() => {
+    const list = document.querySelector(".story-prompt-references");
+    if (!list) return false;
+    list.querySelectorAll("button").forEach(button=>button.click());
+    return [...list.querySelectorAll("li")].every(item=>item.querySelector("img")?.naturalWidth > 0);
+  });
+  await dialog.getByRole("button",{name:"Copy prompt"}).and(page.locator(":enabled")).waitFor();
   assert.ok(await dialog.getByRole("button",{name:"Copy prompt"}).isEnabled());
   await dialog.getByRole("button",{name:"Close",exact:true}).click();
   await shotRow.click();
@@ -1161,6 +1174,48 @@ try {
   await page.getByRole("region",{name:"Saved chapter scripts"}).getByRole("button").click();
   await page.locator(".story-script").waitFor();
   assert.equal(writes.length,writingCount,"opening the saved script does not submit writing work");
+  await page.goto(origin+"/story");
+  await page.locator(".story-bar button.primary").click();
+  await dialog.getByRole("textbox",{name:"Story title"}).fill("Continuing the inn");
+  await dialog.locator("details summary").click();
+  await dialog.locator("select").filter({has:page.locator('option[value="series"]')}).selectOption("series");
+  await dialog.getByLabel("Starting episode").fill("3");
+  await dialog.getByLabel("Number of episodes to write").fill("5");
+  await dialog.getByText("Check the starting episode and episode count before creating the project.",{exact:false}).waitFor();
+  await dialog.getByText("Episodes to write: EP3–EP7").waitFor();
+  const recapField = dialog.getByLabel("Previous episodes and character continuity",{exact:false});
+  await recapField.fill("ก".repeat(10001));
+  assert.ok(await dialog.getByRole("button").last().isDisabled());
+  await dialog.getByRole("alert").waitFor();
+  const previousRecap = "เสี่ยวเม่ยกลับมาเปิดโรงเตี๊ยมอีกครั้งหลังจากรักษาแม่\n".repeat(35).trim();
+  await recapField.fill(previousRecap);
+  await dialog.getByRole("button").last().click();
+  await page.waitForURL(/\/story\/[^/?#]+$/);
+  const continuationId = new URL(page.url()).pathname.split("/").at(-1);
+  const continuation = await projects.findForActor(continuationId,actor);
+  assert.equal(continuation.setup.startingEpisode,3);
+  assert.equal(continuation.setup.chapterCount,5);
+  assert.equal(continuation.setup.requestedEpisodeCount,5);
+  assert.equal(continuation.setup.priorEpisodeSummary,previousRecap);
+  await openSettings();
+  await dialog.locator('input[type=file]').setInputFiles({
+    name:"test-shots.md", mimeType:"text/markdown", buffer:Buffer.from("Track the actor's eyeline through each cut.")
+  });
+  await dialog.getByLabel("Use when these keywords occur (optional)").fill("โรงเตี๊ยม, tavern");
+  await dialog.getByLabel("Shots and prompts",{exact:true}).check();
+  await dialog.getByRole("button",{name:"Add selected skills"}).click();
+  await dialog.getByRole("button",{name:"Save settings"}).click();
+  await dialog.waitFor({state:"hidden"});
+  assert.equal((await projects.findForActor(continuationId,actor)).writingSettings.customSkills[0].context,"โรงเตี๊ยม, tavern");
+  await page.goto(origin+"/story");
+  const createdCard = page.locator(".story-projects article").filter({hasText:"Continuing the inn"});
+  await createdCard.getByRole("button",{name:/Delete project/i}).click();
+  await dialog.getByRole("button",{name:"Cancel",exact:true}).click();
+  assert.ok(await projects.findForActor(continuationId,actor));
+  await createdCard.getByRole("button",{name:/Delete project/i}).click();
+  await dialog.getByRole("button",{name:"Confirm deletion",exact:true}).click();
+  await createdCard.waitFor({state:"detached"});
+  assert.ok(!(await projects.findForActor(continuationId,actor)));
   assert.deepEqual(failures,[]);
   console.log("Story & Shots: authoring, saved prompts, merged shot selection, retry, opening frame, persistence, stale sources and responsive checks passed.");
 } catch(error) {

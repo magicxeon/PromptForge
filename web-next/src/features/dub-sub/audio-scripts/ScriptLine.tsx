@@ -106,6 +106,11 @@ export function ScriptLine({ row, index, count, current, busy, choicesReady, can
         <h4 id={"as-performance-" + row.id}><SlidersHorizontal size={17} aria-hidden />{t("performance")}</h4>
         {renderDelivery("emotion", "emotion", "dubVoice:emotion")}
         {controls?.speech_rate ? renderControl("speech_rate", "speed") : renderDelivery("pace", "pace", "speed")}
+        <label>{t("targetDuration")}<input type="number" min="0" step="0.001" value={(row.targetDurationMs ?? 0) / 1000}
+          onChange={e => {
+            const ms = Math.round(Number(e.target.value) * 1000);
+            if (e.target.validity.valid && Number.isSafeInteger(ms)) update({ targetDurationMs: ms || undefined });
+          }} /><small>{t("autoDuration")}</small></label>
       </div>
       <details className="as-details"><summary>{t("moreDirection")}<ChevronDown size={16} aria-hidden /></summary>
         <div className="as-advanced">

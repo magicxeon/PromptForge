@@ -13,7 +13,26 @@ vi.mock("react-i18next",()=>({useTranslation:()=>({t:(key:string)=>key,i18n:{lan
 vi.mock("../dub-sub/Dialog",()=>({Dialog:({children}:{children:ReactNode})=><div role="dialog">{children}</div>}));
 afterEach(()=>{cleanup();vi.clearAllMocks();});
 
-it("saves the catalog model and at most five skills on the owning project's version; cancel leaves the project untouched",async()=>{
+it("adds a private skill with its own task and instructions to the project's saved settings",async()=>{
+  const client=new QueryClient();
+  const project={id:"project",version:3,setup:{},durationTargetMs:60000,fullStoryVersions:[],writingSettings:{modelId:null,skillIds:[]}} as unknown as CinematicProject;
+  const catalog={defaultModelId:null,models:[],skills:[],taskSkills:{looksheet:[]}};
+  api.updateCinematicWritingSettings.mockResolvedValue({...project,version:4});
+  render(<QueryClientProvider client={client}><WritingSettings project={project} catalog={catalog} disabled={false}/></QueryClientProvider>);
+  fireEvent.click(screen.getByRole("button",{name:"brief.settings"}));
+  fireEvent.click(screen.getByRole("button",{name:"projectSkills.add"}));
+  fireEvent.change(screen.getByLabelText("projectSkills.name"),{target:{value:"Wardrobe"}});
+  fireEvent.change(screen.getByLabelText("projectSkills.instruction"),{target:{value:"Match the collar."}});
+  fireEvent.click(screen.getByLabelText("projectSkills.looksheet"));
+  fireEvent.click(screen.getByRole("button",{name:"projectSkills.apply"}));
+  fireEvent.click(screen.getByRole("button",{name:"saveWritingSettings"}));
+  await waitFor(()=>expect(api.updateCinematicWritingSettings).toHaveBeenCalled());
+  const saved=api.updateCinematicWritingSettings.mock.calls[0][2];
+  expect(saved.customSkills[0]).toMatchObject({name:"Wardrobe",instruction:"Match the collar.",tasks:["looksheet"],version:1});
+  expect(saved.skillIds).toEqual([saved.customSkills[0].id]);
+});
+
+it("saves the catalog model and six enabled skills on the owning project's version; cancel leaves the project untouched",async()=>{
   const client=new QueryClient();
   const project={id:"story-root",version:9,setup:{storyPeriod:"contemporary",genre:"drama",audienceFeeling:"moved",aspectRatio:"9:16"},durationTargetMs:60000,fullStoryVersions:[],writingSettings:{modelId:null,skillIds:[]}} as unknown as CinematicProject;
   const catalog={defaultModelId:null,maxSkills:5,models:[{id:"test-model",label:"Fixture model"}],
@@ -30,14 +49,12 @@ it("saves the catalog model and at most five skills on the owning project's vers
   fireEvent.change(screen.getByRole("combobox",{name:"writingModel"}),{target:{value:"test-model"}});
   const skills=screen.getAllByRole("checkbox") as HTMLInputElement[];
   skills.slice(0,5).forEach(skill=>fireEvent.click(skill));
-  expect(skills[5].disabled).toBe(true);
-  fireEvent.click(skills[0]);
   expect(skills[5].disabled).toBe(false);
   fireEvent.click(skills[5]);
   fireEvent.click(button("saveWritingSettings"));
   await waitFor(()=>expect(screen.queryByRole("dialog")).toBeNull());
   expect(api.updateCinematicWritingSettings).toHaveBeenCalledWith("story-root",9,{
-    modelId:"test-model",skillIds:["skill1","skill2","skill3","skill4","skill5"]
+    modelId:"test-model",skillIds:["skill0","skill1","skill2","skill3","skill4","skill5"]
   });
   expect(client.getQueryData(["story-project","owner","story-root"])).toMatchObject({version:10});
 });

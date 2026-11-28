@@ -20,6 +20,7 @@ function rowInputKey(document, row, character) {
   const fields = object => Object.keys(object || {}).sort().filter(k => object[k] !== '').map(k => [k, object[k]]);
   const input = [document.modelId, document.language, row.characterPresetId, character?.voiceKind, character?.voiceId,
     row.text, fields(row.delivery), fields(row.audioConfig)];
+  if (row.targetDurationMs) input.push(row.targetDurationMs);
   return createHash('sha256').update(JSON.stringify(input)).digest('hex');
 }
 function publicScript(document, characters) {
@@ -129,14 +130,14 @@ export class VoiceStudioApplicationService {
       string(row.id, 100); string(row.text, policy.maxTextLength || 2000, true);
       if (typeof row.enabled !== 'boolean') throw voiceError('voice_invalid_rows');
       if (model) {
-        if (row.targetDurationMs !== undefined || row.speechWindows !== undefined || row.boundaryTimingOnly) throw voiceError('voice_invalid_rows');
+        if (row.speechWindows !== undefined || row.boundaryTimingOnly) throw voiceError('voice_invalid_rows');
         if (row.pauseAfterMs !== undefined && (!Number.isSafeInteger(row.pauseAfterMs) || row.pauseAfterMs < 0 ||
             row.pauseAfterMs > policy.maxPauseAfterMs)) throw voiceError('voice_invalid_pause');
         audioConfigs.set(row.id,speechAudioConfig(row.audioConfig,model));
         if ((row.selectedTakeId ?? null) !== (previousRows.get(row.id)?.selectedTakeId ?? null) &&
             row.id !== selectionRowId) throw voiceError('voice_invalid_take');
       }
-      if (row.targetDurationMs !== undefined && (!Number.isSafeInteger(row.targetDurationMs) || row.targetDurationMs <= 0)) throw voiceError('voice_invalid_rows');
+      if (row.targetDurationMs !== undefined && (!Number.isSafeInteger(row.targetDurationMs) || row.targetDurationMs < (model ? 0 : 1))) throw voiceError('voice_invalid_rows');
       if (!validSpeechWindows(row.speechWindows,row.targetDurationMs)) throw voiceError('voice_invalid_rows');
       if (row.speechTailMs !== undefined && (!Number.isSafeInteger(row.speechTailMs) || row.speechTailMs < 0 ||
           !row.speechWindows?.length || row.speechWindows.at(-1).endMs + row.speechTailMs > row.targetDurationMs)) throw voiceError('voice_invalid_rows');
@@ -166,7 +167,7 @@ export class VoiceStudioApplicationService {
       const storedRows = new Map(record.rows.map(row => [row.id,row]));
       record.rows = rows.map(r => ({ id: r.id, enabled: r.enabled, characterPresetId: r.characterPresetId || '', text: r.text, delivery: structuredClone(r.delivery),
         ...(model && {pauseAfterMs:r.pauseAfterMs ?? 0, audioConfig:audioConfigs.get(r.id)}),
-        ...(r.targetDurationMs !== undefined && { targetDurationMs: r.targetDurationMs }),
+        ...(r.targetDurationMs > 0 && { targetDurationMs: r.targetDurationMs }),
         ...(r.speechTailMs && {speechTailMs:r.speechTailMs}),
         ...(r.boundaryTimingOnly && {boundaryTimingOnly:true}),
         ...(r.speechWindows && {speechWindows:structuredClone(r.speechWindows)}), selectedTakeId: r.selectedTakeId || null }));

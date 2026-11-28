@@ -69,6 +69,14 @@ export function listCinematicProjects() {
   return apiRequest(cinematicApiPaths.projects, { schema: cinematicProjectListResponseSchema });
 }
 
+export function deleteCinematicProductionProject(project: CinematicProjectSummary) {
+  return apiRequest('/api/cinematic/production-projects/' + encodeURIComponent(project.productionProjectId), {
+    method: 'DELETE',
+    body: { confirmed: true, expectedUpdatedAt: project.updatedAt, expectedChapterCount: project.chapterCount },
+    schema: z.object({success: z.literal(true), deletedProjectIds: z.array(z.string())})
+  });
+}
+
 export function listCinematicProjectPage(limit:number, cursor?:string) {
   const query = new URLSearchParams({ limit:String(limit) });
   if (cursor) query.set('cursor', cursor);
@@ -108,7 +116,7 @@ export function getCinematicAuthoringManifest() {
 }
 
 export function createCinematicProject(
-  draft: CinematicSetupDraft & {storyDirection?: CinematicWritingSettings['direction']},
+  draft: CinematicSetupDraft & {storyDirection?: CinematicWritingSettings['direction']; startingEpisode?: number; priorEpisodeSummary?: string; requestedEpisodeCount?:number},
   creationIntent: 'draft' | 'prepare-story' = 'draft',
   storyPreparation?: CinematicStoryPreparationContext,
   storyImport?: { fileName: string; content: string }
@@ -143,9 +151,9 @@ export function enhanceCinematicStory(draft: CinematicSetupDraft, purpose: 'stor
 }
 
 export function proposeCinematicFullStory(projectId: string, expectedVersion: number, revisionInstruction: string, purpose?: 'characters',
-  characterScope?: {scope:'whole_story'; selectedCharacterIds?:string[]}) {
+  characterScope?: {scope:'whole_story'; selectedCharacterIds?:string[]}, skillIdsOverride?:string[]) {
   return withCinematicWritingQuote({ projectId, operation: purpose === 'characters' ? 'characters' : 'full_story', resultSchema: cinematicFullStoryProposalSchema,
-    input: { expectedVersion, revisionInstruction, ...(purpose ? { purpose } : {}), ...characterScope } }, body =>
+    input: { expectedVersion, revisionInstruction, ...(purpose ? { purpose } : {}), ...characterScope, ...(skillIdsOverride && {skillIdsOverride}) } }, body =>
     apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/proposals`, {
       method: 'POST', body, schema: cinematicFullStoryProposalSchema
     }));
@@ -177,8 +185,8 @@ export function estimateCinematicChapterPlanning(projectId: string, expectedVers
   });
 }
 
-export function proposeCinematicChapterOutline(projectId: string, expectedVersion: number) {
-  return withCinematicWritingQuote({ projectId, operation: 'chapter_outline', input: { expectedVersion }, mandatory: true, resultSchema: cinematicProjectSchema }, body =>
+export function proposeCinematicChapterOutline(projectId: string, expectedVersion: number,skillIdsOverride?:string[]) {
+  return withCinematicWritingQuote({ projectId, operation: 'chapter_outline', input: { expectedVersion, ...(skillIdsOverride && {skillIdsOverride}) }, mandatory: true, resultSchema: cinematicProjectSchema }, body =>
     apiRequest(`${cinematicApiPaths.project(projectId)}/chapter-outline/proposals`, {
       method: 'POST', body, schema: cinematicProjectSchema
     }));
@@ -192,8 +200,8 @@ export function reviewCinematicChapterOutline(projectId: string, input: {
   });
 }
 
-export function generateCinematicFullStoryChapters(projectId: string, expectedVersion: number) {
-  return withCinematicWritingQuote({ projectId, operation: 'chapters', input: { expectedVersion, scope: 'all' }, mandatory: true, resultSchema: cinematicChapterProposalMutationSchema }, body =>
+export function generateCinematicFullStoryChapters(projectId: string, expectedVersion: number,skillIdsOverride?:string[]) {
+  return withCinematicWritingQuote({ projectId, operation: 'chapters', input: { expectedVersion, scope: 'all', ...(skillIdsOverride && {skillIdsOverride}) }, mandatory: true, resultSchema: cinematicChapterProposalMutationSchema }, body =>
     apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/chapters`, {
       method: 'POST', body, schema: cinematicChapterProposalMutationSchema
     }));
@@ -399,7 +407,7 @@ export function saveCinematicSceneEnvironment(projectId: string, sceneId: string
   return apiRequest(cinematicEnvironmentPath(projectId, sceneId), { method: 'PATCH', body: input, schema: cinematicProjectSchema });
 }
 export function proposeCinematicSceneEnvironment(projectId: string, sceneId: string, input: {
-  expectedVersion: number; expectedSceneVersion: number; currentDirection?: string;
+  expectedVersion: number; expectedSceneVersion: number; currentDirection?: string; skillIdsOverride?:string[];
 }) {
   return withCinematicWritingQuote({ projectId, operation: 'environment', sceneId, input, resultSchema: cinematicSceneEnvironmentProposalSchema }, body =>
     apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/proposals`, {

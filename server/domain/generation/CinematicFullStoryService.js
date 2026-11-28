@@ -44,33 +44,34 @@ export class CinematicFullStoryService {
     return Object.fromEntries(Object.keys(briefSuggestionChoices).map(key => [key,result[key]]));
   }
 
-  async translateStoryPrompt(text, cues, settings, findings, sceneContext) {
+  async translateStoryPrompt(text, cues, settings, findings, sceneContext, narrative) {
     const spokenLanguage = storySpokenLanguage(settings);
     const {slots,render} = planStoryPromptLanguage(text,cues,findings,sceneContext?.sequenceFormat === 'director-brief',spokenLanguage);
-    const policy = this.#policy(settings);
+    const policy = this.#policy(settings,"shots",{text,narrative,sceneContext});
     const result = await this.providerFactory(policy).translateStoryPrompt({
-      slots, spokenLanguage, sceneContext:sceneContext && {...sceneContext, projectDirection:settings?.direction},
+      slots, spokenLanguage, narrative, editorialInstructions:policy.skillContext?.editorialInstructions,
+      sceneContext:sceneContext && {...sceneContext, projectDirection:settings?.direction},
       model:policy.model, reasoningEffort:policy.reasoningEffort,
       maxOutputTokens:policy.maxOutputTokens, timeoutMs:policy.longFormTimeoutMs || policy.timeoutMs
     });
-    return {text:render(result?.translations,spokenLanguage), reviewNotes:sceneContext ? result?.reviewNotes : undefined, provenance:{provider:policy.provider,
+    return {text:render(result?.translations,spokenLanguage), reviewNotes:sceneContext ? result?.reviewNotes : undefined, provenance:{...policy.skillProvenance,provider:policy.provider,
       model:policy.model,responseId:result?.responseId || null,usage:normalizeWritingUsage(result?.usage)}};
   }
 
   async refineStoryPrompt(draft, source, settings, context) {
     const plan = planStoryPromptRefinement(draft);
-    const policy = this.#policy(settings);
+    const policy = this.#policy(settings,"shots",source);
     const result = await this.providerFactory(policy).refineStoryPrompt({
-      lines:plan.lines, source, context:{...context, projectDirection:settings?.direction},
+      lines:plan.lines, source, context:{...context,...policy.skillContext, projectDirection:settings?.direction},
       model:policy.model, reasoningEffort:policy.reasoningEffort, maxOutputTokens:policy.maxOutputTokens,
       timeoutMs:policy.longFormTimeoutMs || policy.timeoutMs
     });
-    return {text:plan.apply(result?.edits),reviewNotes:result.reviewNotes,provenance:{provider:policy.provider,
+    return {text:plan.apply(result?.edits),reviewNotes:result.reviewNotes,provenance:{...policy.skillProvenance,provider:policy.provider,
       model:policy.model,responseId:result.responseId || null,usage:normalizeWritingUsage(result.usage)}};
   }
 
   async proposeShotArt({scene,shot,sceneImage,writingSettings,language}) {
-    const policy = this.#policy(writingSettings);
+    const policy = this.#policy(writingSettings,"shots",{scene,shot});
     const context = {language, ...policy.skillContext,
       directing: directingContext('art',writingSettings),
       scene:{location:scene.location, time:scene.time, lighting:scene.lighting, art:scene.artDirection, environment:scene.environmentPrompt},
@@ -81,11 +82,11 @@ export class CinematicFullStoryService {
       reasoningEffort:policy.reasoningEffort,timeoutMs:policy.timeoutMs,maxOutputTokens:policy.maxOutputTokens});
     const artDirection = typeof result?.artDirection === 'string' && result.artDirection.trim();
     if (!artDirection || artDirection.length > 1500) fail('cinematic_art_direction_invalid','The writing model returned an unusable art direction.',502);
-    return {artDirection,provenance:{provider:policy.provider,model:policy.model,responseId:result.responseId||null,usage:normalizeWritingUsage(result.usage)}};
+    return {artDirection,provenance:{...policy.skillProvenance,provider:policy.provider,model:policy.model,responseId:result.responseId||null,usage:normalizeWritingUsage(result.usage)}};
   }
 
   async propose(input = {}) {
-    const policy = this.#policy(input.writingSettings);
+    const policy = this.#policy(input.writingSettings,"full_story",input);
     const context = normalizeStoryInput(input);
     const result = await this.providerFactory(policy).generateCinematicFullStory({
       context: { ...context, ...policy.skillContext },
@@ -101,7 +102,7 @@ export class CinematicFullStoryService {
       fullStory,
       characters: normalizeGeneratedCharacters(result?.characters, context.existingCharacters),
       warnings: boundedList(result?.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
+      provenance: { ...policy.skillProvenance, provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
         usage: normalizeWritingUsage(result?.usage) },
       billingStatus: 'free'
     };
@@ -139,16 +140,18 @@ export class CinematicFullStoryService {
         ? characters.filter(character => input.selectedCharacterIds.includes(character.existingCharacterId))
         : characters,
       warnings: boundedList(result.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result.responseId || null,
+      provenance: { ...policy.skillProvenance, provider: policy.provider, model: policy.model, responseId: result.responseId || null,
         usage: normalizeWritingUsage(result?.usage) },
       billingStatus: 'qualification_no_charge'
     };
   }
 
   async proposeChapters(input = {}) {
-    const policy = this.#policy(input.writingSettings);
+    const policy = this.#policy(input.writingSettings,"chapters",input);
     const fullStory = boundedText(input.fullStory, cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters);
-    if (!fullStory) fail('cinematic_full_story_required', 'Confirm a Full Story before generating Chapters.');
+    if (!fullStory && !(input.scope === 'selected' && input.continuity?.confirmedCanonAvailable === false && input.currentChapter?.story?.trim())) {
+      fail('cinematic_full_story_required', 'Confirm a Full Story before generating Chapters.');
+    }
     const maxChapters = Math.min(
       cinematicWorkflowPolicy.authoring.generatedChapterMaximum,
       Math.max(1, Number(input.maxChapters) || cinematicWorkflowPolicy.authoring.defaultChapterCount)
@@ -188,7 +191,7 @@ export class CinematicFullStoryService {
       proposalId: `cinechapters_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`,
       chapters,
       warnings: boundedList(result?.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
+      provenance: { ...policy.skillProvenance, provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
         usage: normalizeWritingUsage(result?.usage), recordedAt: new Date().toISOString() },
       billingStatus: 'qualification_no_charge'
     };
@@ -212,7 +215,7 @@ export class CinematicFullStoryService {
 
   async proposeChapterOutline(input = {}) {
     const { writingSettings, ...context } = input;
-    const policy = this.#policy(writingSettings);
+    const policy = this.#policy(writingSettings,"chapter_outline",context);
     const started = Date.now();
     const result = await this.providerFactory(policy).generateCinematicChapterOutline({
       context: { ...context, ...policy.skillContext, maximumChapters: Math.min(cinematicWorkflowPolicy.authoring.generatedChapterMaximum,
@@ -224,13 +227,13 @@ export class CinematicFullStoryService {
     });
     return { chapters: normalizeChapterOutlineRows(result?.chapters, input.settings),
       rationale: boundedText(result?.rationale, 1000), warnings: boundedList(result?.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
+      provenance: { ...policy.skillProvenance, provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
         usage: normalizeWritingUsage(result?.usage), durationMs: Date.now() - started, recordedAt: new Date().toISOString() }
     };
   }
 
   async proposeScenes(input = {}) {
-    const policy = this.#policy(input.writingSettings);
+    const policy = this.#policy(input.writingSettings,"scenes",input);
     const chapterStory = boundedText(input.chapterStory, cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters);
     if (!chapterStory) fail('cinematic_chapter_story_required', 'Save Chapter prose before generating Scenes.');
     const maximumScenes = Math.min(
@@ -267,14 +270,14 @@ export class CinematicFullStoryService {
       proposalId: `cinescenes_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`,
       scenes,
       warnings: boundedList(result?.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
+      provenance: { ...policy.skillProvenance, provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
         usage: normalizeWritingUsage(result?.usage) },
       billingStatus: 'qualification_no_charge'
     };
   }
 
   async proposeShots(input = {}) {
-    const policy = this.#policy(input.writingSettings);
+    const policy = this.#policy(input.writingSettings,"shots",input);
     const scene = normalizeShotScene(input.scene);
     if (!scene.synopsis && !scene.objective) fail('cinematic_scene_direction_required', 'Save the Scene situation before generating Shots.');
     const maximumShots = Math.min(
@@ -311,6 +314,7 @@ export class CinematicFullStoryService {
       shots,
       warnings: boundedList(result?.warnings, 8, 500),
       provenance: {
+        ...policy.skillProvenance,
         provider: result?.executionProvider || policy.provider,
         model: result?.executionModel || policy.model,
         responseId: result?.responseId || null,
@@ -330,7 +334,7 @@ export class CinematicFullStoryService {
     }
     const result = await this.providerFactory(policy).generateCinematicSceneEnvironment({
       context: {
-        editorialInstructions: resolveWritingPreferences(input.writingSettings).skillInstructions,
+        editorialInstructions: resolveWritingPreferences(input.writingSettings,"environment",input).skillInstructions,
         directing: directingContext('environment',input.writingSettings),
         project: {
           title: boundedText(input.projectTitle, 120),
@@ -369,16 +373,17 @@ export class CinematicFullStoryService {
       proposalId: `cineenvironment_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`,
       environmentPrompt,
       warnings: boundedList(result?.warnings, 8, 500),
-      provenance: { provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
+      provenance: { ...policy.skillProvenance, provider: policy.provider, model: policy.model, responseId: result?.responseId || null,
         usage: normalizeWritingUsage(result?.usage) },
       billingStatus: 'qualification_no_charge'
     };
   }
 
-  #policy(writingSettings) {
+  #policy(writingSettings, task = "full_story", source = "") {
     const policy = { ...this.policyLoader() };
     if (writingSettings) {
-      const { modelId, skillInstructions } = resolveWritingPreferences(writingSettings);
+      const { modelId, skillInstructions, selectedSkillVersions, selectionVersion } = resolveWritingPreferences(writingSettings,task,source);
+      policy.skillProvenance={selectedSkillVersions,selectionVersion};
       if (modelId) {
         policy.model = modelId;
         policy.fallback = { ...policy.fallback, enabled: false };
@@ -408,6 +413,7 @@ function normalizeStoryInput(input) {
   return {
     storyBrief: brief,
     currentFullStory,
+    continuity: input.continuity || null,
     revisionInstruction,
     projectTitle: boundedText(input.projectTitle, 120),
     format: input.format === 'mini-series' ? 'mini-series' : 'short-film',
@@ -567,7 +573,7 @@ function normalizeChapterPlan(value, maximum) {
   return (Array.isArray(value) ? value : []).slice(0, maximum).map((item, index) => ({
     order: index + 1,
     seasonNumber: Math.max(1, Number(item?.seasonNumber) || 1),
-    chapterNumber: Math.max(1, Number(item?.chapterNumber) || index + 1),
+    chapterNumber: item?.chapterNumber ?? index + 1,
     ...(item?.synopsis ? { title: boundedText(item.title, 120), synopsis: boundedText(item.synopsis, cinematicWorkflowPolicy.authoring.chapterOutlineSynopsisMaximumCharacters) } : {})
   }));
 }

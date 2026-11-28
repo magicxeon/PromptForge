@@ -154,16 +154,19 @@ test('failed publication releases in-flight guard and permits image retry', asyn
   await f.service.publishGeneratedImageShare(draft.id, { title: 'Recovered' }, owner);
 });
 
-test('current and legacy publish routes surface the same policy rejection', async t => {
+test('only the Community publish endpoint is registered and rejects derived templates', async t => {
   const f = await fixture(t); const handlers = new Map();
   const app = { get: (p, fn) => handlers.set(`GET ${p}`, fn), post: (p, fn) => handlers.set(`POST ${p}`, fn),
     patch() {}, delete() {} };
   const deps = { communityShareService: f.service, communityFeaturePolicyService: { assertEnabled: async () => {} } };
   registerCommunityShareRoutes(app, deps); registerSceneTemplateRoutes(app, deps);
   const draft = await f.service.createGeneratedShareDraft('image', owner);
-  for (const path of ['/api/community/share-drafts/:draftId/publish', '/api/scene-templates/share-drafts/:draftId/publish']) {
-    const res = { status(code) { this.code = code; return this; }, json(data) { this.body = data; return this; } };
-    await handlers.get(`POST ${path}`)({ params: { draftId: draft.id }, body: { title: 'Copy', publishAsTemplate: true }, actorContext: owner }, res);
-    assert.equal(res.code, 403); assert.equal(res.body.error.code, 'community_template_derivative_not_publishable');
-  }
+  assert.equal(handlers.has('POST /api/scene-templates/share-drafts'), false);
+  assert.equal(handlers.has('POST /api/scene-templates/share-drafts/:draftId/publish'), false);
+  const res = { status(code) { this.code = code; return this; }, json(data) { this.body = data; return this; } };
+  await handlers.get('POST /api/community/share-drafts/:draftId/publish')({
+    params: { draftId: draft.id }, body: { title: 'Copy', publishAsTemplate: true }, actorContext: owner
+  }, res);
+  assert.equal(res.code, 403);
+  assert.equal(res.body.error.code, 'community_template_derivative_not_publishable');
 });

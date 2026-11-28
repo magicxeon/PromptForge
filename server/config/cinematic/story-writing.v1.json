@@ -1,6 +1,16 @@
 {
   "defaultModelId": null,
-  "maxSkills": 5,
+  "selectionVersion": 1,
+  "recommendedSkillCount": 3,
+  "taskSkills": {
+    "full_story": ["story-structure", "character-arc", "dialogue", "pacing", "continuity"],
+    "chapters": ["story-structure", "character-arc", "continuity", "dialogue"],
+    "chapter_outline": ["story-structure", "pacing", "continuity"],
+    "scenes": ["visual-storytelling", "character-arc", "pacing", "continuity"],
+    "shots": ["visual-storytelling", "continuity", "pacing"],
+    "looksheet": ["visual-storytelling", "continuity"],
+    "environment": ["visual-storytelling", "continuity"]
+  },
   "models": [
     { "id": "gpt-6.2-astra", "label": "GPT-6.2 Astra" },
     { "id": "gpt-6.2-sol", "label": "GPT-6.2 Sol" },

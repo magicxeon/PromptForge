@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import {StoryAppliedSkills,StoryRunSkillPicker,useTakeStoryRunSkills} from "./StoryRunSkills";
 import { ChevronRight, Sparkles } from "lucide-react";
 import type { RunWriting } from "./data/useStoryWorkspace";
 import type { CinematicProject } from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
@@ -17,6 +18,8 @@ type Props = {
 
 export function FullStoryPlan({ project, run, goChapter }: Props) {
   const { t } = useTranslation("storyPlan");
+  const takeChapterSkills=useTakeStoryRunSkills("chapters");
+  const takeOutlineSkills=useTakeStoryRunSkills("chapter_outline");
   const revision = project.fullStoryVersions.find(v => v.id === project.activeFullStoryVersionId);
   if (!revision) return null;
   const confirmed = project.confirmedFullStoryVersionId === revision.id;
@@ -28,7 +31,7 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
     await run(async () => {
       if (action !== "generate" && !pending) return;
       return action === "generate"
-        ? generateCinematicFullStoryChapters(project.id, project.version)
+        ? generateCinematicFullStoryChapters(project.id, project.version,takeChapterSkills())
         : (action === "apply" ? applyCinematicChapterProposal : discardCinematicChapterProposal)(project.id, pending!.id);
     }, action === "generate" ? "chapters" : undefined);
   }
@@ -37,11 +40,12 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
     {!confirmed && <button onClick={() => void run(async () => ({project: await confirmCinematicFullStoryRevision(project.id, project.version, revision.id)}))}>
       {t("confirmRevision",{version:revision.version})}</button>}
     {confirmed && (!current || !plan) && !pending && <>
+      <StoryRunSkillPicker task="chapter_outline"/>
       {plan && <p>{t("outdated")}</p>}
-      <button onClick={() => void run(async () => ({project: await proposeCinematicChapterOutline(project.id, project.version)}), "outline")}>{t("proposeOutline")}</button>
+      <button onClick={() => void run(async () => ({project: await proposeCinematicChapterOutline(project.id, project.version,takeOutlineSkills())}), "outline")}>{t("proposeOutline")}</button>
     </>}
     {confirmed && current && plan && !pending && <>
-      <ol className="story-chapter-outline">{plan.chapters.map((row,i) => <li key={i}><strong>{row.title}</strong><p>{row.synopsis}</p></li>)}</ol>
+      <ol className="story-chapter-outline">{plan.chapters.map((row,i) => <li key={i} value={row.chapterNumber}><strong>{row.title}</strong><p>{row.synopsis}</p></li>)}</ol>
       {plan.status === "proposed" ? <div className="story-actions">
         {(["approve","discard"] as const).map(action => <button key={action} onClick={() => void run(async () => ({
           project: await reviewCinematicChapterOutline(project.id,{
@@ -52,6 +56,7 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
           })
         }))}>{t(action+"Outline")}</button>)}
       </div> : <div className="story-chapter-draft-action">
+        <StoryRunSkillPicker task="chapters"/>
         <button type="button" className="primary-button" onClick={() => void generateOrReview("generate")}>
           <Sparkles size={16} aria-hidden/>{t("writeChapters")}
         </button>
@@ -60,7 +65,8 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
     </>}
     {pending && <>
       <h3>{t("reviewChapters")}</h3>
-      {pending.chapters.map(ch => <details key={ch.order}><summary>{ch.order}. {ch.title}</summary><p style={{whiteSpace:"pre-wrap"}}>{ch.story}</p></details>)}
+      {pending.chapters.map(ch => <details key={ch.order}><summary>{ch.chapterNumber}. {ch.title}</summary><p style={{whiteSpace:"pre-wrap"}}>{ch.story}</p></details>)}
+      <StoryAppliedSkills trace={pending.provenance}/>
       {pending.warnings.map(message => <p key={message}>{message}</p>)}
       <div className="story-actions">
         <button disabled={!confirmed || pending.sourceFullStoryRevisionId !== revision.id} onClick={() => void generateOrReview("apply")}>{t("applyChapters")}</button>

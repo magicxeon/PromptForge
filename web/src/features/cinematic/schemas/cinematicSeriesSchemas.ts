@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import {writingSkillTrace} from './cinematicSchemas';
 
 export const cinematicPortableShotSchema = z.object({
   warnings: z.array(z.enum(['prompt_changed', 'frame_changed', 'reference_numbers_changed'])).default([]),
@@ -14,11 +15,13 @@ export const cinematicStoryPromptStatusSchema = z.object({outdated:z.array(z.obj
 }))});
 
 export const cinematicShotWriterPreparationSchema = z.object({
+  provenance:z.object(writingSkillTrace).optional(),
   shotDocument: z.string(), sourceFingerprint: z.string(), generatedPrompt: z.string(),
   projectVideoDirection: z.string().optional(),
   overrideStale: z.boolean(), maximumPromptCharacters: z.number().int().positive(),
   storyPrompt: z.string().optional(),
   storyPacket: z.object({
+    missingCharacters:z.array(z.string()).optional(),
     reviewNotes:z.array(z.string()).optional(),
     kind: z.enum(['still','flow','seedance']), text: z.string(), sourceFingerprint: z.string(), ready: z.boolean(),
     references: z.array(z.object({number: z.number().int().positive(), role: z.enum(['opening','location','character']),
@@ -47,8 +50,9 @@ export const cinematicProductionProjectSchema = z.object({
 });
 export const cinematicChapterSummarySchema = cinematicProjectSummarySchema.extend({
   productionProjectId: z.string().min(1), chapterId: z.string().min(1), productionUnitId: z.string().min(1),
-  seasonId: z.string().min(1).nullable(), order: z.number().int().positive(),
+  seasonId: z.string().min(1).nullable(), order: z.number().int().nonnegative(),
   storyBrief: z.string().max(50000),
+  continuityReviewRequired: z.boolean().optional(),
   activeChapterVersionId: z.string().nullable().default(null),
   revisionCount: z.number().int().nonnegative().default(0),
   classification: z.enum(['empty', 'authored', 'generated', 'production_only']).default('empty'),

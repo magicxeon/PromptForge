@@ -20,6 +20,77 @@ async function fixture(t) {
   return { repository, service, project, projectsFile };
 }
 
+test('confirmed library deletion removes only owned series members and standalone work', async t => {
+  const {service,project,repository} = await fixture(t);
+  const foreign = await service.createProject(setup,other);
+  const root = await service.createProject({...setup,format:'mini-series'},actor);
+  const ws = await service.getSeriesWorkspace(root.id,actor);
+  const seriesId = ws.series.id;
+  const readConfirmation = async id => {
+    const entry = (await service.listProjects(actor)).items.find(item => item.productionProjectId === id);
+    return {confirmed:true,expectedUpdatedAt:entry.updatedAt,expectedChapterCount:entry.chapterCount};
+  };
+  const before = await readConfirmation(seriesId);
+  const {project:child} = await service.addSeriesChapter(seriesId,{
+    title:'Next',storyBrief:'Next scene.',copyCast:false,sourceProjectId:root.id,
+    expectedProjectVersion:root.version,expectedVersion:ws.series.version,seasonId:ws.series.seasons[0].id
+  },actor);
+  await assert.rejects(service.deleteProductionProject(seriesId,before,actor),{code:'cinematic_project_delete_stale'});
+  const input = await readConfirmation(seriesId);
+  const remove = (id,who=actor) => service.deleteProductionProject(id,input,who);
+  assert.throws(()=>service.deleteProductionProject(seriesId,{...input,confirmed:false},actor),{code:'cinematic_delete_confirmation_required'});
+  await assert.rejects(remove(seriesId,other),{code:'cinematic_project_not_found'});
+  await assert.rejects(remove(child.id),{code:'cinematic_project_not_found'});
+  await service.archiveProject(child.id,child.version,actor);
+  await assert.rejects(remove(seriesId),{code:'cinematic_project_delete_stale'});
+  const finalConfirmation = await readConfirmation(seriesId);
+  assert.equal(finalConfirmation.expectedChapterCount,1);
+  assert.deepEqual(new Set((await service.deleteProductionProject(seriesId,finalConfirmation,actor)).deletedProjectIds),new Set([root.id,child.id]));
+  await assert.rejects(remove(seriesId),{code:'cinematic_project_not_found'});
+  assert.equal(await repository.findForActor(root.id,actor),null);
+  assert.equal(await repository.findForActor(child.id,actor),null);
+  assert.equal((await repository.findForActor(foreign.id,other)).id,foreign.id);
+  await repository.mutateForActor(project.id,actor,p=>{p.generationAttempts=[{status:'preparing'}];});
+  const busy = await readConfirmation(project.id);
+  await assert.rejects(service.deleteProductionProject(project.id,busy,actor),{code:'cinematic_project_busy'});
+  await repository.mutateForActor(project.id,actor,p=>{p.generationAttempts=[];});
+  const standalone = await readConfirmation(project.id);
+  assert.deepEqual((await service.deleteProductionProject(project.id,standalone,actor)).deletedProjectIds,[project.id]);
+});
+
+for (const startingEpisode of [0, 3]) {
+  test(`continue a series from EP ${startingEpisode} with context and consecutive numbers`, async t => {
+    const {service,repository} = await fixture(t);
+    const summary = 'เสี่ยวเม่ยเปิดโรงเตี๊ยมอีกครั้ง คุณชายยังเก็บห่อยาไว้\n'.repeat(30).trim();
+    assert.throws(()=>service.createProject({...setup,format:'mini-series',startingEpisode,priorEpisodeSummary:'ก'.repeat(10001)},actor),
+      {code:'cinematic_prior_episode_summary_too_long'});
+    const root = await service.createProject({...setup, format:'mini-series', startingEpisode, priorEpisodeSummary:summary}, actor);
+    const first = await service.getSeriesWorkspace(root.id, actor);
+    assert.deepEqual(first.chapters.map(ch => ch.order), [startingEpisode]);
+    const {project:child} = await service.addSeriesChapter(first.series.id, {
+      title:'Next', storyBrief:'The visitor arrives.', copyCast:false, sourceProjectId:root.id,
+      expectedProjectVersion:root.version, expectedVersion:first.series.version, seasonId:first.series.seasons[0].id
+    }, actor);
+    await repository.mutateForActor(root.id, actor, project => {
+      project.chapterStory = 'The keeper opens the door.';
+      project.fullStoryVersions = [{id:'confirmed',content:'The visitor is her brother.'},{id:'draft',content:'Unapproved rewrite.'}];
+      project.confirmedFullStoryVersionId = 'confirmed';
+      project.activeFullStoryVersionId = 'draft';
+      return project;
+    });
+    const ws = await service.getSeriesWorkspace(child.id, actor);
+    assert.deepEqual(ws.chapters.map(ch => ch.order), [startingEpisode,startingEpisode+1]);
+    const context = await service.episodeWritingContext(child, actor);
+    assert.equal(context.priorEpisodeSummary, summary);
+    assert.equal(context.canon.text,'The visitor is her brother.');
+    assert.equal(context.previous.excerpt,'The keeper opens the door.');
+    assert.equal(context.next,null);
+    const firstContext = await service.episodeWritingContext(await repository.findForActor(root.id,actor),actor);
+    assert.equal(firstContext.previous,null);
+    assert.equal(firstContext.next.excerpt,'The visitor arrives.');
+  });
+}
+
 test('new Mini Series creates its Production Project root and Chapter 1 atomically', async t => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cinematic-new-series-'));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
@@ -51,6 +122,21 @@ test('new Mini Series creates its Production Project root and Chapter 1 atomical
   assert.equal(stored.projects.length, 1);
   assert.equal(stored.series.length, 1);
   assert.equal(stored.projects[0].seriesMembership.seriesId, stored.series[0].id);
+});
+
+test('series creation locks the episode target and older setup updates retain it', async t => {
+  const { service } = await fixture(t);
+  const root = await service.createProject({ ...setup, format: 'mini-series', seasonEnabled: false,
+    startingEpisode: 3, requestedEpisodeCount: 5 }, actor);
+  const input = { ...root.setup, expectedVersion: root.version };
+  for (const change of [{startingEpisode: 2}, {requestedEpisodeCount: 4}]) {
+    await assert.rejects(service.updateSetup(root.id, {...input, ...change}, actor), {code:'cinematic_episode_target_locked'});
+  }
+  delete input.requestedEpisodeCount;
+  const updated = await service.updateSetup(root.id, {...input, chapterCount:1}, actor);
+  assert.equal(updated.setup.requestedEpisodeCount, 5);
+  assert.equal(updated.setup.chapterCount, 5);
+  assert.deepEqual(updated.setup.chaptersPerSeason, [5]);
 });
 
 test('Project rename saves modern root and Series atomically and survives library reload', async t => {

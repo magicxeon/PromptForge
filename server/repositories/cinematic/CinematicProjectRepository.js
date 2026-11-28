@@ -201,8 +201,8 @@ function toProjectLibraryRecord(chapters, series) {
   ));
   const resumeProject = ordered[0];
   const briefProject = [...chapters].sort((left, right) => (
-    (left.seriesMembership?.chapterNumber || Number.MAX_SAFE_INTEGER)
-      - (right.seriesMembership?.chapterNumber || Number.MAX_SAFE_INTEGER)
+    (left.seriesMembership?.chapterNumber ?? Number.MAX_SAFE_INTEGER)
+      - (right.seriesMembership?.chapterNumber ?? Number.MAX_SAFE_INTEGER)
     || (Date.parse(left.createdAt || '') || 0) - (Date.parse(right.createdAt || '') || 0)
   ))[0] || resumeProject;
   const productionProjectId = series?.id || resumeProject.id;

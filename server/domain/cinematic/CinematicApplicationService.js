@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import {resolveWritingPreferences, validateWritingSettings, validateStoryDirection, directionSetup, chapterTargetSeconds } from '../../config/storyWritingSettings.js';
+import {resolveWritingPreferences, validateWritingSettings, validateStoryDirection, directionSetup, chapterTargetSeconds, withStorySkillOverride } from '../../config/storyWritingSettings.js';
 import { cinematicStoryboardPromptComposer } from './CinematicStoryboardPromptComposer.js';
 import { createManualStoryboardScene, normalizeManualStoryboard } from './CinematicManualStoryboard.js';
 import { normalizeStoryboardRenderStyle } from './CinematicStoryboardRenderStyle.js';
@@ -145,6 +145,23 @@ export class CinematicApplicationService {
     return this.repository.listForActor(actorContext, query);
   }
 
+  deleteProductionProject(id, input, actorContext) {
+    return this.seriesService.deleteProductionProject(id, input, actorContext);
+  }
+
+  async episodeWritingContext(project, actor, workspace) {
+    const series = workspace || await this.seriesService.getWorkspace(project.id, actor);
+    const rootId = series.productionProject.storyProjectId;
+    const root = rootId === project.id ? project : await this.repository.findForActor(rootId, actor);
+    if (!root) throw new CinematicError('cinematic_project_not_found', 'Full Story Project not found.', 404);
+    const confirmed = root.fullStoryVersions?.find(item => item.id === root.confirmedFullStoryVersionId);
+    return {
+      ...buildAuthoringContinuity(series.chapters, project.id),
+      canon: confirmed ? {revisionId: confirmed.id, text: confirmed.content} : null,
+      priorEpisodeSummary: root.setup?.priorEpisodeSummary || null
+    };
+  }
+
   async projectWritingSettings(project, actor, workspace) {
     if (!project.seriesMembership && !project.chapterOrigin) return project.writingSettings;
     const series = workspace || await this.seriesService.getWorkspace(project.id, actor);
@@ -180,13 +197,14 @@ export class CinematicApplicationService {
       : operation === 'environment' ? Math.min(policy.maxOutputTokens, 2500) : policy.maxOutputTokens);
     const characterSources = operation === 'characters' && input.scope === 'whole_story'
       ? await this.storyCharacterSources(root, workspace, actor) : undefined;
-    const continuity = ['chapters', 'scenes', 'shots'].includes(operation)
+    const continuity = ['full_story', 'chapters', 'scenes', 'shots'].includes(operation)
       ? workspace.chapters.map(item => ({
         projectId: item.projectId, version: item.version, activeChapterVersionId: item.activeChapterVersionId,
         seasonId: item.seasonId, order: item.order, title: item.title, story: item.storyBrief
       })) : [];
     const writingPreferences = ['full_story','chapters','chapter_outline','scenes','shots'].includes(operation) && root.writingSettings
-      ? resolveWritingPreferences(root.writingSettings) : null;
+      ? resolveWritingPreferences(withStorySkillOverride(root.writingSettings,input.skillIdsOverride),operation,
+        {projectTitle:project.title,fullStory:story?.content,chapterStory:project.chapterStory,scene,instruction:input.instruction}) : null;
     const model = writingPreferences?.modelId || policy.model;
     return { model, maxOutputTokens, source: {
       projectId, projectVersion: project.version, rootId, rootVersion: root.version,
@@ -367,7 +385,8 @@ export class CinematicApplicationService {
       if (root.id !== project.id) throw new CinematicError('cinematic_writing_settings_root_required', 'Update writing settings on the story project.', 409);
       assertExpectedVersion(project, input?.expectedVersion);
       assertEditable(project);
-      project.writingSettings = validateWritingSettings({ ...input, direction: input.direction ?? project.writingSettings?.direction });
+      project.writingSettings = validateWritingSettings({ ...input, customSkills:input.customSkills ?? project.writingSettings?.customSkills,
+        direction: input.direction ?? project.writingSettings?.direction });
       if (project.writingSettings.direction) {
         const direction = project.writingSettings.direction;
         Object.assign(project.setup,directionSetup(direction));
@@ -401,6 +420,7 @@ export class CinematicApplicationService {
           continue;
         }
         const current = compileMergedStoryPrompt(project,scene,ids,saved.template);
+        saved.missingCharacters = current.missingCharacters;
         saved.outdatedShotIds = current.shots.filter((shot,index) => shot.id !== ids[index] ||
           shot.sourceFingerprint !== saved.shots[index].sourceFingerprint).map(shot => shot.id);
         if (!saved.outdatedShotIds.length && current.sourceFingerprint !== saved.sourceFingerprint) saved.outdatedShotIds = ids;
@@ -481,13 +501,14 @@ export class CinematicApplicationService {
       ? this.fullStoryService.proposeCharacters.bind(this.fullStoryService)
       : this.fullStoryService.propose.bind(this.fullStoryService);
     await beforeDispatch?.();
-    const writingSettings = await this.projectWritingSettings(project, actorContext);
+    const writingSettings = withStorySkillOverride(await this.projectWritingSettings(project, actorContext),input?.skillIdsOverride);
     const setup = {...project.setup,...directionSetup(writingSettings?.direction)};
     return propose({
       writingSettings: input?.purpose === 'characters' ? undefined : writingSettings,
       projectTitle: project.title,
       storyBrief: project.setup?.storyBrief,
       currentFullStory: active?.content || '',
+      continuity: await this.episodeWritingContext(project, actorContext),
       revisionInstruction: input?.revisionInstruction,
       format: setup.format,
       targetDurationSeconds: writingSettings?.direction?.targetSeconds ?? setup.durationSeconds,
@@ -601,7 +622,7 @@ export class CinematicApplicationService {
   }
 
   confirmFullStoryRevision(projectId, input, actorContext) {
-    return this.repository.mutateForActor(projectId, actorContext, project => {
+    return this.seriesService.mutateProjectSetup(projectId, actorContext, project => {
       assertExpectedVersion(project, input?.expectedVersion);
       assertEditable(project);
       const revision = project.fullStoryVersions.find(item => item.id === input?.revisionId);
@@ -637,7 +658,7 @@ export class CinematicApplicationService {
       throw new CinematicError('cinematic_full_story_confirmation_required', 'Confirm the current Full Story before planning Chapters.', 409);
     }
     if (pendingChapterProposal(project)) throw new CinematicError('cinematic_chapter_proposal_pending', 'Review or discard the pending Chapter proposal first.', 409);
-    return { project, context: { fullStory: story.content, settings: chapterOutlineSettings(project.setup,project.writingSettings?.direction), writingSettings: project.writingSettings,
+    return { project, context: { fullStory: story.content, settings: chapterOutlineSettings(project.setup,project.writingSettings?.direction), writingSettings: withStorySkillOverride(project.writingSettings,input?.skillIdsOverride),
       targetDurationSeconds: project.writingSettings?.direction?.targetSeconds ?? project.setup.durationSeconds,
       reviewedOutline: project.chapterOutline?.chapters || [],
       characters: (project.castAssignments || []).filter(item => item.active !== false).slice(0, 24)
@@ -710,7 +731,7 @@ export class CinematicApplicationService {
       : await this.repository.findForActor(sourceProjectId, actorContext);
     if (!source) throw new CinematicError('cinematic_project_not_found', 'Full Story Project not found.', 404);
     const confirmed = source.fullStoryVersions.find(item => item.id === source.confirmedFullStoryVersionId);
-    if (!confirmed) throw new CinematicError('cinematic_full_story_confirmation_required', 'Confirm Full Story before generating Chapters.', 409);
+    if (!confirmed && !(continuityOnly && project.chapterStory?.trim())) throw new CinematicError('cinematic_full_story_confirmation_required', 'Confirm Full Story before generating Chapters.', 409);
     if (pendingChapterProposal(source)) {
       throw new CinematicError(
         'cinematic_chapter_proposal_pending',
@@ -728,19 +749,19 @@ export class CinematicApplicationService {
       dossier: [item.objective, item.motivation, item.pressure, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
     }));
     const chapterPlan = scope === 'selected'
-      ? [{ seasonNumber: workspace.series?.seasons.find(item => item.id === project.seriesMembership?.seasonId)?.number || 1, chapterNumber: project.seriesMembership?.chapterNumber || 1 }]
+      ? [{ seasonNumber: workspace.series?.seasons.find(item => item.id === project.seriesMembership?.seasonId)?.number || 1, chapterNumber: project.seriesMembership?.chapterNumber ?? 1 }]
       : approvedChapterOutline(source) || plannedChapterSequence(source.setup);
     await beforeDispatch?.();
     const proposal = await this.fullStoryService.proposeChapters({
-      writingSettings: source.writingSettings,
-      fullStory: confirmed.content,
+      writingSettings: withStorySkillOverride(source.writingSettings,input?.skillIdsOverride),
+      fullStory: confirmed?.content || '',
       format: source.setup?.format,
       targetDurationSeconds: chapterTargetSeconds(source.writingSettings?.direction,source.setup?.chapterCount,source.setup?.durationSeconds),
       maxChapters: scope === 'selected' ? 1 : chapterPlan.length,
       chapterPlan,
       scope,
-      instruction: continuityOnly ? 'Improve continuity of this Chapter only with the preceding Chapter and confirmed Full Story. Preserve its events and ending. Do not generate or revise Scenes.' : input?.instruction,
-      continuity,
+      instruction: continuityOnly ? 'Review this Chapter against the confirmed Full Story, the preceding ending and the following opening when supplied. Preserve established events, character knowledge and approved production. Revise the selected Chapter only. Return it unchanged if both joins already work.' : input?.instruction,
+      continuity: { ...continuity, confirmedCanonAvailable:Boolean(confirmed), priorEpisodeSummary: source.setup?.priorEpisodeSummary || null },
       currentChapter: scope === 'selected' ? {
         projectId: project.id,
         title: String(input?.draftTitle ?? project.chapterTitle ?? ''),
@@ -758,7 +779,7 @@ export class CinematicApplicationService {
       continuitySourceKey: continuity.sourceKey,
       expectedTargetVersion: project.version,
       expectedSourceVersion: source.version,
-      confirmedRevisionId: confirmed.id,
+      confirmedRevisionId: confirmed?.id || null,
       scope,
       instruction: input?.instruction,
       proposal: {
@@ -793,8 +814,8 @@ export class CinematicApplicationService {
       dossier: [item.objective, item.motivation, item.pressure, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
     }));
     const workspace = await this.seriesService.getWorkspace(projectId, actorContext);
-    const continuity = buildAuthoringContinuity(workspace.chapters, projectId);
-    const writingSettings = await this.projectWritingSettings(project, actorContext, workspace);
+    const continuity = await this.episodeWritingContext(project, actorContext, workspace);
+    const writingSettings = withStorySkillOverride(await this.projectWritingSettings(project, actorContext, workspace),input?.skillIdsOverride);
     await beforeDispatch?.();
     const generated = await this.fullStoryService.proposeScenes({
       writingSettings,
@@ -812,7 +833,7 @@ export class CinematicApplicationService {
       assertExpectedVersion(current, input?.expectedVersion);
       assertEditable(current);
       ensureSceneAuthoring(current);
-      if (continuitySourceKey(chapters) !== continuity.sourceKey) throw new CinematicError('cinematic_scene_proposal_stale', 'Chapter continuity changed. Generate a new proposal.', 409);
+      if (continuitySourceKey(chapters) !== continuity.sourceKey || (_root.confirmedFullStoryVersionId || null) !== (continuity.canon?.revisionId || null)) throw new CinematicError('cinematic_scene_proposal_stale', 'Chapter continuity changed. Generate a new proposal.', 409);
       if (current.activeChapterVersionId !== revision.id) {
         throw new CinematicError('cinematic_chapter_revision_stale', 'The Chapter changed while Scenes were being prepared.', 409);
       }
@@ -828,6 +849,7 @@ export class CinematicApplicationService {
         maximumScenes: cinematicWorkflowPolicy.authoring.generatedSceneMaximum
       });
       proposal.continuitySourceKey = continuity.sourceKey;
+      proposal.sourceCanonRevisionId = continuity.canon?.revisionId || null;
       proposal.sceneOrderSourceKey = continuitySourceKey(current.scenes.slice().sort((a, b) => a.orderKey - b.orderKey));
       current.sceneProposals.push(proposal);
       current.sceneProposals = current.sceneProposals.slice(-cinematicWorkflowPolicy.authoring.sceneProposalHistoryLimit);
@@ -861,6 +883,7 @@ export class CinematicApplicationService {
       assertEditable(project);
       const pending = project.sceneProposals?.find(item => item.id === proposalId && item.status === 'pending_review');
       if (pending && ((pending.continuitySourceKey && pending.continuitySourceKey !== continuitySourceKey(chapters))
+        || ('sourceCanonRevisionId' in pending && pending.sourceCanonRevisionId !== (_root.confirmedFullStoryVersionId || null))
         || (pending.sceneOrderSourceKey && pending.sceneOrderSourceKey !== continuitySourceKey(project.scenes.slice().sort((a, b) => a.orderKey - b.orderKey))))) {
         throw new CinematicError('cinematic_scene_proposal_stale', 'Chapter context or Scene order changed. Generate a new proposal.', 409);
       }
@@ -945,6 +968,7 @@ export class CinematicApplicationService {
       if (!scene) throw new CinematicError('cinematic_scene_not_found','Scene not found.',404);
       const source = {...project,writingSettings:root.writingSettings,videoDirection:String(root.setup?.videoDirection || '')};
       const packet = compileMergedStoryPrompt(source,scene,shotIds,template);
+      assertCharacterReferences(packet);
       if (!packet.ready || edited.sourceFingerprint !== packet.sourceFingerprint) {
         throw new CinematicError('cinematic_video_prompt_source_changed','The shots changed. Review a new merged prompt.',409);
       }
@@ -952,7 +976,9 @@ export class CinematicApplicationService {
       const selected = new Set(shotIds);
       const index = saved.findIndex(item => item.template === template && item.shots.length === selected.size &&
         item.shots.every(shot => selected.has(shot.id)));
-      if (index >= 0 && saved[index].sourceFingerprint === edited.sourceFingerprint && saved[index].text === edited.text) return;
+      if (!edited.provenance && saved[index]?.provenance) edited.provenance = saved[index].provenance;
+      if (index >= 0 && saved[index].sourceFingerprint === edited.sourceFingerprint && saved[index].text === edited.text
+        && JSON.stringify(saved[index].provenance) === JSON.stringify(edited.provenance)) return;
       const previousText = saved[index]?.text;
       if ((previousText ?? null) !== input.mergedPrompt.expectedSavedText &&
           (previousText == null || normalizeMergedStoryReferences(previousText) !== input.mergedPrompt.expectedSavedText)) {
@@ -989,8 +1015,11 @@ export class CinematicApplicationService {
     return {project, scene:project.scenes.find(scene => scene.id === sceneId)};
   }
 
-  async writeStoryPrompt(input,project,scene,shots,source,cues,findings,beforeDispatch) {
+  async writeStoryPrompt(input,project,scene,shots,source,cues,findings,beforeDispatch,actorContext) {
     const context = scenePromptContext(scene,shots,input.language);
+    const episode = await this.episodeWritingContext(project,actorContext);
+    const narrative = { ...episode, currentChapter: project.chapterStory || null };
+    const writingSettings = withStorySkillOverride(project.writingSettings,input?.skillIdsOverride);
     if (shots.length > 1 && input.template === 'seedance') {
       const clock = mergedSequenceClock(shots);
       context.sequenceFormat = 'director-brief';
@@ -1003,14 +1032,14 @@ export class CinematicApplicationService {
         throw new CinematicError('cinematic_prompt_refinement_input','Supply a first draft within the review size limit.',400);
       }
       await beforeDispatch?.();
-      return this.fullStoryService.refineStoryPrompt(input.refineDraft,source,project.writingSettings,{
-        ...context,template:input.template, scope:shots.length > 1 ? 'sequence' : 'shot',
+      return this.fullStoryService.refineStoryPrompt(input.refineDraft,source,writingSettings,{
+        ...context,narrative,template:input.template, scope:shots.length > 1 ? 'sequence' : 'shot',
         artDirection:shots.map(({id}) => scene.shots.find(shot => shot.id === id)?.artDirection || '')
       });
     }
     await beforeDispatch?.();
-    return this.fullStoryService.translateStoryPrompt(source,cues,project.writingSettings,findings,
-      input.template === 'seedance' ? context : undefined);
+    return this.fullStoryService.translateStoryPrompt(source,cues,writingSettings,findings,
+      input.template === 'seedance' ? context : undefined,narrative);
   }
 
   async proposeShots(projectId, sceneId, input, actorContext, { beforeDispatch } = {}) {
@@ -1030,16 +1059,20 @@ export class CinematicApplicationService {
       const sceneImage = scene.environmentReferenceEnabled !== false && scene.approvedEnvironmentSource
         ? await this.storyboardAssetService.sceneImageForShotPlanning(scene.approvedEnvironmentSource, actorContext) : undefined;
       await beforeDispatch?.();
-      return this.fullStoryService.proposeShotArt({scene,shot:{...shot,artDirection:input.draft ?? shot.artDirection},sceneImage,writingSettings:project.writingSettings,
+      return this.fullStoryService.proposeShotArt({scene,shot:{...shot,artDirection:input.draft ?? shot.artDirection},sceneImage,writingSettings:withStorySkillOverride(project.writingSettings,input.skillIdsOverride),
         language:input.language === 'th' ? 'Thai' : 'English'});
     }
     if (input.purpose === 'merge_shot_prompt') {
       const scene = project.scenes.find(item => item.id === sceneId);
       if (!scene) throw new CinematicError('cinematic_scene_not_found','Scene not found.',404);
       const packet = compileMergedStoryPrompt(project,scene,input.shotIds,input.template);
+      assertCharacterReferences(packet);
       if (!packet.ready) throw new CinematicError('cinematic_opening_frame_required','Choose an opening frame for the first selected shot.',400);
+      const writingPacket = input.skillIdsOverride !== undefined && input.template !== 'seedance'
+        ? compileMergedStoryPrompt({...project, writingSettings:withStorySkillOverride(project.writingSettings,input.skillIdsOverride)},scene,input.shotIds,input.template)
+        : packet;
       const {text,provenance,reviewNotes} = await this.writeStoryPrompt(input,project,scene,packet.shots,
-        packet.text,packet.cues,packet.findings,beforeDispatch);
+        writingPacket.text,packet.cues,packet.findings,beforeDispatch,actorContext);
       return {template:packet.template,shots:packet.shots,references:packet.references,sourceFingerprint:packet.sourceFingerprint,
         maximumPromptCharacters:cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters,
         text:normalizeMergedStoryReferences(text),provenance,reviewNotes};
@@ -1049,12 +1082,13 @@ export class CinematicApplicationService {
         throw new CinematicError('cinematic_story_template_invalid','Select a shot prompt template.',400);
       }
       const prepared = await this.prepareShotWriter(projectId, sceneId, input.targetShotId, actorContext,
-        {storyPrompt:true,template:input.template === 'legacy' ? undefined : input.template});
+        {storyPrompt:true,template:input.template === 'legacy' ? undefined : input.template,skillIdsOverride:input.skillIdsOverride});
+      if (prepared.storyPacket) assertCharacterReferences(prepared.storyPacket);
       if (prepared.storyPacket && !prepared.storyPacket.ready) {
         throw new CinematicError('cinematic_opening_frame_required','Choose an opening frame first.',400);
       }
       const {text,provenance,reviewNotes} = await this.writeStoryPrompt(input,project,project.scenes.find(item=>item.id===sceneId),
-        [{id:input.targetShotId}],prepared.storyPacket?.text ?? prepared.storyPrompt,prepared.dialogue.cues,prepared.dialogue.findings,beforeDispatch);
+        [{id:input.targetShotId}],prepared.storyPacket?.text ?? prepared.storyPrompt,prepared.dialogue.cues,prepared.dialogue.findings,beforeDispatch,actorContext);
       if (prepared.storyPacket) Object.assign(prepared.storyPacket,{text,reviewNotes});
       else prepared.storyPrompt = text;
       return {...prepared,provenance};
@@ -1085,10 +1119,11 @@ export class CinematicApplicationService {
       dossier: [item.objective, item.motivation, item.pressure, item.performanceDirection, ...(item.personalityTraits || [])].filter(Boolean).join('; ')
     }));
     const revision = (project.chapterVersions || []).find(item => item.id === project.activeChapterVersionId);
-    const writingSettings = await this.projectWritingSettings(project, actorContext);
+    const writingSettings = withStorySkillOverride(await this.projectWritingSettings(project, actorContext),input?.skillIdsOverride);
     const sceneImage = scene.environmentReferenceEnabled !== false && scene.approvedEnvironmentSource
       ? await this.storyboardAssetService.sceneImageForShotPlanning(scene.approvedEnvironmentSource, actorContext)
       : undefined;
+    const episode = await this.episodeWritingContext(project, actorContext);
     await beforeDispatch?.();
     const generated = await this.fullStoryService.proposeShots({
       writingSettings,
@@ -1099,15 +1134,21 @@ export class CinematicApplicationService {
       chapterStory: revision?.story || project.chapterStory,
       scene,
       previousScene: orderedScenes[sceneIndex - 1] || null,
-      continuity: buildAuthoringContinuity(shotContinuityItems(project, targetShot?.id), targetShot?.id || scene.id),
+      continuity: {
+        ...buildAuthoringContinuity(shotContinuityItems(project, targetShot?.id), targetShot?.id || scene.id),
+        episode
+      },
       nextScene: orderedScenes[sceneIndex + 1] || null,
       characters,
       currentShots: targetShot ? [targetShot] : scene.shots,
       revisionInstruction: targetShot ? input.instruction : '',
       maximumShots: targetShot ? 1 : cinematicWorkflowPolicy.authoring.generatedShotMaximumPerScene
     });
-    return this.repository.mutateForActor(projectId, actorContext, current => {
+    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, (current, root, _projects, chapters) => {
       assertExpectedVersion(current, input?.expectedVersion);
+      if (episode.sourceKey !== continuitySourceKey(chapters) || (episode.canon?.revisionId || null) !== (root.confirmedFullStoryVersionId || null)) {
+        throw new CinematicError('cinematic_shot_proposal_stale', 'Episode context changed. Generate a new Shot proposal.', 409);
+      }
       assertEditable(current);
       ensureShotAuthoring(current);
       const currentScene = current.scenes.find(item => item.id === sceneId);
@@ -1129,6 +1170,8 @@ export class CinematicApplicationService {
         maximumShots: cinematicWorkflowPolicy.authoring.generatedShotMaximumPerScene
       });
       proposal.continuitySourceKey = continuitySourceKey(shotContinuityItems(project, targetShot?.id));
+      proposal.episodeContinuitySourceKey = episode.sourceKey;
+      proposal.sourceCanonRevisionId = episode.canon?.revisionId || null;
       proposal.environmentSourceKey = shotPlanningEnvironmentKey(scene);
       current.shotProposals.push(proposal);
       current.shotProposals = current.shotProposals.slice(-cinematicWorkflowPolicy.authoring.shotProposalHistoryLimit);
@@ -1138,10 +1181,14 @@ export class CinematicApplicationService {
   }
 
   applyShotProposal(projectId, sceneId, proposalId, input, actorContext) {
-    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, project => {
+    return this.seriesService.mutateWithCharacterProjection(projectId, actorContext, (project, root, _projects, chapters) => {
       assertExpectedVersion(project, input?.expectedVersion);
       assertEditable(project);
       const pending = project.shotProposals?.find(item => item.id === proposalId && item.status === 'pending_review');
+      if (pending && ((pending.episodeContinuitySourceKey && pending.episodeContinuitySourceKey !== continuitySourceKey(chapters))
+        || ('sourceCanonRevisionId' in pending && pending.sourceCanonRevisionId !== (root.confirmedFullStoryVersionId || null)))) {
+        throw new CinematicError('cinematic_shot_proposal_stale', 'Episode context changed. Generate a new Shot proposal.', 409);
+      }
       if (pending?.continuitySourceKey && pending.continuitySourceKey !== continuitySourceKey(shotContinuityItems(project, pending.targetShotId))) {
         throw new CinematicError('cinematic_shot_proposal_stale', 'Shot continuity changed. Generate a new proposal.', 409);
       }
@@ -1204,10 +1251,10 @@ export class CinematicApplicationService {
     const project = await this.getProject(projectId, actorContext);
     const scene = project.scenes.find(item => item.id === sceneId);
     if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
-    const instructions = resolveWritingPreferences(project.writingSettings).skillInstructions;
     const outdated = [];
     for (const shot of scene.shots) {
       if (!shot.storyPromptVariants) continue;
+      const instructions = resolveWritingPreferences(project.writingSettings,"shots",{scene,shot}).skillInstructions;
       const shotDocument = resolveShotDocument(shot, scene, project.castAssignments);
       const prepared = compileCinematicShotDocument({...shot, manualStoryboard:false, shotDocument}, scene, project.castAssignments);
       const templates = Object.entries(shot.storyPromptVariants).filter(([kind, saved]) => {
@@ -1220,7 +1267,7 @@ export class CinematicApplicationService {
     return {outdated};
   }
 
-  async prepareShotWriter(projectId, sceneId, shotId, actorContext, { storyPrompt = false, template } = {}) {
+  async prepareShotWriter(projectId, sceneId, shotId, actorContext, { storyPrompt = false, template, skillIdsOverride } = {}) {
     const project = await this.getProject(projectId, actorContext);
     const located = findShot(project, shotId);
     if (!located || located.scene.id !== sceneId) throw new CinematicError('cinematic_shot_not_found', 'Shot not found.', 404);
@@ -1230,7 +1277,12 @@ export class CinematicApplicationService {
     const sourceFingerprint = shotPromptSourceFingerprint(project, scene, shot);
     if (template && !storyPromptKind(template)) throw new CinematicError('cinematic_story_template_invalid', 'Unknown prompt template.', 400);
     const packet = storyPrompt && template ? compileStoryPromptPacket(project, scene, shot, prepared, template,
-      resolveWritingPreferences(project.writingSettings).skillInstructions) : null;
+      resolveWritingPreferences(project.writingSettings,"shots",{scene,shot}).skillInstructions) : null;
+    const writingSkills = resolveWritingPreferences(withStorySkillOverride(project.writingSettings,skillIdsOverride),"shots",{scene,shot}).skillInstructions;
+    if (packet && template !== 'seedance' && skillIdsOverride !== undefined) {
+      // The saved fingerprint identifies the underlying shot, independent of a one-time choice.
+      packet.text = compileStoryPromptPacket(project, scene, shot, prepared, template, writingSkills).text;
+    }
     return { shotDocument, sourceFingerprint, generatedPrompt: prepared.creatorPrompt,
       projectVideoDirection: projectVideoDirection(project),
       overrideStale: Boolean(shot.videoPromptOverride && shot.videoPromptOverride.sourceFingerprint !== sourceFingerprint),
@@ -1238,7 +1290,7 @@ export class CinematicApplicationService {
       maximumPromptCharacters: cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters,
       ...(packet ? {storyPacket: packet} : {}),
       ...(storyPrompt ? { storyPrompt: compileStoryShotPrompt(project, scene, shot, shotDocument, prepared.creatorPrompt,
-        resolveWritingPreferences(project.writingSettings).skillInstructions) } : {}) };
+        writingSkills) } : {}) };
   }
 
   async exportShotWriter(projectId, sceneId, shotId, input, actorContext) {
@@ -1325,13 +1377,16 @@ export class CinematicApplicationService {
           const prepared = compileCinematicShotDocument({...shot, manualStoryboard: false, shotDocument: document}, scene, project.castAssignments);
           const projected = {...project,writingSettings:storyProject.writingSettings};
           const packet = compileStoryPromptPacket(projected, scene, shot, prepared, input.storyTemplate,
-            resolveWritingPreferences(projected.writingSettings).skillInstructions);
+            resolveWritingPreferences(projected.writingSettings,"shots",{scene,shot}).skillInstructions);
+          assertCharacterReferences(packet);
           if (!packet.ready || input.storyPrompt?.sourceFingerprint !== packet.sourceFingerprint) {
             throw new CinematicError('cinematic_video_prompt_source_changed', 'Refresh and review the shot and its references.', 409);
           }
           const saved = validatedShotPrompt(input.storyPrompt);
           const previous = shot.storyPromptVariants?.[input.storyTemplate];
-          if (previous?.text !== saved.text || previous?.sourceFingerprint !== saved.sourceFingerprint || !previous?.references) {
+          if (!saved.provenance && previous?.provenance) saved.provenance = previous.provenance;
+          if (previous?.text !== saved.text || previous?.sourceFingerprint !== saved.sourceFingerprint || !previous?.references
+            || JSON.stringify(previous?.provenance) !== JSON.stringify(saved.provenance)) {
             const references = packet.references.map(({number, role, name, assetId}) => ({number, role, name, assetId}));
             shot.storyPromptVariants = {...shot.storyPromptVariants, [input.storyTemplate]: {...saved, references}};
             shot.version += 1;
@@ -1429,6 +1484,18 @@ export class CinematicApplicationService {
       assertExpectedVersion(project, input.expectedVersion);
       assertEditable(project);
       if (input.videoDirection === undefined) patch.videoDirection = project.setup.videoDirection || '';
+      if (project.setup?.format === 'mini-series') {
+        const lockedCount = project.setup.requestedEpisodeCount;
+        if ((input.startingEpisode !== undefined && input.startingEpisode !== (project.setup.startingEpisode ?? 1))
+          || (input.requestedEpisodeCount !== undefined && input.requestedEpisodeCount !== lockedCount)
+          || ((lockedCount !== undefined || (project.setup.startingEpisode ?? 1) !== 1) && patch.format !== 'mini-series')) {
+          throw new CinematicError('cinematic_episode_target_locked', 'Episode numbering and the requested count are fixed at project creation.', 409);
+        }
+        if (lockedCount !== undefined && !patch.seasonEnabled) {
+          patch.chapterCount = lockedCount;
+          patch.chaptersPerSeason = [lockedCount];
+        }
+      }
       if (input.storyBriefImport === undefined && project.setup.storyBriefImport) {
         patch.storyBriefImport = { ...project.setup.storyBriefImport,
           edited: project.setup.storyBriefImport.edited || project.setup.storyBrief !== patch.storyBrief };
@@ -1440,6 +1507,11 @@ export class CinematicApplicationService {
       project.platformTargets = [patch.platform];
       project.aspectRatio = patch.aspectRatio;
       project.durationTargetMs = patch.durationSeconds * 1000;
+      if (patch.format === 'mini-series') {
+        patch.startingEpisode = project.setup?.startingEpisode ?? 1;
+        if (input.requestedEpisodeCount === undefined && project.setup?.requestedEpisodeCount) patch.requestedEpisodeCount = project.setup.requestedEpisodeCount;
+        if (input.priorEpisodeSummary === undefined) patch.priorEpisodeSummary = project.setup?.priorEpisodeSummary || '';
+      }
       project.setup = patch;
       if (storyChanged) {
         const now = new Date().toISOString();
@@ -3305,6 +3377,11 @@ function requireEditableShot(project, sceneId, shotId, expectedShotVersion) {
   return located;
 }
 
+function assertCharacterReferences(packet) {
+  if (packet.missingCharacters?.length) throw new CinematicError('cinematic_character_reference_required',
+    `Add a reference image in Characters for: ${packet.missingCharacters.join(', ')}.`, 400, {names:packet.missingCharacters});
+}
+
 export class CinematicError extends Error {
   constructor(code, message, statusCode = 400, details = null) {
     super(message);
@@ -3361,7 +3438,7 @@ function plannedChapterSequence(setup = {}) {
   for (const [seasonIndex, countValue] of perSeason.entries()) {
     const count = Math.max(1, Number(countValue) || 1);
     for (let chapterIndex = 0; chapterIndex < count && result.length < maximum; chapterIndex += 1) {
-      result.push({ seasonNumber: seasonIndex + 1, chapterNumber: chapterIndex + 1 });
+      result.push({ seasonNumber: seasonIndex + 1, chapterNumber: chapterIndex + (seasonIndex === 0 ? setup.startingEpisode ?? 1 : 1) });
     }
   }
   return result.length ? result : [{ seasonNumber: 1, chapterNumber: 1 }];
@@ -3380,6 +3457,20 @@ function normalizeSetup(input = {}, { allowEmptyStory = false } = {}) {
   const maximumSeasonCount = cinematicWorkflowPolicy.projectCreation.maximumSeasonCount;
   const maximumChapterCount = cinematicWorkflowPolicy.projectCreation.maximumChapterCount;
   const seasonCount = seasonEnabled ? Math.max(1, Math.min(maximumSeasonCount, Number(input.seasonCount) || 1)) : 1;
+  const startingEpisode = input.startingEpisode ?? 1;
+  const requestedEpisodeCount = input.format === 'mini-series' ? input.requestedEpisodeCount : undefined;
+  if (requestedEpisodeCount !== undefined && (!Number.isInteger(requestedEpisodeCount) || requestedEpisodeCount < 1 ||
+      requestedEpisodeCount > Math.min(maximumChapterCount,cinematicWorkflowPolicy.authoring.generatedChapterMaximum))) {
+    throw new CinematicError('cinematic_chapter_target_invalid','Requested episode count is outside the supported range.',400);
+  }
+  const priorEpisodeSummary = String(input.priorEpisodeSummary ?? '').trim();
+  if (!Number.isSafeInteger(startingEpisode) || startingEpisode < 0 || startingEpisode > Number.MAX_SAFE_INTEGER - maximumChapterCount) {
+    throw new CinematicError('cinematic_chapter_target_invalid', 'Enter a valid non-negative whole starting episode number.', 400);
+  }
+  const summaryLimit = storyAuthoringConfiguration.limits.priorEpisodeSummary;
+  if (priorEpisodeSummary.length > summaryLimit) {
+    throw new CinematicError('cinematic_prior_episode_summary_too_long', `Previous episode summary exceeds ${summaryLimit} characters.`, 400);
+  }
   const requestedPerSeason = Array.isArray(input.chaptersPerSeason) ? input.chaptersPerSeason : [];
   const chaptersPerSeason = Array.from({ length: seasonCount }, (_, index) => Math.max(1, Math.min(
     maximumChapterCount,
@@ -3387,7 +3478,7 @@ function normalizeSetup(input = {}, { allowEmptyStory = false } = {}) {
   )));
   const chapterCount = input.format === 'short-film' ? 1 : seasonEnabled
     ? chaptersPerSeason.reduce((sum, value) => sum + value, 0)
-    : Math.max(1, Math.min(maximumChapterCount, Number(input.chapterCount) || 1));
+    : requestedEpisodeCount ?? Math.max(1, Math.min(maximumChapterCount, Number(input.chapterCount) || 1));
   if (chapterCount > maximumChapterCount) throw new CinematicError('cinematic_chapter_target_invalid', `A Project supports at most ${maximumChapterCount} planned Chapters.`);
   if (!title || title.length > 120) throw new CinematicError('cinematic_title_invalid', 'Project title is required and must not exceed 120 characters.');
   if ((!allowEmptyStory && !storyBrief) || storyBrief.length > storyAuthoringConfiguration.limits.storyBrief) throw new CinematicError('cinematic_story_brief_invalid', `Story brief is required and must not exceed ${storyAuthoringConfiguration.limits.storyBrief} characters.`);
@@ -3412,6 +3503,8 @@ function normalizeSetup(input = {}, { allowEmptyStory = false } = {}) {
     seasonCount,
     chapterCount,
     chaptersPerSeason: seasonEnabled ? chaptersPerSeason : [chapterCount],
+    ...(input.format === 'mini-series' ? { startingEpisode, priorEpisodeSummary } : {}),
+    ...(requestedEpisodeCount !== undefined ? {requestedEpisodeCount} : {}),
     storyBrief,
     storyBriefImport: normalizeBriefImport(input.storyBriefImport),
     videoDirection,

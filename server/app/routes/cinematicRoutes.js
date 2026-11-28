@@ -759,6 +759,14 @@ export function registerCinematicRoutes(app, {
     }
   });
 
+  app.delete('/api/cinematic/production-projects/:id', async (req, res) => {
+    try {
+      res.json(await cinematicService.deleteProductionProject(req.params.id, req.body, req.actorContext));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
   app.delete('/api/cinematic/projects/:projectId', async (req, res) => {
     try {
       res.json(await cinematicService.archiveProject(

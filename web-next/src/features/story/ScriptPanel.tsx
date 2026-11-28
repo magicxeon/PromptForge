@@ -3,6 +3,7 @@ import {useBlocker} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {FileUp,Maximize2,Sparkles} from "lucide-react";
 import {useActor} from "../../lib/canonical";
+import {StoryAppliedSkills,StoryRunSkillPicker,useTakeStoryRunSkills} from "./StoryRunSkills";
 import {Dialog} from "../dub-sub/Dialog";
 import {proposeCinematicFullStory,saveCinematicFullStoryRevision,type getCinematicAuthoringManifest} from "../../../../web/src/features/cinematic/api/cinematicApi";
 import {updateCinematicChapter} from "../../../../web/src/features/cinematic/api/cinematicSeriesApi";
@@ -18,6 +19,7 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
   openPlan:()=>void;requestScenes:(source:CinematicProject,afterSave?:boolean)=>Promise<void>;pending:boolean;skills:string[];
 }){
   const {t}=useTranslation("story"),{identityScope}=useActor();
+  const takeSkills=useTakeStoryRunSkills("full_story");
   const [confirm,setConfirm]=useState<"save"|"scenes"|null>(null);
   const [writingBrief,setWritingBrief]=useState(""),[showBrief,setShowBrief]=useState(()=>new URLSearchParams(window.location.search).get("start")==="idea" && !project.chapterStory);
   const [generated,setGenerated]=useState<Awaited<ReturnType<typeof proposeCinematicFullStory>>|null>(null);
@@ -48,7 +50,7 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
     if(!target||!writingBrief.trim())return;
     setShowBrief(false);
     await run(async()=>{
-      const result=await proposeCinematicFullStory(target.id,target.version,writingBrief.trim());
+      const result=await proposeCinematicFullStory(target.id,target.version,writingBrief.trim(),undefined,undefined,takeSkills());
       setGenerated(result);
       recovery.setValue(v=>({...v,story:result.fullStory}));
     }, "draft");
@@ -60,7 +62,7 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
       const ai=generated?.fullStory===draft.story ? generated : null;
       const update=full&&owner?{project:await saveCinematicFullStoryRevision(owner.id,{expectedVersion:owner.version,content:draft.story,
         source:ai?"ai":"manual",...(ai?{provenance:ai.provenance,revisionInstruction:writingBrief}: {})})}
-        :await updateCinematicChapter(project.id,project.version,draft.title,draft.story,ai?{source:"ai",revisionInstruction:writingBrief}:{});
+        :await updateCinematicChapter(project.id,project.version,draft.title,draft.story,ai?{source:"ai",revisionInstruction:writingBrief,provenance:ai.provenance}:{});
       const result=update.project;
       saved=result;
       recovery.markSaved(draft,{...draft,story:full?result.fullStoryVersions.find(v=>v.id===result.activeFullStoryVersionId)?.content||draft.story:result.chapterStory},
@@ -79,6 +81,7 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
     onChange={e=>recovery.setValue({...draft,story:e.target.value})}/>;
   return <article className="story-script"><header className="story-bar"><h2>{t("script")}</h2>
     <span role="status">{t(recovery.dirty?"editing":"saved")}</span></header>
+    {!full && !!draft.story.trim() && <StoryRunSkillPicker task="scenes"/>}
     <div className="story-actions" role="group" aria-label={t("destination")}>
       <button aria-pressed={!full} onClick={()=>changeMode(false)}>{t("chapterScript")}</button>
       <button aria-pressed={full} onClick={()=>changeMode(true)}>{t("fullScript")}</button>
@@ -105,9 +108,10 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
         onClick={()=>recovery.dirty?chooseSave("scenes"):void requestScenes(project)}>{t(recovery.dirty?"saveProposeScenes":pending?"reviewScenes":"proposeScenes")}</button>}</div>
     {!full&&pending && <p>{t("sceneProposalCount",{count:project.sceneProposals.filter(p=>p.status==="pending_review").at(-1)?.scenes.length,saved:project.scenes.length})}</p>}
     <details><summary>{t("revisions")}</summary>{(full?owner?.fullStoryVersions||[]:project.chapterVersions).slice().reverse().map(v=>
-      <details key={v.id}><summary>{v.version} · {new Date(v.createdAt).toLocaleString()}</summary><p className="story-prose">{"content" in v?v.content:v.story}</p></details>)}</details>
+      <details key={v.id}><summary>{v.version} · {new Date(v.createdAt).toLocaleString()}</summary><p className="story-prose">{"content" in v?v.content:v.story}</p><StoryAppliedSkills trace={v.provenance}/></details>)}</details>
     {showBrief && <Dialog label={t("draftWithAI")} onClose={()=>setShowBrief(false)}><form className="story-create" onSubmit={e=>{e.preventDefault();void draftWithAI();}}>
       <h2>{t("draftWithAI")}</h2>
+      <StoryRunSkillPicker task="full_story"/>
       {skills.length > 0 && <p>{t("promptSkills", {skills: skills.join(" · ")})}</p>}
       <label>{t("writingBrief")}<textarea autoFocus rows={5} value={writingBrief}
         maxLength={workflow?.authoring.fullStoryInstructionMaximumCharacters||2000} placeholder={t("briefExample")}

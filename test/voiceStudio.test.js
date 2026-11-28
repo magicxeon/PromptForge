@@ -108,6 +108,12 @@ test('audio script edits retain takes, require explicit reacceptance and recover
   assert.equal(quote.snapshot.documentKind,'audio-script');
   assert.deepEqual(quote.snapshot.audioConfig, guestRow().audioConfig);
   assert.equal(quote.snapshot.pauseAfterMs, undefined);
+  await save(doc.rows.map(r => r.id === guest.id ? {...r,targetDurationMs:4250} : r));
+  assert.equal(guestRow().selectedTakeCurrent,false);
+  assert.equal((await service.quote(actor,doc.id,guest.id,{expectedRevision:doc.revision})).snapshot.targetDurationMs,4250);
+  await save(doc.rows.map(r => r.id === guest.id ? {...r,targetDurationMs:0} : r));
+  assert.equal(guestRow().targetDurationMs,undefined);
+  assert.equal(guestRow().selectedTakeCurrent,true);
   for (const edit of [
     {text:'Really?'}, {delivery:{emotion:'calm'}}, {audioConfig:{pitch_rate:-3}}, {characterPresetId:hero.id},
   ]) {

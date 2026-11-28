@@ -4,11 +4,33 @@ import { CinematicFullStoryService } from '../server/domain/generation/Cinematic
 import { resolveWritingPreferences } from '../server/config/storyWritingSettings.js';
 import storyDirection from '../server/config/cinematic/story-direction.v1.json' with {type:'json'};
 
+test('skill context matches source material and supplies relevant reference paragraphs', () => {
+  const skill={id:'custom-inn',name:'Inn',instruction:'Use established set geometry.',version:1,tasks:['shots'],
+    context:'โรงเตี๊ยม, tavern',references:[{name:'references/table.md',text:'Tavern table is oak.'},{name:'references/garden.md',text:'Garden has grass.'}]};
+  const settings={modelId:null,skillIds:[skill.id],customSkills:[skill]};
+  assert.deepEqual(resolveWritingPreferences(settings,'shots',{scene:{title:'station'}}).selectedSkillIds,[]);
+  assert.deepEqual(resolveWritingPreferences(settings,'shots',{scene:{title:'โรงเตี๊ยม'}}).selectedSkillIds,[skill.id]);
+  const result=resolveWritingPreferences(settings,'shots',{scene:{title:'Tavern table'}});
+  assert.equal(result.skillInstructions.join(' '),'Use established set geometry.\n\nTavern table is oak.');
+});
+
+test('project skills retain revisions and reach only enabled, applicable writing tasks', () => {
+  const custom={id:'custom-wardrobe',name:'Wardrobe continuity',instruction:'Match the embroidered collar.',version:2,tasks:['looksheet']};
+  const settings={modelId:null,skillIds:[custom.id,'dialogue'],customSkills:[custom]};
+  const sheet=resolveWritingPreferences(settings,'looksheet');
+  assert.deepEqual(sheet.selectedSkillVersions,{[custom.id]:2});
+  assert.deepEqual(sheet.skillInstructions,[custom.instruction]);
+  assert.deepEqual(resolveWritingPreferences(settings,'full_story').selectedSkillIds,['dialogue']);
+  assert.deepEqual(resolveWritingPreferences({...settings,skillIds:[]},'looksheet').skillInstructions,[]);
+  assert.throws(()=>resolveWritingPreferences({...settings,customSkills:[]},'looksheet'));
+});
+
 test('refinement patches direction only and can return the original draft verbatim', async () => {
   const draft = ['[REFERENCE MAPPING]','Reference 1 — location.','Shot 1','[ACTION TIMELINE]',
     '0–3s — Hold still. [2s] Listen.','[1s] Host: “Welcome.”','[CONTINUITY]','Keep the door closed.'].join('\n');
   const source = 'The host listens at a closed door.';
-  const settings = {modelId:'gpt-6-luna',skillIds:[],direction:storyDirection.defaults};
+  const skill = {id:'custom-blocking',name:'Blocking',instruction:'Maintain consistent entrances.',tasks:['shots'],version:3};
+  const settings = {modelId:'gpt-6-luna',skillIds:[skill.id],customSkills:[skill],direction:storyDirection.defaults};
   const context = {scope:'sequence',selectedTiming:[{startMs:0,endMs:3000}]};
   let edits = [];
   const service = new CinematicFullStoryService({
@@ -17,12 +39,15 @@ test('refinement patches direction only and can return the original draft verbat
       assert.equal(request.source,source);
       assert.equal(request.model,settings.modelId);
       assert.deepEqual(request.context.selectedTiming,context.selectedTiming);
+      assert.ok(request.context.editorialInstructions.includes(skill.instruction));
       assert.deepEqual(request.lines.filter(line=>line.editable).map(line=>line.id),[4,7]);
       return {edits,reviewNotes:[]};
     }})
   });
   const review = () => service.refineStoryPrompt(draft,source,settings,context);
-  assert.equal((await review()).text,draft);
+  const initial = await review();
+  assert.equal(initial.text,draft);
+  assert.deepEqual(initial.provenance.selectedSkillVersions,{[skill.id]:3});
   edits = [{id:4,text:'0–3s — Hold the close-up. [2s] Listen.'}];
   assert.equal((await review()).text,draft.replace('Hold still','Hold the close-up'));
   for (const invalid of [[{id:5,text:'New dialogue'}],[{id:1,text:'New reference'}],[{id:2,text:'Shot 2'}],

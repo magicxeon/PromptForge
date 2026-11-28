@@ -15,7 +15,7 @@ export function speechAudioConfig(input = {}, model) {
   }));
 }
 
-export function scriptPerformancePrompt({language, text, delivery}) {
+export function scriptPerformancePrompt({language, text, delivery, targetDurationMs}) {
   return [
     `Record a clean, single-speaker dialogue take in ${language}. Match the vocal identity, accent and timbre of @Audio1 throughout the line.`,
     'Use natural phrasing, clear diction and breaths appropriate to the performance. Keep the recording free of music, sound effects and additional voices.',
@@ -24,6 +24,7 @@ export function scriptPerformancePrompt({language, text, delivery}) {
     delivery.method && `Speaking style: ${delivery.method}.`,
     delivery.pace && `Phrasing: ${delivery.pace}.`,
     delivery.direction && `Performance note (silent direction): ${JSON.stringify(delivery.direction)}`,
+    targetDurationMs && `DURATION: ${targetDurationMs / 1000} seconds. Aim to deliver the entire line in this time with natural pacing.`,
     'Speak only the following dialogue verbatim. Keep directions, labels and commentary out of the recording.',
     `Say exactly: ${JSON.stringify(text)}`,
   ].filter(Boolean).join('\n');

@@ -25,7 +25,6 @@ export default defineConfig({
           if (id.includes('@tanstack/react-query')) return 'query-vendor';
           if (id.includes('@radix-ui') || id.includes('lucide-react')) return 'ui-vendor';
           if (id.includes('i18next')) return 'i18n-vendor';
-          if (id.includes('react-hook-form') || id.includes('@hookform')) return 'forms-vendor';
           return 'vendor';
         }
       }

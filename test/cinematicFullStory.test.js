@@ -120,13 +120,22 @@ test('shot art stays in review until accepted and updates just its shot in singl
 test('merged prompts are scene-owned and saved separately with stale and concurrent edit checks', async t => {
   let translations = 0;
   const {service, project, repository} = await fixture(t,{fullStoryService:{
-    translateStoryPrompt:async text => { translations++; return {text,provenance:{provider:'fixture'}}; }
+    translateStoryPrompt:async (text,_cues,_settings,_findings,_scene,narrative) => {
+      translations++;
+      assert.equal(narrative.canon?.text,'The innkeeper knows the visitor.');
+      assert.equal(narrative.next,null);
+      return {text,provenance:{provider:'fixture'}};
+    }
   }});
   const {scene,project:initial} = await service.createManualScene(project.id,{expectedVersion:project.version,idempotencyKey:'merge-scene'},actor);
   const first = await service.createManualShot(project.id,scene.id,{expectedVersion:initial.version,idempotencyKey:'merge-first'},actor);
   const second = await service.createManualShot(project.id,scene.id,{expectedVersion:first.project.version,idempotencyKey:'merge-second'},actor);
   const shots = second.scene.shots;
   const input = {purpose:'merge_shot_prompt',template:'seedance',shotIds:[second.shot.id,first.shot.id],expectedVersion:second.project.version};
+  await repository.mutateForActor(project.id,actor,p=>{
+    p.fullStoryVersions.push({id:'canon',content:'The innkeeper knows the visitor.'});
+    p.confirmedFullStoryVersionId='canon';
+  });
   const built = await service.proposeShots(project.id,scene.id,input,actor);
   assert.equal(translations,1);
   assert.deepEqual(built.shots.map(s=>s.id),shots.map(s=>s.id));
@@ -197,7 +206,28 @@ test('Authoring continuity revises only the selected Chapter and preserves its S
   assert.equal(applied.project.chapterStory, 'After the storm they meet again.');
   assert.equal(applied.project.seriesMembership.seasonId, child.seriesMembership.seasonId);
   assert.deepEqual(applied.project.scenes, child.scenes);
+  assert.equal(applied.workspace.chapters.find(chapter=>chapter.projectId===project.id).continuityReviewRequired,true);
+  assert.equal(applied.workspace.chapters.find(chapter=>chapter.projectId===childId).continuityReviewRequired,false);
   assert.equal((await service.getProject(project.id, actor)).chapterStory, 'The flowerpot falls during the storm.');
+});
+
+test('continuity review uses saved episode text while canon is unconfirmed', async t => {
+  const {service, project} = await fixture(t);
+  const saved = await service.updateSeriesChapter(project.id, {
+    expectedProjectVersion:project.version, title:'Arrival', story:'An inn opens at dawn.'
+  }, actor);
+  service.fullStoryService.proposeChapters = async input => {
+    assert.equal(input.fullStory, '');
+    assert.equal(input.continuity.confirmedCanonAvailable, false);
+    assert.equal(input.currentChapter.story, 'An inn opens at dawn.');
+    return {proposalId:'saved-episode-review', chapters:[{title:'Arrival', story:'At dawn the inn opens.'}], warnings:[]};
+  };
+  const review = await service.proposeChapters(project.id, {
+    expectedVersion:saved.project.version, scope:'selected', intent:'continuity'
+  }, actor);
+  assert.equal(review.proposal.sourceFullStoryRevisionId, null);
+  const applied = await service.applyChapterProposal(project.id, review.proposal.id, {}, actor);
+  assert.equal(applied.project.chapterStory, 'At dawn the inn opens.');
 });
 
 test('Chapter ordering preserves story ownership, assets and rejects invalid or stale sibling permutations', async t => {
@@ -215,6 +245,23 @@ test('Chapter ordering preserves story ownership, assets and rejects invalid or 
   assert.equal(result.workspace.productionProject.storyProjectId, project.id);
   assert.equal(result.project.fullStoryVersions[0].content, 'A complete story.');
   await assert.rejects(service.reorderChapters(project.id, input, actor), { code: 'cinematic_version_conflict' });
+});
+
+test('changed confirmed canon queues only unfinished episodes and persists the queue after reopening', async t => {
+  const {service,project,repository}=await fixture(t);
+  const first=await service.saveFullStoryRevision(project.id,{expectedVersion:project.version,content:'A storm and a promise.'},actor);
+  const confirmed=await service.confirmFullStoryRevision(project.id,{expectedVersion:first.version,revisionId:first.activeFullStoryVersionId},actor);
+  const generated=await service.generateFullStoryChapters(project.id,{expectedVersion:confirmed.version},actor);
+  const child=generated.workspace.chapters[1];
+  await repository.mutateForActor(child.projectId,actor,current=>{
+    current.scenes=[{id:'locked-scene',shots:[{id:'locked-shot',completed:true}]}];
+    return current;
+  });
+  const revised=await service.saveFullStoryRevision(project.id,{expectedVersion:generated.project.version,content:'The same storm now leaves the road impassable.'},actor);
+  await service.confirmFullStoryRevision(project.id,{expectedVersion:revised.version,revisionId:revised.activeFullStoryVersionId},actor);
+  const workspace=await service.getSeriesWorkspace(child.projectId,actor);
+  assert.equal(workspace.chapters.find(ch=>ch.projectId===project.id).continuityReviewRequired,true);
+  assert.equal(workspace.chapters.find(ch=>ch.projectId===child.projectId).continuityReviewRequired,false);
 });
 
 test('Chapter revision requires an instruction before provider dispatch', async t => {

@@ -287,9 +287,9 @@ POST   /api/community/share-drafts/:draftId/publish
 DELETE /api/community/posts/:postId
 ```
 
-The existing `/api/scene-templates/share-drafts` endpoints remain compatibility
-aliases for older Scene Builder callers. Both endpoint families delegate to the
-same `CommunityShareService`.
+The legacy Scene Builder draft and publish aliases under
+`/api/scene-templates/share-drafts` retired during Web Next cleanup. Scene
+Builder and Community clients use the Community publishing endpoints above.
 
 `DELETE /api/community/posts/:postId` is owner unpublish, not physical deletion.
 It changes the post to `owner_unpublished` and `private`, and records an audit

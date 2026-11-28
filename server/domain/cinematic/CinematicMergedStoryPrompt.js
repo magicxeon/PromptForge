@@ -4,7 +4,7 @@ import {resolveWritingPreferences, storySpokenLanguage, storyVisualStyle} from '
 import {formatStoryPromptWholeSeconds, mergedSequenceClock, rebaseDirectionClocks} from './StoryPromptFormatting.js';
 import {projectVideoDirection} from './CinematicProjectVideoDirection.js';
 import {compileCinematicShotDocument, parseDialogueClock} from './CinematicShotDocumentCompiler.js';
-import {orderStoryPromptReferences, storyPromptPeople, storyPromptReferences, storyVideoFrameDirection, storyVideoReferenceMapping, storyVisualTarget, withStoryVideoReferenceNote} from './CinematicStoryPromptPacket.js';
+import {missingCharacterReferences, orderStoryPromptReferences, storyPromptPeople, storyPromptReferences, storyVideoFrameDirection, storyVideoReferenceMapping, storyVisualTarget, withStoryVideoReferenceNote} from './CinematicStoryPromptPacket.js';
 
 const lines = (...values) => values.filter(Boolean).join('\n');
 const seconds = ms => ms / 1000;
@@ -53,6 +53,7 @@ function prepareShot(project, scene, shot, first, shotOnly) {
     exit:document ? '' : lines(shot.continuityExit, shot.transitionToNext),
     people:people.map(({person,visible}) => ({name:person.displayName, role:person.storyRole, visible,
       referenceId:visible && person.storyReference?.assetId})),
+    missingCharacters:missingCharacterReferences(people),
     references:storyPromptReferences(scene, shot, people, first)
   };
 }
@@ -84,7 +85,7 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
   if (!['seedance','flow'].includes(template)) invalid('cinematic_story_template_invalid', 'Choose a video prompt template.');
   const ordered = selectShots(scene, shotIds);
   const spokenLanguage = storySpokenLanguage(project.writingSettings);
-  const {skillInstructions} = resolveWritingPreferences(project.writingSettings);
+  const {skillInstructions} = resolveWritingPreferences(project.writingSettings,"shots",{scene,shot:ordered});
   const direction = projectVideoDirection(project);
   const aspect = project.writingSettings?.direction?.aspectRatio || project.aspectRatio || project.setup?.aspectRatio;
   const seedance = template === 'seedance';
@@ -130,12 +131,14 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     }
     const interval = span(startMs,endMs);
     const scoped = body => body && `${interval} — ${body}`;
+    const {missingCharacters, ...fingerprintedPart} = part;
     const sourceFingerprint = hash(['merged-story-v1', template, spokenLanguage, skillInstructions, direction, aspect,
-      setting, scene.lighting, scene.artDirection, ...(seedance ? [scene.entryState,scene.objective,scene.exitState,scene.synopsis] : []), ...(scene.audioIntent ? [scene.audioIntent] : []), shot.shotDocument, {...part,
+      setting, scene.lighting, scene.artDirection, ...(seedance ? [scene.entryState,scene.objective,scene.exitState,scene.synopsis] : []), ...(scene.audioIntent ? [scene.audioIntent] : []), shot.shotDocument, {...fingerprintedPart,
+        ...(missingCharacters.length ? {missingCharacters} : {}),
         references:part.references.map(r => [r.role, r.assetId, r.name])}]);
     shots.push({id:shot.id, title:shot.title, startMs, endMs, version:shot.version || 1, sourceFingerprint});
     for (const person of part.people) {
-      const ref = references.find(r => r.role === 'character' && r.assetId === person.referenceId);
+      const ref = references.find(r => r.role === 'character' && r.assetId === person.referenceId && r.name === person.name);
       addDirection('CHARACTER IDENTIFICATION',[person.name, !seedance && person.role, ref && `Reference ${ref.number}`,
         !person.visible && 'Voice only, off-screen.'].filter(Boolean).join(' — '),index);
     }
@@ -197,6 +200,7 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     opening && `Opening-frame basis: ${opening}`, ...sections, direction,
     !seedance && skillInstructions.length && `[WRITING DIRECTION]\n${lines(...skillInstructions)}`].filter(Boolean).join('\n\n');
   const text = withStoryVideoReferenceNote(exact ? draft : formatStoryPromptWholeSeconds(draft));
-  return {template, text, ready:template !== 'flow' || Boolean(frame),
+  const missingCharacters = [...new Set(parts.flatMap(part => part.missingCharacters))];
+  return {template, text, missingCharacters, ready:!missingCharacters.length && (template !== 'flow' || Boolean(frame)),
     sourceFingerprint:hash([text, shots.map(s => [s.id,s.sourceFingerprint])]), shots, references, cues, findings};
 }

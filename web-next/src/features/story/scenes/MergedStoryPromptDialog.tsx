@@ -1,11 +1,12 @@
 import {useState} from "react";
 import {useQuery} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
+import {StoryAppliedSkills,StoryRunSkillPicker,useTakeStoryRunSkills} from "../StoryRunSkills";
 import {useBlocker} from "react-router-dom";
 import {Maximize2,Minimize2,X} from "lucide-react";
 import {formatStoryPromptWholeSeconds, inspectStoryPromptDraft, mergedSequenceClock, normalizeMergedStoryReferences} from "../../../../../server/domain/cinematic/StoryPromptFormatting.js";
 import {ProcessingSpinner, useActor} from "../../../lib/canonical";
-import {MediaImage} from "../../../components/media/MediaImage";
+import {PromptReferenceImage,usePromptReferenceImages} from "./PromptReferenceImage";
 import {Dialog} from "../../dub-sub/Dialog";
 import {storyKeys} from "../data/storyQueryKeys";
 import type {RunWriting} from "../data/useStoryWorkspace";
@@ -33,6 +34,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
   run: RunWriting; error: string; close: () => void;
 }) {
   const {t,i18n} = useTranslation("storyPrompt");
+  const takeSkills = useTakeStoryRunSkills("shots");
   const {t: story} = useTranslation("story");
   const {identityScope} = useActor();
   const [template, setTemplate] = useState(initialTemplate);
@@ -53,6 +55,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
   const [showError, setShowError] = useState(false);
   const [discardAction, setDiscardAction] = useState<(() => void) | null>(null);
   const packet = built ?? saved;
+  const referenceImages = usePromptReferenceImages(packet?.references);
   const savedDisplayText = saved && displayPrompt(saved);
   const text = edit ?? displayPrompt(packet);
   const limit = packet?.maximumPromptCharacters;
@@ -106,8 +109,9 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
     try {
       await run(async () => {
         try {
+          const skillIdsOverride = takeSkills();
           const write = (draft?:string) => buildMergedStoryPrompt(project.id, scene.id, selected.map(shot => shot.id), project.version, template,
-            i18n.language.startsWith("th") ? "th" : "en", draft);
+            i18n.language.startsWith("th") ? "th" : "en", draft,skillIdsOverride);
           await promptReview.build(()=>write(), result=>write(result.text), result=>{
             setBaseText(previous => previous === undefined ? saved?.text ?? null : previous);
             setBuilt(result);
@@ -115,6 +119,9 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
           });
         } catch (cause) {
           if (!(cause instanceof CinematicWritingCancelled)) setFailedBuild(true);
+          const failure = cause as {code?:string; details?:{names?:unknown}};
+          if (failure?.code === "cinematic_character_reference_required" && Array.isArray(failure.details?.names))
+            throw new Error(t("missingCharacters",{names:failure.details.names.join(", ")}));
           throw cause;
         }
       });
@@ -129,7 +136,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
         try {
           const result = await saveMergedStoryPrompt(project.id, scene.id, project.version, {
             shotIds: packet.shots.map(shot => shot.id), template, text, sourceFingerprint: packet.sourceFingerprint,
-            expectedSavedText: baseText === undefined ? saved?.text ?? null : baseText
+            provenance:packet.provenance,expectedSavedText: baseText === undefined ? saved?.text ?? null : baseText
           });
           close();
           return result;
@@ -159,7 +166,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
     blocker.reset?.();
   }
   const referenceList = !!packet?.references.length && <ol className="story-prompt-references">{packet.references.map(ref =>
-    <li key={ref.number} value={ref.number}><MediaImage src={ref.imageUrl} alt=""/>{t(ref.role)} · {ref.name}</li>
+    <li key={ref.number} value={ref.number}><PromptReferenceImage src={ref.imageUrl} name={ref.name} report={referenceImages.report}/>{t(ref.role)} · {ref.name}</li>
   )}</ol>;
   function promptEditor(id:string) {
     return <textarea id={id} rows={10} value={text} readOnly={busy || !!outdated.length || missing || changedElsewhere}
@@ -170,7 +177,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
         setCopyState(undefined);
       }}/>;
   }
-  const copyButton = <button disabled={!text.trim()} onClick={async () => {
+  const copyButton = <button disabled={referenceImages.pending || !text.trim() || !!packet?.missingCharacters?.length || !!outdated.length} onClick={async () => {
     try { await navigator.clipboard.writeText(text); setCopyState("copied"); }
     catch { setCopyState("copyFailed"); }
   }}>{t(copyState === "copied" ? "copied" : "copy")}</button>;
@@ -183,6 +190,8 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
         {(["flow", "seedance"] as const).map(format => <button key={format} aria-pressed={template === format} disabled={busy}
           onClick={() => {if (format !== template) confirmDiscard(() => changeTemplate(format));}}>{t(format)}</button>)}
       </div>
+      <StoryRunSkillPicker task="shots"/>
+      <StoryAppliedSkills trace={packet?.provenance ?? saved?.provenance}/>
       <section className="story-merge-schedule">
         <header><h3>{t("merge.timeline")}</h3>
           <span>{story("seconds", {n: clockSeconds(totalMs)})}</span></header>
@@ -199,6 +208,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
       {outdated.length > 0 && <p role="status">{t("merge.changed", {shots: outdated.map(shot => shot.title).join(", ")})}</p>}
       {changedElsewhere && <p role="alert">{t("merge.saveConflict")}</p>}
       {missing && <p role="alert">{t("merge.missing")}</p>}
+      {!!packet?.missingCharacters?.length && <p role="alert">{t("missingCharacters",{names:packet.missingCharacters.join(", ")})}</p>}
       {promptReview.usedFirstDraft && <p role="status">{t("refinement.invalidFallback")}</p>}
       {packet?.reviewNotes?.map((note,i)=><p role="status" key={i}>{note}</p>)}
       {clockIssues.length > 0 && <details className="story-merge-clock-review">
@@ -230,7 +240,7 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
         </button>
         {packet && <>
           {copyButton}
-          <button className="primary" disabled={busy || !text.trim() || excess > 0 || !!outdated.length || missing || checking || !!reviewError || changedElsewhere || !dirty}
+          <button className="primary" disabled={referenceImages.pending || busy || !text.trim() || excess > 0 || !!outdated.length || missing || checking || !!reviewError || changedElsewhere || !dirty}
             onClick={() => void save()}>{story("savePrompt")}</button>
         </>}
       </footer>

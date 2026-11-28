@@ -98,7 +98,7 @@ function Editor({ initial, scope }: { initial: VoiceDocument; scope: string }) {
     publish({ ...doc, rows: doc.rows.map(row => {
       if (row.id !== id) return row;
       const next = { ...row, ...changes };
-      if (("text" in changes || "characterPresetId" in changes || "delivery" in changes || "audioConfig" in changes) && next.selectedTakeId) {
+      if (("text" in changes || "characterPresetId" in changes || "delivery" in changes || "audioConfig" in changes || "targetDurationMs" in changes) && next.selectedTakeId) {
         next.selectedTakeCurrent = false;
       }
       return next;

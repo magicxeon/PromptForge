@@ -14,5 +14,5 @@
   ],
   "eventToolbarTags": ["<sigh>","<laugh>","<gasp>","<short pause>"],
   "inlineTags": ["<gasp>", "<sigh>", "<laugh>", "<sob>", "<breath>", "<short pause>", "<long pause>"],
-  "stylePresets": {"emotion": ["neutral", "calm", "happy", "sad", "angry", "surprised", "excited", "startled", "afraid", "anxious", "relieved"], "intensity":["subtle","moderate","strong"], "pace": ["natural", "slow", "fast"], "delivery": ["natural", "gentle", "firm", "whispered"]}
+  "stylePresets": {"emotion": ["neutral", "calm", "happy", "cheerful", "sad", "angry", "surprised", "excited", "startled", "afraid", "anxious", "relieved"], "intensity":["subtle","moderate","strong"], "pace": ["natural", "slow", "fast"], "delivery": ["natural", "gentle", "firm", "whispered"]}
 }

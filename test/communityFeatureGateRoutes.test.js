@@ -58,7 +58,7 @@ test('disabled Scene Template writes preserve the stable feature-gate error cont
   let mutationCalls = 0;
   registerSceneTemplateRoutes(routes.app, {
     communityShareService: {
-      async createGeneratedShareDraft() {
+      async updateSharedPostPresentation() {
         mutationCalls += 1;
         return {};
       }
@@ -66,8 +66,9 @@ test('disabled Scene Template writes preserve the stable feature-gate error cont
     communityFeaturePolicyService: policy
   });
   const response = createResponse();
-  await routes.get('POST', '/api/scene-templates/share-drafts')({
-    body: { sourceGenerationId: 'job_1' },
+  await routes.get('PATCH', '/api/scene-templates/shared/:postId')({
+    params: { postId: 'post_1' },
+    body: { title: 'Updated' },
     actorContext: { userId: 'usr_demo' }
   }, response);
 

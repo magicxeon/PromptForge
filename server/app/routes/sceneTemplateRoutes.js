@@ -25,60 +25,6 @@ export function registerSceneTemplateRoutes(app, {
   imagePresentationService = defaultImagePresentationService,
   templatePoseProxyService = null
 }) {
-  app.post('/api/scene-templates/share-drafts', async (req, res) => {
-    try {
-      await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
-      const { sourceGenerationId } = req.body || {};
-      const draft = await communityShareService.createGeneratedShareDraft(sourceGenerationId, req.actorContext);
-      res.json(draft);
-    } catch (err) {
-      sendSceneTemplateError(res, err, 'scene_template_share_draft_failed');
-    }
-  });
-
-  app.post('/api/scene-templates/share-drafts/:draftId/publish', async (req, res) => {
-    try {
-      await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
-      const {
-        title,
-        description,
-        promptVisibility,
-        visibility,
-        officialTags,
-        customTags,
-        publishAsTemplate,
-        templateAccessCredits,
-        creatorShareBps,
-        publicInputSchema,
-        templateInputOptions,
-        templateKind,
-        compatibility
-      } = req.body || {};
-      const post = await communityShareService.publishGeneratedImageShare(
-        req.params.draftId,
-        {
-          title,
-          description,
-          promptVisibility,
-          visibility,
-          officialTags,
-          customTags,
-          publishAsTemplate,
-          templateAccessCredits,
-          creatorShareBps,
-          publicInputSchema,
-          templateInputOptions,
-          templateKind,
-          compatibility
-        },
-        req.actorContext
-      );
-      res.json(post);
-    } catch (err) {
-      sendSceneTemplateError(res, err, 'scene_template_publish_failed');
-    }
-  });
-
   app.get('/api/scene-templates/shared', async (req, res) => {
     try {
       await communityFeaturePolicyService.assertEnabled('community.enabled');

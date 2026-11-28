@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 export function validateStoryAuthoring(value) {
   if (value?.schemaVersion !== 1 || !Number.isInteger(value.version)) throw new TypeError('Invalid story authoring version.');
-  for (const key of ['storyBrief', 'creativeDirection']) {
+  for (const key of ['storyBrief', 'priorEpisodeSummary', 'creativeDirection']) {
     if (!Number.isInteger(value.limits?.[key]) || value.limits[key] < 1 || value.limits[key] > 10000) throw new TypeError('Invalid story authoring limit.');
   }
   for (const key of ['genres', 'audienceFeelings', 'pacingTraits']) {

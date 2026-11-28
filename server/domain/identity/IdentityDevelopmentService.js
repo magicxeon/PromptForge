@@ -69,6 +69,7 @@ const liveReads = [
   /^\/api\/credits\/ledger$/,
 ];
 const liveWrites = [
+  ['DELETE', /^\/api\/cinematic\/production-projects\/(?:cineproj|cineseries)_[\w-]+$/],
   ['POST', /^\/api\/cinematic\/projects\/[\w-]+\/scenes\/[\w-]+\/environment\/approve$/],
   ['PATCH', /^\/api\/cinematic\/projects\/[\w-]+\/scenes\/[\w-]+\/environment$/],
   ['PUT', /^\/api\/cinematic\/projects\/[\w-]+\/shots\/[\w-]+\/storyboard-source$/],

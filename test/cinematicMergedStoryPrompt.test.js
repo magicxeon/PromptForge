@@ -44,6 +44,29 @@ test('embedded shot clocks widen the action row and cannot be reintroduced by tr
 });
 
 const image = assetId => ({assetId, imageUrl:`/owned/${assetId}`});
+test('silent cast members need an image in single and merged prompts, and voice-only cast do not', () => {
+  const {project,scene,shots} = fixture();
+  const silent = {id:'silent',displayName:'Witness'};
+  project.castAssignments.push(silent);
+  shots[0].castAssignmentIds = ['silent','c'];
+  function packets() {
+    return [compileStoryPromptPacket(project,scene,shots[0],compileCinematicShotDocument(shots[0],scene,project.castAssignments),'seedance'),
+      compileMergedStoryPrompt(project,scene,['s1','s2'],'seedance')];
+  }
+  for (const packet of packets()) {
+    assert.deepEqual(packet.missingCharacters,['Witness']);
+    assert.equal(packet.ready,false);
+  }
+  silent.storyReference = image('witness');
+  for (const packet of packets()) {
+    assert.equal(packet.ready,true);
+    assert.deepEqual(packet.references.map(ref=>ref.name),['Station','Kai','Witness',shots[0].title]);
+    assert.match(packet.text,/Reference 3 — Witness/);
+  }
+  delete silent.storyReference;
+  shots[0].speakerBindings.push({castAssignmentId:'silent',alias:'Witness',visible:false});
+  for (const packet of packets()) assert.equal(packet.ready,true);
+});
 test('an accepted shot revision updates its cast and earlier revisions recover a uniquely named scene speaker', () => {
   const {project,scene,shots} = fixture();
   const shot = shots[0];

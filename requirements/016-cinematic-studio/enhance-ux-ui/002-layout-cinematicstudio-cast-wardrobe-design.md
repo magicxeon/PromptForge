@@ -21,7 +21,7 @@ Character Look store, upload path, or Project-stage mutation.
 | Story Role Slots and planning source | `CinematicProject.setup.storyRoleSlots` and `castPlanningMode` |
 | Project Cast assignment and dossier | Cinematic API/domain through `upsertCinematicCast` |
 | Character eligibility, identity version and reusable rights | Character Profile capability and the existing Character directory APIs |
-| Character Look draft/version lifecycle | Character Profile capability and `CharacterLookDraftDialog` |
+| Character Look draft/version lifecycle | Character Profile capability and `CharacterLookDialog` |
 | Project wardrobe binding | Cinematic API/domain through `upsertCinematicWardrobeLook` |
 | Project navigation, save state and Project Cost | Existing Cinematic workspace shell |
 

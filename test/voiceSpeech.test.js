@@ -74,6 +74,8 @@ test('Seed multilingual script keeps dialogue separate from direction and sends 
     text:'จริงหรือ “คุณชาย”', delivery:{emotion:'surprised',intensity:'strong',method:'gentle',direction:'Begin hesitantly.'},
     audioConfig:{speech_rate:-12,loudness_rate:15,pitch_rate:2}};
   const compiled = compileSpeechRequest(input,catalog,reference);
+  assert.doesNotMatch(compiled.snapshot.providerPrompt, /DURATION:/);
+  assert.match(compileSpeechRequest({...input,targetDurationMs:4250},catalog,reference).snapshot.providerPrompt, /DURATION: 4\.25 seconds/);
   const requests=[];
   const provider = new SeedSpeechProvider({apiKey:'fixture',fetchImpl:async(_url,request)=>{
     requests.push(JSON.parse(request.body)); return Response.json({audio:wav().toString('base64')});

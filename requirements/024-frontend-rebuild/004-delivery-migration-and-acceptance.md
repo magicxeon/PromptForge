@@ -1,5 +1,13 @@
 # FE24-DELIVERY — งานย่อย การตรวจ และการย้ายใช้งาน
 
+### Web Next deployment cleanup
+
+1. Trace both browser entries, direct compatibility links, shared modules and fixture consumers. Retire the unserved Vanilla entry and its unreferenced scripts. Preserve shared assets, translations, private outputs and fallback screens still reachable from Web Next.
+2. Remove legacy API aliases after tracing the canonical replacement and its callers. Check feature-gated and successful sharing against the existing API tests.
+3. Separate development dependencies from runtime dependencies. Build Web Next and compare its entry asset and installed dependency footprint. Verify navigation and the affected workflows using isolated fixtures.
+
+2026-11-28 verification: Web Next production build passed. With the same build inputs, loading the Image workspace on demand reduced uncompressed entry JavaScript from 861,677 to 719,708 bytes. The browser fixture passed in Thai and English at 390, 820 and 1440 pixels without provider calls. The retired Vanilla files totalled 676,320 bytes. The legacy React type check passed. Its SceneBuilderTemplate suite still has 11 failures involving an incomplete actorStore test double. Login, image history detail and the video archive still depend on the React fallback.
+
 สถานะ 2026-11-20: M0 review จบ; M1 Image, M2 Comparison และ M3 Video มี implementation;
 scoped evidence/review ใน[005](005-implementation-checkpoint.md)/task-plan.json.
 T08 production cutover ยังแยกต่างหาก; ไม่อ้าง full UAT หรือpaidprovider qualification.

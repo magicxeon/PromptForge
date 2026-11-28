@@ -3,16 +3,48 @@ import {cleanup, fireEvent, render, screen, waitFor, within} from "@testing-libr
 import {afterEach, expect, it, vi} from "vitest";
 import type {CinematicProject} from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {FullStoryPlan} from "./FullStoryPlan";
+import {useState} from "react";
+import {MemoryRouter} from "react-router-dom";
+import {ChapterContinuityReview} from "./ChapterContinuityReview";
+import {StoryRunSkillContext} from "./StoryRunSkills";
+import type {CinematicSeriesWorkspace} from "../../../../web/src/features/cinematic/schemas/cinematicSeriesSchemas";
+import type {CinematicWritingSettingsCatalog} from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 
 const api=vi.hoisted(()=>({
   confirmCinematicFullStoryRevision:vi.fn(), proposeCinematicChapterOutline:vi.fn(),
   reviewCinematicChapterOutline:vi.fn(), generateCinematicFullStoryChapters:vi.fn()
 }));
-const series=vi.hoisted(()=>({applyCinematicChapterProposal:vi.fn(),discardCinematicChapterProposal:vi.fn()}));
+const series=vi.hoisted(()=>({applyCinematicChapterProposal:vi.fn(),discardCinematicChapterProposal:vi.fn(),proposeCinematicChapters:vi.fn()}));
 vi.mock("../../../../web/src/features/cinematic/api/cinematicApi",()=>api);
 vi.mock("../../../../web/src/features/cinematic/api/cinematicSeriesApi",()=>series);
-vi.mock("react-i18next",()=>({useTranslation:()=>({t:(label:string)=>label})}));
+vi.mock("react-i18next",()=>({useTranslation:()=>({i18n:{language:"en"},t:(label:string)=>label})}));
 afterEach(()=>{cleanup();vi.clearAllMocks();});
+
+it("shows only affected chapters and consumes an explicit empty skill override without changing project settings",async()=>{
+  const project={id:"ep3",version:3,chapterProposals:[],confirmedFullStoryVersionId:null} as unknown as CinematicProject;
+  const workspace={chapters:[
+    {projectId:"ep2",order:2,title:"Finished",continuityReviewRequired:false},
+    {projectId:"ep3",order:3,title:"The lantern",continuityReviewRequired:true}
+  ]} as CinematicSeriesWorkspace;
+  const settings={skillIds:["continuity"],modelId:null};
+  const catalog={recommendedSkillCount:3,taskSkills:{chapters:["continuity"]},
+    skills:[{id:"continuity",label:{en:"Continuity",th:"Continuity"}}]} as unknown as CinematicWritingSettingsCatalog;
+  function View() {
+    const [overrides,set]=useState<Record<string,string[]|undefined>>({});
+    return <MemoryRouter><StoryRunSkillContext.Provider value={{catalog,settings,overrides,change:(task,ids)=>set(v=>({...v,[task]:ids}))}}>
+      <ChapterContinuityReview busy={false} project={project} owner={project} workspace={workspace} run={async job=>{await job();}}/>
+    </StoryRunSkillContext.Provider></MemoryRouter>;
+  }
+  render(<View/>);
+  expect(screen.queryByText(/Finished/)).toBeNull();
+  expect(screen.getByRole("link",{name:/The lantern/}).getAttribute("href")).toBe("/story/ep3");
+  fireEvent.click(screen.getByText("runSkills.heading"));
+  fireEvent.click(screen.getByRole("checkbox",{name:"Continuity"}));
+  fireEvent.click(screen.getByRole("button",{name:"continuityQueue.propose"}));
+  expect(series.proposeCinematicChapters).toHaveBeenCalledWith("ep3",{expectedVersion:3,scope:"selected",intent:"continuity",skillIdsOverride:[]});
+  expect((screen.getByRole("checkbox",{name:"Continuity"}) as HTMLInputElement).checked).toBe(true);
+  expect(settings.skillIds).toEqual(["continuity"]);
+});
 
 it("uses the confirmed full story revision for the outline and applies only the reviewed chapter proposal",async()=>{
   const open=vi.fn();
@@ -27,7 +59,7 @@ it("uses the confirmed full story revision for the outline and applies only the 
   const confirmed={...base,confirmedFullStoryVersionId:"draft"};
   page.rerender(view(confirmed));
   fireEvent.click(screen.getByText("proposeOutline"));
-  expect(api.proposeCinematicChapterOutline).toHaveBeenCalledWith("project",4);
+  expect(api.proposeCinematicChapterOutline).toHaveBeenCalledWith("project",4,undefined);
   const outline={id:"outline",sourceRevisionId:"draft",settings:{...base.setup,seasonCount:1},
     chapters:["Arrival","Search","Return"].map((title,index)=>({
       title,synopsis:`Part ${index+1} of the story`,seasonNumber:1,chapterNumber:index+1
@@ -45,7 +77,7 @@ it("uses the confirmed full story revision for the outline and applies only the 
   api.generateCinematicFullStoryChapters.mockResolvedValue({project:confirmed,workspace:{chapters:[]}});
   page.rerender(view({...confirmed,chapterOutline:{...outline,status:"approved"}}));
   fireEvent.click(screen.getByText("writeChapters"));
-  await waitFor(()=>expect(api.generateCinematicFullStoryChapters).toHaveBeenCalledWith("project",4));
+  await waitFor(()=>expect(api.generateCinematicFullStoryChapters).toHaveBeenCalledWith("project",4,undefined));
   const proposal={id:"proposal",scope:"all",status:"pending_review",sourceFullStoryRevisionId:"draft",warnings:[],
     chapters:[{order:1,title:"Arrival",story:"The door opens."}]};
   page.rerender(view({...confirmed,chapterProposals:[proposal]}));
