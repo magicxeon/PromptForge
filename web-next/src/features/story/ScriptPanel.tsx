@@ -8,14 +8,14 @@ import {Dialog} from "../dub-sub/Dialog";
 import {proposeCinematicFullStory,saveCinematicFullStoryRevision,type getCinematicAuthoringManifest} from "../../../../web/src/features/cinematic/api/cinematicApi";
 import {updateCinematicChapter} from "../../../../web/src/features/cinematic/api/cinematicSeriesApi";
 import {readStoryFile} from "../../../../web/src/features/cinematic/components/CinematicStoryFileImport";
-import {chapterRecoverySchema,useCinematicTextRecovery} from "../../../../web/src/features/cinematic/state/useCinematicTextRecovery";
+import {chapterRecoverySchema,storyEditorRecoveryId,useCinematicTextRecovery} from "../../../../web/src/features/cinematic/state/useCinematicTextRecovery";
 import type {CinematicProject} from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import type {RunWriting} from "./data/useStoryWorkspace";
 import config from "./story-config.json";
 type Workflow=NonNullable<Awaited<ReturnType<typeof getCinematicAuthoringManifest>>["rewamp"]>["workflow"];
 
-export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,requestScenes,pending,skills}:{
-  project:CinematicProject;owner?:CinematicProject;full:boolean;setFull:(value:boolean)=>void;workflow?:Workflow;run:RunWriting;
+export function ScriptPanel({project,owner,full,workflow,run,openPlan,requestScenes,pending,skills}:{
+  project:CinematicProject;owner?:CinematicProject;full:boolean;workflow?:Workflow;run:RunWriting;
   openPlan:()=>void;requestScenes:(source:CinematicProject,afterSave?:boolean)=>Promise<void>;pending:boolean;skills:string[];
 }){
   const {t}=useTranslation("story"),{identityScope}=useActor();
@@ -30,7 +30,8 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
   const initial=full?active?.content||"":project.chapterStory;
   const revision=full?active?.id||"":project.activeChapterVersionId||"";
   const chapterTitle=project.chapterTitle||project.title;
-  const recovery=useCinematicTextRecovery({actorId:identityScope,projectId:project.id,documentId:"next-script",
+  const [documentId]=useState(()=>storyEditorRecoveryId(identityScope,project.id,full));
+  const recovery=useCinematicTextRecovery({actorId:identityScope,projectId:documentId==="next-script"?project.id:full?(owner?.id??project.id):project.id,documentId,
     revision, schema:chapterRecoverySchema,serverValue:{title:chapterTitle,story:initial,instruction:full?"full":"chapter"}});
   const draft=recovery.value;
   const blocker=useBlocker(recovery.dirty);
@@ -38,15 +39,7 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
   if(!recovery.dirty)base.current=revision;
   const staleEdit=recovery.dirty&&base.current!==revision;
   const max=workflow?.authoring.fullStoryMaximumCharacters||50000;
-  useEffect(()=>{if(recovery.dirty)setFull(draft.instruction==="full");},[recovery.dirty,draft.instruction]);
   useEffect(()=>{if(recovery.pending)setFileError("");},[recovery.pending]);
-  const changeMode=(next:boolean)=>{
-    if(next===full)return;
-    // The existing text remains editable across destinations until the writer saves it.
-    if(recovery.dirty)recovery.setValue({...draft,instruction:next?"full":"chapter"});
-    base.current=next?active?.id||"":project.activeChapterVersionId||"";
-    setFull(next);
-  };
   async function draftWithAI() {
     const target=full?owner:project;
     if(!target||!writingBrief.trim())return;
@@ -81,12 +74,10 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
   const saveLabel=t(full?"saveFull":"saveChapter",{name:full?owner?.title:draft.title});
   const edit=<textarea aria-label={t("script")} rows={config.readingRows} value={draft.story} maxLength={max}
     onChange={e=>recovery.setValue({...draft,story:e.target.value})}/>;
-  return <article className="story-script"><header className="story-bar"><h2>{t("script")}</h2>
+  return <article className="story-script"><header className="story-bar"><h2>{t(full?"fullScript":"chapterScript")}</h2>
     <span role="status">{t(recovery.dirty?"editing":"saved")}</span></header>
     {!full && !!draft.story.trim() && <StoryRunSkillPicker task="scenes"/>}
     <div className="story-actions" role="group" aria-label={t("destination")}>
-      <button aria-pressed={!full} onClick={()=>changeMode(false)}>{t("chapterScript")}</button>
-      <button aria-pressed={full} onClick={()=>changeMode(true)}>{t("fullScript")}</button>
       {owner && <button disabled={recovery.dirty || recovery.pending} onClick={()=>void run(async()=>{
         setCanonError("");
         try {

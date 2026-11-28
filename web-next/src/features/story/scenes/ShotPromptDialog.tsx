@@ -1,3 +1,4 @@
+import {StoryWarnings} from "../StoryWarnings";
 import {useRef, useState} from "react";
 import {formatStoryPromptWholeSeconds,inspectStoryPromptDraft} from "../../../../../server/domain/cinematic/StoryPromptFormatting.js";
 import {Copy, Maximize2, Minimize2, X} from "lucide-react";
@@ -233,10 +234,10 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
       </details>
       {stale && <p role="alert">{t("promptSourceChanged")}</p>}
       {(localError || error) && <p role="alert">{localError || error}</p>}
-      {review.usedFirstDraft && <p role="status">{label("refinement.invalidFallback")}</p>}
-      {prepared?.storyPacket?.reviewNotes?.map((note,i)=><p role="status" key={i}>{note}</p>)}
-      {format==="seedance" && text && listedRefs && inspectStoryPromptDraft(text,listedRefs,shot.durationMs,reviewBase)
-        .map((issue,i)=><p role="status" key={i}>{label(issue.key,{value:issue.value})}</p>)}
+      <StoryWarnings messages={[review.usedFirstDraft && label("refinement.invalidFallback"),
+        ...(prepared?.storyPacket?.reviewNotes ?? []),
+        ...(format==="seedance" && text && listedRefs ? inspectStoryPromptDraft(text,listedRefs,shot.durationMs,reviewBase)
+          .map(issue=>label(issue.key,{value:issue.value})) : [])]}/>
       <div className="story-prompt-text-heading"><label htmlFor="shot-prompt-text">{t("promptText")}</label>
         <button ref={expandButton} onClick={toggleExpanded} aria-expanded={expanded}>
           {expanded ? <Minimize2 size={16}/> : <Maximize2 size={16}/>} {label(expanded ? "shrink" : "expand")}</button></div>

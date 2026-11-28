@@ -23,7 +23,7 @@ import { videoCapabilityRegistry } from '../generation/VideoCapabilityRegistry.j
 import { eligibleDurations } from '../generation/VideoDurationReconciliation.js';
 import { videoGenerationApplicationService } from '../generation/VideoGenerationApplicationService.js';
 import { cinematicStoryEnhancementService } from '../generation/CinematicStoryEnhancementService.js';
-import { cinematicFullStoryService } from '../generation/CinematicFullStoryService.js';
+import { cinematicFullStoryService, planSceneSections } from '../generation/CinematicFullStoryService.js';
 import { cinematicWritingOperationService } from '../generation/CinematicWritingOperationService.js';
 import { normalizeStoryImport, createImportedFullStoryRevision, normalizeBriefImport } from './CinematicStoryImport.js';
 import { assertSiblingOrder, buildAuthoringContinuity, continuitySourceKey, shotContinuityItems } from './CinematicAuthoringContinuity.js';
@@ -195,7 +195,8 @@ export class CinematicApplicationService {
     const sequentialPlan = operation === 'chapters' && input.scope !== 'selected' && input.sequentialChapters === true
       ? (approvedChapterOutline(root) || plannedChapterSequence(root.setup)).slice(0, cinematicWorkflowPolicy.authoring.generatedChapterMaximum)
       : null;
-    const callCount = sequentialPlan?.length ?? 1;
+    const chapterStory = (operation === 'scenes' && project.chapterVersions?.find(item=>item.id===project.activeChapterVersionId)?.story) || project.chapterStory || '';
+    const callCount = operation === 'scenes' ? planSceneSections(chapterStory).length : sequentialPlan?.length ?? 1;
     // A UTF-16 code unit can occupy up to three UTF-8 bytes in the preceding chapter excerpt.
     const continuationInputBytes = (callCount - 1) * cinematicWorkflowPolicy.authoring.continuityExcerptCharacters * 3;
     const maxOutputTokens = repairBudget?.maxOutputTokens ?? (operation === 'chapter_outline'
@@ -215,7 +216,7 @@ export class CinematicApplicationService {
     return { model, maxOutputTokens, callCount, continuationInputBytes, source: {
       projectId, projectVersion: project.version, rootId, rootVersion: root.version,
       title: project.title, settings: project.setup, fullStory: story?.content || '',
-      chapterStory: project.chapterStory || '', chapterRevisionId: project.activeChapterVersionId,
+      chapterStory, chapterRevisionId: project.activeChapterVersionId,
       characters: (project.castAssignments || []).filter(item => item.active !== false).slice(0, 24)
         .map(item => ({ id: item.id, name: item.displayName, role: item.storyRole,
           objective: item.objective, traits: item.personalityTraits, voice: item.voice })),
@@ -248,7 +249,7 @@ export class CinematicApplicationService {
         case 'characters': return this.proposeFullStory(projectId, { ...input, purpose: 'characters' }, actor, { beforeDispatch });
         case 'chapter_outline': return this.proposeChapterOutline(projectId, input, actor, { beforeDispatch });
         case 'chapters': return this.proposeChapters(projectId, input, actor, { beforeDispatch, onProgress });
-        case 'scenes': return this.proposeScenes(projectId, input, actor, { beforeDispatch });
+        case 'scenes': return this.proposeScenes(projectId, input, actor, { beforeDispatch, onProgress });
         case 'shots': return this.proposeShots(projectId, sceneId, input, actor, { beforeDispatch });
         case 'environment': return this.proposeSceneEnvironment(projectId, sceneId, input, actor, { beforeDispatch });
         case 'wardrobe': return this.suggestWardrobe(projectId, assignmentId, actor, { beforeDispatch });
@@ -825,7 +826,7 @@ export class CinematicApplicationService {
     return this.seriesService.saveChapterProposal(projectId, proposalInput, actorContext);
   }
 
-  async proposeScenes(projectId, input, actorContext, { beforeDispatch } = {}) {
+  async proposeScenes(projectId, input, actorContext, { beforeDispatch, onProgress } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
@@ -850,6 +851,8 @@ export class CinematicApplicationService {
     const writingSettings = withStorySkillOverride(await this.projectWritingSettings(project, actorContext, workspace),input?.skillIdsOverride);
     await beforeDispatch?.();
     const generated = await this.fullStoryService.proposeScenes({
+      beforeNextSection: beforeDispatch,
+      onProgress,
       writingSettings,
       continuity,
       projectTitle: project.title,
@@ -954,6 +957,20 @@ export class CinematicApplicationService {
   }
 
   updateSceneOutline(projectId, sceneId, input, actorContext) {
+    if (Object.hasOwn(input, 'completedExternally')) {
+      return this.repository.mutateForActor(projectId, actorContext, project => {
+        assertExpectedVersion(project, input.expectedVersion);
+        assertEditable(project);
+        const scene = project.scenes.find(item => item.id === sceneId);
+        if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+        if (typeof input.completedExternally !== 'boolean') throw new CinematicError('cinematic_scene_completion_invalid', 'Choose a scene completion status.');
+        if ((scene.completedExternally === true) !== input.completedExternally) {
+          scene.completedExternally = input.completedExternally;
+          project.version += 1;
+        }
+      }).then(() => this.getProject(projectId, actorContext))
+        .then(project => ({project, scene: project.scenes.find(item => item.id === sceneId)}));
+    }
     if (Object.hasOwn(input, 'shotCompletion')) {
       return this.repository.mutateForActor(projectId, actorContext, project => {
         assertExpectedVersion(project, input.expectedVersion);
@@ -3368,9 +3385,9 @@ function scenePromptContext(scene, selected, language) {
   return {
     reviewLanguage:language === 'en' ? 'English' : 'Thai',
     scene:{opening:scene.entryState,focus:scene.objective,ending:scene.exitState,story:scene.synopsis,
-      light:scene.lighting,sound:scene.audioIntent},
+      light:scene.lighting,sound:scene.audioIntent,blockingMap:scene.blockingMap},
     sequence:ordered.map((shot,index)=>({position:index+1,selected:ids.has(shot.id),title:shot.title,
-      opening:shot.continuityEntry,ending:shot.continuityExit})),
+      opening:shot.continuityEntry,ending:shot.continuityExit,cameraDirectionNotes:shot.cameraDirectionNotes})),
     selectedTiming:selected.map(({id,startMs,endMs}) => {
       const index = ordered.findIndex(shot => shot.id === id);
       return {position:index + 1,startMs:startMs ?? 0,endMs:endMs ?? ordered[index]?.durationMs};
@@ -3381,7 +3398,8 @@ function scenePromptContext(scene, selected, language) {
 function shotPlanningEnvironmentKey(scene) {
   const source = scene.environmentReferenceEnabled !== false && scene.approvedEnvironmentSource;
   return crypto.createHash('sha256').update(JSON.stringify([
-    scene.environmentPrompt || '', source?.assetId || null, source?.contentHash || null
+    scene.environmentPrompt || '', source?.assetId || null, source?.contentHash || null,
+    ...(scene.blockingMap ? [scene.blockingMap] : [])
   ])).digest('hex');
 }
 
@@ -3783,6 +3801,7 @@ function normalizeStoryPlan(input = {}, project, contractVersion = normalizeStor
       version: Number(existingScene?.version || 1),
       ...(existingScene?.environmentPrompt !== undefined ? { environmentPrompt: existingScene.environmentPrompt } : {}),
       ...(existingScene?.sceneEvents ? {sceneEvents:existingScene.sceneEvents} : {}),
+      ...(existingScene?.blockingMap !== undefined ? {blockingMap:existingScene.blockingMap} : {}),
       ...(existingScene?.authorDirectedFields ? {authorDirectedFields:existingScene.authorDirectedFields} : {}),
       ...(existingScene?.approvedEnvironmentSource ? { approvedEnvironmentSource: structuredClone(existingScene.approvedEnvironmentSource) } : {}),
       ...(existingScene?.environmentReferenceEnabled !== undefined ? { environmentReferenceEnabled: existingScene.environmentReferenceEnabled } : {}),

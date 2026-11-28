@@ -1,3 +1,4 @@
+import {StoryWarnings} from "../StoryWarnings";
 import {useState} from "react";
 import {useQuery} from "@tanstack/react-query";
 import {useTranslation} from "react-i18next";
@@ -205,12 +206,11 @@ export function MergedStoryPromptDialog({project, scene, shotIds, initialTemplat
       {template === "seedance" && <SeedancePacingNote count={timeline.length} seconds={totalMs / 1000}/>}
       {needsFrame && !missing && <div><p>{t("merge.needFrame", {name: first.title})}</p>
         <button disabled={busy} onClick={() => setPicker(true)}>{t("chooseFrame")}</button></div>}
-      {outdated.length > 0 && <p role="status">{t("merge.changed", {shots: outdated.map(shot => shot.title).join(", ")})}</p>}
       {changedElsewhere && <p role="alert">{t("merge.saveConflict")}</p>}
       {missing && <p role="alert">{t("merge.missing")}</p>}
       {!!packet?.missingCharacters?.length && <p role="alert">{t("missingCharacters",{names:packet.missingCharacters.join(", ")})}</p>}
-      {promptReview.usedFirstDraft && <p role="status">{t("refinement.invalidFallback")}</p>}
-      {packet?.reviewNotes?.map((note,i)=><p role="status" key={i}>{note}</p>)}
+      <StoryWarnings messages={[outdated.length > 0 && t("merge.changed", {shots: outdated.map(shot => shot.title).join(", ")}),
+        promptReview.usedFirstDraft && t("refinement.invalidFallback"), ...(packet?.reviewNotes ?? [])]}/>
       {clockIssues.length > 0 && <details className="story-merge-clock-review">
         <summary>{t("merge.clockReview", {count:clockIssues.length})}</summary>
         <ul>{clockIssues.map((issue,index) => <li key={index}>

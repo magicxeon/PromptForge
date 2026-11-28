@@ -34,7 +34,7 @@ function prepareShot(project, scene, shot, first, shotOnly) {
   const cues = document?.dialogue.cues ?? shot.dialogueCues ?? [];
   const people = storyPromptPeople(project, scene, shot, shotOnly, cues);
   const sections = document?.sections || {};
-  const camera = document ? sections.camera : lines(shot.framing, shot.cameraAngle, shot.lensIntent, shot.cameraMovement);
+  const camera = lines(document ? sections.camera : lines(shot.framing, shot.cameraAngle, shot.lensIntent, shot.cameraMovement), shot.cameraDirectionNotes);
   const timeline = document?.timeline ?? shot.videoActionTimeline ?? [];
   const fallbackAction = !document && (lines(shot.subjectAction, shot.blocking, shot.prompt) || shot.visibleMoment || shot.purpose);
   return {
@@ -121,6 +121,7 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
   }
   let opening;
   if (setting) fields.SCENE.push(setting);
+  if (scene.blockingMap) fields.CONTINUITY.push('Spatial anchors govern continuity. Frame only the scripted visible action.', scene.blockingMap);
   if (scene.audioIntent && (!seedance || ordered.length === scene.shots.length)) fields.AUDIO.push(scene.audioIntent);
   for (const [index, shot] of ordered.entries()) {
     const part = parts[index];
@@ -133,7 +134,7 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     const scoped = body => body && `${interval} — ${body}`;
     const {missingCharacters, ...fingerprintedPart} = part;
     const sourceFingerprint = hash(['merged-story-v1', template, spokenLanguage, skillInstructions, direction, aspect,
-      setting, scene.lighting, scene.artDirection, ...(seedance ? [scene.entryState,scene.objective,scene.exitState,scene.synopsis] : []), ...(scene.audioIntent ? [scene.audioIntent] : []), shot.shotDocument, {...fingerprintedPart,
+      setting, scene.lighting, scene.artDirection, ...(scene.blockingMap ? [scene.blockingMap] : []), ...(seedance ? [scene.entryState,scene.objective,scene.exitState,scene.synopsis] : []), ...(scene.audioIntent ? [scene.audioIntent] : []), shot.shotDocument, {...fingerprintedPart,
         ...(missingCharacters.length ? {missingCharacters} : {}),
         references:part.references.map(r => [r.role, r.assetId, r.name])}]);
     shots.push({id:shot.id, title:shot.title, startMs, endMs, version:shot.version || 1, sourceFingerprint});

@@ -74,10 +74,10 @@ export class CinematicFullStoryService {
     const policy = this.#policy(writingSettings,"shots",{scene,shot});
     const context = {language, ...policy.skillContext,
       directing: directingContext('art',writingSettings),
-      scene:{location:scene.location, time:scene.time, lighting:scene.lighting, art:scene.artDirection, environment:scene.environmentPrompt},
+      scene:{location:scene.location, time:scene.time, lighting:scene.lighting, art:scene.artDirection, environment:scene.environmentPrompt, blockingMap:scene.blockingMap},
       shot:{title:shot.title, purpose:shot.purpose, opening:shot.visibleMoment, action:shot.subjectAction,
         document:shot.shotDocument, camera:shot.framing, movement:shot.cameraMovement, lighting:shot.lighting,
-        durationMs:shot.durationMs, currentArt:shot.artDirection}};
+        durationMs:shot.durationMs, currentArt:shot.artDirection, cameraDirectionNotes:shot.cameraDirectionNotes}};
     const result = await this.providerFactory(policy).suggestShotArt({context,sceneImage,model:policy.model,
       reasoningEffort:policy.reasoningEffort,timeoutMs:policy.timeoutMs,maxOutputTokens:policy.maxOutputTokens});
     const artDirection = typeof result?.artDirection === 'string' && result.artDirection.trim();
@@ -244,7 +244,9 @@ export class CinematicFullStoryService {
       cinematicWorkflowPolicy.authoring.generatedSceneMaximum,
       Math.max(1, Number(input.maximumScenes) || cinematicWorkflowPolicy.authoring.generatedSceneMaximum)
     );
-    const result = await this.providerFactory(policy).generateCinematicChapterScenes({
+    const provider = this.providerFactory(policy);
+    const sections = planSceneSections(chapterStory, maximumScenes);
+    const request = {
       context: {
         chapter: {
           title: boundedText(input.chapterTitle, 120),
@@ -267,7 +269,8 @@ export class CinematicFullStoryService {
       reasoningEffort: policy.reasoningEffort,
       maxOutputTokens: policy.maxOutputTokens,
       timeoutMs: policy.longFormTimeoutMs || policy.timeoutMs
-    });
+    };
+    const result = await generateSceneSections(provider, request, sections, input.onProgress, input.beforeNextSection);
     const scenes = (Array.isArray(result?.scenes) ? result.scenes : []).slice(0, maximumScenes);
     if (!scenes.length) fail('cinematic_scenes_incomplete_response', 'Scene generation returned no complete Scenes. Nothing was saved.', 502);
     return {
@@ -505,6 +508,7 @@ function normalizeSceneList(value, maximum) {
     durationSeconds: Math.max(0, Math.round(Number(item?.durationMs || 0) / 1000)),
     shotCount: Array.isArray(item?.shots) ? item.shots.length : 0,
     sceneEvents: normalizeSceneEvents(item?.sceneEvents),
+    blockingMap: boundedText(item?.blockingMap,2000),
     lighting: boundedText(item?.lighting,500),
     audioIntent: boundedText(item?.audioIntent,500)
   }));
@@ -522,6 +526,7 @@ function normalizeShotScene(value) {
     weather: boundedText(scene.weather, 160),
     environment: boundedText(scene.environmentPrompt, 2500),
     sceneEvents: normalizeSceneEvents(scene.sceneEvents),
+    blockingMap: boundedText(scene.blockingMap,2000),
     lighting: boundedText(scene.lighting,500),
     audioIntent: boundedText(scene.audioIntent,500),
     artDirection: boundedText(scene.artDirection,1000),
@@ -557,6 +562,7 @@ function normalizeEnvironmentScene(value) {
     time: boundedText(scene.time, 300),
     weather: boundedText(scene.weather, 300),
     artDirection: boundedText(scene.artDirection, 1500),
+    blockingMap: boundedText(scene.blockingMap,2000),
     lighting: boundedText(scene.lighting, 1500),
     entryState: boundedText(scene.entryState, 1000),
     exitState: boundedText(scene.exitState, 1000),
@@ -570,9 +576,80 @@ function normalizeShotList(value, maximum) {
     order: index + 1,
     title: boundedText(item?.title, 120),
     durationMs: Math.max(500, Math.min(20000, Number(item?.durationMs) || 5000)),
+    cameraDirectionNotes: boundedText(item?.cameraDirectionNotes,2000),
     shotDocument: boundedText(item?.shotDocument || item?.prompt || item?.purpose, cinematicWorkflowPolicy.authoring.shotDocumentMaximumCharacters)
   }));
 }
+export function planSceneSections(story, maximumScenes = cinematicWorkflowPolicy.authoring.generatedSceneMaximum) {
+  const lines = boundedText(story, cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters)
+    .split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const text = lines.join('\n');
+  const count = Math.min(maximumScenes, Math.max(1, Math.ceil(text.length / cinematicWorkflowPolicy.authoring.sceneSectionCharacters)));
+  const sections = [];
+  let start = 0;
+  let paragraph = 1;
+  for (let index = 0; index < count; index++) {
+    const size = Math.ceil((text.length - start) / (count - index));
+    let end = start + size;
+    if (index < count - 1) {
+      const candidates = [text.lastIndexOf('\n', end), text.indexOf('\n', end)]
+        .filter(pos => pos > start && Math.abs(pos - end) <= size / 3);
+      if (candidates.length) end = candidates.sort((a,b) => Math.abs(a-end) - Math.abs(b-end))[0] + 1;
+      else {
+        const nearby = text.slice(start + Math.floor(size * .75), end);
+        const breaks = [...nearby.matchAll(/[。！？.!?\s]/gu)];
+        if (breaks.length) end = start + Math.floor(size * .75) + breaks.at(-1).index + 1;
+        else if (/^[\uDC00-\uDFFF]/.test(text.slice(end))) end++;
+      }
+    }
+    const chunk = text.slice(start,end);
+    sections.push({story:chunk.trim(), firstParagraph:paragraph});
+    paragraph += chunk.split('\n').length - 1;
+    start = end;
+  }
+  return sections;
+}
+
+async function generateSceneSections(provider, request, sections, onProgress, beforeNextSection) {
+  const total = sections.length;
+  const chapter = request.context.chapter;
+  onProgress?.({completed:0,total,title:chapter.title});
+  if (total === 1) {
+    const result = await provider.generateCinematicChapterScenes(request);
+    if (result?.scenes?.length) onProgress?.({completed:1,total,title:chapter.title});
+    return result;
+  }
+  const scenes = [], warnings = [];
+  const usage = {input_tokens:0,output_tokens:0,input_tokens_details:{cached_tokens:0},output_tokens_details:{reasoning_tokens:0}};
+  let usageComplete = true, responseId = null, consumedCharacters = 0, allocatedSeconds = 0;
+  const characters = sections.reduce((sum,part)=>sum+part.story.length,0);
+  for (const [index,part] of sections.entries()) {
+    if (index > 0) await beforeNextSection?.();
+    const maximumScenes = Math.floor((request.context.maximumScenes - scenes.length)/(total-index));
+    consumedCharacters += part.story.length;
+    const endSeconds = Math.round(chapter.targetDurationSeconds * consumedCharacters / characters);
+    const result = await provider.generateCinematicChapterScenes({...request,context:{...request.context,maximumScenes,
+      section:{number:index+1,total,previousEnding:String(scenes.at(-1)?.exitState || scenes.at(-1)?.synopsis || '').slice(0,cinematicWorkflowPolicy.authoring.continuityExcerptCharacters)},
+      chapter:{...chapter,story:part.story,paragraphStarts:part.story.split('\n').map((line,i)=>[i+1,line.slice(0,64)]),targetDurationSeconds:Math.max(1,endSeconds-allocatedSeconds)}
+    }});
+    if (!Array.isArray(result?.scenes) || !result.scenes.length || result.scenes.length > maximumScenes)
+      fail('cinematic_scenes_incomplete_response', `Scene section ${index+1}/${total} returned an incomplete proposal. Nothing was saved.`,502);
+    allocatedSeconds = endSeconds;
+    for (const scene of result.scenes) scenes.push({...scene,sourceStartParagraph:part.firstParagraph + scene.sourceStartParagraph - 1});
+    warnings.push(...boundedList(result.warnings,8,500));
+    responseId = result.responseId;
+    const tokens = normalizeWritingUsage(result.usage);
+    if (tokens) {
+      usage.input_tokens += tokens.inputTokens;
+      usage.output_tokens += tokens.outputTokens;
+      usage.input_tokens_details.cached_tokens += tokens.cachedInputTokens;
+      usage.output_tokens_details.reasoning_tokens += tokens.reasoningTokens;
+    } else usageComplete = false;
+    onProgress?.({completed:index+1,total,title:chapter.title});
+  }
+  return {scenes,warnings,responseId,usage:usageComplete ? usage : null};
+}
+
 async function draftChaptersInOrder(provider, request, onProgress) {
   const plan = request.context.chapterPlan;
   if (plan.length !== request.context.expectedChapterCount) {

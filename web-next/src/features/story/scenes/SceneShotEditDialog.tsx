@@ -11,9 +11,11 @@ import {prepareCinematicShotWriter,updateCinematicShotDocument,updateCinematicSc
 import {useCinematicTextRecovery} from "../../../../../web/src/features/cinematic/state/useCinematicTextRecovery";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {StoryCharacterIdentity} from "../characters/StoryCharacters";
+import {SceneBlockingMap} from "./SceneBlockingMap";
 import catalog from "../../../../../server/config/cinematic/story-direction.v1.json";
 
 const editSchema=z.object({title:z.string().max(120),body:z.string().max(50000),location:z.string().max(240),
+  blockingMap:z.string().max(2000).optional(),cameraDirectionNotes:z.string().max(2000).optional(),
   objective:z.string().max(1000).optional(), sceneEvents:z.array(z.string()).optional(), lighting:z.string().max(500).optional(), audioIntent:z.string().max(500).optional(),
   time:z.string().max(160),environment:z.string().max(2500).optional(),entryState:z.string().max(1000).optional(),
   exitState:z.string().max(1000).optional(),emotionalStart:z.string().max(500).optional(),emotionalEnd:z.string().max(500).optional(),
@@ -40,6 +42,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
     environment:scene.environmentPrompt||"",objective:scene.objective||"",entryState:scene.entryState||"",exitState:scene.exitState||"",
     emotionalStart:scene.emotionalStart,emotionalEnd:scene.emotionalEnd,
     sceneEvents:scene.sceneEvents??[],lighting:scene.lighting??"",audioIntent:scene.audioIntent??"",
+    blockingMap:scene.blockingMap??"",cameraDirectionNotes:shot?.cameraDirectionNotes??"",
     speakers:shot?.speakerBindings??(shot?effectiveIds.map(id=>({castAssignmentId:id,alias:cast.find(c=>c.id===id)?.displayName||id,visible:true})):[])};
   const revision=String(shot?.version??scene.version);
   const editor=useCinematicTextRecovery({actorId:identityScope,projectId:project.id,documentId:"next:"+(shot?.id??scene.id),
@@ -77,6 +80,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
       const r=shot?await updateCinematicShotDocument(project.id,scene.id,shot.id,{
         expectedVersion:project.version,expectedShotVersion:shot.version,title:draft.title,durationMs:draft.seconds*1000,
         shotDocument:draft.body,speakerBindings:draft.speakers,source:"manual",
+        cameraDirectionNotes:draft.cameraDirectionNotes??original.cameraDirectionNotes,
       }):await updateCinematicSceneOutline(project.id,scene.id,{
         expectedVersion:project.version,expectedSceneVersion:scene.version,title:draft.title,synopsis:draft.body,
         purpose:scene.purpose as Parameters<typeof updateCinematicSceneOutline>[2]["purpose"],objective:draft.objective??scene.objective??"",
@@ -84,6 +88,7 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
         entryState:draft.entryState??scene.entryState??"",exitState:draft.exitState??scene.exitState??"",
         emotionalStart:draft.emotionalStart??scene.emotionalStart,emotionalEnd:draft.emotionalEnd??scene.emotionalEnd,
         sceneEvents:draft.sceneEvents,lighting:draft.lighting,audioIntent:draft.audioIntent,
+        blockingMap:draft.blockingMap??original.blockingMap,
         transitionIntent:scene.transitionIntent,targetDurationSeconds:Math.min(120,Math.max(5,Math.round(draft.seconds))),
         dialogueTargetPercent:scene.dialogueTargetPercent??0,characterIds:draft.characterIds
       });
@@ -116,6 +121,17 @@ export function SceneShotEditDialog({project,scene,shot,run,close,requestRevisio
         onChange={e=>editor.setValue({...draft,body:e.target.value})}/></label>}
       {!shot&&<label>{t("stage.lighting")}<textarea rows={3} maxLength={500} value={draft.lighting??scene.lighting??""}
         onChange={e=>editor.setValue({...draft,lighting:e.target.value})}/></label>}
+      <details className="story-direction-controls"><summary>{t(shot?"blocking.camera":"blocking.map")}</summary>
+        {shot && scene.blockingMap && <details><summary>{t("blocking.map")}</summary>
+          <p className="story-prose">{scene.blockingMap}</p><SceneBlockingMap value={scene.blockingMap}/></details>}
+        {shot ? <label>{t("blocking.cameraHint")}<textarea rows={5} maxLength={2000}
+          placeholder={t("blocking.cameraExample")} value={draft.cameraDirectionNotes??original.cameraDirectionNotes}
+          onChange={e=>editor.setValue({...draft,cameraDirectionNotes:e.target.value})}/></label> :
+          <><label>{t("blocking.mapHint")}<textarea rows={5} maxLength={2000}
+            placeholder={t("blocking.mapExample")} value={draft.blockingMap??original.blockingMap}
+            onChange={e=>editor.setValue({...draft,blockingMap:e.target.value})}/></label>
+            <SceneBlockingMap value={draft.blockingMap??original.blockingMap}/></>}
+      </details>
       <label>{t("duration")}<input type="number" step={1} min={shot?1:5} max={shot?20:120} value={draft.seconds}
         aria-invalid={shot&&!validShotDuration||undefined} onChange={e=>editor.setValue({...draft,seconds:Number(e.target.value)})}/></label>
       {cast.length>0&&<details><summary>{t(shot?"speakers":"cast")}</summary>{!validSpeakers&&<p role="alert">{t("uniqueAliases")}</p>}{cast.map(person=>{

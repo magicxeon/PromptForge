@@ -62,6 +62,19 @@ const setup = {
   endingIntent: 'resolved', mode: 'simple'
 };
 
+test('scene completion persists and can be cleared with zero shots', async t => {
+  const {directory,service} = await fixture();
+  t.after(() => fs.rm(directory,{recursive:true,force:true}));
+  const project = await service.createProject(setup,alice);
+  const {scene,project:updated} = await service.createManualScene(project.id,{expectedVersion:project.version,idempotencyKey:'manual-completion'},alice);
+  const mark = (version,value) => service.updateSceneOutline(project.id,scene.id,{expectedVersion:version,completedExternally:value},alice);
+  const marked = await mark(updated.version,true);
+  const saved = (await service.getProject(project.id,alice)).scenes.find(item=>item.id===scene.id);
+  assert.equal(saved.completedExternally,true);
+  assert.equal(saved.shots.length,0);
+  assert.equal((await mark(marked.project.version,false)).scene.completedExternally,false);
+});
+
 test('Story shot arrangement reorders, transfers at adjacent boundaries and retains authored material and saved merge history', async t => {
   const {directory,service} = await fixture();
   t.after(() => fs.rm(directory,{recursive:true,force:true}));

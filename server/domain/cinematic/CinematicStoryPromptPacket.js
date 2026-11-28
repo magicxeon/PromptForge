@@ -110,10 +110,11 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
   let prompt;
   if (kind === 'still') {
     const fields = {
-      SCENE: joined(scene.location, scene.time, scene.weather, scene.environmentPrompt || scene.artDirection),
+      SCENE: joined(scene.location, scene.time, scene.weather, scene.environmentPrompt || scene.artDirection,
+        scene.blockingMap && 'Use these positions to compose the visible opening frame.', scene.blockingMap),
       SUBJECT: joined(sections.opening || shot.continuityEntry || shot.visibleMoment || shot.blocking || sections.scene?.split('\n')[0],
         people.filter(p => p.visible).map(p => p.person.displayName).join(', ')) || scene.synopsis || shot.title,
-      CAMERA: camera || 'Keep the focal subject clear and leave space for the intended movement.',
+      CAMERA: joined(camera, shot.cameraDirectionNotes) || 'Keep the focal subject clear and leave space for the intended movement.',
       LIGHT: light, 'MATERIAL AND CONTACT': templates.still.material, PRESERVE: storyReferenceText(references), AVOID: templates.still.avoid
     };
     prompt = [storyVisualTarget(references), templates.still.opening, aspect, ...templates.still.sections.map(title => block(title, fields[title]))];
@@ -130,10 +131,10 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
     }
     const fields = {
       'REFERENCE MAPPING': storyVideoReferenceMapping(references),
-      CONTINUITY: joined(templates.video.continuity, sections.continuity),
+      CONTINUITY: joined(templates.video.continuity, sections.continuity, scene.blockingMap && 'Spatial anchors govern continuity. Frame only the scripted visible action.', scene.blockingMap),
       'CHARACTER IDENTIFICATION': characters || (kind === 'flow' && 'No assigned characters. Preserve the subjects described in the scene.'),
       SCENE: kind === 'seedance' ? joined(scene.location,scene.time,scene.weather,sections.scene) : location || shot.title,
-      CAMERA: joined(sections.camera || joined(camera, shot.cameraMovement), shot.gaze) || 'Keep the focal action readable.',
+      CAMERA: joined(sections.camera || joined(camera, shot.cameraMovement), shot.gaze, shot.cameraDirectionNotes) || 'Keep the focal action readable.',
       'ACTION TIMELINE': joined(...events.sort((first, second) => first.time - second.time).map(event => event.text), end),
       PERFORMANCE: joined(dialogue.performance, shot.performanceCue || shot.performance, shot.emotionalTarget, templates.video.performance),
       VOICE: cues.length ? joined(`Spoken language: ${storySpokenLanguage(project.writingSettings)}.`,

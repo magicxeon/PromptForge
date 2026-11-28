@@ -31,7 +31,6 @@ function ProjectWorkspace({id}:{id:string}) {
   const [params,setParams]=useSearchParams();
   const [drawer,setDrawer]=useState(false);
   const [draftProgress,setDraftProgress]=useState<ChapterDraftProgress|null>(null);
-  const [full,setFull]=useState(false);
   const [overrides,setOverrides]=useState<Record<string,string[]|undefined>>({});
   const overrideFor=(task:string)=>overrides[task]?.filter(id=>owner?.writingSettings?.skillIds.includes(id));
   const takeSkills=(task:string)=>{
@@ -54,13 +53,13 @@ function ProjectWorkspace({id}:{id:string}) {
   const scenes=[...project.scenes].sort((a,b)=>a.orderKey-b.orderKey);
   const scene=scenes.find(s=>s.id===params.get("scene"));
   const selectedStep = params.get("step");
-  const step=scene?(selectedStep==="shots"?"shots":"staging"):selectedStep==="scenes"?"scenes":selectedStep==="chapters"?"chapters":selectedStep==="characters"?"characters":"script";
-  const fullPath=full||step==="chapters"||!!project.chapterOrigin||!!owner?.activeFullStoryVersionId;
+  const defaultStep=project.chapterOrigin || (project.activeChapterVersionId && !project.activeFullStoryVersionId) ? "episode" : "script";
+  const step=scene?(selectedStep==="shots"?"shots":"staging"):["scenes","chapters","characters","episode","script"].includes(selectedStep??"")?selectedStep!:defaultStep;
+  const full=step==="script";
   function goStage(stage:string) {
     if(scene)lastScene.current=scene.id;
     if(stage==="shots"||stage==="staging"){selectScene(scenes.find(s=>s.id===lastScene.current)?.id||scenes[0]?.id,stage);return;}
-    if(step==="chapters"&&stage==="script")setFull(true);
-    setParams(stage==="script"?{}:{step:stage});
+    setParams({step:stage});
     setReview(null);setDrawer(false);setError("");
   }
   const sceneProposal=project.sceneProposals.filter(x=>x.status==="pending_review").at(-1);
@@ -69,7 +68,10 @@ function ProjectWorkspace({id}:{id:string}) {
     if(source.sceneProposals.some(p=>p.status==="pending_review" && (!afterSave || p.sourceChapterRevisionId===source.activeChapterVersionId))){
       setReview("scene");return;
     }
-    await run(async()=>{const r=await series.proposeCinematicScenes(id,source.version,takeSkills("scenes"));setReview("scene");return r;}, "scenes");
+    setDraftProgress(null);
+    try {
+      await run(async()=>{const r=await series.proposeCinematicScenes(id,source.version,takeSkills("scenes"),setDraftProgress);setReview("scene");return r;}, "scenes");
+    } finally {setDraftProgress(null);}
   }
   async function requestShots(targetShotId?:string,instruction?:string){
     if(!scene)return false;
@@ -96,9 +98,9 @@ function ProjectWorkspace({id}:{id:string}) {
   }
   const stages=[
     {key:"script",label:"script",icon:NotebookPen,available:true},
-    ...(fullPath?[{key:"chapters",label:"planStage",icon:BookOpen,available:!!owner?.activeFullStoryVersionId}]:[]),
-    {key:"scenes",label:"scenes",icon:Layers,available:true},
-    {key:"staging",label:"stage.setup",icon:MapPin,available:scenes.length>0},
+    {key:"chapters",label:"planStage",icon:BookOpen,available:!!owner?.activeFullStoryVersionId},
+    {key:"episode",label:"chapterScript",icon:Layers,available:true},
+    {key:"scenes",label:"stage.setup",icon:MapPin,available:true},
     {key:"shots",label:"shotsStage",icon:Clapperboard,available:scenes.length>0},
   ];
   const guide=step==="characters"?"guideCharacters":step==="chapters"?"guidePlan":step==="scenes"?(scenes.length?"guidePickScene":"guideNoScenes"):
@@ -113,7 +115,7 @@ function ProjectWorkspace({id}:{id:string}) {
         {chapters.data && chapters.data.chapters.length > 1 && <label className="story-chapter-picker">
           <span>{t(owner?.writingSettings?.direction?.format === "series" ? "brief.episode"
             : owner?.writingSettings?.direction?.format === "feature" ? "brief.chapter" : "chapter")}</span>
-          <select disabled={busy} value={id} onChange={event=>navigate("/story/"+encodeURIComponent(event.target.value))}>
+          <select disabled={busy} value={id} onChange={event=>navigate("/story/"+encodeURIComponent(event.target.value)+"?step=episode")}>
             {chapters.data.chapters.map(chapter=><option key={chapter.projectId} value={chapter.projectId}>{chapter.order} · {chapter.title}</option>)}
           </select>
         </label>}
@@ -123,13 +125,13 @@ function ProjectWorkspace({id}:{id:string}) {
       </div>
     </header>
     <nav className="story-stage-nav" aria-label={t("stages")}><ol>{stages.map(({key,label,icon:Icon,available},i)=>
-      <li key={key}><button disabled={!available||busy} aria-current={step===key?"step":undefined}
+      <li key={key}><button disabled={!available||busy} aria-current={(step==="staging"?"scenes":step)===key?"step":undefined}
         onClick={()=>{if(step!==key)goStage(key);}}><Icon size={17} aria-hidden/><span>{i+1}. {t(label)}</span></button>
         {i<stages.length-1&&<ChevronRight className="story-stage-arrow" size={14} aria-hidden/>}</li>)}</ol>
       <p>{t(guide)}</p></nav>
     {(step==="scenes" || step==="shots") && <StoryRunSkillPicker task={step}/>}
     {error && <p className="story-error" role="alert">{error}</p>}
-    {step==="script"&&owner&&chapters.data&&<ChapterContinuityReview project={project} owner={owner} workspace={chapters.data} run={run} busy={busy}/>}
+    {(full||step==="episode")&&owner&&chapters.data&&<ChapterContinuityReview project={project} owner={owner} workspace={chapters.data} run={run} busy={busy}/>}
     {chapters.error && <p role="alert">{chapters.error.message} <button onClick={()=>void chapters.refetch()}>{t("retry")}</button></p>}
     {manifest.error && <p role="alert">{manifest.error.message} <button onClick={()=>void manifest.refetch()}>{t("retry")}</button></p>}
     {storyRoot.error&&fullStoryOwner!==id&&<p role="alert">{storyRoot.error.message} <button onClick={()=>void storyRoot.refetch()}>{t("retry")}</button></p>}
@@ -157,9 +159,9 @@ function ProjectWorkspace({id}:{id:string}) {
           shotLimit={workflow?.authoring.shotDocumentMaximumCharacters}
           skills={skillsFor("shots")}/>
         :step==="chapters"?(owner?.activeFullStoryVersionId?<FullStoryPlan project={owner} run={run} onDraftProgress={setDraftProgress} goChapter={chapterId=>{
-          setFull(false);navigate("/story/"+encodeURIComponent(chapterId));
-        }}/>:<button onClick={()=>{setFull(true);goStage("script");}}>{t("fullScript")}</button>):
-        <ScriptPanel project={project} owner={owner} full={full} setFull={setFull} workflow={workflow} run={run}
+          navigate("/story/"+encodeURIComponent(chapterId)+"?step=episode");
+        }}/>:<button onClick={()=>goStage("script")}>{t("fullScript")}</button>):
+        <ScriptPanel key={step} project={project} owner={owner} full={full} workflow={workflow} run={run}
           openPlan={()=>goStage("chapters")} requestScenes={requestScenes} pending={!!sceneProposal} skills={skillsFor("full_story")}/>}
       </section>}
     </fieldset>
@@ -169,6 +171,11 @@ function ProjectWorkspace({id}:{id:string}) {
       <div className="story-writing-progress" role="status">
         <PenLine className="story-writing-pen" aria-hidden="true"/>
         <p>{t("writingActivity."+activity)}</p>
+        {activity==="scenes" && draftProgress && <>
+          <progress style={{width:"100%"}} aria-label={t("writingActivity.scenes")} value={draftProgress.completed} max={draftProgress.total}/>
+          <strong>{t("scenePartsProgress",draftProgress)} · {Math.floor(100*draftProgress.completed/draftProgress.total)}%</strong>
+          <p>{draftProgress.title}</p>
+        </>}
         {activity==="chapters" && draftProgress && <>
           <progress style={{width:"100%"}} aria-label={t("writingActivity.chapters")} value={draftProgress.completed} max={draftProgress.total}/>
           <strong>{Math.floor(100*draftProgress.completed/draftProgress.total)}% · {draftProgress.completed}/{draftProgress.total}</strong>

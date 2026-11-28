@@ -42,6 +42,13 @@ function readEntries(actorId: string): Entry[] {
   return parsed.data.filter(entry => entry.updatedAt > Date.now() - RECOVERY_LIMITS.retentionMs && entry.updatedAt <= Date.now());
 }
 
+export function storyEditorRecoveryId(actorId: string, projectId: string, full: boolean) {
+  const legacy = readEntries(actorId).find(entry => entry.projectId === projectId && entry.documentId === 'next-script');
+  const draft = chapterRecoverySchema.safeParse(legacy?.value);
+  if (draft.success && draft.data.instruction === (full ? 'full' : 'chapter')) return 'next-script';
+  return full ? 'next-full-script' : 'next-episode-script';
+}
+
 function persist(actorId: string, projectId: string, documentId: string, entry: Entry | null, expectedValue?: unknown) {
   if (!actorId || !projectId || !documentId) return false;
   try {

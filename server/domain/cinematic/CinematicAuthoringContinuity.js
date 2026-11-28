@@ -23,9 +23,12 @@ export function shotContinuityItems(project, selectedShotId) {
   return selectedShotId ? scenes.flatMap(scene => scene.shots.slice().sort((a, b) => a.orderKey - b.orderKey)) : scenes;
 }
 
+export function isSceneProductionComplete(scene) {
+  return scene.completedExternally === true || Boolean(scene.shots?.length && scene.shots.every(shot => shot.completed === true));
+}
+
 export function isChapterProductionComplete(project) {
-  return Boolean(project.scenes?.length && project.scenes.every(scene =>
-    scene.shots?.length && scene.shots.every(shot => shot.completed === true)));
+  return Boolean(project.scenes?.length && project.scenes.every(isSceneProductionComplete));
 }
 
 // Persist the review queue with the same atomic series write as the source edit.

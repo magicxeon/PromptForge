@@ -1,4 +1,16 @@
 {
+  "warningHeading": "Review notes",
+  "scenePartsProgress": "Completed {{completed}} of {{total}} sections",
+  "blocking": {
+    "map": "Scene geography",
+    "camera": "Camera, lens and visible action",
+    "diagram": "Overhead view · north at top",
+    "mapHint": "Describe landmarks, actors’ positions and facing, the action axis and the fixed light source. For a diagram, start each placement on a separate line with NW, N, NE, W, C, E, SW, S or SE followed by a colon.",
+    "mapExample": "E: Window and morning light\nC: Table. The guest faces east.\nW: Door behind the guest",
+    "cameraHint": "Describe the camera position and facing, shot size, lens type, focal length, focus and who is in frame. Note what changes across the shot.",
+    "cameraExample": "Medium close-up from the south, 50 mm prime. Focus on the guest. The window stays east as she turns away; light now rims her hair. The person at the door is heard offscreen.",
+    "empty": "Add positions or a light direction when the scene needs continuity."
+  },
   "canonReview": "Review saved episodes for Canon",
   "canonEpisodes": "Episodes included · {{titles}}",
   "canonPrevious": "Read current Canon",

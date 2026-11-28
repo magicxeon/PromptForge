@@ -1,3 +1,4 @@
+import {StoryWarnings} from "./StoryWarnings";
 import { useTranslation } from "react-i18next";
 import {StoryAppliedSkills,StoryRunSkillPicker,useTakeStoryRunSkills} from "./StoryRunSkills";
 import { ChevronRight, Sparkles } from "lucide-react";
@@ -75,7 +76,7 @@ export function FullStoryPlan({ project, run, goChapter, onDraftProgress }: Prop
       <h3>{t("reviewChapters")}</h3>
       {pending.chapters.map(ch => <details key={ch.order}><summary>{ch.chapterNumber}. {ch.title}</summary><p style={{whiteSpace:"pre-wrap"}}>{ch.story}</p></details>)}
       <StoryAppliedSkills trace={pending.provenance}/>
-      {pending.warnings.map(message => <p key={message}>{message}</p>)}
+      <StoryWarnings messages={pending.warnings}/>
       <div className="story-actions">
         <button disabled={!confirmed || pending.sourceFullStoryRevisionId !== revision.id} onClick={() => void generateOrReview("apply")}>{t("applyChapters")}</button>
         <button onClick={() => void generateOrReview("discard")}>{t("discardChapters")}</button>

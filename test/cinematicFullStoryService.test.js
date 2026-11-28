@@ -4,6 +4,31 @@ import { CinematicFullStoryService } from '../server/domain/generation/Cinematic
 import { resolveWritingPreferences } from '../server/config/storyWritingSettings.js';
 import storyDirection from '../server/config/cinematic/story-direction.v1.json' with {type:'json'};
 
+test('scene sections report completed work, carry the ending, and retain episode paragraph numbers', async () => {
+  const calls=[], progress=[];
+  let rejectSecond=false;
+  const service=new CinematicFullStoryService({
+    policyLoader:()=>({enabled:true,provider:'openai',model:'fixture'}),
+    availabilityPolicy:{assertAvailable(){}},
+    providerFactory:()=>({async generateCinematicChapterScenes({context}){
+      calls.push(context);
+      return {scenes:rejectSecond && context.section.number===2 ? [] : [{sourceStartParagraph:1,exitState:'Closing beat'}],
+        usage:{input_tokens:7,output_tokens:3}};
+    }})
+  });
+  const lines=['a','b','c','d'].map(letter=>letter.repeat(800));
+  const input={chapterStory:lines.join('\n'),onProgress:({completed,total})=>progress.push([completed,total])};
+  const proposal=await service.proposeScenes(input);
+  assert.deepEqual(calls.map(call=>call.chapter.story),[lines.slice(0,2).join('\n'),lines.slice(2).join('\n')]);
+  assert.equal(calls[1].section.previousEnding,'Closing beat');
+  assert.deepEqual(proposal.scenes.map(scene=>scene.sourceStartParagraph),[1,3]);
+  assert.equal(proposal.provenance.usage.outputTokens,6);
+  assert.deepEqual(progress,[[0,2],[1,2],[2,2]]);
+  rejectSecond=true;
+  await assert.rejects(service.proposeScenes(input),{code:'cinematic_scenes_incomplete_response'});
+  assert.deepEqual(progress.at(-1),[1,2]);
+});
+
 test('outline drafting validates each episode before starting the next', async () => {
   const calls = [], progress = [];
   let rejectSecond = false;

@@ -1,0 +1,38 @@
+.chapter-continuity-review {
+  display: grid;
+  gap: .8rem;
+  padding: clamp(.85rem, 2vw, 1.3rem);
+  border: 1px solid #e4cd86;
+  border-inline-start: 4px solid #b27b15;
+  border-radius: .8rem;
+  background: #fff5d6;
+  color: #513a10;
+}
+.chapter-continuity-review > header { display: flex; align-items: center; gap: .6rem; }
+.chapter-continuity-review > header svg { flex: none; color: #895a09; }
+.chapter-continuity-review > header h2 { margin: 0; font-size: 1.1rem; }
+.chapter-continuity-review > ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: .45rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.chapter-continuity-review li > a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .6rem;
+  min-height: 2.65rem;
+  padding: .3rem .65rem;
+  border: 1px solid #e9d8a7;
+  border-radius: .45rem;
+  background: #fffbef;
+  color: inherit;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+.chapter-continuity-review li > a:is(:hover, :focus-visible, [aria-current="page"]) { border-color: #987321; background: #ffedb6; }
+.chapter-review-order { font-variant-numeric: tabular-nums; font-weight: 700; color: #795711; }
+.chapter-continuity-review > button { justify-self: start; }

@@ -23,7 +23,8 @@ export class CinematicWritingOperationService {
     }
     const quote = creditsDisabled ? { totalCredits: 0, expiresAt: new Date(Date.now() + 15 * 60_000).toISOString() }
       : await this.credits.quoteWriting({ operation, model, maxOutputTokens,
-      inputBytes, callCount, continuationInputBytes });
+      inputBytes, callCount, continuationInputBytes,
+      singlePassBytes: operation === 'scenes' && callCount > 1 ? Buffer.byteLength(JSON.stringify(source.chapterStory || '').slice(1, -1), 'utf8') : 0 });
     const record = { id: `cw_${randomUUID()}`, kind: 'cinematic_text', userId, projectId, operation,
       ...(creditsDisabled ? { billingMode: UNMETERED } : {}),
       requestFingerprint: writingFingerprint(request), fingerprint: writingFingerprint({ request, source }),

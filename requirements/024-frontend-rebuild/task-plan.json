@@ -3,6 +3,26 @@
   "requirement": "requirements/024-frontend-rebuild/000-master.md",
   "tasks": [
     {
+      "id":"FE24-SCENE-SECTIONS","title":"Split long episode scene proposals and report completed sections",
+      "complexity":"complex","reason":"Generation, quote budgeting and progress use the same section plan.",
+      "owner":"backend-platform-architect","ownerAgentId":"/root","dependsOn":[],
+      "capabilities":["cinematic","frontend-experience"],"risks":["shared-contract","user-facing"],
+      "writeScope":["server/","web/src/features/cinematic/","web-next/src/","test/","requirements/024-frontend-rebuild/"],
+      "status":"review","acceptance":["Show completed sections, retain source order and settle one operation."],
+      "reviewers":["commercial-financial-integrity","qa-release-engineer","ux-ui-product-designer"],"evidence":[],"reviews":[],
+      "handoff":"Offline generation and billing fixtures cover section boundaries and settlement. Live episode run remains unverified."
+    },
+    {
+      "id":"FE24-STORY-GEOGRAPHY","title":"Carry approved scene geography and shot optics into Seedance direction",
+      "complexity":"complex","reason":"Scene and shot editing, proposal acceptance and final prompts must agree.",
+      "owner":"product-requirement-architect","ownerAgentId":"/root","dependsOn":[],
+      "capabilities":["cinematic","frontend-experience"],"risks":["shared-contract","user-facing"],
+      "writeScope":["server/domain/","server/providers/","server/config/prompt-recipes/","web/src/features/cinematic/","web-next/src/","test/","requirements/024-frontend-rebuild/"],
+      "status":"review","acceptance":["Scene anchors and per-shot camera direction survive editing and reach the matching single and merged prompt."],
+      "reviewers":["ux-ui-product-designer","qa-release-engineer"],"evidence":[],"reviews":[],
+      "handoff":"Controls owns stage and shot controls. Storage owns persistence and acceptance. Root owns provider recipes, prompt compilation and integration."
+    },
+    {
       "id":"FE24-STORY-DELETE","title":"Delete a confirmed Story production project from the library",
       "complexity":"complex","reason":"Deletes series and chapter authoring records and admits a narrow local mutation.",
       "owner":"backend-platform-architect","ownerAgentId":"/root/project_delete","dependsOn":[],

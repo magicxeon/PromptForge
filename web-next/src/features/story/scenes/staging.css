@@ -1,3 +1,10 @@
+.story-compass { margin: .75rem 0; max-width: 34rem; }
+.story-compass figcaption { margin-bottom: .4rem; font-weight: 600; }
+.story-compass > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; }
+.story-compass span { display: grid; align-content: start; gap: .2rem; padding: .45rem; min-width: 0; background: #f1f4f2; overflow-wrap: anywhere; }
+.story-compass span[data-used="true"] { background: #dfede5; color: #173e32; }
+.story-compass b { font-size: .75rem; }
+.story-direction-controls label { margin-top: .7rem; display: grid; gap: .5rem; }
 .story-staging {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(14rem, 1fr);
@@ -22,6 +29,8 @@
   gap:.65rem 1rem;
 }
 .story-scene-heading h2 {margin:0;font-size:1.35rem;}
+.story-scene-heading .story-scene-complete {display:inline-flex;align-items:center;gap:.45rem;margin-inline-start:auto;cursor:pointer;}
+.story-scene-complete input[type="checkbox"] {width:1rem;height:1rem;margin:0;}
 .story-scene-views {
   display:flex;
   gap:.35rem;

@@ -37,7 +37,7 @@ it("shows only affected chapters and consumes an explicit empty skill override w
   }
   render(<View/>);
   expect(screen.queryByText(/Finished/)).toBeNull();
-  expect(screen.getByRole("link",{name:/The lantern/}).getAttribute("href")).toBe("/story/ep3");
+  expect(screen.getByRole("link",{name:/The lantern/}).getAttribute("href")).toBe("/story/ep3?step=episode");
   fireEvent.click(screen.getByText("runSkills.heading"));
   fireEvent.click(screen.getByRole("checkbox",{name:"Continuity"}));
   fireEvent.click(screen.getByRole("button",{name:"continuityQueue.propose"}));

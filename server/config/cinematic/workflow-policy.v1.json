@@ -44,6 +44,7 @@
     "chapterOutlineMaximumOutputTokens": 4000,
     "chapterOutlineSynopsisMaximumCharacters": 800,
     "generatedSceneMaximum": 24,
+    "sceneSectionCharacters": 2400,
     "sceneProposalHistoryLimit": 10,
     "generatedShotMaximumPerScene": 20,
     "sceneLooksheetForWriting": {"maximumSourceBytes":12582912,"maximumPixels":40000000,"maximumSide":1280,"jpegQuality":82},

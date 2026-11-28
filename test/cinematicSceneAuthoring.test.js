@@ -6,7 +6,7 @@ test('scene direction can be corrected manually and survives a later AI outline'
   const project={activeChapterVersionId:'rev',sceneProposals:[],scenes:[]};
   const propose=()=>{
     const p=createSceneProposal({sourceChapterRevisionId:'rev',scenes:[{
-      title:'Doorway',lighting:'Side light',audioIntent:'Wind',sceneEvents:['dialogue','fight','unknown','fight']
+      title:'Doorway',lighting:'Side light',audioIntent:'Wind',blockingMap:'Door to the east',sceneEvents:['dialogue','fight','unknown','fight']
     }]});
     project.sceneProposals.push(p);
     applySceneProposal(project,p.id);
@@ -15,11 +15,15 @@ test('scene direction can be corrected manually and survives a later AI outline'
   const first=propose();
   assert.deepEqual(first.sceneEvents,['dialogue','fight']);
   assert.equal(first.audioIntent,'Wind');
+  assert.equal(first.blockingMap,'Door to the east');
+  assert.throws(()=>updateSceneOutline(project,first.id,{expectedSceneVersion:1,title:'Doorway',blockingMap:'x'.repeat(2001)}),
+    {code:'cinematic_blocking_map_invalid'});
   updateSceneOutline(project,first.id,{expectedSceneVersion:1,title:'At the doorway',lighting:'Lantern',
-    sceneEvents:['dialogue'],audioIntent:''});
+    sceneEvents:['dialogue'],audioIntent:'',blockingMap:'West window. Door to the north.'});
   const second=propose();
   assert.equal(second.lighting,'Lantern');
   assert.equal(second.audioIntent,'');
+  assert.equal(second.blockingMap,'West window. Door to the north.');
   assert.deepEqual(second.sceneEvents,['dialogue']);
 });
 

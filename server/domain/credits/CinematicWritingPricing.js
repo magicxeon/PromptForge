@@ -57,7 +57,7 @@ export function normalizeWritingUsage(usage) {
 }
 
 export function quoteCinematicWriting(policy, { model, operation, inputBytes, maxOutputTokens,
-  callCount = 1, continuationInputBytes = 0 }, now = Date.now()) {
+  callCount = 1, continuationInputBytes = 0, singlePassBytes = 0 }, now = Date.now()) {
   const billing = policy.cinematicWritingBilling;
   const rate = policy.textEnhancement;
   const floor = billing?.operations?.[operation]?.floorCredits;
@@ -70,13 +70,15 @@ export function quoteCinematicWriting(policy, { model, operation, inputBytes, ma
       policy.pricingFxThbPerUsd, policy.creditsPerThbAssumption, policy.creditRoundingIncrement].every(positive)
     || !Number.isSafeInteger(inputBytes) || inputBytes < 0 || inputBytes > billing.maximumInputBytes
     || !Number.isSafeInteger(callCount) || callCount < 1 || !Number.isSafeInteger(continuationInputBytes) || continuationInputBytes < 0
+    || !Number.isSafeInteger(singlePassBytes) || singlePassBytes < 0 || singlePassBytes > inputBytes
     || !Number.isSafeInteger(maxOutputTokens) || !Number.isFinite(billing.inputOverheadTokens)
     || billing.inputOverheadTokens < 0 || !Number.isFinite(markup) || markup < 0 || markup > 1000
     || !Number.isFinite(policy.operatingSafetyBufferRate) || policy.operatingSafetyBufferRate < 0) {
     throw Object.assign(new Error('Writing pricing is unavailable for this operation or model.'),
       { code: 'cinematic_writing_pricing_unavailable', statusCode: 503 });
   }
-  const inputTokenEstimate = callCount * (Math.ceil(inputBytes / billing.inputBytesPerToken) + billing.inputOverheadTokens)
+  const inputTokenEstimate = callCount * (Math.ceil((inputBytes - singlePassBytes) / billing.inputBytesPerToken) + billing.inputOverheadTokens)
+    + Math.ceil(singlePassBytes / billing.inputBytesPerToken)
     + Math.ceil(continuationInputBytes / billing.inputBytesPerToken);
   const providerCostUsd = (inputTokenEstimate * rate.inputUsdPerMillion + maxOutputTokens * rate.outputUsdPerMillion) / 1e6;
   const bufferedCostThb = providerCostUsd * policy.pricingFxThbPerUsd * (1 + policy.operatingSafetyBufferRate);

@@ -82,6 +82,7 @@ export function applyShotProposal(project, sceneId, proposalId, now = new Date()
     return {
       ...retainedFields,
       ...shotDocumentFields(outline, index, proposal),
+      ...(current.authorDirectedFields?.includes('cameraDirectionNotes') && {cameraDirectionNotes:current.cameraDirectionNotes}),
       id: current.id,
       version: Number(current.version || 1) + 1,
       shotDocumentVersion: Number(current.shotDocumentVersion || 0) + 1,
@@ -175,6 +176,9 @@ export function updateShotDocument(project, sceneId, shotId, input, now = new Da
   const shotDocument = withShotDuration(checkedShotDocument(input?.shotDocument), durationMs);
   if (!title) fail('cinematic_shot_title_required', 'Shot title is required.');
   if (!shotDocument.trim()) fail('cinematic_shot_document_required', 'Shot direction is required.');
+  if (input.cameraDirectionNotes !== undefined && (typeof input.cameraDirectionNotes !== 'string' || input.cameraDirectionNotes.length > 2000)) {
+    fail('cinematic_camera_direction_invalid', 'Use up to 2000 characters for Shot camera direction.');
+  }
   if (input.speakerBindings !== undefined) {
     if (!Array.isArray(input.speakerBindings) || input.speakerBindings.length > 24) {
       fail('cinematic_shot_cast_invalid', 'Choose at most 24 Scene Characters.');
@@ -201,6 +205,16 @@ export function updateShotDocument(project, sceneId, shotId, input, now = new Da
     }));
   }
   if (input.videoPromptOverride !== undefined) writeShotPromptOverride(shot, input.videoPromptOverride);
+  if (input.cameraDirectionNotes !== undefined) {
+    const notes = input.cameraDirectionNotes.trim();
+    const authored = shot.authorDirectedFields || [];
+    if (input.source !== 'ai_proposal' && notes !== (shot.cameraDirectionNotes || '') && !authored.includes('cameraDirectionNotes')) {
+      shot.authorDirectedFields = [...authored, 'cameraDirectionNotes'];
+    }
+    if (input.source !== 'ai_proposal' || !authored.includes('cameraDirectionNotes')) {
+      shot.cameraDirectionNotes = notes;
+    }
+  }
   shot.title = title;
   shot.durationMs = durationMs;
   if (shotDocument !== shot.shotDocument) delete shot.summary;
@@ -290,6 +304,7 @@ function shotDocumentFields(outline, index, proposal) {
     ...(outline.summary && {summary:outline.summary}),
     durationMs,
     shotDocument: withShotDuration(outline.shotDocument, durationMs),
+    ...(outline.cameraDirectionNotes !== undefined && {cameraDirectionNotes:outline.cameraDirectionNotes}),
     source: 'ai_proposal',
     sourceShotProposalId: proposal.id || null,
     castAssignmentIds: outline.characterIds
@@ -305,6 +320,7 @@ function normalizeShotOutline(value, index, allowedCharacterIds) {
   return {
     title: text(value?.title, 120) || `Shot ${index + 1}`,
     purpose: text(value?.purpose, 1000),
+    ...(value?.cameraDirectionNotes !== undefined && {cameraDirectionNotes:text(value.cameraDirectionNotes,2000)}),
     summary: value?.summary?.th && value?.summary?.en
       ? {th:text(value.summary.th,600),en:text(value.summary.en,600)} : undefined,
     durationMs,

@@ -198,6 +198,7 @@ export type CinematicChapterProposal = z.infer<typeof cinematicChapterProposalSc
 
 export const cinematicSceneOutlineSchema = z.object({
   sceneEvents:z.array(z.string()).optional(), lighting:z.string().optional(), audioIntent:z.string().optional(),
+  blockingMap:z.string().max(2000).optional(),
   sourceStartParagraph:z.number().int().positive().optional(),sourceEndParagraph:z.number().int().positive().optional(),
   title: z.string().min(1).max(120),
   synopsis: z.string().max(4000),
@@ -238,6 +239,7 @@ export const cinematicShotOutlineSchema = z.object({
   purpose: z.string().max(1000),
   durationMs: z.number().int().min(500).max(20000),
   shotDocument: z.string().min(1).max(50000),
+  cameraDirectionNotes:z.string().max(2000).optional(),
   characterIds: z.array(z.string()).max(24)
 });
 
@@ -653,6 +655,7 @@ export const cinematicShotSchema = z.object({
   id: z.string().min(1),
   version: z.number().int().positive(),
   shotDocument: z.string().max(50000).optional(),
+  cameraDirectionNotes:z.string().max(2000).optional(),
   summary: z.object({th:z.string(),en:z.string()}).optional(),
   artDirection: z.string().max(1500).optional(),
   shotDocumentVersion: z.number().int().positive().optional(),
@@ -759,7 +762,9 @@ export const mergedStoryWritingResultSchema = mergedStoryPromptSchema.extend({
 });
 
 export const cinematicSceneSchema = z.object({
+  completedExternally: z.boolean().optional(),
   sceneEvents:z.array(z.string()).optional(),
+  blockingMap:z.string().max(2000).optional(),
   mergedPrompts:z.array(mergedStoryPromptSchema).optional(),
   sourceStartParagraph:z.number().int().positive().optional(),sourceEndParagraph:z.number().int().positive().optional(),
   environmentPrompt: z.string().max(2500).optional(),

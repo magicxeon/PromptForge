@@ -41,6 +41,7 @@ export function validateCinematicWorkflowPolicy(value) {
     || !integerBetween(authoring?.chapterOutlineMaximumOutputTokens, 1000, 8000)
     || !integerBetween(authoring?.chapterOutlineSynopsisMaximumCharacters, 100, 2000)
     || !integerBetween(authoring?.generatedSceneMaximum, 1, 24)
+    || !integerBetween(authoring?.sceneSectionCharacters, 500, 50000)
     || !integerBetween(authoring?.sceneProposalHistoryLimit, 1, 50)
     || !integerBetween(authoring?.generatedShotMaximumPerScene, 1, 24)
     || !integerBetween(authoring?.shotProposalHistoryLimit, 1, 50)

@@ -1,3 +1,4 @@
+import {StoryWarnings} from "./StoryWarnings";
 import {useState} from "react";
 import {Clapperboard} from "lucide-react";
 import {initialRanges,SceneRangeReview,type SourceRange} from "./scenes/SceneRangeReview";
@@ -74,7 +75,7 @@ export function ProposalReview({project,scene,proposal,busy,error,run,close,onAp
             {"synopsis" in n && <SceneDirectionSummary scene={n}/>}</li>)}
           {ordered.slice(next.length).map(old=><li key={old.id}>{old.title} · {t("retained")}</li>)}</ol>}
           <StoryAppliedSkills trace={proposal.provenance}/>
-          {proposal.warnings.map(w=><p key={w}>{w}</p>)}
+          <StoryWarnings messages={proposal.warnings}/>
           {shot && actions}
         </div></div>
       {!shot && actions}

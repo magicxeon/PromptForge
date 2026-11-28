@@ -1,5 +1,6 @@
 import { apiRequest } from '../../../lib/api/apiClient';
 import {z} from 'zod';
+import { apiRequestWithProgress } from '../../../lib/api/apiClient';
 import { mergedStoryWritingResultSchema } from '../schemas/cinematicSchemas';
 import type {StoryCharacterDetails} from '../schemas/cinematicSchemas';
 import { withCinematicWritingQuote } from './cinematicWritingBilling';
@@ -72,9 +73,11 @@ export function discardCinematicChapterProposal(projectId: string, proposalId: s
   });
 }
 
-export function proposeCinematicScenes(projectId: string, expectedVersion: number, skillIdsOverride?:string[]) {
+export function proposeCinematicScenes(projectId: string, expectedVersion: number, skillIdsOverride?:string[], onProgress?:(event:{completed:number,total:number,title:string})=>void) {
+  const path = `/api/cinematic/projects/${encodeURIComponent(projectId)}/scene-proposals`;
   return withCinematicWritingQuote({ projectId, operation: 'scenes', input: { expectedVersion, ...(skillIdsOverride && {skillIdsOverride}) }, mandatory: true, resultSchema: cinematicSceneProposalMutationSchema }, body =>
-    apiRequest(`/api/cinematic/projects/${encodeURIComponent(projectId)}/scene-proposals`, {
+    onProgress ? apiRequestWithProgress(path,{method:'POST',body,schema:cinematicSceneProposalMutationSchema,
+      progressSchema:z.object({completed:z.number().int().nonnegative(),total:z.number().int().positive(),title:z.string()}),onProgress}) : apiRequest(path, {
       method: 'POST', body, schema: cinematicSceneProposalMutationSchema
     }));
 }
@@ -99,6 +102,7 @@ export function createCinematicManualScene(projectId: string, expectedVersion: n
 
 export function updateCinematicSceneOutline(projectId: string, sceneId: string, input: {
   sceneEvents?: string[];
+  blockingMap?: string;
   lighting?: string;
   audioIntent?: string;
   expectedVersion: number;
@@ -176,6 +180,7 @@ export function updateCinematicShotDocument(projectId: string, sceneId: string, 
   title: string;
   durationMs: number;
   shotDocument: string;
+  cameraDirectionNotes?: string;
   speakerBindings?: { alias: string; castAssignmentId: string; visible: boolean }[];
   videoPromptOverride?: { text: string; sourceFingerprint: string } | null;
   source?: 'manual' | 'ai_proposal' | 'restored' | 'legacy';

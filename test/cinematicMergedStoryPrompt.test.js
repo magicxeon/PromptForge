@@ -44,6 +44,20 @@ test('embedded shot clocks widen the action row and cannot be reintroduced by tr
 });
 
 const image = assetId => ({assetId, imageUrl:`/owned/${assetId}`});
+test('saved spatial anchors and shot-specific optics reach single and merged Seedance packets', () => {
+  const {project, scene, shots} = fixture();
+  scene.blockingMap = 'The key light stays by the garden door.';
+  shots[0].cameraDirectionNotes = '50 mm normal lens, focus on the cup.';
+  shots[1].cameraDirectionNotes = 'Reverse close-up across the table.';
+  const single = compileStoryPromptPacket(project, scene, shots[0], compileCinematicShotDocument(shots[0], scene, project.castAssignments), 'seedance');
+  const merged = compileMergedStoryPrompt(project, scene, ['s1','s2'], 'seedance');
+  for (const packet of [single, merged]) {
+    assert.ok(packet.text.includes(scene.blockingMap));
+    assert.ok(packet.text.includes(shots[0].cameraDirectionNotes));
+  }
+  assert.ok(merged.text.includes(shots[1].cameraDirectionNotes));
+  assert.ok(!single.text.includes(shots[1].cameraDirectionNotes));
+});
 test('silent cast members need an image in single and merged prompts, and voice-only cast do not', () => {
   const {project,scene,shots} = fixture();
   const silent = {id:'silent',displayName:'Witness'};

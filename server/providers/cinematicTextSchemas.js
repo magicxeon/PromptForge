@@ -271,7 +271,7 @@ export const CINEMATIC_SCENE_SHOTS_SCHEMA = Object.freeze({
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['title', 'purpose', 'summary', 'durationMs', 'shotDocument', 'characterIds'],
+        required: ['title', 'purpose', 'summary', 'durationMs', 'shotDocument', 'characterIds', 'cameraDirectionNotes'],
         properties: {
           title: { type: 'string' },
           purpose: { type: 'string' },
@@ -280,6 +280,7 @@ export const CINEMATIC_SCENE_SHOTS_SCHEMA = Object.freeze({
             properties:{th:{type:'string'},en:{type:'string'}} },
           durationMs: { type: 'integer', minimum: 500, maximum: 20000 },
           shotDocument: { type: 'string' },
+          cameraDirectionNotes: { type: 'string' },
           characterIds: { type: 'array', maxItems: 24, items: { type: 'string' } }
         }
       }

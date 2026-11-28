@@ -33,16 +33,21 @@ test('targeted AI revision changes only its Shot and retains custom prompt and m
   const project = { activeChapterVersionId: 'chapter-rev-1', scenes: [current], shotProposals: [] };
   const first = createManualShot(project, current.id).shot;
   const second = createManualShot(project, current.id).shot;
+  const edit={expectedShotVersion:second.version,title:second.title,shotDocument:second.shotDocument};
+  assert.throws(()=>updateShotDocument(project,current.id,second.id,{...edit,cameraDirectionNotes:'x'.repeat(2001)}),
+    {code:'cinematic_camera_direction_invalid'});
+  updateShotDocument(project,current.id,second.id,{...edit,cameraDirectionNotes:'85 mm from the south.'});
   second.approvedVideoAttemptId = 'old-take';
   second.videoPromptOverride = { text: 'Keep this custom text', sourceFingerprint: 'a'.repeat(64) };
   const firstBefore = structuredClone(first);
   const proposal = createShotProposal({ sceneId: current.id, sourceSceneVersion: current.version,
     sourceChapterRevisionId: 'chapter-rev-1', targetShotId: second.id, sourceShotVersion: second.version,
-    shots: [{ title: 'New title', durationMs: 4000, shotDocument: 'Revised dialogue', characterIds: [] }] });
+    shots: [{ title: 'New title', durationMs: 4000, shotDocument: 'Revised dialogue', cameraDirectionNotes:'24 mm from the west.', characterIds: [] }] });
   project.shotProposals.push(proposal);
   applyShotProposal(project, current.id, proposal.id);
   assert.deepEqual(first, firstBefore);
   assert.equal(second.shotDocument, 'Revised dialogue');
+  assert.equal(second.cameraDirectionNotes,'85 mm from the south.');
   assert.equal(second.approvedVideoAttemptId, 'old-take');
   assert.equal(second.videoPromptOverride.text, 'Keep this custom text');
   assert.equal(current.shots.length, 2);
@@ -74,7 +79,7 @@ test('Shot proposal creates editable documents without media attempts', () => {
   const project = { activeChapterVersionId: 'chapter-rev-1', shotProposals: [], scenes: [scene()], generationAttempts: [] };
   const proposal = createShotProposal({
     sceneId: 'scene-1', sourceSceneVersion: 2, sourceChapterRevisionId: 'chapter-rev-1', baseProjectVersion: 5,
-    allowedCharacterIds: ['lalin'], shots: [{ title: 'Reach for the pot', purpose: 'Begin the encounter', durationMs: 4000,
+    allowedCharacterIds: ['lalin'], shots: [{ title: 'Reach for the pot', purpose: 'Begin the encounter', durationMs: 4000, cameraDirectionNotes:'50 mm, east window.',
       shotDocument: 'SHOT DURATION\n4 seconds\n\nPERFORMANCE AND TIMELINE\n[0.0-4.0 sec]\nLalin reaches down.', characterIds: ['lalin'] }]
   });
   project.shotProposals.push(proposal);
@@ -82,6 +87,7 @@ test('Shot proposal creates editable documents without media attempts', () => {
 
   assert.equal(result.scene.shots.length, 1);
   assert.equal(result.scene.shots[0].shotDocumentVersion, 1);
+  assert.equal(result.scene.shots[0].cameraDirectionNotes,'50 mm, east window.');
   assert.equal(result.scene.shots[0].source, 'ai_proposal');
   assert.equal(result.scene.shots[0].storyboardStatus, 'draft');
   assert.deepEqual(project.generationAttempts, []);

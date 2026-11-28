@@ -1,5 +1,6 @@
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
 import {storySkillProvenance} from './StorySkillProvenance.js';
+import {isSceneProductionComplete} from './CinematicAuthoringContinuity.js';
 import {normalizeSceneEvents} from '../../config/storyDirectingSkills.js';
 
 const PURPOSES = new Set(['dialogue', 'action', 'montage', 'establishing', 'atmosphere', 'transition', 'dramatic']);
@@ -52,11 +53,11 @@ export function applySceneProposal(project, proposalId, now = new Date().toISOSt
   const accepted = rows.map(({outline,original}, index) => {
     const current = original===null?null:existing[original];
     if (!current) return sceneFromOutline(outline, index, proposal, now);
-    if (current.shots?.length && current.shots.every(shot => shot.completed === true)) return { ...current, orderKey: index + 1 };
+    if (isSceneProductionComplete(current)) return { ...current, orderKey: index + 1 };
     const hasProduction = (current.shots || []).length > 0;
     const reviewed = sceneOutlineFields(outline, index, proposal);
     for (const key of current.authorDirectedFields || []) {
-      if (['lighting','audioIntent','sceneEvents'].includes(key)) reviewed[key] = current[key];
+      if (['lighting','audioIntent','sceneEvents','blockingMap'].includes(key)) reviewed[key] = current[key];
     }
     return {
       ...current,
@@ -72,7 +73,7 @@ export function applySceneProposal(project, proposalId, now = new Date().toISOSt
     };
   });
   for (const retained of existing.slice(originals.length)) {
-    const complete = retained.shots?.length && retained.shots.every(shot => shot.completed === true);
+    const complete = isSceneProductionComplete(retained);
     accepted.push({ ...retained, orderKey: accepted.length + 1, ...(complete ? {} : { planningStatus: 'review_required' }) });
   }
   project.scenes = accepted;
@@ -106,7 +107,7 @@ function reviewSourceRanges(project, proposal, ranges, existing) {
     }
     for (const origin of origins.slice(1)) {
       const scene = existing[origin];
-      if (scene && (scene.shots?.length || scene.approvedEnvironmentSource || project.generationAttempts?.some(a=>a.sceneId===scene.id))) {
+      if (scene && (scene.completedExternally || scene.shots?.length || scene.approvedEnvironmentSource || project.generationAttempts?.some(a=>a.sceneId===scene.id))) {
         fail('cinematic_scene_range_in_use', 'A scene in this merge already has production work. Keep it separate.', 409);
       }
     }
@@ -182,12 +183,16 @@ export function updateSceneOutline(project, sceneId, input, now = new Date().toI
     fail('cinematic_scene_version_conflict', 'The Scene changed in another session.', 409);
   }
   const allowedCharacterIds = new Set((project.castAssignments || []).filter(item => item.active !== false).map(item => item.id));
+  if (input.blockingMap !== undefined && (typeof input.blockingMap !== 'string' || input.blockingMap.length > 2000)) {
+    fail('cinematic_blocking_map_invalid', 'Use up to 2000 characters for the Scene blocking map.');
+  }
   const outline = normalizeOutline({
     title: input?.title,
     synopsis: input?.synopsis,
     purpose: input?.purpose,
     sceneEvents: input?.sceneEvents ?? scene.sceneEvents,
     lighting: input?.lighting ?? scene.lighting,
+    blockingMap: input.blockingMap ?? scene.blockingMap,
     audioIntent: input?.audioIntent ?? scene.audioIntent,
     objective: input?.objective,
     location: input?.location,
@@ -203,7 +208,7 @@ export function updateSceneOutline(project, sceneId, input, now = new Date().toI
     dialogueTargetPercent: input?.dialogueTargetPercent,
     characterIds: input?.characterIds
   }, Math.max(0, Number(scene.orderKey || 1) - 1), allowedCharacterIds);
-  const edits = ['sceneEvents','lighting','audioIntent'].filter(key => input[key] !== undefined
+  const edits = ['sceneEvents','lighting','audioIntent','blockingMap'].filter(key => input[key] !== undefined
     && JSON.stringify(outline[key]) !== JSON.stringify(scene[key] ?? (key === 'sceneEvents' ? [] : '')));
   if (edits.length) scene.authorDirectedFields = [...new Set([...(scene.authorDirectedFields || []),...edits])];
   Object.assign(scene, sceneOutlineFields(outline, Math.max(0, Number(scene.orderKey || 1) - 1), {
@@ -268,6 +273,7 @@ function sceneOutlineFields(outline, index, proposal) {
     ...(outline.sceneEvents !== undefined && {sceneEvents:outline.sceneEvents}),
     ...(outline.lighting !== undefined && {lighting:outline.lighting}),
     ...(outline.audioIntent !== undefined && {audioIntent:outline.audioIntent}),
+    ...(outline.blockingMap !== undefined && {blockingMap:outline.blockingMap}),
     entryState: outline.entryState,
     exitState: outline.exitState,
     emotionalStart: outline.emotionalStart,
@@ -296,6 +302,7 @@ function normalizeOutline(value, index, allowedCharacterIds) {
     sceneEvents: normalizeSceneEvents(value?.sceneEvents),
     lighting: text(value?.lighting,500),
     audioIntent: text(value?.audioIntent,500),
+    ...(value?.blockingMap !== undefined && {blockingMap:text(value.blockingMap,2000)}),
     entryState: text(value?.entryState, 1000),
     exitState: text(value?.exitState, 1000),
     emotionalStart: text(value?.emotionalStart, 500),
@@ -310,7 +317,7 @@ function normalizeOutline(value, index, allowedCharacterIds) {
 
 function normalizeProvenance(value) {
   if (!value || typeof value !== 'object') return null;
-  return { ...storySkillProvenance(value),provider: text(value.provider, 80), model: text(value.model, 120), responseId: nullableId(value.responseId) };
+  return { ...storySkillProvenance(value),provider: text(value.provider, 80), model: text(value.model, 120), responseId: nullableId(value.responseId), usage:value.usage ?? null };
 }
 function requiredId(value, message) { const id = nullableId(value); if (!id) fail('cinematic_chapter_revision_required', message, 409); return id; }
 function nullableId(value) { const normalized = text(value, 180); return normalized || null; }

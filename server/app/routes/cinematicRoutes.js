@@ -195,7 +195,9 @@ export function registerCinematicRoutes(app, {
   app.post('/api/cinematic/projects/:projectId/scene-proposals', async (req, res) => {
     try {
       res.set('Cache-Control', 'private, no-store');
-      res.status(201).json(await cinematicService.executeWriting(req.params.projectId, { operation: 'scenes', input: req.body || {} }, req.actorContext));
+      const payload = { operation: 'scenes', input: req.body || {} };
+      if (acceptsEventStream(req)) return await streamWritingProposal({req,res,cinematicService,payload});
+      res.status(201).json(await cinematicService.executeWriting(req.params.projectId, payload, req.actorContext));
     } catch (error) { sendCinematicError(res, error); }
   });
 

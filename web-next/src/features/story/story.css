@@ -548,3 +548,9 @@ dialog:has(> .story-writing-progress) {width:min(24rem,calc(100vw - 2rem));box-s
  .story-compare[data-source=true] .story-proposals {display:none;}
  .story-reader {padding:.8rem;}
 }
+.story-warnings { display:flex; align-items:flex-start; gap:.65rem; margin:.75rem 0; padding:.85rem 1rem; background:#fff7dc; color:#513b14; border:1px solid #e9d59a; border-inline-start:4px solid #b27c17; border-radius:.65rem; line-height:1.55; overflow-wrap:anywhere; }
+.story-warnings > svg { flex:none; margin-top:.15rem; color:#865b0b; }
+.story-warnings > div { min-width:0; }
+.story-warnings p, .story-warnings ul { margin:.25rem 0 0; }
+.story-warnings ul { padding-inline-start:1.2rem; }
+.story-warnings li + li { margin-top:.25rem; }

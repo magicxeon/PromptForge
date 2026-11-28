@@ -510,3 +510,25 @@ In Story settings, import one Markdown skill or preview the skills in a ZIP. The
 Read SKILL.md and its own references/*.md as bounded text. Keep imported material in the existing project writing settings. Ignore binaries, scripts and unrelated project files. Keep one instruction budget per selected skill, prioritising relevant passages when long. Import and cancel must leave server state unchanged until settings are saved. Verify with the EP3 package, a Markdown file, task/context mismatch and an explicit override.
 
 Checked the supplied EP3 ZIP through the browser import module: nine skills discovered and 32 Markdown reference files associated with their respective skills. The optional Seedance detail reduction skill has no suggested task. Regression coverage lives in the Writing Settings, skill-file reader and Cinematic Full Story service suites. Project writing settings retain ownership and the architecture map is unchanged.
+
+### Scene geography and live-action shot direction
+
+1. Keep whole-episode scene proposals. Plan each location using established landmarks, starting positions and fixed sources of light with colour temperature. Relative locations are sufficient when compass directions are unknown. Show a compact optional overhead diagram for complex blocking.
+2. Before building a prompt the writer can edit frame contents, offscreen sound, facing at entry and exit, camera side, framing, lens type, focal length and focus. Shot details supplement inherited scene geography. Preserve explicit decisions during prompt rebuilds. Lead into the next shot from the preceding end state unless the script specifies a transition.
+3. Compile single and merged Seedance prompts for photographic live action. Map references to their assigned role, translate stylised subject material into photographed performers and practical sets, describe visible action only and place offscreen voices in audio. Maintain world-space light across cuts and turns. Use whole-second cuts and concrete optical or performance effects.
+4. Verify existing projects without additional fields, edit/reopen, single and merged output, and responsive controls. Reuse existing scene/shot storage and approved writing flows.
+
+The map is optional free text. Known compass placements can be previewed on a nine-cell diagram. Author controls and proposal acceptance use the existing scene and shot APIs. The cinematic architecture map is unchanged. Seedance guidance uses numbered reference roles and shot-local visible actions following the [BytePlus prompt guide](https://docs.byteplus.com/en/docs/modelark/seedance-2-5-prompt-guide).
+
+Focused checks cover preserved edits, old data, prompt inclusion and responsive diagram rendering. Real provider footage and a live project save remain unverified.
+The script step presents episodes affected by a script change in an amber warning panel. Each episode links directly to its script, retains its order and indicates the current episode.
+
+The writing stages are whole manuscript, episode planning, episode script, scene staging and shots. Opening a saved episode, switching episodes or following a continuity warning opens the selected episode script explicitly. Reload and Back preserve the selected stage. Keep scene selection within staging and isolate manuscript and episode edits.
+
+### Manual scene completion
+
+The scene header offers a reversible “เสร็จแล้ว” checkbox, including for scenes with zero shots. Track the mark independently of shot counts. A manual mark or completion of every existing shot marks the scene complete for navigation, continuity and scene proposal retention.
+
+### Long episode scene proposals
+
+Measure the saved episode before quoting. Use one call for short episodes and divide longer episodes into ordered sections, preferring paragraph boundaries. Carry canon, cast and the previous section's ending into each section. Keep paragraph references in episode coordinates. Show completed sections, total and percentage while the existing proposal dialog is processing. Publish one reviewable proposal only after all sections succeed and the source is still current. One writing operation covers all sections.

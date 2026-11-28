@@ -102,6 +102,8 @@ export function shotPromptSourceFingerprint(project, scene, shot) {
   return crypto.createHash('sha256').update(JSON.stringify(stableValue({
     ...(projectVideoDirection(project) ? { projectVideoDirection: projectVideoDirection(project) } : {}),
     document: shot.shotDocument || '', durationMs: shot.durationMs,
+    ...(scene.blockingMap ? {blockingMap:scene.blockingMap} : {}),
+    ...(shot.cameraDirectionNotes ? {cameraDirectionNotes:shot.cameraDirectionNotes} : {}),
     ...(shot.artDirection ? {artDirection:shot.artDirection} : {}),
     ...(project.writingSettings?.direction?.visualStyle ? {visualStyle:project.writingSettings.direction.visualStyle} : {}),
     bindings: shot.speakerBindings || resolveShotCastIds(scene, shot).map(id => ({

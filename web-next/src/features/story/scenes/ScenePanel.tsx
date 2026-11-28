@@ -3,7 +3,7 @@ import {useTranslation} from "react-i18next";
 import {Check, ChevronLeft, CircleCheck, Pencil, Plus, Sparkles} from "lucide-react";
 import type {CinematicProject,CinematicScene} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {createCinematicManualShot} from "../../../../../web/src/features/cinematic/api/cinematicSeriesApi";
-import {arrangeStoryShots, setStoryShotCompletion} from "../../../../../web/src/features/cinematic/api/cinematicApi";
+import {arrangeStoryShots, setStorySceneCompletion, setStoryShotCompletion} from "../../../../../web/src/features/cinematic/api/cinematicApi";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {SceneShotEditDialog} from "./SceneShotEditDialog";
 import {ShotPromptDialog} from "./ShotPromptDialog";
@@ -13,7 +13,7 @@ import {MergedStoryShots} from "./MergedStoryShots";
 import "./staging.css";
 
 export function isSceneComplete(scene: CinematicScene) {
-  return scene.shots.length > 0 && scene.shots.every(shot => shot.completed === true);
+  return scene.completedExternally === true || (scene.shots.length > 0 && scene.shots.every(shot => shot.completed === true));
 }
 
 export function ScenePanel({project,scene,index,run,back,pending,requestShots,shotLimit,error,skills,stage,showStage,openScene,aspectRatio,mergeTemplate}:{
@@ -72,6 +72,11 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
       <div className="story-scene-heading" data-completed={isSceneComplete(scene)}>
         <h2>{t("sceneTitle",{index,name:scene.title})}{isSceneComplete(scene) &&
           <span className="story-completion-badge"><Check size={14} aria-hidden/>{t("completion.done")}</span>}</h2>
+        {(!isSceneComplete(scene) || scene.completedExternally) && <label className="story-scene-complete">
+          <input type="checkbox" checked={scene.completedExternally === true}
+            onChange={event=>{const checked=event.currentTarget.checked; void run(()=>setStorySceneCompletion(project.id,scene.id,project.version,checked));}}/>
+          {t("completion.done")}
+        </label>}
         <button ref={el=>{if(el)buttons.current.set("scene",el);}} onClick={()=>setEdit("scene")}>
           <Pencil size={14} aria-hidden/>{t("stage.editDetails")}
         </button>

@@ -9,6 +9,7 @@ import { CreditApplicationService } from '../server/domain/credits/CreditApplica
 import { CreditReservationService } from '../server/domain/credits/CreditReservationService.js';
 import { CreditAccountRepository } from '../server/repositories/credits/CreditAccountRepository.js';
 import { quoteCinematicWriting } from '../server/domain/credits/CinematicWritingPricing.js';
+import { createSceneProposal } from '../server/domain/cinematic/CinematicSceneAuthoring.js';
 import { CinematicApplicationService } from '../server/domain/cinematic/CinematicApplicationService.js';
 import { registerCinematicRoutes } from '../server/app/routes/cinematicRoutes.js';
 import { CinematicSeriesService } from '../server/domain/cinematic/CinematicSeriesService.js';
@@ -22,7 +23,7 @@ const policy = {
     effectiveAt: '2020-01-01', reviewBy: '2100-01-01', inputUsdPerMillion: 2, outputUsdPerMillion: 10 },
   cinematicWritingBilling: { enabled: true, version: 'fixture-billing', inputBytesPerToken: 2.5,
     inputOverheadTokens: 1500, maximumInputBytes: 524288, quoteTtlSeconds: 900,
-    operations: { characters: { floorCredits: 40 }, chapters: { floorCredits: 100 }, wardrobe: { floorCredits: 10 } } }
+    operations: { scenes:{floorCredits:40}, characters: { floorCredits: 40 }, chapters: { floorCredits: 100 }, wardrobe: { floorCredits: 10 } } }
 };
 const request = { operation: 'characters', input: { expectedVersion: 1 }, sceneId: null, assignmentId: null };
 const source = { projectId: 'p1', projectVersion: 1, fullStory: 'A saved story.' };
@@ -75,6 +76,22 @@ test('writing reserves before dispatch, saves deliverable then captures once and
   assert.equal(calls, 1);
   const ledger = (await f.account.readRaw()).ledgerEntries;
   assert.equal(ledger.filter(item => item.operationType === 'capture').length, 1);
+});
+
+test('sectioned scenes budget the episode prose once and retain usage in the settled receipt', async t=>{
+  const f = await fixture(t);
+  const sceneSource = {...source, chapterStory:'"บท"\n'.repeat(500)};
+  const sceneRequest = {...request, operation:'scenes'};
+  const receipt = await f.service.quote({userId:'a',projectId:'p1',operation:'scenes',request:sceneRequest,source:sceneSource,
+    model:'fixture-model',maxOutputTokens:4000,callCount:2,continuationInputBytes:300});
+  const bytes=Buffer.byteLength(JSON.stringify({request:sceneRequest,source:sceneSource}));
+  const record=await f.repository.get(receipt.id,'a');
+  const proseBytes = Buffer.byteLength(JSON.stringify(sceneSource.chapterStory).slice(1,-1));
+  assert.equal(record.quote.inputTokenEstimate,2*(Math.ceil((bytes-proseBytes)/2.5)+1500)+Math.ceil(proseBytes/2.5)+120);
+  const usage={inputTokens:20,outputTokens:10,cachedInputTokens:0,reasoningTokens:0};
+  await f.service.execute({...f.args,id:receipt.id,request:sceneRequest,operation:'scenes',loadSource:async()=>sceneSource,
+    run:async()=>({proposal:createSceneProposal({sourceChapterRevisionId:'revision',scenes:[{title:'Scene'}],provenance:{usage}})})});
+  assert.deepEqual((await f.repository.get(receipt.id,'a')).usage,usage);
 });
 
 test('chapter quotes budget each sequential call using the root plan and preserve single-call pricing', async t => {

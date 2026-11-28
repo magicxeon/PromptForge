@@ -10,6 +10,7 @@ import {uploadStorySceneImage} from "./uploadStorySceneImage";
 import settings from "./staging-config.json";
 import {useTakeStoryRunSkills, StoryRunSkillPicker} from "../StoryRunSkills";
 import {SceneDirectionSummary} from "./SceneDirectionSummary";
+import {SceneBlockingMap} from "./SceneBlockingMap";
 import {emptyDraft} from "../../playground/state/imageDraft";
 
 const StoryLooksheetDialog=lazy(()=>import("../StoryLooksheetDialog").then(module=>({default:module.StoryLooksheetDialog})));
@@ -95,6 +96,9 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment,error}:{
       {direction&&<><h4>{t("stage.direction")}</h4><p className="story-prose">{direction}</p></>}
       {continuity.length>0&&<dl>{continuity.map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>}
       <section className="story-scene-treatment">
+        <h4>{t("blocking.map")}</h4>
+        {scene.blockingMap ? <><p className="story-prose">{scene.blockingMap}</p><SceneBlockingMap value={scene.blockingMap}/></> :
+          <p>{t("blocking.empty")}</p>}
         <h4>{t("stage.lighting")}</h4>
         {scene.lighting&&<p className="story-prose">{scene.lighting}</p>}
         <button type="button" onClick={editTreatment}>{t("stage.editTreatment")}</button>
