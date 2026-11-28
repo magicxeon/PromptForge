@@ -211,3 +211,9 @@ Responsive read-only verification covers Thai and English at 390, 820 and 1440 p
 
 This evidence does not close later Shot-document generation, Scene reorder or
 Environment authoring. Those remain owned by tasks 007 and 008.
+
+Web Next drafts an approved outline one chapter at a time in outline order. Each
+request receives the canon, outline and preceding draft ending. Advance progress
+only after validating a chapter, showing its title, completed count and percentage.
+Submit the complete set through the existing proposal workflow after all chapters
+succeed. Stop on failure and preserve existing scripts.

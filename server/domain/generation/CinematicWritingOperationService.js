@@ -13,7 +13,7 @@ export class CinematicWritingOperationService {
     this.credits = credits;
   }
 
-  async quote({ userId, actor, projectId, operation, request, source, model, maxOutputTokens }) {
+  async quote({ userId, actor, projectId, operation, request, source, model, maxOutputTokens, callCount, continuationInputBytes }) {
     const { creditsDisabled } = workspaceCreditDecision(actor, 'cinematic_writing', {
       commercialOperation: operation, writingScope: request.input?.scope
     });
@@ -23,7 +23,7 @@ export class CinematicWritingOperationService {
     }
     const quote = creditsDisabled ? { totalCredits: 0, expiresAt: new Date(Date.now() + 15 * 60_000).toISOString() }
       : await this.credits.quoteWriting({ operation, model, maxOutputTokens,
-      inputBytes });
+      inputBytes, callCount, continuationInputBytes });
     const record = { id: `cw_${randomUUID()}`, kind: 'cinematic_text', userId, projectId, operation,
       ...(creditsDisabled ? { billingMode: UNMETERED } : {}),
       requestFingerprint: writingFingerprint(request), fingerprint: writingFingerprint({ request, source }),

@@ -4,6 +4,34 @@ import { CinematicFullStoryService } from '../server/domain/generation/Cinematic
 import { resolveWritingPreferences } from '../server/config/storyWritingSettings.js';
 import storyDirection from '../server/config/cinematic/story-direction.v1.json' with {type:'json'};
 
+test('outline drafting validates each episode before starting the next', async () => {
+  const calls = [], progress = [];
+  let rejectSecond = false;
+  const service = new CinematicFullStoryService({
+    policyLoader: () => ({enabled:true, provider:'openai', model:'fixture'}),
+    availabilityPolicy: {assertAvailable() {}},
+    providerFactory: () => ({async generateCinematicChapters({context}) {
+      const episode = context.chapterPlan[0].chapterNumber;
+      calls.push([episode,context.previousChapterEnding,context.expectedChapterCount]);
+      await Promise.resolve();
+      return {chapters: rejectSecond && episode === 4 ? [] : [{story:'Episode '+episode}],
+        usage:{input_tokens:10,output_tokens:4}};
+    }})
+  });
+  const input = {fullStory:'Confirmed canon', sequentialChapters:true, maxChapters:3,
+    chapterPlan:[3,4,5].map(chapterNumber=>({chapterNumber,title:'Title '+chapterNumber,synopsis:'Outline'})),
+    onProgress:event=>progress.push([event.completed,event.total,event.title])};
+  const result = await service.proposeChapters(input);
+  assert.deepEqual(calls,[[3,'',1],[4,'Episode 3',1],[5,'Episode 4',1]]);
+  assert.deepEqual(progress,[[0,3,'Title 3'],[1,3,'Title 3'],[2,3,'Title 4'],[3,3,'Title 5']]);
+  assert.equal(result.provenance.usage.outputTokens,12);
+  calls.length = progress.length = 0;
+  rejectSecond = true;
+  await assert.rejects(service.proposeChapters(input),{code:'cinematic_chapters_incomplete_response'});
+  assert.equal(calls.length,2);
+  assert.deepEqual(progress.at(-1),[1,3,'Title 3']);
+});
+
 test('skill context matches source material and supplies relevant reference paragraphs', () => {
   const skill={id:'custom-inn',name:'Inn',instruction:'Use established set geometry.',version:1,tasks:['shots'],
     context:'โรงเตี๊ยม, tavern',references:[{name:'references/table.md',text:'Tavern table is oak.'},{name:'references/garden.md',text:'Garden has grass.'}]};

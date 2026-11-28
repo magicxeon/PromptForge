@@ -5,6 +5,7 @@ import type { RunWriting } from "./data/useStoryWorkspace";
 import type { CinematicProject } from "../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import {
   confirmCinematicFullStoryRevision, generateCinematicFullStoryChapters,
+  type ChapterDraftProgress,
   proposeCinematicChapterOutline, reviewCinematicChapterOutline,
 } from "../../../../web/src/features/cinematic/api/cinematicApi";
 import { applyCinematicChapterProposal, discardCinematicChapterProposal } from "../../../../web/src/features/cinematic/api/cinematicSeriesApi";
@@ -13,10 +14,11 @@ import { chapterOutlineIsStale } from "../../../../web/src/features/cinematic/co
 type Props = {
   project: CinematicProject;
   run: RunWriting;
+  onDraftProgress?: (progress: ChapterDraftProgress | null) => void;
   goChapter: (id: string) => void;
 };
 
-export function FullStoryPlan({ project, run, goChapter }: Props) {
+export function FullStoryPlan({ project, run, goChapter, onDraftProgress }: Props) {
   const { t } = useTranslation("storyPlan");
   const takeChapterSkills=useTakeStoryRunSkills("chapters");
   const takeOutlineSkills=useTakeStoryRunSkills("chapter_outline");
@@ -30,9 +32,15 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
   async function generateOrReview(action: "generate" | "apply" | "discard") {
     await run(async () => {
       if (action !== "generate" && !pending) return;
-      return action === "generate"
-        ? generateCinematicFullStoryChapters(project.id, project.version,takeChapterSkills())
-        : (action === "apply" ? applyCinematicChapterProposal : discardCinematicChapterProposal)(project.id, pending!.id);
+      if (action === "generate" && plan?.chapters.length) {
+        onDraftProgress?.({completed:0,total:plan.chapters.length,title:plan.chapters[0].title});
+        try {
+          return await generateCinematicFullStoryChapters(project.id, project.version, takeChapterSkills(), progress => onDraftProgress?.(progress));
+        } finally {
+          onDraftProgress?.(null);
+        }
+      }
+      if (pending) return (action === "apply" ? applyCinematicChapterProposal : discardCinematicChapterProposal)(project.id, pending.id);
     }, action === "generate" ? "chapters" : undefined);
   }
   return <section className="story-panel story-chapter-plan" aria-label={t("heading")}>
@@ -42,7 +50,7 @@ export function FullStoryPlan({ project, run, goChapter }: Props) {
     {confirmed && (!current || !plan) && !pending && <>
       <StoryRunSkillPicker task="chapter_outline"/>
       {plan && <p>{t("outdated")}</p>}
-      <button onClick={() => void run(async () => ({project: await proposeCinematicChapterOutline(project.id, project.version,takeOutlineSkills())}), "outline")}>{t("proposeOutline")}</button>
+        <button type="button" className="primary-button" onClick={() => void run(async () => ({project: await proposeCinematicChapterOutline(project.id, project.version,takeOutlineSkills())}), "outline")}><Sparkles size={16} aria-hidden/>{t("proposeOutline")}</button>
     </>}
     {confirmed && current && plan && !pending && <>
       <ol className="story-chapter-outline">{plan.chapters.map((row,i) => <li key={i} value={row.chapterNumber}><strong>{row.title}</strong><p>{row.synopsis}</p></li>)}</ol>

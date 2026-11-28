@@ -77,6 +77,37 @@ test('writing reserves before dispatch, saves deliverable then captures once and
   assert.equal(ledger.filter(item => item.operationType === 'capture').length, 1);
 });
 
+test('chapter quotes budget each sequential call using the root plan and preserve single-call pricing', async t => {
+  const f = await fixture(t);
+  const root = { id: 'root', version: 4, setup: { format: 'mini-series', seasonEnabled: true,
+    chapterCount: 6, chaptersPerSeason: [2, 4] } };
+  const chapter = { id: 'p1', version: 1, setup: { format: 'short-film' } };
+  const app = new CinematicApplicationService({
+    repository: { findForActor: async id => id === root.id ? root : chapter },
+    seriesService: { getWorkspace: async () => ({ productionProject: { storyProjectId: root.id }, chapters: [] }) },
+    writingOperationService: f.service,
+    fullStoryService: { policyLoader: () => ({ model: 'fixture-model', provider: 'openai', maxOutputTokens: 8000 }) }
+  });
+  const actor = { userId: 'a' };
+  for (const [scope, sequentialChapters, expectedCalls] of [['all', true, 6], ['all', false, 1], ['selected', true, 1]]) {
+    const payload = { operation: 'chapters', input: { expectedVersion: 1, scope, sequentialChapters, chapterCount: 999 } };
+    const receipt = await app.quoteWriting(chapter.id, payload, actor);
+    const { quote } = await f.repository.get(receipt.id, actor.userId);
+    assert.equal(quote.maxOutputTokens, 8000 * expectedCalls);
+    assert.equal(receipt.credits, quote.totalCredits);
+    assert.equal(quote.callCount ?? 1, expectedCalls);
+    if (expectedCalls > 1) {
+      assert.ok(quote.totalCredits > policy.cinematicWritingBilling.operations.chapters.floorCredits);
+      assert.ok(quote.inputTokenEstimate > expectedCalls * policy.cinematicWritingBilling.inputOverheadTokens
+        + quote.continuationInputBytes / policy.cinematicWritingBilling.inputBytesPerToken);
+      root.setup.chaptersPerSeason = [3, 4];
+      await assert.rejects(app.executeWriting(chapter.id, { ...payload, input: { ...payload.input, writingQuoteId: receipt.id } }, actor),
+        { code: 'enhancement_stale' });
+      root.setup.chaptersPerSeason = [2, 4];
+    }
+  }
+});
+
 test('writing rejects absent, foreign, changed input/source and expired quotes without AI or debit', async t => {
   const f = await fixture(t);
   let calls = 0;

@@ -108,6 +108,22 @@ test('Cinematic progress revocation stops private result delivery while accepted
   assert.ok(!f.res.chunks.join('').includes('privateProposal')); assert.equal(f.res.destroyed, true);
 });
 
+test('chapter drafting streams completed titles before the final project result', async () => {
+  const routes = new Map(), f = fixture();
+  const app = Object.fromEntries(['get','post','put','patch','delete'].map(method => [method, (path, handler) => routes.set(path,handler)]));
+  registerCinematicRoutes(app,{cinematicService:{executeWriting:async (_id,payload,_actor,{onProgress})=>{
+    assert.equal(payload.operation,'chapters');
+    assert.equal(payload.input.sequentialChapters,true);
+    onProgress({completed:1,total:2,title:'Arrival'});
+    onProgress({completed:2,total:2,title:'Return'});
+    return {project:{id:'project'}};
+  }}});
+  f.req.params={projectId:'project'}; f.req.body={sequentialChapters:true};
+  f.req.headers={accept:'text/event-stream'};
+  await routes.get('/api/cinematic/projects/:projectId/full-story/chapters')(f.req,f.res);
+  assert.match(f.res.chunks.join(''), /event: progress[\s\S]*Arrival[\s\S]*event: progress[\s\S]*Return[\s\S]*event: result/);
+});
+
 test('Cinematic serialization failure closes delivery and completes the accepted handler', async () => {
   const routes = new Map(), f = fixture(); let accepted = 0;
   const app = Object.fromEntries(['get', 'post', 'put', 'patch', 'delete'].map(method => [method, (path, handler) => routes.set(`${method}:${path}`, handler)]));

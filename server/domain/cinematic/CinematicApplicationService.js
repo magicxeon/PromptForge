@@ -192,9 +192,15 @@ export class CinematicApplicationService {
     const policy = operation === 'wardrobe' ? this.wardrobeSuggestionService.policyLoader()
       : ['story_plan', 'scene_direction'].includes(operation) ? this.storyPlanService.policyLoader() : this.fullStoryService.policyLoader();
     const repairBudget = operation === 'story_plan' ? this.storyPlanService.getBillingBudget?.(policy) : null;
+    const sequentialPlan = operation === 'chapters' && input.scope !== 'selected' && input.sequentialChapters === true
+      ? (approvedChapterOutline(root) || plannedChapterSequence(root.setup)).slice(0, cinematicWorkflowPolicy.authoring.generatedChapterMaximum)
+      : null;
+    const callCount = sequentialPlan?.length ?? 1;
+    // A UTF-16 code unit can occupy up to three UTF-8 bytes in the preceding chapter excerpt.
+    const continuationInputBytes = (callCount - 1) * cinematicWorkflowPolicy.authoring.continuityExcerptCharacters * 3;
     const maxOutputTokens = repairBudget?.maxOutputTokens ?? (operation === 'chapter_outline'
       ? cinematicWorkflowPolicy.authoring.chapterOutlineMaximumOutputTokens
-      : operation === 'environment' ? Math.min(policy.maxOutputTokens, 2500) : policy.maxOutputTokens);
+      : operation === 'environment' ? Math.min(policy.maxOutputTokens, 2500) : policy.maxOutputTokens * callCount);
     const characterSources = operation === 'characters' && input.scope === 'whole_story'
       ? await this.storyCharacterSources(root, workspace, actor) : undefined;
     const continuity = ['full_story', 'chapters', 'scenes', 'shots'].includes(operation)
@@ -206,7 +212,7 @@ export class CinematicApplicationService {
       ? resolveWritingPreferences(withStorySkillOverride(root.writingSettings,input.skillIdsOverride),operation,
         {projectTitle:project.title,fullStory:story?.content,chapterStory:project.chapterStory,scene,instruction:input.instruction}) : null;
     const model = writingPreferences?.modelId || policy.model;
-    return { model, maxOutputTokens, source: {
+    return { model, maxOutputTokens, callCount, continuationInputBytes, source: {
       projectId, projectVersion: project.version, rootId, rootVersion: root.version,
       title: project.title, settings: project.setup, fullStory: story?.content || '',
       chapterStory: project.chapterStory || '', chapterRevisionId: project.activeChapterVersionId,
@@ -216,7 +222,8 @@ export class CinematicApplicationService {
       scenes: scene ? [{...scene, mergedPrompts:undefined}] : (project.scenes || []).map(item => ({ id: item.id, title: item.title,
         setting: item.setting, synopsis: item.synopsis, objective: item.objective })),
       assignment, continuity, characterSources, repairBudget, provider: policy.provider, model, maxOutputTokens,
-      ...(writingPreferences ? { writingPreferences } : {})
+      ...(writingPreferences ? { writingPreferences } : {}),
+      ...(sequentialPlan ? { sequentialPlan, continuationInputBytes } : {})
     } };
   }
 
@@ -240,7 +247,7 @@ export class CinematicApplicationService {
       switch (operation) {
         case 'characters': return this.proposeFullStory(projectId, { ...input, purpose: 'characters' }, actor, { beforeDispatch });
         case 'chapter_outline': return this.proposeChapterOutline(projectId, input, actor, { beforeDispatch });
-        case 'chapters': return this.proposeChapters(projectId, input, actor, { beforeDispatch });
+        case 'chapters': return this.proposeChapters(projectId, input, actor, { beforeDispatch, onProgress });
         case 'scenes': return this.proposeScenes(projectId, input, actor, { beforeDispatch });
         case 'shots': return this.proposeShots(projectId, sceneId, input, actor, { beforeDispatch });
         case 'environment': return this.proposeSceneEnvironment(projectId, sceneId, input, actor, { beforeDispatch });
@@ -715,7 +722,7 @@ export class CinematicApplicationService {
     });
   }
 
-  async proposeChapters(projectId, input, actorContext, { beforeDispatch } = {}) {
+  async proposeChapters(projectId, input, actorContext, { beforeDispatch, onProgress } = {}) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
@@ -758,6 +765,8 @@ export class CinematicApplicationService {
       format: source.setup?.format,
       targetDurationSeconds: chapterTargetSeconds(source.writingSettings?.direction,source.setup?.chapterCount,source.setup?.durationSeconds),
       maxChapters: scope === 'selected' ? 1 : chapterPlan.length,
+      sequentialChapters: scope === 'all' && input?.sequentialChapters === true,
+      onProgress,
       chapterPlan,
       scope,
       instruction: continuityOnly ? 'Review this Chapter against the confirmed Full Story, the preceding ending and the following opening when supplied. Preserve established events, character knowledge and approved production. Revise the selected Chapter only. Return it unchanged if both joins already work.' : input?.instruction,

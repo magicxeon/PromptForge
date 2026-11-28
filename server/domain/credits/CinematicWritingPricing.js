@@ -56,7 +56,8 @@ export function normalizeWritingUsage(usage) {
     cachedInputTokens: cached, reasoningTokens: reasoning };
 }
 
-export function quoteCinematicWriting(policy, { model, operation, inputBytes, maxOutputTokens }, now = Date.now()) {
+export function quoteCinematicWriting(policy, { model, operation, inputBytes, maxOutputTokens,
+  callCount = 1, continuationInputBytes = 0 }, now = Date.now()) {
   const billing = policy.cinematicWritingBilling;
   const rate = policy.textEnhancement;
   const floor = billing?.operations?.[operation]?.floorCredits;
@@ -68,13 +69,15 @@ export function quoteCinematicWriting(policy, { model, operation, inputBytes, ma
       rate.inputUsdPerMillion, rate.outputUsdPerMillion, floor, maxOutputTokens,
       policy.pricingFxThbPerUsd, policy.creditsPerThbAssumption, policy.creditRoundingIncrement].every(positive)
     || !Number.isSafeInteger(inputBytes) || inputBytes < 0 || inputBytes > billing.maximumInputBytes
+    || !Number.isSafeInteger(callCount) || callCount < 1 || !Number.isSafeInteger(continuationInputBytes) || continuationInputBytes < 0
     || !Number.isSafeInteger(maxOutputTokens) || !Number.isFinite(billing.inputOverheadTokens)
     || billing.inputOverheadTokens < 0 || !Number.isFinite(markup) || markup < 0 || markup > 1000
     || !Number.isFinite(policy.operatingSafetyBufferRate) || policy.operatingSafetyBufferRate < 0) {
     throw Object.assign(new Error('Writing pricing is unavailable for this operation or model.'),
       { code: 'cinematic_writing_pricing_unavailable', statusCode: 503 });
   }
-  const inputTokenEstimate = Math.ceil(inputBytes / billing.inputBytesPerToken) + billing.inputOverheadTokens;
+  const inputTokenEstimate = callCount * (Math.ceil(inputBytes / billing.inputBytesPerToken) + billing.inputOverheadTokens)
+    + Math.ceil(continuationInputBytes / billing.inputBytesPerToken);
   const providerCostUsd = (inputTokenEstimate * rate.inputUsdPerMillion + maxOutputTokens * rate.outputUsdPerMillion) / 1e6;
   const bufferedCostThb = providerCostUsd * policy.pricingFxThbPerUsd * (1 + policy.operatingSafetyBufferRate);
   const increment = policy.creditRoundingIncrement;
@@ -88,7 +91,8 @@ export function quoteCinematicWriting(policy, { model, operation, inputBytes, ma
     providerRate: { version: rate.version, effectiveAt: rate.effectiveAt, reviewBy: rate.reviewBy,
       inputUsdPerMillion: rate.inputUsdPerMillion, outputUsdPerMillion: rate.outputUsdPerMillion,
       cachedInputUsdPerMillion: rate.cachedInputUsdPerMillion },
-    inputTokenEstimate, maxOutputTokens, providerCostUsd, profitMarkupPercent: markup,
+    inputTokenEstimate, maxOutputTokens, ...(callCount > 1 ? { callCount, continuationInputBytes } : {}),
+    providerCostUsd, profitMarkupPercent: markup,
     pricingFxThbPerUsd: policy.pricingFxThbPerUsd, operatingSafetyBufferRate: policy.operatingSafetyBufferRate,
     creditsPerThbAssumption: policy.creditsPerThbAssumption, roundingIncrement: increment,
     createdAt: new Date(now).toISOString(), expiresAt: new Date(Math.min(Date.parse(rate.reviewBy),

@@ -200,8 +200,14 @@ export function reviewCinematicChapterOutline(projectId: string, input: {
   });
 }
 
-export function generateCinematicFullStoryChapters(projectId: string, expectedVersion: number,skillIdsOverride?:string[]) {
-  return withCinematicWritingQuote({ projectId, operation: 'chapters', input: { expectedVersion, scope: 'all', ...(skillIdsOverride && {skillIdsOverride}) }, mandatory: true, resultSchema: cinematicChapterProposalMutationSchema }, body =>
+const chapterDraftProgressSchema = z.object({completed:z.number().int().nonnegative(), total:z.number().int().positive(), title:z.string()});
+export type ChapterDraftProgress = z.infer<typeof chapterDraftProgressSchema>;
+
+export function generateCinematicFullStoryChapters(projectId: string, expectedVersion: number,skillIdsOverride?:string[], onProgress?:(progress:ChapterDraftProgress)=>void) {
+  return withCinematicWritingQuote({ projectId, operation: 'chapters', input: { expectedVersion, scope: 'all', ...(onProgress && {sequentialChapters:true}), ...(skillIdsOverride && {skillIdsOverride}) }, mandatory: true, resultSchema: cinematicChapterProposalMutationSchema }, body =>
+    onProgress ? apiRequestWithProgress(`${cinematicApiPaths.project(projectId)}/full-story/chapters`, {
+      method:'POST', body, schema:cinematicChapterProposalMutationSchema, progressSchema:chapterDraftProgressSchema, onProgress, cache:'no-store'
+    }) :
     apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/chapters`, {
       method: 'POST', body, schema: cinematicChapterProposalMutationSchema
     }));

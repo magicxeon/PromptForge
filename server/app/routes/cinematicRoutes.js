@@ -158,7 +158,11 @@ export function registerCinematicRoutes(app, {
   });
 
   app.post('/api/cinematic/projects/:projectId/full-story/chapters', async (req, res) => {
-    try { res.status(201).json(await cinematicService.executeWriting(req.params.projectId, { operation: 'chapters', input: { ...req.body, scope: 'all' } }, req.actorContext)); }
+    const payload = { operation: 'chapters', input: { ...req.body, scope: 'all' } };
+    try {
+      if (acceptsEventStream(req)) return await streamWritingProposal({req,res,cinematicService,payload});
+      res.status(201).json(await cinematicService.executeWriting(req.params.projectId, payload, req.actorContext));
+    }
     catch (error) { sendCinematicError(res, error); }
   });
 
@@ -437,7 +441,7 @@ export function registerCinematicRoutes(app, {
     if (!req.body?.writingQuoteId) return sendCinematicError(res,
       new CinematicError('cinematic_writing_quote_required', 'Confirm a current writing Credit quote before requesting AI.', 409));
     if (acceptsEventStream(req) && typeof res.write === 'function') {
-      try { return await streamStoryPlanProposal({ req, res, cinematicService }); }
+      try { return await streamWritingProposal({ req, res, cinematicService, payload: {operation:'story_plan', input:req.body || {}} }); }
       catch (error) { if (res.headersSent) res.destroy(); else sendCinematicError(res, error); return; }
     }
     try {
@@ -785,7 +789,7 @@ function sendCinematicError(res, error) {
   return res.status(response.statusCode).json(response.body);
 }
 
-async function streamStoryPlanProposal({ req, res: originalResponse, cinematicService }) {
+async function streamWritingProposal({ req, res: originalResponse, cinematicService, payload }) {
   const transport = await createAuthorizedEventStream(req, originalResponse);
   const res = transport.response;
   let streamOpen = true;
@@ -821,7 +825,7 @@ async function streamStoryPlanProposal({ req, res: originalResponse, cinematicSe
   try {
     const proposal = await cinematicService.executeWriting(
       req.params.projectId,
-      { operation: 'story_plan', input: req.body || {} },
+      payload,
       req.actorContext,
       { onProgress: progress => writeEvent('progress', progress) }
     );

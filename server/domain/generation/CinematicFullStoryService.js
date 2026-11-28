@@ -157,7 +157,7 @@ export class CinematicFullStoryService {
       Math.max(1, Number(input.maxChapters) || cinematicWorkflowPolicy.authoring.defaultChapterCount)
     );
     const expectedChapterCount = input.scope === 'selected' ? 1 : maxChapters;
-    const result = await this.providerFactory(policy).generateCinematicChapters({
+    const request = {
       context: {
         fullStory,
         format: input.format === 'mini-series' ? 'mini-series' : 'short-film',
@@ -177,7 +177,11 @@ export class CinematicFullStoryService {
       reasoningEffort: policy.reasoningEffort,
       maxOutputTokens: policy.maxOutputTokens,
       timeoutMs: policy.longFormTimeoutMs || policy.timeoutMs
-    });
+    };
+    const provider = this.providerFactory(policy);
+    const result = input.sequentialChapters
+      ? await draftChaptersInOrder(provider, request, input.onProgress)
+      : await provider.generateCinematicChapters(request);
     const chapters = (Array.isArray(result?.chapters) ? result.chapters : []).slice(0, maxChapters).map((chapter, index) => ({
       title: boundedText(chapter?.title, 120) || `Chapter ${index + 1}`,
       story: boundedText(chapter?.story, cinematicWorkflowPolicy.authoring.fullStoryMaximumCharacters)
@@ -569,6 +573,44 @@ function normalizeShotList(value, maximum) {
     shotDocument: boundedText(item?.shotDocument || item?.prompt || item?.purpose, cinematicWorkflowPolicy.authoring.shotDocumentMaximumCharacters)
   }));
 }
+async function draftChaptersInOrder(provider, request, onProgress) {
+  const plan = request.context.chapterPlan;
+  if (plan.length !== request.context.expectedChapterCount) {
+    fail('cinematic_chapter_target_invalid', 'Review the chapter outline before drafting.');
+  }
+  const chapters = [];
+  const warnings = [];
+  const usage = {input_tokens: 0, output_tokens: 0, input_tokens_details: {cached_tokens: 0}, output_tokens_details: {reasoning_tokens: 0}};
+  let usageComplete = true;
+  let responseId = null;
+  onProgress?.({completed: 0, total: plan.length, title: plan[0].title || ''});
+  for (const target of plan) {
+    const result = await provider.generateCinematicChapters({
+      ...request,
+      context: {...request.context, scope: 'planned_chapter', chapterPlan: [target], reviewedOutline: plan,
+        previousChapterEnding: chapters.at(-1)?.story.slice(-cinematicWorkflowPolicy.authoring.continuityExcerptCharacters) || '',
+        maxChapters: 1, expectedChapterCount: 1}
+    });
+    const chapter = result?.chapters?.[0];
+    if (result?.chapters?.length !== 1 || typeof chapter?.story !== 'string' || !chapter.story.trim()) {
+      fail('cinematic_chapters_incomplete_response', `Chapter ${target.chapterNumber} returned an incomplete draft. Nothing was saved.`, 502);
+    }
+    const title = target.title || boundedText(chapter.title, 120) || `Chapter ${target.chapterNumber}`;
+    chapters.push({title, story: chapter.story});
+    warnings.push(...boundedList(result.warnings, 8, 500));
+    responseId = result.responseId;
+    const tokens = normalizeWritingUsage(result.usage);
+    if (tokens) {
+      usage.input_tokens += tokens.inputTokens;
+      usage.output_tokens += tokens.outputTokens;
+      usage.input_tokens_details.cached_tokens += tokens.cachedInputTokens;
+      usage.output_tokens_details.reasoning_tokens += tokens.reasoningTokens;
+    } else usageComplete = false;
+    onProgress?.({completed: chapters.length, total: plan.length, title});
+  }
+  return {chapters, warnings, responseId, usage: usageComplete ? usage : null};
+}
+
 function normalizeChapterPlan(value, maximum) {
   return (Array.isArray(value) ? value : []).slice(0, maximum).map((item, index) => ({
     order: index + 1,

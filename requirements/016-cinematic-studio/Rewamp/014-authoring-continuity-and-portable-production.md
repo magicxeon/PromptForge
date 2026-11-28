@@ -1,5 +1,7 @@
 # 014 - Authoring Continuity And Portable Production
 
+Story settings use a large responsive dialog with distinct story direction, writing model and skill sections. In skill import, each checkbox stays beside its name. Task labels wrap as units, and the selected skill's context and tasks remain readable at phone widths.
+
 Status: core implementation delivered; focused checks passed, live quality/UAT pending.
 Q1 confirmed: Chapter only. See task packet evidence and remaining qualifications.
 Date: 2026-09-26. Capability: Cinematic authoring and production preparation.

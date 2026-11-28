@@ -51,11 +51,11 @@ export function StoryRunSkillPicker({task}:{task:string}) {
   return <details className="story-run-skills">
     <summary>{t("runSkills.heading",{count:selected.length})}</summary>
     <fieldset><legend>{t("runSkills.scope")}</legend>
-      {settings.skillIds.map(id=>{
+      <div className="story-run-skill-options">{settings.skillIds.map(id=>{
         const label=settings.customSkills?.find(s=>s.id===id)?.name ?? catalog.skills.find(s=>s.id===id)?.label[locale];
         return label && <label key={id}><input type="checkbox" checked={selected.includes(id)}
-          onChange={e=>change(task,e.target.checked?[...selected,id]:selected.filter(v=>v!==id))}/>{label}</label>;
-      })}
+          onChange={e=>change(task,e.target.checked?[...selected,id]:selected.filter(v=>v!==id))}/><span>{label}</span></label>;
+      })}</div>
       {override && <button type="button" onClick={()=>change(task,undefined)}>{t("runSkills.reset")}</button>}
     </fieldset>
   </details>;

@@ -11,6 +11,7 @@ import {ChapterContinuityReview} from "./ChapterContinuityReview";
 import {isSceneComplete, ScenePanel} from "./scenes/ScenePanel";
 import {ProposalReview} from "./ProposalReview";
 import {FullStoryPlan} from "./FullStoryPlan";
+import type {ChapterDraftProgress} from "../../../../web/src/features/cinematic/api/cinematicApi";
 import {WritingSettings} from "./WritingSettings";
 import {BookOpen,Check,Clapperboard,Layers,NotebookPen,ChevronRight,Plus,PenLine,MapPin} from "lucide-react";
 import "./scenes/stagingTranslations";
@@ -29,6 +30,7 @@ function ProjectWorkspace({id}:{id:string}) {
   const navigate=useNavigate();
   const [params,setParams]=useSearchParams();
   const [drawer,setDrawer]=useState(false);
+  const [draftProgress,setDraftProgress]=useState<ChapterDraftProgress|null>(null);
   const [full,setFull]=useState(false);
   const [overrides,setOverrides]=useState<Record<string,string[]|undefined>>({});
   const overrideFor=(task:string)=>overrides[task]?.filter(id=>owner?.writingSettings?.skillIds.includes(id));
@@ -154,7 +156,7 @@ function ProjectWorkspace({id}:{id:string}) {
           back={()=>goStage("scenes")} requestShots={requestShots} pending={!!shotProposal}
           shotLimit={workflow?.authoring.shotDocumentMaximumCharacters}
           skills={skillsFor("shots")}/>
-        :step==="chapters"?(owner?.activeFullStoryVersionId?<FullStoryPlan project={owner} run={run} goChapter={chapterId=>{
+        :step==="chapters"?(owner?.activeFullStoryVersionId?<FullStoryPlan project={owner} run={run} onDraftProgress={setDraftProgress} goChapter={chapterId=>{
           setFull(false);navigate("/story/"+encodeURIComponent(chapterId));
         }}/>:<button onClick={()=>{setFull(true);goStage("script");}}>{t("fullScript")}</button>):
         <ScriptPanel project={project} owner={owner} full={full} setFull={setFull} workflow={workflow} run={run}
@@ -167,6 +169,11 @@ function ProjectWorkspace({id}:{id:string}) {
       <div className="story-writing-progress" role="status">
         <PenLine className="story-writing-pen" aria-hidden="true"/>
         <p>{t("writingActivity."+activity)}</p>
+        {activity==="chapters" && draftProgress && <>
+          <progress style={{width:"100%"}} aria-label={t("writingActivity.chapters")} value={draftProgress.completed} max={draftProgress.total}/>
+          <strong>{Math.floor(100*draftProgress.completed/draftProgress.total)}% · {draftProgress.completed}/{draftProgress.total}</strong>
+          <p>{t(draftProgress.completed ? "storyPlan:finishedChapter" : "storyPlan:firstChapter",{title:draftProgress.title})}</p>
+        </>}
       </div>
     </Dialog>}
     {review==="scene"&&sceneProposal && <ProposalReview key={sceneProposal.id} project={project} proposal={sceneProposal} busy={busy} error={error} run={run}

@@ -77,7 +77,7 @@ it("uses the confirmed full story revision for the outline and applies only the 
   api.generateCinematicFullStoryChapters.mockResolvedValue({project:confirmed,workspace:{chapters:[]}});
   page.rerender(view({...confirmed,chapterOutline:{...outline,status:"approved"}}));
   fireEvent.click(screen.getByText("writeChapters"));
-  await waitFor(()=>expect(api.generateCinematicFullStoryChapters).toHaveBeenCalledWith("project",4,undefined));
+  await waitFor(()=>expect(api.generateCinematicFullStoryChapters).toHaveBeenCalledWith("project",4,undefined,expect.any(Function)));
   const proposal={id:"proposal",scope:"all",status:"pending_review",sourceFullStoryRevisionId:"draft",warnings:[],
     chapters:[{order:1,title:"Arrival",story:"The door opens."}]};
   page.rerender(view({...confirmed,chapterProposals:[proposal]}));
