@@ -24,6 +24,8 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
   const [writingBrief,setWritingBrief]=useState(""),[showBrief,setShowBrief]=useState(()=>new URLSearchParams(window.location.search).get("start")==="idea" && !project.chapterStory);
   const [generated,setGenerated]=useState<Awaited<ReturnType<typeof proposeCinematicFullStory>>|null>(null);
   const [expanded,setExpanded]=useState(false),[fileError,setFileError]=useState("");
+  const [canonReview,setCanonReview]=useState<{key:string;titles:string[];content:string;previous:string;version:number;provenance:NonNullable<typeof generated>["provenance"]}|null>(null);
+  const [canonError,setCanonError]=useState("");
   const active=owner?.fullStoryVersions.find(v=>v.id===owner.activeFullStoryVersionId);
   const initial=full?active?.content||"":project.chapterStory;
   const revision=full?active?.id||"":project.activeChapterVersionId||"";
@@ -85,7 +87,32 @@ export function ScriptPanel({project,owner,full,setFull,workflow,run,openPlan,re
     <div className="story-actions" role="group" aria-label={t("destination")}>
       <button aria-pressed={!full} onClick={()=>changeMode(false)}>{t("chapterScript")}</button>
       <button aria-pressed={full} onClick={()=>changeMode(true)}>{t("fullScript")}</button>
+      {owner && <button disabled={recovery.dirty || recovery.pending} onClick={()=>void run(async()=>{
+        setCanonError("");
+        try {
+          const result=await proposeCinematicFullStory(owner.id,owner.version,"","sync_canon");
+          if(result.sourceKey)setCanonReview({key:result.sourceKey,titles:result.sourceTitles||[],content:result.fullStory,
+            previous:active?.content||"",version:owner.version,provenance:result.provenance});
+        } catch(error) {
+          if ((error as {code?:string}).code==="cinematic_canon_no_changes")setCanonError(t("canonNoChanges"));
+          else throw error;
+        }
+      },"draft")}>{t("canonReview")}</button>}
     </div>
+    {canonError && <p role="status">{canonError}</p>}
+    {canonReview && owner && <Dialog label={t("canonReview")} onClose={()=>setCanonReview(null)}>
+      <h2>{t("canonReview")}</h2><p>{t("canonEpisodes",{titles:canonReview.titles.join(" · ")})}</p>
+      <details><summary>{t("canonPrevious")}</summary><p className="story-prose">{canonReview.previous}</p></details>
+      <label>{t("canonProposed")}<textarea rows={14} maxLength={max} value={canonReview.content}
+        onChange={e=>setCanonReview({...canonReview,content:e.target.value})}/></label>
+      <p>{t("canonImpact")}</p><footer><button onClick={()=>setCanonReview(null)}>{t("cancel")}</button>
+      <button className="primary" disabled={!canonReview.content.trim()} onClick={()=>void run(async()=>{
+        try {
+          const project=await saveCinematicFullStoryRevision(owner.id,{expectedVersion:canonReview.version,content:canonReview.content,
+            source:"ai",canonSourceKey:canonReview.key,provenance:canonReview.provenance});
+          setCanonReview(null);setCanonError(t("canonUpdated"));return {project};
+        } catch(error) {setCanonReview(null);throw error;}
+      })}>{t("canonApprove")}</button></footer></Dialog>}
     {recovery.pending && <div role="status" className="story-note">{t(recovery.stale?"staleDraft":"recoverDraft")}
       <button onClick={()=>{recovery.restore(true);}}>{t("restore")}</button><button onClick={()=>recovery.discard()}>{t("discardDraft")}</button></div>}
     {recovery.unavailable && <p role="alert">{t("draftUnavailable")}</p>}

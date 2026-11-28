@@ -74,6 +74,23 @@ async function fixture(t, serviceOverrides = {}) {
   return { service, project, repository };
 }
 
+test('Canon review batches saved manuscripts and rejects a changed source before approval', async t => {
+  const {service,project,repository}=await fixture(t);
+  const write = story => repository.mutateForActor(project.id,actor,p=>{p.chapterStory=story;return p;});
+  const review = version => service.proposeFullStory(project.id,{expectedVersion:version,purpose:'sync_canon'},actor);
+  await write('First edit');
+  await write('Latest saved edit');
+  const first=await review(project.version);
+  await write('Changed during review');
+  const apply = proposal => service.saveFullStoryRevision(project.id,{expectedVersion:project.version,
+    canonSourceKey:proposal.sourceKey,content:proposal.fullStory,source:'ai'},actor);
+  await assert.rejects(apply(first),{code:'cinematic_canon_review_stale'});
+  const approved=await apply(await review(project.version));
+  assert.equal(approved.confirmedFullStoryVersionId,approved.activeFullStoryVersionId);
+  assert.ok(approved.syncedEpisodeDigests[project.id]);
+  await assert.rejects(review(approved.version),{code:'cinematic_canon_no_changes'});
+});
+
 test('shot art stays in review until accepted and updates just its shot in single and merged prompts', async t => {
   const {default:catalog}=await import('../server/config/cinematic/story-direction.v1.json',{with:{type:'json'}});
   const {service,project}=await fixture(t,{fullStoryService:{

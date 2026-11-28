@@ -287,3 +287,10 @@ surface; editorial sheet remains 9:16. These are proposals, not confirmed decisi
 
 Implementation is authorized; record each completed slice and its evidence in task
 packet 014. Do not mutate existing live projects or invoke paid provider trials.
+
+### Batch Canon revision from saved episodes
+
+1. Writers may save an episode repeatedly. Saving an episode only updates its manuscript. The writer explicitly starts a Canon review from the script workspace after finishing edits.
+2. Compare each episode's latest saved manuscript with the last approved batch. For older projects, include every saved episode in the first review. Prepare one editable full-story proposal against the current Canon. Keep established facts, character knowledge and reveal timing distinct.
+3. Show contributing episode titles, previous Canon and the editable proposal. Discarding the review leaves the batch available. Approval creates one confirmed revision and retains history. Reject stale reviews if the source manuscripts or Canon changed.
+4. Continue using the existing continuity-review behavior for unfinished production. Completed scenes and shots keep their authored content. Check repeated saves, no-change batches and concurrent editing without live AI dispatch.

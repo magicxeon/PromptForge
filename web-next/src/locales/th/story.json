@@ -1,4 +1,12 @@
 {
+  "canonReview": "ทบทวน Canon จากบทที่บันทึก",
+  "canonEpisodes": "ตอนที่นำมารวม · {{titles}}",
+  "canonPrevious": "อ่าน Canon ฉบับปัจจุบัน",
+  "canonProposed": "Canon ฉบับเสนอ · แก้ไขก่อนยืนยัน",
+  "canonImpact": "เมื่อยืนยัน ระบบจะบันทึกฉบับใหม่และทำเครื่องหมายให้ทบทวนความต่อเนื่องของตอนที่ยังทำไม่เสร็จ",
+  "canonApprove": "ยืนยัน Canon ฉบับใหม่",
+  "canonUpdated": "อัปเดต Canon แล้ว",
+  "canonNoChanges": "ยังไม่มีบทตอนที่เปลี่ยนแปลงให้รวม",
   "skillImport":{"file":"นำเข้าทักษะ (.md หรือ .zip)","select":"เลือกทักษะและงานที่จะใช้","context":"ใช้เมื่อพบบริบทเหล่านี้ (ไม่บังคับ)","contextHint":"เช่น โรงเตี๊ยม, ฉากต่อสู้, historical","apply":"เพิ่มทักษะที่เลือก","invalid":"อ่านแพ็กทักษะไม่ได้ ตรวจว่าเป็น Markdown หรือ ZIP ที่มี SKILL.md และขนาดอยู่ในขอบเขตที่รองรับ"},
   "skillsUsed":"ทักษะที่ใช้สร้างภาพครั้งนี้",
   "projectSkills":{"add":"เพิ่มทักษะของโปรเจกต์","edit":"แก้ไขทักษะ","editName":"แก้ไขทักษะ {{name}}","name":"ชื่อทักษะ","instruction":"คำกำกับสำหรับ AI","tasks":"ใช้กับงาน","apply":"ใช้ทักษะนี้","full_story":"บทต้นฉบับ","chapters":"บทตอน","chapter_outline":"โครงตอน","scenes":"ซีน","shots":"ช็อตและพรอมป์","looksheet":"ภาพตัวละคร","environment":"ภาพฉาก"},

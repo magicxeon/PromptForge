@@ -50,6 +50,12 @@ export class CinematicSeriesService {
       : workspace(data, null, project);
   }
 
+  async canonBatchSources(projectId, actor) {
+    const data = await this.repository.readSeriesWorkspaceForActor(actor);
+    const project = findProject(data, projectId);
+    return canonSources(data, project);
+  }
+
   deleteProductionProject(id, input, actor) {
     if (input?.confirmed !== true || !input.expectedUpdatedAt || !Number.isInteger(input.expectedChapterCount)) {
       fail('cinematic_delete_confirmation_required', 'Confirm the project before deleting it.', 400);
@@ -114,7 +120,7 @@ export class CinematicSeriesService {
       const previousDirection = project.setup?.videoDirection || '';
       const previousCanon = project.confirmedFullStoryVersionId;
       const previousSummary = project.setup?.priorEpisodeSummary || '';
-      const result = await operation(project);
+      const result = await operation(project, () => canonSources(data, project));
       project.updatedAt = new Date().toISOString();
       if (findStoryProject(data, project).id === project.id) {
         const series = project.seriesMembership ? findSeries(data, project.seriesMembership.seriesId) : null;
@@ -803,6 +809,14 @@ function workspace(data, series, currentProject = null) {
       ...scenePlanningProjection(project)
     }))
   };
+}
+
+function canonSources(data, project) {
+  if (findStoryProject(data, project).id !== project.id) fail('cinematic_canon_root_required', 'Open the full story to update Canon.', 409);
+  const series = project.seriesMembership ? findSeries(data, project.seriesMembership.seriesId) : null;
+  return orderedChapterProjects(data, series, project).filter(chapter => chapter.chapterStory?.trim()).map(chapter => ({
+    id: chapter.id, title: chapter.chapterTitle || chapter.title, text: chapter.chapterStory.trim()
+  }));
 }
 
 function orderedChapterProjects(data, series, source) {

@@ -500,6 +500,18 @@ export class CinematicApplicationService {
       return { ...result, sourceKey, sourceTitles: sources.map(source => source.title) };
     }
     const active = project.fullStoryVersions.find(item => item.id === project.activeFullStoryVersionId) || null;
+    if (input?.purpose === 'sync_canon') {
+      assertEditable(project);
+      const batch = canonBatch(project, await this.seriesService.canonBatchSources(projectId, actorContext));
+      if (!batch.changed.length) throw new CinematicError('cinematic_canon_no_changes', 'No saved episode changes to sync.', 409);
+      const result = await this.fullStoryService.propose({
+        projectTitle: project.title, currentFullStory: active?.content || '', storyBrief: project.setup?.storyBrief,
+        format: project.setup?.format, writingSettings: await this.projectWritingSettings(project, actorContext),
+        continuity: {editedEpisodes:batch.changed, priorEpisodeSummary:project.setup?.priorEpisodeSummary},
+        revisionInstruction: 'Revise the full canon in its original language using the saved episode edits. Preserve unrelated material. Separate objective truth, what each character knows, and when a secret is revealed. Do not invent resolutions or rewrite future episodes.'
+      });
+      return {...result, sourceKey:batch.key, sourceTitles:batch.changed.map(chapter => chapter.title)};
+    }
     if (input?.purpose === 'story_direction') {
       assertEditable(project);
       return this.fullStoryService.suggestDirection(input.script, await this.projectWritingSettings(project, actorContext));
@@ -554,11 +566,15 @@ export class CinematicApplicationService {
     const content = normalizeFullStoryText(imported?.content ?? input?.content);
     const instruction = normalizeFullStoryInstruction(input?.revisionInstruction);
     const source = !imported && ['manual', 'ai', 'restore'].includes(input?.source) ? input.source : 'manual';
-    return this.repository.mutateForActor(projectId, actorContext, project => {
+    const sync = input?.canonSourceKey !== undefined;
+    const mutate = sync ? this.seriesService.mutateProjectSetup.bind(this.seriesService) : this.repository.mutateForActor.bind(this.repository);
+    return mutate(projectId, actorContext, (project, readSources) => {
       assertExpectedVersion(project, input?.expectedVersion);
       assertEditable(project);
       const current = project.fullStoryVersions.find(item => item.id === project.activeFullStoryVersionId) || null;
-      if (!imported && current?.content === content && !Array.isArray(input?.characters)) return project;
+      const batch = sync ? canonBatch(project, readSources()) : null;
+      if (sync && (!batch.changed.length || batch.key !== input.canonSourceKey)) throw new CinematicError('cinematic_canon_review_stale', 'An episode or Canon changed. Prepare the review again.', 409);
+      if (!sync && !imported && current?.content === content && !Array.isArray(input?.characters)) return project;
       const origin = source === 'restore'
         ? [...project.fullStoryVersions].reverse().find(item => item.content === content)
         : current;
@@ -621,6 +637,13 @@ export class CinematicApplicationService {
       }
       project.fullStoryVersions.push(revision);
       project.activeFullStoryVersionId = revision.id;
+      if (batch) {
+        for (const previous of project.fullStoryVersions) if (previous.status === 'confirmed') previous.status = 'superseded';
+        revision.status = 'confirmed';
+        revision.syncedEpisodeDigests = batch.digests;
+        project.syncedEpisodeDigests = batch.digests;
+        project.confirmedFullStoryVersionId = revision.id;
+      }
       rotateFullStoryHistory(project);
       project.activeStage = 'cast';
       project.version += 1;
@@ -3360,6 +3383,13 @@ function shotPlanningEnvironmentKey(scene) {
   return crypto.createHash('sha256').update(JSON.stringify([
     scene.environmentPrompt || '', source?.assetId || null, source?.contentHash || null
   ])).digest('hex');
+}
+
+function canonBatch(project, chapters) {
+  const baseline = project.syncedEpisodeDigests || {};
+  const digests = Object.fromEntries(chapters.map(chapter => [chapter.id, characterSourcesKey(chapter)]));
+  return {digests, changed:chapters.filter(chapter => baseline[chapter.id] !== digests[chapter.id]),
+    key:characterSourcesKey([project.activeFullStoryVersionId,project.confirmedFullStoryVersionId,digests])};
 }
 
 function characterSourcesKey(sources) {

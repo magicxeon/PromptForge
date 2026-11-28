@@ -150,7 +150,7 @@ export function enhanceCinematicStory(draft: CinematicSetupDraft, purpose: 'stor
     }));
 }
 
-export function proposeCinematicFullStory(projectId: string, expectedVersion: number, revisionInstruction: string, purpose?: 'characters',
+export function proposeCinematicFullStory(projectId: string, expectedVersion: number, revisionInstruction: string, purpose?: 'characters' | 'sync_canon',
   characterScope?: {scope:'whole_story'; selectedCharacterIds?:string[]}, skillIdsOverride?:string[]) {
   return withCinematicWritingQuote({ projectId, operation: purpose === 'characters' ? 'characters' : 'full_story', resultSchema: cinematicFullStoryProposalSchema,
     input: { expectedVersion, revisionInstruction, ...(purpose ? { purpose } : {}), ...characterScope, ...(skillIdsOverride && {skillIdsOverride}) } }, body =>
@@ -167,6 +167,7 @@ export function saveCinematicFullStoryRevision(projectId: string, input: {
   provenance?: { provider: string; model: string; responseId: string | null } | null;
   characters?: CinematicFullStoryProposal['characters'];
   importFileName?: string;
+  canonSourceKey?: string;
 }) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/full-story/revisions`, {
     method: 'POST', body: input, schema: cinematicProjectSchema

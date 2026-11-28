@@ -1,4 +1,12 @@
 {
+  "canonReview": "Review saved episodes for Canon",
+  "canonEpisodes": "Episodes included · {{titles}}",
+  "canonPrevious": "Read current Canon",
+  "canonProposed": "Proposed Canon · edit before confirming",
+  "canonImpact": "Confirming saves a revision and flags unfinished episodes for continuity review.",
+  "canonApprove": "Confirm new Canon revision",
+  "canonUpdated": "Canon updated",
+  "canonNoChanges": "No saved episode changes to sync",
   "skillImport":{"file":"Import skills (.md or .zip)","select":"Choose skills and applicable tasks","context":"Use when these keywords occur (optional)","contextHint":"For example tavern, fight, historical","apply":"Add selected skills","invalid":"Could not read these skills. Choose Markdown or a ZIP containing SKILL.md within the supported size."},
   "skillsUsed":"Skills for this image",
   "projectSkills":{"add":"Add a project skill","edit":"Edit skill","editName":"Edit {{name}}","name":"Skill name","instruction":"Instructions for AI","tasks":"Applicable tasks","apply":"Apply skill","full_story":"Manuscript","chapters":"Episode script","chapter_outline":"Episode outline","scenes":"Scenes","shots":"Shots and prompts","looksheet":"Character looksheet","environment":"Environment sheet"},
