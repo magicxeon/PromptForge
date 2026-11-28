@@ -32,7 +32,7 @@ function selectShots(scene, ids) {
 function prepareShot(project, scene, shot, first, shotOnly) {
   const document = compileCinematicShotDocument({...shot, manualStoryboard:false}, scene, project.castAssignments);
   const cues = document?.dialogue.cues ?? shot.dialogueCues ?? [];
-  const people = storyPromptPeople(project, scene, shot, shotOnly, cues);
+  const people = storyPromptPeople(project, scene, shot, shotOnly, cues, document?.sections.opening || shot.visibleMoment);
   const sections = document?.sections || {};
   const camera = lines(document ? sections.camera : lines(shot.framing, shot.cameraAngle, shot.lensIntent, shot.cameraMovement), shot.cameraDirectionNotes);
   const timeline = document?.timeline ?? shot.videoActionTimeline ?? [];
@@ -49,7 +49,7 @@ function prepareShot(project, scene, shot, first, shotOnly) {
     findings:document?.dialogue.findings || [],
     performance:document ? document.dialogue.performance : lines(shot.performanceCue || shot.performance, shot.emotionalTarget, shot.gaze),
     audio:document ? sections.audio : shot.audioIntent, audioCues:document ? [] : shot.audioCues || [],
-    light:shot.artDirection || sections.lighting || shot.lighting, continuity:document ? sections.continuity : lines(...(shot.continuityNotes || [])),
+    light:sections.lighting || shot.lighting, continuity:document ? sections.continuity : lines(...(shot.continuityNotes || [])),
     exit:document ? '' : lines(shot.continuityExit, shot.transitionToNext),
     people:people.map(({person,visible,reference,referenceName,outfitId}) => ({name:person.displayName, role:person.storyRole, visible,
       referenceId:visible && reference?.assetId, ...(outfitId && {referenceName,outfitId})})),
@@ -134,9 +134,9 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
     const scoped = body => body && `${interval} — ${body}`;
     const {missingCharacters, ...fingerprintedPart} = part;
     const sourceFingerprint = hash(['merged-story-v1', template, spokenLanguage, skillInstructions, direction, aspect,
-      setting, scene.lighting, scene.artDirection, ...(scene.blockingMap ? [scene.blockingMap] : []), ...(seedance ? [scene.entryState,scene.objective,scene.exitState,scene.synopsis] : []), ...(scene.audioIntent ? [scene.audioIntent] : []), shot.shotDocument, {...fingerprintedPart,
+      setting, scene.lighting, scene.artDirection, shot.artDirection, ...(scene.blockingMap ? [scene.blockingMap] : []), ...(seedance ? [scene.entryState,scene.objective,scene.exitState,scene.synopsis] : []), ...(scene.audioIntent ? [scene.audioIntent] : []), shot.shotDocument, {...fingerprintedPart,
         ...(missingCharacters.length ? {missingCharacters} : {}),
-        references:part.references.map(r => [r.role, r.assetId, r.name])}]);
+        references:part.references.map(r => [r.role, r.assetId, r.name, ...(r.description ? [r.description] : [])])}]);
     shots.push({id:shot.id, title:shot.title, startMs, endMs, version:shot.version || 1, sourceFingerprint});
     for (const person of part.people) {
       const ref = references.find(r => r.role === 'character' && r.assetId === person.referenceId && r.name === (person.referenceName || person.name));
@@ -186,7 +186,8 @@ export function compileMergedStoryPrompt(project, scene, shotIds, template) {
   }
   fields.VOICE.unshift(`Spoken language: ${spokenLanguage}.`, 'Speak only the supplied dialogue. Preserve the pauses between cues.');
   if (!seedance || !fields.AUDIO.length) fields.AUDIO.push('No music.');
-  if (!seedance || ordered.length === scene.shots.length) fields.LIGHTING.unshift(scene.lighting, scene.artDirection);
+  if (!seedance || ordered.length === scene.shots.length) fields.LIGHTING.unshift(scene.lighting);
+  if (!fields.LIGHTING.some(Boolean)) fields.LIGHTING.push('Maintain the established lighting across cuts.');
   if (seedance && project.writingSettings?.direction?.visualStyle) fields.LIGHTING.push(storyVisualStyle(project.writingSettings).instruction);
   fields['ENVIRONMENT MOVEMENT'].push(templates.video.environmentMovement);
   fields.NEGATIVE.push(templates.video.negative);

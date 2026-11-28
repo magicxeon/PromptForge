@@ -465,6 +465,10 @@ export const cinematicApprovedStoryboardSourceSchema = z.object({
   approvedAt: z.string().datetime()
 });
 
+const sceneEnvironmentSourceSchema = cinematicApprovedStoryboardSourceSchema.extend({
+  location: z.string().optional(), description: z.string().optional()
+});
+
 export const cinematicStoryboardKeyframeContractSchema = z.object({
   contractVersion: z.string().min(1),
   projectId: z.string().min(1),
@@ -559,7 +563,7 @@ export const cinematicStoryboardKeyframeContractSchema = z.object({
 export const cinematicSceneEnvironmentContextSchema = z.object({
   projectId: z.string(), projectVersion: z.number().int().positive(), sceneId: z.string(), sceneVersion: z.number().int().positive(),
   environmentPrompt: z.string(), compiledPrompt: z.string(), looksheetPrompt: z.string(), promptFingerprint: z.string(),
-  approvedSource: cinematicApprovedStoryboardSourceSchema.nullable(),
+  approvedSource: sceneEnvironmentSourceSchema.nullable(),
   referenceEnabled: z.boolean().optional().default(true)
 });
 
@@ -640,7 +644,7 @@ const savedStoryPromptSchema = z.object({
   provenance:z.object(writingSkillTrace).optional(),
   text: z.string(), sourceFingerprint: z.string(),
   references: z.array(z.object({number:z.number().int().positive(), role:z.enum(['opening','location','character']),
-    name:z.string(), assetId:z.string()})).optional()
+    name:z.string(), description:z.string().optional(), assetId:z.string()})).optional()
 });
 
 export const cinematicShotSchema = z.object({
@@ -754,7 +758,7 @@ export const mergedStoryPromptSchema = z.object({
   template:z.enum(['flow','seedance']), text:z.string(), sourceFingerprint:z.string(),
   shots:z.array(z.object({id:z.string(),title:z.string(),version:z.number(),sourceFingerprint:z.string(),
     startMs:z.number(),endMs:z.number()})),
-  references:z.array(z.object({number:z.number(),role:z.enum(['opening','character','location']),name:z.string(),assetId:z.string(),imageUrl:z.string(),
+  references:z.array(z.object({number:z.number(),role:z.enum(['opening','character','location']),name:z.string(),description:z.string().optional(),assetId:z.string(),imageUrl:z.string(),
     castAssignmentId:z.string().optional(),outfitId:z.string().optional()})),
   outdatedShotIds:z.array(z.string()).default([])
 });
@@ -773,7 +777,8 @@ export const cinematicSceneSchema = z.object({
   mergedPrompts:z.array(mergedStoryPromptSchema).optional(),
   sourceStartParagraph:z.number().int().positive().optional(),sourceEndParagraph:z.number().int().positive().optional(),
   environmentPrompt: z.string().max(2500).optional(),
-  approvedEnvironmentSource: cinematicApprovedStoryboardSourceSchema.nullable().optional(),
+  approvedEnvironmentSource: sceneEnvironmentSourceSchema.nullable().optional(),
+  environmentSources: z.array(sceneEnvironmentSourceSchema).optional(),
   environmentReferenceEnabled: z.boolean().optional(),
   cinematicOpening: z.boolean().optional(),
   synopsis: z.string().max(4000).optional(),

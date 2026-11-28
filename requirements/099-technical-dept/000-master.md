@@ -18,6 +18,8 @@ Story character management lives in `web-next/src/features/story/characters/`. T
 
 Whole-story cast review uses the existing Cinematic Writing `characters` operation. Cinematic Application assembles the saved manuscript and chapter sources. Cinematic Series persists accepted details on the existing dossier. [StoryLooksheetDialog](../../web-next/src/features/story/StoryLooksheetDialog.tsx) serves character and scene looksheets through the Image workspace generation hook. The character workflow attaches a result to the shared dossier. Scene staging loads the multi-view looksheet prompt from [Cinematic scene environment](../../server/domain/cinematic/CinematicSceneEnvironment.js), isolates the browser draft and job receipt by actor, project and scene, and attaches a selected result through the owned reference upload and scene environment approval. The environment context retains the original single-view prompt and its fingerprint for the registered Cinematic environment generation workflow.
 
+Scene staging keeps location-labelled alternatives on the scene and resolves its active setting through the existing environment approval contract. The shot reference mapping consumes that selection.
+
 The Story direction catalog also owns the spoken-language selector. Explicit prompt builds use the existing Cinematic shots writing operation and the selected project writer. [Story prompt language](../../server/domain/cinematic/StoryPromptLanguage.js) separates dialogue from English directions and reassembles the template. Opening an existing draft uses read-only writer preparation.
 
 [Merged video prompts](../../server/domain/cinematic/CinematicMergedStoryPrompt.js) combine selected shots of one scene on a millisecond timeline. The existing shots writing operation builds and translates one packet. The existing scene PATCH saves the reviewed text and its ordered source snapshots under `scene.mergedPrompts` in the Cinematic project repository. The project read identifies changed or removed source shots.
@@ -1543,3 +1545,4 @@ region; its leading controls remain visible even while image-model reference
 capability is unavailable. Focused automated groups live in
 `scripts/test-cinematic-video.js`; browser layout fixture is
 `scripts/verify-cinematic-last-frame-layout.mjs`.
+

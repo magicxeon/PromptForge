@@ -340,6 +340,10 @@
 - หากหน้าเพิ่มตัวละครส่งคืน `auth_development_action_unavailable` ทั้งที่เป็น Local Admin และอัปโหลดรูปได้ ให้ตรวจว่า API พอร์ต 6500 เริ่มก่อนอัปเดตสิทธิ์ `PUT` หรือไม่ คำสั่ง npm ใช้ API ที่เปิดอยู่ซ้ำ หากเปิดผ่าน BAT หลังงานที่กำลังรันจบ ตัวเปิดจะเริ่ม API ที่ตนเป็นเจ้าของใหม่เพื่อโหลดสิทธิ์ล่าสุด ตรวจผ่านพร็อกซีพอร์ต 6502 ด้วยรหัสโปรเจกต์ทดสอบที่ไม่มีอยู่ ซึ่งส่งคืน `cinematic_project_not_found` หลังผ่านการตรวจสิทธิ์
 ## ภาษาของพรอมป์ช็อตและบทพูด
 
+- ช็อตเดิมที่ขาดรายการนักแสดงให้ตรวจชื่อและชื่อเรียกที่ระบุตัวได้จากภาพเปิดของแต่ละช็อต ทั้งพรอมป์เดี่ยวและรวมใช้ชุดและภาพของตัวละครตามกฎเดียวกัน เคารพการเลือกนักแสดงเองและสถานะเสียงนอกภาพ
+
+- ทั้งช็อตเดี่ยวและพรอมป์รวม ต้องกำหนดรูปแบบคำตอบตั้งแต่คำขอแปลให้ช่องคำกำกับและชื่ออ้างอิงใช้อักษรละติน รองรับชื่อถอดเสียง เครื่องหมายเวลา และวรรคตอน ส่วนช่องบทพูดรองรับอักษรของภาษาที่เลือก
+
 - หน้าเริ่มโปรเจกต์และหน้าตั้งค่าใช้รายการภาษาพูดเดียวกันจาก JSON ผู้เขียนเลือกภาษาอังกฤษในเรื่องที่เกิดในไทยได้ และเปิดงานเดิมที่ใช้ค่าภาษาอื่นได้
 - เมื่อกดสร้างพรอมป์ ให้เขียนคำบรรยาย ชื่อตัวละคร คำกำกับภาพและเสียงเป็นอังกฤษ แปลเฉพาะถ้อยคำที่ตัวละครพูดเป็นภาษาที่เลือก รักษาคิวผู้พูด เวลา ลำดับภาพอ้างอิง และฉากตามบท พรอมป์ภาพนิ่งไม่มีบทพูดเพิ่ม
 - ใช้โมเดลงานเขียนของโปรเจกต์ผ่านการสร้างช็อตเดิม ตรวจรับด้วยช็อตที่มีคำกำกับภาษาไทยและบทพูดไทยสลับเป้าหมายเป็นอังกฤษ การเปิดหรือคัดลอกข้อความที่บันทึกแล้วต้องไม่ส่งคำขอเขียนซ้ำ
@@ -529,6 +533,18 @@ The writing stages are whole manuscript, episode planning, episode script, scene
 
 The scene header offers a reversible “เสร็จแล้ว” checkbox, including for scenes with zero shots. Track the mark independently of shot counts. A manual mark or completion of every existing shot marks the scene complete for navigation, continuity and scene proposal retention.
 
+### Shot authoring language
+
+Write new and revised shot plans in Thai, including headings, camera, acting and sound direction. Newly written dialogue follows the project's spoken language. Preserve approved lines and timing. Compile single and combined delivery prompts with English direction and dialogue in the configured spoken language.
+
+### Location image choices in scene staging
+
+Above the synopsis, display the scene location and time in a distinct labelled panel. Omit empty fields and stack the values when space is limited.
+
+1. Retain each accepted upload, generated looksheet or reused setting in the scene. Display the current selection and the alternatives as thumbnails. Treat an older scene’s approved image as its first entry.
+2. Prepopulate the location from the scene. Let the writer label each image with a location and optional description. Offer existing images from other scenes, prioritising matching locations. Selecting an image applies only to the current scene.
+3. Resolve one selected setting image for shot attachments and use its label and description in the reference mapping. Respect the existing reference-enable setting. Verify persistence, duplicate selection, version conflicts, owner checks, and mobile and desktop selection.
+
 ### Character wardrobe from cast library to shot delivery
 
 1. In Characters, browse consistent thumbnail-and-name rows. Opening a character exposes their primary reference and upload action. Keep the script audit collapsible. Save named outfits and their optional uploaded or generated looksheets separately from the primary identity.
@@ -536,6 +552,18 @@ The scene header offers a reversible “เสร็จแล้ว” checkbox,
 3. In the shot prompt, show the resolved attachment list in submission order (setting, alphabetically ordered visible characters, then any other applicable reference). Label a costumed character with both character and outfit. Allow a single shot to use a different outfit or the base character image, and to return to scene inheritance.
 4. When a selected outfit lacks an image, identify it explicitly before prompt delivery. Rebuilding must resolve current assignments. Previously saved text with changed references must be reviewed. Existing projects without outfit assignments continue using their character references.
 5. Verify changing a snow scene's cloak, a special shot and its sibling, missing-image handling, and re-opening the project. At narrow widths the selected character, outfit and upload controls must stay readable.
+
+### Interpret art direction when composing shot and merged prompts
+
+Read the art direction alongside the approved action, framing, lighting, timing and continuity. Express its intent through visible choices in the relevant shot or beat. For example, when the direction calls for warmth but the established key light is cool, a held glance or a softened expression can convey warmth while preserving the light source. Omit directions that would contradict an approved fact.
+
+Acceptance: check both a single shot and a merged sequence with different art direction per shot. The final prompt must convey compatible intent in the appropriate beats, preserve continuity across cuts, and contain no pasted art-direction block or competing instructions for the same moment.
+
+Video prompts state the aspect ratio alongside the duration. The final reference note follows the prompt body without a standalone ratio between them.
+
+Each shot's narrative details start collapsed and expand independently. Editing, completion, prompt and arrangement controls remain reachable while collapsed. Single and merged video prompts retain a fixed NEGATIVE instruction excluding music, visible text, logos, watermarks and interface elements through writing and refinement. Spoken dialogue and scene sounds remain available.
+
+Keep the shot action summary visible above the disclosure. When collapsed, place the disclosure, prompt and arrangement controls on one row where space permits; wrap on narrow screens.
 
 ### Long episode scene proposals
 

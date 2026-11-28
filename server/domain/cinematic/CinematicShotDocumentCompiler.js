@@ -4,6 +4,15 @@ import { resolveShotCastIds } from './CinematicCastCoverage.js';
 import { estimateDialogueSpeech, assessDialogueShot } from './CinematicDialogueTiming.js';
 
 const SECTION_ALIASES = Object.freeze({
+  'ระยะเวลาช็อต': 'duration',
+  'ฉาก': 'scene',
+  'ภาพเปิด': 'opening',
+  'กล้อง': 'camera',
+  'สไตล์ภาพและแสง': 'lighting',
+  'การแสดงตามช่วงเวลา': 'timeline',
+  'บทพูดและสีหน้า': 'dialoguePerformance',
+  'เสียง': 'audio',
+  'ความต่อเนื่องและข้อกำหนด': 'continuity',
   'SHOT DURATION': 'duration',
   SCENE: 'scene',
   OPENING: 'opening',

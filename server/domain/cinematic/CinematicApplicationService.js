@@ -3,7 +3,7 @@ import {resolveWritingPreferences, validateWritingSettings, validateStoryDirecti
 import { cinematicStoryboardPromptComposer } from './CinematicStoryboardPromptComposer.js';
 import { createManualStoryboardScene, normalizeManualStoryboard } from './CinematicManualStoryboard.js';
 import { normalizeStoryboardRenderStyle } from './CinematicStoryboardRenderStyle.js';
-import { sceneEnvironmentContext, normalizeCinematicSceneReference } from './CinematicSceneEnvironment.js';
+import { sceneEnvironmentContext, sceneEnvironmentSources, storeSceneEnvironmentSource, normalizeCinematicSceneReference } from './CinematicSceneEnvironment.js';
 import { normalizeStoryIntent, storyAuthoringConfiguration } from '../../config/cinematicStoryConfiguration.js';
 import { cinematicWorkflowPolicy, resolveCinematicRewampExposure } from '../../config/cinematicRewampConfiguration.js';
 import { normalizeCastMode, resolveShotCastIds, resolveShotLookIds } from './CinematicCastCoverage.js';
@@ -416,6 +416,9 @@ export class CinematicApplicationService {
     if (shared?.writingSettings) project.writingSettings = shared.writingSettings;
     project.videoDirection = shared?.videoDirection ?? String(project.setup?.videoDirection || '');
     for (const scene of project.scenes) {
+      if (scene.approvedEnvironmentSource && !scene.environmentSources) {
+        scene.environmentSources = sceneEnvironmentSources(scene);
+      }
       for (const saved of scene.mergedPrompts || []) {
         saved.text = normalizeMergedStoryReferences(saved.text);
         saved.maximumPromptCharacters = cinematicWorkflowPolicy.authoring.videoPromptMaximumCharacters;
@@ -1079,7 +1082,10 @@ export class CinematicApplicationService {
   async writeStoryPrompt(input,project,scene,shots,source,cues,findings,beforeDispatch,actorContext) {
     const context = scenePromptContext(scene,shots,input.language);
     const episode = await this.episodeWritingContext(project,actorContext);
-    const narrative = { ...episode, currentChapter: project.chapterStory || null };
+    const narrative = { ...episode, currentChapter: project.chapterStory || null,
+      artBrief: {scene:scene.artDirection, shots:shots.map(({id},index) => ({
+        shotNumber:index+1, direction:scene.shots.find(shot => shot.id === id)?.artDirection
+      }))} };
     const writingSettings = withStorySkillOverride(project.writingSettings,input?.skillIdsOverride);
     if (shots.length > 1 && input.template === 'seedance') {
       const clock = mergedSequenceClock(shots);
@@ -1094,8 +1100,7 @@ export class CinematicApplicationService {
       }
       await beforeDispatch?.();
       return this.fullStoryService.refineStoryPrompt(input.refineDraft,source,writingSettings,{
-        ...context,narrative,template:input.template, scope:shots.length > 1 ? 'sequence' : 'shot',
-        artDirection:shots.map(({id}) => scene.shots.find(shot => shot.id === id)?.artDirection || '')
+        ...context,narrative,template:input.template, scope:shots.length > 1 ? 'sequence' : 'shot'
       });
     }
     await beforeDispatch?.();
@@ -1453,7 +1458,8 @@ export class CinematicApplicationService {
           if (!saved.provenance && previous?.provenance) saved.provenance = previous.provenance;
           if (previous?.text !== saved.text || previous?.sourceFingerprint !== saved.sourceFingerprint || !previous?.references
             || JSON.stringify(previous?.provenance) !== JSON.stringify(saved.provenance)) {
-            const references = packet.references.map(({number, role, name, assetId}) => ({number, role, name, assetId}));
+            const references = packet.references.map(({number, role, name, assetId, description}) =>
+              ({number, role, name, assetId, ...(description && {description})}));
             shot.storyPromptVariants = {...shot.storyPromptVariants, [input.storyTemplate]: {...saved, references}};
             shot.version += 1;
             shot.updatedAt = new Date().toISOString();
@@ -2416,24 +2422,41 @@ export class CinematicApplicationService {
   async approveSceneEnvironment(projectId, sceneId, input, actorContext) {
     const current = await this.getProject(projectId, actorContext);
     const scene = current.scenes.find(item => item.id === sceneId);
-    if (input.referenceAssetId !== undefined || input.reuseSceneId !== undefined) {
+    const selectors = [input.jobId, input.referenceAssetId, input.reuseSceneId, input.selectedAssetId, input.editAssetId];
+    if (selectors.filter(id => id !== undefined).length !== 1 ||
+        (input.reuseAssetId !== undefined && input.reuseSceneId === undefined)) {
+      throw new CinematicError('cinematic_scene_source_unavailable', 'Select one scene image.', 400);
+    }
+    if ((input.location !== undefined && (typeof input.location !== 'string' || !input.location.trim() || input.location.length > 240)) ||
+        (input.description !== undefined && (typeof input.description !== 'string' || input.description.length > 2000))) {
+      throw new CinematicError('cinematic_scene_environment_invalid', 'Provide a location up to 240 characters and a description up to 2000 characters.', 400);
+    }
+    if (input.jobId === undefined) {
       assertExpectedVersion(current,input.expectedVersion);
       assertEditable(current);
-      if (!scene || [input.jobId,input.referenceAssetId,input.reuseSceneId].filter(id=>id!==undefined).length !== 1) {
-        throw new CinematicError('cinematic_scene_source_unavailable','Select one scene image.',400);
+      if (!scene) throw new CinematicError('cinematic_scene_not_found', 'Scene not found.', 404);
+      const local = input.selectedAssetId !== undefined || input.editAssetId !== undefined;
+      let source;
+      if (local) {
+        source = sceneEnvironmentSources(scene).find(item => item.assetId === (input.selectedAssetId ?? input.editAssetId));
+      } else if (input.referenceAssetId !== undefined) {
+        source = await this.storyboardAssetService.approveSceneUpload(input.referenceAssetId, actorContext);
+      } else {
+        const from = current.scenes.find(item => item.id === input.reuseSceneId && item.id !== sceneId);
+        if (from) source = input.reuseAssetId === undefined ? from.approvedEnvironmentSource
+          : sceneEnvironmentSources(from).find(item => item.assetId === input.reuseAssetId);
       }
-      const source = input.referenceAssetId !== undefined
-        ? await this.storyboardAssetService.approveSceneUpload(input.referenceAssetId,actorContext)
-        : current.scenes.find(item=>item.id===input.reuseSceneId)?.approvedEnvironmentSource;
       if (!source) throw new CinematicError('cinematic_scene_source_unavailable','The selected scene has no approved image.',404);
-      if (input.reuseSceneId !== undefined) await this.storyboardAssetService.resolveSceneReference(source,actorContext);
+      if (input.reuseSceneId !== undefined || input.selectedAssetId !== undefined) await this.storyboardAssetService.resolveSceneReference(source,actorContext);
       return this.repository.mutateForActor(projectId,actorContext,project=>{
         assertExpectedVersion(project,input.expectedVersion);
         assertEditable(project);
         const target=project.scenes.find(item=>item.id===sceneId);
         if (!target) throw new CinematicError('cinematic_scene_not_found','Scene not found.',404);
-        target.approvedEnvironmentSource=structuredClone(source);
-        if (input.preserveReferenceSetting !== true || input.referenceAssetId === undefined) {
+        if (input.selectedAssetId === target.approvedEnvironmentSource?.assetId && input.selectedAssetId !== undefined &&
+            input.location === undefined && input.description === undefined) return project;
+        storeSceneEnvironmentSource(target, source, input, input.editAssetId === undefined);
+        if (!local && input.preserveReferenceSetting !== true) {
           target.environmentReferenceEnabled=true;
         }
         target.version=(target.version||1)+1;
@@ -2448,15 +2471,18 @@ export class CinematicApplicationService {
     if (input.reuse === true) await this.storyboardAssetService.resolveSceneReference(approvedAsset, actorContext);
     return this.repository.mutateForActor(projectId, actorContext, project => {
       const target = project.scenes.find(item => item.id === sceneId);
-      if (target?.approvedEnvironmentSource?.sourceJobId === input.jobId && target.environmentReferenceEnabled !== false) return project;
+      if (target?.approvedEnvironmentSource?.sourceJobId === input.jobId &&
+          (target.environmentReferenceEnabled !== false || input.preserveReferenceSetting === true) &&
+          (input.location === undefined || input.location.trim() === target.approvedEnvironmentSource.location) &&
+          (input.description === undefined || input.description.trim() === (target.approvedEnvironmentSource.description || ''))) return project;
       assertExpectedVersion(project, input.expectedVersion);
       assertEditable(project);
       const candidate = project.generationAttempts.find(item => item.id === attempt.id);
       if (!target || !candidate || (input.reuse !== true && candidate.promptFingerprint !== sceneEnvironmentContext(project, target).promptFingerprint)) {
         throw new CinematicError('cinematic_scene_environment_changed', 'The Scene direction changed. Generate a new Scene source.', 409);
       }
-      target.approvedEnvironmentSource = approvedAsset;
-      target.environmentReferenceEnabled = true;
+      storeSceneEnvironmentSource(target, approvedAsset, input);
+      if (input.preserveReferenceSetting !== true) target.environmentReferenceEnabled = true;
       Object.assign(candidate, { status: 'approved', reviewDecision: 'approved', outputAssetIds: [approvedAsset.assetId] });
       project.version += 1;
       return project;
@@ -3416,6 +3442,8 @@ function shotPlanningEnvironmentKey(scene) {
   const source = scene.environmentReferenceEnabled !== false && scene.approvedEnvironmentSource;
   return crypto.createHash('sha256').update(JSON.stringify([
     scene.environmentPrompt || '', source?.assetId || null, source?.contentHash || null,
+    ...(source?.description ? [source.description] : []),
+    ...(source?.location && source.location !== (scene.location || scene.title) ? [source.location] : []),
     ...(scene.blockingMap ? [scene.blockingMap] : [])
   ])).digest('hex');
 }
@@ -3821,6 +3849,7 @@ function normalizeStoryPlan(input = {}, project, contractVersion = normalizeStor
       ...(existingScene?.blockingMap !== undefined ? {blockingMap:existingScene.blockingMap} : {}),
       ...(existingScene?.authorDirectedFields ? {authorDirectedFields:existingScene.authorDirectedFields} : {}),
       ...(existingScene?.approvedEnvironmentSource ? { approvedEnvironmentSource: structuredClone(existingScene.approvedEnvironmentSource) } : {}),
+      ...(existingScene?.environmentSources ? { environmentSources: structuredClone(existingScene.environmentSources) } : {}),
       ...(existingScene?.environmentReferenceEnabled !== undefined ? { environmentReferenceEnabled: existingScene.environmentReferenceEnabled } : {}),
       orderKey: sceneIndex + 1,
       ...(sceneInput.cinematicOpening !== undefined ? { cinematicOpening: sceneInput.cinematicOpening === true } : {}),

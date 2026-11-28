@@ -128,8 +128,11 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
         </button></header>
         <div className="story-shot-content">
           {shot.shotPlanningStatus === "review_required" && <small>{t("sourceChanged")}</small>}
-          {shot.continuityEntry && <section><h5>{t("stage.start")}</h5><p>{shot.continuityEntry}</p></section>}
           {action && <section className="story-shot-action"><h5>{t("shotAction")}</h5><p>{action}</p></section>}
+          <div className="story-shot-toolbar">
+          <details className="story-shot-details">
+          <summary>{t("shotDocument")}</summary>
+          {shot.continuityEntry && <section><h5>{t("stage.start")}</h5><p>{shot.continuityEntry}</p></section>}
           {camera && <section className="story-shot-camera"><h5>{t("shotCamera")}</h5><p>{camera}</p></section>}
           {dialogue.length > 0 && <section className="story-shot-dialogue"><h5>{t("shotDialogue")}</h5>
             {dialogue.map((line, index) => {
@@ -139,10 +142,9 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
               return <p className="story-prose" key={index}>{speaker && <strong>{speaker} · </strong>}{line.text}</p>;
             })}
           </section>}
-          {shot.shotDocument && <details open={!dialogue.length}>
-            <summary>{t("shotDocument")}</summary><p className="story-prose">{shot.shotDocument}</p>
-          </details>}
+          {shot.shotDocument && <p className="story-prose">{shot.shotDocument}</p>}
           {(shot.continuityExit||shot.transitionToNext) && <section><h5>{t("stage.end")}</h5><p>{[shot.continuityExit,shot.transitionToNext].filter(Boolean).join(" · ")}</p></section>}
+          </details>
           <div className="story-shot-tools"><button onClick={() => setPromptId(shot.id)}
             aria-label={t("shotPromptFor", {name: shot.title})}>{t("shotPrompt")}</button>
             <details className="story-arrange"><summary>{labels("arrange.title")}</summary>
@@ -163,6 +165,7 @@ export function ScenePanel({project,scene,index,run,back,pending,requestShots,sh
                 </div>
               </div>
             </details></div>
+          </div>
         </div>
       </li>;
     })}</ol></MergedStoryShots></>}

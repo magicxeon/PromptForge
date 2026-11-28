@@ -2,6 +2,26 @@ import crypto from 'node:crypto';
 import { resolveWritingPreferences } from '../../config/storyWritingSettings.js';
 import { cinematicKeyframeConfigurationService } from './CinematicKeyframeConfigurationService.js';
 
+export function sceneEnvironmentSources(scene) {
+  if (scene.environmentSources) return scene.environmentSources;
+  const source = scene.approvedEnvironmentSource;
+  return source ? [{ ...source, location: source.location || scene.location || scene.title }] : [];
+}
+
+export function storeSceneEnvironmentSource(scene, source, input, select = true) {
+  const sources = [...sceneEnvironmentSources(scene)];
+  const index = sources.findIndex(item => item.assetId === source.assetId);
+  const previous = sources[index] || source;
+  const entry = { ...source, location: input.location?.trim() ?? previous.location ?? (scene.location || scene.title) };
+  const description = (input.description ?? previous.description)?.trim();
+  if (description) entry.description = description;
+  else delete entry.description;
+  if (index < 0) sources.push(entry);
+  else sources[index] = entry;
+  scene.environmentSources = sources;
+  if (select || scene.approvedEnvironmentSource?.assetId === entry.assetId) scene.approvedEnvironmentSource = entry;
+}
+
 export function sceneEnvironmentContext(project, scene) {
   const policy = cinematicKeyframeConfigurationService.getCompilerConfiguration().providerPromptPolicy;
   const environmentPrompt = scene.environmentPrompt?.trim() || [scene.location, scene.time, scene.synopsis,

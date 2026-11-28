@@ -28,13 +28,47 @@ export function storyPromptKind(value) {
   return ['still', 'flow', 'seedance'].includes(value);
 }
 
-export function storyPromptPeople(project, scene, shot, shotOnly = false, cues = []) {
+const castWords = new Intl.Segmenter('th', {granularity:'word'});
+
+// Older AI proposals can contain fully staged performers but no structured cast.
+// Use the opening composition only; synopsis, dialogue and continuity may mention absent people.
+function openingCastIds(opening, cast) {
+  const names = new Map();
+  for (const person of cast) {
+    if (person.active === false) continue;
+    for (const value of [person.displayName, ...(person.storyCharacterDetails?.aliases || [])]) {
+      const name = value?.trim().toLowerCase();
+      if (name) names.set(name, names.has(name) && names.get(name) !== person.id ? null : person.id);
+    }
+  }
+  const text = opening.toLowerCase();
+  const boundaries = new Set([...castWords.segment(text)].map(word => word.index));
+  boundaries.add(text.length);
+  const ids = new Set();
+  let consumed = 0;
+  const longestFirst = [...names.keys()].sort((a,b) => b.length-a.length);
+  for (const start of boundaries) {
+    if (start < consumed) continue;
+    const name = longestFirst.find(name => text.startsWith(name,start) && boundaries.has(start+name.length));
+    if (!name) continue;
+    consumed = start + name.length;
+    if (names.get(name)) ids.add(names.get(name));
+  }
+  return [...ids];
+}
+
+export function storyPromptPeople(project, scene, shot, shotOnly = false, cues = [], opening = '') {
   const bindings = shot.speakerBindings;
   const ids = [
     ...(shotOnly || bindings?.length ? (shot.castMode === 'none' ? [] : shot.castAssignmentIds || []) : resolveShotCastIds(scene, shot)),
     ...(bindings || []).map(item => item.castAssignmentId),
     ...cues.map(cue => cue.speakerCastAssignmentId)
   ];
+  if (opening && !shot.castMode && !shot.castAssignmentIds?.length && !bindings?.length && scene.castMode !== 'none') {
+    const cast = (project.castAssignments || []).filter(person =>
+      !scene.castAssignmentIds?.length || scene.castAssignmentIds.includes(person.id));
+    ids.push(...openingCastIds(opening,cast));
+  }
   return (project.castAssignments || []).filter(person => person.active !== false && ids.includes(person.id))
     .map(person => {
       const binding = bindings?.find(item => item.castAssignmentId === person.id);
@@ -55,7 +89,10 @@ export function storyPromptReferences(scene, shot, people, includeOpening) {
     });
   }
   if (includeOpening) add('opening', shot.title, shot.approvedStoryboardSource);
-  if (scene.environmentReferenceEnabled !== false) add('location', scene.location || scene.title, scene.approvedEnvironmentSource);
+  if (scene.environmentReferenceEnabled !== false) {
+    const setting = scene.approvedEnvironmentSource;
+    add('location', setting?.location || scene.location || scene.title, setting, setting?.description && {description: setting.description});
+  }
   for (const {person, referenceName, reference, outfitId, visible} of people) if (visible) {
     add('character', referenceName, reference, {castAssignmentId:person.id, ...(outfitId && {outfitId})});
   }
@@ -68,7 +105,7 @@ export function missingCharacterReferences(people) {
 }
 
 function storyReferenceText(references) {
-  return references.map(ref => `Reference ${ref.number} — ${ref.name}: ${templates.referenceRoles[ref.role]}.`).join('\n');
+  return references.map(ref => `Reference ${ref.number} — ${ref.name}: ${templates.referenceRoles[ref.role]}.${ref.description ? ' ' + ref.description : ''}`).join('\n');
 }
 
 export function storyVideoReferenceMapping(references) {
@@ -101,7 +138,7 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
   if (!storyPromptKind(kind)) throw new TypeError('Unknown story prompt template');
   const {sections, opening, timeline, dialogue} = prepared;
   const cues = dialogue.cues.length || sections.dialoguePerformance ? dialogue.cues : (shot.dialogueCues || []);
-  const people = storyPromptPeople(project, scene, shot, kind === 'seedance', cues);
+  const people = storyPromptPeople(project, scene, shot, kind === 'seedance', cues, sections.opening || shot.visibleMoment);
   const references = storyPromptReferences(scene, shot, people, kind !== 'still');
   const characters = people.map(({person, visible}, i) =>
     `Character ${i + 1}: ${person.displayName}. ${kind !== 'seedance' && person.storyRole || ''} ${visible ? '' : 'Voice only, off-screen.'}`.trim()).join('\n');
@@ -110,13 +147,13 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
   const location = joined(scene.location, scene.time, scene.weather, scene.environmentPrompt, scene.synopsis || scene.storyChange, sections.scene);
   const start = joined(shot.continuityEntry, opening || shot.visibleMoment || shot.blocking);
   const end = joined(shot.continuityExit, shot.transitionToNext);
-  const light = joined(scene.artDirection, scene.lighting, shot.artDirection || sections.lighting || shot.lighting) || 'Match the established direction of light and preserve visible shadow detail.';
+  const light = joined(scene.lighting, sections.lighting || shot.lighting) || 'Match the established direction of light and preserve visible shadow detail.';
   const camera = joined(shot.framing, shot.cameraAngle, shot.lensIntent);
   const duration = seconds(shot.durationMs);
   let prompt;
   if (kind === 'still') {
     const fields = {
-      SCENE: joined(scene.location, scene.time, scene.weather, scene.environmentPrompt || scene.artDirection,
+      SCENE: joined(scene.location, scene.time, scene.weather, scene.environmentPrompt,
         scene.blockingMap && 'Use these positions to compose the visible opening frame.', scene.blockingMap),
       SUBJECT: joined(sections.opening || shot.continuityEntry || shot.visibleMoment || shot.blocking || sections.scene?.split('\n')[0],
         people.filter(p => p.visible).map(p => p.person.displayName).join(', ')) || scene.synopsis || shot.title,
@@ -146,19 +183,19 @@ export function compileStoryPromptPacket(project, scene, shot, prepared, kind, s
       VOICE: cues.length ? joined(`Spoken language: ${storySpokenLanguage(project.writingSettings)}.`,
         ...cues.map(cue => cue.delivery), 'Speak only the supplied dialogue verbatim.') : 'Preserve any supplied dialogue verbatim. Add no new speech or narration.',
       AUDIO: joined(kind === 'flow' && scene.audioIntent, sections.audio || shot.audioIntent) || 'No music.',
-      LIGHTING: kind === 'seedance' ? joined(shot.artDirection || sections.lighting || shot.lighting,
+      LIGHTING: kind === 'seedance' ? joined(light,
         direction.visualStyle && storyVisualStyle(project.writingSettings).instruction) : light,
       'ENVIRONMENT MOVEMENT': templates.video.environmentMovement, NEGATIVE: templates.video.negative
     };
     const header = joined(storyVideoFrameDirection(kind, frame), kind === 'flow' && templates.flow.camera);
     prompt = [storyVisualTarget(references), header, `Duration: ${duration} seconds. ${aspect || ''}`.trim(),
       start && `Starting state: ${start}`, ...templates.video.sections.map(title => block(title, fields[title])),
-      projectVideoDirection(project), kind === 'seedance' && aspect];
+      projectVideoDirection(project)];
   }
   const rendered = [...prompt, kind !== 'seedance' && skillInstructions.length && block('WRITING DIRECTION', skillInstructions.join('\n'))].filter(Boolean).join('\n\n');
   const text = kind === 'still' ? rendered : withStoryVideoReferenceNote(formatStoryPromptWholeSeconds(rendered));
   const context = kind === 'seedance' ? [scene.entryState,scene.objective,scene.exitState,scene.synopsis,scene.lighting,scene.audioIntent] : undefined;
-  const sourceFingerprint = createHash('sha256').update(JSON.stringify(['english-directions-v1', storySpokenLanguage(project.writingSettings), kind, text, references.map(r => r.assetId), ...(context ? [context] : [])])).digest('hex');
+  const sourceFingerprint = createHash('sha256').update(JSON.stringify(['english-directions-v1', storySpokenLanguage(project.writingSettings), kind, text, references.map(r => r.assetId), scene.artDirection, shot.artDirection, ...(context ? [context] : [])])).digest('hex');
   const missingCharacters = missingCharacterReferences(people);
   return {kind, text, sourceFingerprint, references, missingCharacters,
     ready: !missingCharacters.length && (kind !== 'flow' || references.some(r => r.role === 'opening'))};

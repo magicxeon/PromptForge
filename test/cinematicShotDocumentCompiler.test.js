@@ -31,6 +31,16 @@ CONTINUITY AND CONSTRAINTS
 The pot remains in contact with the road.
 Kin does not notice Mira.`;
 
+test('Thai shot directions retain section boundaries and the original Mandarin dialogue', () => {
+  const shot = { durationMs: 4000, speakerBindings: [{ alias: 'แม่', castAssignmentId: 'mother', visible: true }],
+    shotDocument: 'ภาพเปิด: แม่วางชามลงบนโต๊ะ\nการแสดงตามช่วงเวลา\n[0:00–0:04] แม่หันมองลูก\nบทพูดและสีหน้า\n[0:01–0:03] แม่: 回来了，孩子。\nเสียง: เสียงชามกระทบโต๊ะ' };
+  const result = compileCinematicShotDocument(shot, {}, [{ id: 'mother', displayName: 'แม่' }]);
+  assert.equal(result.opening, 'แม่วางชามลงบนโต๊ะ');
+  assert.equal(result.timeline.length, 1);
+  assert.equal(result.sections.audio, 'เสียงชามกระทบโต๊ะ');
+  assert.equal(result.dialogue.cues[0].text, '回来了，孩子。');
+});
+
 test('named dialogue retains stable identity, shared voice, local delivery and off-screen visibility', () => {
   const cast = [{ id: 'a', displayName: 'New name', dialogueStyle: 'Soft low voice' }, { id: 'b', displayName: 'Kin', dialogueStyle: '' }];
   const shot = { durationMs: 10000, speakerBindings: [

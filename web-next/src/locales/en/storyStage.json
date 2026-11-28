@@ -1,4 +1,11 @@
 {
+  "chooseLocationImage": "Choose a setting image",
+  "imageLocation": "Location in this image",
+  "imageDescription": "Image description (optional)",
+  "saveImageDetails": "Save details",
+  "cancelImageDetails": "Cancel",
+  "editImageDetails": "Edit location and description",
+  "matchLocation": "Matching location",
   "beatFocus":"Audience focus or turning point",
   "useImageForPlanning":"Use this scene image when planning shots",
   "sceneEvents":"Scene events",

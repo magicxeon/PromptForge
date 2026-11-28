@@ -5,19 +5,24 @@ import { OpenAITextProvider } from '../server/providers/OpenAITextProvider.js';
 test('prompt translation requires exactly the supplied slot keys in the provider schema', async () => {
   const provider = new OpenAITextProvider('fixture-key');
   provider.requestStructured = async ({schema, input}) => {
-    assert.deepEqual(schema.properties.translations, {
-      type:'object', additionalProperties:false, required:['slot_0','slot_1'],
-      properties:{slot_0:{type:'string'},slot_1:{type:'string'}}
-    });
-    assert.deepEqual(Object.keys(input.slots),['slot_0','slot_1']);
+    const translations = schema.properties.translations;
+    assert.equal(translations.additionalProperties,false);
+    assert.deepEqual(translations.required,['slot_0','slot_1','slot_2']);
+    assert.deepEqual(Object.keys(input.slots),translations.required);
+    const direction = new RegExp(translations.properties.slot_0.pattern,'u');
+    assert.match('0–4s — Xiǎoméi waits beside Reference 1.',direction);
+    assert.doesNotMatch('Manor dining room ห้องอาหาร',direction);
+    assert.doesNotMatch('Manor dining room 小梅',direction);
+    assert.deepEqual(translations.properties.slot_1,translations.properties.slot_0);
+    assert.deepEqual(translations.properties.slot_2,{type:'string'});
     return {id:'fixture-response',output:[{content:[{type:'output_text',text:JSON.stringify({
-      translations:{slot_1:'Mali',slot_0:'At the floating market'},reviewNotes:[]
+      translations:{slot_1:'Mali',slot_0:'At the floating market',slot_2:'回来了。'},reviewNotes:[]
     })}]}]};
   };
-  const result = await provider.translateStoryPrompt({spokenLanguage:'Thai',sceneContext:{},slots:[
-    {id:0,role:'direction',source:'ตลาดน้ำ'}, {id:1,role:'direction',source:'มะลิ'}
+  const result = await provider.translateStoryPrompt({spokenLanguage:'Mandarin Chinese',sceneContext:{},slots:[
+    {id:0,role:'direction',source:'ตลาดน้ำ'}, {id:1,role:'reference_label',source:'มะลิ'}, {id:2,role:'dialogue',source:'回来了。'}
   ]});
-  assert.deepEqual(result.translations,[{id:1,text:'Mali'},{id:0,text:'At the floating market'}]);
+  assert.deepEqual(result.translations,[{id:1,text:'Mali'},{id:0,text:'At the floating market'},{id:2,text:'回来了。'}]);
   assert.deepEqual(result.reviewNotes,[]);
 });
 

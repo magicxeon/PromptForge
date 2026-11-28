@@ -425,8 +425,11 @@ export function listCinematicSceneEnvironmentImages(projectId: string, sceneId: 
   const query = new URLSearchParams({ limit: '12', ...(cursor ? { cursor } : {}) });
   return apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/images?${query}`, { schema: cinematicSceneEnvironmentImagesSchema });
 }
-export function approveCinematicSceneEnvironment(projectId: string, sceneId: string, input: { expectedVersion: number } & (
-  {jobId: string; reuse?: boolean} | {referenceAssetId: string; preserveReferenceSetting?: true} | {reuseSceneId: string}
+export function approveCinematicSceneEnvironment(projectId: string, sceneId: string, input: {
+  expectedVersion: number; location?: string; description?: string; preserveReferenceSetting?: true
+} & (
+  {jobId: string; reuse?: boolean} | {referenceAssetId: string} | {reuseSceneId: string; reuseAssetId?: string} |
+  {selectedAssetId: string} | {editAssetId: string}
 )) {
   return apiRequest(`${cinematicEnvironmentPath(projectId, sceneId)}/approve`, { method: 'POST', body: input, schema: cinematicProjectSchema });
 }

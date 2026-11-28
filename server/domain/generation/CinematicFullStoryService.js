@@ -294,6 +294,7 @@ export class CinematicFullStoryService {
     const result = await this.shotProviderFactory(policy).generateCinematicSceneShots({
       sceneImage: input.sceneImage,
       context: {
+        spokenLanguage: storySpokenLanguage(input.writingSettings),
         project: { title: boundedText(input.projectTitle, 120), aspectRatio: boundedText(input.aspectRatio, 20) },
         chapter: { title: boundedText(input.chapterTitle, 120), story: boundedText(input.chapterStory, 10000) },
         scene,

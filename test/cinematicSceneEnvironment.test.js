@@ -111,6 +111,63 @@ test('Scene image context/save/approve preserve all Shot media and feed only fut
   assert.equal(planSaved.scenes[0].environmentPrompt, approved.scenes[0].environmentPrompt);
 });
 
+test('Setting choices retain legacy and uploaded images, verify alternate reuse and isolate selection and metadata', async t => {
+  const {service, repository, project} = await fixture(t);
+  const [first] = project.scenes;
+  const secondId = 'other-scene';
+  await repository.mutateForActor(project.id, actor, draft => {
+    const second = structuredClone(first);
+    second.shots[0].id = 'other-shot';
+    draft.scenes.push({...second, id:secondId, shotOrder:['other-shot'], environmentReferenceEnabled:false});
+    Object.assign(draft.scenes[0], {location:'Main hall', approvedEnvironmentSource:source});
+  });
+  const resolved = [];
+  service.storyboardAssetService.approveSceneUpload = async (assetId, owner) => {
+    assert.equal(owner, actor);
+    return {...source, assetId, imageUrl:'/uploads/second.jpg', sourceJobId:null};
+  };
+  service.storyboardAssetService.resolveSceneReference = async (asset, owner) => {
+    assert.equal(owner, actor);
+    resolved.push(asset.assetId);
+  };
+  let record = await service.getProject(project.id, actor);
+  assert.equal(record.scenes[0].environmentSources[0].location, 'Main hall');
+  const apply = async (sceneId, input) => {
+    record = await service.approveSceneEnvironment(project.id, sceneId, {expectedVersion:record.version,...input}, actor);
+  };
+  const packet = async () => (await service.prepareShotWriter(project.id, first.id, first.shots[0].id,
+    actor, {storyPrompt:true,template:'still'})).storyPacket;
+  await apply(first.id, {referenceAssetId:'annex',location:'Annex',description:'Brick floor'});
+  const activeAnnex = await packet();
+  assert.deepEqual(activeAnnex.references.filter(ref=>ref.role==='location').map(ref=>ref.assetId), ['annex']);
+  assert.match(activeAnnex.text, /Annex: [^\n]*Brick floor/);
+  await apply(first.id, {editAssetId:source.assetId,location:'Hall entrance'});
+  assert.equal((await packet()).sourceFingerprint, activeAnnex.sourceFingerprint);
+  await apply(first.id, {editAssetId:'annex',description:'Blue tiles'});
+  assert.notEqual((await packet()).sourceFingerprint, activeAnnex.sourceFingerprint);
+  await apply(secondId, {reuseSceneId:first.id,reuseAssetId:source.assetId,preserveReferenceSetting:true});
+  assert.equal(record.scenes[1].approvedEnvironmentSource.location, 'Hall entrance');
+  assert.equal(record.scenes[1].environmentReferenceEnabled, false);
+  assert.equal(record.scenes[0].approvedEnvironmentSource.assetId, 'annex');
+  assert.deepEqual(resolved, [source.assetId]);
+  await assert.rejects(apply(first.id,{reuseSceneId:secondId,reuseAssetId:'annex'}),{code:'cinematic_scene_source_unavailable'});
+  await assert.rejects(apply(first.id,{selectedAssetId:'missing'}),{code:'cinematic_scene_source_unavailable'});
+  await assert.rejects(apply(first.id,{editAssetId:'annex',description:42}),{code:'cinematic_scene_environment_invalid'});
+  await assert.rejects(apply(first.id,{selectedAssetId:source.assetId,expectedVersion:record.version-1}),{code:'cinematic_version_conflict'});
+  await assert.rejects(service.approveSceneEnvironment(project.id,first.id,{expectedVersion:record.version,
+    selectedAssetId:source.assetId},{...actor,userId:'another'}),{code:'cinematic_project_not_found'});
+  await apply(first.id,{selectedAssetId:source.assetId});
+  const version = record.version;
+  await apply(first.id,{selectedAssetId:source.assetId});
+  assert.equal(record.version, version);
+  const reopened = await service.getProject(project.id, actor);
+  assert.deepEqual(reopened.scenes[0].environmentSources.map(item=>item.assetId), [source.assetId,'annex']);
+  assert.equal(reopened.scenes[0].approvedEnvironmentSource.assetId,source.assetId);
+  const plan = await service.saveStoryPlan(project.id,{expectedVersion:version,approved:false,
+    scenes:reopened.scenes.map(scene=>({...scene,environmentSources:[{assetId:'forged'}]}))},actor);
+  assert.deepEqual(plan.scenes[0].environmentSources,reopened.scenes[0].environmentSources);
+});
+
 test('Scene operations reject foreign actors, stale versions and unrelated candidate Jobs', async t => {
   const f = await fixture(t), sceneId = f.project.scenes[0].id;
   await assert.rejects(f.service.getSceneEnvironmentContext(f.project.id, sceneId, { ...actor, userId: 'other' }));

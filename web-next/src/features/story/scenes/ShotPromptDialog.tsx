@@ -71,7 +71,7 @@ export function ShotPromptDialog({project, scene, shot, skills, run, error, clos
     ?? (!prepared && savedText && !outdated ? undefined : packet?.references);
   const referenceImages = usePromptReferenceImages(listedRefs);
   const language = i18n.language.startsWith("th") ? "th" : "en";
-  const sourceOutline = shot.shotDocument?.match(/^OPENING(?: FRAME)?[ \t]*\r?\n([^\r\n]+)/im)?.[1]
+  const sourceOutline = shot.shotDocument?.match(/^(?:OPENING(?: FRAME)?|ภาพเปิด)[ \t]*:?[ \t]*\r?\n([^\r\n]+)/im)?.[1]
     || shot.visibleMoment || shot.subjectAction || shot.purpose
     || shot.shotDocument?.split(/\r?\n/).map(line=>line.trim()).find(line=>line && !/^[A-Z &]+$|^#|^\d+(?:\.\d+)? seconds?$|^\[/.test(line));
   const summary = shot.summary?.[language] || (sourceOutline && [...new Intl.Segmenter(language,{granularity:"sentence"})

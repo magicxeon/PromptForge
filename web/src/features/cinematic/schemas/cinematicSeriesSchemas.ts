@@ -25,7 +25,7 @@ export const cinematicShotWriterPreparationSchema = z.object({
     reviewNotes:z.array(z.string()).optional(),
     kind: z.enum(['still','flow','seedance']), text: z.string(), sourceFingerprint: z.string(), ready: z.boolean(),
     references: z.array(z.object({number: z.number().int().positive(), role: z.enum(['opening','location','character']),
-      name: z.string(), assetId: z.string(), imageUrl: z.string(), castAssignmentId:z.string().optional(), outfitId:z.string().optional()}))
+      name: z.string(), description:z.string().optional(), assetId: z.string(), imageUrl: z.string(), castAssignmentId:z.string().optional(), outfitId:z.string().optional()}))
   }).optional(),
   dialogue: z.object({
     cues: z.array(z.object({ speakerCastAssignmentId: z.string(), offscreenVoiceRole: z.string(), text: z.string(),

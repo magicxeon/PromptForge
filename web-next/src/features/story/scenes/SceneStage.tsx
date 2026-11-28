@@ -3,7 +3,7 @@ import {lazy, Suspense, useState} from "react";
 import {ImagePlus, MapPin, Sun, WandSparkles} from "lucide-react";
 import {MediaImage} from "../../../components/media/MediaImage";
 import {apiMediaBlob, getIdentitySnapshot, ProcessingSpinner} from "../../../lib/canonical";
-import {approveCinematicSceneEnvironment, getCinematicSceneEnvironment, proposeCinematicSceneEnvironment, saveCinematicSceneEnvironment} from "../../../../../web/src/features/cinematic/api/cinematicApi";
+import {getCinematicSceneEnvironment, proposeCinematicSceneEnvironment, saveCinematicSceneEnvironment} from "../../../../../web/src/features/cinematic/api/cinematicApi";
 import type {CinematicProject,CinematicScene} from "../../../../../web/src/features/cinematic/schemas/cinematicSchemas";
 import type {RunWriting} from "../data/useStoryWorkspace";
 import {uploadStorySceneImage} from "./uploadStorySceneImage";
@@ -12,6 +12,7 @@ import {useTakeStoryRunSkills, StoryRunSkillPicker} from "../StoryRunSkills";
 import {SceneDirectionSummary} from "./SceneDirectionSummary";
 import {SceneBlockingMap} from "./SceneBlockingMap";
 import {StoryWardrobePicker} from "./StoryWardrobePicker";
+import {SceneLocationImages} from "./SceneLocationImages";
 import {emptyDraft} from "../../playground/state/imageDraft";
 
 const StoryLooksheetDialog=lazy(()=>import("../StoryLooksheetDialog").then(module=>({default:module.StoryLooksheetDialog})));
@@ -26,7 +27,6 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment,error}:{
   const [design,setDesign]=useState<SceneEnvironment>();
   const [changed,setChanged]=useState<SceneEnvironment>();
   const image = scene.approvedEnvironmentSource;
-  const alternatives = project.scenes.filter(item=>item.id!==scene.id && item.approvedEnvironmentSource && item.approvedEnvironmentSource.assetId!==image?.assetId);
   const cast = project.castAssignments.filter(person=>scene.castMode !== "none" && person.active!==false && scene.castAssignmentIds.includes(person.id));
   const direction = scene.environmentPrompt || scene.artDirection;
   const revision = project.chapterVersions.find(item=>item.id===scene.sourceChapterRevisionId);
@@ -80,17 +80,18 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment,error}:{
     setFileError(""); setUploading(true);
     try {
       await run(async()=>{
-        return {project:await uploadStorySceneImage(file,{projectId:project.id,sceneId:scene.id,expectedVersion:project.version},t("stage.fileError",{mb:settings.maximumUploadBytes/1024/1024}))};
+        return {project:await uploadStorySceneImage(file,{projectId:project.id,sceneId:scene.id,expectedVersion:project.version,preserveReferenceSetting:true},fileErrorMessage)};
       });
     } finally {setUploading(false);}
   }
 
   return <section className="story-staging" aria-label={t("stage.setup")}>
     <div className="story-scene-description">
+      {(scene.location||scene.time)&&<section className="story-setting-meta" aria-label={t("setting")}>
+        {scene.location&&<div><span><MapPin aria-hidden size={16}/>{t("location")}</span><strong>{scene.location}</strong></div>}
+        {scene.time&&<div><span><Sun aria-hidden size={16}/>{t("time")}</span><strong>{scene.time}</strong></div>}
+      </section>}
       <h3>{t("stage.description")}</h3>
-      {(scene.location||scene.time)&&<p className="story-setting-meta">
-        {scene.location&&<span><MapPin aria-hidden size={15}/>{scene.location}</span>}
-        {scene.time&&<span><Sun aria-hidden size={15}/>{scene.time}</span>}</p>}
       <p className="story-prose">{scene.synopsis||scene.storyChange||t("stage.emptySynopsis")}</p>
       {excerpt&&<details><summary>{t("stage.sourceRange",{start:scene.sourceStartParagraph,end:scene.sourceEndParagraph})}</summary>
         <p className="story-prose">{excerpt}</p></details>}
@@ -128,11 +129,7 @@ export function SceneStage({project,scene,run,aspectRatio,editTreatment,error}:{
       </div>
       {uploading&&<span role="status"><ProcessingSpinner/>{t("stage.uploading")}</span>}
       {fileError&&<p role="alert">{fileError}</p>}
-      {alternatives.length>0&&<label>{t("stage.reuse")}<select value="" onChange={event=>{
-        const reuseSceneId=event.target.value;
-        if(reuseSceneId)void run(async()=>({project:await approveCinematicSceneEnvironment(project.id,scene.id,{expectedVersion:project.version,reuseSceneId})}));
-      }}><option value="">{t("stage.chooseScene")}</option>
-        {alternatives.map(source=><option key={source.id} value={source.id}>{source.title}</option>)}</select></label>}
+      <SceneLocationImages key={scene.id+":"+(image?.assetId||"")} project={project} scene={scene} run={run} disabled={uploading||preparing}/>
     </div>
     {design && <Suspense fallback={<span role="status"><ProcessingSpinner/> {t("stage.preparingSetting")}</span>}>
       <StoryLooksheetDialog name={scene.title} title={t("stage.imageFor",{scene:scene.title})}

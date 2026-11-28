@@ -236,29 +236,29 @@ export function resolveShotDocument(shot, scene, cast = []) {
   if (typeof shot?.shotDocument === 'string' && shot.shotDocument.trim()) return shot.shotDocument;
   const durationMs = integer(shot?.durationMs, 500, 20000, 5000);
   const parts = [
-    'SHOT DURATION',
-    `${formatSeconds(durationMs)} seconds`,
+    'ระยะเวลาช็อต',
+    `${formatSeconds(durationMs)} วินาที`,
     '',
-    'SCENE',
+    'ฉาก',
     text(scene?.synopsis || scene?.storyChange || shot?.purpose, 4000),
     '',
-    'OPENING',
+    'ภาพเปิด',
     text(shot?.visibleMoment || shot?.continuityEntry, 2000),
     '',
-    'CAMERA',
+    'กล้อง',
     [shot?.framing, shot?.cameraAngle, shot?.cameraMovement, shot?.lensIntent].map(value => text(value, 1000)).filter(Boolean).join('. '),
     '',
-    'PERFORMANCE AND TIMELINE',
+    'การแสดงตามช่วงเวลา',
     `[0.0-${formatSeconds(durationMs)} sec]`,
     [shot?.blocking, shot?.performance, shot?.gaze, shot?.prompt].map(value => text(value, 4000)).filter(Boolean).join('\n'),
     '',
-    'DIALOGUE AND FACIAL PERFORMANCE',
+    'บทพูดและสีหน้า',
     dialogueText(shot?.dialogueCues, cast),
     '',
-    'AUDIO',
+    'เสียง',
     text(shot?.audioIntent, 2000),
     '',
-    'CONTINUITY AND CONSTRAINTS',
+    'ความต่อเนื่องและข้อกำหนด',
     (Array.isArray(shot?.continuityNotes) ? shot.continuityNotes : []).map(value => text(value, 500)).filter(Boolean).join('\n')
   ];
   return parts.join('\n').replace(/\n{3,}/g, '\n\n').trim();
@@ -267,15 +267,15 @@ export function resolveShotDocument(shot, scene, cast = []) {
 export function createShotDocumentTemplate(scene, durationMs) {
   const duration = formatSeconds(durationMs);
   return [
-    'SHOT DURATION', `${duration} seconds`, '',
-    'SCENE', text(scene?.synopsis || scene?.storyChange, 4000), '',
-    'OPENING', '', '',
-    'CAMERA', '', '',
-    'VISUAL STYLE & LIGHTING', '', '',
-    'PERFORMANCE AND TIMELINE', `[0.0-${duration} sec]`, '', '',
-    'DIALOGUE AND FACIAL PERFORMANCE', '', '',
-    'AUDIO', '', '',
-    'CONTINUITY AND CONSTRAINTS',
+    'ระยะเวลาช็อต', `${duration} วินาที`, '',
+    'ฉาก', text(scene?.synopsis || scene?.storyChange, 4000), '',
+    'ภาพเปิด', '', '',
+    'กล้อง', '', '',
+    'สไตล์ภาพและแสง', '', '',
+    'การแสดงตามช่วงเวลา', `[0.0-${duration} sec]`, '', '',
+    'บทพูดและสีหน้า', '', '',
+    'เสียง', '', '',
+    'ความต่อเนื่องและข้อกำหนด',
     [scene?.entryState, scene?.exitState, scene?.transitionIntent].map(value => text(value, 1000)).filter(Boolean).join('\n')
   ].join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
@@ -316,7 +316,7 @@ function normalizeShotOutline(value, index, allowedCharacterIds) {
     fail('cinematic_shot_cast_invalid', 'The proposed Shot includes a Character outside this Scene.');
   }
   const durationMs = wholeShotDuration(value?.durationMs);
-  const shotDocument = withShotDuration(checkedShotDocument(value?.shotDocument), durationMs) || `SHOT DURATION\n${durationMs / 1000} seconds`;
+  const shotDocument = withShotDuration(checkedShotDocument(value?.shotDocument), durationMs) || `ระยะเวลาช็อต\n${durationMs / 1000} วินาที`;
   return {
     title: text(value?.title, 120) || `Shot ${index + 1}`,
     purpose: text(value?.purpose, 1000),
@@ -366,7 +366,7 @@ function wholeShotDuration(value) {
     : 5000;
 }
 function withShotDuration(document, durationMs) {
-  return document.replace(/^(SHOT DURATION(?:[ \t]*:[ \t]*|[ \t]*\r?\n[ \t]*))\d+(?:\.\d+)?(?=[ \t]*(?:s(?:ec(?:onds?)?)?\b|วินาที|$))/im,
+  return document.replace(/^((?:SHOT DURATION|ระยะเวลาช็อต)(?:[ \t]*:[ \t]*|[ \t]*\r?\n[ \t]*))\d+(?:\.\d+)?(?=[ \t]*(?:s(?:ec(?:onds?)?)?\b|วินาที|$))/im,
     (_, heading) => heading + durationMs / 1000);
 }
 function formatSeconds(durationMs) { return (Math.round(durationMs / 100) / 10).toFixed(durationMs % 1000 === 0 ? 0 : 1); }

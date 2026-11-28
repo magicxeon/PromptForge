@@ -44,6 +44,20 @@ test('embedded shot clocks widen the action row and cannot be reintroduced by tr
 });
 
 const image = assetId => ({assetId, imageUrl:`/owned/${assetId}`});
+test('legacy opening blocking supplies silent cast references across selected shots', () => {
+  const {project,scene,shots} = fixture();
+  project.castAssignments.push({id:'parent',displayName:'แม่ของเสี่ยวเม่ย',
+    storyCharacterDetails:{aliases:['แม่']},storyReference:image('mother')});
+  project.castAssignments[0].displayName = 'เสี่ยวเม่ย';
+  for (const [index, opening] of ['แม่ของเสี่ยวเม่ยนั่งอยู่','เสี่ยวเม่ยหันไปหาแม่'].entries()) {
+    shots[index].speakerBindings = [];
+    shots[index].shotDocument = 'OPENING\n' + opening;
+  }
+  const single = compileStoryPromptPacket(project,scene,shots[0],compileCinematicShotDocument(shots[0],scene,project.castAssignments),'seedance');
+  assert.deepEqual(single.references.filter(r=>r.role==='character').map(r=>r.assetId),['mother']);
+  const merged = compileMergedStoryPrompt(project,scene,['s1','s2'],'seedance');
+  assert.deepEqual(merged.references.filter(r=>r.role==='character').map(r=>r.assetId).sort(),['kai','mother']);
+});
 test('wardrobe inheritance, special shots and missing images use the same reference rules in single and merged packets', () => {
   const {project, scene, shots} = fixture();
   project.castAssignments[0].storyOutfits = [
@@ -158,6 +172,7 @@ test('visual target survives writing and references follow scene, character name
 
 test('single and merged video prompts retain the fictional reference note through writing and refinement', () => {
   const {project,scene,shots} = fixture();
+  project.aspectRatio = '9:16';
   const shot = shots[0];
   shots[1].shotDocument = 'OPENING\nThe door is closed.\nCAMERA\nKeep the door in frame.\nPERFORMANCE AND TIMELINE\n[0–4s] The door opens slowly.';
   const prepared = compileCinematicShotDocument(shot,scene,project.castAssignments);
@@ -172,6 +187,9 @@ test('single and merged video prompts retain the fictional reference note throug
       const reviewed = planStoryPromptRefinement(written).apply([]);
       assert.ok(reviewed.startsWith(note + '\n\n'));
       assert.ok(reviewed.endsWith('\n\n' + note));
+      assert.match(reviewed,/\[NEGATIVE\][^[]*No music[^[]*No on-screen text[^[]*watermarks/);
+      assert.match(reviewed,/Duration: [^\n]*9:16/);
+      assert.doesNotMatch(reviewed,/^\s*\d+:\d+\s*$/m);
       assert.equal(reviewed.split(note).length,3);
     }
   }
@@ -188,7 +206,7 @@ test('Seedance composes one clip brief with a concrete opening, shared lighting 
   const headings = Array.from(packet.text.matchAll(/^\[(?!REFERENCE NOTE\])([A-Z ]+)\]$/gm), m=>m[1]);
   assert.equal(headings.length,new Set(headings).size);
   for (const heading of ['REFERENCE MAPPING','CAMERA','ACTION TIMELINE','LIGHTING','VOICE']) assert.ok(headings.includes(heading));
-  assert.equal(packet.text.match(/Warm reflected light\./g).length,1);
+  assert.doesNotMatch(packet.text,/Warm reflected light\./);
   const {slots} = planStoryPromptLanguage(packet.text,packet.cues,packet.findings);
   assert.ok(!slots.some(slot => slot.source.includes('Shot boundaries:')));
   assert.deepEqual(slots.filter(slot => slot.section === 'CAMERA').map(slot => slot.shotNumber),[1,2,3]);
@@ -245,10 +263,10 @@ test('both destinations reuse saved lighting and scene sound after an art overri
     assert.match(compileMergedStoryPrompt(project,scene,['s1','s2'],kind).text,/Warm lantern/);
     shots[0].artDirection='Cool window light.';
     const packet=compileMergedStoryPrompt(project,scene,['s1','s2','s3'],kind);
-    assert.match(packet.text,/Cool window light/);
+    assert.doesNotMatch(packet.text,/Cool window light/);
     assert.match(packet.text,/Rain on the station roof/);
     assert.match(packet.text,/\[4–5s\] Door creaks/);
-    assert.doesNotMatch(packet.text,/Warm lantern/);
+    assert.match(packet.text,/Warm lantern/);
   }
 });
 test('a silent insert with no shot cast does not import a scene cast portrait', () => {

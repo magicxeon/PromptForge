@@ -360,6 +360,12 @@ dialog:has(> .story-scene-review)::backdrop {background:#12271e65;}
   color:var(--story-done-ink);border-color:var(--story-done-border);
 }
 .story-shot-card h4,.story-shot-card h5 {margin:0;}
+.story-shot-details > summary {cursor:pointer;padding:.5rem 0;font-weight:600;}
+.story-shot-toolbar {display:flex;align-items:flex-start;flex-wrap:wrap;gap:.45rem 1rem;}
+.story-shot-toolbar > .story-shot-details {flex:1 1 auto;min-width:0;}
+.story-shot-toolbar > .story-shot-details[open] {flex-basis:100%;}
+.story-shot-toolbar > .story-shot-tools {max-width:100%;margin-inline-start:auto;}
+.story-shot-details[open] > section {margin-block:.65rem;}
 .story-shot-card h4 button {display:flex;justify-content:space-between;flex-wrap:wrap;gap:.45rem 1rem;border:0;border-radius:0;background:transparent;line-height:1.5;}
 .story-shot-card h4 button:hover {background:#e0eee4;}
 .story-shot-card[data-completed=false] h4 button:hover {background:var(--story-pending-hover);}
